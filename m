@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWHVIgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWHVIhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWHVIgG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 04:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWHVIgG
+	id S1751359AbWHVIhG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWHVIhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 04:36:06 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:35719 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751360AbWHVIgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 04:36:04 -0400
-Date: Tue, 22 Aug 2006 17:39:04 +0900
+	Tue, 22 Aug 2006 04:37:06 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3477 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751359AbWHVIhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:37:04 -0400
+Date: Tue, 22 Aug 2006 17:40:07 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, pj@sgi.com,
        saito.tadashi@soft.fujitsu.com
-Subject: [RFC][PATCH] ps command race fix take2 [1/4] list token
-Message-Id: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [RFC][PATCH] ps command race fix take2 [2/4] change task_list
+Message-Id: <20060822174007.e3c7087b.kamezawa.hiroyu@jp.fujitsu.com>
 Organization: Fujitsu
 X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
@@ -24,159 +24,98 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is ps command race fix take2. Unfortunately, against 2.6.18-rc4.
-I'll rebase this to appropriate kernel if O.K. (I think this is RFC)
-
-This patch implements Paul Jackson's idea, 'inserting false link in task list'.
-
-Good point of this approach is cost of searching task is O(N) (N=num of tgids).
-Bad point is lock and kmalloc/kfree.
-I didin't modified thread_list and cpuset's proc list, maybe future work.
-
-If searching pid bitmap is better, please take Erics.
-
-consists of 4 patches.
-- listoken.patch -- implements token in list
-- tasklist.patch -- make task list to use list_with_token
-- profile.patch  -- fix oprofile
-- proc_pid_readdir.patch -- implements proc_pid_readdir for /proc/<pid>
-
-Works well on x86/SMP system.
-
--Kame
-==
-
-listtoken , a helper for walking a list by intermittent access.
-
-When we walk a list intermittently and the list is being modified at the
-same time, it's hard to remember our position in it.
-
-With this list token, a user can remember where he is reading by inserting
-a token in the list.
-
-Now this is designed just to support /proc/<pid> readdir() access. Not very
-rich functions are supporetd.
+This patch changes task->tasks from list_head to list_token.
 
 Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-Off-By: Tadashi Saito <shiba@mail2.accsnet.ne.jp>
 
+ include/linux/init_task.h |    3 ++-
+ include/linux/sched.h     |   11 ++++++++---
+ kernel/exit.c             |    2 +-
+ kernel/fork.c             |    2 +-
+ 4 files changed, 12 insertions(+), 6 deletions(-)
 
- include/linux/listtoken.h |   62 ++++++++++++++++++++++++++++++++++++++++++++++
- lib/Makefile              |    2 -
- lib/listtoken.c           |   25 ++++++++++++++++++
- 3 files changed, 88 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.18-rc4/include/linux/listtoken.h
+Index: linux-2.6.18-rc4/include/linux/sched.h
 ===================================================================
---- /dev/null
-+++ linux-2.6.18-rc4/include/linux/listtoken.h
-@@ -0,0 +1,62 @@
-+/*
-+  helper routine for intermittent list walker.
-+  token saves position in a list.
-+*/
-+
-+
-+#ifndef _LINUX_LISTTOKEN_H
-+#define _LINUX_LISTTOKEN_H
-+
-+#ifdef __KERNEL__
-+#include <linux/list.h>
-+#include <linux/rcupdate.h>
-+
-+struct list_token {
-+	struct list_head list;
-+	long		token; /* 0: data 1: token */
-+	struct rcu_head rcu;	/* useful when walking list with RCU */
-+};
-+
-+#define LIST_TOKEN_INIT(token)	{LIST_HEAD_INIT((token).list),0,}
-+
-+static inline void
-+list_add_rcu_token(struct list_token *new, struct list_token *head)
-+{
-+	list_add_rcu(&new->list, &head->list);
-+}
-+
-+static inline void
-+list_add_tail_rcu_token(struct list_token *new, struct list_token *head)
-+{
-+	list_add_tail_rcu(&new->list, &head->list);
-+}
-+
-+static inline void
-+list_del_rcu_token(struct list_token *token)
-+{
-+	list_del_rcu(&token->list);
-+}
-+
-+/* returns next valid ent in a list skip token. */
-+static inline struct list_token *
-+list_next_rcu_skiptoken(struct list_token *ent)
-+{
-+	do {
-+		ent = list_entry(rcu_dereference(ent->list.next),
-+				struct list_token, list);
-+	} while (ent->token);
-+	return ent;
-+}
-+/* set *token* before specfied list entry */
-+static inline void
-+insert_list_token_rcu(struct list_token *token, struct list_token *ent)
-+{
-+	token->token = 1; /* mark this as token */
-+	list_add_tail_rcu_token(token, ent);
-+}
-+
-+/* remove token */
-+extern void remove_list_token_rcu(struct list_token *ent);
-+
-+#endif
-+#endif
-Index: linux-2.6.18-rc4/lib/Makefile
-===================================================================
---- linux-2.6.18-rc4.orig/lib/Makefile
-+++ linux-2.6.18-rc4/lib/Makefile
-@@ -5,7 +5,7 @@
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
--	 sha1.o
-+	 sha1.o listtoken.o
- 
- lib-$(CONFIG_SMP) += cpumask.o
- 
-Index: linux-2.6.18-rc4/lib/listtoken.c
-===================================================================
---- /dev/null
-+++ linux-2.6.18-rc4/lib/listtoken.c
-@@ -0,0 +1,25 @@
-+/*
-+  implements token to remember the place in a list. useful for
-+  traversing busily modified list by intermittent access
-+*/
-+#include <linux/types.h>
-+#include <linux/gfp.h>
+--- linux-2.6.18-rc4.orig/include/linux/sched.h
++++ linux-2.6.18-rc4/include/linux/sched.h
+@@ -74,6 +74,7 @@ struct sched_param {
+ #include <linux/rcupdate.h>
+ #include <linux/futex.h>
+ #include <linux/rtmutex.h>
 +#include <linux/listtoken.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+/*
-+ * for freeing RCU token.
-+ */
-+static void delayed_free_token(struct rcu_head *rhp)
+ 
+ #include <linux/time.h>
+ #include <linux/param.h>
+@@ -799,7 +800,7 @@ struct task_struct {
+ 	struct sched_info sched_info;
+ #endif
+ 
+-	struct list_head tasks;
++	struct list_token tasks;
+ 	/*
+ 	 * ptrace_list/ptrace_children forms the list of my children
+ 	 * that were stolen by a ptracer.
+@@ -1315,8 +1316,12 @@ extern void wait_task_inactive(struct ta
+ #define remove_parent(p)	list_del_init(&(p)->sibling)
+ #define add_parent(p)		list_add_tail(&(p)->sibling,&(p)->parent->children)
+ 
+-#define next_task(p)	list_entry(rcu_dereference((p)->tasks.next), struct task_struct, tasks)
+-
++static inline struct task_struct *next_task(struct task_struct *task)
 +{
-+	kfree(container_of(rhp, struct list_token , rcu));
++	struct list_token *ent;
++	ent = list_next_rcu_skiptoken(&task->tasks);
++	return container_of(ent, struct task_struct, tasks);
 +}
-+
-+void remove_list_token_rcu(struct list_token *token)
-+{
-+	BUG_ON(!token->token);
-+	list_del_rcu_token(token);
-+	call_rcu(&token->rcu, delayed_free_token);
-+}
-+
-+EXPORT_SYMBOL_GPL(remove_list_token_rcu);
-
-
-
-
+ #define for_each_process(p) \
+ 	for (p = &init_task ; (p = next_task(p)) != &init_task ; )
+ 
+Index: linux-2.6.18-rc4/kernel/exit.c
+===================================================================
+--- linux-2.6.18-rc4.orig/kernel/exit.c
++++ linux-2.6.18-rc4/kernel/exit.c
+@@ -57,7 +57,7 @@ static void __unhash_process(struct task
+ 		detach_pid(p, PIDTYPE_PGID);
+ 		detach_pid(p, PIDTYPE_SID);
+ 
+-		list_del_rcu(&p->tasks);
++		list_del_rcu_token(&p->tasks);
+ 		__get_cpu_var(process_counts)--;
+ 	}
+ 	list_del_rcu(&p->thread_group);
+Index: linux-2.6.18-rc4/kernel/fork.c
+===================================================================
+--- linux-2.6.18-rc4.orig/kernel/fork.c
++++ linux-2.6.18-rc4/kernel/fork.c
+@@ -1237,7 +1237,7 @@ static struct task_struct *copy_process(
+ 			attach_pid(p, PIDTYPE_PGID, process_group(p));
+ 			attach_pid(p, PIDTYPE_SID, p->signal->session);
+ 
+-			list_add_tail_rcu(&p->tasks, &init_task.tasks);
++			list_add_tail_rcu_token(&p->tasks, &init_task.tasks);
+ 			__get_cpu_var(process_counts)++;
+ 		}
+ 		attach_pid(p, PIDTYPE_PID, p->pid);
+Index: linux-2.6.18-rc4/include/linux/init_task.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/linux/init_task.h
++++ linux-2.6.18-rc4/include/linux/init_task.h
+@@ -5,6 +5,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/irqflags.h>
+ #include <linux/lockdep.h>
++#include <linux/listtoken.h>
+ 
+ #define INIT_FDTABLE \
+ {							\
+@@ -97,7 +98,7 @@ extern struct group_info init_groups;
+ 	.run_list	= LIST_HEAD_INIT(tsk.run_list),			\
+ 	.ioprio		= 0,						\
+ 	.time_slice	= HZ,						\
+-	.tasks		= LIST_HEAD_INIT(tsk.tasks),			\
++	.tasks		= LIST_TOKEN_INIT(tsk.tasks),			\
+ 	.ptrace_children= LIST_HEAD_INIT(tsk.ptrace_children),		\
+ 	.ptrace_list	= LIST_HEAD_INIT(tsk.ptrace_list),		\
+ 	.real_parent	= &tsk,						\
 

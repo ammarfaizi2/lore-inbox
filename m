@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWHVKpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWHVKvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWHVKpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 06:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWHVKpJ
+	id S932163AbWHVKvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 06:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWHVKvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 06:45:09 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:34756 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932162AbWHVKpH (ORCPT
+	Tue, 22 Aug 2006 06:51:09 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16868 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932163AbWHVKvI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 06:45:07 -0400
-Date: Tue, 22 Aug 2006 03:34:58 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86-64 add missing PMU MSR definitions
-Message-ID: <20060822103458.GB30053@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060820214856.GD27542@frankl.hpl.hp.com> <200608210113.44984.ak@suse.de>
+	Tue, 22 Aug 2006 06:51:08 -0400
+Date: Tue, 22 Aug 2006 12:43:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
+Message-ID: <20060822104327.GA28183@elte.hu>
+References: <20060821170604.GA1640@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608210113.44984.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
+In-Reply-To: <20060821170604.GA1640@oleg>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
 
-On Mon, Aug 21, 2006 at 01:13:44AM +0200, Andi Kleen wrote:
-> On Sunday 20 August 2006 23:48, Stephane Eranian wrote:
-> > Hello,
-> > 
-> > Here is a patch to add a couple of missing MSR definitions related
-> > to Performance monitoring for EM64T. A separate patch contains the
-> > i386 equivalent.
-> > 
-> > Changelog:
-> >         - add MSR definitions for IA32_PEBS_ENABLE and PEBS_MATRIX_VERT
-> 
-> 
-> The names seem somewhat mixed up.
-> 
-> I think I would prefer P4 and no IA32 prefixes for all of them.
-> (or does Core2 still have PEBS?)
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-OK, let's wait until Intel *finally* releases the Core 2 PMU specification
-publicly and then I'll push a patch. Those MSRs are not that critical anyway.
-Perfmon2 is probably the only consumer.
+> (Compile tested).
+> 
+> futex_find_get_task:
+> 
+> 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
+> 		return NULL;
+> 
+> I can't understand this. First, p->state can't be EXIT_ZOMBIE. The 
+> ->exit_state check looks strange too. Sub-threads or tasks whose 
+> ->parent ignores SIGCHLD go directly to EXIT_DEAD state (I am ignoring 
+> a ptrace case). Why EXIT_DEAD tasks should be ok? Yes, EXIT_ZOMBIE is 
+> more important (a task may stay zombie for a long time), but this 
+> doesn't mean we should explicitely ignore other EXIT_XXX states.
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
--- 
--Stephane
+i believe this is a remnant of older times when EXIT_ZOMBIE was 
+introduced. We cloned that into the -rt tree, but then exit-state got 
+cleaned up (by you) upstream and that cleanup didnt propagate into the 
+-rt tree. Andrew: i think this is a must-have fix for v2.6.18.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

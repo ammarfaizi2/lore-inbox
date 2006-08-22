@@ -1,40 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWHVDL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWHVDTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWHVDL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 23:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWHVDL6
+	id S932088AbWHVDTO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 23:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWHVDTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 23:11:58 -0400
-Received: from mother.openwall.net ([195.42.179.200]:28584 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1751180AbWHVDL5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 23:11:57 -0400
-Date: Tue, 22 Aug 2006 07:07:55 +0400
-From: Solar Designer <solar@openwall.com>
-To: Ernie Petrides <petrides@redhat.com>
-Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: printk()s of user-supplied strings (Re: [PATCH] binfmt_elf.c : the BAD_ADDR macro again)
-Message-ID: <20060822030755.GB830@openwall.com>
-References: <20060821211104.GA7790@1wt.eu> <200608212336.k7LNa1E8008716@pasta.boston.redhat.com>
+	Mon, 21 Aug 2006 23:19:14 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:32177 "EHLO
+	haldeman.int.wirex.com") by vger.kernel.org with ESMTP
+	id S932080AbWHVDTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 23:19:13 -0400
+Date: Mon, 21 Aug 2006 20:19:12 -0700
+From: Seth Arnold <seth.arnold@suse.de>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Crispin Cowan <crispin@novell.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+       "Serge E. Hallyn" <serge@hallyn.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+Subject: Re: [RFC] [PATCH] file posix capabilities
+Message-ID: <20060822031911.GZ2584@suse.de>
+Mail-Followup-To: "Serge E. Hallyn" <serue@us.ibm.com>,
+	Crispin Cowan <crispin@novell.com>,
+	Stephen Smalley <sds@tycho.nsa.gov>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Nicholas Miell <nmiell@comcast.net>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+References: <m1r6zirgst.fsf@ebiederm.dsl.xmission.com> <20060815020647.GB16220@sergelap.austin.ibm.com> <m13bbyr80e.fsf@ebiederm.dsl.xmission.com> <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com> <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil> <20060816024200.GD15241@sergelap.austin.ibm.com> <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil> <44E6714C.3090707@novell.com> <20060822025036.GA31422@sergelap.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MgsldsnE3DYXgZCe"
 Content-Disposition: inline
-In-Reply-To: <200608212336.k7LNa1E8008716@pasta.boston.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060822025036.GA31422@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 07:36:01PM -0400, Ernie Petrides wrote:
-> -			printk(KERN_ERR "Unable to load interpreter %.128s\n",
-> -				elf_interpreter);
 
-I'd rather have this message rate-limited, not dropped completely.
+--MgsldsnE3DYXgZCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Another long-time concern that I had is that we've got some printk()s
-of user-supplied string data.  What about embedded linefeeds - can this
-be used to produce fake kernel messages with arbitrary log level (syslog
-priority)?  It certainly seems so.
+On Mon, Aug 21, 2006 at 09:50:36PM -0500, Serge E. Hallyn wrote:
+> > To quickly summarize the AppArmor model, you have an external policy
+>=20
+> Does this stack with the capability module, or do you use purely your
+> own logic?
 
-Also, there are terminal controls...
+We link against the commoncap facility introduced by Bert Hubert, to
+provide 'standard' capabilities support; we simply add another check at
+capable() time to _also_ check the capability against the list allowed
+in the current profile.
 
-Alexander
+> But, the fs caps aren't intended to be an alternative to a policy-basd
+> system.  What I like about them is simply that instead of making a
+> binary setuid 0, and expecting it to give up the caps it doesn't need,
+> it can be given just the caps it needs right off the bat.
+>=20
+> The apparmor and selinux policies would be complementary and useful as
+> ever on top of those, just as they currently are on top of setuid.
+
+Seems like a great idea for e.g. binding to low ports, chroot, and
+changing users for e.g. password changing. The other 24-26 capabilities
+may be less useful. :) Still, I agree, complementary, and hopefully a
+mechanism such as this proposed mechanism would help drag capabilities
+out of the dark ages.
+
+Thanks Serge
+
+--MgsldsnE3DYXgZCe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFE6nev+9nuM9mwoJkRAlCOAJ9HbPDhN8c6uZimgPJq7xx8JTcjvwCgkSwu
+yhGeHttFflf0pOuHyMt0vAE=
+=JWU5
+-----END PGP SIGNATURE-----
+
+--MgsldsnE3DYXgZCe--

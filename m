@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWHVMgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWHVMhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWHVMgn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWHVMgn
+	id S932210AbWHVMhh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWHVMhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:36:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25250 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932196AbWHVMgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:36:43 -0400
-Subject: Re: Lockdep message on workqueue_mutex
-From: Arjan van de Ven <arjan@infradead.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060822121042.GA29577@osiris.boeblingen.de.ibm.com>
-References: <20060822121042.GA29577@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 22 Aug 2006 14:36:32 +0200
-Message-Id: <1156250192.2976.47.camel@laptopd505.fenrus.org>
+	Tue, 22 Aug 2006 08:37:37 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:39108 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932210AbWHVMhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 08:37:36 -0400
+Date: Tue, 22 Aug 2006 14:37:27 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] AVR32: kprobes compile fix
+Message-ID: <20060822143727.169a2938@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 14:10 +0200, Heiko Carstens wrote:
-> git commit 9b41ea7289a589993d3daabc61f999b4147872c4 causes the lockdep
-> message below on cpu hotplug (git kernel of today).
-> 
-> We have:
-> 
-> cpu_down (takes cpu_add_remove_lock)
-> [CPU_DOWN_PREPARE]
-> blocking_notifier_call_chain (takes (cpu_chain).rwsem)
-> workqueue_cpu_callback (takes workqueue_mutex)
-> blocking_notifier_call_chain (releases (cpu_chain).rwsem)
-> [CPU_DEAD]
-> blocking_notifier_call_chain (takes (cpu_chain).rwsem)
->                               ^^^^^^^^^^^^^^^^^^^^^^^
-> -> reverse locking order, since we still hold workqueue_mutex.
-> 
-> But since all of this is protected by the cpu_add_remove_lock this looks
-> legal. Well, at least it's safe as long as no other cpu callback function
-> does anything that will take the workqueue_mutex as well.
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-so you're saying this locking is entirely redundant ? ;-)
+Add dummy flush_insn_slot define required by kprobes.
 
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+---
+ include/asm-avr32/kprobes.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: linux-2.6.18-rc4-mm2/include/asm-avr32/kprobes.h
+===================================================================
+--- linux-2.6.18-rc4-mm2.orig/include/asm-avr32/kprobes.h	2006-08-22 08:38:00.000000000 +0200
++++ linux-2.6.18-rc4-mm2/include/asm-avr32/kprobes.h	2006-08-22 08:38:50.000000000 +0200
+@@ -29,4 +29,6 @@ struct arch_specific_insn {
+ extern int kprobe_exceptions_notify(struct notifier_block *self,
+ 				    unsigned long val, void *data);
+ 
++#define flush_insn_slot(p)	do { } while (0)
++
+ #endif /* __ASM_AVR32_KPROBES_H */

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWHVBUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWHVBYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWHVBUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 21:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWHVBUP
+	id S932077AbWHVBYw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 21:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWHVBYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 21:20:15 -0400
-Received: from msr34.hinet.net ([168.95.4.134]:65449 "EHLO msr34.hinet.net")
-	by vger.kernel.org with ESMTP id S932070AbWHVBUN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 21:20:13 -0400
-Message-ID: <00bd01c6c588$afdedbc0$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
-References: <1155841445.4532.10.camel@localhost.localdomain> <44E5A425.8020200@pobox.com>
-Subject: Re: [PATCH 2/6] IP100A Fix Tx pause bug
-Date: Tue, 22 Aug 2006 09:17:08 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Mon, 21 Aug 2006 21:24:52 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:30557 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932077AbWHVBYv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 21:24:51 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=SZ7a7OvEJ0xMZC9g/sWDOUNqqO8xcOzdDnWranj9RICirSDHu0sI0+zk+C/Sx1GRc
+	ji12HmlkGW5Jy2TWepPUw==
+Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E98E61.2030608@sw.ru>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155752693.22595.76.camel@galaxy.corp.google.com> <44E46ED3.7000201@sw.ru>
+	 <1155834136.14617.29.camel@galaxy.corp.google.com> <44E58A89.8040001@sw.ru>
+	 <1155920158.22899.8.camel@galaxy.corp.google.com> <44E98E61.2030608@sw.ru>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 21 Aug 2006 18:23:32 -0700
+Message-Id: <1156209812.11127.20.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<akpm@osdl.org>
-Sent: Friday, August 18, 2006 7:27 PM
-Subject: Re: [PATCH 2/6] IP100A Fix Tx pause bug
+On Mon, 2006-08-21 at 14:43 +0400, Kirill Korotaev wrote:
+> >>1. reclaiming user resources is not that good idea as it looks to you.
+> >>such solutions end up with lots of resources spent on reclaim.
+> >>for user memory reclaims mean consumption of expensive disk I/O bandwidth
+> >>which reduces overall system throughput and influences other users.
+> >>
+> > 
+> > 
+> > May be I'm overlooking something very obvious.  Please tell me, what
+> > happens when a user hits a page fault and the page allocator is easily
+> > able to give a page from its pcp list.  But container is over its limit
+> > of physical memory.  In your patch there is no attempt by container
+> > support to see if some of the user pages are easily reclaimable.  What
+> > options a user will have to make sure some room is created.
+> The patch set send doesn't control user memory!
+> This topic is about kernel memory...
+> 
 
-(1)
->> + iowrite8(127, ioaddr + TxDMAPollPeriod);
->> +
->
-> what does the value 127 represent?
 
-127 is polling period of Tx DMA to watch if there any packet need to send.
-The 127 means 127*320ns.
+And that is why I asked the question in the very first mail (if this
+support is going to come later).
 
-(2)
-> DownCounter should not be written unconditionally.  Consider shared
-> interrupts, where sundance performs no work, and handled==0.
-
-DownCount is a the register that we can use for timer interrupt. When the
-value of  DownCount from 1 count down to 0 , IP100A will issue an interrupt.
-
+-rohit
 

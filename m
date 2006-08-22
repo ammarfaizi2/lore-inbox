@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWHVP0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWHVPdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWHVP0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 11:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWHVP0r
+	id S932143AbWHVPdq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWHVPdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 11:26:47 -0400
-Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:21676 "EHLO
-	webmail.xensource.com") by vger.kernel.org with ESMTP
-	id S932317AbWHVP0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 11:26:47 -0400
-Subject: Re: [PATCH 1 of 1] x86_64: Put .note.* sections into a PT_NOTE
-	segment in vmlinux II
-From: Ian Campbell <Ian.Campbell@XenSource.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@XenSource.com>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Ian Pratt <ian.pratt@XenSource.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Virtualization <virtualization@lists.osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <200608221659.18896.ak@suse.de>
-References: <1156256777.5091.93.camel@localhost.localdomain>
-	 <200608221659.18896.ak@suse.de>
-Content-Type: text/plain
-Date: Tue, 22 Aug 2006 16:26:48 +0100
-Message-Id: <1156260408.5091.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Tue, 22 Aug 2006 11:33:46 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:50708 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932143AbWHVPdq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 11:33:46 -0400
+Message-ID: <44EB23D9.9000508@slaphack.com>
+Date: Tue, 22 Aug 2006 10:33:45 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Jeff Mahoney <jeffm@suse.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Mike Benoit <ipso@snappymail.ca>
+Subject: Re: [PATCH] reiserfs: eliminate minimum window size for bitmap searching
+References: <44EB1484.2040502@suse.com>
+In-Reply-To: <44EB1484.2040502@suse.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Aug 2006 15:28:33.0588 (UTC) FILETIME=[A10BDF40:01C6C5FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 16:59 +0200, Andi Kleen wrote:
-> On Tuesday 22 August 2006 16:26, Ian Campbell wrote:
-> > This patch updates x86_64 linker script to pack any .note.* sections
-> > into a PT_NOTE segment in the output file.
+Jeff Mahoney wrote:
+>  When a file system becomes fragmented (using MythTV, for example), the
+>  bigalloc window searching ends up causing huge performance problems. In
+>  a file system presented by a user experiencing this bug, the file system
+>  was 90% free, but no 32-block free windows existed on the entire file system.
+>  This causes the allocator to scan the entire file system for each 128k write
+>  before backing down to searching for individual blocks.
 
-> Sorry I tried to apply it, but at least 2.6.18rc4 mainline (which my tree
-> is based on) doesn't have a NOTES macro so it doesn't link
-> 
-> I dropped the NOTES addition for now, presumably it will need to be readded
-> later.
+Question:  Would it be better to take that performance hit once, then 
+cache the result for awhile?  If we can't find enough consecutive space, 
+such space isn't likely to appear until a lot of space is freed or a 
+repacker is run.
 
-Sorry, I should have been clearer about the dependency on the i386 patch
-which is currently in -mm. 
+>  In the end, finding a contiguous window for all the blocks in a write is
+>  an advantageous special case, but one that can be found naturally when
+>  such a window exists anyway.
 
-Ian.
-
-
+Hmm.  Ok, I don't understand how this works, so I'll shut up.

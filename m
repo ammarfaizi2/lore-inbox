@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHVEUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWHVEhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWHVEUy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 00:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWHVEUy
+	id S1751291AbWHVEhh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 00:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWHVEhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 00:20:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64932 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751153AbWHVEUy (ORCPT
+	Tue, 22 Aug 2006 00:37:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64680 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751279AbWHVEhg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 00:20:54 -0400
-Date: Mon, 21 Aug 2006 21:20:43 -0700
+	Tue, 22 Aug 2006 00:37:36 -0400
+Date: Mon, 21 Aug 2006 21:36:50 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: "Jan Beulich" <jbeulich@novell.com>,
-       "J. Bruce Fields" <bfields@fieldses.org>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Message-Id: <20060821212043.332fdd0f.akpm@osdl.org>
-In-Reply-To: <20060821094718.79c9a31a.rdunlap@xenotime.net>
-References: <20060820013121.GA18401@fieldses.org>
-	<44E97353.76E4.0078.0@novell.com>
-	<20060821094718.79c9a31a.rdunlap@xenotime.net>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       tglx@linutronix.de
+Subject: Re: [take12 3/3] kevent: Timer notifications.
+Message-Id: <20060821213650.dee2a0a3.akpm@osdl.org>
+In-Reply-To: <20060821120934.GA13399@2ka.mipt.ru>
+References: <11561555893621@2ka.mipt.ru>
+	<1156155589287@2ka.mipt.ru>
+	<20060821111239.GA30945@infradead.org>
+	<20060821120934.GA13399@2ka.mipt.ru>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,34 +30,35 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 09:47:18 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+On Mon, 21 Aug 2006 16:09:34 +0400
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-> > The 'stuck' unwinder issue at hand already has a fix, though planned to
-> > be merged for 2.6.19 only. The crash after switching to the legacy
-> > stack trace code is bad, though, but has little to do with the unwinder
-> > additions/changes. The way that code reads the stack is just
-> > inappropriate in contexts where things must be expected to be broken.
+> On Mon, Aug 21, 2006 at 12:12:39PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> > > +static int __init kevent_init_timer(void)
+> > > +{
+> > > +	struct kevent_callbacks tc = {
+> > > +		.callback = &kevent_timer_callback, 
+> > > +		.enqueue = &kevent_timer_enqueue, 
+> > > +		.dequeue = &kevent_timer_dequeue};
+> > 
+> > I think this should be static, and the normal style to write it would be:
+> > 
+> > static struct kevent_callbacks tc = {
+> > 	.callback	= kevent_timer_callback,
+> > 	.enqueue	= kevent_timer_enqueue,
+> > 	.dequeue	= kevent_timer_dequeue,
+> > };
+> > 
+> > also please consider makring all the kevent_callbacks structs const
+> > to avoid false cacheline sharing and accidental modification, similar
+> > to what we did to various other operation vectors.
 > 
-> "merged for 2.6.19" meaning:
-> - in (before) 2.6.19, or
-> - after 2.6.19 is released
+> Actually I do not think it should be static, since it is only used for
+> initialization and it's members are copied into main structure.
 > 
-> If "after," then it will likely need to be added to -stable also,
-> so it might as well go in "before" 2.6.19 is released.
 
-Precisely.
+It should be static __initdata a) so we don't need to construct it at
+runtime and b) so it gets dropped from memory after initcalls have run.
 
-Guys, this unwinder change has been quite problematic.  We really cannot
-let this badness out into 2.6.18 - it degrades our ability to debug every
-subsystem in the entire kernel.  Would marking it CONFIG_BROKEN get us back
-to 2.6.17 behaviour?
-
-Has anyone even tried to reproduce Bruce's crash?
-
-<looks>
-
-argh, ide-scsi.  That driver's main use nowadays is for testing the
-oops-handling code.  Please share .config, machine description and compiler
-versiom.
-
+(But given that kevent_init_timer() also gets dropped from memory after initcalls
+it hardly matters).

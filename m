@@ -1,121 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWHVQUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWHVQVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWHVQUU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 12:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWHVQUT
+	id S932186AbWHVQVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 12:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWHVQVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 12:20:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31638 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751413AbWHVQUS (ORCPT
+	Tue, 22 Aug 2006 12:21:51 -0400
+Received: from xenotime.net ([66.160.160.81]:49062 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751414AbWHVQVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 12:20:18 -0400
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org, aviro@redhat.com, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-cc: linux-kernel@vger.kernel.org, nfsv4@linux-nfs.org
-Subject: [PATCH] NFS: Check lengths more thoroughly in NFS4 readdir XDR decode
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 22 Aug 2006 17:19:53 +0100
-Message-ID: <32511.1156263593@warthog.cambridge.redhat.com>
+	Tue, 22 Aug 2006 12:21:51 -0400
+Date: Tue, 22 Aug 2006 09:24:58 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: linux-kernel@vger.kernel.org, device@lanana.org
+Subject: Re: [PATCH] Update Documentation/devices.txt
+Message-Id: <20060822092458.7fbc5286.rdunlap@xenotime.net>
+In-Reply-To: <87d5aserky.fsf@slug.be.48ers.dk>
+References: <87d5aserky.fsf@slug.be.48ers.dk>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Aug 2006 17:08:13 +0200 Peter Korsgaard wrote:
 
-Check the bounds of length specifiers more thoroughly in the XDR decoding of
-NFS4 readdir reply data.
+> Hi,
+> 
+> Sync Documentation/devices.txt with the new version from the LANANA
+> site (http://www.lanana.org/docs/device-list/devices-2.6+.txt)
+> 
+> Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+> 
+> diff -urpN linux-2.6.18-rc4.orig/Documentation/devices.txt linux-2.6.18-rc4/Documentation/devices.txt
+> --- linux-2.6.18-rc4.orig/Documentation/devices.txt	2006-08-22 16:58:14.000000000 +0200
+> +++ linux-2.6.18-rc4/Documentation/devices.txt	2006-08-22 16:57:21.000000000 +0200
+> @@ -3,7 +3,7 @@
+>  
+>  	     Maintained by Torben Mathiasen <device@lanana.org>
 
-Currently, if the server returns a bitmap or attr length that causes the
-current decode point pointer to wrap, this could go undetected (consider a
-small "negative" length on a 32-bit machine).
+Maybe Torben could update or ack/nack or comment?
 
-Also add a check into the main XDR decode handler to make sure that the amount
-of data is a multiple of four bytes (as specified by RFC-1014).  This makes
-sure that we can do u32* pointer subtraction in the NFS client without risking
-an undefined result (the result is undefined if the pointers are not correctly
-aligned with respect to one another).
+> @@ -1522,7 +1522,7 @@ Your cooperation is appreciated.
+>  		disks (see major number 3) except that the limit on
+>  		partitions is 15.
+>  
+> - 83 char	Matrox mga_vid video driver
+> + 83 char	Matrox mga_vid video driver 
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
+Please don't add trailing whitespace like above.
+
+> @@ -1731,7 +1731,7 @@ Your cooperation is appreciated.
+>  		  0 = /dev/ubda		First user-mode block device
+>  		 16 = /dev/udbb		Second user-mode block device
+>  		    ...
+> -
+> +		
+
+More trailing whitespace above.
+
+>  		Partitions are handled in the same way as for IDE
+>  		disks (see major number 3) except that the limit on
+>  		partitions is 15.
+> @@ -2305,7 +2305,7 @@ Your cooperation is appreciated.
+>  		  0 = /dev/drbd0	First DRBD device
+>  		  1 = /dev/drbd1	Second DRBD device
+>  		    ...
+> -
+> +		
+
+ditto.
+
+>  148 char	Technology Concepts serial card
+>  		  0 = /dev/ttyT0	First TCL port
+>  		  1 = /dev/ttyT1	Second TCL port
+> @@ -2767,7 +2767,7 @@ Your cooperation is appreciated.
+>  		 42 = /dev/ttySMX1		Motorola i.MX - port 1
+>  		 43 = /dev/ttySMX2		Motorola i.MX - port 2
+>  		 44 = /dev/ttyMM0		Marvell MPSC - port 0
+> -		 45 = /dev/ttyMM1		Marvell MPSC - port 1
+> +		 45 = /dev/ttyMM1		Marvell MPSC - port 1	
+
+again
+
+>  		 46 = /dev/ttyCPM0		PPC CPM (SCC or SMC) - port 0
+>  		    ...
+>  		 47 = /dev/ttyCPM5		PPC CPM (SCC or SMC) - port 5
+> @@ -3005,11 +3008,11 @@ Your cooperation is appreciated.
+>  		  2 = /dev/3270/tub2		Second 3270 terminal
+>  		    ...
+>  
+> -229 char	IBM iSeries virtual console
+> -		  0 = /dev/iseries/vtty0	First console port
+> -		  1 = /dev/iseries/vtty1	Second console port
+> +229 char	IBM iSeries/pSeries virtual console
+> +		  0 = /dev/hvc0			First console port
+> +		  1 = /dev/hvc1			Second console port
+>  		    ...
+> -
+> +		  
+
+again
+
+>  230 char	IBM iSeries virtual tape
+>  		  0 = /dev/iseries/vt0		First virtual tape, mode 0
+>  		  1 = /dev/iseries/vt1		Second virtual tape, mode 0
+> @@ -3091,7 +3094,7 @@ Your cooperation is appreciated.
+>  		This major is reserved to assist the expansion to a
+>  		larger number space.  No device nodes with this major
+>  		should ever be created on the filesystem.
+> -		(This is probaly not true anymore, but I'll leave it
+> +		(This is probaly not true anymore, but I'll leave it 
+
+whitespace.  again.
+and s/probaly/probably/
+
+>  		for now /Torben)
+
+
 ---
-
- fs/nfs/nfs4xdr.c  |   22 +++++++++++-----------
- net/sunrpc/clnt.c |   11 +++++++++++
- 2 files changed, 22 insertions(+), 11 deletions(-)
-
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 992a713..41a295a 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -3355,7 +3355,7 @@ static int decode_readdir(struct xdr_str
- 	struct kvec	*iov = rcvbuf->head;
- 	unsigned int	nr, pglen = rcvbuf->page_len;
- 	uint32_t	*end, *entry, *p, *kaddr;
--	uint32_t	len, attrlen;
-+	uint32_t	len, attrlen, xlen;
- 	int 		hdrlen, recvd, status;
- 
- 	status = decode_op_hdr(xdr, OP_READDIR);
-@@ -3374,13 +3374,12 @@ static int decode_readdir(struct xdr_str
- 	if (pglen > recvd)
- 		pglen = recvd;
- 	xdr_read_pages(xdr, pglen);
--
- 	BUG_ON(pglen + readdir->pgbase > PAGE_CACHE_SIZE);
- 	kaddr = p = (uint32_t *) kmap_atomic(page, KM_USER0);
--	end = (uint32_t *) ((char *)p + pglen + readdir->pgbase);
-+	end = p + ((pglen + readdir->pgbase) >> 2);
- 	entry = p;
- 	for (nr = 0; *p++; nr++) {
--		if (p + 3 > end)
-+		if (end - p < 3)
- 			goto short_pkt;
- 		dprintk("cookie = %Lu, ", *((unsigned long long *)p));
- 		p += 2;			/* cookie */
-@@ -3389,18 +3388,19 @@ static int decode_readdir(struct xdr_str
- 			printk(KERN_WARNING "NFS: giant filename in readdir (len 0x%x)\n", len);
- 			goto err_unmap;
- 		}
--		dprintk("filename = %*s\n", len, (char *)p);
--		p += XDR_QUADLEN(len);
--		if (p + 1 > end)
-+		xlen = XDR_QUADLEN(len);
-+		if (end - p < xlen)
- 			goto short_pkt;
-+		dprintk("filename = %*s\n", len, (char *)p);
-+		p += xlen;
- 		len = ntohl(*p++);	/* bitmap length */
--		p += len;
--		if (p + 1 > end)
-+		if (end - p < len)
- 			goto short_pkt;
-+		p += len;
- 		attrlen = XDR_QUADLEN(ntohl(*p++));
--		p += attrlen;		/* attributes */
--		if (p + 2 > end)
-+		if (end - p < attrlen + 1)
- 			goto short_pkt;
-+		p += attrlen;		/* attributes */
- 		entry = p;
- 	}
- 	if (!nr && (entry[0] != 0 || entry[1] == 0))
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index d9eac70..3e19d32 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1181,6 +1181,17 @@ call_verify(struct rpc_task *task)
- 	u32	*p = iov->iov_base, n;
- 	int error = -EACCES;
- 
-+	if ((task->tk_rqstp->rq_rcv_buf.len & 3) != 0) {
-+		/* RFC-1014 says that the representation of XDR data must be a
-+		 * multiple of four bytes
-+		 * - if it isn't pointer subtraction in the NFS client may give
-+		 *   undefined results
-+		 */
-+		printk(KERN_WARNING
-+		       "call_verify: XDR representation not a multiple of"
-+		       " 4 bytes: 0x%x\n", task->tk_rqstp->rq_rcv_buf.len);
-+		goto out_eio;
-+	}
- 	if ((len -= 3) < 0)
- 		goto out_overflow;
- 	p += 1;	/* skip XID */
+~Randy

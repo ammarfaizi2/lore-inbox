@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWHVPBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWHVPAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWHVPBG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 11:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWHVPBF
+	id S932294AbWHVPAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWHVO77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 11:01:05 -0400
-Received: from ns1.suse.de ([195.135.220.2]:41603 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932291AbWHVPBD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 11:01:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: Tim Hockin <thockin@google.com>
-Subject: Re: PCI MMCONFIG aperture size
-Date: Tue, 22 Aug 2006 17:00:44 +0200
-User-Agent: KMail/1.9.3
-Cc: matthew@wil.cx, greg@kroah.com,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@google.com>
-References: <20060822024237.GO16573@google.com> <200608220955.31620.ak@suse.de> <20060822145802.GR16573@google.com>
-In-Reply-To: <20060822145802.GR16573@google.com>
+	Tue, 22 Aug 2006 10:59:59 -0400
+Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:60558 "EHLO
+	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932294AbWHVO75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:59:57 -0400
+Date: Tue, 22 Aug 2006 10:59:54 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Nicholas Miell <nmiell@comcast.net>
+cc: David Miller <davem@davemloft.net>, johnpol@2ka.mipt.ru,
+       linux-kernel@vger.kernel.org, drepper@redhat.com, akpm@osdl.org,
+       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+In-Reply-To: <1156237191.8055.59.camel@entropy>
+Message-ID: <Pine.LNX.4.64.0608221059030.26026@d.namei>
+References: <1156230051.8055.27.camel@entropy>  <20060822072448.GA5126@2ka.mipt.ru>
+ <1156234672.8055.51.camel@entropy>  <20060822.012341.57449506.davem@davemloft.net>
+ <1156237191.8055.59.camel@entropy>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608221700.44690.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 August 2006 16:58, Tim Hockin wrote:
-> On Tue, Aug 22, 2006 at 09:55:31AM +0200, Andi Kleen wrote:
-> > 
-> > > This says to me that (as long as the MCFG table has an End Bus Number of
-> > > 31) a 32 MB decode area (32 MB aligned, too) is valid.
-> > > 
-> > > Would something like the below patch be accepted?  It makes my system
-> > > work...
-> > 
-> > I already got a patch to remove the complete e820 validation code because
-> > it broke far more than it fixed. That should fix your problem too.
-> 
-> Great!  Coming in 2.6.18?
+On Tue, 22 Aug 2006, Nicholas Miell wrote:
 
-Yes.
+> In this brave new world of always stable kernel development, the time a
+> new interface has for public testing before a new kernel release is
+> drastically shorter than the old unstable development series, and if
+> nobody is documenting how this stuff is supposed to work and
+> demonstrating how it will be used, then mistakes are bound to slip
+> through.
 
-> 
-> > > Also, why are we forcing 32 bit base addresses?  ACPI defines it to be a
-> > > 64 bit base...
-> > 
-> > Where do you think we do that?
-> 
-> Looking at 2.6.17, we always have u32 base_address and u32
-> base_reserved.  base_address is the only one ever referenced, that I can
-> see.  I guess I should grab 2.6.18 pre-releases and recheck.
+Feel free to provide the documentation.  Perhaps, even as much as you've 
+written so far in these emails would be enough.
 
-True. Please submit a patch.
 
--Andi
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWHVPdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWHVPib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWHVPdq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 11:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWHVPdq
+	id S932326AbWHVPib (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWHVPib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 11:33:46 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:50708 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932143AbWHVPdq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 11:33:46 -0400
-Message-ID: <44EB23D9.9000508@slaphack.com>
-Date: Tue, 22 Aug 2006 10:33:45 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: Jeff Mahoney <jeffm@suse.com>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Mike Benoit <ipso@snappymail.ca>
-Subject: Re: [PATCH] reiserfs: eliminate minimum window size for bitmap searching
-References: <44EB1484.2040502@suse.com>
-In-Reply-To: <44EB1484.2040502@suse.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 11:38:31 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:11940 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932322AbWHVPia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 11:38:30 -0400
+Date: Tue, 22 Aug 2006 11:37:23 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Bj?rn Steinbrink <B.Steinbrink@gmx.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
+Message-ID: <20060822153723.GA4949@ccure.user-mode-linux.org>
+References: <20060819073031.GA25711@atjola.homenet> <200608221207.00344.arnd@arndb.de> <20060822133945.GA3813@ccure.user-mode-linux.org> <200608221713.40165.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608221713.40165.arnd@arndb.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Mahoney wrote:
->  When a file system becomes fragmented (using MythTV, for example), the
->  bigalloc window searching ends up causing huge performance problems. In
->  a file system presented by a user experiencing this bug, the file system
->  was 90% free, but no 32-block free windows existed on the entire file system.
->  This causes the allocator to scan the entire file system for each 128k write
->  before backing down to searching for individual blocks.
+On Tue, Aug 22, 2006 at 05:13:39PM +0200, Arnd Bergmann wrote:
+> No, that's not what I was referring to. I was thinking of the calls:
+> 
+> arch/um/os-Linux/process.c:inline _syscall0(pid_t, getpid)
+> arch/um/os-Linux/sys-i386/tls.c:static _syscall1(int, get_thread_area, user_desc_t *, u_info);
+> arch/um/os-Linux/tls.c:static _syscall1(int, get_thread_area, user_desc_t *, u_info);
+> arch/um/os-Linux/tls.c:static _syscall1(int, set_thread_area, user_desc_t *, u_info);
+> arch/um/sys-i386/unmap.c:static inline _syscall2(int,munmap,void *,start,size_t,len)
+> arch/um/sys-i386/unmap.c:static inline _syscall6(void *,mmap2,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
+> arch/um/sys-x86_64/unmap.c:static inline _syscall2(int,munmap,void *,start,size_t,len)
+> arch/um/sys-x86_64/unmap.c:static inline _syscall6(void *,mmap,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
+> 
+> Are these for calling the host OS or calling the UML kernel?
+> If they are for the host, they can be implemented using syscall(),
+> otherwise by calling the sys_* functions directly.
 
-Question:  Would it be better to take that performance hit once, then 
-cache the result for awhile?  If we can't find enough consecutive space, 
-such space isn't likely to appear until a lot of space is freed or a 
-repacker is run.
+OK, these are all calling the host, and using syscall() instead sounds
+reasonable.
 
->  In the end, finding a contiguous window for all the blocks in a write is
->  an advantageous special case, but one that can be found naturally when
->  such a window exists anyway.
-
-Hmm.  Ok, I don't understand how this works, so I'll shut up.
+				Jeff

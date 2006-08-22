@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWHVSCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWHVSQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWHVSCk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 14:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWHVSCk
+	id S932330AbWHVSQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 14:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHVSQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 14:02:40 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:27317 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932329AbWHVSCj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 14:02:39 -0400
-Date: Tue, 22 Aug 2006 22:01:35 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jari Sundell <sundell.software@gmail.com>
-Cc: Nicholas Miell <nmiell@comcast.net>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Message-ID: <20060822180135.GA30142@2ka.mipt.ru>
-References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy> <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy> <b3f268590608220957g43a16d6bmde8a542f8ad8710b@mail.gmail.com>
+	Tue, 22 Aug 2006 14:16:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22183 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932330AbWHVSQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 14:16:27 -0400
+Subject: Re: [PATCH] paravirt.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <44EB40A3.50700@vmware.com>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de>
+	 <200608221654.10558.ak@muc.de>  <44EB40A3.50700@vmware.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Aug 2006 19:35:03 +0100
+Message-Id: <1156271703.27114.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <b3f268590608220957g43a16d6bmde8a542f8ad8710b@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 22 Aug 2006 22:01:38 +0400 (MSD)
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 06:57:05PM +0200, Jari Sundell (sundell.software@gmail.com) wrote:
-> On 8/22/06, Nicholas Miell <nmiell@comcast.net> wrote:
-> >
-> >
-> >OK, so with literally a dozen different interfaces to queue events to
-> >userspace, all of which are apparently inadequate and in need of
-> >replacement by kevent, don't you want to slow down a bit and make sure
-> >that the kevent API is correct before it becomes permanent and then just
-> >has to be replaced *again* ?
-> >
-> 
-> Not to mention the name used causes (at least me) some confusion with BSD's
-> kqueue implementation. Skimming over the patches it actually looks somewhat
-> like kqueue with the more interesting features removed, like the ability to
-> pass the filter changes simultaneously with polling.
+Ar Maw, 2006-08-22 am 10:36 -0700, ysgrifennodd Zachary Amsden:
+> Write protection is great as a debug option to find accidental memory 
+> corruptions.  It is useless as a technique to prevent subversion.  Um 
+> hello, you're already at CPL-0.  Just rewrite the page tables already.
 
-I do not understand, what do you mean?
-It is obviously allowed to poll and change kevents at the same time.
+That depends upon how clever you are.  However if you want to load a
+hypervisor under a running kernel and from it then you need an updatable
+paravirt_ops.
 
-> Maybe this is a topic that will singe my fur, but what is wrong with the
-> kqueue API? Will I really have to implement support for yet another event
-> API in my program.
-
-Why did I not implemented it like Solaris did?
-Or FreeBSD did?
-It was designed with features mention on AIO homepage in mind, but not
-to be compatible with some other implementation.
-And why should it be?
-
-> Rakshasa
-
--- 
-	Evgeniy Polyakov
+Alan

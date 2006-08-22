@@ -1,88 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWHVTZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWHVT1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWHVTZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHVTZZ
+	id S1751231AbWHVT1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:25:25 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:41126 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751190AbWHVTZY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:25:24 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 22 Aug 2006 15:27:31 -0400
+Received: from ns.suse.de ([195.135.220.2]:1974 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751242AbWHVT1a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:27:30 -0400
+Date: Tue, 22 Aug 2006 12:27:28 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+Subject: Linux 2.6.17.10
+Message-ID: <20060822192727.GA8579@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: HELP: GIT Cloning failed
-Date: Tue, 22 Aug 2006 13:25:23 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261932E35B@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HELP: GIT Cloning failed
-Thread-Index: AcbGILZ87Cy8vC1iTYieANrPv7RILA==
-From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-To: <git@vger.kernel.org>
-Cc: "Patro, Sumant" <Sumant.Patro@engenio.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Aug 2006 19:25:23.0965 (UTC) FILETIME=[B71752D0:01C6C620]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+We (the -stable team) are announcing the release of the 2.6.17.10 kernel.
 
-Recently, I found that cloning from GIT server has been failed.
-I'm using following script for it.
----
-...
-rm -r /home/git/kernels/2.4/linux-2.4.git
-cg-clone
-http://www.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
-/home/git/kernels/2.4/linux-2.4.git/
-sync
-rm -r /home/git/kernels/2.4/linux-2.6.git
-cg-clone
-http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-/home/git/kernels/2.4/linux-2.6.git/
-sync
-rm -r /home/git/kernels/2.4/scsi-misc-2.6.git
-cg-clone
-http://www.kernel.org/pub/scm/linux/kernel/git/marcelo/scsi-misc-2.6.git
-/home/git/kernels/2.4/scsi-misc-2.6.git
-sync
-...
----
+It contains three security fixes: one for SCTP, one for UDF filesystems,
+and one that only can be triggered by a local root user.
 
-In the script, I'm cloning 3 different sources. First two sources
-getting successfully cloned, however, last one is getting failed with
-following error messages,
----
-Fetching head...
-Fetching objects...
-Getting alternates list for
-http://www.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git
-Also look at http://www.kernel.or
-Error: The requested URL returned error: 502 (curl_result = 22,
-http_code = 502, sha1 = 1039f0760e...)
-Getting pack list for
-http://www.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git/
-Getting pack list for http://www.kernel.or
-Error: The requested URL returned error: 502
-Error: Unable to find 27fd37621... Under
-http://www.kernel.org/pub/scsm/linux/kernel/git/jejb/scsi-misc-2.6.git/
-Cannot obtain needed blob 27fd37621...
-While processing commit 4041b9cd87...
-Progress: 8 objects, 13120 bytes
-Cg-fetch: objects fetch failed
----
+I'll also be replying to this message with a copy of the patch between
+2.6.17.9 and 2.6.17.10, as it is small enough to do so.
 
-Above script worked without any problem when I started several months
-ago and I'm not sure when did it stop working.
-I'm using _cron_ utility on my Linux box for scheduled execution of the
-script.
+The updated 2.6.17.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.17.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-Any comment would be appreciated.
+thanks,
 
-Thank you,
+greg k-h
 
-Seokmann
+--------
+
+ Makefile                 |    2 -
+ block/elevator.c         |    3 +-
+ fs/udf/super.c           |    2 -
+ fs/udf/truncate.c        |   64 ++++++++++++++++++++++++++++-------------------
+ include/net/sctp/sctp.h  |   13 ---------
+ include/net/sctp/sm.h    |    3 --
+ net/sctp/sm_make_chunk.c |   30 ++++++----------------
+ net/sctp/sm_statefuns.c  |   20 ++------------
+ net/sctp/socket.c        |   10 ++++++-
+ 9 files changed, 66 insertions(+), 81 deletions(-)
+
+Summary of changes from v2.6.17.9 to v2.6.17.10
+===============================================
+
+Greg Kroah-Hartman:
+      Linux 2.6.17.10
+
+Jan Kara:
+      Fix possible UDF deadlock and memory corruption (CVE-2006-4145)
+
+Oleg Nesterov:
+      elv_unregister: fix possible crash on module unload
+
+Sridhar Samudrala:
+      Fix sctp privilege elevation (CVE-2006-3745)
+

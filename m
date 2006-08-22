@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWHVNok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWHVNpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWHVNok (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWHVNok
+	id S932250AbWHVNpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHVNpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:44:40 -0400
-Received: from mail.suse.de ([195.135.220.2]:36064 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932247AbWHVNoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:44:39 -0400
-From: Andi Kleen <ak@muc.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [PATCH] paravirt.h
-Date: Tue, 22 Aug 2006 15:44:26 +0200
-User-Agent: KMail/1.9.3
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <1156254965.27114.17.camel@localhost.localdomain>
-In-Reply-To: <1156254965.27114.17.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 22 Aug 2006 09:45:12 -0400
+Received: from mx03.cybersurf.com ([209.197.145.106]:49321 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S932250AbWHVNpK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:45:10 -0400
+Subject: Re: 800+ byte inlines in include/net/pkt_act.h
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: David Miller <davem@davemloft.net>
+Cc: vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060821.163801.15260979.davem@davemloft.net>
+References: <200608201933.10293.vda.linux@googlemail.com>
+	 <1156163160.5126.47.camel@jzny2>
+	 <20060821.163801.15260979.davem@davemloft.net>
+Content-Type: text/plain
+Organization: ?
+Date: Tue, 22 Aug 2006 09:45:05 -0400
+Message-Id: <1156254305.5304.17.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608221544.26989.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-21-08 at 16:38 -0700, David Miller wrote:
+> From: jamal <hadi@cyberus.ca>
+> Date: Mon, 21 Aug 2006 08:26:00 -0400
+> 
+> > As per last discussion, either Patrick McHardy or myself are going
+> > to work on it - at some point. Please be patient. The other
+> > alternative is: you fix it and send patches.
+> 
+> I'm working on it right now.  This code is really gross and needs
+> to be fixed immediately.
+> 
+> What I'll do is define a "struct tcf_common" and have the generic
+> interfaces take that as well as a "struct tcf_hashinfo *" parameter to
+> deal with the individual hash tables.
+> 
 
-I don't see why paravirt ops is that much more sensitive
-than most other kernel code. 
+Sounds reasonable. May actually be close to what Patrick and I had in
+discussion (I cant find my notes) i.e hashinfo would contain
+table{size,index,mask,lock, and pointer to table}
+After staring at the code for a minute, I think the challenges you may
+face are in the conversions of: tcf_ {dump_walker(), del_walker() and
+generic_walker()}
 
-> It would be a lot safer if we could have the struct paravirt_ops in
-> protected read-only const memory space, set it up in the core kernel
-> early on in boot when we play "guess todays hypervisor" and then make
-> sure it stays in read only (even to kernel) space.
+Thanks for taking this up Dave. And if you get it started and get
+distracted somewhere, I could take it over.
 
-By default we don't make anything read only because that would
-mess up the 2MB kernel mapping.
+> We define all of this templated stuff then don't even use it in
+> act_police.c, we just duplicate everything!
 
-In general i don't think making select code in the kernel
-read only is a good idea, because as long as you don't
-protect everything including stacks etc. there will be always
-attack points where supposedly protected code relies 
-on unprotected state. If someone can write to kernel
-memory you already lost.
+act_police deviates from the generic layout; the intent is to allow for
+that. The desire was/is for usability for whoever uses the generic
+layout (read: joe-netfilter) could write a single page of code quickly
+to do something powerful (like gact for example). It is turning out code
+augmentation is not such a practical idea in the kernel.
 
-And it adds TLB pressure.
+cheers,
+jamal
 
--Andi
+> Absolutely unbelievable.
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 

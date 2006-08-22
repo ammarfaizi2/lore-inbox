@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWHVSQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHVSYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWHVSQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 14:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHVSQ1
+	id S932331AbWHVSYv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 14:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWHVSYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 14:16:27 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22183 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932330AbWHVSQ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 14:16:27 -0400
-Subject: Re: [PATCH] paravirt.h
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <44EB40A3.50700@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	 <200608221550.57603.ak@muc.de> <20060822142519.GX11651@stusta.de>
-	 <200608221654.10558.ak@muc.de>  <44EB40A3.50700@vmware.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Aug 2006 19:35:03 +0100
-Message-Id: <1156271703.27114.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 22 Aug 2006 14:24:51 -0400
+Received: from bender.bawue.de ([193.7.176.20]:55492 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S932331AbWHVSYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 14:24:50 -0400
+Date: Tue, 22 Aug 2006 20:24:41 +0200
+From: Joerg Sommrey <jo@sommrey.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: FUSE unmount breaks serial terminal line
+Message-ID: <20060822182441.GB6293@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20060820180505.GA18283@sommrey.de> <E1GEuMZ-0004uq-00@dorka.pomaz.szeredi.hu> <20060820212840.GA29855@sommrey.de> <E1GFS4R-0007wJ-00@dorka.pomaz.szeredi.hu> <20060822155949.GA4268@sommrey.de> <E1GFYmi-0000Ct-00@dorka.pomaz.szeredi.hu> <20060822174329.GA6293@sommrey.de> <20060822175411.GB31064@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060822175411.GB31064@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-22 am 10:36 -0700, ysgrifennodd Zachary Amsden:
-> Write protection is great as a debug option to find accidental memory 
-> corruptions.  It is useless as a technique to prevent subversion.  Um 
-> hello, you're already at CPL-0.  Just rewrite the page tables already.
+On Tue, Aug 22, 2006 at 06:54:11PM +0100, Russell King wrote:
+> On Tue, Aug 22, 2006 at 07:43:29PM +0200, Joerg Sommrey wrote:
+> > On Tue, Aug 22, 2006 at 06:07:24PM +0200, Miklos Szeredi wrote:
+> > > > Tested both gphoto2 and gtkam without any problems. There is no impact
+> > > > on the serial lines.
+> > > > 
+> > > > NB: The *real* trouble I have is with ntpd and a reference clock
+> > > > attached to /dev/ttyS1.  ntpd enters a busy loop reading ttyS1, stops
+> > > > working and eats up 100% CPU.  
+> > > > 
+> > > > Thanks for your investigations.  Any other idea?
+> > > 
+> > > Try 'killall -9 gphotofs' and then the 'fusermount -u'.
+> > > 
+> > > Does that have the same effect?  If so, after which does the serial
+> > > line die?
+> > 
+> > Here are the results and another insight:  only the first serial device
+> > open for reading is affected.  I.e. if ttyS0 is open for reading,
+> > ttyS1 doesn't break.  If ttyS0 is not open, then ttyS1 breaks.  This
+> > happens when gphotofs gets killed (or with fusermount -u without
+> > killing).
+> 
+> Have you checked to see what files gphotofs has open?  (Check in
+> /proc/<pid>/fd/).
+> 
 
-That depends upon how clever you are.  However if you want to load a
-hypervisor under a running kernel and from it then you need an updatable
-paravirt_ops.
+Sure I did check this.  No ttyS? there.
+Thanks anyway!
 
-Alan
+-jo
+
+-- 
+-rw-r--r-- 1 jo users 62 2006-08-22 19:05 /home/jo/.signature

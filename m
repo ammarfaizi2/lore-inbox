@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWHVObR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWHVOgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWHVObR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWHVObR
+	id S932269AbWHVOgN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWHVOgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:31:17 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:36296 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932267AbWHVObQ convert rfc822-to-8bit
+	Tue, 22 Aug 2006 10:36:13 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:65493 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932272AbWHVOgM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:31:16 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 3/7] ehea: queue management
-Date: Tue, 22 Aug 2006 15:51:07 +0200
-User-Agent: KMail/1.8.2
-Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-References: <200608221453.49667.ossthema@de.ibm.com> <200608221601.24882.arnd.bergmann@de.ibm.com>
-In-Reply-To: <200608221601.24882.arnd.bergmann@de.ibm.com>
+	Tue, 22 Aug 2006 10:36:12 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 22 Aug 2006 07:35:53 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       tglx@linutronix.de
+Subject: Re: [take9 2/2] kevent: poll/select() notifications. Timer notifications.
+In-Reply-To: <20060816133014.GB32499@infradead.org>
+Message-ID: <Pine.LNX.4.64.0608220730030.14814@alien.or.mcafeemobile.com>
+References: <1155536496588@2ka.mipt.ru> <11555364962857@2ka.mipt.ru>
+ <20060816133014.GB32499@infradead.org>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608221551.08406.ossthema@de.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 16 Aug 2006, Christoph Hellwig wrote:
 
-On Tuesday 22 August 2006 16:01, Arnd Bergmann wrote:
-> > +       u64 rpage = 0;
-> > +       int ret;
-> > +       int cnt = 0;
-> > +       void *vpage = NULL;
-> > +
-> > +       ret = hw_queue_ctor(hw_queue, nr_pages, EHEA_PAGESIZE, wqe_size);
-> > +       if (ret)
-> > +               return ret;
-> > +
-> > +       for (cnt = 0; cnt < nr_pages; cnt++) {
-> > +               vpage = hw_qpageit_get_inc(hw_queue);
-> > +               if (!vpage) {
-> > +                       ehea_error("hw_qpageit_get_inc failed");
-> > +                       goto qp_alloc_register_exit0;
-> > +               }
-> > +               rpage = virt_to_abs(vpage);
-> 
-> As someone mentioned before, the initialization to 0 or NULL
-> is pointless here, as the variables are always assigned before
-> they are used. There are a number of other places in your
-> code that do similar things, you should probably go through
-> these and remove the initializers.
-> 
-> If you indeed need something to be initialized, it is good practice
-> to do the initialization as late as possible, e.g.
-> 
-> 	int foo;
-> 	...
-> 	foo = 0;
-> 	do_foo(foo);
-> 
-> to make it clear that you have a reason to initialize it.
-> 
-> 	Arnd <><
-> 
+> On Mon, Aug 14, 2006 at 10:21:36AM +0400, Evgeniy Polyakov wrote:
+>>
+>> poll/select() notifications. Timer notifications.
+>>
+>> This patch includes generic poll/select and timer notifications.
+>>
+>> kevent_poll works simialr to epoll and has the same issues (callback
+>> is invoked not from internal state machine of the caller, but through
+>> process awake).
+>
+> I'm not a big fan of duplicating code over and over.  kevent is a candidate
+> for a generic event devlivery mechanisms which is a _very_ good thing.  But
+> starting that system by duplicating existing functionality is not very nice.
+>
+> What speaks against a patch the recplaces the epoll core by something that
+> build on kevent while still supporting the epoll interface as a compatibility
+> shim?
 
-Agreed. We started to remove some but apparrently not all.
-We'll go through the code and remove them where possible.
+Sorry, I'm catching up with a huge post-vacation backlog, so I didn't have 
+the time to look at the source code. But, if kevent performance is same or 
+better, and the external epoll interface is fully supported, than I think 
+the shim layer idea is a good one. Provided the shim being smaller than 
+eventpoll.c :)
+
+
+
+- Davide
+
 

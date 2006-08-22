@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWHVNpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWHVNpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWHVNpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHVNpM
+	id S932252AbWHVNpz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHVNpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:45:12 -0400
-Received: from mx03.cybersurf.com ([209.197.145.106]:49321 "EHLO
-	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S932250AbWHVNpK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:45:10 -0400
-Subject: Re: 800+ byte inlines in include/net/pkt_act.h
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: David Miller <davem@davemloft.net>
-Cc: vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20060821.163801.15260979.davem@davemloft.net>
-References: <200608201933.10293.vda.linux@googlemail.com>
-	 <1156163160.5126.47.camel@jzny2>
-	 <20060821.163801.15260979.davem@davemloft.net>
+	Tue, 22 Aug 2006 09:45:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33975 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932252AbWHVNpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:45:53 -0400
+Subject: Re: [PATCH] paravirt.h
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <1156254965.27114.17.camel@localhost.localdomain>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: ?
-Date: Tue, 22 Aug 2006 09:45:05 -0400
-Message-Id: <1156254305.5304.17.camel@jzny2>
+Organization: Intel International BV
+Date: Tue, 22 Aug 2006 15:45:22 +0200
+Message-Id: <1156254322.2976.55.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-21-08 at 16:38 -0700, David Miller wrote:
-> From: jamal <hadi@cyberus.ca>
-> Date: Mon, 21 Aug 2006 08:26:00 -0400
+On Tue, 2006-08-22 at 14:56 +0100, Alan Cox wrote:
+> Ar Iau, 2006-08-10 am 11:06 -0700, ysgrifennodd Jeremy Fitzhardinge:
+> > Rusty Russell wrote:
+> > > +EXPORT_SYMBOL_GPL(paravirt_ops);
+> > >   
+> > This should probably be EXPORT_SYMBOL(), otherwise pretty much every 
+> > driver module will need to be GPL...
 > 
-> > As per last discussion, either Patrick McHardy or myself are going
-> > to work on it - at some point. Please be patient. The other
-> > alternative is: you fix it and send patches.
+> It would be nice not to export it at all or to protect it, paravirt_ops
+> is a rootkit authors dream ticket. I'm opposed to paravirt_ops until it
+> is properly protected, its an unpleasantly large security target if not.
 > 
-> I'm working on it right now.  This code is really gross and needs
-> to be fixed immediately.
-> 
-> What I'll do is define a "struct tcf_common" and have the generic
-> interfaces take that as well as a "struct tcf_hashinfo *" parameter to
-> deal with the individual hash tables.
-> 
+> It would be a lot safer if we could have the struct paravirt_ops in
+> protected read-only const memory space, set it up in the core kernel
+> early on in boot when we play "guess todays hypervisor" and then make
+> sure it stays in read only (even to kernel) space.
 
-Sounds reasonable. May actually be close to what Patrick and I had in
-discussion (I cant find my notes) i.e hashinfo would contain
-table{size,index,mask,lock, and pointer to table}
-After staring at the code for a minute, I think the challenges you may
-face are in the conversions of: tcf_ {dump_walker(), del_walker() and
-generic_walker()}
+this would need a "const after boot" section; which is really not hard
+to make and probably useful for a lot more things.... todo++
 
-Thanks for taking this up Dave. And if you get it started and get
-distracted somewhere, I could take it over.
 
-> We define all of this templated stuff then don't even use it in
-> act_police.c, we just duplicate everything!
-
-act_police deviates from the generic layout; the intent is to allow for
-that. The desire was/is for usability for whoever uses the generic
-layout (read: joe-netfilter) could write a single page of code quickly
-to do something powerful (like gact for example). It is turning out code
-augmentation is not such a practical idea in the kernel.
-
-cheers,
-jamal
-
-> Absolutely unbelievable.
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

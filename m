@@ -1,93 +1,329 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWHVCvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWHVDLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWHVCvD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 22:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHVCvD
+	id S1751168AbWHVDLs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 23:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWHVDLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 22:51:03 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:42432 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751156AbWHVCvB (ORCPT
+	Mon, 21 Aug 2006 23:11:48 -0400
+Received: from msr38.hinet.net ([168.95.4.138]:49792 "EHLO msr38.hinet.net")
+	by vger.kernel.org with ESMTP id S1751168AbWHVDLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 22:51:01 -0400
-Date: Mon, 21 Aug 2006 21:50:36 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Crispin Cowan <crispin@novell.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Serge E. Hallyn" <serge@hallyn.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060822025036.GA31422@sergelap.austin.ibm.com>
-References: <20060814220651.GA7726@sergelap.austin.ibm.com> <m1r6zirgst.fsf@ebiederm.dsl.xmission.com> <20060815020647.GB16220@sergelap.austin.ibm.com> <m13bbyr80e.fsf@ebiederm.dsl.xmission.com> <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com> <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil> <20060816024200.GD15241@sergelap.austin.ibm.com> <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil> <44E6714C.3090707@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E6714C.3090707@novell.com>
-User-Agent: Mutt/1.5.11
+	Mon, 21 Aug 2006 23:11:47 -0400
+Message-ID: <00cb01c6c598$a1f0ede0$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: <romieu@fr.zoreil.com>, <penberg@cs.Helsinki.FI>, <akpm@osdl.org>,
+       <dvrabel@cantab.net>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>
+References: <1156192327.5852.3.camel@localhost.localdomain> <20060821092511.32108665.rdunlap@xenotime.net>
+Subject: Re: [PATCH] IP1000A: IC Plus update
+Date: Tue, 22 Aug 2006 11:11:16 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Crispin Cowan (crispin@novell.com):
-> Stephen Smalley wrote:
-> > Also, think about the real benefits of capabilities, at least as defined
-> > in Linux.  The coarse granularity and the lack of any per-object support
-> > is a fairly significant deficiency there that is much better handled via
-> > TE.
-> Only if the user wants to buy all the way into TE. Making POSIX
-> Capabilities, TE, and AppArmor composeable choices seems like a good
-> goal. The question is whether POSIX Capabilities on their own are worth
-> while. But consider:
-> 
->     * They are already there on their own, pulling POSIX Capabilities
->       out seems like a non-option because too much already uses them.
->     * They are nearly useless without some kind of management interface.
->       Adding a decent management interface can only make it better.
-> 
-> Serge has proposed a reasonable model. I would like to suggest that
-> people, especially Serge, consider the AppArmor model as well before
-> deciding.
+Hi Randy:
 
-So far this is not deciding on anything, just trying to follow the
-partially implemented draft to it's specified and logical conclusion.
-It may well be that it will turn out to just not be manageable, safe, or
-useful, or none of the three.
+Thanks for your review. I will follow your suggestions. I used
+git-format-diff
+to generate this patch, should I use diffstat to instead of it?
 
-> To quickly summarize the AppArmor model, you have an external policy
+The old DefaultPhyParam table content a lot of furture hardware parameters.
+We are sure now that is not need for new version of IP1000A, so I remove
+those.
 
-Does this stack with the capability module, or do you use purely your
-own logic?
+Thanks for help.
 
-> file that says that e.g. /usr/local/foo can have net_bind_service and
-> ipc_lock. This is a bit mask overlaid on top of whatever capabilities
-> the process already has, e.g. because it is UID 0 it has all of them. So
-> if someone runs /usr/local/foo as an unprivileged user, it has no
-> capabilities, and the bitmask does nothing. If someone runs
-> /usr/local/foo as root, then instead of all 32 capabilities, they get
-> only those 2.
+Jesse
 
-Can't do that with the fs capabilities.
+----- Original Message ----- 
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <romieu@fr.zoreil.com>; <penberg@cs.Helsinki.FI>; <akpm@osdl.org>;
+<dvrabel@cantab.net>; <linux-kernel@vger.kernel.org>;
+<netdev@vger.kernel.org>
+Sent: Tuesday, August 22, 2006 12:25 AM
+Subject: Re: [PATCH] IP1000A: IC Plus update
 
-But, the fs caps aren't intended to be an alternative to a policy-basd
-system.  What I like about them is simply that instead of making a
-binary setuid 0, and expecting it to give up the caps it doesn't need,
-it can be given just the caps it needs right off the bat.
 
-The apparmor and selinux policies would be complementary and useful as
-ever on top of those, just as they currently are on top of setuid.
+On Mon, 21 Aug 2006 16:32:07 -0400 Jesse Huang wrote:
 
-> >  At least some of the Linux capabilities lend themselves to easy
-> > privilege escalation to gaining other capabilities or effectively
-> > bypassing them.
-> >   
-> Certainly; cap_sys_admin effectively gives you ownership of the machine.
-> But that is fundamental to the POSIX Capabilities model, and not
-> something that Serge can change.
+> Dear All:
+> I had regenerate this patch from:
+> git://git.kernel.org/pub/scm/linux/kernel/git/penberg/netdev-ipg-2.6.git
+>
+> And, submit those modifications as one patch.
+>
+> From: Jesse Huang <jesse@icplus.com.tw>
+>
+> Change Logs:
+>    - update maintainer information
+>    - remove some default phy params
+>    - remove threshold config from ipg_io_config
+>    - ip1000 ipg_config_autoneg rewrite
+>    - modify coding style of ipg_config_autoneg
+>    - Add IPG_AC_FIFO flag when Tx reset
+>    - For compatible at PCI 66MHz issue
+>
+> Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
+> ---
+>
+>  ipg.c |  394 ++++++++++++++
+> +-------------------------------------------------- ipg.h |   96
+> +--------------- 2 files changed, 92 insertions(+), 398 deletions(-)
 
-Yup, sigh...
+Please use "diffstat -p1 -w 70" for diffstat output so that we can
+see the full path/file names that are modified in the patch.
 
-A better split of the caps might be more useful than fs caps
-themselves...
+> 8bd0325e52d2578c37cd251aeac2136f7cca9098
+> diff --git a/ipg.c b/ipg.c
+> index 754ddb5..7c541c2 100644
+> --- a/ipg.c
+> +++ b/ipg.c
 
--serge
+Similar to the diffstat comment, the "diff" a & b filenames should
+show the full path to the source file, e.g.:
+
+--- a/drivers/net/ipg.c
++++ b/drivers/net/ipg.c
+
+> @@ -511,14 +513,13 @@ static int ipg_config_autoneg(struct net
+>  */
+>  sp->tenmbpsmode = 0;
+>
+> - printk("Link speed = ");
+> + printk(KERN_INFO "Link speed = ");
+>
+>  /* Determine actual speed of operation. */
+>  switch (phyctrl & IPG_PC_LINK_SPEED) {
+>  case IPG_PC_LINK_SPEED_10MBPS:
+>  printk("10Mbps.\n");
+> - printk(KERN_INFO "%s: 10Mbps operational mode
+> enabled.\n",
+> -        dev->name);
+> + printk("%s: 10Mbps operational mode enabled.
+> \n",dev->name);
+
+Space before "dev->name".
+Why dropping the KERN_INFO here?  The previous printk contains
+a newline character, so KERN_* is still valid.
+
+> sp->tenmbpsmode = 1;
+>  break;
+>  case IPG_PC_LINK_SPEED_100MBPS:
+
+> @@ -530,283 +531,50 @@ static int ipg_config_autoneg(struct net
+
+> + /* Configure full duplex, and flow control. */
+> + if (fullduplex == 1) {
+> + /* Configure IPG for full duplex operation. */
+> + printk(KERN_INFO "setting full duplex, ");
+
+This series of printk calls needs some kind of device or driver
+identification.
+
+> - if ((advertisement & ADVERTISE_1000XFULL) ==
+> -     (linkpartner_ability & ADVERTISE_1000XFULL)) {
+> - fullduplex = 1;
+> + mac_ctrl_value |= IPG_MC_DUPLEX_SELECT_FD;
+>
+> - /* In 1000BASE-X using IPG's internal PCS
+> - * layer, so write to the GMII duplex bit.
+> - */
+> - bmcr |= ADVERTISE_1000HALF; // Typo ?
+> + if (txflowcontrol == 1) {
+> + printk("TX flow control");
+> + mac_ctrl_value |=
+> IPG_MC_TX_FLOW_CONTROL_ENABLE; } else {
+> - fullduplex = 0;
+> -
+> - /* In 1000BASE-X using IPG's internal PCS
+> - * layer, so write to the GMII duplex bit.
+> - */
+> - bmcr &= ~ADVERTISE_1000HALF; // Typo ?
+> + printk("no TX flow control");
+> + mac_ctrl_value &=
+> ~IPG_MC_TX_FLOW_CONTROL_ENABLE; }
+> - mdio_write(dev, phyaddr, MII_BMCR, bmcr);
+> - }
+
+> + } else {
+> + /* Configure IPG for half duplex operation. */
+> +         printk(KERN_INFO "setting half duplex, no TX flow
+> control, no RX flow control.\n");
+
+Same here:  needs device (preferably) or driver identification.
+
+> - default:
+> - txflowcontrol = 0;
+> - rxflowcontrol = 0;
+> - }
+> + mac_ctrl_value &= ~IPG_MC_DUPLEX_SELECT_FD &
+> ~IPG_MC_TX_FLOW_CONTROL_ENABLE & ~IPG_MC_RX_FLOW_CONTROL_ENABLE; }
+
+> @@ -1158,6 +916,7 @@ static void ipg_nic_txfree(struct net_de
+>  struct ipg_nic_private *sp = netdev_priv(dev);
+>  int NextToFree;
+>  int maxtfdcount;
+> + long CurrentTxTFDPtr=(ioread32(ipg_ioaddr(dev)
+> +TFD_LIST_PTR_0)-(long)sp->TFDListDMAhandle)/(long)sizeof(struct
+> TFD);
+
+Space before and after '=' sign.
+
+> @@ -1180,8 +939,10 @@ static void ipg_nic_txfree(struct net_de
+>  * If the TFDDone bit is set, free the associated
+>  * buffer.
+>  */
+> - if ((le64_to_cpu(sp->TFDList[NextToFree].TFC) &
+> -      IPG_TFC_TFDDONE) && (NextToFree !=
+> sp->CurrentTFD)) {
+> + if((NextToFree != sp->CurrentTFD)&&(NextToFree!
+> =CurrentTxTFDPtr))
+
+Spaces before and after "&&" and "!=" etc. (as in the former code).
+
+> + {
+> + //JesseAdd: setup TFDDONE for compatible
+> issue.
+> + sp->TFDList[NextToFree].TFC = cpu_to_le64
+> (sp->TFDList[NextToFree].TFC|IPG_TFC_TFDDONE); /* Free the transmit
+> buffer. */ if (sp->TxBuff[NextToFree] != NULL) {
+>  pci_unmap_single(sp->pdev,
+> @@ -1204,6 +965,15 @@ static void ipg_nic_txfree(struct net_de
+>  maxtfdcount--;
+>
+>  } while (maxtfdcount != 0);
+> + if(sp->LastTFDHoldCnt>1000) {
+
+Space between "if" and "(".  Space before/after ">".
+and on next line ("=").
+
+> + sp->LastTFDHoldCnt=0;
+> + ipg_reset(dev, IPG_AC_TX_RESET | IPG_AC_DMA |
+> IPG_AC_NETWORK | IPG_AC_FIFO);
+> + // Re-configure after DMA reset.
+> + if ((ipg_io_config(dev) < 0) ||(init_tfdlist(dev)
+> < 0)) {
+> + printk(KERN_INFO"%s: Error during
+> re-configuration.\n",dev->name);
+
+Space before "dev->name".  And after KERN_INFO.
+
+Could you save an error code from ipg_io_config() or init_tfdlist()
+and give the user a bit more meaningful message?
+
+
+> + }
+
+> @@ -2280,10 +2050,17 @@ static int ipg_nic_hard_start_xmit(struc
+>  * counter, modulus the length of the TFDList.
+>  */
+>  NextTFD = (sp->CurrentTFD + 1) % IPG_TFDLIST_LENGTH;
+> + if(sp->ResetCurrentTFD!=0)
+
+Spaces.  Make it human-readable, not just machine-readable.
+
+> + {
+> + sp->ResetCurrentTFD=0;
+> + NextTFD=0;
+> + }
+> + /* Check for availability of next TFD. Reserve 1 for not
+> become ring*/
+> + if (NextTFD == sp->LastFreedTxBuff) {
+> +
+> + if(sp->LastTFDHoldAddr==sp->CurrentTFD)
+
+Spaces....
+
+
+> diff --git a/ipg.h b/ipg.h
+> index 58b1417..9688483 100644
+> --- a/ipg.h
+> +++ b/ipg.h
+> @@ -919,59 +883,7 @@ unsigned short DefaultPhyParam[] = {
+>  // 01/09/04 IP1000A v1-5 rev=0x41
+>  (0x4100 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31, 0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x42
+> - (0x4200 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x43
+> - (0x4300 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x44
+> - (0x4400 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x45
+> - (0x4500 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x46
+> - (0x4600 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x47
+> - (0x4700 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x48
+> - (0x4800 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x49
+> - (0x4900 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x4A
+> - (0x4A00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x4B
+> - (0x4B00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x4C
+> - (0x4C00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x4D
+> - (0x4D00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> - // 01/09/04 IP1000A v1-5 rev=0x4E
+> - (0x4E00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> 27, 0xeb8e, 31,
+> -     0x0000,
+> - 30, 0x005e, 9, 0x0700,
+> + 30, 0x005e, 9, 0x0700,
+
+Eh?  This change just adds whitespace at end of line.
+This happens in other places too.  Please clean up all of those.
+
+Does removing all of those other entries prevent anyone's
+hardware from working correctly?
+
+
+---
+~Randy
+
+

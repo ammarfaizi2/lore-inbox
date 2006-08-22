@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWHVH1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWHVH2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWHVH1M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 03:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWHVH1L
+	id S1751345AbWHVH2b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 03:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHVH2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 03:27:11 -0400
-Received: from mail.gmx.net ([213.165.64.20]:724 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751331AbWHVH1K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 03:27:10 -0400
-X-Authenticated: #428038
-Date: Tue, 22 Aug 2006 09:27:05 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Miller <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-       greg@kroah.com, bunk@stusta.de, jwboyer@gmail.com,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060822072704.GA632@merlin.emma.line.org>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	David Miller <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-	greg@kroah.com, bunk@stusta.de, jwboyer@gmail.com,
-	linux-kernel@vger.kernel.org, stable@kernel.org
-References: <20060806045234.GA28849@kroah.com> <20060820223046.GB10011@opteron.random> <1156115102.4051.79.camel@localhost.localdomain> <20060820.232121.59475829.davem@davemloft.net> <20060821093538.GG10011@opteron.random>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821093538.GG10011@opteron.random>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.13 (2006-08-15)
-X-Y-GMX-Trusted: 0
+	Tue, 22 Aug 2006 03:28:31 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46798
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751335AbWHVH2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 03:28:30 -0400
+Date: Tue, 22 Aug 2006 00:28:45 -0700 (PDT)
+Message-Id: <20060822.002845.08658116.davem@davemloft.net>
+To: mchan@broadcom.com
+Cc: henne@nachtwindheim.de, akpm@osdl.org, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [NET] [TG3] Convert the pci_device_it table to
+ PCI_DEVICE()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1155941321.4201.1.camel@rh4>
+References: <44E195B2.3070406@nachtwindheim.de>
+	<1155941321.4201.1.camel@rh4>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli schrieb am 2006-08-21:
+From: "Michael Chan" <mchan@broadcom.com>
+Date: Fri, 18 Aug 2006 15:48:41 -0700
 
-> I beg to remind you why Marcelo was picked, not only for his skills,
-> but also because he was so universally friendly, and easy to talk
-> with. I couldn't imagine Marcelo wanting to hurt anyone. To me that's
-> important, I could never disagree with the Marcelo pick. But this is
-> basically the opposite in my view. A maintainer needs qualities that
-> go beyond technical skills. I think it's Greg's fault of course, I'm
-> not blaming anybody else, but this clearly shows that the tree of
-> trust has its limits, hence I'd like a different system to elect the
-> new maintainers that has a better chance to work.
+> On Tue, 2006-08-15 at 11:36 +0200, Henne wrote:
+> > From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> > 
+> > Convert the pci_device_ids to PCI_DEVICE() macro.
+> > Saves 1.5k in the sourcefile.
+> > 
+> > Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> > ---
+> 
+> Acked-by: Michael Chan <mchan@broadcom.com>
 
-I still liked your semi-technical reasons better than the personal.
-
--- 
-Matthias Andree
+Applied, thanks everyone.

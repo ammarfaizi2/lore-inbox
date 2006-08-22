@@ -1,88 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWHVBtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWHVCFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWHVBtT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 21:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWHVBtT
+	id S1751119AbWHVCFT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 22:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWHVCFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 21:49:19 -0400
-Received: from smtp.thermawave.com ([12.16.197.83]:30822 "EHLO
-	smtp.thermawave.com") by vger.kernel.org with ESMTP
-	id S1751115AbWHVBtS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 21:49:18 -0400
-Message-Id: <s4ea002d.085@smtp.thermawave.com>
-X-Mailer: Novell GroupWise Internet Agent 6.0.4
-Date: Mon, 21 Aug 2006 18:49:03 -0700
-From: "Misha Sushchik" <msushchi@thermawave.com>
-To: <ibr@radix50.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Help: error 514 in select()
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Mon, 21 Aug 2006 22:05:19 -0400
+Received: from mail.dotsterhost.com ([72.5.54.21]:58021 "HELO
+	mail.dotsterhost.com") by vger.kernel.org with SMTP
+	id S1751119AbWHVCFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 22:05:17 -0400
+Date: Tue, 22 Aug 2006 10:04:03 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list
+ [try #2]
+In-Reply-To: <15387.1156173472@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0608220953090.3315@raven.themaw.net>
+References: <Pine.LNX.4.64.0608212112350.28902@raven.themaw.net> 
+ <Pine.LNX.4.64.0608211932300.27275@raven.themaw.net>
+ <Pine.LNX.4.64.0608202223220.29268@raven.themaw.net> <20060819094840.083026fd.akpm@osdl.org>
+ <13319.1155744959@warthog.cambridge.redhat.com> <1155743399.5683.13.camel@localhost>
+ <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org>
+ <5910.1155741329@warthog.cambridge.redhat.com> <2138.1155893924@warthog.cambridge.redhat.com>
+ <3976.1156079732@warthog.cambridge.redhat.com> <30856.1156153373@warthog.cambridge.redhat.com>
+ <323.1156162567@warthog.cambridge.redhat.com>  <15387.1156173472@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Baurzhan:
+On Mon, 21 Aug 2006, David Howells wrote:
 
-Thank you for this information. 
-We are now trying to get someone fix the problem for us. 
-Unfortunately I know nothing of kernel-level programming and do not have the time to get up to speed in it myself.
+OK. I think I get it now.
+Thanks for your patience.
 
-At my level (application developer, not very deep) I have several pieces that I am missing.
-1) I do not know when this problem first appeared (or, re-appeared, as I can see from searching the web). If we knew the latest version where this problem was not, we would consider just going back to that version, instead of waiting for the bug to be fixed.
-2) I do not have a sensible way of reproducing this error in a short time. It may take a few days of running our application in order for it to fail in this way. This is killing us (timewise) in testing possible solutions.
+> Ian Kent <raven@themaw.net> wrote:
+> 
+> > > But does it _matter_ that the thing is mounted or dismounted as a unit?  And
+> > > if so, why?
+> > 
+> > Yes with autofs version 4, because of the nesting of mounts which also 
+> > introduces issues with expiration.
+> 
+> The NFS client's automounting facilities handle automatic expiration and
+> implicit recursive unmounting of xdev submounts.
 
-The latest kernel we had this reproduced with was 2.6.17.
+Very cool.
 
-Thanks a lot for your help. 
-Misha.
+I guess I'm not concerned about what the expire timeout is for such trees 
+either as it's not my problem.
 
+I'll have to play around with these a bit to work out how I can recognize 
+them in the export list. Hopefully it will be straight forward.
 
->>> Baurzhan Ismagulov <ibr@radix50.net> 08/19/06 03:05AM >>>
-Hello Misha,
+> 
+> This should now be left to the NFS client.
 
-On Fri, Aug 18, 2006 at 07:37:50PM -0700, Misha Sushchik wrote:
-> I am writing to you because I found a post by you in a newsgroup that
-> described improper error reporting by select(), reporting error 514.
+Yep.
 
-So if you don't mind, I'm taking this to linux-kernel, please answer to
-the list and Cc to me.
+> 
+> > Not updating the mtab will be a problem for me also and possibly for 
+> > users that expect to see mounts in it.
+> 
+> ln -sf /proc/mounts /etc/mtab
+> 
+> > The "/net" functionality is a standard, expected automounter function.
+> 
+> Whilst that may be true, it doesn't prohibit working with the NFS clients
+> automounting capabilities.
 
+Yep.
 
-> We recently tried to upgrade our server from RedHat 7 to RHEL 4, with
-> kernel version 2.6.9. Our CORBA-based communication now is halted now
-> and then due to "unknown error 514" in select().
+Again, not my problem if I treat fsid filesets as the automount unit.
 
-include/linux/errno.h says user space should never see this error code,
-so this is a bug in your kernel. core_sys_select returns this code if a
-signal is pending for the current process. You have the following
-options:
+> 
+> > > Note that rather than manually mounting the submounts, you could just open
+> > > and close those directories as that should cause them to automount -
+> > > though the xdev mountpoints will expire and become automatically unmounted
+> > > after a certain period.
+> > 
+> > The xdev (assume you mean NFSv4 submounts) mounts will be the area I need 
+> > to work on, for sure.
+> 
+> I mean NFSv2, NFSv3 and NFSv4 submounts that cross FSID, but remain on the
+> same server.
+> 
+> > I don't quite understand the "open will cause the automount" for NFS 
+> > version < 4.
+> 
+> Opening the directory will cause its follow_link() op to be invoked, which
+> will cause an automount if one hasn't already happened.  Obviously, if the
+> automount has taken place, the lower directory won't be seen for the follow to
+> take place.
 
-* Test with the latest kernel. 2.6.9 is almost two years old.
+Yep. But also not my problem as user activity will make this happen 
+automagically.
 
-* Ask RedHat to fix the problem in 2.6.9.
+> 
+> > The automounter calls mount(8) when it gets a packet from the 
+> > autofs[4] kernel module due to an access.
+> 
+> The automounter must mount the root of any tree, yes; but xdev subtrees should
+> now be left to the NFS client to mount, which can be triggered by stat'ing the
+> mountpoint - admittedly, if you can reach it without a security error.
+> 
+> If you do get a security error, and attempt to build the directories anyway,
+> you run the risk of constructing a false image of the remote share as you
+> can't tell symlinks from directories, and run the risk of creating invalid
+> dentries locally because you can't determine the attributes of the remote
+> object.
 
-* Fix the problem yourself.
+Yep. No use in stepping on NFSs toes when he just wants to make my life 
+easier for me.
 
-You may try applying something like the following to your current kernel
-in order to understand how to reproduce the problem (untested):
-
-diff -Naurp linux-2.6.orig/fs/select.c linux-2.6/fs/select.c
---- linux-2.6.orig/fs/select.c	2006-08-19 11:57:53.000000000 +0200
-+++ linux-2.6/fs/select.c	2006-08-19 11:57:43.000000000 +0200
-@@ -430,6 +430,8 @@ asmlinkage long sys_select(int n, fd_set
- 		}
- 	}
- 
-+	if (ret == -ERESTARTNOHAND)
-+		BUG();
- 	return ret;
- }
- 
-IIUC, this should print a backtrace every time the problem occurs.
-
-
-With kind regards,
-Baurzhan.
+Ian
 

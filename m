@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWHVN7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWHVOCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWHVN7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWHVN7y
+	id S932263AbWHVOCI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVOCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:59:54 -0400
-Received: from smtpout.mac.com ([17.250.248.173]:30966 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932259AbWHVN7x (ORCPT
+	Tue, 22 Aug 2006 10:02:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:22722 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932262AbWHVOCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:59:53 -0400
-In-Reply-To: <17643.2921.654137.143271@stoffel.org>
-References: <20060821184527.GA21938@kroah.com> <20060821194616.GC12928@redhat.com> <20060821214349.GA1885@suse.de> <17643.2921.654137.143271@stoffel.org>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CEC585A0-09D8-44E9-ABEA-58B65D2A1CA7@mac.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [patch 00/20] 2.6.17-stable review
-Date: Tue, 22 Aug 2006 09:59:10 -0400
-To: John Stoffel <john@stoffel.org>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAQAAA+k=
-X-Language-Identified: TRUE
+	Tue, 22 Aug 2006 10:02:06 -0400
+Date: Tue, 22 Aug 2006 19:31:24 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+Message-ID: <20060822140124.GC7125@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net> <20060822101028.GB5052@in.ibm.com> <1156257674.4617.8.camel@Homer.simpson.net> <1156260209.6225.7.camel@Homer.simpson.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156260209.6225.7.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 22, 2006, at 09:49:29, John Stoffel wrote:
-> "Greg" == Greg KH <gregkh@suse.de> writes:
->> On Mon, Aug 21, 2006 at 03:46:16PM -0400, Dave Jones wrote:
->>> Any chance of a 2.6.17.10-rc1 rollup patch again, like you did  
->>> for .8?
->
->> Oops, forgot to do that, thanks for reminding me.  It can be found  
->> at:
->> http://www.kernel.org/pub/linux/kernel/people/gregkh/stable/ 
->> patch-2.6.17.10-rc1.gz
->
->> And yes, it's not in the "main" v2.6 subdirectories, I'm not going  
->> to put it there anymore as it confuses too many scripts/people.
->
-> So what if they're confused?  If they're official releases, blessed  
-> with holy penguin pee, then shouldn't they be in the standard  
-> release area?
+On Tue, Aug 22, 2006 at 03:23:29PM +0000, Mike Galbraith wrote:
+> > I try it with everything in either root or mikeg.
 
-Well, except for the fact that the pre-stable RC patches are neither  
-"official" nor "releases".  They're just a combo rollup patch of all  
-of the proposed stable patches before they've been batch reviewed on  
-the LKML. (IOW: just for ease of testing)
+How did you transfer everything to root? By cat'ing each task pid
+(including init's) to root (or mikeg) task's file?
 
-Cheers,
-Kyle Moffett
+I will give your experiment a try here and find out what's happening.
+
+You said that you spawn a task which munches ~80% cpu. Is that by
+something like:
+
+do {
+	gettimeofday(&t1, NULL);
+loop:
+	gettimeofday(&t2, NULL);
+	while (t2.tv_sec - t1.tv_sec != 48)
+		goto loop;
+	sleep 12
+
+} while (1);
+	
+
+> That didn't work.
+
+Ok. I will repeat your experiment and see what I can learn from it.
 
 
+-- 
+Regards,
+vatsa

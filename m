@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWHVJfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWHVJnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWHVJfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 05:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHVJfd
+	id S1751140AbWHVJnW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 05:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWHVJnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 05:35:33 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:64713 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751382AbWHVJfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 05:35:33 -0400
-Date: Tue, 22 Aug 2006 18:38:20 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ebiederm@xmission.com,
-       pj@sgi.com, saito.tadashi@soft.fujitsu.com
-Subject: Re: [RFC][PATCH] ps command race fix take2 [4/4] proc_pid_readdir
-Message-Id: <20060822183820.b62d44bd.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Aug 2006 05:43:22 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29921 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751140AbWHVJnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 05:43:21 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: rohitseth@google.com
+Cc: sekharan@us.ibm.com, Kirill Korotaev <dev@sw.ru>,
+       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1156211128.11127.37.camel@galaxy.corp.google.com>
+References: <44E33893.6020700@sw.ru>
+	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
+	 <1156196721.6479.67.camel@linuxchandra>
+	 <1156211128.11127.37.camel@galaxy.corp.google.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Aug 2006 11:02:50 +0100
+Message-Id: <1156240970.27114.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry, this rcu_read_lock() should be inserted.
+Ar Llu, 2006-08-21 am 18:45 -0700, ysgrifennodd Rohit Seth:
+> I think as the tasks move around, it becomes very heavy to move all the
+> pages belonging to previous container to a new container.
 
--Kame
+Its not a meaningful thing to do. Remember an object may be passed
+around or shared. The simple "creator pays" model avoids all the heavy
+overheads while maintaining the constraints.
 
- fs/proc/base.c |    2 ++
- 1 files changed, 2 insertions(+)
+Its only user space pages that some of this (AS and RSS) become
+interesting as "movable" objects
 
-Index: linux-2.6.18-rc4/fs/proc/base.c
-===================================================================
---- linux-2.6.18-rc4.orig/fs/proc/base.c
-+++ linux-2.6.18-rc4/fs/proc/base.c
-@@ -2240,12 +2240,14 @@ retry:
- 	 * insertion of token should be done just before not-stale task.
- 	 */
- 	if (task) {
-+		rcu_read_lock();
- 		pos = first_alive_task(task);
- 		if (pos != task) { /* task is not alive */
- 			if (pos)
- 				get_task_struct(pos);
- 			put_task_struct(task);
- 		}
-+		rcu_read_unlock();
- 		if (pos) { /* remember here for next access */
- 			/* token->token turns to be 1 */
- 			insert_list_token_rcu(token, &pos->tasks);
 

@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHVUsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWHVVEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWHVUsT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 16:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWHVUsT
+	id S1750706AbWHVVEi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 17:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWHVVEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 16:48:19 -0400
-Received: from 1wt.eu ([62.212.114.60]:12049 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1750701AbWHVUsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 16:48:18 -0400
-Date: Tue, 22 Aug 2006 22:34:36 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Ernie Petrides <petrides@redhat.com>
-Cc: Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: printk()s of user-supplied strings
-Message-ID: <20060822203436.GB12519@1wt.eu>
-References: <20060822030755.GB830@openwall.com> <200608222023.k7MKNHpH018036@pasta.boston.redhat.com>
+	Tue, 22 Aug 2006 17:04:38 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:54662 "EHLO
+	haldeman.int.wirex.com") by vger.kernel.org with ESMTP
+	id S1750706AbWHVVEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 17:04:37 -0400
+Date: Tue, 22 Aug 2006 14:04:32 -0700
+From: Seth Arnold <seth.arnold@suse.de>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Subject: Re: [RFC][PATCH 2/8] Integrity Service API and dummy provider
+Message-ID: <20060822210432.GF2584@suse.de>
+Mail-Followup-To: Kylene Jo Hall <kjhall@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LSM ML <linux-security-module@vger.kernel.org>,
+	Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+	Serge Hallyn <sergeh@us.ibm.com>
+References: <1155844392.6788.56.camel@localhost.localdomain> <20060817232202.GN2584@suse.de> <1156276877.6720.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7aQJ/pUO7E0NVzIB"
 Content-Disposition: inline
-In-Reply-To: <200608222023.k7MKNHpH018036@pasta.boston.redhat.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1156276877.6720.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ernie,
 
-On Tue, Aug 22, 2006 at 04:23:17PM -0400, Ernie Petrides wrote:
-> On Tuesday, 22-Aug-2006 at 7:7 +0400, Solar Designer wrote:
-> 
-> > On Mon, Aug 21, 2006 at 07:36:01PM -0400, Ernie Petrides wrote:
-> > > -			printk(KERN_ERR "Unable to load interpreter %.128s\n",
-> > > -				elf_interpreter);
-> >
-> > I'd rather have this message rate-limited, not dropped completely.
-> 
-> I consider any printk() that can be arbitrarily triggered by an
-> unprivileged user to be inappropriate, rate-limited or not.  I
-> recommend that it be removed entirely.
+--7aQJ/pUO7E0NVzIB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Well, we had the same problem with the setuid() call where I proposed a
-printk(), and Alan proposed to ratelimit it to prevent local user from
-using it to flush the logs for instance, which I found clearly appropriate,
-reason why I've backported 2.6's printk_ratelimit() function, citing the
-two other printk() in binfmt_elf as good candidates.
+On Tue, Aug 22, 2006 at 01:01:17PM -0700, Kylene Jo Hall wrote:
+> measure is standard TCG nomenclature refering to calculating the hash of
+> a file and extending that value into the TPM to be able to verify what
+> has run on the system.  Here are a couple of references for sample term
+> use: [1]
+> http://domino.research.ibm.com/comm/research_projects.nsf/pages/ssd_ima.index.html
+> [2] https://www.trustedcomputinggroup.org/news/articles/rc23363.pdf
 
-> > Another long-time concern that I had is that we've got some printk()s
-> > of user-supplied string data.  What about embedded linefeeds - can this
-> > be used to produce fake kernel messages with arbitrary log level (syslog
-> > priority)?  It certainly seems so.
-> >
-> > Also, there are terminal controls...
-> 
-> These are valid concerns.  Allowing the kernel to print user-fabricated
-> strings is a terrible idea.
+Thanks for the pointers. Much appreciated.
 
-I agree. While this printk might have been there for years now, I really
-think that it should be fixed for sensible chars, but then restored and
-ratelimited to inform the admin that something abnormal is going on.
+And thanks for the detailed responses to my various questions. Always
+nice to learn. :)
 
-2.4.33.2 is out with the SCTP fix and this patch now, but with the printk
-commented out.
+--7aQJ/pUO7E0NVzIB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Cheers,
-Willy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFE63Fg+9nuM9mwoJkRAo5sAJ4mUFFxilSr726pwv05cT2DF4DCnACgm4vp
+JVtu+9CcIT6qPpujekvDLOw=
+=VJWC
+-----END PGP SIGNATURE-----
+
+--7aQJ/pUO7E0NVzIB--

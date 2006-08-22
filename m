@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWHVPib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWHVPh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWHVPib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 11:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWHVPib
+	id S932318AbWHVPh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWHVPh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 11:38:31 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:11940 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932322AbWHVPia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 11:38:30 -0400
-Date: Tue, 22 Aug 2006 11:37:23 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Bj?rn Steinbrink <B.Steinbrink@gmx.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
-Message-ID: <20060822153723.GA4949@ccure.user-mode-linux.org>
-References: <20060819073031.GA25711@atjola.homenet> <200608221207.00344.arnd@arndb.de> <20060822133945.GA3813@ccure.user-mode-linux.org> <200608221713.40165.arnd@arndb.de>
+	Tue, 22 Aug 2006 11:37:59 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59077 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932318AbWHVPh6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 11:37:58 -0400
+Subject: Re: [PATCH] paravirt.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <44EB1BEB.60202@goop.org>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain> <44EB1BEB.60202@goop.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Aug 2006 16:58:13 +0100
+Message-Id: <1156262293.27114.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608221713.40165.arnd@arndb.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 05:13:39PM +0200, Arnd Bergmann wrote:
-> No, that's not what I was referring to. I was thinking of the calls:
-> 
-> arch/um/os-Linux/process.c:inline _syscall0(pid_t, getpid)
-> arch/um/os-Linux/sys-i386/tls.c:static _syscall1(int, get_thread_area, user_desc_t *, u_info);
-> arch/um/os-Linux/tls.c:static _syscall1(int, get_thread_area, user_desc_t *, u_info);
-> arch/um/os-Linux/tls.c:static _syscall1(int, set_thread_area, user_desc_t *, u_info);
-> arch/um/sys-i386/unmap.c:static inline _syscall2(int,munmap,void *,start,size_t,len)
-> arch/um/sys-i386/unmap.c:static inline _syscall6(void *,mmap2,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
-> arch/um/sys-x86_64/unmap.c:static inline _syscall2(int,munmap,void *,start,size_t,len)
-> arch/um/sys-x86_64/unmap.c:static inline _syscall6(void *,mmap,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
-> 
-> Are these for calling the host OS or calling the UML kernel?
-> If they are for the host, they can be implemented using syscall(),
-> otherwise by calling the sys_* functions directly.
+Ar Maw, 2006-08-22 am 07:59 -0700, ysgrifennodd Jeremy Fitzhardinge:
+> out, nothing is actually read-only in the kernel when using a 2M 
+> mapping.  It's also ameliorated by the fact that some of the entrypoints 
 
-OK, these are all calling the host, and using syscall() instead sounds
-reasonable.
+Thats a loader problem. It ties directly in with things like relocatable
+kernels. Arjan has been systematically working to get us "const" objects
+and that needs to continue, and the more we can enforce it the more
+security we get and the more bugs we catch.
 
-				Jeff
+It's also a mistake to assume the read-only doesn't help. Your 2MB
+sections penalty isnt true in a virtualised environment.
+
+Alan
+

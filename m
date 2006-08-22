@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWHVIiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWHVIiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWHVIiu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 04:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWHVIiu
+	id S1751366AbWHVIiy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWHVIiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 04:38:50 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53910 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751363AbWHVIis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 04:38:48 -0400
-Date: Tue, 22 Aug 2006 17:41:52 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com
-Subject: [RFC][PATCH] ps command race fix take2 [3/4] profile fix
-Message-Id: <20060822174152.7105aa33.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 04:38:54 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:44450 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751366AbWHVIix
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:38:53 -0400
+Date: Tue, 22 Aug 2006 09:38:50 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Keith Mannthey <kmannth@gmail.com>
+Cc: akpm@osdl.org, tony.luck@intel.com,
+       Linux Memory Management List <linux-mm@kvack.org>, ak@suse.de,
+       bob.picco@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 0/6] Sizing zones and holes in an architecture independent
+ manner V9
+In-Reply-To: <a762e240608211152x5d4f11f0wd26f7e3d75d38e0a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0608220923280.11152@skynet.skynet.ie>
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
+ <a762e240608211152x5d4f11f0wd26f7e3d75d38e0a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oprofile driver touches task->tasks.
-But it doesn't have to use task->tasks, just list_head is needed.
+On Mon, 21 Aug 2006, Keith Mannthey wrote:
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> On 8/21/06, Mel Gorman <mel@csn.ul.ie> wrote:
+>> This is V9 of the patchset to size zones and memory holes in an
+>> architecture-independent manner. It booted successfully on 5 different
+>> machines (arches were x86, x86_64, ppc64 and ia64) in a number of different
+>> configurations and successfully built a kernel. If it fails on any machine,
+>> booting with loglevel=8 and the console log should tell me what went wrong.
+>> 
+>
+> I am wondering why this new api didn't cleanup the pfn_to_nid code
+> path as well. Arches are left to still keep another set of
+> nid-start-end info around. We are sending info like
+>
 
- drivers/oprofile/buffer_sync.c |    6 +++---
- include/linux/sched.h          |    4 ++++
- 2 files changed, 7 insertions(+), 3 deletions(-)
+pfn_to_nid() is used at runtime and the early_node_map[] is deleted by 
+then. As this step, I only want to get the initialisation correct. What 
+can be replaced is the architecture-specific early_pfn_to_nid() function 
+which I did for power and x86.
 
-Index: linux-2.6.18-rc4/include/linux/sched.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/sched.h
-+++ linux-2.6.18-rc4/include/linux/sched.h
-@@ -808,6 +808,10 @@ struct task_struct {
- 	struct list_head ptrace_children;
- 	struct list_head ptrace_list;
- 
-+#if defined(CONFIG_OPROFILE) || defined(CONFIG_OPROFILE_MODULE)
-+	struct list_head 	dead_tasks;
-+#endif
-+
- 	struct mm_struct *mm, *active_mm;
- 
- /* task state */
-Index: linux-2.6.18-rc4/drivers/oprofile/buffer_sync.c
-===================================================================
---- linux-2.6.18-rc4.orig/drivers/oprofile/buffer_sync.c
-+++ linux-2.6.18-rc4/drivers/oprofile/buffer_sync.c
-@@ -51,7 +51,7 @@ static int task_free_notify(struct notif
- 	unsigned long flags;
- 	struct task_struct * task = data;
- 	spin_lock_irqsave(&task_mortuary, flags);
--	list_add(&task->tasks, &dying_tasks);
-+	list_add(&task->dead_tasks, &dying_tasks);
- 	spin_unlock_irqrestore(&task_mortuary, flags);
- 	return NOTIFY_OK;
- }
-@@ -446,8 +446,8 @@ static void process_task_mortuary(void)
- 
- 	spin_unlock_irqrestore(&task_mortuary, flags);
- 
--	list_for_each_entry_safe(task, ttask, &local_dead_tasks, tasks) {
--		list_del(&task->tasks);
-+	list_for_each_entry_safe(task, ttask, &local_dead_tasks, dead_tasks) {
-+		list_del(&task->dead_tasks);
- 		free_task(task);
- 	}
- }
+> add_active_range(unsigned int nid, unsigned long start_pfn, unsigned
+> long end_pfn)
+>
+> With this info making a common pnf_to_nid seems to be of intrest so we
+> don't have to keep redundant information in both generic and arch
+> specific data structures.
+>
 
+To implement a common one of interest, the array would have to be 
+converted to a linked list at the end of boot so it could be modified by 
+memory hot-add, then pfn_to_nid() would walk the linked list rather than 
+the existing array. pfn_valid() would probably be replaced as well. 
+However, this is going to be slower (if more accurate in some cases) than 
+the existing pfn_valid() and so I would treat it as a separate issue.
+
+> Are you intending the hot-add memory code path to call add_active_range or 
+> ???
+>
+
+Not at this time. I want to make sure the memory initialisation is right 
+before dealing with additional complications.
+
+> Thanks,
+> Keith
+>
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

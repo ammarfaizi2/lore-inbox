@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWHVGhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHVGih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWHVGhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 02:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWHVGhQ
+	id S1751100AbWHVGih (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 02:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWHVGih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 02:37:16 -0400
-Received: from sym.gdsz.cncnet.net ([210.22.14.246]:52348 "HELO
-	sym.gdsz.cncnet.net") by vger.kernel.org with SMTP id S1750959AbWHVGhP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 02:37:15 -0400
-Reply-To: "Ervin Dunlap" <awilliamsvpdy@thoseyellowtrucks.com>
-From: "Ervin" <awilliamsvpdy@thoseyellowtrucks.com>
-Message-ID: <5413452382.130412903378@thoseyellowtrucks.com>
-Date: Tue, 22 Aug 2006 02:46:39 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Don't get left behind! 
+	Tue, 22 Aug 2006 02:38:37 -0400
+Received: from stinky.trash.net ([213.144.137.162]:1009 "EHLO stinky.trash.net")
+	by vger.kernel.org with ESMTP id S1751051AbWHVGig (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 02:38:36 -0400
+Message-ID: <44EAA669.7050604@trash.net>
+Date: Tue, 22 Aug 2006 08:38:33 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netfilter@lists.netfilter.org
+Subject: Re: ipt_MARK/xt_MARK usage problem
+References: <Pine.LNX.4.61.0608220815560.24532@yvahk01.tjqt.qr> <44EAA447.1080004@trash.net> <Pine.LNX.4.61.0608220830110.24532@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608220830110.24532@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hey bro, nice talking to you the other day!!! 
-*************************************************************************************************
-*  Thought you wou1d want to check this out,I got some for told
-*  myse1f cause they were on sa1e,you shou1d check out the s!te, I added the 1ink below. card
-*
-*  Stee1 Pa(kage: 10 Patches reg $79.95 N0vv $49.95 ! Free shipping to:! for
-*  Si1ver Pa(kage: 25 Patches reg $129.95, N0vv $99.95! Free shipping and free exercise manua1 inc1uded! by
-*  Go1d Pa(kage: 40 Patches reg $189.95, N0vv $149.95! Free shipping and free exercise manua1 inc1uded! chance
-*  P1atinum Pa(kage: 65 Patches reg $259.95, N0vv $199.95! Free shipping and free exercise manua1 inc1uded! form
-* 
-*
-*  
-I kn0vv l!ke 10 guys wh0 have already st0(ked up on these always. http://www.stranayavmiatina.com/ 
-*
-Talk to you soon zero!
-The best answer to answer to anger is silence.
-*************************************************************************************************
+Jan Engelhardt wrote:
+>>>How do I get MARK back to work in -t filter -- possibly without hacking in 
+>>>xt_MARK.c?
+>>
+>>You won't, its not supposed to work in the filter table.
+> 
+> 
+> This worked in 2.6.16, where the ipt_mark_reg_v1 strucutre in xt_MARK.c did 
+> not have a .table limiter. (It also worked in practice, i.e. packets got 
+> marked like they should.) I do not see why this was changed.
 
 
+That is not true, all versions of the mark target starting in 2.4 had
+the same check in the checkentry function.

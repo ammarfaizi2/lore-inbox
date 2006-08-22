@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWHVQAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWHVQCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWHVQAk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 12:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWHVQAk
+	id S1751397AbWHVQCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 12:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWHVQCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 12:00:40 -0400
-Received: from bender.bawue.de ([193.7.176.20]:3047 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S1751402AbWHVQAk (ORCPT
+	Tue, 22 Aug 2006 12:02:37 -0400
+Received: from xenotime.net ([66.160.160.81]:55955 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751397AbWHVQCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 12:00:40 -0400
-Date: Tue, 22 Aug 2006 17:59:50 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: FUSE unmount breaks serial terminal line
-Message-ID: <20060822155949.GA4268@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-References: <20060820180505.GA18283@sommrey.de> <E1GEuMZ-0004uq-00@dorka.pomaz.szeredi.hu> <20060820212840.GA29855@sommrey.de> <E1GFS4R-0007wJ-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1GFS4R-0007wJ-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Tue, 22 Aug 2006 12:02:36 -0400
+Date: Tue, 22 Aug 2006 09:05:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH 4/4] IP100A: Solve host error problem in low performance
+ embedded system when continune down and up.
+Message-Id: <20060822090542.6469977a.rdunlap@xenotime.net>
+In-Reply-To: <1156271492.4662.6.camel@localhost.localdomain>
+References: <1156271492.4662.6.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 10:57:15AM +0200, Miklos Szeredi wrote:
-> > > > something in FUSE breaks serial devices.  I found this issue 
-> > > > using gphotofs, don't know if any other FUSE impementation has similar
-> > > > effects.  The problem is: from the moment the FUSE filesystem is unmounted,
-> > > > a process that read()s on a serial device /dev/ttyS? gets an EOF
-> > > > returncode.  
-> > > > 
-> > > > Here is the tail of the output from "strace -tt cat /dev/ttyS0" when the
-> > > > FUSE fs was unmounted:
-> > > > 
-> > > > 19:41:46.513143 open("/dev/ttyS0", O_RDONLY|O_LARGEFILE) = 3
-> > > > 19:41:46.513373 fstat64(3, {st_mode=S_IFCHR|0660, st_rdev=makedev(4, 64), ...}) = 0
-> > > > 19:41:46.513552 read(3, "", 4096)       = 0
-> > > > 19:42:49.854367 close(3)                = 0
-> > > > 19:42:49.860663 close(1)                = 0
-> > > > 19:42:49.860793 exit_group(0)           = ?
-> > > > 
-> > > > Found this on x86 with kernels 2.6.16 and 2.6.17.
-> > > > 
-> > > > Any ideas?
-> > > 
-> > > Likely a userspace issue.  Can you please attach a strace (strace -f
-> > > -p `pidof gphotofs`) to the gphotofs process just before doing the
-> > > unmount?
-> > 
-> > Here it is together with the "cat" strace.  cat receives EOF *after*
-> > fusermount has exited - if it matters.
+On Tue, 22 Aug 2006 14:31:32 -0400 Jesse Huang wrote:
+
+> From: Jesse Huang <jesse@icplus.com.tw>
 > 
-> Yes, I think it matters.  I think one of those USBDEVFS ioctls might
-> be responsible.  These are probably invoked by the libgphoto2 cleanup
-> routines called when the filesystem exits.
+> Change Logs:
+>    - Solve host error problem in low performance embedded 
+>      system when continune down and up.
 > 
-> Can you verify with a non-FUSE application (gphoto2, gtkam) that the
-> same thing happens on exit?
+> Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
 > 
+> ---
+> 
+>  sundance.c |   30 +++++++++++++++++++++++++-----
+>  1 files changed, 25 insertions(+), 5 deletions(-)
 
-Tested both gphoto2 and gtkam without any problems. There is no impact
-on the serial lines.
+Full path/file names above and below, please.
 
-NB: The *real* trouble I have is with ntpd and a reference clock
-attached to /dev/ttyS1.  ntpd enters a busy loop reading ttyS1, stops
-working and eats up 100% CPU.  
+> a88c635933a981dd4fca87e5b8ca9426c5c98013
+> diff --git a/sundance.c b/sundance.c
+> index 424aebd..de55e0f 100755
+> --- a/sundance.c
+> +++ b/sundance.c
+> @@ -1647,6 +1647,14 @@ static int netdev_close(struct net_devic
+>  	struct sk_buff *skb;
+>  	int i;
+>  
+> +	/* Wait and kill tasklet */
+> +	tasklet_kill(&np->rx_tasklet);
+> +	tasklet_kill(&np->tx_tasklet);
+> +   np->cur_tx = 0;
+> +   np->dirty_tx = 0;
 
-Thanks for your investigations.  Any other idea?
+Use same indentation/whitespace as surrounding code.
+(tabs, not spaces)
 
--jo
+> +	np->cur_task = 0;
+> +	np->last_tx = 0;
+> +
+>  	netif_stop_queue(dev);
+>  
+>  	if (netif_msg_ifdown(np)) {
+> @@ -1667,9 +1675,20 @@ static int netdev_close(struct net_devic
+>  	/* Stop the chip's Tx and Rx processes. */
+>  	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
+>  
+> -	/* Wait and kill tasklet */
+> -	tasklet_kill(&np->rx_tasklet);
+> -	tasklet_kill(&np->tx_tasklet);
+> +    for (i = 2000; i > 0; i--) {
+> +		 if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
+> +		    break;
+> +		 mdelay(1);
+> +    }	
+> +
+> +    iowrite16(GlobalReset | DMAReset | FIFOReset |NetworkReset, ioaddr +ASICCtrl + 2);
+> +    
+> +    for (i = 2000; i > 0; i--)
+> +    {
+> +		 if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
+> +	    	break;
+> +		 mdelay(1);
+> +    }
 
--- 
--rw-r--r-- 1 jo users 62 2006-08-22 17:50 /home/jo/.signature
+Same comment about indentation/whitespace.
+
+---
+~Randy

@@ -1,132 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWHVCnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWHVCvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWHVCnO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 22:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWHVCnO
+	id S1751178AbWHVCvD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 22:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHVCvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 22:43:14 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:3947 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751148AbWHVCnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 22:43:13 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:date:from:to:cc:subject:message-id:mime-version:
-	content-type:content-disposition:user-agent:sender;
-	b=DuMt+RgNLHaN/lmet0jxX1ejZmIpRqFVGofmS9t+0nmJhAlnIidk1mbV2BtCJ7ezi
-	tLW4Cub1LCWRfg9jKgRPQ==
-Date: Mon, 21 Aug 2006 19:42:37 -0700
-From: Tim Hockin <thockin@google.com>
-To: matthew@wil.cx, ak@suse.de, greg@kroah.com,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@google.com>
-Subject: PCI MMCONFIG aperture size
-Message-ID: <20060822024237.GO16573@google.com>
+	Mon, 21 Aug 2006 22:51:03 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:42432 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751156AbWHVCvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 22:51:01 -0400
+Date: Mon, 21 Aug 2006 21:50:36 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Crispin Cowan <crispin@novell.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Serge E. Hallyn" <serge@hallyn.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+Subject: Re: [RFC] [PATCH] file posix capabilities
+Message-ID: <20060822025036.GA31422@sergelap.austin.ibm.com>
+References: <20060814220651.GA7726@sergelap.austin.ibm.com> <m1r6zirgst.fsf@ebiederm.dsl.xmission.com> <20060815020647.GB16220@sergelap.austin.ibm.com> <m13bbyr80e.fsf@ebiederm.dsl.xmission.com> <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com> <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil> <20060816024200.GD15241@sergelap.austin.ibm.com> <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil> <44E6714C.3090707@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <44E6714C.3090707@novell.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure who's responsible for this piece of code, so sorry for the
-extra email if it's not you.
+Quoting Crispin Cowan (crispin@novell.com):
+> Stephen Smalley wrote:
+> > Also, think about the real benefits of capabilities, at least as defined
+> > in Linux.  The coarse granularity and the lack of any per-object support
+> > is a fairly significant deficiency there that is much better handled via
+> > TE.
+> Only if the user wants to buy all the way into TE. Making POSIX
+> Capabilities, TE, and AppArmor composeable choices seems like a good
+> goal. The question is whether POSIX Capabilities on their own are worth
+> while. But consider:
+> 
+>     * They are already there on their own, pulling POSIX Capabilities
+>       out seems like a non-option because too much already uses them.
+>     * They are nearly useless without some kind of management interface.
+>       Adding a decent management interface can only make it better.
+> 
+> Serge has proposed a reasonable model. I would like to suggest that
+> people, especially Serge, consider the AppArmor model as well before
+> deciding.
 
-I've got a system that has an MMCONFIG region that is 32 MB.  Not the
-expected 256 MB.  Careful reading of the PCI firmware spec says:
+So far this is not deciding on anything, just trying to follow the
+partially implemented draft to it's specified and logical conclusion.
+It may well be that it will turn out to just not be manageable, safe, or
+useful, or none of the three.
 
-	"The size of the memory mapped configuration region is indicated
-	by the start and end bus number fields in the Memory mapped
-	Enhanced configuration space base address allocation
-	structure..."
-and
-	"...configuration access method, the base address of the memory
-	mapped configuration space always corresponds to bus number 0
-	(regardless of the start bus number decoded by the host
-	bridge)..."
+> To quickly summarize the AppArmor model, you have an external policy
 
-This says to me that (as long as the MCFG table has an End Bus Number of
-31) a 32 MB decode area (32 MB aligned, too) is valid.
+Does this stack with the capability module, or do you use purely your
+own logic?
 
-Would something like the below patch be accepted?  It makes my system
-work...
+> file that says that e.g. /usr/local/foo can have net_bind_service and
+> ipc_lock. This is a bit mask overlaid on top of whatever capabilities
+> the process already has, e.g. because it is UID 0 it has all of them. So
+> if someone runs /usr/local/foo as an unprivileged user, it has no
+> capabilities, and the bitmask does nothing. If someone runs
+> /usr/local/foo as root, then instead of all 32 capabilities, they get
+> only those 2.
 
-Also, why are we forcing 32 bit base addresses?  ACPI defines it to be a
-64 bit base...
+Can't do that with the fs capabilities.
 
-Tim
+But, the fs caps aren't intended to be an alternative to a policy-basd
+system.  What I like about them is simply that instead of making a
+binary setuid 0, and expecting it to give up the caps it doesn't need,
+it can be given just the caps it needs right off the bat.
 
+The apparmor and selinux policies would be complementary and useful as
+ever on top of those, just as they currently are on top of setuid.
 
+> >  At least some of the Linux capabilities lend themselves to easy
+> > privilege escalation to gaining other capabilities or effectively
+> > bypassing them.
+> >   
+> Certainly; cap_sys_admin effectively gives you ownership of the machine.
+> But that is fundamental to the POSIX Capabilities model, and not
+> something that Serge can change.
 
---- ./arch/x86_64/pci/mmconfig.c.orig	2006-08-18 15:35:30.000000000 -0700
-+++ ./arch/x86_64/pci/mmconfig.c	2006-08-21 19:36:52.000000000 -0700
-@@ -13,7 +13,6 @@
- 
- #include "pci.h"
- 
--#define MMCONFIG_APER_SIZE (256*1024*1024)
- /* Verify the first 16 busses. We assume that systems with more busses
-    get MCFG right. */
- #define MAX_CHECK_BUS 16
-@@ -164,6 +163,7 @@
- void __init pci_mmcfg_init(void)
- {
- 	int i;
-+	u32 start;
- 
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		return;
-@@ -174,8 +174,9 @@
- 	    (pci_mmcfg_config[0].base_address == 0))
- 		return;
- 
--	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
--			pci_mmcfg_config[0].base_address + MMCONFIG_APER_SIZE,
-+	start = pci_mmcfg_config[0].base_address;
-+	if (!e820_all_mapped(start,
-+			start+((pci_mmcfg_config[0].end_bus_number+1)*1024*1024),
- 			E820_RESERVED)) {
- 		printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not E820-reserved\n");
- 		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
-@@ -190,7 +191,9 @@
- 	}
- 	for (i = 0; i < pci_mmcfg_config_num; ++i) {
- 		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
--		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
-+		pci_mmcfg_virt[i].virt = ioremap_nocache(
-+			pci_mmcfg_config[i].base_address,
-+			(pci_mmcfg_config[i].end_bus_number+1)*1024*1024);
- 		if (!pci_mmcfg_virt[i].virt) {
- 			printk("PCI: Cannot map mmconfig aperture for segment %d\n",
- 			       pci_mmcfg_config[i].pci_segment_group_number);
---- ./arch/i386/pci/mmconfig.c.orig	2006-08-21 19:19:12.000000000 -0700
-+++ ./arch/i386/pci/mmconfig.c	2006-08-21 19:35:04.000000000 -0700
-@@ -15,8 +15,6 @@
- #include <asm/e820.h>
- #include "pci.h"
- 
--#define MMCONFIG_APER_SIZE (256*1024*1024)
--
- /* Assume systems with more busses have correct MCFG */
- #define MAX_CHECK_BUS 16
- 
-@@ -187,6 +185,8 @@
- 
- void __init pci_mmcfg_init(void)
- {
-+	u32 start;
-+
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		return;
- 
-@@ -196,8 +196,9 @@
- 	    (pci_mmcfg_config[0].base_address == 0))
- 		return;
- 
--	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
--			pci_mmcfg_config[0].base_address + MMCONFIG_APER_SIZE,
-+	start = pci_mmcfg_config[0].base_address;
-+	if (!e820_all_mapped(start
-+			start+((pci_mmcfg_config[0].end_bus_number+1)*1024*1024),
- 			E820_RESERVED)) {
- 		printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not E820-reserved\n");
- 		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+Yup, sigh...
+
+A better split of the caps might be more useful than fs caps
+themselves...
+
+-serge

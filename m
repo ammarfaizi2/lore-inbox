@@ -1,96 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWHVQCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWHVQCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWHVQCh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 12:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWHVQCh
+	id S932076AbWHVQCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 12:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWHVQCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 12:02:37 -0400
-Received: from xenotime.net ([66.160.160.81]:55955 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751397AbWHVQCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 12:02:36 -0400
-Date: Tue, 22 Aug 2006 09:05:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH 4/4] IP100A: Solve host error problem in low performance
- embedded system when continune down and up.
-Message-Id: <20060822090542.6469977a.rdunlap@xenotime.net>
-In-Reply-To: <1156271492.4662.6.camel@localhost.localdomain>
-References: <1156271492.4662.6.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 22 Aug 2006 12:02:53 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:34445 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932076AbWHVQCu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 12:02:50 -0400
+Date: Tue, 22 Aug 2006 21:32:23 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+Message-ID: <20060822160223.GB12943@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net> <20060822101028.GB5052@in.ibm.com> <1156257674.4617.8.camel@Homer.simpson.net> <1156260209.6225.7.camel@Homer.simpson.net> <1156261506.6319.6.camel@Homer.simpson.net> <20060822135056.GB7125@in.ibm.com> <1156269931.4954.12.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156269931.4954.12.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Aug 2006 14:31:32 -0400 Jesse Huang wrote:
+On Tue, Aug 22, 2006 at 06:05:31PM +0000, Mike Galbraith wrote:
+> I just did echo "0-1" > cpus.
 
-> From: Jesse Huang <jesse@icplus.com.tw>
-> 
-> Change Logs:
->    - Solve host error problem in low performance embedded 
->      system when continune down and up.
-> 
-> Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
-> 
-> ---
-> 
->  sundance.c |   30 +++++++++++++++++++++++++-----
->  1 files changed, 25 insertions(+), 5 deletions(-)
+"cpus" here is the "cpus" file in "all" cpuset? 
 
-Full path/file names above and below, please.
+If so, that explains why tasks were stuck in cpu 1 (because child cpusets 
+arent updated currently with the new cpus setting - which by itself is a tricky 
+thing to accomplish under cpusets perhaps).
 
-> a88c635933a981dd4fca87e5b8ca9426c5c98013
-> diff --git a/sundance.c b/sundance.c
-> index 424aebd..de55e0f 100755
-> --- a/sundance.c
-> +++ b/sundance.c
-> @@ -1647,6 +1647,14 @@ static int netdev_close(struct net_devic
->  	struct sk_buff *skb;
->  	int i;
->  
-> +	/* Wait and kill tasklet */
-> +	tasklet_kill(&np->rx_tasklet);
-> +	tasklet_kill(&np->tx_tasklet);
-> +   np->cur_tx = 0;
-> +   np->dirty_tx = 0;
-
-Use same indentation/whitespace as surrounding code.
-(tabs, not spaces)
-
-> +	np->cur_task = 0;
-> +	np->last_tx = 0;
-> +
->  	netif_stop_queue(dev);
->  
->  	if (netif_msg_ifdown(np)) {
-> @@ -1667,9 +1675,20 @@ static int netdev_close(struct net_devic
->  	/* Stop the chip's Tx and Rx processes. */
->  	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
->  
-> -	/* Wait and kill tasklet */
-> -	tasklet_kill(&np->rx_tasklet);
-> -	tasklet_kill(&np->tx_tasklet);
-> +    for (i = 2000; i > 0; i--) {
-> +		 if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
-> +		    break;
-> +		 mdelay(1);
-> +    }	
-> +
-> +    iowrite16(GlobalReset | DMAReset | FIFOReset |NetworkReset, ioaddr +ASICCtrl + 2);
-> +    
-> +    for (i = 2000; i > 0; i--)
-> +    {
-> +		 if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
-> +	    	break;
-> +		 mdelay(1);
-> +    }
-
-Same comment about indentation/whitespace.
-
----
-~Randy
+-- 
+Regards,
+vatsa

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWHVOqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHVOqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWHVOqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHVOqb
+	id S932283AbWHVOqi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHVOqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:46:31 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:55198 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932282AbWHVOqa (ORCPT
+	Tue, 22 Aug 2006 10:46:37 -0400
+Received: from lug.demon.co.uk ([83.104.159.110]:27995 "EHLO lug.demon.co.uk")
+	by vger.kernel.org with ESMTP id S932280AbWHVOqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:46:30 -0400
-Date: Tue, 22 Aug 2006 23:10:37 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
-Message-ID: <20060822191037.GA493@oleg>
-References: <20060821170604.GA1640@oleg> <20060822104327.GA28183@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Aug 2006 10:46:33 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: sym53c8xx PCI card broken in 2.6.18
+Date: Tue, 22 Aug 2006 15:46:11 +0100
+User-Agent: KMail/1.9.4
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060822104327.GA28183@elte.hu>
-User-Agent: Mutt/1.5.11
+Cc: sparclinux@vger.kernel.org
+Reply-To: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608221546.11532.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/22, Ingo Molnar wrote:
-> 
-> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> 
-> > (Compile tested).
-> > 
-> > futex_find_get_task:
-> > 
-> > 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
-> > 		return NULL;
-> > 
-> > I can't understand this. First, p->state can't be EXIT_ZOMBIE. The 
-> > ->exit_state check looks strange too. Sub-threads or tasks whose 
-> > ->parent ignores SIGCHLD go directly to EXIT_DEAD state (I am ignoring 
-> > a ptrace case). Why EXIT_DEAD tasks should be ok? Yes, EXIT_ZOMBIE is 
-> > more important (a task may stay zombie for a long time), but this 
-> > doesn't mean we should explicitely ignore other EXIT_XXX states.
-> > 
-> > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> i believe this is a remnant of older times when EXIT_ZOMBIE was 
-> introduced. We cloned that into the -rt tree, but then exit-state got 
-> cleaned up (by you)
+Hi all,
 
-No, no, it was Roland.
+I'm running a Sun Ultra Enterprise 450 (SPARC64) machine which has an on-board 
+SCSI controller and a PCI SCSI controller, both supported by the sym53c8xx 
+driver.
 
-But probably you are talking about these patches
+With 2.6.17.9 (and earlier) SCSI works perfectly, but with 2.6.18-rc4 and 
+2.6.18-rc4-git1 I'm getting errors on boot for all devices attached to the 
+PCI card, but all the devices attached to the on-board controller are 
+detected and configured OK.
 
-	http://marc.theaimsgroup.com/?t=113284375800003&r=1
-	http://marc.theaimsgroup.com/?t=113284375800005&r=1
+lspci identifies the on-board controller as:
+SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 03)
+and the PCI controller as:
+SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 14)
 
-? It was abandoned by Linus. It is not clear was he convinced or not,
-but I'd be happy to re-send this patch (on weekend) if you wish.
+Here's the output from initialisation of the devices on the PCI card (repeated 
+for every device):
+scsi2: sym-2.2.3
+scsi 2:0:0:0 ABORT operation started
+scsi 2:0:0:0 ABORT operation timed out
+scsi 2:0:0:0 DEVICE RESET operation started
+scsi 2:0:0:0 DEVICE RESET operation timed out
+scsi 2:0:0:0 BUS RESET operation started
+scsi 2:0:0:0 BUS RESET operation timed out
+scsi 2:0:0:0 HOST RESET operation started
+sym2: SCSI bus has been reset
+scsi 2:0:0:0 HOST RESET operation timed out
+scsi: device offlined - not ready after error recovery
 
-Oleg.
+The devices on the PCI controller are a mixture of 'Fujitsu MAG3182L SUN18G' 
+and 'Seagate ST318203LSUN18G' drives.
 
+Looking through the changelogs between 2.6.17.9 and 2.6.18-rc4-git1, I can't 
+see any changes to sym53c8xx, so I'm guessing this has been caused by some 
+generic SCSI subsystem change. Let me know if I can do any more to debug.
+
+Regards,
+David.
+
+-- 
+David Johnson
+www.david-web.co.uk - My Personal Website
+www.penguincomputing.co.uk - Need a Web Developer?

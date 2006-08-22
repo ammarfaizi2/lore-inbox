@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWHVNtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWHVNvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWHVNtd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVNtd
+	id S932248AbWHVNvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVNvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:49:33 -0400
-Received: from mxsf20.cluster1.charter.net ([209.225.28.220]:20173 "EHLO
-	mxsf20.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932242AbWHVNtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:49:32 -0400
-X-IronPort-AV: i="4.08,156,1154923200"; 
-   d="scan'208"; a="1626368899:sNHT118974036"
+	Tue, 22 Aug 2006 09:51:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60641 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932248AbWHVNvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:51:12 -0400
+From: Andi Kleen <ak@muc.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH] paravirt.h
+Date: Tue, 22 Aug 2006 15:50:57 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1155202505.18420.5.camel@localhost.localdomain> <1156254965.27114.17.camel@localhost.localdomain> <1156254322.2976.55.camel@laptopd505.fenrus.org>
+In-Reply-To: <1156254322.2976.55.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17643.2921.654137.143271@stoffel.org>
-Date: Tue, 22 Aug 2006 09:49:29 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [patch 00/20] 2.6.17-stable review
-In-Reply-To: <20060821214349.GA1885@suse.de>
-References: <20060821184527.GA21938@kroah.com>
-	<20060821194616.GC12928@redhat.com>
-	<20060821214349.GA1885@suse.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200608221550.57603.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <gregkh@suse.de> writes:
 
-Greg> On Mon, Aug 21, 2006 at 03:46:16PM -0400, Dave Jones wrote:
->> On Mon, Aug 21, 2006 at 11:45:27AM -0700, Greg KH wrote:
->> > This is the start of the stable review cycle for the next 2.6.17.y
->> > release.  There are 20 patches in this series, all will be posted as
->> > a response to this one.  If anyone has any issues with these being
->> > applied, please let us know.  If anyone is a maintainer of the proper
->> > subsystem, and wants to add a Signed-off-by: line to the patch, please
->> > respond with it.
->> > 
->> > These patches are sent out with a number of different people on the Cc:
->> > line.  If you wish to be a reviewer, please email stable@kernel.org to
->> > add your name to the list.  If you want to be off the reviewer list,
->> > also email us.
->> 
->> Any chance of a 2.6.17.10-rc1 rollup patch again, like you did for .8?
+> this would need a "const after boot" section; which is really not hard
+> to make and probably useful for a lot more things.... todo++
 
-Greg> Oops, forgot to do that, thanks for reminding me.  It can be
-Greg> found at:
-Greg> http://www.kernel.org/pub/linux/kernel/people/gregkh/stable/patch-2.6.17.10-rc1.gz
+except for anything that needs tlb entries in user space. And it only gives you
+false sense of security. --todo
 
-Greg> And yes, it's not in the "main" v2.6 subdirectories, I'm not going to
-Greg> put it there anymore as it confuses too many scripts/people.
-
-So what if they're confused?  If they're official releases, blessed
-with holy penguin pee, then shouldn't they be in the standard release
-area?  
-
-	http://www.kernel.org/pub/linux/kernel/v2.6/
-
-could just be extended down with a directory for each version
-released, and the directory holds the ChangeLog, linux-... and
-patch-... files.  
-
-Thanks for doing the stable branch in any case!
-
-John
+-Andi

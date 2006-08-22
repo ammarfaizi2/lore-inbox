@@ -1,224 +1,340 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWHVFph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWHVFtC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWHVFph (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 01:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHVFph
+	id S1750771AbWHVFtC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 01:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWHVFtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 01:45:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35264 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750767AbWHVFph (ORCPT
+	Tue, 22 Aug 2006 01:49:01 -0400
+Received: from xenotime.net ([66.160.160.81]:63691 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750769AbWHVFtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 01:45:37 -0400
-Date: Mon, 21 Aug 2006 22:44:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Prajakta Gudadhe <pgudadhe@nvidia.com>
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Sgpio support in sata_nv
-Message-Id: <20060821224457.65de5111.akpm@osdl.org>
-In-Reply-To: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
-References: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 22 Aug 2006 01:49:00 -0400
+Date: Mon, 21 Aug 2006 22:52:03 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <romieu@fr.zoreil.com>, <penberg@cs.Helsinki.FI>, <akpm@osdl.org>,
+       <dvrabel@cantab.net>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>
+Subject: Re: [PATCH] IP1000A: IC Plus update
+Message-Id: <20060821225203.316f4fca.rdunlap@xenotime.net>
+In-Reply-To: <00cb01c6c598$a1f0ede0$4964a8c0@icplus.com.tw>
+References: <1156192327.5852.3.camel@localhost.localdomain>
+	<20060821092511.32108665.rdunlap@xenotime.net>
+	<00cb01c6c598$a1f0ede0$4964a8c0@icplus.com.tw>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 18:17:06 -0700
-Prajakta Gudadhe <pgudadhe@nvidia.com> wrote:
+On Tue, 22 Aug 2006 11:11:16 +0800 Jesse Huang wrote:
 
-> Description:
-> Added support for enclosure management via SGPIO to sata_nv. This patch is based off of kernel-2.6.17.9.
+> Hi Randy:
 > 
-> Signed-off by: Prajakta Gudadhe <pgudadhe@nvidia.com>
+> Thanks for your review. I will follow your suggestions. I used
+> git-format-diff
+> to generate this patch, should I use diffstat to instead of it?
+
+Sorry, I really can't advise you on how to use git.
+Did you have a complete kernel tree and then make changes to
+the .c and .h files?  Or did you only have the ip1000 .c and .h
+files?  If only the latter, that won't include the full path & file
+names unless you force it to.
+
+
+> The old DefaultPhyParam table content a lot of furture hardware parameters.
+> We are sure now that is not need for new version of IP1000A, so I remove
+> those.
+
+OK, I see.
+
+~Randy
+
+> Thanks for help.
+> 
+> Jesse
+> 
+> ----- Original Message ----- 
+> From: "Randy.Dunlap" <rdunlap@xenotime.net>
+> To: "Jesse Huang" <jesse@icplus.com.tw>
+> Cc: <romieu@fr.zoreil.com>; <penberg@cs.Helsinki.FI>; <akpm@osdl.org>;
+> <dvrabel@cantab.net>; <linux-kernel@vger.kernel.org>;
+> <netdev@vger.kernel.org>
+> Sent: Tuesday, August 22, 2006 12:25 AM
+> Subject: Re: [PATCH] IP1000A: IC Plus update
 > 
 > 
-> +union nv_sgpio_csr
-> +{
-> +	struct {
-> +#if defined(__LITTLE_ENDIAN_BITFIELD)
-> +		u8	sgpio_status:2;
-> +		u8	sgpio_seq:1;
-> +		u8	cmd_status:2;
-> +		u8	cmd:3;
-> +#elif defined(__BIG_ENDIAN_BITFIELD)
-> +		u8	cmd:3;
-> +		u8	cmd_status:2;
-> +		u8	sgpio_seq:1;
-> +		u8	sgpio_status:2;
-> +#else
-> +#error "Please fix <asm/byteorder.h>"
-> +#endif
-> +	} bit;
-> +	u8	all;
-> +};
-
-I believe it's still unfashoinable to attempt to map hardware registers
-onto compiler-controlled bitfields in this manner.
-
-I'd suggest that you just pull the u32 out of PCI space and open-code the
-shifting and masking in an endianness-independent fashion.  The macros
-around line 508 of drivers/net/3c59x.c demonstrate one way of doing this.
-
-> +static int nv_port_start(struct ata_port *ap)
-> +{
-> +	int stat;
-> +    	struct nv_port *port;
-> +
-> +    	stat = ata_port_start(ap);
-> +    	if (stat) {
-> +        	return stat;
-> +    	}
-> +
-> +    	port = kmalloc(sizeof(struct nv_port), GFP_KERNEL);
-> +    	if (!port) 
-> +		goto err_out_no_free;
-> +
-> +	memset(port, 0, sizeof(struct nv_port));
-
-kzalloc().
-
-> +    	ap->private_data = port;
-> +    	return 0;
-> +
-> +err_out_no_free:
-> +    	return 1;
-> +}
-> +
-> +
->
-> ..
->
->  static void nv_enable_hotplug(struct ata_probe_ent *probe_ent)
->  {
->  	u8 intr_mask;
-> @@ -606,6 +877,238 @@ static int nv_check_hotplug_ck804(struct
->  	return 0;
->  }
->  
-> +static void nv_sgpio_init(struct pci_dev *pdev, struct nv_host *phost)
-> +{
-> +    	u16 csr_add; 
-> +	u32 cb_add, temp32;
-> +	struct device *dev = pci_dev_to_dev(pdev);
-> +	struct ata_host_set *host_set = dev_get_drvdata(dev);
-> +
-> +	pci_read_config_word(pdev, NV_SGPIO_PCI_CSR_OFFSET, &csr_add);
-> +	pci_read_config_dword(pdev, NV_SGPIO_PCI_CB_OFFSET, &cb_add);
-> +    	if (csr_add == 0 || cb_add == 0) {
-> +        	return;
-> +    	}
-> +
-> +	temp32 = csr_add;
-
-temp32 came from a pci config space read.
-
-> +    	phost->host_sgpio.pcsr = (union nv_sgpio_csr *)temp32;
-
-And we copy that into a kernel pointer??  Really?
-
-> +    	phost->host_sgpio.pcb = phys_to_virt(cb_add);
-> +
-> +    	if (phost->host_sgpio.pcb->scratch_space == 0) {
-> +        	spin_lock_init(&nv_sgpio_lock);
-> +        	phost->host_sgpio.share.plock = &nv_sgpio_lock;
-> +        	phost->host_sgpio.share.ptstamp = &nv_sgpio_tstamp;
-> +		phost->host_sgpio.pcb->scratch_space = 
-> +			(unsigned long)&phost->host_sgpio.share;
-> +        	spin_lock(phost->host_sgpio.share.plock);
-> +        	nv_sgpio_reset(phost->host_sgpio.pcsr);
-> +        	phost->host_sgpio.pcb->cr0.bit.enable = 1;
-> +		spin_unlock(phost->host_sgpio.share.plock);
-> +    	}
-> +
-> +    	phost->host_sgpio.share = 
-> +		*(struct nv_sgpio_host_share *)(unsigned long)
-> +		phost->host_sgpio.pcb->scratch_space;
-> +    	phost->host_sgpio.flags.sgpio_enabled = 1;
-> +
-> +    	init_timer(&phost->host_sgpio.sgpio_timer);
-> +    	phost->host_sgpio.sgpio_timer.data = (unsigned long)host_set;
-> +    	nv_sgpio_set_timer(&phost->host_sgpio.sgpio_timer, 
-> +				NV_SGPIO_UPDATE_TICK);
-> +}
-> +
->
-> ...
->
-> +
-> +static void nv_sgpio_timer_handler(unsigned long context)
-> +{
-> +
-> +    	struct ata_host_set *host_set = (struct ata_host_set *)context;
-> +    	struct nv_host *host;
-> +    	u8 count, host_offset, port_offset;
-> +    	union nv_sgpio_tx tx;
-> +    	bool on_off;
-> +    	unsigned long mask = 0xFFFF;
-> +	struct nv_port *port;
-> +
-> +    	if (!host_set)
-> +		goto err_out;
-> +	else 
-> +		host = (struct nv_host *)host_set->private_data;
-
-ata_host_set.parivate_data is void*, so this cast is unneeded.
-
-> +	if (!host->host_sgpio.flags.sgpio_enabled)
-> +	        goto err_out;
-> +
-> +	host_offset = nv_sgpio_tx_host_offset(host_set);
-> +
-> +    	spin_lock(host->host_sgpio.share.plock);
-> +    	tx = host->host_sgpio.pcb->tx[host_offset];
-> +    	spin_unlock(host->host_sgpio.share.plock);
-> +
-> +    	for (count = 0; count < host_set->n_ports; count++) {
-> +        	struct ata_port *ap; 
-> +
-> +        	ap = host_set->ports[count];
-> +        
-> +        	if (!(ap && !(ap->flags & ATA_FLAG_PORT_DISABLED)))
-> +			continue;
-> +
-> +            	port = (struct nv_port *)ap->private_data;
-
-Ditto.
-
-> +		if (!port)
-> +			continue;            		
-> +                port_offset = nv_sgpio_tx_port_offset(ap);
-
-whitepsace went funny.
-
-> +	        on_off = tx.bit.tx_port[port_offset].bit.activity;
-> +         	if (nv_sgpio_update_led(&port->port_sgpio.activity, &on_off)) {
-> +                    	tx.bit.tx_port[port_offset].bit.activity = on_off;
-> +                    	host->host_sgpio.flags.need_update = 1;
-> +                }
-
-Ditto.  In fact in many places this patch uses spaces where it should be
-using tabs.
-
-> ...
->
-
-	if (jiffies_to_msecs(jiffies - *ptstamp) >= NV_SGPIO_MIN_UPDATE_DELTA) {
-
-I think this works OK in the presence of jiffies wraparound.  But it would
-be more idiomatic to do
-
-	if (time_after(jiffies,
-		*ptstamp + msecs_to_jiffies(NV_SGPIO_MIN_UPDATE_DELTA)) {
-
-
-> ...
->
-> +
-> +static bool nv_sgpio_update_led(struct nv_sgpio_led *led, bool *on_off)
-
-Please remove the new private implementation of `bool' and just use `int'. 
-There's ongoing discussion about how to do a kernel-wide implementation of
-bool, and adding new driver-private ones now just complicates that.
-
-
+> On Mon, 21 Aug 2006 16:32:07 -0400 Jesse Huang wrote:
+> 
+> > Dear All:
+> > I had regenerate this patch from:
+> > git://git.kernel.org/pub/scm/linux/kernel/git/penberg/netdev-ipg-2.6.git
+> >
+> > And, submit those modifications as one patch.
+> >
+> > From: Jesse Huang <jesse@icplus.com.tw>
+> >
+> > Change Logs:
+> >    - update maintainer information
+> >    - remove some default phy params
+> >    - remove threshold config from ipg_io_config
+> >    - ip1000 ipg_config_autoneg rewrite
+> >    - modify coding style of ipg_config_autoneg
+> >    - Add IPG_AC_FIFO flag when Tx reset
+> >    - For compatible at PCI 66MHz issue
+> >
+> > Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
+> > ---
+> >
+> >  ipg.c |  394 ++++++++++++++
+> > +-------------------------------------------------- ipg.h |   96
+> > +--------------- 2 files changed, 92 insertions(+), 398 deletions(-)
+> 
+> Please use "diffstat -p1 -w 70" for diffstat output so that we can
+> see the full path/file names that are modified in the patch.
+> 
+> > 8bd0325e52d2578c37cd251aeac2136f7cca9098
+> > diff --git a/ipg.c b/ipg.c
+> > index 754ddb5..7c541c2 100644
+> > --- a/ipg.c
+> > +++ b/ipg.c
+> 
+> Similar to the diffstat comment, the "diff" a & b filenames should
+> show the full path to the source file, e.g.:
+> 
+> --- a/drivers/net/ipg.c
+> +++ b/drivers/net/ipg.c
+> 
+> > @@ -511,14 +513,13 @@ static int ipg_config_autoneg(struct net
+> >  */
+> >  sp->tenmbpsmode = 0;
+> >
+> > - printk("Link speed = ");
+> > + printk(KERN_INFO "Link speed = ");
+> >
+> >  /* Determine actual speed of operation. */
+> >  switch (phyctrl & IPG_PC_LINK_SPEED) {
+> >  case IPG_PC_LINK_SPEED_10MBPS:
+> >  printk("10Mbps.\n");
+> > - printk(KERN_INFO "%s: 10Mbps operational mode
+> > enabled.\n",
+> > -        dev->name);
+> > + printk("%s: 10Mbps operational mode enabled.
+> > \n",dev->name);
+> 
+> Space before "dev->name".
+> Why dropping the KERN_INFO here?  The previous printk contains
+> a newline character, so KERN_* is still valid.
+> 
+> > sp->tenmbpsmode = 1;
+> >  break;
+> >  case IPG_PC_LINK_SPEED_100MBPS:
+> 
+> > @@ -530,283 +531,50 @@ static int ipg_config_autoneg(struct net
+> 
+> > + /* Configure full duplex, and flow control. */
+> > + if (fullduplex == 1) {
+> > + /* Configure IPG for full duplex operation. */
+> > + printk(KERN_INFO "setting full duplex, ");
+> 
+> This series of printk calls needs some kind of device or driver
+> identification.
+> 
+> > - if ((advertisement & ADVERTISE_1000XFULL) ==
+> > -     (linkpartner_ability & ADVERTISE_1000XFULL)) {
+> > - fullduplex = 1;
+> > + mac_ctrl_value |= IPG_MC_DUPLEX_SELECT_FD;
+> >
+> > - /* In 1000BASE-X using IPG's internal PCS
+> > - * layer, so write to the GMII duplex bit.
+> > - */
+> > - bmcr |= ADVERTISE_1000HALF; // Typo ?
+> > + if (txflowcontrol == 1) {
+> > + printk("TX flow control");
+> > + mac_ctrl_value |=
+> > IPG_MC_TX_FLOW_CONTROL_ENABLE; } else {
+> > - fullduplex = 0;
+> > -
+> > - /* In 1000BASE-X using IPG's internal PCS
+> > - * layer, so write to the GMII duplex bit.
+> > - */
+> > - bmcr &= ~ADVERTISE_1000HALF; // Typo ?
+> > + printk("no TX flow control");
+> > + mac_ctrl_value &=
+> > ~IPG_MC_TX_FLOW_CONTROL_ENABLE; }
+> > - mdio_write(dev, phyaddr, MII_BMCR, bmcr);
+> > - }
+> 
+> > + } else {
+> > + /* Configure IPG for half duplex operation. */
+> > +         printk(KERN_INFO "setting half duplex, no TX flow
+> > control, no RX flow control.\n");
+> 
+> Same here:  needs device (preferably) or driver identification.
+> 
+> > - default:
+> > - txflowcontrol = 0;
+> > - rxflowcontrol = 0;
+> > - }
+> > + mac_ctrl_value &= ~IPG_MC_DUPLEX_SELECT_FD &
+> > ~IPG_MC_TX_FLOW_CONTROL_ENABLE & ~IPG_MC_RX_FLOW_CONTROL_ENABLE; }
+> 
+> > @@ -1158,6 +916,7 @@ static void ipg_nic_txfree(struct net_de
+> >  struct ipg_nic_private *sp = netdev_priv(dev);
+> >  int NextToFree;
+> >  int maxtfdcount;
+> > + long CurrentTxTFDPtr=(ioread32(ipg_ioaddr(dev)
+> > +TFD_LIST_PTR_0)-(long)sp->TFDListDMAhandle)/(long)sizeof(struct
+> > TFD);
+> 
+> Space before and after '=' sign.
+> 
+> > @@ -1180,8 +939,10 @@ static void ipg_nic_txfree(struct net_de
+> >  * If the TFDDone bit is set, free the associated
+> >  * buffer.
+> >  */
+> > - if ((le64_to_cpu(sp->TFDList[NextToFree].TFC) &
+> > -      IPG_TFC_TFDDONE) && (NextToFree !=
+> > sp->CurrentTFD)) {
+> > + if((NextToFree != sp->CurrentTFD)&&(NextToFree!
+> > =CurrentTxTFDPtr))
+> 
+> Spaces before and after "&&" and "!=" etc. (as in the former code).
+> 
+> > + {
+> > + //JesseAdd: setup TFDDONE for compatible
+> > issue.
+> > + sp->TFDList[NextToFree].TFC = cpu_to_le64
+> > (sp->TFDList[NextToFree].TFC|IPG_TFC_TFDDONE); /* Free the transmit
+> > buffer. */ if (sp->TxBuff[NextToFree] != NULL) {
+> >  pci_unmap_single(sp->pdev,
+> > @@ -1204,6 +965,15 @@ static void ipg_nic_txfree(struct net_de
+> >  maxtfdcount--;
+> >
+> >  } while (maxtfdcount != 0);
+> > + if(sp->LastTFDHoldCnt>1000) {
+> 
+> Space between "if" and "(".  Space before/after ">".
+> and on next line ("=").
+> 
+> > + sp->LastTFDHoldCnt=0;
+> > + ipg_reset(dev, IPG_AC_TX_RESET | IPG_AC_DMA |
+> > IPG_AC_NETWORK | IPG_AC_FIFO);
+> > + // Re-configure after DMA reset.
+> > + if ((ipg_io_config(dev) < 0) ||(init_tfdlist(dev)
+> > < 0)) {
+> > + printk(KERN_INFO"%s: Error during
+> > re-configuration.\n",dev->name);
+> 
+> Space before "dev->name".  And after KERN_INFO.
+> 
+> Could you save an error code from ipg_io_config() or init_tfdlist()
+> and give the user a bit more meaningful message?
+> 
+> 
+> > + }
+> 
+> > @@ -2280,10 +2050,17 @@ static int ipg_nic_hard_start_xmit(struc
+> >  * counter, modulus the length of the TFDList.
+> >  */
+> >  NextTFD = (sp->CurrentTFD + 1) % IPG_TFDLIST_LENGTH;
+> > + if(sp->ResetCurrentTFD!=0)
+> 
+> Spaces.  Make it human-readable, not just machine-readable.
+> 
+> > + {
+> > + sp->ResetCurrentTFD=0;
+> > + NextTFD=0;
+> > + }
+> > + /* Check for availability of next TFD. Reserve 1 for not
+> > become ring*/
+> > + if (NextTFD == sp->LastFreedTxBuff) {
+> > +
+> > + if(sp->LastTFDHoldAddr==sp->CurrentTFD)
+> 
+> Spaces....
+> 
+> 
+> > diff --git a/ipg.h b/ipg.h
+> > index 58b1417..9688483 100644
+> > --- a/ipg.h
+> > +++ b/ipg.h
+> > @@ -919,59 +883,7 @@ unsigned short DefaultPhyParam[] = {
+> >  // 01/09/04 IP1000A v1-5 rev=0x41
+> >  (0x4100 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31, 0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x42
+> > - (0x4200 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x43
+> > - (0x4300 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x44
+> > - (0x4400 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x45
+> > - (0x4500 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x46
+> > - (0x4600 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x47
+> > - (0x4700 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x48
+> > - (0x4800 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x49
+> > - (0x4900 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x4A
+> > - (0x4A00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x4B
+> > - (0x4B00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x4C
+> > - (0x4C00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x4D
+> > - (0x4D00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > - // 01/09/04 IP1000A v1-5 rev=0x4E
+> > - (0x4E00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002,
+> > 27, 0xeb8e, 31,
+> > -     0x0000,
+> > - 30, 0x005e, 9, 0x0700,
+> > + 30, 0x005e, 9, 0x0700,
+> 
+> Eh?  This change just adds whitespace at end of line.
+> This happens in other places too.  Please clean up all of those.
+> 
+> Does removing all of those other entries prevent anyone's
+> hardware from working correctly?

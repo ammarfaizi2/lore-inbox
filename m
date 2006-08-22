@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWHVRRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWHVR0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWHVRRx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 13:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHVRRx
+	id S932308AbWHVR0x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 13:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHVR0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 13:17:53 -0400
-Received: from lb2.onspeed.com ([72.3.137.84]:15557 "EHLO navaho.onspeed.com")
-	by vger.kernel.org with ESMTP id S932238AbWHVRRw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 13:17:52 -0400
-X-Originating-IP: [196.207.228.51]
-X-Originating-User: [trEEYx7uUN]
-Message-ID: <trEEYx7uUN$196.207.228.51$.44eb3c3f.a9600.3537.367@navaho.onspeed.com>
-From: "abriel fabian" <abriel_fabian@yahoo.hm>
-Reply-To: abriel_fabian@mixmail.com
-To: linux-kernel@vger.kernel.org
-Date: Tue, 22 Aug 2006 17:13:57 +0000
-Subject: urgent response
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Aug 2006 13:26:53 -0400
+Received: from accolon.hansenpartnership.com ([64.109.89.108]:4055 "EHLO
+	accolon.hansenpartnership.com") by vger.kernel.org with ESMTP
+	id S932290AbWHVR0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 13:26:52 -0400
+Subject: Re: [PATCH 1/2] Add SATA support to libsas
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Alexis Bruemmer <alexisb@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <44DBE943.4080303@us.ibm.com>
+References: <44DBE943.4080303@us.ibm.com>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 12:26:45 -0500
+Message-Id: <1156267605.19615.4.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ABRIEL FABIAN,
-Managing director 
-Tapar Group, 
-Office address:77, 
-Bd du général de Gaule
-B13 Dakar,Senegal.
+On Thu, 2006-08-10 at 19:19 -0700, Darrick J. Wong wrote:
+> +static inline void sas_mark_dev_sata(struct domain_device *dev)
+> +{
+> +       dev->rphy->identify = dev->port->phy->identify;
+> +       dev->rphy->identify.initiator_port_protocols =
+> SAS_PROTOCOL_SATA;
+> +       dev->rphy->identify.target_port_protocols = SAS_PROTOCOL_SATA;
+> +       dev->rphy->identify.device_type = SAS_END_DEVICE;
+> +       memcpy(&dev->rphy->identify.sas_address, dev->sas_addr,
+> SAS_ADDR_SIZE);
+> +}
 
+Actually, this is wrong: you can't memcpy from dev->sas_addr to
+identify.sas_addr the former is a big endian u8[8] and the latter is a
+u64.  However, the function is unnecessary anyway.  We already have a
+sas_fill_in_rphy that does all of this.
 
- ATTN:
- Tapar Group, is in search of a book-keeper/company representatives in the United States,canada 
-and the UK.This project has been developed in a way not to affect your present job nor bring you any 
-form of stress but in order to help take care of those extra costs while you work for us.
- Tapar Group is a company thats deals in the production and supplies of Batik,Assorted African fabrics,
-various clothing materials,African art materials and all kinds of furnitures for exporting to the wolrd.Presently 
-our website is under construction and should be ready soon.
- Recently It came to my knowledge that there are a lot of lapses in handling funds coming from our clients 
-in the USA,Canada and UK which come in forms of Cashiers checks,Company checks and Money Orders 
-which are not readily cashable outside the United States,Canada and UK,So we need someone in the US,
-Canada and UK to work as our representatives and assist us in processing the payments from our various 
-clients which come in on a weekly,monthly and annual basis.This is why we decided to employ a 
-representatives over in the US,Canada and UK to help us receive our payments at your contact address 
-you shall be providing us,in order to process our payment from our clients. 
-   All you need to do is receive these payments from our clients in your country, get it deposited at your bank,
-Cash it then deduct your percentage( 15% of each payment) plus transfer charges and forward the 
-balance funds to one of company's representatives via Moneygram/Western Union.
-      Our payments will be issued out in your name as we would inform our clients to do.Therefore 
-the following details would be needed: I would require you to send me an email with the following details:
-1)Your Fullname
-2)Your Residential Address
-3)Your Phone number
-4)Your Age
-5)Your Occupation 
- We would forward these informations to our clients and they will start making payments to you as the
- company's representative in the states,Canada or UK.Once we have all your details in our records,We 
-would notify you as soon as we confirm that one of our cleints is mailing payment across to you. 
- I await your urgent response. 
+James
 
-Warmest Regards, 
-ABRIEL FABIAN
-Managing director 
-Tapar Group 
-abriel_fabian@mixmail.com
-Office address:77, Bd du général de Gaule
-B13 Dakar,Senegal
-
+Index: BUILD-2.6/drivers/scsi/libsas/sas_discover.c
+===================================================================
+--- BUILD-2.6.orig/drivers/scsi/libsas/sas_discover.c	2006-08-21 21:30:38.000000000 -0500
++++ BUILD-2.6/drivers/scsi/libsas/sas_discover.c	2006-08-21 21:49:22.000000000 -0500
+@@ -398,15 +398,6 @@
+ 	spin_unlock_irqrestore(&port->phy_list_lock, flags);
+ }
+ 
+-static inline void sas_mark_dev_sata(struct domain_device *dev)
+-{
+-	dev->rphy->identify = dev->port->phy->identify;
+-	dev->rphy->identify.initiator_port_protocols = SAS_PROTOCOL_SATA;
+-	dev->rphy->identify.target_port_protocols = SAS_PROTOCOL_SATA;
+-	dev->rphy->identify.device_type = SAS_END_DEVICE;
+-	memcpy(&dev->rphy->identify.sas_address, dev->sas_addr, SAS_ADDR_SIZE);
+-}
+-
+ #define ATA_IDENTIFY_DEV         0xEC
+ #define ATA_IDENTIFY_PACKET_DEV  0xA1
+ #define ATA_SET_FEATURES         0xEF
+@@ -490,7 +481,7 @@
+ 	sas_satl_register_dev(dev);
+ 	*/
+ 	
+-	sas_mark_dev_sata(dev);
++	sas_fill_in_rphy(dev, dev->rphy);
+ 
+ 	res = sas_rphy_add(dev->rphy);
+ 	if (res)
 
 

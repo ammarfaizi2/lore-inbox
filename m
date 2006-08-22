@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWHVQ1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWHVQlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWHVQ1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 12:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHVQ1K
+	id S1751410AbWHVQlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 12:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHVQlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 12:27:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:56362 "EHLO
+	Tue, 22 Aug 2006 12:41:42 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:38472 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751410AbWHVQ1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 12:27:08 -0400
+	id S1751410AbWHVQll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 12:41:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=WetxDtARekLBTk+UXNRZWaitLYnn2gJgdQxnlLKM0XZYNT7jom/iazq12ARlDRP4Uy/Sr4L2z4CPoSfL6MzckPZw4RiogirEOfzVRA9WUu2j0Fn6foQyekCJSKrhf+jtob9mjGMXht3ep6M+jvqmJnAjR24SMXVZS0KPC54lEvo=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: mplayer + heavy io: why ionice doesn't help?
-Date: Tue, 22 Aug 2006 18:26:08 +0200
-User-Agent: KMail/1.8.2
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, mplayer-users@mplayerhq.hu,
-       linux-kernel@vger.kernel.org
-References: <200608181937.25295.vda.linux@googlemail.com> <200608201843.58849.vda.linux@googlemail.com> <1156109768.10565.55.camel@mindpipe>
-In-Reply-To: <1156109768.10565.55.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=gQ7Wm/abBRL9HmvIzTNyUuUQgRMDx96o2DWSzb3FPrAIOdTQpAz3ux8Q4m3U9jhX/JPO9EFWKlY/IZ6hg83j/6/G+qbX8bvtGVf32FX7yfAVWuhawXyi60wotCZlDyHLms5yWt0Q8Hd2wdjoYfca0FgsRTST3D7nhmKyJszR5rw=
+Date: Tue, 22 Aug 2006 20:50:53 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
+Message-Id: <20060822205053.37472ba7.pauldrynoff@gmail.com>
+In-Reply-To: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
+References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608221826.08802.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I eliminated skips due to CPU and disk using
-> > nice and -cache 8000. I still can make it skip
-> > when my KDE background picture is changing.
-> > 
-> 
-> I also must run mplayer at nice -20 for it to be usable.
-> 
-> > I think that these skips are caused by the X server.
-> > It has no prioritization for request handling and
-> > thus it does not paint mplayer output fast enough:
-> > it needs to repaint background and semi-transparent
-> > konsole(s), and that is taking a few seconds at least.
-> > 
-> > This is probably aggravated by serializing nature of Xlib,
-> > according to:
-> > 
-> > http://en.wikipedia.org/wiki/XLib
-> > http://en.wikipedia.org/wiki/XCB
-> 
-> I think the problem is also due to mplayer's faulty design.  It should
-> be multithreaded and use RT threads for the time sensitive work, like
-> all professional AV applications and many other consumer players do.
+After several attempts of booting I got similar, but not the same message:
+all things are similar like
+last sysfs file: /block/hda/range
+eip, and other registers, but
+process not init:
+Process htplug (pid: 942, ti=c7424000 task=c7420590 task.ti=c7424000)
 
-RT - yes, multithreaded - unsure. Witness how squid manages to
-serve hundreds of simultaneous streams using just a single process.
-
-Multithreading seems cool on the first glance and it is easier to code
-than clever O_NONBLOCK/select/poll/etc stuff. However,
-on single-CPU boxes, which are still a majority, multithreading
-just incurs context switching penalty. It cannot magically
-make CPU do more work in a unit of time.
---
-vda
+Also, I should say that I can reproduce problem on real machine, and on qemu.

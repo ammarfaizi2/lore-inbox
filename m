@@ -1,149 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWHVT0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWHVT0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWHVT0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT0r
+	id S1751212AbWHVT0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:26:47 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:43240 "EHLO bipbip.grupopie.com")
-	by vger.kernel.org with ESMTP id S1751201AbWHVT0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:26:46 -0400
-Message-ID: <44EB5A73.9080206@grupopie.com>
-Date: Tue, 22 Aug 2006 20:26:43 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Tue, 22 Aug 2006 15:26:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:24136 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751201AbWHVT0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:26:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:content-type:mime-version:content-transfer-encoding:message-id:user-agent:from;
+        b=HNKlZBbYpe06Kb9r2EgSmXzzoAp38iqW/85jungixhVvPkBtapFQIiboN6Yp5Lfd6wOoZNrYkwx4KBxLfIsFl5Bv5X7mfv98R96fr+/dEK72U5Akryopaz6jwWUwybOdFnmPIZ6BrzL5I615CF2HGkBc3KqU5xZCyIWYrBr+p4Q=
+Date: Tue, 22 Aug 2006 21:26:40 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Specify devices manually in exotic environment
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
 MIME-Version: 1.0
-To: Franck <vagabon.xyz@gmail.com>
-CC: rusty@rustcorp.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] kallsyms_lookup always requires buffers
-References: <44EAFDCA.1080002@innova-card.com>
-In-Reply-To: <44EAFDCA.1080002@innova-card.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Message-ID: <op.teo9mqjlepq0rv@localhost>
+User-Agent: Opera Mail/9.00 (Linux)
+From: Milan Hauth <milahu@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Franck Bui-Huu wrote:
-> Hi,
-> 
-> Some uses of kallsyms_lookup() do not need to find out the name of
-> a symbol and its module's name it belongs. This is specially true
-> in arch specific code, which needs to unwind the stack to show the
-> back trace during opps (mips is an example). In this specific case,
-> we just need to retreive the function's size and the offset of the
-> active intruction inside it.
-> 
-> This simple patch adds a new entry "kallsyms_lookup_gently()". The
-> name actually sucks but I can't figure out a coherent name with the
-> rest of the file. If someone could give me a better idea...
+Hello there.
 
-kallsyms_lookup_size_offset() ?
+Got a quite exotic environment here -- a Compaq Evo T20 thin client, which  
+I want to run Linux on.
 
-Granted it is a little bigger, but it tells exactly what it does and 
-there are not that many users that we have to write this name all that 
-often.
+But I'm not satisfied with a completely thin client, meaning that all the  
+files are located on the server. What I want is the basic system to be  
+located on the client, while the Unix System Resources, for example, are  
+mounted from the server, since they're too big for 32MB of Flash memory.
 
-> This new entry does exactly the same as kallsyms_lookup() but does
-> not require any buffers to store any names. It returns 0 if it fails
-> otherwise 1.
-> 
-> Do you think this can be usefull ?
+The problem I'm facing at the moment is the T20's BIOS, which doesn't seem  
+to pass the device information correctly to the Kernel. GRUB (v0.97) does  
+work with a workaround, which can be found in the document [1] I followed  
+to 'teach' Linux to the T20.
 
-You tell me, since you're proposing the change ;)
+I already tried to use /proc/sys/kernel/real-root-dev, but setting the  
+root device to 0x80 (as already specified for GRUB) or 0x81 (1st partition  
+of 0x80) did not seem to help.
 
-> diff --git a/include/linux/kallsyms.h b/include/linux/kallsyms.h
-> index 849043c..30f8d8d 100644
-> --- a/include/linux/kallsyms.h
-> +++ b/include/linux/kallsyms.h
-> @@ -12,6 +12,10 @@ #ifdef CONFIG_KALLSYMS
->  /* Lookup the address for a symbol. Returns 0 if not found. */
->  unsigned long kallsyms_lookup_name(const char *name);
->  
-> +extern int kallsyms_lookup_gently(unsigned long addr,
-> +				  unsigned long *symbolsize,
-> +				  unsigned long *offset);
-> +
->  /* Lookup an address.  modname is set to NULL if it's in the kernel. */
->  const char *kallsyms_lookup(unsigned long addr,
->  			    unsigned long *symbolsize,
-> @@ -28,6 +32,13 @@ static inline unsigned long kallsyms_loo
->  	return 0;
->  }
->  
-> +static inline const int kallsyms_lookup_gently(unsigned long addr,
-> +					       unsigned long *symbolsize,
-> +					       unsigned long *offset)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline const char *kallsyms_lookup(unsigned long addr,
->  					  unsigned long *symbolsize,
->  					  unsigned long *offset,
-> diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
-> index ab16a5a..c398753 100644
-> --- a/kernel/kallsyms.c
-> +++ b/kernel/kallsyms.c
-> @@ -69,6 +69,15 @@ static inline int is_kernel(unsigned lon
->  	return in_gate_area_no_task(addr);
->  }
->  
-> +static int is_kernel_addr(unsigned long addr)
+So, did I forget anything when building my Kernel? Or is it just another  
+trick, I don't know yet?
 
-Maybe change the name to kallsyms_is_kernel_addr, because this function 
-does more things than what the generic name implies.
+Hopefully someone here can help me on this one.. have been 'working' on my  
+cute T20 for several months now.. :-\
 
-> +{
-> +	if (all_var)
-> +		return is_kernel(addr);
-> +
-> +	return is_kernel_text(addr) || is_kernel_inittext(addr) ||
-> +		is_kernel_extratext(addr);
-> +}
-> +
+Cheers, milahu
 
-[...]
-> +/*
-> + * Lookup an address but don't bother to find any names.
-> + */
-> +int kallsyms_lookup_gently(unsigned long addr, unsigned long *symbolsize,
-> +			   unsigned long *offset)
-> +{
-> +	int rv;
-> +
-> +	if (is_kernel_addr(addr))
-> +		rv = !!get_symbol_pos(addr, symbolsize, offset);
-> +	else
-> +		rv = !!module_address_lookup(addr, symbolsize, offset, NULL);
-> +
-> +	return rv;
-> +}
 
-<minor nitpick>
+[1] http://www.kazak.ws/evo/
 
-Why not just:
 
- > if (is_kernel_addr(addr))
- >	return !!get_symbol_pos(addr, symbolsize, offset);
- >
- > return !!module_address_lookup(addr, symbolsize, offset, NULL);
+PS: Here's my linuxrc:
 
-and just get rid of "rv" completely?
-
-</minor nitpick>
-
-> +EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
-
-I agree with Arjan here. If kallsyms_lookup wasn't exported, I don't see 
-a reason to export this either.
-
-Everything else seems fine.
-
--- 
-Paulo Marques - www.grupopie.com
-
-"The face of a child can say it all, especially the
-mouth part of the face."
+#!/bin/sh
+mount -v -t proc proc /proc
+echo 0x80 >/proc/sys/kernel/real-root-dev
+mount -o remount,rw /
+exec chroot . sh <<- EOF
+     <dev/console >dev/console 2>&1
+     exec /sbin/init
+EOF
+--
+proc on /proc type proc (rw)
+mount: can't find / in /etc/fstab or /etc/mtab
+INIT: version 2.86 booting
+INIT: No inittab file found

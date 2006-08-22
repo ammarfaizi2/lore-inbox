@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWHVMNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWHVMRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWHVMNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHVMNf
+	id S932201AbWHVMRt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWHVMRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:13:35 -0400
-Received: from www1.copiapo.cl ([200.68.10.242]:1427 "EHLO RODRIGOC.a1ke.com")
-	by vger.kernel.org with ESMTP id S932199AbWHVMNe (ORCPT
+	Tue, 22 Aug 2006 08:17:49 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:55982 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932201AbWHVMRs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:13:34 -0400
-Message-ID: <19218960541624.AA4ABE147B@Z5M22S5F>
-From: "Mitchel" <bovinecirce@rotodynamics.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Revel in  This is what you always needed to lead a happier, more fulfilling life.
-Date: Tue, 22 Aug 2006 08:11:29 -0300
-MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: jqV7uOJsSvz5YMH6LwiN5toUqtZ4N5E2JvYg
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 08:17:48 -0400
+Date: Tue, 22 Aug 2006 16:17:10 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
+Subject: Re: [PATCH] kevent_user: remove non-chardev interface
+Message-ID: <20060822121709.GA4815@2ka.mipt.ru>
+References: <12345678912345.GA1898@2ka.mipt.ru> <11561555871530@2ka.mipt.ru> <20060822115459.GA10839@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060822115459.GA10839@infradead.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 22 Aug 2006 16:17:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brand new
- Take your chance to make her adore you. Outrun her ex in terms of size and performance! Several inches in a couple of months, this is not fantasy, this is reality!
+On Tue, Aug 22, 2006 at 12:54:59PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> Currently a user can create a user kevents in two ways:
+> 
+>  a) simply open() the kevent chardevice
+>  b) use sys_kevent_ctl with the KEVENT_CTL_INIT cmd type
+> 
+> both are equally easy to use for the user, but to support type b) a lot
+> of code in kernelspace is required.  remove type b to save lots of code
+> without functionality loss.
 
- Give her a chance to climax from penetration - increase your tool once and for all! You can mark inches on your ruler, expecting your intimate tool to gain a lot in size. Just take a look: http://www.caseyjul.com/gall/ms/ 
+I personally do not have objections against it, but it introduces
+additional complexies - one needs to open /dev/kevent and then perform
+syscalls on top of returuned file descriptor.
 
-This costs much less than a luxury car - but makes you a lot more confident and attractive.
+If there are no objections, I will apply this patch.
 
- Abstinence makes the heart go wander. Children Have Wide Ears and Long Tongues Never trouble trouble till trouble troubles you
-
+-- 
+	Evgeniy Polyakov

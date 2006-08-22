@@ -1,113 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWHVGoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHVHBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWHVGoP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 02:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWHVGoP
+	id S1751308AbWHVHBd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 03:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWHVHBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 02:44:15 -0400
-Received: from msr22.hinet.net ([168.95.4.122]:31947 "EHLO msr22.hinet.net")
-	by vger.kernel.org with ESMTP id S1751233AbWHVGoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 02:44:14 -0400
-Subject: [PATCH 4/4] IP100A: Solve host error problem in low performance
-	embedded system when continune down and up.
-From: Jesse Huang <jesse@icplus.com.tw>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com, jesse@icplus.com.tw
+	Tue, 22 Aug 2006 03:01:33 -0400
+Received: from alnrmhc12.comcast.net ([204.127.225.92]:27105 "EHLO
+	alnrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751268AbWHVHBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 03:01:33 -0400
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+From: Nicholas Miell <nmiell@comcast.net>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <11561555871530@2ka.mipt.ru>
+References: <11561555871530@2ka.mipt.ru>
 Content-Type: text/plain
-Date: Tue, 22 Aug 2006 14:31:32 -0400
-Message-Id: <1156271492.4662.6.camel@localhost.localdomain>
+Date: Tue, 22 Aug 2006 00:00:51 -0700
+Message-Id: <1156230051.8055.27.camel@entropy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Huang <jesse@icplus.com.tw>
+On Mon, 2006-08-21 at 14:19 +0400, Evgeniy Polyakov wrote:
+> Generic event handling mechanism.
 
-Change Logs:
-   - Solve host error problem in low performance embedded 
-     system when continune down and up.
+Since this is the sixth[1] event notification system that's getting
+added to the kernel, could somebody please convince me that the
+userspace API is right this time? (Evidently, the others weren't and are
+now just backward compatibility bloat.)
 
-Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
+Just looking at the proposed kevent API, it appears that the timer event
+queuing mechanism can't be used for the queuing of POSIX.1b interval
+timer events (i.e. via a SIGEV_KEVENT notification value in a struct
+sigevent) because (being a very thin veneer over the internal kernel
+timer system) you can't specify a clockid, the time value doesn't have
+the flexibility of a struct itimerspec (no re-arm timeout or absolute
+times), and there's no way to alter, disable or query a pending timer or
+query a timer overrun count.
 
----
+Overall, kevent timers appear to be inconvenient to use and limited
+compared to POSIX interval timers (excepting the fact you can read their
+expiray events out of a queue, of course).
 
- sundance.c |   30 +++++++++++++++++++++++++-----
- 1 files changed, 25 insertions(+), 5 deletions(-)
 
-a88c635933a981dd4fca87e5b8ca9426c5c98013
-diff --git a/sundance.c b/sundance.c
-index 424aebd..de55e0f 100755
---- a/sundance.c
-+++ b/sundance.c
-@@ -831,7 +831,7 @@ #endif
- 	if (np->pci_rev_id >= 0x14)
- 		iowrite8(0x01, ioaddr + DebugCtrl1);
- 	netif_start_queue(dev);
--	
-+
- 	spin_lock_irqsave(&np->lock,flags);
- 	reset_tx(dev);
- 	spin_unlock_irqrestore(&np->lock,flags);
-@@ -1076,7 +1076,7 @@ reset_tx (struct net_device *dev)
- 	struct sk_buff *skb;
- 	int i;
- 	int irq = in_interrupt();
--	
-+
- 	/* Reset tx logic, TxListPtr will be cleaned */
- 	iowrite16 (TxDisable, ioaddr + MACCtrl1);
- 	iowrite16 (TxReset | DMAReset | FIFOReset | NetworkReset,
-@@ -1647,6 +1647,14 @@ static int netdev_close(struct net_devic
- 	struct sk_buff *skb;
- 	int i;
- 
-+	/* Wait and kill tasklet */
-+	tasklet_kill(&np->rx_tasklet);
-+	tasklet_kill(&np->tx_tasklet);
-+   np->cur_tx = 0;
-+   np->dirty_tx = 0;
-+	np->cur_task = 0;
-+	np->last_tx = 0;
-+
- 	netif_stop_queue(dev);
- 
- 	if (netif_msg_ifdown(np)) {
-@@ -1667,9 +1675,20 @@ static int netdev_close(struct net_devic
- 	/* Stop the chip's Tx and Rx processes. */
- 	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
- 
--	/* Wait and kill tasklet */
--	tasklet_kill(&np->rx_tasklet);
--	tasklet_kill(&np->tx_tasklet);
-+    for (i = 2000; i > 0; i--) {
-+		 if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
-+		    break;
-+		 mdelay(1);
-+    }	
-+
-+    iowrite16(GlobalReset | DMAReset | FIFOReset |NetworkReset, ioaddr +ASICCtrl + 2);
-+    
-+    for (i = 2000; i > 0; i--)
-+    {
-+		 if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
-+	    	break;
-+		 mdelay(1);
-+    }
- 
- #ifdef __i386__
- 	if (netif_msg_hw(np)) {
-@@ -1707,6 +1726,7 @@ #endif /* __i386__ debugging only */
- 		}
- 	}
- 	for (i = 0; i < TX_RING_SIZE; i++) {
-+		np->tx_ring[i].next_desc = 0;		
- 		skb = np->tx_skbuff[i];
- 		if (skb) {
- 			pci_unmap_single(np->pci_dev,
+
+[1] Previously: select, poll, AIO, epoll, and inotify. Did I miss any?
+
 -- 
-1.3.GIT
-
-
+Nicholas Miell <nmiell@comcast.net>
 

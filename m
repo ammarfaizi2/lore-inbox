@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWHVMYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWHVM1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWHVMYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWHVMYN
+	id S932203AbWHVM1z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWHVM1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:24:13 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:50592 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932207AbWHVMYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:24:12 -0400
-Date: Tue, 22 Aug 2006 17:53:29 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Matt Helsley <matthltc@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-Message-ID: <20060822122329.GA7125@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155866328.2510.247.camel@stark> <44E5A637.1020407@sw.ru> <1155955116.2510.445.camel@stark> <44E992B9.8080908@sw.ru>
+	Tue, 22 Aug 2006 08:27:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39078 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751221AbWHVM1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 08:27:54 -0400
+Date: Tue, 22 Aug 2006 13:27:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [PATCH] kevent_user: remove non-chardev interface
+Message-ID: <20060822122731.GA2994@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	lkml <linux-kernel@vger.kernel.org>,
+	David Miller <davem@davemloft.net>,
+	Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
+References: <12345678912345.GA1898@2ka.mipt.ru> <11561555871530@2ka.mipt.ru> <20060822115459.GA10839@infradead.org> <20060822121709.GA4815@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44E992B9.8080908@sw.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060822121709.GA4815@2ka.mipt.ru>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 03:02:17PM +0400, Kirill Korotaev wrote:
-> > Except that you eventually have to lock ub0. Seems that the cache line
-> > for that spinlock could bounce quite a bit in such a hot path.
-> do you mean by ub0 host system ub which we call ub0
-> or you mean a top ub?
+On Tue, Aug 22, 2006 at 04:17:10PM +0400, Evgeniy Polyakov wrote:
+> I personally do not have objections against it, but it introduces
+> additional complexies - one needs to open /dev/kevent and then perform
+> syscalls on top of returuned file descriptor.
 
-If this were used for pure resource management purpose (w/o containers)
-then the top ub would be ub0 right? "How bad would the contention on the
-ub0->lock be then" is I guess Matt's question.
+it disalllows
 
--- 
-Regards,
-vatsa
+int fd = sys_kevent_ctl(<random>, KEVENT_CTL_INIT, <random>, <random>);
+
+in favour of only
+
+int fd = open("/dev/kevent", O_SOMETHING);
+
+which doesn't seem like a problem, especially as I really badly hope
+no one will use the syscalls but some library instead.
+
+In addition to that I'm researching whether there's a better way to
+implement the other functionality instead of the two syscalls.  But I'd
+rather let code speak, so wait for some patches from me on that.
+

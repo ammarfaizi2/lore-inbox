@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWHVM4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWHVM6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWHVM4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWHVM4G
+	id S1751388AbWHVM6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWHVM6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:56:06 -0400
-Received: from gw.goop.org ([64.81.55.164]:36067 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751294AbWHVM4F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:56:05 -0400
-Message-ID: <44EAFEE3.8080700@goop.org>
-Date: Tue, 22 Aug 2006 05:56:03 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org> <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be>
-In-Reply-To: <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 08:58:08 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:25992 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751388AbWHVM6H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 08:58:07 -0400
+Date: Tue, 22 Aug 2006 21:22:13 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: [PATCH] elv_unregister: fix possible crash on module unload
+Message-ID: <20060822172213.GA401@oleg>
+References: <20060820204345.GA5750@oleg> <20060820205034.GA5755@oleg> <20060821154841.e6ea500a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821154841.e6ea500a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
->> relicensing them.
->>     
->
-> That's a pretty strong statement...
->   
+An exiting task or process which didn't do I/O yet have no io context,
+elv_unregister() should check it is not NULL.
 
-Well, I'm not making any kind of legal statement.  I'm just pointing out 
-that from a technical perspective, there's a large visible functional 
-change from before if we use EXPORT_SYMBOL_GPL(paravirt_ops) vs 
-EXPORT_SYMBOL(paravirt_ops).  Given that the whole point of paravirt_ops 
-is to minimize visible changes, this seems counterproductive.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-    J
+--- 2.6.18-rc4/block/elevator.c~8_crash	2006-07-16 01:53:08.000000000 +0400
++++ 2.6.18-rc4/block/elevator.c	2006-08-22 21:13:06.000000000 +0400
+@@ -765,7 +765,8 @@ void elv_unregister(struct elevator_type
+ 		read_lock(&tasklist_lock);
+ 		do_each_thread(g, p) {
+ 			task_lock(p);
+-			e->ops.trim(p->io_context);
++			if (p->io_context)
++				e->ops.trim(p->io_context);
+ 			task_unlock(p);
+ 		} while_each_thread(g, p);
+ 		read_unlock(&tasklist_lock);
+

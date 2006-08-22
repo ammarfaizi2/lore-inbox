@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWHVKLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWHVKhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWHVKLI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 06:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVKLI
+	id S932158AbWHVKhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 06:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWHVKhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 06:11:08 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:5319 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932152AbWHVKLG (ORCPT
+	Tue, 22 Aug 2006 06:37:18 -0400
+Received: from ns1.suse.de ([195.135.220.2]:18104 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932158AbWHVKhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 06:11:06 -0400
-Date: Tue, 22 Aug 2006 15:40:28 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-Message-ID: <20060822101028.GB5052@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net>
+	Tue, 22 Aug 2006 06:37:16 -0400
+Date: Tue, 22 Aug 2006 12:37:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [2.6 patch] re-add -ffreestanding
+Message-Id: <20060822123713.78a5bcaf.ak@suse.de>
+In-Reply-To: <C1CE9D4F-FBE2-4C4B-BCE9-49DF817E790C@mac.com>
+References: <20060821212154.GO11651@stusta.de>
+	<20060821232444.9a347714.ak@suse.de>
+	<20060821214636.GP11651@stusta.de>
+	<20060822000903.441acb64.ak@suse.de>
+	<20060821222412.GS11651@stusta.de>
+	<20060822002728.c023bf85.ak@suse.de>
+	<20060821225837.GT11651@stusta.de>
+	<20060822011320.a3491337.ak@suse.de>
+	<C1CE9D4F-FBE2-4C4B-BCE9-49DF817E790C@mac.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156245036.6482.16.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 11:10:36AM +0000, Mike Galbraith wrote:
-> Doesn't seem to work here, but maybe I'm doing something wrong.
+On Mon, 21 Aug 2006 23:37:31 -0400
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
+
+> On Aug 21, 2006, at 19:13:20, Andi Kleen wrote:
+> >> What's the problem with adding -ffreestanding and stating  
+> >> explicitely which functions we want to be handled be builtins, and  
+> >> which functions we don't want to be handled by builtins?
+> >
+> > Take a look at lib/string.c and think about it a bit.
 > 
-> I set up cpuset "all" containing cpu 0-1 (all, 1.something cpus I have;)
+> So why can't lib/string.c explicitly say __builtin_foo() instead of  
+> foo() where we mean the former? 
 
-You are assigning all the CPUs to the cpuset "all" and then making it an
-exclusive/metered cpuset?
+Because gcc when using builtins sometimes decides to call the 
+out of line version (usually when it can't figure out the alignment
+and generic alignment code would be too large to inline). And it will
+always call str/memfoo not __builtin_str/memfoo
 
-I dont think I am handling that case well (yet), primarily because usage of 
-remaining tasks (which are not in cpuset "all", "mikeg" & "root") is not 
-accounted/controlled. Note that those remaining tasks will be running on one of 
-the CPUs assigned to "all". What needs to happen is those remaining tasks need 
-to be moved to a separate group (and a runqueue), being given some left-over 
-CPU quota (which is left over from assignment of quota to mikeg and root), 
-which is not handled in the patches (yet). One of the reason why I havent 
-handled it yet is that there is no easy way to retrieve list of tasks attached 
-to a cpuset.
-
-Can you try assigning (NUM_CPUS-1) cpus to "all" and give it a shot?
-Essentially you need to ensure that only tasks chosen by you are running in 
-cpus given to "all" and other child-cpusets under it.
-
-
--- 
-Regards,
-vatsa
+-Andi

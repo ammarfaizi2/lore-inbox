@@ -1,175 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWHVT56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWHVT7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWHVT56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWHVT56
+	id S1750995AbWHVT7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWHVT7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:57:58 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:16781 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750832AbWHVT55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:57:57 -0400
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: Nicholas Miell <nmiell@comcast.net>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20060822100316.GA31820@2ka.mipt.ru>
-References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy>
-	 <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy>
-	 <20060822083711.GA26183@2ka.mipt.ru> <1156238988.8055.78.camel@entropy>
-	 <20060822100316.GA31820@2ka.mipt.ru>
+	Tue, 22 Aug 2006 15:59:45 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:45710 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750995AbWHVT7o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:59:44 -0400
+Subject: Re: [RFC][PATCH 4/8] SLIM main patch
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Seth Arnold <seth.arnold@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060818182510.GS2584@suse.de>
+References: <1155844402.6788.58.camel@localhost.localdomain>
+	 <20060818011549.GO2584@suse.de>
+	 <1155921842.6788.103.camel@localhost.localdomain>
+	 <20060818182510.GS2584@suse.de>
 Content-Type: text/plain
-Date: Tue, 22 Aug 2006 12:57:38 -0700
-Message-Id: <1156276658.2476.21.camel@entropy>
+Date: Tue, 22 Aug 2006 12:59:28 -0700
+Message-Id: <1156276769.6720.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 14:03 +0400, Evgeniy Polyakov wrote:
-> On Tue, Aug 22, 2006 at 02:29:48AM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
-> > > > Is any of this documented anywhere? I'd think that any new userspace
-> > > > interfaces should have man pages explaining their use and some example
-> > > > code before getting merged into the kernel to shake out any interface
-> > > > problems.
+On Fri, 2006-08-18 at 11:25 -0700, Seth Arnold wrote:
+> On Fri, Aug 18, 2006 at 10:24:02AM -0700, Kylene Jo Hall wrote:
+> > Thanks for your detailed review.  Responses inline below.
+> 
+> My pleasure; thanks for considering my comments.
+> 
+> > throughout (iac vs. sac).  However, on closer look I think you mean the
+> > ones which are actually defined with "#define" and those will not be a
+> > problem to move.
+> 
+> Yes, sorry for the confusion; I meant the #defines. :)
+> 
+> > > All of these booleans could be re-written to simply return the value of
+> > > the boolean check. I don't know if those are actually easier to read,
+> > > but someone should see them once and decide. :)
 > > > 
-> > > There are two excellent articles on lwn.net
-> > 
-> > Google knows of one and it doesn't actually explain how to use kevents.
+> > Let me make sure I understand.  You think "return (isec && isec-
+> > >level.iacl_level != SLM_IAC_NOTDEFINED);" would be easier?
 > 
-> http://lwn.net/Articles/192964/
-> http://lwn.net/Articles/172844/
+> Yeah, I'm not a fan of if (foo) return 1 else return 0; perhaps I'm in
+> the minority, but I'd feel better if the choice of these two styles were
+> made consciously:
 > 
-> In the thread there were enough links to homepage where you can find
-> several examples of how to use kevents (and timers among others) with
-> old interfaces and new ones.
+> static int is_isec_defined(struct slm_isec_data *isec)
+> {
+> 	if (isec && isec->level.iac_level != SLM_IAC_NOTDEFINED)
+> 		return 1;
+> 	return 0;
+> }
 > 
-
-Oh, I found both of those. Neither of them told me what values I could
-use in a struct kevent_user_control or what they meant or what any of
-the fields in a struct ukevent or struct kevent_id meant or what I'm
-supposed to pass in kevent_get_event's "void* buf", or many other things
-that I don't remember now. 
-
-In short, I'm stuck trying to reverse engineer from the source what the
-API is supposed to be (which might not even be what is actually
-implemented due to the as of yet unfound bug).
-
-Of course, since you already know how all this stuff is supposed to
-work, you could maybe write it down somewhere?
-
-
-> > > I will ask just one question, do _you_ propose anything here?
-> > >  
-> > 
-> > struct sigevent sigev = {
-> > 	.sigev_notify = SIGEV_KEVENT,
-> > 	.sigev_kevent_fd = kev_fd,
-> > 	.sigev_value.sival_ptr = &MyCookie
-> > };
-> > 
-> > struct itimerspec its = {
-> > 	.it_value = { ... },
-> > 	.it_interval = { ... }
-> > };
-> > 
-> > struct timespec timeout = { .. };
-> > 
-> > struct ukevent events[max];
-> > 
-> > timer_t timer;
-> > 
-> > timer_create(CLOCK_MONOTONIC, &sigev, &timer);
-> > timer_settime(timer, 0, &its, NULL);
-> > 
-> > /* ... */
-> > 
-> > kevent_get_events(kev_fd, min, max, &timeout, events, 0);
-> > 
-> > 
-> > 
-> > Which isn't all that different from what Ulrich Drepper suggested and
-> > Solaris does right now. (timer_create would probably end up calling
-> > kevent_ctl itself, but it obviously can't do that unless kevents
-> > actually support real interval timers).
+> static int is_isec_defined(struct slm_isec_data *isec)
+> {
+> 	return isec && (isec->level.iac_level != SLM_IAC_NOTDEFINED);
+> }
 > 
-> Ugh, rtsignals... Their's problems forced me to not implement
-> "interrupt"-like mechanism for kevents in addition to dequeueing.
+> If you find the first easier to work with, then feel free to keep it.
 > 
-> Anyway, it seems you did not read the whole thread, homepage, lwn and
-> userpsace examples, so you do not understand what kevents are.
+> > > > +static void revoke_mmap_wperm(struct slm_file_xattr *cur_level)
+> > > > +{
+> > > > +	struct vm_area_struct *mpnt;
+> > > > +	struct file *file;
+> > > > +	struct dentry *dentry;
+> > > > +	struct slm_isec_data *isec;
+> > > > +
+> > > > +	flush_cache_mm(current->mm);
+> > > 
+> > > Is it a good idea to flush the cache before making the modifications?
+> > > Feels like the wrong order to me.
+> > 
+> > Our thought was that we are going to revoke write access to the file at
+> > this point, bu all pending writes are still valid. So we flush to make
+> > sure they can still be written (since we are revoking permission to that
+> > operation).
 > 
-> They are userspace requests which are returned back when they are ready.
-> It means that userspace must provide something to kernel and ask it to
-> notify when that "something" is ready. For example it can provide a
-> timeout value and ask kernel to fire a timer with it and inform
-> userspace when timeout has expired.
-> It does not matter what timer is used there - feel free to use
-> high-resolution one, usual timer, busyloop or anything else. Main issue 
-> that userspace request must be completed.
+> Is there any danger of another task sharing the mm structure to
+> repopulate the cache before your changes are incorporated?
+
+This isn't a problem since we are only revoking the current processes
+ability to write to the mmap so we don't care if another process
+continues to write.  The flush is there to make sure any previous writes
+by the current process (who's write access is being revoked) do actually
+get written.
 > 
-> What you are trying to do is to put kevents under POSIX API.
-> That means that those kevents can not be read using
-> kevent_get_events(), basicaly because there are no user-known kevents,
-> i.e. user has not requested timer, so it should not receive it's
-> notifications (otherwise it will receive everything requested by other
-> threads and other issues, i.e. how to differentiate timer request made
-> by timer_create(), which is not supposed to be caught by
-> kevent_get_events()).
+> > > slm_get_xattr() seems remarkably subtle given its name: *status can be
+> > > updated at two points in the function, a positive 'rc' from
+> > > integrity_verify_data() is left to return at the end, but negative 'rc'
+> > > values (that aren't -EOPNOTSUPP) get returned immediately, and if an
+> > > error variable is negative, a specific value is returned..
+> > > 
+> > Yes that does look fishy.  I'll try to straighten it out better.
 > 
-
-I have no idea what you're trying to say here. I've created a timer,
-specified which kevent queue I want it's expiry notification delivered
-to, and armed it. Where have I not specified enough information to
-request the reception of timer notifications?
-
-Also, differentiating timers made by timer_create() that aren't supposed
-to deliver events via kevent_get_events() is easy -- their .sigev_notify
-isn't SIGEV_KEVENT.
-
-> You could implement POSIX timer _fully_ on top of kevents, i.e. both
-> create and read, for example network AIO is implemented in that way -
-> there is a system calls aio_send()/aio_recv() and aio_sendfile() which
-> create kevent internally and then get it's readiness notifications over
-> provided callback, process data and finally remove kevent,
-> so POSIX timers could create timer kevent, wait until it is ready, in
-> completeness callback it would call signal delivering mechanism...
+> > > The complicated set of decision making in get_level() (which sets
+> > > levels, heh) might be simplified if slm_get_xattr() internals were
+> > > less complicated.
+> > 
+> > Yes I'll try to straighten out too.  The last review it was requested
+> > that INTEGRITY status be returned from the hooks in a *int and regular
+> > kernel errors returned from the function to get error propogation
+> > correct but seems like we still have it over complicated.
 > 
-
-Yes, but that would be stupid. The kernel already has a fully functional
-POSIX timer implementation, so throwing it out to reimplement it using
-kevents would be a waste of effort, especially considering that your
-kevent timers can't fully express a POSIX interval timer.
-
-Now, if there were some way for me to ask that an interval timer queue
-it's expiry notices into a kevent queue, that would combine the best of
-both worlds.
-
-> But there are no reading mechanism in POSIX timers (I mean not reading
-> pending timeout values or remaining time), they use signals for 
-> completeness delivering... So where do you want to put kevent's
-> userspace there?
+> Ah, yes, separating integrity status from error returns makes sense; I
+> hope the functions can be made to read as clearly as your description.
 > 
+get_level couldn't really be changed other than the name but
+slm_get_xattr has been cleaned up.
 
-The goal of this proposal is to extend sigevent completions to include
-kevent queues along with signals and created threads, exactly because
-thread creation is too heavy and signals are a pain to use.
+> > > > +	/* Derived from include/linux/sched.h:capable. */
+> > > > +	if (cap_raised(tsk->cap_effective, cap)) {
+> > > > +		spin_lock(&tsec->lock);
+> > > > +		if (tsec->iac_wx == SLM_IAC_UNTRUSTED &&
+> > > > +		    cap == CAP_SYS_ADMIN)
+> > > > +			rc = -EACCES;
+> > > 
+> > > Why is CAP_SYS_ADMIN handled specially?
+> > This function is here to add the ability to remove capabilities.
+> > CAP_SYS_ADMIN should definitely be removed even if you are running as
+> > root but have been demoted to UNTRUSTED.  We are testing others but some
+> > tend to break existing applications.
+> 
+> CAP_SYS_MODULE, CAP_SYS_PTRACE, CAP_SYS_RAWIO, come to mind immediately. :)
+> 
+All others seemed to cause problems.  We'll continue testing this and
+try to add to the list.
 
-> What you are trying to achive is not POSIX timers in any way, you want
-> completely new machanism which has similar to POSIX API, and I give it to
-> you (well, with API which can be used not only with timers, but with any 
-> other type of notifications you like). 
-> You need clockid_t? Put it in raw.id[0] and make kevent_timer_enqueue()
-> callback select different type of timers.
-> What else?
+> > > > +static int slm_ptrace(struct task_struct *parent, struct task_struct *child)
+> > > > +{
+> > > > +	struct slm_tsec_data *parent_tsec = parent->security,
+> > > > +	    *child_tsec = child->security;
+> > > > +	int rc = 0;
+> > > > +
+> > > > +	if (is_kernel_thread(parent) || is_kernel_thread(child))
+> > > > +		return 0;
+> > > 
+> > > Why was this added?
+> > > 
+> > Kernel threads are never demoted or restricted by SLIM
+> 
+> Makes sense; but should an UNTRUSTED process really have the ability to
+> ptrace a kernel thread? (Ok, on my tests I wasn't able to strace attach
+> to kernel threads, but I'm not positive that it can't be done.)
 
-No, it's still POSIX timers -- the vast majority of the API is the same,
-they just report their completion differently.
-
--- 
-Nicholas Miell <nmiell@comcast.net>
+Good catch only the first half of the if should be there. So that the
+kernel thread can ptrace but can't be ptraced by just anyone.
+> 
+> 
+> Thanks Kylene
 

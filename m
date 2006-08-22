@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWHVOId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWHVOKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWHVOId (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHVOId
+	id S932264AbWHVOKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHVOKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:08:33 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56585 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932169AbWHVOIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:08:32 -0400
-Date: Tue, 22 Aug 2006 16:08:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] paravirt.h
-Message-ID: <20060822140832.GW11651@stusta.de>
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org> <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be> <44EAFEE3.8080700@goop.org>
-MIME-Version: 1.0
+	Tue, 22 Aug 2006 10:10:25 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:8344 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S932264AbWHVOKY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:10:24 -0400
+Date: Tue, 22 Aug 2006 22:34:31 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
+Message-ID: <20060822183431.GB469@oleg>
+References: <20060821170604.GA1640@oleg> <20060822000110.GA31751@gnuppy.monkey.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44EAFEE3.8080700@goop.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060822000110.GA31751@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 05:56:03AM -0700, Jeremy Fitzhardinge wrote:
-> Geert Uytterhoeven wrote:
-> >>relicensing them.
-> >>    
-> >
-> >That's a pretty strong statement...
-> >  
+On 08/21, Bill Huey wrote:
+>
+> On Mon, Aug 21, 2006 at 09:06:04PM +0400, Oleg Nesterov wrote:
+> > (Compile tested).
+> > 
+> > futex_find_get_task:
+> > 
+> > 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
+> > 		return NULL;
+> > 
+> > I can't understand this. First, p->state can't be EXIT_ZOMBIE. The ->exit_state
+> > check looks strange too. Sub-threads or tasks whose ->parent ignores SIGCHLD go
+> > directly to EXIT_DEAD state (I am ignoring a ptrace case). Why EXIT_DEAD tasks
+> > should be ok? Yes, EXIT_ZOMBIE is more important (a task may stay zombie for a
+> > long time), but this doesn't mean we should explicitely ignore other EXIT_XXX
+> > states.
 > 
-> Well, I'm not making any kind of legal statement.  I'm just pointing out 
-> that from a technical perspective, there's a large visible functional 
-> change from before if we use EXPORT_SYMBOL_GPL(paravirt_ops) vs 
-> EXPORT_SYMBOL(paravirt_ops).  Given that the whole point of paravirt_ops 
-> is to minimize visible changes, this seems counterproductive.
+> The p->state variable for EXIT_ZOMBIE is only live for some mystery architecture
+> in arch/xtensa/kernel/ptrace.c
 
-It only affects kernels with the new functionality PARAVIRT=y, not 
-kernels with the same functionality as today.
+Thanks. This
 
-The alternative is to keep the EXPORT_SYMBOL_GPL(paravirt_ops) and make 
-the functions using it out of line functions.
+	case PTRACE_KILL:
+		ret = 0;
+		if (child->state == EXIT_ZOMBIE)	/* already dead */
+			break;
 
->    J
+is an obvious bug, I beleive. May I suggest you to make a patch?
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Oleg.
 

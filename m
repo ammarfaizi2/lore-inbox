@@ -1,71 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHVOqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWHVOqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWHVOqi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHVOqh
+	id S932281AbWHVOqU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWHVOqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:46:37 -0400
-Received: from lug.demon.co.uk ([83.104.159.110]:27995 "EHLO lug.demon.co.uk")
-	by vger.kernel.org with ESMTP id S932280AbWHVOqd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:46:33 -0400
-From: David Johnson <dj@david-web.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: sym53c8xx PCI card broken in 2.6.18
-Date: Tue, 22 Aug 2006 15:46:11 +0100
-User-Agent: KMail/1.9.4
+	Tue, 22 Aug 2006 10:46:20 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17162 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932281AbWHVOqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:46:20 -0400
+Date: Tue, 22 Aug 2006 16:46:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [RFC: 2.6 patch] build sound/sound_firmware.c only for OSS
+Message-ID: <20060822144620.GY11651@stusta.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Cc: sparclinux@vger.kernel.org
-Reply-To: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200608221546.11532.dj@david-web.co.uk>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+All sound/sound_firmware.c contains is mod_firmware_load() that is a 
+legacy API only used by some OSS drivers.
 
-I'm running a Sun Ultra Enterprise 450 (SPARC64) machine which has an on-board 
-SCSI controller and a PCI SCSI controller, both supported by the sym53c8xx 
-driver.
+This patch builds it into an own sound_firmware module that is only 
+built depending on CONFIG_SOUND_PRIME making the kernel slightly smaller 
+for ALSA users.
 
-With 2.6.17.9 (and earlier) SCSI works perfectly, but with 2.6.18-rc4 and 
-2.6.18-rc4-git1 I'm getting errors on boot for all devices attached to the 
-PCI card, but all the devices attached to the on-board controller are 
-detected and configured OK.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-lspci identifies the on-board controller as:
-SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 03)
-and the PCI controller as:
-SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 14)
+---
 
-Here's the output from initialisation of the devices on the PCI card (repeated 
-for every device):
-scsi2: sym-2.2.3
-scsi 2:0:0:0 ABORT operation started
-scsi 2:0:0:0 ABORT operation timed out
-scsi 2:0:0:0 DEVICE RESET operation started
-scsi 2:0:0:0 DEVICE RESET operation timed out
-scsi 2:0:0:0 BUS RESET operation started
-scsi 2:0:0:0 BUS RESET operation timed out
-scsi 2:0:0:0 HOST RESET operation started
-sym2: SCSI bus has been reset
-scsi 2:0:0:0 HOST RESET operation timed out
-scsi: device offlined - not ready after error recovery
+ sound/Makefile         |    3 ++-
+ sound/sound_core.c     |    4 ----
+ sound/sound_firmware.c |    3 +++
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-The devices on the PCI controller are a mixture of 'Fujitsu MAG3182L SUN18G' 
-and 'Seagate ST318203LSUN18G' drives.
+--- linux-2.6.18-rc4-mm2/sound/Makefile.old	2006-08-22 00:07:41.000000000 +0200
++++ linux-2.6.18-rc4-mm2/sound/Makefile	2006-08-22 00:10:41.000000000 +0200
+@@ -2,6 +2,7 @@
+ #
+ 
+ obj-$(CONFIG_SOUND) += soundcore.o
++obj-$(CONFIG_SOUND_PRIME) += sound_firmware.o
+ obj-$(CONFIG_SOUND_PRIME) += oss/
+ obj-$(CONFIG_DMASOUND) += oss/
+ obj-$(CONFIG_SND) += core/ i2c/ drivers/ isa/ pci/ ppc/ arm/ synth/ usb/ sparc/ parisc/ pcmcia/ mips/
+@@ -11,4 +12,4 @@
+   obj-y += last.o
+ endif
+ 
+-soundcore-objs  := sound_core.o sound_firmware.o
++soundcore-objs  := sound_core.o
+--- linux-2.6.18-rc4-mm2/sound/sound_core.c.old	2006-08-22 00:09:13.000000000 +0200
++++ linux-2.6.18-rc4-mm2/sound/sound_core.c	2006-08-22 00:12:10.000000000 +0200
+@@ -517,10 +517,6 @@
+ 	return -ENODEV;
+ }
+ 
+-extern int mod_firmware_load(const char *, char **);
+-EXPORT_SYMBOL(mod_firmware_load);
+-
+-
+ MODULE_DESCRIPTION("Core sound module");
+ MODULE_AUTHOR("Alan Cox");
+ MODULE_LICENSE("GPL");
+--- linux-2.6.18-rc4-mm2/sound/sound_firmware.c.old	2006-08-22 00:10:53.000000000 +0200
++++ linux-2.6.18-rc4-mm2/sound/sound_firmware.c	2006-08-22 00:26:03.000000000 +0200
+@@ -4,6 +4,7 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <asm/uaccess.h>
++#include "oss/sound_firmware.h"
+ 
+ static int do_mod_firmware_load(const char *fn, char **fp)
+ {
+@@ -73,4 +74,6 @@
+ 	set_fs(fs);
+ 	return r;
+ }
++EXPORT_SYMBOL(mod_firmware_load);
+ 
++MODULE_LICENSE("GPL");
 
-Looking through the changelogs between 2.6.17.9 and 2.6.18-rc4-git1, I can't 
-see any changes to sym53c8xx, so I'm guessing this has been caused by some 
-generic SCSI subsystem change. Let me know if I can do any more to debug.
-
-Regards,
-David.
-
--- 
-David Johnson
-www.david-web.co.uk - My Personal Website
-www.penguincomputing.co.uk - Need a Web Developer?

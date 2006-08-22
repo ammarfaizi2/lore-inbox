@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWHVT1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWHVT2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWHVT1J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT1J
+	id S1751255AbWHVT2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWHVT2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:27:09 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:8395 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751221AbWHVT0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:26:47 -0400
-Message-ID: <44EB5A76.9060402@vmware.com>
-Date: Tue, 22 Aug 2006 12:26:46 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 22 Aug 2006 15:28:16 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:525 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751255AbWHVT2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:28:15 -0400
+Date: Tue, 22 Aug 2006 21:28:14 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] arch/um/sys-i386/setjmp.S: useless #ifdef _REGPARM's?
+Message-ID: <20060822192814.GA19896@stusta.de>
+References: <20060821215641.GQ11651@stusta.de> <20060822022012.GA7070@ccure.user-mode-linux.org> <20060822160741.GB11651@stusta.de> <20060822174233.GA5471@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: Zachary Amsden <zach@vmware.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@muc.de>,
-       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de>  <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org> <1156275004.27114.34.camel@localhost.localdomain> <44EB584A.5070505@vmware.com>
-In-Reply-To: <44EB584A.5070505@vmware.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060822174233.GA5471@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden wrote:
+On Tue, Aug 22, 2006 at 01:42:33PM -0400, Jeff Dike wrote:
+> On Tue, Aug 22, 2006 at 06:07:41PM +0200, Adrian Bunk wrote:
+> > I didn't find a corresponding open bug in the gcc Bugzilla.
+> > 
+> > Can someone verify whether it's still present, and if yes, open a gcc 
+> > bug?
+> 
+> Yup, it's easy enough to check.
 
- > I've already implemented the locking and repatching bits for VMI.
+Thanks.
 
+> > It's set globally in arch/i386/Makefile:
+> >   cflags-$(CONFIG_REGPARM) += -mregparm=3
+> 
+> IIRC, there used to be functions explicitly declared as __regparam or
+> something, and that's what I was grepping for.  Does this turn every
+> function with three or fewer parameters into a regparam function?
+>...
 
-Incorrectly, I might add.  The problem case for syscall patching is what 
-do you do if there are in-service system calls?  The comparable problem 
-here is what if you interrupt code running in the old paravirt-ops, or 
-worse, a section of code that you repatch when you do the switch?
+With -mregparm=3, the first up to three parameters that aren't bigger 
+than an integer are passed in registers instead of on the stack.
 
-That is a really nasty problem.  You need a synchronization primitive 
-which guarantees a flat stack, so you can't do it in the interrupt 
-handler as I have tried to do.  I'll bang my head on it awhile.  In the 
-meantime, were there ever any solutions to the syscall patching problem 
-that might lend me a clue as to what to do (or not to do, or impossible?).
+> 				Jeff
 
-Thanks,
+cu
+Adrian
 
-Zach
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

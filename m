@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWHVNSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWHVNaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWHVNSb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWHVNSb
+	id S932225AbWHVNaN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWHVNaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:18:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54953 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932220AbWHVNSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:18:31 -0400
-Subject: Re: [RFC] kallsyms_lookup always requires buffers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: rusty@rustcorp.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <44EAFDCA.1080002@innova-card.com>
-References: <44EAFDCA.1080002@innova-card.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 22 Aug 2006 15:18:26 +0200
-Message-Id: <1156252706.2976.51.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 22 Aug 2006 09:30:13 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:23158 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S932218AbWHVNaL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:30:11 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [2.6.19 PATCH 0/7] ehea: IBM eHEA Ethernet Device Driver
+Date: Tue, 22 Aug 2006 14:50:03 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Disposition: inline
+To: netdev <netdev@vger.kernel.org>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200608221450.03344.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> +}
-> +EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
-
-
 Hi,
 
-there don't seem to be modular users so please don't export it since
-that export just eats up useless space. (we have way too many of those
-already)
+this is our current version of the IBM eHEA Ethernet Device Driver.
+Thanks for the quick and helpful comments so far. Further comments
+are highly appreciated.
 
-(Also I suggest you submit at least one user with your patch but that's
-another matter)
+Things we are currently working on:
+- Implementation of promiscious mode support
 
-Greetings,
-   Arjan van de Ven
 
+Thanks,
+Jan-Bernd
+
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+Changelog-by:  Jan-Bernd Themann <themann@de.ibm.com>
+
+Differences to patch set http://www.spinics.net/lists/netdev/msg12326.html
+
+Changelog:
+
+- Error recovery
+- improvements according to mailing list comments
+
+
+ drivers/net/Kconfig             |    9 
+ drivers/net/Makefile            |    1 
+ drivers/net/ehea/Makefile       |    7 
+ drivers/net/ehea/ehea.h         |  437 ++++++
+ drivers/net/ehea/ehea_ethtool.c |  244 +++
+ drivers/net/ehea/ehea_hcall.h   |   51 
+ drivers/net/ehea/ehea_hw.h      |  290 ++++
+ drivers/net/ehea/ehea_main.c    | 2636 ++++++++++++++++++++++++++++++++++++++++
+ drivers/net/ehea/ehea_phyp.c    |  834 ++++++++++++
+ drivers/net/ehea/ehea_phyp.h    |  479 +++++++
+ drivers/net/ehea/ehea_qmr.c     |  634 +++++++++
+ drivers/net/ehea/ehea_qmr.h     |  367 +++++
+ 12 files changed, 5989 insertions(+)

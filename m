@@ -1,93 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWHVJCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWHVJHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWHVJCL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 05:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWHVJCL
+	id S1751372AbWHVJHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 05:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWHVJHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 05:02:11 -0400
-Received: from mail.gmx.de ([213.165.64.20]:32682 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750785AbWHVJCJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 05:02:09 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <20060820174839.GH13917@in.ibm.com>
-References: <20060820174015.GA13917@in.ibm.com>
-	 <20060820174839.GH13917@in.ibm.com>
-Content-Type: text/plain
-Date: Tue, 22 Aug 2006 11:10:36 +0000
-Message-Id: <1156245036.6482.16.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Tue, 22 Aug 2006 05:07:42 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:42126 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1750803AbWHVJHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 05:07:41 -0400
+Message-ID: <44EAC874.7040102@s5r6.in-berlin.de>
+Date: Tue, 22 Aug 2006 11:03:48 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       mm-commits@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, scjody@modernduck.com,
+       bcollins@ubuntu.com, benh@kernel.crashing.org, obiwan@mailmij.org
+Subject: Re: [patch 20/20] 1394: fix for recently added firewire patch that
+ breaks things on ppc
+References: <20060821183818.155091391@quad.kroah.org> <20060821184831.GV21938@kroah.com>
+In-Reply-To: <20060821184831.GV21938@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 23:18 +0530, Srivatsa Vaddagiri wrote:
-
-> As an example, follow these steps to create metered cpusets:
+Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
+> ------------------
+> From: Danny Tholen <obiwan@mailmij.org>
 > 
-> 	# cd /dev
-> 	# mkdir cpuset
-> 	# mount -t cpuset cpuset cpuset
-> 	# cd cpuset
-> 	# mkdir grp_a
-> 	# cd grp_a
-> 	# /bin/echo "6-7" > cpus	# assign CPUs 6,7 for this cpuset
-> 	# /bin/echo 0 > mems		# assign node 0 for this cpuset
-> 	# /bin/echo 1 > cpu_exclusive
-> 	# /bin/echo 1 > meter_cpu
+> Recently a patch was added for preliminary suspend/resume handling on
+> !PPC_PMAC.  However, this broke both suspend and firewire on powerpc
+> because it saves the pci state after the device has already been disabled.
 > 
-> 	# mkdir very_imp_grp
-> 	# Assign 80% bandwidth to this group
-> 	# /bin/echo 80 > very_imp_grp/cpu_quota
+> This moves the save state to before the pmac specific code.
 > 
-> 	# echo $apache_webserver_pid > very_imp_grp/tasks
+> Signed-off-by: Danny Tholen <obiwan@mailmij.org>
+> Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
+
+Acked-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Ben Collins <bcollins@ubuntu.com>
+> Cc: Jody McIntyre <scjody@modernduck.com>
+> Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > 
-> 	# mkdir less_imp_grp
-> 	# Assign 5% bandwidth to this group
-> 	# /bin/echo 5 > less_imp_grp/cpu_quota
+> ---
+>  drivers/ieee1394/ohci1394.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> 	# echo $mozilla_browser_pid > less_imp_grp/tasks
+> --- linux-2.6.17.9.orig/drivers/ieee1394/ohci1394.c
+> +++ linux-2.6.17.9/drivers/ieee1394/ohci1394.c
+> @@ -3548,6 +3548,8 @@ static int ohci1394_pci_resume (struct p
+>  
+>  static int ohci1394_pci_suspend (struct pci_dev *pdev, pm_message_t state)
+>  {
+> +	pci_save_state(pdev);
+> +
+>  #ifdef CONFIG_PPC_PMAC
+>  	if (machine_is(powermac)) {
+>  		struct device_node *of_node;
+> @@ -3559,8 +3561,6 @@ static int ohci1394_pci_suspend (struct 
+>  	}
+>  #endif
+>  
+> -	pci_save_state(pdev);
+> -
+>  	return 0;
+>  }
+>  
+> 
+> --
 
-Doesn't seem to work here, but maybe I'm doing something wrong.
 
-I set up cpuset "all" containing cpu 0-1 (all, 1.something cpus I have;)
-exactly as you created grp_a.  I then creaded sub-groups mikeg and root,
-and gave them 20% and 80% sub-group/cpu_quota respectively, and plunked
-one shell in mikeg/tasks, and two in root/tasks.
-
-In each root shell, I started a proggy that munches ~80% cpu.
-
-top - 10:51:12 up 32 min, 10 users,  load average: 2.00, 2.81, 2.69
-Tasks: 114 total,   3 running, 111 sleeping,   0 stopped,   0 zombie
-Cpu(s): 79.7% us,  0.0% sy,  0.0% ni, 20.3% id,  0.0% wa,  0.0% hi,  0.0% si
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 6503 root      15   0  1368  276  228 S   79  0.0   0:31.03 f
- 6504 root      15   0  1368  280  228 R   78  0.0   0:29.17 f
-
-I then add the same to the mikeg shell.
-
-top - 10:54:37 up 35 min, 10 users,  load average: 3.80, 2.95, 2.74
-Tasks: 115 total,   6 running, 109 sleeping,   0 stopped,   0 zombie
-Cpu(s): 94.7% us,  0.5% sy,  0.0% ni,  4.8% id,  0.0% wa,  0.0% hi,  0.0% si
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 6503 root      15   0  1368  276  228 S   65  0.0   3:12.86 f
- 6505 mikeg     15   0  1368  276  228 R   64  0.0   0:11.77 f
- 6504 root      16   0  1368  280  228 R   59  0.0   3:10.58 f
-
-If I add a third to root, the percentages go to roughly 50% per.
-
-	-Mike
-
+-- 
+Stefan Richter
+-=====-=-==- =--- =-==-
+http://arcgraph.de/sr/

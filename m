@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWHVLIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWHVLLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWHVLIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWHVLIv
+	id S932170AbWHVLLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWHVLLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:08:51 -0400
-Received: from cantor.suse.de ([195.135.220.2]:56766 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932168AbWHVLIu (ORCPT
+	Tue, 22 Aug 2006 07:11:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:27364 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932170AbWHVLLk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:08:50 -0400
+	Tue, 22 Aug 2006 07:11:40 -0400
 To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, pj@sgi.com,
        saito.tadashi@soft.fujitsu.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] ps command race fix take2 [3/4] profile fix
-References: <20060822174152.7105aa33.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [RFC][PATCH] ps command race fix take2 [4/4] proc_pid_readdir
+References: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
 From: Andi Kleen <ak@suse.de>
-Date: 22 Aug 2006 13:08:49 +0200
-In-Reply-To: <20060822174152.7105aa33.kamezawa.hiroyu@jp.fujitsu.com>
-Message-ID: <p737j1181tq.fsf@verdi.suse.de>
+Date: 22 Aug 2006 13:11:30 +0200
+In-Reply-To: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <p733bbp81p9.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,21 +26,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
 
-> ===================================================================
-> --- linux-2.6.18-rc4.orig/include/linux/sched.h
-> +++ linux-2.6.18-rc4/include/linux/sched.h
-> @@ -808,6 +808,10 @@ struct task_struct {
->  	struct list_head ptrace_children;
->  	struct list_head ptrace_list;
->  
-> +#if defined(CONFIG_OPROFILE) || defined(CONFIG_OPROFILE_MODULE)
-> +	struct list_head 	dead_tasks;
-> +#endif
+> proc_pid_readdir() by list_token.
+> 
+> Remember 'where we are reading' by inserting a token in the list.
+> It seems a bit complicated because of RCU but what we do is very simple.
+> 
 
-Sorry I think this needs a cleaner solution without ifdef.   Why can't it use
-the token list? Or some other list head that's unused then.
+What happens when you have multiple readers at the same time? Can't
+the tokens then be mixed up?
 
-Otherwise I would think it it better to use a separate list object to
-maintain this list in oprofile.
+>+		/* this small kmalloc() can fail in rare case, but readdir()
+>+		 * is not allowed to return ENOMEM. retrying is reasonable. */
+
+Who disallows this? Such retry loops are normally discouraged 
+because they can lead to deadlocks in OOM situations.
+I think it would be better to just return ENOMEM.
 
 -Andi

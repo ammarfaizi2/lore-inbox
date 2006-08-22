@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWHVWRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWHVWXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWHVWRg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 18:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWHVWRg
+	id S1751328AbWHVWXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 18:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWHVWXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 18:17:36 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43697
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751279AbWHVWRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 18:17:35 -0400
-Date: Tue, 22 Aug 2006 15:17:47 -0700 (PDT)
-Message-Id: <20060822.151747.56047759.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: rdunlap@xenotime.net, nmiell@comcast.net, johnpol@2ka.mipt.ru,
-       linux-kernel@vger.kernel.org, drepper@redhat.com,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060822150144.058d9052.akpm@osdl.org>
-References: <1156281182.2476.63.camel@entropy>
-	<20060822143747.68acaf99.rdunlap@xenotime.net>
-	<20060822150144.058d9052.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 22 Aug 2006 18:23:35 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36809 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751328AbWHVWXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 18:23:34 -0400
+Date: Wed, 23 Aug 2006 07:22:56 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+Message-Id: <20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
+References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+	<m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Tue, 22 Aug 2006 15:01:44 -0700
+On Tue, 22 Aug 2006 10:56:08 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-> If there _is_ something wrong with kqueue then let us identify those
-> weaknesses and then diverge.
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+> 
+> > This is ps command race fix take2. Unfortunately, against 2.6.18-rc4.
+> > I'll rebase this to appropriate kernel if O.K. (I think this is RFC)
+> >
+> > This patch implements Paul Jackson's idea, 'inserting false link in task list'.
+> 
+> Currently the tasklist_lock is one of the more highly contended locks in
+> the kernel.  Adding an extra place it is taken is undesirable.
+yes. taking lock is a probem.
+I know current readdir() uses 8192 bytes buffer for getdents64(). Then,
+maybe write-lock will be acquired all-tgids/400+ times for inserting token
+(in 32bit system).
+ 
+> If could see a better algorithm for sending a signal to all processes
+> in a process groups we could remove the tasklist_lock entirely.
+> 
+??
+Sorry, could you explain more ?
 
-Evgeniy already enumerated this, both on his web site and in the
-current thread.
+> In addition you only solves half the readdir problems.  You don't solve
+> the seek problem which is returning to an offset you had been to
+> before.  A relatively rare case but...
+> 
+Ah, I should add lseek handler for proc root. Okay.
 
-Unlike some people seem to imply, Evgeniy did research all the other
-implementations of event queueing out there, including kqueue.
-He took the best of that survey, adding some of his own ideas,
-and that's what kevent is.  It's not like he's some kind of
-charlatan and made arbitrary decisions in his design without any
-regard for what's out there already.
+> > Good point of this approach is cost of searching task is O(N) (N=num of tgids).
+> > Bad point is lock and kmalloc/kfree.
+> > I didin't modified thread_list and cpuset's proc list, maybe future work.
+> >
+> > If searching pid bitmap is better, please take Erics.
+> 
+> My patch at least needs a good changelog but I believe it will work
+> better and can be further improved with a better pid data structure
+> if there is actually a problem there.  Given that I don't take
+> any locks it should be much friendlier at scale, and the code
+> was simpler.
+yes. it has several good points and simple.
+My patch's point is just using task_list if we can, because it exists for keeping
+all tasks(tgids).
 
-Again, the proof is in the pudding, he wrote applications against his
-interfaces and tested them.  That's what people need to really do if
-they want to judge his interface, try to write programs against it and
-report back any problems they run into.
+> 
+> However I will miss a few newly forked processes and I don't think your
+> technique will miss any.  Still neither will miss a process that
+> existed the entire time.
+> 
+> If nothing else I think it was worth posting so we could contrast the two.
+> 
+please post again. I think comparing the two is good.
+I will post take3 with improved comments and lseek handler, and so on.
+
+-Kame 
+

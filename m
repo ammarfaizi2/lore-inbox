@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWHVWCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWHVWCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWHVWCL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 18:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWHVWCL
+	id S1751306AbWHVWCz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 18:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWHVWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 18:02:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20663 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750704AbWHVWCK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 18:02:10 -0400
-Date: Tue, 22 Aug 2006 15:01:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Nicholas Miell <nmiell@comcast.net>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Message-Id: <20060822150144.058d9052.akpm@osdl.org>
-In-Reply-To: <20060822143747.68acaf99.rdunlap@xenotime.net>
-References: <11561555871530@2ka.mipt.ru>
-	<1156230051.8055.27.camel@entropy>
-	<20060822072448.GA5126@2ka.mipt.ru>
-	<1156234672.8055.51.camel@entropy>
-	<20060822083711.GA26183@2ka.mipt.ru>
-	<1156238988.8055.78.camel@entropy>
-	<20060822100316.GA31820@2ka.mipt.ru>
-	<1156276658.2476.21.camel@entropy>
-	<20060822201646.GC3476@2ka.mipt.ru>
-	<1156281182.2476.63.camel@entropy>
-	<20060822143747.68acaf99.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Aug 2006 18:02:54 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:57267 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751306AbWHVWCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 18:02:53 -0400
+Message-ID: <44EB7F0C.60402@vmware.com>
+Date: Tue, 22 Aug 2006 15:02:52 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] paravirt.h
+References: <1155202505.18420.5.camel@localhost.localdomain>	<44DB7596.6010503@goop.org>	<1156254965.27114.17.camel@localhost.localdomain>	<200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>	<1156271386.2976.102.camel@laptopd505.fenrus.org>	<1156275004.27114.34.camel@localhost.localdomain>	<44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com> <p73y7tg7cg7.fsf@verdi.suse.de>
+In-Reply-To: <p73y7tg7cg7.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Aug 2006 14:37:47 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+Andi Kleen wrote:
+> Zachary Amsden <zach@vmware.com> writes:
+>   
+>> That is a really nasty problem.  You need a synchronization primitive
+>> which guarantees a flat stack, so you can't do it in the interrupt
+>> handler as I have tried to do.  I'll bang my head on it awhile.  In
+>> the meantime, were there ever any solutions to the syscall patching
+>> problem that might lend me a clue as to what to do (or not to do, or
+>> impossible?).
+>>     
+>
+> stop_machine_run() solves the problem I think. It is currently not 
+> exported though. I don't think there's anything in there that couldn't
+> be reimplemented in a module, but then we could also just export it
+> if there's a useful user.
+>   
 
-> On Tue, 22 Aug 2006 14:13:02 -0700 Nicholas Miell wrote:
-> 
-> > On Wed, 2006-08-23 at 00:16 +0400, Evgeniy Polyakov wrote:
-> > > On Tue, Aug 22, 2006 at 12:57:38PM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
-> > > > On Tue, 2006-08-22 at 14:03 +0400, Evgeniy Polyakov wrote:
-> > > > Of course, since you already know how all this stuff is supposed to
-> > > > work, you could maybe write it down somewhere?
-> > > 
-> > > I will write documantation, but as you can see some interfaces are
-> > > changed.
-> > 
-> > Thanks; rapidly changing interfaces need good documentation even more
-> > than stable interfaces simply because reverse engineering the intended
-> > API from a changing implementation becomes even more difficult.
-> 
-> OK, I don't quite get it.
-> Can you be precise about what you would like?
-> 
-> a.  good documentation
-> b.  a POSIX API
-> c.  a Windows-compatible API
-> d.  other?
-> 
-> and we won't make you use any of this code.
-> 
+Well, I don't think anything is sufficient for a preemptible kernel.  I 
+think that's just plain not going to work.  You could have a kernel 
+thread that got preempted in a paravirt-op patch point, and making all 
+the patch points non-preempt is probably a non-starter (either +12 bytes 
+each or no native inlining).  Finding out after the fact that you have a 
+kernel thread that was preempted in a patch point is very hard work, but 
+it is possible.  The fixing it up is where you need to take liberties 
+with reality.
 
-Today seems to be beat-up-Nick day?
+stop_machine_run() is almost what I want, but even that is not 
+sufficient.  You also need to disable NMIs and debug traps, which is 
+pretty hairy, but doable.  The problem with stop_machine_run() is that I 
+don't just want the kernel to halt running on remote CPUs, I want the 
+kernel on all CPUs to actually do something simultaneously - the entry 
+into paravirt mode requires a hypervisor call on each CPU, and 
+stop_machine() doesn't provide a facility to fire a callback on each CPU 
+from the stopmachine state.
 
-This is a major, major new addition to the kernel API.  It's a big deal. 
-Getting it documented prior to committing ourselves is a useful part of the
-review process.  It certainly can't hurt, and it might help.  It is a
-little too soon to spend too much time on that though.  (It's actually
-_better_ if someone other than the developer writes the documentation,
-too).
+Since this code is so rather, um, custom, I was going to reimplement 
+stop_machine in the module.
 
-
-And the "why not emulate kqueue" question strikes me as an excellent one. 
-Presumably a lot of developer thought and in-field experience has gone into
-kqueue.  It would benefit us to use that knowledge as much as we can.
-
-I mean, if there's nothing wrong with kqueue then let's minimise app
-developer pain and copy it exactly.  If there _is_ something wrong with
-kqueue then let us identify those weaknesses and then diverge.  Doing
-something which looks the same and works the same and does the same thing
-but has a different API doesn't benefit anyone.
+Zach

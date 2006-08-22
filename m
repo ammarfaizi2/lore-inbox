@@ -1,244 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWHVFZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWHVF1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWHVFZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 01:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWHVFZP
+	id S1750757AbWHVF1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 01:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWHVF1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 01:25:15 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:1670 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750700AbWHVFZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 01:25:13 -0400
-Date: Tue, 22 Aug 2006 10:54:48 +0530
+	Tue, 22 Aug 2006 01:27:25 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:63695 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750757AbWHVF1Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 01:27:24 -0400
+Date: Tue, 22 Aug 2006 10:58:41 +0530
 From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: hch@infradead.org, Andrew Morton <akpm@osdl.org>,
        Prasanna S Panchamukhi <prasanna@in.ibm.com>,
        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Jim Keniston <jkenisto@us.ibm.com>, davem@davemloft.net
-Subject: [PATCH 1/3] Kprobes: Make kprobe modules more portable (updated)
-Message-ID: <20060822052448.GA26279@in.ibm.com>
+       Jim Keniston <jkenisto@us.ibm.com>, davem@davemloft.net,
+       schwidefsky@de.ibm.com
+Subject: [PATCH 2/3] Add retval_value helper (updated)
+Message-ID: <20060822052841.GB26279@in.ibm.com>
 Reply-To: ananth@in.ibm.com
+References: <20060822052448.GA26279@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060822052448.GA26279@in.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-In an effort to make kprobe modules more portable, here is a patch that:
+Add the return_value() macro to extract the return value in an
+architecture agnostic manner, given the pt_regs.
 
-o Introduces the "symbol_name" field to struct kprobe.
-  The symbol->address resolution now happens in the kernel in an
-  architecture agnostic manner. 64-bit powerpc users no longer have
-  to specify the ".symbols"
-o Introduces the "offset" field to struct kprobe to allow a user to
-  specify an offset into a symbol.
-o The legacy mechanism of specifying the kprobe.addr is still supported.
-  However, if both the kprobe.addr and kprobe.symbol_name are specified,
-  probe registration fails with an -EINVAL.
-o The symbol resolution code uses kallsyms_lookup_name(). So
-  CONFIG_KPROBES now depends on CONFIG_KALLSYMS
-o Apparantly kprobe modules were the only legitimate out-of-tree user of
-  the kallsyms_lookup_name() EXPORT. Now that the symbol resolution
-  happens in-kernel, remove the EXPORT as suggested by Christoph Hellwig
-o Modify tcp_probe.c that uses the kprobe interface so as to make it
-  work on multiple platforms (in its earlier form, the code wouldn't
-  work, say, on powerpc)
+Other architecture maintainers may want to add similar helpers.
+
 ---
 
 Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 ---
- arch/i386/Kconfig             |    2 +-
- arch/ia64/Kconfig             |    2 +-
- arch/powerpc/Kconfig          |    2 +-
- arch/sparc64/Kconfig          |    2 +-
- arch/x86_64/Kconfig           |    2 +-
- include/asm-powerpc/kprobes.h |    3 +++
- include/linux/kprobes.h       |    6 ++++++
- kernel/kallsyms.c             |    1 -
- kernel/kprobes.c              |   26 ++++++++++++++++++++++++++
- net/ipv4/tcp_probe.c          |    6 ++++--
- 10 files changed, 44 insertions(+), 8 deletions(-)
+ include/asm-i386/ptrace.h    |    3 +++
+ include/asm-ia64/ptrace.h    |    3 +++
+ include/asm-powerpc/ptrace.h |    2 ++
+ include/asm-s390/ptrace.h    |    1 +
+ include/asm-x86_64/ptrace.h  |    2 ++
+ 5 files changed, 11 insertions(+)
 
-Index: linux-2.6.18-rc4/arch/i386/Kconfig
+Index: linux-2.6.18-rc4/include/asm-i386/ptrace.h
 ===================================================================
---- linux-2.6.18-rc4.orig/arch/i386/Kconfig
-+++ linux-2.6.18-rc4/arch/i386/Kconfig
-@@ -1129,7 +1129,7 @@ source "arch/i386/oprofile/Kconfig"
- 
- config KPROBES
- 	bool "Kprobes (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && MODULES
-+	depends on KALLSYMS && EXPERIMENTAL && MODULES
- 	help
- 	  Kprobes allows you to trap at almost any kernel address and
- 	  execute a callback function.  register_kprobe() establishes
-Index: linux-2.6.18-rc4/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.18-rc4.orig/arch/ia64/Kconfig
-+++ linux-2.6.18-rc4/arch/ia64/Kconfig
-@@ -510,7 +510,7 @@ source "arch/ia64/oprofile/Kconfig"
- 
- config KPROBES
- 	bool "Kprobes (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && MODULES
-+	depends on KALLSYMS && EXPERIMENTAL && MODULES
- 	help
- 	  Kprobes allows you to trap at almost any kernel address and
- 	  execute a callback function.  register_kprobe() establishes
-Index: linux-2.6.18-rc4/arch/powerpc/Kconfig
-===================================================================
---- linux-2.6.18-rc4.orig/arch/powerpc/Kconfig
-+++ linux-2.6.18-rc4/arch/powerpc/Kconfig
-@@ -1045,7 +1045,7 @@ source "arch/powerpc/oprofile/Kconfig"
- 
- config KPROBES
- 	bool "Kprobes (EXPERIMENTAL)"
--	depends on PPC64 && EXPERIMENTAL && MODULES
-+	depends on PPC64 && KALLSYMS && EXPERIMENTAL && MODULES
- 	help
- 	  Kprobes allows you to trap at almost any kernel address and
- 	  execute a callback function.  register_kprobe() establishes
-Index: linux-2.6.18-rc4/arch/sparc64/Kconfig
-===================================================================
---- linux-2.6.18-rc4.orig/arch/sparc64/Kconfig
-+++ linux-2.6.18-rc4/arch/sparc64/Kconfig
-@@ -416,7 +416,7 @@ source "arch/sparc64/oprofile/Kconfig"
- 
- config KPROBES
- 	bool "Kprobes (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && MODULES
-+	depends on KALLSYMS && EXPERIMENTAL && MODULES
- 	help
- 	  Kprobes allows you to trap at almost any kernel address and
- 	  execute a callback function.  register_kprobe() establishes
-Index: linux-2.6.18-rc4/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.18-rc4.orig/arch/x86_64/Kconfig
-+++ linux-2.6.18-rc4/arch/x86_64/Kconfig
-@@ -639,7 +639,7 @@ source "arch/x86_64/oprofile/Kconfig"
- 
- config KPROBES
- 	bool "Kprobes (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && MODULES
-+	depends on KALLSYMS && EXPERIMENTAL && MODULES
- 	help
- 	  Kprobes allows you to trap at almost any kernel address and
- 	  execute a callback function.  register_kprobe() establishes
-Index: linux-2.6.18-rc4/include/asm-powerpc/kprobes.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/asm-powerpc/kprobes.h
-+++ linux-2.6.18-rc4/include/asm-powerpc/kprobes.h
-@@ -44,6 +44,9 @@ typedef unsigned int kprobe_opcode_t;
- #define IS_TDI(instr)		(((instr) & 0xfc000000) == 0x08000000)
- #define IS_TWI(instr)		(((instr) & 0xfc000000) == 0x0c000000)
- 
-+#define kprobe_lookup_name(name) \
-+	(*((kprobe_opcode_t **)kallsyms_lookup_name(name)))
-+
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
- 
- #define is_trap(instr)	(IS_TW(instr) || IS_TD(instr) || \
-Index: linux-2.6.18-rc4/include/linux/kprobes.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/kprobes.h
-+++ linux-2.6.18-rc4/include/linux/kprobes.h
-@@ -77,6 +77,12 @@ struct kprobe {
- 	/* location of the probe point */
- 	kprobe_opcode_t *addr;
- 
-+	/* Allow user to indicate symbol name of the probe point */
-+	char *symbol_name;
-+
-+	/* Offset into the symbol */
-+	unsigned int offset;
-+
- 	/* Called before addr is executed. */
- 	kprobe_pre_handler_t pre_handler;
- 
-Index: linux-2.6.18-rc4/kernel/kallsyms.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/kallsyms.c
-+++ linux-2.6.18-rc4/kernel/kallsyms.c
-@@ -154,7 +154,6 @@ unsigned long kallsyms_lookup_name(const
- 	}
- 	return module_kallsyms_lookup_name(name);
+--- linux-2.6.18-rc4.orig/include/asm-i386/ptrace.h
++++ linux-2.6.18-rc4/include/asm-i386/ptrace.h
+@@ -79,7 +79,10 @@ static inline int user_mode_vm(struct pt
+ {
+ 	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
  }
--EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
- 
- /*
-  * Lookup an address
-Index: linux-2.6.18-rc4/kernel/kprobes.c
++
+ #define instruction_pointer(regs) ((regs)->eip)
++#define return_value(regs) ((regs)->eax)
++
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ #else
+Index: linux-2.6.18-rc4/include/asm-ia64/ptrace.h
 ===================================================================
---- linux-2.6.18-rc4.orig/kernel/kprobes.c
-+++ linux-2.6.18-rc4/kernel/kprobes.c
-@@ -37,6 +37,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/moduleloader.h>
-+#include <linux/kallsyms.h>
- #include <asm-generic/sections.h>
- #include <asm/cacheflush.h>
- #include <asm/errno.h>
-@@ -45,6 +46,16 @@
- #define KPROBE_HASH_BITS 6
- #define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
- 
+--- linux-2.6.18-rc4.orig/include/asm-ia64/ptrace.h
++++ linux-2.6.18-rc4/include/asm-ia64/ptrace.h
+@@ -237,6 +237,9 @@ struct switch_stack {
+  * the canonical representation by adding to instruction pointer.
+  */
+ # define instruction_pointer(regs) ((regs)->cr_iip + ia64_psr(regs)->ri)
 +
-+/*
-+ * Some oddball architectures like 64bit powerpc have function descriptors
-+ * so this must be overridable.
-+ */
-+#ifndef kprobe_lookup_name
-+#define kprobe_lookup_name(name) \
-+	((kprobe_opcode_t *)(kallsyms_lookup_name(name)))
-+#endif
++#define return_value(regs) ((regs)->r8)
 +
- static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
- static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
- static atomic_t kprobe_count;
-@@ -447,6 +458,21 @@ static int __kprobes __register_kprobe(s
- 	struct kprobe *old_p;
- 	struct module *probed_mod;
- 
-+	/*
-+	 * If we have a symbol_name argument look it up,
-+	 * and add it to the address.  That way the addr
-+	 * field can either be global or relative to a symbol.
-+	 */
-+	if (p->symbol_name) {
-+		if (p->addr)
-+			return -EINVAL;
-+		p->addr = kprobe_lookup_name(p->symbol_name);
-+	}
-+
-+	if (!p->addr)
-+		return -EINVAL;
-+	p->addr = (kprobe_opcode_t *)(((char *)p->addr)+ p->offset);
-+
- 	if ((!kernel_text_address((unsigned long) p->addr)) ||
- 		in_kprobes_functions((unsigned long) p->addr))
- 		return -EINVAL;
-Index: linux-2.6.18-rc4/net/ipv4/tcp_probe.c
+ /* Conserve space in histogram by encoding slot bits in address
+  * bits 2 and 3 rather than bits 0 and 1.
+  */
+Index: linux-2.6.18-rc4/include/asm-powerpc/ptrace.h
 ===================================================================
---- linux-2.6.18-rc4.orig/net/ipv4/tcp_probe.c
-+++ linux-2.6.18-rc4/net/ipv4/tcp_probe.c
-@@ -99,8 +99,10 @@ static int jtcp_sendmsg(struct kiocb *io
- }
+--- linux-2.6.18-rc4.orig/include/asm-powerpc/ptrace.h
++++ linux-2.6.18-rc4/include/asm-powerpc/ptrace.h
+@@ -73,6 +73,8 @@ struct pt_regs {
+ #ifndef __ASSEMBLY__
  
- static struct jprobe tcp_send_probe = {
--	.kp = { .addr = (kprobe_opcode_t *) &tcp_sendmsg, },
--	.entry = (kprobe_opcode_t *) &jtcp_sendmsg,
-+	.kp = {
-+		.symbol_name	= "tcp_sendmsg",
-+	},
-+	.entry	= JPROBE_ENTRY(jtcp_sendmsg),
- };
+ #define instruction_pointer(regs) ((regs)->nip)
++#define return_value(regs) ((regs)->gpr[3])
++
+ #ifdef CONFIG_SMP
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ #else
+Index: linux-2.6.18-rc4/include/asm-s390/ptrace.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/asm-s390/ptrace.h
++++ linux-2.6.18-rc4/include/asm-s390/ptrace.h
+@@ -472,6 +472,7 @@ struct user_regs_struct
  
+ #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
+ #define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
++#define return_value(regs)((regs)->gprs[2])
+ #define profile_pc(regs) instruction_pointer(regs)
+ extern void show_regs(struct pt_regs * regs);
+ #endif
+Index: linux-2.6.18-rc4/include/asm-x86_64/ptrace.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/asm-x86_64/ptrace.h
++++ linux-2.6.18-rc4/include/asm-x86_64/ptrace.h
+@@ -84,6 +84,8 @@ struct pt_regs {
+ #define user_mode(regs) (!!((regs)->cs & 3))
+ #define user_mode_vm(regs) user_mode(regs)
+ #define instruction_pointer(regs) ((regs)->rip)
++#define return_value(regs) ((regs)->rax)
++
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
  

@@ -1,108 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWHVWvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWHVW6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWHVWvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 18:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWHVWvN
+	id S1751335AbWHVW6r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 18:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWHVW6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 18:51:13 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:31054 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750801AbWHVWvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 18:51:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XzQSnigxFjUouKVUyzBc6l4uEWv8xraM+gLtf97XdcAQMJ3YR9oaO/ceAB4GEXlZxJW36Ciwv2BAUUNQK/45D/dTX5w29TCiazyMEE4YmjYE9GqvSnvNbP7WcGsslCSyhXiy0AHfq3tBEjnxD7MN+IyPL86M0zJCcsHt1ss6QaA=
-Message-ID: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
-Date: Wed, 23 Aug 2006 00:51:10 +0200
-From: "Jari Sundell" <sundell.software@gmail.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+	Tue, 22 Aug 2006 18:58:47 -0400
+Received: from alnrmhc12.comcast.net ([206.18.177.52]:39125 "EHLO
+	alnrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751246AbWHVW6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 18:58:45 -0400
 Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Cc: "Nicholas Miell" <nmiell@comcast.net>, lkml <linux-kernel@vger.kernel.org>,
-       "David Miller" <davem@davemloft.net>,
-       "Ulrich Drepper" <drepper@redhat.com>, "Andrew Morton" <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, "Zach Brown" <zach.brown@oracle.com>,
-       "Christoph Hellwig" <hch@infradead.org>
-In-Reply-To: <20060822194706.GA3476@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Nicholas Miell <nmiell@comcast.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20060822143747.68acaf99.rdunlap@xenotime.net>
 References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy>
 	 <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy>
-	 <b3f268590608220957g43a16d6bmde8a542f8ad8710b@mail.gmail.com>
-	 <20060822180135.GA30142@2ka.mipt.ru>
-	 <b3f268590608221214l45bb6ad6meccfba99b89710a0@mail.gmail.com>
-	 <20060822194706.GA3476@2ka.mipt.ru>
+	 <20060822083711.GA26183@2ka.mipt.ru> <1156238988.8055.78.camel@entropy>
+	 <20060822100316.GA31820@2ka.mipt.ru> <1156276658.2476.21.camel@entropy>
+	 <20060822201646.GC3476@2ka.mipt.ru> <1156281182.2476.63.camel@entropy>
+	 <20060822143747.68acaf99.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 15:58:12 -0700
+Message-Id: <1156287492.2476.134.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/22/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> Word "polling" really confuses me here, but now I understand you.
-> Such approach actually has unresolved issues - consider for
-> example a situation when all provided events are ready immediately - what
-> should be returned (as far as I recall they are always added into kqueue in
-> BSDs before started to be checked, so old events will be returned
-> first)? And currently ready events can be read through mapped buffer
-> without any syscall at all.
-> And Linux syscall is much cheaper than BSD's one.
-> Consider (especially apped buffer)  that issues, it really does not cost
-> interface complexity.
+On Tue, 2006-08-22 at 14:37 -0700, Randy.Dunlap wrote:
+> On Tue, 22 Aug 2006 14:13:02 -0700 Nicholas Miell wrote:
+> 
+> > On Wed, 2006-08-23 at 00:16 +0400, Evgeniy Polyakov wrote:
+> > > On Tue, Aug 22, 2006 at 12:57:38PM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
+> > > > On Tue, 2006-08-22 at 14:03 +0400, Evgeniy Polyakov wrote:
+> > > > Of course, since you already know how all this stuff is supposed to
+> > > > work, you could maybe write it down somewhere?
+> > > 
+> > > I will write documantation, but as you can see some interfaces are
+> > > changed.
+> > 
+> > Thanks; rapidly changing interfaces need good documentation even more
+> > than stable interfaces simply because reverse engineering the intended
+> > API from a changing implementation becomes even more difficult.
+> 
+> OK, I don't quite get it.
+> Can you be precise about what you would like?
+> 
+> a.  good documentation
+> b.  a POSIX API
+> c.  a Windows-compatible API
+> d.  other?
+> 
+> and we won't make you use any of this code.
 
-There's no reason I can see that kqueue's kevent should not be able to
-check an mmaped buffer as in your implementation, after having passed
-any filter changes to the kernel.
+I want something that I can be confident won't be replaced again in two
+years because nobody noticed problems with the old API design or they're
+just feeling very NIH with their snazzy new feature.
 
-I'm not sure if I read you correctly, but the situation where all
-events are ready immediately is not a problem. Only the delta is
-passed with the kevent call, so old events will still be first in the
-queue. And as long as the user doesn't randomize the order of the
-changelist and passes the changedlist with each kevent call, the
-resulting order in which changes are received will be no different
-from using individual system calls.
+Maybe then we won't end up with another in the { signal/sigaction,
+waitpid/wait4, select/pselect, poll/ppol,  msgrcv, mq_receive,
+io_getevents, aio_suspend/aio_return, epoll_wait, inotify read,
+kevent_get_events } collection -- or do you like having a maze of
+twisted interfaces, all subtly different and none supporting the
+complete feature set?
 
-If there's some very specific reason the user needs to retain the
-order in which events happen in the interval between adding it to the
-changelist and calling kevent, he may decide to call kevent
-immediately without asking for any events.
+Good documentation giving enough detail to judge the design and an API
+that fits with the current POSIX API (at least, the parts that everybody
+agrees don't suck) goes a long way toward assuaging my fears that this
+won't just be another waste of effort, doomed to be replaced by the Next
+Great Thing (We Really Mean It This Time!) in unified event loop API
+design or whatever other interface somebody happens to be working on.
 
-> First of all, there are completely different types.
-> Design of the in-kernel part is very different too.
+---
 
-The question I'm asking is not whet ever kqueue can fit this
-implementation, but rather if it is possible to make the
-implementation fit kqueue. I can't really see any fundemental
-differences, merely implementation details. Maybe I'm just unfamiliar
-with the requirements.
+This is made extraordinarily difficult by the fact kernel people don't
+even agree themselves on what APIs should look like anyway and Linus
+won't take a stand on the issue -- people with influence are
+simultaneously arguing things like:
 
-> > BSD's kqueue:
-> >
-> > struct kevent {
-> >  uintptr_t ident;        /* identifier for this event */
-> >  short     filter;       /* filter for event */
-> >  u_short   flags;        /* action flags for kqueue */
-> >  u_int     fflags;       /* filter flag value */
-> >  intptr_t  data;         /* filter data value */
-> >  void      *udata;       /* opaque user data identifier */
-> > };
->
->
-> From your description there is a serious problem with arches which
-> supports different width of the pointer. I do not have sources of ny BSD
-> right now, but if it is really like you've described, it can not be used
-> in Linux at all.
+- ioctls are bad because they aren't typesafe and you should use
+syscalls instead because they are typesafe
 
-Are you referring to udata or data? I'll assume the latter as the
-former is more of a restriction on user-space. intptr_t is required to
-be safely convertible to a void*, so I don't see what the problem
-would be.
+- ioctls are good, because they're much easier to add than syscalls,
+type safety can be supplied by the library wrapper, and syscalls are a
+(relatively) scarce resource, harder to wire up in the first place, and
+are more difficult to make optional or remove entirely if you decide
+they were a stupid idea.
 
-> No way - timespec uses long.
+- multiplexors are bad because they're too complex or not typesafe
 
-I must have missed that discussion. Please enlighten me in what regard
-using an opaque type with lower resolution is preferable to a type
-defined in POSIX for this sort of purpose. Considering the extra code
-I need to write to properly handle having just ms resolution, it
-better be something fundamentally broken. ;)
+- multiplexors are good because they save syscall slots or ioctl numbers
+and the library wrapper provides the typesafety anyway.
 
-Rakshasa
+- instead of syscalls or ioctls, you should create a whole new
+filesystem that has a bunch of magic files that you read from and write
+to in order to talk to the kernel
+
+- filesystem interfaces are bad, because they're take more effort to
+write than a syscall or a ioctl and nobody seems to know how to maintain
+and evolve a filesystem-based ABI or make them easy to use outside of a
+fragile shell script (see: sysfs)
+
+- that everything in those custom filesystems should ASCII strings and
+nobody needs an actual grammar describing how to parse them, we can just
+break userspace whenever we feel like it
+
+- that everything in those custom filesystems should be C structs, and
+screw the shell scripts
+
+- new filesystem metadata should be exposed by:
+	- xattrs
+	- ioctls
+	- new syscalls
+		or
+	- named streams/forks/not-xattrs
+  and three out of four of these suggestions are completely wrong for
+  some critical reason
+
+- meanwhile, the networking folks are doing everything via AF_NETLINK
+sockets instead of syscalls or ioctl or whatever, I guess because the
+network stack is what's most familiar to them
+
+- and there's the usual arguments about typedefs verses bare struct
+names, #defines verses enums, returning 0 on success vs. 0 on failure,
+and lots of other piddly stupid stuff that somebody just needs to say
+"this is how it's done and no arguing" about.
+
+Honestly, somebody with enough clout to make it stick needs to write out
+a spec describing what new kernel interfaces should look like and how
+they should fit in with existing interfaces.
+
+It'd probably make Evgeniy's life easier if you could just point at the
+interface guidelines and say "you did this wrong" instead of random
+people telling him to change his design and random other people telling
+him to change it back.
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
+

@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWHVTO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWHVTPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWHVTO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHVTO6
+	id S1751123AbWHVTPB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWHVTPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 22 Aug 2006 15:15:01 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:27919 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751151AbWHVTO6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Aug 2006 15:14:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:1304 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751106AbWHVTOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:14:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=TwePv5StA0uKluJD0TFHVpt88vWqEahvV9X7lZOW993ox4vdwrgqm8oJE3LSx8eJuQU0TbDNnPOW9w628WT8oaYMVnLJUpuf/EwVwKc5e7ZArxqfY2eenUbAVcFFMsWW9bs7vDVBGTBB4+VTztuqS1UD0X9XEENcY4qqB4hp/Kk=
-Date: Tue, 22 Aug 2006 21:14:35 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Paul Drynoff <pauldrynoff@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
-Message-ID: <20060822211435.GA724@slug>
-References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com> <20060822205053.37472ba7.pauldrynoff@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Herbert Xu's paged unique skb trimming patch?
+References: <20060821184527.GA21938@kroah.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: because you deserve a brk today.
+Date: Tue, 22 Aug 2006 20:13:23 +0100
+In-Reply-To: <20060821184527.GA21938@kroah.com> (Greg KH's message of "21 Aug 2006 19:48:47 +0100")
+Message-ID: <87d5asporw.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822205053.37472ba7.pauldrynoff@gmail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 08:50:53PM +0400, Paul Drynoff wrote:
-> After several attempts of booting I got similar, but not the same message:
-> all things are similar like
-> last sysfs file: /block/hda/range
-> eip, and other registers, but
-> process not init:
-> Process htplug (pid: 942, ti=c7424000 task=c7420590 task.ti=c7424000)
-> 
-> Also, I should say that I can reproduce problem on real machine, and on qemu.
-Are you able to hook a gdb on qemu ?
-Frederik
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On 21 Aug 2006, Greg KH stipulated:
+> Responses should be made by Wed, Auguest 23, 18:00:00 UTC.  Anything
+> received after that time might be too late.
+
+Dave Miller suggested that Herbert Xu's pskb trimming patch (commit
+e9fa4f7bd291c29a785666e2fa5a9cf3241ee6c3) should go into -stable: did it
+get lost? Without it, network stalls (at least) are quite possible.
+
+-- 
+scsi/atp870u.c: panic("Foooooooood fight!");
+  --- linux-2.6.17/drivers/scsi/atp870u.c

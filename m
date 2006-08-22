@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWHVRQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWHVRRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWHVRQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 13:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWHVRQe
+	id S932238AbWHVRRx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 13:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHVRRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 13:16:34 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:7345 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932189AbWHVRQd
+	Tue, 22 Aug 2006 13:17:53 -0400
+Received: from lb2.onspeed.com ([72.3.137.84]:15557 "EHLO navaho.onspeed.com")
+	by vger.kernel.org with ESMTP id S932238AbWHVRRw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 13:16:33 -0400
-Message-ID: <44EB3BF0.3040805@vmware.com>
-Date: Tue, 22 Aug 2006 10:16:32 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 22 Aug 2006 13:17:52 -0400
+X-Originating-IP: [196.207.228.51]
+X-Originating-User: [trEEYx7uUN]
+Message-ID: <trEEYx7uUN$196.207.228.51$.44eb3c3f.a9600.3537.367@navaho.onspeed.com>
+From: "abriel fabian" <abriel_fabian@yahoo.hm>
+Reply-To: abriel_fabian@mixmail.com
+To: linux-kernel@vger.kernel.org
+Date: Tue, 22 Aug 2006 17:13:57 +0000
+Subject: urgent response
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <1156254965.27114.17.camel@localhost.localdomain> <200608221544.26989.ak@muc.de>
-In-Reply-To: <200608221544.26989.ak@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I don't see why paravirt ops is that much more sensitive
-> than most other kernel code. 
->
->   
->> It would be a lot safer if we could have the struct paravirt_ops in
->> protected read-only const memory space, set it up in the core kernel
->> early on in boot when we play "guess todays hypervisor" and then make
->> sure it stays in read only (even to kernel) space.
->>     
->
-> By default we don't make anything read only because that would
-> mess up the 2MB kernel mapping.
->
-> In general i don't think making select code in the kernel
-> read only is a good idea, because as long as you don't
-> protect everything including stacks etc. there will be always
-> attack points where supposedly protected code relies 
-> on unprotected state. If someone can write to kernel
-> memory you already lost.
->
-> And it adds TLB pressure.
->   
+ABRIEL FABIAN,
+Managing director 
+Tapar Group, 
+Office address:77, 
+Bd du général de Gaule
+B13 Dakar,Senegal.
 
-And it doesn't work for VMI or lhype, both of which might modify 
-paravirt_ops way later in the boot process, when loaded as a module.  
-Where did this conversation come from?  I don't see it on any list I'm 
-subscribed to.
 
-Zach
+ ATTN:
+ Tapar Group, is in search of a book-keeper/company representatives in the United States,canada 
+and the UK.This project has been developed in a way not to affect your present job nor bring you any 
+form of stress but in order to help take care of those extra costs while you work for us.
+ Tapar Group is a company thats deals in the production and supplies of Batik,Assorted African fabrics,
+various clothing materials,African art materials and all kinds of furnitures for exporting to the wolrd.Presently 
+our website is under construction and should be ready soon.
+ Recently It came to my knowledge that there are a lot of lapses in handling funds coming from our clients 
+in the USA,Canada and UK which come in forms of Cashiers checks,Company checks and Money Orders 
+which are not readily cashable outside the United States,Canada and UK,So we need someone in the US,
+Canada and UK to work as our representatives and assist us in processing the payments from our various 
+clients which come in on a weekly,monthly and annual basis.This is why we decided to employ a 
+representatives over in the US,Canada and UK to help us receive our payments at your contact address 
+you shall be providing us,in order to process our payment from our clients. 
+   All you need to do is receive these payments from our clients in your country, get it deposited at your bank,
+Cash it then deduct your percentage( 15% of each payment) plus transfer charges and forward the 
+balance funds to one of company's representatives via Moneygram/Western Union.
+      Our payments will be issued out in your name as we would inform our clients to do.Therefore 
+the following details would be needed: I would require you to send me an email with the following details:
+1)Your Fullname
+2)Your Residential Address
+3)Your Phone number
+4)Your Age
+5)Your Occupation 
+ We would forward these informations to our clients and they will start making payments to you as the
+ company's representative in the states,Canada or UK.Once we have all your details in our records,We 
+would notify you as soon as we confirm that one of our cleints is mailing payment across to you. 
+ I await your urgent response. 
+
+Warmest Regards, 
+ABRIEL FABIAN
+Managing director 
+Tapar Group 
+abriel_fabian@mixmail.com
+Office address:77, Bd du général de Gaule
+B13 Dakar,Senegal
+
+
+

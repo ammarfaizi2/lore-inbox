@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHVHtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWHVIBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWHVHtE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 03:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWHVHtE
+	id S1751341AbWHVIBb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHVIBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 03:49:04 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:41856 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S932116AbWHVHtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 03:49:02 -0400
-To: David Chinner <dgc@sgi.com>
-Cc: Nathan Scott <nathans@sgi.com>, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xfs: i_state of inode is changed after the inode is freed
-In-reply-to: <20060814025901.GE51703024@melbourne.sgi.com>
-Message-Id: <20060822164847m-saito@mail.aom.tnes.nec.co.jp>
-References: <20060814025901.GE51703024@melbourne.sgi.com>
+	Tue, 22 Aug 2006 04:01:31 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:34223 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1751275AbWHVIBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:01:30 -0400
+Message-Id: <44EAD613.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Tue, 22 Aug 2006 10:01:55 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, "Andi Kleen" <ak@suse.de>,
+       <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+References: <20060820013121.GA18401@fieldses.org>
+ <44E97353.76E4.0078.0@novell.com>
+ <20060821094718.79c9a31a.rdunlap@xenotime.net>
+ <20060821212043.332fdd0f.akpm@osdl.org>
+In-Reply-To: <20060821212043.332fdd0f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Date: Tue, 22 Aug 2006 16:48:47 +0900
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan, David,
+>>> Andrew Morton <akpm@osdl.org> 22.08.06 06:20 >>>
+>On Mon, 21 Aug 2006 09:47:18 -0700
+>"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+>
+>> > The 'stuck' unwinder issue at hand already has a fix, though planned to
+>> > be merged for 2.6.19 only. The crash after switching to the legacy
+>> > stack trace code is bad, though, but has little to do with the unwinder
+>> > additions/changes. The way that code reads the stack is just
+>> > inappropriate in contexts where things must be expected to be broken.
+>> 
+>> "merged for 2.6.19" meaning:
+>> - in (before) 2.6.19, or
+>> - after 2.6.19 is released
+>> 
+>> If "after," then it will likely need to be added to -stable also,
+>> so it might as well go in "before" 2.6.19 is released.
+>
+>Precisely.
 
-I had the vacation too.
+My understanding of 'for' is that Andi will send to Linus after in the 2.6.19
+merge window.
 
-David Chinner <dgc@sgi.com> wrote:
->Hmmm - Idon't think we should iput() before we wake up any pinned waiters.
->When we have a waiter on i_ipin_wait (called from xfs_iflush()), we have
->a thread sleeping with the inode locked.
->
->If we then call iput() and it drops the last reference, we can call back
->into the filesystem and start transactions. Those transactions will need
->to lock the inode. Hence I think the above can deadlock when racing against
->an inode flush. 
->
->The code should probably read:
->
->	if (dropped last pincount) {
->		int need_iput = 0;
->		struct inode *inode;
->
->		spin_lock(i_flags_lock)
->		if (!reclaimable) {
->			if (!vp) {
->				if (!(i_state & (NEW|CLEAR))) {
->					inode = igrab(inode)
->					if (inode) {
->						need_iput = 1	
->						mark_inode_dirty_sync(inode)
->					}
->				}
->			}
->		}
->		spin_unlock(i_flags_lock)
->		wake_up(&ip->i_ipin_wait)
->		if (need_iput)
->			iput(inode);
->	}
->
->to avoid this possible deadlock.
+>Guys, this unwinder change has been quite problematic.  We really cannot
+>let this badness out into 2.6.18 - it degrades our ability to debug every
+>subsystem in the entire kernel.  Would marking it CONFIG_BROKEN get us back
+>to 2.6.17 behaviour?
 
-OK, I see your point.  There is wait_event(in xfs_iunpin_wait) that should
-be wake_up'ed(in xfs_iunpin), so deadlock can occur.
+I'd prefer pushing into 2.6.18 some of the patches currently scheduled for
+2.6.19 over marking it CONFIG_BROKEN. But that's clearly not my decision.
 
-I'll update my patch and test it.  Please wait for a few moments.
+Jan

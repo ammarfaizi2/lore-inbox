@@ -1,55 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWHVMoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWHVMvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWHVMoL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWHVMoK
+	id S1751292AbWHVMvm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWHVMvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:44:10 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:60949 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932212AbWHVMoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:44:09 -0400
-Message-ID: <44EAFCBA.10400@sw.ru>
-Date: Tue, 22 Aug 2006 16:46:50 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 22 Aug 2006 08:51:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:54576 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751292AbWHVMvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 08:51:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding:from;
+        b=dyAoZZPV/wQiMFHf8imT+tiNpZL6zKAyykYKhmyNF22Zcg1yrK4XocRq+xjbYR9XDTB1jUXK89ZQeuHRDS9Ti3TH6VkvsxaRT2VtfDdEA7aPgD1dltqj9oZ/p9WoG9eHzPikpbTllqMcLXB+kaTcQ2vfLEWhN5GM8AE13/JfGoo=
+Message-ID: <44EAFDCA.1080002@innova-card.com>
+Date: Tue, 22 Aug 2006 14:51:22 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Matt Helsley <matthltc@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155866328.2510.247.camel@stark> <44E5A637.1020407@sw.ru> <1155955116.2510.445.camel@stark> <44E992B9.8080908@sw.ru> <20060822122329.GA7125@in.ibm.com>
-In-Reply-To: <20060822122329.GA7125@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: rusty@rustcorp.com.au
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC] kallsyms_lookup always requires buffers
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Mon, Aug 21, 2006 at 03:02:17PM +0400, Kirill Korotaev wrote:
-> 
->>>Except that you eventually have to lock ub0. Seems that the cache line
->>>for that spinlock could bounce quite a bit in such a hot path.
->>
->>do you mean by ub0 host system ub which we call ub0
->>or you mean a top ub?
-> 
-> 
-> If this were used for pure resource management purpose (w/o containers)
-> then the top ub would be ub0 right? "How bad would the contention on the
-> ub0->lock be then" is I guess Matt's question.
-Probably we still misunderstand here each other.
-top ub can be any UB. it's children do account resources
-to the whole chain of UBs to the top parent.
+Hi,
 
-i.e. ub0 is not a tree root.
+Some uses of kallsyms_lookup() do not need to find out the name of
+a symbol and its module's name it belongs. This is specially true
+in arch specific code, which needs to unwind the stack to show the
+back trace during opps (mips is an example). In this specific case,
+we just need to retreive the function's size and the offset of the
+active intruction inside it.
 
-Kirill
+This simple patch adds a new entry "kallsyms_lookup_gently()". The
+name actually sucks but I can't figure out a coherent name with the
+rest of the file. If someone could give me a better idea...
+This new entry does exactly the same as kallsyms_lookup() but does
+not require any buffers to store any names. It returns 0 if it fails
+otherwise 1.
 
+Do you think this can be usefull ?
+
+thanks
+		Franck
+
+-- >8 --
+
+diff --git a/include/linux/kallsyms.h b/include/linux/kallsyms.h
+index 849043c..30f8d8d 100644
+--- a/include/linux/kallsyms.h
++++ b/include/linux/kallsyms.h
+@@ -12,6 +12,10 @@ #ifdef CONFIG_KALLSYMS
+ /* Lookup the address for a symbol. Returns 0 if not found. */
+ unsigned long kallsyms_lookup_name(const char *name);
+ 
++extern int kallsyms_lookup_gently(unsigned long addr,
++				  unsigned long *symbolsize,
++				  unsigned long *offset);
++
+ /* Lookup an address.  modname is set to NULL if it's in the kernel. */
+ const char *kallsyms_lookup(unsigned long addr,
+ 			    unsigned long *symbolsize,
+@@ -28,6 +32,13 @@ static inline unsigned long kallsyms_loo
+ 	return 0;
+ }
+ 
++static inline const int kallsyms_lookup_gently(unsigned long addr,
++					       unsigned long *symbolsize,
++					       unsigned long *offset)
++{
++	return 0;
++}
++
+ static inline const char *kallsyms_lookup(unsigned long addr,
+ 					  unsigned long *symbolsize,
+ 					  unsigned long *offset,
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index ab16a5a..c398753 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -69,6 +69,15 @@ static inline int is_kernel(unsigned lon
+ 	return in_gate_area_no_task(addr);
+ }
+ 
++static int is_kernel_addr(unsigned long addr)
++{
++	if (all_var)
++		return is_kernel(addr);
++
++	return is_kernel_text(addr) || is_kernel_inittext(addr) ||
++		is_kernel_extratext(addr);
++}
++
+ /* expand a compressed symbol data into the resulting uncompressed string,
+    given the offset to where the symbol is in the compressed stream */
+ static unsigned int kallsyms_expand_symbol(unsigned int off, char *result)
+@@ -156,6 +165,78 @@ unsigned long kallsyms_lookup_name(const
+ }
+ EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
++static unsigned long get_symbol_pos(unsigned long addr,
++				    unsigned long *symbolsize,
++				    unsigned long *offset)
++{
++	unsigned long symbol_start = 0, symbol_end = 0;
++	unsigned long i, low, high, mid;
++
++	/* This kernel should never had been booted. */
++	BUG_ON(!kallsyms_addresses);
++
++	/* do a binary search on the sorted kallsyms_addresses array */
++	low = 0;
++	high = kallsyms_num_syms;
++
++	while (high - low > 1) {
++		mid = (low + high) / 2;
++		if (kallsyms_addresses[mid] <= addr)
++			low = mid;
++		else
++			high = mid;
++	}
++
++	/*
++	 * search for the first aliased symbol. Aliased
++	 * symbols are symbols with the same address
++	 */
++	while (low && kallsyms_addresses[low-1] == kallsyms_addresses[low])
++		--low;
++
++	symbol_start = kallsyms_addresses[low];
++
++	/* Search for next non-aliased symbol */
++	for (i = low + 1; i < kallsyms_num_syms; i++) {
++		if (kallsyms_addresses[i] > symbol_start) {
++			symbol_end = kallsyms_addresses[i];
++			break;
++		}
++	}
++	
++	/* if we found no next symbol, we use the end of the section */
++	if (!symbol_end) {
++		if (is_kernel_inittext(addr))
++			symbol_end = (unsigned long)_einittext;
++		else if (all_var)
++			symbol_end = (unsigned long)_end;
++		else 
++			symbol_end = (unsigned long)_etext;
++	}
++
++	*symbolsize = symbol_end - symbol_start;
++	*offset = addr - symbol_start;
++
++	return low;
++}
++
++/*
++ * Lookup an address but don't bother to find any names.
++ */
++int kallsyms_lookup_gently(unsigned long addr, unsigned long *symbolsize,
++			   unsigned long *offset)
++{
++	int rv;
++
++	if (is_kernel_addr(addr))
++		rv = !!get_symbol_pos(addr, symbolsize, offset);
++	else
++		rv = !!module_address_lookup(addr, symbolsize, offset, NULL);
++
++	return rv;
++}
++EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
++
+ /*
+  * Lookup an address
+  * - modname is set to NULL if it's in the kernel
+@@ -168,57 +249,18 @@ const char *kallsyms_lookup(unsigned lon
+ 			    unsigned long *offset,
+ 			    char **modname, char *namebuf)
+ {
+-	unsigned long i, low, high, mid;
+ 	const char *msym;
+ 
+-	/* This kernel should never had been booted. */
+-	BUG_ON(!kallsyms_addresses);
+-
+ 	namebuf[KSYM_NAME_LEN] = 0;
+ 	namebuf[0] = 0;
+ 
+-	if ((all_var && is_kernel(addr)) ||
+-	    (!all_var && (is_kernel_text(addr) || is_kernel_inittext(addr) ||
+-				is_kernel_extratext(addr)))) {
+-		unsigned long symbol_end = 0;
+-
+-		/* do a binary search on the sorted kallsyms_addresses array */
+-		low = 0;
+-		high = kallsyms_num_syms;
+-
+-		while (high-low > 1) {
+-			mid = (low + high) / 2;
+-			if (kallsyms_addresses[mid] <= addr) low = mid;
+-			else high = mid;
+-		}
+-
+-		/* search for the first aliased symbol. Aliased symbols are
+-		   symbols with the same address */
+-		while (low && kallsyms_addresses[low - 1] == kallsyms_addresses[low])
+-			--low;
+-
++	if (is_kernel_addr(addr)) {
++		unsigned long pos;
++		
++		pos = get_symbol_pos(addr, symbolsize, offset);
+ 		/* Grab name */
+-		kallsyms_expand_symbol(get_symbol_offset(low), namebuf);
+-
+-		/* Search for next non-aliased symbol */
+-		for (i = low + 1; i < kallsyms_num_syms; i++) {
+-			if (kallsyms_addresses[i] > kallsyms_addresses[low]) {
+-				symbol_end = kallsyms_addresses[i];
+-				break;
+-			}
+-		}
+-
+-		/* if we found no next symbol, we use the end of the section */
+-		if (!symbol_end) {
+-			if (is_kernel_inittext(addr))
+-				symbol_end = (unsigned long)_einittext;
+-			else
+-				symbol_end = all_var ? (unsigned long)_end : (unsigned long)_etext;
+-		}
+-
+-		*symbolsize = symbol_end - kallsyms_addresses[low];
++		kallsyms_expand_symbol(get_symbol_offset(pos), namebuf);
+ 		*modname = NULL;
+-		*offset = addr - kallsyms_addresses[low];
+ 		return namebuf;
+ 	}
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 2a19cd4..0e3e6ab 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2012,7 +2012,8 @@ const char *module_address_lookup(unsign
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (within(addr, mod->module_init, mod->init_size)
+ 		    || within(addr, mod->module_core, mod->core_size)) {
+-			*modname = mod->name;
++			if (modname)
++				*modname = mod->name;
+ 			return get_ksymbol(mod, addr, size, offset);
+ 		}
+ 	}

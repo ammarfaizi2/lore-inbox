@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWHVOgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWHVOhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWHVOgN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWHVOgN
+	id S932273AbWHVOhE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWHVOhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:36:13 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:65493 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932272AbWHVOgM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:36:12 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 22 Aug 2006 07:35:53 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       tglx@linutronix.de
-Subject: Re: [take9 2/2] kevent: poll/select() notifications. Timer notifications.
-In-Reply-To: <20060816133014.GB32499@infradead.org>
-Message-ID: <Pine.LNX.4.64.0608220730030.14814@alien.or.mcafeemobile.com>
-References: <1155536496588@2ka.mipt.ru> <11555364962857@2ka.mipt.ru>
- <20060816133014.GB32499@infradead.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 22 Aug 2006 10:37:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32659 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932273AbWHVOhB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:37:01 -0400
+Date: Tue, 22 Aug 2006 07:36:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <gregkh@suse.de>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Lockdep message on workqueue_mutex
+Message-Id: <20060822073640.d6704061.akpm@osdl.org>
+In-Reply-To: <20060822135327.GB29577@osiris.boeblingen.de.ibm.com>
+References: <20060822121042.GA29577@osiris.boeblingen.de.ibm.com>
+	<1156250192.2976.47.camel@laptopd505.fenrus.org>
+	<20060822135327.GB29577@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006, Christoph Hellwig wrote:
+On Tue, 22 Aug 2006 15:53:27 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-> On Mon, Aug 14, 2006 at 10:21:36AM +0400, Evgeniy Polyakov wrote:
->>
->> poll/select() notifications. Timer notifications.
->>
->> This patch includes generic poll/select and timer notifications.
->>
->> kevent_poll works simialr to epoll and has the same issues (callback
->> is invoked not from internal state machine of the caller, but through
->> process awake).
->
-> I'm not a big fan of duplicating code over and over.  kevent is a candidate
-> for a generic event devlivery mechanisms which is a _very_ good thing.  But
-> starting that system by duplicating existing functionality is not very nice.
->
-> What speaks against a patch the recplaces the epoll core by something that
-> build on kevent while still supporting the epoll interface as a compatibility
-> shim?
+> On Tue, Aug 22, 2006 at 02:36:32PM +0200, Arjan van de Ven wrote:
+> > On Tue, 2006-08-22 at 14:10 +0200, Heiko Carstens wrote:
+> > > git commit 9b41ea7289a589993d3daabc61f999b4147872c4 causes the lockdep
+> > > message below on cpu hotplug (git kernel of today).
+> > > 
+> > > We have:
+> > > 
+> > > cpu_down (takes cpu_add_remove_lock)
+> > > [CPU_DOWN_PREPARE]
+> > > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
+> > > workqueue_cpu_callback (takes workqueue_mutex)
+> > > blocking_notifier_call_chain (releases (cpu_chain).rwsem)
+> > > [CPU_DEAD]
+> > > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
+> > >                               ^^^^^^^^^^^^^^^^^^^^^^^
+> > > -> reverse locking order, since we still hold workqueue_mutex.
+> > > 
+> > > But since all of this is protected by the cpu_add_remove_lock this looks
+> > > legal. Well, at least it's safe as long as no other cpu callback function
+> > > does anything that will take the workqueue_mutex as well.
+> > 
+> > so you're saying this locking is entirely redundant ? ;-)
+> 
+> No, I'm just saying that I think that it currently cannot deadlock. But I
+> think the workqueue cpu hotplug code should be changed, so that it doesn't
+> return with the workqueue_mutex being held.
 
-Sorry, I'm catching up with a huge post-vacation backlog, so I didn't have 
-the time to look at the source code. But, if kevent performance is same or 
-better, and the external epoll interface is fully supported, than I think 
-the shim layer idea is a good one. Provided the shim being smaller than 
-eventpoll.c :)
-
-
-
-- Davide
-
-
+That's deliberate: it's to prevent the workqueue code from walking
+cpu_online_map while it is in the process of being changed.

@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWHVTUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWHVTZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWHVTUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWHVTUw
+	id S1751218AbWHVTZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHVTZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:20:52 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50605 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751188AbWHVTUw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:20:52 -0400
-Date: Tue, 22 Aug 2006 12:17:23 -0700
-From: Greg KH <gregkh@suse.de>
-To: Nix <nix@esperi.org.uk>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: Herbert Xu's paged unique skb trimming patch?
-Message-ID: <20060822191723.GA2688@suse.de>
-References: <20060821184527.GA21938@kroah.com> <87d5asporw.fsf@hades.wkstn.nix>
+	Tue, 22 Aug 2006 15:25:25 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:41126 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1751190AbWHVTZY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:25:24 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87d5asporw.fsf@hades.wkstn.nix>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: HELP: GIT Cloning failed
+Date: Tue, 22 Aug 2006 13:25:23 -0600
+Message-ID: <890BF3111FB9484E9526987D912B261932E35B@NAMAIL3.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HELP: GIT Cloning failed
+Thread-Index: AcbGILZ87Cy8vC1iTYieANrPv7RILA==
+From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+To: <git@vger.kernel.org>
+Cc: "Patro, Sumant" <Sumant.Patro@engenio.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Aug 2006 19:25:23.0965 (UTC) FILETIME=[B71752D0:01C6C620]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 08:13:23PM +0100, Nix wrote:
-> On 21 Aug 2006, Greg KH stipulated:
-> > Responses should be made by Wed, Auguest 23, 18:00:00 UTC.  Anything
-> > received after that time might be too late.
-> 
-> Dave Miller suggested that Herbert Xu's pskb trimming patch (commit
-> e9fa4f7bd291c29a785666e2fa5a9cf3241ee6c3) should go into -stable: did it
-> get lost? Without it, network stalls (at least) are quite possible.
+Hi,
 
-It must have gotten lost, I don't see it in our queue, nor in the few
-patches I have recevied yesterday.  Care to bounce it to
-stable@kernel.org and we can add it to the next release?
+Recently, I found that cloning from GIT server has been failed.
+I'm using following script for it.
+---
+...
+rm -r /home/git/kernels/2.4/linux-2.4.git
+cg-clone
+http://www.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
+/home/git/kernels/2.4/linux-2.4.git/
+sync
+rm -r /home/git/kernels/2.4/linux-2.6.git
+cg-clone
+http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+/home/git/kernels/2.4/linux-2.6.git/
+sync
+rm -r /home/git/kernels/2.4/scsi-misc-2.6.git
+cg-clone
+http://www.kernel.org/pub/scm/linux/kernel/git/marcelo/scsi-misc-2.6.git
+/home/git/kernels/2.4/scsi-misc-2.6.git
+sync
+...
+---
 
-thanks,
+In the script, I'm cloning 3 different sources. First two sources
+getting successfully cloned, however, last one is getting failed with
+following error messages,
+---
+Fetching head...
+Fetching objects...
+Getting alternates list for
+http://www.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git
+Also look at http://www.kernel.or
+Error: The requested URL returned error: 502 (curl_result = 22,
+http_code = 502, sha1 = 1039f0760e...)
+Getting pack list for
+http://www.kernel.org/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git/
+Getting pack list for http://www.kernel.or
+Error: The requested URL returned error: 502
+Error: Unable to find 27fd37621... Under
+http://www.kernel.org/pub/scsm/linux/kernel/git/jejb/scsi-misc-2.6.git/
+Cannot obtain needed blob 27fd37621...
+While processing commit 4041b9cd87...
+Progress: 8 objects, 13120 bytes
+Cg-fetch: objects fetch failed
+---
 
-greg k-h
+Above script worked without any problem when I started several months
+ago and I'm not sure when did it stop working.
+I'm using _cron_ utility on my Linux box for scheduled execution of the
+script.
+
+Any comment would be appreciated.
+
+Thank you,
+
+Seokmann

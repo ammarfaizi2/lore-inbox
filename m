@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWHVLgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWHVLnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWHVLgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWHVLgu
+	id S932179AbWHVLnL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWHVLnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:36:50 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15850 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932177AbWHVLgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:36:49 -0400
-Date: Tue, 22 Aug 2006 20:39:54 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+	Tue, 22 Aug 2006 07:43:10 -0400
+Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:51076 "EHLO
+	webmail.xensource.com") by vger.kernel.org with ESMTP
+	id S932179AbWHVLnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 07:43:09 -0400
+Subject: Re: [PATCH 1 of 1] x86_43: Put .note.* sections into a PT_NOTE
+	segment in vmlinux
+From: Ian Campbell <Ian.Campbell@XenSource.com>
 To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, ebiederm@xmission.com, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] ps command race fix take2 [4/4] proc_pid_readdir
-Message-Id: <20060822203954.9ca154cb.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <p733bbp81p9.fsf@verdi.suse.de>
-References: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
-	<p733bbp81p9.fsf@verdi.suse.de>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@XenSource.com>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Ian Pratt <ian.pratt@XenSource.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Virtualization <virtualization@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Christoph Lameter <clameter@sgi.com>
+In-Reply-To: <20060822133306.79fac714.ak@suse.de>
+References: <2bf2abf6e97048bbef24.1154462451@ezr>
+	 <1156245258.5091.17.camel@localhost.localdomain>
+	 <20060822133306.79fac714.ak@suse.de>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 12:43:09 +0100
+Message-Id: <1156246989.5091.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Aug 2006 11:44:55.0458 (UTC) FILETIME=[6337B820:01C6C5E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Aug 2006 13:11:30 +0200
-Andi Kleen <ak@suse.de> wrote:
-
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+On Tue, 2006-08-22 at 13:33 +0200, Andi Kleen wrote:
+> On Tue, 22 Aug 2006 12:14:18 +0100
+> Ian Campbell <Ian.Campbell@XenSource.com> wrote:
 > 
-> > proc_pid_readdir() by list_token.
+> > On Tue, 2006-08-01 at 13:00 -0700, Jeremy Fitzhardinge wrote:
+> > > This patch will pack any .note.* section into a PT_NOTE segment in the
+> > > output file.
+> > [...]
+> > > This only changes i386 for now, but I presume the corresponding
+> > > changes for other architectures will be as simple.
 > > 
-> > Remember 'where we are reading' by inserting a token in the list.
-> > It seems a bit complicated because of RCU but what we do is very simple.
-> > 
+> > Here is the patch for x86_64.
 > 
-> What happens when you have multiple readers at the same time? Can't
-> the tokens then be mixed up?
-> 
-multiple readers will insert their own token to a list. And list_next_rcu_skiptoken()
-skips all token (not-data). it's used by next_task().
+> Ok, but can you please resubmit with complete changelog/rationale?
 
+Will do.
 
-> >+		/* this small kmalloc() can fail in rare case, but readdir()
-> >+		 * is not allowed to return ENOMEM. retrying is reasonable. */
-> 
-> Who disallows this? Such retry loops are normally discouraged 
-> because they can lead to deadlocks in OOM situations.
-> I think it would be better to just return ENOMEM.
-> 
+I've just noticed a bunch of sections (.vsyscall_*, .xtime and others)
+which aren't getting put into segments for some reason. I'll figure that
+out first...
 
-Hmm, to be honest, not disallowed. but not allowed. The apps don't expect
-readdir(3) failed with -ENOMEM. 
-But yes, ps command or ls /proc may be caught in the kernel for some time.
+Ian.
 
--Kame
 

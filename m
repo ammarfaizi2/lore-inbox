@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWHVTRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWHVTUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWHVTRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWHVTRc
+	id S1751188AbWHVTUw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWHVTUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:17:32 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:43737 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751151AbWHVTRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:17:31 -0400
-Message-ID: <44EB584A.5070505@vmware.com>
-Date: Tue, 22 Aug 2006 12:17:30 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 22 Aug 2006 15:20:52 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50605 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751188AbWHVTUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:20:52 -0400
+Date: Tue, 22 Aug 2006 12:17:23 -0700
+From: Greg KH <gregkh@suse.de>
+To: Nix <nix@esperi.org.uk>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: Herbert Xu's paged unique skb trimming patch?
+Message-ID: <20060822191723.GA2688@suse.de>
+References: <20060821184527.GA21938@kroah.com> <87d5asporw.fsf@hades.wkstn.nix>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@muc.de>,
-       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de>  <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org> <1156275004.27114.34.camel@localhost.localdomain>
-In-Reply-To: <1156275004.27114.34.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87d5asporw.fsf@hades.wkstn.nix>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->
-> - Stacked hypervisors stomping each others functions
->   
+On Tue, Aug 22, 2006 at 08:13:23PM +0100, Nix wrote:
+> On 21 Aug 2006, Greg KH stipulated:
+> > Responses should be made by Wed, Auguest 23, 18:00:00 UTC.  Anything
+> > received after that time might be too late.
+> 
+> Dave Miller suggested that Herbert Xu's pskb trimming patch (commit
+> e9fa4f7bd291c29a785666e2fa5a9cf3241ee6c3) should go into -stable: did it
+> get lost? Without it, network stalls (at least) are quite possible.
 
-Possibly an issue, but why would you ever want stacked paravirt-ops?  
-You're only talking to the hypervisor directly above you, and there is 
-only one of those.
+It must have gotten lost, I don't see it in our queue, nor in the few
+patches I have recevied yesterday.  Care to bounce it to
+stable@kernel.org and we can add it to the next release?
 
-> - Locking required to do updates: and remember our lock functions use
-> methods in the array
->   
+thanks,
 
-Yes, locking is an issue, but it is possible to do.  You just need to 
-stop interrupts, NMIs, and faults on all processors simultaneously.  
-Actually, it's not that scary - since you'll be doing it in a hypervisor.
-
-> - If we boot patch inline code to get performance natively its almost
-> impossible to then revert that.
->   
-
-You can patch back over it.  I've already implemented the locking and 
-repatching bits for VMI.
-
-Zach
+greg k-h

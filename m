@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWHVLzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWHVLz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWHVLzF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHVLzF
+	id S1751371AbWHVLz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHVLz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:55:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:48788 "EHLO
+	Tue, 22 Aug 2006 07:55:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23218 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751371AbWHVLzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:55:02 -0400
-Date: Tue, 22 Aug 2006 12:54:59 +0100
+	id S1751371AbWHVLz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 07:55:26 -0400
+Date: Tue, 22 Aug 2006 12:55:04 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
        Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: [PATCH] kevent_user: remove non-chardev interface
-Message-ID: <20060822115459.GA10839@infradead.org>
+Subject: [PATCH] kevent_user: use struct kevent_mring for the page ring
+Message-ID: <20060822115504.GB10839@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
 	lkml <linux-kernel@vger.kernel.org>,
@@ -34,198 +34,116 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentaflug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently a user can create a user kevents in two ways:
+Currently struct kevent_user.print is an array of unsigned long, but it's used
+as an array of pointers to struct kevent_mring everyewhere in the code.
 
- a) simply open() the kevent chardevice
- b) use sys_kevent_ctl with the KEVENT_CTL_INIT cmd type
-
-both are equally easy to use for the user, but to support type b) a lot
-of code in kernelspace is required.  remove type b to save lots of code
-without functionality loss.
+Switch it to use the real type and cast the return value from __get_free_page /
+argument to free_page.
 
 
- include/linux/ukevent.h     |    1
- kernel/kevent/kevent_user.c |   99 +-------------------------------------------
- 2 files changed, 4 insertions(+), 96 deletions(-)
+ include/linux/kevent.h      |    2 +-
+ kernel/kevent/kevent_user.c |   31 +++++++++++--------------------
+  2 files changed, 12 insertions(+), 21 deletions(-)
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
+Index: linux-2.6/include/linux/kevent.h
+===================================================================
+--- linux-2.6.orig/include/linux/kevent.h	2006-08-22 12:10:24.000000000 +0200
++++ linux-2.6/include/linux/kevent.h	2006-08-22 13:30:48.000000000 +0200
+@@ -105,7 +105,7 @@
+ 	
+ 	unsigned int		pages_in_use;
+ 	/* Array of pages forming mapped ring buffer */
+-	unsigned long		*pring;
++	struct kevent_mring	**pring;
+ 
+ #ifdef CONFIG_KEVENT_USER_STAT
+ 	unsigned long		im_num;
 Index: linux-2.6/kernel/kevent/kevent_user.c
 ===================================================================
---- linux-2.6.orig/kernel/kevent/kevent_user.c	2006-08-22 13:26:25.000000000 +0200
-+++ linux-2.6/kernel/kevent/kevent_user.c	2006-08-22 13:46:08.000000000 +0200
-@@ -36,20 +36,6 @@
- static char kevent_name[] = "kevent";
- static kmem_cache_t *kevent_cache;
+--- linux-2.6.orig/kernel/kevent/kevent_user.c	2006-08-22 13:28:06.000000000 +0200
++++ linux-2.6/kernel/kevent/kevent_user.c	2006-08-22 13:43:46.000000000 +0200
+@@ -69,30 +69,21 @@
  
--static int kevent_get_sb(struct file_system_type *fs_type, 
--		int flags, const char *dev_name, void *data, struct vfsmount *mnt)
--{
--	/* So original magic... */
--	return get_sb_pseudo(fs_type, kevent_name, NULL, 0xbcdbcdul, mnt);
--}
+ static inline void kevent_user_ring_set(struct kevent_user *u, unsigned int num)
+ {
+-	struct kevent_mring *ring;
 -
--static struct file_system_type kevent_fs_type = {
--	.name		= kevent_name,
--	.get_sb		= kevent_get_sb,
--	.kill_sb	= kill_anon_super,
--};
--
--static struct vfsmount *kevent_mnt;
- 
- /*
-  * kevents are pollable, return POLLIN and POLLRDNORM 
-@@ -178,17 +164,14 @@
+-	ring = (struct kevent_mring *)u->pring[0];
+-	ring->index = num;
++	u->pring[0]->index = num;
  }
  
- 
--/*
-- * Allocate new kevent userspace control entry.
-- */
--static struct kevent_user *kevent_user_alloc(void)
-+static int kevent_user_open(struct inode *inode, struct file *file)
+ static inline void kevent_user_ring_inc(struct kevent_user *u)
  {
- 	struct kevent_user *u;
- 	int i;
- 
- 	u = kzalloc(sizeof(struct kevent_user), GFP_KERNEL);
- 	if (!u)
--		return NULL;
-+		return -ENOMEM;
- 
- 	INIT_LIST_HEAD(&u->ready_list);
- 	spin_lock_init(&u->ready_lock);
-@@ -202,23 +185,12 @@
- 
- 	atomic_set(&u->refcnt, 1);
- 
--	if (kevent_user_ring_init(u)) {
-+	if (unlikely(kevent_user_ring_init(u))) {
- 		kfree(u);
--		u = NULL;
--	}
+-	struct kevent_mring *ring;
 -
--	return u;
--}
+-	ring = (struct kevent_mring *)u->pring[0];
+-	ring->index++;
++	u->pring[0]->index++;
+ }
+ 
+ static int kevent_user_ring_grow(struct kevent_user *u)
+ {
+-	struct kevent_mring *ring;
+ 	unsigned int idx;
+ 
+-	ring = (struct kevent_mring *)u->pring[0];
 -
--static int kevent_user_open(struct inode *inode, struct file *file)
--{
--	struct kevent_user *u = kevent_user_alloc();
+-	idx = (ring->index + 1) / KEVENTS_ON_PAGE;
++	idx = (u->pring[0]->index + 1) / KEVENTS_ON_PAGE;
+ 	if (idx >= u->pages_in_use) {
+-		u->pring[idx] = __get_free_page(GFP_KERNEL);
++		u->pring[idx] = (void *)__get_free_page(GFP_KERNEL);
+ 		if (!u->pring[idx])
+ 			return -ENOMEM;
+ 		u->pages_in_use++;
+@@ -108,12 +99,12 @@
+ 	unsigned int pidx, off;
+ 	struct kevent_mring *ring, *copy_ring;
+ 
+-	ring = (struct kevent_mring *)k->user->pring[0];
 -	
--	if (!u)
++	ring = k->user->pring[0];
++
+ 	pidx = ring->index/KEVENTS_ON_PAGE;
+ 	off = ring->index%KEVENTS_ON_PAGE;
+ 
+-	copy_ring = (struct kevent_mring *)k->user->pring[pidx];
++	copy_ring = k->user->pring[pidx];
+ 
+ 	copy_ring->event[off].id.raw[0] = k->event.id.raw[0];
+ 	copy_ring->event[off].id.raw[1] = k->event.id.raw[1];
+@@ -134,11 +125,11 @@
+ 
+ 	pnum = ALIGN(KEVENT_MAX_EVENTS*sizeof(struct mukevent) + sizeof(unsigned int), PAGE_SIZE)/PAGE_SIZE;
+ 
+-	u->pring = kmalloc(pnum * sizeof(unsigned long), GFP_KERNEL);
++	u->pring = kmalloc(pnum * sizeof(struct kevent_mring *), GFP_KERNEL);
+ 	if (!u->pring)
  		return -ENOMEM;
-+	}
  
- 	file->private_data = u;
--	
+-	u->pring[0] = __get_free_page(GFP_KERNEL);
++	u->pring[0] = (struct kevent_mring *)__get_free_page(GFP_KERNEL);
+ 	if (!u->pring[0])
+ 		goto err_out_free;
+ 
+@@ -158,7 +149,7 @@
+ 	int i;
+ 	
+ 	for (i = 0; i < u->pages_in_use; ++i)
+-		free_page(u->pring[i]);
++		free_page((unsigned long)u->pring[i]);
+ 
+ 	kfree(u->pring);
+ }
+@@ -254,7 +245,7 @@
+ 	vma->vm_flags |= VM_RESERVED;
+ 	vma->vm_file = file;
+ 
+-	if (vm_insert_page(vma, start, virt_to_page((void *)u->pring[0])))
++	if (vm_insert_page(vma, start, virt_to_page(u->pring[0])))
+ 		return -EFAULT;
+ 
  	return 0;
- }
- 
-@@ -807,51 +779,6 @@
- 	.fops = &kevent_user_fops,
- };
- 
--
--/*
-- * Userspace control block creation and initialization.
-- */
--static int kevent_ctl_init(void)
--{
--	struct kevent_user *u;
--	struct file *file;
--	int fd, ret;
--
--	fd = get_unused_fd();
--	if (fd < 0)
--		return fd;
--
--	file = get_empty_filp();
--	if (!file) {
--		ret = -ENFILE;
--		goto out_put_fd;
--	}
--
--	u = kevent_user_alloc();
--	if (unlikely(!u)) {
--		ret = -ENOMEM;
--		goto out_put_file;
--	}
--
--	file->f_op = &kevent_user_fops;
--	file->f_vfsmnt = mntget(kevent_mnt);
--	file->f_dentry = dget(kevent_mnt->mnt_root);
--	file->f_mapping = file->f_dentry->d_inode->i_mapping;
--	file->f_mode = FMODE_READ;
--	file->f_flags = O_RDONLY;
--	file->private_data = u;
--	
--	fd_install(fd, file);
--
--	return fd;
--
--out_put_file:
--	put_filp(file);
--out_put_fd:
--	put_unused_fd(fd);
--	return ret;
--}
--
- static int kevent_ctl_process(struct file *file, unsigned int cmd, unsigned int num, void __user *arg)
- {
- 	int err;
-@@ -920,9 +847,6 @@
- 	int err = -EINVAL;
- 	struct file *file;
- 
--	if (cmd == KEVENT_CTL_INIT)
--		return kevent_ctl_init();
--
- 	file = fget(fd);
- 	if (!file)
- 		return -ENODEV;
-@@ -948,16 +872,6 @@
- 	kevent_cache = kmem_cache_create("kevent_cache", 
- 			sizeof(struct kevent), 0, SLAB_PANIC, NULL, NULL);
- 
--	err = register_filesystem(&kevent_fs_type);
--	if (err)
--		panic("%s: failed to register filesystem: err=%d.\n",
--			       kevent_name, err);
--
--	kevent_mnt = kern_mount(&kevent_fs_type);
--	if (IS_ERR(kevent_mnt))
--		panic("%s: failed to mount silesystem: err=%ld.\n", 
--				kevent_name, PTR_ERR(kevent_mnt));
--	
- 	err = misc_register(&kevent_miscdev);
- 	if (err) {
- 		printk(KERN_ERR "Failed to register kevent miscdev: err=%d.\n", err);
-@@ -969,17 +883,12 @@
- 	return 0;
- 
- err_out_exit:
--	mntput(kevent_mnt);
--	unregister_filesystem(&kevent_fs_type);
--
- 	return err;
- }
- 
- static void __devexit kevent_user_fini(void)
- {
- 	misc_deregister(&kevent_miscdev);
--	mntput(kevent_mnt);
--	unregister_filesystem(&kevent_fs_type);
- }
- 
- module_init(kevent_user_init);
-Index: linux-2.6/include/linux/ukevent.h
-===================================================================
---- linux-2.6.orig/include/linux/ukevent.h	2006-08-22 12:10:24.000000000 +0200
-+++ linux-2.6/include/linux/ukevent.h	2006-08-22 13:48:05.000000000 +0200
-@@ -131,6 +131,5 @@
- #define	KEVENT_CTL_ADD 		0
- #define	KEVENT_CTL_REMOVE	1
- #define	KEVENT_CTL_MODIFY	2
--#define	KEVENT_CTL_INIT		3
- 
- #endif /* __UKEVENT_H */

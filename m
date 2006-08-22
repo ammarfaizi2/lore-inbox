@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHVIts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWHVIx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWHVIts (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 04:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWHVItr
+	id S932142AbWHVIx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWHVIx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 04:49:47 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:28328 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932139AbWHVItr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 04:49:47 -0400
-Message-ID: <44EAC5CA.8020605@sw.ru>
-Date: Tue, 22 Aug 2006 12:52:26 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 22 Aug 2006 04:53:27 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:44659 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932142AbWHVIx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:53:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lcVHmr58TgGyP0WTg98hojqAwOLjfTgQs2gkzCe5kJ9ff03PRnVl3UsePdzDl5Bsja+BD86jMwmajq9PFv08gHhx2m96Ixl4ezWMWgbXK6W6S9wxrQXfAj0xbVG7JCik2T4T19r6JNjZr/v7xt6+qWbel60w42AyhWtM0FeLeFc=
+Message-ID: <aec7e5c30608220153h4553d890v3a3740e7fdc6986@mail.gmail.com>
+Date: Tue, 22 Aug 2006 17:53:26 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Fastboot] [PATCH] x86_64: Reload CS when startup_64 is used.
+Cc: "Andi Kleen" <ak@suse.de>, "Magnus Damm" <magnus@valinux.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <m1y7thqi7b.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: riel@redhat.com, Linux@sc8-sf-spam2-b.sourceforge.net,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, hch@infradead.org, saw@sw.ru,
-       alan@lxorguk.ukuu.org.uk, rohitseth@google.com, hugh@veritas.com,
-       Christoph@sc8-sf-spam2-b.sourceforge.net, mingo@elte.hu,
-       devel@openvz.org, xemul@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>	<1155752277.22595.70.camel@galaxy.corp.google.com>	<1155755069.24077.392.camel@localhost.localdomain>	<1155756170.22595.109.camel@galaxy.corp.google.com>	<44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org>	<20060818120809.B11407@castle.nmd.msu.ru>	<1155912348.9274.83.camel@localhost.localdomain>	<20060818094248.cdca152d.akpm@osdl.org> <44E9B69D.9060109@sw.ru> <20060821105106.6688c92c.pj@sgi.com>
-In-Reply-To: <20060821105106.6688c92c.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+	 <1156208306.21411.85.camel@localhost>
+	 <m1u045sagu.fsf@ebiederm.dsl.xmission.com>
+	 <200608221003.12608.ak@suse.de>
+	 <m1y7thqi7b.fsf_-_@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
->>this doesn't allow memory overcommitment, does it?
-> 
-> 
-> Uh - no - I don't think so.  You can over commit
-> the memory of a task in a small cpuset just as well
-> as you can a task in a big cpuset or even one in the
-> top cpuset covering the entire system.
-> 
-> Perhaps I didn't understand your point.
-My point was that when you have lots of containers
-their summary memory limit can be much higher then available RAM.
-This allows bursts of memory usage for containers, since
-it is very unlikely for all of them to consume the memory
-simulatenously. E.g. hosters usually oversell memory
-say 2 times on the node.
+Hi Eric,
 
-So the question was whether it is possbile to overcommit memory
-with NUMA emulation?
+On 8/22/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>
+> In long mode the %cs is largely a relic.  However there are a few cases
+> like lret where it matters that we have a valid value.  Without this
+> patch it is possible to enter the kernel in startup_64 without setting
+> %cs to a valid value.  With this patch we don't care what %cs value
+> we enter the kernel with, so long as the cs shadow register indicates
+> it is a privileged code segment.
+>
+> Thanks to Magnus Damm for finding this problem and posting the
+> first workable patch.  I have moved the jump to set %cs down a
+> few instructions so we don't need to take an extra jump.  Which
+> keeps the code simpler.
+>
+> Signed-of-by: Eric W. Biederman <ebiederm@xmission.com>
+
+While at it, could you please fix up the purgatory code in kexec-tools
+to include this fix so we can boot older versions of the kernel too?
 
 Thanks,
-Kirill
 
+/ magnus

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWHVOjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWHVOjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWHVOjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWHVOjT
+	id S932274AbWHVOjN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWHVOjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:39:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:26273 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932275AbWHVOjR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:39:17 -0400
-Date: Tue, 22 Aug 2006 20:08:31 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Matt Helsley <matthltc@us.ibm.com>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-Message-ID: <20060822143831.GA12458@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155866328.2510.247.camel@stark> <44E5A637.1020407@sw.ru> <1155955116.2510.445.camel@stark> <44E992B9.8080908@sw.ru> <20060822122329.GA7125@in.ibm.com> <44EAFCBA.10400@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Aug 2006 10:39:13 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:4658 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932274AbWHVOjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:39:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A1lhvzPNAFI70SPZqljvz8FQmIZqJPLy16n3bbPTmqdBgVf/AKjeG5DXaWKQmL3mXkGeE2bbqgcoQmlY82yIWoWs+x7xc3pXEqEZSZckLuMB8vAVdqYtuCTEPTmWARt6r2X/zteW9sAnxS0MNH1qn1I5ZSx5fmLFHov/6vgdl0s=
+Message-ID: <625fc13d0608220739n18cd971s4a236b55724c0a85@mail.gmail.com>
+Date: Tue, 22 Aug 2006 09:39:10 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Subject: Re: 2.6.18-rc4 jffs2 problems
+Cc: "Greg KH" <greg@kroah.com>, "Richard Purdie" <rpurdie@rpsys.net>,
+       linux-mtd <linux-mtd@lists.infradead.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1156255936.29825.15.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44EAFCBA.10400@sw.ru>
-User-Agent: Mutt/1.5.11
+References: <1154976111.17725.8.camel@localhost.localdomain>
+	 <1155852587.5530.30.camel@localhost.localdomain>
+	 <625fc13d0608191834r19ce12e5raccbae011d67c25e@mail.gmail.com>
+	 <20060821013545.GA21012@kroah.com>
+	 <1156255936.29825.15.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 04:46:50PM +0400, Kirill Korotaev wrote:
-> Srivatsa Vaddagiri wrote:
-> > On Mon, Aug 21, 2006 at 03:02:17PM +0400, Kirill Korotaev wrote:
-> > 
-> >>>Except that you eventually have to lock ub0. Seems that the cache line
-> >>>for that spinlock could bounce quite a bit in such a hot path.
-> >>
-> >>do you mean by ub0 host system ub which we call ub0
-> >>or you mean a top ub?
-> > 
-> > 
-> > If this were used for pure resource management purpose (w/o containers)
-> > then the top ub would be ub0 right? "How bad would the contention on the
-> > ub0->lock be then" is I guess Matt's question.
-> Probably we still misunderstand here each other.
-> top ub can be any UB. it's children do account resources
-> to the whole chain of UBs to the top parent.
-> 
-> i.e. ub0 is not a tree root.
+On 8/22/06, David Woodhouse <dwmw2@infradead.org> wrote:
+> On Sun, 2006-08-20 at 18:35 -0700, Greg KH wrote:
+> > Add what to what tree?  I need things to be a bit more specific
+> > here :)
+>
+> I think he means the tree you were keeping while Linus was away. I'll
+> sort out this and one or two more to send to Linus shortly.
 
-Hmm ..if I understand you correctly, there is no one single root of the
-ubc tree? In other words, there can be several roots (each representing
-a distinct group of processes)? CKRM has one single root afaik, under
-which multiple resource/task groups are derived.
+Yeah, I did.  Sorry, I can see how that was confusing.  Richard was
+kind enough to follow up by sending the patch directly to Greg.
 
--- 
-Regards,
-vatsa
+josh

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWHVA3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWHVAaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWHVA3L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 20:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWHVA3L
+	id S1751325AbWHVAaE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 20:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWHVAaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 20:29:11 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:29779 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751309AbWHVA3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 20:29:09 -0400
-To: David Miller <davem@davemloft.net>
-Cc: linas@austin.ibm.com, arnd@arndb.de, shemminger@osdl.org, akpm@osdl.org,
-       netdev@vger.kernel.org, jklewis@us.ibm.com,
+	Mon, 21 Aug 2006 20:30:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62609
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750942AbWHVAaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 20:30:01 -0400
+Date: Mon, 21 Aug 2006 17:30:16 -0700 (PDT)
+Message-Id: <20060821.173016.116359572.davem@davemloft.net>
+To: linas@austin.ibm.com
+Cc: benh@kernel.crashing.org, netdev@vger.kernel.org,
        linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Jens.Osterkamp@de.ibm.com, jgarzik@pobox.com
-Subject: Re: [RFC] HOWTO use NAPI to reduce TX interrupts
-X-Message-Flag: Warning: May contain useful information
-References: <44E7BB7F.7030204@osdl.org> <200608191325.19557.arnd@arndb.de>
-	<20060821235244.GJ5427@austin.ibm.com>
-	<20060821.165616.107936004.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 21 Aug 2006 17:29:05 -0700
-In-Reply-To: <20060821.165616.107936004.davem@davemloft.net> (David Miller's message of "Mon, 21 Aug 2006 16:56:16 -0700 (PDT)")
-Message-ID: <adaac5x3966.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Aug 2006 00:29:07.0974 (UTC) FILETIME=[FB08AA60:01C6C581]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+       Jens.Osterkamp@de.ibm.com, jklewis@us.ibm.com, arnd@arndb.de
+Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060822001311.GK5427@austin.ibm.com>
+References: <20060818234532.GA8644@austin.ibm.com>
+	<1155962022.5803.68.camel@localhost.localdomain>
+	<20060822001311.GK5427@austin.ibm.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Don't touch interrupts until both RX and TX queue work is
-    David> fullydepleted.  You seem to have this notion that RX and TX
-    David> interrupts are seperate.  They aren't, even if your device
-    David> can generate those events individually.  Whatever interrupt
-    David> you get, you shut down all interrupt sources and schedule
-    David> the ->poll().  Then ->poll() does something like:
+From: linas@austin.ibm.com (Linas Vepstas)
+Date: Mon, 21 Aug 2006 19:13:11 -0500
 
-This is a digression from spidernet, but what if a device is able to
-generate separate MSIs for TX and RX?  Some people from IBM have
-suggested that it is beneficial for throughput to handle TX work and
-RX work for IP-over-InfiniBand in parallel on separate CPUs, and
-handling everything through the ->poll() method would defeat this.
+> @@ -1495,16 +1500,16 @@ spider_net_interrupt(int irq, void *ptr,
+>  	if (!status_reg)
+>  		return IRQ_NONE;
+>  
+> -	if (status_reg & SPIDER_NET_RXINT ) {
+> +	if (status_reg & SPIDER_NET_RXINT) {
+>  		spider_net_rx_irq_off(card);
+>  		netif_rx_schedule(netdev);
+>  	}
+> -	if (status_reg & SPIDER_NET_TXINT ) {
+> -		spider_net_cleanup_tx_ring(card);
+> -		netif_wake_queue(netdev);
+> -	}
+>  
+> -	if (status_reg & SPIDER_NET_ERRINT )
+> +	/* Call rx_schedule from the tx interrupt, so that NAPI poll runs. */
+> +	if (status_reg & SPIDER_NET_TXINT)
+> +		netif_rx_schedule(netdev);
+> +
+> +	if (status_reg & SPIDER_NET_ERRINT)
 
- - R.
+This should be:
+
+	if ((status_reg & (SPIDET_NET_RXINT | SPIDET_NET_TXINT))) {
+		spider_net_rx_and_tx_irq_off(card);
+		netif_rx_schedule();
+	}

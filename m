@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWHVPTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWHVP0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWHVPTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 11:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWHVPTd
+	id S932317AbWHVP0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWHVP0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 11:19:33 -0400
-Received: from rubidium.solidboot.com ([81.22.244.175]:59071 "EHLO
-	mail.solidboot.com") by vger.kernel.org with ESMTP id S932143AbWHVPTc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 11:19:32 -0400
-Message-ID: <44EB2083.8080902@solidboot.com>
-Date: Tue, 22 Aug 2006 18:19:31 +0300
-From: Juha Yrjola <juha.yrjola@solidboot.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Daniel Drake <dan@reactivated.net>, Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: 2GB MMC/SD cards
-References: <447AFE7A.3070401@drzeus.cx> <20060603141548.GA31182@flint.arm.linux.org.uk> <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com> <4481FB80.40709@drzeus.cx> <4484B5AE.8060404@drzeus.cx> <44869794.9080906@drzeus.cx> <20060607165837.GE13165@flint.arm.linux.org.uk> <448738CD.8030907@drzeus.cx> <4488AC57.7050201@drzeus.cx> <44DEFBA1.6060500@reactivated.net>
-In-Reply-To: <44DEFBA1.6060500@reactivated.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 22 Aug 2006 11:26:47 -0400
+Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:21676 "EHLO
+	webmail.xensource.com") by vger.kernel.org with ESMTP
+	id S932317AbWHVP0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 11:26:47 -0400
+Subject: Re: [PATCH 1 of 1] x86_64: Put .note.* sections into a PT_NOTE
+	segment in vmlinux II
+From: Ian Campbell <Ian.Campbell@XenSource.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@XenSource.com>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Ian Pratt <ian.pratt@XenSource.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Virtualization <virtualization@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Christoph Lameter <clameter@sgi.com>
+In-Reply-To: <200608221659.18896.ak@suse.de>
+References: <1156256777.5091.93.camel@localhost.localdomain>
+	 <200608221659.18896.ak@suse.de>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 16:26:48 +0100
+Message-Id: <1156260408.5091.101.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Aug 2006 15:28:33.0588 (UTC) FILETIME=[A10BDF40:01C6C5FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi Pierre,
+On Tue, 2006-08-22 at 16:59 +0200, Andi Kleen wrote:
+> On Tuesday 22 August 2006 16:26, Ian Campbell wrote:
+> > This patch updates x86_64 linker script to pack any .note.* sections
+> > into a PT_NOTE segment in the output file.
+
+> Sorry I tried to apply it, but at least 2.6.18rc4 mainline (which my tree
+> is based on) doesn't have a NOTES macro so it doesn't link
 > 
-> Pierre Ossman wrote:
->> Suggested patch included.
-> 
-> What's the status on this patch? A Gentoo user at 
-> http://bugs.gentoo.org/142172 reports that it is required for him to be 
-> able to access his card, so it definitely works in some form.
+> I dropped the NOTES addition for now, presumably it will need to be readded
+> later.
 
-I have to pitch in here.  This patch is required for some cards to 
-operate reliably on the Nokia 770, and we've done quite a bit of 
-interoperability testing already.
+Sorry, I should have been clearer about the dependency on the i386 patch
+which is currently in -mm. 
 
-Pierre, could you submit it to RMK's patch tracking system?
+Ian.
 
-Cheers,
-Juha
+

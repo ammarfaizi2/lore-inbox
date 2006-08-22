@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWHVOpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWHVOqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWHVOpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHVOpN
+	id S932282AbWHVOqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHVOqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:45:13 -0400
-Received: from 81-179-62-49.dsl.pipex.com ([81.179.62.49]:38568 "EHLO
-	jaguar.linux-grotto.org.uk") by vger.kernel.org with ESMTP
-	id S932279AbWHVOpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:45:11 -0400
-Message-ID: <44EB1875.3020403@linux-grotto.org.uk>
-Date: Tue, 22 Aug 2006 15:45:09 +0100
-From: Johan Groth <johan.groth@linux-grotto.org.uk>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Scsi errors with Megaraid 300-8x
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 10:46:31 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:55198 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S932282AbWHVOqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:46:30 -0400
+Date: Tue, 22 Aug 2006 23:10:37 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
+Message-ID: <20060822191037.GA493@oleg>
+References: <20060821170604.GA1640@oleg> <20060822104327.GA28183@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060822104327.GA28183@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-ever since I upgraded my server from a dual Opteron 244 (mobo Tyan 2885) 
-system to a dual dual-core Opteron 285 (mobo Tyan 2895) system, I'm 
-getting read errors that freezes the system which leads to my disk based 
-backup software stopped working (faubackup). I think it is faubackup 
-that triggers the bug.
+On 08/22, Ingo Molnar wrote:
+> 
+> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> 
+> > (Compile tested).
+> > 
+> > futex_find_get_task:
+> > 
+> > 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
+> > 		return NULL;
+> > 
+> > I can't understand this. First, p->state can't be EXIT_ZOMBIE. The 
+> > ->exit_state check looks strange too. Sub-threads or tasks whose 
+> > ->parent ignores SIGCHLD go directly to EXIT_DEAD state (I am ignoring 
+> > a ptrace case). Why EXIT_DEAD tasks should be ok? Yes, EXIT_ZOMBIE is 
+> > more important (a task may stay zombie for a long time), but this 
+> > doesn't mean we should explicitely ignore other EXIT_XXX states.
+> > 
+> > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> i believe this is a remnant of older times when EXIT_ZOMBIE was 
+> introduced. We cloned that into the -rt tree, but then exit-state got 
+> cleaned up (by you)
 
-I get these errors in the log:
-Aug 20 06:35:08 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:35:56 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924530
-Aug 20 06:36:03 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:03 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924538
-Aug 20 06:36:03 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:03 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924546
-Aug 20 06:36:03 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:03 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924554
-Aug 20 06:36:07 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:07 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924562
-Aug 20 06:36:07 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:07 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924570
-Aug 20 06:36:07 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:07 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924578
-Aug 20 06:36:07 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 0x40001
-Aug 20 06:36:07 jaguar kernel: end_request: I/O error, dev sda, sector 
-616924538
+No, no, it was Roland.
 
-The last sector is repeated until I reboot the machine. The only 
-difference I've made to the raid configuration is that sdc is now 2x250 
-MB instead of 4x120MB, but that array is the target not the source (sda).
-The raid HW is an LSI Megaraid 300-8x with the following configuration:
+But probably you are talking about these patches
 
-Host: scsi0 Channel: 01 Id: 00 Lun: 00
-   Vendor: MegaRAID Model: LD 0 RAID0  312G Rev: 814D
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 01 Id: 01 Lun: 00
-   Vendor: MegaRAID Model: LD 1 RAID0  312G Rev: 814D
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 01 Id: 02 Lun: 00
-   Vendor: MegaRAID Model: LD 2 RAID0  474G Rev: 814D
-   Type:   Direct-Access                    ANSI SCSI revision: 02
+	http://marc.theaimsgroup.com/?t=113284375800003&r=1
+	http://marc.theaimsgroup.com/?t=113284375800005&r=1
 
-I'm running debian sid stock kernel 2.6.17.
+? It was abandoned by Linus. It is not clear was he convinced or not,
+but I'd be happy to re-send this patch (on weekend) if you wish.
 
-Other hw changes that may, may not affect the kernel:
-CPU: dual core, hence the kernel sees 4 cpus, before 2.
-Removed a sound card, a CS46xx card and am using internal sound instead.
-Installed a DVB-T Freeview card (digital TV).
-More RAM, 2GB instead 1.
+Oleg.
 
-Should mention that I used to use 2.6.16 on the old system, but I've 
-checked in the kernel tree and no changes has been made to the megaraid 
-drivers since April, I think.
-
-Can anyone help me?
-Please, CC me as I'm not subscribed.
-
-Regards,
-Johan

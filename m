@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWHUX4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWHVABy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWHUX4E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 19:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWHUX4E
+	id S1750759AbWHVABy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 20:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWHVABx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 19:56:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54189
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750761AbWHUX4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 19:56:01 -0400
-Date: Mon, 21 Aug 2006 16:56:16 -0700 (PDT)
-Message-Id: <20060821.165616.107936004.davem@davemloft.net>
-To: linas@austin.ibm.com
-Cc: arnd@arndb.de, shemminger@osdl.org, akpm@osdl.org, netdev@vger.kernel.org,
-       jklewis@us.ibm.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Jens.Osterkamp@de.ibm.com, jgarzik@pobox.com
-Subject: Re: [RFC] HOWTO use NAPI to reduce TX interrupts
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060821235244.GJ5427@austin.ibm.com>
-References: <44E7BB7F.7030204@osdl.org>
-	<200608191325.19557.arnd@arndb.de>
-	<20060821235244.GJ5427@austin.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 20:01:53 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:27351
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1750759AbWHVABx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 20:01:53 -0400
+Date: Mon, 21 Aug 2006 17:01:10 -0700
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
+Message-ID: <20060822000110.GA31751@gnuppy.monkey.org>
+References: <20060821170604.GA1640@oleg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821170604.GA1640@oleg>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linas@austin.ibm.com (Linas Vepstas)
-Date: Mon, 21 Aug 2006 18:52:44 -0500
+On Mon, Aug 21, 2006 at 09:06:04PM +0400, Oleg Nesterov wrote:
+> (Compile tested).
+> 
+> futex_find_get_task:
+> 
+> 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
+> 		return NULL;
+> 
+> I can't understand this. First, p->state can't be EXIT_ZOMBIE. The ->exit_state
+> check looks strange too. Sub-threads or tasks whose ->parent ignores SIGCHLD go
+> directly to EXIT_DEAD state (I am ignoring a ptrace case). Why EXIT_DEAD tasks
+> should be ok? Yes, EXIT_ZOMBIE is more important (a task may stay zombie for a
+> long time), but this doesn't mean we should explicitely ignore other EXIT_XXX
+> states.
 
-> Under what circumstance does one turn TX interrupts back on?
-> I couldn't quite figure that out.
+The p->state variable for EXIT_ZOMBIE is only live for some mystery architecture
+in arch/xtensa/kernel/ptrace.c
 
-Don't touch interrupts until both RX and TX queue work is
-fullydepleted.  You seem to have this notion that RX and TX interrupts
-are seperate.  They aren't, even if your device can generate those
-events individually.  Whatever interrupt you get, you shut down all
-interrupt sources and schedule the ->poll().  Then ->poll() does
-something like:
+It could be a typo under architecture so maybe it's better fixed there as well
+with a "state" to "exit_state" change. I don't really know for sure since I don't
+work under that architecure.
 
-	all_tx_completion_work();
-	ret = as_much_rx_work_as_budget_and_quota_allows();
-	if (!ret)
-		reenable_interrupts_and_complet_napi_poll();
+bill
 
-You always run the TX completion work fully, then you do the RX work
-within the quota/budget.
-
-See the tg3 driver for details, really...
 

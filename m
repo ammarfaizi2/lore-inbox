@@ -1,82 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWHVBtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWHVBqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWHVBtV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 21:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWHVBtV
+	id S1751112AbWHVBqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 21:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWHVBqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 21:49:21 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:3938 "EHLO
+	Mon, 21 Aug 2006 21:46:44 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:34913 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751116AbWHVBtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 21:49:19 -0400
+	id S1751112AbWHVBqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 21:46:43 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
 	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=q5rNuhLe7KLV2s5dygjXcWKpuVTarL/WRO+u8lIUWCjILOJYpLd8DpZqEvhmHD3C/
-	Oy+8PQe9GP551E+Q/ZhNg==
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC:
-	kernel	memory	accounting	(core)
+	b=mPFAHtmQKmi1XQ+ZB81v5eySfmhoWnniIIEfj1R3MT6N/SYMVQrzF2MFiQNVBG3m/
+	xfGGKtfX7Fd9oeTuBVUhQ==
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Dave Hansen <haveblue@us.ibm.com>,
+To: sekharan@us.ibm.com
+Cc: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
        Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
        Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E99904.80205@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155754029.9274.21.camel@localhost.localdomain>
-	 <1155755729.22595.101.camel@galaxy.corp.google.com>
-	 <1155758369.9274.26.camel@localhost.localdomain>
-	 <1155774274.15195.3.camel@localhost.localdomain>
-	 <1155824788.9274.32.camel@localhost.localdomain>
-	 <1155835003.14617.45.camel@galaxy.corp.google.com>
-	 <1155835401.9274.64.camel@localhost.localdomain>
-	 <1155836198.14617.61.camel@galaxy.corp.google.com>	<44E58059.6020605@sw.ru>
-	 <1155922680.23242.7.camel@galaxy.corp.google.com>  <44E99904.80205@sw.ru>
+In-Reply-To: <1156196721.6479.67.camel@linuxchandra>
+References: <44E33893.6020700@sw.ru>
+	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
+	 <1156196721.6479.67.camel@linuxchandra>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Mon, 21 Aug 2006 18:48:00 -0700
-Message-Id: <1156211280.11127.41.camel@galaxy.corp.google.com>
+Date: Mon, 21 Aug 2006 18:45:28 -0700
+Message-Id: <1156211128.11127.37.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 15:29 +0400, Kirill Korotaev wrote:
-> >>in case of anon_vma, page->mapping can be the same
-> >>for 2 pages beloning to different containers.
-> >>
+On Mon, 2006-08-21 at 14:45 -0700, Chandra Seetharaman wrote:
+> On Mon, 2006-08-21 at 17:24 +0400, Kirill Korotaev wrote:
+> > Chandra Seetharaman wrote:
+> > > Kirill,
+> > > 
+> > > Here are some concerns I have (as of now) w.r.t using UBC for resource
+> > > management (in the context of resource groups).
+> > > 
+> > > - guarantee support is missing. I do not see any code to provide the
+> > >   minimum amount of resource a group can get. It is important for 
+> > >   providing QoS. (In a different email you did mention guarantee, i am
+> > >   referring it here for completeness).
+> > I mentioned a couple of times that this is a limited core functionality
+> > in this patch set.
+> > guarantees are implementable as a separate UBC parameters.
+> 
+> I will wait for oomguarpages patches :)
+> 
 > > 
+> > > - Creation of a UBC and assignment of task to a UBC always happen in
+> > >   the context of the task that is affected. I can understand it works in
+> > >   OpenVZ environment, but IMO has issues if one wants it to be used for 
+> > >   basic resource management
+> > >    - application needs to be changed to use this feature.
+> > >    - System administrator does not have the control to assign tasks to a
+> > >      UBC. Application does by itself.
+> > >    - Assignment of task to a UBC need to be transparent to the 
+> > >      application.
+
+I agree with the above points.  Just want to add that assignment of a
+task to a container may not be transparent to the application.  For
+example it may hit some limits and some reclaim may happen...
+
+> > this is not 100% true.
+> > UBC itself doesn't prevent from changing context on the fly.
+> > But since this leads to part of resources to be charged to
+> > one UBC and another part to another UBC and so long and so
+> 
+> Let the controllers and the users worry about that part. 
+> 
+
+I think as the tasks move around, it becomes very heavy to move all the
+pages belonging to previous container to a new container.
+
+> As I mentioned UBC might be perfect for container resource management,
+> but what I am talking for is resource management _without_ a container.
+> 
+
+Can you explain that part a bit more?
+
 > > 
-> > In your experience, have you seen processes belonging to different
-> > containers sharing the same anon_vma?  On a more general note, could you
-> > please point me to a place that has the list of requirements for which
-> > we are designing this solution.
+> > > - No ability to maintain resource specific data in the controller.
+> > it's false. fields can be added to user_beancounter struct easily.
+> > and that's what our controllers do.
+> 
+> With the model of static array for resources (struct ubparm ub_parms
+> [UB_RESOURCES] in struct user_beancounter), it is not be possible to
+> attach _different_ "controller specific" information to each of the
+> entries.
+> 
+> I do not think it is good idea to add controller specific information of
+> _different_ controllers to the user_beancounter. Think of all the fields
+> it will have when all the numproc controller needs is just the basic 3-4
+> fields.
+> 
+
+IMO it is okay to add  the fields whenever necessary as Kirill
+suggested.  I think once the container subject gets baked a little more,
+the controllers will also get tightly coupled.  
+
 > > 
+> > > - No ability to get the list of tasks belonging to a UBC.
+> > it is not true. it can be read from /proc or system calls interface,
+> > just like the way one finds all tasks belonging to one user :)
 > > 
-> >>>>nor is it ambiguous in any way.  It is very strict,
-> >>>>and very straightforward.
-> >>>
-> >>>What additional ambiguity you have when inode or task structures have
-> >>>the required information.
-> >>
-> >>inodes can belong to multiple containers and so do the pages.
-> >>
-> > 
-> > 
-> > I'm still thinking that inodes should belong to one container (or may be
-> > have it configurable based on some flag).
-> this is not true for OpenVZ nor Linux-VServer.
+> > BTW, what is so valueable in this feature?
+> 
+> Again, it may not be useful for container type usages (you can probably
+> get the list from somewhere else, but for resource management it is
+> useful for sysadmins).
+> 
+
+I'm also debating about whether printing task information is really any
+useful.  If a sysadm wants to get information about any particular task
+then that can come from /proc/<pid>/container  Though container list
+will be one place where one can easily get the list of all the contained
+tasks (and other resources like files).
 
 
-Well, it is still useful.  Just like an anonymous page get charged to
-container where the object (task) belong to, file page seems appropriate
-to belong to container where the object (inode) belongs to.
+> > 
+> > > - For a system administrator name for identification of a UBC is 
+> > >   better than a number (uid).
+> > Have you any problems with pids, uids, gids and signals?
+> 
+> Again, in container land each UB is attached with a container hence no
+> issue. 
+> 
+> In a non-container situation IMO it will be easier to manage/associate
+> "gold", "silver", "bronze", "plastic" groups than 0, 11, 83 and 113.
+> 
+> 
+> > It is a question of interface. I don't mind in changing UBC interface even
+> > to configfs if someone really wants it.
+> > 
 
+Yes please.  Thanks. 
 -rohit
+
 

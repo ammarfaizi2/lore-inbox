@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWHVXMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWHVXR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWHVXMc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 19:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWHVXMc
+	id S932187AbWHVXR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 19:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWHVXR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 19:12:32 -0400
-Received: from minus.inr.ac.ru ([194.67.69.97]:8860 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S932079AbWHVXMb (ORCPT
+	Tue, 22 Aug 2006 19:17:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40910 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932187AbWHVXRZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 19:12:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=UpyAzuMMXozH7BVOf+xKJ1STqJZ39K6CevFZhEWzAIhs5rpANmn9/RNX0MlZdaOTltUQFd19dK1PtC9TYNwDLecRzTT3TjhNhXEulw9NF7kj17QYhMcQqCu21fjT1xgTUrwQ7dA4OrhjB687qKNstdkyZZ7lKIB2AwxYSeAdYRg=;
-Date: Wed, 23 Aug 2006 03:11:29 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Jari Sundell <sundell.software@gmail.com>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Nicholas Miell <nmiell@comcast.net>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Message-ID: <20060822231129.GA18296@ms2.inr.ac.ru>
-References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy> <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy> <b3f268590608220957g43a16d6bmde8a542f8ad8710b@mail.gmail.com> <20060822180135.GA30142@2ka.mipt.ru> <b3f268590608221214l45bb6ad6meccfba99b89710a0@mail.gmail.com> <20060822194706.GA3476@2ka.mipt.ru> <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
+	Tue, 22 Aug 2006 19:17:25 -0400
+Date: Tue, 22 Aug 2006 16:17:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: Prajakta Gudadhe <pgudadhe@nvidia.com>, jeff@garzik.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Generic booleans in -mm (was: Re: [PATCH] Sgpio support in
+ sata_nv)
+Message-Id: <20060822161706.bad04598.akpm@osdl.org>
+In-Reply-To: <44EB8B2A.8030603@student.ltu.se>
+References: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
+	<20060821224457.65de5111.akpm@osdl.org>
+	<44EB8B2A.8030603@student.ltu.se>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 23 Aug 2006 00:54:34 +0200
+Richard Knutsson <ricknu-0@student.ltu.se> wrote:
 
-> >No way - timespec uses long.
+> Andrew Morton wrote:
 > 
-> I must have missed that discussion. Please enlighten me in what regard
-> using an opaque type with lower resolution is preferable to a type
-> defined in POSIX for this sort of purpose.
+> >On Mon, 21 Aug 2006 18:17:06 -0700
+> >Prajakta Gudadhe <pgudadhe@nvidia.com> wrote:
+> >  
+> >
+> [snip]
+> 
+> >>...
+> >>
+> >>+
+> >>+static bool nv_sgpio_update_led(struct nv_sgpio_led *led, bool *on_off)
+> >>    
+> >>
+> >
+> >Please remove the new private implementation of `bool' and just use `int'. 
+> >There's ongoing discussion about how to do a kernel-wide implementation of
+> >bool, and adding new driver-private ones now just complicates that.
+> >  
+> >
+> Well, the discussion seem to have quiet down (so time to start it up 
+> again ;) ). But would you take a patch for a generic implementation of 
+> bool/false/true? I sent one 29th of July with no complaints or 
+> suggestions. I am happy to send it again.
 
-Let me explain, as a person who did this mistake and deeply
-regrets about this.
+Within the changelog, please summarise the arguments in that epic email
+thread in a fashion which preempts a rerun ;)
 
-F.e. in this case you just cannot use kevents in 32bit application
-on x86_64, unless you add the whole translation layer inside kevent core.
-Even when you deal with plain syscall, translation is a big pain,
-but when you use mmapped buffer, it can be simply impossible.
+> About this patch, isn't better to leave the 'bool'-type if there is a 
+> will to make a common boolean? Easier to find and convert a local 
+> definition of bool then finding functions who are boolean, but decleard 
+> as some kind of integer.
 
-F.e. my mistake was "unsigned long" in struct tpacket_hdr in linux/if_packet.h.
-It makes use of mmapped packet socket essentially impossible by 32bit
-applications on 64bit archs.
-
-Alexey
+Good point.

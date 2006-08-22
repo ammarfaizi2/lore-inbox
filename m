@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWHVGnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWHVGoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWHVGnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 02:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWHVGnM
+	id S1751233AbWHVGoP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 02:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWHVGoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 02:43:12 -0400
-Received: from msr53.hinet.net ([168.95.4.153]:52125 "EHLO msr53.hinet.net")
-	by vger.kernel.org with ESMTP id S1751287AbWHVGnL (ORCPT
+	Tue, 22 Aug 2006 02:44:15 -0400
+Received: from msr22.hinet.net ([168.95.4.122]:31947 "EHLO msr22.hinet.net")
+	by vger.kernel.org with ESMTP id S1751233AbWHVGoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 02:43:11 -0400
-Subject: [PATCH 3/4] IP100A: Correct initial and close hardware step.
+	Tue, 22 Aug 2006 02:44:14 -0400
+Subject: [PATCH 4/4] IP100A: Solve host error problem in low performance
+	embedded system when continune down and up.
 From: Jesse Huang <jesse@icplus.com.tw>
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
        jgarzik@pobox.com, jesse@icplus.com.tw
 Content-Type: text/plain
-Date: Tue, 22 Aug 2006 14:30:26 -0400
-Message-Id: <1156271426.4662.4.camel@localhost.localdomain>
+Date: Tue, 22 Aug 2006 14:31:32 -0400
+Message-Id: <1156271492.4662.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
@@ -25,51 +26,86 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Jesse Huang <jesse@icplus.com.tw>
 
 Change Logs:
-   - Correct initial and close hardware step.
+   - Solve host error problem in low performance embedded 
+     system when continune down and up.
 
 Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
 
 ---
 
- sundance.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletions(-)
+ sundance.c |   30 +++++++++++++++++++++++++-----
+ 1 files changed, 25 insertions(+), 5 deletions(-)
 
-ddfaae9a0f4bd37c155f21fb4779093eef059bf6
+a88c635933a981dd4fca87e5b8ca9426c5c98013
 diff --git a/sundance.c b/sundance.c
-index 259c42f..424aebd 100755
+index 424aebd..de55e0f 100755
 --- a/sundance.c
 +++ b/sundance.c
-@@ -787,6 +787,7 @@ static int netdev_open(struct net_device
- {
- 	struct netdev_private *np = netdev_priv(dev);
- 	void __iomem *ioaddr = np->base;
-+	unsigned long flags;
- 	int i;
- 
- 	/* Do we need to reset the chip??? */
-@@ -830,6 +831,10 @@ #endif
+@@ -831,7 +831,7 @@ #endif
  	if (np->pci_rev_id >= 0x14)
  		iowrite8(0x01, ioaddr + DebugCtrl1);
  	netif_start_queue(dev);
-+	
-+	spin_lock_irqsave(&np->lock,flags);
-+	reset_tx(dev);
-+	spin_unlock_irqrestore(&np->lock,flags);
+-	
++
+ 	spin_lock_irqsave(&np->lock,flags);
+ 	reset_tx(dev);
+ 	spin_unlock_irqrestore(&np->lock,flags);
+@@ -1076,7 +1076,7 @@ reset_tx (struct net_device *dev)
+ 	struct sk_buff *skb;
+ 	int i;
+ 	int irq = in_interrupt();
+-	
++
+ 	/* Reset tx logic, TxListPtr will be cleaned */
+ 	iowrite16 (TxDisable, ioaddr + MACCtrl1);
+ 	iowrite16 (TxReset | DMAReset | FIFOReset | NetworkReset,
+@@ -1647,6 +1647,14 @@ static int netdev_close(struct net_devic
+ 	struct sk_buff *skb;
+ 	int i;
  
- 	iowrite16 (StatsEnable | RxEnable | TxEnable, ioaddr + MACCtrl1);
++	/* Wait and kill tasklet */
++	tasklet_kill(&np->rx_tasklet);
++	tasklet_kill(&np->tx_tasklet);
++   np->cur_tx = 0;
++   np->dirty_tx = 0;
++	np->cur_task = 0;
++	np->last_tx = 0;
++
+ 	netif_stop_queue(dev);
  
-@@ -1655,7 +1660,10 @@ static int netdev_close(struct net_devic
- 
- 	/* Disable interrupts by clearing the interrupt mask. */
- 	iowrite16(0x0000, ioaddr + IntrEnable);
--
-+	
-+	/* Disable Rx and Tx DMA for safely release resource */
-+	iowrite32(0x500, ioaddr + DMACtrl);
-+	
+ 	if (netif_msg_ifdown(np)) {
+@@ -1667,9 +1675,20 @@ static int netdev_close(struct net_devic
  	/* Stop the chip's Tx and Rx processes. */
  	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
  
+-	/* Wait and kill tasklet */
+-	tasklet_kill(&np->rx_tasklet);
+-	tasklet_kill(&np->tx_tasklet);
++    for (i = 2000; i > 0; i--) {
++		 if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
++		    break;
++		 mdelay(1);
++    }	
++
++    iowrite16(GlobalReset | DMAReset | FIFOReset |NetworkReset, ioaddr +ASICCtrl + 2);
++    
++    for (i = 2000; i > 0; i--)
++    {
++		 if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
++	    	break;
++		 mdelay(1);
++    }
+ 
+ #ifdef __i386__
+ 	if (netif_msg_hw(np)) {
+@@ -1707,6 +1726,7 @@ #endif /* __i386__ debugging only */
+ 		}
+ 	}
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
++		np->tx_ring[i].next_desc = 0;		
+ 		skb = np->tx_skbuff[i];
+ 		if (skb) {
+ 			pci_unmap_single(np->pci_dev,
 -- 
 1.3.GIT
 

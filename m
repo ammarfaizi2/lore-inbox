@@ -1,272 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWHVF2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWHVFph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWHVF2y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 01:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWHVF2y
+	id S1750767AbWHVFph (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 01:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHVFph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 01:28:54 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:54942 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750764AbWHVF2x (ORCPT
+	Tue, 22 Aug 2006 01:45:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35264 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750767AbWHVFph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 01:28:53 -0400
-Date: Tue, 22 Aug 2006 11:00:09 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: hch@infradead.org, Andrew Morton <akpm@osdl.org>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Jim Keniston <jkenisto@us.ibm.com>, davem@davemloft.net
-Subject: [PATCH 3/3] Update Documentation/kprobes.txt
-Message-ID: <20060822053009.GC26279@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20060822052448.GA26279@in.ibm.com> <20060822052841.GB26279@in.ibm.com>
+	Tue, 22 Aug 2006 01:45:37 -0400
+Date: Mon, 21 Aug 2006 22:44:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Prajakta Gudadhe <pgudadhe@nvidia.com>
+Cc: jeff@garzik.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Sgpio support in sata_nv
+Message-Id: <20060821224457.65de5111.akpm@osdl.org>
+In-Reply-To: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
+References: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822052841.GB26279@in.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+On Mon, 21 Aug 2006 18:17:06 -0700
+Prajakta Gudadhe <pgudadhe@nvidia.com> wrote:
 
-Documentation/kprobes.txt updated to reflect:
+> Description:
+> Added support for enclosure management via SGPIO to sata_nv. This patch is based off of kernel-2.6.17.9.
+> 
+> Signed-off by: Prajakta Gudadhe <pgudadhe@nvidia.com>
+> 
+> 
+> +union nv_sgpio_csr
+> +{
+> +	struct {
+> +#if defined(__LITTLE_ENDIAN_BITFIELD)
+> +		u8	sgpio_status:2;
+> +		u8	sgpio_seq:1;
+> +		u8	cmd_status:2;
+> +		u8	cmd:3;
+> +#elif defined(__BIG_ENDIAN_BITFIELD)
+> +		u8	cmd:3;
+> +		u8	cmd_status:2;
+> +		u8	sgpio_seq:1;
+> +		u8	sgpio_status:2;
+> +#else
+> +#error "Please fix <asm/byteorder.h>"
+> +#endif
+> +	} bit;
+> +	u8	all;
+> +};
 
-o In-kernel symbol resolution
-o CONFIG_KALLSYMS dependency
-o Usage of JPROBE_ENTRY
-o Addition of return_value()
+I believe it's still unfashoinable to attempt to map hardware registers
+onto compiler-controlled bitfields in this manner.
 
-Also update the references list and usage examples to use correct module
-interfaces.
----
+I'd suggest that you just pull the u32 out of PCI space and open-code the
+shifting and masking in an endianness-independent fashion.  The macros
+around line 508 of drivers/net/3c59x.c demonstrate one way of doing this.
 
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Acked-by: Jim Keniston <jkenisto@us.ibm.com>
+> +static int nv_port_start(struct ata_port *ap)
+> +{
+> +	int stat;
+> +    	struct nv_port *port;
+> +
+> +    	stat = ata_port_start(ap);
+> +    	if (stat) {
+> +        	return stat;
+> +    	}
+> +
+> +    	port = kmalloc(sizeof(struct nv_port), GFP_KERNEL);
+> +    	if (!port) 
+> +		goto err_out_no_free;
+> +
+> +	memset(port, 0, sizeof(struct nv_port));
 
----
- Documentation/kprobes.txt |   89 ++++++++++++++++++++++++++++------------------
- 1 files changed, 56 insertions(+), 33 deletions(-)
+kzalloc().
 
-Index: linux-2.6.18-rc4/Documentation/kprobes.txt
-===================================================================
---- linux-2.6.18-rc4.orig/Documentation/kprobes.txt
-+++ linux-2.6.18-rc4/Documentation/kprobes.txt
-@@ -151,9 +151,9 @@ So that you can load and unload Kprobes-
- make sure "Loadable module support" (CONFIG_MODULES) and "Module
- unloading" (CONFIG_MODULE_UNLOAD) are set to "y".
- 
--You may also want to ensure that CONFIG_KALLSYMS and perhaps even
--CONFIG_KALLSYMS_ALL are set to "y", since kallsyms_lookup_name()
--is a handy, version-independent way to find a function's address.
-+Also make sure that CONFIG_KALLSYMS and perhaps even CONFIG_KALLSYMS_ALL
-+are set to "y", since kallsyms_lookup_name() is used by the in-kernel
-+kprobe address resolution code.
- 
- If you need to insert a probe in the middle of a function, you may find
- it useful to "Compile the kernel with debug info" (CONFIG_DEBUG_INFO),
-@@ -179,6 +179,27 @@ occurs during execution of kp->pre_handl
- or during single-stepping of the probed instruction, Kprobes calls
- kp->fault_handler.  Any or all handlers can be NULL.
- 
-+NOTE:
-+1. With the introduction of the "symbol_name" field to struct kprobe,
-+the probepoint address resolution will now be taken care of by the kernel.
-+The following will now work:
-+
-+	kp.symbol_name = "symbol_name";
-+
-+(64-bit powerpc intricacies such as function descriptors are handled
-+transparently)
-+
-+2. Use the "offset" field of struct kprobe if the offset into the symbol
-+to install a probepoint is known. This field is used to calculate the
-+probepoint.
-+
-+3. Specify either the kprobe "symbol_name" OR the "addr". If both are
-+specified, kprobe registration will fail with -EINVAL.
-+
-+4. With CISC architectures (such as i386 and x86_64), the kprobes code
-+does not validate if the kprobe.addr is at an instruction boundary.
-+Use "offset" with caution.
-+
- register_kprobe() returns 0 on success, or a negative errno otherwise.
- 
- User's pre-handler (kp->pre_handler):
-@@ -225,6 +246,12 @@ control to Kprobes.)  If the probed func
- fastcall, or anything else that affects how args are passed, the
- handler's declaration must match.
- 
-+NOTE: A macro JPROBE_ENTRY is provided to handle architecture-specific
-+aliasing of jp->entry. In the interest of portability, it is advised
-+to use:
-+
-+	jp->entry = JPROBE_ENTRY(handler);
-+
- register_jprobe() returns 0 on success, or a negative errno otherwise.
- 
- 4.3 register_kretprobe
-@@ -251,6 +278,11 @@ of interest:
- - ret_addr: the return address
- - rp: points to the corresponding kretprobe object
- - task: points to the corresponding task struct
-+
-+The return_value(regs) macro provides a simple abstraction to extract
-+the return value from the appropriate register as defined by the
-+architecture's ABI.
-+
- The handler's return value is currently ignored.
- 
- 4.4 unregister_*probe
-@@ -369,7 +401,6 @@ stack trace and selected i386 registers 
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- #include <linux/sched.h>
- 
- /*For each probe you need to allocate a kprobe structure*/
-@@ -403,18 +434,14 @@ int handler_fault(struct kprobe *p, stru
- 	return 0;
- }
- 
--int init_module(void)
-+static int __init kprobe_init(void)
- {
- 	int ret;
- 	kp.pre_handler = handler_pre;
- 	kp.post_handler = handler_post;
- 	kp.fault_handler = handler_fault;
--	kp.addr = (kprobe_opcode_t*) kallsyms_lookup_name("do_fork");
--	/* register the kprobe now */
--	if (!kp.addr) {
--		printk("Couldn't find %s to plant kprobe\n", "do_fork");
--		return -1;
--	}
-+	kp.symbol_name = "do_fork";
-+
- 	if ((ret = register_kprobe(&kp) < 0)) {
- 		printk("register_kprobe failed, returned %d\n", ret);
- 		return -1;
-@@ -423,12 +450,14 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit kprobe_exit(void)
- {
- 	unregister_kprobe(&kp);
- 	printk("kprobe unregistered\n");
- }
- 
-+module_init(kprobe_init)
-+module_exit(kprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -463,7 +492,6 @@ the arguments of do_fork().
- #include <linux/fs.h>
- #include <linux/uio.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- 
- /*
-  * Jumper probe for do_fork.
-@@ -485,17 +513,13 @@ long jdo_fork(unsigned long clone_flags,
- }
- 
- static struct jprobe my_jprobe = {
--	.entry = (kprobe_opcode_t *) jdo_fork
-+	.entry = JPROBE_ENTRY(jdo_fork)
- };
- 
--int init_module(void)
-+static int __init jprobe_init(void)
- {
- 	int ret;
--	my_jprobe.kp.addr = (kprobe_opcode_t *) kallsyms_lookup_name("do_fork");
--	if (!my_jprobe.kp.addr) {
--		printk("Couldn't find %s to plant jprobe\n", "do_fork");
--		return -1;
--	}
-+	my_jprobe.kp.symbol_name = "do_fork";
- 
- 	if ((ret = register_jprobe(&my_jprobe)) <0) {
- 		printk("register_jprobe failed, returned %d\n", ret);
-@@ -506,12 +530,14 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit jprobe_exit(void)
- {
- 	unregister_jprobe(&my_jprobe);
- 	printk("jprobe unregistered\n");
- }
- 
-+module_init(jprobe_init)
-+module_exit(jprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -530,16 +556,13 @@ report failed calls to sys_open().
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- 
- static const char *probed_func = "sys_open";
- 
- /* Return-probe handler: If the probed function fails, log the return value. */
- static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs)
- {
--	// Substitute the appropriate register name for your architecture --
--	// e.g., regs->rax for x86_64, regs->gpr[3] for ppc64.
--	int retval = (int) regs->eax;
-+	int retval = return_value(regs);
- 	if (retval < 0) {
- 		printk("%s returns %d\n", probed_func, retval);
- 	}
-@@ -552,15 +575,11 @@ static struct kretprobe my_kretprobe = {
- 	.maxactive = 20
- };
- 
--int init_module(void)
-+static int __init kretprobe_init(void)
- {
- 	int ret;
--	my_kretprobe.kp.addr =
--		(kprobe_opcode_t *) kallsyms_lookup_name(probed_func);
--	if (!my_kretprobe.kp.addr) {
--		printk("Couldn't find %s to plant return probe\n", probed_func);
--		return -1;
--	}
-+	my_kretprobe.kp.symbol_name = (char *)probed_func;
-+
- 	if ((ret = register_kretprobe(&my_kretprobe)) < 0) {
- 		printk("register_kretprobe failed, returned %d\n", ret);
- 		return -1;
-@@ -569,7 +588,7 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit kretprobe_exit(void)
- {
- 	unregister_kretprobe(&my_kretprobe);
- 	printk("kretprobe unregistered\n");
-@@ -578,6 +597,8 @@ void cleanup_module(void)
- 		my_kretprobe.nmissed, probed_func);
- }
- 
-+module_init(kretprobe_init)
-+module_exit(kretprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -590,3 +611,5 @@ messages.)
- For additional information on Kprobes, refer to the following URLs:
- http://www-106.ibm.com/developerworks/library/l-kprobes.html?ca=dgr-lnxw42Kprobe
- http://www.redhat.com/magazine/005mar05/features/kprobes/
-+http://www-users.cs.umn.edu/~boutcher/kprobes/
-+http://www.linuxsymposium.org/2006/linuxsymposium_procv2.pdf (pages 101-115)
+> +    	ap->private_data = port;
+> +    	return 0;
+> +
+> +err_out_no_free:
+> +    	return 1;
+> +}
+> +
+> +
+>
+> ..
+>
+>  static void nv_enable_hotplug(struct ata_probe_ent *probe_ent)
+>  {
+>  	u8 intr_mask;
+> @@ -606,6 +877,238 @@ static int nv_check_hotplug_ck804(struct
+>  	return 0;
+>  }
+>  
+> +static void nv_sgpio_init(struct pci_dev *pdev, struct nv_host *phost)
+> +{
+> +    	u16 csr_add; 
+> +	u32 cb_add, temp32;
+> +	struct device *dev = pci_dev_to_dev(pdev);
+> +	struct ata_host_set *host_set = dev_get_drvdata(dev);
+> +
+> +	pci_read_config_word(pdev, NV_SGPIO_PCI_CSR_OFFSET, &csr_add);
+> +	pci_read_config_dword(pdev, NV_SGPIO_PCI_CB_OFFSET, &cb_add);
+> +    	if (csr_add == 0 || cb_add == 0) {
+> +        	return;
+> +    	}
+> +
+> +	temp32 = csr_add;
+
+temp32 came from a pci config space read.
+
+> +    	phost->host_sgpio.pcsr = (union nv_sgpio_csr *)temp32;
+
+And we copy that into a kernel pointer??  Really?
+
+> +    	phost->host_sgpio.pcb = phys_to_virt(cb_add);
+> +
+> +    	if (phost->host_sgpio.pcb->scratch_space == 0) {
+> +        	spin_lock_init(&nv_sgpio_lock);
+> +        	phost->host_sgpio.share.plock = &nv_sgpio_lock;
+> +        	phost->host_sgpio.share.ptstamp = &nv_sgpio_tstamp;
+> +		phost->host_sgpio.pcb->scratch_space = 
+> +			(unsigned long)&phost->host_sgpio.share;
+> +        	spin_lock(phost->host_sgpio.share.plock);
+> +        	nv_sgpio_reset(phost->host_sgpio.pcsr);
+> +        	phost->host_sgpio.pcb->cr0.bit.enable = 1;
+> +		spin_unlock(phost->host_sgpio.share.plock);
+> +    	}
+> +
+> +    	phost->host_sgpio.share = 
+> +		*(struct nv_sgpio_host_share *)(unsigned long)
+> +		phost->host_sgpio.pcb->scratch_space;
+> +    	phost->host_sgpio.flags.sgpio_enabled = 1;
+> +
+> +    	init_timer(&phost->host_sgpio.sgpio_timer);
+> +    	phost->host_sgpio.sgpio_timer.data = (unsigned long)host_set;
+> +    	nv_sgpio_set_timer(&phost->host_sgpio.sgpio_timer, 
+> +				NV_SGPIO_UPDATE_TICK);
+> +}
+> +
+>
+> ...
+>
+> +
+> +static void nv_sgpio_timer_handler(unsigned long context)
+> +{
+> +
+> +    	struct ata_host_set *host_set = (struct ata_host_set *)context;
+> +    	struct nv_host *host;
+> +    	u8 count, host_offset, port_offset;
+> +    	union nv_sgpio_tx tx;
+> +    	bool on_off;
+> +    	unsigned long mask = 0xFFFF;
+> +	struct nv_port *port;
+> +
+> +    	if (!host_set)
+> +		goto err_out;
+> +	else 
+> +		host = (struct nv_host *)host_set->private_data;
+
+ata_host_set.parivate_data is void*, so this cast is unneeded.
+
+> +	if (!host->host_sgpio.flags.sgpio_enabled)
+> +	        goto err_out;
+> +
+> +	host_offset = nv_sgpio_tx_host_offset(host_set);
+> +
+> +    	spin_lock(host->host_sgpio.share.plock);
+> +    	tx = host->host_sgpio.pcb->tx[host_offset];
+> +    	spin_unlock(host->host_sgpio.share.plock);
+> +
+> +    	for (count = 0; count < host_set->n_ports; count++) {
+> +        	struct ata_port *ap; 
+> +
+> +        	ap = host_set->ports[count];
+> +        
+> +        	if (!(ap && !(ap->flags & ATA_FLAG_PORT_DISABLED)))
+> +			continue;
+> +
+> +            	port = (struct nv_port *)ap->private_data;
+
+Ditto.
+
+> +		if (!port)
+> +			continue;            		
+> +                port_offset = nv_sgpio_tx_port_offset(ap);
+
+whitepsace went funny.
+
+> +	        on_off = tx.bit.tx_port[port_offset].bit.activity;
+> +         	if (nv_sgpio_update_led(&port->port_sgpio.activity, &on_off)) {
+> +                    	tx.bit.tx_port[port_offset].bit.activity = on_off;
+> +                    	host->host_sgpio.flags.need_update = 1;
+> +                }
+
+Ditto.  In fact in many places this patch uses spaces where it should be
+using tabs.
+
+> ...
+>
+
+	if (jiffies_to_msecs(jiffies - *ptstamp) >= NV_SGPIO_MIN_UPDATE_DELTA) {
+
+I think this works OK in the presence of jiffies wraparound.  But it would
+be more idiomatic to do
+
+	if (time_after(jiffies,
+		*ptstamp + msecs_to_jiffies(NV_SGPIO_MIN_UPDATE_DELTA)) {
+
+
+> ...
+>
+> +
+> +static bool nv_sgpio_update_led(struct nv_sgpio_led *led, bool *on_off)
+
+Please remove the new private implementation of `bool' and just use `int'. 
+There's ongoing discussion about how to do a kernel-wide implementation of
+bool, and adding new driver-private ones now just complicates that.
+
+

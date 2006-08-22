@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWHVVYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHVVel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWHVVYq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 17:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVVYp
+	id S932204AbWHVVel (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 17:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVVel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 17:24:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49380
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751300AbWHVVYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 17:24:44 -0400
-Date: Tue, 22 Aug 2006 14:25:00 -0700 (PDT)
-Message-Id: <20060822.142500.11271092.davem@davemloft.net>
-To: nmiell@comcast.net
-Cc: jmorris@namei.org, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
-       drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
-       zach.brown@oracle.com, hch@infradead.org
+	Tue, 22 Aug 2006 17:34:41 -0400
+Received: from xenotime.net ([66.160.160.81]:18655 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751300AbWHVVek (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 17:34:40 -0400
+Date: Tue, 22 Aug 2006 14:37:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
 Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1156281220.2476.65.camel@entropy>
-References: <1156276823.2476.22.camel@entropy>
-	<20060822.133606.48392664.davem@davemloft.net>
-	<1156281220.2476.65.camel@entropy>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Message-Id: <20060822143747.68acaf99.rdunlap@xenotime.net>
+In-Reply-To: <1156281182.2476.63.camel@entropy>
+References: <11561555871530@2ka.mipt.ru>
+	<1156230051.8055.27.camel@entropy>
+	<20060822072448.GA5126@2ka.mipt.ru>
+	<1156234672.8055.51.camel@entropy>
+	<20060822083711.GA26183@2ka.mipt.ru>
+	<1156238988.8055.78.camel@entropy>
+	<20060822100316.GA31820@2ka.mipt.ru>
+	<1156276658.2476.21.camel@entropy>
+	<20060822201646.GC3476@2ka.mipt.ru>
+	<1156281182.2476.63.camel@entropy>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nicholas Miell <nmiell@comcast.net>
-Date: Tue, 22 Aug 2006 14:13:40 -0700
+On Tue, 22 Aug 2006 14:13:02 -0700 Nicholas Miell wrote:
 
-> And how is the quality of the work to be judged if the work isn't
-> commented, documented and explained, especially the userland-visible
-> parts that *cannot* *ever* *be* *changed* *or* *removed* once they're in
-> a stable kernel release?
+> On Wed, 2006-08-23 at 00:16 +0400, Evgeniy Polyakov wrote:
+> > On Tue, Aug 22, 2006 at 12:57:38PM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
+> > > On Tue, 2006-08-22 at 14:03 +0400, Evgeniy Polyakov wrote:
+> > > Of course, since you already know how all this stuff is supposed to
+> > > work, you could maybe write it down somewhere?
+> > 
+> > I will write documantation, but as you can see some interfaces are
+> > changed.
+> 
+> Thanks; rapidly changing interfaces need good documentation even more
+> than stable interfaces simply because reverse engineering the intended
+> API from a changing implementation becomes even more difficult.
 
-Are you even willing to look at the collection of example applications
-Evgeniy wrote against this API?
+OK, I don't quite get it.
+Can you be precise about what you would like?
 
-That is the true test of a set of interfaces, what happens when you
-try to actually use them in real programs.
+a.  good documentation
+b.  a POSIX API
+c.  a Windows-compatible API
+d.  other?
 
-Everything else is fluff, including standards and "documentation".
+and we won't make you use any of this code.
 
-He even bothered to benchmark things, and post assosciated graphs and
-performance analysis during the course of development.
+---
+~Randy

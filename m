@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWHVLB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWHVLGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWHVLB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWHVLB4
+	id S932167AbWHVLGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHVLGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:01:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:22983 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S932164AbWHVLB4 (ORCPT
+	Tue, 22 Aug 2006 07:06:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49379 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932167AbWHVLGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:01:56 -0400
-Date: Tue, 22 Aug 2006 13:01:45 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <200608221101.k7MB1jm20630@apps.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: ext2 fix
-Cc: linux-kernel@vger.kernel.org
+	Tue, 22 Aug 2006 07:06:38 -0400
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Aug 2006 13:06:34 +0200
+In-Reply-To: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <p73bqqd81xh.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mounting an ext2 filesystem with zero s_inodes_per_group
-will cause a divide error. Below a patch against 2.6.17.8.
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+> 
+> listtoken , a helper for walking a list by intermittent access.
+> 
+> When we walk a list intermittently and the list is being modified at the
+> same time, it's hard to remember our position in it.
+> 
+> With this list token, a user can remember where he is reading by inserting
+> a token in the list.
 
-Andries
+I think the header/code needs much more comments so that other people
+can still make sense of it later. Even with the commit log it's not
+quite clear how it works.
 
-diff -uprN -X /linux/dontdiff a/fs/ext2/super.c b/fs/ext2/super.c
---- a/fs/ext2/super.c	2006-08-07 16:01:12.000000000 +0200
-+++ b/fs/ext2/super.c	2006-08-22 12:36:45.682620352 +0200
-@@ -776,7 +776,7 @@ static int ext2_fill_super(struct super_
- 	if (EXT2_INODE_SIZE(sb) == 0)
- 		goto cantfind_ext2;
- 	sbi->s_inodes_per_block = sb->s_blocksize / EXT2_INODE_SIZE(sb);
--	if (sbi->s_inodes_per_block == 0)
-+	if (sbi->s_inodes_per_block == 0 || sbi->s_inodes_per_group == 0)
- 		goto cantfind_ext2;
- 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
- 					sbi->s_inodes_per_block;
+Also locking needs to be explained. I suppose only one user is allowed
+to use a token at one time?
+
+But overall it's a good idea to have a generic facility like this.
+I suppose it will be a more common problem in the future.
+
+-Andi

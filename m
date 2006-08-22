@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWHVT0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWHVT1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWHVT0p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT0p
+	id S1751221AbWHVT1J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHVT1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:26:45 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:24136 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751201AbWHVT0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:26:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:content-type:mime-version:content-transfer-encoding:message-id:user-agent:from;
-        b=HNKlZBbYpe06Kb9r2EgSmXzzoAp38iqW/85jungixhVvPkBtapFQIiboN6Yp5Lfd6wOoZNrYkwx4KBxLfIsFl5Bv5X7mfv98R96fr+/dEK72U5Akryopaz6jwWUwybOdFnmPIZ6BrzL5I615CF2HGkBc3KqU5xZCyIWYrBr+p4Q=
-Date: Tue, 22 Aug 2006 21:26:40 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Specify devices manually in exotic environment
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+	Tue, 22 Aug 2006 15:27:09 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:8395 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751221AbWHVT0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:26:47 -0400
+Message-ID: <44EB5A76.9060402@vmware.com>
+Date: Tue, 22 Aug 2006 12:26:46 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
+To: Zachary Amsden <zach@vmware.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@muc.de>,
+       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] paravirt.h
+References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de>  <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org> <1156275004.27114.34.camel@localhost.localdomain> <44EB584A.5070505@vmware.com>
+In-Reply-To: <44EB584A.5070505@vmware.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.teo9mqjlepq0rv@localhost>
-User-Agent: Opera Mail/9.00 (Linux)
-From: Milan Hauth <milahu@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there.
+Zachary Amsden wrote:
 
-Got a quite exotic environment here -- a Compaq Evo T20 thin client, which  
-I want to run Linux on.
-
-But I'm not satisfied with a completely thin client, meaning that all the  
-files are located on the server. What I want is the basic system to be  
-located on the client, while the Unix System Resources, for example, are  
-mounted from the server, since they're too big for 32MB of Flash memory.
-
-The problem I'm facing at the moment is the T20's BIOS, which doesn't seem  
-to pass the device information correctly to the Kernel. GRUB (v0.97) does  
-work with a workaround, which can be found in the document [1] I followed  
-to 'teach' Linux to the T20.
-
-I already tried to use /proc/sys/kernel/real-root-dev, but setting the  
-root device to 0x80 (as already specified for GRUB) or 0x81 (1st partition  
-of 0x80) did not seem to help.
-
-So, did I forget anything when building my Kernel? Or is it just another  
-trick, I don't know yet?
-
-Hopefully someone here can help me on this one.. have been 'working' on my  
-cute T20 for several months now.. :-\
-
-Cheers, milahu
+ > I've already implemented the locking and repatching bits for VMI.
 
 
-[1] http://www.kazak.ws/evo/
+Incorrectly, I might add.  The problem case for syscall patching is what 
+do you do if there are in-service system calls?  The comparable problem 
+here is what if you interrupt code running in the old paravirt-ops, or 
+worse, a section of code that you repatch when you do the switch?
 
+That is a really nasty problem.  You need a synchronization primitive 
+which guarantees a flat stack, so you can't do it in the interrupt 
+handler as I have tried to do.  I'll bang my head on it awhile.  In the 
+meantime, were there ever any solutions to the syscall patching problem 
+that might lend me a clue as to what to do (or not to do, or impossible?).
 
-PS: Here's my linuxrc:
+Thanks,
 
-#!/bin/sh
-mount -v -t proc proc /proc
-echo 0x80 >/proc/sys/kernel/real-root-dev
-mount -o remount,rw /
-exec chroot . sh <<- EOF
-     <dev/console >dev/console 2>&1
-     exec /sbin/init
-EOF
---
-proc on /proc type proc (rw)
-mount: can't find / in /etc/fstab or /etc/mtab
-INIT: version 2.86 booting
-INIT: No inittab file found
+Zach

@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWHVOCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWHVODE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWHVOCI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVOCI
+	id S932253AbWHVODE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHVODE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:02:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:22722 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932262AbWHVOCG (ORCPT
+	Tue, 22 Aug 2006 10:03:04 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:51350 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S932253AbWHVODC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:02:06 -0400
-Date: Tue, 22 Aug 2006 19:31:24 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-Message-ID: <20060822140124.GC7125@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net> <20060822101028.GB5052@in.ibm.com> <1156257674.4617.8.camel@Homer.simpson.net> <1156260209.6225.7.camel@Homer.simpson.net>
+	Tue, 22 Aug 2006 10:03:02 -0400
+Date: Tue, 22 Aug 2006 22:27:07 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] copy_process: cosmetic ->ioprio tweak
+Message-ID: <20060822182707.GA469@oleg>
+References: <20060820145321.GA775@oleg> <20060821143224.62018aba.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1156260209.6225.7.camel@Homer.simpson.net>
+In-Reply-To: <20060821143224.62018aba.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 03:23:29PM +0000, Mike Galbraith wrote:
-> > I try it with everything in either root or mikeg.
+On 08/21, Andrew Morton wrote:
+>
+> On Sun, 20 Aug 2006 18:53:21 +0400
+> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> 
+> > copy_process:
+> > // holds tasklist_lock + ->siglock
+> >        /*
+> >         * inherit ioprio
+> >         */
+> >        p->ioprio = current->ioprio;
+> > 
+> > Why? ->ioprio was already copied in dup_task_struct().
+> 
+> It might just be a thinko.
+> 
+> > I guess this is needed
+> > to ensure that the child can't escape sys_ioprio_set(IOPRIO_WHO_{PGRP,USER}),
+> > yes?
+> 
+> How could the child escape that if this assignment was not present?
 
-How did you transfer everything to root? By cat'ing each task pid
-(including init's) to root (or mikeg) task's file?
+It is possible that sys_ioprio_set(IOPRIO_WHO_PGRP) was called after
+copy_process() already did dup_task_struct(), but before it takes
+tasklist_lock. Documentation/block/ioprio.txt doesn't say should
+ioprio_set() be "atomic" or not. If not, we can kill this line, and
+(more importantly) drop tasklist_lock in fs/ioprio.c
 
-I will give your experiment a try here and find out what's happening.
+Oleg.
 
-You said that you spawn a task which munches ~80% cpu. Is that by
-something like:
-
-do {
-	gettimeofday(&t1, NULL);
-loop:
-	gettimeofday(&t2, NULL);
-	while (t2.tv_sec - t1.tv_sec != 48)
-		goto loop;
-	sleep 12
-
-} while (1);
-	
-
-> That didn't work.
-
-Ok. I will repeat your experiment and see what I can learn from it.
-
-
--- 
-Regards,
-vatsa

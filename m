@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWHVAHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHVAN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWHVAHU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 20:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWHVAHT
+	id S1750874AbWHVAN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 20:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWHVAN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 20:07:19 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:1222 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1750782AbWHVAHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 20:07:18 -0400
-Date: Mon, 21 Aug 2006 18:45:40 -0400
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [10/13]: module parameter for device timeout
-Message-ID: <20060821224540.GH2438@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <a47db3897e5de69fbe6bfaf1fea169a2@coraid.com> <1155942187.31543.26.camel@localhost.localdomain> <20060818231037.GW29988@coraid.com> <1155946151.31543.30.camel@localhost.localdomain>
+	Mon, 21 Aug 2006 20:13:58 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:23454 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750850AbWHVAN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 20:13:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cIWeIQA4N5IQP8lthOoxg4S5WpZR/ULomDXu0JQ8m3AzUYaE6dszaav7JtEv8+jVanKpfgxaOPdqFq+oSeOQNixtjIzxOnRFFSjPJ1Gn17lG5OIOSpSnHldj2IAN4mkSoOG/Ctr8I5MsGPd983f+td2T53PXFHrhnU5EmRB9Bnw=
+Message-ID: <21d7e9970608211713m7e554884l3a0e93b9ed4274f0@mail.gmail.com>
+Date: Tue, 22 Aug 2006 10:13:56 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Jean Delvare" <khali@linux-fr.org>
+Subject: Re: [PATCH] intelfbhw.c: intelfbhw_get_p1p2 defined but not used
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Sylvain Meyer" <sylvain.meyer@worldonline.fr>,
+       "Parag Warudkar" <kernel-stuff@comcast.net>,
+       linux-kernel@vger.kernel.org, "Antonino Daplas" <adaplas@pol.net>
+In-Reply-To: <20060730125033.efb0d87e.khali@linux-fr.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155946151.31543.30.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <Pine.LNX.4.64.0607060154130.2027@gentoo.warudkars.net>
+	 <20060730125033.efb0d87e.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 01:09:11AM +0100, Alan Cox wrote:
-> Ar Gwe, 2006-08-18 am 19:10 -0400, ysgrifennodd Ed L. Cashin:
-> > No, this is just for users who need very fast failure.  The default
-> > three minutes is good for things like short network interruptions and
-> > even quick AoE device reboots, but users who aren't interested in that
-> > kind of flexibility and want a fast failure generally want it always
-> > and on every link.
-> 
-> Ok, but it should still be runtime settable.
+> >
+> > Patch against 2.6.18-rc1.
+>
+> Can we please have this patch merged in Linus' tree now?
+>
 
-You know, it occurs to me that it is, just by virtue of sysfs, and a
-little test shows that to be the case.
+I've put this in my intelfb tree....
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Dave.

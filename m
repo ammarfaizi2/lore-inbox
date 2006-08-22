@@ -1,53 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWHVNxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWHVNy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWHVNxf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVNxf
+	id S932146AbWHVNy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWHVNy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:53:35 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:15373 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932257AbWHVNxe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:53:34 -0400
-Date: Tue, 22 Aug 2006 15:53:27 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Lockdep message on workqueue_mutex
-Message-ID: <20060822135327.GB29577@osiris.boeblingen.de.ibm.com>
-References: <20060822121042.GA29577@osiris.boeblingen.de.ibm.com> <1156250192.2976.47.camel@laptopd505.fenrus.org>
+	Tue, 22 Aug 2006 09:54:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:27471 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932146AbWHVNyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:54:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=uQc7r2aXjUvpjwabR2Xr9KBm16v3DwiNxvxZjUAIkHbL12m9NrxWO1WESJqNEUPdHvXbJQbQtASb5WT8Cs/icOkTr8FQHxD1kZNzMBEDbVDdwih9nrQsglOlkVTBntdW388whoW0YCIC9Uha3j5WYzJ9UsorxfSD81Az3EBaIfA=
+Message-ID: <44EB0C9C.80701@innova-card.com>
+Date: Tue, 22 Aug 2006 15:54:36 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156250192.2976.47.camel@laptopd505.fenrus.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Franck <vagabon.xyz@gmail.com>, rusty@rustcorp.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] kallsyms_lookup always requires buffers
+References: <44EAFDCA.1080002@innova-card.com> <1156252706.2976.51.camel@laptopd505.fenrus.org>
+In-Reply-To: <1156252706.2976.51.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 02:36:32PM +0200, Arjan van de Ven wrote:
-> On Tue, 2006-08-22 at 14:10 +0200, Heiko Carstens wrote:
-> > git commit 9b41ea7289a589993d3daabc61f999b4147872c4 causes the lockdep
-> > message below on cpu hotplug (git kernel of today).
-> > 
-> > We have:
-> > 
-> > cpu_down (takes cpu_add_remove_lock)
-> > [CPU_DOWN_PREPARE]
-> > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
-> > workqueue_cpu_callback (takes workqueue_mutex)
-> > blocking_notifier_call_chain (releases (cpu_chain).rwsem)
-> > [CPU_DEAD]
-> > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
-> >                               ^^^^^^^^^^^^^^^^^^^^^^^
-> > -> reverse locking order, since we still hold workqueue_mutex.
-> > 
-> > But since all of this is protected by the cpu_add_remove_lock this looks
-> > legal. Well, at least it's safe as long as no other cpu callback function
-> > does anything that will take the workqueue_mutex as well.
-> 
-> so you're saying this locking is entirely redundant ? ;-)
+Hi
 
-No, I'm just saying that I think that it currently cannot deadlock. But I
-think the workqueue cpu hotplug code should be changed, so that it doesn't
-return with the workqueue_mutex being held.
+Arjan van de Ven wrote:
+>> +}
+>> +EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
+> 
+> 
+> Hi,
+> 
+> there don't seem to be modular users so please don't export it since
+> that export just eats up useless space. (we have way too many of those
+> already)
+> 
+
+true.
+
+> (Also I suggest you submit at least one user with your patch but that's
+> another matter)
+> 
+
+mips could be one of the future users, see patch below.
+
+thanks
+		Franck
+
+-- >8 --
+
+diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
+index 951bf9c..eb80db5 100644
+--- a/arch/mips/kernel/process.c
++++ b/arch/mips/kernel/process.c
+@@ -344,8 +344,6 @@ static int __init frame_info_init(void)
+ {
+ 	int i;
+ #ifdef CONFIG_KALLSYMS
+-	char *modname;
+-	char namebuf[KSYM_NAME_LEN + 1];
+ 	unsigned long start, size, ofs;
+ 	extern char __sched_text_start[], __sched_text_end[];
+ 	extern char __lock_text_start[], __lock_text_end[];
+@@ -354,7 +352,7 @@ #ifdef CONFIG_KALLSYMS
+ 	for (i = 0; i < ARRAY_SIZE(mfinfo); i++) {
+ 		if (start == (unsigned long)schedule)
+ 			schedule_frame = &mfinfo[i];
+-		if (!kallsyms_lookup(start, &size, &ofs, &modname, namebuf))
++		if (!kallsyms_lookup_gently(start, &size, &ofs))
+ 			break;
+ 		mfinfo[i].func = (void *)(start + ofs);
+ 		mfinfo[i].func_size = size;
+@@ -454,8 +452,6 @@ unsigned long unwind_stack(struct task_s
+ {
+ 	unsigned long stack_page;
+ 	struct mips_frame_info info;
+-	char *modname;
+-	char namebuf[KSYM_NAME_LEN + 1];
+ 	unsigned long size, ofs;
+ 	int leaf;
+ 
+@@ -463,7 +459,7 @@ unsigned long unwind_stack(struct task_s
+ 	if (!stack_page)
+ 		return 0;
+ 
+-	if (!kallsyms_lookup(pc, &size, &ofs, &modname, namebuf))
++	if (!kallsyms_lookup_gently(pc, &size, &ofs))
+ 		return 0;
+ 	if (ofs == 0)
+ 		return 0;

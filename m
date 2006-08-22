@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWHVOKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWHVOMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWHVOKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHVOKZ
+	id S932265AbWHVOMo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWHVOMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:10:25 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:8344 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932264AbWHVOKY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:10:24 -0400
-Date: Tue, 22 Aug 2006 22:34:31 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	Tue, 22 Aug 2006 10:12:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:65504 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932265AbWHVOMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:12:43 -0400
+Subject: Re: 2.6.18-rc4 jffs2 problems
+From: David Woodhouse <dwmw2@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Josh Boyer <jwboyer@gmail.com>, Richard Purdie <rpurdie@rpsys.net>,
+       linux-mtd <linux-mtd@lists.infradead.org>,
        Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] futex_find_get_task: remove an obscure EXIT_ZOMBIE check
-Message-ID: <20060822183431.GB469@oleg>
-References: <20060821170604.GA1640@oleg> <20060822000110.GA31751@gnuppy.monkey.org>
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060821013545.GA21012@kroah.com>
+References: <1154976111.17725.8.camel@localhost.localdomain>
+	 <1155852587.5530.30.camel@localhost.localdomain>
+	 <625fc13d0608191834r19ce12e5raccbae011d67c25e@mail.gmail.com>
+	 <20060821013545.GA21012@kroah.com>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 15:12:16 +0100
+Message-Id: <1156255936.29825.15.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822000110.GA31751@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/21, Bill Huey wrote:
->
-> On Mon, Aug 21, 2006 at 09:06:04PM +0400, Oleg Nesterov wrote:
-> > (Compile tested).
-> > 
-> > futex_find_get_task:
-> > 
-> > 	if (p->state == EXIT_ZOMBIE || p->exit_state == EXIT_ZOMBIE)
-> > 		return NULL;
-> > 
-> > I can't understand this. First, p->state can't be EXIT_ZOMBIE. The ->exit_state
-> > check looks strange too. Sub-threads or tasks whose ->parent ignores SIGCHLD go
-> > directly to EXIT_DEAD state (I am ignoring a ptrace case). Why EXIT_DEAD tasks
-> > should be ok? Yes, EXIT_ZOMBIE is more important (a task may stay zombie for a
-> > long time), but this doesn't mean we should explicitely ignore other EXIT_XXX
-> > states.
-> 
-> The p->state variable for EXIT_ZOMBIE is only live for some mystery architecture
-> in arch/xtensa/kernel/ptrace.c
+On Sun, 2006-08-20 at 18:35 -0700, Greg KH wrote:
+> Add what to what tree?  I need things to be a bit more specific
+> here :)
 
-Thanks. This
+I think he means the tree you were keeping while Linus was away. I'll
+sort out this and one or two more to send to Linus shortly.
 
-	case PTRACE_KILL:
-		ret = 0;
-		if (child->state == EXIT_ZOMBIE)	/* already dead */
-			break;
-
-is an obvious bug, I beleive. May I suggest you to make a patch?
-
-Oleg.
+-- 
+dwmw2
 

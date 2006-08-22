@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWHVR4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWHVR5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWHVR4S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 13:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWHVR4S
+	id S1751429AbWHVR5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 13:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWHVR5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 13:56:18 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:8146 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751426AbWHVR4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 13:56:17 -0400
-Subject: [PATCH for 2.6.18] spectrum_cs: Fix firmware uploading errors
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 22 Aug 2006 18:55:44 +0100
-Message-Id: <1156269344.5920.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 13:57:13 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:4069 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751426AbWHVR5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 13:57:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=J5FWuURkUCiYuAiQ29zVq1vRSytRS6u97vygdaBgsUm6adwBibPr+cb2nl6VtW2iRxNX2sxmDYFZ0+Qbz/I9SZ8RUrZiWGzqizs0jcqjh9t4Kmj+kE/9DMJcSd0hjd5S0+dkQzNWY7xm86R58nA7DrikwEnny/HA5Ox2pT1pSDQ=
+Message-ID: <44EB4575.6070306@gmail.com>
+Date: Tue, 22 Aug 2006 19:57:09 +0200
+From: Maciej Rutecki <maciej.rutecki@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.18-rc4-mm2] Compile error in afs
+References: <1156209906.17514.8.camel@daplas.org>
+In-Reply-To: <1156209906.17514.8.camel@daplas.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-spectrum_cs: Fix the logic so we error when the device is *not* present!
+Antonino A. Daplas napisał(a):
+> With CONFIG_AFS_FSCACHE=n, I get this compile error:
+> 
+> fs/afs/file.c: In function ‘afs_file_releasepage’:
+> fs/afs/file.c:332: error: ‘struct afs_vnode’ has no member named ‘cache’
+> make[2]: *** [fs/afs/file.o] Error 1
+> make[1]: *** [fs/afs] Error 2
+> make: *** [fs] Error 2
+> 
 
-This fixes firmware upload failures which prevent the driver from
-working (the bug is also present in 2.6.17).
+Revert fs-cache-make-kafs-use-fs-cache-12.patch:
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm2/broken-out/fs-cache-make-kafs-use-fs-cache-12.patch
 
----
- drivers/net/wireless/spectrum_cs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.17/drivers/net/wireless/spectrum_cs.c
-===================================================================
---- linux-2.6.17.orig/drivers/net/wireless/spectrum_cs.c	2006-08-22 17:27:28.000000000 +0100
-+++ linux-2.6.17/drivers/net/wireless/spectrum_cs.c	2006-08-22 17:27:58.000000000 +0100
-@@ -245,7 +245,7 @@ spectrum_reset(struct pcmcia_device *lin
- 	u_int save_cor;
- 
- 	/* Doing it if hardware is gone is guaranteed crash */
--	if (pcmcia_dev_present(link))
-+	if (!pcmcia_dev_present(link))
- 		return -ENODEV;
- 
- 	/* Save original COR value */
-
-
+-- 
+Maciej Rutecki <maciej.rutecki@gmail.com>
+http://www.unixy.pl
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

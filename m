@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWHVKH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWHVKLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWHVKH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 06:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVKH6
+	id S932152AbWHVKLI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 06:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVKLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 06:07:58 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:16601 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932153AbWHVKH5 convert rfc822-to-8bit (ORCPT
+	Tue, 22 Aug 2006 06:11:08 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:5319 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932152AbWHVKLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 06:07:57 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
-Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
-Date: Tue, 22 Aug 2006 12:06:59 +0200
-User-Agent: KMail/1.9.1
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-References: <20060819073031.GA25711@atjola.homenet> <1156231742.21752.101.camel@localhost.localdomain> <20060822080046.GA22572@atjola.homenet>
-In-Reply-To: <20060822080046.GA22572@atjola.homenet>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Aug 2006 06:11:06 -0400
+Date: Tue, 22 Aug 2006 15:40:28 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+Message-ID: <20060822101028.GB5052@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608221207.00344.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <1156245036.6482.16.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 August 2006 10:00, Björn Steinbrink wrote:
-> I'm working on a patch loosely based on Arnd's that changes the
-> in-kernel syscall macros to directly return the error codes.
+On Tue, Aug 22, 2006 at 11:10:36AM +0000, Mike Galbraith wrote:
+> Doesn't seem to work here, but maybe I'm doing something wrong.
+> 
+> I set up cpuset "all" containing cpu 0-1 (all, 1.something cpus I have;)
 
-I think that is still going in the wrong direction. Traditionally,
-the macros in unistd.h were meant for user space, but we're now
-discouraging that strongly (i.e. they are inside of #ifdef __KERNEL__).
-The only in-kernel users on the _syscall macros used to by the
-__KERNEL_SYSCALLS__ that we're trying to kill.
+You are assigning all the CPUs to the cpuset "all" and then making it an
+exclusive/metered cpuset?
 
-The logical consequence should be that we remove the _syscall macros
-entirely, for all architectures.
-UML can be converted to use the syscall function provided by libc
-in order to call the host OS.
+I dont think I am handling that case well (yet), primarily because usage of 
+remaining tasks (which are not in cpuset "all", "mikeg" & "root") is not 
+accounted/controlled. Note that those remaining tasks will be running on one of 
+the CPUs assigned to "all". What needs to happen is those remaining tasks need 
+to be moved to a separate group (and a runqueue), being given some left-over 
+CPU quota (which is left over from assignment of quota to mikeg and root), 
+which is not handled in the patches (yet). One of the reason why I havent 
+handled it yet is that there is no easy way to retrieve list of tasks attached 
+to a cpuset.
 
-	Arnd <><
+Can you try assigning (NUM_CPUS-1) cpus to "all" and give it a shot?
+Essentially you need to ensure that only tasks chosen by you are running in 
+cpus given to "all" and other child-cpusets under it.
+
+
+-- 
+Regards,
+vatsa

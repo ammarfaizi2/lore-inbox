@@ -1,59 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWHVMVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHVMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWHVMVc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHVMVc
+	id S932206AbWHVMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHVMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:21:32 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34959 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932204AbWHVMVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:21:31 -0400
-Date: Tue, 22 Aug 2006 16:20:43 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [PATCH] kevent_user: use struct kevent_mring for the page ring
-Message-ID: <20060822122043.GB4815@2ka.mipt.ru>
-References: <12345678912345.GA1898@2ka.mipt.ru> <11561555871530@2ka.mipt.ru> <20060822115504.GB10839@infradead.org>
+	Tue, 22 Aug 2006 08:22:39 -0400
+Received: from ausmtp06.au.ibm.com ([202.81.18.155]:11490 "EHLO
+	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP id S932206AbWHVMWi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 08:22:38 -0400
+Subject: Re: [patch] pi-futex: missing pi_waiters plist initialization
+From: Sharyathi Nagesh <sharyath@in.ibm.com>
+Reply-To: sharyath@in.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org
+Cc: zhuyaof@cn.ibm.com, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060724112112.GA16537@osiris.boeblingen.de.ibm.com>
+References: <20060724112112.GA16537@osiris.boeblingen.de.ibm.com>
+Content-Type: multipart/mixed; boundary="=-BlqFUO1v72sOgwkFB0LV"
+Organization: IBM
+Date: Tue, 22 Aug 2006 17:58:07 +0530
+Message-Id: <1156249687.14883.68.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060822115504.GB10839@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 22 Aug 2006 16:20:47 +0400 (MSD)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 12:55:04PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
-> Currently struct kevent_user.print is an array of unsigned long, but it's used
-> as an array of pointers to struct kevent_mring everyewhere in the code.
+
+--=-BlqFUO1v72sOgwkFB0LV
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Mon, 2006-07-24 at 13:21 +0200, Heiko Carstens wrote:
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
 > 
-> Switch it to use the real type and cast the return value from __get_free_page /
-> argument to free_page.
+> Initialize init task's pi_waiters plist. Otherwise cpu hotplug of cpu 0
+> might crash, since rt_mutex_getprio() accesses an uninitialized list head.
 > 
+> call chain which led to crash:
 > 
->  include/linux/kevent.h      |    2 +-
->  kernel/kevent/kevent_user.c |   31 +++++++++++--------------------
->   2 files changed, 12 insertions(+), 21 deletions(-)
+> take_cpu_down
+> sched_idle_next
+> __setscheduler
+> rt_mutex_getprio
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Using PLIST_HEAD_INIT in the INIT_TASK macro doesn't work unfortunately, since
+> the pi_waiters member is only conditionally present.
 
-I will apply this patch with small minor nit below.
+Hi 
+     I felt it would be more appropriate to put initialization of
+pi_waiters in fork_init function rather than in sched_init function as
+other init_task related initialization or happening in fork_init(). As
+well we have rt_mutex_init_task() function in fork.c which can be reused
+for initializing pi_waiters field of init_task. 
+    Please go through the patch and let me know of your opinion.
+Thanks 
+Sharyathi Nagesh
 
->  	if (idx >= u->pages_in_use) {
-> -		u->pring[idx] = __get_free_page(GFP_KERNEL);
-> +		u->pring[idx] = (void *)__get_free_page(GFP_KERNEL);
+--=-BlqFUO1v72sOgwkFB0LV
+Content-Disposition: attachment; filename=pi_waiters.patch
+Content-Type: text/x-patch; name=pi_waiters.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Better cast it directly to (struct kevent_mring *).
+Signed-off-by: <sharyath@in.ibm.com>
+----
 
 
-If there will not be any objectsion about syscall-based initialization,
-I will release new patchset tomorrow with your changes.
+Index: linux-2.6.18-rc4/kernel/fork.c
+===================================================================
+--- linux-2.6.18-rc4.orig/kernel/fork.c	2006-08-06 23:50:11.000000000 +0530
++++ linux-2.6.18-rc4/kernel/fork.c	2006-08-22 13:03:03.000000000 +0530
+@@ -122,6 +122,16 @@
+ 		free_task(tsk);
+ }
+ 
++
++static inline void rt_mutex_init_task(struct task_struct *p)
++{
++#ifdef CONFIG_RT_MUTEXES
++	spin_lock_init(&p->pi_lock);
++	plist_head_init(&p->pi_waiters, &p->pi_lock);
++	p->pi_blocked_on = NULL;
++#endif
++}
++
+ void __init fork_init(unsigned long mempages)
+ {
+ #ifndef __HAVE_ARCH_TASK_STRUCT_ALLOCATOR
+@@ -151,6 +161,7 @@
+ 	init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
+ 	init_task.signal->rlim[RLIMIT_SIGPENDING] =
+ 		init_task.signal->rlim[RLIMIT_NPROC];
++	rt_mutex_init_task(&init_task);
+ }
+ 
+ static struct task_struct *dup_task_struct(struct task_struct *orig)
+@@ -919,15 +930,6 @@
+ 	return current->pid;
+ }
+ 
+-static inline void rt_mutex_init_task(struct task_struct *p)
+-{
+-#ifdef CONFIG_RT_MUTEXES
+-	spin_lock_init(&p->pi_lock);
+-	plist_head_init(&p->pi_waiters, &p->pi_lock);
+-	p->pi_blocked_on = NULL;
+-#endif
+-}
+-
+ /*
+  * This creates a new process as a copy of the old one,
+  * but does not actually start it yet.
 
-Thank you, Christoph.
+--=-BlqFUO1v72sOgwkFB0LV--
 
--- 
-	Evgeniy Polyakov

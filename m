@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWHVRyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWHVR4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWHVRyV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 13:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHVRyV
+	id S1751428AbWHVR4S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 13:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWHVR4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 13:54:21 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4873 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751425AbWHVRyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 13:54:21 -0400
-Date: Tue, 22 Aug 2006 18:54:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Joerg Sommrey <jo@sommrey.de>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: FUSE unmount breaks serial terminal line
-Message-ID: <20060822175411.GB31064@flint.arm.linux.org.uk>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-References: <20060820180505.GA18283@sommrey.de> <E1GEuMZ-0004uq-00@dorka.pomaz.szeredi.hu> <20060820212840.GA29855@sommrey.de> <E1GFS4R-0007wJ-00@dorka.pomaz.szeredi.hu> <20060822155949.GA4268@sommrey.de> <E1GFYmi-0000Ct-00@dorka.pomaz.szeredi.hu> <20060822174329.GA6293@sommrey.de>
+	Tue, 22 Aug 2006 13:56:18 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:8146 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751426AbWHVR4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 13:56:17 -0400
+Subject: [PATCH for 2.6.18] spectrum_cs: Fix firmware uploading errors
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 18:55:44 +0100
+Message-Id: <1156269344.5920.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822174329.GA6293@sommrey.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 07:43:29PM +0200, Joerg Sommrey wrote:
-> On Tue, Aug 22, 2006 at 06:07:24PM +0200, Miklos Szeredi wrote:
-> > > Tested both gphoto2 and gtkam without any problems. There is no impact
-> > > on the serial lines.
-> > > 
-> > > NB: The *real* trouble I have is with ntpd and a reference clock
-> > > attached to /dev/ttyS1.  ntpd enters a busy loop reading ttyS1, stops
-> > > working and eats up 100% CPU.  
-> > > 
-> > > Thanks for your investigations.  Any other idea?
-> > 
-> > Try 'killall -9 gphotofs' and then the 'fusermount -u'.
-> > 
-> > Does that have the same effect?  If so, after which does the serial
-> > line die?
-> 
-> Here are the results and another insight:  only the first serial device
-> open for reading is affected.  I.e. if ttyS0 is open for reading,
-> ttyS1 doesn't break.  If ttyS0 is not open, then ttyS1 breaks.  This
-> happens when gphotofs gets killed (or with fusermount -u without
-> killing).
+spectrum_cs: Fix the logic so we error when the device is *not* present!
 
-Have you checked to see what files gphotofs has open?  (Check in
-/proc/<pid>/fd/).
+This fixes firmware upload failures which prevent the driver from
+working (the bug is also present in 2.6.17).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
+---
+ drivers/net/wireless/spectrum_cs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.17/drivers/net/wireless/spectrum_cs.c
+===================================================================
+--- linux-2.6.17.orig/drivers/net/wireless/spectrum_cs.c	2006-08-22 17:27:28.000000000 +0100
++++ linux-2.6.17/drivers/net/wireless/spectrum_cs.c	2006-08-22 17:27:58.000000000 +0100
+@@ -245,7 +245,7 @@ spectrum_reset(struct pcmcia_device *lin
+ 	u_int save_cor;
+ 
+ 	/* Doing it if hardware is gone is guaranteed crash */
+-	if (pcmcia_dev_present(link))
++	if (!pcmcia_dev_present(link))
+ 		return -ENODEV;
+ 
+ 	/* Save original COR value */
+
+

@@ -1,175 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWHWTF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWHWTGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbWHWTF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWHWTF7
+	id S965125AbWHWTGn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWHWTGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:05:59 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:49313 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965110AbWHWTFy (ORCPT
+	Wed, 23 Aug 2006 15:06:41 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47750 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965108AbWHWTGN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:05:54 -0400
-Subject: [PATCH 7/7] SLIM: documentation
+	Wed, 23 Aug 2006 15:06:13 -0400
+Subject: [PATCH 1/7] mprotect patch for use by SLIM
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        LSM ML <linux-security-module@vger.kernel.org>
 Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
        Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 23 Aug 2006 12:05:56 -0700
-Message-Id: <1156359956.6720.71.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 12:05:27 -0700
+Message-Id: <1156359927.6720.64.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Documentation.
+This small patch makes mprotect available for use by SLIM for
+write revocation.
+
+Updated to allow the usage locking to work properly.
 
 Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
 Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
- Documentation/slim.txt |  136 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 136 insertions(+)
+ include/linux/mm.h |    2 ++
+ mm/mprotect.c      |   22 ++++++++++++++++------
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
---- linux-2.6.18/Documentation/slim.txt	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18-rc4/Documentation/slim.txt	2006-08-22 14:48:12.000000000 -0700
-@@ -0,0 +1,136 @@
-+Simple Linux Integrity Model (SLIM)
+--- linux-2.6.18-rc3/mm/mprotect.c	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/mm/mprotect.c	2006-08-07 13:11:07.000000000 -0500
+@@ -19,6 +19,7 @@
+ #include <linux/mempolicy.h>
+ #include <linux/personality.h>
+ #include <linux/syscalls.h>
++#include <linux/module.h>
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
+ #include <asm/uaccess.h>
+@@ -202,9 +203,10 @@ fail:
+ 	vm_unacct_memory(charged);
+ 	return error;
+ }
+-
+-asmlinkage long
+-sys_mprotect(unsigned long start, size_t len, unsigned long prot)
++/* 
++ * Call holding the current->mm->mmap_sem for writing
++ */
++int do_mprotect(unsigned long start, size_t len, unsigned long prot)
+ {
+ 	unsigned long vm_flags, nstart, end, tmp, reqprot;
+ 	struct vm_area_struct *vma, *prev;
+@@ -234,8 +236,6 @@ sys_mprotect(unsigned long start, size_t
+ 
+ 	vm_flags = calc_vm_prot_bits(prot);
+ 
+-	down_write(&current->mm->mmap_sem);
+-
+ 	vma = find_vma_prev(current->mm, start, &prev);
+ 	error = -ENOMEM;
+ 	if (!vma)
+@@ -298,6 +298,16 @@ sys_mprotect(unsigned long start, size_t
+ 		}
+ 	}
+ out:
+-	up_write(&current->mm->mmap_sem);
+ 	return error;
+ }
 +
-+SLIM is an LSM module which provides an enhanced low water-mark
-+integrity and high water-mark secrecy mandatory access control
-+model. It also is a consumer of the new integrity subsystem,
-+using the integrity_verify_data(), integrity_verify_metadata(),
-+and integrity_measure() calls to base mandatory access control
-+decisions on the verified integrity status of the involved objects.
-+SLIM is an extension of several prior models, including Biba[1],
-+Lowmac[2], and Caernarvon[3], which provide excellent background.
++asmlinkage long
++sys_mprotect(unsigned long start, size_t len, unsigned long prot)
++{
++	int ret;
 +
-+SLIM's specific model is:
++	down_write(&current->mm->mmap_sem);
++	ret = do_mprotect(start, len, prot);
++	up_write(&current->mm->mmap_sem);
++	return ret;
++}
+--- linux-2.6.18-rc3/include/linux/mm.h	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/include/linux/mm.h	2006-08-01 12:18:13.000000000 -0500
+@@ -137,6 +137,8 @@ extern unsigned int kobjsize(const void 
+ #define VM_EXEC		0x00000004
+ #define VM_SHARED	0x00000008
+ 
++extern int do_mprotect(unsigned long start, size_t len, unsigned long prot);
 +
-+	All objects (files) are labeled with extended attributes to indicate:
-+		Integrity Access Class (IAC)
-+			(one of SYSTEM, USER, UNTRUSTED)
-+		Secrecy Access Class (SAC)
-+			(one of PUBLIC, USER, USER_SENSITIVE,
-+				SYSTEM_SENSITIVE)
-+
-+	All processes inherit from their parents:
-+		Integrity Read Access Class (IRAC)
-+		Integrity Write/Execute Access Class (IWXAC)
-+		Secrecy Write Access Class (SWAC)
-+		Secrecy Read/Execute Access Class (SRXAC)
-+
-+	SLIM enforces the following Mandatory Access Control Rules:
-+		Read:
-+			IRAC(process) <= IAC(object)
-+			SRXAC(process) >= SAC(object)
-+		Write:
-+			IWXAC(process) >= IAC(object)
-+			SWAC(process) <= SAC(process)
-+		Execute:
-+			IWXAC(process) <= IAC(object)
-+			SRXAC(process) >= SAC(object)
-+
-+In the low water-mark model, rather than blocking attempted
-+reads of lower integrity objects, the reading process is demoted
-+to the integrity level of the object, so that the read is allowed.
-+In a Linux client, this provides a much more usable environment,
-+in which applications run more transparently, while being demoted
-+as needed to protect the integrity of the system.
-+
-+When the process is demoted, it may have objects open for write
-+of now higher integrity level, and these objects have to have their
-+write access revoked. This revocation of write privilege must
-+occur for normal and mmap'ed file writes.  Similarly, when reading
-+an object of higher secrecy, the process is promoted to the higher
-+secrecy level, and write access to now lower secrecy objects is revoked.
-+
-+SLIM performs a generic revocation operation, including revoking
-+mmap and shared memory access. Note that during demotion or promotion
-+of a process, SLIM needs only revoke write access to files with higher
-+integrity, or lower secrecy. 
-+
-+SLIM inherently deals with dynamic task labels, which is a feature 
-+not currently available in selinux. While it might be possible to
-+add support for this to selinux, it would not appear to be simple,
-+and it is not clear if the added complexity would be desirable
-+just to support this one model.
-+
-+Comments on the model:
-+
-+Some of the prior comments questioned the usefulness of the
-+low water-mark model itself. Two major questions raised concerned
-+a potential progression of the entire system to a fully demoted
-+state, and the security issues surrounding the guard processes.
-+
-+In normal operation, the system seems to stabilize with a roughly
-+equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
-+applications seem to do a fixed set of operations in a fixed domain,
-+and stabilize at their appropriate level. Some applications, like
-+firefox and evolution, which inherently deal with untrusted data,
-+immediately go to the UNTRUSTED level, which is where they belong.
-+In a couple of cases, including cups and Notes, the applications
-+did not handle their demotions well, as they occured well into their
-+startup. For these applications, we simply force them to start up
-+as UNTRUSTED, so demotion is not an issue. The one application
-+that does tend to get demoted over time are shells, such as bash.
-+These are not problems, as new ones can be created with the
-+windowing system, or with su, as needed. To help with the associated
-+user interface issue, the user space package[4] README shows how to
-+display the SLIM level in window titles, so it is always clear at
-+what level the process is currently running.
-+
-+As for the issue of guard processes, SLIM defines three types of
-+guard processes: Unlimited Guards, Limited Guards, and Untrusted
-+Guards.  Unlimited Guards are the most security sensitive, as they
-+allow less trusted process to acquire a higher level of trust.
-+On my current system there are two unlimited guards, passwd and
-+userhelper. These two applications inherently have to be trusted
-+this way regardless of the MAC model used. In SLIM, the policy
-+clearly and simply labels them as having this level of trust.
-+
-+Limited Guards are programs which cannot give away higher
-+trust, but which can keep their existing level despite reading
-+less trusted data. On my system I have seven limited guards:
-+yum, which is trusted to verify the signature on an (untrusted)
-+downloaded RPM file, and to install it, login and sshd, which read
-+untrusted user supplied login data, for authentication, dhclient
-+which reads untrusted network data, and updates they system
-+file /etc/resolv.conf, dbus-daemon, which accepts data from
-+potentially untrusted processes, Xorg, which has to accept data
-+from all Xwindow clients, regardless of level, and postfix which
-+delivers untrusted mail. Again, these applications inherently
-+must cross trust levels, and SLIM properly identifies them.
-+
-+As mentioned earlier, cupsd and notes are applications which are
-+always run directly in untrusted mode, regardless of the level of
-+the invoking process.
-+
-+The bottom line is that SLIM guard programs inherently do security
-+sensitive things, and have to be trusted. There are only a small
-+number of them, and they are clearly identified by their labels.
-+
-+Userspace Tools:
-+
-+Papers and slides on SLIM, along with source code for the needed
-+userspace tools, and installation instructions are available at:
-+
-+[4]	http://www.research.ibm.com/gsal/tcpa
-+
-+References:
-+
-+[1 Biba]: K. J. Biba. “Integrity Considerations for Secure Computer Systems”
-+Technical Report ESD-TR-76-372, USAF Electronic Systems Division, Hanscom Air
-+Force Base, Bedford, Massachusetts, April 1977.
-+
-+[2 Lomac]: T. Fraser, "LOMAC: Low Water-Mark Integrity Protection for COTS
-+Environments,"  Proceedings of the 2000 IEEE Symposium on Security and
-+Privacy, Oakland, California, USA, 2000.
-+
-+[3 Caernarvon]: P. Karger, V. Austel, and D. Toll. “Using a Mandatory Secrecy
-+and Integrity Policy on Smart Cards and Mobile Devices” EUROSMART Security
-+Conference. 13-15 June 2000, Marseilles, France p. 134-148. 
+ /* mprotect() hardcodes VM_MAYREAD >> 4 == VM_READ, and so for r/w/x bits. */
+ #define VM_MAYREAD	0x00000010	/* limits for mprotect() etc */
+ #define VM_MAYWRITE	0x00000020
 
 

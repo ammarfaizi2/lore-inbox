@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965286AbWHWWxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965255AbWHWWy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965286AbWHWWxI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbWHWWxH
+	id S965255AbWHWWy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWHWWy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:53:07 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:40202 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965286AbWHWWxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:53:05 -0400
-Date: Thu, 24 Aug 2006 00:53:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Alpha: replacing "extern inline"
-Message-ID: <20060823225303.GD19810@stusta.de>
-References: <20060820235438.GY7813@stusta.de> <20060821215526.GA22930@twiddle.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821215526.GA22930@twiddle.net>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 23 Aug 2006 18:54:59 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:21383 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S965255AbWHWWy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:54:58 -0400
+Message-ID: <11523125.1156373688154.JavaMail.oracle@web268.oracle.com>
+Date: Wed, 23 Aug 2006 22:54:48 +0000 (GMT)
+From: RANDY.DUNLAP@ORACLE.COM
+To: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org
+Subject: Re: [PATCH] Documentation update for relay interface
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client(UIX)
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 02:55:26PM -0700, Richard Henderson wrote:
-> On Mon, Aug 21, 2006 at 01:54:38AM +0200, Adrian Bunk wrote:
-> > Why?
+> From: Tom Zanussi <zanussi@us.ibm.com>
 > 
-> Because it inlines when it needs to, and does not generate
-> out of line code when its address is taken.
-
-Ah, I start to remember.
-
-Is this actually used anywhere in the kernel?
-
-> > Can someone tell me which of the Alpha "static inline"'s need for some 
-> > reason an __always_inline?
+> Hi,
 > 
-> There shouldn't be any.
+> Here's updated documentation for the relay interface, rewritten
+> to match the relayfs->relay changes.  It also moves relayfs.txt
+> to relay.txt in the process.
 > 
-> > Does the never defined __IO_EXTERN_INLINE still have any purpose?
+> It includes the changes to relayfs.txt previously posted by
+> Randy Dunlap, thanks for those.
 > 
-> It is defined.
-> 
-> $ grep 'define __IO_EXTERN_INLINE' * | wc -l
-> 12
+> The relay-apps examples have also been updated to match, and
+> can be found on the sourceforge relayfs website.
 
-Ups, I was blind...
+Thanks for doing this update, Tom.
 
-> r~
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+~Randy
 

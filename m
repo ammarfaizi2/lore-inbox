@@ -1,143 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWHWKTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWHWKVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWHWKTr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 06:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWHWKTr
+	id S964818AbWHWKVt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 06:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWHWKVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 06:19:47 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19675 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964814AbWHWKTq (ORCPT
+	Wed, 23 Aug 2006 06:21:49 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:10655 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964815AbWHWKVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 06:19:46 -0400
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
-References: <200608230806.k7N869KD000552@frankl.hpl.hp.com>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Aug 2006 12:19:44 +0200
-In-Reply-To: <200608230806.k7N869KD000552@frankl.hpl.hp.com>
-Message-ID: <p73fyfn7nzz.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Aug 2006 06:21:48 -0400
+Date: Wed, 23 Aug 2006 14:20:37 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jari Sundell <sundell.software@gmail.com>
+Cc: David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Message-ID: <20060823102037.GA23664@2ka.mipt.ru>
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com> <20060822231129.GA18296@ms2.inr.ac.ru> <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com> <20060822.173200.126578369.davem@davemloft.net> <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com> <20060823065659.GC24787@2ka.mipt.ru> <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com> <20060823083859.GA8936@2ka.mipt.ru> <b3f268590608230249q653e1dfh1d77c07f6f4e82ce@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <b3f268590608230249q653e1dfh1d77c07f6f4e82ce@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 14:20:42 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
-
-
-Earlier comment about logical pieces applies too.
-
+On Wed, Aug 23, 2006 at 11:49:22AM +0200, Jari Sundell (sundell.software@gmail.com) wrote:
+> >> Only void * I'm seeing belongs to the user, (udata) perhaps you are
+> >> talking of something different?
+> >
+> >Yes, exactly about it.
+> >
+> >I put union {
+> >        u32 a[2];
+> >        void *b;
+> >}
+> >epcially to eliminate that problem.
 > 
-> --- linux-2.6.17.9.base/arch/x86_64/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.17.9/arch/x86_64/perfmon/Kconfig	2006-08-21 03:37:46.000000000 -0700
-> @@ -0,0 +1,39 @@
-> +menu "Hardware Performance Monitoring support"
-> +config PERFMON
-> + 	bool "Perfmon2 performance monitoring interface"
-> +	select X86_LOCAL_APIC
-> +	default y
+> It's just random data of a known maximum size appended to the struct,
+> I'm sure you can find a clean way to handle it. If you mangle the
+> first variable name in your union, you'll end up with something that
+> should be usable instead of udata.
 
-No default y please unless the kernel doesn't boot without it.
+If there will be usual pointer, size of the whole structure will be
+different in kernel and userspace.
 
-> + 	help
-> +  	Enables the perfmon2 interface to access the hardware
-> +	performance counters. See <http://perfmon2.sf.net/> for
-> + 	more details. If you're unsure, say Y.
-> +
-> +config X86_64_PERFMON_AMD64
-> +	tristate "Support 64-bit mode AMD64 hardware performance counters"
-> +	depends on PERFMON
-> +	default m
+> >And I'm not that sure aboit stuff like uptr_t or how they call pointers
+> >in userspace and kernelspace.
+> 
+> Well, I can't find any use of pointers in your struct ukevent, nor in
+> any of the kqueue events in my man page. So if this is a deficit it
+> applies to both, I guess?
 
-No default m please.  If someone just presses return in make oldconfig
-with a new kernel they don't want all kinds of new random optional drivers.
+No, it will change sizes of the structure in kernelspace and userspace,
+so they just can not communicate.
 
-I think I would prefer to call it _K8, because in theory new AMD CPUs
-might have difference performance counters.
+> >ukevent is aligned to 8 bytes already (it's size selected to be 40 bytes),
+> >so it should not be a problem.
+> >
+> >> Eric
+> 
+> Even if it is so, wouldn't it be better to be explicit about it?
 
-> +	help
-> +	Enables support for 64-bit mode AMD64 hardware performance
-> +	counters. Does not work with Intel EM64T processors.
-> +	If unsure, say m.
+Ok, I will add a comment about it.
 
-I would drop the if unsure ... too
+> Rakshasa
 
-> +
-> +config X86_64_PERFMON_EM64T
-> +	tristate "Support Intel EM64T hardware performance counters"
-> +	depends on PERFMON
-> +	default m
-> +	help
-> +	Enables support for the Intel EM64T hardware performance
-> +	counters. Does not work with AMD64 processors.
-> +	If unsure, say m.
-
-Does that include the Core 2 support that you had in the i386 patch? 
-
-In general I would prefer to call it P4, not EM64T which is just
-a generic architecture name and at least on P4 performance counters
-are not really architected yet.
-
-
-> +
-> +	if (cpu_data->x86 != 15) {
-> +		PFM_INFO("unsupported family=%d", cpu_data->x86);
-> +		return -1;
-> +	}
-> +
-> +	if (cpu_data->x86_vendor != X86_VENDOR_AMD) {
-> +		PFM_INFO("not an AMD processor");
-> +		return -1;
-> +	}
-
-Doing the checks the other way round would be more logical.
-
-> + *
-> + * This file implements the PEBS sampling format for Intel
-> + * EM64T Intel Pentium 4/Xeon processors. It does not work
-> + * with Intel 32-bit P4/Xeon processors.
-
-Why not anyways? The registers are basically the same. What's so different
-in 64bit? oprofile shares that code too.
-
-The file seems a bit underdocumented. At least some brief description
-what PEBS is and maybe at least one sentence for each function?
-
-> + */
-> +#ifndef __PERFMON_EM64T_PEBS_SMPL_H__
-> +#define __PERFMON_EM64T_PEBS_SMPL_H__ 1
-> +
-> +#define PFM_EM64T_PEBS_SMPL_UUID { \
-> +	0x36, 0xbe, 0x97, 0x94, 0x1f, 0xbf, 0x41, 0xdf,\
-> +	0xb4, 0x63, 0x10, 0x62, 0xeb, 0x72, 0x9b, 0xad}
-
-What does it need the UUID for?
-
-> +
-> +/*
-> + * format specific parameters (passed at context creation)
-> + *
-> + * intr_thres: index from start of buffer of entry where the
-> + * PMU interrupt must be triggered. It must be several samples
-> + * short of the end of the buffer.
-> + */
-> +struct pfm_em64t_pebs_smpl_arg {
-> +	size_t	buf_size;	/* size of the buffer in bytes */
-> +	size_t	intr_thres;	/* index of interrupt threshold entry */
-> +	u32	flags;		/* buffer specific flags */
-> +	u64	cnt_reset;	/* counter reset value */
-> +	u32	res1;		/* for future use */
-> +	u64	reserved[2];	/* for future use */
-
-I hope you double checked the alignment comes up everywhere correctly.
-u64 alignment is different on the 32bit and 64bit ABIs. That can screw
-
-Normally it's safer to use aligned_u64 on files that can be used on 
-32bit too, because that avoids that problem.
-
-
-Where is the actual code that implements the code that you hooked 
-into arch/x86_64/*? I must have missed that.
-
--Andi
+-- 
+	Evgeniy Polyakov

@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWHXENm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWHXEdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWHXENm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 00:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbWHXENm
+	id S1030271AbWHXEdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 00:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWHXEdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 00:13:42 -0400
-Received: from falcon30.maxeymade.com ([24.173.215.190]:58756 "EHLO
-	bebe.enoyolf.org") by vger.kernel.org with ESMTP id S1030273AbWHXENl
+	Thu, 24 Aug 2006 00:33:12 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:56757 "EHLO
+	mail.arcor.de") by vger.kernel.org with ESMTP id S964891AbWHXEdL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 00:13:41 -0400
-X-Mailer: exmh enoyolf.org version 2.7.2.1 01/17/2005 with nmh-1.2
-In-reply-to: <44ED1F28.4070808@pobox.com>
-References: <1155144599.5729.226.camel@localhost.localdomain> <44ED1D93.3020203@tw.ibm.com> <44ED1F28.4070808@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: albertl@mail.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Unicorn Chang <uchang@tw.ibm.com>
-Subject: Re: Merging libata PATA support into the base kernel
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 Aug 2006 23:13:01 -0500
-Message-ID: <20060824041301.791203@bebe.enoyolf.org>
-From: Doug Maxey <dwm@enoyolf.org>
+	Thu, 24 Aug 2006 00:33:11 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Valerie Henson <val_henson@linux.intel.com>
+Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
+Date: Wed, 23 Aug 2006 18:59:32 +0200
+User-Agent: KMail/1.9.4
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Jiri Benc <jbenc@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+References: <20050427124911.6212670f@griffin.suse.cz> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober>
+In-Reply-To: <20060819001640.GE20111@goober>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart13452172.UC3oyF0HXc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608231859.32304.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart13452172.UC3oyF0HXc
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Wed, 23 Aug 2006 23:38:16 EDT, Jeff Garzik wrote:
-> 
-> Yes.  That driver will go along with all the other PATA drivers in the 
-> #pata-drivers branch.
+Am Samstag 19 August 2006 02:16 schrieb Valerie Henson:
+> Hey folks,
+>
+> Added to my to-do list.  Let me know if you figure out anything else.
 
-Sweet.  Does this mean pata_pdc2027x will move to upstream for the 2.6.19
-merge window opening?
+As it comes back to my mind: Last time I tested dhcpcd doesn't work. dhclie=
+nt=20
+does, but takes a lot of time. (The dhcp server is debian based.) Other car=
+ds=20
+don't have a problem. They get their ip assigned fast and with either dhcpo=
+cd=20
+or dhclient.
 
-++doug
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
+--nextPart13452172.UC3oyF0HXc
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE7Il0xU2n/+9+t5gRAkA4AJ9h/6p2DTbyYLR8LisvvF9q1vFTGACgrlNC
+WJO3iA+U2T7m7Iy7HKmkph0=
+=4Rh2
+-----END PGP SIGNATURE-----
+
+--nextPart13452172.UC3oyF0HXc--

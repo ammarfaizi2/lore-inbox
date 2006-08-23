@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWHWJcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWHWJgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWHWJcs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWHWJcr
+	id S1751483AbWHWJgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWHWJgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:32:47 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:13478 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751479AbWHWJcr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:32:47 -0400
-Date: Wed, 23 Aug 2006 11:32:27 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Robert Szentmihalyi <robert.szentmihalyi@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Group limit for NFS exported file systems
-In-Reply-To: <20060823091652.235230@gmx.net>
-Message-ID: <Pine.LNX.4.61.0608231129550.5799@yvahk01.tjqt.qr>
-References: <20060823091652.235230@gmx.net>
+	Wed, 23 Aug 2006 05:36:44 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:22991 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751483AbWHWJgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:36:43 -0400
+Message-ID: <44EC21A3.1040905@vmware.com>
+Date: Wed, 23 Aug 2006 02:36:35 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] paravirt.h
+References: <1155202505.18420.5.camel@localhost.localdomain> <200608231106.26696.ak@suse.de> <44EC1C7C.9020304@vmware.com> <200608231120.42679.ak@suse.de>
+In-Reply-To: <200608231120.42679.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
+Andi Kleen wrote:
+>> I need to look at the kprobes code in more depth to answer completely.  
+>> But in general, there could be a problem if DRs are set to fire on any 
+>> EIP 
+>>     
 >
->is there a group limit for NFS exported file systems in recent kernels?
->One if my users cannot access directories that belong to a group he actually _is_ a member of. That, however, is true only when accessing them over NFS. On the local file system, everything is fine. UIDs and GIDs are the same on client and server, so that cannot be the problem. Client and server run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
->Any ideas?
+> kprobes don't use DRs
 
-Is his fsuid/fsgid suddenly different?
+Good to know.  But int3 breakpoints can still cause horrific breakage in 
+the stop_machine code.  I don't know a good way to disallow it.
 
-
-Jan Engelhardt
--- 
+Zach

@@ -1,112 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWHWHtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWHWHwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWHWHtr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 03:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWHWHtr
+	id S1751454AbWHWHwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 03:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWHWHwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 03:49:47 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:60775 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751444AbWHWHtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 03:49:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=bTJNWZGOCzdb9yHbJFUpef7fZgY8Z2YEXR63pBPHEDYsTk9o2/0GRv4sJzuLDRiokaHnJwRKFqg+tX+FimT6Wk52+TI9EivELluT122bwW0UdKK8ixyAO5YsIERcMIrh1byRk84/oLHWKVVuhW7kpUJBdT0fsgNrHLpuCXaa8zE=
-Message-ID: <44EC0887.10402@innova-card.com>
-Date: Wed, 23 Aug 2006 09:49:27 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-CC: Franck <vagabon.xyz@gmail.com>, rusty@rustcorp.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] kallsyms_lookup always requires buffers
-References: <44EAFDCA.1080002@innova-card.com> <44EB5A73.9080206@grupopie.com>
-In-Reply-To: <44EB5A73.9080206@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+	Wed, 23 Aug 2006 03:52:12 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:53663 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751450AbWHWHwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 03:52:11 -0400
+Date: Wed, 23 Aug 2006 11:50:56 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jari Sundell <sundell.software@gmail.com>,
+       David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Message-ID: <20060823075056.GA18029@2ka.mipt.ru>
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com> <20060822231129.GA18296@ms2.inr.ac.ru> <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com> <20060822.173200.126578369.davem@davemloft.net> <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com> <20060823065659.GC24787@2ka.mipt.ru> <20060823000758.5ebed7dd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060823000758.5ebed7dd.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 11:51:00 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Aug 23, 2006 at 12:07:58AM -0700, Andrew Morton (akpm@osdl.org) wrote:
+> On Wed, 23 Aug 2006 10:56:59 +0400
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> 
+> > On Wed, Aug 23, 2006 at 02:43:50AM +0200, Jari Sundell (sundell.software@gmail.com) wrote:
+> > > Actually, I didn't miss that, it is an orthogonal issue. A timespec
+> > > timeout parameter for the syscall does not imply the use of timespec
+> > > in any timer event, etc. Nor is there any timespec timer in kqueue's
+> > > struct kevent, which is the only (interface related) thing that will
+> > > be exposed.
+> > 
+> > void * in structure exported to userspace is forbidden.
+> > long in syscall requires wrapper in per-arch code (although that
+> > workaround _is_ there, it does not mean that broken interface should 
+> > be used).
+> > poll uses millisecods - it is perfectly ok.
+> 
+> I wonder whether designing-in a millisecond granularity is the right thing
+> to do.  If in a few years the kernel is running tickless with high-res clock
+> interrupt sources, that might look a bit lumpy.
+> 
+> Switching it to a __u64 nanosecond counter would be basically free on
+> 64-bit machines, and not very expensive on 32-bit, no?
 
-Paulo Marques wrote:
-> Franck Bui-Huu wrote:
->>
->> This simple patch adds a new entry "kallsyms_lookup_gently()". The
->> name actually sucks but I can't figure out a coherent name with the
->> rest of the file. If someone could give me a better idea...
-> 
-> kallsyms_lookup_size_offset() ?
-> 
-> Granted it is a little bigger, but it tells exactly what it does and
-> there are not that many users that we have to write this name all that
-> often.
-> 
+I can put nanoseconds as timer interval too (with aligned_u64 as David
+mentioned), and put it for timeout value too - 64 bit nanosecods ends up
+with 58 years, probably enough.
+Structures with u64 a really not so good idea.
 
-ok.
-
->> This new entry does exactly the same as kallsyms_lookup() but does
->> not require any buffers to store any names. It returns 0 if it fails
->> otherwise 1.
->>
->> Do you think this can be usefull ?
-> 
-> You tell me, since you're proposing the change ;)
-> 
-
-:)
-actually the question was rather "does this change look sensible to you ?"
-
->> +static int is_kernel_addr(unsigned long addr)
-> 
-> Maybe change the name to kallsyms_is_kernel_addr, because this function
-> does more things than what the generic name implies.
-> 
-
-it sounds like a public function name. Maybe is_ksym_addr() is better ?
-
->> + * Lookup an address but don't bother to find any names.
->> + */
->> +int kallsyms_lookup_gently(unsigned long addr, unsigned long
->> *symbolsize,
->> +               unsigned long *offset)
->> +{
->> +    int rv;
->> +
->> +    if (is_kernel_addr(addr))
->> +        rv = !!get_symbol_pos(addr, symbolsize, offset);
->> +    else
->> +        rv = !!module_address_lookup(addr, symbolsize, offset, NULL);
->> +
->> +    return rv;
->> +}
-> 
-> <minor nitpick>
-> 
-> Why not just:
-> 
->> if (is_kernel_addr(addr))
->>    return !!get_symbol_pos(addr, symbolsize, offset);
->>
->> return !!module_address_lookup(addr, symbolsize, offset, NULL);
-> 
-> and just get rid of "rv" completely?
-> 
-> </minor nitpick>
-> 
-
-No problem.
-
->> +EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
-> 
-> I agree with Arjan here. If kallsyms_lookup wasn't exported, I don't see
-> a reason to export this either.
-> 
-
-Already removed.
-
-thanks
-		Franck
+-- 
+	Evgeniy Polyakov

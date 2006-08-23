@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWHWT1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWHWTet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWHWT1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWHWT1t
+	id S965146AbWHWTet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWHWTet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:27:49 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:58826 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S965014AbWHWT1s (ORCPT
+	Wed, 23 Aug 2006 15:34:49 -0400
+Received: from main.gmane.org ([80.91.229.2]:33497 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965146AbWHWTet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:27:48 -0400
-Date: Wed, 23 Aug 2006 15:27:33 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Subject: Re: [PATCH 3/7] SLIM main patch
-Message-ID: <20060823192733.GG28594@kvack.org>
-References: <1156359937.6720.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156359937.6720.66.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Aug 2006 15:34:49 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Subject: Re: [patch 4/5] fail-injection capability for disk IO
+Date: Wed, 23 Aug 2006 21:34:20 +0200
+Organization: Technische Universitaet Ilmenau, Germany
+Message-ID: <eciajs$1ip$1@sea.gmane.org>
+References: <20060823113243.210352005@localhost.localdomain> <20060823113317.722640313@localhost.localdomain> <p73lkpf64gh.fsf@verdi.suse.de> <20060823121028.GE5893@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p54b8ab55.dip0.t-ipconnect.de
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 12:05:37PM -0700, Kylene Jo Hall wrote:
-> +/* 
-> + * Called with current->files->file_lock. There is not a great lock to grab
-> + * for demotion of this type.  The only place f_mode is changed after install
-> + * is in mark_files_ro in the filesystem code.  That function is also changing
-> + * taking away write rights so even if we race the outcome is the same.
-> + */
-> +static inline void do_revoke_file_wperm(struct file *file,
-> +					struct slm_file_xattr *cur_level)
-> +{
-> +	struct inode *inode;
-> +	struct slm_isec_data *isec;
-> +
-> +	inode = file->f_dentry->d_inode;
-> +	if (!S_ISREG(inode->i_mode) || !(file->f_mode && FMODE_WRITE))
-> +		return;
-> +
-> +	isec = inode->i_security;
-> +	spin_lock(&isec->lock);
-> +	if (is_lower_integrity(cur_level, &isec->level))
-> +		file->f_mode &= ~FMODE_WRITE;
-> +	spin_unlock(&isec->lock);
-> +}
+Jens Axboe <axboe@suse.de> wrote:
+> On Wed, Aug 23 2006, Andi Kleen wrote:
+>> I think I would prefer a stackable driver instead of this hook.
 
-This function does not do what you claim or hope it is supposed to do.  
-Looking at the races (you do nothing to shoot down writes that are in 
-progress) present, this does not instill confidence in the rest of the 
-code (as always seems to be the case with new security frameworks or 
-patches).  Cheers,
+I second this, preferrably a device-mapper target similar to dm-error.
 
-		-ben
+> But that makes it more tricky to setup a test, since you have to change
+> from using /dev/sda (for example) to /dev/stacked-driver.
+
+Do you really think somebody would run such tests on otherwise normally
+used devices?
+
+
+regards
+   Mario
+-- 
+There are two major products that come from Berkeley: LSD and UNIX.
+We don't believe this to be a coincidence.    -- Jeremy S. Anderson
+

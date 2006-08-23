@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWHWNxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWHWN5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWHWNxY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHWNxY
+	id S964812AbWHWN5I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHWN5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:53:24 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:40076 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932262AbWHWNxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:53:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=rnD26IrAShSWzbE+InD+6qpQ2tG7Q+9zg8JWE6uH55A1pTtdG3Rkc0djUtibSah0oz/4p77IA+TB7U4R2zDRYD7E6UgJ20u6ctf5PWYr+z9edSmpKi/MfVf3HFzwgZNVn0bzWrwTFz9RXunN4DpmUT1C2qkmKZxUPplDm6qQsVU=
-Date: Wed, 23 Aug 2006 17:53:11 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-Message-ID: <20060823135311.GD10449@martell.zuzino.mipt.ru>
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru> <20060823133055.GB10449@martell.zuzino.mipt.ru> <44EC5CDB.5000505@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44EC5CDB.5000505@sw.ru>
-User-Agent: Mutt/1.5.11
+	Wed, 23 Aug 2006 09:57:07 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:57027 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S932235AbWHWN5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 09:57:05 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 Aug 2006 15:56:47 +0200
+MIME-Version: 1.0
+Subject: unexpected kernel messages for Sun Fire X4100 (NUMA Opteron 64bit) with SLES10
+Message-ID: <44EC7AC0.12128.6635514@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.06.0+V=4.06+U=2.07.138+R=05 June 2006+T=125821@20060823.135407Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>+void __put_beancounter(struct beancounter *bc)
-> >>+{
-> >>+	unsigned long flags;
-> >>+
-> >>+	/* equivalent to atomic_dec_and_lock_irqsave() */
-> >>+	local_irq_save(flags);
-> >>+	if (likely(!atomic_dec_and_lock(&bc->bc_refcount, &bc_hash_lock))) {
-> >>+		local_irq_restore(flags);
-> >>+		if (unlikely(atomic_read(&bc->bc_refcount) < 0))
-> >>+			printk(KERN_ERR "BC: Bad refcount: bc=%p, "
-> >>+					"luid=%d, ref=%d\n",
-> >>+					bc, bc->bc_id,
-> >>+					atomic_read(&bc->bc_refcount));
-> >
-> >
-> >Should this BUG_ON() ?
-> BUG_ON doesn't print much information :)
-> ok, will replace
+Hi,
 
-but printk + BUG does ;-)
+please add myself to CC: as I'm not subscribed to this list.
+I'm currently evaluating Novell/SUSE Enterprise Server 10 (SLES10) on a Sun Fire 
+X4100.
+That machine basically features two Dual-Core AMD Opteron CPUs with 8GB RAM each. 
+I'm running the latest SLES10 kernel (2.6.16.21-0.15-smp #1 SMP Tue Jul 25 
+15:28:49 UTC 2006 x86_64 x86_64 x86_64 GNU/Linux) and the latest firmware for the 
+hardware (Sun seems not to produce a lot of those however: The Service Processor 
+still runs with "Linux version 2.4.22").
+
+There are some kernel messages that either seem to indicate a problem with Sun's 
+hardware/firmware or the Linux kernel. Even after querying Google for advice, I 
+could only solve one of the problems ("Aperture from northbridge cpu 0 too small 
+(32MB)").
+
+[Solved one]
+  <4>Checking aperture...
+  <4>CPU 0: aperture @ 10000000 size 32 MB
+  <4>Aperture from northbridge cpu 0 too small (32 MB)
+  <4>No AGP bridge found
+  <4>Your BIOS doesn't leave a aperture memory hole
+  <4>Please enable the IOMMU option in the BIOS setup
+  <4>This costs you 64 MB of RAM
+  <4>Mapping aperture over 65536 KB of RAM @ 4000000
+
+
+So here I come showing the remaining messages, seeking for advice from the 
+experts:
+
+[#1]
+  <4>PCI: MSI quirk detected. PCI_BUS_FLAGS_NO_MSI set for subordinate bus.
+  <4>PCI: MSI quirk detected. PCI_BUS_FLAGS_NO_MSI set for subordinate bus.
+  <4>PCI: MSI quirk detected. PCI_BUS_FLAGS_NO_MSI set for subordinate bus.
+  <4>PCI: MSI quirk detected. PCI_BUS_FLAGS_NO_MSI set for subordinate bus.
+  <4>hpet_acpi_add: no address or irqs in _CRS
+
+The BIOS Version (MP spec rev 1.4; SMBIOS Version: 2.3; Vendor: "American 
+Megatrends Inc."; Version: "080010"; Date: "08/10/2005") is "2.53". I have no idea 
+what the messages are about.
+
+[#2]
+  <6>shpchp: HPC vendor_id 1022 device_id 7450 ss_vid 0 ss_did 0
+  <3>shpchp: shpc_init: cannot reserve MMIO region
+  <6>shpchp: HPC vendor_id 1022 device_id 7450 ss_vid 0 ss_did 0
+  <3>shpchp: shpc_init: cannot reserve MMIO region
+  <6>shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
+
+The device in question seems to be a "00:01.0 PCI bridge: Advanced Micro Devices 
+[AMD] AMD-8131 PCI-X Bridge (rev 13)" (no add-on PCI cards installed).
+
+[#3]
+  <6>powernow-k8: Found 4 AMD Athlon 64 / Opteron processors (version 1.60.2)
+  <3>powernow-k8: MP systems not supported by PSB BIOS structure
+  <3>powernow-k8: MP systems not supported by PSB BIOS structure
+  <3>powernow-k8: MP systems not supported by PSB BIOS structure
+  <3>powernow-k8: MP systems not supported by PSB BIOS structure
+
+The CPUs are (shortened):
+processor       : 3
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 33
+model name      : Dual Core AMD Opteron(tm) Processor 285
+stepping        : 2
+cpu MHz         : 2592.705
+
+and the BIOS supports MPS Revision 1.4 with "PowerNow" being enabled in BIOS. I 
+was hoping powersaving would work (as it does on my private Athlon 64 X2).
+
+Regards,
+Ulrich
 

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbWHWQwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWHWQxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbWHWQwX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 12:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbWHWQwW
+	id S965060AbWHWQxE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 12:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWHWQxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 12:52:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31174 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965057AbWHWQwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 12:52:22 -0400
-Date: Wed, 23 Aug 2006 09:50:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
-Message-Id: <20060823095031.cb14cc52.akpm@osdl.org>
-In-Reply-To: <44EC5B74.2040104@sw.ru>
-References: <44EC31FB.2050002@sw.ru>
-	<44EC369D.9050303@sw.ru>
-	<44EC5B74.2040104@sw.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 12:53:04 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:22557 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S965060AbWHWQxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 12:53:02 -0400
+Subject: Re: [PATCH] block_dev.c mutex_lock_nested() fix
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Jason Baron <jbaron@redhat.com>
+Cc: neilb@suse.de, akpm@osdl.org, arjan@infradead.org, mingo@redhat.com,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0608231104220.5899@dhcp83-20.boston.redhat.com>
+References: <Pine.LNX.4.64.0608231104220.5899@dhcp83-20.boston.redhat.com>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 18:48:57 +0200
+Message-Id: <1156351737.3382.40.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.7.91 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 17:43:16 +0400
-Kirill Korotaev <dev@sw.ru> wrote:
+On Wed, 2006-08-23 at 11:09 -0400, Jason Baron wrote:
+> Hi,
+> 
+> In the case below we are locking the whole disk not a partition. This 
+> change simply brings the code in line with the piece above where when we 
+> are the 'first' opener, and we are a partition.
 
-> +asmlinkage long sys_set_bclimit(uid_t id, unsigned long resource,
-> +		unsigned long *limits)
+Makes sense in that only whole devices have a partition count.
 
-I'm still a bit mystified about the use of uid_t here.  It's not a uid, is
-it?
+> Signed-off-by: Jason Baron <jbaron@redhat.com>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+
+> --- linux-2.6/fs/block_dev.c.bak
+> +++ linux-2.6/fs/block_dev.c
+> @@ -966,7 +966,7 @@ do_open(struct block_device *bdev, struc
+>  				rescan_partitions(bdev->bd_disk, bdev);
+>  		} else {
+>  			mutex_lock_nested(&bdev->bd_contains->bd_mutex,
+> -					  BD_MUTEX_PARTITION);
+> +					  BD_MUTEX_WHOLE);
+>  			bdev->bd_contains->bd_part_count++;
+>  			mutex_unlock(&bdev->bd_contains->bd_mutex);
+>  		}
 

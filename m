@@ -1,129 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWHWXf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965193AbWHWXjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbWHWXf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHWXf2
+	id S965193AbWHWXjx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 19:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHWXjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:35:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:7670 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965181AbWHWXf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:35:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=rqC9PjKF1t2D2C8/NgEI6IiVYgyd7egdwjVQsAmCrjvE6A8WPDUWnoURKYIAERrWM0xfN5t2KcSDDTs4TkQoE2h0dKBEBsLgyBEUUNdZmr+w0h3TFlAT4GnivqaqXDbET42NF6h3lJgLhVJ7OTfKqGAW7h7Iwb/dqQCIFVOfztE=
-Date: Thu, 24 Aug 2006 03:35:22 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Darren Jenkins <darrenrjenkins@gmail.com>, linux-kernel@vger.kernel.org,
-       Karol Kozimor <sziwan@users.sourceforge.net>,
-       Julien Lerouge <julien.lerouge@free.fr>
-Subject: [PATCH 1/2] asus_acpi: fix error checking in /proc files
-Message-ID: <20060823233522.GD5203@martell.zuzino.mipt.ru>
+	Wed, 23 Aug 2006 19:39:52 -0400
+Received: from rune.pobox.com ([208.210.124.79]:3566 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S965066AbWHWXjw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 19:39:52 -0400
+Date: Wed, 23 Aug 2006 18:39:44 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-ID: <20060823233944.GG11309@localdomain>
+References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme> <20060821140148.435d15f3.pj@sgi.com> <20060821215120.244f1f6f.akpm@osdl.org> <20060822050401.GB11309@localdomain> <20060821221437.255808fa.pj@sgi.com> <20060823221114.GF11309@localdomain> <20060823153952.066e9a58.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060823153952.066e9a58.pj@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Darren Jenkins <darrenrjenkins@gmail.com>
+Paul Jackson wrote:
+> Nathan wrote:
+> > How about this? 
+> 
+> The code likely works, and the locking seems ok at first blush.
+> And this patch seems to match just what I asked for ;).
+> 
+> But the more I think about this, the less I like this direction.
+> 
+> Your patch, and what I initially asked for, impose a policy and create
+> a side affect.  When you bring a cpu online, the top cpuset changes as
+> a side affect, in order to impose a policy that the top cpuset tracks
+> what is online.
+> 
+> The kernel should avoid such side affects and avoid imposing policy.
 
-ICC complains about a "Pointless comparsion of unsigned interger with
-zero" @ line 760 & 808 of asus_acpi.c
+If you want to call that a policy that's fine, but it hardly seems to
+be a non-intuitive behavior to me, especially in the case that the
+administrator has not explicitly configured any cpusets.
 
-parse_arg() mentioned below returns -E but it's copied into unsigned variable...
 
-Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+> It should be user code that imposes the policy that the top cpuset
+> tracks what is online.
+> 
+> The kernel gets things going with reasonable basic defaults at system
+> boot, then adapts to whatever user space mandates from then on.
+> 
+> Kernels should provide generic, orthogonal mechanisms.
 
- drivers/acpi/asus_acpi.c |   34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+Maybe the cpuset code should just stay out of the way unless the admin
+has instantiated one?
 
---- a/drivers/acpi/asus_acpi.c
-+++ b/drivers/acpi/asus_acpi.c
-@@ -555,11 +555,11 @@ static int
- write_led(const char __user * buffer, unsigned long count,
- 	  char *ledname, int ledmask, int invert)
- {
--	int value;
-+	int rv, value;
- 	int led_out = 0;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		led_out = value ? 1 : 0;
- 
- 	hotk->status =
-@@ -607,17 +607,17 @@ static int
- proc_write_ledd(struct file *file, const char __user * buffer,
- 		unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0) {
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0) {
- 		if (!write_acpi_int
- 		    (hotk->handle, hotk->methods->mt_ledd, value, NULL))
- 			printk(KERN_WARNING
- 			       "Asus ACPI: LED display write failed\n");
- 		else
- 			hotk->ledd_status = (u32) value;
--	} else if (count < 0)
-+	} else if (rv < 0)
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 
- 	return count;
-@@ -761,10 +761,10 @@ static int
- proc_write_lcd(struct file *file, const char __user * buffer,
- 	       unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		set_lcd_state(value);
- 	return count;
- }
-@@ -830,10 +830,10 @@ static int
- proc_write_brn(struct file *file, const char __user * buffer,
- 	       unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0) {
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0) {
- 		value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
- 		/* 0 <= value <= 15 */
- 		set_brightness(value);
-@@ -880,12 +880,12 @@ static int
- proc_write_disp(struct file *file, const char __user * buffer,
- 		unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		set_display(value);
--	else if (count < 0)
-+	else if (rv < 0)
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 
- 	return count;
+
+> Let user space figure out what it wants to do with them.
+
+The user who initially reported this probably has no idea what cpusets
+are or how to deal with the situation.
+
+
+> It is not a kernel bug that the top cpuset doesn't track what is
+> online.
+
+It's a bug that one's ability to bind a task to a new cpu is entirely
+dependent on whether you know your way around cpusets.  Doesn't sound
+orthogonal to me.
+
+Try looking at it this way.  You have an application that works on
+distro x, where cpu hotplug is supported but cpusets is not enabled in
+the kernel config.  That application is cpu hotplug-aware, and binding
+a task to a new cpu just works.  Now, with distro x+1, cpusets is
+enabled and that same scenario doesn't work anymore.  That's generally
+viewed as a regression.
+
+And no, I don't like pushing the responsibility for fixing up the
+top-level cpuset out to userspace -- that would force apps to
+busy-wait (and for how long?) for the new cpu to be added to the
+top-level cpuset by the hotplug helper.  It means something as simple
+as this:
+
+# echo 1 > /sys/devices/system/cpu/cpu3/online
+# taskset 0x8 foo
+
+has a race condition, depending on your kernel's configuration.
 

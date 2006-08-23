@@ -1,112 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWHWGMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHWGTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWHWGMA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 02:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWHWGMA
+	id S1751413AbWHWGTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 02:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWHWGTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 02:12:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50077 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751343AbWHWGL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 02:11:59 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com, ak@suse.de
-Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
-References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
-	<m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
-	<20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
-Date: Wed, 23 Aug 2006 00:11:17 -0600
-In-Reply-To: <20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
-	(KAMEZAWA Hiroyuki's message of "Wed, 23 Aug 2006 07:22:56 +0900")
-Message-ID: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 23 Aug 2006 02:19:10 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:51026 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1751379AbWHWGTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 02:19:07 -0400
+Date: Wed, 23 Aug 2006 10:28:22 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/2]: ufs: write to hole in big file
+Message-ID: <20060823062822.GA8311@rain>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+Such scenario:
+open(O_TRUNC)
+lseek(1024 * 1024 * 80)
+write("A")
+lseek(1024 * 2)
+write("A")
 
-> On Tue, 22 Aug 2006 10:56:08 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
->
->> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
->> 
->> > This is ps command race fix take2. Unfortunately, against 2.6.18-rc4.
->> > I'll rebase this to appropriate kernel if O.K. (I think this is RFC)
->> >
->> > This patch implements Paul Jackson's idea, 'inserting false link in task
-> list'.
->> 
->> Currently the tasklist_lock is one of the more highly contended locks in
->> the kernel.  Adding an extra place it is taken is undesirable.
-> yes. taking lock is a probem.
-> I know current readdir() uses 8192 bytes buffer for getdents64(). Then,
-> maybe write-lock will be acquired all-tgids/400+ times for inserting token
-> (in 32bit system).
->  
->> If could see a better algorithm for sending a signal to all processes
->> in a process groups we could remove the tasklist_lock entirely.
->> 
-> ??
-> Sorry, could you explain more ?
+may cause access to invalid address.
+This happened because of "goal" is calculated in wrong way 
+in block allocation path, as I see this problem exists also in 2.4.
+We use construction like
+this i_data[lastfrag], i_data array of pointers to direct
+blocks, indirect and so on, it has ceratain size ~20 elements,
+and lastfrag may have value for example 40000.
+Also this patch fixes related to handling such scenario issues,
+wrong zeroing metadata, in case of block(not fragment) allocation,
+and wrong goal calculation, when we allocate block
 
-The core problem is not when there is a single user.  The problem is
-that no matter how large the system gets we have a single lock.  So it
-gets increasingly contended.
+Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
-I almost removed the tasklist_lock from all read paths.  But as it
-happens sending a signal to a process group is an atomic operation
-with respect to fork so that path has to take the lock, or else
-we get places where "kill -9 -pgrp" fails to kill every process in
-the process group.  Which is even worse.
+---
+
+Index: linux-2.6.18-rc4-mm1/fs/ufs/inode.c
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/fs/ufs/inode.c
++++ linux-2.6.18-rc4-mm1/fs/ufs/inode.c
+@@ -169,18 +169,20 @@ static void ufs_clear_frag(struct inode 
+ 
+ static struct buffer_head *
+ ufs_clear_frags(struct inode *inode, sector_t beg,
+-		unsigned int n)
++		unsigned int n, sector_t want)
+ {
+-	struct buffer_head *res, *bh;
++	struct buffer_head *res = NULL, *bh;
+ 	sector_t end = beg + n;
+ 
+-	res = sb_getblk(inode->i_sb, beg);
+-	ufs_clear_frag(inode, res);
+-	for (++beg; beg < end; ++beg) {
++	for (; beg < end; ++beg) {
+ 		bh = sb_getblk(inode->i_sb, beg);
+ 		ufs_clear_frag(inode, bh);
+-		brelse(bh);
++		if (want != beg)
++			brelse(bh);
++		else
++			res = bh;
+ 	}
++	BUG_ON(!res);
+ 	return res;
+ }
+ 
+@@ -265,7 +267,9 @@ repeat:
+ 			lastfrag = ufsi->i_lastfrag;
+ 			
+ 		}
+-		goal = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock]) + uspi->s_fpb;
++		tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock]);
++		if (tmp)
++			goal = tmp + uspi->s_fpb;
+ 		tmp = ufs_new_fragments (inode, p, fragment - blockoff, 
+ 					 goal, required + blockoff,
+ 					 err, locked_page);
+@@ -277,13 +281,15 @@ repeat:
+ 		tmp = ufs_new_fragments(inode, p, fragment - (blockoff - lastblockoff),
+ 					fs32_to_cpu(sb, *p), required +  (blockoff - lastblockoff),
+ 					err, locked_page);
+-	}
++	} else /* (lastblock > block) */ {
+ 	/*
+ 	 * We will allocate new block before last allocated block
+ 	 */
+-	else /* (lastblock > block) */ {
+-		if (lastblock && (tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock-1])))
+-			goal = tmp + uspi->s_fpb;
++		if (block) {
++			tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[block-1]);
++			if (tmp)
++				goal = tmp + uspi->s_fpb;
++		}
+ 		tmp = ufs_new_fragments(inode, p, fragment - blockoff,
+ 					goal, uspi->s_fpb, err, locked_page);
+ 	}
+@@ -296,7 +302,7 @@ repeat:
+ 	}
+ 
+ 	if (!phys) {
+-		result = ufs_clear_frags(inode, tmp + blockoff, required);
++		result = ufs_clear_frags(inode, tmp, required, tmp + blockoff);
+ 	} else {
+ 		*phys = tmp + blockoff;
+ 		result = NULL;
+@@ -383,7 +389,7 @@ repeat:
+ 		}
+ 	}
+ 
+-	if (block && (tmp = fs32_to_cpu(sb, ((__fs32*)bh->b_data)[block-1]) + uspi->s_fpb))
++	if (block && (tmp = fs32_to_cpu(sb, ((__fs32*)bh->b_data)[block-1])))
+ 		goal = tmp + uspi->s_fpb;
+ 	else
+ 		goal = bh->b_blocknr + uspi->s_fpb;
+@@ -397,7 +403,8 @@ repeat:
+ 
+ 
+ 	if (!phys) {
+-		result = ufs_clear_frags(inode, tmp + blockoff, uspi->s_fpb);
++		result = ufs_clear_frags(inode, tmp, uspi->s_fpb,
++					 tmp + blockoff);
+ 	} else {
+ 		*phys = tmp + blockoff;
+ 		*new = 1;
 
 
->> In addition you only solves half the readdir problems.  You don't solve
->> the seek problem which is returning to an offset you had been to
->> before.  A relatively rare case but...
->> 
-> Ah, I should add lseek handler for proc root. Okay.
+-- 
+/Evgeniy
 
-Hmm.  Possibly.  Mostly what I was thinking is that a token in the
-list simply cannot solve the problem of a guaranteeing lseek to a
-previous position works.  I really haven't looked closely on
-how you handle that case.
-
->> > Good point of this approach is cost of searching task is O(N) (N=num of
-> tgids).
->> > Bad point is lock and kmalloc/kfree.
->> > I didin't modified thread_list and cpuset's proc list, maybe future work.
->> >
->> > If searching pid bitmap is better, please take Erics.
->> 
->> My patch at least needs a good changelog but I believe it will work
->> better and can be further improved with a better pid data structure
->> if there is actually a problem there.  Given that I don't take
->> any locks it should be much friendlier at scale, and the code
->> was simpler.
-> yes. it has several good points and simple.
-> My patch's point is just using task_list if we can, because it exists for
-> keeping
-> all tasks(tgids).
-
-One of the reasons I have an issue with it, is that with the
-impending introduction of multiple pid spaces is that the task list
-really isn't what we want to traverse.
-
->> However I will miss a few newly forked processes and I don't think your
->> technique will miss any.  Still neither will miss a process that
->> existed the entire time.
->> 
->> If nothing else I think it was worth posting so we could contrast the two.
->> 
-> please post again. I think comparing the two is good.
-> I will post take3 with improved comments and lseek handler, and so
-> on.
-
-I intend to, I'm unfortunately busy in another direction at the
-moment.
-
-Eric

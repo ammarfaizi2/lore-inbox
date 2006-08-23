@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbWHWTWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWHWT1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965112AbWHWTWi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWHWTWi
+	id S965149AbWHWT1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWHWT1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:22:38 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:7302 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965014AbWHWTWh (ORCPT
+	Wed, 23 Aug 2006 15:27:49 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:58826 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S965014AbWHWT1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:22:37 -0400
-Subject: Re: [PATCH 5/7] SLIM: make and config stuff
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+	Wed, 23 Aug 2006 15:27:48 -0400
+Date: Wed, 23 Aug 2006 15:27:33 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        LSM ML <linux-security-module@vger.kernel.org>,
        Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
        Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1156360773.8506.103.camel@moss-spartans.epoch.ncsc.mil>
-References: <1156359949.6720.69.camel@localhost.localdomain>
-	 <1156360773.8506.103.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 12:22:37 -0700
-Message-Id: <1156360957.6720.72.camel@localhost.localdomain>
+Subject: Re: [PATCH 3/7] SLIM main patch
+Message-ID: <20060823192733.GG28594@kvack.org>
+References: <1156359937.6720.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156359937.6720.66.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 15:19 -0400, Stephen Smalley wrote:
-> On Wed, 2006-08-23 at 12:05 -0700, Kylene Jo Hall wrote:
-> > This patch contains the Makefile, Kconfig and .h files for SLIM.
-> > 
-> > Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-> > Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> 
-> > --- linux-2.6.18-rc3/security/slim/Kconfig	1969-12-31 18:00:00.000000000 -0600
-> > +++ linux-2.6.18-rc3-working/security/slim/Kconfig	2006-08-04 13:29:13.000000000 -0500
-> > @@ -0,0 +1,6 @@
-> > +config SECURITY_SLIM
-> > +	boolean "SLIM support"
-> > +	depends on SECURITY && SECURITY_NETWORK && INTEGRITY
-> 
-> && !SECURITY_SELINUX?
-> 
-Rather it seems to make more sense to add an option to slim so that it
-could be enabled/disabled on the boot line like selinux=0 and then they
-can both be built but only one turned on at a time.
+On Wed, Aug 23, 2006 at 12:05:37PM -0700, Kylene Jo Hall wrote:
+> +/* 
+> + * Called with current->files->file_lock. There is not a great lock to grab
+> + * for demotion of this type.  The only place f_mode is changed after install
+> + * is in mark_files_ro in the filesystem code.  That function is also changing
+> + * taking away write rights so even if we race the outcome is the same.
+> + */
+> +static inline void do_revoke_file_wperm(struct file *file,
+> +					struct slm_file_xattr *cur_level)
+> +{
+> +	struct inode *inode;
+> +	struct slm_isec_data *isec;
+> +
+> +	inode = file->f_dentry->d_inode;
+> +	if (!S_ISREG(inode->i_mode) || !(file->f_mode && FMODE_WRITE))
+> +		return;
+> +
+> +	isec = inode->i_security;
+> +	spin_lock(&isec->lock);
+> +	if (is_lower_integrity(cur_level, &isec->level))
+> +		file->f_mode &= ~FMODE_WRITE;
+> +	spin_unlock(&isec->lock);
+> +}
 
-> > +	help
-> > +	  The Simple Linux Integrity Module implements a modified low water-mark
-> > +	  mandatory access control integrity model.
-> 
+This function does not do what you claim or hope it is supposed to do.  
+Looking at the races (you do nothing to shoot down writes that are in 
+progress) present, this does not instill confidence in the rest of the 
+code (as always seems to be the case with new security frameworks or 
+patches).  Cheers,
 
+		-ben

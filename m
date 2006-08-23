@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWHWJaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWHWJbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbWHWJaA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWHWJaA
+	id S964793AbWHWJbN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWHWJbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:30:00 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:11192 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751462AbWHWJ37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:29:59 -0400
-Date: Wed, 23 Aug 2006 13:29:09 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 1/3] kevent: Core files.
-Message-ID: <20060823092909.GA32550@2ka.mipt.ru>
-References: <115615558935@2ka.mipt.ru> <200608231051.37089.dada1@cosmosbay.com> <20060823091813.GA20014@2ka.mipt.ru> <200608231123.52473.dada1@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200608231123.52473.dada1@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 13:29:11 +0400 (MSD)
+	Wed, 23 Aug 2006 05:31:12 -0400
+Received: from assei2bl6.telenet-ops.be ([195.130.133.69]:24965 "EHLO
+	assei2bl6.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1751486AbWHWJbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:31:11 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: "Mathiasen, Torben" <Torben.Mathiasen@hp.com>
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux-kernel@vger.kernel.org>,
+       <device@lanana.org>
+Subject: Re: [PATCH] Update Documentation/devices.txt
+References: <93C4769E3BED6B42B7203BD6F065654C0424F3A1@dmoexc01.emea.cpqcorp.net>
+Date: Wed, 23 Aug 2006 11:30:54 +0200
+In-Reply-To: <93C4769E3BED6B42B7203BD6F065654C0424F3A1@dmoexc01.emea.cpqcorp.net>
+	(Torben Mathiasen's message of "Wed, 23 Aug 2006 11:05:31 +0200")
+Message-ID: <87bqqbn6i9.fsf@slug.be.48ers.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 11:23:52AM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
-> > Sounds good, could you please send appliable patch with proper
-> > signed-off line?
-> 
-> Unfortunately not at this moment, I'm quite busy at work, my boss will kill 
-> me :( .
-> If you find this good, please add it to your next patch submission or forget 
-> it. 
+>>>>> "Torben" == Mathiasen, Torben <Torben.Mathiasen@hp.com> writes:
 
-Ok, I will try to get it from pieces in e-mail.
+Hi,
 
-> Thank you
-> Eric
+ Jan> What's the reason for this indent change?
+ >> 
+ >> I don't know - Torben?
+
+ Torben> A wrong indent it seems. If someone else is working on
+ Torben> getting this fixed let me know. Otherwise I'll update the
+ Torben> kernel version of devices.txt and fix the whitespaces at the
+ Torben> same time.
+
+It should be fixed by the patch I just sent you.
 
 -- 
-	Evgeniy Polyakov
+Bye, Peter Korsgaard

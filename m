@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWHWJOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWHWJOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbWHWJOf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWHWJOf
+	id S1751466AbWHWJOi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWHWJOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:14:35 -0400
-Received: from mail.gmx.net ([213.165.64.20]:42628 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751465AbWHWJOe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:14:34 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Wed, 23 Aug 2006 11:14:33 +0200
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-Message-ID: <20060823091433.316970@gmx.net>
+	Wed, 23 Aug 2006 05:14:38 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:43724 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751466AbWHWJOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:14:37 -0400
+Message-ID: <44EC1C7C.9020304@vmware.com>
+Date: Wed, 23 Aug 2006 02:14:36 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Subject: Question about aper_size_info structs in agp.h
-To: linux-kernel@vger.kernel.org
-X-Authenticated: #6097454
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] paravirt.h
+References: <1155202505.18420.5.camel@localhost.localdomain> <200608231050.13272.ak@suse.de> <44EC194E.6080606@vmware.com> <200608231106.26696.ak@suse.de>
+In-Reply-To: <200608231106.26696.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
+> On Wednesday 23 August 2006 11:01, Zachary Amsden wrote:
+>   
+>> Andi Kleen wrote:
+>>     
+>>>> Yes, after discussion with Rusty, it appears that beefing up 
+>>>> stop_machine_run is the right way to go.  And it has benefits for 
+>>>> non-paravirt code as well, such as allowing plug-in kprobes or oprofile 
+>>>> extension modules to be loaded without having to deal with a debug 
+>>>> exception or NMI during module load/unload.
+>>>>     
+>>>>         
+>>> I'm still unclear where you think those debug exceptions will come from
+>>>       
+>> kprobes set in the stop_machine code - which is probably a really bad 
+>> idea, but nothing today actively stops kprobes from doing that.
+>>     
+>
+> kprobes don't cause any debug exceptions. You mean int3?
+>
+> Anyways this can be fixed by marking the stop machine code __kprobes
+>
+> -Andi
+>   
 
-I was wondering about the differences between the aperture size types defined in agp.h. As far as I understand the size_value field in the aper_size_info_8/16/32 structs just defines the value to be set in the AGP bridge registers to configure a specific AGP aperture size (e.g. 8 MB, 16MB, etc..).
+I need to look at the kprobes code in more depth to answer completely.  
+But in general, there could be a problem if DRs are set to fire on any 
+EIP or memory address touched during the critical stop_machine region, 
+or int3 breakpoints are set in that code or any code it calls.
 
-Wouldn't it be sufficient to define size_value as 32 bit only, or does the type of size_value/aper_size_info_x have an influence on the generation of the graphics address remapping table (e.g. address alignment) ?
-
-For example the uninorth driver uses the aper_size_info_32 struct to define the AGP aperture size, but only defines values between 1 and 64 for the size_value field (so aper_size_info_8 would be sufficient).
-
-BTW: Can anybody explain the format of the graphics address remapping table or point me to some docs where it is described?
-
-regards,
-
-Gerhard
-
--- 
-
-
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
+Zach

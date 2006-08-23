@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965241AbWHWWLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbWHWWTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965241AbWHWWLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbWHWWLu
+	id S965247AbWHWWTm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWHWWTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:11:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:35713 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965242AbWHWWLs
+	Wed, 23 Aug 2006 18:19:42 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:33511 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965247AbWHWWTl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:11:48 -0400
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+	Wed, 23 Aug 2006 18:19:41 -0400
+Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
 From: Matt Helsley <matthltc@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: devel@openvz.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-In-Reply-To: <44EC5CDB.5000505@sw.ru>
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
-	 <20060823133055.GB10449@martell.zuzino.mipt.ru>  <44EC5CDB.5000505@sw.ru>
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Rohit Seth <rohitseth@google.com>, Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <1156370698.12011.55.camel@localhost.localdomain>
+References: <44EC31FB.2050002@sw.ru>  <44EC35A3.7070308@sw.ru>
+	 <1156370698.12011.55.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 23 Aug 2006 15:05:55 -0700
-Message-Id: <1156370755.2510.707.camel@stark>
+Date: Wed, 23 Aug 2006 15:13:42 -0700
+Message-Id: <1156371222.2510.715.camel@stark>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 17:49 +0400, Kirill Korotaev wrote:
-> Alexey Dobriyan wrote:
-> > On Wed, Aug 23, 2006 at 03:03:07PM +0400, Kirill Korotaev wrote:
-> > 
-> > 
-> >>--- /dev/null
-> >>+++ ./include/bc/beancounter.h
-> > 
-> > 
-> >>+#define BC_RESOURCES	0
-> > 
-> > 
-> > Do you want userspace to see it?
-> yep.
+On Wed, 2006-08-23 at 15:04 -0700, Dave Hansen wrote:
+> On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
+> > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> > @@ -432,3 +432,5 @@ source "security/Kconfig"
+> >  source "crypto/Kconfig"
+> >  
+> >  source "lib/Kconfig"
+> > +
+> > +source "kernel/bc/Kconfig"
+> ...
+> > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> > @@ -432,3 +432,5 @@ source "security/Kconfig"
+> >  source "crypto/Kconfig"
+> >  
+> >  source "lib/Kconfig"
+> > +
+> > +source "kernel/bc/Kconfig"
 > 
-> >>+struct bc_resource_parm {
-> >>+	unsigned long barrier;	/* A barrier over which resource allocations
-> >>+				 * are failed gracefully. e.g. if the amount
-> >>+				 * of consumed memory is over the barrier
-> >>+				 * further sbrk() or mmap() calls fail, the
-> >>+				 * existing processes are not killed.
-> >>+				 */
-> >>+	unsigned long limit;	/* hard resource limit */
-> >>+	unsigned long held;	/* consumed resources */
-> >>+	unsigned long maxheld;	/* maximum amount of consumed resources */
-> >>+	unsigned long minheld;	/* minumum amount of consumed resources */
-> > 
-> > 
-> > Stupid question: when minimum amount is useful?
-> to monitor usage statistics (range of used resources).
-> this value will be usefull when ubstat will be added.
-> this field probably would be more logical to add later,
-> but since it is part of user space interface it is left here
-> for not changing API later.
+> Is it just me, or do these patches look a little funky?  Looks like it
+> is trying to patch the same thing into the same file, twice.  Also, the
+> patches look to be -p0 instead of -p1.  
 
-	Then I think it belongs in a separate patch. Add it and the scattered
-bits and pieces that use it with the same patch. Then folks can clearly
-see what it's for, where it impacts the code, and how it works. Yes,
-factoring it out causes the API to evolve over the course of applying
-the patch series -- IMHO that evolution is useful information to convey
-to reviewers too.
+They do appear to be -p0
+
+	They aren't adding the same thing twice to the same file. This patch
+makes different arches source the same Kconfig.
+
+	I seem to recall Chandra suggested that instead of doing it this way it
+would be more appropriate to add the source line to init/Kconfig because
+it's more central and arch-independent. I tend to agree.
 
 Cheers,
 	-Matt Helsley

@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWHWBze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWHWCCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWHWBze (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 21:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWHWBze
+	id S932287AbWHWCCq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 22:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWHWCCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 21:55:34 -0400
-Received: from ozlabs.org ([203.10.76.45]:5832 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932256AbWHWBzd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 21:55:33 -0400
-Subject: Re: [PATCH] paravirt.h
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <44EB7F0C.60402@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	 <44DB7596.6010503@goop.org>
-	 <1156254965.27114.17.camel@localhost.localdomain>
-	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>
-	 <1156271386.2976.102.camel@laptopd505.fenrus.org>
-	 <1156275004.27114.34.camel@localhost.localdomain>
-	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>
-	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 11:55:31 +1000
-Message-Id: <1156298131.12015.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 22 Aug 2006 22:02:45 -0400
+Received: from highlandsun.propagation.net ([66.221.212.168]:12041 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S932240AbWHWCCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 22:02:45 -0400
+Message-ID: <44EBB6FD.3080005@symas.com>
+Date: Tue, 22 Aug 2006 19:01:33 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060716 SeaMonkey/1.5a
+MIME-Version: 1.0
+To: Nicholas Miell <nmiell@comcast.net>
+CC: David Miller <davem@davemloft.net>, rdunlap@xenotime.net,
+       johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org
+Subject: Re: The Proposed Linux kevent API
+References: <1156281182.2476.63.camel@entropy>	 <20060822143747.68acaf99.rdunlap@xenotime.net>	 <1156287492.2476.134.camel@entropy>	 <20060822.160618.130612620.davem@davemloft.net> <1156296967.2476.200.camel@entropy>
+In-Reply-To: <1156296967.2476.200.camel@entropy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 15:02 -0700, Zachary Amsden wrote:
-> Well, I don't think anything is sufficient for a preemptible kernel.  I 
-> think that's just plain not going to work.  You could have a kernel 
-> thread that got preempted in a paravirt-op patch point
+Nicholas Miell wrote:
+> Having looked all this over to figure out what it actually does, I can
+> make the following comments:
+>
+> - there's a distinct lack of any sort of commenting beyond brief
+> descriptions of what the occasional function is supposed to do
+>
+> - the kevent interface is all the horror of the BSD kqueue interface,
+> but with no compatibility with the BSD kqueue interface.
+>
+> - lots of parameters from userspace go unsanitized, although I'm not
+> sure if this will actually cause problems. At the very least, there
+> should be checks for unknown flags and use of reserved fields, lest
+> somebody start using them for their own purposes and then their app
+> breaks when a newer version of the kernel starts using them itself.
+>   
 
-Patching over the 6 native cases is actually not that bad: they're
-listed below (each one has trailing noops).
 
-	cli
-	sti
-	push %eax; popf
-	pushf; pop %eax
-	pushf; pop %eax; cli
-	iret
-	sti; sysexit
+Which reminds me, why go through the trouble of copying the structs back 
+and forth between userspace  and kernel space? Why not map the struct 
+array and leave it in place, as I proposed back here?
+http://groups.google.com/group/linux.kernel/browse_frm/ 
+thread/57847cfedb61bdd5/8d02afa60a8f83af?lnk=gst&q=equeue&rnum= 
+1#8d02afa60a8f83af
 
-If you're at the first insn you don't have to do anything, since you're
-about to replace that code.  If you're in the noops, you can just
-advance EIP to the end.  You can't be preempted between sti and sysexit,
-since we only use that when interrupts are already disabled.  And
-reversing either "push %eax" or "pushf; pop %eax" is fairly easy.
-
-Depending on your hypervisor, you might need to catch those threads who
-are currently doing the paravirt_ops function calls, as well.  This
-introduces more (and more complex) cases.
-
-That all said, I've long speculated about a stop_machine which schedules
-all the preempted threads, to ensure every thread is in a happy
-unpreempt place.  This would involve scheduler hacks, but would allow us
-to remove the preempt_disable() calls around try_module_get() and any
-other areas which use stop_machine as the write side of locking.
-
-Rusty.
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
 

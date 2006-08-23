@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWHWSC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWHWSF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWHWSC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 14:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHWSC4
+	id S932448AbWHWSF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 14:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWHWSF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 14:02:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42717 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932448AbWHWSC4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 14:02:56 -0400
-Date: Wed, 23 Aug 2006 11:02:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jason Baron <jbaron@redhat.com>
-Cc: neilb@suse.de, arjan@infradead.org, mingo@redhat.com, axboe@suse.de,
-       a.p.zijlstra@chello.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] block_dev.c mutex_lock_nested() fix
-Message-Id: <20060823110213.90172799.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0608231104220.5899@dhcp83-20.boston.redhat.com>
-References: <Pine.LNX.4.64.0608231104220.5899@dhcp83-20.boston.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 14:05:57 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:44487 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S932448AbWHWSF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 14:05:56 -0400
+Date: Wed, 23 Aug 2006 14:05:52 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Al Boldi <a1426z@gawab.com>, Eric Van Hensbergen <ericvh@gmail.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] VFS: FS CoW using redirection
+Message-ID: <20060823180552.GC28873@filer.fsl.cs.sunysb.edu>
+References: <200607082041.54489.a1426z@gawab.com> <a4e6962a0607081132u4558473cgf89b8b25fcea317d@mail.gmail.com> <200607091550.36407.a1426z@gawab.com> <20060823172402.GC15851@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060823172402.GC15851@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 11:09:35 -0400 (EDT)
-Jason Baron <jbaron@redhat.com> wrote:
+On Wed, Aug 23, 2006 at 07:24:02PM +0200, Jörn Engel wrote:
+> On Sun, 9 July 2006 15:50:36 +0300, Al Boldi wrote:
+> > 
+> > Consider something simple like this:
+> > 
+> > VFS - anyFS1 (r/w) used normally, unless ENotFound, then redirect read to
+> >     \              anyFS2, or CoW from anyFS2 to anyFS1.
+> >       anyFS2 (r/o) used normally.
+> 
+> That concept is known as union mount.  Jan Blunck did some patches in
+> that direction, you might be able to find them in the archives.  If
+> not, just send him a mail.
 
-> 
-> Hi,
-> 
-> In the case below we are locking the whole disk not a partition. This 
-> change simply brings the code in line with the piece above where when we 
-> are the 'first' opener, and we are a partition.
-> 
-> thanks,
-> 
-> -Jason
-> 
-> Signed-off-by: Jason Baron <jbaron@redhat.com>
-> 
-> --- linux-2.6/fs/block_dev.c.bak
-> +++ linux-2.6/fs/block_dev.c
-> @@ -966,7 +966,7 @@ do_open(struct block_device *bdev, struc
->  				rescan_partitions(bdev->bd_disk, bdev);
->  		} else {
->  			mutex_lock_nested(&bdev->bd_contains->bd_mutex,
-> -					  BD_MUTEX_PARTITION);
-> +					  BD_MUTEX_WHOLE);
->  			bdev->bd_contains->bd_part_count++;
->  			mutex_unlock(&bdev->bd_contains->bd_mutex);
->  		}
+Or you can give Unionfs a try: http://www.unionfs.org
 
-This was allegedly (re-re-re-re-)fixed in 2.6.18-rc4-mm2. 
-lockdep-fix-blkdev_open-warning.patch and
-lockdep-fix-blkdev_open-warning-fix.patch.
+Josef "Jeff" Sipek.
 
-Is this patch needed in that kernel?
-
+-- 
+The box said "Windows XP or better required". So I installed Linux.

@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWHWMtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWHWMrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWHWMtS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 08:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWHWMtS
+	id S932445AbWHWMrf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 08:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWHWMrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 08:49:18 -0400
-Received: from arrakeen.ouaza.com ([212.85.152.62]:19840 "EHLO
-	arrakeen.ouaza.com") by vger.kernel.org with ESMTP id S932446AbWHWMtR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 08:49:17 -0400
-Date: Wed, 23 Aug 2006 14:45:41 +0200
-From: Raphael Hertzog <hertzog@debian.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Paul Fulghum <paulkf@microgate.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: How to avoid serial port buffer overruns?
-Message-ID: <20060823124541.GD5137@ouaza.com>
-References: <20060816104559.GF4325@ouaza.com> <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com> <1155762739.7338.18.camel@mindpipe> <1155767066.2600.19.camel@localhost.localdomain> <20060817161042.GC10818@ouaza.com> <1155929467.2924.41.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1155929467.2924.41.camel@mindpipe>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 23 Aug 2006 08:47:35 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:28844 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932445AbWHWMre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 08:47:34 -0400
+Date: Wed, 23 Aug 2006 21:46:40 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+Message-Id: <20060823214640.699ceacb.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <m1r6z7ofbn.fsf@ebiederm.dsl.xmission.com>
+References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+	<m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
+	<20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+	<20060823173323.b9cf1509.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1r6z7ofbn.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 23 Aug 2006 05:35:08 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-I took the time to try some of your suggestions and I managed to get rid
-of the overruns.
+> What you are proposing is to reduce contention by having several different
+> locks for each of the global data structures. 
+not for each, just a lock for a list for for_each_process ;)
+About cache bounsing, it's problem if heavy.
+In my plan, fork/exit/proc_readdir will have write lock of
+for_each_process_write_lock. talking this again after take3 will be good.
+If I'm very lucky, I'll find some another way..
 
-On Fri, 18 Aug 2006, Lee Revell wrote:
-> Have you tried it with HZ=100?  HZ=1000 might just be too much for that
-> board.
+> >> >> In addition you only solves half the readdir problems.  You don't solve
+> >> >> the seek problem which is returning to an offset you had been to
+> >> >> before.  A relatively rare case but...
+> >> >> 
+> >> > Ah, I should add lseek handler for proc root. Okay.
+> >> 
+> >> Hmm.  Possibly.  Mostly what I was thinking is that a token in the
+> >> list simply cannot solve the problem of a guaranteeing lseek to a
+> >> previous position works.  I really haven't looked closely on
+> >> how you handle that case.
+> >> 
+> > I'll try some. But lseek on directory, which is modified at any moment, cannot
+> > work stable anyway.
+> 
+> It can work as well as anything else in readdir.  It can ensure that you don't
+> miss things that haven't been added or deleted during the while you are in
+> the middle of readdir.    I'm just after the usual Single Unix Spec/POSIX guarantees.
+> The same thing that are missing in the current readdir implementation.
+> 
+BTW, what position means at lseek() in directory ? 
+bytes ? implementation dependent ? 
 
-This indeed was a major problem and a bad choice of mine at the very
-beginning. It goes way better with HZ=100.
+I'm thinking of implementing "position" as offset in task list. 
+Hmm..about lseek(), it's obvious that searching in a table has an advantage.
+we cannot define position with list.
+What will you do if user moves f->pos to not-used-position.
 
-On Fri, 18 Aug 2006, Paul Fulghul wrote:
-> For fun, have you tried playing with the rx FIFO trigger
-> level in the 16550A entry in drivers/serial/8250.c ?
-> You could try replacing UART_FCR_R_TRIG_10 (8 char trigger)
-> with UART_FCR_R_TRIG_01 (4 char trigger) or even
-> UART_FCR_R_TRIG_00 (1 char trigger).
-> That creates more interrupts, but allows
-> more time to activate the ISR before overrun.
+I have no complaint about pidmap scanning next_tgid() unless it doesn't scan
+all over the world.
 
-I changed the rx FIFO trigger level to 1 byte (UART_FCR_R_TRIG_00) and it
-helped a lot as well. With this combination I completely resolved the
-problem of overruns at full speed (115200 bauds).
+-Kame
 
-For the sake of comparison, I made a similar change to the 2.4.31 kernel I
-was using (ie a kernel with low latency/preemptible kernel patches).
-
-It helped a lot as well: most of the time I wouldn't have overruns (before
-they were very frequent, like at least one overrun in 10k chars received).
-However from time to time I would suffer from a single big overrun (like 30
-chars lost). And using heavily the disk on module will increase the
-likelihood to have a buffer overrun.
-
-With the 2.6.17.7 kernel (CONFIG_HZ=100 and patched to trigger IRQ at
-1 byte received), I have been completely unable to reproduce the buffer
-overruns whatever read/write operation I've been triggering during the data
-exchange.
-
-So all in all, the 2.6 kernel behaves better than the 2.4 in this
-case.
-
-Cheers,
--- 
-Raphaël Hertzog
-
-Premier livre français sur Debian GNU/Linux :
-http://www.ouaza.com/livre/admin-debian/

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWHWJuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWHWJzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWHWJuY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWHWJuX
+	id S964785AbWHWJzT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWHWJzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:50:23 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40148 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751505AbWHWJuV (ORCPT
+	Wed, 23 Aug 2006 05:55:18 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:45580 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751512AbWHWJzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:50:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH] paravirt.h
-Date: Wed, 23 Aug 2006 11:50:17 +0200
-User-Agent: KMail/1.9.3
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608231141.37284.ak@suse.de> <44EC2450.3060706@vmware.com>
-In-Reply-To: <44EC2450.3060706@vmware.com>
+	Wed, 23 Aug 2006 05:55:16 -0400
+Message-ID: <44EC2600.3070006@argo.co.il>
+Date: Wed, 23 Aug 2006 12:55:12 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: ebiederm@xmission.com
+CC: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+References: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608231150.17650.ak@suse.de>
+X-OriginalArrivalTime: 23 Aug 2006 09:55:14.0502 (UTC) FILETIME=[3B134660:01C6C69A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ebiederm@xmission.com wrote:
+>
+> I almost removed the tasklist_lock from all read paths.  But as it
+> happens sending a signal to a process group is an atomic operation
+> with respect to fork so that path has to take the lock, or else
+> we get places where "kill -9 -pgrp" fails to kill every process in
+> the process group.  Which is even worse.
+>
 
-> 
-> And the functions they call?
+Can't that be fixed by adding a per-pgrp lock, and having both 
+fork()/clone() and kill(-pgrp) take that lock?
 
-Yes. But you only really need it for the actual callback, not the bulk
-of stop_machine_run() (which calls scheduler and lots of other stuff)
-The actual callback should be pretty limited already so it shouldn't
-be a big limitation.
+-- 
+error compiling committee.c: too many arguments to function
 
--Andi

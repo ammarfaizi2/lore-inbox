@@ -1,506 +1,575 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWHWIRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWHWIRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWHWIRn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHWIRT
+	id S932384AbWHWIRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWHWIQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:17:19 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:15101 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932394AbWHWIQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:16:43 -0400
-Date: Wed, 23 Aug 2006 01:06:00 -0700
+	Wed, 23 Aug 2006 04:16:40 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:55257 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932394AbWHWIQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:16:26 -0400
+Date: Wed, 23 Aug 2006 01:06:09 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200608230806.k7N860es000444@frankl.hpl.hp.com>
+Message-Id: <200608230806.k7N869KD000552@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 9/18] 2.6.17.9 perfmon2 patch for review: kernel-level interface support
+Subject: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the kernel-level API support.
+This patch contains the new x86_64 files.
+
+The files are as follows:
 
 
-Some users have requested the ability to create a monitoring session
-with perfmon2 from iside the kernel using a kernel thread. Perfmon2
-leverages a lot of kernel mechanisms which are not easy to use for
-inside the kernel: e.g. file descriptor, signals, system calls.
+arch/x86_64/perfmon/Kconfig:
+	- add menuconfig options
 
-We have sort of duplicated the user level interface for kernel-level
-usage. This new is interface is called KAPI. It does not
-use certain abstractions, such as file descriptors. It bypasses
-the front-end system calls because there is no need to copy
-arguments back and forth. It uses a completion queue instead
-of a file-descriptor based message queue. Furthermore, the 
-sampling buffer is directly accessible to the caller without
-having to remap with mmap.
+arch/x86_64/perfmon/Makefile:
+	- makefile for arch specific files
 
-The current implementation is limited to creating system-wide
-context ONLY.
+arch/x86_64/perfmon/perfmon_amd64.c:
+	- PMU description for AMD64 PMU for both 32 and 64-bit modes
+
+arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c:
+	- sampling format for 64-bit PEBS support for EM64T processors
+
+include/asm-x86_64/perfmon.h:
+	- architecture specific header definitions
+
+include/asm-x86_64/perfmon_em64t_pebs_smpl.h:
+	- public header file for 64-bit PEBS sampling format for EM64T processors
 
 
 
 
---- linux-2.6.17.9.base/perfmon/perfmon_kapi.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/perfmon/perfmon_kapi.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,458 @@
+--- linux-2.6.17.9.base/arch/x86_64/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/arch/x86_64/perfmon/Kconfig	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,39 @@
++menu "Hardware Performance Monitoring support"
++config PERFMON
++ 	bool "Perfmon2 performance monitoring interface"
++	select X86_LOCAL_APIC
++	default y
++ 	help
++  	Enables the perfmon2 interface to access the hardware
++	performance counters. See <http://perfmon2.sf.net/> for
++ 	more details. If you're unsure, say Y.
++
++config X86_64_PERFMON_AMD64
++	tristate "Support 64-bit mode AMD64 hardware performance counters"
++	depends on PERFMON
++	default m
++	help
++	Enables support for 64-bit mode AMD64 hardware performance
++	counters. Does not work with Intel EM64T processors.
++	If unsure, say m.
++
++config X86_64_PERFMON_EM64T
++	tristate "Support Intel EM64T hardware performance counters"
++	depends on PERFMON
++	default m
++	help
++	Enables support for the Intel EM64T hardware performance
++	counters. Does not work with AMD64 processors.
++	If unsure, say m.
++
++config X86_64_PERFMON_EM64T_PEBS
++	tristate "Support for Intel EM64T PEBS sampling format"
++	depends on X86_64_PERFMON_EM64T
++	default m
++	help
++	Enables support for Precise Event-Based Sampling (PEBS) on the Intel
++	EM64T processors which support it.  Does not work with AMD X86-64
++	processors.
++	If unsure, say m.
++
++endmenu
+--- linux-2.6.17.9.base/arch/x86_64/perfmon/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/arch/x86_64/perfmon/Makefile	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,12 @@
++#
++# Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++# Contributed by Stephane Eranian <eranian@hpl.hp.com>
++#
++
++obj-$(CONFIG_PERFMON)			+= perfmon.o
++obj-$(CONFIG_X86_64_PERFMON_AMD64)	+= perfmon_amd64.o
++obj-$(CONFIG_X86_64_PERFMON_EM64T)	+= perfmon_p4.o
++obj-$(CONFIG_X86_64_PERFMON_EM64T_PEBS)	+= perfmon_em64t_pebs_smpl.o
++
++perfmon-$(subst m,y,$(CONFIG_PERFMON)) += ../../i386/perfmon/perfmon.o
++perfmon_p4-$(subst m,y,$(CONFIG_X86_64_PERFMON_EM64T)) += ../../i386/perfmon/perfmon_p4.o
+--- linux-2.6.17.9.base/arch/x86_64/perfmon/perfmon_amd64.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/arch/x86_64/perfmon/perfmon_amd64.c	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,124 @@
 +/*
-+ * perfmon_kapi.c: perfmon2 kernel level interface
++ * This file contains the AMD64 PMU register
++ * description tables. It supports 32 and 64-bit modes.
 + *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ */
++#include <linux/module.h>
++#include <linux/perfmon.h>
++
++MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
++MODULE_DESCRIPTION("AMD64 PMU description table");
++MODULE_LICENSE("GPL");
++
++static struct pfm_arch_pmu_info pfm_amd64_pmu_info={
++	.pmc_addrs = {
++		{{MSR_K7_EVNTSEL0, 0}, 0, PFM_REGT_SELEN},
++		{{MSR_K7_EVNTSEL1, 0}, 1, PFM_REGT_SELEN},
++		{{MSR_K7_EVNTSEL2, 0}, 2, PFM_REGT_SELEN},
++		{{MSR_K7_EVNTSEL3, 0}, 3, PFM_REGT_SELEN},
++	},
++	.pmd_addrs = {
++		{{MSR_K7_PERFCTR0, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR1, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR2, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR3, 0}, 0, PFM_REGT_CTR},
++	},
++	.pmu_style = PFM_X86_PMU_P6,
++};
++
++/*
++ * reserved bits must be zero
 + *
-+ * Copyright (c) 2006 Hewlett-Packard Development Company, L.P.
++ * - upper 32 bits are reserved
++ * - APIC enable bit is reserved (forced to 1)
++ * - bit 21 is reserved
++ */
++#define PFM_AMD64_RSVD	~((0xffffffffULL<<32)	\
++			| (PFM_ONE_64<<20)	\
++			| (PFM_ONE_64<<21))
++
++/*
++ * force Local APIC interrupt on overflow
++ */
++#define PFM_AMD64_VAL	(PFM_ONE_64<<20)
++#define PFM_AMD64_NO64	(PFM_ONE_64<<20)
++
++static struct pfm_reg_desc pfm_amd64_pmc_desc[]={
++/* pmc0  */ PMC_D(PFM_REG_I64, "PERFSEL0", PFM_AMD64_VAL, PFM_AMD64_RSVD, PFM_AMD64_NO64),
++/* pmc1  */ PMC_D(PFM_REG_I64, "PERFSEL1", PFM_AMD64_VAL, PFM_AMD64_RSVD, PFM_AMD64_NO64),
++/* pmc2  */ PMC_D(PFM_REG_I64, "PERFSEL2", PFM_AMD64_VAL, PFM_AMD64_RSVD, PFM_AMD64_NO64),
++/* pmc3  */ PMC_D(PFM_REG_I64, "PERFSEL3", PFM_AMD64_VAL, PFM_AMD64_RSVD, PFM_AMD64_NO64),
++};
++#define PFM_AMD_NUM_PMCS ARRAY_SIZE(pfm_amd64_pmc_desc)
++
++static struct pfm_reg_desc pfm_amd64_pmd_desc[]={
++/* pmd0  */ PMD_D(PFM_REG_C, "PERFCTR0"),
++/* pmd1  */ PMD_D(PFM_REG_C, "PERFCTR1"),
++/* pmd2  */ PMD_D(PFM_REG_C, "PERFCTR2"),
++/* pmd3  */ PMD_D(PFM_REG_C, "PERFCTR3")
++};
++#define PFM_AMD_NUM_PMDS ARRAY_SIZE(pfm_amd64_pmd_desc)
++
++static int pfm_amd64_probe_pmu(void)
++{
++	PFM_INFO("family=%d x86_model=%d",
++		 cpu_data->x86, cpu_data->x86_model);
++
++	if (cpu_data->x86 != 15) {
++		PFM_INFO("unsupported family=%d", cpu_data->x86);
++		return -1;
++	}
++
++	if (cpu_data->x86_vendor != X86_VENDOR_AMD) {
++		PFM_INFO("not an AMD processor");
++		return -1;
++	}
++
++	/*
++	 * check for local APIC (required)
++	 */
++	if (!cpu_has_apic) {
++		PFM_INFO("no local APIC, unsupported");
++		return -1;
++	}
++	return 0;
++}
++
++static struct pfm_pmu_config pfm_amd64_pmu_conf={
++	.pmu_name = "AMD64",
++	.counter_width = 47,
++	.pmd_desc = pfm_amd64_pmd_desc,
++	.pmc_desc = pfm_amd64_pmc_desc,
++	.num_pmc_entries = PFM_AMD_NUM_PMCS,
++	.num_pmd_entries = PFM_AMD_NUM_PMDS,
++	.probe_pmu = pfm_amd64_probe_pmu,
++	.version = "1.0",
++	.arch_info = &pfm_amd64_pmu_info,
++	.flags = PFM_PMU_BUILTIN_FLAG,
++	.owner = THIS_MODULE
++};
++	
++static int __init pfm_amd64_pmu_init_module(void)
++{
++	unsigned int i;
++
++	/*
++	 * XXX: could be hardcoded for this PMU model
++	 */
++	bitmap_zero(ulp(pfm_amd64_pmu_info.enable_mask), PFM_MAX_HW_PMCS);
++	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
++		if (pfm_amd64_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_SELEN)
++			pfm_bv_set(pfm_amd64_pmu_info.enable_mask, i);
++	}
++	return pfm_register_pmu_config(&pfm_amd64_pmu_conf);
++}
++
++static void __exit pfm_amd64_pmu_cleanup_module(void)
++{
++	pfm_unregister_pmu_config(&pfm_amd64_pmu_conf);
++}
++
++module_init(pfm_amd64_pmu_init_module);
++module_exit(pfm_amd64_pmu_cleanup_module);
+--- linux-2.6.17.9.base/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,218 @@
++/*
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * More information about perfmon available at:
-+ * 	http://perfmon2.sf.net
-+ *
-+ * perfmon2 KAPI overview:
-+ *  The goal is to allow kernel-level code to use the perfmon2
-+ *  interface for both counting and sampling. It is not possible
-+ *  to directly use the system calls because they expected parameters
-+ *  from user level. The kernel-level interface is more restrictive
-+ *  because of inherent kernel constraints.  The limited interface
-+ *  is comosed by a set of functions  implemented in this this. For
-+ *  ease of use, the mimic the names of the user level interface, e.g.
-+ *  pfmk_create_context()  is the equivalent of pfm_create_context().
-+ *  The pfmk_ prefix is used on all calls. Those can be called from
-+ *  kernel modules or core kernel files.
-+ *
-+ *  The kernel-level perfmon api (KAPI) does not use file descriptors
-+ *  to identify a context. Instead an opaque (void *) descriptor is used.
-+ *  It is returned by pfmk_create_context() and must be passed to all
-+ *  subsequence pfmk_*() calls. List of calls is:
-+ *  	pfmk_create_context();
-+ *  	pfmk_write_pmcs();
-+ *  	pfmk_write_pmds();
-+ *  	pfmk_read_pmds();
-+ *  	pfmk_restart();
-+ *  	pfmk_stop();
-+ *  	pfmk_start();
-+ *  	pfmk_load_context();
-+ *  	pfmk_unload_context();
-+ *  	pfmk_delete_evtsets();
-+ *  	pfmk_create_evtsets();
-+ *  	pfmk_getinfo_evtsets();
-+ *  	pfmk_close();
-+ *  	pfmk_read();
-+ *
-+ *  Unlike pfm_create_context(), the KAPI equivalent, pfmk_create_context()
-+ *  does not trigger the PMU description module to be inserted automatically
-+ *  (if known). That means that the call may fail if no PMU description module
-+ *  is inserted in advance. This is a restriction to avoid deadlocks during
-+ *  insmod.
-+ *
-+ *  When sampling, the kernel level sampling buffer base address is directly
-+ *  returned by pfmk_create_context(). There is no re-mapping necessary.
-+ * 
-+ * When sampling, the buffer overflow notification can generate a message.
-+ * But given that there is no file descriptor, it is not possible to use a
-+ * plain read() call. Instead the pfmk_read() function must be invoke. It
-+ * returns one message at a time. The pfmk_read() function can be blocking
-+ * when there is no message, unless the noblock parameter is set to 1.
-+ * Because there is no file descriptor, it would be hard for a kernel thread
-+ * to wait on an overflow notification message and something else. It would
-+ * be hard to get out, should the thread need to terminate. To avoid this
-+ * problem, the pfmk_create_context() requires a completion structure be
-+ * passed. It is used during pfmk_read() to wait on an event. But the completion
-+ * is visible outside the perfmon context and can be used to signal other events
-+ * as well. Upon return from pfmk_read() the caller must check the return value,
-+ * if zero no message was extracted and the reason for waking up is outside the
-+ * scope of perfmon.
-+ *
-+ * pefmon2 KAPI known restrictions:
-+ * 	- only system-wide contexts are supported
-+ * 	- with a sampling buffer defined, it is not possible
-+ * 	  to call pfmk_close() from an interrupt context
-+ * 	  (e.g. from IPI handler)
++ * This file implements the PEBS sampling format for Intel
++ * EM64T Intel Pentium 4/Xeon processors. It does not work
++ * with Intel 32-bit P4/Xeon processors.
 + */
 +#include <linux/kernel.h>
-+#include <linux/perfmon.h>
++#include <linux/types.h>
 +#include <linux/module.h>
-+#include <asm/uaccess.h>
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <linux/sysctl.h>
++#include <asm/msr.h>
 +
-+static int pfmk_get_smpl_arg(pfm_uuid_t uuid, void *addr, size_t size,
-+		     struct pfm_smpl_fmt **fmt)
++#include <linux/perfmon.h>
++#include <asm/perfmon_em64t_pebs_smpl.h>
++
++#ifndef __x86_64__
++#error "this module is for the Intel EM64T processors"
++#endif
++
++MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
++MODULE_DESCRIPTION("Intel 64-bit P4/Xeon PEBS sampling");
++MODULE_LICENSE("GPL");
++
++static int pfm_pebs_fmt_validate(u32 flags, u16 npmds, void *data)
 +{
-+	struct pfm_smpl_fmt *f;
-+	size_t sz;
-+	int ret;
-+
-+	if (!pfm_use_smpl_fmt(uuid))
-+		return 0;
++	struct pfm_arch_pmu_info *arch_info = pfm_pmu_conf->arch_info;
++	struct pfm_em64t_pebs_smpl_arg *arg = data;
++	size_t min_buf_size;
 +
 +	/*
-+	 * find fmt and increase refcount
++	 * host CPU does not have PEBS support
 +	 */
-+	f = pfm_smpl_fmt_get(uuid);
-+	if (f == NULL) {
-+		PFM_DBG("buffer format not found");
++	if ((arch_info->flags & PFM_X86_PMU_PEBS) == 0) {
++		PFM_DBG("host PMU does not support PEBS sampling");
 +		return -EINVAL;
 +	}
 +
-+	sz = f->fmt_arg_size;
++	/*
++	 * need to define at least the size of the buffer
++	 */
++	if (data == NULL) {
++		PFM_DBG("no argument passed");
++		return -EINVAL;
++	}
 +
 +	/*
-+	 * usize = -1 is for IA-64 backward compatibility
++	 * compute min buf size. npmds is the maximum number
++	 * of implemented PMD registers.
 +	 */
-+	ret = -EINVAL;
-+	if (sz != size && size != -1) {
-+		PFM_DBG("invalid arg size %zu, format expects %zu",
-+			size, sz);
-+		goto error;
-+	}
-+	*fmt = f;
++	min_buf_size = sizeof(struct pfm_em64t_pebs_smpl_hdr) + sizeof(struct pfm_em64t_pebs_smpl_entry);
++
++	PFM_DBG("validate flags=0x%x min_buf_size=%zu buf_size=%zu",
++		  flags,
++		  min_buf_size,
++		  arg->buf_size);
++
++	/*
++	 * must hold at least the buffer header + one minimally sized entry
++	 */
++	if (arg->buf_size < min_buf_size)
++		return -EINVAL;
++
 +	return 0;
-+
-+error:
-+	pfm_smpl_fmt_put(f);
-+	return ret;
 +}
++
++static int pfm_pebs_fmt_get_size(unsigned int flags, void *data, size_t *size)
++{
++	struct pfm_em64t_pebs_smpl_arg *arg = data;
++
++	/*
++	 * size has been validated in pebs_fmt_validate()
++	 */
++	*size = arg->buf_size + 256;
++
++	return 0;
++}
++
++static int pfm_pebs_fmt_init(struct pfm_context *ctx, void *buf,
++			     u32 flags, u16 npmds, void *data)
++{
++	struct pfm_arch_context *ctx_arch;
++	struct pfm_em64t_pebs_smpl_hdr *hdr;
++	struct pfm_em64t_pebs_smpl_arg *arg = data;
++	unsigned long base;
++	struct pfm_em64t_ds_area *ds;
++
++	ctx_arch = pfm_ctx_arch(ctx);
++
++	hdr = buf;
++	ds = &hdr->hdr_ds;
++
++	hdr->hdr_version = PFM_EM64T_PEBS_SMPL_VERSION;
++	hdr->hdr_buf_size = arg->buf_size;
++	hdr->hdr_overflows = 0;
++
++	/*
++	 * align base
++	 */
++	base = ((unsigned long)(hdr+1) + 256) & ~0xffUL;
++	hdr->hdr_start_offs = base - (unsigned long)(hdr+1);
++	ds->pebs_buf_base = base;
++	ds->pebs_abs_max = base + arg->buf_size + 1;
++	ds->pebs_intr_thres = base + arg->intr_thres*sizeof(struct pfm_em64t_pebs_smpl_entry);
++	ds->pebs_index = base;
++
++	/*
++	 * save counter reset value for IQ_CCCR4 (thread0) or IQ_CCCR5 (thread1)
++	 */
++	ds->pebs_cnt_reset = arg->cnt_reset;
++
++	/*
++	 * Keep track of DS Area
++	 */
++	ctx_arch->ds_area = ds;
++
++	PFM_DBG("buffer=%p buf_size=%zu  ctx_flags=0x%x"
++		  "pebs_base=0x%llx pebs_max=0x%llx "
++		  "pebs_thres=0x%llx cnt_reset=0x%llx",
++		  buf,
++		  hdr->hdr_buf_size,
++		  ctx_arch->flags,
++		  ds->pebs_buf_base,
++		  ds->pebs_abs_max,
++		  ds->pebs_intr_thres,
++		  ds->pebs_cnt_reset);
++ 
++	return 0;
++}
++
++static int pfm_pebs_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
++			       unsigned long ip, u64 tstamp, void *data)
++{
++	struct pfm_em64t_pebs_smpl_hdr *hdr;
++
++	hdr = buf;
++
++	PFM_DBG_ovfl("buffer full");
++	/*
++	 * increment number of buffer overflows.
++	 * important to detect duplicate set of samples.
++	 */
++	hdr->hdr_overflows++;
++
++	/*
++	 * request notification and masking of monitoring.
++	 * Notification is still subject to the overflowed
++	 * register having the FL_NOTIFY flag set.
++	 */
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY| PFM_OVFL_CTRL_MASK;
++
++	return -ENOBUFS; /* we are full, sorry */
++}
++
++static int pfm_pebs_fmt_restart(int is_active, pfm_flags_t  *ovfl_ctrl, void *buf)
++{
++	struct pfm_em64t_pebs_smpl_hdr *hdr = buf;
++
++	/*
++	 * reset index to base of buffer
++	 */
++	hdr->hdr_ds.pebs_index = hdr->hdr_ds.pebs_buf_base;
++
++	*ovfl_ctrl = PFM_OVFL_CTRL_RESET;
++
++	return 0;
++}
++
++static int pfm_pebs_fmt_exit(void *buf)
++{
++	return 0;
++}
++
++static struct pfm_smpl_fmt pebs_fmt={
++	.fmt_name = "P4-PEBS-em64t",
++	.fmt_uuid = PFM_EM64T_PEBS_SMPL_UUID,
++	.fmt_arg_size = sizeof(struct pfm_em64t_pebs_smpl_arg),
++	.fmt_validate = pfm_pebs_fmt_validate,
++	.fmt_getsize = pfm_pebs_fmt_get_size,
++	.fmt_init = pfm_pebs_fmt_init,
++	.fmt_handler = pfm_pebs_fmt_handler,
++	.fmt_restart = pfm_pebs_fmt_restart,
++	.fmt_exit = pfm_pebs_fmt_exit,
++	.fmt_flags = PFM_FMT_BUILTIN_FLAG,
++	.owner = THIS_MODULE
++};
++
++#define MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL (1<<12) /* PEBS unavailable */
++#define cpu_has_dts boot_cpu_has(X86_FEATURE_DTES)
++
++static int __init pfm_pebs_fmt_init_module(void)
++{
++	int low, high;
++
++	if (!cpu_has_dts) {
++		PFM_INFO("processor does not have Data Save Area (DS)");
++		return -1;
++	}
++	rdmsr(MSR_IA32_MISC_ENABLE, low, high);
++
++	if (low & MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL) {
++		PFM_INFO("processor does not support PEBS");
++		return -1;
++	}
++	return pfm_register_smpl_fmt(&pebs_fmt);
++}
++
++static void __exit pfm_pebs_fmt_cleanup_module(void)
++{
++	pfm_unregister_smpl_fmt(pebs_fmt.fmt_uuid);
++}
++
++module_init(pfm_pebs_fmt_init_module);
++module_exit(pfm_pebs_fmt_cleanup_module);
+--- linux-2.6.17.9.base/include/asm-x86_64/perfmon.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/include/asm-x86_64/perfmon.h	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,10 @@
++/*
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *
++ * This file contains X86-64 Processor Family specific definitions
++ * for the perfmon interface.
++ *
++ * This file MUST never be included directly. Use linux/perfmon.h.
++ */
++#include <asm-i386/perfmon.h>
+--- linux-2.6.17.9.base/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,106 @@
++/*
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *
++ * This file implements the PEBS sampling format for 64-bit
++ * Intel EM64T Pentium 4/Xeon processors. Not to be used with
++ * 32-bit Intel processors.
++ */
++#ifndef __PERFMON_EM64T_PEBS_SMPL_H__
++#define __PERFMON_EM64T_PEBS_SMPL_H__ 1
++
++#define PFM_EM64T_PEBS_SMPL_UUID { \
++	0x36, 0xbe, 0x97, 0x94, 0x1f, 0xbf, 0x41, 0xdf,\
++	0xb4, 0x63, 0x10, 0x62, 0xeb, 0x72, 0x9b, 0xad}
 +
 +/*
-+ * req: pointer to context creation  argument. ctx_flags msut have
-+ *      PFM_FL_SYSTEM_WIDE set.
++ * format specific parameters (passed at context creation)
 + *
-+ * smpl_arg: optional sampling format option argument. NULL if unused
-+ * smpl_size: sizeof of optional sampling format argument. 0 if unused
-+ * c       : pointer to completion structure. Call does not initialization
-+ * 	     struct (i.e. no init_completion). Completion used with pfmk_read()
-+ * Return:
-+ * desc    : pointer to opaque context descriptor. unique identifier for context
-+ * smpl_buf: pointer to base of sampling buffer. Pass NULL if unused
++ * intr_thres: index from start of buffer of entry where the
++ * PMU interrupt must be triggered. It must be several samples
++ * short of the end of the buffer.
 + */
-+int pfmk_create_context(struct pfarg_ctx *req, void *smpl_arg,
-+			size_t smpl_size,
-+			struct completion *c,
-+			void **desc,
-+			void **buf)
-+{
-+	struct pfm_context *new_ctx;
-+	struct pfm_smpl_fmt *fmt = NULL;
-+	int ret = -EFAULT;
-+
-+	if (desc == NULL)
-+		return -EINVAL;
-+
-+	if (c == NULL)
-+		return -EINVAL;
-+
-+	if (!(req->ctx_flags & PFM_FL_SYSTEM_WIDE)) {
-+		PFM_DBG("kapi only supoprts system-wide context\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = pfmk_get_smpl_arg(req->ctx_smpl_buf_id, smpl_arg, smpl_size, &fmt);
-+	if (ret)
-+		return ret;
-+
-+	ret = __pfm_create_context(req, fmt, smpl_arg, PFM_KAPI, c, &new_ctx);
-+	if (!ret) {
-+		*desc = new_ctx;
-+		/*
-+		 * return base of sampling buffer
-+		 */
-+		if (buf)
-+			*buf = new_ctx->smpl_addr;
-+	}
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_create_context);
-+
-+int pfmk_write_pmcs(void *desc, struct pfarg_pmc *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_write_pmcs(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_write_pmcs);
-+
-+int pfmk_write_pmds(void *desc, struct pfarg_pmd *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_write_pmds(ctx, req, count, 0);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_write_pmds);
-+
-+int pfmk_read_pmds(void *desc, struct pfarg_pmd *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_read_pmds(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_read_pmds);
-+
-+int pfmk_restart(void *desc)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, 0, &flags);
-+	if (!ret)
-+		ret = __pfm_restart(ctx);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_restart);
-+
-+
-+int pfmk_stop(void *desc)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_stop(ctx);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_stop);
-+
-+int pfmk_start(void *desc, struct pfarg_start *req)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	if (desc == NULL)
-+		return -EINVAL;
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_start(ctx, req);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_start);
-+
-+int pfmk_load_context(void *desc, struct pfarg_load *req)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (!ret)
-+		ret = __pfm_load_context(ctx, req);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_load_context);
-+
-+
-+int pfmk_unload_context(void *desc)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	if (desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED|PFM_CMD_UNLOAD, &flags);
-+	if (!ret)
-+		ret = __pfm_unload_context(ctx, 0);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_unload_context);
-+
-+int pfmk_delete_evtsets(void *desc, struct pfarg_setinfo *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (!ret)
-+		ret = __pfm_delete_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_delete_evtsets);
-+
-+int pfmk_create_evtsets(void *desc, struct pfarg_setdesc  *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (!ret)
-+		ret = __pfm_create_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_create_evtsets);
-+
-+int pfmk_getinfo_evtsets(void *desc, struct pfarg_setinfo *req, int count)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+	if (count < 0 || desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, 0, &flags);
-+	if (!ret)
-+		ret = __pfm_getinfo_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfmk_getinfo_evtsets);
-+
-+int pfmk_close(void *desc)
-+{
-+	struct pfm_context *ctx;
-+
-+	if (desc == NULL)
-+		return -EINVAL;
-+
-+	ctx = desc;
-+
-+	return __pfm_close(ctx, NULL);
-+}
-+EXPORT_SYMBOL(pfmk_close);
++struct pfm_em64t_pebs_smpl_arg {
++	size_t	buf_size;	/* size of the buffer in bytes */
++	size_t	intr_thres;	/* index of interrupt threshold entry */
++	u32	flags;		/* buffer specific flags */
++	u64	cnt_reset;	/* counter reset value */
++	u32	res1;		/* for future use */
++	u64	reserved[2];	/* for future use */
++};
 +
 +/*
-+ * desc   : opaque context descriptor
-+ * msg    : pointer to message structure
-+ * sz     : sizeof of message argument. Must be equal to 1 message 
-+ * noblock: 1 means do not wait for messages. 0 means wait for completion
-+ *          signal.
-+ *
-+ * Note on completion:
-+ *	- completion structure can be shared with code outside the perfmon2
-+ *	  core. This function will return with 0, if there was a completion
-+ *	  signal but no messages to read.
-+ *
-+ * Return:
-+ *    0           : no message extracted, but awaken
-+ *    sizeof(*msg): one message extracted
-+ *    -EAGAIN     : noblock=1 and nothing to read
-+ *    -ERESTARTSYS: noblock=0, signal pending
++ * combined context+format specific structure. Can be passed
++ * to pfm_context_create()
 + */
-+ssize_t pfmk_read(void *desc, union pfm_msg *msg, size_t sz, int noblock)
-+{
-+	struct pfm_context *ctx;
-+	union pfm_msg msg_buf;
++struct pfm_em64t_pebs_smpl_ctx_arg {
++	struct pfarg_ctx		ctx_arg;
++	struct pfm_em64t_pebs_smpl_arg	buf_arg;
++};
 +
-+	if (desc == NULL || msg == NULL || sz != sizeof(*msg))
-+		return -EINVAL;
++/*
++ * DS Save Area as described in section 15.10.5 for
++ * 32-bit but extended to 64-bit
++ */
++struct pfm_em64t_ds_area {
++	u64	bts_buf_base;
++	u64	bts_index;
++	u64	bts_abs_max;
++	u64	bts_intr_thres;
++	u64	pebs_buf_base;
++	u64	pebs_index;
++	u64	pebs_abs_max;
++	u64	pebs_intr_thres;
++	u64     pebs_cnt_reset;
++};
 +
-+	ctx = desc;
++/*
++ * This header is at the beginning of the sampling buffer returned to the user.
++ *
++ * Because of PEBS alignement constraints, the actual PEBS buffer area does
++ * not necessarily begin right after the header. The hdr_start_offs must be
++ * used to compute the first byte of the buffer. The offset is defined as
++ * the number of bytes between the end of the header and the beginning of
++ * the buffer. As such the formula is:
++ * 	actual_buffer = (unsigned long)(hdr+1)+hdr->hdr_start_offs
++ */
++struct pfm_em64t_pebs_smpl_hdr {
++	u64			hdr_overflows;	/* #overflows for buffer */
++	size_t			hdr_buf_size;	/* bytes in the buffer */
++	size_t			hdr_start_offs; /* actual buffer start offset */
++	u32			hdr_version;	/* smpl format version */
++	u64			hdr_res[3];	/* for future use */
++	struct pfm_em64t_ds_area hdr_ds;	/* DS management Area */
++};
 +
-+	return __pfmk_read(ctx, &msg_buf, noblock);
-+}
-+EXPORT_SYMBOL(pfmk_read);
++/*
++ * EM64T PEBS record format as described in
++ * http://www.intel.com/technology/64bitextensions/30083502.pdf
++ */
++struct pfm_em64t_pebs_smpl_entry {
++	u64	eflags;
++	u64	ip;
++	u64	eax;
++	u64	ebx;
++	u64	ecx;
++	u64	edx;
++	u64	esi;
++	u64	edi;
++	u64	ebp;
++	u64	esp;
++	u64	r8;
++	u64	r9;
++	u64	r10;
++	u64	r11;
++	u64	r12;
++	u64	r13;
++	u64	r14;
++	u64	r15;
++};
++
++#define PFM_EM64T_PEBS_SMPL_VERSION_MAJ 1U
++#define PFM_EM64T_PEBS_SMPL_VERSION_MIN 0U
++#define PFM_EM64T_PEBS_SMPL_VERSION (((PFM_EM64T_PEBS_SMPL_VERSION_MAJ&0xffff)<<16)|\
++				   (PFM_EM64T_PEBS_SMPL_VERSION_MIN & 0xffff))
++
++#endif /* __PERFMON_EM64T_PEBS_SMPL_H__ */

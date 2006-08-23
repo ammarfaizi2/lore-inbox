@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWHWHfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWHWHe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWHWHfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 03:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWHWHfU
+	id S1751426AbWHWHe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 03:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHWHe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 03:35:20 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2179
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751444AbWHWHfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 03:35:17 -0400
-Date: Wed, 23 Aug 2006 00:35:16 -0700 (PDT)
-Message-Id: <20060823.003516.30182824.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: johnpol@2ka.mipt.ru, sundell.software@gmail.com, kuznet@ms2.inr.ac.ru,
-       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060823000758.5ebed7dd.akpm@osdl.org>
-References: <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com>
-	<20060823065659.GC24787@2ka.mipt.ru>
-	<20060823000758.5ebed7dd.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 23 Aug 2006 03:34:57 -0400
+Received: from mail.gmx.net ([213.165.64.20]:11744 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751426AbWHWHe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 03:34:56 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+From: Mike Galbraith <efault@gmx.de>
+To: vatsa@in.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+In-Reply-To: <20060820174839.GH13917@in.ibm.com>
+References: <20060820174015.GA13917@in.ibm.com>
+	 <20060820174839.GH13917@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 09:43:28 +0000
+Message-Id: <1156326208.6265.33.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 23 Aug 2006 00:07:58 -0700
+On Sun, 2006-08-20 at 23:18 +0530, Srivatsa Vaddagiri wrote:
 
-> I wonder whether designing-in a millisecond granularity is the right thing
-> to do.  If in a few years the kernel is running tickless with high-res clock
-> interrupt sources, that might look a bit lumpy.
+> As an example, follow these steps to create metered cpusets:
 > 
-> Switching it to a __u64 nanosecond counter would be basically free on
-> 64-bit machines, and not very expensive on 32-bit, no?
+> 
+> 	# cd /dev
+> 	# mkdir cpuset
+> 	# mount -t cpuset cpuset cpuset
+> 	# cd cpuset
+> 	# mkdir grp_a
+> 	# cd grp_a
+> 	# /bin/echo "6-7" > cpus	# assign CPUs 6,7 for this cpuset
+> 	# /bin/echo 0 > mems		# assign node 0 for this cpuset
+> 	# /bin/echo 1 > cpu_exclusive
+> 	# /bin/echo 1 > meter_cpu
 
-If it ends up in a structure we'll need to use the "aligned_u64" type
-in order to avoid problems with 32-bit x86 binaries running on 64-bit
-kernels.
+Implementation might need some idiot proofing.
+
+After mount/cd cpuset, somebody might think "gee, why should I need to
+create a group 'all', when it's right there in the root, including all
+it's tasks?  I'll just set cpu_exclusive, set meter_cpu...
+
+...and after my box finishes rebooting, I'll alert the developer of this
+patch set that very bad things happen the instant you do that :)
+
+	-Mike
+

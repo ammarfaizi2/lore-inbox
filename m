@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWHWJbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWHWJcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWHWJbN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWHWJbM
+	id S1751479AbWHWJcs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWHWJcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:31:12 -0400
-Received: from assei2bl6.telenet-ops.be ([195.130.133.69]:24965 "EHLO
-	assei2bl6.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1751486AbWHWJbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:31:11 -0400
-From: Peter Korsgaard <jacmet@sunsite.dk>
-To: "Mathiasen, Torben" <Torben.Mathiasen@hp.com>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux-kernel@vger.kernel.org>,
-       <device@lanana.org>
-Subject: Re: [PATCH] Update Documentation/devices.txt
-References: <93C4769E3BED6B42B7203BD6F065654C0424F3A1@dmoexc01.emea.cpqcorp.net>
-Date: Wed, 23 Aug 2006 11:30:54 +0200
-In-Reply-To: <93C4769E3BED6B42B7203BD6F065654C0424F3A1@dmoexc01.emea.cpqcorp.net>
-	(Torben Mathiasen's message of "Wed, 23 Aug 2006 11:05:31 +0200")
-Message-ID: <87bqqbn6i9.fsf@slug.be.48ers.dk>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 23 Aug 2006 05:32:47 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:13478 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751479AbWHWJcr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:32:47 -0400
+Date: Wed, 23 Aug 2006 11:32:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Robert Szentmihalyi <robert.szentmihalyi@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Group limit for NFS exported file systems
+In-Reply-To: <20060823091652.235230@gmx.net>
+Message-ID: <Pine.LNX.4.61.0608231129550.5799@yvahk01.tjqt.qr>
+References: <20060823091652.235230@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Torben" == Mathiasen, Torben <Torben.Mathiasen@hp.com> writes:
+>Hi,
+>
+>is there a group limit for NFS exported file systems in recent kernels?
+>One if my users cannot access directories that belong to a group he actually _is_ a member of. That, however, is true only when accessing them over NFS. On the local file system, everything is fine. UIDs and GIDs are the same on client and server, so that cannot be the problem. Client and server run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
+>Any ideas?
 
-Hi,
+Is his fsuid/fsgid suddenly different?
 
- Jan> What's the reason for this indent change?
- >> 
- >> I don't know - Torben?
 
- Torben> A wrong indent it seems. If someone else is working on
- Torben> getting this fixed let me know. Otherwise I'll update the
- Torben> kernel version of devices.txt and fix the whitespaces at the
- Torben> same time.
-
-It should be fixed by the patch I just sent you.
-
+Jan Engelhardt
 -- 
-Bye, Peter Korsgaard

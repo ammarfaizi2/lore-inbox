@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWHWRLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWHWRMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWHWRLx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 13:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWHWRLx
+	id S965072AbWHWRMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 13:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWHWRMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 13:11:53 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52113 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965067AbWHWRLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 13:11:52 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Ian Campbell <Ian.Campbell@XenSource.com>, Andrew Morton <akpm@osdl.org>,
-       Virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Translate asm version of ELFNOTE macro into	preprocessor macro
-References: <1156333761.12949.35.camel@localhost.localdomain>
-	<44EC6B12.4060909@goop.org>
-	<1156346074.12949.129.camel@localhost.localdomain>
-	<44EC72F3.70505@goop.org>
-Date: Wed, 23 Aug 2006 11:11:12 -0600
-In-Reply-To: <44EC72F3.70505@goop.org> (Jeremy Fitzhardinge's message of "Wed,
-	23 Aug 2006 08:23:31 -0700")
-Message-ID: <m1sljnml73.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Aug 2006 13:12:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5289 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965072AbWHWRMU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 13:12:20 -0400
+Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+In-Reply-To: <20060823095031.cb14cc52.akpm@osdl.org>
+References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru>
+	 <44EC5B74.2040104@sw.ru>  <20060823095031.cb14cc52.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 23 Aug 2006 18:29:42 +0100
+Message-Id: <1156354182.3007.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+Ar Mer, 2006-08-23 am 09:50 -0700, ysgrifennodd Andrew Morton:
+> On Wed, 23 Aug 2006 17:43:16 +0400
+> Kirill Korotaev <dev@sw.ru> wrote:
+> 
+> > +asmlinkage long sys_set_bclimit(uid_t id, unsigned long resource,
+> > +		unsigned long *limits)
+> 
+> I'm still a bit mystified about the use of uid_t here.  It's not a uid, is
+> it?
 
-> Ian Campbell wrote:
->>> OK, seems reasonable.  Eric Biederman solved this by having NOTE/ENDNOTE (or
->>> something like that) in his "bzImage with ELF header" patch, but I don't
->>> remember it being used in any way which is incompatible with using a CPP
->>> macro.
->>>
->>
->> I can't find that patch, does NOTE/ENDNOTE just do the push/pop .note
->> section?
->>
->> That would solve the problem with the first argument of the macro being
->> a string but the final argument could still be for .asciz note contents.
->>
->
-> It looks like:
->
-> .macro note name, type
->      .balign 4
->      .int    2f - 1f            # n_namesz
->      .int    4f - 3f            # n_descsz
->      .int    \type            # n_type
->      .balign 4
-> 1:    .asciz "\name"
-> 2:    .balign 4
-> 3:
-> .endm
-> .macro enote
-> 4:    .balign 4
-> .endm
->
->
-> so it allows you to put arbitrary stuff in the desc part of the note.  The
-> downside is that its a little more cumbersome syntactically for the common case.
+Its a uid_t because of setluid() and twenty odd years of existing unix
+practice. 
 
-I don't expect it to be much more cumbersome, as two pieces, and you need the extra
-alignment at the end to ensure each not entry is 4 byte aligned.  Being able to
-push and pop a section wouldn't hurt either. 
-
-Eric
+Alan
 

@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWHWP1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWHWP1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWHWP1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHWP1S
+	id S964985AbWHWP1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHWP1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:27:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:743 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964981AbWHWP1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:27:19 -0400
+Received: from rtr.ca ([64.26.128.89]:10369 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964982AbWHWP1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 23 Aug 2006 11:27:16 -0400
-Date: Wed, 23 Aug 2006 16:27:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
-Message-ID: <20060823152714.GB32725@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephane Eranian <eranian@frankl.hpl.hp.com>,
-	linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608230805.k7N85qo2000348@frankl.hpl.hp.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <44EC73D2.9090302@rtr.ca>
+Date: Wed, 23 Aug 2006 11:27:14 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Johan Groth <johan.groth@linux-grotto.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scsi errors with Megaraid 300-8x
+References: <44EB1875.3020403@linux-grotto.org.uk>
+In-Reply-To: <44EB1875.3020403@linux-grotto.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 01:05:52AM -0700, Stephane Eranian wrote:
-> Hello,
+Johan Groth wrote:
+> Hi,
+> ever since I upgraded my server from a dual Opteron 244 (mobo Tyan 2885) 
+> system to a dual dual-core Opteron 285 (mobo Tyan 2895) system, I'm 
+> getting read errors that freezes the system which leads to my disk based 
+> backup software stopped working (faubackup). I think it is faubackup 
+> that triggers the bug.
 > 
-> The following series of patches includes the generic perfmon2
-> subsystem and the support for i386, x86_64, and powerpc. The perfmon2
-> subsystem also works on MIPS and all Itanium processors. The Itanium support
-> is not posted because it does not easily accomodate the 100k message
-> limit of lkml. The powerpc support is still very preliminary.
+> I get these errors in the log:
+> Aug 20 06:35:08 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 
+> 0x40001
+> Aug 20 06:35:56 jaguar kernel: end_request: I/O error, dev sda, sector 
+> 616924530
+> Aug 20 06:36:03 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 
+> 0x40001
+> Aug 20 06:36:03 jaguar kernel: end_request: I/O error, dev sda, sector 
+> 616924538
+..
+> Aug 20 06:36:07 jaguar kernel: sd 2:1:0:0: SCSI error: return code = 
+> 0x40001
+> Aug 20 06:36:07 jaguar kernel: end_request: I/O error, dev sda, sector 
+> 616924538
 > 
-> The patches are relative to 2.6.17.9
+> The last sector is repeated until I reboot the machine. The only 
+> difference I've made to the raid configuration is that sdc is now 2x250 
+> MB instead of 4x120MB, but that array is the target not the source (sda).
+> The raid HW is an LSI Megaraid 300-8x with the following configuration:
+..
 
-pleas submit patches always against latest Linus' tree or -mm.  2.6.17.9
-is already megabytes of diffs away from mainline.
+That looks like the classic SCSI bad-sectory non-recovery bug.
+The code in scsi_lib.c, scsi_error.c, and sd.c is currently a
+bit of a mess here.  
+
+Basically, given an I/O request for 200 sectors, with a bad sector
+in the middle at number 100, what SCSI will often do is fail sectors
+number 1 through 100, one at a time, retrying the entire remainder of
+the request after each attempt.  This takes hours, and results in no
+data for the first 99 good sectors.
+
+What it needs to do *instead*, is retry each sector individually,
+rather than the entire request.  This would result in sectors 1..99
+and 101..200 succeeding, and retries/failure only for sector 100.
+
+A slight optimization would be to fail the bio size around sector 100,
+rather than just the one sector.
+
+I've got patches that do exactly this, and they work quite well.
+But they're probably not "pretty enough" for inclusion.
+
+Cheers
+
 

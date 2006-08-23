@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWHWVAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWHWVBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWHWVAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 17:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWHWVAo
+	id S965035AbWHWVBs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 17:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWHWVBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 17:00:44 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:24300 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965002AbWHWVAn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 17:00:43 -0400
-Message-ID: <44ECC1EF.2020802@fr.ibm.com>
-Date: Wed, 23 Aug 2006 23:00:31 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 23 Aug 2006 17:01:48 -0400
+Received: from ns.sitour.cz ([212.158.149.14]:23546 "EHLO kali.sitour.cz")
+	by vger.kernel.org with ESMTP id S965035AbWHWVBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 17:01:47 -0400
+Message-ID: <44ECC22E.50206@mydatex.cz>
+Date: Wed, 23 Aug 2006 23:01:34 +0200
+From: Daniel Smolik <marvin@mydatex.cz>
+Organization: Mydatex s.r.o.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; cs-CZ; rv:1.7.8) Gecko/20060628 Debian/1.7.8-1sarge7.1
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH] BC: resource beancounters (v2)
-References: <44EC31FB.2050002@sw.ru>
-In-Reply-To: <44EC31FB.2050002@sw.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: sym53c8xx PCI card broken in 2.6.18
+References: <200608221546.11532.dj@david-web.co.uk>
+In-Reply-To: <200608221546.11532.dj@david-web.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->
-> [ ... ]
->
-> Patch set is applicable to 2.6.18-rc4-mm2
+David Johnson napsal(a):
+> Hi all,
+> 
+> I'm running a Sun Ultra Enterprise 450 (SPARC64) machine which has an on-board 
+> SCSI controller and a PCI SCSI controller, both supported by the sym53c8xx 
+> driver.
+> 
+> With 2.6.17.9 (and earlier) SCSI works perfectly, but with 2.6.18-rc4 and 
+> 2.6.18-rc4-git1 I'm getting errors on boot for all devices attached to the 
+> PCI card, but all the devices attached to the on-board controller are 
+> detected and configured OK.
+> 
+> lspci identifies the on-board controller as:
+> SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 03)
+> and the PCI controller as:
+> SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 14)
+> 
+> Here's the output from initialisation of the devices on the PCI card (repeated 
+> for every device):
+> scsi2: sym-2.2.3
+> scsi 2:0:0:0 ABORT operation started
+> scsi 2:0:0:0 ABORT operation timed out
+> scsi 2:0:0:0 DEVICE RESET operation started
+> scsi 2:0:0:0 DEVICE RESET operation timed out
+> scsi 2:0:0:0 BUS RESET operation started
+> scsi 2:0:0:0 BUS RESET operation timed out
+> scsi 2:0:0:0 HOST RESET operation started
+> sym2: SCSI bus has been reset
+> scsi 2:0:0:0 HOST RESET operation timed out
+> scsi: device offlined - not ready after error recovery
+> 
+> The devices on the PCI controller are a mixture of 'Fujitsu MAG3182L SUN18G' 
+> and 'Seagate ST318203LSUN18G' drives.
+> 
+> Looking through the changelogs between 2.6.17.9 and 2.6.18-rc4-git1, I can't 
+> see any changes to sym53c8xx, so I'm guessing this has been caused by some 
+> generic SCSI subsystem change. Let me know if I can do any more to debug.
+> 
+> Regards,
+> David.
+>   
+I must say that I have the same   experience with E250 a D1000 disk array.
+I think that is  HW problem but I have the same symptom described before.
+If I have disk in internal bay and controller all works perfect. But if I put 
+disk to D1000 I get the same error. I have use 2.6.18-rc3.
 
-Applying patch 1_6_BC_kconfig.patch
-patching file arch/i386/Kconfig
-Hunk #1 succeeded at 1184 with fuzz 2 (offset 38 lines).
-patching file arch/ia64/Kconfig
-Hunk #1 succeeded at 505 with fuzz 2 (offset 24 lines).
-patching file arch/i386/Kconfig
-Hunk #1 succeeded at 1186 with fuzz 2 (offset 40 lines).
-patching file arch/ia64/Kconfig
-Hunk #1 succeeded at 507 with fuzz 2 (offset 26 lines).
-patching file arch/powerpc/Kconfig
-Hunk #1 succeeded at 1040 with fuzz 2 (offset 2 lines).
-patching file arch/ppc/Kconfig
-Hunk #1 succeeded at 1416 with fuzz 2 (offset 2 lines).
-patching file arch/sparc/Kconfig
-Hunk #1 FAILED at 296.
-1 out of 1 hunk FAILED -- rejects in file arch/sparc/Kconfig
-patching file arch/sparc64/Kconfig
-Hunk #1 FAILED at 432.
-1 out of 1 hunk FAILED -- rejects in file arch/sparc64/Kconfig
-patching file arch/x86_64/Kconfig
-Hunk #1 FAILED at 655.
-1 out of 1 hunk FAILED -- rejects in file arch/x86_64/Kconfig
-patching file kernel/bc/Kconfig
-patching file arch/powerpc/Kconfig
-Hunk #1 succeeded at 1042 with fuzz 2 (offset 4 lines).
-patching file arch/ppc/Kconfig
-Hunk #1 succeeded at 1418 with fuzz 2 (offset 4 lines).
-patching file arch/sparc/Kconfig
-Hunk #1 FAILED at 296.
-1 out of 1 hunk FAILED -- rejects in file arch/sparc/Kconfig
-patching file arch/sparc64/Kconfig
-Hunk #1 FAILED at 432.
-1 out of 1 hunk FAILED -- rejects in file arch/sparc64/Kconfig
-patching file arch/x86_64/Kconfig
-Hunk #1 FAILED at 655.
-1 out of 1 hunk FAILED -- rejects in file arch/x86_64/Kconfig
-patching file kernel/bc/Kconfig
-Patch 1_6_BC_kconfig.patch does not apply (enforce with -f)
-
-C.
+			Dan

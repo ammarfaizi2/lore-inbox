@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHWLiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWHWLhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWHWLiN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWHWLiN
+	id S964885AbWHWLhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWHWLhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:38:13 -0400
-Received: from ns2.suse.de ([195.135.220.15]:17897 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932407AbWHWLiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:38:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: Kirill Korotaev <dev@sw.ru>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-Date: Wed, 23 Aug 2006 13:37:48 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
-In-Reply-To: <44EC35EB.1030000@sw.ru>
+	Wed, 23 Aug 2006 07:37:42 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:20569 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S964880AbWHWLhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 07:37:40 -0400
+Date: Wed, 23 Aug 2006 20:37:40 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Patrick McHardy <kaber@trash.net>, David Miller <davem@davemloft.net>,
+       akpm@osdl.org
+Subject: call panic if nl_table allocation fails
+Message-ID: <20060823113740.GA7834@miraclelinux.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608231337.48941.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 August 2006 13:03, Kirill Korotaev wrote:
+This patch makes crash happen if initialization of nl_table fails
+in initcalls. It is better than getting use after free crash later.
 
-> +#ifdef CONFIG_BEANCOUNTERS
-> +extern struct hlist_head bc_hash[];
-> +extern spinlock_t bc_hash_lock;
+Cc: Patrick McHardy <kaber@trash.net>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-I wonder who pokes into that hash from other files? Looks a bit dangerous.
-
-> +void __put_beancounter(struct beancounter *bc);
-> +static inline void put_beancounter(struct beancounter *bc)
-> +{
-> +	__put_beancounter(bc);
-> +}
-
-The wrapper seems pointless too.
-
-The file could use a overview comment what the various counter
-types actually are.
-
-> +	bc_print_id(bc, uid, sizeof(uid));
-> +	printk(KERN_WARNING "BC %s %s warning: %s "
-
-Doesn't this need some rate limiting? Or can it be only triggered
-by code bugs?
-
-
-> +	bc = &default_beancounter;
-> +	memset(bc, 0, sizeof(default_beancounter));
-
-You don't trust the BSS to be zero? @)
+Index: work-failmalloc/net/netlink/af_netlink.c
+===================================================================
+--- work-failmalloc.orig/net/netlink/af_netlink.c
++++ work-failmalloc/net/netlink/af_netlink.c
+@@ -1273,8 +1273,7 @@ netlink_kernel_create(int unit, unsigned
+ 	struct netlink_sock *nlk;
+ 	unsigned long *listeners = NULL;
  
--Andi
+-	if (!nl_table)
+-		return NULL;
++	BUG_ON(!nl_table);
+ 
+ 	if (unit<0 || unit>=MAX_LINKS)
+ 		return NULL;
+@@ -1745,11 +1744,8 @@ static int __init netlink_proto_init(voi
+ 		netlink_skb_parms_too_large();
+ 
+ 	nl_table = kcalloc(MAX_LINKS, sizeof(*nl_table), GFP_KERNEL);
+-	if (!nl_table) {
+-enomem:
+-		printk(KERN_CRIT "netlink_init: Cannot allocate nl_table\n");
+-		return -ENOMEM;
+-	}
++	if (!nl_table)
++		goto panic;
+ 
+ 	if (num_physpages >= (128 * 1024))
+ 		max = num_physpages >> (21 - PAGE_SHIFT);
+@@ -1769,7 +1765,7 @@ enomem:
+ 				nl_pid_hash_free(nl_table[i].hash.table,
+ 						 1 * sizeof(*hash->table));
+ 			kfree(nl_table);
+-			goto enomem;
++			goto panic;
+ 		}
+ 		memset(hash->table, 0, 1 * sizeof(*hash->table));
+ 		hash->max_shift = order;
+@@ -1786,6 +1782,8 @@ enomem:
+ 	rtnetlink_init();
+ out:
+ 	return err;
++panic:
++	panic("netlink_init: Cannot allocate nl_table\n");
+ }
+ 
+ core_initcall(netlink_proto_init);

@@ -1,187 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWHWNqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWHWNrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWHWNqa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWHWNq3
+	id S932240AbWHWNrV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWHWNrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:46:29 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:10521 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932217AbWHWNq3 (ORCPT
+	Wed, 23 Aug 2006 09:47:21 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:35265 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932218AbWHWNrU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:46:29 -0400
-Message-ID: <44EC5CDB.5000505@sw.ru>
-Date: Wed, 23 Aug 2006 17:49:15 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru> <20060823133055.GB10449@martell.zuzino.mipt.ru>
-In-Reply-To: <20060823133055.GB10449@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 09:47:20 -0400
+Date: Wed, 23 Aug 2006 17:44:36 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [take13 1/3] kevent: Core files.
+Message-ID: <20060823134435.GD29056@2ka.mipt.ru>
+References: <11563322971212@2ka.mipt.ru> <200608231451.07499.dada1@cosmosbay.com> <20060823132753.GB29056@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
+Content-Disposition: inline
+In-Reply-To: <20060823132753.GB29056@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 17:44:37 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> On Wed, Aug 23, 2006 at 03:03:07PM +0400, Kirill Korotaev wrote:
-> 
-> 
->>--- /dev/null
->>+++ ./include/bc/beancounter.h
-> 
-> 
->>+#define BC_RESOURCES	0
-> 
-> 
-> Do you want userspace to see it?
-yep.
 
->>+struct bc_resource_parm {
->>+	unsigned long barrier;	/* A barrier over which resource allocations
->>+				 * are failed gracefully. e.g. if the amount
->>+				 * of consumed memory is over the barrier
->>+				 * further sbrk() or mmap() calls fail, the
->>+				 * existing processes are not killed.
->>+				 */
->>+	unsigned long limit;	/* hard resource limit */
->>+	unsigned long held;	/* consumed resources */
->>+	unsigned long maxheld;	/* maximum amount of consumed resources */
->>+	unsigned long minheld;	/* minumum amount of consumed resources */
-> 
-> 
-> Stupid question: when minimum amount is useful?
-to monitor usage statistics (range of used resources).
-this value will be usefull when ubstat will be added.
-this field probably would be more logical to add later,
-but since it is part of user space interface it is left here
-for not changing API later.
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
 
->>+/*
->>+ * Kernel internal part.
->>+ */
-> 
-> 
-> Redundant comment, YMMV.
-> 
-> 
->>+#ifdef __KERNEL__
->>+
->>+#include <linux/config.h>
-> 
-> 
-> config.h is unneeded. You can drop it from everywhere.
-ok.
+On Wed, Aug 23, 2006 at 05:27:53PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> One can find it in archive on homepage
+> http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent 
+> or attached.
 
->>+struct beancounter
->>+{
-> 
-> 
-> nit:
-> 	"struct beancounter {"
-> 
-> 
->>+	atomic_t		bc_refcount;
->>+	spinlock_t		bc_lock;
->>+	uid_t			bc_id;
->>+	struct hlist_node	hash;
->>+
->>+	/* resources statistics and settings */
->>+	struct bc_resource_parm	bc_parms[BC_RESOURCES];
->>+};
->>+
->>+enum severity { BC_BARRIER, BC_LIMIT, BC_FORCE };
-> 
-> 
-> bc_severity?
-ok
+Now it is really attached.
 
-> 
-> 
->>--- /dev/null	2006-07-18 14:52:43.075228448 +0400
->>+++ ./kernel/bc/beancounter.c	2006-08-21 13:13:11.000000000 +0400
-> 
-> 
->>+#define bc_hash_fun(x) ((((x) >> 8) ^ (x)) & (BC_HASH_SIZE - 1))
->>+
->>+struct hlist_head bc_hash[BC_HASH_SIZE];
->>+spinlock_t bc_hash_lock;
->>+
->>+EXPORT_SYMBOL(bc_hash);
->>+EXPORT_SYMBOL(bc_hash_lock);
-> 
-> 
-> tasklist_lock was unexported recently and this looks equally low-level.
-> I couldn't find place in patchbomb where you use it in modular fashion.
-> perhaps, i need more sleep.
-I answered to Andi that it is left from prev patch set which used it in proc.c
-will be removed
-thanks for noting this!!!
+-- 
+	Evgeniy Polyakov
 
->>+void __put_beancounter(struct beancounter *bc)
->>+{
->>+	unsigned long flags;
->>+
->>+	/* equivalent to atomic_dec_and_lock_irqsave() */
->>+	local_irq_save(flags);
->>+	if (likely(!atomic_dec_and_lock(&bc->bc_refcount, &bc_hash_lock))) {
->>+		local_irq_restore(flags);
->>+		if (unlikely(atomic_read(&bc->bc_refcount) < 0))
->>+			printk(KERN_ERR "BC: Bad refcount: bc=%p, "
->>+					"luid=%d, ref=%d\n",
->>+					bc, bc->bc_id,
->>+					atomic_read(&bc->bc_refcount));
-> 
-> 
-> Should this BUG_ON() ?
-BUG_ON doesn't print much information :)
-ok, will replace
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: attachment; filename="evtest.c"
 
->>+		return;
->>+	}
->>+
->>+	BUG_ON(bc == &init_bc);
->>+	verify_held(bc);
->>+	hlist_del(&bc->hash);
->>+	spin_unlock_irqrestore(&bc_hash_lock, flags);
->>+	kmem_cache_free(bc_cachep, bc);
->>+}
->>+
->>+EXPORT_SYMBOL(__put_beancounter);
-> 
-> 
->>+int bc_charge_locked(struct beancounter *bc, int resource, unsigned long 
->>val,
->>+		enum severity strict)
->>+{
->>+	/*
->>+	 * bc_value <= BC_MAXVALUE, value <= BC_MAXVALUE, and only one 
->>addition
->>+	 * at the moment is possible so an overflow is impossible.  
->>+	 */
->>+	bc->bc_parms[resource].held += val;
->>+
->>+	switch (strict) {
->>+		case BC_BARRIER:
-> 
-> 
-> nit: one tab less
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/mman.h>
 
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <linux/unistd.h>
+#include <linux/types.h>
+
+#define PAGE_SIZE	4096
+#include <linux/ukevent.h>
+
+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
+{\
+	return syscall(__NR_##name, arg1, arg2, arg3, arg4);\
+}
+
+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
+	  type5,arg5) \
+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
+{\
+	return syscall(__NR_##name, arg1, arg2, arg3, arg4, arg5);\
+}
+
+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
+	  type5,arg5,type6,arg6) \
+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5, type6 arg6) \
+{\
+	return syscall(__NR_##name, arg1, arg2, arg3, arg4, arg5, arg6);\
+}
+
+_syscall4(int, kevent_ctl, int, arg1, unsigned int, argv2, unsigned int, argv3, void *, argv4);
+_syscall6(int, kevent_get_events, int, arg1, unsigned int, argv2, unsigned int, argv3, __u64, argv4, void *, argv5, unsigned, arg6);
+
+#define ulog(f, a...) fprintf(stderr, f, ##a)
+#define ulog_err(f, a...) ulog(f ": %s [%d].\n", ##a, strerror(errno), errno)
+
+static void usage(char *p)
+{
+	ulog("Usage: %s -t type -e event -o oneshot -p path -n wait_num -f kevent_file -h\n", p);
+}
+
+static int get_id(int type, char *path)
+{
+	int ret = -1;
+
+	switch (type) {
+		case KEVENT_TIMER:
+			ret = 3000;
+			break;
+		case KEVENT_INODE:
+			ret = open(path, O_RDONLY);
+			break;
+	}
+
+	return ret;
+}
+
+static void *evtest_mmap(int fd, off_t *offset, unsigned int number)
+{
+	void *start, *ptr;
+	off_t o = *offset;
+
+	start = NULL;
+
+	ptr = mmap(start, PAGE_SIZE*number, PROT_READ, MAP_SHARED, fd, o*PAGE_SIZE);
+	if (ptr == MAP_FAILED) {
+		ulog_err("Failed to mmap: start: %p, number: %u, offset: %lu", start, number, o);
+		return NULL;
+	}
+
+	printf("mmap: ptr: %p, start: %p, number: %u, offset: %lu.\n", ptr, start, number, o);
+	*offset =  o + number;
+	return ptr;
+}
+
+int main(int argc, char *argv[])
+{
+	int ch, fd, err, type, event, oneshot, wait_num, number;
+	unsigned int i, num, old_idx;
+	char *path, *file;
+	char buf[4096];
+	struct ukevent *uk;
+	struct kevent_mring *ring;
+	off_t offset;
+
+	path = NULL;
+	type = event = -1;
+	oneshot = 0;
+	wait_num = 10;
+	offset = 0;
+	number = 1;
+	old_idx = 0;
+	file = "/dev/kevent";
+
+	while ((ch = getopt(argc, argv, "f:p:t:e:o:n:h")) > 0) {
+		switch (ch) {
+			case 'f':
+				file = optarg;
+				break;
+			case 'n':
+				wait_num = atoi(optarg);
+				break;
+			case 'p':
+				path = optarg;
+				break;
+			case 't':
+				type = atoi(optarg);
+				break;
+			case 'e':
+				event = atoi(optarg);
+				break;
+			case 'o':
+				oneshot = atoi(optarg);
+				break;
+			default:
+				usage(argv[0]);
+				return -1;
+		}
+	}
+
+	if (event == -1 || type == -1 || (type == KEVENT_INODE && !path)) {
+		ulog("You need at least -t -e parameters and -p for inode notifications.\n");
+		usage(argv[0]);
+		return -1;
+	}
+	
+	fd = open(file, O_RDWR);
+	if (fd == -1) {
+		ulog_err("Failed create kevent control block using file %s", file);
+		return -1;
+	}
+
+	ring = evtest_mmap(fd, &offset, number);
+	if (!ring)
+		return -1;
+
+	memset(buf, 0, sizeof(buf));
+	
+	num = 1;
+	for (i=0; i<num; ++i) {
+		uk = (struct ukevent *)buf;
+		uk->event = event;
+		uk->type = type;
+		if (oneshot)
+			uk->req_flags |= KEVENT_REQ_ONESHOT;
+		uk->user[0] = i;
+		uk->id.raw[0] = get_id(uk->type, path);
+
+		err = kevent_ctl(fd, KEVENT_CTL_ADD, 1, uk);
+		if (err < 0) {
+			ulog_err("Failed to perform control operation: type=%d, event=%d, oneshot=%d", type, event, oneshot);
+			close(fd);
+			return err;
+		}
+		if (err) {
+			ulog("%d: ret_flags: 0x%x, ret_data: %u %d.\n", i, uk->ret_flags, uk->ret_data[0], (int)uk->ret_data[1]);
+		}
+	}
+	
+	while (1) {
+		err = kevent_get_events(fd, 1, wait_num, 10000000000, buf, 0);
+		if (err < 0) {
+			ulog_err("Failed to perform control operation: type=%d, event=%d, oneshot=%d", type, event, oneshot);
+			close(fd);
+			return err;
+		}
+
+		num = ring->index;
+		if (num != old_idx) {
+			ulog("mmap: idx: %u, returned: %d.\n", num, err);
+			while (old_idx != num) {
+				if (old_idx < KEVENTS_ON_PAGE) {
+					struct mukevent *m = &ring->event[old_idx];
+					ulog("%08x: %08x.%08x - %08x\n", 
+						i, m->id.raw[0], m->id.raw[1], m->ret_flags);
+				} else {
+					/*
+					 * Mmap next page.
+					 */
+				}
+				if (++old_idx >= KEVENT_MAX_EVENTS)
+					old_idx = 0;
+			}
+			old_idx = num;
+		}
+
+		num = (unsigned)err;
+		if (num) {
+			ulog("syscall dump: %u events.\n", num);
+			uk = (struct ukevent *)buf;
+			for (i=0; i<num; ++i) {
+				ulog("%08x: %08x.%08x - %08x.%08x\n", 
+						uk[i].user[0],
+						uk[i].id.raw[0], uk[i].id.raw[1],
+						uk[i].ret_data[0], uk[i].ret_data[1]);
+			}
+		}
+	}
+
+	close(fd);
+	return 0;
+}
+
+--J2SCkAp4GZ/dPZZf--

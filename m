@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWHWIoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWHWIpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWHWIoU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWHWIoU
+	id S964790AbWHWIpH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWHWIpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:44:20 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:30701 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964789AbWHWIoT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:44:19 -0400
-Message-ID: <44EC1563.90206@vmware.com>
-Date: Wed, 23 Aug 2006 01:44:19 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain>	 <44DB7596.6010503@goop.org>	 <1156254965.27114.17.camel@localhost.localdomain>	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>	 <1156271386.2976.102.camel@laptopd505.fenrus.org>	 <1156275004.27114.34.camel@localhost.localdomain>	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com> <1156319788.2829.12.camel@laptopd505.fenrus.org>
-In-Reply-To: <1156319788.2829.12.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 04:45:07 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:24284 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964789AbWHWIpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:45:05 -0400
+Date: Wed, 23 Aug 2006 12:39:00 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jari Sundell <sundell.software@gmail.com>
+Cc: David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Message-ID: <20060823083859.GA8936@2ka.mipt.ru>
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com> <20060822231129.GA18296@ms2.inr.ac.ru> <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com> <20060822.173200.126578369.davem@davemloft.net> <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com> <20060823065659.GC24787@2ka.mipt.ru> <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 12:39:04 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> Since this code is so rather, um, custom, I was going to reimplement 
->> stop_machine in the module.
->>     
->
-> that sounds like a big mistake. I assume you want your VMI module to be
-> part of mainline for one.
->
-> And this is the sort of thing that if we want to support it, we better
-> support it inside the main kernel, eg provide an api to modules to use
-> it, rather than having each module hack their own....
->   
+On Wed, Aug 23, 2006 at 10:22:06AM +0200, Jari Sundell (sundell.software@gmail.com) wrote:
+> On 8/23/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >void * in structure exported to userspace is forbidden.
+> 
+> Only void * I'm seeing belongs to the user, (udata) perhaps you are
+> talking of something different?
 
-Yes, after discussion with Rusty, it appears that beefing up 
-stop_machine_run is the right way to go.  And it has benefits for 
-non-paravirt code as well, such as allowing plug-in kprobes or oprofile 
-extension modules to be loaded without having to deal with a debug 
-exception or NMI during module load/unload.
+Yes, exactly about it.
 
-Thanks,
+I put union {
+	u32 a[2];
+	void *b;
+} 
+epcially to eliminate that problem.
 
-Zach
+And I'm not that sure aboit stuff like uptr_t or how they call pointers
+in userspace and kernelspace.
+
+> >long in syscall requires wrapper in per-arch code (although that
+> >workaround _is_ there, it does not mean that broken interface should
+> >be used).
+> >poll uses millisecods - it is perfectly ok.
+> 
+> The kernel is there to hide those ugly implementation details from the
+> user, so I don't care that much about a workaround being required in
+> some cases. More important, IMHO is consistency with the POSIX system
+> calls.
+> 
+> I guess as long as you use usec, at least it won't be a pain to use.
+
+Andrew suggested to use nanoseconds there in u64 variable.
+I think it is ok.
+
+> Rakshasa
+
+-- 
+	Evgeniy Polyakov

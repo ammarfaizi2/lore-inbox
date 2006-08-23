@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWHWTLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWHWTSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWHWTLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWHWTLe
+	id S965132AbWHWTSN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWHWTSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:11:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:34730 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965103AbWHWTLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:11:33 -0400
-Date: Wed, 23 Aug 2006 20:11:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
-Message-ID: <20060823191132.GA13381@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com> <20060823152831.GC32725@infradead.org> <20060823155715.GA5204@martell.zuzino.mipt.ru> <20060823160458.GA17712@infradead.org> <20060823115857.89f8d47b.akpm@osdl.org>
+	Wed, 23 Aug 2006 15:18:13 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:65239 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S965128AbWHWTSL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 15:18:11 -0400
+Subject: Re: [PATCH 5/7] SLIM: make and config stuff
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <1156359949.6720.69.camel@localhost.localdomain>
+References: <1156359949.6720.69.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 23 Aug 2006 15:19:33 -0400
+Message-Id: <1156360773.8506.103.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823115857.89f8d47b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 11:58:57AM -0700, Andrew Morton wrote:
-> > > Padding with zeros makes it even more useful:
-> > > 
-> > > 	[PATCH 00/17]
-> > > 	[PATCH 01/17]
-> > > 		...
-> > > 	[PATCH 17/17]
-> > 
-> > To be honest I utterly hate that convention
+On Wed, 2006-08-23 at 12:05 -0700, Kylene Jo Hall wrote:
+> This patch contains the Makefile, Kconfig and .h files for SLIM.
 > 
-> It's so they'll correctly alphasort at the recipient's end.
+> Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 
-I suspect most mailers sort by date and not by subject anyway.
+> --- linux-2.6.18-rc3/security/slim/Kconfig	1969-12-31 18:00:00.000000000 -0600
+> +++ linux-2.6.18-rc3-working/security/slim/Kconfig	2006-08-04 13:29:13.000000000 -0500
+> @@ -0,0 +1,6 @@
+> +config SECURITY_SLIM
+> +	boolean "SLIM support"
+> +	depends on SECURITY && SECURITY_NETWORK && INTEGRITY
 
-At least mine does :)
+&& !SECURITY_SELINUX?
+
+> +	help
+> +	  The Simple Linux Integrity Module implements a modified low water-mark
+> +	  mandatory access control integrity model.
+
+-- 
+Stephen Smalley
+National Security Agency
 

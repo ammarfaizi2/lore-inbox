@@ -1,125 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWHWNQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWHWNYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWHWNQL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWHWNQL
+	id S932083AbWHWNYj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWHWNYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:16:11 -0400
-Received: from mail.gmx.net ([213.165.64.20]:19115 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750713AbWHWNQK (ORCPT
+	Wed, 23 Aug 2006 09:24:39 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:7084 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932083AbWHWNYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:16:10 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <1156326208.6265.33.camel@Homer.simpson.net>
-References: <20060820174015.GA13917@in.ibm.com>
-	 <20060820174839.GH13917@in.ibm.com>
-	 <1156326208.6265.33.camel@Homer.simpson.net>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 15:24:43 +0000
-Message-Id: <1156346683.6456.4.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Wed, 23 Aug 2006 09:24:38 -0400
+Message-ID: <44EC57BD.4020807@sw.ru>
+Date: Wed, 23 Aug 2006 17:27:25 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru> <200608231337.48941.ak@suse.de>
+In-Reply-To: <200608231337.48941.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 09:43 +0000, Mike Galbraith wrote:
+Andi Kleen wrote:
+> On Wednesday 23 August 2006 13:03, Kirill Korotaev wrote:
+> 
+> 
+>>+#ifdef CONFIG_BEANCOUNTERS
+>>+extern struct hlist_head bc_hash[];
+>>+extern spinlock_t bc_hash_lock;
+> 
+> 
+> I wonder who pokes into that hash from other files? Looks a bit dangerous.
+it was kernel/ub/proc.c with proc interface :)
+however, we removed it from this patchset version, but forgot extern's...
 
-> ...and after my box finishes rebooting, I'll alert the developer of this
-> patch set that very bad things happen the instant you do that :)
+will remove
 
-Good news is that it doesn't always spontaneous reboot.  Sometimes, it
-just goes pop.
+>>+void __put_beancounter(struct beancounter *bc);
+>>+static inline void put_beancounter(struct beancounter *bc)
+>>+{
+>>+	__put_beancounter(bc);
+>>+}
+> 
+> 
+> The wrapper seems pointless too.
+yep, almost the same reason :)
 
-(gdb) list *schedule+0x18a
-0xb13c4aba is in schedule (kernel/sched.c:3586).
-3581    #else
-3582            next_grp = init_task_grp.rq[cpu];
-3583    #endif
-3584
-3585            /* Pick a task within that group next */
-3586            array = next_grp->active;
-3587            if (!array->nr_active) {
-3588                    /*
-3589                     * Switch the active and expired arrays.
-3590                     */
-(gdb)
+> The file could use a overview comment what the various counter
+> types actually are.
+you mean comment about what resource parameters we introduce?
+ok, will add it with each resource patch.
 
-BUG: unable to handle kernel paging request at virtual address ffffffe8
- printing eip:
-b13c4aba
-*pde = 00004067
-Oops: 0000 [#1]
-PREEMPT SMP 
-Modules linked in: xt_pkttype ipt_LOG xt_limit eeprom snd_pcm_oss snd_mixer_oss snd_seq_midi snd_seq_midi_event snd_seq edd ip6t_REJECT xt_tcpudp ipt_REJECT xt_state iptable_mangle iptable_nat ip_nat iptable_filter ip6table_mangle ip_conntrack nfnetlink ip_tables ip6table_filter ip6_tables x_tables nls_iso8859_1 nls_cp437 nls_utf8 tuner snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc saa7134 prism54 bt878 ir_kbd_i2c snd_mpu401 snd_mpu401_uart snd_rawmidi snd_seq_device snd i2c_i801 bttv ohci1394 ieee1394 video_buf ir_common btcx_risc tveeprom soundcore sd_mod
-CPU:    0
-EIP:    0060:[<b13c4aba>]    Not tainted VLI
-EFLAGS: 00210097   (2.6.18-rc4-ctrl #166) 
-EIP is at schedule+0x18a/0xb5b
-eax: 0000008c   ebx: b1488f40   ecx: b1e65f60   edx: fffff6e8
-esi: b1489054   edi: b15ce300   ebp: b158efac   esp: b158ef38
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, ti=b158e000 task=b1488f40 task.ti=b158e000)
-Stack: 00000000 00200046 b158ef3c b1488f40 00000000 00000000 b158ef78 b15ce380 
-       b15ce300 b158ef64 b1027f51 00000001 b1488f40 00000000 008961d3 00000035 
-       0005466d 00000000 b1489054 b1e65f60 b15ce300 b158efac 00000000 b1e6007b 
-Call Trace:
- [<b1001a52>] cpu_idle+0x8f/0xc9
- [<b1000622>] rest_init+0x39/0x47
- [<b15957c8>] start_kernel+0x34d/0x405
- [<b1000210>] 0xb1000210
-DWARF2 unwinder stuck at 0xb1000210
-Leftover inexact backtrace:
- =======================
- =======================
-BUG: unable to handle kernel paging request at virtual address 38f28034
- printing eip:
-b1004074
-*pde = 00000000
-Oops: 0000 [#2]
-PREEMPT SMP 
-Modules linked in: xt_pkttype ipt_LOG xt_limit eeprom snd_pcm_oss snd_mixer_oss snd_seq_midi snd_seq_midi_event snd_seq edd ip6t_REJECT xt_tcpudp ipt_REJECT xt_state iptable_mangle iptable_nat ip_nat iptable_filter ip6table_mangle ip_conntrack nfnetlink ip_tables ip6table_filter ip6_tables x_tables nls_iso8859_1 nls_cp437 nls_utf8 tuner snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc saa7134 prism54 bt878 ir_kbd_i2c snd_mpu401 snd_mpu401_uart snd_rawmidi snd_seq_device snd i2c_i801 bttv ohci1394 ieee1394 video_buf ir_common btcx_risc tveeprom soundcore sd_mod
-CPU:    0
-EIP:    0060:[<b1004074>]    Not tainted VLI
-EFLAGS: 00210812   (2.6.18-rc4-ctrl #166) 
-EIP is at show_trace_log_lvl+0x92/0x191
-eax: 38f28ffd   ebx: 38f289c9   ecx: ffffffff   edx: 00200006
-esi: b158ee1c   edi: 38f28000   ebp: b158ee1c   esp: b158edc8
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, ti=b158e000 task=b1488f40 task.ti=b158e000)
-Stack: b1407cc4 b1407d3c 00020809 b1e65f60 fffff6e8 00099100 b1500800 01675007 
-       0000008c 0020007b 0000007b ffffffff b1000210 00000060 00210097 b158f000 
-       00000068 b1488f40 b158ef9b 00000018 b1407d3c b158ee44 b1004219 b1407d3c 
-Call Trace:
- [<b1004219>] show_stack_log_lvl+0xa6/0xcb
- [<b10043e7>] show_registers+0x1a9/0x22e
- [<b10045a2>] die+0x136/0x2ea
- [<b10191cb>] do_page_fault+0x269/0x529
- [<b1003bb1>] error_code+0x39/0x40
- [<b13c4aba>] schedule+0x18a/0xb5b
- [<b1001a52>] cpu_idle+0x8f/0xc9
- [<b1000622>] rest_init+0x39/0x47
- [<b15957c8>] start_kernel+0x34d/0x405
- [<b1000210>] 0xb1000210
-DWARF2 unwinder stuck at 0xb1000210
-Leftover inexact backtrace:
- =======================
- =======================
-BUG: unable to handle kernel paging request at virtual address 38f28034
- printing eip:
-b1004074
-*pde = 00000000
-Recursive die() failure, output suppressed
+>>+	bc_print_id(bc, uid, sizeof(uid));
+>>+	printk(KERN_WARNING "BC %s %s warning: %s "
+> 
+> 
+> Doesn't this need some rate limiting? Or can it be only triggered
+> by code bugs?
+only due to code bugs.
 
+>>+	bc = &default_beancounter;
+>>+	memset(bc, 0, sizeof(default_beancounter));
+> 
+> 
+> You don't trust the BSS to be zero? @)
+:))
 
-
-
+Kirill

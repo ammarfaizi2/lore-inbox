@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWHWRMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWHWRO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWHWRMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 13:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWHWRMV
+	id S965070AbWHWRO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 13:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWHWRO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 13:12:21 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5289 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965072AbWHWRMU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 13:12:20 -0400
-Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kirill Korotaev <dev@sw.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-In-Reply-To: <20060823095031.cb14cc52.akpm@osdl.org>
-References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru>
-	 <44EC5B74.2040104@sw.ru>  <20060823095031.cb14cc52.akpm@osdl.org>
-Content-Type: text/plain
+	Wed, 23 Aug 2006 13:14:29 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:22485 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965070AbWHWRO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 13:14:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EhKtleCWFKxjbqS3wOgb/RMK0NIkJXWSQLJe22k2qhARYr7ddo+BAg1ZSXHB8GC+upOmvAkgdwnPPOTgHSsbmPO95kS1aDrOjpRjY6F7gfHukY/lfDTUx+2N3iFl608u9KvuMNix8O9DxRDRo9kzq61iicQL00ufFLNop9kt+3Y=
+Message-ID: <e6babb600608231014r23886965k9cbc1fd3b80930bb@mail.gmail.com>
+Date: Wed, 23 Aug 2006 10:14:27 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: "hui Bill Huey" <billh@gnuppy.monkey.org>
+Subject: Re: rtmutex assert failure (was [Patch] restore the RCU callback...)
+Cc: "Esben Nielsen" <nielsen.esben@googlemail.com>,
+       "Ingo Molnar" <mingo@elte.hu>, "Thomas Gleixner" <tglx@linutronix.de>,
+       rostedt@goodmis.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060822232051.GA8991@gnuppy.monkey.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 23 Aug 2006 18:29:42 +0100
-Message-Id: <1156354182.3007.37.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <20060811010646.GA24434@gnuppy.monkey.org>
+	 <20060811211857.GA32185@gnuppy.monkey.org>
+	 <20060811221054.GA32459@gnuppy.monkey.org>
+	 <e6babb600608141056j4410380fr15348430738c91d8@mail.gmail.com>
+	 <20060814234423.GA31230@gnuppy.monkey.org>
+	 <e6babb600608151053u6b902b80k9e3b399fe34ee10f@mail.gmail.com>
+	 <20060818115934.GA29919@gnuppy.monkey.org>
+	 <e6babb600608211721g739c5518sa14427d1e9f2334@mail.gmail.com>
+	 <20060822013722.GA628@gnuppy.monkey.org>
+	 <20060822232051.GA8991@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-23 am 09:50 -0700, ysgrifennodd Andrew Morton:
-> On Wed, 23 Aug 2006 17:43:16 +0400
-> Kirill Korotaev <dev@sw.ru> wrote:
-> 
-> > +asmlinkage long sys_set_bclimit(uid_t id, unsigned long resource,
-> > +		unsigned long *limits)
-> 
-> I'm still a bit mystified about the use of uid_t here.  It's not a uid, is
-> it?
+On 8/22/06, hui Bill Huey <billh@gnuppy.monkey.org> wrote:
+> I turned off the tracing in the latency tracking stuff and a relatively
+> small patch is here against -rt8:
+>
+>         http://mmlinux.sourceforge.net/public/against-2.6.17-rt8-0.diff
 
-Its a uid_t because of setluid() and twenty odd years of existing unix
-practice. 
+I'm going to assume that the #error here:
 
-Alan
++#ifdef CONFIG_LATENCY_TRACE
++#error
++       stop_trace();
++#endif
 
+is to see if I'm awake.  No, but gcc is.  I just removed it (?).
+
+End result is as with the previous patch: nothing to serial console,
+and just the single line moaning about line 471 in blah blah blah.
+
+-- 
+Robert Crocombe
+rcrocomb@gmail.com

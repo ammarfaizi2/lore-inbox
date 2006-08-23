@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWHWPgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWHWPg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWHWPgU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHWPgU
+	id S964984AbWHWPg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWHWPg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:36:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40591 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964983AbWHWPgT (ORCPT
+	Wed, 23 Aug 2006 11:36:26 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:59276 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964984AbWHWPg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:36:19 -0400
-Message-ID: <44EC75E9.2020608@redhat.com>
-Date: Wed, 23 Aug 2006 11:36:09 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060801)
+	Wed, 23 Aug 2006 11:36:26 -0400
+Date: Wed, 23 Aug 2006 17:36:08 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Rich Paredes <rparedes@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP Affinity and nice
+In-Reply-To: <38798.127.0.0.1.1156346673.squirrel@forexproject.com>
+Message-ID: <Pine.LNX.4.61.0608231735210.9588@yvahk01.tjqt.qr>
+References: <38798.127.0.0.1.1156346673.squirrel@forexproject.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Robert Szentmihalyi <robert.szentmihalyi@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Group limit for NFS exported file systems
-References: <20060823091652.235230@gmx.net> <p73u043656n.fsf@verdi.suse.de>
-In-Reply-To: <p73u043656n.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de> writes:
+>Subject: SMP Affinity and nice
 >
->   
->> is there a group limit for NFS exported file systems in recent kernels?
->> One if my users cannot access directories that belong to a group he actually _is_ a member of. That, however, is true only when accessing them over NFS. On the local file system, everything is fine. UIDs and GIDs are the same on client and server, so that cannot be the problem. Client and server run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
->>     
+>I am trying to come to an understanding as to why 1 process is getting
+>less cpu time than identical processes with a higher "nice" value.
+>Server has 2 physical processors with hyperthreading (cpu 0,1,2,3)
 >
-> NFSv2 has a 8 groups limit in the protocol iirc.
+>I am starting 5 processes that perform a square root loop to max out a
+>cpu.  They use the exact same code but are renamed for identification:
+>cpumax1, cpumax2, cpumax3, cpumax4, cpumax5
+[...]
 
-Ahh, no.  None of the NFS protocols define anything about the authentication
-protocols.  This is defined by the RPC protocol and it defines a limit of 16
-for AUTH_SYS, otherwise known as AUTH_UNIX.
+What you describe should be addressed in the -ck patchset (smpnice-...diff) 
+Not sure if it is in mainline already, though.
 
-Interestingly, the original NFSv2 implementations had a limit of 8, then 10,
-and then finally 16.
 
-    Thanx...
 
-       ps
+Jan Engelhardt
+-- 

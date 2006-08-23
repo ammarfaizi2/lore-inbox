@@ -1,78 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWHWLhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWHWLfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWHWLhm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWHWLhm
+	id S932412AbWHWLfj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWHWLfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:37:42 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:20569 "EHLO
+	Wed, 23 Aug 2006 07:35:06 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:58712 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S964880AbWHWLhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:37:40 -0400
-Date: Wed, 23 Aug 2006 20:37:40 +0900
+	id S932407AbWHWLe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 07:34:58 -0400
+Message-Id: <20060823113316.560762676@localhost.localdomain>
+References: <20060823113243.210352005@localhost.localdomain>
+Date: Wed, 23 Aug 2006 20:32:44 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: Patrick McHardy <kaber@trash.net>, David Miller <davem@davemloft.net>,
-       akpm@osdl.org
-Subject: call panic if nl_table allocation fails
-Message-ID: <20060823113740.GA7834@miraclelinux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, okuji@enbug.org, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 1/5] fail-injection library
+Content-Disposition: inline; filename=should-fail.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes crash happen if initialization of nl_table fails
-in initcalls. It is better than getting use after free crash later.
+This patch provides several functions for implement fail-injection
+capabilities.
 
-Cc: Patrick McHardy <kaber@trash.net>
-Cc: David Miller <davem@davemloft.net>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-Index: work-failmalloc/net/netlink/af_netlink.c
+ include/linux/should_fail.h |   44 ++++++++++++++++++++++++++++
+ lib/Kconfig.debug           |    4 ++
+ lib/Makefile                |    1 
+ lib/should_fail.c           |   69 ++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 118 insertions(+)
+
+Index: work-failmalloc/include/linux/should_fail.h
 ===================================================================
---- work-failmalloc.orig/net/netlink/af_netlink.c
-+++ work-failmalloc/net/netlink/af_netlink.c
-@@ -1273,8 +1273,7 @@ netlink_kernel_create(int unit, unsigned
- 	struct netlink_sock *nlk;
- 	unsigned long *listeners = NULL;
+--- /dev/null
++++ work-failmalloc/include/linux/should_fail.h
+@@ -0,0 +1,44 @@
++#ifndef _LINUX_SHOULD_FAIL_H
++#define _LINUX_SHOULD_FAIL_H
++
++#ifdef CONFIG_SHOULD_FAIL
++
++#include <linux/types.h>
++#include <asm/atomic.h>
++
++struct should_fail_data {
++
++	/* how often it should fail in percent. */
++	unsigned long probability;
++
++	/* the interval of failures. */
++	unsigned long interval;
++
++	/*
++	 * how many times failures may happen at most.
++	 * A value of '-1' means infinity.
++	 */
++	atomic_t times;
++
++	/*
++	 * the size of free space where memory can be allocated safely.
++	 * A value of '0' means infinity.
++	 */
++	atomic_t space;
++
++	unsigned long count;
++};
++
++#define DEFINE_SHOULD_FAIL(name) \
++	struct should_fail_data name = { .times = ATOMIC_INIT(-1), }
++
++int should_fail(struct should_fail_data *data, unsigned long size);
++int setup_should_fail(struct should_fail_data *data, char *str);
++
++#else
++
++#define should_fail(data, size)	(0)
++
++#endif /* CONFIG_SHOULD_FAIL */
++
++#endif /* _LINUX_SHOULD_FAIL_H */
+Index: work-failmalloc/lib/should_fail.c
+===================================================================
+--- /dev/null
++++ work-failmalloc/lib/should_fail.c
+@@ -0,0 +1,69 @@
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/random.h>
++#include <linux/stat.h>
++#include <linux/types.h>
++#include <linux/fs.h>
++#include <linux/module.h>
++#include <linux/should_fail.h>
++
++int setup_should_fail(struct should_fail_data *data, char *str)
++{
++	unsigned long probability;
++	unsigned long interval;
++	int times;
++	int space;
++
++	/* "<probability>,<interval>,<times>,<space>" */
++	if (sscanf(str, "%lu,%lu,%d,%d", &probability, &interval, &times,
++		   &space) < 4)
++		return 0;
++
++	data->probability = probability;
++	data->interval = interval;
++	atomic_set(&data->times, times);
++	atomic_set(&data->space, space);
++
++	return 1;
++}
++
++#define failure_probability(data)	(data)->probability
++#define failure_interval(data)		(data)->interval
++#define max_failures(data)		(data)->times
++#define current_space(data)		(data)->space
++#define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
++
++/*
++ * This function is almost taken from failmalloc-1.0
++ * http://www.nongnu.org/failmalloc/
++ */
++
++int should_fail(struct should_fail_data *data, unsigned long size)
++{
++	if (atomic_read(&max_failures(data)) == 0)
++		return 0;
++
++	if (atomic_read(&current_space(data)) > size) {
++		atomic_sub(size, &current_space(data));
++		return 0;
++	}
++
++	if (failure_interval(data) > 1) {
++		data->count++;
++		if (data->count % failure_interval(data))
++			return 0;
++	}
++
++	if (failure_probability(data) == 100 ||
++	    INT_MAX / 100 * failure_probability(data) > get_random_int())
++		goto fail;
++
++	return 0;
++
++fail:
++
++	if (atomic_read(&max_failures(data)) != -1)
++		atomic_dec_not_zero(&max_failures(data));
++
++	return 1;
++}
+Index: work-failmalloc/lib/Kconfig.debug
+===================================================================
+--- work-failmalloc.orig/lib/Kconfig.debug
++++ work-failmalloc/lib/Kconfig.debug
+@@ -368,3 +368,7 @@ config RCU_TORTURE_TEST
+ 	  at boot time (you probably don't).
+ 	  Say M if you want the RCU torture tests to build as a module.
+ 	  Say N if you are unsure.
++
++config SHOULD_FAIL
++	bool
++
+Index: work-failmalloc/lib/Makefile
+===================================================================
+--- work-failmalloc.orig/lib/Makefile
++++ work-failmalloc/lib/Makefile
+@@ -51,6 +51,7 @@ obj-$(CONFIG_TEXTSEARCH_FSM) += ts_fsm.o
+ obj-$(CONFIG_SMP) += percpu_counter.o
  
--	if (!nl_table)
--		return NULL;
-+	BUG_ON(!nl_table);
+ obj-$(CONFIG_SWIOTLB) += swiotlb.o
++obj-$(CONFIG_SHOULD_FAIL) += should_fail.o
  
- 	if (unit<0 || unit>=MAX_LINKS)
- 		return NULL;
-@@ -1745,11 +1744,8 @@ static int __init netlink_proto_init(voi
- 		netlink_skb_parms_too_large();
- 
- 	nl_table = kcalloc(MAX_LINKS, sizeof(*nl_table), GFP_KERNEL);
--	if (!nl_table) {
--enomem:
--		printk(KERN_CRIT "netlink_init: Cannot allocate nl_table\n");
--		return -ENOMEM;
--	}
-+	if (!nl_table)
-+		goto panic;
- 
- 	if (num_physpages >= (128 * 1024))
- 		max = num_physpages >> (21 - PAGE_SHIFT);
-@@ -1769,7 +1765,7 @@ enomem:
- 				nl_pid_hash_free(nl_table[i].hash.table,
- 						 1 * sizeof(*hash->table));
- 			kfree(nl_table);
--			goto enomem;
-+			goto panic;
- 		}
- 		memset(hash->table, 0, 1 * sizeof(*hash->table));
- 		hash->max_shift = order;
-@@ -1786,6 +1782,8 @@ enomem:
- 	rtnetlink_init();
- out:
- 	return err;
-+panic:
-+	panic("netlink_init: Cannot allocate nl_table\n");
- }
- 
- core_initcall(netlink_proto_init);
+ hostprogs-y	:= gen_crc32table
+ clean-files	:= crc32table.h
+
+--

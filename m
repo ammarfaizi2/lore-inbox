@@ -1,262 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWHWNrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWHWNtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWHWNrV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWHWNrV
+	id S932226AbWHWNtV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWHWNtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:47:21 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:35265 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932218AbWHWNrU (ORCPT
+	Wed, 23 Aug 2006 09:49:21 -0400
+Received: from ns2.suse.de ([195.135.220.15]:20629 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932226AbWHWNtT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:47:20 -0400
-Date: Wed, 23 Aug 2006 17:44:36 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take13 1/3] kevent: Core files.
-Message-ID: <20060823134435.GD29056@2ka.mipt.ru>
-References: <11563322971212@2ka.mipt.ru> <200608231451.07499.dada1@cosmosbay.com> <20060823132753.GB29056@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
+	Wed, 23 Aug 2006 09:49:19 -0400
+From: Andi Kleen <ak@suse.de>
+To: Kirill Korotaev <dev@sw.ru>
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+Date: Wed, 23 Aug 2006 15:48:05 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+References: <44EC31FB.2050002@sw.ru> <200608231337.48941.ak@suse.de> <44EC57BD.4020807@sw.ru>
+In-Reply-To: <44EC57BD.4020807@sw.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060823132753.GB29056@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 17:44:37 +0400 (MSD)
+Message-Id: <200608231548.05353.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 23 August 2006 15:27, Kirill Korotaev wrote:
+> Andi Kleen wrote:
+> > On Wednesday 23 August 2006 13:03, Kirill Korotaev wrote:
+> > 
+> > 
+> >>+#ifdef CONFIG_BEANCOUNTERS
+> >>+extern struct hlist_head bc_hash[];
+> >>+extern spinlock_t bc_hash_lock;
+> > 
+> > 
+> > I wonder who pokes into that hash from other files? Looks a bit dangerous.
+> it was kernel/ub/proc.c with proc interface :)
+> however, we removed it from this patchset version, but forgot extern's...
+> 
+> will remove
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
+Best remove the EXPORT_SYMBOLs too and make it static.
 
-On Wed, Aug 23, 2006 at 05:27:53PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> One can find it in archive on homepage
-> http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent 
-> or attached.
+> >>+void __put_beancounter(struct beancounter *bc);
+> >>+static inline void put_beancounter(struct beancounter *bc)
+> >>+{
+> >>+	__put_beancounter(bc);
+> >>+}
+> > 
+> > 
+> > The wrapper seems pointless too.
+> yep, almost the same reason :)
+> 
+> > The file could use a overview comment what the various counter
+> > types actually are.
+> you mean comment about what resource parameters we introduce?
 
-Now it is really attached.
+I meant about what a barrier counter etc. is and what makes
+it different from other counters.
 
--- 
-	Evgeniy Polyakov
+The individual resources can be probably described elswhere.
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: attachment; filename="evtest.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <linux/unistd.h>
-#include <linux/types.h>
-
-#define PAGE_SIZE	4096
-#include <linux/ukevent.h>
-
-#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
-{\
-	return syscall(__NR_##name, arg1, arg2, arg3, arg4);\
-}
-
-#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-	  type5,arg5) \
-type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
-{\
-	return syscall(__NR_##name, arg1, arg2, arg3, arg4, arg5);\
-}
-
-#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-	  type5,arg5,type6,arg6) \
-type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5, type6 arg6) \
-{\
-	return syscall(__NR_##name, arg1, arg2, arg3, arg4, arg5, arg6);\
-}
-
-_syscall4(int, kevent_ctl, int, arg1, unsigned int, argv2, unsigned int, argv3, void *, argv4);
-_syscall6(int, kevent_get_events, int, arg1, unsigned int, argv2, unsigned int, argv3, __u64, argv4, void *, argv5, unsigned, arg6);
-
-#define ulog(f, a...) fprintf(stderr, f, ##a)
-#define ulog_err(f, a...) ulog(f ": %s [%d].\n", ##a, strerror(errno), errno)
-
-static void usage(char *p)
-{
-	ulog("Usage: %s -t type -e event -o oneshot -p path -n wait_num -f kevent_file -h\n", p);
-}
-
-static int get_id(int type, char *path)
-{
-	int ret = -1;
-
-	switch (type) {
-		case KEVENT_TIMER:
-			ret = 3000;
-			break;
-		case KEVENT_INODE:
-			ret = open(path, O_RDONLY);
-			break;
-	}
-
-	return ret;
-}
-
-static void *evtest_mmap(int fd, off_t *offset, unsigned int number)
-{
-	void *start, *ptr;
-	off_t o = *offset;
-
-	start = NULL;
-
-	ptr = mmap(start, PAGE_SIZE*number, PROT_READ, MAP_SHARED, fd, o*PAGE_SIZE);
-	if (ptr == MAP_FAILED) {
-		ulog_err("Failed to mmap: start: %p, number: %u, offset: %lu", start, number, o);
-		return NULL;
-	}
-
-	printf("mmap: ptr: %p, start: %p, number: %u, offset: %lu.\n", ptr, start, number, o);
-	*offset =  o + number;
-	return ptr;
-}
-
-int main(int argc, char *argv[])
-{
-	int ch, fd, err, type, event, oneshot, wait_num, number;
-	unsigned int i, num, old_idx;
-	char *path, *file;
-	char buf[4096];
-	struct ukevent *uk;
-	struct kevent_mring *ring;
-	off_t offset;
-
-	path = NULL;
-	type = event = -1;
-	oneshot = 0;
-	wait_num = 10;
-	offset = 0;
-	number = 1;
-	old_idx = 0;
-	file = "/dev/kevent";
-
-	while ((ch = getopt(argc, argv, "f:p:t:e:o:n:h")) > 0) {
-		switch (ch) {
-			case 'f':
-				file = optarg;
-				break;
-			case 'n':
-				wait_num = atoi(optarg);
-				break;
-			case 'p':
-				path = optarg;
-				break;
-			case 't':
-				type = atoi(optarg);
-				break;
-			case 'e':
-				event = atoi(optarg);
-				break;
-			case 'o':
-				oneshot = atoi(optarg);
-				break;
-			default:
-				usage(argv[0]);
-				return -1;
-		}
-	}
-
-	if (event == -1 || type == -1 || (type == KEVENT_INODE && !path)) {
-		ulog("You need at least -t -e parameters and -p for inode notifications.\n");
-		usage(argv[0]);
-		return -1;
-	}
-	
-	fd = open(file, O_RDWR);
-	if (fd == -1) {
-		ulog_err("Failed create kevent control block using file %s", file);
-		return -1;
-	}
-
-	ring = evtest_mmap(fd, &offset, number);
-	if (!ring)
-		return -1;
-
-	memset(buf, 0, sizeof(buf));
-	
-	num = 1;
-	for (i=0; i<num; ++i) {
-		uk = (struct ukevent *)buf;
-		uk->event = event;
-		uk->type = type;
-		if (oneshot)
-			uk->req_flags |= KEVENT_REQ_ONESHOT;
-		uk->user[0] = i;
-		uk->id.raw[0] = get_id(uk->type, path);
-
-		err = kevent_ctl(fd, KEVENT_CTL_ADD, 1, uk);
-		if (err < 0) {
-			ulog_err("Failed to perform control operation: type=%d, event=%d, oneshot=%d", type, event, oneshot);
-			close(fd);
-			return err;
-		}
-		if (err) {
-			ulog("%d: ret_flags: 0x%x, ret_data: %u %d.\n", i, uk->ret_flags, uk->ret_data[0], (int)uk->ret_data[1]);
-		}
-	}
-	
-	while (1) {
-		err = kevent_get_events(fd, 1, wait_num, 10000000000, buf, 0);
-		if (err < 0) {
-			ulog_err("Failed to perform control operation: type=%d, event=%d, oneshot=%d", type, event, oneshot);
-			close(fd);
-			return err;
-		}
-
-		num = ring->index;
-		if (num != old_idx) {
-			ulog("mmap: idx: %u, returned: %d.\n", num, err);
-			while (old_idx != num) {
-				if (old_idx < KEVENTS_ON_PAGE) {
-					struct mukevent *m = &ring->event[old_idx];
-					ulog("%08x: %08x.%08x - %08x\n", 
-						i, m->id.raw[0], m->id.raw[1], m->ret_flags);
-				} else {
-					/*
-					 * Mmap next page.
-					 */
-				}
-				if (++old_idx >= KEVENT_MAX_EVENTS)
-					old_idx = 0;
-			}
-			old_idx = num;
-		}
-
-		num = (unsigned)err;
-		if (num) {
-			ulog("syscall dump: %u events.\n", num);
-			uk = (struct ukevent *)buf;
-			for (i=0; i<num; ++i) {
-				ulog("%08x: %08x.%08x - %08x.%08x\n", 
-						uk[i].user[0],
-						uk[i].id.raw[0], uk[i].id.raw[1],
-						uk[i].ret_data[0], uk[i].ret_data[1]);
-			}
-		}
-	}
-
-	close(fd);
-	return 0;
-}
-
---J2SCkAp4GZ/dPZZf--
+-Andi

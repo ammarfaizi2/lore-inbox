@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWHWJhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWHWJiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWHWJhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWHWJhu
+	id S1751496AbWHWJiq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWHWJip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:37:50 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:41331 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751484AbWHWJhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:37:46 -0400
+	Wed, 23 Aug 2006 05:38:45 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:32341 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751495AbWHWJin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:38:43 -0400
 From: Jan-Bernd Themann <ossthema@de.ibm.com>
-Subject: [2.6.19 PATCH 3/7] ehea: queue management
-Date: Wed, 23 Aug 2006 10:57:29 +0200
+Subject: [2.6.19 PATCH 5/7] ehea: main header files
+Date: Wed, 23 Aug 2006 10:58:26 +0200
 User-Agent: KMail/1.8.2
 MIME-Version: 1.0
 Content-Disposition: inline
@@ -24,24 +24,24 @@ Cc: Christoph Raisch <raisch@de.ibm.com>,
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608231057.30132.ossthema@de.ibm.com>
+Message-Id: <200608231058.26269.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com> 
 
 
- drivers/net/ehea/ehea_qmr.c |  607 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/net/ehea/ehea_qmr.h |  361 ++++++++++++++++++++++++++
- 2 files changed, 968 insertions(+)
+ drivers/net/ehea/ehea.h    |  438 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/ehea/ehea_hw.h |  290 +++++++++++++++++++++++++++++
+ 2 files changed, 728 insertions(+)
 
 
 
---- linux-2.6.18-rc4-git1-orig/drivers/net/ehea/ehea_qmr.c	1969-12-31 16:00:00.000000000 -0800
-+++ kernel/drivers/net/ehea/ehea_qmr.c	2006-08-23 02:01:00.282229545 -0700
-@@ -0,0 +1,607 @@
+--- linux-2.6.18-rc4-git1-orig/drivers/net/ehea/ehea.h	1969-12-31 16:00:00.000000000 -0800
++++ kernel/drivers/net/ehea/ehea.h	2006-08-23 02:01:00.449231037 -0700
+@@ -0,0 +1,438 @@
 +/*
-+ *  linux/drivers/net/ehea/ehea_qmr.c
++ *  linux/drivers/net/ehea/ehea.h
 + *
 + *  eHEA ethernet device driver for IBM eServer System p
 + *
@@ -68,946 +68,706 @@ Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+#include "ehea.h"
-+#include "ehea_phyp.h"
-+#include "ehea_qmr.h"
-+
-+static void *hw_qpageit_get_inc(struct hw_queue *queue)
-+{
-+	void *retvalue = hw_qeit_get(queue);
-+
-+	queue->current_q_offset += queue->pagesize;
-+	if (queue->current_q_offset > queue->queue_length) {
-+		queue->current_q_offset -= queue->pagesize;
-+		retvalue = NULL;
-+	} else if (((u64) retvalue) & (EHEA_PAGESIZE-1)) {
-+		ehea_error("not on pageboundary");
-+		retvalue = NULL;
-+	}
-+	return retvalue;
-+}
-+
-+static int hw_queue_ctor(struct hw_queue *queue, const u32 nr_of_pages,
-+			  const u32 pagesize, const u32 qe_size)
-+{
-+	int pages_per_kpage = PAGE_SIZE / pagesize;
-+	int i, k;
-+
-+	if ((pagesize > PAGE_SIZE) || (!pages_per_kpage)) {
-+		ehea_error("pagesize conflict! kernel pagesize=%d, "
-+			   "ehea pagesize=%d", (int)PAGE_SIZE, (int)pagesize);
-+		return -EINVAL;
-+	}
-+
-+	queue->queue_length = nr_of_pages * pagesize;
-+	queue->queue_pages = kmalloc(nr_of_pages * sizeof(void*), GFP_KERNEL);
-+	if (!queue->queue_pages) {
-+		ehea_error("no mem for queue_pages");
-+		return -ENOMEM;
-+	}
-+
-+	/*
-+	 * allocate pages for queue:
-+	 * outer loop allocates whole kernel pages (page aligned) and
-+	 * inner loop divides a kernel page into smaller hea queue pages
-+	 */
-+	i = 0;
-+	while (i < nr_of_pages) {
-+		u8 *kpage = (u8*)get_zeroed_page(GFP_KERNEL);
-+		if (!kpage)
-+			goto exit0;
-+		for (k = 0; k < pages_per_kpage && i < nr_of_pages; k++) {
-+			(queue->queue_pages)[i] = (struct ehea_page *)kpage;
-+			kpage += pagesize;
-+			i++;
-+		}
-+	}
-+
-+	queue->current_q_offset = 0;
-+	queue->qe_size = qe_size;
-+	queue->pagesize = pagesize;
-+	queue->toggle_state = 1;
-+
-+	return 0;
-+
-+exit0:
-+	for (i = 0; i < nr_of_pages; i += pages_per_kpage) {
-+		if (!(queue->queue_pages)[i])
-+			break;
-+		free_page((unsigned long)(queue->queue_pages)[i]);
-+	}
-+	return -ENOMEM;
-+}
-+
-+static void hw_queue_dtor(struct hw_queue *queue)
-+{
-+	int pages_per_kpage = PAGE_SIZE / queue->pagesize;
-+	int i, nr_pages;
-+
-+	if (!queue || !queue->queue_pages)
-+		return;
-+
-+	nr_pages = queue->queue_length / queue->pagesize;
-+
-+	for (i = 0; i < nr_pages; i += pages_per_kpage)
-+		free_page((unsigned long)(queue->queue_pages)[i]);
-+
-+	kfree(queue->queue_pages);
-+}
-+
-+struct ehea_cq *ehea_create_cq(struct ehea_adapter *adapter,
-+			       int nr_of_cqe, u64 eq_handle, u32 cq_token)
-+{
-+	struct ehea_cq *cq;
-+	struct h_epa epa;
-+	u64 *cq_handle_ref, hret, rpage;
-+	u32 act_nr_of_entries, act_pages, counter;
-+	int ret;
-+	void *vpage;
-+
-+	cq = kzalloc(sizeof(*cq), GFP_KERNEL);
-+	if (!cq) {
-+		ehea_error("no mem for cq");
-+		goto create_cq_exit0;
-+	}
-+
-+	cq->attr.max_nr_of_cqes = nr_of_cqe;
-+	cq->attr.cq_token = cq_token;
-+	cq->attr.eq_handle = eq_handle;
-+
-+	cq->adapter = adapter;
-+
-+	cq_handle_ref = &cq->fw_handle;
-+	act_nr_of_entries = 0;
-+	act_pages = 0;
-+
-+	hret = ehea_h_alloc_resource_cq(adapter->handle, cq, &cq->attr,
-+					&cq->fw_handle, &cq->epas);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("alloc_resource_cq failed");
-+		goto create_cq_exit1;
-+	}
-+
-+	ret = hw_queue_ctor(&cq->hw_queue, cq->attr.nr_pages,
-+			    EHEA_PAGESIZE, sizeof(struct ehea_cqe));
-+	if (ret)
-+		goto create_cq_exit2;
-+
-+	for (counter = 0; counter < cq->attr.nr_pages; counter++) {
-+		vpage = hw_qpageit_get_inc(&cq->hw_queue);
-+		if (!vpage) {
-+			ehea_error("hw_qpageit_get_inc failed");
-+			goto create_cq_exit3;
-+		}
-+
-+		rpage = virt_to_abs(vpage);
-+		hret = ehea_h_register_rpage(adapter->handle,
-+					     0, EHEA_CQ_REGISTER_ORIG,
-+					     cq->fw_handle, rpage, 1);
-+		if (hret < H_SUCCESS) {
-+			ehea_error("register_rpage_cq failed ehea_cq=%p "
-+				   "hret=%lx counter=%i act_pages=%i",
-+				   cq, hret, counter, cq->attr.nr_pages);
-+			goto create_cq_exit3;
-+		}
-+
-+		if (counter == (cq->attr.nr_pages - 1)) {
-+			vpage = hw_qpageit_get_inc(&cq->hw_queue);
-+
-+			if ((hret != H_SUCCESS) || (vpage)) {
-+				ehea_error("registration of pages not "
-+					   "complete hret=%lx\n", hret);
-+				goto create_cq_exit3;
-+			}
-+		} else {
-+			if ((hret != H_PAGE_REGISTERED) || (!vpage)) {
-+				ehea_error("CQ: registration of page failed "
-+					   "hret=%lx\n", hret);
-+				goto create_cq_exit3;
-+			}
-+		}
-+	}
-+
-+	hw_qeit_reset(&cq->hw_queue);
-+	epa = cq->epas.kernel;
-+	ehea_reset_cq_ep(cq);
-+	ehea_reset_cq_n1(cq);
-+
-+	return cq;
-+
-+create_cq_exit3:
-+	hw_queue_dtor(&cq->hw_queue);
-+
-+create_cq_exit2:
-+	ehea_h_destroy_cq(adapter->handle, cq, cq->fw_handle, &cq->epas);
-+
-+create_cq_exit1:
-+	kfree(cq);
-+
-+create_cq_exit0:
-+	return NULL;
-+}
-+
-+int ehea_destroy_cq(struct ehea_cq *cq)
-+{
-+	u64 adapter_handle, hret;
-+
-+	adapter_handle = cq->adapter->handle;
-+
-+	if (!cq)
-+		return 0;
-+
-+	/* deregister all previous registered pages */
-+	hret = ehea_h_destroy_cq(adapter_handle, cq, cq->fw_handle, &cq->epas);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("destroy CQ failed");
-+		return -EINVAL;
-+	}
-+
-+	hw_queue_dtor(&cq->hw_queue);
-+	kfree(cq);
-+
-+	return 0;
-+}
-+
-+struct ehea_eq *ehea_create_eq(struct ehea_adapter *adapter,
-+			       const enum ehea_eq_type type,
-+			       const u32 max_nr_of_eqes, const u8 eqe_gen)
-+{
-+	int ret, i;
-+	u64 hret, rpage;;
-+	void *vpage;
-+	struct ehea_eq *eq;
-+
-+	eq = kzalloc(sizeof(*eq), GFP_KERNEL);
-+	if (!eq) {
-+		ehea_error("no mem for eq");
-+		return NULL;
-+	}
-+
-+	eq->adapter = adapter;
-+	eq->attr.type = type;
-+	eq->attr.max_nr_of_eqes = max_nr_of_eqes;
-+	eq->attr.eqe_gen = eqe_gen;
-+	spin_lock_init(&eq->spinlock);
-+
-+	hret = ehea_h_alloc_resource_eq(adapter->handle,
-+					eq, &eq->attr, &eq->fw_handle);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("alloc_resource_eq failed");
-+		goto free_eq_mem;
-+	}
-+
-+	ret = hw_queue_ctor(&eq->hw_queue, eq->attr.nr_pages,
-+			    EHEA_PAGESIZE, sizeof(struct ehea_eqe));
-+	if (ret) {
-+		ehea_error("can't allocate eq pages");
-+		goto alloc_pages_failed;
-+	}
-+
-+	for (i = 0; i < eq->attr.nr_pages; i++) {
-+		vpage = hw_qpageit_get_inc(&eq->hw_queue);
-+		if (!vpage) {
-+			ehea_error("hw_qpageit_get_inc failed");
-+			hret = H_RESOURCE;
-+			goto register_page_failed;
-+		}
-+
-+		rpage = virt_to_abs(vpage);
-+
-+		hret = ehea_h_register_rpage(adapter->handle, 0,
-+					     EHEA_EQ_REGISTER_ORIG,
-+					     eq->fw_handle, rpage, 1);
-+
-+		if (i == (eq->attr.nr_pages - 1)) {
-+			/* last page */
-+			vpage = hw_qpageit_get_inc(&eq->hw_queue);
-+			if ((hret != H_SUCCESS) || (vpage)) {
-+				goto register_page_failed;
-+			}
-+		} else {
-+			if ((hret != H_PAGE_REGISTERED) || (!vpage)) {
-+				goto register_page_failed;
-+			}
-+		}
-+	}
-+
-+	hw_qeit_reset(&eq->hw_queue);
-+	return eq;
-+
-+register_page_failed:
-+	hw_queue_dtor(&eq->hw_queue);
-+
-+alloc_pages_failed:
-+	ehea_h_destroy_eq(adapter->handle, eq, eq->fw_handle, &eq->epas);
-+
-+free_eq_mem:
-+	kfree(eq);
-+	return NULL;
-+}
-+
-+struct ehea_eqe *ehea_poll_eq(struct ehea_eq *eq)
-+{
-+	struct ehea_eqe *eqe;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&eq->spinlock, flags);
-+	eqe = (struct ehea_eqe*)hw_eqit_eq_get_inc_valid(&eq->hw_queue);
-+	spin_unlock_irqrestore(&eq->spinlock, flags);
-+
-+	return eqe;
-+}
-+
-+int ehea_destroy_eq(struct ehea_eq *eq)
-+{
-+	u64 hret;
-+	unsigned long flags;
-+
-+	if (!eq)
-+		return 0;
-+
-+	spin_lock_irqsave(&eq->spinlock, flags);
-+
-+	hret = ehea_h_destroy_eq(eq->adapter->handle, eq, eq->fw_handle,
-+				 &eq->epas);
-+	spin_unlock_irqrestore(&eq->spinlock, flags);
-+
-+	if (hret != H_SUCCESS) {
-+		ehea_error("destroy_eq failed");
-+		return -EINVAL;
-+	}
-+
-+	hw_queue_dtor(&eq->hw_queue);
-+	kfree(eq);
-+
-+	return 0;
-+}
-+
-+/**
-+ * allocates memory for a queue and registers pages in phyp
-+ */
-+int ehea_qp_alloc_register(struct ehea_qp *qp, struct hw_queue *hw_queue,
-+			   int nr_pages, int wqe_size, int act_nr_sges,
-+			   struct ehea_adapter *adapter, int h_call_q_selector)
-+{
-+	u64 hret, rpage;
-+	int ret, cnt;
-+	void *vpage;
-+
-+	ret = hw_queue_ctor(hw_queue, nr_pages, EHEA_PAGESIZE, wqe_size);
-+	if (ret)
-+		return ret;
-+
-+	for (cnt = 0; cnt < nr_pages; cnt++) {
-+		vpage = hw_qpageit_get_inc(hw_queue);
-+		if (!vpage) {
-+			ehea_error("hw_qpageit_get_inc failed");
-+			goto exit0;
-+		}
-+		rpage = virt_to_abs(vpage);
-+		hret = ehea_h_register_rpage(adapter->handle,
-+					     0, h_call_q_selector,
-+					     qp->fw_handle, rpage, 1);
-+		if (hret < H_SUCCESS) {
-+			ehea_error("register_rpage_qp failed");
-+			goto exit0;
-+		}
-+	}
-+	hw_qeit_reset(hw_queue);
-+	return 0;
-+
-+exit0:
-+	hw_queue_dtor(hw_queue);
-+	return -EINVAL;
-+}
-+
-+static inline u32 map_wqe_size(u8 wqe_enc_size)
-+{
-+	return 128 << wqe_enc_size;
-+}
-+
-+struct ehea_qp *ehea_create_qp(struct ehea_adapter *adapter,
-+			       u32 pd, struct ehea_qp_init_attr *init_attr)
-+{
-+	int ret;
-+	u64 hret;
-+	struct ehea_qp *qp;
-+	u32 wqe_size_in_bytes_sq, wqe_size_in_bytes_rq1;
-+	u32 wqe_size_in_bytes_rq2, wqe_size_in_bytes_rq3;
-+
-+
-+	qp = kzalloc(sizeof(*qp), GFP_KERNEL);
-+	if (!qp) {
-+		ehea_error("no mem for qp");
-+		return NULL;
-+	}
-+
-+	qp->adapter = adapter;
-+
-+	hret = ehea_h_alloc_resource_qp(adapter->handle, qp, init_attr, pd,
-+					&qp->fw_handle, &qp->epas);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("ehea_h_alloc_resource_qp failed");
-+		goto create_qp_exit1;
-+	}
-+
-+	wqe_size_in_bytes_sq = map_wqe_size(init_attr->act_wqe_size_enc_sq);
-+	wqe_size_in_bytes_rq1 = map_wqe_size(init_attr->act_wqe_size_enc_rq1);
-+	wqe_size_in_bytes_rq2 = map_wqe_size(init_attr->act_wqe_size_enc_rq2);
-+	wqe_size_in_bytes_rq3 = map_wqe_size(init_attr->act_wqe_size_enc_rq3);
-+
-+	ret = ehea_qp_alloc_register(qp, &qp->hw_squeue, init_attr->nr_sq_pages,
-+				     wqe_size_in_bytes_sq,
-+				     init_attr->act_wqe_size_enc_sq, adapter,
-+				     0);
-+	if (ret) {
-+		ehea_error("can't register for sq ret=%x", ret);
-+		goto create_qp_exit2;
-+	}
-+
-+	ret = ehea_qp_alloc_register(qp, &qp->hw_rqueue1,
-+				     init_attr->nr_rq1_pages,
-+				     wqe_size_in_bytes_rq1,
-+				     init_attr->act_wqe_size_enc_rq1,
-+				     adapter, 1);
-+	if (ret) {
-+		ehea_error("can't register for rq1 ret=%x", ret);
-+		goto create_qp_exit3;
-+	}
-+
-+	if (init_attr->rq_count > 1) {
-+		ret = ehea_qp_alloc_register(qp, &qp->hw_rqueue2,
-+					     init_attr->nr_rq2_pages,
-+					     wqe_size_in_bytes_rq2,
-+					     init_attr->act_wqe_size_enc_rq2,
-+					     adapter, 2);
-+		if (ret) {
-+			ehea_error("can't register for rq2 ret=%x", ret);
-+			goto create_qp_exit4;
-+		}
-+	}
-+
-+	if (init_attr->rq_count > 2) {
-+		ret = ehea_qp_alloc_register(qp, &qp->hw_rqueue3,
-+					     init_attr->nr_rq3_pages,
-+					     wqe_size_in_bytes_rq3,
-+					     init_attr->act_wqe_size_enc_rq3,
-+					     adapter, 3);
-+		if (ret) {
-+			ehea_error("can't register for rq3 ret=%x", ret);
-+			goto create_qp_exit5;
-+		}
-+	}
-+
-+	qp->init_attr = *init_attr;
-+
-+	return qp;
-+
-+create_qp_exit5:
-+	hw_queue_dtor(&qp->hw_rqueue2);
-+
-+create_qp_exit4:
-+	hw_queue_dtor(&qp->hw_rqueue1);
-+
-+create_qp_exit3:
-+	hw_queue_dtor(&qp->hw_squeue);
-+
-+create_qp_exit2:
-+	hret = ehea_h_destroy_qp(adapter->handle, qp, qp->fw_handle, &qp->epas);
-+
-+create_qp_exit1:
-+	kfree(qp);
-+	return NULL;
-+}
-+
-+int ehea_destroy_qp(struct ehea_qp *qp)
-+{
-+	u64 hret;
-+	struct ehea_qp_init_attr *qp_attr = &qp->init_attr;
-+
-+	if (!qp)
-+		return 0;
-+
-+	hret = ehea_h_destroy_qp(qp->adapter->handle, qp, qp->fw_handle,
-+				 &qp->epas);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("destroy_qp failed");
-+		return -EINVAL;
-+	}
-+
-+	hw_queue_dtor(&qp->hw_squeue);
-+	hw_queue_dtor(&qp->hw_rqueue1);
-+
-+   	if (qp_attr->rq_count > 1)
-+		hw_queue_dtor(&qp->hw_rqueue2);
-+   	if (qp_attr->rq_count > 2)
-+		hw_queue_dtor(&qp->hw_rqueue3);
-+	kfree(qp);
-+
-+	return 0;
-+}
-+
-+int ehea_reg_mr_adapter(struct ehea_adapter *adapter)
-+{
-+	int i, k;
-+	u64 hret, pt_abs, start, end, nr_pages;
-+	u32 acc_ctrl = EHEA_MR_ACC_CTRL;
-+	u64 *pt;
-+
-+	start = KERNELBASE;
-+	end = (u64)high_memory;
-+	nr_pages = (end - start) / PAGE_SIZE;
-+
-+	pt =  kzalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!pt) {
-+		ehea_error("no mem");
-+		return -ENOMEM;
-+	}
-+	pt_abs = virt_to_abs(pt);
-+
-+	hret = ehea_h_alloc_resource_mr(adapter->handle, start, end - start,
-+					acc_ctrl, adapter->pd,
-+					&adapter->mr.handle, &adapter->mr.lkey);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("alloc_resource_mr failed");
-+		return -EINVAL;
-+	}
-+
-+	adapter->mr.vaddr = KERNELBASE;
-+	k = 0;
-+
-+	while (nr_pages > 0) {
-+		if (nr_pages > 1) {
-+			u64 num_pages = min(nr_pages, (u64)512);
-+			for (i = 0; i < num_pages; i++)
-+				pt[i] = virt_to_abs((void*)(((u64)start)
-+							     + ((k++) *
-+								PAGE_SIZE)));
-+
-+			hret = ehea_h_register_rpage_mr(adapter->handle,
-+							adapter->mr.handle, 0,
-+							0, (u64)pt_abs,
-+							num_pages);
-+			nr_pages -= num_pages;
-+		} else {
-+			u64 abs_adr = virt_to_abs((void *)(((u64)start)
-+							   + (k * PAGE_SIZE)));
-+			hret = ehea_h_register_rpage_mr(adapter->handle,
-+							adapter->mr.handle, 0,
-+							0, abs_adr,1);
-+			nr_pages--;
-+		}
-+
-+		if ((hret != H_SUCCESS) && (hret != H_PAGE_REGISTERED)) {
-+			ehea_h_free_resource_mr(adapter->handle,
-+						adapter->mr.handle);
-+			ehea_error("free_resource_mr failed");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (hret != H_SUCCESS) {
-+		ehea_h_free_resource_mr(adapter->handle, adapter->mr.handle);
-+		ehea_error("free_resource_mr failed for last page");
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+int ehea_reg_mr_pages(struct ehea_adapter *adapter, struct ehea_mr *mr,
-+		      u64 start, u64 *pt, int nr_pages)
-+{
-+	u64 hret;
-+	u32 acc_ctrl = EHEA_MR_ACC_CTRL;
-+
-+	u64 pt_abs = virt_to_abs(pt);
-+	u64 first_page = pt[0];
-+
-+	hret = ehea_h_alloc_resource_mr(adapter->handle, start,
-+					PAGE_SIZE * nr_pages, acc_ctrl,
-+					adapter->pd, &mr->handle, &mr->lkey);
-+	if (hret != H_SUCCESS) {
-+		ehea_error("alloc_resource_mr failed");
-+		return -EINVAL;
-+	}
-+
-+	if (nr_pages > 1)
-+		hret = ehea_h_register_rpage_mr(adapter->handle, mr->handle,
-+						0, 0, (u64)pt_abs, nr_pages);
-+	else
-+		hret = ehea_h_register_rpage_mr(adapter->handle, mr->handle,
-+						0, 0, first_page, 1);
-+
-+	if (hret != H_SUCCESS) {
-+		ehea_h_free_resource_mr(adapter->handle, mr->handle);
-+		ehea_error("free_resource_mr failed for last page");
-+		return -EINVAL;
-+	}
-+	mr->vaddr = start;
-+	return 0;
-+}
-+
---- linux-2.6.18-rc4-git1-orig/drivers/net/ehea/ehea_qmr.h	1969-12-31 16:00:00.000000000 -0800
-+++ kernel/drivers/net/ehea/ehea_qmr.h	2006-08-23 02:01:00.167228518 -0700
-@@ -0,0 +1,361 @@
-+/*
-+ *  linux/drivers/net/ehea/ehea_qmr.h
-+ *
-+ *  eHEA ethernet device driver for IBM eServer System p
-+ *
-+ *  (C) Copyright IBM Corp. 2006
-+ *
-+ *  Authors:
-+ *       Christoph Raisch <raisch@de.ibm.com>
-+ *       Jan-Bernd Themann <themann@de.ibm.com>
-+ *       Thomas Klein <tklein@de.ibm.com>
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef __EHEA_QMR_H__
-+#define __EHEA_QMR_H__
-+
-+#include "ehea.h"
-+#include "ehea_hw.h"
++#ifndef __EHEA_H__
++#define __EHEA_H__
++
++#include <linux/module.h>
++#include <linux/ethtool.h>
++#include <linux/vmalloc.h>
++#include <linux/if_vlan.h>
++
++#include <asm/ibmebus.h>
++#include <asm/abs_addr.h>
++#include <asm/io.h>
++
++#define DRV_NAME	"ehea"
++#define DRV_VERSION	"EHEA_0020"
++
++#define EHEA_MSG_DEFAULT (NETIF_MSG_LINK | NETIF_MSG_TIMER)
++
++#define EHEA_MAX_ENTRIES_RQ1 32767
++#define EHEA_MAX_ENTRIES_RQ2 16383
++#define EHEA_MAX_ENTRIES_RQ3 16383
++#define EHEA_MAX_ENTRIES_SQ  32767
++#define EHEA_MIN_ENTRIES_QP  127
++
++#define EHEA_NUM_TX_QP 1
++
++#ifdef EHEA_SMALL_QUEUES
++#define EHEA_MAX_CQE_COUNT      1023
++#define EHEA_DEF_ENTRIES_SQ     1023
++#define EHEA_DEF_ENTRIES_RQ1    4095
++#define EHEA_DEF_ENTRIES_RQ2    1023
++#define EHEA_DEF_ENTRIES_RQ3    1023
++#define EHEA_SWQE_REFILL_TH      100
++#else
++#define EHEA_MAX_CQE_COUNT     32000
++#define EHEA_DEF_ENTRIES_SQ    16000
++#define EHEA_DEF_ENTRIES_RQ1   32080
++#define EHEA_DEF_ENTRIES_RQ2    4020
++#define EHEA_DEF_ENTRIES_RQ3    4020
++#define EHEA_SWQE_REFILL_TH     1000
++#endif
++
++#define EHEA_MAX_ENTRIES_EQ 20
++
++#define EHEA_SG_SQ  2
++#define EHEA_SG_RQ1 1
++#define EHEA_SG_RQ2 0
++#define EHEA_SG_RQ3 0
++
++#define EHEA_MAX_PACKET_SIZE    9022	/* for jumbo frames */
++#define EHEA_RQ2_PKT_SIZE       1522
++#define EHEA_LL_PKT_SIZE         256	/* low latency */
++
++#define EHEA_POLL_MAX_RWQE      1000
++
++/* Send completion signaling */
++#define EHEA_SIG_IV_LONG           4
++
++/* Protection Domain Identifier */
++#define EHEA_PD_ID        0xaabcdeff
++
++#define EHEA_RQ2_THRESHOLD 	   1
++#define EHEA_RQ3_THRESHOLD 	   9	/* use RQ3 threshold of 1522 bytes */
++
++#define EHEA_SPEED_10G         10000
++#define EHEA_SPEED_1G           1000
++#define EHEA_SPEED_100M          100
++#define EHEA_SPEED_10M            10
++
++/* Broadcast/Multicast registration types */
++#define EHEA_BCMC_SCOPE_ALL	0x08
++#define EHEA_BCMC_SCOPE_SINGLE	0x00
++#define EHEA_BCMC_MULTICAST	0x04
++#define EHEA_BCMC_BROADCAST	0x00
++#define EHEA_BCMC_UNTAGGED	0x02
++#define EHEA_BCMC_TAGGED	0x00
++#define EHEA_BCMC_VLANID_ALL	0x01
++#define EHEA_BCMC_VLANID_SINGLE	0x00
++
++/* Use this define to kmallocate pHYP control blocks */
++#define H_CB_ALIGNMENT		4096
++
++#define EHEA_CACHE_LINE          128
++
++/* Memory Regions */
++#define EHEA_MR_MAX_TX_PAGES   20
++#define EHEA_MR_TX_DATA_PN      3
++#define EHEA_MR_ACC_CTRL       0x00800000
++#define EHEA_RWQES_PER_MR_RQ2  10
++#define EHEA_RWQES_PER_MR_RQ3  10
++
++#define EHEA_WATCH_DOG_TIMEOUT 10*HZ
++
++
++void ehea_set_ethtool_ops(struct net_device *netdev);
++
++/* utility functions */
++
++#define ehea_info(fmt, args...) \
++	printk(KERN_INFO DRV_NAME ": " fmt "\n", ## args)
++
++#define ehea_error(fmt, args...) \
++	printk(KERN_ERR DRV_NAME ": Error in %s: " fmt "\n", __func__, ## args)
++
++#ifdef DEBUG
++#define ehea_debug(fmt, args...) \
++	printk(KERN_DEBUG DRV_NAME ": " fmt, ## args)
++#else
++#define ehea_debug(fmt, args...) do {} while (0)
++#endif
++
++void ehea_dump(void *adr, int len, char *msg);
++
++#define EHEA_BMASK(pos, length) (((pos) << 16) + (length))
++
++#define EHEA_BMASK_IBM(from, to) (((63 - to) << 16) + ((to) - (from) + 1))
++
++#define EHEA_BMASK_SHIFTPOS(mask) (((mask) >> 16) & 0xffff)
++
++#define EHEA_BMASK_MASK(mask) \
++	(0xffffffffffffffffULL >> ((64 - (mask)) & 0xffff))
++
++#define EHEA_BMASK_SET(mask, value) \
++        ((EHEA_BMASK_MASK(mask) & ((u64)(value))) << EHEA_BMASK_SHIFTPOS(mask))
++
++#define EHEA_BMASK_GET(mask, value) \
++        (EHEA_BMASK_MASK(mask) & (((u64)(value)) >> EHEA_BMASK_SHIFTPOS(mask)))
 +
 +/*
-+ * page size of ehea hardware queues
++ * Generic ehea page
 + */
++struct ehea_page {
++	u8 entries[PAGE_SIZE];
++};
 +
-+#define EHEA_PAGESHIFT  12
-+#define EHEA_PAGESIZE   4096UL
-+
-+/* Some abbreviations used here:
-+ *
-+ * WQE  - Work Queue Entry
-+ * SWQE - Send Work Queue Entry
-+ * RWQE - Receive Work Queue Entry
-+ * CQE  - Completion Queue Entry
-+ * EQE  - Event Queue Entry
-+ * MR   - Memory Region
++/*
++ * Generic queue in linux kernel virtual memory
 + */
++struct hw_queue {
++	u64 current_q_offset;		/* current queue entry */
++	struct ehea_page **queue_pages;	/* array of pages belonging to queue */
++	u32 qe_size;			/* queue entry size */
++	u32 queue_length;      		/* queue length allocated in bytes */
++	u32 pagesize;
++	u32 toggle_state;		/* toggle flag - per page */
++	u32 reserved;			/* 64 bit alignment */
++};
 +
-+/* Use of WR_ID field for EHEA */
-+#define EHEA_WR_ID_COUNT   EHEA_BMASK_IBM(0, 19)
-+#define EHEA_WR_ID_TYPE    EHEA_BMASK_IBM(20, 23)
-+#define EHEA_SWQE2_TYPE    0x1
-+#define EHEA_SWQE3_TYPE    0x2
-+#define EHEA_RWQE2_TYPE    0x3
-+#define EHEA_RWQE3_TYPE    0x4
-+#define EHEA_WR_ID_INDEX   EHEA_BMASK_IBM(24, 47)
-+#define EHEA_WR_ID_REFILL  EHEA_BMASK_IBM(48, 63)
++/*
++ * For pSeries this is a 64bit memory address where
++ * I/O memory is mapped into CPU address space
++ */
++struct h_epa {
++	u64 addr;
++};
 +
-+struct ehea_vsgentry {
++struct h_epas {
++	struct h_epa kernel;	/* kernel space accessible resource,
++				   set to 0 if unused */
++	struct h_epa user;	/* user space accessible resource
++				   set to 0 if unused */
++	u32 pid;		/* PID of userspace epa checking */
++};
++
++struct ehea_qp;
++struct ehea_cq;
++struct ehea_eq;
++struct ehea_port;
++struct ehea_av;
++
++/*
++ * Queue attributes passed to ehea_create_qp()
++ */
++struct ehea_qp_init_attr {
++        /* input parameter */
++	u32 qp_token;           /* queue token */
++	u8 low_lat_rq1;
++	u8 signalingtype;       /* cqe generation flag */
++	u8 rq_count;            /* num of receive queues */
++	u8 eqe_gen;             /* eqe generation flag */
++	u16 max_nr_send_wqes;   /* max number of send wqes */
++	u16 max_nr_rwqes_rq1;   /* max number of receive wqes */
++	u16 max_nr_rwqes_rq2;
++	u16 max_nr_rwqes_rq3;
++	u8 wqe_size_enc_sq;
++	u8 wqe_size_enc_rq1;
++	u8 wqe_size_enc_rq2;
++	u8 wqe_size_enc_rq3;
++	u8 swqe_imm_data_len;   /* immediate data length for swqes */
++	u16 port_nr;
++	u16 rq2_threshold;
++	u16 rq3_threshold;
++	u64 send_cq_handle;
++	u64 recv_cq_handle;
++	u64 aff_eq_handle;
++
++        /* output parameter */
++	u32 qp_nr;
++	u16 act_nr_send_wqes;
++	u16 act_nr_rwqes_rq1;
++	u16 act_nr_rwqes_rq2;
++	u16 act_nr_rwqes_rq3;
++	u8 act_wqe_size_enc_sq;
++	u8 act_wqe_size_enc_rq1;
++	u8 act_wqe_size_enc_rq2;
++	u8 act_wqe_size_enc_rq3;
++	u32 nr_sq_pages;
++	u32 nr_rq1_pages;
++	u32 nr_rq2_pages;
++	u32 nr_rq3_pages;
++	u32 liobn_sq;
++	u32 liobn_rq1;
++	u32 liobn_rq2;
++	u32 liobn_rq3;
++};
++
++/*
++ * Event Queue attributes, passed as paramter
++ */
++struct ehea_eq_attr {
++	u32 type;
++	u32 max_nr_of_eqes;
++	u8 eqe_gen;        /* generate eqe flag */
++	u64 eq_handle;
++	u32 act_nr_of_eqes;
++	u32 nr_pages;
++	u32 ist1;          /* Interrupt service token */
++	u32 ist2;
++	u32 ist3;
++	u32 ist4;
++};
++
++
++/*
++ * Event Queue
++ */
++struct ehea_eq {
++	struct ehea_adapter *adapter;
++	struct hw_queue hw_queue;
++	u64 fw_handle;
++	struct h_epas epas;
++	spinlock_t spinlock;
++	struct ehea_eq_attr attr;
++};
++
++/*
++ * HEA Queues
++ */
++struct ehea_qp {
++	struct ehea_adapter *adapter;
++	u64 fw_handle;			/* QP handle for firmware calls */
++	struct hw_queue hw_squeue;
++	struct hw_queue hw_rqueue1;
++	struct hw_queue hw_rqueue2;
++	struct hw_queue hw_rqueue3;
++	struct h_epas epas;
++	struct ehea_qp_init_attr init_attr;
++};
++
++/*
++ * Completion Queue attributes
++ */
++struct ehea_cq_attr {
++        /* input parameter */
++	u32 max_nr_of_cqes;
++	u32 cq_token;
++	u64 eq_handle;
++
++        /* output parameter */
++	u32 act_nr_of_cqes;
++	u32 nr_pages;
++};
++
++/*
++ * Completion Queue
++ */
++struct ehea_cq {
++	struct ehea_adapter *adapter;
++	u64 fw_handle;
++	struct hw_queue hw_queue;
++	struct h_epas epas;
++	struct ehea_cq_attr attr;
++};
++
++/*
++ * Memory Region
++ */
++struct ehea_mr {
++	u64 handle;
 +	u64 vaddr;
-+	u32 l_key;
-+	u32 len;
++	u32 lkey;
 +};
 +
-+/* maximum number of sg entries allowed in a WQE */
-+#define EHEA_MAX_WQE_SG_ENTRIES  	252
-+#define SWQE2_MAX_IMM            	(0xD0 - 0x30)
-+#define SWQE3_MAX_IMM            	224
-+
-+/* tx control flags for swqe */
-+#define EHEA_SWQE_CRC                   0x8000
-+#define EHEA_SWQE_IP_CHECKSUM           0x4000
-+#define EHEA_SWQE_TCP_CHECKSUM          0x2000
-+#define EHEA_SWQE_TSO                   0x1000
-+#define EHEA_SWQE_SIGNALLED_COMPLETION  0x0800
-+#define EHEA_SWQE_VLAN_INSERT           0x0400
-+#define EHEA_SWQE_IMM_DATA_PRESENT      0x0200
-+#define EHEA_SWQE_DESCRIPTORS_PRESENT   0x0100
-+#define EHEA_SWQE_WRAP_CTL_REC          0x0080
-+#define EHEA_SWQE_WRAP_CTL_FORCE        0x0040
-+#define EHEA_SWQE_BIND                  0x0020
-+#define EHEA_SWQE_PURGE                 0x0010
-+
-+/* sizeof(struct ehea_swqe) less the union */
-+#define SWQE_HEADER_SIZE		32
-+
-+struct ehea_swqe {
-+	u64 wr_id;
-+	u16 tx_control;
-+	u16 vlan_tag;
-+	u8 reserved1;
-+	u8 ip_start;
-+	u8 ip_end;
-+	u8 immediate_data_length;
-+	u8 tcp_offset;
-+	u8 reserved2;
-+	u16 tcp_end;
-+	u8 wrap_tag;
-+	u8 descriptors;		/* number of valid descriptors in WQE */
-+	u16 reserved3;
-+	u16 reserved4;
-+	u16 mss;
-+	u32 reserved5;
-+	union {
-+		/*  Send WQE Format 1 */
-+		struct {
-+			struct ehea_vsgentry sg_list[EHEA_MAX_WQE_SG_ENTRIES];
-+		} no_immediate_data;
-+
-+		/*  Send WQE Format 2 */
-+		struct {
-+			struct ehea_vsgentry sg_entry;
-+			/* 0x30 */
-+			u8 immediate_data[SWQE2_MAX_IMM];
-+			/* 0xd0 */
-+			struct ehea_vsgentry sg_list[EHEA_MAX_WQE_SG_ENTRIES-1];
-+		} immdata_desc __attribute__ ((packed));
-+
-+		/*  Send WQE Format 3 */
-+		struct {
-+			u8 immediate_data[SWQE3_MAX_IMM];
-+		} immdata_nodesc;
-+	} u;
++/*
++ * Port state information
++ */
++struct port_state {
++	int poll_max_processed;
++	int poll_receive_errors;
++	int ehea_poll;
++	int queue_stopped;
++	int min_swqe_avail;
++	u64 sqc_stop_sum;
++	int pkt_send;
++	int pkt_xmit;
++	int send_tasklet;
++	int nwqe;
 +};
 +
-+struct ehea_rwqe {
-+	u64 wr_id;		/* work request ID */
-+	u8 reserved1[5];
-+	u8 data_segments;
-+	u16 reserved2;
++#define EHEA_IRQ_NAME_SIZE 20
++
++/*
++ * Port resources
++ */
++struct ehea_port_res {
++	struct ehea_mr send_mr;       /* send memory region */
++	struct ehea_mr recv_mr;       /* receive memory region */
++	spinlock_t xmit_lock;
++	struct ehea_port *port;
++	char int_recv_name[EHEA_IRQ_NAME_SIZE];
++	char int_send_name[EHEA_IRQ_NAME_SIZE];
++	struct ehea_qp *qp;
++	struct ehea_cq *send_cq;
++	struct ehea_cq *recv_cq;
++	struct ehea_eq *send_eq;
++	struct ehea_eq *recv_eq;
++	spinlock_t send_lock;
++	struct sk_buff **skb_arr_rq1; /* skb array for rq1 */
++	struct sk_buff **skb_arr_rq2;
++	struct sk_buff **skb_arr_rq3;
++	struct sk_buff **skb_arr_sq;
++	int skb_arr_rq1_len;
++	int skb_arr_rq2_len;
++	int skb_arr_rq3_len;
++	int skb_arr_sq_len;
++	int skb_rq2_index;
++	int skb_rq3_index;
++	int skb_sq_index;
++	int os_skbs_rq2;              /* outstanding skbs for rq2 */
++	int os_skbs_rq3;
++	spinlock_t netif_queue;
++	int queue_stopped;
++	atomic_t swqe_avail;
++	int swqe_ll_count;
++	int swqe_count;
++	u32 swqe_id_counter;
++	u64 tx_packets;
++	struct tasklet_struct send_comp_task;
++	spinlock_t recv_lock;
++	struct port_state p_state;
++	u64 rx_packets;
++	u32 poll_counter;
++};
++
++
++struct ehea_adapter {
++	u64 handle;
++	u8 num_ports;
++	struct ehea_port *port[16];
++	struct ehea_eq *neq;       /* notification event queue */
++	struct workqueue_struct *ehea_wq;
++	struct tasklet_struct neq_tasklet;
++	struct ehea_mr mr;
++	u32 pd;                    /* protection domain */
++	u64 max_mc_mac;            /* max number of multicast mac addresses */
++};
++
++
++struct ehea_mc_list {
++	struct list_head list;
++	u64 macaddr;
++};
++
++#define EHEA_PORT_UP 1
++#define EHEA_PORT_DOWN 0
++#define EHEA_MAX_PORT_RES 16
++struct ehea_port {
++	struct ehea_adapter *adapter;	 /* adapter that owns this port */
++	struct net_device *netdev;
++	struct net_device_stats stats;
++	struct ehea_port_res port_res[EHEA_MAX_PORT_RES];
++	struct device_node *of_dev_node; /* Open Firmware Device Node */
++	struct ehea_mc_list *mc_list;	 /* Multicast MAC addresses */
++	struct vlan_group *vgrp;
++	struct ehea_eq *qp_eq;
++	struct work_struct reset_task;
++	struct semaphore port_lock;
++	char int_aff_name[EHEA_IRQ_NAME_SIZE];
++	int allmulti;			 /* Indicates IFF_ALLMULTI state */
++	int promisc;		 	 /* Indicates IFF_PROMISC state */
++	int num_tx_qps;
++	u64 mac_addr;
++	u32 logical_port_id;
++	u32 port_speed;
++	u32 msg_enable;
++	u32 sig_comp_iv;
++	u32 state;
++	u8 full_duplex;
++	u8 num_def_qps;
++};
++
++struct port_res_cfg {
++	int max_entries_rcq;
++	int max_entries_scq;
++	int max_entries_sq;
++	int max_entries_rq1;
++	int max_entries_rq2;
++	int max_entries_rq3;
++};
++
++#endif	/* __EHEA_H__ */
+--- linux-2.6.18-rc4-git1-orig/drivers/net/ehea/ehea_hw.h	1969-12-31 16:00:00.000000000 -0800
++++ kernel/drivers/net/ehea/ehea_hw.h	2006-08-23 02:01:00.436230921 -0700
+@@ -0,0 +1,290 @@
++/*
++ *  linux/drivers/net/ehea/ehea_hw.h
++ *
++ *  eHEA ethernet device driver for IBM eServer System p
++ *
++ *  (C) Copyright IBM Corp. 2006
++ *
++ *  Authors:
++ *       Christoph Raisch <raisch@de.ibm.com>
++ *       Jan-Bernd Themann <themann@de.ibm.com>
++ *       Thomas Klein <tklein@de.ibm.com>
++ *
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifndef __EHEA_HW_H__
++#define __EHEA_HW_H__
++
++#define QPX_SQA_VALUE   EHEA_BMASK_IBM(48,63)
++#define QPX_RQ1A_VALUE  EHEA_BMASK_IBM(48,63)
++#define QPX_RQ2A_VALUE  EHEA_BMASK_IBM(48,63)
++#define QPX_RQ3A_VALUE  EHEA_BMASK_IBM(48,63)
++
++#define QPTEMM_OFFSET(x) offsetof(struct ehea_qptemm, x)
++
++struct ehea_qptemm {
++	u64 qpx_hcr;
++	u64 qpx_c;
++	u64 qpx_herr;
++	u64 qpx_aer;
++	u64 qpx_sqa;
++	u64 qpx_sqc;
++	u64 qpx_rq1a;
++	u64 qpx_rq1c;
++	u64 qpx_st;
++	u64 qpx_aerr;
++	u64 qpx_tenure;
++	u64 qpx_reserved1[(0x098 - 0x058) / 8];
++	u64 qpx_portp;
++	u64 qpx_reserved2[(0x100 - 0x0A0) / 8];
++	u64 qpx_t;
++	u64 qpx_sqhp;
++	u64 qpx_sqptp;
++	u64 qpx_reserved3[(0x140 - 0x118) / 8];
++	u64 qpx_sqwsize;
++	u64 qpx_reserved4[(0x170 - 0x148) / 8];
++	u64 qpx_sqsize;
++	u64 qpx_reserved5[(0x1B0 - 0x178) / 8];
++	u64 qpx_sigt;
++	u64 qpx_wqecnt;
++	u64 qpx_rq1hp;
++	u64 qpx_rq1ptp;
++	u64 qpx_rq1size;
++	u64 qpx_reserved6[(0x220 - 0x1D8) / 8];
++	u64 qpx_rq1wsize;
++	u64 qpx_reserved7[(0x240 - 0x228) / 8];
++	u64 qpx_pd;
++	u64 qpx_scqn;
++	u64 qpx_rcqn;
++	u64 qpx_aeqn;
++	u64 reserved49;
++	u64 qpx_ram;
++	u64 qpx_reserved8[(0x300 - 0x270) / 8];
++	u64 qpx_rq2a;
++	u64 qpx_rq2c;
++	u64 qpx_rq2hp;
++	u64 qpx_rq2ptp;
++	u64 qpx_rq2size;
++	u64 qpx_rq2wsize;
++	u64 qpx_rq2th;
++	u64 qpx_rq3a;
++	u64 qpx_rq3c;
++	u64 qpx_rq3hp;
++	u64 qpx_rq3ptp;
++	u64 qpx_rq3size;
++	u64 qpx_rq3wsize;
++	u64 qpx_rq3th;
++	u64 qpx_lpn;
++	u64 qpx_reserved9[(0x400 - 0x378) / 8];
++	u64 reserved_ext[(0x500 - 0x400) / 8];
++	u64 reserved2[(0x1000 - 0x500) / 8];
++};
++
++#define MRx_HCR_LPARID_VALID EHEA_BMASK_IBM(0, 0)
++
++#define MRMWMM_OFFSET(x) offsetof(struct ehea_mrmwmm, x)
++
++struct ehea_mrmwmm {
++	u64 mrx_hcr;
++	u64 mrx_c;
++	u64 mrx_herr;
++	u64 mrx_aer;
++	u64 mrx_pp;
++	u64 reserved1;
++	u64 reserved2;
 +	u64 reserved3;
++	u64 reserved4[(0x200 - 0x40) / 8];
++	u64 mrx_ctl[64];
++};
++
++#define QPEDMM_OFFSET(x) offsetof(struct ehea_qpedmm, x)
++
++struct ehea_qpedmm {
++
++	u64 reserved0[(0x400) / 8];
++	u64 qpedx_phh;
++	u64 qpedx_ppsgp;
++	u64 qpedx_ppsgu;
++	u64 qpedx_ppdgp;
++	u64 qpedx_ppdgu;
++	u64 qpedx_aph;
++	u64 qpedx_apsgp;
++	u64 qpedx_apsgu;
++	u64 qpedx_apdgp;
++	u64 qpedx_apdgu;
++	u64 qpedx_apav;
++	u64 qpedx_apsav;
++	u64 qpedx_hcr;
++	u64 reserved1[4];
++	u64 qpedx_rrl0;
++	u64 qpedx_rrrkey0;
++	u64 qpedx_rrva0;
++	u64 reserved2;
++	u64 qpedx_rrl1;
++	u64 qpedx_rrrkey1;
++	u64 qpedx_rrva1;
++	u64 reserved3;
++	u64 qpedx_rrl2;
++	u64 qpedx_rrrkey2;
++	u64 qpedx_rrva2;
 +	u64 reserved4;
-+	struct ehea_vsgentry sg_list[EHEA_MAX_WQE_SG_ENTRIES];
++	u64 qpedx_rrl3;
++	u64 qpedx_rrrkey3;
++	u64 qpedx_rrva3;
 +};
 +
-+#define EHEA_CQE_VLAN_TAG_XTRACT   0x0400
++#define CQX_FECADDER EHEA_BMASK_IBM(32, 63)
++#define CQX_FEC_CQE_CNT EHEA_BMASK_IBM(32, 63)
++#define CQX_N1_GENERATE_COMP_EVENT EHEA_BMASK_IBM(0, 0)
++#define CQX_EP_EVENT_PENDING EHEA_BMASK_IBM(0, 0)
 +
-+#define EHEA_CQE_TYPE_RQ           0x60
-+#define EHEA_CQE_STAT_ERR_MASK     0x721F
-+#define EHEA_CQE_STAT_FAT_ERR_MASK 0x1F
-+#define EHEA_CQE_STAT_ERR_TCP      0x4000
++#define CQTEMM_OFFSET(x) offsetof(struct ehea_cqtemm, x)
 +
-+struct ehea_cqe {
-+	u64 wr_id;		/* work request ID from WQE */
-+	u8 type;
-+	u8 valid;
-+	u16 status;
-+	u16 reserved1;
-+	u16 num_bytes_transfered;
-+	u16 vlan_tag;
-+	u16 inet_checksum_value;
-+	u8 reserved2;
-+	u8 header_length;
-+	u16 reserved3;
-+	u16 page_offset;
-+	u16 wqe_count;
-+	u32 qp_token;
-+	u32 timestamp;
-+	u32 reserved4;
-+	u64 reserved5[3];
++struct ehea_cqtemm {
++	u64 cqx_hcr;
++	u64 cqx_c;
++	u64 cqx_herr;
++	u64 cqx_aer;
++	u64 cqx_ptp;
++	u64 cqx_tp;
++	u64 cqx_fec;
++	u64 cqx_feca;
++	u64 cqx_ep;
++	u64 cqx_eq;
++	u64 reserved1;
++	u64 cqx_n0;
++	u64 cqx_n1;
++	u64 reserved2[(0x1000 - 0x60) / 8];
 +};
 +
-+#define EHEA_EQE_VALID           EHEA_BMASK_IBM(0, 0)
-+#define EHEA_EQE_IS_CQE          EHEA_BMASK_IBM(1, 1)
-+#define EHEA_EQE_IDENTIFIER      EHEA_BMASK_IBM(2, 7)
-+#define EHEA_EQE_QP_CQ_NUMBER    EHEA_BMASK_IBM(8, 31)
-+#define EHEA_EQE_QP_TOKEN        EHEA_BMASK_IBM(32, 63)
-+#define EHEA_EQE_CQ_TOKEN        EHEA_BMASK_IBM(32, 63)
-+#define EHEA_EQE_KEY             EHEA_BMASK_IBM(32, 63)
-+#define EHEA_EQE_PORT_NUMBER     EHEA_BMASK_IBM(56, 63)
-+#define EHEA_EQE_EQ_NUMBER       EHEA_BMASK_IBM(48, 63)
-+#define EHEA_EQE_SM_ID           EHEA_BMASK_IBM(48, 63)
-+#define EHEA_EQE_SM_MECH_NUMBER  EHEA_BMASK_IBM(48, 55)
-+#define EHEA_EQE_SM_PORT_NUMBER  EHEA_BMASK_IBM(56, 63)
++#define EQTEMM_OFFSET(x) offsetof(struct ehea_eqtemm, x)
 +
-+struct ehea_eqe {
-+	u64 entry;
++struct ehea_eqtemm {
++	u64 eqx_hcr;
++	u64 eqx_c;
++	u64 eqx_herr;
++	u64 eqx_aer;
++	u64 eqx_ptp;
++	u64 eqx_tp;
++	u64 eqx_ssba;
++	u64 eqx_psba;
++	u64 eqx_cec;
++	u64 eqx_meql;
++	u64 eqx_xisbi;
++	u64 eqx_xisc;
++	u64 eqx_it;
 +};
 +
-+static inline void *hw_qeit_calc(struct hw_queue *queue, u64 q_offset)
++static inline u64 epa_load(struct h_epa epa, u32 offset)
 +{
-+	struct ehea_page *current_page;
-+
-+	if (q_offset >= queue->queue_length)
-+		q_offset -= queue->queue_length;
-+	current_page = (queue->queue_pages)[q_offset >> EHEA_PAGESHIFT];
-+	return &current_page->entries[q_offset & (EHEA_PAGESIZE - 1)];
++	u64 addr = epa.addr + offset;
++	return *(volatile u64*)addr;
 +}
 +
-+static inline void *hw_qeit_get(struct hw_queue *queue)
++static inline void epa_store(struct h_epa epa, u32 offset, u64 value)
 +{
-+	return hw_qeit_calc(queue, queue->current_q_offset);
++	u64 addr = epa.addr + offset;
++	*(u64*)addr = value;
++	epa_load(epa, offset);	/* synchronize explicitly to eHEA */
 +}
 +
-+static inline void hw_qeit_inc(struct hw_queue *queue)
++static inline void epa_store_acc(struct h_epa epa, u32 offset, u64 value)
 +{
-+	queue->current_q_offset += queue->qe_size;
-+	if (queue->current_q_offset >= queue->queue_length) {
-+		queue->current_q_offset = 0;
-+		/* toggle the valid flag */
-+		queue->toggle_state = (~queue->toggle_state) & 1;
-+	}
++	u64 addr = epa.addr + offset;
++	*(u64*)addr = value;
 +}
 +
-+static inline void *hw_qeit_get_inc(struct hw_queue *queue)
++#define epa_store_eq(epa, offset, value)\
++        epa_store(epa, EQTEMM_OFFSET(offset), value)
++#define epa_load_eq(epa, offset)\
++        epa_load(epa, EQTEMM_OFFSET(offset))
++
++#define epa_store_cq(epa, offset, value)\
++        epa_store(epa, CQTEMM_OFFSET(offset), value)
++#define epa_load_cq(epa, offset)\
++        epa_load(epa, CQTEMM_OFFSET(offset))
++
++#define epa_store_qp(epa, offset, value)\
++        epa_store(epa, QPTEMM_OFFSET(offset), value)
++#define epa_load_qp(epa, offset)\
++        epa_load(epa, QPTEMM_OFFSET(offset))
++
++#define epa_store_qped(epa, offset, value)\
++        epa_store(epa, QPEDMM_OFFSET(offset), value)
++#define epa_load_qped(epa, offset)\
++        epa_load(epa, QPEDMM_OFFSET(offset))
++
++#define epa_store_mrmw(epa, offset, value)\
++        epa_store(epa, MRMWMM_OFFSET(offset), value)
++#define epa_load_mrmw(epa, offset)\
++        epa_load(epa, MRMWMM_OFFSET(offset))
++
++#define epa_store_base(epa, offset, value)\
++        epa_store(epa, HCAGR_OFFSET(offset), value)
++#define epa_load_base(epa, offset)\
++        epa_load(epa, HCAGR_OFFSET(offset))
++
++static inline void ehea_update_sqa(struct ehea_qp *qp, u16 nr_wqes)
 +{
-+	void *retvalue = hw_qeit_get(queue);
-+	hw_qeit_inc(queue);
-+	return retvalue;
++	struct h_epa epa = qp->epas.kernel;
++	epa_store_acc(epa, QPTEMM_OFFSET(qpx_sqa),
++		      EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
 +}
 +
-+static inline void *hw_qeit_get_inc_valid(struct hw_queue *queue)
++static inline void ehea_update_rq3a(struct ehea_qp *qp, u16 nr_wqes)
 +{
-+	struct ehea_cqe *retvalue = hw_qeit_get(queue);
-+	u8 valid = retvalue->valid;
-+	void *pref;
-+
-+	if ((valid >> 7) == (queue->toggle_state & 1)) {
-+		/* this is a good one */
-+		hw_qeit_inc(queue);
-+		pref = hw_qeit_calc(queue, queue->current_q_offset);
-+		prefetch(pref);
-+		prefetch(pref + 128);
-+	} else
-+		retvalue = NULL;
-+	return retvalue;
++	struct h_epa epa = qp->epas.kernel;
++	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq3a),
++		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
 +}
 +
-+static inline void *hw_qeit_get_valid(struct hw_queue *queue)
++static inline void ehea_update_rq2a(struct ehea_qp *qp, u16 nr_wqes)
 +{
-+	struct ehea_cqe *retvalue = hw_qeit_get(queue);
-+	void *pref;
-+	u8 valid;
-+
-+	pref = hw_qeit_calc(queue, queue->current_q_offset);
-+	prefetch(pref);
-+	prefetch(pref + 128);
-+	prefetch(pref + 256);
-+	valid = retvalue->valid;
-+	if (!((valid >> 7) == (queue->toggle_state & 1)))
-+		retvalue = NULL;
-+	return retvalue;
++	struct h_epa epa = qp->epas.kernel;
++	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq2a),
++		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
 +}
 +
-+static inline void *hw_qeit_reset(struct hw_queue *queue)
++static inline void ehea_update_rq1a(struct ehea_qp *qp, u16 nr_wqes)
 +{
-+	queue->current_q_offset = 0;
-+	return hw_qeit_get(queue);
++	struct h_epa epa = qp->epas.kernel;
++	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq1a),
++		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
 +}
 +
-+static inline void *hw_qeit_eq_get_inc(struct hw_queue *queue)
++static inline void ehea_update_feca(struct ehea_cq *cq, u32 nr_cqes)
 +{
-+	u64 last_entry_in_q = queue->queue_length - queue->qe_size;
-+	void *retvalue;
-+
-+
-+	retvalue = hw_qeit_get(queue);
-+	queue->current_q_offset += queue->qe_size;
-+	if (queue->current_q_offset > last_entry_in_q) {
-+		queue->current_q_offset = 0;
-+		queue->toggle_state = (~queue->toggle_state) & 1;
-+	}
-+	return retvalue;
++	struct h_epa epa = cq->epas.kernel;
++	epa_store_acc(epa, CQTEMM_OFFSET(cqx_feca),
++		      EHEA_BMASK_SET(CQX_FECADDER, nr_cqes));
 +}
 +
-+static inline void *hw_eqit_eq_get_inc_valid(struct hw_queue *queue)
++static inline void ehea_reset_cq_n1(struct ehea_cq *cq)
 +{
-+	void *retvalue = hw_qeit_get(queue);
-+	u32 qe = *(u8 *) retvalue;
-+	if ((qe >> 7) == (queue->toggle_state & 1))
-+		hw_qeit_eq_get_inc(queue);
-+	else
-+		retvalue = NULL;
-+	return retvalue;
++	struct h_epa epa = cq->epas.kernel;
++	epa_store_cq(epa, cqx_n1,
++		     EHEA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, 1));
 +}
 +
-+static inline struct ehea_rwqe *ehea_get_next_rwqe(struct ehea_qp *qp,
-+						   int rq_nr)
++static inline void ehea_reset_cq_ep(struct ehea_cq *my_cq)
 +{
-+	struct hw_queue *queue;
-+
-+	if (rq_nr == 1)
-+		queue = &qp->hw_rqueue1;
-+	else if (rq_nr == 2)
-+		queue = &qp->hw_rqueue2;
-+	else
-+		queue = &qp->hw_rqueue3;
-+
-+	return (struct ehea_rwqe *)hw_qeit_get_inc(queue);
++	struct h_epa epa = my_cq->epas.kernel;
++	epa_store_acc(epa, CQTEMM_OFFSET(cqx_ep),
++		      EHEA_BMASK_SET(CQX_EP_EVENT_PENDING, 0));
 +}
 +
-+static inline struct ehea_swqe *ehea_get_swqe(struct ehea_qp *my_qp,
-+					      int *wqe_index)
-+{
-+	struct hw_queue *queue = &my_qp->hw_squeue;
-+	struct ehea_swqe *wqe_p;
-+	*wqe_index = (queue->current_q_offset) >> (7 + EHEA_SG_SQ);
-+	wqe_p = (struct ehea_swqe *)hw_qeit_get_inc(&my_qp->hw_squeue);
-+	return wqe_p;
-+}
-+
-+static inline void ehea_post_swqe(struct ehea_qp *my_qp, struct ehea_swqe *swqe)
-+{
-+	iosync();
-+	ehea_update_sqa(my_qp, 1);
-+}
-+
-+static inline struct ehea_cqe *ehea_poll_rq1(struct ehea_qp *qp, int *wqe_index)
-+{
-+	struct hw_queue *queue = &qp->hw_rqueue1;
-+
-+	*wqe_index = (queue->current_q_offset) >> (7 + EHEA_SG_RQ1);
-+	return hw_qeit_get_valid(queue);
-+}
-+
-+static inline void ehea_inc_rq1(struct ehea_qp *qp)
-+{
-+	hw_qeit_inc(&qp->hw_rqueue1);
-+}
-+
-+static inline struct ehea_cqe *ehea_poll_cq(struct ehea_cq *my_cq)
-+{
-+	return hw_qeit_get_inc_valid(&my_cq->hw_queue);
-+};
-+
-+#define EHEA_CQ_REGISTER_ORIG 0
-+#define EHEA_EQ_REGISTER_ORIG 0
-+
-+enum ehea_eq_type {
-+	EHEA_EQ = 0,		/* event queue              */
-+	EHEA_NEQ		/* notification event queue */
-+};
-+
-+struct ehea_eq *ehea_create_eq(struct ehea_adapter *adapter,
-+			       enum ehea_eq_type type,
-+			       const u32 length, const u8 eqe_gen);
-+
-+int ehea_destroy_eq(struct ehea_eq *eq);
-+
-+struct ehea_eqe *ehea_poll_eq(struct ehea_eq *eq);
-+
-+struct ehea_cq *ehea_create_cq(struct ehea_adapter *adapter, int cqe,
-+			       u64 eq_handle, u32 cq_token);
-+
-+int ehea_destroy_cq(struct ehea_cq *cq);
-+
-+struct ehea_qp *ehea_create_qp(struct ehea_adapter * adapter, u32 pd,
-+			       struct ehea_qp_init_attr *init_attr);
-+
-+int ehea_destroy_qp(struct ehea_qp *qp);
-+
-+int ehea_reg_mr_adapter(struct ehea_adapter *adapter);
-+
-+int ehea_reg_mr_pages(struct ehea_adapter *adapter,
-+		      struct ehea_mr *mr,
-+		      u64 start, u64 *pt, int nr_pages);
-+
-+#endif	/* __EHEA_QMR_H__ */
++#endif	/* __EHEA_HW_H__ */

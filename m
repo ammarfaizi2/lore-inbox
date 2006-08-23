@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWHWJTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWHWJVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWHWJTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWHWJTH
+	id S1751476AbWHWJVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWHWJVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:19:07 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:51405 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751470AbWHWJTE (ORCPT
+	Wed, 23 Aug 2006 05:21:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:60878 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751473AbWHWJVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:19:04 -0400
-Date: Wed, 23 Aug 2006 13:18:13 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 1/3] kevent: Core files.
-Message-ID: <20060823091813.GA20014@2ka.mipt.ru>
-References: <115615558935@2ka.mipt.ru> <200608231051.37089.dada1@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 23 Aug 2006 05:21:05 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] paravirt.h
+Date: Wed, 23 Aug 2006 11:20:42 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1155202505.18420.5.camel@localhost.localdomain> <200608231106.26696.ak@suse.de> <44EC1C7C.9020304@vmware.com>
+In-Reply-To: <44EC1C7C.9020304@vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608231051.37089.dada1@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 13:18:21 +0400 (MSD)
+Message-Id: <200608231120.42679.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 10:51:36AM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
-> Hello Evgeniy
 
-Hi Eric.
- 
-> I have one comment/suggestion (minor detail, your work is very good)
-> 
-> I suggest to add one item in kevent_registered_callbacks[], so that 
-> kevent_registered_callbacks[KEVENT_MAX] is valid and can act as a fallback.
+> I need to look at the kprobes code in more depth to answer completely.  
+> But in general, there could be a problem if DRs are set to fire on any 
+> EIP 
 
-Sounds good, could you please send appliable patch with proper
-signed-off line?
+kprobes don't use DRs.
 
-> Eric Dumazet
-
--- 
-	Evgeniy Polyakov
+-Andi

@@ -1,697 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWHWIVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWHWIWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWHWIVA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWHWIQh
+	id S964784AbWHWIWz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWHWIWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:16:37 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:13053 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932384AbWHWIQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:16:26 -0400
-Date: Wed, 23 Aug 2006 01:05:56 -0700
+	Wed, 23 Aug 2006 04:22:54 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:56025 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932389AbWHWIQa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:16:30 -0400
+Date: Wed, 23 Aug 2006 01:06:06 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200608230805.k7N85uvv000396@frankl.hpl.hp.com>
+Message-Id: <200608230806.k7N866Xx000516@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/18] 2.6.17.9 perfmon2 patch for review: sysfs support
+Subject: [PATCH 15/18] 2.6.17.9 perfmon2 patch for review: modified powerpc files
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the sysfs support.
+This patch contains the modified powerpc files.
 
-We use the sysfs interface fot two reasons:
-	- perfmon2 administration
-	- user level information
 
-Perfmon2 creates new directories in /sys:
-	- /sys/kernel/perfmon: for adminstration and global information
-	- /sys/devices/system/cpu/cpuXX/perfmon: per-cpu statistics (debugging)
+The modified files are as follows:
 
-In /sys/kernel/perfmon we find:
-	- arg_size_max (R/W): maximum size of vector arguments in bytes
-	- buf_size_max (R/W):  maximum aggregated size of all smapling buffers
-	- smpl_buffer_mem (R): current consumption of buf_size_max
-	- counter_width	(R): PMU HW counter width
-	- debug (R/W) : enable perfmon2 debugging messages
-	- debug_ovfl (R/W): enable perfmon2 interrupt debugging messages
-	- formats/	: information about available sampling formats
-	- pmc_max_fast_arg (R): how many vector arguments can be processed on the stack for pfarg_pmc_t
-	- pmd_max_fast_arg (R):  how many vector arguments can be processed on the stack for pfarg_pmd_t
-	- pmu_desc/ : information about PMU register mapping
-	- pmu_model (R): name of active PMU description module
-	- reset_stats (W):  reset statistics
-	- sys_group (R/W): which user group is allowed to create systemwide perfmon2 contexts
-	- task_group (R/W): which user group is allowed to create per-thread perfmon2 contexts
-	- sys_sessions_count (R):  number of active per-thread contexts
-	- task_sessions_count (R): number of active system-wide contexts
-	- version (R): perfmon2 version
+arch/powerpc/Kconfig:
+	- add link to perfmon menuconfig options
 
-The statistics we maintained in /sys/system/devices/cpu/cpuXX are mostly
-for debugging purposes at this point.
+arch/powerpc/Makefile:
+	- add perfmon subdir
 
+arch/powerpc/kernel/entry_64.S:
+	- add hook for extra work before kernel exit. Need to block a thread after a overflow with
+	  user level notification. Also needed to do some bookeeeping, such as reset certain counters
+	  and cleanup in some difficult corner cases
+
+arch/powerpc/kernel/process.c:
+	- add hook in exit_thread() to cleanup perfmon2 context
+	- add hook in copy_thread() to cleanup perfmon2 context in child (perfmon2 context
+	  is never inherited)
+	- add hook in __switch_to() for PMU state save/restore
+
+arch/powerpc/kernel/systbl.S:
+	- add new system calls definitions
+
+include/asm-powerpc/thread_info.h:
+	- add TIF_PERFMON which is used for PMU context switching in __switch_to()
+
+include/asm-powerpc/unistd.h:
+	- add new system calls
 
 
 
---- linux-2.6.17.9.base/perfmon/perfmon_sysfs.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/perfmon/perfmon_sysfs.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,637 @@
-+/*
-+ * perfmon_proc.c: perfmon2 /proc interface
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
-+ *
-+ * More information about perfmon available at:
-+ * 	http://www.hpl.hp.com/research/linux/perfmon
-+ */
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/smp_lock.h>
-+#include <linux/proc_fs.h>
-+#include <linux/list.h>
-+#include <linux/version.h>
+
+diff -urp linux-2.6.17.9.base/arch/powerpc/Kconfig linux-2.6.17.9/arch/powerpc/Kconfig
+--- linux-2.6.17.9.base/arch/powerpc/Kconfig	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/powerpc/Kconfig	2006-08-21 03:37:46.000000000 -0700
+@@ -299,6 +299,9 @@ config NOT_COHERENT_CACHE
+ 	bool
+ 	depends on 4xx || 8xx || E200
+ 	default y
++
++source "arch/powerpc/perfmon/Kconfig"
++
+ endmenu
+ 
+ source "init/Kconfig"
+diff -urp linux-2.6.17.9.base/arch/powerpc/Makefile linux-2.6.17.9/arch/powerpc/Makefile
+--- linux-2.6.17.9.base/arch/powerpc/Makefile	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/powerpc/Makefile	2006-08-21 03:37:46.000000000 -0700
+@@ -135,6 +135,7 @@ core-y				+= arch/powerpc/kernel/ \
+ 				   arch/powerpc/platforms/
+ core-$(CONFIG_MATH_EMULATION)	+= arch/powerpc/math-emu/
+ core-$(CONFIG_XMON)		+= arch/powerpc/xmon/
++core-$(CONFIG_PERFMON)		+= arch/powerpc/perfmon/
+ 
+ drivers-$(CONFIG_OPROFILE)	+= arch/powerpc/oprofile/
+ 
+diff -urp linux-2.6.17.9.base/arch/powerpc/kernel/entry_64.S linux-2.6.17.9/arch/powerpc/kernel/entry_64.S
+--- linux-2.6.17.9.base/arch/powerpc/kernel/entry_64.S	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/powerpc/kernel/entry_64.S	2006-08-21 03:37:46.000000000 -0700
+@@ -569,6 +569,9 @@ user_work:
+ 	b	.ret_from_except_lite
+ 
+ 1:	bl	.save_nvgprs
++#ifdef CONFIG_PERFMON
++	bl	.ppc64_pfm_handle_work
++#endif /* CONFIG_PERFMON */
+ 	li	r3,0
+ 	addi	r4,r1,STACK_FRAME_OVERHEAD
+ 	bl	.do_signal
+diff -urp linux-2.6.17.9.base/arch/powerpc/kernel/process.c linux-2.6.17.9/arch/powerpc/kernel/process.c
+--- linux-2.6.17.9.base/arch/powerpc/kernel/process.c	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/powerpc/kernel/process.c	2006-08-21 03:37:46.000000000 -0700
+@@ -35,6 +35,7 @@
+ #include <linux/mqueue.h>
+ #include <linux/hardirq.h>
+ #include <linux/utsname.h>
 +#include <linux/perfmon.h>
-+#include <linux/device.h>
-+#include <linux/cpu.h>
-+
-+#include <asm/bitops.h>
-+#include <asm/errno.h>
-+#include <asm/processor.h>
-+
-+struct pfm_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(void *, char *);
-+	ssize_t (*store)(void *, const char *, size_t);
-+};
-+#define to_attr(n) container_of(n, struct pfm_attribute, attr);
-+
-+#define PFM_RO_ATTR(_name) \
-+struct pfm_attribute attr_##_name = __ATTR_RO(_name)
-+
-+#define PFM_RW_ATTR(_name,_mode,_show,_store) 			\
-+struct pfm_attribute attr_##_name = __ATTR(_name,_mode,_show,_store);
-+
-+static int pfm_sysfs_init_done;	/* true when pfm_sysfs_init() completed */
-+
-+static void pfm_sysfs_init_percpu(int i);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu);
-+
-+struct pfm_controls pfm_controls = {
-+	.sys_group = PFM_GROUP_PERM_ANY,
-+	.task_group = PFM_GROUP_PERM_ANY,
-+	.arg_size_max = PAGE_SIZE,
-+	.smpl_buf_size_max = ~0,
-+};
-+EXPORT_SYMBOL(pfm_controls);
-+
-+DECLARE_PER_CPU(struct pfm_stats, pfm_stats);
-+
-+static struct kobject pfm_kernel_kobj, pfm_kernel_fmt_kobj;
-+
-+static void pfm_reset_stats(void)
-+{
-+	struct pfm_stats *st;
-+	int m;
-+
-+	for_each_online_cpu(m) {
-+
-+		st = &per_cpu(pfm_stats,m);
-+		/*
-+		 * cannot use memset because of kobj member
-+		 */
-+		st->pfm_ovfl_intr_replay_count = 0;
-+		st->pfm_ovfl_intr_regular_count = 0;
-+		st->pfm_ovfl_intr_all_count = 0;
-+		st->pfm_ovfl_intr_cycles = 0;
-+		st->pfm_ovfl_intr_phase1 = 0;
-+		st->pfm_ovfl_intr_phase2 = 0;
-+		st->pfm_ovfl_intr_phase3 = 0;
-+		st->pfm_fmt_handler_calls = 0;
-+		st->pfm_fmt_handler_cycles = 0;
-+		st->pfm_set_switch_count = 0;
-+		st->pfm_set_switch_cycles = 0;
-+		st->pfm_ctxsw_count = 0;
-+		st->pfm_ctxsw_cycles = 0;
-+		st->pfm_handle_timeout_count = 0;
-+	}
-+}
-+
-+
-+static ssize_t pfm_fmt_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_smpl_fmt *fmt = to_smpl_fmt(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(fmt, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_pmu_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct _pfm_pmu_config *pmu= to_pmu(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(pmu, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(st, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_store(struct kobject *kobj,
-+		struct attribute *attr, const char *buf, size_t count)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->store ? attribute->store(st, buf, count) : -EIO;
-+}
-+
-+static struct sysfs_ops pfm_fmt_sysfs_ops = {
-+	.show = pfm_fmt_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_pmu_sysfs_ops = {
-+	.show = pfm_pmu_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_stats_sysfs_ops = {
-+	.show  = pfm_stats_attr_show,
-+	.store = pfm_stats_attr_store,
-+};
-+
-+static struct kobj_type pfm_fmt_ktype = {
-+	.sysfs_ops = &pfm_fmt_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_pmu_ktype = {
-+	.sysfs_ops = &pfm_pmu_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_stats_ktype = {
-+	.sysfs_ops = &pfm_stats_sysfs_ops,
-+};
-+
-+decl_subsys_name(pfm_fmt, pfm_fmt, &pfm_fmt_ktype, NULL);
-+decl_subsys_name(pfm_pmu, pfm_pmu, &pfm_pmu_ktype, NULL);
-+decl_subsys_name(pfm_stats, pfm_stats, &pfm_stats_ktype, NULL);
-+
-+static ssize_t version_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u.%u\n",  PFM_VERSION_MAJ, PFM_VERSION_MIN);
-+}
-+
-+static ssize_t pmd_max_fast_arg_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMD_STK_ARG);
-+}
-+
-+static ssize_t pmc_max_fast_arg_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMC_STK_ARG);
-+}
-+
-+static ssize_t pmu_model_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 0);
-+}
-+
-+static ssize_t counter_width_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 1);
-+}
-+
-+static ssize_t task_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 2);
-+}
-+
-+static ssize_t sys_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 3);
-+}
-+
-+static ssize_t smpl_buffer_mem_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 4);
-+}
-+
-+static ssize_t debug_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug);
-+}
-+
-+static ssize_t debug_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug = d;
-+
-+	if (d == 0)
-+		pfm_reset_stats();
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t debug_ovfl_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug_ovfl);
-+}
-+
-+static ssize_t debug_ovfl_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug_ovfl = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_show(void *info, char *buf)
-+{
-+	buf[0]='0';
-+	buf[1]='\0';
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_store(void *info, const char *buf, size_t count)
-+{
-+	pfm_reset_stats();
-+	return count;
-+}
-+
-+static ssize_t sys_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.sys_group);
-+}
-+
-+static ssize_t sys_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.sys_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t task_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.task_group);
-+}
-+
-+static ssize_t task_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.task_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t buf_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%zu\n", pfm_controls.smpl_buf_size_max);
-+}
-+
-+static ssize_t buf_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
-+	/*
-+	 * we impose a page as the minimum
-+	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	pfm_controls.smpl_buf_size_max = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t arg_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%zu\n", pfm_controls.arg_size_max);
-+}
-+
-+static ssize_t arg_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
-+
-+	/*
-+	 * we impose a page as the minimum
-+	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	pfm_controls.arg_size_max = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+/*
-+ * /sys/kernel/perfmon attributes
-+ */
-+static PFM_RO_ATTR(version);
-+static PFM_RO_ATTR(pmu_model);
-+static PFM_RO_ATTR(counter_width);
-+static PFM_RO_ATTR(task_sessions_count);
-+static PFM_RO_ATTR(sys_sessions_count);
-+static PFM_RO_ATTR(smpl_buffer_mem);
-+static PFM_RO_ATTR(pmd_max_fast_arg);
-+static PFM_RO_ATTR(pmc_max_fast_arg);
-+
-+static PFM_RW_ATTR(debug, 0644, debug_show, debug_store);
-+static PFM_RW_ATTR(debug_ovfl, 0644, debug_ovfl_show, debug_ovfl_store);
-+static PFM_RW_ATTR(reset_stats, 0644, reset_stats_show, reset_stats_store);
-+static PFM_RW_ATTR(sys_group, 0644, sys_group_show, sys_group_store);
-+static PFM_RW_ATTR(task_group, 0644, task_group_show, task_group_store);
-+static PFM_RW_ATTR(buf_size_max, 0644, buf_size_show, buf_size_store);
-+static PFM_RW_ATTR(arg_size_max, 0644, arg_size_show, arg_size_store);
-+
-+static struct attribute *pfm_kernel_attrs[] = {
-+	&attr_version.attr,
-+	&attr_pmu_model.attr,
-+	&attr_counter_width.attr,
-+	&attr_task_sessions_count.attr,
-+	&attr_sys_sessions_count.attr,
-+	&attr_smpl_buffer_mem.attr,
-+	&attr_pmd_max_fast_arg.attr,
-+	&attr_pmc_max_fast_arg.attr,
-+	&attr_debug.attr,
-+	&attr_debug_ovfl.attr,
-+	&attr_reset_stats.attr,
-+	&attr_sys_group.attr,
-+	&attr_task_group.attr,
-+	&attr_buf_size_max.attr,
-+	&attr_arg_size_max.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_kernel_attr_group = {
-+	.attrs = pfm_kernel_attrs,
-+};
-+
-+
-+int pfm_sysfs_init(void)
-+{
-+	int i, ret;
-+	
-+	ret = subsystem_register(&pfm_fmt_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_fmt_subsys: %d", ret);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_pmu_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_pmu_subsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_stats_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_statssubsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		subsystem_unregister(&pfm_pmu_subsys);
-+		return ret;
-+	}
-+
-+	kobject_init(&pfm_kernel_kobj);
-+	kobject_init(&pfm_kernel_fmt_kobj);
-+
-+	pfm_kernel_kobj.parent = &kernel_subsys.kset.kobj;
-+	kobject_set_name(&pfm_kernel_kobj, "perfmon");
-+
-+	pfm_kernel_fmt_kobj.parent = &pfm_kernel_kobj;
-+	kobject_set_name(&pfm_kernel_fmt_kobj, "formats");
-+
-+	kobject_add(&pfm_kernel_kobj);
-+	kobject_add(&pfm_kernel_fmt_kobj);
-+
-+	sysfs_create_group(&pfm_kernel_kobj, &pfm_kernel_attr_group);
-+
-+	for_each_online_cpu(i) {
-+		pfm_sysfs_init_percpu(i);
-+	}
-+
-+	pfm_sysfs_init_done = 1;
-+
-+	pfm_builtin_fmt_sysfs_add();
-+
-+	if (pfm_pmu_conf)
-+		pfm_sysfs_add_pmu(pfm_pmu_conf);
-+
-+	return 0;
-+}
-+
-+#define PFM_DECL_ATTR(name) \
-+static ssize_t name##_show(void *info, char *buf) \
-+{ \
-+	struct pfm_stats *st = info;\
-+	return snprintf(buf, PAGE_SIZE, "%llu\n", \
-+			(unsigned long long)st->pfm_##name); \
-+} \
-+static PFM_RO_ATTR(name)
-+
-+/*
-+ * per-cpu perfmon stats attributes
-+ */
-+PFM_DECL_ATTR(ovfl_intr_replay_count);
-+PFM_DECL_ATTR(ovfl_intr_all_count);
-+PFM_DECL_ATTR(ovfl_intr_cycles);
-+PFM_DECL_ATTR(fmt_handler_calls);
-+PFM_DECL_ATTR(fmt_handler_cycles);
-+PFM_DECL_ATTR(set_switch_count);
-+PFM_DECL_ATTR(set_switch_cycles);
-+PFM_DECL_ATTR(ctxsw_count);
-+PFM_DECL_ATTR(ctxsw_cycles);
-+PFM_DECL_ATTR(handle_timeout_count);
-+
-+static ssize_t ovfl_intr_spurious_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_all_count
-+					     - st->pfm_ovfl_intr_regular_count));
-+}
-+
-+static ssize_t ovfl_intr_regular_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_regular_count
-+					     - st->pfm_ovfl_intr_replay_count));
-+}
-+
-+static PFM_RO_ATTR(ovfl_intr_spurious_count);
-+static PFM_RO_ATTR(ovfl_intr_regular_count);
-+
-+static struct attribute *pfm_cpu_attrs[] = {
-+	&attr_ovfl_intr_spurious_count.attr,
-+	&attr_ovfl_intr_replay_count.attr,
-+	&attr_ovfl_intr_regular_count.attr,
-+	&attr_ovfl_intr_all_count.attr,
-+	&attr_ovfl_intr_cycles.attr,
-+	&attr_fmt_handler_calls.attr,
-+	&attr_fmt_handler_cycles.attr,
-+	&attr_set_switch_count.attr,
-+	&attr_set_switch_cycles.attr,
-+	&attr_ctxsw_count.attr,
-+	&attr_ctxsw_cycles.attr,
-+	&attr_handle_timeout_count.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_cpu_attr_group = {
-+	.attrs = pfm_cpu_attrs,
-+};
-+
-+static void pfm_sysfs_init_percpu(int i)
-+{
-+	struct sys_device *cpudev;
-+	struct pfm_stats *st;
-+
-+	cpudev = get_cpu_sysdev(i);
-+	if (!cpudev)
-+		return;
-+
-+	st = &per_cpu(pfm_stats, i);
-+
-+	kobject_init(&st->kobj);
-+
-+	st->kobj.parent = &cpudev->kobj;
-+	kobject_set_name(&st->kobj, "perfmon");
-+	kobj_set_kset_s(st, pfm_stats_subsys);
-+
-+	kobject_add(&st->kobj);
-+
-+	sysfs_create_group(&st->kobj, &pfm_cpu_attr_group);
-+}
-+
-+static ssize_t uuid_show(void *data, char *buf)
-+{
-+	struct pfm_smpl_fmt *fmt = data;
-+
-+	return snprintf(buf, PAGE_SIZE, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x"
-+			   "-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
-+			fmt->fmt_uuid[0],
-+			fmt->fmt_uuid[1],
-+			fmt->fmt_uuid[2],
-+			fmt->fmt_uuid[3],
-+			fmt->fmt_uuid[4],
-+			fmt->fmt_uuid[5],
-+			fmt->fmt_uuid[6],
-+			fmt->fmt_uuid[7],
-+			fmt->fmt_uuid[8],
-+			fmt->fmt_uuid[9],
-+			fmt->fmt_uuid[10],
-+			fmt->fmt_uuid[11],
-+			fmt->fmt_uuid[12],
-+			fmt->fmt_uuid[13],
-+			fmt->fmt_uuid[14],
-+			fmt->fmt_uuid[15]);
-+}
-+
-+PFM_RO_ATTR(uuid);
-+
-+int pfm_sysfs_add_fmt(struct pfm_smpl_fmt *fmt)
-+{
-+	int ret;
-+
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	kobject_init(&fmt->kobj);
-+	kobject_set_name(&fmt->kobj, fmt->fmt_name);
-+	kobj_set_kset_s(fmt, pfm_fmt_subsys);
-+	fmt->kobj.parent = &pfm_kernel_fmt_kobj;
-+
-+	ret = kobject_add(&fmt->kobj);
-+
-+	return sysfs_create_file(&fmt->kobj, &attr_uuid.attr);
-+}
-+
-+int pfm_sysfs_remove_fmt(struct pfm_smpl_fmt *fmt)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	sysfs_remove_file(&fmt->kobj, &attr_uuid.attr);
-+
-+	kobject_del(&fmt->kobj);
-+
-+	return 0;
-+}
-+
-+/*
-+ * because the mappings can vary between one PMU and the other, we cannot really
-+ * use an attribute per PMC to describe a mapping. Instead we have a single
-+ * mappings attribute per PMU.
-+ */
-+static ssize_t mappings_show(void *data, char *buf)
-+{
-+	struct _pfm_pmu_config *pmu = data;
-+	size_t s = PAGE_SIZE;
-+	u32 n = 0, i;
-+
-+	for (i = 0; i < PFM_MAX_PMCS;  i++) {
-+
-+		if ((pmu->pmc_desc[i].type & PFM_REG_I) == 0)
-+			continue;
-+
-+		n = snprintf(buf, s, "PMC%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmc_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			goto skip;
-+		s -= n;
-+	}
-+
-+	for (i = 0; i < PFM_MAX_PMDS;  i++) {
-+
-+		if ((pmu->pmd_desc[i].type & PFM_REG_I) == 0)
-+			continue;
-+
-+		n = snprintf(buf, s, "PMD%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmd_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			break;
-+		s -= n;
-+	}
-+skip:
-+	return PAGE_SIZE - s;
-+}
-+
-+PFM_RO_ATTR(mappings);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	kobject_init(&pmu->kobj);
-+	kobject_set_name(&pmu->kobj, "pmu_desc");
-+	kobj_set_kset_s(pmu, pfm_pmu_subsys);
-+	pmu->kobj.parent = &pfm_kernel_kobj;
-+
-+	kobject_add(&pmu->kobj);
-+
-+	return sysfs_create_file(&pmu->kobj, &attr_mappings.attr);
-+}
-+
-+int pfm_sysfs_remove_pmu(struct _pfm_pmu_config *pmu)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	sysfs_remove_file(&pmu->kobj, &attr_mappings.attr);
-+
-+	kobject_del(&pmu->kobj);
-+
-+	return 0;
-+}
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -326,6 +327,9 @@ struct task_struct *__switch_to(struct t
+ 		new_thread->start_tb = current_tb;
+ 	}
+ #endif
++	if (test_tsk_thread_flag(new, TIF_PERFMON)
++	    || test_tsk_thread_flag(prev, TIF_PERFMON))
++		pfm_ctxsw(prev, new);
+ 
+ 	local_irq_save(flags);
+ 
+@@ -465,6 +469,7 @@ void show_regs(struct pt_regs * regs)
+ void exit_thread(void)
+ {
+ 	discard_lazy_cpu_state();
++	pfm_exit_thread(current);
+ }
+ 
+ void flush_thread(void)
+@@ -576,6 +581,7 @@ int copy_thread(int nr, unsigned long cl
+ 	kregs->nip = (unsigned long)ret_from_fork;
+ 	p->thread.last_syscall = -1;
+ #endif
++	pfm_copy_thread(p);
+ 
+ 	return 0;
+ }
+diff -urp linux-2.6.17.9.base/arch/powerpc/kernel/systbl.S linux-2.6.17.9/arch/powerpc/kernel/systbl.S
+--- linux-2.6.17.9.base/arch/powerpc/kernel/systbl.S	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/powerpc/kernel/systbl.S	2006-08-21 03:37:46.000000000 -0700
+@@ -340,7 +340,19 @@ SYSCALL(fchmodat)
+ SYSCALL(faccessat)
+ COMPAT_SYS(get_robust_list)
+ COMPAT_SYS(set_robust_list)
+-
++SYSCALL(pfm_create_context)
++SYSCALL(pfm_write_pmcs)
++SYSCALL(pfm_write_pmds)
++SYSCALL(pfm_read_pmds)
++SYSCALL(pfm_load_context)
++SYSCALL(pfm_start)
++SYSCALL(pfm_stop)
++SYSCALL(pfm_restart)
++SYSCALL(pfm_create_evtsets)
++SYSCALL(pfm_getinfo_evtsets)
++SYSCALL(pfm_delete_evtsets)
++SYSCALL(pfm_unload_context)
++ 
+ /*
+  * please add new calls to arch/powerpc/platforms/cell/spu_callbacks.c
+  * as well when appropriate.
+Only in linux-2.6.17.9/arch/powerpc: perfmon
+Only in linux-2.6.17.9/include/asm-powerpc: perfmon.h
+diff -urp linux-2.6.17.9.base/include/asm-powerpc/thread_info.h linux-2.6.17.9/include/asm-powerpc/thread_info.h
+--- linux-2.6.17.9.base/include/asm-powerpc/thread_info.h	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/include/asm-powerpc/thread_info.h	2006-08-21 03:37:46.000000000 -0700
+@@ -123,6 +123,7 @@ static inline struct thread_info *curren
+ #define TIF_RESTOREALL		12	/* Restore all regs (implies NOERROR) */
+ #define TIF_NOERROR		14	/* Force successful syscall return */
+ #define TIF_RESTORE_SIGMASK	15	/* Restore signal mask in do_signal */
++#define TIF_PERFMON		16	/* uses perfmon */
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+@@ -140,6 +141,7 @@ static inline struct thread_info *curren
+ #define _TIF_NOERROR		(1<<TIF_NOERROR)
+ #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
+ #define _TIF_SYSCALL_T_OR_A	(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP)
++#define _TIF_PERFMON		(1<<TIF_PERFMON)
+ 
+ #define _TIF_USER_WORK_MASK	(_TIF_NOTIFY_RESUME | _TIF_SIGPENDING | \
+ 				 _TIF_NEED_RESCHED | _TIF_RESTORE_SIGMASK)
+diff -urp linux-2.6.17.9.base/include/asm-powerpc/unistd.h linux-2.6.17.9/include/asm-powerpc/unistd.h
+--- linux-2.6.17.9.base/include/asm-powerpc/unistd.h	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/include/asm-powerpc/unistd.h	2006-08-21 03:37:46.000000000 -0700
+@@ -323,8 +323,20 @@
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
++#define __NR_pfm_create_context	301
++#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++#define __NR_pfm_start		(__NR_pfm_create_context+5)
++#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		312
+ 
+ #ifdef __KERNEL__
+ #define __NR__exit __NR_exit

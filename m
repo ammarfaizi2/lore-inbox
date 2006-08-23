@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbWHWWDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWHWWFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbWHWWDO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWHWWDO
+	id S965100AbWHWWFK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWHWWFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:03:14 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:20169
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965229AbWHWWDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:03:13 -0400
-Date: Wed, 23 Aug 2006 15:03:14 -0700 (PDT)
-Message-Id: <20060823.150314.41637066.davem@davemloft.net>
-To: linas@austin.ibm.com
-Cc: arnd@arndb.de, benh@kernel.crashing.org, netdev@vger.kernel.org,
-       jklewis@us.ibm.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 2/6]: powerpc/cell spidernet low watermark patch.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060823213642.GG4401@austin.ibm.com>
-References: <1156055509.5803.77.camel@localhost.localdomain>
-	<200608201203.15645.arnd@arndb.de>
-	<20060823213642.GG4401@austin.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 23 Aug 2006 18:05:10 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:12761 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965100AbWHWWFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:05:08 -0400
+Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
+From: Dave Hansen <haveblue@us.ibm.com>
+To: devel@openvz.org
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Rohit Seth <rohitseth@google.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <44EC35A3.7070308@sw.ru>
+References: <44EC31FB.2050002@sw.ru>  <44EC35A3.7070308@sw.ru>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 15:04:58 -0700
+Message-Id: <1156370698.12011.55.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linas@austin.ibm.com (Linas Vepstas)
-Date: Wed, 23 Aug 2006 16:36:42 -0500
+On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
+> --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> @@ -432,3 +432,5 @@ source "security/Kconfig"
+>  source "crypto/Kconfig"
+>  
+>  source "lib/Kconfig"
+> +
+> +source "kernel/bc/Kconfig"
+...
+> --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> @@ -432,3 +432,5 @@ source "security/Kconfig"
+>  source "crypto/Kconfig"
+>  
+>  source "lib/Kconfig"
+> +
+> +source "kernel/bc/Kconfig"
 
-> I could create a searate patch to change struct descr {} to split 
-> the u32 into several u8's; there's a dozen spots that get touched.
-> 
-> Alternatel, I could do a cheesy cast to char[4] and access that way.
-> Opinions?
+Is it just me, or do these patches look a little funky?  Looks like it
+is trying to patch the same thing into the same file, twice.  Also, the
+patches look to be -p0 instead of -p1.  
 
-The most portable scheme would be a "u32/u8[4]" union with
-appropriate endianness checks when determining which byte
-to access in the u8[] view.
+I'm having a few problems applying them.
+
+-- Dave
+

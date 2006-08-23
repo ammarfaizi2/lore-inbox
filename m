@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWHWO6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWHWPBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWHWO6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 10:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWHWO6Q
+	id S964907AbWHWPBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWHWPBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 10:58:16 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:63937 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964909AbWHWO6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 10:58:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=povCRtEPnJvV2JCNEXcn99ZIXMqsK6mlj3Ey5HDul5f9yWt+fqQc0pcH99pl5z6zUqTtbjaNPhBbsF/rP7VohwDFm/9Xd9wZz30WWY2onWVFbR7RrJvz3FF8kfdF5cJnYil0s0TvN8U8ALKE5DicUMa/P/bkeGt1aNuky4ZQbjU=
-Message-ID: <6bffcb0e0608230758sebc711fu9e41bff305966253@mail.gmail.com>
-Date: Wed, 23 Aug 2006 16:58:15 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Shailabh Nagar" <nagar@watson.ibm.com>
-Subject: Re: Possible memory leak in kernel/delayacct.c
-Cc: "Catalin Marinas" <catalin.marinas@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Balbir Singh" <balbir@in.ibm.com>
-In-Reply-To: <44EB5794.9020205@watson.ibm.com>
+	Wed, 23 Aug 2006 11:01:33 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:60645 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964907AbWHWPBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:01:33 -0400
+Date: Thu, 24 Aug 2006 00:58:18 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, simon.derr@bull.net, nathanl@austin.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-ID: <20060823145817.GA28175@krispykreme>
+References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme> <20060821140148.435d15f3.pj@sgi.com> <20060821215120.244f1f6f.akpm@osdl.org> <20060821220625.36abd1d9.pj@sgi.com> <20060821221433.2bc18198.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <b0943d9e0608190358i7cb93b75g1b52d2f1b7e6f1a@mail.gmail.com>
-	 <44EB5794.9020205@watson.ibm.com>
+In-Reply-To: <20060821221433.2bc18198.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 Hi,
 
-On 22/08/06, Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> Catalin Marinas wrote:
-> > Hi Shailabh,
-> >
-> > Michal was running some kmemleak tests and there are about 20 orphan
-> > pointers reported in delayacct.c. The allocation backtrace is:
-> >
-> > orphan pointer 0xf548fde0 (size 76):
-> >  c0174674: <kmem_cache_zalloc>
-> >  c01591ee: <__delayacct_tsk_init>
-> >  c0127e06: <copy_process>
-> >  c0128cd2: <do_fork>
-> >  c0104d39: <sys_clone>
-> >
-> > I'm not sure whether the leak occurs but there might be a path where
-> > task_struct is freed and the task->delays pointer is lost. Could you
-> > please have a look at this? Thanks.
-> >
->
-> One possibility for the leak is a missing free for tsk->delays on a
-> failed fork. Were the kmemleak tests causing fork failures to happen ?
-> What was being run in userspace ? Since the tsk->delays get allocated
-> from a slab, it should be easy enough to detect.
->
-> Could you try the patch below ? Its also being used for an oops reported
-> for delay accounting.
+> Well...  let's suck it and see (please).  If for some reason it proves
+> inadequate and the default kernel behaviour is significantly wrong (it
+> seems to be) then there's an argument for modifying (ie: adding complexity
+> to) the kernel.
 
-The problem seems to be fixed. Thanks.
+I think there is. We have a userspace visible change to the sched
+affinity API when the cpusets option is enabled. Papering over it with a
+udev callback doesnt sound like the right solution.
 
-$ ls /tmp/ml* | wc -l
-20
+Im struggling to understand why we have this problem at all. If a task
+has not been touched by cpuset calls it should be allowed to use any
+cpu. I completely agree that once you have partitioned the task with
+cpusets then it should never spill onto more recently hotplug added
+cpus.
 
-$ cat /tmp/ml* | grep -c __delayacct_tsk_init
-0
-
-> Thanks,
-> Shailabh
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Anton

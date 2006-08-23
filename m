@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWHWIRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWHWIRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWHWIRB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWHWIQp
+	id S932395AbWHWIRn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWHWIRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:16:45 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:55513 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932388AbWHWIQ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:16:27 -0400
-Date: Wed, 23 Aug 2006 01:05:59 -0700
+	Wed, 23 Aug 2006 04:17:15 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:15613 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932388AbWHWIQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:16:46 -0400
+Date: Wed, 23 Aug 2006 01:06:02 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200608230805.k7N85x2H000432@frankl.hpl.hp.com>
+Message-Id: <200608230806.k7N862CD000468@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 8/18] 2.6.17.9 perfmon2 patch for review: event sets and multiplexing support
+Subject: [PATCH 11/18] 2.6.17.9 perfmon2 patch for review: file related operations support
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the event set and multiplexing support.
+This patch contains the new generic file related functions.
 
-On many PMU models, there is not enough counter to collect
-certain metric in one run. Even on those that have potentially
-lots of counters, e.g. P4 with 18, there are oftentimes constraints
-which make measuring certain event together impossible. In those
-situation the user has n choice but to measure with multiple
-runs which is not always practical and prone to errors.
+A perfmon2 context is identified by a file descriptor and
+we leverage certain kernel mechanisms related to files.
+In particular we use:
+	- read
+	- select, poll
+	- fcntl
+	- close
+	- mmap
 
-One way to alleviate the problem is to introduce the notion
-of an event set. Each set encapsulates the entire PMU state.
-If a PMU has M counters then each set can define M events. 
-Multiple sets can be defined. They are then multiplexed onto
-the actual PMU such that only one is active at any time.
-The collected counts can then be scaled to get an *estimate*
-of what they would have been had each event been measured across
-the entire run. It is important to note that this remains an
-estimate. The faster we can switch, the smaller the blind spots are
-but the higher the overhead is.
+Support for those operations is implemented in perfmon_file.c.
 
-Sets and set switching can be implemented at the user level. Yet
-by having kernel support for it, we can signification improve
-performance especially for non self-monitoring per-thread context where
-we guarantee switching always occurs in the context of the monitored thread.
 
-By default, any perfmon2 context is created with a default set, i.e., set0.
-Set can be dynamically created/deleted with specific system calls. A set
-is identified by a simple number (0-65535). The number determines the
-position of the set in an ordered list. The order in the list determines
-the switch order. Switching occurs in a round-robin fashion.
+pfm_read():
+	- implements the callback for the read() operation. It is used to extract
+	  overflow notification messages. Only one message can be extracted per call.
+	  This can be a blocking call is the file is setup that way.
 
-Switching can be triggered by a timeout or after a certain number of overflows.
-The type of switching as well as the timeout is determined per set.
-The timeout granularity is determined by that of the timer tick. The actual
-timeout value is returned to the user.
+pfm_poll():
+	- support for poll() and select()
+	
+pfm_fasync():
+	- support for FASYNC for fcntl(). Is used to received asynchronous notifications via SIGIO
 
-The file perfmon_sets.c implements:
-	- set-related back-end system calls: __pfm_create_evtsets(), __pfm_delete_evtsets(), __pfm_getinfo_evtsets()
-	- set switching: pfm_switch_sets(), __pfm_handle_switch_timeout()
+pfm_mmap():
+	- handle remapping read-only of the kernel sampling buffer to userland
 
 
 
 
---- linux-2.6.17.9.base/perfmon/perfmon_sets.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/perfmon/perfmon_sets.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,842 @@
+--- linux-2.6.17.9.base/perfmon/perfmon_file.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/perfmon/perfmon_file.c	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,861 @@
 +/*
-+ * perfmon_sets.c: perfmon2 event sets and multiplexing functions
++ * perfmon_file.c: perfmon2 file input/output functions
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -89,772 +77,84 @@ The file perfmon_sets.c implements:
 + * More information about perfmon available at:
 + * 	http://www.hpl.hp.com/research/linux/perfmon
 + */
-+#include <linux/module.h>
 +#include <linux/kernel.h>
-+#include <linux/vmalloc.h>
-+#include <linux/perfmon.h>
++#include <linux/module.h>
++#include <linux/file.h>
++#include <linux/poll.h>
++#include <linux/vfs.h>
 +#include <linux/pagemap.h>
++#include <linux/mount.h>
++#include <linux/perfmon.h>
 +
-+static kmem_cache_t		*pfm_set_cachep;
-+static kmem_cache_t		*pfm_lg_set_cachep;
++#define PFMFS_MAGIC 0xa0b4d889	/* perfmon filesystem magic number */
 +
-+/*
-+ * reload reference overflow switch thresholds
-+ */
-+static void pfm_reload_switch_thresholds(struct pfm_event_set *set)
++struct file_operations pfm_file_ops;
++
++static int pfmfs_delete_dentry(struct dentry *dentry)
 +{
-+	u64 *mask;
-+	u16 i, max_cnt_pmd, first_cnt_pmd;
-+
-+	mask = set->used_pmds;
-+	first_cnt_pmd = pfm_pmu_conf->first_cnt_pmd;
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
-+
-+	for (i = first_cnt_pmd; i< max_cnt_pmd; i++) {
-+		if (pfm_bv_isset(mask, i)) {
-+			set->pmds[i].ovflsw_thres = set->pmds[i].ovflsw_ref_thres;
-+			PFM_DBG("pmd%u set%u ovflsw_thres=%llu",
-+				i,
-+				set->id,
-+				(unsigned long long)set->pmds[i].ovflsw_thres);
-+		}
-+	}
++	return 1;
 +}
 +
++static struct dentry_operations pfmfs_dentry_operations = {
++	.d_delete = pfmfs_delete_dentry,
++};
 +
-+/*
-+ * ensures that all id_next sets exists such that the round-robin
-+ * will work correctly, i.e., next dangling references.
-+ */
-+int pfm_prepare_sets(struct pfm_context *ctx, struct pfm_event_set *act_set)
++int pfm_is_fd(struct file *filp)
 +{
-+	struct pfm_event_set *set1, *set2;
-+	u16 max_cnt_pmd;
-+#define is_last_set(s, c)	((s)->list.next == &(c)->list)
-+
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
-+
-+	list_for_each_entry(set1, &ctx->list, list) {
-+
-+		if (is_last_set(set1, ctx))
-+			set2 = list_entry(ctx->list.next,
-+					  struct pfm_event_set, list);
-+		else
-+			set2 = list_entry(set1->list.next,
-+					  struct pfm_event_set, list);
-+		/*
-+		 * switch_next is used during actual switching
-+		 * so we prepare its value here. When no explicit next
-+		 * is requested, the field is initialized with the address
-+		 * of the next element in the ordered list
-+		 */
-+		if (set1->flags & PFM_SETFL_EXPL_NEXT) {
-+			list_for_each_entry(set2, &ctx->list, list) {
-+				if (set2->id == set1->id_next)
-+					break;
-+			}
-+			if (set2 == NULL) {
-+				PFM_DBG("set%u points to set%u "
-+					"which does not exist",
-+					set1->id,
-+					set1->id_next);
-+				return -EINVAL;
-+			}
-+		}
-+		/*
-+		 * update field used during actual switching
-+		 */
-+		set1->sw_next = set2;
-+
-+		PFM_DBG("set%u sw_next=%u", set1->id, set2->id);
-+
-+		/*
-+		 * cleanup bitvectors
-+		 */
-+		bitmap_zero(ulp(set1->ovfl_pmds), max_cnt_pmd);
-+		bitmap_zero(ulp(set1->povfl_pmds), max_cnt_pmd);
-+		set1->npend_ovfls = 0;
-+		/*
-+		 * we cannot just use plain clear because of arch-specific flags
-+		 */
-+		set1->priv_flags &= ~(PFM_SETFL_PRIV_MOD_BOTH|PFM_SETFL_PRIV_SWITCH);
-+
-+		/*
-+		 * reset activation and elapsed cycles
-+		 */
-+		set1->duration = 0;
-+
-+		pfm_modview_begin(set1);
-+
-+		set1->view->set_runs = 0;
-+
-+		pfm_modview_end(set1);
-+	}
-+	/*
-+	 * setting PFM_CPUINFO_TIME_SWITCH, triggers
-+	 * further checking if __pfm_handle_switch_timeout().
-+	 * switch timeout is effectively decremented only when
-+	 * monitoring has been activated via pfm_start() or
-+	 * any user level equivalent.
-+	 */
-+	if (act_set->flags & PFM_SETFL_OVFL_SWITCH) {
-+		pfm_reload_switch_thresholds(act_set);
-+	} else if (act_set->flags & PFM_SETFL_TIME_SWITCH) {
-+		act_set->timeout = act_set->switch_timeout;
-+		PFM_DBG("arming timeout for set%u", act_set->id);
-+		if (ctx->flags.system)
-+			__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
-+	}
-+
-+	return 0;
++	return filp->f_op == &pfm_file_ops;
 +}
 +
-+/*
-+ * called from *_timer_interrupt(). task == current
-+ */
-+void __pfm_handle_switch_timeout(void)
++static union pfm_msg *pfm_get_next_msg(struct pfm_context *ctx)
 +{
-+	struct pfm_event_set *set;
-+	struct pfm_context *ctx;
-+	unsigned long flags;
++	union pfm_msg *msg;
 +
-+	/*
-+	 * The timer tick check is operating on each
-+	 * CPU. Not all CPUs have time switching enabled
-+	 * hence we need to check.
-+	 */
-+	ctx  = __get_cpu_var(pmu_ctx);
-+	if (ctx == NULL)
-+		return;
++	PFM_DBG("ctx=%p head=%d tail=%d",
++		ctx,
++		ctx->msgq_head,
++		ctx->msgq_tail);
 +
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	set = ctx->active_set;
-+	BUG_ON(set == NULL);
-+
-+	/*
-+	 * we decrement only when attached and not masked or zombie
-+	 */
-+	if (ctx->state != PFM_CTX_LOADED)
-+		goto done;
-+
-+	/*
-+	 * do not decrement timeout unless monitoring is active.
-+	 */
-+	if (!ctx->flags.started && !pfm_arch_is_active(ctx))
-+		goto done;
-+
-+	set->timeout--;
-+
-+	__get_cpu_var(pfm_stats).pfm_handle_timeout_count++;
-+
-+	if (!set->timeout)
-+		pfm_switch_sets(ctx, NULL, PFM_PMD_RESET_SHORT, 0);
-+done:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+}
-+
-+/*
-+ *
-+ * always operating on the current task
-+ *
-+ * input:
-+ * 	- new_set: new set to switch to, if NULL follow normal chain
-+ */
-+void pfm_switch_sets(struct pfm_context *ctx,
-+		    struct pfm_event_set *new_set,
-+		    int reset_mode,
-+		    int no_restart)
-+{
-+	struct pfm_event_set *set;
-+	u64 switch_count;
-+	u64 now_itc, end_itc;
-+	unsigned long info = 0;
-+	u32 new_flags;
-+	int is_system, state, is_active;
-+
-+	now_itc = pfm_arch_get_itc();
-+	set = ctx->active_set;
-+	is_active = ctx->flags.started || pfm_arch_is_active(ctx);
-+
-+	BUG_ON(!ctx->flags.system && ctx->task != current);
-+
-+	/*
-+	 * if no set is explicitely requested,
-+	 * use the set_switch_next field
-+	 */
-+	if (new_set == NULL) {
-+		/*
-+	 	 * we use round-robin unless the user specified
-+		 * a particular set to go to.
-+	 	 */
-+		new_set = set->sw_next;
-+		BUG_ON(new_set == NULL);
-+	}
-+
-+	PFM_DBG("state=%d prev_set=%u prev_runs=%llu new_set=%u "
-+		  "new_runs=%llu reset_mode=%d reset_pmds=%llx",
-+		  ctx->state,
-+		  set->id,
-+		  (unsigned long long)set->view->set_runs,
-+		  new_set->id,
-+		  (unsigned long long)new_set->view->set_runs,
-+		  reset_mode,
-+		  (unsigned long long)new_set->reset_pmds[0]);
-+
-+	/*
-+	 * nothing more to do
-+	 */
-+	if (new_set == set)
-+		return;
-+
-+	is_system = ctx->flags.system;
-+	state = ctx->state;
-+	new_flags = new_set->flags;
-+	switch_count = __get_cpu_var(pfm_stats).pfm_set_switch_count;
-+
-+	pfm_modview_begin(set);
-+
-+	new_set->view->set_runs++;
-+
-+	if (is_active) {
-+		/*
-+		 * stop current set
-+		 */
-+		if (is_system)
-+			info = __get_cpu_var(pfm_syst_info);
-+
-+		pfm_arch_stop(current, ctx, set);
-+
-+		pfm_save_pmds(ctx, set);
-+
-+		/*
-+	 	 * compute elapsed cycles for active set
-+	 	 */
-+		set->duration += now_itc - set->duration_start;
-+		set->view->set_status &= ~PFM_SETVFL_ACTIVE;
-+
-+	}
-+	pfm_modview_end(set);
-+
-+	switch_count++;
-+
-+	pfm_arch_restore_pmds(ctx, new_set);
-+
-+	/*
-+	 * if masked, we must restore the pmcs such that they
-+	 * do not capture anything.
-+	 */
-+	pfm_arch_restore_pmcs(ctx, new_set);
-+
-+	new_set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
-+
-+	/*
-+	 * reload switch threshold
-+	 */
-+	if (new_flags & PFM_SETFL_OVFL_SWITCH)
-+		pfm_reload_switch_thresholds(new_set);
-+
-+	/*
-+	 * reset timeout for new set
-+	 */
-+	if (new_flags & PFM_SETFL_TIME_SWITCH)
-+		new_set->timeout = new_set->switch_timeout;
-+
-+	/*
-+	 * reset overflowed PMD registers
-+	 */
-+	if (reset_mode != PFM_PMD_RESET_NONE
-+	    && !bitmap_empty(ulp(new_set->reset_pmds), pfm_pmu_conf->max_pmd))
-+		pfm_reset_pmds(ctx, new_set, reset_mode);
-+
-+	/*
-+	 * this is needed when coming from pfm_start()
-+	 */
-+	if (no_restart)
-+		goto skip_restart;
-+
-+	/*
-+	 * reactivate monitoring
-+	 */
-+	if (is_system) {
-+		info  &= ~PFM_CPUINFO_TIME_SWITCH;
-+
-+		if (new_flags & PFM_SETFL_TIME_SWITCH)
-+			info |= PFM_CPUINFO_TIME_SWITCH;
-+
-+		__get_cpu_var(pfm_syst_info) = info;
-+
-+		PFM_DBG("new_set=%u info=0x%lx flags=0x%x",
-+			new_set->id,
-+			info,
-+			new_flags);
-+
-+		if (is_active && (current->pid || !(new_flags & PFM_SETFL_EXCL_IDLE)))
-+			pfm_arch_start(current, ctx, new_set);
-+	} else {
-+		if (is_active)
-+			pfm_arch_start(current, ctx, new_set);
-+	}
-+
-+	if (is_active)
-+		new_set->duration_start = now_itc;
-+
-+skip_restart:
-+	end_itc = pfm_arch_get_itc();
-+	ctx->active_set = new_set;
-+	new_set->view->set_status |= PFM_SETVFL_ACTIVE;
-+
-+	__get_cpu_var(pfm_stats).pfm_set_switch_count   = switch_count;
-+	__get_cpu_var(pfm_stats).pfm_set_switch_cycles += end_itc - now_itc;
-+}
-+
-+static int pfm_setfl_sane(struct pfm_context *ctx, u32 flags)
-+{
-+#define PFM_SETFL_BOTH_SWITCH	(PFM_SETFL_OVFL_SWITCH|PFM_SETFL_TIME_SWITCH)
-+	int ret;
-+
-+	ret = pfm_arch_setfl_sane(ctx, flags);
-+	if (ret)
-+		return ret;
-+
-+	if ((flags & PFM_SETFL_BOTH_SWITCH) == PFM_SETFL_BOTH_SWITCH) {
-+		PFM_DBG("both switch ovfl and switch time are set");
-+		return -EINVAL;
-+	}
-+
-+	if ((flags & PFM_SETFL_EXCL_IDLE) != 0 && !ctx->flags.system) {
-+		PFM_DBG("excl idle is for system wide only");
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * it is never possible to change the identification of an existing set
-+ */
-+static int __pfm_change_evtset(struct pfm_context *ctx,
-+				  struct pfm_event_set *set,
-+				  struct pfarg_setdesc *req)
-+{
-+	u32 flags;
-+	u16 set_id, set_id_next;
-+	unsigned long ji;
-+	int ret;
-+
-+	BUG_ON(ctx->state == PFM_CTX_LOADED);
-+
-+	set_id = req->set_id;
-+	set_id_next = req->set_id_next;
-+	flags = req->set_flags;
-+
-+	ret = pfm_setfl_sane(ctx, flags);
-+	if (ret) {
-+		PFM_DBG("invalid flags 0x%x set %u", flags, set_id);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * commit changes
-+	 *
-+	 * note that we defer checking the validity of set_id_next until the
-+	 * context is actually attached. This is the only moment where we can
-+	 * safely assess the sanity of the sets because sets cannot be changed
-+	 * or deleted once the context is attached
-+	 */
-+	set->id = set_id;
-+	set->id_next = set_id_next;
-+	set->flags = flags;
-+	set->priv_flags = 0;
-+	set->sw_next = NULL;
-+
-+	/*
-+	 * XXX: what about set_priv_flags
-+	 */
-+
-+	/*
-+	 * reset pointer to next set
-+	 */
-+	set->sw_next = NULL;
-+
-+	ji = usecs_to_jiffies(req->set_timeout);
-+
-+	/*
-+	 * verify that timeout is not 0
-+	 */
-+	if (!ji && (flags & PFM_SETFL_TIME_SWITCH) != 0) {
-+		PFM_DBG("invalid timeout=0");
-+		return -EINVAL;
-+	}
-+
-+	set->switch_timeout = set->timeout = ji;
-+
-+	/*
-+	 * return actual timeout in usecs
-+	 */
-+	req->set_timeout = jiffies_to_usecs(ji);
-+
-+	PFM_DBG("set %u flags=0x%x id_next=%u req_usec=%u"
-+		"jiffies=%lu runs=%llu HZ=%u TICK_NSEC=%lu eff_usec=%u",
-+		set_id,
-+		flags,
-+		set_id_next,
-+		req->set_timeout,
-+		ji,
-+		(unsigned long long)set->view->set_runs,
-+		HZ, TICK_NSEC,
-+		req->set_timeout);
-+
-+	return 0;
-+}
-+
-+/*
-+ * this function does not modify the next field
-+ */
-+void pfm_init_evtset(struct pfm_event_set *set)
-+{
-+	u64 *impl_pmcs;
-+	u16 i, max_pmc;
-+
-+	max_pmc = pfm_pmu_conf->max_pmc;
-+	impl_pmcs =  pfm_pmu_conf->impl_pmcs;
-+
-+	/*
-+	 * install default values for all PMC  registers
-+	 */
-+	for (i=0; i < max_pmc;  i++) {
-+		if (pfm_bv_isset(impl_pmcs, i)) {
-+			set->pmcs[i] = pfm_pmu_conf->pmc_desc[i].dfl_val;
-+			PFM_DBG("set%u pmc%u=0x%llx",
-+				set->id,
-+				i,
-+				(unsigned long long)set->pmcs[i]);
-+		}
-+	}
-+
-+	/*
-+	 * PMD registers are set to 0 when the event set is allocated,
-+	 * hence we do not need to explicitely initialize them.
-+	 *
-+	 * For virtual PMD registers (i.e., those tied to a SW resource)
-+	 * their value becomes meaningful once the context is attached.
-+	 */
-+}
-+
-+struct pfm_event_set *pfm_find_set(struct pfm_context *ctx, u16 set_id,
-+					  int alloc)
-+{
-+	kmem_cache_t *cachep;
-+	struct pfm_event_set *set, *new_set, *prev;
-+	unsigned long offs;
-+	size_t view_size;
-+	void *view;
-+
-+	PFM_DBG("looking for set=%u", set_id);
-+
-+	/*
-+	 * shortcut for set 0: always exist, cannot be removed
-+	 */
-+	if (set_id == 0 && !alloc)
-+		return list_entry(ctx->list.next, struct pfm_event_set, list);
-+
-+	prev = NULL;
-+	list_for_each_entry(set, &ctx->list, list) {
-+		if (set->id == set_id)
-+			return set;
-+		if (set->id > set_id)
-+			break;
-+		prev = set;
-+	}
-+
-+	if (!alloc)
++	if (PFM_CTXQ_EMPTY(ctx))
 +		return NULL;
 +
-+	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
++	/*
++	 * get oldest message
++	 */
++	msg = ctx->msgq+ctx->msgq_head;
 +
-+	new_set = kmem_cache_alloc(cachep, SLAB_ATOMIC);
-+	if (new_set) {
-+		memset(new_set, 0, sizeof(*set));
++	/*
++	 * and move forward
++	 */
++	ctx->msgq_head = (ctx->msgq_head+1) % PFM_MAX_MSGS;
 +
-+		if (ctx->flags.mapset) {
-+			view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-+			view      = vmalloc(view_size);
-+			if (view == NULL) {
-+				PFM_DBG("cannot allocate set view");
-+				kmem_cache_free(cachep, new_set);
-+				return NULL;
-+			}
-+			offs = PFM_SET_REMAP_BASE
-+			     + (set_id*PFM_SET_REMAP_SCALAR);
-+		} else {
-+			view_size = sizeof(struct pfm_set_view);
-+			view = (struct pfm_set_view *)(new_set+1);
-+			offs = 0;
-+		}
-+		
-+		memset(view, 0, sizeof(struct pfm_set_view));
++	PFM_DBG("ctx=%p head=%d tail=%d type=%d",
++		ctx,
++		ctx->msgq_head,
++		ctx->msgq_tail,
++		msg->type);
 +
-+		new_set->id = set_id;
-+		new_set->view = view;
-+		new_set->mmap_offset = offs;
-+
-+		INIT_LIST_HEAD(&new_set->list);
-+
-+		if (prev == NULL) {
-+			list_add(&(new_set->list), &ctx->list);
-+		} else {
-+			PFM_DBG("add after set=%u", prev->id);
-+			list_add(&(new_set->list), &prev->list);
-+		}
-+		PFM_DBG("set_id=%u size=%zu view=%p remap=%d mmap_offs=%lu",
-+			set_id,
-+			view_size,
-+			view,
-+			ctx->flags.mapset,
-+			new_set->mmap_offset);
-+	}
-+	return new_set;
++	return msg;
 +}
 +
-+
-+/*
-+ * context is unloaded for this command. Interrupts are enabled
-+ */
-+int __pfm_create_evtsets(struct pfm_context *ctx, struct pfarg_setdesc *req,
-+			int count)
-+{
-+	struct pfm_event_set *set;
-+	u16 set_id;
-+	int i, ret;
-+
-+	for (i = 0; i < count; i++, req++) {
-+		set_id = req->set_id;
-+
-+		PFM_DBG("set_id=%u", set_id);
-+
-+		set = pfm_find_set(ctx, set_id, 1);
-+		if (set == NULL)
-+			goto error_mem;
-+
-+		ret = __pfm_change_evtset(ctx, set, req);
-+		if (ret)
-+			goto error_params;
-+
-+		pfm_init_evtset(set);
-+	}
-+	return 0;
-+error_mem:
-+	PFM_DBG("cannot allocate set %u", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -ENOMEM;
-+error_params:
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return ret;
-+}
-+
-+int __pfm_getinfo_evtsets(struct pfm_context *ctx, struct pfarg_setinfo *req,
-+				 int count)
-+{
-+	struct pfm_event_set *set;
-+	int i, is_system, is_loaded;
-+	u16 set_id;
-+	int max_cnt_pmd;
-+	u64 end_cycles;
-+
-+	end_cycles = pfm_arch_get_itc();
-+	is_system = ctx->flags.system;
-+	is_loaded = ctx->state == PFM_CTX_LOADED;
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
-+
-+	for (i = 0; i < count; i++, req++) {
-+
-+		set_id = req->set_id;
-+
-+		PFM_DBG("set_id=%u", set_id);
-+
-+		list_for_each_entry(set, &ctx->list, list) {
-+			if (set->id == set_id)
-+				goto found;
-+			if (set->id > set_id)
-+				goto error;
-+		}
-+found:
-+		/*
-+		 * compute leftover timeout
-+		 */
-+
-+		req->set_flags = set->flags;
-+		req->set_timeout = jiffies_to_usecs(set->timeout);
-+		req->set_runs = set->view->set_runs;
-+		req->set_act_duration = set->duration;
-+		req->set_mmap_offset = set->mmap_offset;
-+
-+		/*
-+		 * adjust for active set if needed
-+		 */
-+		if (is_system && is_loaded && ctx->flags.started
-+		    && set == ctx->active_set)
-+			req->set_act_duration  += end_cycles
-+						- set->duration_start;
-+
-+		/*
-+		 * copy the list of pmds which last overflowed for
-+		 * the set
-+		 */
-+		bitmap_copy(ulp(req->set_ovfl_pmds),
-+			    ulp(set->ovfl_pmds),
-+			    max_cnt_pmd);
-+
-+		/*
-+		 * copy bitmask of available PMU registers
-+		 */
-+		bitmap_copy(ulp(req->set_avail_pmcs),
-+			    ulp(pfm_pmu_conf->impl_pmcs),
-+			    pfm_pmu_conf->max_pmc);
-+
-+		bitmap_copy(ulp(req->set_avail_pmds),
-+			    ulp(pfm_pmu_conf->impl_pmds),
-+			    pfm_pmu_conf->max_pmd);
-+
-+		pfm_retflag_set(req->set_flags, 0);
-+
-+		PFM_DBG("set %u flags=0x%x eff_usec=%u runs=%llu",
-+			set_id,
-+			set->flags,
-+			req->set_timeout,
-+			(unsigned long long)set->view->set_runs);
-+	}
-+	return 0;
-+error:
-+	PFM_DBG("set %u not found", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -EINVAL;
-+}
-+
-+/*
-+ * context is unloaded for this command. Interrupts are enabled
-+ */
-+int __pfm_delete_evtsets(struct pfm_context *ctx, void *arg, int count)
-+{
-+	struct pfarg_setdesc *req = arg;
-+	struct pfm_event_set *set;
-+	kmem_cache_t *cachep;
-+	u16 set_id;
-+	size_t view_size;
-+	int i;
-+
-+	/* delete operation only works when context is detached */
-+	BUG_ON(ctx->state != PFM_CTX_UNLOADED);
-+
-+	view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-+
-+	if (ctx->flags.mapset)
-+		cachep = pfm_set_cachep;
-+	else
-+		cachep = pfm_lg_set_cachep;
-+
-+	for (i = 0; i < count; i++, req++) {
-+		set_id = req->set_id;
-+
-+		/*
-+		 * cannot remove set 0
-+		 */
-+		if (set_id == 0)
-+			goto error;
-+
-+		list_for_each_entry(set, &ctx->list, list) {
-+			if (set->id == set_id)
-+				goto found;
-+			if (set->id > set_id)
-+				goto error;
-+		}
-+		goto error;
-+found:
-+		/*
-+		 * clear active set if necessary.
-+		 * will be updated when context is loaded
-+		 */
-+		if (set == ctx->active_set)
-+			ctx->active_set = NULL;
-+
-+		list_del(&set->list);
-+
-+		vfree(set->view);
-+		kmem_cache_free(cachep, set);
-+
-+		pfm_retflag_set(req->set_flags, 0);
-+
-+		PFM_DBG("deleted set_id=%u", set_id);
-+	}
-+	return 0;
-+error:
-+	PFM_DBG("set_id=%u not found or invalid", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -EINVAL;
-+}
-+
-+/*
-+ * called from pfm_context_free() to free all sets
-+ */
-+void pfm_free_sets(struct pfm_context *ctx)
-+{
-+	struct pfm_event_set *set, *tmp;
-+	kmem_cache_t *cachep;
-+	int use_remap;
-+
-+	use_remap = ctx->flags.mapset;
-+
-+	if (use_remap)
-+		cachep = pfm_set_cachep;
-+	else
-+		cachep = pfm_lg_set_cachep;
-+
-+	list_for_each_entry_safe(set, tmp, &ctx->list, list) {
-+		list_del(&set->list);
-+		if (use_remap)
-+			vfree(set->view);
-+		kmem_cache_free(cachep, set);
-+	}
-+}
-+
-+int pfm_sets_init(void)
-+{
-+
-+	pfm_lg_set_cachep = kmem_cache_create("pfm_large_event_set",
-+			sizeof(struct pfm_event_set)+sizeof(struct pfm_set_view),
-+			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
-+	if (pfm_lg_set_cachep == NULL) {
-+		PFM_ERR("cannot initialize large event set slab");
-+		return -ENOMEM;
-+	}
-+
-+	pfm_set_cachep = kmem_cache_create("pfm_event_set",
-+			sizeof(struct pfm_event_set),
-+			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
-+	if (pfm_set_cachep == NULL) {
-+		PFM_ERR("cannot initialize event set slab");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+static struct page *pfm_view_map_pagefault(struct vm_area_struct *vma,
-+					   unsigned long address, int *type)
++static struct page *pfm_buf_map_pagefault(struct vm_area_struct *vma,
++					  unsigned long address, int *type)
 +{
 +	void *kaddr;
++	struct pfm_context *ctx;
 +	struct page *page;
++	size_t size;
 +
-+	kaddr = vma->vm_private_data;
-+	if (kaddr == NULL) {
-+		PFM_DBG("no view");
++	ctx = vma->vm_private_data;
++	if (ctx == NULL) {
++		PFM_DBG("no ctx");
 +		return NOPAGE_SIGBUS;
 +	}
++	size = ctx->smpl_size;
 +
 +	if ( (address < (unsigned long) vma->vm_start) ||
-+	     (address > (unsigned long) (vma->vm_start + PAGE_SIZE)) )
++	     (address > (unsigned long) (vma->vm_start + size)) )
 +		return NOPAGE_SIGBUS;
 +
-+	kaddr += (address - vma->vm_start);
++	kaddr = ctx->smpl_addr + (address - vma->vm_start);
 +
 +	if (type)
 +		*type = VM_FAULT_MINOR;
@@ -863,48 +163,755 @@ The file perfmon_sets.c implements:
 +	get_page(page);
 +
 +	PFM_DBG("[%d] start=%p ref_count=%d",
-+		  current->pid,
-+		  kaddr, page_count(page));
++		current->pid,
++		kaddr, page_count(page));
 +
 +	return page;
 +}
-+struct vm_operations_struct pfm_view_map_vm_ops = {
-+	.nopage	= pfm_view_map_pagefault,
++
++struct vm_operations_struct pfm_buf_map_vm_ops = {
++	.nopage	= pfm_buf_map_pagefault,
 +};
 +
-+int pfm_mmap_set(struct pfm_context *ctx, struct vm_area_struct *vma,
-+		 size_t size)
++static int pfm_mmap_buffer(struct pfm_context *ctx, struct vm_area_struct *vma,
++			   size_t size)
 +{
-+	struct pfm_event_set *set;
-+	u16 set_id;
-+
-+	if (!ctx->flags.mapset) {
-+		PFM_DBG("context does not use set remapping");
++	if (ctx->smpl_addr == NULL) {
++		PFM_DBG("no sampling buffer to map");
 +		return -EINVAL;
 +	}
 +
-+	if (vma->vm_pgoff < PFM_SET_REMAP_OFFS
-+			|| vma->vm_pgoff >= PFM_SET_REMAP_OFFS_MAX) {
-+		PFM_DBG("invalid offset %lu", vma->vm_pgoff);
++	if (size > ctx->smpl_size) {
++		PFM_DBG("mmap size=%zu >= actual buf size=%zu",
++			size,
++			ctx->smpl_size);
 +		return -EINVAL;
 +	}
 +
-+	if (size != PAGE_SIZE) {
-+		PFM_DBG("size %zu must be page size", size);
-+		return -EINVAL;
-+	}
-+
-+	set_id = (u16)(vma->vm_pgoff - PFM_SET_REMAP_OFFS);
-+	set = pfm_find_set(ctx, set_id, 0);
-+	if (set == NULL) {
-+		PFM_DBG("set=%u is undefined", set_id);
-+		return -EINVAL;
-+	}
-+
-+	PFM_DBG("mmaping set_id=%u", set_id);
-+
-+	vma->vm_ops = &pfm_view_map_vm_ops;
-+	vma->vm_private_data = set->view;
++	vma->vm_ops = &pfm_buf_map_vm_ops;
++	vma->vm_private_data = ctx;
 +
 +	return 0;
++}
++
++static int pfm_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	size_t size;
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++
++	ctx  = file->private_data;
++	size = (vma->vm_end - vma->vm_start);
++
++	if (ctx == NULL)
++		return -EINVAL;
++
++	ret = -EINVAL;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	if (vma->vm_flags & VM_WRITE) {
++		PFM_DBG("cannot map buffer for writing");
++		goto done;
++	}
++
++	PFM_DBG("vm_pgoff=%lu size=%zu vm_start=0x%lx",
++		vma->vm_pgoff,
++		size,
++		vma->vm_start);
++
++	if (vma->vm_pgoff == 0) {
++		ret = pfm_mmap_buffer(ctx, vma, size);
++
++	} else {
++		ret = pfm_mmap_set(ctx, vma, size);
++	}
++	/*
++	 * marked the vma as special (important on the free side)
++	 */
++	if (ret == 0)
++		vma->vm_flags |= VM_RESERVED;
++
++	PFM_DBG("ret=%d vma_flags=0x%lx vma_start=0x%lx vma_size=%lu",
++		ret,
++		vma->vm_flags,
++		vma->vm_start,
++		vma->vm_end-vma->vm_start);
++done:
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++
++ssize_t __pfmk_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int noblock)
++{
++	union pfm_msg *msg;
++	ssize_t ret = 0;
++	unsigned long flags;
++
++	/*
++	 * we must masks interrupts to avoid a race condition
++	 * with the PMU interrupt handler.
++	 */
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	if(PFM_CTXQ_EMPTY(ctx) == 0)
++		goto fast_path;
++
++	ret = -EAGAIN;
++	if (noblock)
++		goto empty;
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	ret = wait_for_completion_interruptible(ctx->msgq_comp);
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	if(PFM_CTXQ_EMPTY(ctx))
++		goto empty;
++
++fast_path:
++
++	/*
++	 * extract message from queue
++	 *
++	 * it is possible that the message was stolen by another thread
++	 * before we could protect the context after schedule()
++	 */
++	msg = pfm_get_next_msg(ctx);
++	if (unlikely(msg == NULL))
++		goto empty;
++
++	ret = sizeof(*msg);
++
++	/*
++	 * we must make a local copy before we unlock
++	 * to ensure that the message queue cannot fill
++	 * (overwriting our message) up before
++	 * we do copy_to_user() which cannot be done
++	 * with interrupts masked.
++	 */
++	*msg_buf = *msg;
++
++	PFM_DBG("type=%d ret=%zd", msg->type, ret);
++
++empty:
++	spin_unlock_irqrestore(&ctx->lock, flags);
++	return ret;
++}
++EXPORT_SYMBOL(__pfmk_read);
++
++ssize_t __pfm_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int non_block)
++{
++	union pfm_msg *msg;
++	ssize_t ret = 0;
++	unsigned long flags;
++	DECLARE_WAITQUEUE(wait, current);
++
++	/*
++	 * we must masks interrupts to avoid a race condition
++	 * with the PMU interrupt handler.
++	 */
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	if(PFM_CTXQ_EMPTY(ctx) == 0)
++		goto fast_path;
++retry:
++	/*
++	 * check non-blocking read. we include it
++	 * in the loop in case another thread modifies
++	 * the propoerty of the file while the current thread
++	 * is looping here
++	 */
++
++      	ret = -EAGAIN;
++	if(non_block)
++		goto abort_locked;
++
++	/*
++	 * put ourself on the wait queue
++	 */
++	add_wait_queue(&ctx->msgq_wait, &wait);
++
++	for (;;) {
++		/*
++		 * check wait queue
++		 */
++		set_current_state(TASK_INTERRUPTIBLE);
++
++		PFM_DBG("head=%d tail=%d",
++			ctx->msgq_head,
++			ctx->msgq_tail);
++
++		spin_unlock_irqrestore(&ctx->lock, flags);
++
++		/*
++		 * wait for message
++		 */
++		schedule();
++
++		spin_lock_irqsave(&ctx->lock, flags);
++
++		/*
++		 * check pending signals
++		 */
++		ret = -ERESTARTSYS;
++		if(signal_pending(current))
++			break;
++
++		ret = 0;
++		if(PFM_CTXQ_EMPTY(ctx) == 0)
++			break;
++	}
++
++	set_current_state(TASK_RUNNING);
++
++	remove_wait_queue(&ctx->msgq_wait, &wait);
++
++	PFM_DBG("back to running ret=%zd", ret);
++
++	if (ret < 0)
++		goto abort_locked;
++
++fast_path:
++
++	/*
++	 * extract message from queue
++	 *
++	 * it is possible that the message was stolen by another thread
++	 * before we could protect the context after schedule()
++	 */
++	msg = pfm_get_next_msg(ctx);
++	if (unlikely(msg == NULL))
++		goto retry;
++
++	/*
++	 * we must make a local copy before we unlock
++	 * to ensure that the message queue cannot fill
++	 * (overwriting our message) up before
++	 * we do copy_to_user() which cannot be done
++	 * with interrupts masked.
++	 */
++	*msg_buf = *msg;
++
++	ret = sizeof(*msg);
++
++	PFM_DBG("type=%d size=%zu", msg->type, ret);
++
++abort_locked:
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	/*
++	 * ret = EAGAIN when non-blocking and nothing is
++	 * in thequeue.
++	 *
++	 * ret = ERESTARTSYS when signal pending
++	 *
++	 * otherwise ret = size of message
++	 */
++	return ret;
++}
++
++static ssize_t pfm_read(struct file *filp, char __user *buf, size_t size,
++			loff_t *ppos)
++{
++	struct pfm_context *ctx;
++	union pfm_msg msg_buf;
++	int non_block, ret;
++
++	ctx = filp->private_data;
++	if (ctx == NULL) {
++		PFM_ERR("no ctx for pfm_read");
++		return -EINVAL;
++	}
++
++	/*
++	 * cannot extract partial messages.
++	 * check even when there is no message
++	 *
++	 * cannot extract more than one message per call. Bytes
++	 * above sizeof(msg) are ignored.
++	 */
++	if (size < sizeof(msg_buf)) {
++		PFM_DBG("message is too small size=%zu must be >=%zu)",
++			size,
++			sizeof(msg_buf));
++		return -EINVAL;
++	}
++
++	non_block = filp->f_flags & O_NONBLOCK;
++
++	ret =  __pfm_read(ctx, &msg_buf, non_block);
++	if (ret > 0) {
++  		if(copy_to_user(buf, &msg_buf, sizeof(msg_buf)))
++			ret = -EFAULT;
++	}
++	return ret;
++}
++
++static ssize_t pfm_write(struct file *file, const char __user *ubuf,
++			  size_t size, loff_t *ppos)
++{
++	PFM_DBG("pfm_write called");
++	return -EINVAL;
++}
++
++static unsigned int pfm_poll(struct file *filp, poll_table * wait)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	unsigned int mask = 0;
++
++	if (!pfm_is_fd(filp)) {
++		PFM_ERR("pfm_poll bad magic");
++		return 0;
++	}
++
++	ctx = filp->private_data;
++	if (ctx == NULL) {
++		PFM_ERR("pfm_poll no ctx");
++		return 0;
++	}
++
++
++	PFM_DBG("before poll_wait");
++
++	poll_wait(filp, &ctx->msgq_wait, wait);
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	if (PFM_CTXQ_EMPTY(ctx) == 0)
++		mask =  POLLIN | POLLRDNORM;
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	PFM_DBG("after poll_wait mask=0x%x", mask);
++
++	return mask;
++}
++
++static int pfm_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
++	  	     unsigned long arg)
++{
++	PFM_DBG("pfm_ioctl called");
++	return -EINVAL;
++}
++
++/*
++ * interrupt cannot be masked when entering this function
++ */
++static inline int __pfm_fasync(int fd, struct file *filp,
++			       struct pfm_context *ctx, int on)
++{
++	int ret;
++
++	ret = fasync_helper (fd, filp, on, &ctx->async_queue);
++
++	PFM_DBG("fd=%d on=%d async_q=%p ret=%d",
++		fd,
++		on,
++		ctx->async_queue, ret);
++
++	return ret;
++}
++
++static int pfm_fasync(int fd, struct file *filp, int on)
++{
++	struct pfm_context *ctx;
++	int ret;
++
++	ctx = filp->private_data;
++	if (ctx == NULL) {
++		PFM_ERR("pfm_fasync no ctx");
++		return -EBADF;
++	}
++
++	/*
++	 * we cannot mask interrupts during this call because this may
++	 * may go to sleep if memory is not readily avalaible.
++	 *
++	 * We are protected from the context disappearing by the
++	 * get_fd()/put_fd() done in caller. Serialization of this function
++	 * is ensured by caller.
++	 */
++	ret = __pfm_fasync(fd, filp, ctx, on);
++
++	PFM_DBG("pfm_fasync called on fd=%d on=%d async_queue=%p ret=%d",
++		fd,
++		on,
++		ctx->async_queue, ret);
++
++	return ret;
++}
++
++#ifdef CONFIG_SMP
++static void __pfm_close_remote_cpu(void *info)
++{
++	struct pfm_context *ctx = info;
++
++	BUG_ON(ctx == NULL);
++
++	if (__get_cpu_var(pmu_ctx) != ctx) {
++		PFM_ERR("%s CPU%d unexpected ctx %p instead of %p",
++			__FUNCTION__,
++			smp_processor_id(),
++			__get_cpu_var(pmu_ctx), ctx);
++		return;
++	}
++
++	/*
++	 * we do a minimal stop because this is a close not
++	 * an unload, i.e., the context is not accessible anymore.
++	 */
++	pfm_arch_stop(current, ctx, ctx->active_set);
++	pfm_set_pmu_owner(NULL, NULL);
++	__get_cpu_var(pfm_syst_info) = 0;
++	clear_thread_flag(TIF_PERFMON);
++
++	/*
++	 * we cannot call pfm_release_session()
++	 * from an IPI handler because it may, itself, issue
++	 * IPI, defer to calling CPU
++	 */
++
++	/*
++	 * we cannot free context here because we are in_interrupt().
++	 * we free on the calling CPU
++	 */
++}
++
++static int pfm_close_remote_cpu(struct pfm_context *ctx)
++{
++	int ret = 0;
++	int ctx_cpu;
++
++	ctx_cpu = ctx->cpu;
++	PFM_DBG("calling CPU%d", ctx_cpu);
++	BUG_ON(irqs_disabled());
++	ret = smp_call_function_single(ctx_cpu, __pfm_close_remote_cpu,
++				       ctx, 0, 1);
++
++	PFM_DBG("called CPU%u for cleanup ret=%d", ctx_cpu, ret);
++	return 0;
++}
++#endif /* CONFIG_SMP */
++
++/*
++ * called either on explicit close() or from exit_files().
++ * Only the LAST user of the file gets to this point, i.e., it is
++ * called only ONCE.
++ *
++ * IMPORTANT: we get called ONLY when the refcnt on the file gets to zero
++ * (fput()),i.e, last task to access the file. Nobody else can access the
++ * file at this point.
++ *
++ * When called from exit_files(), the VMA has been freed because exit_mm()
++ * is executed before exit_files().
++ *
++ * When called from exit_files(), the current task is not yet ZOMBIE but we
++ * flush the PMU state to the context.
++ */
++int __pfm_close(struct pfm_context *ctx, struct file *filp)
++{
++	struct task_struct *task;
++	unsigned long flags;
++	int free_possible, can_unload;
++	int state;
++
++	free_possible = 1;
++	can_unload = 1;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	state = ctx->state;
++	task = ctx->task;
++
++	/*
++	 * task is NULL for a system-wide context
++	 */
++	if (task == NULL)
++		task = current;
++
++	PFM_DBG("ctx_state=%d is_system=%d is_current=%d",
++		state,
++		ctx->flags.system,
++		task == current);
++
++	/*
++	 * check if unload is needed
++	 */
++	if (state == PFM_CTX_UNLOADED)
++		goto doit;
++
++	/*
++	 * context is loaded/masked, we need to
++	 * either force an unload or go zombie
++	 */
++	if (ctx->flags.system) {
++#ifdef CONFIG_SMP
++		/*
++	 	 * we need to release the resource on the ORIGINAL cpu.
++		 * we need to release the context lock to avoid deadlocks
++		 * on the original CPU, especially in the context switch
++		 * routines. It is safe to unlock because we are in close,
++		 * in other words, there is no more access from user level.
++		 * we can also unmask interrupts on this CPU because the
++		 * context is running on the original CPU. Context will be
++		 * unloaded and the session will be released on the original
++		 * CPU. Upon return, the caller is guaranteed the context is
++		 * gone from original CPU.
++	 	 */
++		if (ctx->cpu != smp_processor_id()) {
++			spin_unlock_irqrestore(&ctx->lock, flags);
++			pfm_close_remote_cpu(ctx);
++			pfm_release_session(ctx, ctx->cpu);
++			pfm_context_free(ctx);
++			PFM_DBG("context freed");
++			return 0;
++		}
++#endif
++	} else if (task != current) {
++#ifdef CONFIG_SMP
++		/*
++		 * switch context to zombie state
++		 */
++		ctx->state = PFM_CTX_ZOMBIE;
++
++		PFM_DBG("zombie ctx for [%d]", task->pid);
++		
++		if (state == PFM_CTX_MASKED && ctx->flags.block) {
++			/*
++		 	* force task to wake up from MASKED state
++		 	*/
++			PFM_DBG("waking up ctx_state=%d", state);
++
++			complete(&ctx->restart_complete);
++		}
++		/*
++		 * cannot free the context on the spot. deferred until
++		 * the task notices the ZOMBIE state
++		 */
++		free_possible = can_unload = 0;
++#endif
++	}
++	if (can_unload)
++		__pfm_unload_context(ctx, 0);
++doit:
++	/* reload state */
++	state = ctx->state;
++
++	PFM_DBG("ctx_state=%d free_possible=%d can_unload=%d",
++		state,
++		free_possible,
++		can_unload);
++
++	if (state == PFM_CTX_ZOMBIE)
++		pfm_release_session(ctx, ctx->cpu);
++
++	/*
++	 * disconnect file descriptor from context must be done
++	 * before we unlock.
++	 */
++	if (filp)
++		filp->private_data = NULL;
++
++	/*
++	 * if we free on the spot, the context is now completely unreacheable
++	 * from the callers side. The monitored task side is also cut, so we
++	 * can freely cut.
++	 *
++	 * If we have a deferred free, only the caller side is disconnected.
++	 */
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	/*
++	 * return the memory used by the context
++	 */
++	if (free_possible)
++		pfm_context_free(ctx);
++
++	return 0;
++}
++
++static int pfm_close(struct inode *inode, struct file *filp)
++{
++	struct pfm_context *ctx;
++
++	ctx = filp->private_data;
++	if (ctx == NULL) {
++		PFM_ERR("no ctx");
++		return -EBADF;
++	}
++	return __pfm_close(ctx, filp);
++}
++
++static int pfm_no_open(struct inode *irrelevant, struct file *dontcare)
++{
++	return -ENXIO;
++}
++
++/*
++ * pfm_flush() is called from filp_close() on every call to
++ * close(). pfm_close() is only invoked when the last user
++ * calls close(). pfm_close() is never invoked without
++ * pfm_flush() being invoked first.
++ *
++ * Partially free resources:
++ * 	- remove from fasync queue
++ */
++static int pfm_flush(struct file *filp)
++{
++	struct pfm_context *ctx;
++
++	ctx = filp->private_data;
++	if (ctx == NULL) {
++		PFM_ERR("pfm_flush no ctx");
++		return -EBADF;
++	}
++
++	/*
++	 * remove our file from the async queue, if we use this mode.
++	 * This can be done without the context being protected. We come
++	 * here when the context has become unreacheable by other tasks.
++	 *
++	 * We may still have active monitoring at this point and we may
++	 * end up in pfm_overflow_handler(). However, fasync_helper()
++	 * operates with interrupts disabled and it cleans up the
++	 * queue. If the PMU handler is called prior to entering
++	 * fasync_helper() then it will send a signal. If it is
++	 * invoked after, it will find an empty queue and no
++	 * signal will be sent. In both case, we are safe
++	 */
++	if (filp->f_flags & FASYNC) {
++		PFM_DBG("cleaning up async_queue=%p", ctx->async_queue);
++		__pfm_fasync (-1, filp, ctx, 0);
++	}
++	return 0;
++}
++
++struct file_operations pfm_file_ops = {
++	.llseek = no_llseek,
++	.read = pfm_read,
++	.write = pfm_write,
++	.poll = pfm_poll,
++	.ioctl = pfm_ioctl,
++	.open = pfm_no_open, /* special open to disallow open via /proc */
++	.fasync = pfm_fasync,
++	.release = pfm_close,
++	.flush= pfm_flush,
++	.mmap = pfm_mmap
++};
++
++
++
++static struct super_block *pfmfs_get_sb(struct file_system_type *fs_type,
++					int flags, const char *dev_name,
++					void *data)
++{
++	return get_sb_pseudo(fs_type, "pfm:", NULL, PFMFS_MAGIC);
++}
++
++static struct file_system_type pfm_fs_type = {
++	.name     = "pfmfs",
++	.get_sb   = pfmfs_get_sb,
++	.kill_sb  = kill_anon_super,
++};
++
++
++/*
++ * pfmfs should _never_ be mounted by userland - too much of security hassle,
++ * no real gain from having the whole whorehouse mounted. So we don't need
++ * any operations on the root directory. However, we need a non-trivial
++ * d_name - pfm: will go nicely and kill the special-casing in procfs.
++ */
++static struct vfsmount *pfmfs_mnt;
++
++int __init init_pfm_fs(void)
++{
++	int err = register_filesystem(&pfm_fs_type);
++	if (!err) {
++		pfmfs_mnt = kern_mount(&pfm_fs_type);
++		err = PTR_ERR(pfmfs_mnt);
++		if (IS_ERR(pfmfs_mnt))
++			unregister_filesystem(&pfm_fs_type);
++		else
++			err = 0;
++	}
++	return err;
++}
++
++static void __exit exit_pfm_fs(void)
++{
++	unregister_filesystem(&pfm_fs_type);
++	mntput(pfmfs_mnt);
++}
++
++int pfm_alloc_fd(struct file **cfile)
++{
++	int fd, ret = 0;
++	struct file *file = NULL;
++	struct inode * inode;
++	char name[32];
++	struct qstr this;
++
++	fd = get_unused_fd();
++	if (fd < 0)
++		return -ENFILE;
++
++	ret = -ENFILE;
++
++	file = get_empty_filp();
++	if (!file)
++		goto out;
++
++	/*
++	 * allocate a new inode
++	 */
++	inode = new_inode(pfmfs_mnt->mnt_sb);
++	if (!inode)
++		goto out;
++
++	PFM_DBG("new inode ino=%ld @%p", inode->i_ino, inode);
++
++	inode->i_sb = pfmfs_mnt->mnt_sb;
++	inode->i_mode = S_IFCHR|S_IRUGO;
++	inode->i_uid = current->fsuid;
++	inode->i_gid = current->fsgid;
++
++	sprintf(name, "[%lu]", inode->i_ino);
++	this.name = name;
++	this.hash = inode->i_ino;
++	this.len = strlen(name);
++
++	ret = -ENOMEM;
++
++	/*
++	 * allocate a new dcache entry
++	 */
++	file->f_dentry = d_alloc(pfmfs_mnt->mnt_sb->s_root, &this);
++	if (!file->f_dentry)
++		goto out;
++
++	file->f_dentry->d_op = &pfmfs_dentry_operations;
++
++	d_add(file->f_dentry, inode);
++	file->f_vfsmnt = mntget(pfmfs_mnt);
++	file->f_mapping = inode->i_mapping;
++
++	file->f_op = &pfm_file_ops;
++	file->f_mode = FMODE_READ;
++	file->f_flags = O_RDONLY;
++	file->f_pos  = 0;
++
++	*cfile = file;
++
++	return fd;
++out:
++	if (file)
++		put_filp(file);
++	put_unused_fd(fd);
++	return ret;
 +}

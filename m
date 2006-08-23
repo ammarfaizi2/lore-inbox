@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWHWJje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWHWJnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWHWJje (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWHWJje
+	id S1751501AbWHWJnH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWHWJnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:39:34 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:46171 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751499AbWHWJjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:39:32 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-Subject: [2.6.19 PATCH 7/7] ehea: Makefile & Kconfig
-Date: Wed, 23 Aug 2006 10:59:17 +0200
-User-Agent: KMail/1.8.2
+	Wed, 23 Aug 2006 05:43:07 -0400
+Received: from mail.gmx.de ([213.165.64.20]:39068 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751501AbWHWJnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:43:04 -0400
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 23 Aug 2006 11:43:02 +0200
+From: "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de>
+In-Reply-To: <Pine.LNX.4.61.0608231129550.5799@yvahk01.tjqt.qr>
+Message-ID: <20060823094302.235230@gmx.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-To: netdev <netdev@vger.kernel.org>
-Cc: Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+References: <20060823091652.235230@gmx.net>
+ <Pine.LNX.4.61.0608231129550.5799@yvahk01.tjqt.qr>
+Subject: Re: Group limit for NFS exported file systems
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Authenticated: #26149461
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608231059.17154.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com> 
 
+> >Hi,
+> >
+> >is there a group limit for NFS exported file systems in recent kernels?
+> >One if my users cannot access directories that belong to a group he
+> actually _is_ a member of. That, however, is true only when accessing them over
+> NFS. On the local file system, everything is fine. UIDs and GIDs are the
+> same on client and server, so that cannot be the problem. Client and server
+> run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
+> >Any ideas?
+> 
+> Is his fsuid/fsgid suddenly different?
+> 
 
- drivers/net/Kconfig  |    9 +++++++++
- drivers/net/Makefile |    1 +
- 2 files changed, 10 insertions(+)
-
-
-
-diff -Nurp -X dontdiff linux-2.6.18-rc4-git1/drivers/net/Kconfig patched_kernel/drivers/net/Kconfig
---- linux-2.6.18-rc4-git1/drivers/net/Kconfig	2006-08-06 11:20:11.000000000 -0700
-+++ patched_kernel/drivers/net/Kconfig	2006-08-22 06:00:49.545435280 -0700
-@@ -2277,6 +2277,15 @@ config CHELSIO_T1
-           To compile this driver as a module, choose M here: the module
-           will be called cxgb.
+No. He just gets "access denied" for no obvious reason.
  
-+config EHEA
-+	tristate "eHEA Ethernet support"
-+	depends on IBMEBUS
-+	---help---
-+	  This driver supports the IBM pSeries eHEA ethernet adapter.
-+
-+	  To compile the driver as a module, choose M here. The module
-+	  will be called ehea.
-+
- config IXGB
- 	tristate "Intel(R) PRO/10GbE support"
- 	depends on PCI
-diff -Nurp -X dontdiff linux-2.6.18-rc4-git1/drivers/net/Makefile patched_kernel/drivers/net/Makefile
---- linux-2.6.18-rc4-git1/drivers/net/Makefile	2006-08-06 11:20:11.000000000 -0700
-+++ patched_kernel/drivers/net/Makefile	2006-08-22 05:53:59.254861851 -0700
-@@ -10,6 +10,7 @@ obj-$(CONFIG_E1000) += e1000/
- obj-$(CONFIG_IBM_EMAC) += ibm_emac/
- obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
-+obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
- 
+> 
+> Jan Engelhardt
+> -- 
+
+ Robert

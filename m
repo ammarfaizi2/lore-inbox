@@ -1,374 +1,349 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWHWIRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWHWITe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWHWIRG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWHWIQm
+	id S932416AbWHWITe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWHWISg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:16:42 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:55513 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932395AbWHWIQ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:16:26 -0400
-Date: Wed, 23 Aug 2006 01:06:01 -0700
+	Wed, 23 Aug 2006 04:18:36 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:18173 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932396AbWHWIRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:17:07 -0400
+Date: Wed, 23 Aug 2006 01:06:08 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200608230806.k7N86151000456@frankl.hpl.hp.com>
+Message-Id: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 10/18] 2.6.17.9 perfmon2 patch for review: PMU context switch support
+Subject: [PATCH 17/18] 2.6.17.9 perfmon2 patch for review: modified x86_64 files
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the PMU context switch routines.
+This patch contains the modified x86_64 files.
 
-For per-thread contexts, the PMU state must be saved and restored on
-context switch. For systm-wide context we may need to intervene on
-certain architectures to cleanup certain registers.
+The modified files are as follows:
 
-The PMU context switch code is concentrated into a single routine
-named pfm_ctxsw() which is called from __switch_to().
+arch/x86_64/Kconfig:
 
-Because accessing PMU registers is usually much more expensive
-than accessing general registers, we take great care at minimizing
-the number of register accesses using various lazy save/restore schemes
-for both UP and SMP kernels.
+	- add link to configuration menu in arch/x86_64/perfmon/Kconfig
+arch/x86_64/Makefile:
+	- add perfmon subdir
+
+arch/x86_64/ia32/ia32entry.S:
+	- add system call entry points for 32-bit ABI
+	
+arch/x86_64/kernel/apic.c:
+	- add hook to call pfm_handle_switch_timeout() on timer tick for timeout based
+	  set multiplexing
+
+arch/x86_64/kernel/entry.S:
+	- add pmu_interrupt stub
+
+arch/x86_64/kernel/i8259.c:
+	- PMU interrupt vector gate initialization
+
+arch/x86_64/kernel/process.c:
+	- add hook in exit_thread() to cleanup perfmon2 context
+	- add hook in copy_thread() to cleanup perfmon2 context in child (perfmon2 context
+	  is never inherited)
+	- add hook in __switch_to() for PMU state save/restore
+
+arch/x86_64/kernel/signal.c:
+	- add hook for extra work before kernel exit. Need to block a thread after a overflow with
+	  user level notification. Also needed to do some bookeeeping, such as reset certain counters
+	  and cleanup in some difficult corner cases
+
+include/asm-x86_64/hw_irq.h:
+	- define PMU interrupt vector
+
+include/asm-x86_64/irq.h:
+	- update FIRST_SYSTEM_VECTOR
+
+include/asm-x86_64/thread_info.h:
+	- add TIF_PERFMON which is used for PMU context switching in __switch_to()
+
+include/asm-x86_64/unistd.h:
+	- add new system calls
 
 
-
---- linux-2.6.17.9.base/perfmon/perfmon_ctxsw.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/perfmon/perfmon_ctxsw.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,333 @@
-+/*
-+ * perfmon_cxtsw.c: perfmon2 context switch code
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
-+ *
-+ * More information about perfmon available at:
-+ * 	http://www.hpl.hp.com/research/linux/perfmon
-+ */
-+#include <linux/kernel.h>
+	
+diff -urp linux-2.6.17.9.base/arch/x86_64/Kconfig linux-2.6.17.9/arch/x86_64/Kconfig
+--- linux-2.6.17.9.base/arch/x86_64/Kconfig	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/Kconfig	2006-08-21 03:37:46.000000000 -0700
+@@ -503,6 +503,8 @@ config REORDER
+          optimal TLB usage. If you have pretty much any version of binutils, 
+ 	 this can increase your kernel build time by roughly one minute.
+ 
++source "arch/x86_64/perfmon/Kconfig"
++
+ endmenu
+ 
+ #
+Only in linux-2.6.17.9/arch/x86_64: Kconfig.orig
+diff -urp linux-2.6.17.9.base/arch/x86_64/Makefile linux-2.6.17.9/arch/x86_64/Makefile
+--- linux-2.6.17.9.base/arch/x86_64/Makefile	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/Makefile	2006-08-21 03:37:46.000000000 -0700
+@@ -65,6 +65,7 @@ core-y					+= arch/x86_64/kernel/ \
+ 					   arch/x86_64/crypto/
+ core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
+ drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
++drivers-$(CONFIG_PERFMON)		+= arch/x86_64/perfmon/
+ drivers-$(CONFIG_OPROFILE)		+= arch/x86_64/oprofile/
+ 
+ boot := arch/x86_64/boot
+diff -urp linux-2.6.17.9.base/arch/x86_64/ia32/ia32entry.S linux-2.6.17.9/arch/x86_64/ia32/ia32entry.S
+--- linux-2.6.17.9.base/arch/x86_64/ia32/ia32entry.S	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/ia32/ia32entry.S	2006-08-21 03:37:46.000000000 -0700
+@@ -696,4 +696,17 @@ ia32_sys_call_table:
+ 	.quad sys_sync_file_range
+ 	.quad sys_tee
+ 	.quad compat_sys_vmsplice
++	.quad sys_pfm_create_context
++	.quad sys_pfm_write_pmcs
++	.quad sys_pfm_write_pmds
++	.quad sys_pfm_read_pmds		/* 320 */
++	.quad sys_pfm_load_context
++	.quad sys_pfm_start
++	.quad sys_pfm_stop
++	.quad sys_pfm_restart
++	.quad sys_pfm_create_evtsets	/* 325 */
++	.quad sys_pfm_getinfo_evtsets
++	.quad sys_pfm_delete_evtsets
++	.quad sys_pfm_unload_context
++
+ ia32_syscall_end:		
+diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/apic.c linux-2.6.17.9/arch/x86_64/kernel/apic.c
+--- linux-2.6.17.9.base/arch/x86_64/kernel/apic.c	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/kernel/apic.c	2006-08-21 03:37:46.000000000 -0700
+@@ -26,6 +26,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sysdev.h>
+ #include <linux/module.h>
 +#include <linux/perfmon.h>
+ 
+ #include <asm/atomic.h>
+ #include <asm/smp.h>
+@@ -934,6 +935,7 @@ void setup_threshold_lvt(unsigned long l
+ void smp_local_timer_interrupt(struct pt_regs *regs)
+ {
+ 	profile_tick(CPU_PROFILING, regs);
++ 	pfm_handle_switch_timeout();
+ #ifdef CONFIG_SMP
+ 	update_process_times(user_mode(regs));
+ #endif
+diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/entry.S linux-2.6.17.9/arch/x86_64/kernel/entry.S
+--- linux-2.6.17.9.base/arch/x86_64/kernel/entry.S	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/kernel/entry.S	2006-08-21 03:37:46.000000000 -0700
+@@ -640,6 +640,11 @@ ENTRY(error_interrupt)
+ 
+ ENTRY(spurious_interrupt)
+ 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
 +
-+
-+#ifdef CONFIG_SMP
-+#define PFM_LAST_CPU(ctx, act) \
-+	((ctx)->last_cpu == smp_processor_id() && (ctx)->last_act == act)
-+#else
-+#define PFM_LAST_CPU(ctx, act) \
-+	((ctx)->last_act == act)
++#ifdef CONFIG_PERFMON
++ENTRY(pmu_interrupt)
++	apicinterrupt LOCAL_PERFMON_VECTOR,smp_pmu_interrupt
 +#endif
+ #endif
+ 				
+ /*
+diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/i8259.c linux-2.6.17.9/arch/x86_64/kernel/i8259.c
+--- linux-2.6.17.9.base/arch/x86_64/kernel/i8259.c	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/kernel/i8259.c	2006-08-21 03:37:46.000000000 -0700
+@@ -13,6 +13,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sysdev.h>
+ #include <linux/bitops.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/acpi.h>
+ #include <asm/atomic.h>
+@@ -589,6 +590,8 @@ void __init init_IRQ(void)
+ 	/* IPI vectors for APIC spurious and error interrupts */
+ 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
+ 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
 +
-+void pfm_save_pmds(struct pfm_context *ctx, struct pfm_event_set *set)
-+{
-+	u64 val, hw_val, *pmds, ovfl_mask;
-+	u64 *used_mask, *cnt_mask;
-+	u16 i, num;
++ 	pfm_vector_init();
+ #endif
+ 
+ 	/*
+diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/process.c linux-2.6.17.9/arch/x86_64/kernel/process.c
+--- linux-2.6.17.9.base/arch/x86_64/kernel/process.c	2006-08-21 03:33:27.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/kernel/process.c	2006-08-21 03:37:46.000000000 -0700
+@@ -37,6 +37,7 @@
+ #include <linux/random.h>
+ #include <linux/notifier.h>
+ #include <linux/kprobes.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -359,6 +360,7 @@ void exit_thread(void)
+ 		t->io_bitmap_max = 0;
+ 		put_cpu();
+ 	}
++	pfm_exit_thread(me);
+ }
+ 
+ void flush_thread(void)
+@@ -462,6 +464,8 @@ int copy_thread(int nr, unsigned long cl
+ 	asm("mov %%es,%0" : "=m" (p->thread.es));
+ 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
+ 
++	pfm_copy_thread(p);
 +
-+	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	num = set->nused_pmds;
-+	cnt_mask = pfm_pmu_conf->cnt_pmds;
-+	used_mask = set->used_pmds;
-+	pmds = set->view->set_pmds;
+ 	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+ 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+ 		if (!p->thread.io_bitmap_ptr) {
+@@ -532,6 +536,10 @@ static noinline void __switch_to_xtra(st
+ 		 */
+ 		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+ 	}
 +
-+	for (i = 0; num; i++) {
-+		if (pfm_bv_isset(used_mask, i)) {
-+			hw_val = val = pfm_read_pmd(ctx, i);
-+			if (likely(pfm_bv_isset(cnt_mask, i)))
-+				val = (pmds[i] & ~ovfl_mask) |
-+					(hw_val & ovfl_mask);
-+			pmds[i] = val;
-+			num--;
-+		}
-+	}
-+}
++	if (test_tsk_thread_flag(next_p, TIF_PERFMON)
++	    || test_tsk_thread_flag(prev_p, TIF_PERFMON))
++		pfm_ctxsw(prev_p, next_p);
+ }
+ 
+ /*
+@@ -620,13 +628,12 @@ __switch_to(struct task_struct *prev_p, 
+ 	unlazy_fpu(prev_p);
+ 	write_pda(kernelstack,
+ 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+-
+-	/*
+-	 * Now maybe reload the debug registers and handle I/O bitmaps
+-	 */
+-	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
+-	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
+-		__switch_to_xtra(prev_p, next_p, tss);
++  	/*
++ 	 * Now maybe reload the debug registers and handle I/O bitmaps
++  	 */
++ 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
++ 	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW)))
++ 		__switch_to_xtra(prev_p, next_p, tss);
+ 
+ 	return prev_p;
+ }
+diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/signal.c linux-2.6.17.9/arch/x86_64/kernel/signal.c
+--- linux-2.6.17.9.base/arch/x86_64/kernel/signal.c	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/arch/x86_64/kernel/signal.c	2006-08-21 03:37:46.000000000 -0700
+@@ -24,6 +24,7 @@
+ #include <linux/stddef.h>
+ #include <linux/personality.h>
+ #include <linux/compiler.h>
++#include <linux/perfmon.h>
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
+ #include <asm/i387.h>
+@@ -493,6 +494,8 @@ void do_notify_resume(struct pt_regs *re
+ 		clear_thread_flag(TIF_SINGLESTEP);
+ 	}
+ 
++	pfm_handle_work(current);
 +
-+/*
-+ * interrupts are masked
-+ */
-+static void __pfm_ctxswin_thread(struct task_struct *task,
-+				 struct pfm_context *ctx)
-+{
-+	u64 cur_act, now;
-+	struct pfm_event_set *set;
-+	int reload_pmcs, reload_pmds;
-+
-+	now = pfm_arch_get_itc();
-+
-+	BUG_ON(!task->pid);
-+
-+	spin_lock(&ctx->lock);
-+
-+	cur_act = __get_cpu_var(pmu_activation_number);
-+
-+	set = ctx->active_set;
-+
-+	/*
-+	 * in case fo zombie, we do not complete ctswin of the
-+	 * PMU, and we force a call to pfm_handle_work() to finish
-+	 * cleanup, i.e., free context + smpl_buff. The reason for
-+	 * deferring to pfm_handle_work() is that it is not possible
-+	 * to vfree() with interrupts disabled.
-+	 */
-+	if (unlikely(ctx->state == PFM_CTX_ZOMBIE)) {
-+		ctx->flags.trap_reason = PFM_TRAP_REASON_ZOMBIE;
-+		set_tsk_thread_flag(task, TIF_NOTIFY_RESUME);
-+		spin_unlock(&ctx->lock);
-+		return;
-+	}
-+
-+	if (set->flags & PFM_SETFL_TIME_SWITCH)
-+		__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
-+
-+	/*
-+	 * if we were the last user of the PMU on that CPU,
-+	 * then nothing to do except restore psr
-+	 */
-+	if (PFM_LAST_CPU(ctx, cur_act)) {
-+		/*
-+		 * check for forced reload conditions
-+		 */
-+		reload_pmcs = set->priv_flags & PFM_SETFL_PRIV_MOD_PMCS;
-+		reload_pmds = set->priv_flags & PFM_SETFL_PRIV_MOD_PMDS;
-+	} else {
-+#ifndef CONFIG_SMP
-+		struct pfm_context *ctxp;
-+		ctxp = __get_cpu_var(pmu_ctx);
-+		if (ctxp) {
-+			struct pfm_event_set *setp;
-+			setp = ctxp->active_set;
-+			pfm_modview_begin(setp);
-+			pfm_save_pmds(ctxp, setp);
-+			setp->view->set_status &= ~PFM_SETVFL_ACTIVE;
-+			pfm_modview_end(setp);
-+			/*
-+			 * do not clear ownership because we rewrite
-+			 * right away
-+			 */
-+		}
-+#endif
-+		reload_pmcs = 1;
-+		reload_pmds = 1;
-+	}
-+	/* consumed */
-+	set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
-+
-+	if (reload_pmds)
-+		pfm_arch_restore_pmds(ctx, set);
-+
-+	/*
-+	 * need to check if had in-flight interrupt in
-+	 * pfm_ctxswout_thread(). If at least one bit set, then we must replay
-+	 * the interrupt to avoid losing some important performance data.
-+	 *
-+	 * npend_ovfls is cleared in interrupt handler
-+	 */
-+	if (set->npend_ovfls) {
-+		pfm_arch_resend_irq();
-+		__get_cpu_var(pfm_stats).pfm_ovfl_intr_replay_count++;
-+	}
-+
-+	if (reload_pmcs)
-+		pfm_arch_restore_pmcs(ctx, set);
-+
-+	/*
-+	 * record current activation for this context
-+	 */
-+	pfm_inc_activation();
-+	pfm_set_last_cpu(ctx, smp_processor_id());
-+	pfm_set_activation(ctx);
-+
-+	/*
-+	 * establish new ownership.
-+	 */
-+	pfm_set_pmu_owner(task, ctx);
-+
-+	pfm_arch_ctxswin_thread(task, ctx, set);
-+	/*
-+	 * ctx->duration does count even when context in MASKED state
-+	 * set->duration does not count when context in MASKED state.
-+	 * But the set->duration_start is reset in unmask_monitoring()
-+	 */
-+	ctx->duration_start = now;
-+	set->duration_start = now;
-+
-+	spin_unlock(&ctx->lock);
-+}
-+
-+/*
-+ * interrupts are masked, runqueue lock is held.
-+ *
-+ * In UP. we simply stop monitoring and leave the state
-+ * in place, i.e., lazy save
-+ */
-+static void __pfm_ctxswout_thread(struct task_struct *task,
-+				  struct pfm_context *ctx)
-+{
-+	struct pfm_event_set *set;
-+	u64 now;
-+	int need_save_pmds;
-+
-+	now = pfm_arch_get_itc();
-+
-+	spin_lock(&ctx->lock);
-+
-+	set = ctx->active_set;
-+
-+	pfm_modview_begin(set);
-+
-+	/*
-+	 * stop monitoring and collect any pending
-+	 * overflow information into set_povfl_pmds
-+	 * and set_npend_ovfls for use on ctxswin_thread()
-+	 * to potentially replay the PMU interrupt
-+	 *
-+	 * The key point is that we cannot afford to loose a PMU
-+	 * interrupt. We cannot cancel in-flight interrupts, therefore
-+	 * we let them happen and be treated as spurious and then we
-+	 * replay them on ctxsw in.
-+	 */
-+	need_save_pmds = pfm_arch_ctxswout_thread(task, ctx, set);
-+
-+	ctx->duration += now - ctx->duration_start;
-+	/*
-+	 * accumulate only when set is actively monitoring,
-+	 */
-+	if (ctx->state == PFM_CTX_LOADED)
-+		set->duration += now - set->duration_start;
-+
-+#ifdef CONFIG_SMP
-+	/*
-+	 * in SMP, release ownership of this PMU.
-+	 * PMU interrupts are masked, so nothing
-+	 * can happen.
-+	 */
-+	pfm_set_pmu_owner(NULL, NULL);
-+
-+	/*
-+	 * On some architectures, it is necessary to read the
-+	 * PMD registers to check for pending overflow in
-+	 * pfm_arch_ctxswout_thread(). In that case, saving of
-+	 * the PMDs  may be  done there and not here.
-+	 */
-+	if (need_save_pmds)
-+		pfm_save_pmds(ctx, set);
-+#endif
-+	pfm_modview_end(set);
-+
-+	/*
-+	 * clear cpuinfo, cpuinfo is used in
-+	 * per task mode with the set time switch flag.
-+	 */
-+	__get_cpu_var(pfm_syst_info) = 0;
-+
-+	spin_unlock(&ctx->lock);
-+}
-+
-+/*
-+ * no need to lock the context. To operate on a system-wide
-+ * context, the task has to run on the monitored CPU. In the
-+ * case of close issued on another CPU, an IPI is sent but
-+ * this routine runs with interrupts masked, so we are
-+ * protected
-+ */
-+static void __pfm_ctxsw_sys(struct task_struct *prev,
-+			    struct task_struct *next)
-+{
-+	struct pfm_context *ctx;
-+	struct pfm_event_set *set;
-+	u32 has_excl;
-+
-+	ctx = __get_cpu_var(pmu_ctx);
-+	if (!ctx) {
-+		pr_info("prev=%d tif=%d ctx=%p next=%d tif=%d ctx=%p\n",
-+			prev->pid,
-+			test_tsk_thread_flag(prev, TIF_PERFMON),
-+			prev->pfm_context,
-+			next->pid,
-+			test_tsk_thread_flag(next, TIF_PERFMON),
-+			next->pfm_context);
-+		BUG_ON(!ctx);
-+	}
-+
-+	set = ctx->active_set;
-+	has_excl = set->flags & PFM_SETFL_EXCL_IDLE;
-+
-+	/*
-+	 * propagate TIF_PERFMON to ensure that:
-+	 * - previous task has TIF_PERFMON cleared, in case it is
-+	 *   scheduled onto another CPU where there is syswide monitoring
-+	 * - next task has TIF_PERFMON set to ensure it will come back
-+	 *   here when context switched out
-+	 */
-+	clear_tsk_thread_flag(prev, TIF_PERFMON);
-+	set_tsk_thread_flag(next, TIF_PERFMON);
-+
-+	/*
-+	 * nothing to do until actually started
-+	 * XXX: assumes no mean to start from user level
-+	 */
-+	if (!ctx->flags.started)
-+		return;
-+
-+	if (unlikely(has_excl)) {
-+		if (prev->pid == 0) {
-+			pfm_arch_start(next, ctx, set);
-+			return;
-+		}
-+		if (next->pid == 0) {
-+			pfm_arch_stop(next, ctx, set);
-+			return;
-+		} 
-+	}
-+	pfm_arch_ctxswout_sys(prev, ctx, set);
-+	pfm_arch_ctxswin_sys(next, ctx, set);
-+}
-+
-+/*
-+ * come here when either prev or next has TIF_PERFMON flag set
-+ * Note that this is not because a task has TIF_PERFMON set that
-+ * it has a context attached, e.g., in system-wide on certain arch.
-+ */
-+void __pfm_ctxsw(struct task_struct *prev, struct task_struct *next)
-+{
-+	struct pfm_context *ctxp, *ctxn;
-+	u64 now;
-+
-+	now = pfm_arch_get_itc();
-+
-+	ctxp = prev->pfm_context;
-+	ctxn = next->pfm_context;
-+
-+	if (ctxp)
-+		__pfm_ctxswout_thread(prev, ctxp);
-+
-+	if (ctxn)
-+		__pfm_ctxswin_thread(next, ctxn);
-+
-+	/*
-+	 * given that prev and next can never be the same, this
-+	 * test is checking that ctxp == ctxn == NULL which is
-+	 * an indication we have an active system-wide session on
-+	 * this CPU
-+	 */
-+	if (ctxp == ctxn)
-+		__pfm_ctxsw_sys(prev, next);
-+
-+	__get_cpu_var(pfm_stats).pfm_ctxsw_count++;
-+	__get_cpu_var(pfm_stats).pfm_ctxsw_cycles += pfm_arch_get_itc() - now;
-+}
+ 	/* deal with pending signal delivery */
+ 	if (thread_info_flags & _TIF_SIGPENDING)
+ 		do_signal(regs,oldset);
+Only in linux-2.6.17.9/arch/x86_64: perfmon
+diff -urp linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h linux-2.6.17.9/include/asm-x86_64/hw_irq.h
+--- linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/include/asm-x86_64/hw_irq.h	2006-08-21 03:37:46.000000000 -0700
+@@ -67,6 +67,7 @@ struct hw_interrupt_type;
+  * sources per level' errata.
+  */
+ #define LOCAL_TIMER_VECTOR	0xef
++#define LOCAL_PERFMON_VECTOR	0xee
+ 
+ /*
+  * First APIC vector available to drivers: (vectors 0x30-0xee)
+@@ -74,7 +75,7 @@ struct hw_interrupt_type;
+  * levels. (0x80 is the syscall vector)
+  */
+ #define FIRST_DEVICE_VECTOR	0x31
+-#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
++#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
+ 
+ 
+ #ifndef __ASSEMBLY__
+diff -urp linux-2.6.17.9.base/include/asm-x86_64/irq.h linux-2.6.17.9/include/asm-x86_64/irq.h
+--- linux-2.6.17.9.base/include/asm-x86_64/irq.h	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/include/asm-x86_64/irq.h	2006-08-21 03:37:46.000000000 -0700
+@@ -29,7 +29,7 @@
+  */
+ #define NR_VECTORS 256
+ 
+-#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
++#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in hw_irq.h */
+ 
+ #ifdef CONFIG_PCI_MSI
+ #define NR_IRQS FIRST_SYSTEM_VECTOR
+Only in linux-2.6.17.9/include/asm-x86_64: perfmon.h
+Only in linux-2.6.17.9/include/asm-x86_64: perfmon_em64t_pebs_smpl.h
+diff -urp linux-2.6.17.9.base/include/asm-x86_64/thread_info.h linux-2.6.17.9/include/asm-x86_64/thread_info.h
+--- linux-2.6.17.9.base/include/asm-x86_64/thread_info.h	2006-08-21 03:33:27.000000000 -0700
++++ linux-2.6.17.9/include/asm-x86_64/thread_info.h	2006-08-21 03:37:46.000000000 -0700
+@@ -108,6 +108,7 @@ static inline struct thread_info *stack_
+ #define TIF_MEMDIE		20
+ #define TIF_DEBUG		21	/* uses debug registers */
+ #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
++#define TIF_PERFMON		23	/* uses perfmon */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+@@ -123,6 +124,7 @@ static inline struct thread_info *stack_
+ #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
+ #define _TIF_DEBUG		(1<<TIF_DEBUG)
+ #define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
++#define _TIF_PERFMON		(1<<TIF_PERFMON)
+ 
+ /* work to do on interrupt/exception return */
+ #define _TIF_WORK_MASK \
+@@ -131,7 +133,7 @@ static inline struct thread_info *stack_
+ #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
+ 
+ /* flags to check in __switch_to() */
+-#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
++#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP|_TIF_PERFMON)
+ 
+ #define PREEMPT_ACTIVE     0x10000000
+ 
+diff -urp linux-2.6.17.9.base/include/asm-x86_64/unistd.h linux-2.6.17.9/include/asm-x86_64/unistd.h
+--- linux-2.6.17.9.base/include/asm-x86_64/unistd.h	2006-08-18 09:26:24.000000000 -0700
++++ linux-2.6.17.9/include/asm-x86_64/unistd.h	2006-08-21 03:37:46.000000000 -0700
+@@ -617,8 +617,32 @@ __SYSCALL(__NR_tee, sys_tee)
+ __SYSCALL(__NR_sync_file_range, sys_sync_file_range)
+ #define __NR_vmsplice		278
+ __SYSCALL(__NR_vmsplice, sys_vmsplice)
+-
+-#define __NR_syscall_max __NR_vmsplice
++#define __NR_pfm_create_context	279
++ __SYSCALL(__NR_pfm_create_context, sys_pfm_create_context)
++#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++__SYSCALL(__NR_pfm_write_pmcs, sys_pfm_write_pmcs)
++#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++__SYSCALL(__NR_pfm_write_pmds, sys_pfm_write_pmds)
++#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++__SYSCALL(__NR_pfm_read_pmds, sys_pfm_read_pmds)
++#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++__SYSCALL(__NR_pfm_load_context, sys_pfm_load_context)
++#define __NR_pfm_start		(__NR_pfm_create_context+5)
++__SYSCALL(__NR_pfm_start, sys_pfm_start)
++#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++__SYSCALL(__NR_pfm_stop, sys_pfm_stop)
++#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++__SYSCALL(__NR_pfm_restart, sys_pfm_restart)
++#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++__SYSCALL(__NR_pfm_create_evtsets, sys_pfm_create_evtsets)
++#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++__SYSCALL(__NR_pfm_getinfo_evtsets, sys_pfm_getinfo_evtsets)
++#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++__SYSCALL(__NR_pfm_delete_evtsets, sys_pfm_delete_evtsets)
++#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
++__SYSCALL(__NR_pfm_unload_context, sys_pfm_unload_context)
++  
++#define __NR_syscall_max __NR_pfm_unload_context
+ 
+ #ifndef __NO_STUBS
+ 

@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWHWP7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWHWQFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWHWP7I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWHWP7I
+	id S964995AbWHWQFV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 12:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWHWQFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:59:08 -0400
-Received: from lucidpixels.com ([66.45.37.187]:45018 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S965019AbWHWP7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:59:07 -0400
-Date: Wed, 23 Aug 2006 11:59:06 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Johan Groth <johan.groth@linux-grotto.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Scsi errors with Megaraid 300-8x
-In-Reply-To: <44EC7AFD.2070605@linux-grotto.org.uk>
-Message-ID: <Pine.LNX.4.64.0608231158210.15031@p34.internal.lan>
-References: <44EB1875.3020403@linux-grotto.org.uk> <44EC73D2.9090302@rtr.ca>
- <44EC775C.7040003@linux-grotto.org.uk> <Pine.LNX.4.64.0608231145290.15031@p34.internal.lan>
- <44EC78CD.9010401@linux-grotto.org.uk> <Pine.LNX.4.64.0608231153130.15031@p34.internal.lan>
- <44EC7AFD.2070605@linux-grotto.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Aug 2006 12:05:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11490 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964995AbWHWQFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 12:05:20 -0400
+Date: Wed, 23 Aug 2006 17:04:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Stephane Eranian <eranian@frankl.hpl.hp.com>,
+       linux-kernel@vger.kernel.org, eranian@hpl.hp.com
+Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
+Message-ID: <20060823160458.GA17712@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	Stephane Eranian <eranian@frankl.hpl.hp.com>,
+	linux-kernel@vger.kernel.org, eranian@hpl.hp.com
+References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com> <20060823152831.GC32725@infradead.org> <20060823155715.GA5204@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060823155715.GA5204@martell.zuzino.mipt.ru>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 23, 2006 at 07:57:16PM +0400, Alexey Dobriyan wrote:
+> On Wed, Aug 23, 2006 at 04:28:31PM +0100, Christoph Hellwig wrote:
+> > oh, and please give the patches useful subjects that descript the
+> > patch, e.g. this one should be just:
+> >
+> >
+> >     [PATCH 0/17] perfmon2: introduction
+> >
+> > (yes, it's convention to number the introduction 0 and the actual patches
+> >  1 to n)
+> 
+> Padding with zeros makes it even more useful:
+> 
+> 	[PATCH 00/17]
+> 	[PATCH 01/17]
+> 		...
+> 	[PATCH 17/17]
 
+To be honest I utterly hate that convention, and the double-padded
+version [PATCH 001/17] some people use is even worse.
 
-On Wed, 23 Aug 2006, Johan Groth wrote:
-
-> Justin Piszcz wrote:
->> 
->> Nope, r+w will write over everything on the disk, but I have found -the- 
->> most effective way to see if a disk is good or not.  I'd rather have the 
->> disk die to that test rather than using it in production and finding it 
->> dies with my data on it.
->> 
->
-> Hmm, we both should read the man page of badblocks a bit better :).
-> I found this:
->
-> -n     Use non-destructive read-write mode.  By default only a 
-> non-destructive read-only test is done. This option must not be combined with 
-> the -w option, as they are mutually exclusive.
->
->
-> Cheers,
-> Johan
->
-
-I have not tested that option.  I wonder if it is as good as a real R+W 
-mode.  What does smartctl -a /dev/sda say on the disk that you are having 
-problems with?

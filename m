@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWHWVmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWHWVwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbWHWVmD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 17:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWHWVmC
+	id S965228AbWHWVwu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 17:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbWHWVwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 17:42:02 -0400
-Received: from smarthost2.sentex.ca ([205.211.164.50]:5107 "EHLO
-	smarthost2.sentex.ca") by vger.kernel.org with ESMTP
-	id S965221AbWHWVmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 17:42:00 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>, <dwmw2@infradead.org>
-Subject: Serial custom speed deprecated?
-Date: Wed, 23 Aug 2006 17:41:34 -0400
-Organization: Connect Tech Inc.
-Message-ID: <028a01c6c6fc$e792be90$294b82ce@stuartm>
+	Wed, 23 Aug 2006 17:52:50 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:13778 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965224AbWHWVwt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 17:52:49 -0400
+Date: Wed, 23 Aug 2006 16:52:46 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org,
+       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+Subject: Re: [PATCH 5/6]: powerpc/cell spidernet bottom half
+Message-ID: <20060823215246.GH4401@austin.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <20060818222657.GL26889@austin.ibm.com> <200608190103.05649.arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608190103.05649.arnd@arndb.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From
-http://www.kernel.org/pub/linux/kernel/v2.5/ChangeLog-2.5.64
+On Sat, Aug 19, 2006 at 01:03:04AM +0200, Arnd Bergmann wrote:
+> using the NAPI poll function
 
-"<dwmw2@dwmw2.baythorne.internal>
-	Complain about setting custom speed or divisor on serial ports."
+Still fiddling with this. Getting side-tracked after noticing
+that the RX side generates a *huge* numbe of interrupts, despite
+code in the driver which superficially appears to be RX NAPI.  
+One step forward, two steps back, isn't there a dance like that?
 
-And the relevant patch hunk:
-@@ -832,8 +826,17 @@
-                goto exit;
-        if (info->flags & UIF_INITIALIZED) {
-                if (((old_flags ^ port->flags) & UPF_SPD_MASK) ||
--                   old_custom_divisor != port->custom_divisor)
-+                   old_custom_divisor != port->custom_divisor) {
-+                       /* If they're setting up a custom divisor or speed,
-+                        * instead of clearing it, then bitch about it. No
-+                        * need to rate-limit; it's CAP_SYS_ADMIN only. */
-+                       if (port->flags & UPF_SPD_MASK) {
-+                               printk(KERN_NOTICE "%s sets custom speed on %s%d. This is deprecated.\n",
-+                                      current->comm, info->tty->driver.name,
-+                                      info->port->line);
-+                       }
-                        uart_change_speed(info, NULL);
-+               }
-        } else
-                retval = uart_startup(info, 1);
-  exit:
-
-If custom speeds are deprecated, what's the new method for setting
-them? Specifically, how can the SPD_CUST functionality be accomplished
-without that flag? I've checked 2.5.64 and 2.6.17, and don't see how
-it is possible.
-
-..Stu
-
+--linas

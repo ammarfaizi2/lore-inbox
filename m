@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWHWLCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWHWLDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWHWLCo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWHWLCl
+	id S964874AbWHWLDV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWHWLDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:02:41 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:49939 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964874AbWHWLCZ (ORCPT
+	Wed, 23 Aug 2006 07:03:21 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:49287 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964874AbWHWLDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:02:25 -0400
-Message-ID: <44EC3667.1010800@sw.ru>
-Date: Wed, 23 Aug 2006 15:05:11 +0400
+	Wed, 23 Aug 2006 07:03:19 -0400
+Message-ID: <44EC369D.9050303@sw.ru>
+Date: Wed, 23 Aug 2006 15:06:05 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -25,287 +25,403 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
        Rohit Seth <rohitseth@google.com>,
        Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: [PATCH 3/6] BC: context inheriting and changing
+Subject: [PATCH 4/6] BC: user interface (syscalls)
 References: <44EC31FB.2050002@sw.ru>
 In-Reply-To: <44EC31FB.2050002@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------080408010107030606080609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Contains code responsible for setting BC on task,
-it's inheriting and setting host context in interrupts.
+This is a multi-part message in MIME format.
+--------------080408010107030606080609
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Task references 2 beancounters:
- 1. exec_bc: current context. all resources are
-             charged to this beancounter.
- 3. fork_bc: beancounter which is inherited by
-             task's children on fork
+
+--------------080408010107030606080609
+Content-Type: text/plain;
+ name="diff-bc-syscalls.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-bc-syscalls.patch"
+
+Add the following system calls for BC management:
+  1. sys_get_bcid     - get current BC id
+  2. sys_set_bcid     - change exec_ and fork_ BCs on current
+  3. sys_set_bclimit  - set limits for resources consumtions 
+  4. sys_get_bcstat   - return br_resource_parm on resource
 
 Signed-off-by: Pavel Emelianov <xemul@sw.ru>
-Signed-off-by: Kirill Korotaev <dev@sw.ru>
-
+Signed-off-by: Kirill Korotaev <xemul@sw.ru>
 ---
 
- include/linux/sched.h   |    5 ++++
- include/bc/task.h       |   52 ++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/fork.c           |   17 +++++++++++++--
- kernel/irq/handle.c     |    9 ++++++++
- kernel/softirq.c        |    8 +++++++
- kernel/bc/Makefile      |    1 
- kernel/bc/beancounter.c |    3 ++
- kernel/bc/misc.c        |   32 +++++++++++++++++++++++++++++
- 8 files changed, 125 insertions(+), 2 deletions(-)
-
---- ./include/linux/sched.h.ve2	2006-08-21 13:15:39.000000000 +0400
-+++ ./include/linux/sched.h	2006-08-21 13:26:03.000000000 +0400
-@@ -83,6 +83,8 @@ struct sched_param {
- #include <linux/timer.h>
- #include <linux/hrtimer.h>
+ arch/i386/kernel/syscall_table.S |    4 +
+ arch/ia64/kernel/entry.S         |    4 +
+ arch/sparc/kernel/entry.S        |    2 
+ arch/sparc/kernel/systbls.S      |    6 +
+ arch/sparc64/kernel/entry.S      |    2 
+ arch/sparc64/kernel/systbls.S    |   10 ++-
+ include/asm-i386/unistd.h        |    6 +
+ include/asm-ia64/unistd.h        |    6 +
+ include/asm-powerpc/systbl.h     |    4 +
+ include/asm-powerpc/unistd.h     |    6 +
+ include/asm-sparc/unistd.h       |    4 +
+ include/asm-sparc64/unistd.h     |    4 +
+ include/asm-x86_64/unistd.h      |   10 ++-
+ kernel/sys_ni.c                  |    6 +
+ kernel/bc/Makefile               |    1 
+ kernel/bc/sys.c                  |  120 +++++++++++++++++++++++++++++++++++++++
+ 16 files changed, 186 insertions(+), 9 deletions(-)
+--- ./arch/i386/kernel/syscall_table.S.ve3	2006-08-21 13:15:37.000000000 +0400
++++ ./arch/i386/kernel/syscall_table.S	2006-08-21 14:15:47.000000000 +0400
+@@ -318,3 +318,7 @@ ENTRY(sys_call_table)
+ 	.long sys_vmsplice
+ 	.long sys_move_pages
+ 	.long sys_getcpu
++	.long sys_get_bcid
++	.long sys_set_bcid		/* 320 */
++	.long sys_set_bclimit
++	.long sys_get_bcstat
+--- ./arch/ia64/kernel/entry.S.ve3	2006-08-21 13:15:37.000000000 +0400
++++ ./arch/ia64/kernel/entry.S	2006-08-21 14:17:07.000000000 +0400
+@@ -1610,5 +1610,9 @@ sys_call_table:
+ 	data8 sys_sync_file_range		// 1300
+ 	data8 sys_tee
+ 	data8 sys_vmsplice
++	data8 sys_get_bcid
++	data8 sys_set_bcid
++	data8 sys_set_bclimit			// 1305
++	data8 sys_get_bcstat
  
-+#include <bc/task.h>
+ 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
+--- ./arch/sparc/kernel/entry.S.ve3	2006-07-10 12:39:10.000000000 +0400
++++ ./arch/sparc/kernel/entry.S	2006-08-21 14:29:44.000000000 +0400
+@@ -37,7 +37,7 @@
+ 
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
++#define NR_SYSCALLS 304      /* Each OS is different... */
+ 
+ /* These are just handy. */
+ #define _SV	save	%sp, -STACKFRAME_SZ, %sp
+--- ./arch/sparc/kernel/systbls.S.ve3	2006-07-10 12:39:10.000000000 +0400
++++ ./arch/sparc/kernel/systbls.S	2006-08-21 14:30:43.000000000 +0400
+@@ -78,7 +78,8 @@ sys_call_table:
+ /*285*/	.long sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
+ /*290*/	.long sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ /*295*/	.long sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
+-/*300*/	.long sys_set_robust_list, sys_get_robust_list
++/*300*/	.long sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
++/*305*/	.long sys_get_bcstat
+ 
+ #ifdef CONFIG_SUNOS_EMUL
+ 	/* Now the SunOS syscall table. */
+@@ -192,4 +193,7 @@ sunos_sys_table:
+ 	.long sunos_nosys, sunos_nosys, sunos_nosys
+ 	.long sunos_nosys, sunos_nosys, sunos_nosys
+ 
++	.long sunos_nosys, sunos_nosys, sunos_nosys,
++	.long sunos_nosys
 +
- #include <asm/processor.h>
- 
- struct exec_domain;
-@@ -1032,6 +1034,9 @@ struct task_struct {
- 	spinlock_t delays_lock;
- 	struct task_delay_info *delays;
  #endif
-+#ifdef CONFIG_BEANCOUNTERS
-+	struct task_beancounter	task_bc;
-+#endif
- };
+--- ./arch/sparc64/kernel/entry.S.ve3	2006-07-10 12:39:10.000000000 +0400
++++ ./arch/sparc64/kernel/entry.S	2006-08-21 14:29:56.000000000 +0400
+@@ -25,7 +25,7 @@
  
- static inline pid_t process_group(struct task_struct *tsk)
---- ./include/bc/task.h.ve2	2006-08-21 13:26:03.000000000 +0400
-+++ ./include/bc/task.h	2006-08-21 13:35:04.000000000 +0400
-@@ -0,0 +1,52 @@
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
++#define NR_SYSCALLS 304      /* Each OS is different... */
+ 
+ 	.text
+ 	.align		32
+--- ./arch/sparc64/kernel/systbls.S.ve3	2006-07-10 12:39:11.000000000 +0400
++++ ./arch/sparc64/kernel/systbls.S	2006-08-21 14:32:26.000000000 +0400
+@@ -79,7 +79,8 @@ sys_call_table32:
+ 	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compat_sys_fstatat64
+ /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ 	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll, sys_unshare
+-/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list
++/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
++	.word sys_nis_syscall
+ 
+ #endif /* CONFIG_COMPAT */
+ 
+@@ -149,7 +150,9 @@ sys_call_table:
+ 	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
+ /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ 	.word sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
+-/*300*/	.word sys_set_robust_list, sys_get_robust_list
++/*300*/	.word sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
++	.word sys_get_bcstat
++
+ 
+ #if defined(CONFIG_SUNOS_EMUL) || defined(CONFIG_SOLARIS_EMUL) || \
+     defined(CONFIG_SOLARIS_EMUL_MODULE)
+@@ -263,4 +266,7 @@ sunos_sys_table:
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
++
++	.word sunos_nosys, sunos_nosys, sunos_nosys
++	.word sunos_nosys
+ #endif
+--- ./include/asm-i386/unistd.h.ve3	2006-08-21 13:15:39.000000000 +0400
++++ ./include/asm-i386/unistd.h	2006-08-21 14:22:53.000000000 +0400
+@@ -324,10 +324,14 @@
+ #define __NR_vmsplice		316
+ #define __NR_move_pages		317
+ #define __NR_getcpu		318
++#define __NR_get_bcid		319
++#define __NR_set_bcid		320
++#define __NR_set_bclimit	321
++#define __NR_get_bcstat		322
+ 
+ #ifdef __KERNEL__
+ 
+-#define NR_syscalls 318
++#define NR_syscalls 323
+ #include <linux/err.h>
+ 
+ /*
+--- ./include/asm-ia64/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-ia64/unistd.h	2006-08-21 14:24:29.000000000 +0400
+@@ -291,11 +291,15 @@
+ #define __NR_sync_file_range		1300
+ #define __NR_tee			1301
+ #define __NR_vmsplice			1302
++#define __NR_get_bcid			1303
++#define __NR_set_bcid			1304
++#define __NR_set_bclimit		1305
++#define __NR_get_bcstat			1306
+ 
+ #ifdef __KERNEL__
+ 
+ 
+-#define NR_syscalls			279 /* length of syscall table */
++#define NR_syscalls			283 /* length of syscall table */
+ 
+ #define __ARCH_WANT_SYS_RT_SIGACTION
+ 
+--- ./include/asm-powerpc/systbl.h.ve3	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-powerpc/systbl.h	2006-08-21 14:28:46.000000000 +0400
+@@ -304,3 +304,7 @@ SYSCALL_SPU(fchmodat)
+ SYSCALL_SPU(faccessat)
+ COMPAT_SYS_SPU(get_robust_list)
+ COMPAT_SYS_SPU(set_robust_list)
++SYSCALL(sys_get_bcid)
++SYSCALL(sys_set_bcid)
++SYSCALL(sys_set_bclimit)
++SYSCALL(sys_get_bcstat)
+--- ./include/asm-powerpc/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-powerpc/unistd.h	2006-08-21 14:28:24.000000000 +0400
+@@ -323,10 +323,14 @@
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
++#define __NR_get_bcid		301
++#define __NR_set_bcid		302
++#define __NR_set_bclimit	303
++#define __NR_get_bcstat		304
+ 
+ #ifdef __KERNEL__
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		305
+ 
+ #define __NR__exit __NR_exit
+ #define NR_syscalls	__NR_syscalls
+--- ./include/asm-sparc/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-sparc/unistd.h	2006-08-21 14:33:20.000000000 +0400
+@@ -318,6 +318,10 @@
+ #define __NR_unshare		299
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
++#define __NR_get_bcid		302
++#define __NR_set_bcid		303
++#define __NR_set_bclimit	304
++#define __NR_get_bcstat		305
+ 
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+--- ./include/asm-sparc64/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-sparc64/unistd.h	2006-08-21 14:34:10.000000000 +0400
+@@ -320,6 +320,10 @@
+ #define __NR_unshare		299
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
++#define __NR_get_bcid		302
++#define __NR_set_bcid		303
++#define __NR_set_bclimit	304
++#define __NR_get_bcstat		305
+ 
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+--- ./include/asm-x86_64/unistd.h.ve3	2006-08-21 13:15:39.000000000 +0400
++++ ./include/asm-x86_64/unistd.h	2006-08-21 14:35:19.000000000 +0400
+@@ -619,10 +619,18 @@ __SYSCALL(__NR_sync_file_range, sys_sync
+ __SYSCALL(__NR_vmsplice, sys_vmsplice)
+ #define __NR_move_pages		279
+ __SYSCALL(__NR_move_pages, sys_move_pages)
++#define __NR_get_bcid		280
++__SYSCALL(__NR_get_bcid, sys_get_bcid)
++#define __NR_set_bcid		281
++__SYSCALL(__NR_set_bcid, sys_set_bcid)
++#define __NR_set_bclimit	282
++__SYSCALL(__NR_set_bclimit, sys_set_bclimit)
++#define __NR_get_bcstat		283
++__SYSCALL(__NR_get_bcstat, sys_get_bcstat)
+ 
+ #ifdef __KERNEL__
+ 
+-#define __NR_syscall_max __NR_move_pages
++#define __NR_syscall_max __NR_get_bcstat
+ #include <linux/err.h>
+ 
+ #ifndef __NO_STUBS
+--- ./kernel/sys_ni.c.ve3	2006-07-10 12:39:20.000000000 +0400
++++ ./kernel/sys_ni.c	2006-08-21 14:12:49.000000000 +0400
+@@ -134,3 +134,9 @@ cond_syscall(sys_madvise);
+ cond_syscall(sys_mremap);
+ cond_syscall(sys_remap_file_pages);
+ cond_syscall(compat_sys_move_pages);
++
++/* user resources syscalls */
++cond_syscall(sys_set_bcid);
++cond_syscall(sys_get_bcid);
++cond_syscall(sys_set_bclimit);
++cond_syscall(sys_get_bcstat);
+--- ./kernel/bc/Makefile.ve3	2006-08-21 13:49:49.000000000 +0400
++++ ./kernel/bc/Makefile	2006-08-21 13:55:39.000000000 +0400
+@@ -6,3 +6,4 @@
+ 
+ obj-$(CONFIG_BEANCOUNTERS) += beancounter.o
+ obj-$(CONFIG_BEANCOUNTERS) += misc.o
++obj-$(CONFIG_BEANCOUNTERS) += sys.o
+--- ./kernel/bc/sys.c.ve3	2006-08-21 13:49:49.000000000 +0400
++++ ./kernel/bc/sys.c	2006-08-21 14:43:04.000000000 +0400
+@@ -0,0 +1,120 @@
 +/*
-+ *  include/bc/task.h
++ *  kernel/bc/sys.c
 + *
 + *  Copyright (C) 2006 OpenVZ. SWsoft Inc
 + *
 + */
 +
-+#ifndef __BC_TASK_H_
-+#define __BC_TASK_H_
-+
 +#include <linux/config.h>
-+
-+struct beancounter;
-+
-+struct task_beancounter {
-+	struct beancounter *exec_bc;
-+	struct beancounter *fork_bc;
-+};
-+
-+#ifdef CONFIG_BEANCOUNTERS
-+
-+#define get_exec_bc()		(current->task_bc.exec_bc)
-+#define set_exec_bc(new)			\
-+	({					\
-+		 struct beancounter *old;	\
-+		 struct task_beancounter *tbc;	\
-+		 tbc = &current->task_bc;	\
-+		 old = tbc->exec_bc;		\
-+		 tbc->exec_bc = new;		\
-+		 old;				\
-+	 })
-+#define reset_exec_bc(old, exp)			\
-+	do {					\
-+		struct task_beancounter *tbc;	\
-+		tbc = &current->task_bc;	\
-+		BUG_ON(tbc->exec_bc != exp);	\
-+		tbc->exec_bc = old;		\
-+	} while (0)
-+
-+int bc_task_charge(struct task_struct *parent, struct task_struct *new);
-+void bc_task_uncharge(struct task_struct *tsk);
-+
-+#else
-+
-+#define get_exec_bc()		(NULL)
-+#define set_exec_bc(new)	(NULL)
-+#define reset_exec_bc(new, exp)	do { } while (0)
-+#define bc_task_charge(p, t)	(0)
-+#define bc_task_uncharge(p)	do { } while (0)
-+
-+#endif
-+#endif
---- ./kernel/fork.c.ve2	2006-08-21 13:15:39.000000000 +0400
-+++ ./kernel/fork.c	2006-08-21 13:40:16.000000000 +0400
-@@ -48,6 +48,8 @@
- #include <linux/taskstats_kern.h>
- #include <linux/random.h>
- 
-+#include <bc/task.h>
-+
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -102,12 +104,18 @@ kmem_cache_t *vm_area_cachep;
- /* SLAB cache for mm_struct structures (tsk->mm) */
- static kmem_cache_t *mm_cachep;
- 
--void free_task(struct task_struct *tsk)
-+static void __free_task(struct task_struct *tsk)
- {
- 	free_thread_info(tsk->thread_info);
- 	rt_mutex_debug_task_free(tsk);
- 	free_task_struct(tsk);
- }
-+
-+void free_task(struct task_struct *tsk)
-+{
-+	bc_task_uncharge(tsk);
-+	__free_task(tsk);
-+}
- EXPORT_SYMBOL(free_task);
- 
- void __put_task_struct(struct task_struct *tsk)
-@@ -978,6 +986,9 @@ static struct task_struct *copy_process(
- 	if (!p)
- 		goto fork_out;
- 
-+	if (bc_task_charge(current, p))
-+		goto bad_charge;
-+
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	DEBUG_LOCKS_WARN_ON(!p->hardirqs_enabled);
- 	DEBUG_LOCKS_WARN_ON(!p->softirqs_enabled);
-@@ -1291,7 +1302,9 @@ bad_fork_cleanup_count:
- 	atomic_dec(&p->user->processes);
- 	free_uid(p->user);
- bad_fork_free:
--	free_task(p);
-+	bc_task_uncharge(p);
-+bad_charge:
-+	__free_task(p);
- fork_out:
- 	return ERR_PTR(retval);
- }
---- ./kernel/irq/handle.c.ve2	2006-07-10 12:39:20.000000000 +0400
-+++ ./kernel/irq/handle.c	2006-08-21 13:42:13.000000000 +0400
-@@ -16,6 +16,9 @@
- #include <linux/interrupt.h>
- #include <linux/kernel_stat.h>
- 
-+#include <bc/beancounter.h>
-+#include <bc/task.h>
-+
- #include "internals.h"
- 
- /**
-@@ -166,6 +169,9 @@ fastcall unsigned int __do_IRQ(unsigned 
- 	struct irq_desc *desc = irq_desc + irq;
- 	struct irqaction *action;
- 	unsigned int status;
-+	struct beancounter *bc;
-+
-+	bc = set_exec_bc(&init_bc);
- 
- 	kstat_this_cpu.irqs[irq]++;
- 	if (CHECK_IRQ_PER_CPU(desc->status)) {
-@@ -178,6 +184,8 @@ fastcall unsigned int __do_IRQ(unsigned 
- 			desc->chip->ack(irq);
- 		action_ret = handle_IRQ_event(irq, regs, desc->action);
- 		desc->chip->end(irq);
-+
-+		reset_exec_bc(bc, &init_bc);
- 		return 1;
- 	}
- 
-@@ -246,6 +254,7 @@ out:
- 	desc->chip->end(irq);
- 	spin_unlock(&desc->lock);
- 
-+	reset_exec_bc(bc, &init_bc);
- 	return 1;
- }
- 
---- ./kernel/softirq.c.ve2	2006-08-21 13:15:39.000000000 +0400
-+++ ./kernel/softirq.c	2006-08-21 13:41:04.000000000 +0400
-@@ -18,6 +18,9 @@
- #include <linux/rcupdate.h>
- #include <linux/smp.h>
- 
-+#include <bc/beancounter.h>
-+#include <bc/task.h>
-+
- #include <asm/irq.h>
- /*
-    - No shared variables, all the data are CPU local.
-@@ -209,6 +212,9 @@ asmlinkage void __do_softirq(void)
- 	__u32 pending;
- 	int max_restart = MAX_SOFTIRQ_RESTART;
- 	int cpu;
-+	struct beancounter *bc;
-+
-+	bc = set_exec_bc(&init_bc);
- 
- 	pending = local_softirq_pending();
- 	account_system_vtime(current);
-@@ -247,6 +253,8 @@ restart:
- 
- 	account_system_vtime(current);
- 	_local_bh_enable();
-+
-+	reset_exec_bc(bc, &init_bc);
- }
- 
- #ifndef __ARCH_HAS_DO_SOFTIRQ
---- ./kernel/bc/Makefile.ve2	2006-08-21 13:26:03.000000000 +0400
-+++ ./kernel/bc/Makefile	2006-08-21 13:26:03.000000000 +0400
-@@ -5,3 +5,4 @@
- #
- 
- obj-$(CONFIG_BEANCOUNTERS) += beancounter.o
-+obj-$(CONFIG_BEANCOUNTERS) += misc.o
---- ./kernel/bc/beancounter.c.ve2	2006-08-21 13:13:11.000000000 +0400
-+++ ./kernel/bc/beancounter.c	2006-08-21 13:13:11.000000000 +0400
-@@ -280,6 +280,9 @@
- 	spin_lock_init(&bc_hash_lock);
- 	slot = &bc_hash[bc_hash_fun(bc->bc_id)];
- 	hlist_add_head(&bc->hash, slot);
-+
-+	current->task_bc.exec_bc = get_beancounter(bc);
-+	current->task_bc.fork_bc = get_beancounter(bc);
- }
- 
- void __init bc_init_late(void)
---- ./kernel/bc/misc.c.ve2	2006-08-21 13:26:03.000000000 +0400
-+++ ./kernel/bc/misc.c	2006-08-21 13:39:07.000000000 +0400
-@@ -0,0 +1,32 @@
-+/*
-+ * kernel/bc/misc.c
-+ *
-+ * Copyright (C) 2006 OpenVZ. SWsoft Inc.
-+ *
-+ */
-+
 +#include <linux/sched.h>
++#include <asm/uaccess.h>
 +
 +#include <bc/beancounter.h>
 +#include <bc/task.h>
 +
-+int bc_task_charge(struct task_struct *parent, struct task_struct *new)
++asmlinkage long sys_get_bcid(void)
 +{
-+	struct task_beancounter *old_bc;
-+	struct task_beancounter *new_bc;
 +	struct beancounter *bc;
 +
-+	old_bc = &parent->task_bc;
-+	new_bc = &new->task_bc;
-+
-+	bc = old_bc->fork_bc;
-+	new_bc->exec_bc = get_beancounter(bc);
-+	new_bc->fork_bc = get_beancounter(bc);
-+	return 0;
++	bc = get_exec_bc();
++	return bc->bc_id;
 +}
 +
-+void bc_task_uncharge(struct task_struct *tsk)
++asmlinkage long sys_set_bcid(uid_t id)
 +{
-+	put_beancounter(tsk->task_bc.exec_bc);
-+	put_beancounter(tsk->task_bc.fork_bc);
++	int error;
++	struct beancounter *bc;
++	struct task_beancounter *task_bc;
++
++	task_bc = &current->task_bc;
++
++	/* You may only set an bc as root */
++	error = -EPERM;
++	if (!capable(CAP_SETUID))
++		goto out;
++
++	/* Ok - set up a beancounter entry for this user */
++	error = -ENOMEM;
++	bc = beancounter_findcreate(id, BC_ALLOC);
++	if (bc == NULL)
++		goto out;
++
++	/* install bc */
++	put_beancounter(task_bc->exec_bc);
++	task_bc->exec_bc = bc;
++	put_beancounter(task_bc->fork_bc);
++	task_bc->fork_bc = get_beancounter(bc);
++	error = 0;
++out:
++	return error;
 +}
++
++asmlinkage long sys_set_bclimit(uid_t id, unsigned long resource,
++		unsigned long *limits)
++{
++	int error;
++	unsigned long flags;
++	struct beancounter *bc;
++	unsigned long new_limits[2];
++
++	error = -EPERM;
++	if(!capable(CAP_SYS_RESOURCE))
++		goto out;
++
++	error = -EINVAL;
++	if (resource >= BC_RESOURCES)
++		goto out;
++
++	error = -EFAULT;
++	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
++		goto out;
++
++	error = -EINVAL;
++	if (new_limits[0] > BC_MAXVALUE || new_limits[1] > BC_MAXVALUE)
++		goto out;
++
++	error = -ENOENT;
++	bc = beancounter_findcreate(id, 0);
++	if (bc == NULL)
++		goto out;
++
++	spin_lock_irqsave(&bc->bc_lock, flags);
++	bc->bc_parms[resource].barrier = new_limits[0];
++	bc->bc_parms[resource].limit = new_limits[1];
++	spin_unlock_irqrestore(&bc->bc_lock, flags);
++
++	put_beancounter(bc);
++	error = 0;
++out:
++	return error;
++}
++
++int sys_get_bcstat(uid_t id, unsigned long resource,
++		struct bc_resource_parm *uparm)
++{
++	int error;
++	unsigned long flags;
++	struct beancounter *bc;
++	struct bc_resource_parm parm;
++
++	error = -EINVAL;
++	if (resource > BC_RESOURCES)
++		goto out;
++
++	error = -ENOENT;
++	bc = beancounter_findcreate(id, 0);
++	if (bc == NULL)
++		goto out;
++
++	spin_lock_irqsave(&bc->bc_lock, flags);
++	parm = bc->bc_parms[resource];
++	spin_unlock_irqrestore(&bc->bc_lock, flags);
++	put_beancounter(bc);
++
++	error = 0;
++	if (copy_to_user(uparm, &parm, sizeof(parm)))
++		error = -EFAULT;
++
++out:
++	return error;
++}
+
+--------------080408010107030606080609--

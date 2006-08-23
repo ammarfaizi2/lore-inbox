@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWHVXtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWHWAHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWHVXtd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 19:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWHVXtd
+	id S932107AbWHWAHK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 20:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWHWAHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 19:49:33 -0400
-Received: from s8.lansco.de ([85.10.209.66]:32814 "EHLO s8.lansco.de")
-	by vger.kernel.org with ESMTP id S932278AbWHVXtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 19:49:33 -0400
-From: "Bjo Breiskoll" <bjo@nefkom.net>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Relay Subsystem the 2nd.
-Date: Wed, 23 Aug 2006 01:49:29 +0200
-Message-ID: <002d01c6c645$9be1afe0$03b2a8c0@bjoserver>
+	Tue, 22 Aug 2006 20:07:09 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:32138 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932107AbWHWAHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 20:07:08 -0400
+Message-ID: <44EB9C28.9030204@namesys.com>
+Date: Tue, 22 Aug 2006 17:07:04 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jeff Mahoney <jeffm@suse.com>
+CC: David Masover <ninja@slaphack.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Mike Benoit <ipso@snappymail.ca>
+Subject: Re: [PATCH] reiserfs: eliminate minimum window size for bitmap searching
+References: <44EB1484.2040502@suse.com> <44EB23D9.9000508@slaphack.com> <44EB28EC.50802@suse.com>
+In-Reply-To: <44EB28EC.50802@suse.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Thread-Index: AcbGRVJZtpOCoW0STnuwhIUhbKf8zQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-back to my question last week. I would like to implement a new kernel-modul
-with the ability to write data from kernelspace to userspace via the new
-relay subsystem. The less info from block/blktrace.c is insufficient
-unfortunately. The userspace-program should be able to "listen" to the
-kernel-modul if there is new data written. My first Implementation with data
-exchange over copy_to_user() and a char-device is insufficient. So i need an
-hint for something like blocked-IO for relay-files. Is this possible with
-the new relay-subsystem?
- 
-Thanx in advance
-BJO
-
+Jeff Mahoney wrote:
+>
+>
+> Also, I think the bigalloc behavior just ultimately ends up introducing
+> even more fragmentation on an already fragmented file system. It'll keep
+> contiguous chunks together, but those chunks can end up being spread all
+> over the disk.
+>
+> -Jeff
+>
+Yes, and almost as important, it makes it difficult to understand and
+predict the allocator, which means other optimizations become harder to do.

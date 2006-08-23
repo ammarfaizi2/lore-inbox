@@ -1,103 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWHWWLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965241AbWHWWLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965239AbWHWWLY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbWHWWLY
+	id S965241AbWHWWLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbWHWWLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:11:24 -0400
-Received: from rune.pobox.com ([208.210.124.79]:57065 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S965239AbWHWWLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:11:24 -0400
-Date: Wed, 23 Aug 2006 17:11:14 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
-       nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-ID: <20060823221114.GF11309@localdomain>
-References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme> <20060821140148.435d15f3.pj@sgi.com> <20060821215120.244f1f6f.akpm@osdl.org> <20060822050401.GB11309@localdomain> <20060821221437.255808fa.pj@sgi.com>
+	Wed, 23 Aug 2006 18:11:50 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35713 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965242AbWHWWLs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:11:48 -0400
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+In-Reply-To: <44EC5CDB.5000505@sw.ru>
+References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
+	 <20060823133055.GB10449@martell.zuzino.mipt.ru>  <44EC5CDB.5000505@sw.ru>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 15:05:55 -0700
+Message-Id: <1156370755.2510.707.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821221437.255808fa.pj@sgi.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nathan wrote:
-> > I think it would be more sensible for the default (i.e. user hasn't
-> > explicitly configured any cpusets) behavior on a CONFIG_CPUSETS=y
-> > kernel to match the behavior with a CONFIG_CPUSETS=n kernel. 
+On Wed, 2006-08-23 at 17:49 +0400, Kirill Korotaev wrote:
+> Alexey Dobriyan wrote:
+> > On Wed, Aug 23, 2006 at 03:03:07PM +0400, Kirill Korotaev wrote:
+> > 
+> > 
+> >>--- /dev/null
+> >>+++ ./include/bc/beancounter.h
+> > 
+> > 
+> >>+#define BC_RESOURCES	0
+> > 
+> > 
+> > Do you want userspace to see it?
+> yep.
 > 
-> Basically, in this situation, that would mean that the code that
-> masks a requested sched_setaffinity cpumask with the tasks
-> cpuset_cpus_allowed():
-> 
-> 	cpus_allowed = cpuset_cpus_allowed(p);
-> 	cpus_and(new_mask, new_mask, cpus_allowed);
-> 
-> would not be executed in the case of a kernel configured for cpusets,
-> when running on a system that wasn't using cpusets.
-> 
-> That's quite doable, and for systems not actually using cpusets, makes
-> good sense.
-> 
-> But it makes a bit of discontinuity in the system behaviour when
-> someone starts using cpusets.  If someone makes a cpuset, then suddenly
-> tasks in the top cpuset start seeing failed sched_setaffinity calls
-> for any CPU that was brought online after system boot.
-> 
-> If there is some decent way I can get the cpus_allowed of the top
-> cpuset to track the cpu_online_map, then we avoid this discontinuity
-> in system behaviour.
+> >>+struct bc_resource_parm {
+> >>+	unsigned long barrier;	/* A barrier over which resource allocations
+> >>+				 * are failed gracefully. e.g. if the amount
+> >>+				 * of consumed memory is over the barrier
+> >>+				 * further sbrk() or mmap() calls fail, the
+> >>+				 * existing processes are not killed.
+> >>+				 */
+> >>+	unsigned long limit;	/* hard resource limit */
+> >>+	unsigned long held;	/* consumed resources */
+> >>+	unsigned long maxheld;	/* maximum amount of consumed resources */
+> >>+	unsigned long minheld;	/* minumum amount of consumed resources */
+> > 
+> > 
+> > Stupid question: when minimum amount is useful?
+> to monitor usage statistics (range of used resources).
+> this value will be usefull when ubstat will be added.
+> this field probably would be more logical to add later,
+> but since it is part of user space interface it is left here
+> for not changing API later.
 
+	Then I think it belongs in a separate patch. Add it and the scattered
+bits and pieces that use it with the same patch. Then folks can clearly
+see what it's for, where it impacts the code, and how it works. Yes,
+factoring it out causes the API to evolve over the course of applying
+the patch series -- IMHO that evolution is useful information to convey
+to reviewers too.
 
-How about this?  I've verified it fixes the issue but I'm nervous
-about the locking.
+Cheers,
+	-Matt Helsley
 
-
---- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
-+++ cpuhp-sched_setaffinity/kernel/cpuset.c
-@@ -2033,6 +2033,31 @@ out:
- 	return err;
- }
- 
-+static int cpuset_handle_cpuhp(struct notifier_block *nb,
-+				unsigned long phase, void *_cpu)
-+{
-+	unsigned long cpu = (unsigned long)_cpu;
-+
-+	mutex_lock(&manage_mutex);
-+	lock_cpu_hotplug();
-+	mutex_lock(&callback_mutex);
-+
-+	switch (phase) {
-+	case CPU_ONLINE:
-+		cpu_set(cpu, top_cpuset.cpus_allowed);
-+		break;
-+	case CPU_DEAD:
-+		cpu_clear(cpu, top_cpuset.cpus_allowed);
-+		break;
-+	}
-+
-+	mutex_unlock(&callback_mutex);
-+	unlock_cpu_hotplug();
-+	mutex_unlock(&manage_mutex);
-+
-+	return 0;
-+}
-+
- /**
-  * cpuset_init_smp - initialize cpus_allowed
-  *
-@@ -2043,6 +2068,8 @@ void __init cpuset_init_smp(void)
- {
- 	top_cpuset.cpus_allowed = cpu_online_map;
- 	top_cpuset.mems_allowed = node_online_map;
-+
-+	hotcpu_notifier(cpuset_handle_cpuhp, 0);
- }
- 
- /**

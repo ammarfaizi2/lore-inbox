@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWHWNYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWHWNZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWHWNYj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWHWNYj
+	id S932097AbWHWNZx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHWNZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:24:39 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:7084 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932083AbWHWNYi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:24:38 -0400
-Message-ID: <44EC57BD.4020807@sw.ru>
-Date: Wed, 23 Aug 2006 17:27:25 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru> <200608231337.48941.ak@suse.de>
-In-Reply-To: <200608231337.48941.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 09:25:53 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:62626 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932097AbWHWNZw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 09:25:52 -0400
+Date: Wed, 23 Aug 2006 18:55:08 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+Message-ID: <20060823132508.GC21884@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156326208.6265.33.camel@Homer.simpson.net> <1156346683.6456.4.camel@Homer.simpson.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156346683.6456.4.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wednesday 23 August 2006 13:03, Kirill Korotaev wrote:
+On Wed, Aug 23, 2006 at 03:24:43PM +0000, Mike Galbraith wrote:
+> On Wed, 2006-08-23 at 09:43 +0000, Mike Galbraith wrote:
 > 
+> > ...and after my box finishes rebooting, I'll alert the developer of this
+> > patch set that very bad things happen the instant you do that :)
 > 
->>+#ifdef CONFIG_BEANCOUNTERS
->>+extern struct hlist_head bc_hash[];
->>+extern spinlock_t bc_hash_lock;
-> 
-> 
-> I wonder who pokes into that hash from other files? Looks a bit dangerous.
-it was kernel/ub/proc.c with proc interface :)
-however, we removed it from this patchset version, but forgot extern's...
+> Good news is that it doesn't always spontaneous reboot.  Sometimes, it
+> just goes pop.
 
-will remove
+Using the top-level cpuset itself is something that I don't think the
+patches support yet. Shouldnt be hard to make it work, except usage of
+tasks in the top-level cpuset need to be accounted/controlled. I am working on 
+this now and as well some changes wrt timeslice management. Will send out some
+patches soon!
 
->>+void __put_beancounter(struct beancounter *bc);
->>+static inline void put_beancounter(struct beancounter *bc)
->>+{
->>+	__put_beancounter(bc);
->>+}
-> 
-> 
-> The wrapper seems pointless too.
-yep, almost the same reason :)
-
-> The file could use a overview comment what the various counter
-> types actually are.
-you mean comment about what resource parameters we introduce?
-ok, will add it with each resource patch.
-
->>+	bc_print_id(bc, uid, sizeof(uid));
->>+	printk(KERN_WARNING "BC %s %s warning: %s "
-> 
-> 
-> Doesn't this need some rate limiting? Or can it be only triggered
-> by code bugs?
-only due to code bugs.
-
->>+	bc = &default_beancounter;
->>+	memset(bc, 0, sizeof(default_beancounter));
-> 
-> 
-> You don't trust the BSS to be zero? @)
-:))
-
-Kirill
+-- 
+Regards,
+vatsa

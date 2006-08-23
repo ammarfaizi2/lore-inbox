@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWHWMrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWHWMsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWHWMrf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 08:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWHWMrf
+	id S932447AbWHWMsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 08:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWHWMsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 08:47:35 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:28844 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932445AbWHWMre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 08:47:34 -0400
-Date: Wed, 23 Aug 2006 21:46:40 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com, ak@suse.de
-Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
-Message-Id: <20060823214640.699ceacb.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <m1r6z7ofbn.fsf@ebiederm.dsl.xmission.com>
-References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
-	<m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
-	<20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1ac5woube.fsf@ebiederm.dsl.xmission.com>
-	<20060823173323.b9cf1509.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1r6z7ofbn.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 08:48:22 -0400
+Received: from asp.isprit2.de ([213.221.110.57]:22401 "EHLO
+	prod-tx-2.isprit2.de") by vger.kernel.org with ESMTP
+	id S932448AbWHWMsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 08:48:21 -0400
+Message-ID: <44EC4EE2.6060701@xqueue.de>
+Date: Wed, 23 Aug 2006 14:49:38 +0200
+From: =?ISO-8859-15?Q?Bj=F6rn_Engelhardt?= <bjoern2@xqueue.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.17.8 on Quad AMD Opteron 852 with 16x 4GB Modules (64GB
+ RAM)
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 05:35:08 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Hello,
 
-> What you are proposing is to reduce contention by having several different
-> locks for each of the global data structures. 
-not for each, just a lock for a list for for_each_process ;)
-About cache bounsing, it's problem if heavy.
-In my plan, fork/exit/proc_readdir will have write lock of
-for_each_process_write_lock. talking this again after take3 will be good.
-If I'm very lucky, I'll find some another way..
+we upgraded a Server from 32 GB RAM to 64 GB. Now we try to get a Linux 
+(FC5) with kernel 2.6.17.8 on a Quad Opteron (852; 64bit)-system with 
+16x 4GB modules to run.
+With 32 GB (8x 4GB modules) the system starts without any problems, but 
+above I get kernelpanics.
+The output then gives me several memoryaddresses bevore the panic 
+appears. The board (a Tyan K8QW,model S4881) should support up to 64GB 
+Ram. A Memorytest under Linux recognizes the 64GB and continues without 
+an error.
+I tried several BIOS-Settings.
+Does the kernel support the new 4GB-Modules by 64GB Ram?
 
-> >> >> In addition you only solves half the readdir problems.  You don't solve
-> >> >> the seek problem which is returning to an offset you had been to
-> >> >> before.  A relatively rare case but...
-> >> >> 
-> >> > Ah, I should add lseek handler for proc root. Okay.
-> >> 
-> >> Hmm.  Possibly.  Mostly what I was thinking is that a token in the
-> >> list simply cannot solve the problem of a guaranteeing lseek to a
-> >> previous position works.  I really haven't looked closely on
-> >> how you handle that case.
-> >> 
-> > I'll try some. But lseek on directory, which is modified at any moment, cannot
-> > work stable anyway.
-> 
-> It can work as well as anything else in readdir.  It can ensure that you don't
-> miss things that haven't been added or deleted during the while you are in
-> the middle of readdir.    I'm just after the usual Single Unix Spec/POSIX guarantees.
-> The same thing that are missing in the current readdir implementation.
-> 
-BTW, what position means at lseek() in directory ? 
-bytes ? implementation dependent ? 
+Thanks for every help, I have no more ideas in the moment
 
-I'm thinking of implementing "position" as offset in task list. 
-Hmm..about lseek(), it's obvious that searching in a table has an advantage.
-we cannot define position with list.
-What will you do if user moves f->pos to not-used-position.
+Regards
+    Björn Engelhardt
 
-I have no complaint about pidmap scanning next_tgid() unless it doesn't scan
-all over the world.
-
--Kame
-
+PS: Sorry for my bad english

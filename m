@@ -1,79 +1,53 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWHQUNt (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 16:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWHQUNq
+	id S932332AbWHWDWp (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 22 Aug 2006 23:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWHWDWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 16:13:46 -0400
-Received: from dsl.dynamic8121324090.ttnet.net.tr ([81.213.240.90]:6651 "HELO
-	nati") by vger.kernel.org with SMTP id S1030258AbWHQULo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 16:11:44 -0400
-Organization: SI GROUPREISEN
-Reply-To: flug@doruk.net
-Message-ID: <e024d9686cd119821786438c001fbeb1@freenet.de>
-From: "SI GROUPREISEN" <reisen-si@freenet.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Reiseangebot.
-Date: Thu, 17 Aug 2006 23:10:46 +0300
-MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Tue, 22 Aug 2006 23:22:43 -0400
+Received: from 24-216-162-176.dhcp.stls.mo.charter.com ([24.216.162.176]:41993
+	"HELO 24-216-162-176.dhcp.stls.mo.charter.com") by vger.kernel.org
+	with SMTP id S932321AbWHWDWl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 23:22:41 -0400
+Message-Id: <E4A4nm6-1264Yt-00@mail.nitros5.org>
+Date: Wed, 23 Aug 2006 16:19:55 -0300
+From: "Hank Tobin" <UBVCFKRNLXSB@invitation.to>
+To: linux-admin@vger.kernel.org
+Subject: Today on Tiscali
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030268AbWHQUNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932332AbWHWDWp@vger.kernel.org>
 
-***Fuenf Sterne Strand Hotel an Tuerkischen Riveria HP eine Woche KOSTE=
-NLOS.***
-Als SI Group 2006 feiern wir das 10 jaehrige Gruendung.
-Aus diesem Anlass bieten wir in den 5 Sterne Strandhotels in Belek Anta=
-lya
-Aufenthalt-Halbpension kostenlos.
-Im Einzelnen: Reisetermine sind zwischen dem 10.11.2006 bis zum 30.04.2=
-007,
-jeden Freitag und Samstag.
-Flug und Transfer zum Hotel Uebernehmen Sie selbst.
-Auf Wunsch koennen wir dies fuer Sie organisieren.
-Hin und zuruck Euro 178 inc Taxen koennen Sie auch  Ihre
-Fluege bei uns bequem buchen.Flug und Transfers kostet bei uns Euro 248=
- Total.(Inc.Gebuehren-Taxen)
-Ab;Duesseldorf-Frankfurt-Muenchen-Hamburg-Hannover-Berlin(TXL-SXF) -
-Friedrichshafen- Wien-Salzburg-Graz-Linz-Zuerich und Basel.
-KOSTENLOSE INKLUSUVELEISTUNG:
-=B7         6 Uebernachtungen im 5-Sterne-Hotel im Doppelzimmer.
-=B7         1 Uebernachtung in einem Thermalhotel in Pamukkale.
-=B7         1-Taegiger Ausflug nach Antalya mit Bootsfahrt.
-=B7         Reiseleitung.
-*Info Reise fuer die Gruppenleitern moeglich.
+Do you want a w-atch?
 
-Ihr SI Group Team.***Fuenf Sterne Strand Hotel an Tuerkischen Riveria H=
-P eine Woche KOSTENLOS.***
-Als SI Group 2006 feiern wir das 10 jaehrige Gruendung.
-Aus diesem Anlass bieten wir in den 5 Sterne Strandhotels in Belek Anta=
-lya
-Aufenthalt-Halbpension kostenlos.
-Im Einzelnen: Reisetermine sind zwischen dem 10.11.2006 bis zum 30.04.2=
-007,
-jeden Freitag und Samstag.
-Flug und Transfer zum Hotel Uebernehmen Sie selbst.
-Auf Wunsch koennen wir dies fuer Sie organisieren.
-Hin und zuruck Euro 178 inc Taxen koennen Sie auch  Ihre
-Fluege bei uns bequem buchen.Flug und Transfers kostet bei uns Euro 248=
- Total.(Inc.Gebuehren-Taxen)
-Ab;Duesseldorf-Frankfurt-Muenchen-Hamburg-Hannover-Berlin(TXL-SXF) -
-Friedrichshafen- Wien-Salzburg-Graz-Linz-Zuerich und Basel.
-KOSTENLOSE INKLUSUVELEISTUNG:
-=B7         6 Uebernachtungen im 5-Sterne-Hotel im Doppelzimmer.
-=B7         1 Uebernachtung in einem Thermalhotel in Pamukkale.
-=B7         1-Taegiger Ausflug nach Antalya mit Bootsfahrt.
-=B7         Reiseleitung.
-*Info Reise fuer die Gruppenleitern moeglich.
+In our online store you can buy r e p l i c a s of R o l e x watches and
+other brands. They look and feel exactly like the real thing.
 
-Ihr SI Group Team.
+- We have 100+ different brands in our selection
+- Best prices on the market Just For You
+- Great Discount Live Support Extended Warranty
+- Free shipping if you order 2 or more
+- Save up to 85% compared to the cost of other r e p l i c a s
+- Standard Features:
+- Screw-in crown
+- Unidirectional turning bezel where appropriate
+- All the appropriate r o l e x logos, on crown and dial
+- Heavy weight
+
+Clisk here: http://lieit.info
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+
+
+
+
+
+
+
+"Just what you asked for, isn't it?
+The cop looked like a big doll that has been badly treated by a gang of nasty children.
+But she didn't come and there was no way he could bear the rotted ache in his left leg.

@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWHWNJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWHWNMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWHWNJE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHWNJE
+	id S1750770AbWHWNMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWHWNMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:09:04 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:43225 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932456AbWHWNJD (ORCPT
+	Wed, 23 Aug 2006 09:12:47 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:20889 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750770AbWHWNMq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:09:03 -0400
-Date: Wed, 23 Aug 2006 05:58:43 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
-Message-ID: <20060823125843.GF697@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230806.k7N869KD000552@frankl.hpl.hp.com> <200608231322.44106.ak@suse.de> <20060823121434.GE697@frankl.hpl.hp.com> <200608231429.04413.ak@suse.de>
+	Wed, 23 Aug 2006 09:12:46 -0400
+Date: Wed, 23 Aug 2006 17:11:31 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jari Sundell <sundell.software@gmail.com>
+Cc: David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Message-ID: <20060823131130.GA29056@2ka.mipt.ru>
+References: <20060822.173200.126578369.davem@davemloft.net> <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com> <20060823065659.GC24787@2ka.mipt.ru> <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com> <20060823083859.GA8936@2ka.mipt.ru> <b3f268590608230249q653e1dfh1d77c07f6f4e82ce@mail.gmail.com> <20060823102037.GA23664@2ka.mipt.ru> <b3f268590608230334y6814b886tb79da2f59138acd8@mail.gmail.com> <20060823105104.GA11305@2ka.mipt.ru> <b3f268590608230555o3a03d9d6l1d99a32695e8af6a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <200608231429.04413.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
+In-Reply-To: <b3f268590608230555o3a03d9d6l1d99a32695e8af6a@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 17:11:35 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Wed, Aug 23, 2006 at 02:55:47PM +0200, Jari Sundell (sundell.software@gmail.com) wrote:
+> On 8/23/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >We still do not know what uintptr_t is, and it looks like it is a pointer,
+> >which is forbidden. Those numbers are not enough to make network AIO.
+> >And actually is not compatible with kqueue already, so you will need to
+> >write your own parser to convert your parameters into above structure.
+> 
+> 7.18.1.4 Integertypes capable of holding object pointers
+> 
+> "1 The following type designates a signed integer type with the
+> property that any valid
+> pointer to void can be converted to this type, then converted back to
+> pointer to void,
+> and the result will compare equal to the original pointer:"
+> 
+> Dunno if this means that x86-64 needs yet another typedef, or if using
+> long for intptr_t is incorrect. But assuming a different integer type
+> was used instead of intptr_t, that is known to be able to hold a
+> pointer, would there still be any problems?
 
-On Wed, Aug 23, 2006 at 02:29:04PM +0200, Andi Kleen wrote:
-> On Wednesday 23 August 2006 14:14, Stephane Eranian wrote:
-> 
-> > On Wed, Aug 23, 2006 at 01:22:44PM +0200, Andi Kleen wrote:
-> > > 
-> > > > I have a second thought on this. AMD has architected the performance counters.
-> > > 
-> > > Quote:
-> > > >>
-> > > Implementations are not required to support the performance
-> > > c o u n t e rs and the event-select registers, or the time-stamp
-> > > counter. The presence of these features can be determined by
-> > > <<
-> > > 
-> > At the end of this paragraph then mention using CPUID to determine
-> > the presence of the counters. AFAIK, there is no feature bit
-> > covering performance monitoring. Does that mean we are left
-> > with having to check the family and model number just like on
-> > Intel?
-> 
-> Yes I puzzled over that too. Maybe they meant the MSR CPUID bits, but most likely
-> it was a mistake by the tech writer.
-> 
-> Yes I think you have to. Only checking vendor/family should be fine though -- i am not
-> aware of performance counter variations between models.
+stdint.h
 
-Today, I am just checking for family 15. If they have variations it could be with
-the low power (laptop) models where counters may not be present at all.
+/* Types for `void *' pointers.  */
+#if __WORDSIZE == 64
+# ifndef __intptr_t_defined
+typedef long int		intptr_t;
+#  define __intptr_t_defined
+# endif
+typedef unsigned long int	uintptr_t;
+#else
+# ifndef __intptr_t_defined
+typedef int			intptr_t;
+#  define __intptr_t_defined
+# endif
+typedef unsigned int		uintptr_t;
+#endif
 
-> Perhaps add a force argument again that disables the family check too.
-> 
-> > Ok, I think I understand now:
-> > 	1/ Bios and Kernel Developer Guide from Ahtlon64 and Opteron 64 is
-> > 	  what you are talking about with K7/K8
-> 
-> Well K8.
-> 
-> K7 has a different one. But ok. I think you don't try to support K7 at all
-> currently (it has the same register format as K8, but the list of counters
-> is different)
-> 
-What is the "commercial name" of K7 processors?
+which means that with 32bit userspace it will be equal to 32bit only.
+
+> I'm unable to see anything specific about AIO in your kevent patch
+> that these modifications wouldn't support.
+
+I was asked to postpone AIO stuff for now, you can find it in previous
+patchsets sent about week or two ago.
+
+> Rakshasa
 
 -- 
--Stephane
+	Evgeniy Polyakov

@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWHWN5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWHWN6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWHWN5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 09:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHWN5m
+	id S964893AbWHWN6W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWHWN6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 09:57:42 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:4951 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932235AbWHWN5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 09:57:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uaGThzwrv9JgF6kKcjfiK/2tehvsIEj7aBAKzAvEEEsaFdSJeJWxxfoLz8l3lxsJ3qHXvHJeJQfxJqfSzFq7AGKIVBhCXwDYP4iI0KeZKdArLpRQbMTX9tMzRE0R5tfFjKN0Pq289oDxJnyWBDMLsTBlPHpMDlehEPBblk4boXc=
-Message-ID: <4ae3c140608230657i3300aa08m129e75e090b59ff@mail.gmail.com>
-Date: Wed, 23 Aug 2006 09:57:40 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: Where does NFS client associate the file handle received from server with inode?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1156168413.5583.135.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 09:58:21 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:61692 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S964893AbWHWN6V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 09:58:21 -0400
+Date: Wed, 23 Aug 2006 06:48:15 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
+Message-ID: <20060823134815.GH697@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230806.k7N869KD000552@frankl.hpl.hp.com> <200608231429.04413.ak@suse.de> <20060823125843.GF697@frankl.hpl.hp.com> <200608231544.26756.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4ae3c140608191836we4603c0qa61d5631161a482d@mail.gmail.com>
-	 <1156168413.5583.135.camel@localhost>
+In-Reply-To: <200608231544.26756.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because I have to carry some additional information of the file
-identified by the file handle. :) But never mind, the problem has been
-fixed.
+Andi,
 
-Thanks anyway,
-xin
+On Wed, Aug 23, 2006 at 03:44:26PM +0200, Andi Kleen wrote:
+> > If they have variations it could be with
+> > the low power (laptop) models where counters may not be present at all.
+> 
+> It would surprise me if they ever released anything again with no counters.
+> 
+> It's mainly simulators where the counters are missing (e.g. SimNow is a pretty 
+> accurate simulation otherwise, but doesn't have performance counters)
+> 
+Ah yes simulators are a good example. Yet what matters is whether or not they
+would fault on access to the MSR. It is okay if they implement the MSR but
+they do not count anything, nor trigger interrupts. The IA-64 ski simulator is
+like this and this is just fine, all you get is zeroes and you cannot sample.
 
-On 8/21/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Sat, 2006-08-19 at 21:36 -0400, Xin Zhao wrote:
-> > I ran into a problem:
-> >
-> > I extend several fields to file handle, and change compose_fh() to
-> > initialize some value into the file handle. I think the client side
-> > should be able to associate the file handle with inode and used them
-> > properly afterwards.  However, I found a problem:
-> >
-> > Say I have a program 'postmark" in /tmp, and my current directory is /
-> >
-> > If I do '/tmp/postmark', getattr() funciton will not use the right
-> > file handle with extension. Instead, it seems to use a file handle
-> > excluding my extension
-> >
-> > but if I change to '/tmp', do 'ls -al' first, then I do 'postmark',
-> > getattr() will use the right file handle.
-> >
-> > So I think maybe I need to change NFS client to associate the extened
-> > file handle with inode . But I don't know where NFS client does this.
-> > Can someone give me a help?
->
-> Why are you changing the file handle? We should already be caching the
-> correct one (i.e. the one that was sent to us by the server in the
-> LOOKUP call) in the 'struct nfs_inode'.
->
-> Cheers,
->   Trond
->
->
+-- 
+-Stephane

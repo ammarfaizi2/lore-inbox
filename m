@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965261AbWHWWbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWHWWeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965261AbWHWWbk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWHWWbj
+	id S965284AbWHWWeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965301AbWHWWd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:31:39 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7810 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S965258AbWHWWbj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:31:39 -0400
-Date: Thu, 24 Aug 2006 00:30:32 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
-Message-ID: <20060823223032.GA25111@electric-eye.fr.zoreil.com>
-References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
+	Wed, 23 Aug 2006 18:33:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33546 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965298AbWHWWd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:33:57 -0400
+Date: Thu, 24 Aug 2006 00:33:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.28-rc3
+Message-ID: <20060823223355.GC19810@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060823113822.GA17103@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-[...]
-> Typo. It should be:
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.18-rc4/ip1000
+There are still several patches pending - they will go into 2.6.16.29.
 
-Added 0038-ip1000-CodingStyle.txt.
+Security fixes since 2.6.16.27:
+- CVE-2006-2935: cdrom: fix bad cgc.buflen assignment
+- CVE-2006-3745: Fix sctp privilege elevation
+- CVE-2006-4093: powerpc: Clear HID0 attention enable on PPC970 at boot time
+- CVE-2006-4145: Fix possible UDF deadlock and memory corruption
 
-More local variables, more unsigned int, less MixedCase, ipg_nic_rx()
-fits in your favorite 80 cols console.
 
--- 
-Ueimor
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+
+
+Changes since 2.6.16.28-rc3:
+
+Adrian Bunk:
+      Linux 2.6.16.28-rc3
+
+Danny Tholen:
+      1394: fix for recently added firewire patch that breaks things on ppc
+
+Jan Kara:
+      Fix possible UDF deadlock and memory corruption (CVE-2006-4145)
+
+Sridhar Samudrala:
+      Fix sctp privilege elevation (CVE-2006-3745)
+
+
+ Makefile                    |    2 -
+ drivers/ieee1394/ohci1394.c |    4 +-
+ fs/udf/super.c              |    2 -
+ fs/udf/truncate.c           |   64 +++++++++++++++++++++---------------
+ include/net/sctp/sctp.h     |   13 -------
+ include/net/sctp/sm.h       |    3 -
+ net/sctp/sm_make_chunk.c    |   30 +++++-----------
+ net/sctp/sm_statefuns.c     |   20 ++---------
+ net/sctp/socket.c           |   10 +++++
+ 9 files changed, 66 insertions(+), 82 deletions(-)
+

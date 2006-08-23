@@ -1,139 +1,302 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965290AbWHWXBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965292AbWHWXEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965290AbWHWXBh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbWHWXBh
+	id S965292AbWHWXEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 19:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbWHWXEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:01:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18889 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965290AbWHWXBh (ORCPT
+	Wed, 23 Aug 2006 19:04:00 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:493 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965292AbWHWXD7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:01:37 -0400
-Date: Wed, 23 Aug 2006 15:51:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 8/18] 2.6.17.9 perfmon2 patch for review: event sets and
- multiplexing support
-Message-Id: <20060823155148.a2945c4e.akpm@osdl.org>
-In-Reply-To: <200608230805.k7N85x2H000432@frankl.hpl.hp.com>
-References: <200608230805.k7N85x2H000432@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 19:03:59 -0400
+Subject: Re: [Devel] [PATCH 6/6] BC: kernel memory accounting (marks)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: devel@openvz.org
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Rohit Seth <rohitseth@google.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <44EC371F.7080205@sw.ru>
+References: <44EC31FB.2050002@sw.ru>  <44EC371F.7080205@sw.ru>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 16:03:51 -0700
+Message-Id: <1156374231.12011.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 01:05:59 -0700
-Stephane Eranian <eranian@frankl.hpl.hp.com> wrote:
+On Wed, 2006-08-23 at 15:08 +0400, Kirill Korotaev wrote:
+>  include/asm-i386/thread_info.h   |    4 ++--
+>  include/asm-ia64/pgalloc.h       |   24 +++++++++++++++++-------
+>  include/asm-x86_64/pgalloc.h     |   12 ++++++++----
+>  include/asm-x86_64/thread_info.h |    5 +++-- 
 
-> This patch contains the event set and multiplexing support.
-> 
-> On many PMU models, there is not enough counter to collect
-> certain metric in one run. Even on those that have potentially
-> lots of counters, e.g. P4 with 18, there are oftentimes constraints
-> which make measuring certain event together impossible. In those
-> situation the user has n choice but to measure with multiple
-> runs which is not always practical and prone to errors.
-> 
-> One way to alleviate the problem is to introduce the notion
-> of an event set. Each set encapsulates the entire PMU state.
-> If a PMU has M counters then each set can define M events. 
-> Multiple sets can be defined. They are then multiplexed onto
-> the actual PMU such that only one is active at any time.
-> The collected counts can then be scaled to get an *estimate*
-> of what they would have been had each event been measured across
-> the entire run. It is important to note that this remains an
-> estimate. The faster we can switch, the smaller the blind spots are
-> but the higher the overhead is.
-> 
-> Sets and set switching can be implemented at the user level. Yet
-> by having kernel support for it, we can signification improve
-> performance especially for non self-monitoring per-thread context where
-> we guarantee switching always occurs in the context of the monitored thread.
-> 
-> By default, any perfmon2 context is created with a default set, i.e., set0.
-> Set can be dynamically created/deleted with specific system calls. A set
-> is identified by a simple number (0-65535). The number determines the
-> position of the set in an ordered list. The order in the list determines
-> the switch order. Switching occurs in a round-robin fashion.
-> 
-> Switching can be triggered by a timeout or after a certain number of overflows.
-> The type of switching as well as the timeout is determined per set.
-> The timeout granularity is determined by that of the timer tick. The actual
-> timeout value is returned to the user.
-> 
-> The file perfmon_sets.c implements:
-> 	- set-related back-end system calls: __pfm_create_evtsets(), __pfm_delete_evtsets(), __pfm_getinfo_evtsets()
-> 	- set switching: pfm_switch_sets(), __pfm_handle_switch_timeout()
-> 
->
-> ...
->
-> +struct pfm_event_set *pfm_find_set(struct pfm_context *ctx, u16 set_id,
-> +					  int alloc)
-> +{
-> +	kmem_cache_t *cachep;
-> +	struct pfm_event_set *set, *new_set, *prev;
-> +	unsigned long offs;
-> +	size_t view_size;
-> +	void *view;
-> +
-> +	PFM_DBG("looking for set=%u", set_id);
-> +
-> +	/*
-> +	 * shortcut for set 0: always exist, cannot be removed
-> +	 */
-> +	if (set_id == 0 && !alloc)
-> +		return list_entry(ctx->list.next, struct pfm_event_set, list);
-> +
-> +	prev = NULL;
-> +	list_for_each_entry(set, &ctx->list, list) {
-> +		if (set->id == set_id)
-> +			return set;
-> +		if (set->id > set_id)
-> +			break;
-> +		prev = set;
-> +	}
-> +
-> +	if (!alloc)
-> +		return NULL;
-> +
-> +	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
-> +
-> +	new_set = kmem_cache_alloc(cachep, SLAB_ATOMIC);
+Do you think we need to cover a few more architectures before
+considering merging this, or should we just fix them up as we need them?
 
-SLAB_ATOMIC is unreliable.  Is it possible to use SLAB_KERNEL here?  If
-coms ecallers can sleep and others cannot then passing in the gfp_flags
-would permit improvement here.
+I'm working on a patch to unify as many of the alloc_thread_info()
+functions as I can.  That should at least give you one place to modify
+and track the thread_info allocations.  I've only compiled for x86_64
+and i386, but I'm working on more.  A preliminary version is attached.
 
-> +	if (new_set) {
-> +		memset(new_set, 0, sizeof(*set));
+-- Dave
 
-kmem_cache_zalloc() exists.
+---
 
-> +		if (ctx->flags.mapset) {
-> +			view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-> +			view      = vmalloc(view_size);
+ clean-dave/include/asm-alpha/thread_info.h   |    5 ---
+ clean-dave/include/asm-frv/thread_info.h     |   17 ----------
+ clean-dave/include/asm-h8300/thread_info.h   |    8 +----
+ clean-dave/include/asm-i386/thread_info.h    |   18 -----------
+ clean-dave/include/asm-m32r/thread_info.h    |   17 ----------
+ clean-dave/include/asm-m68k/thread_info.h    |    9 -----
+ clean-dave/include/asm-powerpc/thread_info.h |   27 -----------------
+ clean-dave/include/linux/thread_alloc.h      |   42 +++++++++++++++++++++++++++
+ clean-dave/kernel/fork.c                     |    1 
+ 9 files changed, 47 insertions(+), 97 deletions(-)
 
-vmalloc() sleeps, so this _could_ have used SLAB_ATOMIC.
-
-> +static struct page *pfm_view_map_pagefault(struct vm_area_struct *vma,
-> +					   unsigned long address, int *type)
-> +{
-> +	void *kaddr;
-> +	struct page *page;
-> +
-> +	kaddr = vma->vm_private_data;
-> +	if (kaddr == NULL) {
-> +		PFM_DBG("no view");
-> +		return NOPAGE_SIGBUS;
-> +	}
-> +
-> +	if ( (address < (unsigned long) vma->vm_start) ||
-> +	     (address > (unsigned long) (vma->vm_start + PAGE_SIZE)) )
-
-Should that be >=?
+diff -puN arch/arm/kernel/process.c~unify-alloc-thread-info arch/arm/kernel/process.c
+diff -puN include/asm-alpha/thread_info.h~unify-alloc-thread-info include/asm-alpha/thread_info.h
+--- clean/include/asm-alpha/thread_info.h~unify-alloc-thread-info	2006-08-23 15:38:37.000000000 -0700
++++ clean-dave/include/asm-alpha/thread_info.h	2006-08-23 15:40:23.000000000 -0700
+@@ -50,10 +50,7 @@ register struct thread_info *__current_t
+ #define current_thread_info()  __current_thread_info
+ 
+ /* Thread information allocation.  */
+-#define THREAD_SIZE (2*PAGE_SIZE)
+-#define alloc_thread_info(tsk) \
+-  ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
++#define THREAD_SHIFT (PAGE_SHIFT+1)
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff -puN include/asm-frv/thread_info.h~unify-alloc-thread-info include/asm-frv/thread_info.h
+--- clean/include/asm-frv/thread_info.h~unify-alloc-thread-info	2006-08-23 15:40:26.000000000 -0700
++++ clean-dave/include/asm-frv/thread_info.h	2006-08-23 15:40:40.000000000 -0700
+@@ -82,23 +82,6 @@ register struct thread_info *__current_t
+ 
+ #define current_thread_info() ({ __current_thread_info; })
+ 
+-/* thread information allocation */
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-#define alloc_thread_info(tsk)					\
+-	({							\
+-		struct thread_info *ret;			\
+-								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
+-		if (ret)					\
+-			memset(ret, 0, THREAD_SIZE);		\
+-		ret;						\
+-	})
+-#else
+-#define alloc_thread_info(tsk)	kmalloc(THREAD_SIZE, GFP_KERNEL)
+-#endif
+-
+-#define free_thread_info(info)	kfree(info)
+-
+ #endif /* __ASSEMBLY__ */
+ 
+ /*
+diff -puN include/asm-h8300/thread_info.h~unify-alloc-thread-info include/asm-h8300/thread_info.h
+--- clean/include/asm-h8300/thread_info.h~unify-alloc-thread-info	2006-08-23 15:40:43.000000000 -0700
++++ clean-dave/include/asm-h8300/thread_info.h	2006-08-23 15:41:54.000000000 -0700
+@@ -49,8 +49,8 @@ struct thread_info {
+ /*
+  * Size of kernel stack for each process. This must be a power of 2...
+  */
+-#define THREAD_SIZE		8192	/* 2 pages */
+-
++#define THREAD_SHIFT	1
++#define THREAD_SIZE	(1<<THREAD_SHIFT)
+ 
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
+@@ -65,10 +65,6 @@ static inline struct thread_info *curren
+ 	return ti;
+ }
+ 
+-/* thread information allocation */
+-#define alloc_thread_info(tsk) ((struct thread_info *) \
+-				__get_free_pages(GFP_KERNEL, 1))
+-#define free_thread_info(ti)	free_pages((unsigned long) (ti), 1)
+ #endif /* __ASSEMBLY__ */
+ 
+ /*
+diff -puN include/asm-i386/thread_info.h~unify-alloc-thread-info include/asm-i386/thread_info.h
+--- clean/include/asm-i386/thread_info.h~unify-alloc-thread-info	2006-08-23 15:19:27.000000000 -0700
++++ clean-dave/include/asm-i386/thread_info.h	2006-08-23 15:33:30.000000000 -0700
+@@ -92,24 +92,6 @@ static inline struct thread_info *curren
+ {
+ 	return (struct thread_info *)(current_stack_pointer & ~(THREAD_SIZE - 1));
+ }
+-
+-/* thread information allocation */
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-#define alloc_thread_info(tsk)					\
+-	({							\
+-		struct thread_info *ret;			\
+-								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
+-		if (ret)					\
+-			memset(ret, 0, THREAD_SIZE);		\
+-		ret;						\
+-	})
+-#else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
+-#endif
+-
+-#define free_thread_info(info)	kfree(info)
+-
+ #else /* !__ASSEMBLY__ */
+ 
+ /* how to get the thread information struct from ASM */
+diff -puN include/asm-ia64/thread_info.h~unify-alloc-thread-info include/asm-ia64/thread_info.h
+diff -puN include/asm-m32r/thread_info.h~unify-alloc-thread-info include/asm-m32r/thread_info.h
+--- clean/include/asm-m32r/thread_info.h~unify-alloc-thread-info	2006-08-23 15:44:38.000000000 -0700
++++ clean-dave/include/asm-m32r/thread_info.h	2006-08-23 15:44:51.000000000 -0700
+@@ -94,23 +94,6 @@ static inline struct thread_info *curren
+ 	return ti;
+ }
+ 
+-/* thread information allocation */
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-#define alloc_thread_info(tsk)					\
+-	({							\
+-		struct thread_info *ret;			\
+-	 							\
+-	 	ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
+-	 	if (ret)					\
+-	 		memset(ret, 0, THREAD_SIZE);		\
+-	 	ret;						\
+-	 })
+-#else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
+-#endif
+-
+-#define free_thread_info(info) kfree(info)
+-
+ #define TI_FLAG_FAULT_CODE_SHIFT	28
+ 
+ static inline void set_thread_fault_code(unsigned int val)
+diff -puN include/asm-m68k/thread_info.h~unify-alloc-thread-info include/asm-m68k/thread_info.h
+--- clean/include/asm-m68k/thread_info.h~unify-alloc-thread-info	2006-08-23 15:44:52.000000000 -0700
++++ clean-dave/include/asm-m68k/thread_info.h	2006-08-23 15:45:32.000000000 -0700
+@@ -24,14 +24,7 @@ struct thread_info {
+ 	},					\
+ }
+ 
+-/* THREAD_SIZE should be 8k, so handle differently for 4k and 8k machines */
+-#if PAGE_SHIFT == 13 /* 8k machines */
+-#define alloc_thread_info(tsk)   ((struct thread_info *)__get_free_pages(GFP_KERNEL,0))
+-#define free_thread_info(ti)  free_pages((unsigned long)(ti),0)
+-#else /* otherwise assume 4k pages */
+-#define alloc_thread_info(tsk)   ((struct thread_info *)__get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
+-#endif /* PAGE_SHIFT == 13 */
++#define THREAD_SHIFT	1
+ 
+ #define init_thread_info	(init_task.thread.info)
+ #define init_stack		(init_thread_union.stack)
+diff -puN include/asm-powerpc/thread_info.h~unify-alloc-thread-info include/asm-powerpc/thread_info.h
+--- clean/include/asm-powerpc/thread_info.h~unify-alloc-thread-info	2006-08-07 12:21:11.000000000 -0700
++++ clean-dave/include/asm-powerpc/thread_info.h	2006-08-23 15:48:09.000000000 -0700
+@@ -62,33 +62,6 @@ struct thread_info {
+ #define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
+ 
+-/* thread information allocation */
+-
+-#if THREAD_SHIFT >= PAGE_SHIFT
+-
+-#define THREAD_ORDER	(THREAD_SHIFT - PAGE_SHIFT)
+-
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-#define alloc_thread_info(tsk)	\
+-	((struct thread_info *)__get_free_pages(GFP_KERNEL | \
+-		__GFP_ZERO, THREAD_ORDER))
+-#else
+-#define alloc_thread_info(tsk)	\
+-	((struct thread_info *)__get_free_pages(GFP_KERNEL, THREAD_ORDER))
+-#endif
+-#define free_thread_info(ti)	free_pages((unsigned long)ti, THREAD_ORDER)
+-
+-#else /* THREAD_SHIFT < PAGE_SHIFT */
+-
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-#define alloc_thread_info(tsk)	kzalloc(THREAD_SIZE, GFP_KERNEL)
+-#else
+-#define alloc_thread_info(tsk)	kmalloc(THREAD_SIZE, GFP_KERNEL)
+-#endif
+-#define free_thread_info(ti)	kfree(ti)
+-
+-#endif /* THREAD_SHIFT < PAGE_SHIFT */
+-
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
+ {
+diff -puN /dev/null include/linux/thread_alloc.h
+--- /dev/null	2005-03-30 22:36:15.000000000 -0800
++++ clean-dave/include/linux/thread_alloc.h	2006-08-23 16:00:41.000000000 -0700
+@@ -0,0 +1,42 @@
++#ifndef _LINUX_THREAD_ALLOC
++#define _LINUX_THREAD_ALLOC
++
++#ifndef THREAD_SHIFT
++#define THREAD_SHIFT PAGE_SHIFT
++#endif
++#ifndef THREAD_ORDER
++#define THREAD_ORDER    (THREAD_SHIFT - PAGE_SHIFT)
++#endif
++
++struct thread_info;
++struct task;
++
++#if THREAD_SHIFT >= PAGE_SHIFT
++static inline struct thread_info *alloc_thread_info(struct task_struct *tsk)
++{
++	gfp_t flags = GFP_KERNEL;
++#ifdef CONFIG_DEBUG_STACK_USAGE
++	flags |= __GFP_ZERO;
++#endif
++	return (struct thread_info *)__get_free_pages(flags, THREAD_ORDER);
++}
++static inline void free_thread_info(struct thread_info *ti)
++{
++	free_pages((unsigned long)ti, THREAD_ORDER);
++}
++#else /* THREAD_SHIFT < PAGE_SHIFT */
++static inline struct thread_info *alloc_thread_info(struct task_struct *tsk)
++{
++#ifdef CONFIG_DEBUG_STACK_USAGE
++	return kzalloc(THREAD_SIZE, GFP_KERNEL);
++#else
++	return kmalloc(THREAD_SIZE, GFP_KERNEL);
++#endif
++}
++static inline void free_thread_info(struct thread_info *ti)
++{
++	kfree(ti);
++}
++#endif /* THREAD_SHIFT < PAGE_SHIFT */
++
++#endif /* _LINUX_THREAD_ALLOC */
+diff -puN include/linux/thread_info.h~unify-alloc-thread-info include/linux/thread_info.h
+diff -puN kernel/fork.c~unify-alloc-thread-info kernel/fork.c
+--- clean/kernel/fork.c~unify-alloc-thread-info	2006-08-23 15:19:28.000000000 -0700
++++ clean-dave/kernel/fork.c	2006-08-23 15:47:35.000000000 -0700
+@@ -45,6 +45,7 @@
+ #include <linux/cn_proc.h>
+ #include <linux/delayacct.h>
+ #include <linux/taskstats_kern.h>
++#include <linux/thread_alloc.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+_
 
 

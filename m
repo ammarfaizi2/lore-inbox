@@ -1,229 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWHWLkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWHWLtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWHWLkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWHWLkX
+	id S932419AbWHWLtT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWHWLtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:40:23 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:39257 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932385AbWHWLkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:40:20 -0400
-Date: Wed, 23 Aug 2006 20:40:19 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [RFC PATCH] prevent from killing OOM disabled task in do_page_fault()
-Message-ID: <20060823114019.GB7834@miraclelinux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 23 Aug 2006 07:49:19 -0400
+Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:34790 "EHLO
+	webmail.xensource.com") by vger.kernel.org with ESMTP
+	id S932419AbWHWLtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 07:49:18 -0400
+Subject: [PATCH] Translate asm version of ELFNOTE macro into preprocessor
+	macro
+From: Ian Campbell <Ian.Campbell@XenSource.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Virtualization <virtualization@lists.osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 12:49:21 +0100
+Message-Id: <1156333761.12949.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Aug 2006 11:51:05.0984 (UTC) FILETIME=[6A7B4000:01C6C6AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The process protected from oom-killer may be killed when do_page_fault()
-runs out of memory. This patch skips those processes as well as init task.
+Hi,
 
-I couldn't touch several architectures (arm cris frv parisc sparc sparc64).
-Because there is no survival path in that case for now.
+I've come across some problems with the assembly version of the ELFNOTE
+macro currently in -mm. (in
+x86-put-note-sections-into-a-pt_note-segment-in-vmlinux.patch)
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+The first is that older gas does not support :varargs in .macro
+definitions (in my testing 2.17 does while 2.15 does not, I don't know
+when it became supported). The Changes file says binutils >= 2.12 so I
+think we need to avoid using it. There are no other uses in mainline or
+-mm. Old gas appears to just ignore it so you get "too many arguments"
+type errors.
 
- arch/alpha/mm/fault.c   |    2 +-
- arch/arm26/mm/fault.c   |    2 +-
- arch/i386/mm/fault.c    |    2 +-
- arch/ia64/mm/fault.c    |    2 +-
- arch/m32r/mm/fault.c    |    2 +-
- arch/m68k/mm/fault.c    |    2 +-
- arch/mips/mm/fault.c    |    2 +-
- arch/powerpc/mm/fault.c |    2 +-
- arch/ppc/mm/fault.c     |    2 +-
- arch/s390/mm/fault.c    |    2 +-
- arch/sh/mm/fault.c      |    2 +-
- arch/sh64/mm/fault.c    |    2 +-
- arch/x86_64/mm/fault.c  |    2 +-
- arch/xtensa/mm/fault.c  |    2 +-
- 14 files changed, 14 insertions(+), 14 deletions(-)
+Secondly it seems that passing strings as arguments to assembler macros
+is broken without varargs. It looks like they get unquoted or each
+character is treated as a separate argument or something and this causes
+all manner of grief. I think this is because of the use of -traditional
+when compiling assembly files.
 
-Index: work-failmalloc/arch/alpha/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/alpha/mm/fault.c
-+++ work-failmalloc/arch/alpha/mm/fault.c
-@@ -193,7 +193,7 @@ do_page_fault(unsigned long address, uns
- 	/* We ran out of memory, or some other thing happened to us that
- 	   made us unable to handle the page fault gracefully.  */
-  out_of_memory:
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/arm26/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/arm26/mm/fault.c
-+++ work-failmalloc/arch/arm26/mm/fault.c
-@@ -185,7 +185,7 @@ survive:
- 	}
- 
- 	fault = -3; /* out of memory */
--	if (tsk->pid != 1)
-+	if (tsk->pid != 1 && tsk->oomkilladj != OOM_DISABLE)
- 		goto out;
- 
- 	/*
-Index: work-failmalloc/arch/i386/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/i386/mm/fault.c
-+++ work-failmalloc/arch/i386/mm/fault.c
-@@ -598,7 +598,7 @@ no_context:
+Therefore I have translated the assembler macro into a pre-processor
+macro.
+
+I added the desctype as a separate argument instead of including it with
+the descdata as the previous version did since -traditional means the
+ELFNOTE definition after the #else needs to have the same number of
+arguments (I think so anyway, the -traditional CPP semantics are pretty
+fscking strange!).
+
+With this patch I am able to define elfnotes in assembly like this with
+both old and new assemblers.
+
+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz, "linux")	
+	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_VERSION,  .asciz, "2.6")
+	ELFNOTE(Xen, XEN_ELFNOTE_XEN_VERSION,    .asciz, "xen-3.0")
+	ELFNOTE(Xen, XEN_ELFNOTE_VIRT_BASE,      .long,  __PAGE_OFFSET)
+
+Which seems reasonable enough.
+
+Signed-off-by: Ian Campbell <ian.campbell@xensource.com>
+
+diff -r 4b7cd997c08f include/linux/elfnote.h
+--- a/include/linux/elfnote.h	Wed Aug 23 11:48:46 2006 +0100
++++ b/include/linux/elfnote.h	Wed Aug 23 12:44:27 2006 +0100
+@@ -31,22 +31,24 @@
+ /*
+  * Generate a structure with the same shape as Elf{32,64}_Nhdr (which
+  * turn out to be the same size and shape), followed by the name and
+- * desc data with appropriate padding.  The 'desc' argument includes
+- * the assembler pseudo op defining the type of the data: .asciz
+- * "hello, world"
++ * desc data with appropriate padding.  The 'desctype' argument is the
++ * assembler pseudo op defining the type of the data e.g. .asciz while
++ * 'descdata' is the data itself e.g.  "hello, world".
++ *
++ * e.g. ELFNOTE(XYZCo, 42, .asciz, "forty-two")
++ *      ELFNOTE(XYZCo, 12, .long, 0xdeadbeef)
   */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (tsk->pid == 1) {
-+	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/ia64/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/ia64/mm/fault.c
-+++ work-failmalloc/arch/ia64/mm/fault.c
-@@ -278,7 +278,7 @@ ia64_do_page_fault (unsigned long addres
- 
-   out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/m32r/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/m32r/mm/fault.c
-+++ work-failmalloc/arch/m32r/mm/fault.c
-@@ -299,7 +299,7 @@ no_context:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (tsk->pid == 1) {
-+	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/m68k/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/m68k/mm/fault.c
-+++ work-failmalloc/arch/m68k/mm/fault.c
-@@ -181,7 +181,7 @@ good_area:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/mips/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/mips/mm/fault.c
-+++ work-failmalloc/arch/mips/mm/fault.c
-@@ -171,7 +171,7 @@ no_context:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (tsk->pid == 1) {
-+	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/powerpc/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/powerpc/mm/fault.c
-+++ work-failmalloc/arch/powerpc/mm/fault.c
-@@ -386,7 +386,7 @@ bad_area_nosemaphore:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/ppc/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/ppc/mm/fault.c
-+++ work-failmalloc/arch/ppc/mm/fault.c
-@@ -291,7 +291,7 @@ bad_area:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/s390/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/s390/mm/fault.c
-+++ work-failmalloc/arch/s390/mm/fault.c
-@@ -315,7 +315,7 @@ no_context:
- */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (tsk->pid == 1) {
-+	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		goto survive;
- 	}
-Index: work-failmalloc/arch/sh/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/sh/mm/fault.c
-+++ work-failmalloc/arch/sh/mm/fault.c
-@@ -160,7 +160,7 @@ no_context:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/sh64/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/sh64/mm/fault.c
-+++ work-failmalloc/arch/sh64/mm/fault.c
-@@ -326,7 +326,7 @@ out_of_memory:
- 	}
- 	printk("fault:Out of memory\n");
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
-Index: work-failmalloc/arch/x86_64/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/x86_64/mm/fault.c
-+++ work-failmalloc/arch/x86_64/mm/fault.c
-@@ -586,7 +586,7 @@ no_context:
-  */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) { 
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		goto again;
- 	}
-Index: work-failmalloc/arch/xtensa/mm/fault.c
-===================================================================
---- work-failmalloc.orig/arch/xtensa/mm/fault.c
-+++ work-failmalloc/arch/xtensa/mm/fault.c
-@@ -144,7 +144,7 @@ bad_area:
- 	 */
- out_of_memory:
- 	up_read(&mm->mmap_sem);
--	if (current->pid == 1) {
-+	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
- 		yield();
- 		down_read(&mm->mmap_sem);
- 		goto survive;
+-.macro ELFNOTE name type desc:vararg
+-.pushsection ".note.\name"
+-  .align 4
+-  .long 2f - 1f			/* namesz */
+-  .long 4f - 3f			/* descsz */
+-  .long \type
+-1:.asciz "\name"
+-2:.align 4
+-3:\desc
+-4:.align 4
+-.popsection
+-.endm
++#define ELFNOTE(name, type, desctype, descdata)	\
++.pushsection .note.name			;	\
++  .align 4				;	\
++  .long 2f - 1f		/* namesz */	;	\
++  .long 4f - 3f		/* descsz */	;	\
++  .long type				;	\
++1:.asciz "name"				;	\
++2:.align 4				;	\
++3:desctype descdata			;	\
++4:.align 4				;	\
++.popsection				;
+ #else	/* !__ASSEMBLER__ */
+ #include <linux/elf.h>
+ /*
+
+

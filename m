@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWHWUU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWHWUf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbWHWUU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 16:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWHWUU6
+	id S965191AbWHWUf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 16:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWHWUf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 16:20:58 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:22978 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S965162AbWHWUU6 (ORCPT
+	Wed, 23 Aug 2006 16:35:56 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:39115 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965189AbWHWUfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 16:20:58 -0400
-Date: Wed, 23 Aug 2006 13:04:42 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
-Message-ID: <20060823200442.GE2084@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com> <20060823152831.GC32725@infradead.org> <20060823155715.GA5204@martell.zuzino.mipt.ru> <20060823160458.GA17712@infradead.org> <20060823115857.89f8d47b.akpm@osdl.org>
+	Wed, 23 Aug 2006 16:35:55 -0400
+Subject: Re: [PATCH 3/7] SLIM main patch
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060823192733.GG28594@kvack.org>
+References: <1156359937.6720.66.camel@localhost.localdomain>
+	 <20060823192733.GG28594@kvack.org>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 13:35:56 -0700
+Message-Id: <1156365357.6720.87.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823115857.89f8d47b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-On Wed, Aug 23, 2006 at 11:58:57AM -0700, Andrew Morton wrote:
-> On Wed, 23 Aug 2006 17:04:58 +0100
-> Christoph Hellwig <hch@infradead.org> wrote:
+On Wed, 2006-08-23 at 15:27 -0400, Benjamin LaHaise wrote:
+> On Wed, Aug 23, 2006 at 12:05:37PM -0700, Kylene Jo Hall wrote:
+> > +/* 
+> > + * Called with current->files->file_lock. There is not a great lock to grab
+> > + * for demotion of this type.  The only place f_mode is changed after install
+> > + * is in mark_files_ro in the filesystem code.  That function is also changing
+> > + * taking away write rights so even if we race the outcome is the same.
+> > + */
+> > +static inline void do_revoke_file_wperm(struct file *file,
+> > +					struct slm_file_xattr *cur_level)
+> > +{
+> > +	struct inode *inode;
+> > +	struct slm_isec_data *isec;
+> > +
+> > +	inode = file->f_dentry->d_inode;
+> > +	if (!S_ISREG(inode->i_mode) || !(file->f_mode && FMODE_WRITE))
+> > +		return;
+> > +
+> > +	isec = inode->i_security;
+> > +	spin_lock(&isec->lock);
+> > +	if (is_lower_integrity(cur_level, &isec->level))
+> > +		file->f_mode &= ~FMODE_WRITE;
+> > +	spin_unlock(&isec->lock);
+> > +}
 > 
-> > > Padding with zeros makes it even more useful:
-> > > 
-> > > 	[PATCH 00/17]
-> > > 	[PATCH 01/17]
-> > > 		...
-> > > 	[PATCH 17/17]
-> > 
-> > To be honest I utterly hate that convention
+> This function does not do what you claim or hope it is supposed to do.  
+> Looking at the races (you do nothing to shoot down writes that are in 
+> progress) present, this does not instill confidence in the rest of the 
+> code (as always seems to be the case with new security frameworks or 
+> patches).  Cheers,
 > 
-> It's so they'll correctly alphasort at the recipient's end.
+This function is called in the process of authorizing the current
+process to do something which would remove its right to write to the
+given file. So it hasn't done anything at the lower integrity level yet
+and therefore if a write gets through it can't possibly be of low
+integrity data.
 
-That makes sense, I'll fix that in my next patch.
+Example: The current process is running at the USER level and writing to
+a USER file in /home/user/.  The process then attempts to read an
+UNTRUSTED file.  The current process will become UNTRUSTED and the read
+allowed to proceed but first write access to all USER files is revoked
+including the ones it has open.
 
--- 
+Thanks,
+Kylie 
 
--Stephane
+> 		-ben
+

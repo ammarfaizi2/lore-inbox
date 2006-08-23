@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWHWJjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWHWJls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWHWJjK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWHWJjK
+	id S1751500AbWHWJls (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWHWJls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:39:10 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:3374 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751495AbWHWJjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:39:07 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-Subject: [2.6.19 PATCH 6/7] ehea: eHEA Makefile
-Date: Wed, 23 Aug 2006 10:58:52 +0200
-User-Agent: KMail/1.8.2
+	Wed, 23 Aug 2006 05:41:48 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:24019 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751500AbWHWJlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:41:47 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] paravirt.h
+Date: Wed, 23 Aug 2006 11:41:37 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1155202505.18420.5.camel@localhost.localdomain> <200608231120.42679.ak@suse.de> <44EC21A3.1040905@vmware.com>
+In-Reply-To: <44EC21A3.1040905@vmware.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-To: netdev <netdev@vger.kernel.org>
-Cc: Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608231058.52180.ossthema@de.ibm.com>
+Content-Disposition: inline
+Message-Id: <200608231141.37284.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com> 
+On Wednesday 23 August 2006 11:36, Zachary Amsden wrote:
+> Andi Kleen wrote:
+> >> I need to look at the kprobes code in more depth to answer completely.  
+> >> But in general, there could be a problem if DRs are set to fire on any 
+> >> EIP 
+> >>     
+> >
+> > kprobes don't use DRs
+> 
+> Good to know.  But int3 breakpoints can still cause horrific breakage in 
+> the stop_machine code.  I don't know a good way to disallow it.
 
+Mark the functions as __kprobes
 
- drivers/net/ehea/Makefile |    7 +++++++
- 1 file changed, 7 insertions(+)
-
-
-
---- linux-2.6.18-rc4-git1-orig/drivers/net/ehea/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ kernel/drivers/net/ehea/Makefile	2006-08-23 02:00:58.124819734 -0700
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the eHEA ethernet device driver for IBM eServer System p
-+#
-+
-+ehea-y = ehea_main.o ehea_phyp.o ehea_qmr.o ehea_ethtool.o ehea_phyp.o
-+obj-$(CONFIG_EHEA) += ehea.o
-+
+-Andi

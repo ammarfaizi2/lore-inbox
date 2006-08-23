@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWHWKJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWHWKTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWHWKJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 06:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWHWKJ2
+	id S964814AbWHWKTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 06:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWHWKTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 06:09:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:40921 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964800AbWHWKJ1 (ORCPT
+	Wed, 23 Aug 2006 06:19:47 -0400
+Received: from ns2.suse.de ([195.135.220.15]:19675 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964814AbWHWKTq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 06:09:27 -0400
+	Wed, 23 Aug 2006 06:19:46 -0400
 To: Stephane Eranian <eranian@frankl.hpl.hp.com>
 Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 17/18] 2.6.17.9 perfmon2 patch for review: modified x86_64 files
-References: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
+Subject: Re: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
+References: <200608230806.k7N869KD000552@frankl.hpl.hp.com>
 From: Andi Kleen <ak@suse.de>
-Date: 23 Aug 2006 12:09:25 +0200
-In-Reply-To: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
-Message-ID: <p73k64z7oh6.fsf@verdi.suse.de>
+Date: 23 Aug 2006 12:19:44 +0200
+In-Reply-To: <200608230806.k7N869KD000552@frankl.hpl.hp.com>
+Message-ID: <p73fyfn7nzz.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,129 +25,119 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
 
-In general this stuff would be much easier to review if you
-really split it into logical pieces: this means not modified/new,
-but one patch doing one thing. Then the hooks could be reviewed
-together with the code.
 
-> @@ -934,6 +935,7 @@ void setup_threshold_lvt(unsigned long l
->  void smp_local_timer_interrupt(struct pt_regs *regs)
->  {
->  	profile_tick(CPU_PROFILING, regs);
-> + 	pfm_handle_switch_timeout();
+Earlier comment about logical pieces applies too.
 
-It is still unclear why you can't use an ordinary add_timer() ?
+> 
+> --- linux-2.6.17.9.base/arch/x86_64/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.17.9/arch/x86_64/perfmon/Kconfig	2006-08-21 03:37:46.000000000 -0700
+> @@ -0,0 +1,39 @@
+> +menu "Hardware Performance Monitoring support"
+> +config PERFMON
+> + 	bool "Perfmon2 performance monitoring interface"
+> +	select X86_LOCAL_APIC
+> +	default y
 
->  #include <asm/atomic.h>
-> @@ -589,6 +590,8 @@ void __init init_IRQ(void)
->  	/* IPI vectors for APIC spurious and error interrupts */
->  	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
->  	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
+No default y please unless the kernel doesn't boot without it.
+
+> + 	help
+> +  	Enables the perfmon2 interface to access the hardware
+> +	performance counters. See <http://perfmon2.sf.net/> for
+> + 	more details. If you're unsure, say Y.
 > +
-> + 	pfm_vector_init();
+> +config X86_64_PERFMON_AMD64
+> +	tristate "Support 64-bit mode AMD64 hardware performance counters"
+> +	depends on PERFMON
+> +	default m
 
-I think I would prefer those to be expanded here so it's all in one place.
+No default m please.  If someone just presses return in make oldconfig
+with a new kernel they don't want all kinds of new random optional drivers.
 
->  		put_cpu();
->  	}
-> +	pfm_exit_thread(me);
->  }
->  
->  void flush_thread(void)
-> @@ -462,6 +464,8 @@ int copy_thread(int nr, unsigned long cl
->  	asm("mov %%es,%0" : "=m" (p->thread.es));
->  	asm("mov %%ds,%0" : "=m" (p->thread.ds));
->  
-> +	pfm_copy_thread(p);
+I think I would prefer to call it _K8, because in theory new AMD CPUs
+might have difference performance counters.
+
+> +	help
+> +	Enables support for 64-bit mode AMD64 hardware performance
+> +	counters. Does not work with Intel EM64T processors.
+> +	If unsure, say m.
+
+I would drop the if unsure ... too
+
 > +
+> +config X86_64_PERFMON_EM64T
+> +	tristate "Support Intel EM64T hardware performance counters"
+> +	depends on PERFMON
+> +	default m
+> +	help
+> +	Enables support for the Intel EM64T hardware performance
+> +	counters. Does not work with AMD64 processors.
+> +	If unsure, say m.
 
-AFAIK there was some work in -mm* for generic notifiers for exit/copy hooks. Can those
-be used?
+Does that include the Core 2 support that you had in the i386 patch? 
 
-
->  	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
->  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
->  		if (!p->thread.io_bitmap_ptr) {
-> @@ -532,6 +536,10 @@ static noinline void __switch_to_xtra(st
->  		 */
->  		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
->  	}
-> +
-> +	if (test_tsk_thread_flag(next_p, TIF_PERFMON)
-> +	    || test_tsk_thread_flag(prev_p, TIF_PERFMON))
-> +		pfm_ctxsw(prev_p, next_p);
->  }
->  
->  /*
-> @@ -620,13 +628,12 @@ __switch_to(struct task_struct *prev_p, 
->  	unlazy_fpu(prev_p);
->  	write_pda(kernelstack,
->  		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
-> -
-> -	/*
-> -	 * Now maybe reload the debug registers and handle I/O bitmaps
-> -	 */
-> -	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
-> -	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-> -		__switch_to_xtra(prev_p, next_p, tss);
-> +  	/*
-> + 	 * Now maybe reload the debug registers and handle I/O bitmaps
-> +  	 */
-> + 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
-> + 	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW)))
-> + 		__switch_to_xtra(prev_p, next_p, tss);
-
-
-This should be a separate patch for once (creating _TIF_WORK_CTXSW)
-
->  
->  	return prev_p;
->  }
-> diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/signal.c linux-2.6.17.9/arch/x86_64/kernel/signal.c
-> --- linux-2.6.17.9.base/arch/x86_64/kernel/signal.c	2006-08-18 09:26:24.000000000 -0700
-> +++ linux-2.6.17.9/arch/x86_64/kernel/signal.c	2006-08-21 03:37:46.000000000 -0700
-> @@ -24,6 +24,7 @@
->  #include <linux/stddef.h>
->  #include <linux/personality.h>
->  #include <linux/compiler.h>
-> +#include <linux/perfmon.h>
->  #include <asm/ucontext.h>
->  #include <asm/uaccess.h>
->  #include <asm/i387.h>
-> @@ -493,6 +494,8 @@ void do_notify_resume(struct pt_regs *re
->  		clear_thread_flag(TIF_SINGLESTEP);
->  	}
->  
-> +	pfm_handle_work(current);
-
-At least the if () should be expanded, and most likely it wants
-merging with other flags too similar to the context switch (if (any work) { check which work })
-In separate patches again please.
+In general I would prefer to call it P4, not EM64T which is just
+a generic architecture name and at least on P4 performance counters
+are not really architected yet.
 
 
 > +
->  	/* deal with pending signal delivery */
->  	if (thread_info_flags & _TIF_SIGPENDING)
->  		do_signal(regs,oldset);
-> Only in linux-2.6.17.9/arch/x86_64: perfmon
-> diff -urp linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h linux-2.6.17.9/include/asm-x86_64/hw_irq.h
-> --- linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h	2006-08-18 09:26:24.000000000 -0700
-> +++ linux-2.6.17.9/include/asm-x86_64/hw_irq.h	2006-08-21 03:37:46.000000000 -0700
-> @@ -67,6 +67,7 @@ struct hw_interrupt_type;
->   * sources per level' errata.
->   */
->  #define LOCAL_TIMER_VECTOR	0xef
-> +#define LOCAL_PERFMON_VECTOR	0xee
->  
->  /*
->   * First APIC vector available to drivers: (vectors 0x30-0xee)
-> @@ -74,7 +75,7 @@ struct hw_interrupt_type;
->   * levels. (0x80 is the syscall vector)
->   */
->  #define FIRST_DEVICE_VECTOR	0x31
-> -#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
-> +#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
+> +	if (cpu_data->x86 != 15) {
+> +		PFM_INFO("unsupported family=%d", cpu_data->x86);
+> +		return -1;
+> +	}
+> +
+> +	if (cpu_data->x86_vendor != X86_VENDOR_AMD) {
+> +		PFM_INFO("not an AMD processor");
+> +		return -1;
+> +	}
 
-We still had one up free iirc so there is no need to move the system vectors.
+Doing the checks the other way round would be more logical.
+
+> + *
+> + * This file implements the PEBS sampling format for Intel
+> + * EM64T Intel Pentium 4/Xeon processors. It does not work
+> + * with Intel 32-bit P4/Xeon processors.
+
+Why not anyways? The registers are basically the same. What's so different
+in 64bit? oprofile shares that code too.
+
+The file seems a bit underdocumented. At least some brief description
+what PEBS is and maybe at least one sentence for each function?
+
+> + */
+> +#ifndef __PERFMON_EM64T_PEBS_SMPL_H__
+> +#define __PERFMON_EM64T_PEBS_SMPL_H__ 1
+> +
+> +#define PFM_EM64T_PEBS_SMPL_UUID { \
+> +	0x36, 0xbe, 0x97, 0x94, 0x1f, 0xbf, 0x41, 0xdf,\
+> +	0xb4, 0x63, 0x10, 0x62, 0xeb, 0x72, 0x9b, 0xad}
+
+What does it need the UUID for?
+
+> +
+> +/*
+> + * format specific parameters (passed at context creation)
+> + *
+> + * intr_thres: index from start of buffer of entry where the
+> + * PMU interrupt must be triggered. It must be several samples
+> + * short of the end of the buffer.
+> + */
+> +struct pfm_em64t_pebs_smpl_arg {
+> +	size_t	buf_size;	/* size of the buffer in bytes */
+> +	size_t	intr_thres;	/* index of interrupt threshold entry */
+> +	u32	flags;		/* buffer specific flags */
+> +	u64	cnt_reset;	/* counter reset value */
+> +	u32	res1;		/* for future use */
+> +	u64	reserved[2];	/* for future use */
+
+I hope you double checked the alignment comes up everywhere correctly.
+u64 alignment is different on the 32bit and 64bit ABIs. That can screw
+
+Normally it's safer to use aligned_u64 on files that can be used on 
+32bit too, because that avoids that problem.
+
+
+Where is the actual code that implements the code that you hooked 
+into arch/x86_64/*? I must have missed that.
 
 -Andi

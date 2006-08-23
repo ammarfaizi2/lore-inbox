@@ -1,84 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWHWIb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWHWIbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWHWIb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWHWIb3
+	id S964773AbWHWIbE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWHWIbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:31:29 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:26121 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964777AbWHWIb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:31:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=l6qCzBDpfF7iVU3vaeOQhIqtb4Ddr7y9boI/B6RbaLJWIIxgifGRh1OdtaPR37bNqh2Kfm+mdqt7kZ0u7diikJBU649rWv9bVWo/rmM6j94gMBSAem5js4hHOT1PfdyrQPPR84cIbwuYj5CmJsJKeJ+9bNEGsB8HfPX/iXTmj+E=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Milan Hauth <milahu@googlemail.com>
-Subject: Re: Specify devices manually in exotic environment
-Date: Wed, 23 Aug 2006 10:31:06 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <op.teo9mqjlepq0rv@localhost>
-In-Reply-To: <op.teo9mqjlepq0rv@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 23 Aug 2006 04:31:04 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:2017 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964773AbWHWIbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 04:31:01 -0400
+Date: Wed, 23 Aug 2006 17:33:23 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+Message-Id: <20060823173323.b9cf1509.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+	<m164gkr9p3.fsf@ebiederm.dsl.xmission.com>
+	<20060823072256.7d931f8b.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608231031.07024.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 August 2006 21:26, Milan Hauth wrote:
-> Hello there.
+On Wed, 23 Aug 2006 00:11:17 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
 > 
-> Got a quite exotic environment here -- a Compaq Evo T20 thin client, which  
-> I want to run Linux on.
+> > On Tue, 22 Aug 2006 10:56:08 -0600
+> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+> The core problem is not when there is a single user.  The problem is
+> that no matter how large the system gets we have a single lock.  So it
+> gets increasingly contended.
+
+> I almost removed the tasklist_lock from all read paths.  But as it
+> happens sending a signal to a process group is an atomic operation
+> with respect to fork so that path has to take the lock, or else
+> we get places where "kill -9 -pgrp" fails to kill every process in
+> the process group.  Which is even worse.
 > 
-> But I'm not satisfied with a completely thin client, meaning that all the  
-> files are located on the server. What I want is the basic system to be  
-> located on the client, while the Unix System Resources, for example, are  
-> mounted from the server, since they're too big for 32MB of Flash memory.
+Hmm, maybe tasklist_lock covers too wide area.
+we can add some other (RCU) lock just for linked list from init_task.tasks.
+And pid_alive() will help people who want to access not stale task.
+
+Now, job in fork() is
+- set cpu allowed 
+- set parent
+- attach pgid, sid
+- add to linked list from init_task
+- attach pid
+
+Then, adding for_each_alive_process() and new (RCU) lock for
+linked_list_from_init_task_lock (divide lock) and change job as
+
+- set cpu allowed
+- set parent
+- attach pgid, sid
+- attach pid
+new_list_writelock()
+- add to linked list
+new_list_writeunlock()
+
+may reduce contention. for_each_alive_process() will do
+
+rcu_readlock()
+for (task =....)
+	if (!pid_alive(task))
+		continue;
+rcu_readunlock();
+
+Is this bad ?
+
+> >> In addition you only solves half the readdir problems.  You don't solve
+> >> the seek problem which is returning to an offset you had been to
+> >> before.  A relatively rare case but...
+> >> 
+> > Ah, I should add lseek handler for proc root. Okay.
 > 
-> The problem I'm facing at the moment is the T20's BIOS, which doesn't seem  
-> to pass the device information correctly to the Kernel.
-
-More info? What information is not passed?
-
-> GRUB (v0.97) does   
-> work with a workaround, which can be found in the document [1] I followed  
-> to 'teach' Linux to the T20.
+> Hmm.  Possibly.  Mostly what I was thinking is that a token in the
+> list simply cannot solve the problem of a guaranteeing lseek to a
+> previous position works.  I really haven't looked closely on
+> how you handle that case.
 > 
-> I already tried to use /proc/sys/kernel/real-root-dev, but setting the  
-> root device to 0x80 (as already specified for GRUB) or 0x81 (1st partition  
-> of 0x80) did not seem to help.
+I'll try some. But lseek on directory, which is modified at any moment, cannot
+work stable anyway.
+
+> > My patch's point is just using task_list if we can, because it exists for
+> > keeping
+> > all tasks(tgids).
 > 
-> So, did I forget anything when building my Kernel? Or is it just another  
-> trick, I don't know yet?
+> One of the reasons I have an issue with it, is that with the
+> impending introduction of multiple pid spaces is that the task list
+> really isn't what we want to traverse.
 > 
-> Hopefully someone here can help me on this one.. have been 'working' on my  
-> cute T20 for several months now.. :-\
+Yes, scanning the whole space is not good.
+I think this can be handlerd by task_lists per pid-space.
+Is pidmap is maintained per pid-space ?
 
-I just pass two parameters to kernel on the commandline,
-then I create needed node (in initrd):
+-Kame
 
-mknod /dev/root b "$ROOTMAJ" "$ROOTMIN"
-
-And then (still in initrd):
-
-mount -n -o ro /dev/root /new_root
-mount -n -t ramfs none /new_root/dev
-cp -dp /dev/console /dev/null /new_root/dev
-cd /new_root
-# making sure we dont keep /dev busy
-exec <dev/console >dev/console 2>&1
-# proc/ in new root is used here as a temp mountpoint for old root
-pivot_root . proc
-exec chroot . sh -c 'umount -n /proc; exec /bin/env - /sbin/init'
-
-and then proceed as usual (/dev will be populated by udev later)
-
-For this to work you only need to know major/minor#.
---
-vda

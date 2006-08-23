@@ -1,871 +1,998 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbWHWVbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWHWVb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbWHWVbf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 17:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965215AbWHWVbf
+	id S965213AbWHWVb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 17:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbWHWVb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 17:31:35 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5855 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965214AbWHWVbd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 17:31:33 -0400
-Date: Wed, 23 Aug 2006 14:31:30 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.17.11
-Message-ID: <20060823213130.GB12308@kroah.com>
-References: <20060823213108.GA12308@kroah.com>
+	Wed, 23 Aug 2006 17:31:26 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:48771 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965213AbWHWVbY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 17:31:24 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823213108.GA12308@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17644.51521.322844.430620@tut.ibm.com>
+Date: Wed, 23 Aug 2006 16:31:45 -0500
+To: akpm@osdl.org
+Cc: randy.dunlap@oracle.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation update for relay interface
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index ed01727..a261e36 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 17
--EXTRAVERSION = .10
-+EXTRAVERSION = .11
- NAME=Crazed Snow-Weasel
- 
- # *DOCUMENTATION*
-diff --git a/arch/ia64/kernel/sys_ia64.c b/arch/ia64/kernel/sys_ia64.c
-index c7b943f..3edefc8 100644
---- a/arch/ia64/kernel/sys_ia64.c
-+++ b/arch/ia64/kernel/sys_ia64.c
-@@ -164,10 +164,25 @@ sys_pipe (void)
- 	return retval;
- }
- 
-+int ia64_map_check_rgn(unsigned long addr, unsigned long len,
-+		unsigned long flags)
-+{
-+	unsigned long roff;
+From: Tom Zanussi <zanussi@us.ibm.com>
+
+Hi,
+
+Here's updated documentation for the relay interface, rewritten to
+match the relayfs->relay changes.  It also moves relayfs.txt to
+relay.txt in the process.
+
+It includes the changes to relayfs.txt previously posted by Randy
+Dunlap, thanks for those.
+
+The relay-apps examples have also been updated to match, and can be
+found on the sourceforge relayfs website.
+
+Tom
+
+Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
+
+ Documentation/filesystems/relayfs.txt |  442 -------------------------------
+ b/Documentation/filesystems/00-INDEX  |    4 
+ b/Documentation/filesystems/relay.txt |  479 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 481 insertions(+), 444 deletions(-)
+
+diff --git a/Documentation/filesystems/00-INDEX b/Documentation/filesystems/00-INDEX
+index 66fdc07..16dec61 100644
+--- a/Documentation/filesystems/00-INDEX
++++ b/Documentation/filesystems/00-INDEX
+@@ -62,8 +62,8 @@ ramfs-rootfs-initramfs.txt
+ 	- info on the 'in memory' filesystems ramfs, rootfs and initramfs.
+ reiser4.txt
+ 	- info on the Reiser4 filesystem based on dancing tree algorithms.
+-relayfs.txt
+-	- info on relayfs, for efficient streaming from kernel to user space.
++relay.txt
++	- info on relay, for efficient streaming from kernel to user space.
+ romfs.txt
+ 	- description of the ROMFS filesystem.
+ smbfs.txt
+diff --git a/Documentation/filesystems/relay.txt b/Documentation/filesystems/relay.txt
+new file mode 100644
+index 0000000..d6788da
+--- /dev/null
++++ b/Documentation/filesystems/relay.txt
+@@ -0,0 +1,479 @@
++relay interface (formerly relayfs)
++==================================
 +
-+	/*
-+	 * Don't permit mappings into unmapped space, the virtual page table
-+	 * of a region, or across a region boundary.  Note: RGN_MAP_LIMIT is
-+	 * equal to 2^n-PAGE_SIZE (for some integer n <= 61) and len > 0.
-+	 */
-+	roff = REGION_OFFSET(addr);
-+	if ((len > RGN_MAP_LIMIT) || (roff > (RGN_MAP_LIMIT - len)))
-+		return -EINVAL;
-+	return 0;
++The relay interface provides a means for kernel applications to
++efficiently log and transfer large quantities of data from the kernel
++to userspace via user-defined 'relay channels'.
++
++A 'relay channel' is a kernel->user data relay mechanism implemented
++as a set of per-cpu kernel buffers ('channel buffers'), each
++represented as a regular file ('relay file') in user space.  Kernel
++clients write into the channel buffers using efficient write
++functions; these automatically log into the current cpu's channel
++buffer.  User space applications mmap() or read() from the relay files
++and retrieve the data as it becomes available.  The relay files
++themselves are files created in a host filesystem, e.g. debugfs, and
++are associated with the channel buffers using the API described below.
++
++The format of the data logged into the channel buffers is completely
++up to the kernel client; the relay interface does however provide
++hooks which allow kernel clients to impose some structure on the
++buffer data.  The relay interface doesn't implement any form of data
++filtering - this also is left to the kernel client.  The purpose is to
++keep things as simple as possible.
++
++This document provides an overview of the relay interface API.  The
++details of the function parameters are documented along with the
++functions in the relay interface code - please see that for details.
++
++Semantics
++=========
++
++Each relay channel has one buffer per CPU, each buffer has one or more
++sub-buffers.  Messages are written to the first sub-buffer until it is
++too full to contain a new message, in which case it it is written to
++the next (if available).  Messages are never split across sub-buffers.
++At this point, userspace can be notified so it empties the first
++sub-buffer, while the kernel continues writing to the next.
++
++When notified that a sub-buffer is full, the kernel knows how many
++bytes of it are padding i.e. unused space occurring because a complete
++message couldn't fit into a sub-buffer.  Userspace can use this
++knowledge to copy only valid data.
++
++After copying it, userspace can notify the kernel that a sub-buffer
++has been consumed.
++
++A relay channel can operate in a mode where it will overwrite data not
++yet collected by userspace, and not wait for it to be consumed.
++
++The relay channel itself does not provide for communication of such
++data between userspace and kernel, allowing the kernel side to remain
++simple and not impose a single interface on userspace.  It does
++provide a set of examples and a separate helper though, described
++below.
++
++The read() interface both removes padding and internally consumes the
++read sub-buffers; thus in cases where read(2) is being used to drain
++the channel buffers, special-purpose communication between kernel and
++user isn't necessary for basic operation.
++
++One of the major goals of the relay interface is to provide a low
++overhead mechanism for conveying kernel data to userspace.  While the
++read() interface is easy to use, it's not as efficient as the mmap()
++approach; the example code attempts to make the tradeoff between the
++two approaches as small as possible.
++
++klog and relay-apps example code
++================================
++
++The relay interface itself is ready to use, but to make things easier,
++a couple simple utility functions and a set of examples are provided.
++
++The relay-apps example tarball, available on the relay sourceforge
++site, contains a set of self-contained examples, each consisting of a
++pair of .c files containing boilerplate code for each of the user and
++kernel sides of a relay application.  When combined these two sets of
++boilerplate code provide glue to easily stream data to disk, without
++having to bother with mundane housekeeping chores.
++
++The 'klog debugging functions' patch (klog.patch in the relay-apps
++tarball) provides a couple of high-level logging functions to the
++kernel which allow writing formatted text or raw data to a channel,
++regardless of whether a channel to write into exists or not, or even
++whether the relay interface is compiled into the kernel or not.  These
++functions allow you to put unconditional 'trace' statements anywhere
++in the kernel or kernel modules; only when there is a 'klog handler'
++registered will data actually be logged (see the klog and kleak
++examples for details).
++
++It is of course possible to use the relay interface from scratch,
++i.e. without using any of the relay-apps example code or klog, but
++you'll have to implement communication between userspace and kernel,
++allowing both to convey the state of buffers (full, empty, amount of
++padding).  The read() interface both removes padding and internally
++consumes the read sub-buffers; thus in cases where read(2) is being
++used to drain the channel buffers, special-purpose communication
++between kernel and user isn't necessary for basic operation.  Things
++such as buffer-full conditions would still need to be communicated via
++some channel though.
++
++klog and the relay-apps examples can be found in the relay-apps
++tarball on http://relayfs.sourceforge.net
++
++The relay interface user space API
++==================================
++
++The relay interface implements basic file operations for user space
++access to relay channel buffer data.  Here are the file operations
++that are available and some comments regarding their behavior:
++
++open()	    enables user to open an _existing_ channel buffer.
++
++mmap()      results in channel buffer being mapped into the caller's
++	    memory space. Note that you can't do a partial mmap - you
++	    must map the entire file, which is NRBUF * SUBBUFSIZE.
++
++read()      read the contents of a channel buffer.  The bytes read are
++	    'consumed' by the reader, i.e. they won't be available
++	    again to subsequent reads.  If the channel is being used
++	    in no-overwrite mode (the default), it can be read at any
++	    time even if there's an active kernel writer.  If the
++	    channel is being used in overwrite mode and there are
++	    active channel writers, results may be unpredictable -
++	    users should make sure that all logging to the channel has
++	    ended before using read() with overwrite mode.  Sub-buffer
++	    padding is automatically removed and will not be seen by
++	    the reader.
++
++sendfile()  transfer data from a channel buffer to an output file
++	    descriptor. Sub-buffer padding is automatically removed
++	    and will not be seen by the reader.
++
++poll()      POLLIN/POLLRDNORM/POLLERR supported.  User applications are
++	    notified when sub-buffer boundaries are crossed.
++
++close()     decrements the channel buffer's refcount.  When the refcount
++	    reaches 0, i.e. when no process or kernel client has the
++	    buffer open, the channel buffer is freed.
++
++In order for a user application to make use of relay files, the
++host filesystem must be mounted.  For example,
++
++	mount -t debugfs debugfs /debug
++
++NOTE:   the host filesystem doesn't need to be mounted for kernel
++	clients to create or use channels - it only needs to be
++	mounted when user space applications need access to the buffer
++	data.
++
++
++The relay interface kernel API
++==============================
++
++Here's a summary of the API the relay interface provides to in-kernel clients:
++
++TBD(curr. line MT:/API/)
++  channel management functions:
++
++    relay_open(base_filename, parent, subbuf_size, n_subbufs,
++               callbacks)
++    relay_close(chan)
++    relay_flush(chan)
++    relay_reset(chan)
++
++  channel management typically called on instigation of userspace:
++
++    relay_subbufs_consumed(chan, cpu, subbufs_consumed)
++
++  write functions:
++
++    relay_write(chan, data, length)
++    __relay_write(chan, data, length)
++    relay_reserve(chan, length)
++
++  callbacks:
++
++    subbuf_start(buf, subbuf, prev_subbuf, prev_padding)
++    buf_mapped(buf, filp)
++    buf_unmapped(buf, filp)
++    create_buf_file(filename, parent, mode, buf, is_global)
++    remove_buf_file(dentry)
++
++  helper functions:
++
++    relay_buf_full(buf)
++    subbuf_start_reserve(buf, length)
++
++
++Creating a channel
++------------------
++
++relay_open() is used to create a channel, along with its per-cpu
++channel buffers.  Each channel buffer will have an associated file
++created for it in the host filesystem, which can be and mmapped or
++read from in user space.  The files are named basename0...basenameN-1
++where N is the number of online cpus, and by default will be created
++in the root of the filesystem (if the parent param is NULL).  If you
++want a directory structure to contain your relay files, you should
++create it using the host filesystem's directory creation function,
++e.g. debugfs_create_dir(), and pass the parent directory to
++relay_open().  Users are responsible for cleaning up any directory
++structure they create, when the channel is closed - again the host
++filesystem's directory removal functions should be used for that,
++e.g. debugfs_remove().
++
++In order for a channel to be created and the host filesystem's files
++associated with its channel buffers, the user must provide definitions
++for two callback functions, create_buf_file() and remove_buf_file().
++create_buf_file() is called once for each per-cpu buffer from
++relay_open() and allows the user to create the file which will be used
++to represent the corresponding channel buffer.  The callback should
++return the dentry of the file created to represent the channel buffer.
++remove_buf_file() must also be defined; it's responsible for deleting
++the file(s) created in create_buf_file() and is called during
++relay_close().
++
++Here are some typical definitions for these callbacks, in this case
++using debugfs:
++
++/*
++ * create_buf_file() callback.  Creates relay file in debugfs.
++ */
++static struct dentry *create_buf_file_handler(const char *filename,
++                                              struct dentry *parent,
++                                              int mode,
++                                              struct rchan_buf *buf,
++                                              int *is_global)
++{
++        return debugfs_create_file(filename, mode, parent, buf,
++	                           &relay_file_operations);
 +}
 +
- static inline unsigned long
- do_mmap2 (unsigned long addr, unsigned long len, int prot, int flags, int fd, unsigned long pgoff)
- {
--	unsigned long roff;
- 	struct file *file = NULL;
- 
- 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
-@@ -189,17 +204,6 @@ do_mmap2 (unsigned long addr, unsigned l
- 		goto out;
- 	}
- 
--	/*
--	 * Don't permit mappings into unmapped space, the virtual page table of a region,
--	 * or across a region boundary.  Note: RGN_MAP_LIMIT is equal to 2^n-PAGE_SIZE
--	 * (for some integer n <= 61) and len > 0.
--	 */
--	roff = REGION_OFFSET(addr);
--	if ((len > RGN_MAP_LIMIT) || (roff > (RGN_MAP_LIMIT - len))) {
--		addr = -EINVAL;
--		goto out;
--	}
--
- 	down_write(&current->mm->mmap_sem);
- 	addr = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
- 	up_write(&current->mm->mmap_sem);
-diff --git a/arch/sparc/kernel/sys_sparc.c b/arch/sparc/kernel/sys_sparc.c
-index 0cdfc9d..fc8cdcc 100644
---- a/arch/sparc/kernel/sys_sparc.c
-+++ b/arch/sparc/kernel/sys_sparc.c
-@@ -219,6 +219,21 @@ out:
- 	return err;
- }
- 
-+int sparc_mmap_check(unsigned long addr, unsigned long len, unsigned long flags)
++/*
++ * remove_buf_file() callback.  Removes relay file from debugfs.
++ */
++static int remove_buf_file_handler(struct dentry *dentry)
 +{
-+	if (ARCH_SUN4C_SUN4 &&
-+	    (len > 0x20000000 ||
-+	     ((flags & MAP_FIXED) &&
-+	      addr < 0xe0000000 && addr + len > 0x20000000)))
-+		return -EINVAL;
++        debugfs_remove(dentry);
 +
-+	/* See asm-sparc/uaccess.h */
-+	if (len > TASK_SIZE - PAGE_SIZE || addr + len > TASK_SIZE - PAGE_SIZE)
-+		return -EINVAL;
-+
-+	return 0;
++        return 0;
 +}
 +
- /* Linux version of mmap */
- static unsigned long do_mmap2(unsigned long addr, unsigned long len,
- 	unsigned long prot, unsigned long flags, unsigned long fd,
-@@ -233,25 +248,13 @@ static unsigned long do_mmap2(unsigned l
- 			goto out;
- 	}
- 
--	retval = -EINVAL;
- 	len = PAGE_ALIGN(len);
--	if (ARCH_SUN4C_SUN4 &&
--	    (len > 0x20000000 ||
--	     ((flags & MAP_FIXED) &&
--	      addr < 0xe0000000 && addr + len > 0x20000000)))
--		goto out_putf;
--
--	/* See asm-sparc/uaccess.h */
--	if (len > TASK_SIZE - PAGE_SIZE || addr + len > TASK_SIZE - PAGE_SIZE)
--		goto out_putf;
--
- 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
- 
- 	down_write(&current->mm->mmap_sem);
- 	retval = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
- 	up_write(&current->mm->mmap_sem);
- 
--out_putf:
- 	if (file)
- 		fput(file);
- out:
-diff --git a/arch/sparc64/kernel/sys_sparc.c b/arch/sparc64/kernel/sys_sparc.c
-index 7a86913..a9edcab 100644
---- a/arch/sparc64/kernel/sys_sparc.c
-+++ b/arch/sparc64/kernel/sys_sparc.c
-@@ -549,6 +549,26 @@ asmlinkage long sparc64_personality(unsi
- 	return ret;
- }
- 
-+int sparc64_mmap_check(unsigned long addr, unsigned long len,
-+		unsigned long flags)
++/*
++ * relay interface callbacks
++ */
++static struct rchan_callbacks relay_callbacks =
 +{
-+	if (test_thread_flag(TIF_32BIT)) {
-+		if (len >= STACK_TOP32)
-+			return -EINVAL;
++        .create_buf_file = create_buf_file_handler,
++        .remove_buf_file = remove_buf_file_handler,
++};
 +
-+		if ((flags & MAP_FIXED) && addr > STACK_TOP32 - len)
-+			return -EINVAL;
-+	} else {
-+		if (len >= VA_EXCLUDE_START)
-+			return -EINVAL;
++And an example relay_open() invocation using them:
 +
-+		if ((flags & MAP_FIXED) && invalid_64bit_range(addr, len))
-+			return -EINVAL;
-+	}
++  chan = relay_open("cpu", NULL, SUBBUF_SIZE, N_SUBBUFS, &relay_callbacks);
 +
-+	return 0;
-+}
++If the create_buf_file() callback fails, or isn't defined, channel
++creation and thus relay_open() will fail.
 +
- /* Linux version of mmap */
- asmlinkage unsigned long sys_mmap(unsigned long addr, unsigned long len,
- 	unsigned long prot, unsigned long flags, unsigned long fd,
-@@ -564,27 +584,11 @@ asmlinkage unsigned long sys_mmap(unsign
- 	}
- 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
- 	len = PAGE_ALIGN(len);
--	retval = -EINVAL;
--
--	if (test_thread_flag(TIF_32BIT)) {
--		if (len >= STACK_TOP32)
--			goto out_putf;
--
--		if ((flags & MAP_FIXED) && addr > STACK_TOP32 - len)
--			goto out_putf;
--	} else {
--		if (len >= VA_EXCLUDE_START)
--			goto out_putf;
--
--		if ((flags & MAP_FIXED) && invalid_64bit_range(addr, len))
--			goto out_putf;
--	}
- 
- 	down_write(&current->mm->mmap_sem);
- 	retval = do_mmap(file, addr, len, prot, flags, off);
- 	up_write(&current->mm->mmap_sem);
- 
--out_putf:
- 	if (file)
- 		fput(file);
- out:
-diff --git a/drivers/char/tpm/tpm_tis.c b/drivers/char/tpm/tpm_tis.c
-index 8ea7062..2678034 100644
---- a/drivers/char/tpm/tpm_tis.c
-+++ b/drivers/char/tpm/tpm_tis.c
-@@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
- 	iowrite32(interrupt,
- 		  chip->vendor.iobase +
- 		  TPM_INT_STATUS(chip->vendor.locality));
-+	ioread32(chip->vendor.iobase + TPM_INT_STATUS(chip->vendor.locality));
- 	return IRQ_HANDLED;
- }
- 
-diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
-index 8f1292c..d1788cd 100644
---- a/drivers/ieee1394/ohci1394.c
-+++ b/drivers/ieee1394/ohci1394.c
-@@ -3548,6 +3548,8 @@ #endif /* CONFIG_PPC_PMAC */
- 
- static int ohci1394_pci_suspend (struct pci_dev *pdev, pm_message_t state)
- {
-+	pci_save_state(pdev);
++The total size of each per-cpu buffer is calculated by multiplying the
++number of sub-buffers by the sub-buffer size passed into relay_open().
++The idea behind sub-buffers is that they're basically an extension of
++double-buffering to N buffers, and they also allow applications to
++easily implement random-access-on-buffer-boundary schemes, which can
++be important for some high-volume applications.  The number and size
++of sub-buffers is completely dependent on the application and even for
++the same application, different conditions will warrant different
++values for these parameters at different times.  Typically, the right
++values to use are best decided after some experimentation; in general,
++though, it's safe to assume that having only 1 sub-buffer is a bad
++idea - you're guaranteed to either overwrite data or lose events
++depending on the channel mode being used.
 +
- #ifdef CONFIG_PPC_PMAC
- 	if (machine_is(powermac)) {
- 		struct device_node *of_node;
-@@ -3559,8 +3561,6 @@ #ifdef CONFIG_PPC_PMAC
- 	}
- #endif
- 
--	pci_save_state(pdev);
--
- 	return 0;
- }
- 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index 1816f30..5af5265 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -711,6 +711,8 @@ static int multipath_ctr(struct dm_targe
- 		return -EINVAL;
- 	}
- 
-+	m->ti = ti;
++The create_buf_file() implementation can also be defined in such a way
++as to allow the creation of a single 'global' buffer instead of the
++default per-cpu set.  This can be useful for applications interested
++mainly in seeing the relative ordering of system-wide events without
++the need to bother with saving explicit timestamps for the purpose of
++merging/sorting per-cpu files in a postprocessing step.
 +
- 	r = parse_features(&as, m, ti);
- 	if (r)
- 		goto bad;
-@@ -752,7 +754,6 @@ static int multipath_ctr(struct dm_targe
- 	}
- 
- 	ti->private = m;
--	m->ti = ti;
- 
- 	return 0;
- 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 4070eff..5a54494 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -1486,7 +1486,6 @@ static void raid1d(mddev_t *mddev)
- 							d = conf->raid_disks;
- 						d--;
- 						rdev = conf->mirrors[d].rdev;
--						atomic_add(s, &rdev->corrected_errors);
- 						if (rdev &&
- 						    test_bit(In_sync, &rdev->flags)) {
- 							if (sync_page_io(rdev->bdev,
-@@ -1509,6 +1508,9 @@ static void raid1d(mddev_t *mddev)
- 									 s<<9, conf->tmppage, READ) == 0)
- 								/* Well, this device is dead */
- 								md_error(mddev, rdev);
-+							else
-+								atomic_add(s, &rdev->corrected_errors);
++To have relay_open() create a global buffer, the create_buf_file()
++implementation should set the value of the is_global outparam to a
++non-zero value in addition to creating the file that will be used to
++represent the single buffer.  In the case of a global buffer,
++create_buf_file() and remove_buf_file() will be called only once.  The
++normal channel-writing functions, e.g. relay_write(), can still be
++used - writes from any cpu will transparently end up in the global
++buffer - but since it is a global buffer, callers should make sure
++they use the proper locking for such a buffer, either by wrapping
++writes in a spinlock, or by copying a write function from relay.h and
++creating a local version that internally does the proper locking.
 +
- 						}
- 					}
- 				} else {
-diff --git a/drivers/net/sky2.c b/drivers/net/sky2.c
-index a3cd0b3..72ca553 100644
---- a/drivers/net/sky2.c
-+++ b/drivers/net/sky2.c
-@@ -233,6 +233,8 @@ static void sky2_set_power_state(struct 
- 			if (hw->ports > 1)
- 				reg1 |= PCI_Y2_PHY2_COMA;
- 		}
-+		sky2_pci_write32(hw, PCI_DEV_REG1, reg1);
-+		udelay(100);
- 
- 		if (hw->chip_id == CHIP_ID_YUKON_EC_U) {
- 			sky2_write16(hw, B0_CTST, Y2_HW_WOL_ON);
-@@ -243,8 +245,6 @@ static void sky2_set_power_state(struct 
- 			sky2_pci_write32(hw, PCI_DEV_REG5, 0);
- 		}
- 
--		sky2_pci_write32(hw, PCI_DEV_REG1, reg1);
--
- 		break;
- 
- 	case PCI_D3hot:
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index d378478..6e3786f 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -427,6 +427,7 @@ static void __devinit quirk_ich6_lpc_acp
- 	pci_read_config_dword(dev, 0x48, &region);
- 	quirk_io_region(dev, region, 64, PCI_BRIDGE_RESOURCES+1, "ICH6 GPIO");
- }
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_0, quirk_ich6_lpc_acpi );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1, quirk_ich6_lpc_acpi );
- 
- /*
-@@ -1043,7 +1044,6 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_12,	asus_hides_smbus_lpc );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc );
- 
- static void __init asus_hides_smbus_lpc_ich6(struct pci_dev *dev)
- {
-diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
-index 7d22dc0..753b364 100644
---- a/drivers/serial/Kconfig
-+++ b/drivers/serial/Kconfig
-@@ -803,6 +803,7 @@ config SERIAL_MPC52xx
- 	tristate "Freescale MPC52xx family PSC serial support"
- 	depends on PPC_MPC52xx
- 	select SERIAL_CORE
-+	select FW_LOADER
- 	help
- 	  This drivers support the MPC52xx PSC serial ports. If you would
- 	  like to use them, you must answer Y or M to this option. Not that
-diff --git a/fs/befs/linuxvfs.c b/fs/befs/linuxvfs.c
-index 68ebd10..aa50dc6 100644
---- a/fs/befs/linuxvfs.c
-+++ b/fs/befs/linuxvfs.c
-@@ -512,7 +512,11 @@ befs_utf2nls(struct super_block *sb, con
- 	wchar_t uni;
- 	int unilen, utflen;
- 	char *result;
--	int maxlen = in_len; /* The utf8->nls conversion can't make more chars */
-+	/* The utf8->nls conversion won't make the final nls string bigger
-+	 * than the utf one, but if the string is pure ascii they'll have the
-+	 * same width and an extra char is needed to save the additional \0
-+	 */
-+	int maxlen = in_len + 1;
- 
- 	befs_debug(sb, "---> utf2nls()");
- 
-@@ -588,7 +592,10 @@ befs_nls2utf(struct super_block *sb, con
- 	wchar_t uni;
- 	int unilen, utflen;
- 	char *result;
--	int maxlen = 3 * in_len;
-+	/* There're nls characters that will translate to 3-chars-wide UTF-8
-+	 * characters, a additional byte is needed to save the final \0
-+	 * in special cases */
-+	int maxlen = (3 * in_len) + 1;
- 
- 	befs_debug(sb, "---> nls2utf()\n");
- 
-diff --git a/fs/ext3/super.c b/fs/ext3/super.c
-index f8a5266..86534ad 100644
---- a/fs/ext3/super.c
-+++ b/fs/ext3/super.c
-@@ -620,8 +620,48 @@ #ifdef CONFIG_QUOTA
- #endif
- };
- 
-+static struct dentry *ext3_get_dentry(struct super_block *sb, void *vobjp)
++Channel 'modes'
++---------------
++
++relay channels can be used in either of two modes - 'overwrite' or
++'no-overwrite'.  The mode is entirely determined by the implementation
++of the subbuf_start() callback, as described below.  The default if no
++subbuf_start() callback is defined is 'no-overwrite' mode.  If the
++default mode suits your needs, and you plan to use the read()
++interface to retrieve channel data, you can ignore the details of this
++section, as it pertains mainly to mmap() implementations.
++
++In 'overwrite' mode, also known as 'flight recorder' mode, writes
++continuously cycle around the buffer and will never fail, but will
++unconditionally overwrite old data regardless of whether it's actually
++been consumed.  In no-overwrite mode, writes will fail, i.e. data will
++be lost, if the number of unconsumed sub-buffers equals the total
++number of sub-buffers in the channel.  It should be clear that if
++there is no consumer or if the consumer can't consume sub-buffers fast
++enough, data will be lost in either case; the only difference is
++whether data is lost from the beginning or the end of a buffer.
++
++As explained above, a relay channel is made of up one or more
++per-cpu channel buffers, each implemented as a circular buffer
++subdivided into one or more sub-buffers.  Messages are written into
++the current sub-buffer of the channel's current per-cpu buffer via the
++write functions described below.  Whenever a message can't fit into
++the current sub-buffer, because there's no room left for it, the
++client is notified via the subbuf_start() callback that a switch to a
++new sub-buffer is about to occur.  The client uses this callback to 1)
++initialize the next sub-buffer if appropriate 2) finalize the previous
++sub-buffer if appropriate and 3) return a boolean value indicating
++whether or not to actually move on to the next sub-buffer.
++
++To implement 'no-overwrite' mode, the userspace client would provide
++an implementation of the subbuf_start() callback something like the
++following:
++
++static int subbuf_start(struct rchan_buf *buf,
++                        void *subbuf,
++			void *prev_subbuf,
++			unsigned int prev_padding)
 +{
-+	__u32 *objp = vobjp;
-+	unsigned long ino = objp[0];
-+	__u32 generation = objp[1];
-+	struct inode *inode;
-+	struct dentry *result;
++	if (prev_subbuf)
++		*((unsigned *)prev_subbuf) = prev_padding;
 +
-+	if (ino != EXT3_ROOT_INO && ino < EXT3_FIRST_INO(sb))
-+		return ERR_PTR(-ESTALE);
-+	if (ino > le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count))
-+		return ERR_PTR(-ESTALE);
-+
-+	/* iget isn't really right if the inode is currently unallocated!!
-+	 * ext3_read_inode currently does appropriate checks, but
-+	 * it might be "neater" to call ext3_get_inode first and check
-+	 * if the inode is valid.....
-+	 */
-+	inode = iget(sb, ino);
-+	if (inode == NULL)
-+		return ERR_PTR(-ENOMEM);
-+	if (is_bad_inode(inode)
-+	    || (generation && inode->i_generation != generation)
-+		) {
-+		/* we didn't find the right inode.. */
-+		iput(inode);
-+		return ERR_PTR(-ESTALE);
-+	}
-+	/* now to find a dentry.
-+	 * If possible, get a well-connected one
-+	 */
-+	result = d_alloc_anon(inode);
-+	if (!result) {
-+		iput(inode);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	return result;
-+}
-+
- static struct export_operations ext3_export_ops = {
- 	.get_parent = ext3_get_parent,
-+	.get_dentry = ext3_get_dentry,
- };
- 
- enum {
-diff --git a/include/asm-generic/mman.h b/include/asm-generic/mman.h
-index 3b41d2b..010ced7 100644
---- a/include/asm-generic/mman.h
-+++ b/include/asm-generic/mman.h
-@@ -39,4 +39,10 @@ #define MADV_DOFORK	11		/* do inherit ac
- #define MAP_ANON	MAP_ANONYMOUS
- #define MAP_FILE	0
- 
-+#ifdef __KERNEL__
-+#ifndef arch_mmap_check
-+#define arch_mmap_check(addr, len, flags)	(0)
-+#endif
-+#endif
-+
- #endif
-diff --git a/include/asm-ia64/mman.h b/include/asm-ia64/mman.h
-index 6ba179f..df1b20e 100644
---- a/include/asm-ia64/mman.h
-+++ b/include/asm-ia64/mman.h
-@@ -8,6 +8,12 @@ #define _ASM_IA64_MMAN_H
-  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
-  */
- 
-+#ifdef __KERNEL__
-+#define arch_mmap_check	ia64_map_check_rgn
-+int ia64_map_check_rgn(unsigned long addr, unsigned long len,
-+		unsigned long flags);
-+#endif
-+
- #include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x00100		/* stack-like segment */
-diff --git a/include/asm-sparc/mman.h b/include/asm-sparc/mman.h
-index 88d1886..95ecab5 100644
---- a/include/asm-sparc/mman.h
-+++ b/include/asm-sparc/mman.h
-@@ -2,6 +2,12 @@
- #ifndef __SPARC_MMAN_H__
- #define __SPARC_MMAN_H__
- 
-+#ifdef __KERNEL__
-+#define arch_mmap_check	sparc_mmap_check
-+int sparc_mmap_check(unsigned long addr, unsigned long len,
-+		unsigned long flags);
-+#endif
-+
- #include <asm-generic/mman.h>
- 
- /* SunOS'ified... */
-diff --git a/include/asm-sparc64/mman.h b/include/asm-sparc64/mman.h
-index 6fd878e..b300276 100644
---- a/include/asm-sparc64/mman.h
-+++ b/include/asm-sparc64/mman.h
-@@ -2,6 +2,12 @@
- #ifndef __SPARC64_MMAN_H__
- #define __SPARC64_MMAN_H__
- 
-+#ifdef __KERNEL__
-+#define arch_mmap_check	sparc64_mmap_check
-+int sparc64_mmap_check(unsigned long addr, unsigned long len,
-+		unsigned long flags);
-+#endif
-+
- #include <asm-generic/mman.h>
- 
- /* SunOS'ified... */
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 9e49dee..7bdad89 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -975,46 +975,19 @@ asmlinkage long sys_getpid(void)
- }
- 
- /*
-- * Accessing ->group_leader->real_parent is not SMP-safe, it could
-- * change from under us. However, rather than getting any lock
-- * we can use an optimistic algorithm: get the parent
-- * pid, and go back and check that the parent is still
-- * the same. If it has changed (which is extremely unlikely
-- * indeed), we just try again..
-- *
-- * NOTE! This depends on the fact that even if we _do_
-- * get an old value of "parent", we can happily dereference
-- * the pointer (it was and remains a dereferencable kernel pointer
-- * no matter what): we just can't necessarily trust the result
-- * until we know that the parent pointer is valid.
-- *
-- * NOTE2: ->group_leader never changes from under us.
-+ * Accessing ->real_parent is not SMP-safe, it could
-+ * change from under us. However, we can use a stale
-+ * value of ->real_parent under rcu_read_lock(), see
-+ * release_task()->call_rcu(delayed_put_task_struct).
-  */
- asmlinkage long sys_getppid(void)
- {
- 	int pid;
--	struct task_struct *me = current;
--	struct task_struct *parent;
- 
--	parent = me->group_leader->real_parent;
--	for (;;) {
--		pid = parent->tgid;
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
--{
--		struct task_struct *old = parent;
-+	rcu_read_lock();
-+	pid = rcu_dereference(current->real_parent)->tgid;
-+	rcu_read_unlock();
- 
--		/*
--		 * Make sure we read the pid before re-reading the
--		 * parent pointer:
--		 */
--		smp_rmb();
--		parent = me->group_leader->real_parent;
--		if (old != parent)
--			continue;
--}
--#endif
--		break;
--	}
- 	return pid;
- }
- 
-diff --git a/lib/spinlock_debug.c b/lib/spinlock_debug.c
-index d8b6bb4..5cbcb80 100644
---- a/lib/spinlock_debug.c
-+++ b/lib/spinlock_debug.c
-@@ -137,6 +137,7 @@ #endif
- 
- #define RWLOCK_BUG_ON(cond, lock, msg) if (unlikely(cond)) rwlock_bug(lock, msg)
- 
-+#if 0		/* __write_lock_debug() can lock up - maybe this can too? */
- static void __read_lock_debug(rwlock_t *lock)
- {
- 	int print_once = 1;
-@@ -159,12 +160,12 @@ static void __read_lock_debug(rwlock_t *
- 		}
- 	}
- }
-+#endif
- 
- void _raw_read_lock(rwlock_t *lock)
- {
- 	RWLOCK_BUG_ON(lock->magic != RWLOCK_MAGIC, lock, "bad magic");
--	if (unlikely(!__raw_read_trylock(&lock->raw_lock)))
--		__read_lock_debug(lock);
-+	__raw_read_lock(&lock->raw_lock);
- }
- 
- int _raw_read_trylock(rwlock_t *lock)
-@@ -210,6 +211,7 @@ static inline void debug_write_unlock(rw
- 	lock->owner_cpu = -1;
- }
- 
-+#if 0		/* This can cause lockups */
- static void __write_lock_debug(rwlock_t *lock)
- {
- 	int print_once = 1;
-@@ -232,12 +234,12 @@ static void __write_lock_debug(rwlock_t 
- 		}
- 	}
- }
-+#endif
- 
- void _raw_write_lock(rwlock_t *lock)
- {
- 	debug_write_lock_before(lock);
--	if (unlikely(!__raw_write_trylock(&lock->raw_lock)))
--		__write_lock_debug(lock);
-+	__raw_write_lock(&lock->raw_lock);
- 	debug_write_lock_after(lock);
- }
- 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index e6ee123..d6e9641 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -913,6 +913,10 @@ unsigned long do_mmap_pgoff(struct file 
- 	if (!len)
- 		return -EINVAL;
- 
-+	error = arch_mmap_check(addr, len, flags);
-+	if (error)
-+		return error;
-+
- 	/* Careful about overflows.. */
- 	len = PAGE_ALIGN(len);
- 	if (!len || len > TASK_SIZE)
-@@ -1852,6 +1856,7 @@ unsigned long do_brk(unsigned long addr,
- 	unsigned long flags;
- 	struct rb_node ** rb_link, * rb_parent;
- 	pgoff_t pgoff = addr >> PAGE_SHIFT;
-+	int error;
- 
- 	len = PAGE_ALIGN(len);
- 	if (!len)
-@@ -1860,6 +1865,12 @@ unsigned long do_brk(unsigned long addr,
- 	if ((addr + len) > TASK_SIZE || (addr + len) < addr)
- 		return -EINVAL;
- 
-+	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
-+
-+	error = arch_mmap_check(addr, len, flags);
-+	if (error)
-+		return error;
-+
- 	/*
- 	 * mlock MCL_FUTURE?
- 	 */
-@@ -1900,8 +1911,6 @@ unsigned long do_brk(unsigned long addr,
- 	if (security_vm_enough_memory(len >> PAGE_SHIFT))
- 		return -ENOMEM;
- 
--	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
--
- 	/* Can we just expand an old private anonymous mapping? */
- 	if (vma_merge(mm, prev, addr, addr + len, flags,
- 					NULL, NULL, pgoff, NULL))
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index e5fd538..5a7760f 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -440,11 +440,12 @@ int swap_type_of(dev_t device)
- 
- 		if (!(swap_info[i].flags & SWP_WRITEOK))
- 			continue;
-+
- 		if (!device) {
- 			spin_unlock(&swap_lock);
- 			return i;
- 		}
--		inode = swap_info->swap_file->f_dentry->d_inode;
-+		inode = swap_info[i].swap_file->f_dentry->d_inode;
- 		if (S_ISBLK(inode->i_mode) &&
- 		    device == MKDEV(imajor(inode), iminor(inode))) {
- 			spin_unlock(&swap_lock);
-diff --git a/net/bridge/netfilter/ebt_ulog.c b/net/bridge/netfilter/ebt_ulog.c
-index ee5a517..ae70123 100644
---- a/net/bridge/netfilter/ebt_ulog.c
-+++ b/net/bridge/netfilter/ebt_ulog.c
-@@ -75,6 +75,9 @@ static void ulog_send(unsigned int nlgro
- 	if (timer_pending(&ub->timer))
- 		del_timer(&ub->timer);
- 
-+	if (!ub->skb)
-+		return;
-+
- 	/* last nlmsg needs NLMSG_DONE */
- 	if (ub->qlen > 1)
- 		ub->lastnlh->nlmsg_type = NLMSG_DONE;
-diff --git a/net/core/dst.c b/net/core/dst.c
-index 470c05b..1a5e49d 100644
---- a/net/core/dst.c
-+++ b/net/core/dst.c
-@@ -95,12 +95,11 @@ static void dst_run_gc(unsigned long dum
- 		dst_gc_timer_inc = DST_GC_INC;
- 		dst_gc_timer_expires = DST_GC_MIN;
- 	}
--	dst_gc_timer.expires = jiffies + dst_gc_timer_expires;
- #if RT_CACHE_DEBUG >= 2
- 	printk("dst_total: %d/%d %ld\n",
- 	       atomic_read(&dst_total), delayed,  dst_gc_timer_expires);
- #endif
--	add_timer(&dst_gc_timer);
-+	mod_timer(&dst_gc_timer, jiffies + dst_gc_timer_expires);
- 
- out:
- 	spin_unlock(&dst_lock);
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 3fcfa9c..e02f528 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -395,6 +395,9 @@ static int do_setlink(struct sk_buff *sk
- 	}
- 
- 	if (ida[IFLA_ADDRESS - 1]) {
-+		struct sockaddr *sa;
-+		int len;
-+
- 		if (!dev->set_mac_address) {
- 			err = -EOPNOTSUPP;
- 			goto out;
-@@ -406,7 +409,17 @@ static int do_setlink(struct sk_buff *sk
- 		if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
- 			goto out;
- 
--		err = dev->set_mac_address(dev, RTA_DATA(ida[IFLA_ADDRESS - 1]));
-+		len = sizeof(sa_family_t) + dev->addr_len;
-+		sa = kmalloc(len, GFP_KERNEL);
-+		if (!sa) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+		sa->sa_family = dev->type;
-+		memcpy(sa->sa_data, RTA_DATA(ida[IFLA_ADDRESS - 1]),
-+		       dev->addr_len);
-+		err = dev->set_mac_address(dev, sa);
-+		kfree(sa);
- 		if (err)
- 			goto out;
- 		send_addr_notify = 1;
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 0f4145b..1de08c1 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -160,7 +160,7 @@ void free_fib_info(struct fib_info *fi)
- 
- void fib_release_info(struct fib_info *fi)
- {
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	if (fi && --fi->fib_treeref == 0) {
- 		hlist_del(&fi->fib_hash);
- 		if (fi->fib_prefsrc)
-@@ -173,7 +173,7 @@ void fib_release_info(struct fib_info *f
- 		fi->fib_dead = 1;
- 		fib_info_put(fi);
- 	}
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- }
- 
- static __inline__ int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
-@@ -599,7 +599,7 @@ static void fib_hash_move(struct hlist_h
- 	unsigned int old_size = fib_hash_size;
- 	unsigned int i, bytes;
- 
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	old_info_hash = fib_info_hash;
- 	old_laddrhash = fib_info_laddrhash;
- 	fib_hash_size = new_size;
-@@ -640,7 +640,7 @@ static void fib_hash_move(struct hlist_h
- 	}
- 	fib_info_laddrhash = new_laddrhash;
- 
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- 
- 	bytes = old_size * sizeof(struct hlist_head *);
- 	fib_hash_free(old_info_hash, bytes);
-@@ -822,7 +822,7 @@ link_it:
- 
- 	fi->fib_treeref++;
- 	atomic_inc(&fi->fib_clntref);
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	hlist_add_head(&fi->fib_hash,
- 		       &fib_info_hash[fib_info_hashfn(fi)]);
- 	if (fi->fib_prefsrc) {
-@@ -841,7 +841,7 @@ link_it:
- 		head = &fib_info_devhash[hash];
- 		hlist_add_head(&nh->nh_hash, head);
- 	} endfor_nexthops(fi)
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- 	return fi;
- 
- err_inval:
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index d0d1919..92adfeb 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -237,7 +237,7 @@ unsigned int arpt_do_table(struct sk_buf
- 	struct arpt_entry *e, *back;
- 	const char *indev, *outdev;
- 	void *table_base;
--	struct xt_table_info *private = table->private;
-+	struct xt_table_info *private;
- 
- 	/* ARP header, plus 2 device addresses, plus 2 IP addresses.  */
- 	if (!pskb_may_pull((*pskb), (sizeof(struct arphdr) +
-@@ -249,6 +249,7 @@ unsigned int arpt_do_table(struct sk_buf
- 	outdev = out ? out->name : nulldevname;
- 
- 	read_lock_bh(&table->lock);
-+	private = table->private;
- 	table_base = (void *)private->entries[smp_processor_id()];
- 	e = get_entry(table_base, private->hook_entry[hook]);
- 	back = get_entry(table_base, private->underflow[hook]);
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index cee3397..71871c4 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -231,7 +231,7 @@ ipt_do_table(struct sk_buff **pskb,
- 	const char *indev, *outdev;
- 	void *table_base;
- 	struct ipt_entry *e, *back;
--	struct xt_table_info *private = table->private;
-+	struct xt_table_info *private;
- 
- 	/* Initialization */
- 	ip = (*pskb)->nh.iph;
-@@ -248,6 +248,7 @@ ipt_do_table(struct sk_buff **pskb,
- 
- 	read_lock_bh(&table->lock);
- 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
-+	private = table->private;
- 	table_base = (void *)private->entries[smp_processor_id()];
- 	e = get_entry(table_base, private->hook_entry[hook]);
- 
-diff --git a/net/ipv4/netfilter/ipt_ULOG.c b/net/ipv4/netfilter/ipt_ULOG.c
-index c84cc03..090f138 100644
---- a/net/ipv4/netfilter/ipt_ULOG.c
-+++ b/net/ipv4/netfilter/ipt_ULOG.c
-@@ -116,6 +116,11 @@ static void ulog_send(unsigned int nlgro
- 		del_timer(&ub->timer);
- 	}
- 
-+	if (!ub->skb) {
-+		DEBUGP("ipt_ULOG: ulog_send: nothing to send\n");
-+		return;
-+	}
-+
- 	/* last nlmsg needs NLMSG_DONE */
- 	if (ub->qlen > 1)
- 		ub->lastnlh->nlmsg_type = NLMSG_DONE;
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index cc9423d..5fe2fcf 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -3144,7 +3144,7 @@ #endif
- 					rhash_entries,
- 					(num_physpages >= 128 * 1024) ?
- 					15 : 17,
--					HASH_HIGHMEM,
-+					0,
- 					&rt_hash_log,
- 					&rt_hash_mask,
- 					0);
-diff --git a/net/ipx/af_ipx.c b/net/ipx/af_ipx.c
-index 811d998..e6a50e8 100644
---- a/net/ipx/af_ipx.c
-+++ b/net/ipx/af_ipx.c
-@@ -1647,7 +1647,8 @@ static int ipx_rcv(struct sk_buff *skb, 
- 	ipx_pktsize	= ntohs(ipx->ipx_pktsize);
- 	
- 	/* Too small or invalid header? */
--	if (ipx_pktsize < sizeof(struct ipxhdr) || ipx_pktsize > skb->len)
-+	if (ipx_pktsize < sizeof(struct ipxhdr)
-+	   || !pskb_may_pull(skb, ipx_pktsize))
- 		goto drop;
-                         
- 	if (ipx->ipx_checksum != IPX_NO_CHECKSUM &&
-diff --git a/net/netfilter/nfnetlink_log.c b/net/netfilter/nfnetlink_log.c
-index 61cdda4..b59d3b2 100644
---- a/net/netfilter/nfnetlink_log.c
-+++ b/net/netfilter/nfnetlink_log.c
-@@ -366,6 +366,9 @@ __nfulnl_send(struct nfulnl_instance *in
- 	if (timer_pending(&inst->timer))
- 		del_timer(&inst->timer);
- 
-+	if (!inst->skb)
++	if (relay_buf_full(buf))
 +		return 0;
 +
- 	if (inst->qlen > 1)
- 		inst->lastnlh->nlmsg_type = NLMSG_DONE;
- 
++	subbuf_start_reserve(buf, sizeof(unsigned int));
++
++	return 1;
++}
++
++If the current buffer is full, i.e. all sub-buffers remain unconsumed,
++the callback returns 0 to indicate that the buffer switch should not
++occur yet, i.e. until the consumer has had a chance to read the
++current set of ready sub-buffers.  For the relay_buf_full() function
++to make sense, the consumer is reponsible for notifying the relay
++interface when sub-buffers have been consumed via
++relay_subbufs_consumed().  Any subsequent attempts to write into the
++buffer will again invoke the subbuf_start() callback with the same
++parameters; only when the consumer has consumed one or more of the
++ready sub-buffers will relay_buf_full() return 0, in which case the
++buffer switch can continue.
++
++The implementation of the subbuf_start() callback for 'overwrite' mode
++would be very similar:
++
++static int subbuf_start(struct rchan_buf *buf,
++                        void *subbuf,
++			void *prev_subbuf,
++			unsigned int prev_padding)
++{
++	if (prev_subbuf)
++		*((unsigned *)prev_subbuf) = prev_padding;
++
++	subbuf_start_reserve(buf, sizeof(unsigned int));
++
++	return 1;
++}
++
++In this case, the relay_buf_full() check is meaningless and the
++callback always returns 1, causing the buffer switch to occur
++unconditionally.  It's also meaningless for the client to use the
++relay_subbufs_consumed() function in this mode, as it's never
++consulted.
++
++The default subbuf_start() implementation, used if the client doesn't
++define any callbacks, or doesn't define the subbuf_start() callback,
++implements the simplest possible 'no-overwrite' mode, i.e. it does
++nothing but return 0.
++
++Header information can be reserved at the beginning of each sub-buffer
++by calling the subbuf_start_reserve() helper function from within the
++subbuf_start() callback.  This reserved area can be used to store
++whatever information the client wants.  In the example above, room is
++reserved in each sub-buffer to store the padding count for that
++sub-buffer.  This is filled in for the previous sub-buffer in the
++subbuf_start() implementation; the padding value for the previous
++sub-buffer is passed into the subbuf_start() callback along with a
++pointer to the previous sub-buffer, since the padding value isn't
++known until a sub-buffer is filled.  The subbuf_start() callback is
++also called for the first sub-buffer when the channel is opened, to
++give the client a chance to reserve space in it.  In this case the
++previous sub-buffer pointer passed into the callback will be NULL, so
++the client should check the value of the prev_subbuf pointer before
++writing into the previous sub-buffer.
++
++Writing to a channel
++--------------------
++
++Kernel clients write data into the current cpu's channel buffer using
++relay_write() or __relay_write().  relay_write() is the main logging
++function - it uses local_irqsave() to protect the buffer and should be
++used if you might be logging from interrupt context.  If you know
++you'll never be logging from interrupt context, you can use
++__relay_write(), which only disables preemption.  These functions
++don't return a value, so you can't determine whether or not they
++failed - the assumption is that you wouldn't want to check a return
++value in the fast logging path anyway, and that they'll always succeed
++unless the buffer is full and no-overwrite mode is being used, in
++which case you can detect a failed write in the subbuf_start()
++callback by calling the relay_buf_full() helper function.
++
++relay_reserve() is used to reserve a slot in a channel buffer which
++can be written to later.  This would typically be used in applications
++that need to write directly into a channel buffer without having to
++stage data in a temporary buffer beforehand.  Because the actual write
++may not happen immediately after the slot is reserved, applications
++using relay_reserve() can keep a count of the number of bytes actually
++written, either in space reserved in the sub-buffers themselves or as
++a separate array.  See the 'reserve' example in the relay-apps tarball
++at http://relayfs.sourceforge.net for an example of how this can be
++done.  Because the write is under control of the client and is
++separated from the reserve, relay_reserve() doesn't protect the buffer
++at all - it's up to the client to provide the appropriate
++synchronization when using relay_reserve().
++
++Closing a channel
++-----------------
++
++The client calls relay_close() when it's finished using the channel.
++The channel and its associated buffers are destroyed when there are no
++longer any references to any of the channel buffers.  relay_flush()
++forces a sub-buffer switch on all the channel buffers, and can be used
++to finalize and process the last sub-buffers before the channel is
++closed.
++
++Misc
++----
++
++Some applications may want to keep a channel around and re-use it
++rather than open and close a new channel for each use.  relay_reset()
++can be used for this purpose - it resets a channel to its initial
++state without reallocating channel buffer memory or destroying
++existing mappings.  It should however only be called when it's safe to
++do so, i.e. when the channel isn't currently being written to.
++
++Finally, there are a couple of utility callbacks that can be used for
++different purposes.  buf_mapped() is called whenever a channel buffer
++is mmapped from user space and buf_unmapped() is called when it's
++unmapped.  The client can use this notification to trigger actions
++within the kernel application, such as enabling/disabling logging to
++the channel.
++
++
++Resources
++=========
++
++For news, example code, mailing list, etc. see the relay interface homepage:
++
++    http://relayfs.sourceforge.net
++
++
++Credits
++=======
++
++The ideas and specs for the relay interface came about as a result of
++discussions on tracing involving the following:
++
++Michel Dagenais		<michel.dagenais@polymtl.ca>
++Richard Moore		<richardj_moore@uk.ibm.com>
++Bob Wisniewski		<bob@watson.ibm.com>
++Karim Yaghmour		<karim@opersys.com>
++Tom Zanussi		<zanussi@us.ibm.com>
++
++Also thanks to Hubertus Franke for a lot of useful suggestions and bug
++reports.
+diff --git a/Documentation/filesystems/relayfs.txt b/Documentation/filesystems/relayfs.txt
+deleted file mode 100644
+index 5832377..0000000
+--- a/Documentation/filesystems/relayfs.txt
++++ /dev/null
+@@ -1,442 +0,0 @@
+-
+-relayfs - a high-speed data relay filesystem
+-============================================
+-
+-relayfs is a filesystem designed to provide an efficient mechanism for
+-tools and facilities to relay large and potentially sustained streams
+-of data from kernel space to user space.
+-
+-The main abstraction of relayfs is the 'channel'.  A channel consists
+-of a set of per-cpu kernel buffers each represented by a file in the
+-relayfs filesystem.  Kernel clients write into a channel using
+-efficient write functions which automatically log to the current cpu's
+-channel buffer.  User space applications mmap() the per-cpu files and
+-retrieve the data as it becomes available.
+-
+-The format of the data logged into the channel buffers is completely
+-up to the relayfs client; relayfs does however provide hooks which
+-allow clients to impose some structure on the buffer data.  Nor does
+-relayfs implement any form of data filtering - this also is left to
+-the client.  The purpose is to keep relayfs as simple as possible.
+-
+-This document provides an overview of the relayfs API.  The details of
+-the function parameters are documented along with the functions in the
+-filesystem code - please see that for details.
+-
+-Semantics
+-=========
+-
+-Each relayfs channel has one buffer per CPU, each buffer has one or
+-more sub-buffers. Messages are written to the first sub-buffer until
+-it is too full to contain a new message, in which case it it is
+-written to the next (if available).  Messages are never split across
+-sub-buffers.  At this point, userspace can be notified so it empties
+-the first sub-buffer, while the kernel continues writing to the next.
+-
+-When notified that a sub-buffer is full, the kernel knows how many
+-bytes of it are padding i.e. unused.  Userspace can use this knowledge
+-to copy only valid data.
+-
+-After copying it, userspace can notify the kernel that a sub-buffer
+-has been consumed.
+-
+-relayfs can operate in a mode where it will overwrite data not yet
+-collected by userspace, and not wait for it to consume it.
+-
+-relayfs itself does not provide for communication of such data between
+-userspace and kernel, allowing the kernel side to remain simple and
+-not impose a single interface on userspace. It does provide a set of
+-examples and a separate helper though, described below.
+-
+-klog and relay-apps example code
+-================================
+-
+-relayfs itself is ready to use, but to make things easier, a couple
+-simple utility functions and a set of examples are provided.
+-
+-The relay-apps example tarball, available on the relayfs sourceforge
+-site, contains a set of self-contained examples, each consisting of a
+-pair of .c files containing boilerplate code for each of the user and
+-kernel sides of a relayfs application; combined these two sets of
+-boilerplate code provide glue to easily stream data to disk, without
+-having to bother with mundane housekeeping chores.
+-
+-The 'klog debugging functions' patch (klog.patch in the relay-apps
+-tarball) provides a couple of high-level logging functions to the
+-kernel which allow writing formatted text or raw data to a channel,
+-regardless of whether a channel to write into exists or not, or
+-whether relayfs is compiled into the kernel or is configured as a
+-module.  These functions allow you to put unconditional 'trace'
+-statements anywhere in the kernel or kernel modules; only when there
+-is a 'klog handler' registered will data actually be logged (see the
+-klog and kleak examples for details).
+-
+-It is of course possible to use relayfs from scratch i.e. without
+-using any of the relay-apps example code or klog, but you'll have to
+-implement communication between userspace and kernel, allowing both to
+-convey the state of buffers (full, empty, amount of padding).
+-
+-klog and the relay-apps examples can be found in the relay-apps
+-tarball on http://relayfs.sourceforge.net
+-
+-
+-The relayfs user space API
+-==========================
+-
+-relayfs implements basic file operations for user space access to
+-relayfs channel buffer data.  Here are the file operations that are
+-available and some comments regarding their behavior:
+-
+-open()	 enables user to open an _existing_ buffer.
+-
+-mmap()	 results in channel buffer being mapped into the caller's
+-	 memory space. Note that you can't do a partial mmap - you must
+-	 map the entire file, which is NRBUF * SUBBUFSIZE.
+-
+-read()	 read the contents of a channel buffer.  The bytes read are
+-	 'consumed' by the reader i.e. they won't be available again
+-	 to subsequent reads.  If the channel is being used in
+-	 no-overwrite mode (the default), it can be read at any time
+-	 even if there's an active kernel writer.  If the channel is
+-	 being used in overwrite mode and there are active channel
+-	 writers, results may be unpredictable - users should make
+-	 sure that all logging to the channel has ended before using
+-	 read() with overwrite mode.
+-
+-poll()	 POLLIN/POLLRDNORM/POLLERR supported.  User applications are
+-	 notified when sub-buffer boundaries are crossed.
+-
+-close() decrements the channel buffer's refcount.  When the refcount
+-	reaches 0 i.e. when no process or kernel client has the buffer
+-	open, the channel buffer is freed.
+-
+-
+-In order for a user application to make use of relayfs files, the
+-relayfs filesystem must be mounted.  For example,
+-
+-	mount -t relayfs relayfs /mnt/relay
+-
+-NOTE:	relayfs doesn't need to be mounted for kernel clients to create
+-	or use channels - it only needs to be mounted when user space
+-	applications need access to the buffer data.
+-
+-
+-The relayfs kernel API
+-======================
+-
+-Here's a summary of the API relayfs provides to in-kernel clients:
+-
+-
+-  channel management functions:
+-
+-    relay_open(base_filename, parent, subbuf_size, n_subbufs,
+-               callbacks)
+-    relay_close(chan)
+-    relay_flush(chan)
+-    relay_reset(chan)
+-    relayfs_create_dir(name, parent)
+-    relayfs_remove_dir(dentry)
+-    relayfs_create_file(name, parent, mode, fops, data)
+-    relayfs_remove_file(dentry)
+-
+-  channel management typically called on instigation of userspace:
+-
+-    relay_subbufs_consumed(chan, cpu, subbufs_consumed)
+-
+-  write functions:
+-
+-    relay_write(chan, data, length)
+-    __relay_write(chan, data, length)
+-    relay_reserve(chan, length)
+-
+-  callbacks:
+-
+-    subbuf_start(buf, subbuf, prev_subbuf, prev_padding)
+-    buf_mapped(buf, filp)
+-    buf_unmapped(buf, filp)
+-    create_buf_file(filename, parent, mode, buf, is_global)
+-    remove_buf_file(dentry)
+-
+-  helper functions:
+-
+-    relay_buf_full(buf)
+-    subbuf_start_reserve(buf, length)
+-
+-
+-Creating a channel
+-------------------
+-
+-relay_open() is used to create a channel, along with its per-cpu
+-channel buffers.  Each channel buffer will have an associated file
+-created for it in the relayfs filesystem, which can be opened and
+-mmapped from user space if desired.  The files are named
+-basename0...basenameN-1 where N is the number of online cpus, and by
+-default will be created in the root of the filesystem.  If you want a
+-directory structure to contain your relayfs files, you can create it
+-with relayfs_create_dir() and pass the parent directory to
+-relay_open().  Clients are responsible for cleaning up any directory
+-structure they create when the channel is closed - use
+-relayfs_remove_dir() for that.
+-
+-The total size of each per-cpu buffer is calculated by multiplying the
+-number of sub-buffers by the sub-buffer size passed into relay_open().
+-The idea behind sub-buffers is that they're basically an extension of
+-double-buffering to N buffers, and they also allow applications to
+-easily implement random-access-on-buffer-boundary schemes, which can
+-be important for some high-volume applications.  The number and size
+-of sub-buffers is completely dependent on the application and even for
+-the same application, different conditions will warrant different
+-values for these parameters at different times.  Typically, the right
+-values to use are best decided after some experimentation; in general,
+-though, it's safe to assume that having only 1 sub-buffer is a bad
+-idea - you're guaranteed to either overwrite data or lose events
+-depending on the channel mode being used.
+-
+-Channel 'modes'
+----------------
+-
+-relayfs channels can be used in either of two modes - 'overwrite' or
+-'no-overwrite'.  The mode is entirely determined by the implementation
+-of the subbuf_start() callback, as described below.  In 'overwrite'
+-mode, also known as 'flight recorder' mode, writes continuously cycle
+-around the buffer and will never fail, but will unconditionally
+-overwrite old data regardless of whether it's actually been consumed.
+-In no-overwrite mode, writes will fail i.e. data will be lost, if the
+-number of unconsumed sub-buffers equals the total number of
+-sub-buffers in the channel.  It should be clear that if there is no
+-consumer or if the consumer can't consume sub-buffers fast enought,
+-data will be lost in either case; the only difference is whether data
+-is lost from the beginning or the end of a buffer.
+-
+-As explained above, a relayfs channel is made of up one or more
+-per-cpu channel buffers, each implemented as a circular buffer
+-subdivided into one or more sub-buffers.  Messages are written into
+-the current sub-buffer of the channel's current per-cpu buffer via the
+-write functions described below.  Whenever a message can't fit into
+-the current sub-buffer, because there's no room left for it, the
+-client is notified via the subbuf_start() callback that a switch to a
+-new sub-buffer is about to occur.  The client uses this callback to 1)
+-initialize the next sub-buffer if appropriate 2) finalize the previous
+-sub-buffer if appropriate and 3) return a boolean value indicating
+-whether or not to actually go ahead with the sub-buffer switch.
+-
+-To implement 'no-overwrite' mode, the userspace client would provide
+-an implementation of the subbuf_start() callback something like the
+-following:
+-
+-static int subbuf_start(struct rchan_buf *buf,
+-                        void *subbuf,
+-			void *prev_subbuf,
+-			unsigned int prev_padding)
+-{
+-	if (prev_subbuf)
+-		*((unsigned *)prev_subbuf) = prev_padding;
+-
+-	if (relay_buf_full(buf))
+-		return 0;
+-
+-	subbuf_start_reserve(buf, sizeof(unsigned int));
+-
+-	return 1;
+-}
+-
+-If the current buffer is full i.e. all sub-buffers remain unconsumed,
+-the callback returns 0 to indicate that the buffer switch should not
+-occur yet i.e. until the consumer has had a chance to read the current
+-set of ready sub-buffers.  For the relay_buf_full() function to make
+-sense, the consumer is reponsible for notifying relayfs when
+-sub-buffers have been consumed via relay_subbufs_consumed().  Any
+-subsequent attempts to write into the buffer will again invoke the
+-subbuf_start() callback with the same parameters; only when the
+-consumer has consumed one or more of the ready sub-buffers will
+-relay_buf_full() return 0, in which case the buffer switch can
+-continue.
+-
+-The implementation of the subbuf_start() callback for 'overwrite' mode
+-would be very similar:
+-
+-static int subbuf_start(struct rchan_buf *buf,
+-                        void *subbuf,
+-			void *prev_subbuf,
+-			unsigned int prev_padding)
+-{
+-	if (prev_subbuf)
+-		*((unsigned *)prev_subbuf) = prev_padding;
+-
+-	subbuf_start_reserve(buf, sizeof(unsigned int));
+-
+-	return 1;
+-}
+-
+-In this case, the relay_buf_full() check is meaningless and the
+-callback always returns 1, causing the buffer switch to occur
+-unconditionally.  It's also meaningless for the client to use the
+-relay_subbufs_consumed() function in this mode, as it's never
+-consulted.
+-
+-The default subbuf_start() implementation, used if the client doesn't
+-define any callbacks, or doesn't define the subbuf_start() callback,
+-implements the simplest possible 'no-overwrite' mode i.e. it does
+-nothing but return 0.
+-
+-Header information can be reserved at the beginning of each sub-buffer
+-by calling the subbuf_start_reserve() helper function from within the
+-subbuf_start() callback.  This reserved area can be used to store
+-whatever information the client wants.  In the example above, room is
+-reserved in each sub-buffer to store the padding count for that
+-sub-buffer.  This is filled in for the previous sub-buffer in the
+-subbuf_start() implementation; the padding value for the previous
+-sub-buffer is passed into the subbuf_start() callback along with a
+-pointer to the previous sub-buffer, since the padding value isn't
+-known until a sub-buffer is filled.  The subbuf_start() callback is
+-also called for the first sub-buffer when the channel is opened, to
+-give the client a chance to reserve space in it.  In this case the
+-previous sub-buffer pointer passed into the callback will be NULL, so
+-the client should check the value of the prev_subbuf pointer before
+-writing into the previous sub-buffer.
+-
+-Writing to a channel
+---------------------
+-
+-kernel clients write data into the current cpu's channel buffer using
+-relay_write() or __relay_write().  relay_write() is the main logging
+-function - it uses local_irqsave() to protect the buffer and should be
+-used if you might be logging from interrupt context.  If you know
+-you'll never be logging from interrupt context, you can use
+-__relay_write(), which only disables preemption.  These functions
+-don't return a value, so you can't determine whether or not they
+-failed - the assumption is that you wouldn't want to check a return
+-value in the fast logging path anyway, and that they'll always succeed
+-unless the buffer is full and no-overwrite mode is being used, in
+-which case you can detect a failed write in the subbuf_start()
+-callback by calling the relay_buf_full() helper function.
+-
+-relay_reserve() is used to reserve a slot in a channel buffer which
+-can be written to later.  This would typically be used in applications
+-that need to write directly into a channel buffer without having to
+-stage data in a temporary buffer beforehand.  Because the actual write
+-may not happen immediately after the slot is reserved, applications
+-using relay_reserve() can keep a count of the number of bytes actually
+-written, either in space reserved in the sub-buffers themselves or as
+-a separate array.  See the 'reserve' example in the relay-apps tarball
+-at http://relayfs.sourceforge.net for an example of how this can be
+-done.  Because the write is under control of the client and is
+-separated from the reserve, relay_reserve() doesn't protect the buffer
+-at all - it's up to the client to provide the appropriate
+-synchronization when using relay_reserve().
+-
+-Closing a channel
+------------------
+-
+-The client calls relay_close() when it's finished using the channel.
+-The channel and its associated buffers are destroyed when there are no
+-longer any references to any of the channel buffers.  relay_flush()
+-forces a sub-buffer switch on all the channel buffers, and can be used
+-to finalize and process the last sub-buffers before the channel is
+-closed.
+-
+-Creating non-relay files
+-------------------------
+-
+-relay_open() automatically creates files in the relayfs filesystem to
+-represent the per-cpu kernel buffers; it's often useful for
+-applications to be able to create their own files alongside the relay
+-files in the relayfs filesystem as well e.g. 'control' files much like
+-those created in /proc or debugfs for similar purposes, used to
+-communicate control information between the kernel and user sides of a
+-relayfs application.  For this purpose the relayfs_create_file() and
+-relayfs_remove_file() API functions exist.  For relayfs_create_file(),
+-the caller passes in a set of user-defined file operations to be used
+-for the file and an optional void * to a user-specified data item,
+-which will be accessible via inode->u.generic_ip (see the relay-apps
+-tarball for examples).  The file_operations are a required parameter
+-to relayfs_create_file() and thus the semantics of these files are
+-completely defined by the caller.
+-
+-See the relay-apps tarball at http://relayfs.sourceforge.net for
+-examples of how these non-relay files are meant to be used.
+-
+-Creating relay files in other filesystems
+------------------------------------------
+-
+-By default of course, relay_open() creates relay files in the relayfs
+-filesystem.  Because relay_file_operations is exported, however, it's
+-also possible to create and use relay files in other pseudo-filesytems
+-such as debugfs.
+-
+-For this purpose, two callback functions are provided,
+-create_buf_file() and remove_buf_file().  create_buf_file() is called
+-once for each per-cpu buffer from relay_open() to allow the client to
+-create a file to be used to represent the corresponding buffer; if
+-this callback is not defined, the default implementation will create
+-and return a file in the relayfs filesystem to represent the buffer.
+-The callback should return the dentry of the file created to represent
+-the relay buffer.  Note that the parent directory passed to
+-relay_open() (and passed along to the callback), if specified, must
+-exist in the same filesystem the new relay file is created in.  If
+-create_buf_file() is defined, remove_buf_file() must also be defined;
+-it's responsible for deleting the file(s) created in create_buf_file()
+-and is called during relay_close().
+-
+-The create_buf_file() implementation can also be defined in such a way
+-as to allow the creation of a single 'global' buffer instead of the
+-default per-cpu set.  This can be useful for applications interested
+-mainly in seeing the relative ordering of system-wide events without
+-the need to bother with saving explicit timestamps for the purpose of
+-merging/sorting per-cpu files in a postprocessing step.
+-
+-To have relay_open() create a global buffer, the create_buf_file()
+-implementation should set the value of the is_global outparam to a
+-non-zero value in addition to creating the file that will be used to
+-represent the single buffer.  In the case of a global buffer,
+-create_buf_file() and remove_buf_file() will be called only once.  The
+-normal channel-writing functions e.g. relay_write() can still be used
+-- writes from any cpu will transparently end up in the global buffer -
+-but since it is a global buffer, callers should make sure they use the
+-proper locking for such a buffer, either by wrapping writes in a
+-spinlock, or by copying a write function from relayfs_fs.h and
+-creating a local version that internally does the proper locking.
+-
+-See the 'exported-relayfile' examples in the relay-apps tarball for
+-examples of creating and using relay files in debugfs.
+-
+-Misc
+-----
+-
+-Some applications may want to keep a channel around and re-use it
+-rather than open and close a new channel for each use.  relay_reset()
+-can be used for this purpose - it resets a channel to its initial
+-state without reallocating channel buffer memory or destroying
+-existing mappings.  It should however only be called when it's safe to
+-do so i.e. when the channel isn't currently being written to.
+-
+-Finally, there are a couple of utility callbacks that can be used for
+-different purposes.  buf_mapped() is called whenever a channel buffer
+-is mmapped from user space and buf_unmapped() is called when it's
+-unmapped.  The client can use this notification to trigger actions
+-within the kernel application, such as enabling/disabling logging to
+-the channel.
+-
+-
+-Resources
+-=========
+-
+-For news, example code, mailing list, etc. see the relayfs homepage:
+-
+-    http://relayfs.sourceforge.net
+-
+-
+-Credits
+-=======
+-
+-The ideas and specs for relayfs came about as a result of discussions
+-on tracing involving the following:
+-
+-Michel Dagenais		<michel.dagenais@polymtl.ca>
+-Richard Moore		<richardj_moore@uk.ibm.com>
+-Bob Wisniewski		<bob@watson.ibm.com>
+-Karim Yaghmour		<karim@opersys.com>
+-Tom Zanussi		<zanussi@us.ibm.com>
+-
+-Also thanks to Hubertus Franke for a lot of useful suggestions and bug
+-reports.
+
+
+

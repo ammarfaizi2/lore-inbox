@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbWHWVdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbWHWVgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbWHWVdw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 17:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbWHWVdw
+	id S965220AbWHWVgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 17:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWHWVgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 17:33:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:48834 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965216AbWHWVdv
+	Wed, 23 Aug 2006 17:36:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:62609 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965217AbWHWVgp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 17:33:51 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Wed, 23 Aug 2006 17:36:45 -0400
+Date: Wed, 23 Aug 2006 16:36:42 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 2/6]: powerpc/cell spidernet low watermark patch.
+Message-ID: <20060823213642.GG4401@austin.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <200608190109.15129.arnd@arndb.de> <1156055509.5803.77.camel@localhost.localdomain> <200608201203.15645.arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17644.51669.336558.548450@tut.ibm.com>
-Date: Wed, 23 Aug 2006 16:34:13 -0500
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: zanussi@us.ibm.com, karim@opersys.com, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH 1/3] kernel-doc for relay interface
-In-Reply-To: <44BF9E42.60206@oracle.com>
-References: <44BF9E42.60206@oracle.com>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <200608201203.15645.arnd@arndb.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap writes:
- > From: Randy Dunlap <rdunlap@xenotime.net>
- > 
- > Add relay interface support to DocBook/kernel-api.tmpl.
- > Fix typos etc. in relay.c and relayfs.txt.
+On Sun, Aug 20, 2006 at 12:03:14PM +0200, Arnd Bergmann wrote:
+> On Sunday 20 August 2006 08:31, Benjamin Herrenschmidt wrote:
+> > > card->low_watermark->next->dmac_cmd_status |= SPIDER_NET_DESCR_TXDESFLG;
+> > > mb();
+> > > card->low_watermark->dmac_cmd_status &= ~SPIDER_NET_DESCR_TXDESFLG;
+> > > card->low_watermark = card->low_watermark->next;
+> > > 
+> > > when we queue another frame for TX.
+> > 
+> > I would have expected those to be racy vs. the hardware... what if the
+> > hardware is updating dmac_cmd_status just as your are trying to and the
+> > bit out of it ?
+> 
+> Right, that doesn't work. It is the only bit we use in that byte though,
+> so maybe it can be done with a single byte write.
 
-Looks good, thanks.
+Thanks, you're right, I missed that.  I'll change this to byte access 
+shortly.  Any recommendations for style/api for byte access? 
 
-I just posted new documentation for relayfs.txt that contains the
-relayfs.txt fixes here (and moves it all to relay.txt), but the
-kernel-api.tmpl and relay.c changes here should still be applied
-(since relayfs.txt gets removed anyway, there shouldn't be any problem
-applying this whole patch first)
+I could create a searate patch to change struct descr {} to split 
+the u32 into several u8's; there's a dozen spots that get touched.
 
-Tom
+Alternatel, I could do a cheesy cast to char[4] and access that way.
+Opinions?
 
-Acked-by: Tom Zanussi <zanussi@us.ibm.com>
-
- > 
- > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
- > ---
- >  Documentation/DocBook/kernel-api.tmpl |   16 +++++++++++++++
- >  Documentation/filesystems/relayfs.txt |   30 ++++++++++++++--------------
- >  kernel/relay.c                        |   36 ++++++++++++++++++++--------------
- >  3 files changed, 53 insertions(+), 29 deletions(-)
-
-
+--linas

@@ -1,145 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965308AbWHWXec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWHWXf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965308AbWHWXec (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHWXec
+	id S965181AbWHWXf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 19:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHWXf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:34:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11218 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965181AbWHWXeb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:34:31 -0400
-Date: Wed, 23 Aug 2006 16:34:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>
-Subject: Re: [RFC][PATCH] Manage jbd allocations from its own slabs
-Message-Id: <20060823163410.d9af3baa.akpm@osdl.org>
-In-Reply-To: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 19:35:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:7670 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965181AbWHWXf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 19:35:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=rqC9PjKF1t2D2C8/NgEI6IiVYgyd7egdwjVQsAmCrjvE6A8WPDUWnoURKYIAERrWM0xfN5t2KcSDDTs4TkQoE2h0dKBEBsLgyBEUUNdZmr+w0h3TFlAT4GnivqaqXDbET42NF6h3lJgLhVJ7OTfKqGAW7h7Iwb/dqQCIFVOfztE=
+Date: Thu, 24 Aug 2006 03:35:22 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Darren Jenkins <darrenrjenkins@gmail.com>, linux-kernel@vger.kernel.org,
+       Karol Kozimor <sziwan@users.sourceforge.net>,
+       Julien Lerouge <julien.lerouge@free.fr>
+Subject: [PATCH 1/2] asus_acpi: fix error checking in /proc files
+Message-ID: <20060823233522.GD5203@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 16:08:15 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+From: Darren Jenkins <darrenrjenkins@gmail.com>
 
-> Hi,
-> 
-> Here is the fix to "bh: Ensure bh fits within a page" problem
-> caused by JBD.
-> 
-> BTW, I realized that this problem can happen only with 1k, 2k
-> filesystems - as 4k, 8k allocations disable slab debug 
-> automatically. But for completeness, I created slabs for those
-> also.
-> 
-> What do you think ? I ran basic tests and things are fine.
-> 
+ICC complains about a "Pointless comparsion of unsigned interger with
+zero" @ line 760 & 808 of asus_acpi.c
 
-Thanks for working on this.
+parse_arg() mentioned below returns -E but it's copied into unsigned variable...
 
-> ...
->
->  /*
-> + * jbd slab management: create 1k, 2k, 4k, 8k slabs and allocate
-> + * frozen and commit buffers from these slabs.
-> + *
-> + * Reason for doing this is to avoid, SLAB_DEBUG - since it could
-> + * cause bh to cross page boundary.
-> + */
-> +
-> +static kmem_cache_t *jbd_slab[4];
-> +static const char *jbd_slab_names[4] = {
-> +	"jbd_1k",
-> +	"jbd_2k",
-> +	"jbd_4k",
-> +	"jbd_8k",
-> +};
-> +
-> +static void journal_destroy_jbd_slabs(void)
-> +{
-> +	int i;
-> +
-> +	for (i=0; i<4; i++) {
-> +		if (jbd_slab[i])
-> +			kmem_cache_destroy(jbd_slab[i]);
-> +		jbd_slab[i] = NULL;
-> +	}
-> +}
-> +
-> +static int journal_init_jbd_slabs(void)
-> +{
-> +	int i = 0;
-> +	int retval = 0;
-> +
-> +	for (i=0; i<4; i++) {
-> +		unsigned long slab_size = 1024 << i;
-> +		jbd_slab[i] = kmem_cache_create(jbd_slab_names[i],
-> +					slab_size, slab_size,
-> +					0, NULL, NULL);
+Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-OK, passing align=slab_size fixes the bug.
+ drivers/acpi/asus_acpi.c |   34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-> +		if (jbd_slab[i] == 0) {
-> +			journal_destroy_jbd_slabs();
-> +			retval = -ENOMEM;
-> +			printk(KERN_EMERG "JBD: no memory for jbd_slab cache\n");
-> +			goto out;
-> +		}
-> +	}
-> +out:
-> +	return retval;
-> +}
-
-Do we have to create all four slabs up-front?  Perhaps we can defer that
-until mount-time, after we have determined the filesystem's block size.
-
-That way, most people's machines will only ever create a single slab cache:
-jbd_4k.
-
-> +static int jbd_find_slab_index(size_t size)
-> +{
-> +	int idx = 0;
-> +
-> +	switch (size) {
-> +	case 1024:	idx = 0;
-> +			break;
-> +	case 2048:	idx = 1;
-> +			break;
-> +	case 4096:	idx = 2;
-> +			break;
-> +	case 8192:	idx = 3;
-> +			break;
-> +	default:	printk("JBD unknown slab size %ld\n", size);
-> +			BUG();
-> +	}
-> +	return idx;
-> +}
-
-I'd suggest this function be changed to directly return a kmem_cache_t *.
-
-> +void * jbd_slab_alloc(size_t size, gfp_t flags)
-> +{
-> +	int idx;
-> +
-> +	idx = jbd_find_slab_index(size);
-> +	return kmem_cache_alloc(jbd_slab[idx], flags | __GFP_NOFAIL);
-> +}
-> +
-> +void jbd_slab_free(void *ptr,  size_t size)
-> +{
-> +	int idx;
-> +
-> +	idx = jbd_find_slab_index(size);
-> +	kmem_cache_free(jbd_slab[idx], ptr);
-> +}
-
-Then these become simpler.
-
+--- a/drivers/acpi/asus_acpi.c
++++ b/drivers/acpi/asus_acpi.c
+@@ -555,11 +555,11 @@ static int
+ write_led(const char __user * buffer, unsigned long count,
+ 	  char *ledname, int ledmask, int invert)
+ {
+-	int value;
++	int rv, value;
+ 	int led_out = 0;
+ 
+-	count = parse_arg(buffer, count, &value);
+-	if (count > 0)
++	rv = parse_arg(buffer, count, &value);
++	if (rv > 0)
+ 		led_out = value ? 1 : 0;
+ 
+ 	hotk->status =
+@@ -607,17 +607,17 @@ static int
+ proc_write_ledd(struct file *file, const char __user * buffer,
+ 		unsigned long count, void *data)
+ {
+-	int value;
++	int rv, value;
+ 
+-	count = parse_arg(buffer, count, &value);
+-	if (count > 0) {
++	rv = parse_arg(buffer, count, &value);
++	if (rv > 0) {
+ 		if (!write_acpi_int
+ 		    (hotk->handle, hotk->methods->mt_ledd, value, NULL))
+ 			printk(KERN_WARNING
+ 			       "Asus ACPI: LED display write failed\n");
+ 		else
+ 			hotk->ledd_status = (u32) value;
+-	} else if (count < 0)
++	} else if (rv < 0)
+ 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
+ 
+ 	return count;
+@@ -761,10 +761,10 @@ static int
+ proc_write_lcd(struct file *file, const char __user * buffer,
+ 	       unsigned long count, void *data)
+ {
+-	int value;
++	int rv, value;
+ 
+-	count = parse_arg(buffer, count, &value);
+-	if (count > 0)
++	rv = parse_arg(buffer, count, &value);
++	if (rv > 0)
+ 		set_lcd_state(value);
+ 	return count;
+ }
+@@ -830,10 +830,10 @@ static int
+ proc_write_brn(struct file *file, const char __user * buffer,
+ 	       unsigned long count, void *data)
+ {
+-	int value;
++	int rv, value;
+ 
+-	count = parse_arg(buffer, count, &value);
+-	if (count > 0) {
++	rv = parse_arg(buffer, count, &value);
++	if (rv > 0) {
+ 		value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
+ 		/* 0 <= value <= 15 */
+ 		set_brightness(value);
+@@ -880,12 +880,12 @@ static int
+ proc_write_disp(struct file *file, const char __user * buffer,
+ 		unsigned long count, void *data)
+ {
+-	int value;
++	int rv, value;
+ 
+-	count = parse_arg(buffer, count, &value);
+-	if (count > 0)
++	rv = parse_arg(buffer, count, &value);
++	if (rv > 0)
+ 		set_display(value);
+-	else if (count < 0)
++	else if (rv < 0)
+ 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
+ 
+ 	return count;
 

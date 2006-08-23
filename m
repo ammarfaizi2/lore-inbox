@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWHWA55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWHWB27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWHWA55 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 20:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWHWA55
+	id S932138AbWHWB27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 21:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWHWB27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 20:57:57 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:3272 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S932215AbWHWA54 (ORCPT
+	Tue, 22 Aug 2006 21:28:59 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:53212 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932138AbWHWB26 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 20:57:56 -0400
-Date: Wed, 23 Aug 2006 09:57:36 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Bjo Breiskoll <bjo@nefkom.net>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Relay Subsystem the 2nd.
-Message-ID: <20060823005736.GA8047@localhost.hsdv.com>
-References: <002d01c6c645$9be1afe0$03b2a8c0@bjoserver>
-MIME-Version: 1.0
+	Tue, 22 Aug 2006 21:28:58 -0400
+Date: Wed, 23 Aug 2006 06:59:59 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, hch@infradead.org,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Jim Keniston <jkenisto@us.ibm.com>, davem@davemloft.net,
+       schwidefsky@de.ibm.com
+Subject: Re: [PATCH 2/3] Add retval_value helper (updated)
+Message-ID: <20060823012959.GA7927@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20060822052448.GA26279@in.ibm.com> <20060822052841.GB26279@in.ibm.com> <20060822141307.672850d7.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <002d01c6c645$9be1afe0$03b2a8c0@bjoserver>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060822141307.672850d7.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 01:49:29AM +0200, Bjo Breiskoll wrote:
-> back to my question last week. I would like to implement a new kernel-modul
-> with the ability to write data from kernelspace to userspace via the new
-> relay subsystem. The less info from block/blktrace.c is insufficient
-> unfortunately. The userspace-program should be able to "listen" to the
-> kernel-modul if there is new data written. My first Implementation with data
-> exchange over copy_to_user() and a char-device is insufficient. So i need an
-> hint for something like blocked-IO for relay-files. Is this possible with
-> the new relay-subsystem?
->  
-Is there something insufficient with poll() on relay files?
+On Tue, Aug 22, 2006 at 02:13:07PM -0700, Andrew Morton wrote:
+> On Tue, 22 Aug 2006 10:58:41 +0530
+> Ananth N Mavinakayanahalli <ananth@in.ibm.com> wrote:
+> 
+> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> > 
+> > Add the return_value() macro to extract the return value in an
+> > architecture agnostic manner, given the pt_regs.
+> > 
+> > Other architecture maintainers may want to add similar helpers.
+> 
+> return_value() is quite a generic-sounding thing.
+> 
+> box:/usr/src/linux-2.6.18-rc4> grep -r return_value . | wc -l
+> 66
+> 
+> 
+> How about regs_return_value()?
+
+Yes, that sounds fine too.
+
+Ananth

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWHWPaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWHWPgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964989AbWHWPaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWHWPaV
+	id S964983AbWHWPgU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHWPgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:30:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6119 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964989AbWHWPaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:30:20 -0400
-Date: Wed, 23 Aug 2006 16:29:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 9/18] 2.6.17.9 perfmon2 patch for review: kernel-level interface support
-Message-ID: <20060823152959.GD32725@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephane Eranian <eranian@frankl.hpl.hp.com>,
-	linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-References: <200608230806.k7N860es000444@frankl.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608230806.k7N860es000444@frankl.hpl.hp.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 23 Aug 2006 11:36:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40591 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964983AbWHWPgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:36:19 -0400
+Message-ID: <44EC75E9.2020608@redhat.com>
+Date: Wed, 23 Aug 2006 11:36:09 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060801)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Robert Szentmihalyi <robert.szentmihalyi@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Group limit for NFS exported file systems
+References: <20060823091652.235230@gmx.net> <p73u043656n.fsf@verdi.suse.de>
+In-Reply-To: <p73u043656n.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 01:06:00AM -0700, Stephane Eranian wrote:
-> This patch contains the kernel-level API support.
-> 
-> 
-> Some users have requested the ability to create a monitoring session
-> with perfmon2 from iside the kernel using a kernel thread. Perfmon2
-> leverages a lot of kernel mechanisms which are not easy to use for
-> inside the kernel: e.g. file descriptor, signals, system calls.
+Andi Kleen wrote:
+> "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de> writes:
+>
+>   
+>> is there a group limit for NFS exported file systems in recent kernels?
+>> One if my users cannot access directories that belong to a group he actually _is_ a member of. That, however, is true only when accessing them over NFS. On the local file system, everything is fine. UIDs and GIDs are the same on client and server, so that cannot be the problem. Client and server run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
+>>     
+>
+> NFSv2 has a 8 groups limit in the protocol iirc.
 
-Again, please drop this.  There are no planned intree kernel users
-so far, and once we add them we can architect a proper API for them.
-Getting rid of this should also help to collapse the tons of useless
-abstractions layers in the current perfmon code.
+Ahh, no.  None of the NFS protocols define anything about the authentication
+protocols.  This is defined by the RPC protocol and it defines a limit of 16
+for AUTH_SYS, otherwise known as AUTH_UNIX.
 
+Interestingly, the original NFSv2 implementations had a limit of 8, then 10,
+and then finally 16.
+
+    Thanx...
+
+       ps

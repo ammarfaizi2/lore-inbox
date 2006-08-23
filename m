@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHWGTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHWGTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWHWGTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 02:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWHWGTK
+	id S1751392AbWHWGTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 02:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWHWGTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 02:19:10 -0400
-Received: from mx1.mail.ru ([194.67.23.121]:51026 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S1751379AbWHWGTH (ORCPT
+	Wed, 23 Aug 2006 02:19:16 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:1875 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1751392AbWHWGTP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 02:19:07 -0400
-Date: Wed, 23 Aug 2006 10:28:22 +0400
+	Wed, 23 Aug 2006 02:19:15 -0400
+Date: Wed, 23 Aug 2006 10:28:32 +0400
 From: Evgeniy Dushistov <dushistov@mail.ru>
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2]: ufs: write to hole in big file
-Message-ID: <20060823062822.GA8311@rain>
+Subject: [PATCH 2/2]: ufs: truncate correction
+Message-ID: <20060823062832.GA8380@rain>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
@@ -24,119 +24,146 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Such scenario:
-open(O_TRUNC)
-lseek(1024 * 1024 * 80)
-write("A")
-lseek(1024 * 2)
-write("A")
+1)When we allocated last fragment in ufs_truncate,
+we read page, check if block mapped to address, and if not
+trying to allocate it. This is wrong behaviour,
+fragment may be NOT allocated, but mapped, this happened because of
+"block map" function not checked allocated fragment or not,
+it just take address of the first fragment in the block, add
+offset of fragment and return result, this is correct behaviour
+in almost all situation except call from ufs_truncate.
 
-may cause access to invalid address.
-This happened because of "goal" is calculated in wrong way 
-in block allocation path, as I see this problem exists also in 2.4.
-We use construction like
-this i_data[lastfrag], i_data array of pointers to direct
-blocks, indirect and so on, it has ceratain size ~20 elements,
-and lastfrag may have value for example 40000.
-Also this patch fixes related to handling such scenario issues,
-wrong zeroing metadata, in case of block(not fragment) allocation,
-and wrong goal calculation, when we allocate block
+2)Almost all implementation of UFS, which I can investigate have such
+"defect": if you have full disk, and try truncate file,
+for example 3GB to 2MB, and have hole in this region,
+truncate return -ENOSPC. I tried evade from this problem,
+but "block allocation" algorithm is tied to right value of
+i_lastfrag, and fix of this corner case may slow down
+of ordinaries scenarios, so this patch makes behavior of "truncate"
+operations similar to what other UFS implementations do.
 
 Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
 ---
 
-Index: linux-2.6.18-rc4-mm1/fs/ufs/inode.c
+Index: linux-2.6.18-rc4-mm1/fs/ufs/truncate.c
 ===================================================================
---- linux-2.6.18-rc4-mm1.orig/fs/ufs/inode.c
-+++ linux-2.6.18-rc4-mm1/fs/ufs/inode.c
-@@ -169,18 +169,20 @@ static void ufs_clear_frag(struct inode 
+--- linux-2.6.18-rc4-mm1.orig/fs/ufs/truncate.c
++++ linux-2.6.18-rc4-mm1/fs/ufs/truncate.c
+@@ -375,17 +375,15 @@ static int ufs_alloc_lastblock(struct in
+ 	int err = 0;
+ 	struct address_space *mapping = inode->i_mapping;
+ 	struct ufs_sb_private_info *uspi = UFS_SB(inode->i_sb)->s_uspi;
+-	struct ufs_inode_info *ufsi = UFS_I(inode);
+ 	unsigned lastfrag, i, end;
+ 	struct page *lastpage;
+ 	struct buffer_head *bh;
  
- static struct buffer_head *
- ufs_clear_frags(struct inode *inode, sector_t beg,
--		unsigned int n)
-+		unsigned int n, sector_t want)
- {
--	struct buffer_head *res, *bh;
-+	struct buffer_head *res = NULL, *bh;
- 	sector_t end = beg + n;
+ 	lastfrag = (i_size_read(inode) + uspi->s_fsize - 1) >> uspi->s_fshift;
  
--	res = sb_getblk(inode->i_sb, beg);
--	ufs_clear_frag(inode, res);
--	for (++beg; beg < end; ++beg) {
-+	for (; beg < end; ++beg) {
- 		bh = sb_getblk(inode->i_sb, beg);
- 		ufs_clear_frag(inode, bh);
--		brelse(bh);
-+		if (want != beg)
-+			brelse(bh);
-+		else
-+			res = bh;
- 	}
-+	BUG_ON(!res);
- 	return res;
- }
- 
-@@ -265,7 +267,9 @@ repeat:
- 			lastfrag = ufsi->i_lastfrag;
- 			
- 		}
--		goal = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock]) + uspi->s_fpb;
-+		tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock]);
-+		if (tmp)
-+			goal = tmp + uspi->s_fpb;
- 		tmp = ufs_new_fragments (inode, p, fragment - blockoff, 
- 					 goal, required + blockoff,
- 					 err, locked_page);
-@@ -277,13 +281,15 @@ repeat:
- 		tmp = ufs_new_fragments(inode, p, fragment - (blockoff - lastblockoff),
- 					fs32_to_cpu(sb, *p), required +  (blockoff - lastblockoff),
- 					err, locked_page);
+-	if (!lastfrag) {
+-		ufsi->i_lastfrag = 0;
++	if (!lastfrag)
+ 		goto out;
 -	}
-+	} else /* (lastblock > block) */ {
- 	/*
- 	 * We will allocate new block before last allocated block
- 	 */
--	else /* (lastblock > block) */ {
--		if (lastblock && (tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[lastblock-1])))
--			goal = tmp + uspi->s_fpb;
-+		if (block) {
-+			tmp = fs32_to_cpu(sb, ufsi->i_u1.i_data[block-1]);
-+			if (tmp)
-+				goal = tmp + uspi->s_fpb;
-+		}
- 		tmp = ufs_new_fragments(inode, p, fragment - blockoff,
- 					goal, uspi->s_fpb, err, locked_page);
++
+ 	lastfrag--;
+ 
+ 	lastpage = ufs_get_locked_page(mapping, lastfrag >>
+@@ -400,25 +398,25 @@ static int ufs_alloc_lastblock(struct in
+        for (i = 0; i < end; ++i)
+                bh = bh->b_this_page;
+ 
+-       if (!buffer_mapped(bh)) {
+-               err = ufs_getfrag_block(inode, lastfrag, bh, 1);
+ 
+-               if (unlikely(err))
+-                       goto out_unlock;
++       err = ufs_getfrag_block(inode, lastfrag, bh, 1);
++
++       if (unlikely(err))
++	       goto out_unlock;
+ 
+-               if (buffer_new(bh)) {
+-                       clear_buffer_new(bh);
+-                       unmap_underlying_metadata(bh->b_bdev,
+-						 bh->b_blocknr);
+-		       /*
+-			* we do not zeroize fragment, because of
+-			* if it maped to hole, it already contains zeroes
+-			*/
+-                       set_buffer_uptodate(bh);
+-                       mark_buffer_dirty(bh);
+-                       set_page_dirty(lastpage);
+-               }
++       if (buffer_new(bh)) {
++	       clear_buffer_new(bh);
++	       unmap_underlying_metadata(bh->b_bdev,
++					 bh->b_blocknr);
++	       /*
++		* we do not zeroize fragment, because of
++		* if it maped to hole, it already contains zeroes
++		*/
++	       set_buffer_uptodate(bh);
++	       mark_buffer_dirty(bh);
++	       set_page_dirty(lastpage);
+        }
++
+ out_unlock:
+        ufs_put_locked_page(lastpage);
+ out:
+@@ -440,23 +438,11 @@ int ufs_truncate(struct inode *inode, lo
+ 	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+ 		return -EPERM;
+ 
+-	if (inode->i_size > old_i_size) {
+-		/*
+-		 * if we expand file we should care about
+-		 * allocation of block for last byte first of all
+-		 */
+-		err = ufs_alloc_lastblock(inode);
+-
+-		if (err) {
+-			i_size_write(inode, old_i_size);
+-			goto out;
+-		}
+-		/*
+-		 * go away, because of we expand file, and we do not
+-		 * need free blocks, and zeroizes page
+-		 */
+-		lock_kernel();
+-		goto almost_end;
++	err = ufs_alloc_lastblock(inode);
++
++	if (err) {
++		i_size_write(inode, old_i_size);
++		goto out;
  	}
-@@ -296,7 +302,7 @@ repeat:
+ 
+ 	block_truncate_page(inode->i_mapping, inode->i_size, ufs_getfrag_block);
+@@ -477,21 +463,8 @@ int ufs_truncate(struct inode *inode, lo
+ 		yield();
  	}
  
- 	if (!phys) {
--		result = ufs_clear_frags(inode, tmp + blockoff, required);
-+		result = ufs_clear_frags(inode, tmp, required, tmp + blockoff);
- 	} else {
- 		*phys = tmp + blockoff;
- 		result = NULL;
-@@ -383,7 +389,7 @@ repeat:
- 		}
- 	}
- 
--	if (block && (tmp = fs32_to_cpu(sb, ((__fs32*)bh->b_data)[block-1]) + uspi->s_fpb))
-+	if (block && (tmp = fs32_to_cpu(sb, ((__fs32*)bh->b_data)[block-1])))
- 		goal = tmp + uspi->s_fpb;
- 	else
- 		goal = bh->b_blocknr + uspi->s_fpb;
-@@ -397,7 +403,8 @@ repeat:
- 
- 
- 	if (!phys) {
--		result = ufs_clear_frags(inode, tmp + blockoff, uspi->s_fpb);
-+		result = ufs_clear_frags(inode, tmp, uspi->s_fpb,
-+					 tmp + blockoff);
- 	} else {
- 		*phys = tmp + blockoff;
- 		*new = 1;
-
+-	if (inode->i_size < old_i_size) {
+-		/*
+-		 * now we should have enough space
+-		 * to allocate block for last byte
+-		 */
+-		err = ufs_alloc_lastblock(inode);
+-		if (err)
+-			/*
+-			 * looks like all the same - we have no space,
+-			 * but we truncate file already
+-			 */
+-			inode->i_size = (ufsi->i_lastfrag - 1) * uspi->s_fsize;
+-	}
+-almost_end:
+ 	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
++	ufsi->i_lastfrag = DIRECT_FRAGMENT;
+ 	unlock_kernel();
+ 	mark_inode_dirty(inode);
+ out:
 
 -- 
 /Evgeniy

@@ -1,57 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWHWKFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWHWKJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWHWKFX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 06:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWHWKFX
+	id S964800AbWHWKJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 06:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWHWKJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 06:05:23 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:20413 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964805AbWHWKFV (ORCPT
+	Wed, 23 Aug 2006 06:09:28 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:40921 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964800AbWHWKJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 06:05:21 -0400
-Date: Wed, 23 Aug 2006 14:03:03 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: Jari Sundell <sundell.software@gmail.com>,
-       David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
-       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Message-ID: <20060823100303.GA1144@2ka.mipt.ru>
-References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com> <20060822231129.GA18296@ms2.inr.ac.ru> <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com> <20060822.173200.126578369.davem@davemloft.net> <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com> <20060823065659.GC24787@2ka.mipt.ru> <20060823000758.5ebed7dd.akpm@osdl.org> <20060823071002.GA16400@2ka.mipt.ru> <p73pser7ozn.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <p73pser7ozn.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Aug 2006 14:03:07 +0400 (MSD)
+	Wed, 23 Aug 2006 06:09:27 -0400
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/18] 2.6.17.9 perfmon2 patch for review: modified x86_64 files
+References: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Aug 2006 12:09:25 +0200
+In-Reply-To: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
+Message-ID: <p73k64z7oh6.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 11:58:20AM +0200, Andi Kleen (ak@suse.de) wrote:
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> writes:
-> > 
-> > Let's then place there a structure with 64bit seconds and nanoseconds,
-> > similar to timspec, but without longs there.
-> 
-> You need 64bit (or at least more than 32bit) for the seconds,
-> otherwise you add a y2038 problem which would be sad in new code.
-> Remember you might be still alive then ;-)
+Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
 
-I hope so :)
+In general this stuff would be much easier to review if you
+really split it into logical pieces: this means not modified/new,
+but one patch doing one thing. Then the hooks could be reviewed
+together with the code.
 
-> Ok one could argue that on 32bit architectures 2038 is so deeply
-> embedded that it doesn't make much difference, but I still
-> think it would be better to not readd it to new interfaces there.
-> 
-> 64bit longs on 32bit is fine, as long as you use aligned_u64,
-> never long long or u64 (which has varying alignment between i386 and x86-64)
+> @@ -934,6 +935,7 @@ void setup_threshold_lvt(unsigned long l
+>  void smp_local_timer_interrupt(struct pt_regs *regs)
+>  {
+>  	profile_tick(CPU_PROFILING, regs);
+> + 	pfm_handle_switch_timeout();
 
-Btw, aligned_u64 is not exported to userspace.
-I commited a change with __u64 nanoseconds without any strucutres.
-Do we really need a structure?
+It is still unclear why you can't use an ordinary add_timer() ?
 
-> -Andi
+>  #include <asm/atomic.h>
+> @@ -589,6 +590,8 @@ void __init init_IRQ(void)
+>  	/* IPI vectors for APIC spurious and error interrupts */
+>  	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
+>  	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
+> +
+> + 	pfm_vector_init();
 
--- 
-	Evgeniy Polyakov
+I think I would prefer those to be expanded here so it's all in one place.
+
+>  		put_cpu();
+>  	}
+> +	pfm_exit_thread(me);
+>  }
+>  
+>  void flush_thread(void)
+> @@ -462,6 +464,8 @@ int copy_thread(int nr, unsigned long cl
+>  	asm("mov %%es,%0" : "=m" (p->thread.es));
+>  	asm("mov %%ds,%0" : "=m" (p->thread.ds));
+>  
+> +	pfm_copy_thread(p);
+> +
+
+AFAIK there was some work in -mm* for generic notifiers for exit/copy hooks. Can those
+be used?
+
+
+>  	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+>  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+>  		if (!p->thread.io_bitmap_ptr) {
+> @@ -532,6 +536,10 @@ static noinline void __switch_to_xtra(st
+>  		 */
+>  		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+>  	}
+> +
+> +	if (test_tsk_thread_flag(next_p, TIF_PERFMON)
+> +	    || test_tsk_thread_flag(prev_p, TIF_PERFMON))
+> +		pfm_ctxsw(prev_p, next_p);
+>  }
+>  
+>  /*
+> @@ -620,13 +628,12 @@ __switch_to(struct task_struct *prev_p, 
+>  	unlazy_fpu(prev_p);
+>  	write_pda(kernelstack,
+>  		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+> -
+> -	/*
+> -	 * Now maybe reload the debug registers and handle I/O bitmaps
+> -	 */
+> -	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
+> -	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
+> -		__switch_to_xtra(prev_p, next_p, tss);
+> +  	/*
+> + 	 * Now maybe reload the debug registers and handle I/O bitmaps
+> +  	 */
+> + 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
+> + 	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW)))
+> + 		__switch_to_xtra(prev_p, next_p, tss);
+
+
+This should be a separate patch for once (creating _TIF_WORK_CTXSW)
+
+>  
+>  	return prev_p;
+>  }
+> diff -urp linux-2.6.17.9.base/arch/x86_64/kernel/signal.c linux-2.6.17.9/arch/x86_64/kernel/signal.c
+> --- linux-2.6.17.9.base/arch/x86_64/kernel/signal.c	2006-08-18 09:26:24.000000000 -0700
+> +++ linux-2.6.17.9/arch/x86_64/kernel/signal.c	2006-08-21 03:37:46.000000000 -0700
+> @@ -24,6 +24,7 @@
+>  #include <linux/stddef.h>
+>  #include <linux/personality.h>
+>  #include <linux/compiler.h>
+> +#include <linux/perfmon.h>
+>  #include <asm/ucontext.h>
+>  #include <asm/uaccess.h>
+>  #include <asm/i387.h>
+> @@ -493,6 +494,8 @@ void do_notify_resume(struct pt_regs *re
+>  		clear_thread_flag(TIF_SINGLESTEP);
+>  	}
+>  
+> +	pfm_handle_work(current);
+
+At least the if () should be expanded, and most likely it wants
+merging with other flags too similar to the context switch (if (any work) { check which work })
+In separate patches again please.
+
+
+> +
+>  	/* deal with pending signal delivery */
+>  	if (thread_info_flags & _TIF_SIGPENDING)
+>  		do_signal(regs,oldset);
+> Only in linux-2.6.17.9/arch/x86_64: perfmon
+> diff -urp linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h linux-2.6.17.9/include/asm-x86_64/hw_irq.h
+> --- linux-2.6.17.9.base/include/asm-x86_64/hw_irq.h	2006-08-18 09:26:24.000000000 -0700
+> +++ linux-2.6.17.9/include/asm-x86_64/hw_irq.h	2006-08-21 03:37:46.000000000 -0700
+> @@ -67,6 +67,7 @@ struct hw_interrupt_type;
+>   * sources per level' errata.
+>   */
+>  #define LOCAL_TIMER_VECTOR	0xef
+> +#define LOCAL_PERFMON_VECTOR	0xee
+>  
+>  /*
+>   * First APIC vector available to drivers: (vectors 0x30-0xee)
+> @@ -74,7 +75,7 @@ struct hw_interrupt_type;
+>   * levels. (0x80 is the syscall vector)
+>   */
+>  #define FIRST_DEVICE_VECTOR	0x31
+> -#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
+> +#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
+
+We still had one up free iirc so there is no need to move the system vectors.
+
+-Andi

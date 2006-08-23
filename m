@@ -1,59 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWHWWFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWHWWLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWHWWFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWHWWFK
+	id S965239AbWHWWLY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbWHWWLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:05:10 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:12761 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965100AbWHWWFI (ORCPT
+	Wed, 23 Aug 2006 18:11:24 -0400
+Received: from rune.pobox.com ([208.210.124.79]:57065 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S965239AbWHWWLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:05:08 -0400
-Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
-From: Dave Hansen <haveblue@us.ibm.com>
-To: devel@openvz.org
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Rohit Seth <rohitseth@google.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <44EC35A3.7070308@sw.ru>
-References: <44EC31FB.2050002@sw.ru>  <44EC35A3.7070308@sw.ru>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 15:04:58 -0700
-Message-Id: <1156370698.12011.55.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 18:11:24 -0400
+Date: Wed, 23 Aug 2006 17:11:14 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
+       nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-ID: <20060823221114.GF11309@localdomain>
+References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme> <20060821140148.435d15f3.pj@sgi.com> <20060821215120.244f1f6f.akpm@osdl.org> <20060822050401.GB11309@localdomain> <20060821221437.255808fa.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821221437.255808fa.pj@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
-> --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
-> +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
-> @@ -432,3 +432,5 @@ source "security/Kconfig"
->  source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
-> +
-> +source "kernel/bc/Kconfig"
-...
-> --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
-> +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
-> @@ -432,3 +432,5 @@ source "security/Kconfig"
->  source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
-> +
-> +source "kernel/bc/Kconfig"
+Paul Jackson wrote:
+> Nathan wrote:
+> > I think it would be more sensible for the default (i.e. user hasn't
+> > explicitly configured any cpusets) behavior on a CONFIG_CPUSETS=y
+> > kernel to match the behavior with a CONFIG_CPUSETS=n kernel. 
+> 
+> Basically, in this situation, that would mean that the code that
+> masks a requested sched_setaffinity cpumask with the tasks
+> cpuset_cpus_allowed():
+> 
+> 	cpus_allowed = cpuset_cpus_allowed(p);
+> 	cpus_and(new_mask, new_mask, cpus_allowed);
+> 
+> would not be executed in the case of a kernel configured for cpusets,
+> when running on a system that wasn't using cpusets.
+> 
+> That's quite doable, and for systems not actually using cpusets, makes
+> good sense.
+> 
+> But it makes a bit of discontinuity in the system behaviour when
+> someone starts using cpusets.  If someone makes a cpuset, then suddenly
+> tasks in the top cpuset start seeing failed sched_setaffinity calls
+> for any CPU that was brought online after system boot.
+> 
+> If there is some decent way I can get the cpus_allowed of the top
+> cpuset to track the cpu_online_map, then we avoid this discontinuity
+> in system behaviour.
 
-Is it just me, or do these patches look a little funky?  Looks like it
-is trying to patch the same thing into the same file, twice.  Also, the
-patches look to be -p0 instead of -p1.  
 
-I'm having a few problems applying them.
+How about this?  I've verified it fixes the issue but I'm nervous
+about the locking.
 
--- Dave
 
+--- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
++++ cpuhp-sched_setaffinity/kernel/cpuset.c
+@@ -2033,6 +2033,31 @@ out:
+ 	return err;
+ }
+ 
++static int cpuset_handle_cpuhp(struct notifier_block *nb,
++				unsigned long phase, void *_cpu)
++{
++	unsigned long cpu = (unsigned long)_cpu;
++
++	mutex_lock(&manage_mutex);
++	lock_cpu_hotplug();
++	mutex_lock(&callback_mutex);
++
++	switch (phase) {
++	case CPU_ONLINE:
++		cpu_set(cpu, top_cpuset.cpus_allowed);
++		break;
++	case CPU_DEAD:
++		cpu_clear(cpu, top_cpuset.cpus_allowed);
++		break;
++	}
++
++	mutex_unlock(&callback_mutex);
++	unlock_cpu_hotplug();
++	mutex_unlock(&manage_mutex);
++
++	return 0;
++}
++
+ /**
+  * cpuset_init_smp - initialize cpus_allowed
+  *
+@@ -2043,6 +2068,8 @@ void __init cpuset_init_smp(void)
+ {
+ 	top_cpuset.cpus_allowed = cpu_online_map;
+ 	top_cpuset.mems_allowed = node_online_map;
++
++	hotcpu_notifier(cpuset_handle_cpuhp, 0);
+ }
+ 
+ /**

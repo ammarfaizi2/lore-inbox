@@ -1,181 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWHWTHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWHWTIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbWHWTHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWHWTHI
+	id S965108AbWHWTIt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWHWTIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:07:08 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:21950 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965127AbWHWTHC (ORCPT
+	Wed, 23 Aug 2006 15:08:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65413 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965108AbWHWTIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:07:02 -0400
-Subject: [PATCH 5/7] SLIM: make and config stuff
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>
-Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 12:05:49 -0700
-Message-Id: <1156359949.6720.69.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 15:08:46 -0400
+Date: Wed, 23 Aug 2006 11:58:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+       Stephane Eranian <eranian@frankl.hpl.hp.com>,
+       linux-kernel@vger.kernel.org, eranian@hpl.hp.com
+Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
+Message-Id: <20060823115857.89f8d47b.akpm@osdl.org>
+In-Reply-To: <20060823160458.GA17712@infradead.org>
+References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com>
+	<20060823152831.GC32725@infradead.org>
+	<20060823155715.GA5204@martell.zuzino.mipt.ru>
+	<20060823160458.GA17712@infradead.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the Makefile, Kconfig and .h files for SLIM.
+On Wed, 23 Aug 2006 17:04:58 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
- security/Kconfig       |    1
- security/Makefile      |    1
- security/slim/Kconfig  |    6 ++
- security/slim/Makefile |    6 ++
- security/slim/slim.h   |  102 +++++++++++++++++++++++++++++++++++++++
- 5 files changed, 116 insertions(+)
---- linux-2.6.18-rc3/security/slim/slim.h	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/slim.h	2006-08-07 13:00:14.000000000 -0500
-@@ -0,0 +1,102 @@
-+/*
-+ * slim.h - simple linux integrity module
-+ *
-+ * SLIM's specific model is:
-+ *
-+ *  All objects are labeled with extended attributes to indicate:
-+ *      Integrity Access Class (IAC)
-+ *      Secrecy Access Class (SAC)
-+ *
-+ *  All processes inherit from their parents:
-+ *      Integrity Read Access Class (IRAC)
-+ *      Integrity Write/Execute Access Class (IWXAC)
-+ *      Secrecy Write Access Class (SWAC)
-+ *      Secrecy Read/Execute Access Class (SRXAC)
-+ *
-+ *  SLIM enforces the following Mandatory Access Control Rules:
-+ *      Read:
-+ *          IRAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+ *      Write:
-+ *          IWXAC(process) >= IAC(object)
-+ *          SWAC(process) <= SAC(process)
-+ *      Execute:
-+ *          IWXAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+*/
-+
-+#include <linux/security.h>
-+#include <linux/version.h>
-+#include <linux/spinlock_types.h>
-+
-+struct xattr_data {
-+	char *name;
-+	void *value;
-+	size_t len;
-+};
-+
-+ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer,
-+			 size_t size);
-+ssize_t generic_listxattr(struct dentry *dentry, char *buffer,
-+			  size_t buffer_size);
-+int generic_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		     size_t size, int flags);
-+enum slm_iac_level {		/* integrity access class */
-+	SLM_IAC_ERROR = -2,
-+	SLM_IAC_EXEMPT = -1, 
-+	SLM_IAC_NOTDEFINED = 0, 
-+	SLM_IAC_UNTRUSTED,
-+	SLM_IAC_USER, 
-+	SLM_IAC_SYSTEM, 
-+	SLM_IAC_HIGHEST
-+};
-+extern char *slm_iac_str[];
-+
-+enum slm_sac_level {		/* secrecy access class */
-+	SLM_SAC_ERROR = -2,
-+	SLM_SAC_EXEMPT = -1, 
-+	SLM_SAC_NOTDEFINED = 0,
-+	SLM_SAC_PUBLIC, 
-+	SLM_SAC_USER,
-+	SLM_SAC_USER_SENSITIVE, 
-+	SLM_SAC_SYSTEM_SENSITIVE, 
-+	SLM_SAC_HIGHEST
-+};
-+
-+struct slm_tsec_data {		/* task security data (process info) */
-+	enum slm_iac_level iac_r;	/* read low integrity files */
-+	enum slm_iac_level iac_wx;	/* ability to write/execute higher */
-+	enum slm_sac_level sac_w;	/* ability to write low secrecy files */
-+	enum slm_sac_level sac_rx;	/* read/execute high secrecy files */
-+	int unlimited;		/* unlimited guard process */
-+	struct dentry *script_dentry;	/* used when filename != interp */
-+	spinlock_t lock;
-+};
-+
-+struct slm_file_xattr {		/* file extended attributes */
-+	enum slm_iac_level iac_level;	/* integrity */
-+	enum slm_sac_level sac_level;	/* secrecy */
-+	struct slm_tsec_data guard;	/* guard process information */
-+};
-+
-+#define SLM_LSM_ID 0x999
-+extern int slm_idx;
-+
-+struct slm_isec_data {
-+	struct slm_file_xattr level;
-+	spinlock_t lock;
-+};
-+
-+static inline int is_kernel_thread(struct task_struct *tsk)
-+{
-+	return (!tsk->mm) ? 1 : 0;
-+}
-+
-+extern struct slm_xattr_config *slm_parse_config(char *data,
-+						 unsigned long datalen,
-+						 int *datasize);
-+
-+extern int slm_init_config(void);
-+
-+extern __init int slm_init_secfs(void);
-+extern __exit void slm_cleanup_secfs(void);
---- linux-2.6.18-rc3/security/slim/Makefile	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/Makefile	2006-08-04 13:29:13.000000000 -0500
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for building the SLIM module as part of the kernel tree.
-+#
-+
-+obj-$(CONFIG_SECURITY_SLIM) += slim.o
-+slim-y 	:= slm_main.o slm_secfs.o
---- linux-2.6.18-rc3/security/slim/Kconfig	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/Kconfig	2006-08-04 13:29:13.000000000 -0500
-@@ -0,0 +1,6 @@
-+config SECURITY_SLIM
-+	boolean "SLIM support"
-+	depends on SECURITY && SECURITY_NETWORK && INTEGRITY
-+	help
-+	  The Simple Linux Integrity Module implements a modified low water-mark
-+	  mandatory access control integrity model.
---- linux-2.6.18-rc3/security/Makefile	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/security/Makefile	2006-08-01 12:21:24.000000000 -0500
-@@ -3,6 +3,7 @@
- #
- 
- obj-$(CONFIG_KEYS)			+= keys/
-+obj-$(CONFIG_SECURITY_SLIM)		+= slim/
- subdir-$(CONFIG_SECURITY_SELINUX)	+= selinux
- 
- # if we don't select a security model, use the default capabilities
---- linux-2.6.18-rc3/security/Kconfig	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/security/Kconfig	2006-08-01 12:21:24.000000000 -0500
-@@ -107,5 +107,6 @@ config SECURITY_SECLVL
- 
- source security/selinux/Kconfig
- 
-+source security/slim/Kconfig
- endmenu
- 
+> > Padding with zeros makes it even more useful:
+> > 
+> > 	[PATCH 00/17]
+> > 	[PATCH 01/17]
+> > 		...
+> > 	[PATCH 17/17]
+> 
+> To be honest I utterly hate that convention
 
+It's so they'll correctly alphasort at the recipient's end.
 
+I doubt if many MUAs do numeric sorting..

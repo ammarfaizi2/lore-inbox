@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWHWKbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWHWKe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWHWKbI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 06:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWHWKbH
+	id S964824AbWHWKe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 06:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWHWKe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 06:31:07 -0400
-Received: from ns1.suse.de ([195.135.220.2]:52179 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964816AbWHWKbG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 06:31:06 -0400
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/18] 2.6.17.9 perfmon2 patch for review: sampling format support
-References: <200608230805.k7N85v1s000408@frankl.hpl.hp.com>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Aug 2006 12:31:05 +0200
-In-Reply-To: <200608230805.k7N85v1s000408@frankl.hpl.hp.com>
-Message-ID: <p737j0z7nh2.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 23 Aug 2006 06:34:28 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:30816 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964823AbWHWKe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 06:34:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=beHgHSULzU9e4eeIs0l+3+H1splvswcg7ukPlsq7xG70/QwTeDWXDTu+jYHQaO9p70sLobd+7kpdsfRGf/tI5PeUu4COg0bDKiQCdAKAnhzOZV+UTKWhjYxLQQdEq2RX93dFMX81Ew/uppWIuznzT7K6+NDQD99JtKJs5/VlqtU=
+Message-ID: <b3f268590608230334y6814b886tb79da2f59138acd8@mail.gmail.com>
+Date: Wed, 23 Aug 2006 12:34:25 +0200
+From: "Jari Sundell" <sundell.software@gmail.com>
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Cc: "David Miller" <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org
+In-Reply-To: <20060823102037.GA23664@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
+	 <20060822231129.GA18296@ms2.inr.ac.ru>
+	 <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com>
+	 <20060822.173200.126578369.davem@davemloft.net>
+	 <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com>
+	 <20060823065659.GC24787@2ka.mipt.ru>
+	 <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com>
+	 <20060823083859.GA8936@2ka.mipt.ru>
+	 <b3f268590608230249q653e1dfh1d77c07f6f4e82ce@mail.gmail.com>
+	 <20060823102037.GA23664@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
+On 8/23/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>
+> No, it will change sizes of the structure in kernelspace and userspace,
+> so they just can not communicate.
 
-> This files contains the sampling format support.
-> 
-> Perfmon2 supports an in-kernel sampling buffer for performance
-> reasons. Yet to ensure maximum flexibility to applications,
-> the formats is which infmration is recorded into the kernel
-> buffer is not specified by the interface. Instead it is
-> delegated to a kernel plug-in modules called sampling formats.
+struct kevent {
+  uintptr_t ident;        /* identifier for this event */
+  short     filter;       /* filter for event */
+  u_short   flags;        /* action flags for kqueue */
+  u_int     fflags;       /* filter flag value */
 
-This seems quote complicated. Who are the users of different sampling formats?
+  union {
+    u32       _data_padding[2];
+    intptr_t  data;         /* filter data value */
+  };
 
-I assume the code would be considerable simpler if you hardcoded 
-the perfmon2 format, right?
+  union {
+    u32       _udata_padding[2];
+    void      *udata;       /* opaque user data identifier */
+  };
+};
 
--Andi
+I'm not missing anything obvious here, I hope.
+
+Rakshasa

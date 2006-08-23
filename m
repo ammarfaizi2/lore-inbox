@@ -1,393 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965306AbWHWXWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965305AbWHWXZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965306AbWHWXWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbWHWXWp
+	id S965305AbWHWXZm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 19:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965307AbWHWXZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:22:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10959 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965306AbWHWXWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:22:43 -0400
-Date: Wed, 23 Aug 2006 16:12:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 11/18] 2.6.17.9 perfmon2 patch for review: file related
- operations support
-Message-Id: <20060823161248.592422da.akpm@osdl.org>
-In-Reply-To: <200608230806.k7N862CD000468@frankl.hpl.hp.com>
-References: <200608230806.k7N862CD000468@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Aug 2006 19:25:42 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:16954 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S965305AbWHWXZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 19:25:41 -0400
+To: greg@kroah.com
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] please pull infiniband.git
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 23 Aug 2006 16:25:38 -0700
+Message-ID: <ada64gjxcel.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 23 Aug 2006 23:25:38.0995 (UTC) FILETIME=[71881830:01C6C70B]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 01:06:02 -0700
-Stephane Eranian <eranian@frankl.hpl.hp.com> wrote:
+Greg, please pull from
 
-> This patch contains the new generic file related functions.
-> 
-> A perfmon2 context is identified by a file descriptor and
-> we leverage certain kernel mechanisms related to files.
-> In particular we use:
-> 	- read
-> 	- select, poll
-> 	- fcntl
-> 	- close
-> 	- mmap
-> 
-> Support for those operations is implemented in perfmon_file.c.
-> 
-> 
-> pfm_read():
-> 	- implements the callback for the read() operation. It is used to extract
-> 	  overflow notification messages. Only one message can be extracted per call.
-> 	  This can be a blocking call is the file is setup that way.
-> 
-> pfm_poll():
-> 	- support for poll() and select()
-> 	
-> pfm_fasync():
-> 	- support for FASYNC for fcntl(). Is used to received asynchronous notifications via SIGIO
-> 
-> pfm_mmap():
-> 	- handle remapping read-only of the kernel sampling buffer to userland
-> 
->
-> ...
->
-> +
-> +static struct page *pfm_buf_map_pagefault(struct vm_area_struct *vma,
-> +					  unsigned long address, int *type)
-> +{
-> +	void *kaddr;
-> +	struct pfm_context *ctx;
-> +	struct page *page;
-> +	size_t size;
-> +
-> +	ctx = vma->vm_private_data;
-> +	if (ctx == NULL) {
-> +		PFM_DBG("no ctx");
-> +		return NOPAGE_SIGBUS;
-> +	}
-> +	size = ctx->smpl_size;
-> +
-> +	if ( (address < (unsigned long) vma->vm_start) ||
-> +	     (address > (unsigned long) (vma->vm_start + size)) )
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
->= ?
+This tree is also available from kernel.org mirrors at:
 
-> +ssize_t __pfmk_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int noblock)
-> +{
-> +	union pfm_msg *msg;
-> +	ssize_t ret = 0;
-> +	unsigned long flags;
-> +
-> +	/*
-> +	 * we must masks interrupts to avoid a race condition
-> +	 * with the PMU interrupt handler.
-> +	 */
-> +	spin_lock_irqsave(&ctx->lock, flags);
-> +
-> +	if(PFM_CTXQ_EMPTY(ctx) == 0)
-> +		goto fast_path;
-> +
-> +	ret = -EAGAIN;
-> +	if (noblock)
-> +		goto empty;
-> +
-> +	spin_unlock_irqrestore(&ctx->lock, flags);
-> +
-> +	ret = wait_for_completion_interruptible(ctx->msgq_comp);
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-We do an interruptible wait, but no action is taken if the wait was
-actually interrupted?
+to get a few fixes for the 2.6.18 tree:
 
-> +	spin_lock_irqsave(&ctx->lock, flags);
-> +
-> +	if(PFM_CTXQ_EMPTY(ctx))
-> +		goto empty;
-> +
-> +fast_path:
-> +
-> +	/*
-> +	 * extract message from queue
-> +	 *
-> +	 * it is possible that the message was stolen by another thread
-> +	 * before we could protect the context after schedule()
-> +	 */
-> +	msg = pfm_get_next_msg(ctx);
-> +	if (unlikely(msg == NULL))
-> +		goto empty;
-> +
-> +	ret = sizeof(*msg);
-> +
-> +	/*
-> +	 * we must make a local copy before we unlock
-> +	 * to ensure that the message queue cannot fill
-> +	 * (overwriting our message) up before
-> +	 * we do copy_to_user() which cannot be done
-> +	 * with interrupts masked.
-> +	 */
-> +	*msg_buf = *msg;
-> +
-> +	PFM_DBG("type=%d ret=%zd", msg->type, ret);
-> +
-> +empty:
-> +	spin_unlock_irqrestore(&ctx->lock, flags);
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(__pfmk_read);
+Jack Morgenstein:
+      IB/core: Fix SM LID/LID change with client reregister set
 
-Can all the perfmon exports be EXPORT_SYMBOL_GPL()?
+Michael S. Tsirkin:
+      IB/mthca: Make fence flag work for send work requests
+      IB/mthca: Update HCA firmware revisions
 
-> +ssize_t __pfm_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int non_block)
-> +{
-> +	union pfm_msg *msg;
-> +	ssize_t ret = 0;
-> +	unsigned long flags;
-> +	DECLARE_WAITQUEUE(wait, current);
-> +
-> +	/*
-> +	 * we must masks interrupts to avoid a race condition
-> +	 * with the PMU interrupt handler.
-> +	 */
-> +	spin_lock_irqsave(&ctx->lock, flags);
-> +
-> +	if(PFM_CTXQ_EMPTY(ctx) == 0)
-> +		goto fast_path;
-> +retry:
-> +	/*
-> +	 * check non-blocking read. we include it
-> +	 * in the loop in case another thread modifies
-> +	 * the propoerty of the file while the current thread
-> +	 * is looping here
-> +	 */
-> +
-> +      	ret = -EAGAIN;
+Roland Dreier:
+      IB/mthca: Fix potential AB-BA deadlock with CQ locks
+      IB/mthca: No userspace SRQs if HCA doesn't have SRQ support
 
-whitepsace broke.
-
-> +	if(non_block)
-> +		goto abort_locked;
-> +
-> +	/*
-> +	 * put ourself on the wait queue
-> +	 */
-> +	add_wait_queue(&ctx->msgq_wait, &wait);
-> +
-> +	for (;;) {
-> +		/*
-> +		 * check wait queue
-> +		 */
-> +		set_current_state(TASK_INTERRUPTIBLE);
-> +
-> +		PFM_DBG("head=%d tail=%d",
-> +			ctx->msgq_head,
-> +			ctx->msgq_tail);
-> +
-> +		spin_unlock_irqrestore(&ctx->lock, flags);
-> +
-> +		/*
-> +		 * wait for message
-> +		 */
-> +		schedule();
-> +
-> +		spin_lock_irqsave(&ctx->lock, flags);
-> +
-> +		/*
-> +		 * check pending signals
-> +		 */
-> +		ret = -ERESTARTSYS;
-> +		if(signal_pending(current))
-> +			break;
-> +
-> +		ret = 0;
-> +		if(PFM_CTXQ_EMPTY(ctx) == 0)
-> +			break;
-> +	}
-> +
-> +	set_current_state(TASK_RUNNING);
-> +
-> +	remove_wait_queue(&ctx->msgq_wait, &wait);
-> +
-> +	PFM_DBG("back to running ret=%zd", ret);
-> +
-> +	if (ret < 0)
-> +		goto abort_locked;
-> +
-> +fast_path:
-
-The above code is all a bit unidiomatic.  Normally we'd do something like:
-
-	spin_lock_irqsave(&ctx->lock, flags);
-	while (PFM_CTXQ_EMPTY(ctx) != 0) {
-		prepare_to_wait(...);
-		spin_unlock_irqrestore(&ctx->lock, flags);
-		schedule();
-		finish_wait(...);
-		spin_lock_irqsave(&ctx->lock, flags);
-	}
+ drivers/infiniband/core/cache.c              |    3 +
+ drivers/infiniband/core/sa_query.c           |    3 +
+ drivers/infiniband/hw/mthca/mthca_main.c     |    6 +--
+ drivers/infiniband/hw/mthca/mthca_provider.c |   11 +++--
+ drivers/infiniband/hw/mthca/mthca_provider.h |    4 +-
+ drivers/infiniband/hw/mthca/mthca_qp.c       |   54 +++++++++++++++++++-------
+ 6 files changed, 55 insertions(+), 26 deletions(-)
 
 
-> +	/*
-> +	 * extract message from queue
-> +	 *
-> +	 * it is possible that the message was stolen by another thread
-> +	 * before we could protect the context after schedule()
-> +	 */
-> +	msg = pfm_get_next_msg(ctx);
-> +	if (unlikely(msg == NULL))
-> +		goto retry;
-> +
-> +	/*
-> +	 * we must make a local copy before we unlock
-> +	 * to ensure that the message queue cannot fill
-> +	 * (overwriting our message) up before
-> +	 * we do copy_to_user() which cannot be done
-> +	 * with interrupts masked.
-> +	 */
-> +	*msg_buf = *msg;
-> +
-> +	ret = sizeof(*msg);
-> +
-> +	PFM_DBG("type=%d size=%zu", msg->type, ret);
-> +
-> +abort_locked:
-> +	spin_unlock_irqrestore(&ctx->lock, flags);
-> +
-> +	/*
-> +	 * ret = EAGAIN when non-blocking and nothing is
-> +	 * in thequeue.
-> +	 *
-> +	 * ret = ERESTARTSYS when signal pending
-> +	 *
-> +	 * otherwise ret = size of message
-> +	 */
-> +	return ret;
-> +}
-> +
-> +static ssize_t pfm_read(struct file *filp, char __user *buf, size_t size,
-> +			loff_t *ppos)
-> +{
-> +	struct pfm_context *ctx;
-> +	union pfm_msg msg_buf;
-> +	int non_block, ret;
-> +
-> +	ctx = filp->private_data;
-> +	if (ctx == NULL) {
-> +		PFM_ERR("no ctx for pfm_read");
-> +		return -EINVAL;
-> +	}
-> +
-> +	/*
-> +	 * cannot extract partial messages.
-> +	 * check even when there is no message
-> +	 *
-> +	 * cannot extract more than one message per call. Bytes
-> +	 * above sizeof(msg) are ignored.
-> +	 */
-> +	if (size < sizeof(msg_buf)) {
-> +		PFM_DBG("message is too small size=%zu must be >=%zu)",
-> +			size,
-> +			sizeof(msg_buf));
-> +		return -EINVAL;
-> +	}
-> +
-> +	non_block = filp->f_flags & O_NONBLOCK;
-> +
-> +	ret =  __pfm_read(ctx, &msg_buf, non_block);
-> +	if (ret > 0) {
-> +  		if(copy_to_user(buf, &msg_buf, sizeof(msg_buf)))
-> +			ret = -EFAULT;
-> +	}
-> +	return ret;
-> +}
-> +
-> +static ssize_t pfm_write(struct file *file, const char __user *ubuf,
-> +			  size_t size, loff_t *ppos)
-> +{
-> +	PFM_DBG("pfm_write called");
-> +	return -EINVAL;
-> +}
-> +
-> +static unsigned int pfm_poll(struct file *filp, poll_table * wait)
-> +{
-> +	struct pfm_context *ctx;
-> +	unsigned long flags;
-> +	unsigned int mask = 0;
-> +
-> +	if (!pfm_is_fd(filp)) {
-
-This wasn't checked in the ->read() implementation.  It should be impossible?
-
-> +		PFM_ERR("pfm_poll bad magic");
-> +		return 0;
-> +	}
-> +
-> +	ctx = filp->private_data;
-> +	if (ctx == NULL) {
-> +		PFM_ERR("pfm_poll no ctx");
-> +		return 0;
-> +	}
-> +
-> +
-> +	PFM_DBG("before poll_wait");
-> +
-> +	poll_wait(filp, &ctx->msgq_wait, wait);
-> +
-> +	spin_lock_irqsave(&ctx->lock, flags);
-> +
-> +	if (PFM_CTXQ_EMPTY(ctx) == 0)
-> +		mask =  POLLIN | POLLRDNORM;
-> +
-> +	spin_unlock_irqrestore(&ctx->lock, flags);
-
-Was this locking actually needed?
-
-> +	PFM_DBG("after poll_wait mask=0x%x", mask);
-> +
-> +	return mask;
-> +}
-> +
->
-> ...
->
-> +
-> +/*
-> + * pfmfs should _never_ be mounted by userland - too much of security hassle,
-> + * no real gain from having the whole whorehouse mounted. So we don't need
-> + * any operations on the root directory. However, we need a non-trivial
-> + * d_name - pfm: will go nicely and kill the special-casing in procfs.
-> + */
-
-hm, interesting.
-
-> +static struct vfsmount *pfmfs_mnt;
-> +
-> +int __init init_pfm_fs(void)
-> +{
-> +	int err = register_filesystem(&pfm_fs_type);
-> +	if (!err) {
-> +		pfmfs_mnt = kern_mount(&pfm_fs_type);
-> +		err = PTR_ERR(pfmfs_mnt);
-> +		if (IS_ERR(pfmfs_mnt))
-> +			unregister_filesystem(&pfm_fs_type);
-> +		else
-> +			err = 0;
-> +	}
-> +	return err;
-> +}
-> +
-> +static void __exit exit_pfm_fs(void)
-> +{
-> +	unregister_filesystem(&pfm_fs_type);
-> +	mntput(pfmfs_mnt);
-> +}
-
-<wonders whether securityfs_exit is missing a mntput>
-
-
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index e05ca2c..75313ad 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -301,7 +301,8 @@ static void ib_cache_event(struct ib_eve
+ 	    event->event == IB_EVENT_PORT_ACTIVE ||
+ 	    event->event == IB_EVENT_LID_CHANGE  ||
+ 	    event->event == IB_EVENT_PKEY_CHANGE ||
+-	    event->event == IB_EVENT_SM_CHANGE) {
++	    event->event == IB_EVENT_SM_CHANGE   ||
++	    event->event == IB_EVENT_CLIENT_REREGISTER) {
+ 		work = kmalloc(sizeof *work, GFP_ATOMIC);
+ 		if (work) {
+ 			INIT_WORK(&work->work, ib_cache_task, work);
+diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
+index aeda484..d6b8422 100644
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -405,7 +405,8 @@ static void ib_sa_event(struct ib_event_
+ 	    event->event == IB_EVENT_PORT_ACTIVE ||
+ 	    event->event == IB_EVENT_LID_CHANGE  ||
+ 	    event->event == IB_EVENT_PKEY_CHANGE ||
+-	    event->event == IB_EVENT_SM_CHANGE) {
++	    event->event == IB_EVENT_SM_CHANGE   ||
++	    event->event == IB_EVENT_CLIENT_REREGISTER) {
+ 		struct ib_sa_device *sa_dev;
+ 		sa_dev = container_of(handler, typeof(*sa_dev), event_handler);
+ 
+diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
+index 557cde3..7b82c19 100644
+--- a/drivers/infiniband/hw/mthca/mthca_main.c
++++ b/drivers/infiniband/hw/mthca/mthca_main.c
+@@ -967,12 +967,12 @@ static struct {
+ } mthca_hca_table[] = {
+ 	[TAVOR]        = { .latest_fw = MTHCA_FW_VER(3, 4, 0),
+ 			   .flags     = 0 },
+-	[ARBEL_COMPAT] = { .latest_fw = MTHCA_FW_VER(4, 7, 400),
++	[ARBEL_COMPAT] = { .latest_fw = MTHCA_FW_VER(4, 7, 600),
+ 			   .flags     = MTHCA_FLAG_PCIE },
+-	[ARBEL_NATIVE] = { .latest_fw = MTHCA_FW_VER(5, 1, 0),
++	[ARBEL_NATIVE] = { .latest_fw = MTHCA_FW_VER(5, 1, 400),
+ 			   .flags     = MTHCA_FLAG_MEMFREE |
+ 					MTHCA_FLAG_PCIE },
+-	[SINAI]        = { .latest_fw = MTHCA_FW_VER(1, 0, 800),
++	[SINAI]        = { .latest_fw = MTHCA_FW_VER(1, 1, 0),
+ 			   .flags     = MTHCA_FLAG_MEMFREE |
+ 					MTHCA_FLAG_PCIE    |
+ 					MTHCA_FLAG_SINAI_OPT }
+diff --git a/drivers/infiniband/hw/mthca/mthca_provider.c b/drivers/infiniband/hw/mthca/mthca_provider.c
+index 230ae21..265b1d1 100644
+--- a/drivers/infiniband/hw/mthca/mthca_provider.c
++++ b/drivers/infiniband/hw/mthca/mthca_provider.c
+@@ -1287,11 +1287,7 @@ int mthca_register_device(struct mthca_d
+ 		(1ull << IB_USER_VERBS_CMD_MODIFY_QP)		|
+ 		(1ull << IB_USER_VERBS_CMD_DESTROY_QP)		|
+ 		(1ull << IB_USER_VERBS_CMD_ATTACH_MCAST)	|
+-		(1ull << IB_USER_VERBS_CMD_DETACH_MCAST)	|
+-		(1ull << IB_USER_VERBS_CMD_CREATE_SRQ)		|
+-		(1ull << IB_USER_VERBS_CMD_MODIFY_SRQ)		|
+-		(1ull << IB_USER_VERBS_CMD_QUERY_SRQ)		|
+-		(1ull << IB_USER_VERBS_CMD_DESTROY_SRQ);
++		(1ull << IB_USER_VERBS_CMD_DETACH_MCAST);
+ 	dev->ib_dev.node_type            = IB_NODE_CA;
+ 	dev->ib_dev.phys_port_cnt        = dev->limits.num_ports;
+ 	dev->ib_dev.dma_device           = &dev->pdev->dev;
+@@ -1316,6 +1312,11 @@ int mthca_register_device(struct mthca_d
+ 		dev->ib_dev.modify_srq           = mthca_modify_srq;
+ 		dev->ib_dev.query_srq            = mthca_query_srq;
+ 		dev->ib_dev.destroy_srq          = mthca_destroy_srq;
++		dev->ib_dev.uverbs_cmd_mask	|=
++			(1ull << IB_USER_VERBS_CMD_CREATE_SRQ)		|
++			(1ull << IB_USER_VERBS_CMD_MODIFY_SRQ)		|
++			(1ull << IB_USER_VERBS_CMD_QUERY_SRQ)		|
++			(1ull << IB_USER_VERBS_CMD_DESTROY_SRQ);
+ 
+ 		if (mthca_is_memfree(dev))
+ 			dev->ib_dev.post_srq_recv = mthca_arbel_post_srq_recv;
+diff --git a/drivers/infiniband/hw/mthca/mthca_provider.h b/drivers/infiniband/hw/mthca/mthca_provider.h
+index 8de2887..9a5bece 100644
+--- a/drivers/infiniband/hw/mthca/mthca_provider.h
++++ b/drivers/infiniband/hw/mthca/mthca_provider.h
+@@ -136,8 +136,8 @@ struct mthca_ah {
+  * We have one global lock that protects dev->cq/qp_table.  Each
+  * struct mthca_cq/qp also has its own lock.  An individual qp lock
+  * may be taken inside of an individual cq lock.  Both cqs attached to
+- * a qp may be locked, with the send cq locked first.  No other
+- * nesting should be done.
++ * a qp may be locked, with the cq with the lower cqn locked first.
++ * No other nesting should be done.
+  *
+  * Each struct mthca_cq/qp also has an ref count, protected by the
+  * corresponding table lock.  The pointer from the cq/qp_table to the
+diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+index cd8b672..2e8f6f3 100644
+--- a/drivers/infiniband/hw/mthca/mthca_qp.c
++++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -99,6 +99,10 @@ enum {
+ 	MTHCA_QP_BIT_RSC = 1 <<  3
+ };
+ 
++enum {
++	MTHCA_SEND_DOORBELL_FENCE = 1 << 5
++};
++
+ struct mthca_qp_path {
+ 	__be32 port_pkey;
+ 	u8     rnr_retry;
+@@ -1259,6 +1263,32 @@ int mthca_alloc_qp(struct mthca_dev *dev
+ 	return 0;
+ }
+ 
++static void mthca_lock_cqs(struct mthca_cq *send_cq, struct mthca_cq *recv_cq)
++{
++	if (send_cq == recv_cq)
++		spin_lock_irq(&send_cq->lock);
++	else if (send_cq->cqn < recv_cq->cqn) {
++		spin_lock_irq(&send_cq->lock);
++		spin_lock_nested(&recv_cq->lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock_irq(&recv_cq->lock);
++		spin_lock_nested(&send_cq->lock, SINGLE_DEPTH_NESTING);
++	}
++}
++
++static void mthca_unlock_cqs(struct mthca_cq *send_cq, struct mthca_cq *recv_cq)
++{
++	if (send_cq == recv_cq)
++		spin_unlock_irq(&send_cq->lock);
++	else if (send_cq->cqn < recv_cq->cqn) {
++		spin_unlock(&recv_cq->lock);
++		spin_unlock_irq(&send_cq->lock);
++	} else {
++		spin_unlock(&send_cq->lock);
++		spin_unlock_irq(&recv_cq->lock);
++	}
++}
++
+ int mthca_alloc_sqp(struct mthca_dev *dev,
+ 		    struct mthca_pd *pd,
+ 		    struct mthca_cq *send_cq,
+@@ -1311,17 +1341,13 @@ int mthca_alloc_sqp(struct mthca_dev *de
+ 	 * Lock CQs here, so that CQ polling code can do QP lookup
+ 	 * without taking a lock.
+ 	 */
+-	spin_lock_irq(&send_cq->lock);
+-	if (send_cq != recv_cq)
+-		spin_lock(&recv_cq->lock);
++	mthca_lock_cqs(send_cq, recv_cq);
+ 
+ 	spin_lock(&dev->qp_table.lock);
+ 	mthca_array_clear(&dev->qp_table.qp, mqpn);
+ 	spin_unlock(&dev->qp_table.lock);
+ 
+-	if (send_cq != recv_cq)
+-		spin_unlock(&recv_cq->lock);
+-	spin_unlock_irq(&send_cq->lock);
++	mthca_unlock_cqs(send_cq, recv_cq);
+ 
+  err_out:
+ 	dma_free_coherent(&dev->pdev->dev, sqp->header_buf_size,
+@@ -1355,9 +1381,7 @@ void mthca_free_qp(struct mthca_dev *dev
+ 	 * Lock CQs here, so that CQ polling code can do QP lookup
+ 	 * without taking a lock.
+ 	 */
+-	spin_lock_irq(&send_cq->lock);
+-	if (send_cq != recv_cq)
+-		spin_lock(&recv_cq->lock);
++	mthca_lock_cqs(send_cq, recv_cq);
+ 
+ 	spin_lock(&dev->qp_table.lock);
+ 	mthca_array_clear(&dev->qp_table.qp,
+@@ -1365,9 +1389,7 @@ void mthca_free_qp(struct mthca_dev *dev
+ 	--qp->refcount;
+ 	spin_unlock(&dev->qp_table.lock);
+ 
+-	if (send_cq != recv_cq)
+-		spin_unlock(&recv_cq->lock);
+-	spin_unlock_irq(&send_cq->lock);
++	mthca_unlock_cqs(send_cq, recv_cq);
+ 
+ 	wait_event(qp->wait, !get_qp_refcount(dev, qp));
+ 
+@@ -1502,7 +1524,7 @@ int mthca_tavor_post_send(struct ib_qp *
+ 	int i;
+ 	int size;
+ 	int size0 = 0;
+-	u32 f0 = 0;
++	u32 f0;
+ 	int ind;
+ 	u8 op0 = 0;
+ 
+@@ -1686,6 +1708,8 @@ int mthca_tavor_post_send(struct ib_qp *
+ 		if (!size0) {
+ 			size0 = size;
+ 			op0   = mthca_opcode[wr->opcode];
++			f0    = wr->send_flags & IB_SEND_FENCE ?
++				MTHCA_SEND_DOORBELL_FENCE : 0;
+ 		}
+ 
+ 		++ind;
+@@ -1843,7 +1867,7 @@ int mthca_arbel_post_send(struct ib_qp *
+ 	int i;
+ 	int size;
+ 	int size0 = 0;
+-	u32 f0 = 0;
++	u32 f0;
+ 	int ind;
+ 	u8 op0 = 0;
+ 
+@@ -2051,6 +2075,8 @@ int mthca_arbel_post_send(struct ib_qp *
+ 		if (!size0) {
+ 			size0 = size;
+ 			op0   = mthca_opcode[wr->opcode];
++			f0    = wr->send_flags & IB_SEND_FENCE ?
++				MTHCA_SEND_DOORBELL_FENCE : 0;
+ 		}
+ 
+ 		++ind;

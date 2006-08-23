@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWHWBvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWHWBze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWHWBvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 21:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWHWBvj
+	id S932256AbWHWBze (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 21:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWHWBze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 21:51:39 -0400
-Received: from alnrmhc14.comcast.net ([206.18.177.54]:10978 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932190AbWHWBvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 21:51:38 -0400
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, jmorris@namei.org, johnpol@2ka.mipt.ru,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@vger.kernel.org,
-       zach.brown@oracle.com, hch@infradead.org
-In-Reply-To: <44EB974B.3030200@redhat.com>
-References: <1156276823.2476.22.camel@entropy>
-	 <20060822.133606.48392664.davem@davemloft.net>
-	 <1156281220.2476.65.camel@entropy>
-	 <20060822.142500.11271092.davem@davemloft.net>
-	 <1156287511.2476.137.camel@entropy>  <44EB974B.3030200@redhat.com>
+	Tue, 22 Aug 2006 21:55:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:5832 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932256AbWHWBzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 21:55:33 -0400
+Subject: Re: [PATCH] paravirt.h
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <44EB7F0C.60402@vmware.com>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain>
+	 <200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>
+	 <1156271386.2976.102.camel@laptopd505.fenrus.org>
+	 <1156275004.27114.34.camel@localhost.localdomain>
+	 <44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>
+	 <p73y7tg7cg7.fsf@verdi.suse.de>  <44EB7F0C.60402@vmware.com>
 Content-Type: text/plain
-Date: Tue, 22 Aug 2006 18:51:06 -0700
-Message-Id: <1156297866.2476.208.camel@entropy>
+Date: Wed, 23 Aug 2006 11:55:31 +1000
+Message-Id: <1156298131.12015.42.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 16:46 -0700, Ulrich Drepper wrote:
-> I so far also haven't taken the time to look exactly at the interface.
-> I plan to do it asap since this is IMO our big chance to get it right.
-> I want to have a unifying interface which can handle all the different
-> events we need and which come up today and tomorrow.  We have to be able
-> to handle not only file descriptors and AIO but also timers, signals,
-> message queues (OK, they are file descriptors but let's make it
-> official), futexes.  I'm probably missing the one or the other thing now.
+On Tue, 2006-08-22 at 15:02 -0700, Zachary Amsden wrote:
+> Well, I don't think anything is sufficient for a preemptible kernel.  I 
+> think that's just plain not going to work.  You could have a kernel 
+> thread that got preempted in a paravirt-op patch point
 
-Are you sure about signals? I thought about that, but they generally
-fall into two categories: signals that have to be signals (i.e. SIGILL,
-SIGABRT, SIGFPE, SIGSEGV, etc.) and signals that should be replaced a
-queued event notification (SIGALRM, SIGRTMIN-SIGRTMAX).
+Patching over the 6 native cases is actually not that bad: they're
+listed below (each one has trailing noops).
 
-Of course, that leaves things like SIGTERM, SIGINT, SIGQUIT, etc. so,
-uh, nevermind then. Signal redirection to event queues is definitely
-needed.
+	cli
+	sti
+	push %eax; popf
+	pushf; pop %eax
+	pushf; pop %eax; cli
+	iret
+	sti; sysexit
 
-> DaveM says there are example programs for the current interfaces.  I
-> must admit I haven't seen those either.  So if possible, point the world
-> to them again.  If you do that now I'll review everything and write up
-> my recommendations re the interface before Monday.
+If you're at the first insn you don't have to do anything, since you're
+about to replace that code.  If you're in the noops, you can just
+advance EIP to the end.  You can't be preempted between sti and sysexit,
+since we only use that when interrupts are already disabled.  And
+reversing either "push %eax" or "pushf; pop %eax" is fairly easy.
 
-There's a handful of little test apps at
-http://tservice.net.ru/~s0mbre/archive/kevent/ , but they don't work
-with the current iteration of the interface. I don't know if there are
-others somewhere else.
+Depending on your hypervisor, you might need to catch those threads who
+are currently doing the paravirt_ops function calls, as well.  This
+introduces more (and more complex) cases.
 
+That all said, I've long speculated about a stop_machine which schedules
+all the preempted threads, to ensure every thread is in a happy
+unpreempt place.  This would involve scheduler hacks, but would allow us
+to remove the preempt_disable() calls around try_module_get() and any
+other areas which use stop_machine as the write side of locking.
+
+Rusty.
 -- 
-Nicholas Miell <nmiell@comcast.net>
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

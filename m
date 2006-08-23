@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWHWPXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWHWPYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbWHWPXd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWHWPXd
+	id S964973AbWHWPYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWHWPYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:23:33 -0400
-Received: from gw.goop.org ([64.81.55.164]:63948 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S964977AbWHWPXc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:23:32 -0400
-Message-ID: <44EC72F3.70505@goop.org>
-Date: Wed, 23 Aug 2006 08:23:31 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Wed, 23 Aug 2006 11:24:36 -0400
+Received: from nat.webnetassociados.com.br ([66.98.244.31]:37527 "EHLO
+	www1.forexproject.com") by vger.kernel.org with ESMTP
+	id S964973AbWHWPYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:24:35 -0400
+Message-ID: <38798.127.0.0.1.1156346673.squirrel@forexproject.com>
+Date: Wed, 23 Aug 2006 11:24:33 -0400 (EDT)
+Subject: SMP Affinity and nice
+From: "Rich Paredes" <rparedes@gmail.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: rparedes@gmail.com
+User-Agent: SquirrelMail/1.4.6
 MIME-Version: 1.0
-To: Ian Campbell <Ian.Campbell@XenSource.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] Translate asm version of ELFNOTE macro into	preprocessor
- macro
-References: <1156333761.12949.35.camel@localhost.localdomain>	 <44EC6B12.4060909@goop.org> <1156346074.12949.129.camel@localhost.localdomain>
-In-Reply-To: <1156346074.12949.129.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - www1.forexproject.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32003 505] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Campbell wrote:
->> OK, seems reasonable.  Eric Biederman solved this by having NOTE/ENDNOTE 
->> (or something like that) in his "bzImage with ELF header" patch, but I 
->> don't remember it being used in any way which is incompatible with using 
->> a CPP macro.
->>     
->
-> I can't find that patch, does NOTE/ENDNOTE just do the push/pop .note
-> section?
->
-> That would solve the problem with the first argument of the macro being
-> a string but the final argument could still be for .asciz note contents.
->   
+I am trying to come to an understanding as to why 1 process is getting
+less cpu time than identical processes with a higher "nice" value.
+Server has 2 physical processors with hyperthreading (cpu 0,1,2,3)
 
-It looks like:
+I am starting 5 processes that perform a square root loop to max out a
+cpu.  They use the exact same code but are renamed for identification:
+cpumax1, cpumax2, cpumax3, cpumax4, cpumax5
+I start in order:
+1.  nice -n 10 cpumax1
+2.  nice -n 10 cpumax2
+3.  nice -n 10 cpumax3
+4.  nice -n 10 cpumax4
+5.  nice -n 0 cpumax5
 
-.macro note name, type
-      .balign 4
-      .int    2f - 1f            # n_namesz
-      .int    4f - 3f            # n_descsz
-      .int    \type            # n_type
-      .balign 4
-1:    .asciz "\name"
-2:    .balign 4
-3:
-.endm
-.macro enote
-4:    .balign 4
-.endm
+Here is the top output:
+ PR  NI S %CPU    TIME+  P COMMAND
+ 35  10 R 99.9   1:46.90 3 cpumax1
+ 35  10 R 99.9   1:41.01 1 cpumax3
+ 35  10 R 99.9   1:39.48 0 cpumax4
+ 25   0 R 66.9   1:03.13 2 cpumax5
+ 35  10 R 33.0   0:39.30 2 cpumax2
 
+cpumax1 is using processor 3, 99%
+cpumax2 is using processor 2, 33%
+cpumax3 is using processor 1, 99%
+cpumax4 is using processor 0, 99%
+cpumax5 is using processor 2, 66%
 
-so it allows you to put arbitrary stuff in the desc part of the note.  
-The downside is that its a little more cumbersome syntactically for the 
-common case.
+So since cpumax5 has a lower nice value and thus a higher priority (25 in
+this case), shouldn't it be given it's own cpu.   If I give cpumax5 a nice
+value of -20, it does start using it's own cpu.  I don't want to manage
+cpu affinity via taskset command.
 
-    J
+My explanation would be that since the scheduler tries to limit cpu
+affinity, the nice value of 0 isn't enough to get the scheduler to move
+this process to another processors run queue.  I could be totally wrong
+here though.
+
+I should also note here that this test is totally dependent on the order
+of startup.  If I start cpumax5 first with a nice value of 0 before the
+other 4, it will get it's own cpu:
+ PR  NI S %CPU    TIME+  P COMMAND
+ 35  10 R 99.9   1:00.03 3 cpumax2
+ 25   0 R 99.9   1:08.01 1 cpumax5
+ 35  10 R 99.9   1:03.69 2 cpumax1
+ 35  10 R 50.3   0:29.02 0 cpumax3
+ 35  10 R 49.6   0:26.37 0 cpumax4
+
+I just want to understand this better.  Thanks.

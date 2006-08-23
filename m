@@ -1,736 +1,798 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWHWIVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWHWIVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWHWIVo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWHWIVn
+	id S932430AbWHWIVk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWHWIQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:21:43 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:56025 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932385AbWHWIQa
+	Wed, 23 Aug 2006 04:16:33 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:52953 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932386AbWHWIQN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:16:30 -0400
-Date: Wed, 23 Aug 2006 01:06:07 -0700
+	Wed, 23 Aug 2006 04:16:13 -0400
+Date: Wed, 23 Aug 2006 01:05:55 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200608230806.k7N867fI000528@frankl.hpl.hp.com>
+Message-Id: <200608230805.k7N85tfm000384@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 16/18] 2.6.17.9 perfmon2 patch for review: new powerpc files
+Subject: [PATCH 4/18] 2.6.17.9 perfmon2 patch for review: new system calls support
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the new files for powerpc.
+This patch contains the perfmon2 system call interface.
 
-The files are as follows:
+The interface consist of 12 new system calls. The front-end
+of each system call is implemented in perfmon_syscall.c.
+The front-end takes care of copying the parameters into
+kernel structures and also verifies that the perfmon state
+is appropriate for each command. The back-end of each syscall
+is implemented either in the core (perfmon.c) or in feature
+specific file (e.g. perfmon_sets.c).
+
+The system calls are defined as follows:
+
+sys_pfm_create_context():
+	- create a new perfmon2 context and returns a file descriptor in
+	  the pfarg_ctx_t parameters. This is the first call an application
+	  must make to do monitoring 
+
+sys_pfm_write_pmcs():
+	- program the PMU configuration registers. Accepts vector of arguments
+	  of type pfarg_pmc_t
+	
+sys_pfm_write_pmds():
+	- program the PMU data registers. Accepts a vector of arguments of type
+	  pfarg_pmd_t
+
+sys_pfm_read_pmds():
+	- read the PMU data registers.  Accepts a vector of arguments of type
+	  pfarg_pmd_t
+
+sys_pfm_restart():
+	- indicate that application is doing processing an overflow notification
+
+sys_pfm_start():
+	- start monitoring
+
+sys_pfm_stop():
+	- stop monitoring
+
+sys_pfm_load_context():
+	- attach a perfmon2 context to a task or the current processor.
+
+sys_pfm_unload_context():
+	- detach the perfmon2 context
+
+sys_pfm_create_evtsets():
+	- create or change an event sets. By default a context is created with only one
+	  set
+
+sys_pfm_delete_evtsets():
+	- delete any explicitely created event set
+
+sys_pfm_getinfo_evtsets():
+	- get information about event sets, such as the number of activations. Accepts
+	  vector arguments of type pfarg_setinfo_t
+
+There are other more indirect system calls related to the fact that a context uses a file
+descriptor. Those system calls are in perfmon_file.c and part of another patch.
 
 
-arch/powerpc/perfmon/Kconfig:
-	- add menuconfig options
-
-arch/powerpc/perfmon/Makefile:
-	- makefile for arch specific files
-
-arch/powerpc/perfmon/perfmon.c:
-	- architecture specific perfmon support. Implements architecrure specific
-	  operations such as save/restore/start/stop/detect overflow counters, ...
-
-arch/powerpc/perfmon/perfmon_power5.c:
-	- PMU description table for Power 5
-
-include/asm-powerpc/perfmon.h:
-	- architecture specific header definitions
 
 
-
---- linux-2.6.17.9.base/arch/powerpc/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/arch/powerpc/perfmon/Kconfig	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,17 @@
-+menu "Hardware Performance Monitoring support"
-+config PERFMON
-+	bool "Perfmon2 performance monitoring interface"
-+	default y
-+	help
-+  	Enables the perfmon2 interface to access the hardware
-+	performance counters. See <http://perfmon2.sf.net/> for
-+ 	more details. If you're unsure, say Y.
-+
-+config PERFMON_POWER5
-+	tristate "Support for Power5 hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the Power 5 hardware performance counters
-+	If unsure, say M.
-+endmenu
---- linux-2.6.17.9.base/arch/powerpc/perfmon/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/arch/powerpc/perfmon/Makefile	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,2 @@
-+obj-$(CONFIG_PERFMON)		+= perfmon.o
-+obj-$(CONFIG_PERFMON_POWER5)	+= perfmon_power5.o
---- linux-2.6.17.9.base/arch/powerpc/perfmon/perfmon.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/arch/powerpc/perfmon/perfmon.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,304 @@
+--- linux-2.6.17.9.base/perfmon/perfmon_syscalls.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.9/perfmon/perfmon_syscalls.c	2006-08-21 03:37:46.000000000 -0700
+@@ -0,0 +1,712 @@
 +/*
-+ * This file implements the ppc64 specific
-+ * support for the perfmon2 interface
++ * perfmon_syscalls.c: perfmon2 system call interface
 + *
-+ * Copyright (c) 2005 David Gibson, IBM Corporation.
++ * This file implements the perfmon2 interface which
++ * provides access to the hardware performance counters
++ * of the host processor.
 + *
-+ * based on versions for other architectures:
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * The initial version of perfmon.c was written by
++ * Ganesh Venkitachalam, IBM Corp.
++ *
++ * Then it was modified for perfmon-1.x by Stephane Eranian and
++ * David Mosberger, Hewlett Packard Co.
++ *
++ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
++ * by Stephane Eranian, Hewlett Packard Co.
++ *
++ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *
++ * More information about perfmon available at:
++ * 	http://www.hpl.hp.com/research/linux/perfmon
 + */
-+#include <linux/interrupt.h>
++#include <linux/kernel.h>
 +#include <linux/perfmon.h>
++#include <linux/fs.h>
++#include <asm/uaccess.h>
 +
-+/*
-+ * collect pending overflowed PMDs. Called from pfm_ctxsw()
-+ * and from PMU interrupt handler. Must fill in set->povfl_pmds[]
-+ * and set->npend_ovfls. Interrupts are masked
-+ */
-+static void __pfm_get_ovfl_pmds(struct pfm_context *ctx,
-+				struct pfm_event_set *set)
++struct pfm_context * pfm_get_ctx(int fd)
 +{
-+	u64 new_val, wmask;
-+	unsigned long *used_mask;
-+	unsigned int i, max;
++	struct file *filp;
++	struct pfm_context *ctx;
 +
-+	max = pfm_pmu_conf->max_cnt_pmd;
-+	used_mask = set->used_pmds;
-+	wmask = PFM_ONE_64 << pfm_pmu_conf->counter_width;
-+
-+	for (i = 0; i < max; i++) {
-+		/* assume all PMD are counters */
-+		if (pfm_bv_isset(used_mask, i)) {
-+			new_val = pfm_arch_read_pmd(ctx, i);
-+
-+			PFM_DBG_ovfl("pmd%u new_val=0x%lx bit=%d",
-+				     i, new_val, (new_val&wmask) ? 1 : 0);
-+
-+			if ((new_val & wmask) == 0) {
-+				pfm_bv_set(set->povfl_pmds, i);
-+				set->npend_ovfls++;
-+			}
-+		}
++	filp = fget(fd);
++	if (unlikely(filp == NULL)) {
++		PFM_DBG("invalid fd %d", fd);
++		return NULL;
 +	}
-+}
 +
-+/*
-+ * Called from pfm_ctxsw(). Task is guaranteed to be current.
-+ * Context is locked. Interrupts are masked. Monitoring is active.
-+ * PMU access is guaranteed. PMC and PMD registers are live in PMU.
-+ *
-+ * for per-thread:
-+ * 	must stop monitoring for the task
-+ * Return:
-+ * 	non-zero : did not save PMDs (as part of stopping the PMU)
-+ * 	       0 : saved PMDs (no need to save them in caller)
-+ */
-+int pfm_arch_ctxswout_thread(struct task_struct *task, struct pfm_context *ctx,
-+		       	      struct pfm_event_set *set)
-+{
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
-+
-+	/*
-+	 * disable lazy restore of PMC registers.
-+	 */
-+	if (set)
-+		set->priv_flags |= PFM_SETFL_PRIV_MOD_PMCS;
-+
-+	__pfm_get_ovfl_pmds(ctx, set);
-+
-+	return 1;
-+}
-+
-+/*
-+ * Called from pfm_stop() and pfm_ctxsw() when idle
-+ * task and EXCL_IDLE is on.
-+ *
-+ * Interrupts are masked. Context is locked. Set is the active set.
-+ *
-+ * For per-thread:
-+ *   task is not necessarily current. If not current task, then
-+ *   task is guaranteed stopped and off any cpu. Access to PMU
-+ *   is not guaranteed. Interrupts are masked. Context is locked.
-+ *   Set is the active set.
-+ *
-+ * For system-wide:
-+ * 	task is current
-+ *
-+ * must disable active monitoring.
-+ */
-+void pfm_arch_stop(struct task_struct *task, struct pfm_context *ctx,
-+		struct pfm_event_set *aset)
-+{
-+	if (task != current)
-+		return;
-+
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
-+}
-+
-+/*
-+ * function called from pfm_unload_context_*(). Context is locked.
-+ * interrupts are masked. task is not guaranteed to be current task.
-+ * Access to PMU is not guaranteed.
-+ *
-+ * function must do whatever arch-specific action is required on unload
-+ * of a context.
-+ *
-+ * called for both system-wide and per-thread. task is NULL for ssytem-wide
-+ */
-+void pfm_arch_unload_context(struct pfm_context *ctx, struct task_struct *task)
-+{
-+}
-+
-+/*
-+ * called from pfm_start() or pfm_ctxsw() when idle task and
-+ * EXCL_IDLE is on.
-+ *
-+ * Interrupts are masked. Context is locked. Set is the active set.
-+ *
-+ * For per-trhead:
-+ * 	Task is not necessarily current. If not current task, then task
-+ * 	is guaranteed stopped and off any cpu. Access to PMU is not guaranteed.
-+ *
-+ * For system-wide:
-+ * 	task is always current
-+ *
-+ * must enable active monitoring.
-+ */
-+static void __pfm_arch_start(struct task_struct *task, struct pfm_context *ctx,
-+			     struct pfm_event_set *set)
-+{
-+	if (task != current)
-+		return;
-+
-+	mtspr(SPRN_MMCR0, set->pmcs[0]);
-+	mtspr(SPRN_MMCR1, set->pmcs[1]);
-+	mtspr(SPRN_MMCRA, set->pmcs[2]);
-+}
-+
-+void pfm_arch_start(struct task_struct *task, struct pfm_context *ctx,
-+		    struct pfm_event_set *set)
-+{
-+	/*
-+	 * mask/unmask uses start/stop mechanism, so we cannot allow
-+	 * while masked.
-+	 */
-+	if (ctx->state == PFM_CTX_MASKED)
-+		return;
-+
-+	__pfm_arch_start(task, ctx, set);
-+}
-+
-+/*
-+ * function called from pfm_switch_sets(), pfm_context_load_thread(),
-+ * pfm_context_load_sys(), pfm_ctxsw(), pfm_switch_sets()
-+ * context is locked. Interrupts are masked. set cannot be NULL.
-+ * Access to the PMU is guaranteed.
-+ *
-+ * function must restore all PMD registers from set.
-+ */
-+void pfm_arch_restore_pmds(struct pfm_context *ctx, struct pfm_event_set *set)
-+{
-+	u64 ovfl_mask, val, *pmds;
-+	unsigned long *impl_rw_mask, *cnt_mask;
-+	u16 i, max_rw_pmd;
-+
-+	max_rw_pmd = pfm_pmu_conf->max_rw_pmd;
-+	cnt_mask = pfm_pmu_conf->cnt_pmds;
-+	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	impl_rw_mask = pfm_pmu_conf->impl_rw_pmds;
-+	pmds = set->view->set_pmds;
-+
-+	/* start at 1 to skip TB */
-+	for (i = 1; i < max_rw_pmd; i++) {
-+		if (likely(pfm_bv_isset(impl_rw_mask, i))) {
-+			val = pmds[i];
-+			if (likely(pfm_bv_isset(cnt_mask, i)))
-+				val &= ovfl_mask;
-+			pfm_arch_write_pmd(ctx, i, val);
-+		}
++	if (unlikely(filp->f_op != &pfm_file_ops)) {
++		PFM_DBG("fd %d not related to perfmon", fd);
++		fput(filp);
++		return NULL;
 +	}
-+}
-+
-+/*
-+ * function called from pfm_switch_sets(), pfm_context_load_thread(),
-+ * pfm_context_load_sys(), pfm_ctxsw(), pfm_switch_sets()
-+ * context is locked. Interrupts are masked. set cannot be NULL.
-+ * Access to the PMU is guaranteed.
-+ *
-+ * function must restore all PMC registers from set, if needed.
-+ */
-+void pfm_arch_restore_pmcs(struct pfm_context *ctx, struct pfm_event_set *set)
-+{
-+	u16 i, num_cnt;
-+
-+	num_cnt = pfm_pmu_conf->num_pmcs;
++	ctx = filp->private_data;
 +
 +	/*
-+	 * - by default, no PMC measures anything
-+	 * - on ctxswout, all used PMCs are disabled (cccr cleared)
-+	 *
-+	 * we need to restore the PMC (incl enable bits) only if
-+	 * not masked and user issued pfm_start()
++	 * sanity check
 +	 */
-+	if (ctx->state == PFM_CTX_MASKED || ctx->flags.started == 0)
-+		return;
-+
-+	/*
-+	 * restore all pmcs
-+	 */
-+	for (i = 0; i < num_cnt; i++)
-+		pfm_arch_write_pmc(ctx, i, set->pmcs[i]);
-+}
-+
-+asmlinkage void pfm_intr_handler(struct pt_regs *regs)
-+{
-+	pfm_interrupt_handler(0, NULL, regs);
-+}
-+	
-+extern void ppc64_enable_pmcs(void);
-+
-+void pfm_arch_init_percpu(void)
-+{
-+	ppc64_enable_pmcs();
-+}
-+/*
-+ * called from __pfm_interrupt_handler(). ctx is not NULL.
-+ * ctx is locked. PMU interrupt is masked.
-+ *
-+ * must stop all monitoring to ensure handler has consistent view.
-+ * must collect overflowed PMDs bitmask  into povfls_pmds and
-+ * npend_ovfls. If no interrupt detected then npend_ovfls
-+ * must be set to zero.
-+ */
-+void pfm_arch_intr_freeze_pmu(struct pfm_context *ctx)
-+{
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
-+	__pfm_get_ovfl_pmds(ctx, ctx->active_set);
-+}
-+
-+/*
-+ * unfreeze PMU from pfm_do_interrupt_handler()
-+ * ctx may be NULL for spurious
-+ */
-+void pfm_arch_intr_unfreeze_pmu(struct pfm_context *ctx)
-+{
-+	if (! ctx)
-+		return;
-+	pfm_arch_restore_pmcs(ctx, ctx->active_set);
-+}
-+
-+void pfm_arch_mask_monitoring(struct pfm_context *ctx)
-+{
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
-+}
-+
-+void pfm_arch_unmask_monitoring(struct pfm_context *ctx)
-+{
-+	/*
-+	 * on ppc64 masking/unmasking uses start/stop
-+	 * mechanism
-+	 */
-+	__pfm_arch_start(current, ctx, ctx->active_set);
-+}
-+
-+/*
-+ * invoked from arch/ppc64/kernel.entry.S
-+ */
-+void ppc64_pfm_handle_work(void)
-+{
-+	pfm_handle_work(current);
-+}
-+
-+static void pfm_stop_one_pmu(void *data)
-+{
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
-+}
-+
-+/*
-+ * called from pfm_register_pmu_config() after the new
-+ * config has been validated and installed. The pfm_session_lock
-+ * is held. Interrupts are not masked.
-+ *
-+ * The role of the function is, based on the PMU description, to
-+ * put the PMU into a quiet state on each CPU. This function is only
-+ * needed when there is no architected way to do this operation. In
-+ * that case nothing can be done before a pmu description is registered.
-+ */
-+void pfm_arch_pmu_config_init(void)
-+{
-+	on_each_cpu(pfm_stop_one_pmu, NULL, 1, 1);
-+}
-+
-+char *pfm_arch_get_pmu_module_name(void)
-+{
-+	unsigned long pvr = mfspr(SPRN_PVR);
-+
-+	/*
-+	 * XXX: ought to be something cleaner from cpu_data
-+	 */
-+	if (PVR_VER(pvr) == PV_POWER5)
-+		return "perfmon_power5";
-+
-+	return NULL;
-+}
---- linux-2.6.17.9.base/arch/powerpc/perfmon/perfmon_power5.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/arch/powerpc/perfmon/perfmon_power5.c	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,72 @@
-+/*
-+ * This file contains the POWER4 PMU register description tables
-+ * and pmc checker used by perfmon.c.
-+ *
-+ * Copyright (c) 2005 David Gibson, IBM Corporation.
-+ *
-+ * Based on perfmon_p6.c:
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ */
-+#include <linux/module.h>
-+#include <linux/perfmon.h>
-+
-+MODULE_AUTHOR("David Gibson <dwg@au1.ibm.com>");
-+MODULE_DESCRIPTION("POWER4 PMU description table");
-+MODULE_LICENSE("GPL");
-+
-+static struct pfm_reg_desc pfm_power5_pmc_desc[]={
-+/* mmcr0 */ PMC_D(PFM_REG_I, "MMCR0", MMCR0_FC, 0, 0),
-+/* mmcr1 */ PMC_D(PFM_REG_I, "MMCR1", 0x0, 0, 0),
-+/* mmcra */ PMC_D(PFM_REG_I, "MMCRA", 0x0, 0, 0)
-+};
-+#define PFM_PM_NUM_PMCS	(sizeof(pfm_power5_pmc_desc)/sizeof(struct pfm_reg_desc))
-+
-+static struct pfm_reg_desc pfm_power5_pmd_desc[]={
-+/* tb    */ PMD_D(PFM_REG_C, "TB"  ), /* rsvd_msk = -1 */
-+/* pmd1  */ PMD_D(PFM_REG_C, "PMC1"),
-+/* pmd2  */ PMD_D(PFM_REG_C, "PMC2"),
-+/* pmd3  */ PMD_D(PFM_REG_C, "PMC3"),
-+/* pmd4  */ PMD_D(PFM_REG_C, "PMC4"),
-+/* pmd5  */ PMD_D(PFM_REG_C, "PMC5"),
-+/* pmd6  */ PMD_D(PFM_REG_C, "PMC6")
-+};
-+#define PFM_PM_NUM_PMDS	(sizeof(pfm_power5_pmd_desc)/sizeof(struct pfm_reg_desc))
-+
-+static int pfm_power5_probe_pmu(void)
-+{
-+	unsigned long pvr = mfspr(SPRN_PVR);
-+
-+	if (PVR_VER(pvr) != PV_POWER5)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+/*
-+ * impl_pmcs, impl_pmds are computed at runtime to minimize errors!
-+ */
-+static struct pfm_pmu_config pfm_power5_pmu_conf = {
-+	.pmu_name = "POWER5",
-+	.counter_width = 31,
-+	.pmd_desc = pfm_power5_pmd_desc,
-+	.pmc_desc = pfm_power5_pmc_desc,
-+	.num_pmc_entries = PFM_PM_NUM_PMCS,
-+	.num_pmd_entries = PFM_PM_NUM_PMDS,
-+	.probe_pmu  = pfm_power5_probe_pmu,
-+	.flags = PFM_PMU_BUILTIN_FLAG,
-+	.owner = THIS_MODULE
-+};
-+	
-+static int __init pfm_power5_pmu_init_module(void)
-+{
-+	return pfm_register_pmu_config(&pfm_power5_pmu_conf);
-+}
-+
-+static void __exit pfm_power5_pmu_cleanup_module(void)
-+{
-+	pfm_unregister_pmu_config(&pfm_power5_pmu_conf);
-+}
-+
-+module_init(pfm_power5_pmu_init_module);
-+module_exit(pfm_power5_pmu_cleanup_module);
---- linux-2.6.17.9.base/include/asm-powerpc/perfmon.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.9/include/asm-powerpc/perfmon.h	2006-08-21 03:37:46.000000000 -0700
-@@ -0,0 +1,281 @@
-+/*
-+ * Copyright (c) 2005 David Gibson, IBM Corporation.
-+ *
-+ * Based on other versions:
-+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file contains ppc64 specific definitions for the perfmon
-+ * interface.
-+ *
-+ * This file MUST never be included directly. Use linux/perfmon.h.
-+ */
-+#ifndef _ASM_PPC64_PERFMON_H_
-+#define _ASM_PPC64_PERFMON_H_
-+
-+#ifdef __KERNEL__
-+
-+#define PFM_ARCH_PMD_STK_ARG	1 /* conservative value */
-+#define PFM_ARCH_PMC_STK_ARG	1 /* conservative value */
-+
-+/*
-+ * on som PMU models, the upper bits of a counter must be set in order
-+ * for the overflow interrupt to happen. On overflow, the counter
-+ * has wrapped around, and the upper bits are now cleared. This
-+ * function set them back.
-+ *
-+ * The current version loses whatever is remaining in the counter,
-+ * which is usually not zero but has a small count. In order not
-+ * to loose this count, we do a read-modify-write to set the upper
-+ * bits while preserving the low-order bits. This is slow but
-+ * works.
-+ */
-+static inline void pfm_arch_ovfl_reset_pmd(struct pfm_context *ctx,
-+					   unsigned int cnum)
-+{}
-+
-+static inline void pfm_arch_resend_irq(void)
-+{}
-+
-+static inline void pfm_arch_serialize(void)
-+{}
-+
-+
-+static inline void pfm_arch_unfreeze_pmu(void)
-+{}
-+
-+static inline u64 pfm_arch_get_itc(void)
-+{
-+	return mftb();
-+}
-+
-+static inline void pfm_arch_write_pmc(struct pfm_context *ctx,
-+				      unsigned int cnum,
-+				      u64 value)
-+{
-+	switch (cnum) {
-+	case 0:
-+		mtspr(SPRN_MMCR0, value);
-+		break;
-+	case 1:
-+		mtspr(SPRN_MMCR1, value);
-+		break;
-+	case 2:
-+		mtspr(SPRN_MMCRA, value);
-+		break;
-+	default:
-+		BUG();
++	if (filp != ctx->filp && ctx->filp) {
++		PFM_DBG("filp is different");
 +	}
++
++	/*
++	 * update filp
++	 */
++	ctx->filp = filp;
++	return ctx;
 +}
 +
-+static inline void pfm_arch_write_pmd(struct pfm_context *ctx,
-+				      unsigned int cnum, u64 value)
++int pfm_check_task_state(struct pfm_context *ctx, int check_mask,
++			 unsigned long *flags)
 +{
-+	switch (cnum) {
-+	case 1:
-+		mtspr(SPRN_PMC1, value);
-+		break;
-+	case 2:
-+		mtspr(SPRN_PMC2, value);
-+		break;
-+	case 3:
-+		mtspr(SPRN_PMC3, value);
-+		break;
-+	case 4:
-+		mtspr(SPRN_PMC4, value);
-+		break;
-+	case 5:
-+		mtspr(SPRN_PMC5, value);
-+		break;
-+	case 6:
-+		mtspr(SPRN_PMC6, value);
-+		break;
-+	case 7:
-+		mtspr(SPRN_PMC7, value);
-+		break;
-+	case 8:
-+		mtspr(SPRN_PMC8, value);
-+		break;
-+	default:
-+		BUG();
++	struct task_struct *task;
++	unsigned long local_flags, new_flags;
++	int state, old_state;
++
++recheck:
++	/*
++	 * task is NULL for system-wide context
++	 */
++	task = ctx->task;
++	state = ctx->state;
++	local_flags = *flags;
++
++	PFM_DBG("state=%d [%d] task_state=%ld check_mask=0x%x",
++		state,
++		task ? task->pid : -1,
++		task ? task->state : -1, check_mask);
++
++	if (state == PFM_CTX_UNLOADED)
++		return 0;
++	/*
++	 * no command can operate on a zombie context
++	 */
++	if (state == PFM_CTX_ZOMBIE)
++		return -EINVAL;
++
++	/*
++	 * at this point, state is PFM_CTX_LOADED or PFM_CTX_MASKED
++	 */
++
++	/*
++	 * some commands require the context to be unloaded to operate
++	 */
++	if (check_mask & PFM_CMD_UNLOADED)  {
++		PFM_DBG("state=%d, cmd needs unloaded", state);
++		return -EBUSY;
 +	}
-+}
 +
-+static inline u64 pfm_arch_read_pmd(struct pfm_context *ctx, unsigned int cnum)
-+{
-+	switch (cnum) {
-+	case 0:
-+		return mftb();
-+		break;
-+	case 1:
-+		return mfspr(SPRN_PMC1);
-+		break;
-+	case 2:
-+		return mfspr(SPRN_PMC2);
-+		break;
-+	case 3:
-+		return mfspr(SPRN_PMC3);
-+		break;
-+	case 4:
-+		return mfspr(SPRN_PMC4);
-+		break;
-+	case 5:
-+		return mfspr(SPRN_PMC5);
-+		break;
-+	case 6:
-+		return mfspr(SPRN_PMC6);
-+		break;
-+	case 7:
-+		return mfspr(SPRN_PMC7);
-+		break;
-+	case 8:
-+		return mfspr(SPRN_PMC8);
-+		break;
-+	default:
-+		BUG();
++	/*
++	 * self-monitoring always ok.
++	 */
++	if (task == current)
++		return 0;
++
++	/*
++	 * for syswide, we accept if running on the cpu the context is bound
++	 * to. When monitoring another thread, must wait until stopped.
++	 */
++	if (ctx->flags.system) {
++		if (ctx->cpu != smp_processor_id())
++			return -EBUSY;
 +		return 0;
 +	}
-+}
 +
-+static inline u64 pfm_arch_read_pmc(struct pfm_context *ctx, unsigned int cnum)
-+{
-+	switch (cnum) {
-+	case 0:
-+		return mfspr(SPRN_MMCR0);
-+		break;
-+	case 1:
-+		return mfspr(SPRN_MMCR1);
-+		break;
-+	case 2:
-+		return mfspr(SPRN_MMCRA);
-+		break;
-+	default:
-+		BUG();
++	/*
++	 * at this point, monitoring another thread
++	 */
++
++	/*
++	 * the pfm_unload_context() command is allowed on masked context
++	 */
++	if (state == PFM_CTX_MASKED && !(check_mask & PFM_CMD_UNLOAD))
 +		return 0;
++
++	/*
++	 * We could lift this restriction for UP but it would mean that
++	 * the user has no guarantee the task would not run between
++	 * two successive calls to perfmonctl(). That's probably OK.
++	 * If this user wants to ensure the task does not run, then
++	 * the task must be stopped.
++	 */
++	if (check_mask & PFM_CMD_STOPPED) {
++		if ((task->state != TASK_STOPPED)
++		     && (task->state != TASK_TRACED)) {
++			PFM_DBG("[%d] task not in stopped state", task->pid);
++			return -EBUSY;
++		}
++		/*
++		 * task is now stopped, wait for ctxsw out
++		 *
++		 * This is an interesting point in the code.
++		 * We need to unprotect the context because
++		 * the pfm_ctxswout_thread() routines needs to grab
++		 * the same lock. There are danger in doing
++		 * this because it leaves a window open for
++		 * another task to get access to the context
++		 * and possibly change its state. The one thing
++		 * that is not possible is for the context to disappear
++		 * because we are protected by the VFS layer, i.e.,
++		 * get_fd()/put_fd().
++		 */
++		old_state = state;
++
++		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
++			task->pid,
++			task->state,
++			local_flags);
++
++		spin_unlock_irqrestore(&ctx->lock, local_flags);
++
++		wait_task_inactive(task);
++
++		spin_lock_irqsave(&ctx->lock, new_flags);
++
++		/*
++		 * flags may be different than when we released the lock
++		 */
++		*flags = new_flags;
++
++		/*
++		 * we must recheck to verify if state has changed
++		 */
++		if (ctx->state != old_state) {
++			PFM_DBG("old_state=%d new_state=%d",
++				old_state,
++				ctx->state);
++			goto recheck;
++		}
 +	}
++	return 0;
++}
++
++int pfm_get_args(void __user *ureq, size_t sz, size_t max_sz, void *laddr,
++		 void **req)
++{
++	void *addr;
++
++	if (sz <= max_sz) {
++		*req = laddr;
++		return copy_from_user(laddr, ureq, sz);
++	}
++
++	if (unlikely(sz > pfm_controls.arg_size_max)) {
++		PFM_DBG("argument too big %zu max=%zu",
++			sz,
++			pfm_controls.arg_size_max);
++		return -E2BIG;
++	}
++
++	addr = kmalloc(sz, GFP_KERNEL);
++	if (unlikely(addr == NULL))
++		return -ENOMEM;
++
++	if (copy_from_user(addr, ureq, sz)) {
++		kfree(addr);
++		return -EFAULT;
++	}
++	*req = addr;
++
++	return 0;
++}
++
++int pfm_get_smpl_arg(pfm_uuid_t uuid, void __user *uaddr, size_t usize, void **arg,
++		     struct pfm_smpl_fmt **fmt)
++{
++	struct pfm_smpl_fmt *f;
++	void *addr = NULL;
++	size_t sz;
++	int ret;
++
++	if (!pfm_use_smpl_fmt(uuid))
++		return 0;
++
++	/*
++	 * find fmt and increase refcount
++	 */
++	f = pfm_smpl_fmt_get(uuid);
++	if (f == NULL) {
++		PFM_DBG("buffer format not found");
++		return -EINVAL;
++	}
++
++	sz = f->fmt_arg_size;
++
++	/*
++	 * usize = -1 is for IA-64 backward compatibility
++	 */
++	ret = -EINVAL;
++	if (sz != usize && usize != -1) {
++		PFM_DBG("invalid arg size %zu, format expects %zu",
++			usize, sz);
++		goto error;
++	}
++	
++	ret = -ENOMEM;
++	addr = kmalloc(sz, GFP_KERNEL);
++	if (addr == NULL)
++		goto error;
++
++	ret = -EFAULT;
++	if (copy_from_user(addr, uaddr, sz))
++		goto error;
++
++	*arg = addr;
++	*fmt = f;
++	return 0;
++
++error:
++	kfree(addr);
++	pfm_smpl_fmt_put(f);
++	return ret;
 +}
 +
 +/*
-+ * At certain points, perfmon needs to know if monitoring has been
-+ * explicitely started/stopped by user via pfm_start/pfm_stop. The
-+ * information is tracked in flags.started. However on certain
-+ * architectures, it may be possible to start/stop directly from
-+ * user level with a single assembly instruction bypassing
-+ * the kernel. This function must be used to determine by
-+ * an arch-specific mean if monitoring is actually started/stopped.
-+ * If there is no other way but to go through pfm_start/pfm_stop
-+ * then this function can simply return 0
++ * function invoked in case, pfm_context_create fails
++ * at the last operation, copy_to_user. It needs to
++ * undo memory allocations and free the file descriptor
 + */
-+static inline int pfm_arch_is_active(struct pfm_context *ctx)
++#ifndef CONFIG_IA64_PERFMON_COMPAT
++static
++#endif
++void pfm_undo_create_context_fd(int fd, struct pfm_context *ctx)
 +{
-+	return 0;
++	struct files_struct *files = current->files;
++	struct file *file;
++
++	file = fget(fd);
++	/*
++	 * there is no fd_uninstall(), so we do it
++	 * here. put_unused_fd() does not remove the
++	 * effect of fd_install().
++	 */
++
++	spin_lock(&files->file_lock);
++	files->fd_array[fd] = NULL;
++	spin_unlock(&files->file_lock);
++
++	/*
++	 * undo the fget()
++	 */
++	fput(file);
++
++	/*
++	 * decrement ref count and kill file
++	 */
++	put_filp(file);
++
++	put_unused_fd(fd);
++
++	pfm_context_free(ctx);
 +}
 +
-+static inline void pfm_arch_ctxswout_sys(struct task_struct *task,
-+		           		 struct pfm_context *ctx,
-+					 struct pfm_event_set *set)
++asmlinkage long sys_pfm_create_context(struct pfarg_ctx __user *ureq,
++				       void __user *uarg, size_t smpl_size)
 +{
-+	mtspr(SPRN_MMCR0, MMCR0_FC);
++	struct pfarg_ctx req;
++	struct pfm_context *new_ctx;
++	struct pfm_smpl_fmt *fmt = NULL;
++	void *smpl_arg = NULL;
++	int ret;
++
++	if (copy_from_user(&req, ureq, sizeof(req)))
++		return -EFAULT;
++
++	ret = pfm_get_smpl_arg(req.ctx_smpl_buf_id, uarg, smpl_size,
++			       &smpl_arg, &fmt);
++	if (ret)
++		goto abort;
++
++	ret = __pfm_create_context(&req, fmt, smpl_arg, PFM_NORMAL, NULL, &new_ctx);
++
++	/*
++	 * copy_user return value overrides command return value
++	 */
++	if (!ret) {
++		if (copy_to_user(ureq, &req, sizeof(req))) {
++			pfm_undo_create_context_fd(req.ctx_fd, new_ctx);
++			ret = -EFAULT;
++		}
++	}
++	kfree(smpl_arg);
++abort:
++	return ret;
 +}
 +
-+static inline void pfm_arch_ctxswin_sys(struct task_struct *task,
-+                       struct pfm_context *ctx, struct pfm_event_set *set)
-+{}
-+
-+static inline void pfm_arch_ctxswin_thread(struct task_struct *task,
-+                       struct pfm_context *ctx, struct pfm_event_set *set)
-+{}
-+
-+void pfm_arch_init_percpu(void);
-+int  pfm_arch_is_monitoring_active(struct pfm_context *ctx);
-+int  pfm_arch_ctxswout_thread(struct task_struct *task, struct pfm_context *ctx,
-+			      struct pfm_event_set *set);
-+void pfm_arch_stop(struct task_struct *task, struct pfm_context *ctx,
-+			  struct pfm_event_set *set);
-+void pfm_arch_start(struct task_struct *task, struct pfm_context *ctx,
-+			   struct pfm_event_set *set);
-+void pfm_arch_restore_pmds(struct pfm_context *ctx, struct pfm_event_set *set);
-+void pfm_arch_restore_pmcs(struct pfm_context *ctx, struct pfm_event_set *set);
-+int  pfm_arch_get_ovfl_pmds(struct pfm_context *ctx,
-+				   struct pfm_event_set *set);
-+void pfm_arch_intr_freeze_pmu(struct pfm_context *ctx);
-+void pfm_arch_intr_unfreeze_pmu(struct pfm_context *ctx);
-+char *pfm_arch_get_pmu_module_name(void);
-+void pfm_arch_mask_monitoring(struct pfm_context *ctx);
-+void pfm_arch_unmask_monitoring(struct pfm_context *ctx);
-+void pfm_arch_pmu_config_init(void);
-+
-+/*
-+ * called from pfm_register_pmu_config() after the new
-+ * config has been validated and installed. The pfs_lock is held
-+ * is held.
-+ *
-+ * Must sanity check the arch-specific config information
-+ *
-+ * return:
-+ * 	< 0 : if error
-+ * 	  0 : if success
-+ */
-+static inline int pfm_arch_pmu_config_check(struct pfm_pmu_config *cfg)
++asmlinkage long sys_pfm_write_pmcs(int fd, struct pfarg_pmc __user *ureq, int count)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	struct pfarg_pmc pmcs[PFM_PMC_STK_ARG];
++	struct pfarg_pmc *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (unlikely(ctx == NULL))
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, sizeof(pmcs), pmcs, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_write_pmcs(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	if (count > PFM_PMC_STK_ARG)
++		kfree(req);
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+static inline int pfm_arch_context_initialize(struct pfm_context *ctx,
-+					       u32 ctx_flags)
++asmlinkage long sys_pfm_write_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	struct pfarg_pmd pmds[PFM_PMD_STK_ARG];
++	struct pfarg_pmd *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (unlikely(ctx == NULL))
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, sizeof(pmds), pmds, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_write_pmds(ctx, req, count, 0);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	if (count > PFM_PMD_STK_ARG)
++		kfree(req);
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+void pfm_arch_unload_context(struct pfm_context *ctx, struct task_struct *task);
-+
-+static inline int pfm_arch_reserve_session(struct pfm_sessions *session,
-+					   struct pfm_context *ctx,
-+					   unsigned int cpu)
++asmlinkage long sys_pfm_read_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	struct pfarg_pmd pmds[PFM_PMD_STK_ARG];
++	struct pfarg_pmd *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (unlikely(ctx == NULL))
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, sizeof(pmds), pmds, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_read_pmds(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	if (count > PFM_PMD_STK_ARG)
++		kfree(req);
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+static inline void pfm_arch_release_session(struct pfm_sessions *session,
-+					    struct pfm_context *ctx,
-+					    u32 cpu)
-+{}
-+
-+/*
-+ * function called from pfm_setfl_sane(). Context is locked
-+ * and interrupts are masked.
-+ * The value of flags is the value of ctx_flags as passed by
-+ * user.
-+ *
-+ * function must check arch-specific set flags.
-+ * Return:
-+ * 	1 when flags are valid
-+ *      0 on error
-+ */
-+static inline int pfm_arch_setfl_sane(struct pfm_context *ctx, u32 flags)
++asmlinkage long sys_pfm_restart(int fd)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret = 0;
++
++	ctx = pfm_get_ctx(fd);
++	if (unlikely(ctx == NULL))
++		return -EBADF;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, 0, &flags);
++	if (!ret)
++		ret = __pfm_restart(ctx);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+static inline void pfm_arch_show_session(struct seq_file *m)
-+{}
 +
-+static inline int pfm_arch_initialize(void)
++asmlinkage long sys_pfm_stop(int fd)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	ctx = pfm_get_ctx(fd);
++	if (unlikely(ctx == NULL))
++		return -EBADF;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_stop(ctx);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+static inline int pfm_arch_load_context(struct pfm_context *ctx,
-+					struct task_struct *task)
++asmlinkage long sys_pfm_start(int fd, struct pfarg_start __user *ureq)
 +{
-+	return 0;
++	struct pfm_context *ctx;
++	struct pfarg_start req;
++	unsigned long flags;
++	int ret = 0;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	/*
++	 * the one argument is actually optional
++	 */
++	if (ureq && copy_from_user(&req, ureq, sizeof(req)))
++		return -EFAULT;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_start(ctx, ureq ? &req : NULL);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	pfm_put_ctx(ctx);
++
++	return ret;
 +}
 +
-+struct pfm_arch_context {
-+	/* empty */
-+};
 +
-+#define PFM_ARCH_CTX_SIZE	sizeof(struct pfm_arch_context)
 +
-+#endif /* __KERNEL__ */
-+#endif /* _ASM_PPC64_PERFMON_H_ */
++asmlinkage long sys_pfm_load_context(int fd, struct pfarg_load __user *ureq)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	struct pfarg_load req;
++	int ret;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	if (copy_from_user(&req, ureq, sizeof(req)))
++		return -EFAULT;
++
++	/*
++	 * irqsave is required to avoid race in case context is already
++	 * loaded or with switch timeout in the case of self-monitoring
++	 */
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (!ret)
++		ret = __pfm_load_context(ctx, &req);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	pfm_put_ctx(ctx);
++
++	return ret;
++}
++
++
++asmlinkage long sys_pfm_unload_context(int fd)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret = 0;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED|PFM_CMD_UNLOAD, &flags);
++	if (!ret)
++		ret = __pfm_unload_context(ctx, 0);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	pfm_put_ctx(ctx);
++
++	return ret;
++}
++
++asmlinkage long sys_pfm_delete_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
++{
++	struct pfm_context *ctx;
++	struct pfarg_setinfo *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
++	if (!ret)
++		ret = __pfm_delete_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	kfree(req);
++
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
++}
++
++asmlinkage long sys_pfm_create_evtsets(int fd, struct pfarg_setdesc __user *ureq, int count)
++{
++	struct pfm_context *ctx;
++	struct pfarg_setdesc *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
++	if (!ret)
++		ret = __pfm_create_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	kfree(req);
++
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
++}
++
++asmlinkage long  sys_pfm_getinfo_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
++{
++	struct pfm_context *ctx;
++	struct pfarg_setinfo *req;
++	unsigned long flags;
++	size_t sz;
++	int ret;
++
++	if (count < 0)
++		return -EINVAL;
++
++	ctx = pfm_get_ctx(fd);
++	if (ctx == NULL)
++		return -EBADF;
++
++	sz = count*sizeof(*ureq);
++
++	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
++	if (ret)
++		goto error;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, 0, &flags);
++	if (!ret)
++		ret = __pfm_getinfo_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	if (copy_to_user(ureq, req, sz))
++		ret = -EFAULT;
++
++	kfree(req);
++error:
++	pfm_put_ctx(ctx);
++
++	return ret;
++}

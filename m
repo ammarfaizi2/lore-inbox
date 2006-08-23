@@ -1,103 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWHWPEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWHWPHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWHWPEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWHWPEM
+	id S964936AbWHWPHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWHWPHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:04:12 -0400
-Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:46810 "EHLO erg.abdn.ac.uk")
-	by vger.kernel.org with ESMTP id S964932AbWHWPEI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:04:08 -0400
-From: gerrit@erg.abdn.ac.uk
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 1/3] net/ipv4: UDP-Lite extensions
-Date: Wed, 23 Aug 2006 16:03:07 +0100
-User-Agent: KMail/1.8.3
-Cc: davem@davemloft.net, alan@lxorguk.ukuu.org.uk, kuznet@ms2.inr.ac.ru,
-       pekkas@netcore.fi, kaber@coreworks.de, yoshfuji@linux-ipv6.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200608231150.42039@strip-the-willow> <Pine.LNX.4.64.0608231019010.3198@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0608231019010.3198@d.namei>
+	Wed, 23 Aug 2006 11:07:16 -0400
+Received: from gw.goop.org ([64.81.55.164]:52631 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S964936AbWHWPHO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:07:14 -0400
+Message-ID: <44EC6F21.9090000@goop.org>
+Date: Wed, 23 Aug 2006 08:07:13 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200608231603.08240@strip-the-willow>
-X-ERG-MailScanner: Found to be clean
-X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
+To: Paul Drynoff <pauldrynoff@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@xensource.com>,
+       linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>
+Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
+References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>	 <20060822123850.bdb09717.akpm@osdl.org>	 <36e6b2150608221413h3b6baf24lf670a2aed61c0c57@mail.gmail.com>	 <44EB7D2D.7000006@goop.org> <36e6b2150608222127y39bb9314h9b0a31f1f8b6b399@mail.gmail.com>
+In-Reply-To: <36e6b2150608222127y39bb9314h9b0a31f1f8b6b399@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+Paul Drynoff wrote:
+> On 8/23/06, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>> Hm.  Try this:
+>> --- a/arch/i386/kernel/paravirt.c
+>> +++ b/arch/i386/kernel/paravirt.c
+> I have no such file.
+>
+>> --- a/include/asm-i386/desc.h
+>> +++ b/include/asm-i386/desc.h
+>> @@ -97,7 +97,7 @@ static inline void set_ldt(const void *a
+>>         __u32 low, high;
+>>
+>>         pack_descriptor(&low, &high, (unsigned long)addr,
+>> -                       entries * sizeof(struct desc_struct) - 1,
+>> +                       entries * sizeof(struct desc_struct),
+>>                         DESCTYPE_LDT, 0);
+>>         write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, low, 
+>> high);
+>
+> There is no such code in this file.
 
-Quoting James Morris:
-|  On Wed, 23 Aug 2006, gerrit@erg.abdn.ac.uk wrote:
-|  
-|  > +void __init udplite4_register(void)
-|  > +{
-|  > +	if (proto_register(&udplite_prot, 1))
-|  > +		goto out_register_err;
-|  > +
-|  > +	if (inet_add_protocol(&udplite_protocol, IPPROTO_UDPLITE) < 0)
-|  > +		goto out_unregister_proto;
-|  > +
-|  > +	inet_register_protosw(&udplite4_protosw);
-|  > +
-|  > +	return;
-|  > +
-|  > +out_unregister_proto:
-|  > +	proto_unregister(&udplite_prot);
-|  > +out_register_err:
-|  > +	printk(KERN_ERR "udplite4_register: Cannot add UDP-Lite protocol\n");
-|  > +}
-|  
-|  Other protocols & network components call panic() if they fail during boot 
-|  initialization.  Not sure if this is a great thing, but it raises the 
-|  issue of whether udp-lite should remain consistent here.
+Ah, yes, that was against a different patch queue.
 
-The behaviour is consistent (modulo loglevel) with inet_init()
-of net/ipv4/af_inet.c:
+> I adopt your code for linux-2.6.18-rc4-mm2, and looks like it fix bug.
+>
+> Index: linux-2.6.18-rc4-mm2/include/asm-i386/desc.h
+> ===================================================================
+> --- linux-2.6.18-rc4-mm2.orig/include/asm-i386/desc.h
+> +++ linux-2.6.18-rc4-mm2/include/asm-i386/desc.h
+> @@ -114,7 +114,7 @@ static inline void set_ldt_desc(unsigned
+> {
+>        __u32 a, b;
+>        pack_descriptor(&a, &b, (unsigned long)addr,
+> -                       entries * sizeof(struct desc_struct) - 1,
+> +                       entries * sizeof(struct desc_struct),
+>                        DESCTYPE_LDT, 0);
+>        write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, a, b);
+> }
 
-	// ...
+Great!
 
-	rc = proto_register(&udp_prot, 1);
-	if (rc)
-		goto out_unregister_tcp_proto;
-
-	// ... 
-      	if (inet_add_protocol(&udp_protocol, IPPROTO_UDP) < 0)
-		printk(KERN_CRIT "inet_init: Cannot add UDP protocol\n");
-	if (inet_add_protocol(&tcp_protocol, IPPROTO_TCP) < 0)
-		printk(KERN_CRIT "inet_init: Cannot add TCP protocol\n");
-
-	// ...
-	for (q = inetsw_array; q < &inetsw_array[INETSW_ARRAY_LEN]; ++q)
-		inet_register_protosw(q);
-
- 	// ...
-
-        /* UDP Lite is called here, but the code of udplite4_register()
-         * could as well be put in place within inet_init()              */
-
-	udplite4_register();
-
-
-But your question raises another: 
-  * if TCP cannot init, there is no layer-4 protocol
-  * if UDP cannot register, TCP is unregistered also
-  * if RAW cannot register, only UDP is unregistered, but not TCP
-
->From that I could not deduct a rule what would happen if UDP-Lite failed
-to register. If control had reached that above point, it means that all
-other protocols have already successfully registered -- if then UDP-Lite
-could not register and called a panic(), it would abort the remainder of the
-stack. 
-
-So how should the code be integrated:
- (a) following the same scheme as in af_inet.c (like f.e. raw_prot ) or
- (b) keep separate initialisation (as it is used e.g. in net/dccp/ipv4, dccp_v4_init())
- (c) ... ?
-
-
-Gerrit
+    J

@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWHWWeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWHWWeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965284AbWHWWeA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965301AbWHWWd7
+	id S965246AbWHWWeN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbWHWWeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:33:59 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33546 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965298AbWHWWd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:33:57 -0400
-Date: Thu, 24 Aug 2006 00:33:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.28-rc3
-Message-ID: <20060823223355.GC19810@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 23 Aug 2006 18:34:12 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:9438 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965246AbWHWWeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:34:11 -0400
+Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
+From: Matt Helsley <matthltc@us.ibm.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Dave Hansen <haveblue@us.ibm.com>, devel@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Rohit Seth <rohitseth@google.com>, Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <20060823153207.0019aa3f.rdunlap@xenotime.net>
+References: <44EC31FB.2050002@sw.ru> <44EC35A3.7070308@sw.ru>
+	 <1156370698.12011.55.camel@localhost.localdomain>
+	 <1156371222.2510.715.camel@stark>
+	 <20060823153207.0019aa3f.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Wed, 23 Aug 2006 15:27:59 -0700
+Message-Id: <1156372079.2510.723.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are still several patches pending - they will go into 2.6.16.29.
+On Wed, 2006-08-23 at 15:32 -0700, Randy.Dunlap wrote:
+> On Wed, 23 Aug 2006 15:13:42 -0700 Matt Helsley wrote:
+> 
+> > On Wed, 2006-08-23 at 15:04 -0700, Dave Hansen wrote:
+> > > On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
+> > > > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> > > > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> > > > @@ -432,3 +432,5 @@ source "security/Kconfig"
+> > > >  source "crypto/Kconfig"
+> > > >  
+> > > >  source "lib/Kconfig"
+> > > > +
+> > > > +source "kernel/bc/Kconfig"
+> > > ...
+> > > > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
+> > > > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
+> > > > @@ -432,3 +432,5 @@ source "security/Kconfig"
+> > > >  source "crypto/Kconfig"
+> > > >  
+> > > >  source "lib/Kconfig"
+> > > > +
+> > > > +source "kernel/bc/Kconfig"
+> > > 
+> > > Is it just me, or do these patches look a little funky?  Looks like it
+> > > is trying to patch the same thing into the same file, twice.  Also, the
+> > > patches look to be -p0 instead of -p1.  
+> > 
+> > They do appear to be -p0
+> > 
+> > 	They aren't adding the same thing twice to the same file. This patch
+> > makes different arches source the same Kconfig.
+> 
+> Look again.  There are 2 diffstat blocks and 2 of these at least:
+> 
+> --- ./kernel/bc/Kconfig.bckm	2006-07-28 13:07:38.000000000 +0400
+> +++ ./kernel/bc/Kconfig	2006-07-28 13:09:51.000000000 +0400
+> @@ -0,0 +1,25 @@
+> 
+> 
+> > 	I seem to recall Chandra suggested that instead of doing it this way it
+> > would be more appropriate to add the source line to init/Kconfig because
+> > it's more central and arch-independent. I tend to agree.
+> 
+> ---
+> ~Randy
 
-Security fixes since 2.6.16.27:
-- CVE-2006-2935: cdrom: fix bad cgc.buflen assignment
-- CVE-2006-3745: Fix sctp privilege elevation
-- CVE-2006-4093: powerpc: Clear HID0 attention enable on PPC970 at boot time
-- CVE-2006-4145: Fix possible UDF deadlock and memory corruption
+My mistake, Dave is right.
 
-
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
-
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.28-rc3:
-
-Adrian Bunk:
-      Linux 2.6.16.28-rc3
-
-Danny Tholen:
-      1394: fix for recently added firewire patch that breaks things on ppc
-
-Jan Kara:
-      Fix possible UDF deadlock and memory corruption (CVE-2006-4145)
-
-Sridhar Samudrala:
-      Fix sctp privilege elevation (CVE-2006-3745)
-
-
- Makefile                    |    2 -
- drivers/ieee1394/ohci1394.c |    4 +-
- fs/udf/super.c              |    2 -
- fs/udf/truncate.c           |   64 +++++++++++++++++++++---------------
- include/net/sctp/sctp.h     |   13 -------
- include/net/sctp/sm.h       |    3 -
- net/sctp/sm_make_chunk.c    |   30 +++++-----------
- net/sctp/sm_statefuns.c     |   20 ++---------
- net/sctp/socket.c           |   10 +++++
- 9 files changed, 66 insertions(+), 82 deletions(-)
+Cheers,
+	-Matt Helsley
 

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWHWTHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWHWTLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbWHWTHd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWHWTGn
+	id S965103AbWHWTLe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWHWTLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:06:43 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:56197 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965116AbWHWTGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:06:10 -0400
-Subject: [PATCH 0/7] Integrity Service and SLIM
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>
-Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 12:05:22 -0700
-Message-Id: <1156359923.6720.63.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 15:11:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34730 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965103AbWHWTLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 15:11:33 -0400
+Date: Wed, 23 Aug 2006 20:11:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
+Message-ID: <20060823191132.GA13381@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com> <20060823152831.GC32725@infradead.org> <20060823155715.GA5204@martell.zuzino.mipt.ru> <20060823160458.GA17712@infradead.org> <20060823115857.89f8d47b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060823115857.89f8d47b.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an updated request for comments on a proposed integrity 
-service framework and dummy provider, along with SLIM, a low 
-water-mark mandatory access control LSM module which utilizes the 
-integrity services as additional input to the access control decisions.
+On Wed, Aug 23, 2006 at 11:58:57AM -0700, Andrew Morton wrote:
+> > > Padding with zeros makes it even more useful:
+> > > 
+> > > 	[PATCH 00/17]
+> > > 	[PATCH 01/17]
+> > > 		...
+> > > 	[PATCH 17/17]
+> > 
+> > To be honest I utterly hate that convention
+> 
+> It's so they'll correctly alphasort at the recipient's end.
 
-The latest fixes include:
-	- SLIM: Locking overhaul
-	- All: Update to 2.6.18-rc1 kernel
+I suspect most mailers sort by date and not by subject anyway.
 
-Later we will be submitting EVM as a specific integrity service
-provider under this proposed framework. By separating the submissions,
-we hope that the integrity framework and its relationship to SLIM
-(and potentially to selinux) will be clearer and easier to review.
-Since this integrity provider is a dummy, it has no requirements for
-TPM hardware, or for LSM stacking, again making the review simpler.
-
-A corresponding userspace utility package is available at
-http://www.research.ibm.com/gsal/tcpa
-
-Patch 1/7 is a tiny patch to make mprotect available for revocation.
-
-Patch 2/7 provides the integrity service API with dummy provider.
-
-Patch 3-7 provide SLIM, and a more detailed description of
-its changes, and points out its use of the integrity service.
-
-These patches have no prerequisites for stacker or TPM related patches.
-
+At least mine does :)
 

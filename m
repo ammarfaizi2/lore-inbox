@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWHWRYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWHWR15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWHWRYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 13:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHWRYF
+	id S964903AbWHWR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 13:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWHWR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 13:24:05 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:15562 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932324AbWHWRYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 13:24:02 -0400
-Date: Wed, 23 Aug 2006 19:24:02 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Eric Van Hensbergen <ericvh@gmail.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] VFS: FS CoW using redirection
-Message-ID: <20060823172402.GC15851@wohnheim.fh-wedel.de>
-References: <200607082041.54489.a1426z@gawab.com> <a4e6962a0607081132u4558473cgf89b8b25fcea317d@mail.gmail.com> <200607091550.36407.a1426z@gawab.com>
+	Wed, 23 Aug 2006 13:27:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17616 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932262AbWHWR14 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 13:27:56 -0400
+Date: Wed, 23 Aug 2006 10:27:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       okuji@enbug.org
+Subject: Re: [patch 4/5] fail-injection capability for disk IO
+Message-Id: <20060823102741.b927e092.akpm@osdl.org>
+In-Reply-To: <20060823120355.GD5893@suse.de>
+References: <20060823113243.210352005@localhost.localdomain>
+	<20060823113317.722640313@localhost.localdomain>
+	<20060823120355.GD5893@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200607091550.36407.a1426z@gawab.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 July 2006 15:50:36 +0300, Al Boldi wrote:
+On Wed, 23 Aug 2006 14:03:55 +0200
+Jens Axboe <axboe@suse.de> wrote:
+
+> On Wed, Aug 23 2006, Akinobu Mita wrote:
+> > This patch provides fail-injection capability for disk IO.
+> > 
+> > Boot option:
+> > 
+> > 	fail_make_request=<probability>,<interval>,<times>,<space>
+> > 
+> > 	<probability>
+> > 
+> > 		specifies how often it should fail in percent.
+> > 
+> > 	<interval>
+> > 
+> > 		specifies the interval of failures.
+> > 
+> > 	<times>
+> > 
+> > 		specifies how many times failures may happen at most.
+> > 
+> > 	<space>
+> > 
+> > 		specifies the size of free space where disk IO can be issued
+> > 		safely in bytes.
+> > 
+> > Example:
+> > 
+> > 	fail_make_request=100,10,-1,0
+> > 
+> > generic_make_request() fails once per 10 times.
 > 
-> Consider something simple like this:
-> 
-> VFS - anyFS1 (r/w) used normally, unless ENotFound, then redirect read to
->     \              anyFS2, or CoW from anyFS2 to anyFS1.
->       anyFS2 (r/o) used normally.
+> Hmm dunno, seems a pretty useless feature to me.
 
-That concept is known as union mount.  Jan Blunck did some patches in
-that direction, you might be able to find them in the archives.  If
-not, just send him a mail.
+We need it.  What is the FS/VFS/VM behaviour in the presence of IO
+errors?  Nobody knows, because we rarely test it.  Those few times where
+people _do_ test it (the hard way), bad things tend to happen.  reiserfs
+(for example) likes to go wobble, wobble, wobble, BUG.
 
-Jörn
+> Wouldn't it make a lot
+> more sense to do this per-queue instead of a global entity?
 
--- 
-...one more straw can't possibly matter...
--- Kirby Bakken
+Yes, I think so.  /sys/block/sda/sda2/make-it-fail.
+

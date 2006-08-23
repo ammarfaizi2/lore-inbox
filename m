@@ -1,68 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbWHWWmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWHWWpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965266AbWHWWmd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbWHWWmc
+	id S965281AbWHWWpT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWHWWpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:42:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47766 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965266AbWHWWmc (ORCPT
+	Wed, 23 Aug 2006 18:45:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43973 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965281AbWHWWpR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:42:32 -0400
-Date: Wed, 23 Aug 2006 15:39:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
-       nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-Id: <20060823153952.066e9a58.pj@sgi.com>
-In-Reply-To: <20060823221114.GF11309@localdomain>
-References: <20060821132709.GB8499@krispykreme>
-	<20060821104334.2faad899.pj@sgi.com>
-	<20060821192133.GC8499@krispykreme>
-	<20060821140148.435d15f3.pj@sgi.com>
-	<20060821215120.244f1f6f.akpm@osdl.org>
-	<20060822050401.GB11309@localdomain>
-	<20060821221437.255808fa.pj@sgi.com>
-	<20060823221114.GF11309@localdomain>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 18:45:17 -0400
+Date: Wed, 23 Aug 2006 15:35:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
+Subject: Re: [PATCH 6/18] 2.6.17.9 perfmon2 patch for review: sampling
+ format support
+Message-Id: <20060823153537.cb36b9ac.akpm@osdl.org>
+In-Reply-To: <200608230805.k7N85v1s000408@frankl.hpl.hp.com>
+References: <200608230805.k7N85v1s000408@frankl.hpl.hp.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan wrote:
-> How about this? 
+On Wed, 23 Aug 2006 01:05:57 -0700
+Stephane Eranian <eranian@frankl.hpl.hp.com> wrote:
 
-The code likely works, and the locking seems ok at first blush.
-And this patch seems to match just what I asked for ;).
+> This files contains the sampling format support.
+> 
+> Perfmon2 supports an in-kernel sampling buffer for performance
+> reasons. Yet to ensure maximum flexibility to applications,
+> the formats is which infmration is recorded into the kernel
+> buffer is not specified by the interface. Instead it is
+> delegated to a kernel plug-in modules called sampling formats.
+> 
+> Each formats controls:
+> 	- what is recorded in the the sampling buffer
+> 	- how the information is recorded
+> 	- when to notify the application to extract the information
+> 	- how the buffer is exported to user level
+> 	- hoe the buffer is allocated
+> 
+> Each format is identified via a 128-bit UUID which can be requested
+> when the context is created with pfm_create_context().
+> 
+> The interface comes with a simple default sampling format. It records
+> information sequentially in the buffer. Each entry, called sample,
+> is composed of a fixed size header and a variable size body where
+> the values of PMDS can be recorded based upon the user's request.
+> 
+> Sampling formats can be dynamically registered with perfmon. The management
+> of sampling formats is implemented in perfmon_fmt.c:
+> 
+> pfm_register_smpl_fmt(struct pfm_smpl_fmt *fmt):
+> 	- register a new sampling format
+> 		
+> pfm_unregister_smpl_fmt(pfm_uuid_t uuid):
+> 	- unregister a sampling format
+> 
+> It is possible to list the available formats by looking at /sys/kernel/perfmon/formats.
+> 
 
-But the more I think about this, the less I like this direction.
+Why identify a format with a UUID rather than via a nice human-readable name?
 
-Your patch, and what I initially asked for, impose a policy and create
-a side affect.  When you bring a cpu online, the top cpuset changes as
-a side affect, in order to impose a policy that the top cpuset tracks
-what is online.
+> +/*
+> + * find a buffer format based on its uuid
+> + */
+> +struct pfm_smpl_fmt *pfm_smpl_fmt_get(pfm_uuid_t uuid)
+> +{
+> +	struct pfm_smpl_fmt * fmt;
+> +
+> +	spin_lock(&pfm_smpl_fmt_lock);
+> +
+> +	fmt = __pfm_find_smpl_fmt(uuid);
+> +
+> +	/*
+> +	 * increase module refcount
+> +	 */
+> +	if (fmt && fmt_is_mod(fmt) && !try_module_get(fmt->owner))
+> +		fmt = NULL;
+> +
+> +	spin_unlock(&pfm_smpl_fmt_lock);
+> +
+> +	return fmt;
+> +}
 
-The kernel should avoid such side affects and avoid imposing policy.
+Is pfm_smpl_fmt_lock really needed?  The module API _should_ be unracy wrt
+lookup and removal.  If the name of the module was equal to the name of the
+format (sensible) then perhaps the module system's
+refcounting/atomicity/lookup mechanisms are sufficient?
 
-It should be user code that imposes the policy that the top cpuset
-tracks what is online.
+> +	pfm_sysfs_add_fmt(fmt);
 
-The kernel gets things going with reasonable basic defaults at system
-boot, then adapts to whatever user space mandates from then on.
+Please check for and handle all sysfs-related errors.  All errors, indeed.
 
-Kernels should provide generic, orthogonal mechanisms.
+Yes, a lot of the kernel blithely assumes that sysfs operations never fail.
+We need to fix that badness rather than copy it.
 
-Let user space figure out what it wants to do with them.
 
-It is not a kernel bug that the top cpuset doesn't track what is
-online.  It would be a kernel bug if the top cpuset didn't allow just
-exactly whatever cpus the user space code told it to allow.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

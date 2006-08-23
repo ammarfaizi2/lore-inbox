@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWHWMzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWHWNBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWHWMzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 08:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWHWMzw
+	id S932451AbWHWNBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 09:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWHWNBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 08:55:52 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:15569 "EHLO
+	Wed, 23 Aug 2006 09:01:25 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:32972 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932455AbWHWMzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 08:55:50 -0400
+	id S932451AbWHWNBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 09:01:24 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gfXYdrWisUrUouaGwWNWCr7C5IYMIxIxb6XP68pXDMI9ZznYtrAYTIJAiAlg3QSA+MG7ESvWrIdN237gLIizuV44xSDYHuQzCHsiPBCRZyl6y7MKXbehC4U4BVqlDR/bVtCMcP92rxuRHbJsPGLJB64u/osvShf7lfk4BJOn8nI=
-Message-ID: <b3f268590608230555o3a03d9d6l1d99a32695e8af6a@mail.gmail.com>
-Date: Wed, 23 Aug 2006 14:55:47 +0200
-From: "Jari Sundell" <sundell.software@gmail.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Cc: "David Miller" <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
-       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
-       hch@infradead.org
-In-Reply-To: <20060823105104.GA11305@2ka.mipt.ru>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iN08sod1N0ad1p5SikMO135SzqVeO4yBT/yLeX/sqimhsrh0Di+vUzDK1puf9OnwePV/+7W5MVSuLfkZAjEPYGaJL5QLuPQKhZm+kJ9O/TdN/FrgA/UtkGTpm+bSQM0U6k4V8y2HXOGGNv3ksSyeOuDdwPfYiWKAuRAdKt0aMRs=
+Message-ID: <2c0942db0608230601h78d054b5td483e8669b97be20@mail.gmail.com>
+Date: Wed, 23 Aug 2006 06:01:23 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: Group limit for NFS exported file systems
+Cc: "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0608231356180.14327@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060822231129.GA18296@ms2.inr.ac.ru>
-	 <20060822.173200.126578369.davem@davemloft.net>
-	 <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com>
-	 <20060823065659.GC24787@2ka.mipt.ru>
-	 <b3f268590608230122k60e3c7c7y939d5559d97107f@mail.gmail.com>
-	 <20060823083859.GA8936@2ka.mipt.ru>
-	 <b3f268590608230249q653e1dfh1d77c07f6f4e82ce@mail.gmail.com>
-	 <20060823102037.GA23664@2ka.mipt.ru>
-	 <b3f268590608230334y6814b886tb79da2f59138acd8@mail.gmail.com>
-	 <20060823105104.GA11305@2ka.mipt.ru>
+References: <20060823091652.235230@gmx.net>
+	 <2c0942db0608230355s74af2717g78675ea56b689fc0@mail.gmail.com>
+	 <20060823111119.203710@gmx.net>
+	 <2c0942db0608230435n1b680f11q3b19669f0bb62268@mail.gmail.com>
+	 <Pine.LNX.4.61.0608231356180.14327@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/23/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> We still do not know what uintptr_t is, and it looks like it is a pointer,
-> which is forbidden. Those numbers are not enough to make network AIO.
-> And actually is not compatible with kqueue already, so you will need to
-> write your own parser to convert your parameters into above structure.
+On 8/23/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> If only the client needs to be patched, non-patched and/or non-Linux
+> clients and the server (linux or not) should have a problem, should they?
 
-7.18.1.4 Integertypes capable of holding object pointers
+As I understand it, that's correct. Robert could legitimately patch
+only the system(s) in use by the user with 27 groups.
 
-"1 The following type designates a signed integer type with the
-property that any valid
-pointer to void can be converted to this type, then converted back to
-pointer to void,
-and the result will compare equal to the original pointer:"
+Again, though, I haven't used it, so take that with a grain of salt.
 
-Dunno if this means that x86-64 needs yet another typedef, or if using
-long for intptr_t is incorrect. But assuming a different integer type
-was used instead of intptr_t, that is known to be able to hold a
-pointer, would there still be any problems?
-
-I'm unable to see anything specific about AIO in your kevent patch
-that these modifications wouldn't support.
-
-Rakshasa
+~r.

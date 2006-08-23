@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWHWHZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWHWHc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWHWHZy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 03:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWHWHZy
+	id S1751017AbWHWHc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 03:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHWHc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 03:25:54 -0400
-Received: from mail1.skjellin.no ([80.239.42.67]:48530 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S932376AbWHWHZx (ORCPT
+	Wed, 23 Aug 2006 03:32:57 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:8866 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751017AbWHWHc5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 03:25:53 -0400
-Message-ID: <44EC02FD.7050207@tomt.net>
-Date: Wed, 23 Aug 2006 09:25:49 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Wed, 23 Aug 2006 03:32:57 -0400
+Date: Wed, 23 Aug 2006 09:31:14 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Peter Korsgaard <jacmet@sunsite.dk>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       device@lanana.org
+Subject: Re: [PATCH] Update Documentation/devices.txt
+In-Reply-To: <87mz9wm0n2.fsf@slug.be.48ers.dk>
+Message-ID: <Pine.LNX.4.61.0608230930520.14503@yvahk01.tjqt.qr>
+References: <87d5aserky.fsf@slug.be.48ers.dk> <20060822092458.7fbc5286.rdunlap@xenotime.net>
+ <87wt902fce.fsf@slug.be.48ers.dk> <Pine.LNX.4.61.0608230804480.8498@yvahk01.tjqt.qr>
+ <87mz9wm0n2.fsf@slug.be.48ers.dk>
 MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Hardware vs. Software Raid Speed
-References: <44EBFB3E.8070905@perkel.com>
-In-Reply-To: <44EBFB3E.8070905@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> Running Linux on an AMD AM2 nVidia chip ser that supports Raid 0 
-> striping on the motherboard. Just wondering if hardware raid (SATA2) 
-> is going to be faster that software raid and why?
+>
+> Jan> If you got a better turnaround time, propose your maintainership. :)
+>
+>No way, I'm not going there ;) Sorry if it sounded offensive.
+>
+>My point was just that it's probably faster to change the copy in the
+>kernel tree than getting the one on lanana.org updated.
 
-Beeing a consumer type board (AM2), the "raid on the motherboard" is in 
-99.999% of the cases just software raid implemented in their Windows 
-drivers, a bootup setup screen plus some BIOS magic to get the OS booting.
+Maybe the kernel one should be the official document.
+
+
+Jan Engelhardt
+-- 

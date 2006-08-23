@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWHWJgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWHWJgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWHWJgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWHWJgo
+	id S1751487AbWHWJgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWHWJgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:36:44 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:22991 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751483AbWHWJgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:36:43 -0400
-Message-ID: <44EC21A3.1040905@vmware.com>
-Date: Wed, 23 Aug 2006 02:36:35 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 23 Aug 2006 05:36:07 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:37205 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751482AbWHWJgF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:36:05 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [2.6.19 PATCH 0/7] ehea: IBM eHEA Ethernet Device Driver
+Date: Wed, 23 Aug 2006 10:55:49 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608231106.26696.ak@suse.de> <44EC1C7C.9020304@vmware.com> <200608231120.42679.ak@suse.de>
-In-Reply-To: <200608231120.42679.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+To: netdev <netdev@vger.kernel.org>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200608231055.49375.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> I need to look at the kprobes code in more depth to answer completely.  
->> But in general, there could be a problem if DRs are set to fire on any 
->> EIP 
->>     
->
-> kprobes don't use DRs
+Hi,
 
-Good to know.  But int3 breakpoints can still cause horrific breakage in 
-the stop_machine code.  I don't know a good way to disallow it.
+in this latest version of the IBM eHEA Ethernet Device Driver
+we removed all unnecessary variable initializations and did some
+code cleanup. We hope that we didn't miss to respond to any of your
+suggestions. Please feel free to send us further feedback. We highly
+appreciate your efforts.
 
-Zach
+Thanks,
+Jan-Bernd
+
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+Changelog-by:  Jan-Bernd Themann <themann@de.ibm.com>
+
+Differences to patch set http://www.spinics.net/lists/netdev/msg12702.html
+
+Changelog:
+
+- Unnecessary variable initializations removed
+- Promiscuous mode support included
+
+ drivers/net/Kconfig             |    9 
+ drivers/net/Makefile            |    1 
+ drivers/net/ehea/Makefile       |    7 
+ drivers/net/ehea/ehea.h         |  438 ++++++
+ drivers/net/ehea/ehea_ethtool.c |  244 +++
+ drivers/net/ehea/ehea_hcall.h   |   51 
+ drivers/net/ehea/ehea_hw.h      |  290 ++++
+ drivers/net/ehea/ehea_main.c    | 2677 ++++++++++++++++++++++++++++++++++++++++
+ drivers/net/ehea/ehea_phyp.c    |  784 +++++++++++
+ drivers/net/ehea/ehea_phyp.h    |  463 ++++++
+ drivers/net/ehea/ehea_qmr.c     |  607 +++++++++
+ drivers/net/ehea/ehea_qmr.h     |  361 +++++
+ 12 files changed, 5932 insertions(+)

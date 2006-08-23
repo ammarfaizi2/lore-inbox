@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbWHWUlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965195AbWHWUy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965197AbWHWUlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 16:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWHWUlQ
+	id S965195AbWHWUy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 16:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWHWUy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 16:41:16 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:15822 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S965181AbWHWUlP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 16:41:15 -0400
-Date: Wed, 23 Aug 2006 16:41:09 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Subject: Re: [PATCH 3/7] SLIM main patch
-Message-ID: <20060823204109.GI28594@kvack.org>
-References: <1156359937.6720.66.camel@localhost.localdomain> <20060823192733.GG28594@kvack.org> <1156365357.6720.87.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156365357.6720.87.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Aug 2006 16:54:59 -0400
+Received: from zcars04e.nortel.com ([47.129.242.56]:13213 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S965195AbWHWUy6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 16:54:58 -0400
+Message-ID: <44ECC09A.7090909@nortel.com>
+Date: Wed, 23 Aug 2006 14:54:50 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rparedes@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SMP Affinity and nice
+References: <38798.127.0.0.1.1156346673.squirrel@forexproject.com>
+In-Reply-To: <38798.127.0.0.1.1156346673.squirrel@forexproject.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Aug 2006 20:54:54.0654 (UTC) FILETIME=[62AF2DE0:01C6C6F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 01:35:56PM -0700, Kylene Jo Hall wrote:
-> Example: The current process is running at the USER level and writing to
-> a USER file in /home/user/.  The process then attempts to read an
-> UNTRUSTED file.  The current process will become UNTRUSTED and the read
-> allowed to proceed but first write access to all USER files is revoked
-> including the ones it has open.
+Rich Paredes wrote:
 
-Don't threads share file tables?  What is preventing malicious code from 
-starting another thread which continues writing to the file that the 
-revoke attempt is made on?
+> So since cpumax5 has a lower nice value and thus a higher priority (25 in
+> this case), shouldn't it be given it's own cpu.   If I give cpumax5 a nice
+> value of -20, it does start using it's own cpu.
+> 
+> My explanation would be that since the scheduler tries to limit cpu
+> affinity, the nice value of 0 isn't enough to get the scheduler to move
+> this process to another processors run queue.  I could be totally wrong
+> here though.
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+I think you are correct.  The load balancer doesn't think that this is 
+enough of an imbalance to go through the effort of swapping two 
+processes around.
+
+Chris

@@ -1,39 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWHWLjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWHWLkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWHWLjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWHWLjx
+	id S932385AbWHWLkX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWHWLkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:39:53 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:30910 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S932385AbWHWLjw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:39:52 -0400
-Date: Wed, 23 Aug 2006 13:38:22 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
-Message-ID: <20060823113822.GA17103@electric-eye.fr.zoreil.com>
-References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
+	Wed, 23 Aug 2006 07:40:23 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:39257 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932385AbWHWLkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 07:40:20 -0400
+Date: Wed, 23 Aug 2006 20:40:19 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [RFC PATCH] prevent from killing OOM disabled task in do_page_fault()
+Message-ID: <20060823114019.GB7834@miraclelinux.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060822232730.GA30977@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-[...]
-> or as a serie of patches at:
-> http://www.fr.zoreil.com/linux/2.6.x/2.6.18-rc4/ip1000
+The process protected from oom-killer may be killed when do_page_fault()
+runs out of memory. This patch skips those processes as well as init task.
 
-Typo. It should be:
-http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.18-rc4/ip1000
+I couldn't touch several architectures (arm cris frv parisc sparc sparc64).
+Because there is no survival path in that case for now.
 
--- 
-Ueimor
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+
+ arch/alpha/mm/fault.c   |    2 +-
+ arch/arm26/mm/fault.c   |    2 +-
+ arch/i386/mm/fault.c    |    2 +-
+ arch/ia64/mm/fault.c    |    2 +-
+ arch/m32r/mm/fault.c    |    2 +-
+ arch/m68k/mm/fault.c    |    2 +-
+ arch/mips/mm/fault.c    |    2 +-
+ arch/powerpc/mm/fault.c |    2 +-
+ arch/ppc/mm/fault.c     |    2 +-
+ arch/s390/mm/fault.c    |    2 +-
+ arch/sh/mm/fault.c      |    2 +-
+ arch/sh64/mm/fault.c    |    2 +-
+ arch/x86_64/mm/fault.c  |    2 +-
+ arch/xtensa/mm/fault.c  |    2 +-
+ 14 files changed, 14 insertions(+), 14 deletions(-)
+
+Index: work-failmalloc/arch/alpha/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/alpha/mm/fault.c
++++ work-failmalloc/arch/alpha/mm/fault.c
+@@ -193,7 +193,7 @@ do_page_fault(unsigned long address, uns
+ 	/* We ran out of memory, or some other thing happened to us that
+ 	   made us unable to handle the page fault gracefully.  */
+  out_of_memory:
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/arm26/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/arm26/mm/fault.c
++++ work-failmalloc/arch/arm26/mm/fault.c
+@@ -185,7 +185,7 @@ survive:
+ 	}
+ 
+ 	fault = -3; /* out of memory */
+-	if (tsk->pid != 1)
++	if (tsk->pid != 1 && tsk->oomkilladj != OOM_DISABLE)
+ 		goto out;
+ 
+ 	/*
+Index: work-failmalloc/arch/i386/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/i386/mm/fault.c
++++ work-failmalloc/arch/i386/mm/fault.c
+@@ -598,7 +598,7 @@ no_context:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (tsk->pid == 1) {
++	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/ia64/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/ia64/mm/fault.c
++++ work-failmalloc/arch/ia64/mm/fault.c
+@@ -278,7 +278,7 @@ ia64_do_page_fault (unsigned long addres
+ 
+   out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/m32r/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/m32r/mm/fault.c
++++ work-failmalloc/arch/m32r/mm/fault.c
+@@ -299,7 +299,7 @@ no_context:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (tsk->pid == 1) {
++	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/m68k/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/m68k/mm/fault.c
++++ work-failmalloc/arch/m68k/mm/fault.c
+@@ -181,7 +181,7 @@ good_area:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/mips/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/mips/mm/fault.c
++++ work-failmalloc/arch/mips/mm/fault.c
+@@ -171,7 +171,7 @@ no_context:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (tsk->pid == 1) {
++	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/powerpc/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/powerpc/mm/fault.c
++++ work-failmalloc/arch/powerpc/mm/fault.c
+@@ -386,7 +386,7 @@ bad_area_nosemaphore:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/ppc/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/ppc/mm/fault.c
++++ work-failmalloc/arch/ppc/mm/fault.c
+@@ -291,7 +291,7 @@ bad_area:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/s390/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/s390/mm/fault.c
++++ work-failmalloc/arch/s390/mm/fault.c
+@@ -315,7 +315,7 @@ no_context:
+ */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (tsk->pid == 1) {
++	if (tsk->pid == 1 || tsk->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		goto survive;
+ 	}
+Index: work-failmalloc/arch/sh/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/sh/mm/fault.c
++++ work-failmalloc/arch/sh/mm/fault.c
+@@ -160,7 +160,7 @@ no_context:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/sh64/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/sh64/mm/fault.c
++++ work-failmalloc/arch/sh64/mm/fault.c
+@@ -326,7 +326,7 @@ out_of_memory:
+ 	}
+ 	printk("fault:Out of memory\n");
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;
+Index: work-failmalloc/arch/x86_64/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/x86_64/mm/fault.c
++++ work-failmalloc/arch/x86_64/mm/fault.c
+@@ -586,7 +586,7 @@ no_context:
+  */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) { 
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		goto again;
+ 	}
+Index: work-failmalloc/arch/xtensa/mm/fault.c
+===================================================================
+--- work-failmalloc.orig/arch/xtensa/mm/fault.c
++++ work-failmalloc/arch/xtensa/mm/fault.c
+@@ -144,7 +144,7 @@ bad_area:
+ 	 */
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (current->pid == 1 || current->oomkilladj == OOM_DISABLE) {
+ 		yield();
+ 		down_read(&mm->mmap_sem);
+ 		goto survive;

@@ -1,60 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWHWJOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWHWJQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWHWJOi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWHWJOi
+	id S1751467AbWHWJQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWHWJQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:14:38 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:43724 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751466AbWHWJOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:14:37 -0400
-Message-ID: <44EC1C7C.9020304@vmware.com>
-Date: Wed, 23 Aug 2006 02:14:36 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 23 Aug 2006 05:16:54 -0400
+Received: from mail.gmx.de ([213.165.64.20]:22660 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751467AbWHWJQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 05:16:54 -0400
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 23 Aug 2006 11:16:52 +0200
+From: "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de>
+Message-ID: <20060823091652.235230@gmx.net>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608231050.13272.ak@suse.de> <44EC194E.6080606@vmware.com> <200608231106.26696.ak@suse.de>
-In-Reply-To: <200608231106.26696.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Group limit for NFS exported file systems
+To: linux-kernel@vger.kernel.org
+X-Authenticated: #26149461
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wednesday 23 August 2006 11:01, Zachary Amsden wrote:
->   
->> Andi Kleen wrote:
->>     
->>>> Yes, after discussion with Rusty, it appears that beefing up 
->>>> stop_machine_run is the right way to go.  And it has benefits for 
->>>> non-paravirt code as well, such as allowing plug-in kprobes or oprofile 
->>>> extension modules to be loaded without having to deal with a debug 
->>>> exception or NMI during module load/unload.
->>>>     
->>>>         
->>> I'm still unclear where you think those debug exceptions will come from
->>>       
->> kprobes set in the stop_machine code - which is probably a really bad 
->> idea, but nothing today actively stops kprobes from doing that.
->>     
->
-> kprobes don't cause any debug exceptions. You mean int3?
->
-> Anyways this can be fixed by marking the stop machine code __kprobes
->
-> -Andi
->   
+Hi,
 
-I need to look at the kprobes code in more depth to answer completely.  
-But in general, there could be a problem if DRs are set to fire on any 
-EIP or memory address touched during the critical stop_machine region, 
-or int3 breakpoints are set in that code or any code it calls.
+is there a group limit for NFS exported file systems in recent kernels?
+One if my users cannot access directories that belong to a group he actually _is_ a member of. That, however, is true only when accessing them over NFS. On the local file system, everything is fine. UIDs and GIDs are the same on client and server, so that cannot be the problem. Client and server run Gentoo Linux with kernel 2.6.16 on the server and 2.6.17 on the client.
+Any ideas?
 
-Zach
+TIA,
+ Robert

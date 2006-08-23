@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWHWEXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWHWE1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWHWEXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 00:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHWEXk
+	id S932346AbWHWE1c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 00:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWHWE1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 00:23:40 -0400
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:15036 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S932324AbWHWEXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 00:23:39 -0400
-Subject: Re: The Proposed Linux kevent API
-From: Nicholas Miell <nmiell@comcast.net>
-To: David Miller <davem@davemloft.net>
-Cc: rdunlap@xenotime.net, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
-       drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
-       zach.brown@oracle.com, hch@infradead.org
-In-Reply-To: <1156304855.2476.209.camel@entropy>
-References: <1156287492.2476.134.camel@entropy>
-	 <20060822.160618.130612620.davem@davemloft.net>
-	 <1156296967.2476.200.camel@entropy>
-	 <20060822.203116.41633933.davem@davemloft.net>
-	 <1156304855.2476.209.camel@entropy>
-Content-Type: text/plain
-Date: Tue, 22 Aug 2006 21:23:14 -0700
-Message-Id: <1156306994.2476.218.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+	Wed, 23 Aug 2006 00:27:32 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:55923 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932346AbWHWE1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 00:27:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S4gH4ideHSRpnOqz1Iv7JQdMeDpsraC46tQSiFGDjcdHdFK1A3R0IHJNRCEgML3H0eUEzGa2dbtKi/gOLKCK93La3wIwMJPyiMs2G8W4H1G5op4mOHCXCKLbbeEgB0qo3X6JeemKahB8329ekxyYu1xsM6/JhxtlPJqwNdoIzbo=
+Message-ID: <36e6b2150608222127y39bb9314h9b0a31f1f8b6b399@mail.gmail.com>
+Date: Wed, 23 Aug 2006 08:27:30 +0400
+From: "Paul Drynoff" <pauldrynoff@gmail.com>
+To: "Jeremy Fitzhardinge" <jeremy@goop.org>
+Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Jeremy Fitzhardinge" <jeremy@xensource.com>,
+       linux-kernel@vger.kernel.org, "Zachary Amsden" <zach@vmware.com>
+In-Reply-To: <44EB7D2D.7000006@goop.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
+	 <20060822123850.bdb09717.akpm@osdl.org>
+	 <36e6b2150608221413h3b6baf24lf670a2aed61c0c57@mail.gmail.com>
+	 <44EB7D2D.7000006@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 20:47 -0700, Nicholas Miell wrote:
-> On Tue, 2006-08-22 at 20:31 -0700, David Miller wrote:
-> > From: Nicholas Miell <nmiell@comcast.net>
-> > Date: Tue, 22 Aug 2006 18:36:07 -0700
-> > 
-> > > Dear DaveM,
-> > > 
-> > > 	Go fuck yourself.
-> > 
-> > I guess this is the bit that's supposed to make me take you seriously
-> > :-)
-> 
-> Of course. ^_^
-> 
+On 8/23/06, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> Hm.  Try this:
+> --- a/arch/i386/kernel/paravirt.c
+> +++ b/arch/i386/kernel/paravirt.c
+I have no such file.
 
-Note that when I made this suggestion, I was not literally instructing
-you to perform sexual acts upon yourself, especially if such a thing
-would be illegal in your jurisdiction (although, IIRC, you moved to
-Seattle recently and I'm pretty sure we allow that kind of thing here,
-but we don't generally talk about it in public). So, my apologies to
-you, Dave, for making such metaphorical instructions.
+> --- a/include/asm-i386/desc.h
+> +++ b/include/asm-i386/desc.h
+> @@ -97,7 +97,7 @@ static inline void set_ldt(const void *a
+>         __u32 low, high;
+>
+>         pack_descriptor(&low, &high, (unsigned long)addr,
+> -                       entries * sizeof(struct desc_struct) - 1,
+> +                       entries * sizeof(struct desc_struct),
+>                         DESCTYPE_LDT, 0);
+>         write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, low, high);
 
-However, your choice to characterize my technical criticism as "rants"
-and "complaints" and your continuous variations on "let's see you do
-something better" as if it were a valid response to my objections did
-get on my nerves and made it very hard for me to take you seriously. 
+There is no such code in this file.
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+I adopt your code for linux-2.6.18-rc4-mm2, and looks like it fix bug.
 
+Index: linux-2.6.18-rc4-mm2/include/asm-i386/desc.h
+===================================================================
+--- linux-2.6.18-rc4-mm2.orig/include/asm-i386/desc.h
++++ linux-2.6.18-rc4-mm2/include/asm-i386/desc.h
+@@ -114,7 +114,7 @@ static inline void set_ldt_desc(unsigned
+ {
+        __u32 a, b;
+        pack_descriptor(&a, &b, (unsigned long)addr,
+-                       entries * sizeof(struct desc_struct) - 1,
++                       entries * sizeof(struct desc_struct),
+                        DESCTYPE_LDT, 0);
+        write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, a, b);
+ }

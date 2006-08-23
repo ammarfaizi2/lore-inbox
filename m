@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWHWJzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWHWJ6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWHWJzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWHWJzS
+	id S1751517AbWHWJ6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWHWJ6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:55:18 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:45580 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751512AbWHWJzQ (ORCPT
+	Wed, 23 Aug 2006 05:58:32 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9942 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751502AbWHWJ6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:55:16 -0400
-Message-ID: <44EC2600.3070006@argo.co.il>
-Date: Wed, 23 Aug 2006 12:55:12 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 23 Aug 2006 05:58:31 -0400
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Jari Sundell <sundell.software@gmail.com>,
+       David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
+	<20060822231129.GA18296@ms2.inr.ac.ru>
+	<b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com>
+	<20060822.173200.126578369.davem@davemloft.net>
+	<b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com>
+	<20060823065659.GC24787@2ka.mipt.ru>
+	<20060823000758.5ebed7dd.akpm@osdl.org>
+	<20060823071002.GA16400@2ka.mipt.ru>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Aug 2006 11:58:20 +0200
+In-Reply-To: <20060823071002.GA16400@2ka.mipt.ru>
+Message-ID: <p73pser7ozn.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: ebiederm@xmission.com
-CC: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com, ak@suse.de
-Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
-References: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Aug 2006 09:55:14.0502 (UTC) FILETIME=[3B134660:01C6C69A]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com wrote:
->
-> I almost removed the tasklist_lock from all read paths.  But as it
-> happens sending a signal to a process group is an atomic operation
-> with respect to fork so that path has to take the lock, or else
-> we get places where "kill -9 -pgrp" fails to kill every process in
-> the process group.  Which is even worse.
->
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> writes:
+> 
+> Let's then place there a structure with 64bit seconds and nanoseconds,
+> similar to timspec, but without longs there.
 
-Can't that be fixed by adding a per-pgrp lock, and having both 
-fork()/clone() and kill(-pgrp) take that lock?
+You need 64bit (or at least more than 32bit) for the seconds,
+otherwise you add a y2038 problem which would be sad in new code.
+Remember you might be still alive then ;-)
 
--- 
-error compiling committee.c: too many arguments to function
+Ok one could argue that on 32bit architectures 2038 is so deeply
+embedded that it doesn't make much difference, but I still
+think it would be better to not readd it to new interfaces there.
 
+64bit longs on 32bit is fine, as long as you use aligned_u64,
+never long long or u64 (which has varying alignment between i386 and x86-64)
+
+-Andi

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWHWPOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWHWPWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWHWPOc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWHWPOc
+	id S964974AbWHWPWK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWHWPWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:14:32 -0400
-Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:17456 "EHLO
-	webmail.xensource.com") by vger.kernel.org with ESMTP
-	id S964971AbWHWPOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:14:32 -0400
-Subject: Re: [PATCH] Translate asm version of ELFNOTE macro into
-	preprocessor macro
-From: Ian Campbell <Ian.Campbell@XenSource.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <44EC6B12.4060909@goop.org>
-References: <1156333761.12949.35.camel@localhost.localdomain>
-	 <44EC6B12.4060909@goop.org>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 16:14:34 +0100
-Message-Id: <1156346074.12949.129.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Aug 2006 15:16:19.0781 (UTC) FILETIME=[16138F50:01C6C6C7]
+	Wed, 23 Aug 2006 11:22:10 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:39911 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S964974AbWHWPWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:22:08 -0400
+Date: Wed, 23 Aug 2006 11:22:06 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: gerrit@erg.abdn.ac.uk
+cc: davem@davemloft.net, alan@lxorguk.ukuu.org.uk, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, kaber@coreworks.de, yoshfuji@linux-ipv6.org,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/3] net/ipv4: UDP-Lite extensions
+In-Reply-To: <200608231603.08240@strip-the-willow>
+Message-ID: <Pine.LNX.4.64.0608231112530.3870@d.namei>
+References: <200608231150.42039@strip-the-willow> <Pine.LNX.4.64.0608231019010.3198@d.namei>
+ <200608231603.08240@strip-the-willow>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 07:49 -0700, Jeremy Fitzhardinge wrote:
-> Ian Campbell wrote:
-> > The first is that older gas does not support :varargs in .macro
-> > definitions (in my testing 2.17 does while 2.15 does not, I don't know
-> > when it became supported). The Changes file says binutils >= 2.12 so I
-> > think we need to avoid using it. There are no other uses in mainline or
-> > -mm. Old gas appears to just ignore it so you get "too many arguments"
-> > type errors.
-> >   
-> OK, seems reasonable.  Eric Biederman solved this by having NOTE/ENDNOTE 
-> (or something like that) in his "bzImage with ELF header" patch, but I 
-> don't remember it being used in any way which is incompatible with using 
-> a CPP macro.
+On Wed, 23 Aug 2006, gerrit@erg.abdn.ac.uk wrote:
 
-I can't find that patch, does NOTE/ENDNOTE just do the push/pop .note
-section?
+> |  Other protocols & network components call panic() if they fail during boot 
+> |  initialization.  Not sure if this is a great thing, but it raises the 
+> |  issue of whether udp-lite should remain consistent here.
+> 
+> The behaviour is consistent (modulo loglevel) with inet_init()
+> of net/ipv4/af_inet.c:
 
-That would solve the problem with the first argument of the macro being
-a string but the final argument could still be for .asciz note contents.
+Some things will panic there, just deeper in the call chain.
 
-Ian.
+> >From that I could not deduct a rule what would happen if UDP-Lite failed
+> to register. If control had reached that above point, it means that all
+> other protocols have already successfully registered -- if then UDP-Lite
+> could not register and called a panic(), it would abort the remainder of the
+> stack. 
+
+Other functions can also panic on failure after this, e.g. tcp_init().
+
+I think ideally it'd be best if components did not panic during 
+initialization unless it _really_ meant that the kernel should not 
+continue executing.  Although, it's not entirely clear how to determine 
+this, e.g. perhaps the system should panic if netfilter initialization 
+failed, as it might mean that the systems comes up without a firewall. But 
+how do we know precisely which components are being used for security 
+critical purposes?
+
+It seems like a signifcant overhaul of existing code, so probably best 
+just to leave yours as-is (which I suspect is the correct behavior 
+anyway).
 
 
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

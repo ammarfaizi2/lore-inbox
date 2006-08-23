@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbWHWWTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965250AbWHWWUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965247AbWHWWTm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 18:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWHWWTm
+	id S965250AbWHWWUF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 18:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965248AbWHWWUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 18:19:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:33511 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965247AbWHWWTl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 18:19:41 -0400
-Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: devel@openvz.org, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Rohit Seth <rohitseth@google.com>, Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <1156370698.12011.55.camel@localhost.localdomain>
-References: <44EC31FB.2050002@sw.ru>  <44EC35A3.7070308@sw.ru>
-	 <1156370698.12011.55.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 18:20:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:23993 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965242AbWHWWUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 18:20:01 -0400
+Subject: Re: [PATCH 3/7] SLIM main patch
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060823204109.GI28594@kvack.org>
+References: <1156359937.6720.66.camel@localhost.localdomain>
+	 <20060823192733.GG28594@kvack.org>
+	 <1156365357.6720.87.camel@localhost.localdomain>
+	 <20060823204109.GI28594@kvack.org>
 Content-Type: text/plain
-Date: Wed, 23 Aug 2006 15:13:42 -0700
-Message-Id: <1156371222.2510.715.camel@stark>
+Date: Wed, 23 Aug 2006 15:20:03 -0700
+Message-Id: <1156371603.6720.101.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 15:04 -0700, Dave Hansen wrote:
-> On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
-> > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
-> > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
-> > @@ -432,3 +432,5 @@ source "security/Kconfig"
-> >  source "crypto/Kconfig"
-> >  
-> >  source "lib/Kconfig"
-> > +
-> > +source "kernel/bc/Kconfig"
-> ...
-> > --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
-> > +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
-> > @@ -432,3 +432,5 @@ source "security/Kconfig"
-> >  source "crypto/Kconfig"
-> >  
-> >  source "lib/Kconfig"
-> > +
-> > +source "kernel/bc/Kconfig"
+On Wed, 2006-08-23 at 16:41 -0400, Benjamin LaHaise wrote:
+> On Wed, Aug 23, 2006 at 01:35:56PM -0700, Kylene Jo Hall wrote:
+> > Example: The current process is running at the USER level and writing to
+> > a USER file in /home/user/.  The process then attempts to read an
+> > UNTRUSTED file.  The current process will become UNTRUSTED and the read
+> > allowed to proceed but first write access to all USER files is revoked
+> > including the ones it has open.
 > 
-> Is it just me, or do these patches look a little funky?  Looks like it
-> is trying to patch the same thing into the same file, twice.  Also, the
-> patches look to be -p0 instead of -p1.  
+> Don't threads share file tables?  What is preventing malicious code from 
+> starting another thread which continues writing to the file that the 
+> revoke attempt is made on?
 
-They do appear to be -p0
+Well if they do share file tables then revoking write access from the
+file in the file table will revoke access for all threads.  It looks
+like sharing or copying the file table is based on a flag to the clone
+call and we are looking into whether you could exploit that situation.
 
-	They aren't adding the same thing twice to the same file. This patch
-makes different arches source the same Kconfig.
-
-	I seem to recall Chandra suggested that instead of doing it this way it
-would be more appropriate to add the source line to init/Kconfig because
-it's more central and arch-independent. I tend to agree.
-
-Cheers,
-	-Matt Helsley
+Thanks,
+Kylie
+> 
+> 		-ben
 

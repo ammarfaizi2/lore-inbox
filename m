@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWHWJGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWHWJOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWHWJGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 05:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWHWJGi
+	id S1751465AbWHWJOf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 05:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWHWJOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 05:06:38 -0400
-Received: from ns2.suse.de ([195.135.220.15]:40396 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751461AbWHWJGh (ORCPT
+	Wed, 23 Aug 2006 05:14:35 -0400
+Received: from mail.gmx.net ([213.165.64.20]:42628 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751465AbWHWJOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 05:06:37 -0400
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH] paravirt.h
-Date: Wed, 23 Aug 2006 11:06:26 +0200
-User-Agent: KMail/1.9.3
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1155202505.18420.5.camel@localhost.localdomain> <200608231050.13272.ak@suse.de> <44EC194E.6080606@vmware.com>
-In-Reply-To: <44EC194E.6080606@vmware.com>
+	Wed, 23 Aug 2006 05:14:34 -0400
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 23 Aug 2006 11:14:33 +0200
+From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
+Message-ID: <20060823091433.316970@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608231106.26696.ak@suse.de>
+Subject: Question about aper_size_info structs in agp.h
+To: linux-kernel@vger.kernel.org
+X-Authenticated: #6097454
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 August 2006 11:01, Zachary Amsden wrote:
-> Andi Kleen wrote:
-> >> Yes, after discussion with Rusty, it appears that beefing up 
-> >> stop_machine_run is the right way to go.  And it has benefits for 
-> >> non-paravirt code as well, such as allowing plug-in kprobes or oprofile 
-> >> extension modules to be loaded without having to deal with a debug 
-> >> exception or NMI during module load/unload.
-> >>     
-> >
-> > I'm still unclear where you think those debug exceptions will come from
-> 
-> kprobes set in the stop_machine code - which is probably a really bad 
-> idea, but nothing today actively stops kprobes from doing that.
+Hi,
 
-kprobes don't cause any debug exceptions. You mean int3?
+I was wondering about the differences between the aperture size types defined in agp.h. As far as I understand the size_value field in the aper_size_info_8/16/32 structs just defines the value to be set in the AGP bridge registers to configure a specific AGP aperture size (e.g. 8 MB, 16MB, etc..).
 
-Anyways this can be fixed by marking the stop machine code __kprobes
+Wouldn't it be sufficient to define size_value as 32 bit only, or does the type of size_value/aper_size_info_x have an influence on the generation of the graphics address remapping table (e.g. address alignment) ?
 
--Andi
+For example the uninorth driver uses the aper_size_info_32 struct to define the AGP aperture size, but only defines values between 1 and 64 for the size_value field (so aper_size_info_8 would be sufficient).
+
+BTW: Can anybody explain the format of the graphics address remapping table or point me to some docs where it is described?
+
+regards,
+
+Gerhard
+
+-- 
+
+
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

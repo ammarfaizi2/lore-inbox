@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWHWHe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWHWHny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbWHWHe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 03:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHWHe5
+	id S932373AbWHWHny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 03:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWHWHnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 03:34:57 -0400
-Received: from mail.gmx.net ([213.165.64.20]:11744 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751426AbWHWHe4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 03:34:56 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <20060820174839.GH13917@in.ibm.com>
-References: <20060820174015.GA13917@in.ibm.com>
-	 <20060820174839.GH13917@in.ibm.com>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 09:43:28 +0000
-Message-Id: <1156326208.6265.33.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Wed, 23 Aug 2006 03:43:53 -0400
+Received: from nf-out-f131.google.com ([64.233.182.131]:63662 "EHLO
+	nf-out-f131.google.com") by vger.kernel.org with ESMTP
+	id S932373AbWHWHnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 03:43:53 -0400
+Message-ID: <5640c7e00608230043h17d330c0ka46de63cfb5bf7de@mail.gmail.com>
+Date: Wed, 23 Aug 2006 19:43:50 +1200
+From: "Ian McDonald" <ian.mcdonald@jandi.co.nz>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Cc: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Jari Sundell" <sundell.software@gmail.com>,
+       "David Miller" <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       nmiell@comcast.net, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org
+In-Reply-To: <20060823000758.5ebed7dd.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
+	 <20060822231129.GA18296@ms2.inr.ac.ru>
+	 <b3f268590608221728r6cffd03i2f2dd12421b9f37@mail.gmail.com>
+	 <20060822.173200.126578369.davem@davemloft.net>
+	 <b3f268590608221743o493080d0t41349bc4336bdd0b@mail.gmail.com>
+	 <20060823065659.GC24787@2ka.mipt.ru>
+	 <20060823000758.5ebed7dd.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 23:18 +0530, Srivatsa Vaddagiri wrote:
+> I wonder whether designing-in a millisecond granularity is the right thing
+> to do.  If in a few years the kernel is running tickless with high-res clock
+> interrupt sources, that might look a bit lumpy.
+>
+I'd second that - when working on DCCP I've done a lot of the work in
+microseconds and it made quite a difference instead of milliseconds
+because of it's design.
 
-> As an example, follow these steps to create metered cpusets:
-> 
-> 
-> 	# cd /dev
-> 	# mkdir cpuset
-> 	# mount -t cpuset cpuset cpuset
-> 	# cd cpuset
-> 	# mkdir grp_a
-> 	# cd grp_a
-> 	# /bin/echo "6-7" > cpus	# assign CPUs 6,7 for this cpuset
-> 	# /bin/echo 0 > mems		# assign node 0 for this cpuset
-> 	# /bin/echo 1 > cpu_exclusive
-> 	# /bin/echo 1 > meter_cpu
-
-Implementation might need some idiot proofing.
-
-After mount/cd cpuset, somebody might think "gee, why should I need to
-create a group 'all', when it's right there in the root, including all
-it's tasks?  I'll just set cpu_exclusive, set meter_cpu...
-
-...and after my box finishes rebooting, I'll alert the developer of this
-patch set that very bad things happen the instant you do that :)
-
-	-Mike
-
+I haven't followed kevents in great detail but it sounds like
+something that could be useful for me with higher resolution timers
+than milliseconds.
+-- 
+Ian McDonald
+Web: http://wand.net.nz/~iam4
+Blog: http://imcdnzl.blogspot.com
+WAND Network Research Group
+Department of Computer Science
+University of Waikato
+New Zealand

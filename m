@@ -1,102 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWHWTGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbWHWTIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965125AbWHWTGn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 15:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWHWTGl
+	id S965120AbWHWTIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 15:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWHWTIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 15:06:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:47750 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965108AbWHWTGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 15:06:13 -0400
-Subject: [PATCH 1/7] mprotect patch for use by SLIM
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>
-Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 12:05:27 -0700
-Message-Id: <1156359927.6720.64.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 15:08:47 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9649 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965105AbWHWTIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 15:08:46 -0400
+Date: Wed, 23 Aug 2006 12:08:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: akpm@osdl.org, simon.derr@bull.net, nathanl@austin.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-Id: <20060823120838.efbd79c2.pj@sgi.com>
+In-Reply-To: <20060823145817.GA28175@krispykreme>
+References: <20060821132709.GB8499@krispykreme>
+	<20060821104334.2faad899.pj@sgi.com>
+	<20060821192133.GC8499@krispykreme>
+	<20060821140148.435d15f3.pj@sgi.com>
+	<20060821215120.244f1f6f.akpm@osdl.org>
+	<20060821220625.36abd1d9.pj@sgi.com>
+	<20060821221433.2bc18198.akpm@osdl.org>
+	<20060823145817.GA28175@krispykreme>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small patch makes mprotect available for use by SLIM for
-write revocation.
+Anton wrote:
+> We have a userspace visible change to the sched
+> affinity API when the cpusets option is enabled.
 
-Updated to allow the usage locking to work properly.
+Yup - on cpuset kernels, sched_setaffinity is constrained to CPUs in a
+tasks cpuset.  Also mbind and set_mempolicy are constrained to nodes in
+the tasks cpuset.
 
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
- include/linux/mm.h |    2 ++
- mm/mprotect.c      |   22 ++++++++++++++++------
- 2 files changed, 18 insertions(+), 6 deletions(-)
+This is a long standing, intentional part of the cpuset design.
 
---- linux-2.6.18-rc3/mm/mprotect.c	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/mm/mprotect.c	2006-08-07 13:11:07.000000000 -0500
-@@ -19,6 +19,7 @@
- #include <linux/mempolicy.h>
- #include <linux/personality.h>
- #include <linux/syscalls.h>
-+#include <linux/module.h>
- #include <linux/swap.h>
- #include <linux/swapops.h>
- #include <asm/uaccess.h>
-@@ -202,9 +203,10 @@ fail:
- 	vm_unacct_memory(charged);
- 	return error;
- }
--
--asmlinkage long
--sys_mprotect(unsigned long start, size_t len, unsigned long prot)
-+/* 
-+ * Call holding the current->mm->mmap_sem for writing
-+ */
-+int do_mprotect(unsigned long start, size_t len, unsigned long prot)
- {
- 	unsigned long vm_flags, nstart, end, tmp, reqprot;
- 	struct vm_area_struct *vma, *prev;
-@@ -234,8 +236,6 @@ sys_mprotect(unsigned long start, size_t
- 
- 	vm_flags = calc_vm_prot_bits(prot);
- 
--	down_write(&current->mm->mmap_sem);
--
- 	vma = find_vma_prev(current->mm, start, &prev);
- 	error = -ENOMEM;
- 	if (!vma)
-@@ -298,6 +298,16 @@ sys_mprotect(unsigned long start, size_t
- 		}
- 	}
- out:
--	up_write(&current->mm->mmap_sem);
- 	return error;
- }
-+
-+asmlinkage long
-+sys_mprotect(unsigned long start, size_t len, unsigned long prot)
-+{
-+	int ret;
-+
-+	down_write(&current->mm->mmap_sem);
-+	ret = do_mprotect(start, len, prot);
-+	up_write(&current->mm->mmap_sem);
-+	return ret;
-+}
---- linux-2.6.18-rc3/include/linux/mm.h	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/include/linux/mm.h	2006-08-01 12:18:13.000000000 -0500
-@@ -137,6 +137,8 @@ extern unsigned int kobjsize(const void 
- #define VM_EXEC		0x00000004
- #define VM_SHARED	0x00000008
- 
-+extern int do_mprotect(unsigned long start, size_t len, unsigned long prot);
-+
- /* mprotect() hardcodes VM_MAYREAD >> 4 == VM_READ, and so for r/w/x bits. */
- #define VM_MAYREAD	0x00000010	/* limits for mprotect() etc */
- #define VM_MAYWRITE	0x00000020
+Using udev isn't papering over it.  It's reflecting the reasonable
+preference and expectation on systems using hotplug/unplug that
+the default cpuset dynamically reflect the current online maps,
+not the static maps as they were at boot.  And using udev is using
+just the sort of mechanism one might expect to be used to adjust
+the system when devices go on or off line.
 
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

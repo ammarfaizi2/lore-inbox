@@ -1,33 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWHWRfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWHWRsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWHWRfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 13:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWHWRfZ
+	id S965033AbWHWRsd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 13:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWHWRsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 13:35:25 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:20496 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S932262AbWHWRfZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 13:35:25 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ppc prep boot failure in 2.6.18-rc3
-In-Reply-To: <Pine.SOC.4.61.0608012106350.3786@math.ut.ee>
-User-Agent: tin/1.9.2-20060621 ("Benmore") (UNIX) (Linux/2.6.18-rc4 (i686))
-Message-Id: <20060823173515.E0A1B14063@rhn.tartu-labor>
-Date: Wed, 23 Aug 2006 20:35:15 +0300 (EEST)
+	Wed, 23 Aug 2006 13:48:33 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:24438 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965033AbWHWRsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 13:48:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VJMuUjzsjseePAa6bAqbljfj8oDpjdKcEtWzMymxrbPBQp+J3VxOEF3OeI31CXRA6C2vkV7jsdYdYCcVysAsqwnxcaA/J/TPDdYYsAgj0WtAk6pAjR6A+qe1Os3Jcre3bw7CXYDm8dwkk1tbp3wGBgD6/WZv/ld+EMrjNFXd9Us=
+Message-ID: <44EC94A9.4010903@gmail.com>
+Date: Thu, 24 Aug 2006 02:47:21 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Andre Tomt <andre@tomt.net>
+CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Hardware vs. Software Raid Speed
+References: <44EBFB3E.8070905@perkel.com> <44EC02FD.7050207@tomt.net>
+In-Reply-To: <44EC02FD.7050207@tomt.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MR> I tried yesterdays 2.6.18-rc3+git snapshot on a ppc prep machine 
-MR> (Motorola Powerstack II). While 2.6.17 worked fine (modulo patched 
-MR> x_tables alignment), this kernel does not even boot:
-MR> 
-MR> Uncompressing Linux... inflate returned FFFFFFFE
-MR> exit
+Andre Tomt wrote:
+> Marc Perkel wrote:
+>> Running Linux on an AMD AM2 nVidia chip ser that supports Raid 0 
+>> striping on the motherboard. Just wondering if hardware raid (SATA2) 
 
-For archival: this was a false alarm - it was caused by a hardware
-problem that was solved by reseating the cache SIMM.
+SATA2 has nothing to do with hardware RAID.
+
+>> is going to be faster that software raid and why?
+> 
+> Beeing a consumer type board (AM2), the "raid on the motherboard" is in 
+> 99.999% of the cases just software raid implemented in their Windows 
+> drivers, a bootup setup screen plus some BIOS magic to get the OS booting.
+
+And, yeah, they're all software RAID.  Also, there isn't much to be 
+gained from making RAID0/1 hardware.  The software overhead isn't that 
+big.  For RAID5, having XOR done in hardware helps.
 
 -- 
-Meelis Roos
+tejun

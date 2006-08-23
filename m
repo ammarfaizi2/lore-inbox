@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWHWP5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWHWP5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbWHWP5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 11:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWHWP5Z
+	id S965010AbWHWP5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 11:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWHWP5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 11:57:25 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:46447 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965004AbWHWP5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 11:57:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=iMa7QCGFyjNzefpv3Vjiu3D42AyI7DcFC95G/gzKBV3+If7m3y6zSnEC6MB1hoPCrfeX5E3AqGcGtfmS1R+d3ecK8CddiotZiUBNntfrlvBc5PBwvSTfH4gwdBIPp7h2zHX27IbgMfvS+rPQowibJBiD08D2xdEYTPlkf2xh5Nc=
-Date: Wed, 23 Aug 2006 19:57:16 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Stephane Eranian <eranian@frankl.hpl.hp.com>,
-       linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 1/18] 2.6.17.9 perfmon2 patch for review: introduction
-Message-ID: <20060823155715.GA5204@martell.zuzino.mipt.ru>
-References: <200608230805.k7N85qo2000348@frankl.hpl.hp.com> <20060823152831.GC32725@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823152831.GC32725@infradead.org>
-User-Agent: Mutt/1.5.11
+	Wed, 23 Aug 2006 11:57:53 -0400
+Received: from 81-179-62-49.dsl.pipex.com ([81.179.62.49]:53735 "EHLO
+	jaguar.linux-grotto.org.uk") by vger.kernel.org with ESMTP
+	id S965010AbWHWP5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 11:57:52 -0400
+Message-ID: <44EC7AFD.2070605@linux-grotto.org.uk>
+Date: Wed, 23 Aug 2006 16:57:49 +0100
+From: Johan Groth <johan.groth@linux-grotto.org.uk>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Scsi errors with Megaraid 300-8x
+References: <44EB1875.3020403@linux-grotto.org.uk> <44EC73D2.9090302@rtr.ca> <44EC775C.7040003@linux-grotto.org.uk> <Pine.LNX.4.64.0608231145290.15031@p34.internal.lan> <44EC78CD.9010401@linux-grotto.org.uk> <Pine.LNX.4.64.0608231153130.15031@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0608231153130.15031@p34.internal.lan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 04:28:31PM +0100, Christoph Hellwig wrote:
-> oh, and please give the patches useful subjects that descript the
-> patch, e.g. this one should be just:
->
->
->     [PATCH 0/17] perfmon2: introduction
->
-> (yes, it's convention to number the introduction 0 and the actual patches
->  1 to n)
+Justin Piszcz wrote:
+> 
+> Nope, r+w will write over everything on the disk, but I have found -the- 
+> most effective way to see if a disk is good or not.  I'd rather have the 
+> disk die to that test rather than using it in production and finding it 
+> dies with my data on it.
+> 
 
-Padding with zeros makes it even more useful:
+Hmm, we both should read the man page of badblocks a bit better :).
+I found this:
 
-	[PATCH 00/17]
-	[PATCH 01/17]
-		...
-	[PATCH 17/17]
+-n     Use non-destructive read-write mode.  By default only a 
+non-destructive read-only test is done. This option must not be combined 
+with the -w option, as they are mutually exclusive.
 
+
+Cheers,
+Johan

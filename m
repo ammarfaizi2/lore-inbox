@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWHWMMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWHWMYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWHWMMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 08:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWHWMMt
+	id S932440AbWHWMYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 08:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWHWMYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 08:12:49 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62124 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932443AbWHWMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 08:12:48 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Avi Kivity <avi@argo.co.il>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com, ak@suse.de
-Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
-References: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
-	<44EC2600.3070006@argo.co.il>
-Date: Wed, 23 Aug 2006 06:12:05 -0600
-In-Reply-To: <44EC2600.3070006@argo.co.il> (Avi Kivity's message of "Wed, 23
-	Aug 2006 12:55:12 +0300")
-Message-ID: <m1irkjodm2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 23 Aug 2006 08:24:41 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:46579 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932440AbWHWMYk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 08:24:40 -0400
+Date: Wed, 23 Aug 2006 05:14:34 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 18/18] 2.6.17.9 perfmon2 patch for review: new x86_64 files
+Message-ID: <20060823121434.GE697@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230806.k7N869KD000552@frankl.hpl.hp.com> <p73fyfn7nzz.fsf@verdi.suse.de> <20060823103956.GB697@frankl.hpl.hp.com> <200608231322.44106.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608231322.44106.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity <avi@argo.co.il> writes:
+Andi,
 
-> ebiederm@xmission.com wrote:
->>
->> I almost removed the tasklist_lock from all read paths.  But as it
->> happens sending a signal to a process group is an atomic operation
->> with respect to fork so that path has to take the lock, or else
->> we get places where "kill -9 -pgrp" fails to kill every process in
->> the process group.  Which is even worse.
->>
->
-> Can't that be fixed by adding a per-pgrp lock, and having both fork()/clone()
-> and kill(-pgrp) take that lock?
+On Wed, Aug 23, 2006 at 01:22:44PM +0200, Andi Kleen wrote:
+> 
+> > I have a second thought on this. AMD has architected the performance counters.
+> 
+> Quote:
+> >>
+> Implementations are not required to support the performance
+> c o u n t e rs and the event-select registers, or the time-stamp
+> counter. The presence of these features can be determined by
+> <<
+> 
+At the end of this paragraph then mention using CPUID to determine
+the presence of the counters. AFAIK, there is no feature bit
+covering performance monitoring. Does that mean we are left
+with having to check the family and model number just like on
+Intel?
 
-Possibly.  The core issue though is that you still need to take a lock and
-a big group can be as bad as just about anything else.  So all you do with
-a per group lock is you change the odds of hitting the problem and make the
-code a little more complicated.  For the small systems that most people have
-I don't believe the tasklist_lock shows up at all.
 
-If someone can find a data structure that I could use on two independent 
-machines to create processes in the same process group and still allow atomic
-kill behavior between those two machines I think we would have something that
-could be made to scale very well.
+> Also all code I've seen checked the family at least.
+> 
+> 
+> > Their specification is not part of a model specific documentation but
+> > part of the AMD64 architecure. 
+> 
+> The high level specification is, but not the actual counters for once.
+> 
+> > What I don't not quite understand with the K7, K8 terminology is the
+> > relation/dependencies with the AMD64 architecture specification.
+> AMD64 gives a high level register format, K7/K8 is the actual list 
+> of performance counters.
 
-Until the point where I see the truly better data structure or that people
-who can actually see problems with the lock start to fix it.  I think
-it is not to modify the data structure more than necessary, at runtime.
+Ok, I think I understand now:
+	1/ Bios and Kernel Developer Guide from Ahtlon64 and Opteron 64 is
+	  what you are talking about with K7/K8
+	2/ AMD64 Architecture Programmer's Manual is the generic AMD64 description
 
-Modifying the global task list in the middle of readdir looks like it will
-allow user space simply by running top with a fast update frequency to
-cause problems for people on bigger machines.  Which is really the
-wrong direction to go.
+So in theory, we should have:
+	- a generic PMU description for the architected PMU  as described in 2/
+	- a K7/K8 PMU description table for Athlon64 and Opteron64 as described in 1/
 
-Eric
+AFAIK, K7/K8 do not add anything to the architected PMU. I'll rename what we have to perfmon_k8.c
+to make it more explicit.
+
+-- 
+-Stephane

@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWHWEGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWHWEXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWHWEGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 00:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWHWEGi
+	id S932349AbWHWEXk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 00:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHWEXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 00:06:38 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:2511 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932323AbWHWEGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 00:06:37 -0400
-Date: Wed, 23 Aug 2006 14:06:09 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-kernel@vger.kernel.org,
-       device@lanana.org
-Subject: Re: [PATCH] Update Documentation/devices.txt
-Message-Id: <20060823140609.db24b42a.sfr@canb.auug.org.au>
-In-Reply-To: <20060822172339.GA15581@aepfle.de>
-References: <87d5aserky.fsf@slug.be.48ers.dk>
-	<20060822172339.GA15581@aepfle.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Wed, 23 Aug 2006 00:23:40 -0400
+Received: from sccrmhc14.comcast.net ([63.240.77.84]:15036 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932324AbWHWEXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 00:23:39 -0400
+Subject: Re: The Proposed Linux kevent API
+From: Nicholas Miell <nmiell@comcast.net>
+To: David Miller <davem@davemloft.net>
+Cc: rdunlap@xenotime.net, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
+       drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
+       zach.brown@oracle.com, hch@infradead.org
+In-Reply-To: <1156304855.2476.209.camel@entropy>
+References: <1156287492.2476.134.camel@entropy>
+	 <20060822.160618.130612620.davem@davemloft.net>
+	 <1156296967.2476.200.camel@entropy>
+	 <20060822.203116.41633933.davem@davemloft.net>
+	 <1156304855.2476.209.camel@entropy>
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 21:23:14 -0700
+Message-Id: <1156306994.2476.218.camel@entropy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__23_Aug_2006_14_06_09_+1000_35j70_ePfpQs_A=U"
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__23_Aug_2006_14_06_09_+1000_35j70_ePfpQs_A=U
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2006-08-22 at 20:47 -0700, Nicholas Miell wrote:
+> On Tue, 2006-08-22 at 20:31 -0700, David Miller wrote:
+> > From: Nicholas Miell <nmiell@comcast.net>
+> > Date: Tue, 22 Aug 2006 18:36:07 -0700
+> > 
+> > > Dear DaveM,
+> > > 
+> > > 	Go fuck yourself.
+> > 
+> > I guess this is the bit that's supposed to make me take you seriously
+> > :-)
+> 
+> Of course. ^_^
+> 
 
-On Tue, 22 Aug 2006 19:23:39 +0200 Olaf Hering <olaf@aepfle.de> wrote:
->
-> On Tue, Aug 22, Peter Korsgaard wrote:
->=20
->=20
-> > -229 char	IBM iSeries virtual console
-> > -		  0 =3D /dev/iseries/vtty0	First console port
-> > -		  1 =3D /dev/iseries/vtty1	Second console port
-> > +229 char	IBM iSeries/pSeries virtual console
-> > +		  0 =3D /dev/hvc0			First console port
->=20
-> hvc0 is pSeries only, iSeries uses tty1 for its OS400 provided telnet
-> console. I doubt there is a hvc1.
+Note that when I made this suggestion, I was not literally instructing
+you to perform sexual acts upon yourself, especially if such a thing
+would be illegal in your jurisdiction (although, IIRC, you moved to
+Seattle recently and I'm pretty sure we allow that kind of thing here,
+but we don't generally talk about it in public). So, my apologies to
+you, Dave, for making such metaphorical instructions.
 
-There is a new driver for the iSeries console which uses /dev/hvc0.
-You are correct that there is not hvc1 on iSeries.  (I actually submitted
-the change to Devices.txt)
+However, your choice to characterize my technical criticism as "rants"
+and "complaints" and your continuous variations on "let's see you do
+something better" as if it were a valid response to my objections did
+get on my nerves and made it very hard for me to take you seriously. 
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
---Signature=_Wed__23_Aug_2006_14_06_09_+1000_35j70_ePfpQs_A=U
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFE69Q4FdBgD/zoJvwRAnFkAJ0cxjP90nkYn6kRUipSgAov9wuMEgCfdDKb
-3/MForypQtYPdZhdPwEY30g=
-=AjQF
------END PGP SIGNATURE-----
-
---Signature=_Wed__23_Aug_2006_14_06_09_+1000_35j70_ePfpQs_A=U--

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWHWIil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWHWIjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWHWIil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 04:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWHWIil
+	id S964797AbWHWIjM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 04:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWHWIjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 04:38:41 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:30105 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964787AbWHWIik
+	Wed, 23 Aug 2006 04:39:11 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:15370 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S964783AbWHWIjJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 04:38:40 -0400
-Message-ID: <44EC140E.5050703@vmware.com>
-Date: Wed, 23 Aug 2006 01:38:38 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 23 Aug 2006 04:39:09 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andre Tomt <andre@tomt.net>
+Subject: Re: Hardware vs. Software Raid Speed
+Date: Wed, 23 Aug 2006 09:39:14 +0100
+User-Agent: KMail/1.9.4
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+References: <44EBFB3E.8070905@perkel.com> <44EC02FD.7050207@tomt.net>
+In-Reply-To: <44EC02FD.7050207@tomt.net>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <p73y7tg7cg7.fsf@verdi.suse.de> <44EB7F0C.60402@vmware.com> <200608231018.12571.ak@suse.de>
-In-Reply-To: <200608231018.12571.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608230939.14158.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->  
->   
->> Well, I don't think anything is sufficient for a preemptible kernel.  I 
->> think that's just plain not going to work.  You could have a kernel 
->> thread that got preempted in a paravirt-op patch point, and making all 
->> the patch points non-preempt is probably a non-starter (either +12 bytes 
->> each or no native inlining). 
->>     
+On Wednesday 23 August 2006 08:25, Andre Tomt wrote:
+> Marc Perkel wrote:
+> > Running Linux on an AMD AM2 nVidia chip ser that supports Raid 0
+> > striping on the motherboard. Just wondering if hardware raid (SATA2)
+> > is going to be faster that software raid and why?
 >
-> stop machine deals with preemption.  If it didn't it would be unusable
-> for the purposes the kernel uses it right now (cpu hotplug, module unloading etc.)
->   
+> Beeing a consumer type board (AM2), the "raid on the motherboard" is in
+> 99.999% of the cases just software raid implemented in their Windows
+> drivers, a bootup setup screen plus some BIOS magic to get the OS booting.
 
-Yes, but it can't move pre-empted threads out of a particularly 
-dangerous EIP (like a piece of code we're about to patch over).  Or 
-perhaps I am misunderstanding how it deals with preemption, and what it 
-really does is make sure all threads are in userspace or sleep state...  
-which in that case is perfectly fine.
+MD has so many benefits anyway that it doesn't make sense to use anything but 
+the finest hardware RAID.
 
-> and machine checks. debug traps -- i assume you mean kernel debuggers -- 
-> sounds like something that cannot be really controlled though.
->
-> How do you control a debugger from the debugee?
->
-> I don't think NMI/MCEs are a problem though because NMIs (at least oprofile/nmi watchdog) 
-> and MCEs all just have global state that can be changed on a single CPU.
->   
+For starters, with Linux MD, you can RAID partitions on a disk independently, 
+even with different RAID types, and you can port your array to another 
+machine without any reconfiguration, on completely different hardware. You 
+can also RAID two different technologies, for example PATA and SATA, hot-add 
+spares, run with a deliberately failed array, build incomplete arrays (nice 
+if you're just about to start a RAID5 but don't have enough discs), the list 
+goes on..
 
-But with paravirt-ops, that global state may include local CPU state, in 
-which paravirt-ops is intimately involved.  So they could interrupt in 
-the middle of the patching code, then attempt a paravirt_ops call, which 
-is in an undefined state until the patching is complete.  And I would 
-highly expect the debugger to  mess with debug registers, which is a 
-paravirt op.  NMIs can do plenty of dangerous things to local state as 
-well - reading and writing MSRs or performance counters I would imagine 
-to be quite useful.
+-- 
+Cheers,
+Alistair.
 
-Zach
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

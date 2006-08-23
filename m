@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWHWLgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHWLiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWHWLgP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 07:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWHWLgG
+	id S932407AbWHWLiN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 07:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWHWLiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 07:36:06 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:46689 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932407AbWHWLgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 07:36:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fuLVuU8j2K2iM1E36Qyf1f8Xhvr7ApICsqNivw/XY7xkQnMaa9XIif04sXE3kS/zhfllPyEr4ifH+WGwnhyrThz8fbkPG/djGogXCwNKmJAUVYxx0uGq/Rib+ztXdh5xmH+IuFbuQ+DjfIFDdKbzEhk3yDBrZhTV6DFEHgUvOmc=
-Message-ID: <2c0942db0608230435n1b680f11q3b19669f0bb62268@mail.gmail.com>
-Date: Wed, 23 Aug 2006 04:35:59 -0700
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Robert Szentmihalyi" <robert.szentmihalyi@gmx.de>
-Subject: Re: Group limit for NFS exported file systems
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060823111119.203710@gmx.net>
+	Wed, 23 Aug 2006 07:38:13 -0400
+Received: from ns2.suse.de ([195.135.220.15]:17897 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932407AbWHWLiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 07:38:10 -0400
+From: Andi Kleen <ak@suse.de>
+To: Kirill Korotaev <dev@sw.ru>
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+Date: Wed, 23 Aug 2006 13:37:48 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
+In-Reply-To: <44EC35EB.1030000@sw.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060823091652.235230@gmx.net>
-	 <2c0942db0608230355s74af2717g78675ea56b689fc0@mail.gmail.com>
-	 <20060823111119.203710@gmx.net>
+Message-Id: <200608231337.48941.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/23/06, Robert Szentmihalyi <robert.szentmihalyi@gmx.de> wrote:
-> > Is he a member of more than 16 groups?
->
-> Yes. He is actually a member of 27 groups.
-> Is the limit of 16 groups still current? I was under the impression that it is a limitation of 2.4 kernels....
+On Wednesday 23 August 2006 13:03, Kirill Korotaev wrote:
 
-Under 2.6 local group membership was expanded to 65536. NFS, however,
-is a standard separate from Linux, and it imposes a limit of 16 groups
-on the wire for the AUTH_UNIX credentials.
+> +#ifdef CONFIG_BEANCOUNTERS
+> +extern struct hlist_head bc_hash[];
+> +extern spinlock_t bc_hash_lock;
 
-If all your client systems are Linux, you can use the patch at:
-    http://www.frankvm.com/nfs-ngroups/
-as a work around. (Only the client systems need the patch.)
+I wonder who pokes into that hash from other files? Looks a bit dangerous.
 
-I haven't used it myself, so best of luck.
+> +void __put_beancounter(struct beancounter *bc);
+> +static inline void put_beancounter(struct beancounter *bc)
+> +{
+> +	__put_beancounter(bc);
+> +}
 
-Ray
+The wrapper seems pointless too.
+
+The file could use a overview comment what the various counter
+types actually are.
+
+> +	bc_print_id(bc, uid, sizeof(uid));
+> +	printk(KERN_WARNING "BC %s %s warning: %s "
+
+Doesn't this need some rate limiting? Or can it be only triggered
+by code bugs?
+
+
+> +	bc = &default_beancounter;
+> +	memset(bc, 0, sizeof(default_beancounter));
+
+You don't trust the BSS to be zero? @)
+ 
+-Andi

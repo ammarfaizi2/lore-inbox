@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWHWEgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWHWFZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWHWEgR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 00:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWHWEgQ
+	id S1751384AbWHWFZx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 01:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWHWFZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 00:36:16 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:35213 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751367AbWHWEgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 00:36:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tkD41sJDB8mF2yxOZ4E8pcRUdRKlyf63TEcZ9i5atqel58grnyX2eKD1doeMG4oCm287SpmuEirBjg7xrgrri4iLVUrTY+F8j9QLnZJA5JsFcZXgKZ4dWqfUDPAobNP9WyqT4YzgZvPJILtc36qSS6OUr01sxwvb+g/BFL3afOY=
-Message-ID: <36e6b2150608222136y37f821e2g90ea5591a16c54b5@mail.gmail.com>
-Date: Wed, 23 Aug 2006 08:36:15 +0400
-From: "Paul Drynoff" <pauldrynoff@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060822123850.bdb09717.akpm@osdl.org>
+	Wed, 23 Aug 2006 01:25:53 -0400
+Received: from asia.telenet-ops.be ([195.130.137.74]:58262 "EHLO
+	asia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1751384AbWHWFZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 01:25:53 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, device@lanana.org
+Subject: Re: [PATCH] Update Documentation/devices.txt
+References: <87d5aserky.fsf@slug.be.48ers.dk>
+	<20060822092458.7fbc5286.rdunlap@xenotime.net>
+Date: Wed, 23 Aug 2006 07:25:37 +0200
+In-Reply-To: <20060822092458.7fbc5286.rdunlap@xenotime.net> (Randy Dunlap's
+	message of "Tue, 22 Aug 2006 09:24:58 -0700")
+Message-ID: <87wt902fce.fsf@slug.be.48ers.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
-	 <20060822123850.bdb09717.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/22/06, Andrew Morton <akpm@osdl.org> wrote:
-> I tried to reproduce this with qemu but wasn't able to work out in less
-> than sixty seconds (== one attention-span) how to find and use a suitable
-> userspace image.  Help.  Could you please suggest where such an image can
-> be obtained and how it should be invoked to reproduce this?
->
+>>>>> "Randy" == Randy Dunlap <rdunlap@xenotime.net> writes:
 
-If you still need answer to this question,
-there is "zoo" of OSes here:
-http://www.oszoo.org/wiki/index.php/Main_Page
+Hi.
 
-I suppose using this image you can reproduce problem:
+ >> Maintained by Torben Mathiasen <device@lanana.org>
 
-http://www.oszoo.org/wiki/index.php/Category:Gentoo_images
+ Randy> Maybe Torben could update or ack/nack or comment?
+
+Yeah - Torben?
+
+ >> @@ -1522,7 +1522,7 @@ Your cooperation is appreciated.
+ >> disks (see major number 3) except that the limit on
+ >> partitions is 15.
+ >> 
+ >> - 83 char	Matrox mga_vid video driver
+ >> + 83 char	Matrox mga_vid video driver 
+
+ Randy> Please don't add trailing whitespace like above.
+
+I've just taken the file from lanana.org verbatim. I can fix the
+issues in the patch or try to get Torben to change it on lanana.org,
+but his turnaround time is pretty slow (took ~3 months for my ttyULx
+nodes).
+
+-- 
+Bye, Peter Korsgaard

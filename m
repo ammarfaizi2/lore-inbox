@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965298AbWHWXSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbWHWXTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965298AbWHWXSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965299AbWHWXSZ
+	id S965303AbWHWXTN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 19:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965302AbWHWXTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:18:25 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51210 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965298AbWHWXSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:18:25 -0400
-Date: Thu, 24 Aug 2006 01:18:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com
-Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
-Message-ID: <20060823231823.GG19810@stusta.de>
-References: <200608230806.k7N8654c000504@frankl.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 23 Aug 2006 19:19:13 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:5315 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965300AbWHWXTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 19:19:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=A41P4caffPdaQ4TtnjBzrjd/F0xibXM42mDEe8zILd9NMNj0K6A4ysLa/pYlvhGXpdjAITxVtlkozF3NoqvqjD23lx2VGUFkMboAv0jrUqhPTc3+P05vLLR/FlATUq7PqSqFVMqvrGEaG4vfgnijgr+UELDr+r9X4XEeOekA4kM=
+Date: Thu, 24 Aug 2006 03:19:02 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Warn about config.h inclusion
+Message-ID: <20060823231902.GC5203@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608230806.k7N8654c000504@frankl.hpl.hp.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 01:06:05AM -0700, Stephane Eranian wrote:
->...
-> --- linux-2.6.17.9.base/arch/i386/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.17.9/arch/i386/perfmon/Kconfig	2006-08-21 03:37:46.000000000 -0700
-> @@ -0,0 +1,55 @@
-> +menu "Hardware Performance Monitoring support"
-> +config PERFMON
-> +  	bool "Perfmon2 performance monitoring interface"
-> +	select X86_LOCAL_APIC
-> +	default y
->...
+Otherwise feature adders won't feel it's unneeded..
 
-- if you select something, you must ensure the dependencies of what you 
-  are select'ing are fulfilled (e.g. !X86_VOYAGER)
-- optional features shouldn't default to y
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-cu
-Adrian
+ include/linux/config.h |    1 +
+ 1 file changed, 1 insertion(+)
 
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+--- a/include/linux/config.h
++++ b/include/linux/config.h
+@@ -3,6 +3,7 @@ #define _LINUX_CONFIG_H
+ /* This file is no longer in use and kept only for backward compatibility.
+  * autoconf.h is now included via -imacros on the commandline
+  */
++#warning Don't include me. I'm already in via -imacros. I'll dissappear. You have been warned.
+ #include <linux/autoconf.h>
+ 
+ #endif
 

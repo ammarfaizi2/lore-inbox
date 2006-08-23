@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWHWMKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWHWMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWHWMKG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 08:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWHWMKF
+	id S932443AbWHWMMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 08:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWHWMMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 08:10:05 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:57738 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932444AbWHWMKC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 08:10:02 -0400
-Date: Wed, 23 Aug 2006 14:06:10 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-cc: Andrew Morton <akpm@osdl.org>, Prajakta Gudadhe <pgudadhe@nvidia.com>,
-       jeff@garzik.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm2] Generic boolean (was: Re: Generic booleans
- in -mm)
-In-Reply-To: <44EC3878.9070300@student.ltu.se>
-Message-ID: <Pine.LNX.4.61.0608231403280.14327@yvahk01.tjqt.qr>
-References: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com>
- <20060821224457.65de5111.akpm@osdl.org> <44EB8B2A.8030603@student.ltu.se>
- <20060822161706.bad04598.akpm@osdl.org> <44EC3878.9070300@student.ltu.se>
+	Wed, 23 Aug 2006 08:12:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62124 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932443AbWHWMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 08:12:48 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Avi Kivity <avi@argo.co.il>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+References: <m1ac5woube.fsf@ebiederm.dsl.xmission.com>
+	<44EC2600.3070006@argo.co.il>
+Date: Wed, 23 Aug 2006 06:12:05 -0600
+In-Reply-To: <44EC2600.3070006@argo.co.il> (Avi Kivity's message of "Wed, 23
+	Aug 2006 12:55:12 +0300")
+Message-ID: <m1irkjodm2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Avi Kivity <avi@argo.co.il> writes:
 
-
-> There has been concern about adding other values then 0 and 1. There has been
-> ideas to do something like:
-> bool b = i & 1 : 0;
-
-I think you miseed a '?'
-
-bool b = (i & 1) ? : 0;
-
-> /*or*/
-> bool b = !!i;
+> ebiederm@xmission.com wrote:
+>>
+>> I almost removed the tasklist_lock from all read paths.  But as it
+>> happens sending a signal to a process group is an atomic operation
+>> with respect to fork so that path has to take the lock, or else
+>> we get places where "kill -9 -pgrp" fails to kill every process in
+>> the process group.  Which is even worse.
+>>
 >
-> but all that is needed is just a casting:
->
-> bool b = (bool) i;
+> Can't that be fixed by adding a per-pgrp lock, and having both fork()/clone()
+> and kill(-pgrp) take that lock?
 
-No casting needed (in fact, casting is more evil than !!). If bool is a
-bool, then the compiler will (hopefully) ensure that b will only get
-values valid for bools.
+Possibly.  The core issue though is that you still need to take a lock and
+a big group can be as bad as just about anything else.  So all you do with
+a per group lock is you change the odds of hitting the problem and make the
+code a little more complicated.  For the small systems that most people have
+I don't believe the tasklist_lock shows up at all.
 
-$ cat x.c
-#include <stdbool.h>
-#include <stdio.h>
+If someone can find a data structure that I could use on two independent 
+machines to create processes in the same process group and still allow atomic
+kill behavior between those two machines I think we would have something that
+could be made to scale very well.
 
-int main(int argc, const char **argv) {
-    _Bool b = argc;
-    printf("%d\n", (int)b);
-    return 0;
-}
-$ ./a.out 
-1
+Until the point where I see the truly better data structure or that people
+who can actually see problems with the lock start to fix it.  I think
+it is not to modify the data structure more than necessary, at runtime.
 
+Modifying the global task list in the middle of readdir looks like it will
+allow user space simply by running top with a fast update frequency to
+cause problems for people on bigger machines.  Which is really the
+wrong direction to go.
 
-
-Jan Engelhardt
--- 
+Eric

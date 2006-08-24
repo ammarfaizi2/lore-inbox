@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbWHXF4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWHXGNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbWHXF4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 01:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWHXF4F
+	id S1030323AbWHXGNH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 02:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWHXGNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 01:56:05 -0400
-Received: from mail.gurulabs.com ([67.137.148.7]:21134 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S1030322AbWHXF4D (ORCPT
+	Thu, 24 Aug 2006 02:13:07 -0400
+Received: from ns2.suse.de ([195.135.220.15]:46511 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030323AbWHXGNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 01:56:03 -0400
-Subject: Re: Areca arcmsr kernel integration for 2.6.18?
-From: Dax Kelson <dax@gurulabs.com>
-To: Greg KH <gregkh@suse.de>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, Theodore Bullock <tbullock@nortel.com>,
-       robm@fastmail.fm, brong@fastmail.fm, erich@areca.com.tw, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060824034246.GA18826@suse.de>
-References: <00a701c6b2b4$bb564b50$0e00cb0a@robm>
-	 <25E284CCA9C9A14B89515B116139A94D0C78805F@zrtphxm0.corp.nortel.com>
-	 <20060731200309.bd55c545.akpm@osdl.org>
-	 <1154530428.3683.0.camel@mulgrave.il.steeleye.com>
-	 <1156375551.4306.10.camel@mentorng.gurulabs.com>
-	 <20060824034246.GA18826@suse.de>
-Content-Type: text/plain
-Date: Wed, 23 Aug 2006 23:56:00 -0600
-Message-Id: <1156398960.4256.25.camel@thud.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Thu, 24 Aug 2006 02:13:04 -0400
+From: Neil Brown <neilb@suse.de>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Date: Thu, 24 Aug 2006 16:12:52 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17645.17252.217583.660976@cse.unsw.edu.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       arjan <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] nfsd: lockdep annotation
+In-Reply-To: message from Peter Zijlstra on Wednesday August 23
+References: <1156330112.3382.34.camel@twins>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 20:42 -0700, Greg KH wrote:
-> On Wed, Aug 23, 2006 at 05:25:51PM -0600, Dax Kelson wrote:
-> > On Wed, 2006-08-02 at 10:53 -0400, James Bottomley wrote:
-> > > On Mon, 2006-07-31 at 20:03 -0700, Andrew Morton wrote:
-> > > > > Ok, so how does this go from here into the mainline kernel?
-> > > > 
-> > > > James has moved the driver into the scsi-misc tree, so I assume he has
-> > > > 2.6.19 plans for it.
-> > > 
-> > > Yes, that's the usual path for scsi-misc.
-> > > 
-> > > James
-> > 
-> > It would be great if the arcmsr driver could be included in 2.6.18 so it
-> > can make into all the new distro releases that will be happening the
-> > last 3-4 months of the year.
+On Wednesday August 23, a.p.zijlstra@chello.nl wrote:
+> Hi,
 > 
-> What distros would that be?  And how do you know that they are going to
-> freeze their kernels at 2.6.18?
+> while doing a kernel make modules_install install over an NFS mount.
+> (
+> 
+> =============================================
+> [ INFO: possible recursive locking detected ]
+> ---------------------------------------------
 
-Well, I don't know for sure, but thankfully most distro development is
-pretty transparent.
+Thanks for the patch.  I had a patch to fix this in my queue, but I
+just hadn't got around to submitting it yet :-(
+Never mind, we'll go with yours and Andrew already has it.
 
-The current Fedora Core 6 development (and consequently RHEL5 and
-CentOS5) is using 2.6.18-rc kernels (actually as of yesterday, your git
-tree).
+I had flags the fh_lock in nfsd_setattr a I_MUTEX_CHILD which you
+didn't however I see that isn't needed (Why do we have PARENT and
+CHILD and NORMAL.... you would think that any two would do ??)
 
-The current plan is for Debian Etch to freeze on October 18th with a
-release in December. There is a good possibility they'll move from
-2.6.17 to .18.
+However there is a bit missing: the fh_lock in nfsd_proc_create
+in nfsproc.c needs I_MUTEX_PARENT - I'll send a separate patch to fix
+that.
 
-Dax Kelson
+Thanks,
+NeilBrown
 

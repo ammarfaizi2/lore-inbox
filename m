@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWHXNNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWHXNND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWHXNNg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWHXNNg
+	id S1751393AbWHXNND (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWHXNND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:13:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:24740 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751409AbWHXNNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:13:35 -0400
-Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <32640.1156424442@warthog.cambridge.redhat.com>
-References: <32640.1156424442@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Thu, 24 Aug 2006 14:13:13 +0100
-Message-Id: <1156425193.3012.32.camel@pmac.infradead.org>
+	Thu, 24 Aug 2006 09:13:03 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:29371 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751434AbWHXNNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:13:01 -0400
+Date: Thu, 24 Aug 2006 09:36:16 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux RAID Mailing List <linux-raid@vger.kernel.org>, marc@perkel.com
+Subject: Re: Linux: Why software RAID?
+Message-ID: <20060824093616.K30362@mail.kroptech.com>
+References: <20060824090741.J30362@mail.kroptech.com> <1156425650.3007.140.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1156425650.3007.140.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 24, 2006 at 02:20:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 14:00 +0100, David Howells wrote:
-> Make it possible to disable the block layer.  Not all embedded devices require
-> it, some can make do with just JFFS2, NFS, ramfs, etc - none of which require
-> the block layer to be present.
+On Thu, Aug 24, 2006 at 02:20:50PM +0100, Alan Cox wrote:
+> Ar Iau, 2006-08-24 am 09:07 -0400, ysgrifennodd Adam Kropelin:
+> > Jeff Garzik <jeff@garzik.org> wrote:
+> > with sw RAID of course if the builder is careful to use multiple PCI 
+> > cards, etc. Sw RAID over your motherboard's onboard controllers leaves
+> > you vulnerable.
 > 
-> This patch does the following:
-> 
->  (*) Introduces CONFIG_BLOCK to disable the block layer, buffering and blockdev
->      support.
+> Generally speaking the channels on onboard ATA are independant with any
+> vaguely modern card. 
 
-Excellent -- I've been meaning to do this (and occasionally hacking on
-it half-heartedly before getting distracted by something else shiny) for
-a _long_ time.
+Ahh, I did not know that. Does this apply to master/slave connections on
+the same PATA cable as well? I know zero about PATA, but I assumed from
+the terminology that master and slave needed to cooperate rather closely.
 
-It looks good in general.
+> And for newer systems well the motherboard tends to
+> be festooned with random SATA controllers, all separate!
 
->  (*) The contents of a number of filesystem- and blockdev-specific header files
->      are now contingent on their own configuration options.  This includes:
->      Ext3/JBD, RAID, MSDOS and ReiserFS.
+And how. You can't swing a dead cat without hitting a half-dozen ATA
+ports these days. And most of them are those infuriatingly insecure SATA
+connectors that pop off when you look at them cross-eyed...
 
-Why? Those header files shouldn't be included from anywhere _but_ the
-code in question, and in fact should probably be just moved into fs/foo
-instead of living in include/linux/foo_fs.h. 
-
-And please, _never_ make anything dependent on CONFIG_foo_MODULE.
-
--- 
-dwmw2
+--Adam
 

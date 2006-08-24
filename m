@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWHXV5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWHXWFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbWHXV5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030492AbWHXV5n
+	id S1422736AbWHXWFx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 18:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWHXWFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:57:43 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:58508 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1030491AbWHXV5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:57:41 -0400
-Subject: Re: [RFC] maximum latency tracking infrastructure
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: dwalker@mvista.com
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-In-Reply-To: <1156456349.6951.10.camel@dwalker1.mvista.com>
-References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
-	 <1156456349.6951.10.camel@dwalker1.mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Aug 2006 23:57:24 +0200
-Message-Id: <1156456644.3014.95.camel@laptopd505.fenrus.org>
+	Thu, 24 Aug 2006 18:05:53 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27667 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1422736AbWHXWFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 18:05:52 -0400
+Date: Thu, 24 Aug 2006 23:05:35 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, David Woodhouse <dwmw2@infradead.org>,
+       Stuart MacDonald <stuartm@connecttech.com>,
+       linux-serial@vger.kernel.org, "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: Serial custom speed deprecated?
+Message-ID: <20060824220535.GC21439@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Krzysztof Halasa <khc@pm.waw.pl>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Stuart MacDonald <stuartm@connecttech.com>,
+	linux-serial@vger.kernel.org, 'LKML' <linux-kernel@vger.kernel.org>
+References: <028a01c6c6fc$e792be90$294b82ce@stuartm> <1156411101.3012.15.camel@pmac.infradead.org> <m3bqqap09a.fsf@defiant.localdomain> <1156441293.3007.184.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156441293.3007.184.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 14:52 -0700, Daniel Walker wrote:
-> On Thu, 2006-08-24 at 19:41 +0200, Arjan van de Ven wrote:
-> > Subject: [RFC] maximum latency tracking infrastructure
-> > From: Arjan van de Ven <arjan@linux.intel.com>
-> > 
-> > The patch below adds infrastructure to track "maximum allowable latency" for power
-> > saving policies.
-> > 
-> > The reason for adding this infrastructure is that power management in the
-> > idle loop needs to make a tradeoff between latency and power savings (deeper
-> > power save modes have a longer latency to running code again). 
-> > The code that today makes this tradeoff just does a rather simple algorithm;
-> 
-> I was just thinking that it might be cleaner to register a structure
-> instead of tracking identifiers to usecs. You might get a speed up on
-> some of the operations, like unregister.
+On Thu, Aug 24, 2006 at 06:41:33PM +0100, Alan Cox wrote:
+> We would need a driver ->set_speed method for the cases where
+> - ioctl is called to set specific board rate
+> - OR termios values for tty speed change
+> - While we are at it we might want to make ->set_termios also allowed to
+> fail
 
-it makes things a lot more complex for both the user and the
-infrastructure though, and I doubt it's going to be a performance gain;
-you need to walk all registered items anyway to decide the new minimum
-value if you unregister one for example.
+That's a little dodgy, from my reading of POSIX.  ISTR POSIX prefers
+a behaviour of "set what you can" from this, and when you read back
+the termios settings, you get the actual settings in use.
 
+So, eg, if you don't support CS5 but the previous setting was CS8,
+tcsetattr should not return an error.  The device itself should set
+the other changed parameters but remain at CS8 and tcgetattr should
+report CS8.
 
-> Another thing I was thinking about is that this seems somewhat contrary
-> to the idea of using dynamic tick (assuming it was in mainline) to
-> heuristically pick a power state. Do you have any thoughts on how you
-> would combine the two?
+stty already knows about this, and issues warnings when you attempt
+to set stuff which aren't supportted by the driver (assuming you have
+a correctly behaving driver in this respect.)  I've been a little
+scared to push the implementation for these in the serial drivers.
 
-Actually it's designed in part FOR this case!
-So how that will work (thought experiment, I don't have the code yet)
+> Anyone got any problems with this before I go and implement it ?
 
-In idle, determine the time the next scheduled event is.
-Then given that time go over the C-states and pick the deepest C-state
-that
-1) satisfies the requested latency
-2) has a latency that is a small enough fraction of the total time
+Only as long as we can end up with a numeric baud rate at the end of
+the day (which is what serial has always been after.)
 
-(2 is needed to not pick a 1 msec-latency C state for a 1ms idle, that
-won't save you power most likely, so you need to have enough time in
-"real" idle)
+This represents a major improvement to the tty interface, thanks for
+looking in to making it happen.
 
-so when you know your latency requirements, you now can pick a DEEPER
-sleepstate than you could before (or at least the right one)... dynticks
-needs this more than anything :)
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

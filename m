@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWHXLF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWHXLIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWHXLF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWHXLF3
+	id S1751114AbWHXLIf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWHXLIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:05:29 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11454 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751110AbWHXLF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:05:27 -0400
-Subject: Re: [PATCH 3/7] SLIM main patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1156365357.6720.87.camel@localhost.localdomain>
-References: <1156359937.6720.66.camel@localhost.localdomain>
-	 <20060823192733.GG28594@kvack.org>
-	 <1156365357.6720.87.camel@localhost.localdomain>
-Content-Type: text/plain
+	Thu, 24 Aug 2006 07:08:35 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:34197 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751114AbWHXLIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:08:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent:from;
+        b=HqBUWHPmu+1Wxow4Crrjk/Pf9qW2tzj4k+jlzR0HlpiKYPf49CaDLCY0THIn63YR7ibooqBVscJDYVIeABFcPGhCPGqmUSdQGV//EY/u1cfVNnuV493kfAoV0Dhm8fC4YeEdvI1Hw1GfPOZ0947CoN5doAi0RDKjgdtdC2KAaRU=
+Date: Thu, 24 Aug 2006 13:08:55 +0200
+To: "Denis Vlasenko" <vda.linux@googlemail.com>
+Subject: Re: Specify devices manually in exotic environment
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+MIME-Version: 1.0
+References: <op.teo9mqjlepq0rv@localhost> <200608231313.37976.vda.linux@googlemail.com> <op.teq4xxc2epq0rv@localhost> <200608241108.52379.vda.linux@googlemail.com>
 Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Aug 2006 12:26:55 +0100
-Message-Id: <1156418815.3007.89.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Message-ID: <op.tesbw5xzepq0rv@localhost>
+In-Reply-To: <200608241108.52379.vda.linux@googlemail.com>
+User-Agent: Opera Mail/9.00 (Linux)
+From: Milan Hauth <milahu@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-23 am 13:35 -0700, ysgrifennodd Kylene Jo Hall:
-> Example: The current process is running at the USER level and writing to
-> a USER file in /home/user/.  The process then attempts to read an
-> UNTRUSTED file.  The current process will become UNTRUSTED and the read
-> allowed to proceed but first write access to all USER files is revoked
-> including the ones it has open.
+On Thu, 24 Aug 2006 11:08:52 +0200, Denis Vlasenko  
+<vda.linux@googlemail.com> wrote:
 
-Which really doesn't mean anything in many cases because there are many
-ways to get data out of a file handle once you had it opened for write
-including sharing via non file handle paths.
+> On Wednesday 23 August 2006 21:40, Milan Hauth wrote:
+>> I have tried MTD's NAND module according this [1] document, but it also
+>> did not work.
+>>
+>> As Richard B. Johnson <linux-os@analogic.com> already mentioned, a  
+>> regular
+>> IDE interface has to be emulated. Somehow. Anyhow.
+>
+> Yes, I never saw flash-based IDE devices, but they exist, that's true.
+> However, it's not necessarily what you have.
+> I think that IDE devices should be detected by kernel at boot-up.
+> You say that they are not. That's why I'm inclined to think
+> your flash memory is not IDEish.
 
-You also have to deal with existing mmap() mappings and outstanding I/O.
-
-So here are some ways to break it
-
-	SysV shared memory
-	mmap
-
-or just race it:
-
-	Open the USER file
-	create a new thread
-	thread #1 create a pipe to a new process ("receiver")
-	thread #1 fill pipe
-	thread #1 issue write of buffer that will hold secret data
-			[blocks after check for rights]
-	
-	thread #2
-		wait for thread #1 to block
-		read secret data into buffer
-		send signal to "receiver"
+What I also forgot to mention is, that it's a SmartMedia Flash Card I have  
+here, which is told to always identify as a IDE device.
 
 
-	receiver now empties the pipe, the write completes and I get the
-goodies.
+> lsusb? Or if you have no lsusb, then:
+>
+> # mount | grep usb
+> none on /proc/bus/usb type usbfs (rw)
 
-This is why you need a proper implementation of revoke(2) in Linux. You
-can't really do it any more easily.
+Ohh, that's why lsusb never worked.. but you won't like the current result:
+
+Bus 001 Device 003: ID 046a:002b Cherry GmbH  -->  Keyboard
+Bus 001 Device 002: ID 0451:2046 Texas Instruments, Inc. TUSB2046 Hub
+Bus 001 Device 001: ID 0000:0000  -->  What the..?
 
 
+But I'm afraid I broke my SMC, while playing around with my disassembled  
+T20, since GRUB hangs with 'GRUB _' without having changed anything in the  
+software. D'oh!
+
+That's why I can't test with 'USB Mass Storage' support in the kernel at  
+the moment, which would probably uncover the mysterious '0000:0000' USB  
+device. Gonna try again next week with a new SMC.
+
+Cheers, milahu

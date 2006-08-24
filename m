@@ -1,57 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWHXHv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWHXIAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWHXHv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 03:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWHXHv6
+	id S1750822AbWHXIAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 04:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWHXIAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 03:51:58 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:46525 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750807AbWHXHv5 (ORCPT
+	Thu, 24 Aug 2006 04:00:07 -0400
+Received: from msr41.hinet.net ([168.95.4.141]:17570 "EHLO msr41.hinet.net")
+	by vger.kernel.org with ESMTP id S1750822AbWHXIAG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 03:51:57 -0400
-Date: Thu, 24 Aug 2006 00:51:56 -0700
-From: Greg KH <gregkh@suse.de>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.17.11
-Message-ID: <20060824075156.GA6457@suse.de>
-References: <20060823213108.GA12308@kroah.com> <20060823213130.GB12308@kroah.com> <20060824062943.GA11477@aepfle.de> <20060824071237.GA5577@suse.de> <20060824074041.GA12184@aepfle.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824074041.GA12184@aepfle.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 24 Aug 2006 04:00:06 -0400
+Subject: [PATCH 1/4] IP100A: Fix TX Pause bug (reset_tx, intr_handler)
+	2006-08-24
+From: Jesse Huang <jesse@icplus.com.tw>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com, jesse@icplus.com.tw
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 15:47:03 -0400
+Message-Id: <1156448823.20424.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 09:40:41AM +0200, Olaf Hering wrote:
-> On Thu, Aug 24, Greg KH wrote:
-> 
-> > On Thu, Aug 24, 2006 at 08:29:43AM +0200, Olaf Hering wrote:
-> > > On Wed, Aug 23, Greg KH wrote:
-> > > 
-> > > > +++ b/drivers/serial/Kconfig
-> > > > @@ -803,6 +803,7 @@ config SERIAL_MPC52xx
-> > > >  	tristate "Freescale MPC52xx family PSC serial support"
-> > > >  	depends on PPC_MPC52xx
-> > > >  	select SERIAL_CORE
-> > > > +	select FW_LOADER
-> > > >  	help
-> > > >  	  This drivers support the MPC52xx PSC serial ports. If you would
-> > > >  	  like to use them, you must answer Y or M to this option. Not that
-> > > 
-> > > This was for SERIAL_ICOM
-> > 
-> > What do you mean?  Is the patch wrong?
-> 
-> Yes, wrong place in the file, see http://lkml.org/lkml/2006/8/16/236
 
-Ugh, how did patch go so wrong?
+From: Jesse Huang <jesse@icplus.com.tw>
 
-Anyway, care to send me a patch that I can use for the next -stable
-release that fixes this up?
+Change Logs:
+   - Fix TX Pause bug (reset_tx, intr_handler)
 
-thanks,
+Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
 
-greg k-h
+---
+
+ drivers/net/sundance.c |   53 +++++++++++++++++++++++++++---------------------
+ 1 files changed, 30 insertions(+), 23 deletions(-)
+
+fb301c44641884efd60918054080f1ebc1d4f307
+diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+index ac17377..0b6028b 100755
+--- a/drivers/net/sundance.c
++++ b/drivers/net/sundance.c
+@@ -21,8 +21,8 @@
+ */
+ 
+ #define DRV_NAME	"sundance"
+-#define DRV_VERSION	"1.1"
+-#define DRV_RELDATE	"27-Jun-2006"
++#define DRV_VERSION	"1.2"
++#define DRV_RELDATE	"03-Aug-2006"
+ 
+ 
+ /* The user-configurable values.
+@@ -262,8 +262,6 @@ enum alta_offsets {
+ 	ASICCtrl = 0x30,
+ 	EEData = 0x34,
+ 	EECtrl = 0x36,
+-	TxStartThresh = 0x3c,
+-	RxEarlyThresh = 0x3e,
+ 	FlashAddr = 0x40,
+ 	FlashData = 0x44,
+ 	TxStatus = 0x46,
+@@ -1084,6 +1082,8 @@ reset_tx (struct net_device *dev)
+ 	}
+ 	/* free all tx skbuff */
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
++		np->tx_ring[i].next_desc = 0;
++
+ 		skb = np->tx_skbuff[i];
+ 		if (skb) {
+ 			pci_unmap_single(np->pci_dev, 
+@@ -1099,6 +1099,10 @@ reset_tx (struct net_device *dev)
+ 	}
+ 	np->cur_tx = np->dirty_tx = 0;
+ 	np->cur_task = 0;
++
++	np->last_tx = 0;
++	iowrite8(127, ioaddr + TxDMAPollPeriod);
++
+ 	iowrite16 (StatsEnable | RxEnable | TxEnable, ioaddr + MACCtrl1);
+ 	return 0;
+ }
+@@ -1156,29 +1160,29 @@ static irqreturn_t intr_handler(int irq,
+ 						np->stats.tx_fifo_errors++;
+ 					if (tx_status & 0x02)
+ 						np->stats.tx_window_errors++;
+-					/*
+-					** This reset has been verified on
+-					** DFE-580TX boards ! phdm@macqel.be.
+-					*/
+-					if (tx_status & 0x10) {	/* TxUnderrun */
+-						unsigned short txthreshold;
+-
+-						txthreshold = ioread16 (ioaddr + TxStartThresh);
+-						/* Restart Tx FIFO and transmitter */
+-						sundance_reset(dev, (NetworkReset|FIFOReset|TxReset) << 16);
+-						iowrite16 (txthreshold, ioaddr + TxStartThresh);
+-						/* No need to reset the Tx pointer here */
++
++					/* FIFO ERROR need to be reset tx */
++					if (tx_status & 0x10) {	/* Reset the Tx. */
++						spin_lock(&np->lock);
++						reset_tx(dev);
++						spin_unlock(&np->lock);
++					}
++					if (tx_status & 0x1e) {
++					/* need to make sure tx enabled */
++						int i = 10;
++						do {
++							iowrite16(ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
++							if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
++								break;
++							mdelay(1);
++						} while (--i);
+ 					}
+-					/* Restart the Tx. */
+-					iowrite16 (TxEnable, ioaddr + MACCtrl1);
+ 				}
+-				/* Yup, this is a documentation bug.  It cost me *hours*. */
++
+ 				iowrite16 (0, ioaddr + TxStatus);
+-				if (tx_cnt < 0) {
+-					iowrite32(5000, ioaddr + DownCounter);
+-					break;
+-				}
+ 				tx_status = ioread16 (ioaddr + TxStatus);
++				if (tx_cnt < 0)
++					break;
+ 			}
+ 			hw_frame_id = (tx_status >> 8) & 0xff;
+ 		} else 	{
+@@ -1244,6 +1248,9 @@ static irqreturn_t intr_handler(int irq,
+ 	if (netif_msg_intr(np))
+ 		printk(KERN_DEBUG "%s: exiting interrupt, status=%#4.4x.\n",
+ 			   dev->name, ioread16(ioaddr + IntrStatus));
++
++	iowrite32(5000, ioaddr + DownCounter); 
++
+ 	return IRQ_RETVAL(handled);
+ }
+ 
+-- 
+1.3.GIT
+
+
+

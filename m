@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWHXLNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWHXLOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWHXLNN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWHXLNN
+	id S1751122AbWHXLOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWHXLOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:13:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2264 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751120AbWHXLNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:13:12 -0400
-Subject: Re: [PATCH] Fix x86_64 _spin_lock_irqsave()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-Cc: Andi Kleen <ak@suse.de>, Edward Falk <efalk@google.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44ED87AC.8070106@FreeBSD.org>
-References: <44ED157D.6050607@google.com> <p7364gifx8o.fsf@verdi.suse.de>
-	 <44ED87AC.8070106@FreeBSD.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 24 Aug 2006 13:13:02 +0200
-Message-Id: <1156417982.3014.58.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 24 Aug 2006 07:14:05 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:63842 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751121AbWHXLOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:14:02 -0400
+Date: Thu, 24 Aug 2006 13:13:49 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Gautham R Shenoy <ego@in.ibm.com>, rusty@rustcorp.com.au,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       arjan@intel.linux.com, mingo@elte.hu, davej@redhat.com,
+       vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 2/4] Revert Changes to kernel/workqueue.c
+Message-ID: <20060824111349.GB6868@osiris.boeblingen.de.ibm.com>
+References: <20060824103043.GC2395@in.ibm.com> <20060824105100.GA6868@osiris.boeblingen.de.ibm.com> <20060824110306.GB3651@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824110306.GB3651@in.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 13:04 +0200, Suleiman Souhlal wrote:
-> Andi Kleen wrote:
-> > Edward Falk <efalk@google.com> writes:
+On Thu, Aug 24, 2006 at 04:33:06PM +0530, Dipankar Sarma wrote:
+> On Thu, Aug 24, 2006 at 12:51:00PM +0200, Heiko Carstens wrote:
+> > > @@ -510,13 +515,11 @@ int schedule_on_each_cpu(void (*func)(vo
+> > >  	if (!works)
+> > >  		return -ENOMEM;
+> > >  
+> > > -	mutex_lock(&workqueue_mutex);
+> > >  	for_each_online_cpu(cpu) {
+> > >  		INIT_WORK(per_cpu_ptr(works, cpu), func, info);
+> > >  		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
+> > >  				per_cpu_ptr(works, cpu));
+> > >  	}
+> > > -	mutex_unlock(&workqueue_mutex);
+> > >  	flush_workqueue(keventd_wq);
+> > >  	free_percpu(works);
+> > >  	return 0;
 > > 
-> > 
-> >>Add spin_lock_string_flags and _raw_spin_lock_flags() to
-> >>asm-x86_64/spinlock.h so that _spin_lock_irqsave() has the same
-> >>semantics on x86_64 as it does on i386 and does *not* have interrupts
-> >>disabled while it is waiting for the lock.
-> > 
-> > 
-> > Did it fix anything for you?
+> > Removing this lock without adding a lock/unlock_cpu_hotplug seems wrong,
+> > since this function is walking the cpu_online_map.
 > 
-> I think this was to work around the fact that some buggy drivers try to 
-> grab spinlocks without disabling interrupts when they should,
+> As long as you disable preemption and don't block the critical
+> section should be safe from cpu hotplug. There is no need to 
+> lock/unlock cpu hotplug.
 
-then fix the drivers ;)
-
-
-
+What disables preemption here?
+Ah.. you probably meant preempt_disable/enable instead of lock/unlock cpu
+hotplug would be sufficient. True.

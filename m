@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWHXPyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWHXPyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWHXPyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 11:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWHXPyQ
+	id S1751599AbWHXPyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 11:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWHXPyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 11:54:16 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:52138 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751611AbWHXPyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 11:54:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=E6ByiUpL5I2MI5iTeXeTYFnJb2dbpi/HL1o2Haug4XDOn9yeCuOe9YUSYQrEM5ppZIHyQTtS02BpwjBda/FqJg3aUP6wtvFD1p1Vklm2XtJhvJ8NG/JCHhtxyxt7ZvbeVcgUc0IJPOmB5+fS89AHNRD/jTemHmbj3vF+7L+hqNk=  ;
-Message-ID: <44EDCB83.3010500@yahoo.com.au>
-Date: Fri, 25 Aug 2006 01:53:39 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Arjan van de Ven <arjan@infradead.org>, ego@in.ibm.com,
-       rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
-       dipankar@in.ibm.com, vatsa@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
-References: <20060824103417.GE2395@in.ibm.com> <1156417200.3014.54.camel@laptopd505.fenrus.org> <20060824140342.GI2395@in.ibm.com> <1156429015.3014.68.camel@laptopd505.fenrus.org> <44EDBDDE.7070203@yahoo.com.au> <20060824150026.GA14853@elte.hu>
-In-Reply-To: <20060824150026.GA14853@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Aug 2006 11:54:25 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:64689 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751606AbWHXPyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 11:54:24 -0400
+Date: Thu, 24 Aug 2006 17:54:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] LogFS
+Message-ID: <20060824155434.GA31877@wohnheim.fh-wedel.de>
+References: <20060824134430.GB17132@wohnheim.fh-wedel.de> <p73wt8ydu1v.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <p73wt8ydu1v.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Thu, 24 August 2006 17:37:00 +0200, Andi Kleen wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
 > 
+> > For the last 16 month, I've been hacking on a small filesystem.  It
+> > has progress far enough that it shouldn't be a total embarrassment to
+> > show the code, but still needs quite a bit of work.
+> > 
+> > Anyhow, in case people are interested to have a look... comments are
+> > very welcome.
 > 
->>It really is just like a reentrant rw semaphore... I don't see the 
->>point of the name change, but I guess we don't like reentrant locks so 
->>calling it something else might go down better with Linus ;)
-> 
-> 
-> what would fit best is a per-cpu scalable (on the read-side) 
-> self-reentrant rw mutex. We are doing cpu hotplug locking in things like 
-> fork or the slab code, while most boxes will do a CPU hotplug event only 
-> once in the kernel's lifetime (during bootup), so a classic global 
-> read-write lock is unjustified.
+> ... some more description/rationale missing ...
 
-I agree with you completely.
+Most people that are interested in this already know about it, but you
+are absolutely right.
+
+> Is it only intended for (small) flash like jffs2 or also for larger disks?
+
+It is only intended for medium to large flash.  On disks with the
+rotational latency, I would expect performance to be very poor.
+Writes should be relatively good, reads absolutely horrible.
+
+
+The missing rationale:
+
+Linux needs a decent flash filesystem.  So far, jffs2 filled the gap,
+but it is increasingly showing its age.  Both mount time and memory
+consumption scale linearly with flash size, so there is a soft limit
+of jffs2 usefulness somewhere between 128MiB and 4GiB, depending on
+system design and whether the summary extension is used.
+
+Then there is a hard limit at 4GiB, because jffs2 uses 32bit byte
+offsets to locate data.
+
+In the opinion of many people, including me, the only solution to fix
+jffs2 is to completely redesign it from scratch.  Voila logfs.
+
+The first idea of logfs was to store data in a tree, similar to ffs
+style filesystems.  Flash behaves a little different to hard disks, so
+free block bitmaps are a bad idea.  Instead, blocks are annotated with
+the inode and fpos they belong to.  By walking the filesystem tree, it
+is possible to decide whether a block is still used or free.
+
+Updates are done by a wandering tree.  In-place updates is basically
+verboten on flash.  Wandering trees cause quite a bit of overhead,
+which will be reduced later.  -ENOTIME so far.
+
+There is a small journal necessary for several purposes:
+1. Store the root of the filesystem tree.  Inodes are stored in an
+inode file.  The ifile's inode is stored in the journal.
+2. Perform atomic directory operations (create, rename, ...).
+3. Reduce the overhead of wandering trees.  Jffs2 has quite an
+efficient layout wrt. write performance.  Pushing writes through a
+jffs2-style journal before adding it to the tree will help a lot.
+
+Jörn
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Mundie uses a textbook tactic of manipulation: start with some
+reasonable talk, and lead the audience to an unreasonable conclusion.
+-- Bruce Perens

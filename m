@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWHXHmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWHXHlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWHXHmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 03:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWHXHlh
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1750809AbWHXHlh (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 24 Aug 2006 03:41:37 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:41093 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S1750772AbWHXHld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 03:41:33 -0400
-Date: Thu, 24 Aug 2006 09:40:41 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.17.11
-Message-ID: <20060824074041.GA12184@aepfle.de>
-References: <20060823213108.GA12308@kroah.com> <20060823213130.GB12308@kroah.com> <20060824062943.GA11477@aepfle.de> <20060824071237.GA5577@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060824071237.GA5577@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHXHl2
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 24 Aug 2006 03:41:28 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38356 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750804AbWHXHlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 03:41:17 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 24 Aug 2006 17:41:18 +1000
+Message-Id: <1060824074118.19171@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 004 of 4] md: Remove unnecessary variable x in stripe_to_pdidx().
+References: <20060824173647.19026.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, Greg KH wrote:
 
-> On Thu, Aug 24, 2006 at 08:29:43AM +0200, Olaf Hering wrote:
-> > On Wed, Aug 23, Greg KH wrote:
-> > 
-> > > +++ b/drivers/serial/Kconfig
-> > > @@ -803,6 +803,7 @@ config SERIAL_MPC52xx
-> > >  	tristate "Freescale MPC52xx family PSC serial support"
-> > >  	depends on PPC_MPC52xx
-> > >  	select SERIAL_CORE
-> > > +	select FW_LOADER
-> > >  	help
-> > >  	  This drivers support the MPC52xx PSC serial ports. If you would
-> > >  	  like to use them, you must answer Y or M to this option. Not that
-> > 
-> > This was for SERIAL_ICOM
-> 
-> What do you mean?  Is the patch wrong?
+>From : Coywolf Qi Hunt <qiyong@freeforge.net>
 
-Yes, wrong place in the file, see http://lkml.org/lkml/2006/8/16/236
+Signed-off-by: Coywolf Qi Hunt <qiyong@freeforge.net>
+
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/raid5.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
+--- .prev/drivers/md/raid5.c	2006-08-24 17:09:42.000000000 +1000
++++ ./drivers/md/raid5.c	2006-08-24 17:24:17.000000000 +1000
+@@ -1350,10 +1350,9 @@ static int page_is_zero(struct page *p)
+ static int stripe_to_pdidx(sector_t stripe, raid5_conf_t *conf, int disks)
+ {
+ 	int sectors_per_chunk = conf->chunk_size >> 9;
+-	sector_t x = stripe;
+ 	int pd_idx, dd_idx;
+-	int chunk_offset = sector_div(x, sectors_per_chunk);
+-	stripe = x;
++	int chunk_offset = sector_div(stripe, sectors_per_chunk);
++
+ 	raid5_compute_sector(stripe*(disks-1)*sectors_per_chunk
+ 			     + chunk_offset, disks, disks-1, &dd_idx, &pd_idx, conf);
+ 	return pd_idx;

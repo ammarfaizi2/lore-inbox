@@ -1,64 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWHXLBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHXLCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWHXLBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWHXLBr
+	id S1751096AbWHXLCf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWHXLCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:01:47 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:17839 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751095AbWHXLBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:01:46 -0400
-Date: Thu, 24 Aug 2006 16:32:49 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, rusty@rustcorp.com.au,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       arjan@intel.linux.com, mingo@elte.hu, davej@redhat.com,
-       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 2/4] Revert Changes to kernel/workqueue.c
-Message-ID: <20060824110248.GF2395@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20060824103043.GC2395@in.ibm.com> <20060824105100.GA6868@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824105100.GA6868@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 24 Aug 2006 07:02:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62091 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751096AbWHXLCe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:02:34 -0400
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nathanl@austin.ibm.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       ntl@pobox.com, Anton Blanchard <anton@samba.org>,
+       Paul Jackson <pj@sgi.com>
+Date: Thu, 24 Aug 2006 04:00:49 -0700
+Message-Id: <20060824110049.5019.87063.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] cpuset: top_cpuset tracks hotplug changes to cpu_online_map
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 12:51:00PM +0200, Heiko Carstens wrote:
-> > @@ -510,13 +515,11 @@ int schedule_on_each_cpu(void (*func)(vo
-> >  	if (!works)
-> >  		return -ENOMEM;
-> >  
-> > -	mutex_lock(&workqueue_mutex);
-> >  	for_each_online_cpu(cpu) {
-> >  		INIT_WORK(per_cpu_ptr(works, cpu), func, info);
-> >  		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
-> >  				per_cpu_ptr(works, cpu));
-> >  	}
-> > -	mutex_unlock(&workqueue_mutex);
-> >  	flush_workqueue(keventd_wq);
-> >  	free_percpu(works);
-> >  	return 0;
-> 
-> Removing this lock without adding a lock/unlock_cpu_hotplug seems wrong,
-> since this function is walking the cpu_online_map.
-I had thought of it. But later decided to retain the same code as 2.6.18-rc4,
-where there was no lock_cpu_hotplug surrounding for_each_online_cpu.
+From: Paul Jackson <pj@sgi.com>
 
-Furthermore, it did not create any problems with the test run.
-So I thought *may-be* we don't need it. 
-But looks like I need to investigate further.
-Thanks for pointing it out.
+Change the list of cpus allowed to tasks in the top (root)
+cpuset to dynamically track what cpus are online, using a CPU
+hotplug notifier.  Make this top cpus file read-only.
 
-Regards
-ego.
+On systems that have cpusets configured in their kernel, but that
+aren't actively using cpusets (for some distros, this covers
+the majority of systems) all tasks end up in the top cpuset.
+
+If that system does support CPU hotplug, then these tasks cannot
+make use of CPUs that are added after system boot, because the
+CPUs are not allowed in the top cpuset.  This is a surprising
+regression over earlier kernels that didn't have cpusets enabled.
+
+In order to keep the behaviour of cpusets consistent between
+systems actively making use of them and systems not using them,
+this patch changes the behaviour of the 'cpus' file in the top
+(root) cpuset, making it read only, and making it automatically
+track the value of cpu_online_map.  Thus tasks in the top
+cpuset will have automatic use of hot plugged CPUs allowed by
+their cpuset.
+
+Thanks to Anton Blanchard and Nathan Lynch for reporting this
+problem, driving the fix, and earlier versions of this patch.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+Anton or Nathan - can you test that this actually fixes
+the problem?  It should, but I don't have a hotplug
+enabled test rig available at the moment.  I've tested
+that it builds i386 and ia64, both with and without cpusets
+enabled, and boots and behaves ok on ia64 otherwise.  - pj
+
+ Documentation/cpusets.txt |    6 ++++++
+ kernel/cpuset.c           |   33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+--- 2.6.18-rc4-mm2.orig/kernel/cpuset.c	2006-08-23 23:03:23.082328581 -0700
++++ 2.6.18-rc4-mm2/kernel/cpuset.c	2006-08-23 23:25:29.745783140 -0700
+@@ -815,6 +815,10 @@ static int update_cpumask(struct cpuset 
+ 	struct cpuset trialcs;
+ 	int retval, cpus_unchanged;
+ 
++	/* top_cpuset.cpus_allowed tracks cpu_online_map; it's read-only */
++	if (cs == &top_cpuset)
++		return -EACCES;
++
+ 	trialcs = *cs;
+ 	retval = cpulist_parse(buf, trialcs.cpus_allowed);
+ 	if (retval < 0)
+@@ -2032,6 +2036,33 @@ out:
+ 	return err;
+ }
+ 
++/*
++ * The top_cpuset tracks what CPUs and Memory Nodes are online,
++ * period.  This is necessary in order to make cpusets transparent
++ * (of no affect) on systems that are actively using CPU hotplug
++ * but making no active use of cpusets.
++ *
++ * This handles CPU hotplug (cpuhp) events.  If someday Memory
++ * Nodes can be hotplugged (dynamically changing node_online_map)
++ * then we should handle that too, perhaps in a similar way.
++ */
++
++#ifdef CONFIG_HOTPLUG_CPU
++static int cpuset_handle_cpuhp(struct notifier_block *nb,
++				unsigned long phase, void *cpu)
++{
++	mutex_lock(&manage_mutex);
++	mutex_lock(&callback_mutex);
++
++	top_cpuset.cpus_allowed = cpu_online_map;
++
++	mutex_unlock(&callback_mutex);
++	mutex_unlock(&manage_mutex);
++
++	return 0;
++}
++#endif
++
+ /**
+  * cpuset_init_smp - initialize cpus_allowed
+  *
+@@ -2042,6 +2073,8 @@ void __init cpuset_init_smp(void)
+ {
+ 	top_cpuset.cpus_allowed = cpu_online_map;
+ 	top_cpuset.mems_allowed = node_online_map;
++
++	hotcpu_notifier(cpuset_handle_cpuhp, 0);
+ }
+ 
+ /**
+--- 2.6.18-rc4-mm2.orig/Documentation/cpusets.txt	2006-08-23 23:45:28.543688884 -0700
++++ 2.6.18-rc4-mm2/Documentation/cpusets.txt	2006-08-23 23:45:46.515909967 -0700
+@@ -217,6 +217,12 @@ exclusive cpuset.  Also, the use of a Li
+ to represent the cpuset hierarchy provides for a familiar permission
+ and name space for cpusets, with a minimum of additional kernel code.
+ 
++The cpus file in the root (top_cpuset) cpuset is read-only.
++It automatically tracks the value of cpu_online_map, using a CPU
++hotplug notifier.  If and when memory nodes can be hotplugged,
++we expect to make the mems file in the root cpuset read-only
++as well, and have it track the value of node_online_map.
++
+ 
+ 1.4 What are exclusive cpusets ?
+ --------------------------------
+
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,69 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWHXJhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWHXJlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWHXJhl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 05:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWHXJhl
+	id S1751005AbWHXJlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 05:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWHXJlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 05:37:41 -0400
-Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:41836 "HELO
-	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750987AbWHXJhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 05:37:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=lGufUY/9sQDtUqx7Lhj/rFYL0UQtq6bFuLSuE2jdsjXx+sAh/w71JcdLJiXFU9rsKe9BHRk+vHLTnm1SLaptteu60cT6ft7soqhcDhD3hIZAe56m9SLufHRnMpIX1cJdIqj/aC4z/75GPlsMRYnVlMgV7CHdqR4FY9uYCrkv82o=  ;
-Message-ID: <20060824093739.5085.qmail@web25802.mail.ukl.yahoo.com>
-Date: Thu, 24 Aug 2006 09:37:39 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : [HELP] Power management for embedded system
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060824090455.GA18202@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	Thu, 24 Aug 2006 05:41:21 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:10723 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751002AbWHXJlU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 05:41:20 -0400
+Date: Thu, 24 Aug 2006 02:31:12 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/18] 2.6.17.9 perfmon2 patch for review: modified x86_64 files
+Message-ID: <20060824093112.GC3252@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230806.k7N8689P000540@frankl.hpl.hp.com> <p73k64z7oh6.fsf@verdi.suse.de> <20060824090409.GB3252@frankl.hpl.hp.com> <200608241120.31258.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608241120.31258.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Russell King wrote:
-> On Thu, Aug 24, 2006 at 08:44:25AM +0000, moreau francis wrote:
->> Mips one seems to be a copy and paste of arm one and both of them
->> have removed all APM bios stuff orginally part of i386 implementation.
+On Thu, Aug 24, 2006 at 11:20:31AM +0200, Andi Kleen wrote:
+> On Thursday 24 August 2006 11:04, Stephane Eranian wrote:
+> > Andi,
+> > 
+> > On Wed, Aug 23, 2006 at 12:09:25PM +0200, Andi Kleen wrote:
+> > > Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
+> > > 
+> > > In general this stuff would be much easier to review if you
+> > > really split it into logical pieces: this means not modified/new,
+> > > but one patch doing one thing. Then the hooks could be reviewed
+> > > together with the code.
+> > > 
+> > 
+> > Yes, I think that would be nice but it is very hard to generate 
+> > such patches from the source tree that I have now. I would have to
+> > manually edit the new/mod patches to group things based on
+> > functionalities.
 > 
-> The BIOS stuff makes no sense on ARM - there isn't a BIOS to do anything
-> with.
+> You could do it once and then store in quilt (or git/hg if you prefer that) 
+> for further editing as patchkits. That will simplify review and merging.
 
-I haven't said that it has been widely/wrongly removed...
+I agree, The problem is doing the first step ;-<
+
+>  
+> > > > @@ -934,6 +935,7 @@ void setup_threshold_lvt(unsigned long l
+> > > >  void smp_local_timer_interrupt(struct pt_regs *regs)
+> > > >  {
+> > > >  	profile_tick(CPU_PROFILING, regs);
+> > > > + 	pfm_handle_switch_timeout();
+> > > 
+> > > It is still unclear why you can't use an ordinary add_timer() ?
+> > > 
+> > 
+> > The hook is used to decrement a timeout value used for event set switching.
+> > Set switching is upported for both per-thread and system-wide contexts. For
+> > per-thread, the timeout must be "saved/restored" when the thread is context
+> > switched. The timeout must be handled in the context of the monitored thread.
+> > I am not sure add_timer() is a good fit for this. The add_timer looks good but
+> > del_timer() does not as  for an active timer, it would need to return the
+> > leftover duration so it can be reactivated via a new add_timer() on context
+> > switch in.
+> 
+> If you always add a new add_timer with timeout jiffies+1 it will always run in this 
+> context. No extra hooks needed.
+> 
+I see. Let me try this out.
 
 > 
->> It doesn't seem that APM is something really stable and finished.
+> > > > -	/*
+> > > > -	 * Now maybe reload the debug registers and handle I/O bitmaps
+> > > > -	 */
+> > > > -	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
+> > > > -	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
+> > > > -		__switch_to_xtra(prev_p, next_p, tss);
+> > > > +  	/*
+> > > > + 	 * Now maybe reload the debug registers and handle I/O bitmaps
+> > > > +  	 */
+> > > > + 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
+> > > > + 	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW)))
+> > > > + 		__switch_to_xtra(prev_p, next_p, tss);
+> > > 
+> > > 
+> > > This should be a separate patch for once (creating _TIF_WORK_CTXSW)
+> > 
+> > The _TIF_WORK_CTXSW is already in a separate patch which you have accepted
+> > into your tree if I recall. It was part of the TIF_DEBUG/TIF_IO_BITMAP patch.
+> > Unless you are repeating the first point you have at the top of this message
+> > about group by functionality.
 > 
-> It's complete.  It's purpose is to provide the interface to userland so
-> that programs know about suspend/resume events, and can initiate suspends.
-> Eg, the X server.
+> 
+> Such a hunk just shouldn't be a hidden in a huge patch. Individual patches please.
 > 
 
-Is there something specific to ARM in this implementation ? I don't think
-so and it's surely the reason why MIPS did copy it with almost no changes.
-I understand that ARM implementation has been the first one but maybe now
-why not making it the common power management for embedded system that
-could be used by all arches which need it ?
+That goes back to patchkit point. I could put it in the ctxsw patch instead of
+modified.
 
-BTW, why has apm_cpu_idle() logic been removed from ARM implementation ?
+> > to get to pfm_handle_work(), we set TIF_NOTIFY_RESUME. Once in pfm_handle_work()
+> > with the context properly locked, we check the reason for coming here. To mimic,
+> > what we do with TIF flags in __switch_to(). I would have to add 3 new TIF flags.
+> > The TIF_PERFMON flag means something different. When you come to notify_resume()
+> > for a signal in a monitored thread, you may not need to go into pfm_handle_work().
+> > But what is sure, is that if you do not have TIF_PERFMON set you never need to
+> > get into pfm_handle_work(). So one thing I could do if to check for TIF_PERFMON
+> > to miinize the number of useless calls to pfm_handle_work().
+> 
+> flags are cheap. Just add three if you need them.
+> 
+Thread_info is u32 and we are up to bit 23 with TIF_PERFMON + 3 = 26.
+But it looks cleaner and probably more efficient. I'll make the change.
 
-> The power management really comes from the Linux drivers themselves,
-> which are written to peripherals off when they're not in use.  The other
-> power saving comes from things like cpufreq - again, nothing to do with
-> the magical "APM" or "ACPI" terms.
+Thanks.
 
-BTW why is it still called "APM" on ARM ?
-
-thanks
-
-Francis
-
-
-
+-- 
+-Stephane

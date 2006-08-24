@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWHXKn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWHXKts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWHXKn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 06:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWHXKn6
+	id S1751062AbWHXKts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 06:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWHXKts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 06:43:58 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57222 "EHLO
+	Thu, 24 Aug 2006 06:49:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63361 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751085AbWHXKn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 06:43:57 -0400
-Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
+	id S1751062AbWHXKtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 06:49:47 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kirill Korotaev <dev@sw.ru>,
+To: sekharan@us.ibm.com
+Cc: rohitseth@google.com, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-In-Reply-To: <20060823213512.88f4344d.akpm@osdl.org>
-References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru>
-	 <44EC5B74.2040104@sw.ru> <20060823095031.cb14cc52.akpm@osdl.org>
-	 <1156354182.3007.37.camel@localhost.localdomain>
-	 <20060823213512.88f4344d.akpm@osdl.org>
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1156385072.7154.59.camel@linuxchandra>
+References: <44E33893.6020700@sw.ru>
+	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
+	 <1156196721.6479.67.camel@linuxchandra>
+	 <1156211128.11127.37.camel@galaxy.corp.google.com>
+	 <1156272902.6479.110.camel@linuxchandra>
+	 <1156383881.8324.51.camel@galaxy.corp.google.com>
+	 <1156385072.7154.59.camel@linuxchandra>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Aug 2006 12:04:16 +0100
-Message-Id: <1156417456.3007.72.camel@localhost.localdomain>
+Date: Thu, 24 Aug 2006 12:10:08 +0100
+Message-Id: <1156417808.3007.78.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-23 am 21:35 -0700, ysgrifennodd Andrew Morton:
-> > Its a uid_t because of setluid() and twenty odd years of existing unix
-> > practice. 
-> > 
+Ar Mer, 2006-08-23 am 19:04 -0700, ysgrifennodd Chandra Seetharaman:
+> > A single centralized structure that has fields that are mostly used by
+> > every one should be okay I think.
 > 
-> I don't understand.  This number is an identifier for an accounting
-> container, which was somehow dreamed up by userspace.
+> You mean to say definition like
+> 
+> struct user_beancounter {
+> 	fields;/* fields that exists now */
+> 	
+> 	int kmemsize_ctlr_info1;
+> 	char *kmemsize_ctlr_info2;
+> 
+> 	char *oomguar_ctlr_info1;
+> 	char *oomguar_ctlr_info2;
+> 
+> 	/* and so on */
+> }
+> 
+> is the right thing to do ? even though oomguar controller doesn't care
+> about kmemsize_ctlr_info* etc.,
 
-Which happens to be a uid_t. It could easily be anyother_t of itself and
-you can create a container_id_t or whatever. It is just a number. 
 
-The ancient Unix implementations of this kind of resource management and
-security are built around setluid() which sets a uid value that cannot
-be changed again and is normally used for security purposes. That
-happened to be a uid_t and in simple setups at login uid = luid = euid
-would be the norm.
+All you need is
 
-Thus the Linux one happens to be a uid_t. It could be something else but
-for the "container per user" model whatever a container is must be able
-to hold all possible uid_t values. So we can certainly do something like
+struct wombat_controller
+{
+	struct user_beancounter counter;
+	void (*wombat_pest_control)(struct wombat *w);
+	atomic_t wombat_population;
+	int (*wombat_destructor)(struct wombat *w);
+};
 
-typedef uid_t	container_id_t;
-
+and just embed the counter in whatever you are controlling. The point of
+the beancounters themselves is to be *SIMPLE*. It's unfortunate that
+some folk seem obsessed with extending them for a million theoretical
+projects rather than getting them in and working and then extending them
+for real projects. Please lets not have another EVMS.
 
 Alan
 

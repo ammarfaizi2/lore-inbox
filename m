@@ -1,46 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWHXHUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHXHWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWHXHUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 03:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWHXHUN
+	id S1750738AbWHXHWj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 03:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHXHWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 03:20:13 -0400
-Received: from mx1.suse.de ([195.135.220.2]:43729 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750765AbWHXHUL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 03:20:11 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 24 Aug 2006 17:20:13 +1000
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 000 of 2] md: Fix a bug with backward event updates.
-Message-ID: <20060824171215.14077.patches@notabene>
+	Thu, 24 Aug 2006 03:22:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:41644 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750738AbWHXHWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 03:22:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding:from;
+        b=DihuCTLqqVn6jx7DD0h00DgF86mVNsKJ4ywa8ztLX2Jn/482DX3VzFhxQlei0jw+vqwp1gmh5oQjAH6I4aJIrtblL5lqh0jXOkyNJi7pcaOlZaFm9rXDsMZinBIwxLoPAUlNebJfxcc/waj6KRKKc4Hdu+SPPWkliDhZp5wDKPw=
+Message-ID: <44ED53AE.1020407@innova-card.com>
+Date: Thu, 24 Aug 2006 09:22:22 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: pmarques@grupopie.com
+CC: arjan@infradead.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Franck <vagabon.xyz@gmail.com>
+Subject: [PATCH] Create kallsyms_lookup_size_offset()
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Some uses of kallsyms_lookup() do not need to find out the name of
+a symbol and its module's name it belongs. This is specially true
+in arch specific code, which needs to unwind the stack to show the
+back trace during oops (mips is an example). In this specific case,
+we just need to retreive the function's size and the offset of the
+active intruction inside it.
 
-There is a bug in 2.6.18-rc which needs to be fixed before -final,
-but there is a patch in -mm which is not scheduled for 2.6.18 which
-touches the same code - so that patch has to change.
+This simple patch adds a new entry "kallsyms_lookup_size_offset()"
+This new entry does exactly the same as kallsyms_lookup() but does
+not require any buffers to store any names.
 
-So:
- wind back to 
-    md-replace-magic-numbers-in-sb_dirty-with-well-defined-bit-flags.patch
- discard that patch.
- Apply 1 of 2 following - that needs to go to Linux (or Greg)
- Then apply 2 of 2 to replace the one that was removed.
- Then you should be able to wind forwards again and everything will apply.
+It returns 0 if it fails otherwise 1.
 
-(If there is some other way you would like me to deal with this
- situation - just say so).
+Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
+---
+ include/linux/kallsyms.h |   11 ++++
+ kernel/kallsyms.c        |  125 ++++++++++++++++++++++++++++++----------------
+ kernel/module.c          |    3 +
+ 3 files changed, 94 insertions(+), 45 deletions(-)
 
-Thanks,
-NeilBrown
+diff --git a/include/linux/kallsyms.h b/include/linux/kallsyms.h
+index 849043c..1cebcbc 100644
+--- a/include/linux/kallsyms.h
++++ b/include/linux/kallsyms.h
+@@ -12,6 +12,10 @@ #ifdef CONFIG_KALLSYMS
+ /* Lookup the address for a symbol. Returns 0 if not found. */
+ unsigned long kallsyms_lookup_name(const char *name);
+ 
++extern int kallsyms_lookup_size_offset(unsigned long addr,
++				  unsigned long *symbolsize,
++				  unsigned long *offset);
++
+ /* Lookup an address.  modname is set to NULL if it's in the kernel. */
+ const char *kallsyms_lookup(unsigned long addr,
+ 			    unsigned long *symbolsize,
+@@ -28,6 +32,13 @@ static inline unsigned long kallsyms_loo
+ 	return 0;
+ }
+ 
++static inline int kallsyms_lookup_size_offset(unsigned long addr,
++					      unsigned long *symbolsize,
++					      unsigned long *offset)
++{
++	return 0;
++}
++
+ static inline const char *kallsyms_lookup(unsigned long addr,
+ 					  unsigned long *symbolsize,
+ 					  unsigned long *offset,
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index ab16a5a..168619a 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -69,6 +69,15 @@ static inline int is_kernel(unsigned lon
+ 	return in_gate_area_no_task(addr);
+ }
+ 
++static int is_ksym_addr(unsigned long addr)
++{
++	if (all_var)
++		return is_kernel(addr);
++
++	return is_kernel_text(addr) || is_kernel_inittext(addr) ||
++		is_kernel_extratext(addr);
++}
++
+ /* expand a compressed symbol data into the resulting uncompressed string,
+    given the offset to where the symbol is in the compressed stream */
+ static unsigned int kallsyms_expand_symbol(unsigned int off, char *result)
+@@ -156,6 +165,73 @@ unsigned long kallsyms_lookup_name(const
+ }
+ EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
++static unsigned long get_symbol_pos(unsigned long addr,
++				    unsigned long *symbolsize,
++				    unsigned long *offset)
++{
++	unsigned long symbol_start = 0, symbol_end = 0;
++	unsigned long i, low, high, mid;
++
++	/* This kernel should never had been booted. */
++	BUG_ON(!kallsyms_addresses);
++
++	/* do a binary search on the sorted kallsyms_addresses array */
++	low = 0;
++	high = kallsyms_num_syms;
++
++	while (high - low > 1) {
++		mid = (low + high) / 2;
++		if (kallsyms_addresses[mid] <= addr)
++			low = mid;
++		else
++			high = mid;
++	}
++
++	/*
++	 * search for the first aliased symbol. Aliased
++	 * symbols are symbols with the same address
++	 */
++	while (low && kallsyms_addresses[low-1] == kallsyms_addresses[low])
++		--low;
++
++	symbol_start = kallsyms_addresses[low];
++
++	/* Search for next non-aliased symbol */
++	for (i = low + 1; i < kallsyms_num_syms; i++) {
++		if (kallsyms_addresses[i] > symbol_start) {
++			symbol_end = kallsyms_addresses[i];
++			break;
++		}
++	}
++	
++	/* if we found no next symbol, we use the end of the section */
++	if (!symbol_end) {
++		if (is_kernel_inittext(addr))
++			symbol_end = (unsigned long)_einittext;
++		else if (all_var)
++			symbol_end = (unsigned long)_end;
++		else 
++			symbol_end = (unsigned long)_etext;
++	}
++
++	*symbolsize = symbol_end - symbol_start;
++	*offset = addr - symbol_start;
++
++	return low;
++}
++
++/*
++ * Lookup an address but don't bother to find any names.
++ */
++int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
++				unsigned long *offset)
++{
++	if (is_ksym_addr(addr))
++		return !!get_symbol_pos(addr, symbolsize, offset);
++
++	return !!module_address_lookup(addr, symbolsize, offset, NULL);
++}
++
+ /*
+  * Lookup an address
+  * - modname is set to NULL if it's in the kernel
+@@ -168,57 +244,18 @@ const char *kallsyms_lookup(unsigned lon
+ 			    unsigned long *offset,
+ 			    char **modname, char *namebuf)
+ {
+-	unsigned long i, low, high, mid;
+ 	const char *msym;
+ 
+-	/* This kernel should never had been booted. */
+-	BUG_ON(!kallsyms_addresses);
+-
+ 	namebuf[KSYM_NAME_LEN] = 0;
+ 	namebuf[0] = 0;
+ 
+-	if ((all_var && is_kernel(addr)) ||
+-	    (!all_var && (is_kernel_text(addr) || is_kernel_inittext(addr) ||
+-				is_kernel_extratext(addr)))) {
+-		unsigned long symbol_end = 0;
+-
+-		/* do a binary search on the sorted kallsyms_addresses array */
+-		low = 0;
+-		high = kallsyms_num_syms;
+-
+-		while (high-low > 1) {
+-			mid = (low + high) / 2;
+-			if (kallsyms_addresses[mid] <= addr) low = mid;
+-			else high = mid;
+-		}
+-
+-		/* search for the first aliased symbol. Aliased symbols are
+-		   symbols with the same address */
+-		while (low && kallsyms_addresses[low - 1] == kallsyms_addresses[low])
+-			--low;
+-
++	if (is_ksym_addr(addr)) {
++		unsigned long pos;
++		
++		pos = get_symbol_pos(addr, symbolsize, offset);
+ 		/* Grab name */
+-		kallsyms_expand_symbol(get_symbol_offset(low), namebuf);
+-
+-		/* Search for next non-aliased symbol */
+-		for (i = low + 1; i < kallsyms_num_syms; i++) {
+-			if (kallsyms_addresses[i] > kallsyms_addresses[low]) {
+-				symbol_end = kallsyms_addresses[i];
+-				break;
+-			}
+-		}
+-
+-		/* if we found no next symbol, we use the end of the section */
+-		if (!symbol_end) {
+-			if (is_kernel_inittext(addr))
+-				symbol_end = (unsigned long)_einittext;
+-			else
+-				symbol_end = all_var ? (unsigned long)_end : (unsigned long)_etext;
+-		}
+-
+-		*symbolsize = symbol_end - kallsyms_addresses[low];
++		kallsyms_expand_symbol(get_symbol_offset(pos), namebuf);
+ 		*modname = NULL;
+-		*offset = addr - kallsyms_addresses[low];
+ 		return namebuf;
+ 	}
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 2a19cd4..0e3e6ab 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2012,7 +2012,8 @@ const char *module_address_lookup(unsign
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (within(addr, mod->module_init, mod->init_size)
+ 		    || within(addr, mod->module_core, mod->core_size)) {
+-			*modname = mod->name;
++			if (modname)
++				*modname = mod->name;
+ 			return get_ksymbol(mod, addr, size, offset);
+ 		}
+ 	}
+-- 
+1.4.2
 
-
- [PATCH 001 of 2] md: Avoid backward event updates in md superblock when degraded.
- [PATCH 002 of 2] md: replace magic numbers in sb_dirty with well defined bit flags

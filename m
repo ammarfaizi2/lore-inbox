@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbWHXSUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWHXS0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbWHXSUr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 14:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWHXSUr
+	id S1030435AbWHXS0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 14:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWHXS0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:20:47 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:48792 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030377AbWHXSUn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:20:43 -0400
-Date: Thu, 24 Aug 2006 13:20:44 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mhalcrow@us.ibm.com
-Subject: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir
-Message-ID: <20060824182044.GE17658@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20060824181722.GA17658@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824181722.GA17658@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 24 Aug 2006 14:26:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33480 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030435AbWHXS0t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:26:49 -0400
+Date: Thu, 24 Aug 2006 11:26:42 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Dong Feng <middle.fengdong@gmail.com>
+cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: Unnecessary Relocation Hiding?
+In-Reply-To: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
+References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-filldir()'s inode number is now type u64 instead of ino_t.
+On Wed, 23 Aug 2006, Dong Feng wrote:
 
-Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+> I have a question. Why shall we need a RELOC_HIDE() macro in the
+> definition of per_cpu()? Maybe the question is actually why we need
+> macro RELOC_HIDE() at all. I changed the following line in
+> include/asm-generic/percpu.h, from
 
----
-
- fs/ecryptfs/file.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-5cecf3b66f0e7ec3fcf953edbf4bf14d1a030a83
-diff --git a/fs/ecryptfs/file.c b/fs/ecryptfs/file.c
-index 6da9363..6d6c62c 100644
---- a/fs/ecryptfs/file.c
-+++ b/fs/ecryptfs/file.c
-@@ -135,7 +135,7 @@ struct ecryptfs_getdents_callback {
- /* Inspired by generic filldir in fs/readir.c */
- static int
- ecryptfs_filldir(void *dirent, const char *name, int namelen, loff_t offset,
--		 ino_t ino, unsigned int d_type)
-+		 u64 ino, unsigned int d_type)
- {
- 	struct ecryptfs_crypt_stat *crypt_stat;
- 	struct ecryptfs_getdents_callback *buf =
--- 
-1.3.3
-
+Guess it was copied from IA64 but the semantics were not preserved.
+I think it should either be changed the way you suggest or the 
+implementation needs to be fixed to actually do a linker relocation.

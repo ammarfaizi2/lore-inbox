@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWHXBdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWHXBkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWHXBdt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 21:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965333AbWHXBdt
+	id S1030187AbWHXBkk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 21:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWHXBkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 21:33:49 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:19002 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965330AbWHXBdr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 21:33:47 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=ipgIY8eFYJrDuC+kBe5sKtjiBgTX/roKBxuU2FnyCyPYth/c8lo/Ilnffn/vkDvdX
-	nDPMy3uXtCUmV+QrdAFtg==
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: sekharan@us.ibm.com, Kirill Korotaev <dev@sw.ru>,
-       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1156240970.27114.5.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>
-	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
-	 <1156196721.6479.67.camel@linuxchandra>
-	 <1156211128.11127.37.camel@galaxy.corp.google.com>
-	 <1156240970.27114.5.camel@localhost.localdomain>
+	Wed, 23 Aug 2006 21:40:40 -0400
+Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:48858 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1030187AbWHXBkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 21:40:39 -0400
+Subject: [PATCH] Linux 2.6.17.11 - fix compilation error on IA64
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: gregkh@suse.de
+Cc: dev@openvz.org, xemul@openvz.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 23 Aug 2006 18:31:26 -0700
-Message-Id: <1156383086.8324.39.camel@galaxy.corp.google.com>
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Thu, 24 Aug 2006 10:40:36 +0900
+Message-Id: <1156383636.1899.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 11:02 +0100, Alan Cox wrote:
-> Ar Llu, 2006-08-21 am 18:45 -0700, ysgrifennodd Rohit Seth:
-> > I think as the tasks move around, it becomes very heavy to move all the
-> > pages belonging to previous container to a new container.
-> 
-> Its not a meaningful thing to do. Remember an object may be passed
-> around or shared. The simple "creator pays" model avoids all the heavy
-> overheads while maintaining the constraints.
-> 
+The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that makes
+the compilation of a IA64 kernel fail as follows:
 
-I agree, creator pays model will be good for anonymous pages.  (And this
-is where page based container will help).
+  GEN     usr/initramfs_data.cpio.gz
+  AS      usr/initramfs_data.o
+  LD      usr/built-in.o
+  CC      arch/ia64/kernel/acpi.o
+  AS      arch/ia64/kernel/entry.o
+include/asm/mman.h: Assembler messages:
+include/asm/mman.h:13: Error: Unknown opcode `int ia64_map_check_rgn(unsigned long addr,unsigned long len,'
+include/asm/mman.h:14: Error: Unknown opcode `unsigned long flags)'
+make[1]: *** [arch/ia64/kernel/entry.o] Error 1
+make: *** [arch/ia64/kernel] Error 2
 
-> Its only user space pages that some of this (AS and RSS) become
-> interesting as "movable" objects
-> 
+This patch fixes this.
 
-I think something like for AS, yes.  But for anonymous pages, might want
-to leave them back.
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+---
 
--rohit
+diff -urNp linux-2.6.17.11/include/asm-ia64/mman.h linux-2.6.17.11-fix/include/asm-ia64/mman.h
+--- linux-2.6.17.11/include/asm-ia64/mman.h	2006-08-24 10:29:56.000000000 +0900
++++ linux-2.6.17.11-fix/include/asm-ia64/mman.h	2006-08-24 10:33:13.000000000 +0900
+@@ -8,7 +8,7 @@
+  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
+  */
+ 
+-#ifdef __KERNEL__
++#ifndef __ASSEMBLY__
+ #define arch_mmap_check	ia64_map_check_rgn
+ int ia64_map_check_rgn(unsigned long addr, unsigned long len,
+ 		unsigned long flags);
 
 

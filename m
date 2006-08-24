@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWHXL2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWHXL2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWHXL2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWHXL2H
+	id S1751135AbWHXL2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWHXL2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:28:07 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:29458 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751133AbWHXL2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:28:04 -0400
-Date: Thu, 24 Aug 2006 13:28:02 +0200
+	Thu, 24 Aug 2006 07:28:39 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:50483 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751136AbWHXL2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:28:38 -0400
+Date: Thu, 24 Aug 2006 13:28:36 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, horst.hummel@de.ibm.com
-Subject: [patch] s390: dasd PAV enabling.
-Message-ID: <20060824112802.GA7022@skybase>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [patch] s390: Use simple_strtoul instead of own cmm_strtoul wrapper.
+Message-ID: <20060824112836.GB7022@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,90 +21,98 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] dasd PAV enabling.
+[S390] Use simple_strtoul instead of own cmm_strtoul wrapper.
 
-The subsystem check in the PAV code is incorrect, it enables PAV
-per device instead of per subsystem.
+Fix compile warning with some configurations:
 
-Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
+arch/s390/mm/cmm.c:58: warning: 'cmm_strtoul' defined but not used
+
+Originally cmm_strtoul was introduced because simple_strtoul couldn't
+handle strings with hexadecimal numbers that contained a capital 'X'.
+Since this is no longer true cmm_strtoul can be removed.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_devmap.c |    8 ++++----
- drivers/s390/block/dasd_eckd.c   |   14 +++++++-------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ arch/s390/mm/cmm.c |   30 +++++++-----------------------
+ 1 files changed, 7 insertions(+), 23 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
---- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-08-24 12:09:53.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-08-24 12:10:19.000000000 +0200
-@@ -54,11 +54,11 @@ struct dasd_devmap {
-  */
- struct dasd_server_ssid_map {
- 	struct list_head list;
--	struct server_id {
-+	struct system_id {
- 		char vendor[4];
- 		char serial[15];
-+		__u16 ssid;
- 	} sid;
--	__u16 ssid;
- };
+diff -urpN linux-2.6/arch/s390/mm/cmm.c linux-2.6-patched/arch/s390/mm/cmm.c
+--- linux-2.6/arch/s390/mm/cmm.c	2006-08-24 12:09:36.000000000 +0200
++++ linux-2.6-patched/arch/s390/mm/cmm.c	2006-08-24 12:10:50.000000000 +0200
+@@ -53,22 +53,6 @@ static void cmm_timer_fn(unsigned long);
+ static void cmm_set_timer(void);
  
- static struct list_head dasd_server_ssid_list;
-@@ -904,14 +904,14 @@ dasd_set_uid(struct ccw_device *cdev, st
- 		return -ENOMEM;
- 	strncpy(srv->sid.vendor, uid->vendor, sizeof(srv->sid.vendor) - 1);
- 	strncpy(srv->sid.serial, uid->serial, sizeof(srv->sid.serial) - 1);
--	srv->ssid = uid->ssid;
-+	srv->sid.ssid = uid->ssid;
- 
- 	/* server is already contained ? */
- 	spin_lock(&dasd_devmap_lock);
- 	devmap->uid = *uid;
- 	list_for_each_entry(tmp, &dasd_server_ssid_list, list) {
- 		if (!memcmp(&srv->sid, &tmp->sid,
--			    sizeof(struct dasd_server_ssid_map))) {
-+			    sizeof(struct system_id))) {
- 			kfree(srv);
- 			srv = NULL;
- 			break;
-diff -urpN linux-2.6/drivers/s390/block/dasd_eckd.c linux-2.6-patched/drivers/s390/block/dasd_eckd.c
---- linux-2.6/drivers/s390/block/dasd_eckd.c	2006-08-24 12:09:53.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_eckd.c	2006-08-24 12:10:19.000000000 +0200
-@@ -607,7 +607,7 @@ dasd_eckd_psf_ssc(struct dasd_device *de
-  * Valide storage server of current device.
-  */
- static int
--dasd_eckd_validate_server(struct dasd_device *device)
-+dasd_eckd_validate_server(struct dasd_device *device, struct dasd_uid *uid)
+ static long
+-cmm_strtoul(const char *cp, char **endp)
+-{
+-	unsigned int base = 10;
+-
+-	if (*cp == '0') {
+-		base = 8;
+-		cp++;
+-		if ((*cp == 'x' || *cp == 'X') && isxdigit(cp[1])) {
+-			base = 16;
+-			cp++;
+-		}
+-	}
+-	return simple_strtoul(cp, endp, base);
+-}
+-
+-static long
+ cmm_alloc_pages(long pages, long *counter, struct cmm_page_array **list)
  {
- 	int rc;
- 
-@@ -616,11 +616,11 @@ dasd_eckd_validate_server(struct dasd_de
- 		return 0;
- 
- 	rc = dasd_eckd_psf_ssc(device);
--	if (rc)
--		/* may be requested feature is not available on server,
--		 * therefore just report error and go ahead */
--		DEV_MESSAGE(KERN_INFO, device,
--			    "Perform Subsystem Function returned rc=%d", rc);
-+	/* may be requested feature is not available on server,
-+	 * therefore just report error and go ahead */
-+	DEV_MESSAGE(KERN_INFO, device,
-+		    "PSF-SSC on storage subsystem %s.%s.%04x returned rc=%d",
-+		    uid->vendor, uid->serial, uid->ssid, rc);
- 	/* RE-Read Configuration Data */
- 	return dasd_eckd_read_conf(device);
- }
-@@ -666,7 +666,7 @@ dasd_eckd_check_characteristics(struct d
- 		return rc;
- 	rc = dasd_set_uid(device->cdev, &uid);
- 	if (rc == 1)	/* new server found */
--		rc = dasd_eckd_validate_server(device);
-+		rc = dasd_eckd_validate_server(device, &uid);
- 	if (rc)
- 		return rc;
- 
+ 	struct cmm_page_array *pa;
+@@ -276,7 +260,7 @@ cmm_pages_handler(ctl_table *ctl, int wr
+ 			return -EFAULT;
+ 		buf[sizeof(buf) - 1] = '\0';
+ 		cmm_skip_blanks(buf, &p);
+-		pages = cmm_strtoul(p, &p);
++		pages = simple_strtoul(p, &p, 0);
+ 		if (ctl == &cmm_table[0])
+ 			cmm_set_pages(pages);
+ 		else
+@@ -317,9 +301,9 @@ cmm_timeout_handler(ctl_table *ctl, int 
+ 			return -EFAULT;
+ 		buf[sizeof(buf) - 1] = '\0';
+ 		cmm_skip_blanks(buf, &p);
+-		pages = cmm_strtoul(p, &p);
++		pages = simple_strtoul(p, &p, 0);
+ 		cmm_skip_blanks(p, &p);
+-		seconds = cmm_strtoul(p, &p);
++		seconds = simple_strtoul(p, &p, 0);
+ 		cmm_set_timeout(pages, seconds);
+ 	} else {
+ 		len = sprintf(buf, "%ld %ld\n",
+@@ -382,24 +366,24 @@ cmm_smsg_target(char *from, char *msg)
+ 	if (strncmp(msg, "SHRINK", 6) == 0) {
+ 		if (!cmm_skip_blanks(msg + 6, &msg))
+ 			return;
+-		pages = cmm_strtoul(msg, &msg);
++		pages = simple_strtoul(msg, &msg, 0);
+ 		cmm_skip_blanks(msg, &msg);
+ 		if (*msg == '\0')
+ 			cmm_set_pages(pages);
+ 	} else if (strncmp(msg, "RELEASE", 7) == 0) {
+ 		if (!cmm_skip_blanks(msg + 7, &msg))
+ 			return;
+-		pages = cmm_strtoul(msg, &msg);
++		pages = simple_strtoul(msg, &msg, 0);
+ 		cmm_skip_blanks(msg, &msg);
+ 		if (*msg == '\0')
+ 			cmm_add_timed_pages(pages);
+ 	} else if (strncmp(msg, "REUSE", 5) == 0) {
+ 		if (!cmm_skip_blanks(msg + 5, &msg))
+ 			return;
+-		pages = cmm_strtoul(msg, &msg);
++		pages = simple_strtoul(msg, &msg, 0);
+ 		if (!cmm_skip_blanks(msg, &msg))
+ 			return;
+-		seconds = cmm_strtoul(msg, &msg);
++		seconds = simple_strtoul(msg, &msg, 0);
+ 		cmm_skip_blanks(msg, &msg);
+ 		if (*msg == '\0')
+ 			cmm_set_timeout(pages, seconds);

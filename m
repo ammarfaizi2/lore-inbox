@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWHXR5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWHXR6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751651AbWHXR5x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 13:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751657AbWHXR5x
+	id S1751661AbWHXR6f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 13:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWHXR6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 13:57:53 -0400
-Received: from xenotime.net ([66.160.160.81]:470 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751618AbWHXR5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 13:57:52 -0400
-Date: Thu, 24 Aug 2006 11:01:02 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Alexey Dobriyan <adobriyan@gmail.com>,
-       David Howells <dhowells@redhat.com>, Jens Axboe <axboe@suse.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
-Message-Id: <20060824110102.d47a8659.rdunlap@xenotime.net>
-In-Reply-To: <1156441724.3012.183.camel@pmac.infradead.org>
-References: <32640.1156424442@warthog.cambridge.redhat.com>
-	<20060824152937.GK19810@stusta.de>
-	<1156434274.3012.128.camel@pmac.infradead.org>
-	<20060824155814.GL19810@stusta.de>
-	<1156435216.3012.130.camel@pmac.infradead.org>
-	<20060824160926.GM19810@stusta.de>
-	<20060824164752.GC5205@martell.zuzino.mipt.ru>
-	<20060824170709.GO19810@stusta.de>
-	<1156439763.3012.155.camel@pmac.infradead.org>
-	<20060824103459.77e5569c.rdunlap@xenotime.net>
-	<1156441724.3012.183.camel@pmac.infradead.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 24 Aug 2006 13:58:35 -0400
+Received: from bay0-omc2-s32.bay0.hotmail.com ([65.54.246.168]:45049 "EHLO
+	bay0-omc2-s32.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1751657AbWHXR6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 13:58:34 -0400
+Message-ID: <BAY123-F83FB9BEE7F065A45CA6BDDF440@phx.gbl>
+X-Originating-IP: [75.34.181.35]
+X-Originating-Email: [dravet@hotmail.com]
+From: "Jason Dravet" <dravet@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: INFO: possible recursive locking detected
+Date: Thu, 24 Aug 2006 12:58:29 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 24 Aug 2006 17:58:33.0983 (UTC) FILETIME=[EA86A8F0:01C6C7A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 18:48:44 +0100 David Woodhouse wrote:
+On a recent attempted install of fedora's rawhide I saw the following in my 
+anaconda.log file.
 
-> On Thu, 2006-08-24 at 10:34 -0700, Randy.Dunlap wrote:
-> > How do you do that if you have all of ISDN disabled and want/need
-> > to enable one ISDN driver?  or same problem for V4L(2)/dvb?
-> > or several other subsystems?  (e.g. sound)
-> 
-> If you _ever_ catch me getting confused because I'm trying to build an
-> ISDN driver and I can't work out that in order to do this, I might need
-> to first enable CONFIG_ISDN, then I promise you I will change my name by
-> deed poll to 'Aunt Tillie'.
+<4>=============================================
+<4>[ INFO: possible recursive locking detected ]
+<4>2.6.17-1.2571.fc6 #1
+<4>---------------------------------------------
+<4>anaconda/432 is trying to acquire lock:
+<4> (&bdev->bd_mutex){--..}, at: [<c04658bb>] __blkdev_put+0x1f/0x11f
+<4>
+<4>but task is already holding lock:
+<4> (&bdev->bd_mutex){--..}, at: [<c0465b4e>] do_open+0x6b/0x3b2
+<4>
+<4>other info that might help us debug this:
+<4>1 lock held by anaconda/432:
+<4> #0:  (&bdev->bd_mutex){--..}, at: [<c0465b4e>] do_open+0x6b/0x3b2
+<4>
+<4>stack backtrace:
+<4> [<c04037db>] show_trace_log_lvl+0x58/0x159
+<4> [<c0403d9e>] show_trace+0xd/0x10
+<4> [<c0403e3b>] dump_stack+0x19/0x1b
+<4> [<c042bddb>] __lock_acquire+0x765/0x97c
+<4> [<c042c563>] lock_acquire+0x4b/0x6c
+<4> [<c05f37ee>] mutex_lock_nested+0xcb/0x214
+<4> [<c04658bb>] __blkdev_put+0x1f/0x11f
+<4> [<c04659d4>] blkdev_put+0xa/0xc
+<4> [<c0465e26>] do_open+0x343/0x3b2
+<4> [<c0466030>] blkdev_open+0x1f/0x48
+<4> [<c045d83c>] __dentry_open+0xb8/0x186
+<4> [<c045d978>] nameidata_to_filp+0x1c/0x2e
+<4> [<c045d9b9>] do_filp_open+0x2f/0x36
+<4> [<c045da00>] do_sys_open+0x40/0xbb
+<4> [<c045daa7>] sys_open+0x16/0x18
+<4> [<c0402e57>] syscall_call+0x7/0xb
+<4>DWARF2 unwinder stuck at syscall_call+0x7/0xb
+<4>Leftover inexact backtrace:
+<4> [<c0403d9e>] show_trace+0xd/0x10
+<4> [<c0403e3b>] dump_stack+0x19/0x1b
+<4> [<c042bddb>] __lock_acquire+0x765/0x97c
+<4> [<c042c563>] lock_acquire+0x4b/0x6c
+<4> [<c05f37ee>] mutex_lock_nested+0xcb/0x214
+<4> [<c04658bb>] __blkdev_put+0x1f/0x11f
+<4> [<c04659d4>] blkdev_put+0xa/0xc
+<4> [<c0465e26>] do_open+0x343/0x3b2
+<4> [<c0466030>] blkdev_open+0x1f/0x48
+<4> [<c045d83c>] __dentry_open+0xb8/0x186
+<4> [<c045d978>] nameidata_to_filp+0x1c/0x2e
+<4> [<c045d9b9>] do_filp_open+0x2f/0x36
+<4> [<c045da00>] do_sys_open+0x40/0xbb
+<4> [<c045daa7>] sys_open+0x16/0x18
+<4> [<c0402e57>] syscall_call+0x7/0xb
 
-I'd rather use menuconfig or xconfig for that instead of editing
-.config and reading multiple Kconfig files.
+Also posted at https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203137
 
-But I'd still prefer to have an "Enable all of this subsystem options first"
-switch like I suggested a few months ago.  Makes it easier to view
-and disable options.
 
-> It isn't hard to find dependencies by looking in the Kconfig files, even
-> if they are slightly less blindingly obvious than that example. I think
-> 'make xconfig' will even show you the dependencies these days. I
-> remember even in about 1996 the Nemesis folks had hacked the old tcl
-> xconfig script to show dependencies.
-
-menuconfig or xconfig will show dependencies now.
-
-> Finding the brain-damaged 'select' which is preventing me from turning a
-> given option _off_, however, is something I tend to find far more
-> difficult. The CONFIG_EMBEDDED crap took up a painful amount of my time
-> last week when it bit me too.
-
-Ack.
-
----
-~Randy

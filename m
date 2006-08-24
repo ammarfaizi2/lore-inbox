@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbWHXPxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWHXPyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751609AbWHXPxp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 11:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWHXPxp
+	id S1030186AbWHXPyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 11:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWHXPyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 11:53:45 -0400
-Received: from dvhart.com ([64.146.134.43]:28367 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965008AbWHXPxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 11:53:44 -0400
-Message-ID: <44EDCB83.2010806@mbligh.org>
-Date: Thu, 24 Aug 2006 08:53:39 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 24 Aug 2006 11:54:16 -0400
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:52138 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751611AbWHXPyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 11:54:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=E6ByiUpL5I2MI5iTeXeTYFnJb2dbpi/HL1o2Haug4XDOn9yeCuOe9YUSYQrEM5ppZIHyQTtS02BpwjBda/FqJg3aUP6wtvFD1p1Vklm2XtJhvJ8NG/JCHhtxyxt7ZvbeVcgUc0IJPOmB5+fS89AHNRD/jTemHmbj3vF+7L+hqNk=  ;
+Message-ID: <44EDCB83.3010500@yahoo.com.au>
+Date: Fri, 25 Aug 2006 01:53:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Edward Falk <efalk@google.com>,
-       linux-kernel@vger.kernel.org, Michael Davidson <md@google.com>
-Subject: Re: [PATCH] Fix x86_64 _spin_lock_irqsave()
-References: <44ED157D.6050607@google.com>	<44ED1891.6090708@yahoo.com.au> <20060823214831.aa687ebe.akpm@osdl.org>
-In-Reply-To: <20060823214831.aa687ebe.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: Arjan van de Ven <arjan@infradead.org>, ego@in.ibm.com,
+       rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
+       dipankar@in.ibm.com, vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+References: <20060824103417.GE2395@in.ibm.com> <1156417200.3014.54.camel@laptopd505.fenrus.org> <20060824140342.GI2395@in.ibm.com> <1156429015.3014.68.camel@laptopd505.fenrus.org> <44EDBDDE.7070203@yahoo.com.au> <20060824150026.GA14853@elte.hu>
+In-Reply-To: <20060824150026.GA14853@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 24 Aug 2006 13:10:09 +1000
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
 > 
->>Edward Falk wrote:
->>
->>>Add spin_lock_string_flags and _raw_spin_lock_flags() to 
->>>asm-x86_64/spinlock.h so that _spin_lock_irqsave() has the same 
->>>semantics on x86_64 as it does on i386 and does *not* have interrupts 
->>>disabled while it is waiting for the lock.
->>>
->>>This fix is courtesy of Michael Davidson
->>
->>So, what's the bug? You shouldn't rely on these semantics anyway
->>because you should never expect to wait for a spinlock for so long
->>(and it may be the case that irqs can't be enabled anyway).
->>
->>BTW. you should be cc'ing Andi Kleen (x86+/-64 maintainer) on
->>this type of stuff.
->>
->>No comments on the merits of adding this feature. I suppose parity
->>with i386 is a good thing, though.
->>
+>>It really is just like a reentrant rw semaphore... I don't see the 
+>>point of the name change, but I guess we don't like reentrant locks so 
+>>calling it something else might go down better with Linus ;)
 > 
 > 
-> We put this into x86 ages ago and Andi ducked the x86_64 patch at the time.
-> 
-> I don't recall any reports about the x86 patch (Zwane?) improving or
-> worsening anything.  I guess there are some theoretical interrupt latency
-> benefits.
+> what would fit best is a per-cpu scalable (on the read-side) 
+> self-reentrant rw mutex. We are doing cpu hotplug locking in things like 
+> fork or the slab code, while most boxes will do a CPU hotplug event only 
+> once in the kernel's lifetime (during bootup), so a classic global 
+> read-write lock is unjustified.
 
-Spinlocks are indeed meant to be held for a short time, but irq
-disabling is meant to be shorter.
+I agree with you completely.
 
-I think the real question is: what is the justification for disabling
-interrupts when spinning for a lock? We should never disable interrupts
-unless we have to.
-
-M.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWHXJAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWHXJFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWHXJAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 05:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWHXJAY
+	id S1750956AbWHXJFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 05:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWHXJFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 05:00:24 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:42731 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750861AbWHXJAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 05:00:23 -0400
-Message-ID: <44ED6AA2.2080306@garzik.org>
-Date: Thu, 24 Aug 2006 05:00:18 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] libata fixes
-References: <20060824081336.GA15502@havoc.gtf.org> <20060824082954.GA9315@kroah.com>
-In-Reply-To: <20060824082954.GA9315@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 24 Aug 2006 05:05:04 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:45067 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750956AbWHXJFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 05:05:03 -0400
+Date: Thu, 24 Aug 2006 10:04:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [HELP] Power management for embedded system
+Message-ID: <20060824090455.GA18202@flint.arm.linux.org.uk>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
+References: <20060824084425.83538.qmail@web25802.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824084425.83538.qmail@web25802.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Aug 24, 2006 at 04:13:36AM -0400, Jeff Garzik wrote:
->> Please pull from 'upstream-greg' branch of
->> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-greg
->>
->> to receive the following updates:
->>
->>  drivers/scsi/ata_piix.c    |   84 +++++++++++++++++++++++++-------
->>  drivers/scsi/libata-core.c |    2 
->>  drivers/scsi/pdc_adma.c    |    3 -
->>  drivers/scsi/sata_via.c    |  117 +++++++++++++++++++++++++++++++++++++++++++--
->>  4 files changed, 180 insertions(+), 26 deletions(-)
-> 
-> Pulled from, and pushed out.  Is this set of patches supposed to fix my
-> ata_piix cdrom problem for my laptop?  I'll go build and test to see if
-> it does or not...
+On Thu, Aug 24, 2006 at 08:44:25AM +0000, moreau francis wrote:
+> Mips one seems to be a copy and paste of arm one and both of them
+> have removed all APM bios stuff orginally part of i386 implementation.
 
-It should, yes.
+The BIOS stuff makes no sense on ARM - there isn't a BIOS to do anything
+with.
 
-You can twiddle with the force_pcs module option if things are still wonky.
+> It doesn't seem that APM is something really stable and finished.
 
-	Jeff
+It's complete.  It's purpose is to provide the interface to userland so
+that programs know about suspend/resume events, and can initiate suspends.
+Eg, the X server.
 
+The power management really comes from the Linux drivers themselves,
+which are written to peripherals off when they're not in use.  The other
+power saving comes from things like cpufreq - again, nothing to do with
+the magical "APM" or "ACPI" terms.
 
+On embedded platforms, you shouldn't think about power management in
+terms of the non-embedded PM technologies.
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

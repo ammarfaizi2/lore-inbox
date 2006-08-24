@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422690AbWHXVjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWHXVlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422690AbWHXVjM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422717AbWHXVjC
+	id S1422677AbWHXVlT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWHXVlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:39:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6116 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422690AbWHXVdF (ORCPT
+	Thu, 24 Aug 2006 17:41:19 -0400
+Received: from pat.uio.no ([129.240.10.4]:64703 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1422677AbWHXVlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:33:05 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 05/17] BLOCK: Don't call block_sync_page() from AFS [try #2]
-Date: Thu, 24 Aug 2006 22:33:03 +0100
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dhowells@redhat.com
-Message-Id: <20060824213303.21323.78091.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
+	Thu, 24 Aug 2006 17:41:16 -0400
+Subject: Re: [PATCH 15/17] BLOCK: Stop CIFS from using EXT2 ioctl numbers
+	directly [try #2]
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060824213330.21323.88530.stgit@warthog.cambridge.redhat.com>
 References: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	 <20060824213330.21323.88530.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 17:41:09 -0400
+Message-Id: <1156455669.5629.87.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.891, required 12,
+	autolearn=disabled, AWL 0.60, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Thu, 2006-08-24 at 22:33 +0100, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
+> 
+> Stop CIFS from using EXT2 ioctl numbers directly, making it use the ones in
+> linux/fs.h instead.
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  0 files changed, 0 insertions(+), 0 deletions(-)
 
-The AFS filesystem specifies block_sync_page() as its sync_page address op,
-which needs to be checked, and so is commented out for the moment.
+Err... NACK?
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+   Trond
 
- fs/afs/file.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 67d6634..e1ba855 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -37,7 +37,7 @@ struct inode_operations afs_file_inode_o
- 
- const struct address_space_operations afs_fs_aops = {
- 	.readpage	= afs_file_readpage,
--	.sync_page	= block_sync_page,
-+//	.sync_page	= block_sync_page,
- 	.set_page_dirty	= __set_page_dirty_nobuffers,
- 	.releasepage	= afs_file_releasepage,
- 	.invalidatepage	= afs_file_invalidatepage,

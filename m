@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWHXNen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWHXNgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751519AbWHXNen (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWHXNen
+	id S1751521AbWHXNgz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWHXNgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:34:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52413 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751460AbWHXNem (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:34:42 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1156425193.3012.32.camel@pmac.infradead.org> 
-References: <1156425193.3012.32.camel@pmac.infradead.org>  <32640.1156424442@warthog.cambridge.redhat.com> 
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: David Howells <dhowells@redhat.com>, Jens Axboe <axboe@suse.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 24 Aug 2006 14:34:16 +0100
-Message-ID: <778.1156426456@warthog.cambridge.redhat.com>
+	Thu, 24 Aug 2006 09:36:55 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55056 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751513AbWHXNgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:36:54 -0400
+Date: Thu, 24 Aug 2006 15:36:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.28-rc2
+Message-ID: <20060824133653.GJ19810@stusta.de>
+References: <20060822230102.GC19896@stusta.de> <20060824132039.GC7055@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824132039.GC7055@elf.ucw.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
+On Thu, Aug 24, 2006 at 03:20:39PM +0200, Pavel Machek wrote:
 
-> >  (*) The contents of a number of filesystem- and blockdev-specific header
-> >      files are now contingent on their own configuration options.  This
-> >      includes: Ext3/JBD, RAID, MSDOS and ReiserFS.
+> Hi!
+
+Hi Pavel!
+
+> > Pavel Machek:
+> >       remove obsolete swsusp_encrypt
 > 
-> Why? Those header files shouldn't be included from anywhere _but_ the
-> code in question,
+> Probably not a big deal, but IIRC this was cleanup patch. I am not
+> sure if it is worth merging into -stable.
 
-Go and look at fs/compat_ioctl.c.
+This patch removed an option that didn't have any effect.
 
-> and in fact should probably be just moved into fs/foo instead of living in
-> include/linux/foo_fs.h.
+IOW, less possible user confusion with no risk.
 
-Definitely.  Patches please:-)
+Additionally, the help text could wrongly imply for a user enabling this 
+option would bring additional security.
 
-> And please, _never_ make anything dependent on CONFIG_foo_MODULE.
+Not a big deal, but my personal opinion was to merge it.
 
-Ah, but...  The core kernel makes use of the certain header files, even when
-their actual intended target is compiled as a module.  If I just use
-"CONFIG_foo" only, then the module won't compile as a module.
+> 								Pavel
 
-David
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWHXTI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWHXTL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030461AbWHXTI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 15:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWHXTI3
+	id S1030462AbWHXTL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 15:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWHXTL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 15:08:29 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:51644 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030461AbWHXTI3
+	Thu, 24 Aug 2006 15:11:29 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:52142 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030462AbWHXTL2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 15:08:29 -0400
-Message-ID: <44EDF923.4030607@zytor.com>
-Date: Thu, 24 Aug 2006 12:08:19 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 24 Aug 2006 15:11:28 -0400
+Message-ID: <44EDF9DD.3040904@us.ibm.com>
+Date: Thu, 24 Aug 2006 12:11:25 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Andrew Brukhov <pingved@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] boot: small change of halt method
-References: <20060824184447.GA3346@windows95>
-In-Reply-To: <20060824184447.GA3346@windows95>
+To: Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>
+Subject: Re: [RFC][PATCH] Manage jbd allocations from its own slabs
+References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com> <20060824185342.GA20935@infradead.org>
+In-Reply-To: <20060824185342.GA20935@infradead.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Brukhov wrote:
-> I'm new here.
-> After reading boot code i'm immidiatly change this string:
-> 
-> --- ./linux-2.6.17.11/arch/i386/boot/compressed/misc.c	2006-08-24 01:16:33.000000000 +0400
-> +++ /usr/src/linux-2.6.17.11/arch/i386/boot/compressed/misc.c	2006-08-24 22:36:10.000000000 +0400
-> @@ -7,6 +7,7 @@
->   * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
->   * puts by Nick Holloway 1993, better puts by Martin Mares 1995
->   * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-> + * Small fix of halt method Andrew Brukhov, Aug. 2006               
->   */
->  
->  #include <linux/linkage.h>
-> @@ -289,8 +290,7 @@ static void error(char *x)
->  	putstr("\n\n");
->  	putstr(x);
->  	putstr("\n\n -- System halted");
-> -
-> -	while(1);	/* Halt */
-> +      	asm( "hlt" );
->  }
-> 
-> It's becouse this code is platform depended and therefore there is no resons to write infinity cycle.
-> 
+Christoph Hellwig wrote:
+> On Wed, Aug 23, 2006 at 04:08:15PM -0700, Badari Pulavarty wrote:
+>   
+>> Hi,
+>>
+>> Here is the fix to "bh: Ensure bh fits within a page" problem
+>> caused by JBD.
+>>
+>> BTW, I realized that this problem can happen only with 1k, 2k
+>> filesystems - as 4k, 8k allocations disable slab debug 
+>> automatically. But for completeness, I created slabs for those
+>> also.
+>>
+>> What do you think ? I ran basic tests and things are fine.
+>>     
+>
+> Why can't you just use alloc_page?  I bet the whole slab overhead
+> eats more memory than what's wasted when using alloc_pages.  Especially
+> as the typical usecase is a 4k blocks filesystem with 4k pagesize
+> where the overhead of alloc_page is non-existant.
+>   
 
-Wrong.
+Yes. That was what proposed earlier. But for 1k, 2k allocations we end 
+up wasting whole page.
+Isn't it ? Thats why I created right sized slabs and disable slab-debug. 
+I guess, I can do this
+only for 1k, 2k filesystems and directly use alloc_page() for 4k and 8k 
+- but that would make
+code ugly and also it doesn't handle cases for bigger base pagesize 
+systems (64k power).
 
-You need to:
+Thanks,
+Badari
 
-	while (1)
-		asm volatile("hlt");
 
-... since HLT only pauses until interrupt.
-
-	-hpa

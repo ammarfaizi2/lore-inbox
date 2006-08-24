@@ -1,112 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWHXJbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWHXJhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWHXJbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 05:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWHXJbQ
+	id S1750989AbWHXJhl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 05:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWHXJhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 05:31:16 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:25028 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750869AbWHXJbP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 05:31:15 -0400
-Date: Thu, 24 Aug 2006 11:30:09 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: devel@openvz.org, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Rohit Seth <rohitseth@google.com>,
-       Matt Helsley <matthltc@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [Devel] [PATCH 6/6] BC: kernel memory accounting (marks)
-In-Reply-To: <1156374231.12011.61.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0608241128280.5478@pademelon.sonytel.be>
-References: <44EC31FB.2050002@sw.ru>  <44EC371F.7080205@sw.ru>
- <1156374231.12011.61.camel@localhost.localdomain>
+	Thu, 24 Aug 2006 05:37:41 -0400
+Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:41836 "HELO
+	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750987AbWHXJhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 05:37:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=lGufUY/9sQDtUqx7Lhj/rFYL0UQtq6bFuLSuE2jdsjXx+sAh/w71JcdLJiXFU9rsKe9BHRk+vHLTnm1SLaptteu60cT6ft7soqhcDhD3hIZAe56m9SLufHRnMpIX1cJdIqj/aC4z/75GPlsMRYnVlMgV7CHdqR4FY9uYCrkv82o=  ;
+Message-ID: <20060824093739.5085.qmail@web25802.mail.ukl.yahoo.com>
+Date: Thu, 24 Aug 2006 09:37:39 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : [HELP] Power management for embedded system
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060824090455.GA18202@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006, Dave Hansen wrote:
-> I'm working on a patch to unify as many of the alloc_thread_info()
-> functions as I can.  That should at least give you one place to modify
-> and track the thread_info allocations.  I've only compiled for x86_64
-> and i386, but I'm working on more.  A preliminary version is attached.
+Hi,
 
-> --- clean/include/asm-m68k/thread_info.h~unify-alloc-thread-info	2006-08-23 15:44:52.000000000 -0700
-> +++ clean-dave/include/asm-m68k/thread_info.h	2006-08-23 15:45:32.000000000 -0700
-> @@ -24,14 +24,7 @@ struct thread_info {
->  	},					\
->  }
->  
-> -/* THREAD_SIZE should be 8k, so handle differently for 4k and 8k machines */
-> -#if PAGE_SHIFT == 13 /* 8k machines */
-> -#define alloc_thread_info(tsk)   ((struct thread_info *)__get_free_pages(GFP_KERNEL,0))
-> -#define free_thread_info(ti)  free_pages((unsigned long)(ti),0)
-> -#else /* otherwise assume 4k pages */
-> -#define alloc_thread_info(tsk)   ((struct thread_info *)__get_free_pages(GFP_KERNEL,1))
-> -#define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
-> -#endif /* PAGE_SHIFT == 13 */
-> +#define THREAD_SHIFT	1
-                        ^
-Shouldn't this be 13?
+Russell King wrote:
+> On Thu, Aug 24, 2006 at 08:44:25AM +0000, moreau francis wrote:
+>> Mips one seems to be a copy and paste of arm one and both of them
+>> have removed all APM bios stuff orginally part of i386 implementation.
+> 
+> The BIOS stuff makes no sense on ARM - there isn't a BIOS to do anything
+> with.
 
-> --- /dev/null	2005-03-30 22:36:15.000000000 -0800
-> +++ clean-dave/include/linux/thread_alloc.h	2006-08-23 16:00:41.000000000 -0700
-> @@ -0,0 +1,42 @@
-> +#ifndef _LINUX_THREAD_ALLOC
-> +#define _LINUX_THREAD_ALLOC
-> +
-> +#ifndef THREAD_SHIFT
-> +#define THREAD_SHIFT PAGE_SHIFT
-> +#endif
-> +#ifndef THREAD_ORDER
-> +#define THREAD_ORDER    (THREAD_SHIFT - PAGE_SHIFT)
-> +#endif
-> +
-> +struct thread_info;
-> +struct task;
-> +
-> +#if THREAD_SHIFT >= PAGE_SHIFT
-> +static inline struct thread_info *alloc_thread_info(struct task_struct *tsk)
-> +{
-> +	gfp_t flags = GFP_KERNEL;
-> +#ifdef CONFIG_DEBUG_STACK_USAGE
-> +	flags |= __GFP_ZERO;
-> +#endif
-> +	return (struct thread_info *)__get_free_pages(flags, THREAD_ORDER);
-> +}
-> +static inline void free_thread_info(struct thread_info *ti)
-> +{
-> +	free_pages((unsigned long)ti, THREAD_ORDER);
-> +}
-> +#else /* THREAD_SHIFT < PAGE_SHIFT */
-> +static inline struct thread_info *alloc_thread_info(struct task_struct *tsk)
-> +{
-> +#ifdef CONFIG_DEBUG_STACK_USAGE
-> +	return kzalloc(THREAD_SIZE, GFP_KERNEL);
-> +#else
-> +	return kmalloc(THREAD_SIZE, GFP_KERNEL);
-> +#endif
-> +}
-> +static inline void free_thread_info(struct thread_info *ti)
-> +{
-> +	kfree(ti);
-> +}
-> +#endif /* THREAD_SHIFT < PAGE_SHIFT */
-> +
-> +#endif /* _LINUX_THREAD_ALLOC */
+I haven't said that it has been widely/wrongly removed...
 
-Gr{oetje,eeting}s,
+> 
+>> It doesn't seem that APM is something really stable and finished.
+> 
+> It's complete.  It's purpose is to provide the interface to userland so
+> that programs know about suspend/resume events, and can initiate suspends.
+> Eg, the X server.
+> 
 
-						Geert
+Is there something specific to ARM in this implementation ? I don't think
+so and it's surely the reason why MIPS did copy it with almost no changes.
+I understand that ARM implementation has been the first one but maybe now
+why not making it the common power management for embedded system that
+could be used by all arches which need it ?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+BTW, why has apm_cpu_idle() logic been removed from ARM implementation ?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> The power management really comes from the Linux drivers themselves,
+> which are written to peripherals off when they're not in use.  The other
+> power saving comes from things like cpufreq - again, nothing to do with
+> the magical "APM" or "ACPI" terms.
+
+BTW why is it still called "APM" on ARM ?
+
+thanks
+
+Francis
+
+
+

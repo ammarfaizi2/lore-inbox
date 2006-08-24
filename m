@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWHXLIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWHXLNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWHXLIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWHXLIf
+	id S1751120AbWHXLNN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWHXLNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:08:35 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:34197 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751114AbWHXLIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:08:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent:from;
-        b=HqBUWHPmu+1Wxow4Crrjk/Pf9qW2tzj4k+jlzR0HlpiKYPf49CaDLCY0THIn63YR7ibooqBVscJDYVIeABFcPGhCPGqmUSdQGV//EY/u1cfVNnuV493kfAoV0Dhm8fC4YeEdvI1Hw1GfPOZ0947CoN5doAi0RDKjgdtdC2KAaRU=
-Date: Thu, 24 Aug 2006 13:08:55 +0200
-To: "Denis Vlasenko" <vda.linux@googlemail.com>
-Subject: Re: Specify devices manually in exotic environment
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
-MIME-Version: 1.0
-References: <op.teo9mqjlepq0rv@localhost> <200608231313.37976.vda.linux@googlemail.com> <op.teq4xxc2epq0rv@localhost> <200608241108.52379.vda.linux@googlemail.com>
+	Thu, 24 Aug 2006 07:13:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2264 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751120AbWHXLNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:13:12 -0400
+Subject: Re: [PATCH] Fix x86_64 _spin_lock_irqsave()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+Cc: Andi Kleen <ak@suse.de>, Edward Falk <efalk@google.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44ED87AC.8070106@FreeBSD.org>
+References: <44ED157D.6050607@google.com> <p7364gifx8o.fsf@verdi.suse.de>
+	 <44ED87AC.8070106@FreeBSD.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 24 Aug 2006 13:13:02 +0200
+Message-Id: <1156417982.3014.58.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.tesbw5xzepq0rv@localhost>
-In-Reply-To: <200608241108.52379.vda.linux@googlemail.com>
-User-Agent: Opera Mail/9.00 (Linux)
-From: Milan Hauth <milahu@googlemail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 11:08:52 +0200, Denis Vlasenko  
-<vda.linux@googlemail.com> wrote:
+On Thu, 2006-08-24 at 13:04 +0200, Suleiman Souhlal wrote:
+> Andi Kleen wrote:
+> > Edward Falk <efalk@google.com> writes:
+> > 
+> > 
+> >>Add spin_lock_string_flags and _raw_spin_lock_flags() to
+> >>asm-x86_64/spinlock.h so that _spin_lock_irqsave() has the same
+> >>semantics on x86_64 as it does on i386 and does *not* have interrupts
+> >>disabled while it is waiting for the lock.
+> > 
+> > 
+> > Did it fix anything for you?
+> 
+> I think this was to work around the fact that some buggy drivers try to 
+> grab spinlocks without disabling interrupts when they should,
 
-> On Wednesday 23 August 2006 21:40, Milan Hauth wrote:
->> I have tried MTD's NAND module according this [1] document, but it also
->> did not work.
->>
->> As Richard B. Johnson <linux-os@analogic.com> already mentioned, a  
->> regular
->> IDE interface has to be emulated. Somehow. Anyhow.
->
-> Yes, I never saw flash-based IDE devices, but they exist, that's true.
-> However, it's not necessarily what you have.
-> I think that IDE devices should be detected by kernel at boot-up.
-> You say that they are not. That's why I'm inclined to think
-> your flash memory is not IDEish.
-
-What I also forgot to mention is, that it's a SmartMedia Flash Card I have  
-here, which is told to always identify as a IDE device.
+then fix the drivers ;)
 
 
-> lsusb? Or if you have no lsusb, then:
->
-> # mount | grep usb
-> none on /proc/bus/usb type usbfs (rw)
 
-Ohh, that's why lsusb never worked.. but you won't like the current result:
-
-Bus 001 Device 003: ID 046a:002b Cherry GmbH  -->  Keyboard
-Bus 001 Device 002: ID 0451:2046 Texas Instruments, Inc. TUSB2046 Hub
-Bus 001 Device 001: ID 0000:0000  -->  What the..?
-
-
-But I'm afraid I broke my SMC, while playing around with my disassembled  
-T20, since GRUB hangs with 'GRUB _' without having changed anything in the  
-software. D'oh!
-
-That's why I can't test with 'USB Mass Storage' support in the kernel at  
-the moment, which would probably uncover the mysterious '0000:0000' USB  
-device. Gonna try again next week with a new SMC.
-
-Cheers, milahu

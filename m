@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWHXVuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbWHXVwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030383AbWHXVuh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030481AbWHXVuh
+	id S1030486AbWHXVwb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbWHXVwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:50:37 -0400
-Received: from ns.suse.de ([195.135.220.2]:9619 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030383AbWHXVuf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:50:35 -0400
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: [RFC] maximum latency tracking infrastructure
-References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
-	<200608241408.03853.jbarnes@virtuousgeek.org>
-	<44EE1801.3060805@linux.intel.com>
-	<200608241429.45791.jbarnes@virtuousgeek.org>
-From: Andi Kleen <ak@suse.de>
-Date: 24 Aug 2006 23:50:27 +0200
-In-Reply-To: <200608241429.45791.jbarnes@virtuousgeek.org>
-Message-ID: <p73r6z5erbw.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Aug 2006 17:52:31 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43657 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030288AbWHXVwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:52:30 -0400
+Subject: Re: [PATCH 3/7] SLIM main patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mimi Zohar <zohar@us.ibm.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, David Safford <safford@us.ibm.com>,
+       kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Serge E Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <OFBA8851BE.520FA69E-ON852571D4.006E9AA6-852571D4.005C4E99@us.ibm.com>
+References: <OFBA8851BE.520FA69E-ON852571D4.006E9AA6-852571D4.005C4E99@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Aug 2006 23:13:59 +0100
+Message-Id: <1156457640.3007.196.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@virtuousgeek.org> writes:
+Ar Iau, 2006-08-24 am 16:41 -0400, ysgrifennodd Mimi Zohar:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote on 08/24/2006 10:15:17 AM:
+> revoke_mmap_wperm() walks current->mm->mmap and removes
+> the file write permission using do_mprotect().
 
-> On Thursday, August 24, 2006 2:20 pm, Arjan van de Ven wrote:
-> > Jesse Barnes wrote:
-> > > On Thursday, August 24, 2006 10:41 am, Arjan van de Ven wrote:
-> > >> The reason for adding this infrastructure is that power management
-> > >> in the idle loop needs to make a tradeoff between latency and power
-> > >> savings (deeper power save modes have a longer latency to running
-> > >> code again).
-> > >
-> > > What if a processor was already in a sleep state when a call to
-> > > set_acceptable_latency() latency occurs?
-> >
-> > there's nothing sane that can be done in that case; any wake up
-> > already will cause the unwanted latency! A premature wakeup is only
-> > making it happen *now*, but now is as inconvenient a time as any...
-> > (in fact it may be a worst case time scenario, say, an audio
-> > interrupt...)
-> 
-> Depends on what's going on.  What if you have a two socket machine, and 
-> one CPU is in C3 when the latency setting occurs?
+That is fine for threads of "current" but the pages may be shared
+between processes, and there are other fun cases where you can "park"
+data in objects and let someone open them later to recover the data (eg
+the console)
 
-I didn't think there were currently any multi socket machines with C3 
-support? The best you get is dual core.
+> We have test shmem and mmap programs in the ltp framework that
+> show this actually works.
 
-> Shouldn't you wake it 
-> up and prevent it from going that deep again?  But you're right, you 
-> won't necessarily improve anything...
-
-Generally there are so many events that wake up CPUs that the case is pretty 
-academic -- all CPUs will eventually wake up in a reasonable time
-(before your driver initialization finished likely) and then follow
-the new latency settings.
-
-Maybe at some point if all the idle breaking events in Linux have been
-fixed up it might be a problem, but I think that's a long time off.
-
--Andi
-
+Cool.

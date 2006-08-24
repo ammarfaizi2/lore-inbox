@@ -1,31 +1,51 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751667AbWHXSKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S965079AbWHXSUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751667AbWHXSKS (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 24 Aug 2006 14:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWHXSKS
+	id S965079AbWHXSUb (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 24 Aug 2006 14:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHXSUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:10:18 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:63417 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751665AbWHXSKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:10:16 -0400
+	Thu, 24 Aug 2006 14:20:31 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:19974 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965079AbWHXSU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:20:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=V8nA8cmVSPX1GMIrBnabe3hIzWEalYOfW8t/ws33JWBqUPqZ7r8OyEYT8JCR1vcMm7+jB8wTZGRtg8lGZ3sKq06blU0jN+690q5rHonJ51iv7MYguvrR8kLKfJdL3aXBB+xYAJPyTDdN7Ce5pA+vk7PlG+w4qqOgt9FGf53UISU=
-Date: Thu, 24 Aug 2006 22:15:08 +0400
-From: Andrew Brukhov <pingved@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: TEST MESSAGE
-Message-ID: <20060824181508.GA3018@windows95>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bCd5sp2fBspamFN/VD09XInudz5AevYKdBUh2rPMXplZDD4E3VueBWUZCbFD/1to/qk1HxrH+k/qy/rVihRNS6YJIyKxN3Gqz3eOmj7vPDp9IL7kPXn+XaGLYfQT2onqRBH0WpxE5pQqPqlAB8z/o2zmmNKPOCX2dPQZFmvmHAk=
+Message-ID: <6bffcb0e0608241120k2d7a2712sa70bfdffb126f31b@mail.gmail.com>
+Date: Thu, 24 Aug 2006 20:20:28 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Brukhov" <pingved@gmail.com>
+Subject: Re: TEST MESSAGE
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060824181508.GA3018@windows95>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+References: <20060824181508.GA3018@windows95>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Test message
- 
---------------
-Andrew Brukhov
+Hi Andrew,
+
+On 24/08/06, Andrew Brukhov <pingved@gmail.com> wrote:
+> Test message
+
+There is a simple vger test
+
+"You can test email delivery between you, and VGER by sending an empty
+test letter to: <autoanswer@vger.kernel.org>"
+http://vger.kernel.org/majordomo-info.html
+
+> --------------
+> Andrew Brukhov
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

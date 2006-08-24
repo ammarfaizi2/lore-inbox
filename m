@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWHXNDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWHXNDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbWHXNDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWHXNDw
+	id S1751317AbWHXNDf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWHXNDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:03:52 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:63689 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751330AbWHXNDu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:03:50 -0400
-Date: Thu, 24 Aug 2006 08:03:40 -0500
-From: "Serge E. Hallyn" <sergeh@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mimi Zohar <zohar@us.ibm.com>, David Safford <safford@us.ibm.com>,
-       kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       linux-security-module-owner@vger.kernel.org,
-       Serge E Hallyn <sergeh@us.ibm.com>
-Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
-Message-ID: <20060824130340.GB15680@sergelap.austin.ibm.com>
-References: <20060817230213.GA18786@elf.ucw.cz> <OFA16BD859.1B593DA2-ON852571CE.005FA4FF-852571CE.004BD083@us.ibm.com> <20060824054933.GA1952@elf.ucw.cz>
+	Thu, 24 Aug 2006 09:03:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3762 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751317AbWHXNDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:03:34 -0400
+Subject: RE: Serial custom speed deprecated?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stuart MacDonald <stuartm@connecttech.com>,
+       "'LKML'" <linux-kernel@vger.kernel.org>, linux-serial@vger.kernel.org
+In-Reply-To: <1156425568.3007.138.camel@localhost.localdomain>
+References: <033001c6c77a$a7d8ab10$294b82ce@stuartm>
+	 <1156425568.3007.138.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 14:03:30 +0100
+Message-Id: <1156424610.3012.29.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824054933.GA1952@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pavel Machek (pavel@ucw.cz):
-> Hi!
+On Thu, 2006-08-24 at 14:19 +0100, Alan Cox wrote:
+> Actually to do this right we have to make a decision or two
 > 
-> > > > +In normal operation, the system seems to stabilize with a roughly
-> > > > +equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
-> > >
-> > > So you split processes to three classes (why three?), and
-> > > automagically move them between classes based on some rules? (What
-> > > rules?)
-> > >
-> > > Like if I'm UNTRUSTED process, I may not read ~/.ssh/private_key? So
-> > > files get this kind of labels, too? And it is "mozilla starts as a
-> > > USER, but when it accesses first web page it becomes UNTRUSTED"?
-> > 
-> > Processes are not moved from one integrity level to another, but are
-> > demoted when they read from a lower integrity level object. By
-> > definition sockets, are defined as UNTRUSTED, so reading from a
-> > socket demotes the process to UNTRUSTED.  (Secrecy is a separate
-> > attribute.) In the Mozilla example, /usr/bin/mozilla is defined as
-> > SYSTEM, preventing any process with lesser integrity from modifying
-> > it.  'level -s' displays the level of the current process or of a
-> > given file.  For example,
-> > 
-> > [zohar@L3X098X ~]$ level -s /usr/bin/mozilla
-> > /usr/bin/mozilla
-> >         security.slim.level: SYSTEM PUBLIC
-> > 
-> > Both mozilla and firefox-bin are defined as SYSTEM, as soon as the
-> > firefox-bin process opens a socket, the process is demoted to
-> > UNTRUSTED.
-> > 
-> > I hope this answered some of your questions.  We're working on
-> > more comprehensive documentation, which we'll post with the next
-> > release.
+> The POSIX way of handling this requires the speeds are in the termios
+> structure "somewhere". We can't easily implement cfgetispeed/cfgetospeed
+> unless we grow the termios structure in the kernel and issue 3 new
+> ioctls (keeping the others as trivial translations) and then bumping
+> glibc and the kernel to do the right thing.
 > 
-> Do you have examples where this security model stops an attack?
+> The alternative is that we provide an extra pair of speed ioctls and
+> glibc does the magic to hide this lot while providing a termios with the
+> new fields itself.
 > 
-> Both my mail client and my mozilla will be UNTRUSTED (because of
-> network connections, right?) -- so mozilla exploit will still be able
-> t osee my mail? Not good. And ssh connects to the net, too, so it will
-> not even protect my ~/.ssh/private_key ?
+> Whichever way we go glibc already has the fields present and the
+> libc<->application API appears to be unchanged by this.
+> 
+> I'd rather we went the way of extending our termios to include c_ispeed,
+> c_ospeed values. The code isn't hard for the remapping of the old ones
+> and it avoids extra ioctls and the corner case races between two speed
+> sets that occur if they are two ioctls.
 
-I believe it will read your private_key while at a higher level, then
-will be demoted when it access the net.
+Agreed. Some architectures have c_[io]speed in their struct termios
+already, in fact, but others would need new ioctls for it.
 
-Is that right?
+-- 
+dwmw2
 
--serge

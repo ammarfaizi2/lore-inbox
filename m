@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWHXORP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWHXORO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751570AbWHXORP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 10:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbWHXORP
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 10:17:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53983 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751570AbWHXORO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751569AbWHXORO (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 24 Aug 2006 10:17:14 -0400
-Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
-From: Arjan van de Ven <arjan@infradead.org>
-To: ego@in.ibm.com
-Cc: rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
-       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
-       ashok.raj@intel.com
-In-Reply-To: <20060824140342.GI2395@in.ibm.com>
-References: <20060824103417.GE2395@in.ibm.com>
-	 <1156417200.3014.54.camel@laptopd505.fenrus.org>
-	 <20060824140342.GI2395@in.ibm.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 24 Aug 2006 16:16:55 +0200
-Message-Id: <1156429015.3014.68.camel@laptopd505.fenrus.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbWHXORO
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 24 Aug 2006 10:17:14 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:27279 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751567AbWHXORN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 10:17:13 -0400
+Date: Thu, 24 Aug 2006 09:16:57 -0500
+From: "Serge E. Hallyn" <sergeh@us.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: serue@us.ibm.com, Serge E Hallyn <sergeh@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, kjhall@us.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>
+Subject: Re: [PATCH 3/7] SLIM main patch
+Message-ID: <20060824141657.GC32764@sergelap.austin.ibm.com>
+References: <1156359937.6720.66.camel@localhost.localdomain> <20060823192733.GG28594@kvack.org> <1156365357.6720.87.camel@localhost.localdomain> <1156418815.3007.89.camel@localhost.localdomain> <20060824133248.GC15680@sergelap.austin.ibm.com> <20060824133733.GK28594@kvack.org> <20060824135803.GA32764@sergelap.austin.ibm.com> <20060824140043.GL28594@kvack.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824140043.GL28594@kvack.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 19:33 +0530, Gautham R Shenoy wrote:
-> On Thu, Aug 24, 2006 at 01:00:00PM +0200, Arjan van de Ven wrote:
-> > On Thu, 2006-08-24 at 16:04 +0530, Gautham R Shenoy wrote:
-> > > 
-> > > 
-> > > This patch renames lock_cpu_hotplug to cpu_hotplug_disable and
-> > > unlock_cpu_hotplug to cpu_hotplug_enable throughout the kernel.
-> > 
-> > Hi,
-> > 
-> > to be honest I dislike the new names too. You turned it into a refcount,
-> > which is good, but the normal linux name for such refcount functions is
-> > _get and _put.....  and in addition the refcount technically isn't
-> > hotplug specific, all you want is to keep the kernel data for the
-> > processor as being "used", so cpu_get() and cpu_put() would sound
-> > reasonable names to me, or cpu_data_get() cpu_data_put().
+Quoting Benjamin LaHaise (bcrl@kvack.org):
+> On Thu, Aug 24, 2006 at 08:58:03AM -0500, Serge E. Hallyn wrote:
+> > Still not certain this is needed.  If you were able to write data to a
+> > pipe, then even though data may be in the buffer, the other end
+> > shouldn't be able to read it if it's own level were changed.
 > 
-> Thus, choice of 'cpu_hotplug_disable' and 'cpu_hotplug_enable'
-> was determined on the basis of its purpose, as in *what* it does 
-> as opposed to *how* it does it. :)
+> Then what is the benefit of the supposed revoke if it can be trivially 
+> bypassed?
 
-well.. it comes down to the difference of locking to protect data versus
-locking to protect against a specific piece of code. Almost always the
-later turns out to be a mistake...
+How is it being bypassed?
 
+If it can be shown how what is there is insufficient, then it'll have to
+be fixed.  I'm just not seeing it yet.
 
+> Security has not been improved.  It is better not to provide 
+> a supposed feature than to offer it up so riddled with holes as to make 
+> it pointless.
+
+Some would say it's better to show what you've got, let others point out
+the faults, and fix them.  How else will anything ever get done...
+
+-serge

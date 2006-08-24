@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWHXUgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWHXUlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbWHXUgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 16:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWHXUgb
+	id S1422648AbWHXUlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 16:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422646AbWHXUlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 16:36:31 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:45975 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S965077AbWHXUga (ORCPT
+	Thu, 24 Aug 2006 16:41:39 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:54707 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422636AbWHXUli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 16:36:30 -0400
-Message-ID: <44EE0DDA.5060600@cfl.rr.com>
-Date: Thu, 24 Aug 2006 16:36:42 -0400
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Thu, 24 Aug 2006 16:41:38 -0400
+In-Reply-To: <1156428917.3007.150.camel@localhost.localdomain>
+Subject: Re: [PATCH 3/7] SLIM main patch
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, David Safford <safford@us.ibm.com>,
+       kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Serge E Hallyn <sergeh@us.ibm.com>
+X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
+Message-ID: <OFBA8851BE.520FA69E-ON852571D4.006E9AA6-852571D4.005C4E99@us.ibm.com>
+From: Mimi Zohar <zohar@us.ibm.com>
+Date: Thu, 24 Aug 2006 16:41:34 -0400
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
+ 08/24/2006 16:41:37
 MIME-Version: 1.0
-To: Aleksey Gorelov <dared1st@yahoo.com>
-CC: arjan@infradead.org, jengelh@linux01.gwdg.de, daniel.rodrick@gmail.com,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       linux-newbie@vget.kernel.org, satinder.jeet@gmail.com
-Subject: Re: Generic Disk Driver in Linux
-References: <20060824194012.77909.qmail@web83101.mail.mud.yahoo.com>
-In-Reply-To: <20060824194012.77909.qmail@web83101.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Aug 2006 20:36:40.0834 (UTC) FILETIME=[01213E20:01C6C7BD]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14648.003
-X-TM-AS-Result: No--7.081900-5.000000-31
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The int 13 calls to the bios can only accept addresses within the first 
-1 MB of memory, and the calls are synchronous, so DMA really doesn't 
-matter as the cpu will be busy waiting anyhow while the IO takes place, 
-which will wreak all kinds of hell on the rest of the running system, 
-including other hardware ISRs.
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote on 08/24/2006 10:15:17 AM:
 
-Aleksey Gorelov wrote:
->> thing will be really really bad... (hint: real mode can access only 1Mb
->> of memory, so you will bounce buffer all IO's)
-> This is true for non-dma case only. As I already mentioned before, most BIOSes 
-> support dma, and there is no 1Mb limit for that (at least on modern hw).
-> 
-> Aleks.
+> Ar Iau, 2006-08-24 am 08:32 -0500, ysgrifennodd Serge E. Hallyn:
+> > > You also have to deal with existing mmap() mappings and
+> > > outstanding I/O.
+> >
+> > That she does.
+>
+> I don't believe so from the patches.
+>
+> > >    SysV shared memory
+> >
+> > standard mmap controls should handle this, right?
+>
+> No its rather independant of mmap
+
+Under the covers it seems to use shmem.  sys_shmget() calls newseg(),
+which sets up the shared memory.
+
+> > >    mmap
+> >
+> > She handles these.
+>
+> I must have missed where it handles that.
+
+revoke_mmap_wperm() walks current->mm->mmap and removes
+the file write permission using do_mprotect().
+
+We have test shmem and mmap programs in the ltp framework that
+show this actually works.
+
+Mimi
 

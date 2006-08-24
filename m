@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWHXIo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWHXI4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWHXIo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 04:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWHXIo1
+	id S1750951AbWHXI4l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 04:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWHXI4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 04:44:27 -0400
-Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:29868 "HELO
-	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750900AbWHXIo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 04:44:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
-  b=PCX1tyBkJR94bVDsqnDAVMI93SyxX4gx0w1jvoUfY/NUnelEfKVejPafriMVTTePUOQx9kRvdC9InDyAQA27YZurKWFBTZabXhKcF5AoIFqH4oFMtXgD2Wqqs9hrFhP4Y/JfV8wSFxsvMs+u4Za6++tsWEj8J6j2dWxjlp/0WaU=  ;
-Message-ID: <20060824084425.83538.qmail@web25802.mail.ukl.yahoo.com>
-Date: Thu, 24 Aug 2006 08:44:25 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: [HELP] Power management for embedded system
-To: linux-pm@lists.osdl.org
-Cc: linux-kernel@vger.kernel.org
+	Thu, 24 Aug 2006 04:56:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48325 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750805AbWHXI4l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 04:56:41 -0400
+Date: Thu, 24 Aug 2006 01:56:39 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patches] libata fixes
+Message-ID: <20060824085639.GA11285@kroah.com>
+References: <20060824081336.GA15502@havoc.gtf.org> <20060824082954.GA9315@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824082954.GA9315@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 24, 2006 at 01:29:54AM -0700, Greg KH wrote:
+> On Thu, Aug 24, 2006 at 04:13:36AM -0400, Jeff Garzik wrote:
+> > 
+> > Please pull from 'upstream-greg' branch of
+> > master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-greg
+> > 
+> > to receive the following updates:
+> > 
+> >  drivers/scsi/ata_piix.c    |   84 +++++++++++++++++++++++++-------
+> >  drivers/scsi/libata-core.c |    2 
+> >  drivers/scsi/pdc_adma.c    |    3 -
+> >  drivers/scsi/sata_via.c    |  117 +++++++++++++++++++++++++++++++++++++++++++--
+> >  4 files changed, 180 insertions(+), 26 deletions(-)
+> 
+> Pulled from, and pushed out.  Is this set of patches supposed to fix my
+> ata_piix cdrom problem for my laptop?  I'll go build and test to see if
+> it does or not...
 
-I'm currently working on a small embedded system based on a MIPS
-processor. So far Linux works fine on it and I'd like to implement
-power management on this system. For now I realize that APM and ACPI
-are implemented by the kernel.
+Yeah, it's fixed!
 
-I don't think that ACPI is really suited for what I need. So I took a
-look to APM implemetation which seems to be only implemented on i386,
-arm and mips architectures. All of these implementations seem to be
-based on i386 one. Mips one seems to be a copy and paste of arm one
-and both of them have removed all APM bios stuff orginally part of
-i386 implementation. It doesn't seem that APM is something really
-stable and finished. So now I do not know from where to start...
+Ok, 2.6.18 is good to go as far as I'm concerned now :)
 
-Is there some other effort in the power management for _embedded_
-systems ? I'd like to help in this area and it would be helpful to
-know of certain projects that are working in this direction.
+thanks,
 
-thanks
-
-Francis
-
-
+greg k-h

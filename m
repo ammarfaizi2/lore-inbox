@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWHXQCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWHXQEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWHXQCr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 12:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWHXQCr
+	id S1030278AbWHXQEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 12:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWHXQEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 12:02:47 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:24318 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030205AbWHXQCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 12:02:46 -0400
-Subject: Re: [patch] dubious process system time.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608241718.29406.ak@suse.de>
-References: <20060824121825.GA4425@skybase> <p731wr6fh54.fsf@verdi.suse.de>
-	 <1156426103.28464.29.camel@localhost>  <200608241718.29406.ak@suse.de>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 24 Aug 2006 18:02:43 +0200
-Message-Id: <1156435363.28464.33.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Thu, 24 Aug 2006 12:04:16 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:60570 "EHLO
+	mail.arcor.de") by vger.kernel.org with ESMTP id S1030278AbWHXQEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 12:04:15 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: "Zhen Zhou" <linuxnb@gmail.com>
+Subject: Re: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Thu, 24 Aug 2006 18:04:01 +0200
+User-Agent: KMail/1.9.4
+Cc: "Andy Chittenden" <AChittenden@bluearc.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <AcamZU83D6YFwDlPRZGLtXEmxZel2wAJqNMg> <89E85E0168AD994693B574C80EDB9C27043F5EBA@uk-email.terastack.bluearc.com> <37a5ad990608240855w45cd8dcfm21edafd6cfe0631f@mail.gmail.com>
+In-Reply-To: <37a5ad990608240855w45cd8dcfm21edafd6cfe0631f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2361511.TKMvmfEAng";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608241804.01489.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 17:18 +0200, Andi Kleen wrote:
-> > At the moment hardirq+softirq is just added to a random process, in
-> > general this is completely wrong. 
-> 
-> It's better than not accounting it at all.
+--nextPart2361511.TKMvmfEAng
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I think it is worse than not accounting it. You are "charging" a process
-of some user for something that the user has nothing to do with.
+Am Donnerstag 24 August 2006 17:55 schrieb Zhen Zhou:
+> Why don't you think this is usb problem?
+>
+> I use motherboard ASUS M2NPV-MX, I use Fedora 5. I got the same
+> problem that you had, after I upgrade kernel from 2.6.15-1.2054 to
+> kernel-2.6.17-1.2174_FC5, it hung on boot:
 
-> > You just need a system with a cpu hog 
-> > and an i/o bound process and you get queer results.
-> 
-> Yes, but system load that is invisible to standard monitoring
-> tools is even worse.
+Was it stable for you with 2.6.15 kernel? With gentoo live cd (it was 2.6.1=
+5=20
+or 2.6.16, don't remember) it wasn't for me. 2.6.18-rc4 is now stable for m=
+e=20
+once hacked out the acpi_skip_timer_override quirk, as I mentioned in anoth=
+er=20
+thread. But till now I got no response about that...
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-But it isn't invisible. cpustat->hardirq and cpustate->softirq will be
-increased. /proc/stat will show the system time spent in these two
-contexts.
+--nextPart2361511.TKMvmfEAng
+Content-Type: application/pgp-signature
 
-> If you stop accounting it to random processes you have to 
-> account it somewhere else. Preferably somewhere that standard tools
-> automatically pick up.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-Again, why do I have to account non-process related time to a process?
-Ihmo that is completly wrong.
+iD8DBQBE7c3xxU2n/+9+t5gRAtunAJwNhH6ZlTxUL8vH81B37xzSpqrk1ACfSEkP
+TKtTgaUoeQCx3U/y+HL8UZU=
+=C2hf
+-----END PGP SIGNATURE-----
 
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+--nextPart2361511.TKMvmfEAng--

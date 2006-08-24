@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWHXRUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWHXRUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbWHXRUY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 13:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWHXRUY
+	id S1030408AbWHXRUb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 13:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWHXRUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 13:20:24 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48064 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030403AbWHXRUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 13:20:22 -0400
-Subject: Re: Serial custom speed deprecated?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Stuart MacDonald <stuartm@connecttech.com>,
-       linux-serial@vger.kernel.org, "'LKML'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3bqqap09a.fsf@defiant.localdomain>
-References: <028a01c6c6fc$e792be90$294b82ce@stuartm>
-	 <1156411101.3012.15.camel@pmac.infradead.org>
-	 <m3bqqap09a.fsf@defiant.localdomain>
-Content-Type: text/plain
+	Thu, 24 Aug 2006 13:20:31 -0400
+Received: from VPRMAIL.tamu.edu ([165.91.119.178]:1485 "EHLO vprmail.tamu.edu")
+	by vger.kernel.org with ESMTP id S1030408AbWHXRUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 13:20:30 -0400
+From: "Michael M. Dwyer" <mdwyer@vprmail.tamu.edu>
+Organization: Texas A&M University
+To: linux-kernel@vger.kernel.org
+Subject: Re: tg3 timeouts with 2.6.17-rc6
+Date: Thu, 24 Aug 2006 12:19:52 -0500
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3924827.rfnLD0BMeu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Aug 2006 18:41:33 +0100
-Message-Id: <1156441293.3007.184.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Message-Id: <200608241219.57572.mdwyer@vprmail.tamu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-08-24 am 18:27 +0200, ysgrifennodd Krzysztof Halasa:
-> David Woodhouse <dwmw2@infradead.org> writes:
-> 
-> >> If custom speeds are deprecated, what's the new method for setting
-> >> them? Specifically, how can the SPD_CUST functionality be accomplished
-> >> without that flag? I've checked 2.5.64 and 2.6.17, and don't see how
-> >> it is possible. 
+--nextPart3924827.rfnLD0BMeu
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+> > David, Here's the patch if you haven't already made one:
 > >
-> > We need a way to set the baud rate as an _integer_ instead of the Bxxxx
-> > flags.
-> 
-> Does that mean that standard things like termios will use:
-> #define B9600   9600
-> #define B19200 19200
+> > [TG3]: Disable TSO by default on 5780 class chips.
+>
+> Sorry, I didn't get a chance to push this into 2.6.17
+> in time. I will push it into the first 2.6.17.x -stable
+> release.
 
-That would have been very smart when Linus did Linux 0.12, unfortunately
-he didn't and we've also got no spare bits. Worse still if we exported
-them that way glibc has now way to map new speeds onto the old ones for
-applications.
+I just wanted to mention that I also have had this problem with tg3 on my D=
+ell=20
+Optiplex 280.  Here's my dmesg info:
 
-The speed_t values in the termios struct are also Bfoo encoded so it
-turns out don't help.
+> tg3.c:v3.59 (June 8, 2006)
+> ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+> PCI: Setting latency timer of device 0000:02:00.0 to 64
+> eth0: Tigon3 [partno(BCM95751) rev 4001 PHY(5750)] (PCI Express)
+> 10/100/1000BaseT E thernet 00:12:3f:4d:a5:bd
+> eth0: RXcsums[1] LinkChgREG[1] MIirq[1] ASF[0] Split[0] WireSpeed[1]
+> TSOcap[1] eth0: dma_rwctrl[76180000] dma_mask[64-bit]
 
-At this point I think we need
+I wasn't sure if BCM95751 was covered by "5780 class chips".
 
--	An ioctl to set/get the actual baud rate input/output
--	Some kind of termios flag to indicate they are being used (as we have
-CBAUDEX now). [We could "borrow" the 4Mbit one and dual use it IMHO]
+The problem didn't show up for >3 days after I upgraded to 2.6.17=20
+(Gentoo-sources, 2.6.17-r4 to be exact).  Problem was most evident during=20
+bittorrent download.  Setting TSO to off seems have solved it.  If there's=
+=20
+any other information you'd like from me, please let me know.
 
-For drivers tty_get_baud_rate would return the actual speed as before.
+Thanks,
+Mike
 
-We would need a driver ->set_speed method for the cases where
-- ioctl is called to set specific board rate
-- OR termios values for tty speed change
-- While we are at it we might want to make ->set_termios also allowed to
-fail
+=2D-=20
+Michael Dwyer, Programmer/Analyst II
+Vice President for Research
+Texas A&M University, College Station
+mdwyer@vprmail.tamu.edu
+979.845.3295
 
-[and if you had no ->set_speed method non standard speeds would be
-refused by the tty layer for back compat]
+--nextPart3924827.rfnLD0BMeu
+Content-Type: application/pgp-signature
 
-Anyone got any problems with this before I go and implement it ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2-ecc0.1.6 (GNU/Linux)
 
+iD8DBQBE7d+9MBFb1FotgRoRAnvBAJ9OUIXxa5bUy2JNL0irFemgiGp/KwCfc9oI
+S33qiiLPyfsMkdlrx3WNr94=
+=8qL2
+-----END PGP SIGNATURE-----
 
-
-
-
-
+--nextPart3924827.rfnLD0BMeu--

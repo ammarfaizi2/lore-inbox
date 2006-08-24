@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWHXEhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWHXEij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965331AbWHXEhI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 00:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWHXEhI
+	id S1030279AbWHXEij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 00:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWHXEij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 00:37:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56757 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965331AbWHXEhF (ORCPT
+	Thu, 24 Aug 2006 00:38:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33462 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030279AbWHXEii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 00:37:05 -0400
-Date: Wed, 23 Aug 2006 21:27:01 -0700
+	Thu, 24 Aug 2006 00:38:38 -0400
+Date: Wed, 23 Aug 2006 21:38:17 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Stephane Eranian <eranian@frankl.hpl.hp.com>, eranian@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 17/18] 2.6.17.9 perfmon2 patch for review: modified
- x86_64 files
-Message-Id: <20060823212701.07d38455.akpm@osdl.org>
-In-Reply-To: <p73k64z7oh6.fsf@verdi.suse.de>
-References: <200608230806.k7N8689P000540@frankl.hpl.hp.com>
-	<p73k64z7oh6.fsf@verdi.suse.de>
+To: Masayuki Saito <m-saito@tnes.nec.co.jp>
+Cc: Nathan Scott <nathans@sgi.com>, David Chinner <dgc@sgi.com>,
+       xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Add new spin_lock for i_flags of xfs_inode [try #2]
+Message-Id: <20060823213817.16cdfe8a.akpm@osdl.org>
+In-Reply-To: <20060823201251m-saito@mail.aom.tnes.nec.co.jp>
+References: <20060823201251m-saito@mail.aom.tnes.nec.co.jp>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,19 +25,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Aug 2006 12:09:25 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Wed, 23 Aug 2006 20:12:51 +0900
+Masayuki Saito <m-saito@tnes.nec.co.jp> wrote:
 
-> >  void flush_thread(void)
-> > @@ -462,6 +464,8 @@ int copy_thread(int nr, unsigned long cl
-> >  	asm("mov %%es,%0" : "=m" (p->thread.es));
-> >  	asm("mov %%ds,%0" : "=m" (p->thread.ds));
-> >  
-> > +	pfm_copy_thread(p);
-> > +
+> It is the problem that i_flags of xfs_inode has no consistent
+> locking protection.
 > 
-> AFAIK there was some work in -mm* for generic notifiers for exit/copy hooks. Can those
-> be used?
+> For the reason, I define a new spin_lock(i_flags_lock) for i_flags
+> of xfs_inode.  And I add this spin_lock for appropriate places.
 
-I dropped them.  It was nice code, but there was overhead.  I went for
-nasty&&fast over nice&&slow.
+You could simply use inode.i_lock for this.  i_lock is a general-purpose
+per-inode lock.  Its mandate is "use it for whatever you like, but it must
+always be `innermost'"

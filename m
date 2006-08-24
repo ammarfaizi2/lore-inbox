@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWHXVU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422662AbWHXVWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbWHXVU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWHXVU1
+	id S1422662AbWHXVWx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHXVWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:20:27 -0400
-Received: from mga06.intel.com ([134.134.136.21]:168 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030473AbWHXVU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:20:27 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,165,1154934000"; 
-   d="scan'208"; a="114450696:sNHT39224108"
-Message-ID: <44EE1801.3060805@linux.intel.com>
-Date: Thu, 24 Aug 2006 23:20:01 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-CC: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: [RFC] maximum latency tracking infrastructure
-References: <1156441295.3014.75.camel@laptopd505.fenrus.org> <200608241408.03853.jbarnes@virtuousgeek.org>
-In-Reply-To: <200608241408.03853.jbarnes@virtuousgeek.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Aug 2006 17:22:53 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:45758 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030471AbWHXVWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:22:52 -0400
+Date: Thu, 24 Aug 2006 16:22:42 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com
+Subject: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
+Message-ID: <20060824212241.GB30007@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Thursday, August 24, 2006 10:41 am, Arjan van de Ven wrote:
->> The reason for adding this infrastructure is that power management in
->> the idle loop needs to make a tradeoff between latency and power
->> savings (deeper power save modes have a longer latency to running code
->> again).
-> 
-> What if a processor was already in a sleep state when a call to 
-> set_acceptable_latency() latency occurs? 
+Update the s390 cooperative memory manager, which can be a module,
+to use kthread rather than kernel_thread, whose EXPORT is deprecated.
 
-there's nothing sane that can be done in that case; any wake up already will cause the unwanted latency!
-A premature wakeup is only making it happen *now*, but now is as inconvenient a time as any...
-(in fact it may be a worst case time scenario, say, an audio interrupt...)
+This patch compiles and boots fine, but I don't know how to really
+test the driver.
 
-> Should there be a callback so 
-> they can be woken up?  A callback would also allow ACPI to tell the 
-> user "disabling C3 because of device <foo>" or somesuch, which might be 
-> nice.
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-printk'ing would be evil, changes like this will be "semi frequent", like every time you start
-or stop playing audio. What ACPI could easily do is indicate in /proc/acpi/processor/*/power
-that a state will not be reachable because it violates the latency constraints. That would
-be entirely reasonable.
+---
 
-> Also, should subsystems have the ability to set a lower bound on  
-> latency?  That would mean set_acceptable_latency() could fail, 
-> indicating that the user should buy a better device or a system with 
-> better realtime guarantees, which is also valuable info.
+ arch/s390/mm/cmm.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-While it's valuable info.. there is nothing you can DO about it...
-While the kernel can even do a latency of 1us by just not going into C1 even... so the kernel
-CAN honor it, even if it thinks it might not be a good idea. Can you give a more concrete example
-of a situation where you think your idea would be useful?
-
-Greetings,
-    Arjan van de Ven
+7f73a7a8a72647c0bd08ba5c47e941ddf72badee
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index ceea51c..a4d463d 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -15,6 +15,7 @@
+ #include <linux/sched.h>
+ #include <linux/sysctl.h>
+ #include <linux/ctype.h>
++#include <linux/kthread.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -126,7 +127,6 @@ cmm_thread(void *dummy)
+ {
+ 	int rc;
+ 
+-	daemonize("cmmthread");
+ 	while (1) {
+ 		rc = wait_event_interruptible(cmm_thread_wait,
+ 			(cmm_pages != cmm_pages_target ||
+@@ -161,7 +161,7 @@ cmm_thread(void *dummy)
+ static void
+ cmm_start_thread(void)
+ {
+-	kernel_thread(cmm_thread, NULL, 0);
++	kthread_run(cmm_thread, NULL, "cmmthread");
+ }
+ 
+ static void
+-- 
+1.1.6

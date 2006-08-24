@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWHXSyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWHXTFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWHXSyM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 14:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWHXSyM
+	id S1030459AbWHXTFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 15:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWHXTFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:54:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47315 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030452AbWHXSyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:54:11 -0400
-Date: Thu, 24 Aug 2006 19:53:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>
-Subject: Re: [RFC][PATCH] Manage jbd allocations from its own slabs
-Message-ID: <20060824185342.GA20935@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
-	lkml <linux-kernel@vger.kernel.org>,
-	ext2-devel <Ext2-devel@lists.sourceforge.net>
-References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 24 Aug 2006 15:05:46 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:26560 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030459AbWHXTFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 15:05:46 -0400
+Message-ID: <44EDF887.20906@watson.ibm.com>
+Date: Thu, 24 Aug 2006 15:05:43 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olaf Hering <olaf@aepfle.de>
+CC: linux-kernel@vger.kernel.org, Balbir Singh <balbir@in.ibm.com>
+Subject: Re: oops in __delayacct_blkio_ticks with 2.6.18-rc4
+References: <20060821112405.GA28356@aepfle.de> <44EB5684.60002@watson.ibm.com> <20060823111815.GA11270@aepfle.de>
+In-Reply-To: <20060823111815.GA11270@aepfle.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 23, 2006 at 04:08:15PM -0700, Badari Pulavarty wrote:
-> Hi,
+Olaf Hering wrote:
+> On Tue, Aug 22, Shailabh Nagar wrote:
 > 
-> Here is the fix to "bh: Ensure bh fits within a page" problem
-> caused by JBD.
 > 
-> BTW, I realized that this problem can happen only with 1k, 2k
-> filesystems - as 4k, 8k allocations disable slab debug 
-> automatically. But for completeness, I created slabs for those
-> also.
+>>Olaf Hering wrote:
+>>
+>>>https://bugzilla.novell.com/show_bug.cgi?id=200526
+>>>
+>>
+>>Thanks for detecting this.
+>>
+>>I suspect the oops is caused by a reading of /proc/<tgid>/stat for some task
+>>that is late in exit. Currently tsk->delays is being freed up too early (before
+>>the tsk is removed from the tasklist).
+>>
+>>Could you try the patch below ? It was unclear from the bug what userspace
+>>actions were being done to reproduce the oops - I suspect some kind of
+>>reading of /proc/.../stat for all processes ?
 > 
-> What do you think ? I ran basic tests and things are fine.
+> 
+> I dont have a way to trigger it. The commands were 'w' and 'pstree'.
 
-Why can't you just use alloc_page?  I bet the whole slab overhead
-eats more memory than what's wasted when using alloc_pages.  Especially
-as the typical usecase is a 4k blocks filesystem with 4k pagesize
-where the overhead of alloc_page is non-existant.
+Ok. Using the following two commands allowed the original oops to be
+triggered on an 8-way pretty quickly:
+
+while : ; do usleep 10 > /dev/null ; done
+
+while : ; do cat /proc/[0-9]???*/stat ; done
+
+(where the regex for catching the newly forking/exiting tasks
+can be adjusted to the right range of ids being spawned by the
+first command)
+
+Applying the patch I sent solves the problem. I'm doing some more
+testing and will submit the patch formally shortly.
+
+Thanks,
+Shailabh
+
+
+
+

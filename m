@@ -1,110 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWHXMaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWHXMcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWHXMaq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWHXMap
+	id S1751198AbWHXMcn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWHXMcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:30:45 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:7088 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751194AbWHXMao (ORCPT
+	Thu, 24 Aug 2006 08:32:43 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:65254 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751198AbWHXMcm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:30:44 -0400
-Subject: Re: [PATCH] SELinux: 3/3 convert sbsec semaphore to a mutex
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <20060823140440.92bc9a10.akpm@osdl.org>
-References: <1156362637.6662.51.camel@localhost.localdomain>
-	 <20060823140440.92bc9a10.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 24 Aug 2006 08:32:16 -0400
-Message-Id: <1156422737.8506.137.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 24 Aug 2006 08:32:42 -0400
+Date: Thu, 24 Aug 2006 14:25:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@linux.intel.com, davej@redhat.com,
+       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 3/4] (Refcount + Waitqueue) implementation for cpu_hotplug "locking"
+Message-ID: <20060824122527.GA28275@elte.hu>
+References: <20060824103233.GD2395@in.ibm.com> <20060824111440.GA19248@elte.hu> <20060824122808.GH2395@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824122808.GH2395@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4606]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 14:04 -0700, Andrew Morton wrote:
-> On Wed, 23 Aug 2006 15:50:37 -0400
-> Eric Paris <eparis@redhat.com> wrote:
+
+* Gautham R Shenoy <ego@in.ibm.com> wrote:
+
+> This was the approach I tried to make it cache friendly.
+> These are the problems I faced.
 > 
-> > This patch converts the semaphore in the superblock security struct to a
-> > mutex.  No locking changes or other code changes are done.
-> > 
-> > This is being targeted for 2.6.19
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > 
-> >  security/selinux/hooks.c          |    7 +++----
-> >  security/selinux/include/objsec.h |    2 +-
-> >  2 files changed, 4 insertions(+), 5 deletions(-)
-> > 
-> > --- linux-2.6-sem-changes/security/selinux/include/objsec.h.patch3	2006-08-03 14:04:07.000000000 -0400
-> > +++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-08-03 14:18:44.000000000 -0400
-> > @@ -63,7 +63,7 @@ struct superblock_security_struct {
-> >  	unsigned int behavior;          /* labeling behavior */
-> >  	unsigned char initialized;      /* initialization flag */
-> >  	unsigned char proc;             /* proc fs */
-> > -	struct semaphore sem;
-> > +	struct mutex lock;
-> >  	struct list_head isec_head;
-> >  	spinlock_t isec_lock;
-> >  };
-> > --- linux-2.6-sem-changes/security/selinux/hooks.c.patch3	2006-08-02 14:29:28.000000000 -0400
-> > +++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-08-03 14:21:48.000000000 -0400
-> > @@ -49,7 +49,6 @@
-> >  #include <net/ip.h>		/* for sysctl_local_port_range[] */
-> >  #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
-> >  #include <asm/uaccess.h>
-> > -#include <asm/semaphore.h>
-> >  #include <asm/ioctls.h>
-> >  #include <linux/bitops.h>
-> >  #include <linux/interrupt.h>
-> > @@ -240,7 +239,7 @@ static int superblock_alloc_security(str
-> >  	if (!sbsec)
-> >  		return -ENOMEM;
-> >  
-> > -	init_MUTEX(&sbsec->sem);
-> > +	mutex_init(&sbsec->lock);
-> >  	INIT_LIST_HEAD(&sbsec->list);
-> >  	INIT_LIST_HEAD(&sbsec->isec_head);
-> >  	spin_lock_init(&sbsec->isec_lock);
-> > @@ -595,7 +594,7 @@ static int superblock_doinit(struct supe
-> >  	struct inode *inode = root->d_inode;
-> >  	int rc = 0;
-> >  
-> > -	down(&sbsec->sem);
-> > +	mutex_lock(&sbsec->lock);
-> >  	if (sbsec->initialized)
-> >  		goto out;
-> >  
-> > @@ -690,7 +689,7 @@ next_inode:
-> >  	}
-> >  	spin_unlock(&sbsec->isec_lock);
-> >  out:
-> > -	up(&sbsec->sem);
-> > +	mutex_unlock(&sbsec->lock);
-> >  	return rc;
-> >  }
-> >  
-> > 
+> - Reader checks the write_active flag. If set, he waits in the global read
+> queue. else, he gets the lock and increments percpu refcount.
 > 
-> Does this lock actually do anything?
+> - the writer would have to check each cpu's read refcount, and ensure that
+> read refcount =0 on all of them before he sets write_active and 
+> begins a write operation.
+> This will create a big race window - a writer is checking
+> for a refcount on cpu(j), a reader comes on cpu(i) where i<j;
+> Let's assume the writer checks refcounts in increasing order of cpus.
+> Should the reader on cpu(i) wait or go ahead? If we use a global
+> lock to serialize this operation, we the whole purpose of maintaining
+> per cpu data is lost.
 
-The function is called from vfs_kern_mount normally, and from
-selinux_complete_init just for the initial setup after initial policy
-load.  The lock is for the initialization of the superblock security
-struct.  Strictly speaking, we can't race from vfs_kern_mount since the
-caller holds s_umount write lock already, but I didn't think we should
-rely on that here.  Eric noticed that as well when he was preparing the
-sem->mutex conversion patch and was originally going to drop the lock
-altogether.
+no. The writer first sets the global write_active flag, and _then_ goes 
+on to wait for all readers (if any) to get out of their critical 
+sections. (That's the purpose of the per-cpu waitqueue that readers use 
+to wake up a writer waiting for the refcount to go to 0.)
 
--- 
-Stephen Smalley
-National Security Agency
+can you still see problems with this scheme?
 
+(the 'write_active' flag is probably best implemented as a mutex, where 
+readers check mutex_is_locked(), and writers try to take it.)
+
+	Ingo

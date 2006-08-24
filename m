@@ -1,84 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWHXMlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWHXMmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWHXMlK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWHXMlJ
+	id S1751207AbWHXMmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWHXMmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:41:09 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:1713 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751193AbWHXMlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:41:08 -0400
-Subject: Re: [Ext2-devel] [RFC][PATCH] Manage jbd allocations from its own
-	slabs
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060823163410.d9af3baa.akpm@osdl.org>
-References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060823163410.d9af3baa.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 24 Aug 2006 12:41:05 +0000
-Message-Id: <1156423265.7908.10.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Thu, 24 Aug 2006 08:42:13 -0400
+Received: from smarthost2.sentex.ca ([205.211.164.50]:19651 "EHLO
+	smarthost2.sentex.ca") by vger.kernel.org with ESMTP
+	id S1751207AbWHXMmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:42:12 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'David Woodhouse'" <dwmw2@infradead.org>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: Serial custom speed deprecated?
+Date: Thu, 24 Aug 2006 08:41:44 -0400
+Organization: Connect Tech Inc.
+Message-ID: <033001c6c77a$a7d8ab10$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <1156411101.3012.15.camel@pmac.infradead.org>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 16:34 -0700, Andrew Morton wrote:
-> On Wed, 23 Aug 2006 16:08:15 -0700
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-
-> >  /*
-> > + * jbd slab management: create 1k, 2k, 4k, 8k slabs and allocate
-> > + * frozen and commit buffers from these slabs.
-> > + *
-> > + * Reason for doing this is to avoid, SLAB_DEBUG - since it could
-> > + * cause bh to cross page boundary.
-> > + */
-> > +
-> > +static kmem_cache_t *jbd_slab[4];
-> > +static const char *jbd_slab_names[4] = {
-> > +	"jbd_1k",
-> > +	"jbd_2k",
-> > +	"jbd_4k",
-> > +	"jbd_8k",
-> > +};
-> > +
-> > +static void journal_destroy_jbd_slabs(void)
-> > +{
-> > +	int i;
-> > +
-> > +	for (i=0; i<4; i++) {
-> > +		if (jbd_slab[i])
-> > +			kmem_cache_destroy(jbd_slab[i]);
-> > +		jbd_slab[i] = NULL;
-> > +	}
-> > +}
-> > +
-> > +static int journal_init_jbd_slabs(void)
-> > +{
-> > +	int i = 0;
-> > +	int retval = 0;
-> > +
-> > +	for (i=0; i<4; i++) {
-> > +		unsigned long slab_size = 1024 << i;
-> > +		jbd_slab[i] = kmem_cache_create(jbd_slab_names[i],
-> > +					slab_size, slab_size,
-> > +					0, NULL, NULL);
+From: David Woodhouse [mailto:dwmw2@infradead.org] 
+> On Wed, 2006-08-23 at 17:41 -0400, Stuart MacDonald wrote:
+> > If custom speeds are deprecated, what's the new method for setting
+> > them? Specifically, how can the SPD_CUST functionality be 
+> accomplished
+> > without that flag? I've checked 2.5.64 and 2.6.17, and don't see how
+> > it is possible. 
 > 
-> OK, passing align=slab_size fixes the bug.
+> We need a way to set the baud rate as an _integer_ instead of 
+> the Bxxxx
+> flags.
 
-The comments above don't mention the alignment of the slabs, so a
-comment here may help explain that the alignment is the key to avoiding
-the page-straddling.  Or you could elaborate above.
+Agreed. Our products have required this functionality since at least
+1999.
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+It appears that the current method has been deprecated before the next
+method has been constructed though. Is that correct?
+
+The easiest thing is likely to add a new ioctl to serial_core.c
+specifically for setting the baud rate. It takes an integer baud rate
+and returns success or error. It will need to be able to call a
+subdriver's set_baud_rate() as well, which means extending the ops
+structure, because some hardware (like the XR16C954 IIRC) has
+non-standard ways of actually programming the baud rate.
+
+Hm, after some thought I think the core won't actually end up doing
+anything except dispatching. So the better way is to add ioctls to the
+subdrivers directly.
+
+..Stu
 

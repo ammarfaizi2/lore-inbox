@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWHXKln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWHXKn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWHXKln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 06:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWHXKlm
+	id S1751085AbWHXKn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 06:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWHXKn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 06:41:42 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:5257 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751082AbWHXKlm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 06:41:42 -0400
-Date: Thu, 24 Aug 2006 12:34:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gautham R Shenoy <ego@in.ibm.com>
-Cc: rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
-       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
-Message-ID: <20060824103412.GA14002@elte.hu>
-References: <20060824102618.GA2395@in.ibm.com>
+	Thu, 24 Aug 2006 06:43:58 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57222 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751085AbWHXKn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 06:43:57 -0400
+Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+In-Reply-To: <20060823213512.88f4344d.akpm@osdl.org>
+References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru>
+	 <44EC5B74.2040104@sw.ru> <20060823095031.cb14cc52.akpm@osdl.org>
+	 <1156354182.3007.37.camel@localhost.localdomain>
+	 <20060823213512.88f4344d.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Aug 2006 12:04:16 +0100
+Message-Id: <1156417456.3007.72.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824102618.GA2395@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Gautham R Shenoy <ego@in.ibm.com> wrote:
-
-> So here's an implementation on the lines of (c).
+Ar Mer, 2006-08-23 am 21:35 -0700, ysgrifennodd Andrew Morton:
+> > Its a uid_t because of setluid() and twenty odd years of existing unix
+> > practice. 
+> > 
 > 
-> There are two types of tasks interested in cpu_hotplug
-> - ones who want to *prevent* a hotplug event.
-> - ones who want to *perform* a cpu hotplug.
-> 
-> For sake of simplicity let's call the former ones readers (though I 
-> would have prefered inhibitors or somthing fancier!) and latter ones 
-> writers. Let write operation = cpu_hotplug operation.
-> 
-> -The protocol is analogous to RWSEM, *only not so fair* .
+> I don't understand.  This number is an identifier for an accounting
+> container, which was somehow dreamed up by userspace.
 
-really nice! I'm quite sure that this is the right way to approach this 
-problem.
+Which happens to be a uid_t. It could easily be anyother_t of itself and
+you can create a container_id_t or whatever. It is just a number. 
 
-Please add the appropriate lock_acquire()/lock_release() calls into the 
-new sleeping semaphore type. Just use the parameters that rwlocks use:
+The ancient Unix implementations of this kind of resource management and
+security are built around setluid() which sets a uid value that cannot
+be changed again and is normally used for security purposes. That
+happened to be a uid_t and in simple setups at login uid = luid = euid
+would be the norm.
 
-#define rwlock_acquire(l, s, t, i)            lock_acquire(l, s, t, 0, 2, i)
-#define rwlock_acquire_read(l, s, t, i)       lock_acquire(l, s, t, 2, 2, i)
+Thus the Linux one happens to be a uid_t. It could be something else but
+for the "container per user" model whatever a container is must be able
+to hold all possible uid_t values. So we can certainly do something like
 
-and lockdep will allow recursive read-locking. You'll also need a 
-lockdep_init_map() call to register the lock with lockdep. Then your 
-locking scheme will be fully checked by lockdep too. (with your current 
-code the new lock type is not added to the lock dependency graph(s))
+typedef uid_t	container_id_t;
 
-	Ingo
+
+Alan
+

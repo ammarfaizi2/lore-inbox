@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWHXNAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWHXNBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWHXNAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWHXNAP
+	id S1751303AbWHXNBU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWHXNBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:00:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21148 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751268AbWHXNAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:00:14 -0400
-Date: Thu, 24 Aug 2006 15:00:03 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Miller <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-       greg@kroah.com, bunk@stusta.de, jwboyer@gmail.com,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060824130003.GA7055@elf.ucw.cz>
-References: <20060806045234.GA28849@kroah.com> <20060820223046.GB10011@opteron.random> <1156115102.4051.79.camel@localhost.localdomain> <20060820.232121.59475829.davem@davemloft.net> <20060821093538.GG10011@opteron.random>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821093538.GG10011@opteron.random>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 24 Aug 2006 09:01:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10217 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751303AbWHXNBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:01:18 -0400
+Subject: Re: Linux: Why software RAID?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux RAID Mailing List <linux-raid@vger.kernel.org>, marc@perkel.com
+In-Reply-To: <20060824090741.J30362@mail.kroptech.com>
+References: <20060824090741.J30362@mail.kroptech.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Aug 2006 14:20:50 +0100
+Message-Id: <1156425650.3007.140.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-08-21 11:35:38, Andrea Arcangeli wrote:
-> On Sun, Aug 20, 2006 at 11:21:21PM -0700, David S. Miller wrote:
-> > There is a tree of trust, and responsibilities like this are
-> > simply handed down.
-> 
-> That works as long as you trust and you are ok with every leaf of the
-> tree. I'm not, both a developer and more important as an user.
+Ar Iau, 2006-08-24 am 09:07 -0400, ysgrifennodd Adam Kropelin:
+> Jeff Garzik <jeff@garzik.org> wrote:
+> with sw RAID of course if the builder is careful to use multiple PCI 
+> cards, etc. Sw RAID over your motherboard's onboard controllers leaves
+> you vulnerable.
 
-As an user, that's not your problem.
+Generally speaking the channels on onboard ATA are independant with any
+vaguely modern card. And for newer systems well the motherboard tends to
+be festooned with random SATA controllers, all separate!
 
-As a developer, if you don't like Adrian doing that, perhaps you
-should have volunteered to maintain it yourself. Or you can work with
-Adrian to make sure he does nothing strange.
-
-But I think Adrian is very good person to do this, and with strong
-review process in place we currently have.... I don't see what the
-problem is.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

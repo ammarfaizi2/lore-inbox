@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWHXEdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWHXEhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030271AbWHXEdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 00:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWHXEdM
+	id S1030276AbWHXEhH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 00:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965336AbWHXEhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 00:33:12 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:56757 "EHLO
-	mail.arcor.de") by vger.kernel.org with ESMTP id S964891AbWHXEdL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 00:33:11 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Valerie Henson <val_henson@linux.intel.com>
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Date: Wed, 23 Aug 2006 18:59:32 +0200
-User-Agent: KMail/1.9.4
-Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Jiri Benc <jbenc@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-References: <20050427124911.6212670f@griffin.suse.cz> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober>
-In-Reply-To: <20060819001640.GE20111@goober>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart13452172.UC3oyF0HXc";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 24 Aug 2006 00:37:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55733 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964891AbWHXEhE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 00:37:04 -0400
+Date: Wed, 23 Aug 2006 21:35:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
+Message-Id: <20060823213512.88f4344d.akpm@osdl.org>
+In-Reply-To: <1156354182.3007.37.camel@localhost.localdomain>
+References: <44EC31FB.2050002@sw.ru>
+	<44EC369D.9050303@sw.ru>
+	<44EC5B74.2040104@sw.ru>
+	<20060823095031.cb14cc52.akpm@osdl.org>
+	<1156354182.3007.37.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608231859.32304.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart13452172.UC3oyF0HXc
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 23 Aug 2006 18:29:42 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Am Samstag 19 August 2006 02:16 schrieb Valerie Henson:
-> Hey folks,
->
-> Added to my to-do list.  Let me know if you figure out anything else.
+> Ar Mer, 2006-08-23 am 09:50 -0700, ysgrifennodd Andrew Morton:
+> > On Wed, 23 Aug 2006 17:43:16 +0400
+> > Kirill Korotaev <dev@sw.ru> wrote:
+> > 
+> > > +asmlinkage long sys_set_bclimit(uid_t id, unsigned long resource,
+> > > +		unsigned long *limits)
+> > 
+> > I'm still a bit mystified about the use of uid_t here.  It's not a uid, is
+> > it?
+> 
+> Its a uid_t because of setluid() and twenty odd years of existing unix
+> practice. 
+> 
 
-As it comes back to my mind: Last time I tested dhcpcd doesn't work. dhclie=
-nt=20
-does, but takes a lot of time. (The dhcp server is debian based.) Other car=
-ds=20
-don't have a problem. They get their ip assigned fast and with either dhcpo=
-cd=20
-or dhclient.
+I don't understand.  This number is an identifier for an accounting
+container, which was somehow dreamed up by userspace.
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+AFAICT it is wholly unrelated to user ID's.
 
---nextPart13452172.UC3oyF0HXc
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE7Il0xU2n/+9+t5gRAkA4AJ9h/6p2DTbyYLR8LisvvF9q1vFTGACgrlNC
-WJO3iA+U2T7m7Iy7HKmkph0=
-=4Rh2
------END PGP SIGNATURE-----
-
---nextPart13452172.UC3oyF0HXc--
+(How does userspace avoid collisions, btw?)

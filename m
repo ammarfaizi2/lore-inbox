@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWHXOob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWHXOs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWHXOob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 10:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWHXOob
+	id S932109AbWHXOs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 10:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWHXOs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 10:44:31 -0400
-Received: from rtr.ca ([64.26.128.89]:13954 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S964946AbWHXOoa (ORCPT
+	Thu, 24 Aug 2006 10:48:27 -0400
+Received: from rtr.ca ([64.26.128.89]:54720 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932109AbWHXOs0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 10:44:30 -0400
-Message-ID: <44EDBB4C.6040203@rtr.ca>
-Date: Thu, 24 Aug 2006 10:44:28 -0400
+	Thu, 24 Aug 2006 10:48:26 -0400
+Message-ID: <44EDBC39.2070207@rtr.ca>
+Date: Thu, 24 Aug 2006 10:48:25 -0400
 From: Mark Lord <lkml@rtr.ca>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: cpufreq stops working after a while
-References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca> <44DCEAF7.5020005@rtr.ca> <20060811210104.GL26930@redhat.com> <44DCF360.7050305@rtr.ca> <44DCF5C1.4040506@rtr.ca> <20060818151122.GA8275@ucw.cz>
-In-Reply-To: <20060818151122.GA8275@ucw.cz>
+To: Johan Groth <johan.groth@linux-grotto.org.uk>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
+Subject: Re: Scsi errors with Megaraid 300-8x
+References: <44EB1875.3020403@linux-grotto.org.uk> <44EC73D2.9090302@rtr.ca> <44EC775C.7040003@linux-grotto.org.uk> <Pine.LNX.4.64.0608231145290.15031@p34.internal.lan> <44EC78CD.9010401@linux-grotto.org.uk>
+In-Reply-To: <44EC78CD.9010401@linux-grotto.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->
-> trip_points should be writeable... but you do not have passive cooling
-> enabled there?!
+Johan Groth wrote:
+> Justin Piszcz wrote:
+>> Run badblocks in r+w mode on the bad disk and it will force the disk 
+>> to re-allocate the bad sector if it can.
+>>
+>> Justin.
+> 
+> Is that possible to do in a non-destructive way? I don't want to loose 
+> all data and apparently I can't back it up either :(.
 
-What do you mean -- I don't understand what you were trying to say
-(probably just a language thing).
+Yes, it is perfectly doable, but I don't think anyone has yet bothered
+to release a utility that actually does it.
 
-By definition, "passive" cooling never needs enabling -- this just refers
-to things like heat sinks and air vents.
+OPPORTUNITY FOR FAME AND FORTUNE! (okay, maybe just some fame):
+=================================
+Hack the existing smartctl code to read out the failed sector numbers,
+and then issue single-sector read-overwrite to each of those bad sectors.
 
-"Active" cooling is the term for fans and pumps and such.
+Very simple code.  I'll do it myself eventually, but please beat me to it!
 
 Cheers
-

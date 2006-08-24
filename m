@@ -1,95 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWHXM1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWHXM3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWHXM1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWHXM1Q
+	id S1751195AbWHXM3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWHXM3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:27:16 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:17844 "EHLO
-	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751196AbWHXM1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:27:16 -0400
-Date: Thu, 24 Aug 2006 17:58:08 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, rusty@rustcorp.com.au,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       arjan@linux.intel.com, davej@redhat.com, vatsa@in.ibm.com,
-       dipankar@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 3/4] (Refcount + Waitqueue) implementation for cpu_hotplug "locking"
-Message-ID: <20060824122808.GH2395@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20060824103233.GD2395@in.ibm.com> <20060824111440.GA19248@elte.hu>
+	Thu, 24 Aug 2006 08:29:38 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:15585 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751195AbWHXM3h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:29:37 -0400
+Subject: Re: [Ext2-devel] [RFC][PATCH] Manage jbd allocations from its own
+	slabs
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
+References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 07:29:33 -0500
+Message-Id: <1156422573.7908.1.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824111440.GA19248@elte.hu>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 01:14:40PM +0200, Ingo Molnar wrote:
+On Wed, 2006-08-23 at 16:08 -0700, Badari Pulavarty wrote:
+> Hi,
 > 
-> * Gautham R Shenoy <ego@in.ibm.com> wrote:
+> Here is the fix to "bh: Ensure bh fits within a page" problem
+> caused by JBD.
 > 
-> >  void lock_cpu_hotplug(void)
-> >  {
-> 
-> > +	DECLARE_WAITQUEUE(wait, current);
-> > +	spin_lock(&cpu_hotplug.lock);
-> > +	cpu_hotplug.reader_count++;
-> 
-> this should be per-CPU - lock_cpu_hotplug() should _not_ be a globally 
-> synchronized event.
-> CPU removal is such a rare event that we can easily do something like a 
-> global read-mostly 'CPU is locked for writes' flag (plus a completion 
-> queue) that the 'write' side takes atomically - combined with per-CPU 
-> refcount and a waitqueue that the read side increases/decreases and 
-> wakes. Read-locking of the CPU is much more common and should be 
-> fundamentally scalable: it should increase the per-CPU refcount, then 
-> check the global 'writer active' flag, and if the writer flag is set, it 
-> should wait on the global completion queue. When a reader drops the 
-> refcount it should wake up the per-CPU waitqueue. [in which a writer 
-> might be waiting for the refcount to go down to 0.]
-This was the approach I tried to make it cache friendly.
-These are the problems I faced.
+> BTW, I realized that this problem can happen only with 1k, 2k
+> filesystems - as 4k, 8k allocations disable slab debug 
+> automatically. But for completeness, I created slabs for those
+> also.
 
-- Reader checks the write_active flag. If set, he waits in the global read
-queue. else, he gets the lock and increments percpu refcount.
+With a larger base page size, you could run into the same problems for
+4K and 8K allocations, so it's a good thing to do them all.
 
-- the writer would have to check each cpu's read refcount, and ensure that
-read refcount =0 on all of them before he sets write_active and 
-begins a write operation.
-This will create a big race window - a writer is checking
-for a refcount on cpu(j), a reader comes on cpu(i) where i<j;
-Let's assume the writer checks refcounts in increasing order of cpus.
-Should the reader on cpu(i) wait or go ahead? If we use a global
-lock to serialize this operation, we the whole purpose of maintaining
-per cpu data is lost.
+> What do you think ? I ran basic tests and things are fine.
 
-- If the reader decides to wait on cpu(i) and the writer on cpu(j+1) 
-finds refcount!=0,do we have both reader and writer waiting?
-Or should the writer perform some sort of a rollback, where he wakes up
-the readers on all cpus i < j+1?
+Looks sane to me.
 
-- When a reader is done, he decrements his percpu refcount. But, a 
-percpu refcount = 0 does not mean there are no active readers in the 
-system. So the reader too, would have to check for each cpu refcount
-before he wakes up the writer in his queue. this would mean 
-referencing other cpu's data.
-
-- How do we deal when a reader takes a lock first on cpu(i) gets
-migrated to cpu(j) during an unlock. Again, we have to cross-reference 
-other cpu's data.
-
-I tried and gave up. But I would love to have this whole thing
-implemented in a more cache friendly manner if we can.
-
-Thanks and Regards
-ego
+Shaggy
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+David Kleikamp
+IBM Linux Technology Center
+

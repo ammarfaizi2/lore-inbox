@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWHXPYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbWHXPZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWHXPYc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 11:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWHXPYc
+	id S965054AbWHXPZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 11:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWHXPZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 11:24:32 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12680 "EHLO
+	Thu, 24 Aug 2006 11:25:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15533 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965003AbWHXPYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 11:24:31 -0400
-Subject: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+	id S965054AbWHXPZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 11:25:32 -0400
+Subject: [PATCH 1/4] Inconsistent extern declarations.
 From: David Woodhouse <dwmw2@infradead.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-tiny@selenic.com, devel@laptop.org
+Cc: akpm@osdl.org
 In-Reply-To: <1156429585.3012.58.camel@pmac.infradead.org>
 References: <1156429585.3012.58.camel@pmac.infradead.org>
 Content-Type: text/plain
-Date: Thu, 24 Aug 2006 16:24:28 +0100
-Message-Id: <1156433068.3012.115.camel@pmac.infradead.org>
+Date: Thu, 24 Aug 2006 16:25:18 +0100
+Message-Id: <1156433118.3012.117.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -27,71 +27,161 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-`-combine'
-     If you are compiling multiple source files, this option tells the
-     driver to pass all the source files to the compiler at once (for
-     those languages for which the compiler can handle this).  This
-     will allow intermodule analysis (IMA) to be performed by the
-     compiler.  Currently the only language for which this is supported
-     is C.  If you pass source files for multiple languages to the
-     driver, using this option, the driver will invoke the compiler(s)
-     that support IMA once each, passing each compiler all the source
-     files appropriate for it.  For those languages that do not support
-     IMA this option will be ignored, and the compiler will be invoked
-     once for each source file in that language.  If you use this
-     option in conjunction with `-save-temps', the compiler will
-     generate multiple pre-processed files (one for each source file),
-     but only one (combined) `.o' or `.s' file.
+When you compile multiple files together with --combine, the compiler
+starts to _notice_ when you do things like this in one file:
 
-`-fwhole-program'
-     Assume that the current compilation unit represents whole program
-     being compiled.  All public functions and variables with the
-     exception of `main' and those merged by attribute
-     `externally_visible' become static functions and in a affect gets
-     more aggressively optimized by interprocedural optimizers.  While
-     this option is equivalent to proper use of `static' keyword for
-     programs consisting of single file, in combination with option
-     `--combine' this flag can be used to compile most of smaller scale
-     C programs since the functions and variables become local for the
-     whole combined compilation unit, not for the single source file
-     itself.
+ extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
+                                struct iovec *iov, int len, int noblock);
 
-Using a combination of these two compiler options for building kernel
-code leads to some useful optimisation -- especially with modules which
-are made up of a bunch of incestuous C files, where none of the global
-symbols actually _need_ to be visible outside the directory they reside
-in. File systems are a prime example of this -- on PPC64 I see a
-reduction in size of ext3.ko by 2.6%, jffs2.ko by 5%, cifs.ko by 8% and
-befs.ko by a scary 14%. Strangely, udf.ko seems to have _grown_ by 6.6%
--- that'll probably be another optimisation bug like GCC PR28755.
+.. but the actual function looks like this:
 
-The same benefits can be extended to the vmlinux too, although there are
-caveats with making _everything_ static. However, it's relatively simple
-to make EXPORT_SYMBOL() automatically set the 'externally_visible'
-attribute on the symbol in question, and to introduce a new '__global'
-tag which does the same for those symbols which aren't exported to
-modules but which _are_ needed as a global symbol in vmlinux.
+ extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
+                                struct iovec *iov, size_t len, int noblock);
 
-Size results from a test build on ppc64 are shown at
-http://david.woodhou.se/combine/sizes.csv -- the format is
-<old size>,<new size>,<delta>,<percentage * 100>,<object name>
+This fixes a bunch of those, which are mostly just a missing 'const' on
+the extern declaration.
 
-The same file with objects where the size didn't change omitted, and
-sorted on percentage is http://david.woodhou.se/combine/sizes-sorted.csv
+This patch is a bug-fix which is fairly much independent of the
+--combine/-fwhole-program stuff, so can be applied today.
 
-There are a bunch of GCC bugs which make this interesting:
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27898
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27889
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=28706
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=28712
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=28744
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=28755
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=28779
+Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
-Fixes (or workarounds) for some of these are at
-http://david.woodhou.se/combine/gcc-patches/
+diff --git a/drivers/isdn/hisax/config.c b/drivers/isdn/hisax/config.c
+index e103503..f647ec3 100644
+--- a/drivers/isdn/hisax/config.c
++++ b/drivers/isdn/hisax/config.c
+@@ -369,11 +369,11 @@ #endif /* MODULE */
+ 
+ int nrcards;
+ 
+-extern char *l1_revision;
+-extern char *l2_revision;
+-extern char *l3_revision;
+-extern char *lli_revision;
+-extern char *tei_revision;
++extern const char *l1_revision;
++extern const char *l2_revision;
++extern const char *l3_revision;
++extern const char *lli_revision;
++extern const char *tei_revision;
+ 
+ char *HiSax_getrev(const char *revision)
+ {
+diff --git a/drivers/net/skfp/smtinit.c b/drivers/net/skfp/smtinit.c
+index 3c8964c..01bf76b 100644
+--- a/drivers/net/skfp/smtinit.c
++++ b/drivers/net/skfp/smtinit.c
+@@ -36,7 +36,7 @@ #endif
+ 
+ #ifndef MULT_OEM
+ #define OEMID(smc,i)	oem_id[i]
+-	extern u_char	oem_id[] ;
++	extern const u_char	oem_id[] ;
+ #else	/* MULT_OEM */
+ #define OEMID(smc,i)	smc->hw.oem_id->oi_mark[i]
+ 	extern struct s_oem_ids	oem_ids[] ;
+diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
+index e8ae304..8a15f70 100644
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -27,7 +27,7 @@ #include <linux/debugfs.h>
+ #define DEBUGFS_MAGIC	0x64626720
+ 
+ /* declared over in file.c */
+-extern struct file_operations debugfs_file_operations;
++extern const struct file_operations debugfs_file_operations;
+ 
+ static struct vfsmount *debugfs_mount;
+ static int debugfs_mount_count;
+diff --git a/fs/hfsplus/inode.c b/fs/hfsplus/inode.c
+index 924ecde..99f3120 100644
+--- a/fs/hfsplus/inode.c
++++ b/fs/hfsplus/inode.c
+@@ -269,7 +269,7 @@ static int hfsplus_file_release(struct i
+ }
+ 
+ extern struct inode_operations hfsplus_dir_inode_operations;
+-extern struct file_operations hfsplus_dir_operations;
++extern const struct file_operations hfsplus_dir_operations;
+ 
+ static struct inode_operations hfsplus_file_inode_operations = {
+ 	.lookup		= hfsplus_file_lookup,
+diff --git a/fs/reiserfs/dir.c b/fs/reiserfs/dir.c
+index 9aabcc0..68ab9c0 100644
+--- a/fs/reiserfs/dir.c
++++ b/fs/reiserfs/dir.c
+@@ -11,7 +11,7 @@ #include <linux/smp_lock.h>
+ #include <linux/buffer_head.h>
+ #include <asm/uaccess.h>
+ 
+-extern struct reiserfs_key MIN_KEY;
++extern const struct reiserfs_key MIN_KEY;
+ 
+ static int reiserfs_readdir(struct file *, void *, filldir_t);
+ static int reiserfs_dir_fsync(struct file *filp, struct dentry *dentry,
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index 0253413..1316556 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -22,7 +22,7 @@ extern __u32 sysctl_rmem_max;
+ extern int sysctl_core_destroy_delay;
+ 
+ #ifdef CONFIG_NET_DIVERT
+-extern char sysctl_divert_version[];
++extern const char sysctl_divert_version[];
+ #endif /* CONFIG_NET_DIVERT */
+ 
+ #ifdef CONFIG_XFRM
+diff --git a/net/ipx/af_ipx.c b/net/ipx/af_ipx.c
+index aa34ff4..94b3cb8 100644
+--- a/net/ipx/af_ipx.c
++++ b/net/ipx/af_ipx.c
+@@ -87,7 +87,7 @@ extern int ipxrtr_add_route(__u32 networ
+ 			    unsigned char *node);
+ extern void ipxrtr_del_routes(struct ipx_interface *intrfc);
+ extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
+-			       struct iovec *iov, int len, int noblock);
++			       struct iovec *iov, size_t len, int noblock);
+ extern int ipxrtr_route_skb(struct sk_buff *skb);
+ extern struct ipx_route *ipxrtr_lookup(__u32 net);
+ extern int ipxrtr_ioctl(unsigned int cmd, void __user *arg);
+diff --git a/net/irda/irsysctl.c b/net/irda/irsysctl.c
+index 86805c3..7606ee7 100644
+--- a/net/irda/irsysctl.c
++++ b/net/irda/irsysctl.c
+@@ -44,9 +44,9 @@ extern int  sysctl_slot_timeout;
+ extern int  sysctl_fast_poll_increase;
+ extern char sysctl_devname[];
+ extern int  sysctl_max_baud_rate;
+-extern int  sysctl_min_tx_turn_time;
+-extern int  sysctl_max_tx_data_size;
+-extern int  sysctl_max_tx_window;
++extern unsigned  sysctl_min_tx_turn_time;
++extern unsigned  sysctl_max_tx_data_size;
++extern unsigned  sysctl_max_tx_window;
+ extern int  sysctl_max_noreply_time;
+ extern int  sysctl_warn_noreply_time;
+ extern int  sysctl_lap_keepalive_time;
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index 1ab03a2..2a3657b 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -83,11 +83,11 @@ kmem_cache_t *sctp_chunk_cachep __read_m
+ kmem_cache_t *sctp_bucket_cachep __read_mostly;
+ 
+ extern int sctp_snmp_proc_init(void);
+-extern int sctp_snmp_proc_exit(void);
++extern void sctp_snmp_proc_exit(void);
+ extern int sctp_eps_proc_init(void);
+-extern int sctp_eps_proc_exit(void);
++extern void sctp_eps_proc_exit(void);
+ extern int sctp_assocs_proc_init(void);
+-extern int sctp_assocs_proc_exit(void);
++extern void sctp_assocs_proc_exit(void);
+ 
+ /* Return the address of the control sock. */
+ struct sock *sctp_get_ctl_sock(void)
 
-(Actual patches will follow, to linux-kernel@vger.kernel.org only)
 
 -- 
 dwmw2

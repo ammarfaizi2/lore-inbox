@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWHXHlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWHXHk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWHXHlE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 03:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWHXHlE
+	id S1750783AbWHXHk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 03:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWHXHk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 03:41:04 -0400
-Received: from mx1.suse.de ([195.135.220.2]:34772 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750766AbWHXHlB (ORCPT
+	Thu, 24 Aug 2006 03:40:58 -0400
+Received: from mx1.suse.de ([195.135.220.2]:33492 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750762AbWHXHk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 03:41:01 -0400
+	Thu, 24 Aug 2006 03:40:57 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 24 Aug 2006 17:41:01 +1000
-Message-Id: <1060824074101.19135@suse.de>
+Date: Thu, 24 Aug 2006 17:40:56 +1000
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 4] md: Fix recent breakage of md/raid1 array checking
-References: <20060824173647.19026.patches@notabene>
+Subject: [PATCH 000 of 4] md: Introduction
+Message-ID: <20060824173647.19026.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A recent patch broke the ability to do a 
-user-request check of a raid1.
-This patch fixes the breakage and also moves a comment that
-was dislocated by the same patch.
+Following are 4 patches against 2.6.18-rc4-mm2
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+The first 2 are bug fixes which should go in 2.6.18, and apply
+equally well to that tree as to -mm.
 
-### Diffstat output
- ./drivers/md/raid1.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+The latter two should stay in -mm until after 2.6.18.
 
-diff .prev/drivers/md/raid1.c ./drivers/md/raid1.c
---- .prev/drivers/md/raid1.c	2006-08-24 17:09:42.000000000 +1000
-+++ ./drivers/md/raid1.c	2006-08-24 17:21:35.000000000 +1000
-@@ -1644,15 +1644,16 @@ static sector_t sync_request(mddev_t *md
- 		return 0;
- 	}
- 
--	/* before building a request, check if we can skip these blocks..
--	 * This call the bitmap_start_sync doesn't actually record anything
--	 */
- 	if (mddev->bitmap == NULL &&
- 	    mddev->recovery_cp == MaxSector &&
-+	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
- 	    conf->fullsync == 0) {
- 		*skipped = 1;
- 		return max_sector - sector_nr;
- 	}
-+	/* before building a request, check if we can skip these blocks..
-+	 * This call the bitmap_start_sync doesn't actually record anything
-+	 */
- 	if (!bitmap_start_sync(mddev->bitmap, sector_nr, &sync_blocks, 1) &&
- 	    !conf->fullsync && !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
- 		/* We can skip this block, and probably several more */
+The second patch is maybe bigger than it absolutely needs to be as a bugfix.
+If you like I can stripe out all the rcu-extra-carefulness as a separate
+patch and just leave the important bit which involves moving the
+atomic_add down twenty-something lines.
+
+Thanks,
+NeilBrown
+
+ [PATCH 001 of 4] md: Fix recent breakage of md/raid1 array checking
+ [PATCH 002 of 4] md: Fix issues with referencing rdev in md/raid1.
+ [PATCH 003 of 4] md: new sysfs interface for setting bits in the write-intent-bitmap
+ [PATCH 004 of 4] md: Remove unnecessary variable x in stripe_to_pdidx().

@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbWHXSjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWHXSjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbWHXSjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 14:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWHXSjh
+	id S1030449AbWHXSjw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 14:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWHXSjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:39:37 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:20944 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP
-	id S1030454AbWHXSjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:39:36 -0400
-Message-ID: <014301c6c7ad$a84b88f0$962e8d52@aldipc>
-From: "roland" <devzero@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE][RFC] kvblade-alpha-2 / ATA Over Ethernet kernel "target" module
-Date: Thu, 24 Aug 2006 20:46:43 +0200
+	Thu, 24 Aug 2006 14:39:52 -0400
+Received: from enyo.dsw2k3.info ([195.71.86.239]:29587 "EHLO enyo.dsw2k3.info")
+	by vger.kernel.org with ESMTP id S1030423AbWHXSju (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:39:50 -0400
+Message-ID: <44EDF26B.7070404@citd.de>
+Date: Thu, 24 Aug 2006 20:39:39 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Adrian Bunk <bunk@stusta.de>, David Woodhouse <dwmw2@infradead.org>,
+       David Howells <dhowells@redhat.com>, Jens Axboe <axboe@suse.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
+References: <32640.1156424442@warthog.cambridge.redhat.com> <20060824152937.GK19810@stusta.de> <1156434274.3012.128.camel@pmac.infradead.org> <20060824155814.GL19810@stusta.de> <Pine.LNX.4.61.0608241838430.16422@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608241838430.16422@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+Jan Engelhardt wrote:
+>>>On Thu, 2006-08-24 at 17:29 +0200, Adrian Bunk wrote:
+>>>
+>>>>        bool "Enable the block layer" depends on EMBEDDED 
+>>>
+>>>Please. no. CONFIG_EMBEDDED was a bad idea in the first place -- its
+>>>sole purpose is to pander to Aunt Tillie.
+>>
+>>It's not for Aunt Tillie.
+>>It's for an average system administrator who compiles his own kernel.
+>>
+>>CONFIG_BLOCK=n will only be for the "the kernel must become as fast as 
+>>possible, and I really know what I'm doing" people.
+> 
+> 
+> Then that should be CONFIG_I_AM_AN_EXPERT (CONFIG_EXPERT), not 
+> CONFIG_EMBEDDED.
 
-If you don`t know about AoE and being interested in network-based
-Storage/SAN technology, you may take a look at
-http://www.linuxjournal.com/article/8149 first. This article gives a nice
-introduction into AoE technology.
+Or to quote the GUI-configuration of xine-ui
 
-Kvblade is the kernel-based equivalent of (userspace)vblade and also a
-second approach (there is another at http://lpk.com.price.ru/~lelik/AoE/) to
-build an kernel-based AoE "target" (a vblade in AoE terminology is similar
-to iscsi-target or nbd-server, exporting a block-device over the network,
-but working on ethernet-layer instead of TCP/IP)
+CONFIG_EXPERIENCE_LEVEL
+With the options:
+Beginner
+Advanced
+Expert
+Master of the know universe
 
-Kvblade is counterpart to the AoE driver which is in 2.6 for some time now
-and it basically does in software, what "Coraid EtherDrive® Storage" does in
-hardware.
+SCNR. ;-)
 
-Kvblade is now part of the aoetools project at
-http://aoetools.sourceforge.net . It`s at an early alpha stage and the
-initial creator, Sam Hopkins from Coraid just decided to release it to the
-public due to lack of time working further on this.
 
-Unfortunately i`m no kernel hacker, but maybe there is someone who likes to
-give it a try, make a little code-review, pick it up and contribute or even
-rewrite it from scratch. :)
 
-regards
-Roland Kletzing
-(sysadmin/engineer, independent linux enthusiast, not related to Coraid)
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
 

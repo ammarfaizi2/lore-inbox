@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWHXTYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWHXTdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751670AbWHXTYg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 15:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWHXTYg
+	id S1751672AbWHXTdK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 15:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWHXTdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 15:24:36 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:5560 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750760AbWHXTYg (ORCPT
+	Thu, 24 Aug 2006 15:33:09 -0400
+Received: from pat.uio.no ([129.240.10.4]:24481 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751672AbWHXTdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 15:24:36 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: Unnecessary Relocation Hiding?
-Date: Thu, 24 Aug 2006 21:24:14 +0200
-User-Agent: KMail/1.9.3
-Cc: Dong Feng <middle.fengdong@gmail.com>, linux-kernel@vger.kernel.org
-References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com> <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 24 Aug 2006 15:33:08 -0400
+Subject: Re: [PATCH] NFS: Check lengths more thoroughly in NFS4 readdir XDR
+	decode
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, aviro@redhat.com, steved@redhat.com,
+       linux-kernel@vger.kernel.org, nfsv4@linux-nfs.org
+In-Reply-To: <7346.1156444521@warthog.cambridge.redhat.com>
+References: <1156432859.5629.24.camel@localhost>
+	 <32511.1156263593@warthog.cambridge.redhat.com>
+	 <7346.1156444521@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 15:32:54 -0400
+Message-Id: <1156447974.5629.54.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608242124.14504.ak@suse.de>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.924, required 12,
+	autolearn=disabled, AWL 0.56, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 August 2006 20:26, Christoph Lameter wrote:
-> On Wed, 23 Aug 2006, Dong Feng wrote:
+On Thu, 2006-08-24 at 19:35 +0100, David Howells wrote:
+> So, what you've done is:
 > 
-> > I have a question. Why shall we need a RELOC_HIDE() macro in the
-> > definition of per_cpu()? Maybe the question is actually why we need
-> > macro RELOC_HIDE() at all. I changed the following line in
-> > include/asm-generic/percpu.h, from
+> -+		if (end - p < xlen)
+> ++		if (end - p < xlen + 1)
+>   			goto short_pkt;
+>  +		dprintk("filename = %*s\n", len, (char *)p);
+>  +		p += xlen;
+>   		len = ntohl(*p++);	/* bitmap length */
+>  -		p += len;
+>  -		if (p + 1 > end)
+> -+		if (end - p < len)
+> ++		if (end - p < len + 1)
+>   			goto short_pkt;
+>  +		p += len;
+>   		attrlen = XDR_QUADLEN(ntohl(*p++));
+>  -		p += attrlen;		/* attributes */
+>  -		if (p + 2 > end)
+> -+		if (end - p < attrlen + 1)
+> ++		if (end - p < attrlen + 2)
 > 
-> Guess it was copied from IA64 but the semantics were not preserved.
-> I think it should either be changed the way you suggest or the 
-> implementation needs to be fixed to actually do a linker relocation.
+> But is this equivalent:
+> 
+> -+		if (end - p < xlen)
+> ++		if (end - p <= xlen)
+>   			goto short_pkt;
+>  +		dprintk("filename = %*s\n", len, (char *)p);
+>  +		p += xlen;
+>   		len = ntohl(*p++);	/* bitmap length */
+>  -		p += len;
+>  -		if (p + 1 > end)
+> -+		if (end - p < len)
+> ++		if (end - p <= len)
+>   			goto short_pkt;
+>  +		p += len;
+>   		attrlen = XDR_QUADLEN(ntohl(*p++));
+>  -		p += attrlen;		/* attributes */
+>  -		if (p + 2 > end)
+> -+		if (end - p < attrlen + 1)
+> ++		if (end - p <= attrlen + 1)
+                              ^^^^^^^^^^^^^^
+> 
+> Do you think?
 
-The reason the original code is like it is because gcc assumes there
-is no wrapping on arithmetic on symbol addresses (it is allowed to assume
-that because it is undefined in the C standard). And in same cases wrapping
-can happen. There was at least one miscompilation in the past that lead to the 
-current construct.
+No. I find that mixture of < and <= is much less easy to read. Besides,
+the compiler should be able to optimise that for me.
 
--Andi
+Cheers,
+  Trond
+

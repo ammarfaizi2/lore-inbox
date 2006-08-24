@@ -1,173 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWHXGhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWHXGis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbWHXGhz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 02:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWHXGh2
+	id S1030351AbWHXGis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 02:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWHXGii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 02:37:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:32178 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030339AbWHXGhP (ORCPT
+	Thu, 24 Aug 2006 02:38:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33970 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030351AbWHXGh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 02:37:15 -0400
+	Thu, 24 Aug 2006 02:37:26 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 24 Aug 2006 16:37:16 +1000
-Message-Id: <1060824063716.5020@suse.de>
+Date: Thu, 24 Aug 2006 16:37:27 +1000
+Message-Id: <1060824063727.5048@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 009 of 11] knfsd: Allow max size of NFSd payload to be configured.
+Subject: [PATCH 011 of 11] knfsd: knfsd: cache ipmap per TCP socket
 References: <20060824162917.3600.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The max possible is the maximum RPC payload.
-The default depends on amount of total memory.
+From: Greg Banks <gnb@melbourne.sgi.com>
 
-The value can be set within reason as long as 
- no nfsd threads are currently running.
-The value can also be ready, allowing the default
-to be determined after nfsd has started.
+knfsd: speed up high call-rate workloads by caching the struct ip_map
+for the peer on the connected struct svc_sock instead of looking it
+up in the ip_map cache hashtable on every call.  This helps workloads
+using AUTH_SYS authentication over TCP.
 
+Testing was on a 4 CPU 4 NIC Altix using 4 IRIX clients, each with 16
+synthetic client threads simulating an rsync (i.e. recursive directory
+listing) workload reading from an i386 RH9 install image (161480
+regular files in 10841 directories) on the server.  That tree is small
+enough to fill in the server's RAM so no disk traffic was involved.
+This setup gives a sustained call rate in excess of 60000 calls/sec
+before being CPU-bound on the server.
+
+Profiling showed strcmp(), called from ip_map_match(), was taking 4.8%
+of each CPU, and ip_map_lookup() was taking 2.9%.  This patch drops
+both contribution into the profile noise.
+
+Note that the above result overstates this value of this patch
+for most workloads.  The synthetic clients are all using separate
+IP addresses, so there are 64 entries in the ip_map cache hash.
+Because the kernel measured contained the bug fixed in commit
+
+commit 1f1e030bf75774b6a283518e1534d598e14147d4
+
+and was running on 64bit little-endian machine, probably all of
+those 64 entries were on a single chain, thus increasing the cost
+of ip_map_lookup().
+
+With a modern kernel you would need more clients to see the same
+amount of performance improvement.  This patch has helped to scale
+knfsd to handle a deployment with 2000 NFS clients.
+
+
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/nfsctl.c           |   33 +++++++++++++++++++++++++++++++++
- ./fs/nfsd/nfssvc.c           |   19 ++++++++++++++++++-
- ./include/linux/nfsd/const.h |    4 ++--
- ./include/linux/nfsd/nfsd.h  |    1 +
- 4 files changed, 54 insertions(+), 3 deletions(-)
+ ./include/linux/sunrpc/cache.h   |   11 +++++++++
+ ./include/linux/sunrpc/svcauth.h |    1 
+ ./include/linux/sunrpc/svcsock.h |    3 ++
+ ./net/sunrpc/svcauth_unix.c      |   47 ++++++++++++++++++++++++++++++++++++---
+ ./net/sunrpc/svcsock.c           |    2 +
+ 5 files changed, 61 insertions(+), 3 deletions(-)
 
-diff .prev/fs/nfsd/nfsctl.c ./fs/nfsd/nfsctl.c
---- .prev/fs/nfsd/nfsctl.c	2006-08-24 16:24:56.000000000 +1000
-+++ ./fs/nfsd/nfsctl.c	2006-08-24 16:26:10.000000000 +1000
-@@ -57,6 +57,7 @@ enum {
- 	NFSD_Pool_Threads,
- 	NFSD_Versions,
- 	NFSD_Ports,
-+	NFSD_MaxBlkSize,
- 	/*
- 	 * The below MUST come last.  Otherwise we leave a hole in nfsd_files[]
- 	 * with !CONFIG_NFSD_V4 and simple_fill_super() goes oops
-@@ -82,6 +83,7 @@ static ssize_t write_threads(struct file
- static ssize_t write_pool_threads(struct file *file, char *buf, size_t size);
- static ssize_t write_versions(struct file *file, char *buf, size_t size);
- static ssize_t write_ports(struct file *file, char *buf, size_t size);
-+static ssize_t write_maxblksize(struct file *file, char *buf, size_t size);
- #ifdef CONFIG_NFSD_V4
- static ssize_t write_leasetime(struct file *file, char *buf, size_t size);
- static ssize_t write_recoverydir(struct file *file, char *buf, size_t size);
-@@ -100,6 +102,7 @@ static ssize_t (*write_op[])(struct file
- 	[NFSD_Pool_Threads] = write_pool_threads,
- 	[NFSD_Versions] = write_versions,
- 	[NFSD_Ports] = write_ports,
-+	[NFSD_MaxBlkSize] = write_maxblksize,
- #ifdef CONFIG_NFSD_V4
- 	[NFSD_Leasetime] = write_leasetime,
- 	[NFSD_RecoveryDir] = write_recoverydir,
-@@ -555,6 +558,35 @@ static ssize_t write_ports(struct file *
- 	return -EINVAL;
+diff .prev/include/linux/sunrpc/cache.h ./include/linux/sunrpc/cache.h
+--- .prev/include/linux/sunrpc/cache.h	2006-08-24 16:27:18.000000000 +1000
++++ ./include/linux/sunrpc/cache.h	2006-08-24 16:27:18.000000000 +1000
+@@ -163,6 +163,17 @@ static inline void cache_put(struct cach
+ 	kref_put(&h->ref, cd->cache_put);
  }
  
-+int nfsd_max_blksize;
-+
-+static ssize_t write_maxblksize(struct file *file, char *buf, size_t size)
++static inline int cache_valid(struct cache_head *h)
 +{
-+	char *mesg = buf;
-+	if (size > 0) {
-+		int bsize;
-+		int rv = get_int(&mesg, &bsize);
-+		if (rv)
-+			return rv;
-+		/* force bsize into allowed range and
-+		 * required alignment.
-+		 */
-+		if (bsize < 1024)
-+			bsize = 1024;
-+		if (bsize > NFSSVC_MAXBLKSIZE)
-+			bsize = NFSSVC_MAXBLKSIZE;
-+		bsize &= ~(1024-1);
-+		lock_kernel();
-+		if (nfsd_serv && nfsd_serv->sv_nrthreads) {
-+			unlock_kernel();
-+			return -EBUSY;
-+		}
-+		nfsd_max_blksize = bsize;
-+		unlock_kernel();
-+	}
-+	return sprintf(buf, "%d\n", nfsd_max_blksize);
++	/* If an item has been unhashed pending removal when
++	 * the refcount drops to 0, the expiry_time will be
++	 * set to 0.  We don't want to consider such items
++	 * valid in this context even though CACHE_VALID is
++	 * set.
++	 */
++	return (h->expiry_time != 0 && test_bit(CACHE_VALID, &h->flags));
 +}
 +
- #ifdef CONFIG_NFSD_V4
- extern time_t nfs4_leasetime(void);
- 
-@@ -620,6 +652,7 @@ static int nfsd_fill_super(struct super_
- 		[NFSD_Pool_Threads] = {"pool_threads", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_Versions] = {"versions", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_Ports] = {"portlist", &transaction_ops, S_IWUSR|S_IRUGO},
-+		[NFSD_MaxBlkSize] = {"max_block_size", &transaction_ops, S_IWUSR|S_IRUGO},
- #ifdef CONFIG_NFSD_V4
- 		[NFSD_Leasetime] = {"nfsv4leasetime", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_RecoveryDir] = {"nfsv4recoverydir", &transaction_ops, S_IWUSR|S_IRUSR},
+ extern int cache_check(struct cache_detail *detail,
+ 		       struct cache_head *h, struct cache_req *rqstp);
+ extern void cache_flush(void);
 
-diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
---- .prev/fs/nfsd/nfssvc.c	2006-08-24 16:26:10.000000000 +1000
-+++ ./fs/nfsd/nfssvc.c	2006-08-24 16:26:10.000000000 +1000
-@@ -198,9 +198,26 @@ int nfsd_create_serv(void)
- 		unlock_kernel();
- 		return 0;
- 	}
-+	if (nfsd_max_blksize == 0) {
-+		/* choose a suitable default */
-+		struct sysinfo i;
-+		si_meminfo(&i);
-+		/* Aim for 1/4096 of memory per thread
-+		 * This gives 1MB on 4Gig machines
-+		 * But only uses 32K on 128M machines.
-+		 * Bottom out at 8K on 32M and smaller.
-+		 * Of course, this is only a default.
-+		 */
-+		nfsd_max_blksize = NFSSVC_MAXBLKSIZE;
-+		i.totalram >>= 12;
-+		while (nfsd_max_blksize > i.totalram &&
-+		       nfsd_max_blksize >= 8*1024*2)
-+			nfsd_max_blksize /= 2;
-+	}
+diff .prev/include/linux/sunrpc/svcauth.h ./include/linux/sunrpc/svcauth.h
+--- .prev/include/linux/sunrpc/svcauth.h	2006-08-24 16:27:18.000000000 +1000
++++ ./include/linux/sunrpc/svcauth.h	2006-08-24 16:27:18.000000000 +1000
+@@ -126,6 +126,7 @@ extern struct auth_domain *auth_domain_f
+ extern struct auth_domain *auth_unix_lookup(struct in_addr addr);
+ extern int auth_unix_forget_old(struct auth_domain *dom);
+ extern void svcauth_unix_purge(void);
++extern void svcauth_unix_info_release(void *);
  
- 	atomic_set(&nfsd_busy, 0);
--	nfsd_serv = svc_create_pooled(&nfsd_program, NFSD_BUFSIZE,
-+	nfsd_serv = svc_create_pooled(&nfsd_program,
-+				      NFSD_BUFSIZE - NFSSVC_MAXBLKSIZE + nfsd_max_blksize,
- 				      nfsd_last_thread,
- 				      nfsd, SIG_NOCLEAN, THIS_MODULE);
- 	if (nfsd_serv == NULL)
+ static inline unsigned long hash_str(char *name, int bits)
+ {
 
-diff .prev/include/linux/nfsd/const.h ./include/linux/nfsd/const.h
---- .prev/include/linux/nfsd/const.h	2006-08-24 16:25:56.000000000 +1000
-+++ ./include/linux/nfsd/const.h	2006-08-24 16:26:10.000000000 +1000
-@@ -21,9 +21,9 @@
- #define NFSSVC_MAXVERS		3
+diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
+--- .prev/include/linux/sunrpc/svcsock.h	2006-08-24 16:27:18.000000000 +1000
++++ ./include/linux/sunrpc/svcsock.h	2006-08-24 16:27:18.000000000 +1000
+@@ -54,6 +54,9 @@ struct svc_sock {
+ 	int			sk_reclen;	/* length of record */
+ 	int			sk_tcplen;	/* current read length */
+ 	time_t			sk_lastrecv;	/* time of last received request */
++
++	/* cache of various info for TCP sockets */
++	void			*sk_info_authunix;
+ };
  
  /*
-- * Maximum blocksize supported by daemon currently at 32K
-+ * Maximum blocksizes supported by daemon under various circumstances.
-  */
--#define NFSSVC_MAXBLKSIZE	(32*1024)
-+#define NFSSVC_MAXBLKSIZE	RPCSVC_MAXPAYLOAD
- /* NFSv2 is limited by the protocol specification, see RFC 1094 */
- #define NFSSVC_MAXBLKSIZE_V2	(8*1024)
- 
 
-diff .prev/include/linux/nfsd/nfsd.h ./include/linux/nfsd/nfsd.h
---- .prev/include/linux/nfsd/nfsd.h	2006-08-24 16:26:10.000000000 +1000
-+++ ./include/linux/nfsd/nfsd.h	2006-08-24 16:26:10.000000000 +1000
-@@ -145,6 +145,7 @@ int nfsd_vers(int vers, enum vers_op cha
- void nfsd_reset_versions(void);
- int nfsd_create_serv(void);
+diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
+--- .prev/net/sunrpc/svcauth_unix.c	2006-08-24 16:27:18.000000000 +1000
++++ ./net/sunrpc/svcauth_unix.c	2006-08-24 16:27:18.000000000 +1000
+@@ -9,6 +9,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/hash.h>
+ #include <linux/string.h>
++#include <net/sock.h>
  
-+extern int nfsd_max_blksize;
+ #define RPCDBG_FACILITY	RPCDBG_AUTH
  
- /* 
-  * NFSv4 State
+@@ -375,6 +376,44 @@ void svcauth_unix_purge(void)
+ 	cache_purge(&ip_map_cache);
+ }
+ 
++static inline struct ip_map *
++ip_map_cached_get(struct svc_rqst *rqstp)
++{
++	struct ip_map *ipm = rqstp->rq_sock->sk_info_authunix;
++	if (ipm != NULL) {
++		if (!cache_valid(&ipm->h)) {
++			/*
++			 * The entry has been invalidated since it was
++			 * remembered, e.g. by a second mount from the
++			 * same IP address.
++			 */
++			rqstp->rq_sock->sk_info_authunix = NULL;
++			cache_put(&ipm->h, &ip_map_cache);
++			return NULL;
++		}
++		cache_get(&ipm->h);
++	}
++	return ipm;
++}
++
++static inline void
++ip_map_cached_put(struct svc_rqst *rqstp, struct ip_map *ipm)
++{
++	struct svc_sock *svsk = rqstp->rq_sock;
++
++	if (svsk->sk_sock->type == SOCK_STREAM && svsk->sk_info_authunix == NULL)
++		svsk->sk_info_authunix = ipm;	/* newly cached, keep the reference */
++	else
++		cache_put(&ipm->h, &ip_map_cache);
++}
++
++void
++svcauth_unix_info_release(void *info)
++{
++	struct ip_map *ipm = info;
++	cache_put(&ipm->h, &ip_map_cache);
++}
++
+ static int
+ svcauth_unix_set_client(struct svc_rqst *rqstp)
+ {
+@@ -384,8 +423,10 @@ svcauth_unix_set_client(struct svc_rqst 
+ 	if (rqstp->rq_proc == 0)
+ 		return SVC_OK;
+ 
+-	ipm = ip_map_lookup(rqstp->rq_server->sv_program->pg_class,
+-			    rqstp->rq_addr.sin_addr);
++	ipm = ip_map_cached_get(rqstp);
++	if (ipm == NULL)
++		ipm = ip_map_lookup(rqstp->rq_server->sv_program->pg_class,
++				    rqstp->rq_addr.sin_addr);
+ 
+ 	if (ipm == NULL)
+ 		return SVC_DENIED;
+@@ -400,7 +441,7 @@ svcauth_unix_set_client(struct svc_rqst 
+ 		case 0:
+ 			rqstp->rq_client = &ipm->m_client->h;
+ 			kref_get(&rqstp->rq_client->ref);
+-			cache_put(&ipm->h, &ip_map_cache);
++			ip_map_cached_put(rqstp, ipm);
+ 			break;
+ 	}
+ 	return SVC_OK;
+
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-08-24 16:25:41.000000000 +1000
++++ ./net/sunrpc/svcsock.c	2006-08-24 16:27:18.000000000 +1000
+@@ -1612,6 +1612,8 @@ svc_delete_socket(struct svc_sock *svsk)
+ 			sockfd_put(svsk->sk_sock);
+ 		else
+ 			sock_release(svsk->sk_sock);
++		if (svsk->sk_info_authunix != NULL)
++			svcauth_unix_info_release(svsk->sk_info_authunix);
+ 		kfree(svsk);
+ 	} else {
+ 		spin_unlock_bh(&serv->sv_lock);

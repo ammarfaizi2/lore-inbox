@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWHXTFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWHXTI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbWHXTFq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 15:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWHXTFq
+	id S1030461AbWHXTI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 15:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWHXTI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 15:05:46 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:26560 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030459AbWHXTFq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 15:05:46 -0400
-Message-ID: <44EDF887.20906@watson.ibm.com>
-Date: Thu, 24 Aug 2006 15:05:43 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Thu, 24 Aug 2006 15:08:29 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:51644 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030461AbWHXTI3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 15:08:29 -0400
+Message-ID: <44EDF923.4030607@zytor.com>
+Date: Thu, 24 Aug 2006 12:08:19 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Olaf Hering <olaf@aepfle.de>
-CC: linux-kernel@vger.kernel.org, Balbir Singh <balbir@in.ibm.com>
-Subject: Re: oops in __delayacct_blkio_ticks with 2.6.18-rc4
-References: <20060821112405.GA28356@aepfle.de> <44EB5684.60002@watson.ibm.com> <20060823111815.GA11270@aepfle.de>
-In-Reply-To: <20060823111815.GA11270@aepfle.de>
-Content-Type: text/plain; charset=UTF-8
+To: Andrew Brukhov <pingved@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] boot: small change of halt method
+References: <20060824184447.GA3346@windows95>
+In-Reply-To: <20060824184447.GA3346@windows95>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> On Tue, Aug 22, Shailabh Nagar wrote:
+Andrew Brukhov wrote:
+> I'm new here.
+> After reading boot code i'm immidiatly change this string:
 > 
+> --- ./linux-2.6.17.11/arch/i386/boot/compressed/misc.c	2006-08-24 01:16:33.000000000 +0400
+> +++ /usr/src/linux-2.6.17.11/arch/i386/boot/compressed/misc.c	2006-08-24 22:36:10.000000000 +0400
+> @@ -7,6 +7,7 @@
+>   * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+>   * puts by Nick Holloway 1993, better puts by Martin Mares 1995
+>   * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+> + * Small fix of halt method Andrew Brukhov, Aug. 2006               
+>   */
+>  
+>  #include <linux/linkage.h>
+> @@ -289,8 +290,7 @@ static void error(char *x)
+>  	putstr("\n\n");
+>  	putstr(x);
+>  	putstr("\n\n -- System halted");
+> -
+> -	while(1);	/* Halt */
+> +      	asm( "hlt" );
+>  }
 > 
->>Olaf Hering wrote:
->>
->>>https://bugzilla.novell.com/show_bug.cgi?id=200526
->>>
->>
->>Thanks for detecting this.
->>
->>I suspect the oops is caused by a reading of /proc/<tgid>/stat for some task
->>that is late in exit. Currently tsk->delays is being freed up too early (before
->>the tsk is removed from the tasklist).
->>
->>Could you try the patch below ? It was unclear from the bug what userspace
->>actions were being done to reproduce the oops - I suspect some kind of
->>reading of /proc/.../stat for all processes ?
+> It's becouse this code is platform depended and therefore there is no resons to write infinity cycle.
 > 
-> 
-> I dont have a way to trigger it. The commands were 'w' and 'pstree'.
 
-Ok. Using the following two commands allowed the original oops to be
-triggered on an 8-way pretty quickly:
+Wrong.
 
-while : ; do usleep 10 > /dev/null ; done
+You need to:
 
-while : ; do cat /proc/[0-9]???*/stat ; done
+	while (1)
+		asm volatile("hlt");
 
-(where the regex for catching the newly forking/exiting tasks
-can be adjusted to the right range of ids being spawned by the
-first command)
+... since HLT only pauses until interrupt.
 
-Applying the patch I sent solves the problem. I'm doing some more
-testing and will submit the patch formally shortly.
-
-Thanks,
-Shailabh
-
-
-
-
+	-hpa

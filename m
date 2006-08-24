@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWHXN21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWHXNdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWHXN21 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWHXN21
+	id S1751511AbWHXNdA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWHXNdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:28:27 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:18215 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751440AbWHXN20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:28:26 -0400
-Subject: Re: [patch] dubious process system time.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p731wr6fh54.fsf@verdi.suse.de>
-References: <20060824121825.GA4425@skybase>  <p731wr6fh54.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 24 Aug 2006 15:28:23 +0200
-Message-Id: <1156426103.28464.29.camel@localhost>
+	Thu, 24 Aug 2006 09:33:00 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:14750 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751406AbWHXNc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:32:59 -0400
+Date: Thu, 24 Aug 2006 08:32:48 -0500
+From: "Serge E. Hallyn" <sergeh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kjhall@us.ibm.com, Benjamin LaHaise <bcrl@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge E Hallyn <sergeh@us.ibm.com>
+Subject: Re: [PATCH 3/7] SLIM main patch
+Message-ID: <20060824133248.GC15680@sergelap.austin.ibm.com>
+References: <1156359937.6720.66.camel@localhost.localdomain> <20060823192733.GG28594@kvack.org> <1156365357.6720.87.camel@localhost.localdomain> <1156418815.3007.89.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156418815.3007.89.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 14:32 +0200, Andi Kleen wrote:
-> > The system time that is accounted to a process includes the time spent
-> > in three different contexts: normal system time, hardirq time and
-> > softirq time. To account hardirq time and sortirq time to a process
-> > seems wrong, because the process could just happen to run when the
-> > interrupt arrives that was caused by an i/o for a completly different
-> > process. And the sum over stime and cstime of all processes won't
-> > match cputstat->system either. 
-> > The following patch changes the accounting of system time so that
-> > hardirq and softirq time are not accounted to a process anymore.
+Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
+> Ar Mer, 2006-08-23 am 13:35 -0700, ysgrifennodd Kylene Jo Hall:
+> > Example: The current process is running at the USER level and writing to
+> > a USER file in /home/user/.  The process then attempts to read an
+> > UNTRUSTED file.  The current process will become UNTRUSTED and the read
+> > allowed to proceed but first write access to all USER files is revoked
+> > including the ones it has open.
 > 
-> So where does it get accounted then? It has to be accounted somewhere.
-> Sounds like a quite radical change to me, might break a lot of 
-> existing assumptions.
+> Which really doesn't mean anything in many cases because there are many
+> ways to get data out of a file handle once you had it opened for write
+> including sharing via non file handle paths.
+> 
+> You also have to deal with existing mmap() mappings and outstanding I/O.
 
-At the moment hardirq+softirq is just added to a random process, in
-general this is completely wrong. You just need a system with a cpu hog
-and an i/o bound process and you get queer results.
-To add hardirq+softirq to a single process is wrong to begin with, for
-that you would need to be able to identify the process that caused the
-i/o. And if two processes require a single file page then what? Split
-the time required to load the page to two processes? Not really. The
-conclusion is that hardirq+softirq time should not be accouted to any
-process. It is accounted globally in cpustat->softirq and
-cpustat->hardirq.
+That she does.
 
-There is one assumption that would break by the change: that the sum of
-the hardirq and softirq time is contained in the sum of the stime and
-cstime fields of all processes. I don't think that this is relevant.
+> So here are some ways to break it
+> 
+> 	SysV shared memory
 
--- 
-blue skies,
-  Martin.
+standard mmap controls should handle this, right?
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+> 	mmap
 
-"Reality continues to ruin my life." - Calvin.
+She handles these.
 
+> or just race it:
+> 
+> 	Open the USER file
+> 	create a new thread
+> 	thread #1 create a pipe to a new process ("receiver")
+> 	thread #1 fill pipe
+> 	thread #1 issue write of buffer that will hold secret data
+> 			[blocks after check for rights]
+> 	thread #2
+> 		wait for thread #1 to block
+> 		read secret data into buffer
+> 		send signal to "receiver"
+> 
+> 
+> 	receiver now empties the pipe, the write completes and I get the
+> goodies.
 
+thread #2 is reading data from a pipe which is at a secret level, so how
+will it exploit that?  It can't write it to a lower integrity file...
+
+> This is why you need a proper implementation of revoke(2) in Linux. You
+> can't really do it any more easily.
+
+The revoke(2) isn't quite right semantically, because it would revoke
+all users' access, right?  Rather, we want one process' rights to all
+files revoked, but other read/writers should still have access.
+
+Certainly if it were implemented, I'd hope slim could share some of it's
+code.
+
+I did try another version of the revocation code which uses
+change_protection() to remove the write access, then introduced a hook
+on in front of page_mkwrite() to prevent making the page writeable
+again.  But I was thinking only of integrity, so actually the secrecy
+concerns would not be addressed.
+
+-serge

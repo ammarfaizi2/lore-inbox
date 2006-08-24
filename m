@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965325AbWHXBaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965332AbWHXBc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965325AbWHXBaP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 21:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965327AbWHXBaO
+	id S965332AbWHXBc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 21:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965330AbWHXBc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 21:30:14 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:63231 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S965325AbWHXBaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 21:30:13 -0400
-Message-ID: <44ED0121.5080702@bigpond.net.au>
-Date: Thu, 24 Aug 2006 11:30:09 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Rich Paredes <rparedes@gmail.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: SMP Affinity and nice
-References: <38798.127.0.0.1.1156346673.squirrel@forexproject.com> <Pine.LNX.4.61.0608231735210.9588@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608231735210.9588@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.128.202] using ID pwil3058@bigpond.net.au at Thu, 24 Aug 2006 01:30:10 +0000
+	Wed, 23 Aug 2006 21:32:27 -0400
+Received: from msr9.hinet.net ([168.95.4.109]:51616 "EHLO msr9.hinet.net")
+	by vger.kernel.org with ESMTP id S965328AbWHXBc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 21:32:26 -0400
+Message-ID: <026c01c6c71d$0fde1730$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Francois Romieu" <romieu@fr.zoreil.com>
+Cc: <penberg@cs.Helsinki.FI>, <akpm@osdl.org>, <dvrabel@cantab.net>,
+       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <david@pleyades.net>
+References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com> <20060823223032.GA25111@electric-eye.fr.zoreil.com>
+Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
+Date: Thu, 24 Aug 2006 09:31:45 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> Subject: SMP Affinity and nice
->>
->> I am trying to come to an understanding as to why 1 process is getting
->> less cpu time than identical processes with a higher "nice" value.
->> Server has 2 physical processors with hyperthreading (cpu 0,1,2,3)
->>
->> I am starting 5 processes that perform a square root loop to max out a
->> cpu.  They use the exact same code but are renamed for identification:
->> cpumax1, cpumax2, cpumax3, cpumax4, cpumax5
-> [...]
-> 
-> What you describe should be addressed in the -ck patchset (smpnice-...diff) 
-> Not sure if it is in mainline already, though.
+Hi Francois:
 
-It's coming in 2.6.18.
+I am very appreciated what you do for IP1000A.
+I will follow those files. Thanks you very much!
 
-Rich,
-	What kernel version are you using when you see this phenomenon?
+Best Regards,
+Jesse Huang
 
-Peter
+----- Original Message ----- 
+From: "Francois Romieu" <romieu@fr.zoreil.com>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <penberg@cs.Helsinki.FI>; <akpm@osdl.org>; <dvrabel@cantab.net>;
+<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<david@pleyades.net>
+Sent: Thursday, August 24, 2006 6:30 AM
+Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
+
+
+Francois Romieu <romieu@fr.zoreil.com> :
+[...]
+> Typo. It should be:
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.18-rc4/ip1000
+
+Added 0038-ip1000-CodingStyle.txt.
+
+More local variables, more unsigned int, less MixedCase, ipg_nic_rx()
+fits in your favorite 80 cols console.
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Ueimor
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+

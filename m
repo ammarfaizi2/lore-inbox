@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWHXVPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWHXVRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWHXVPH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWHXVPG
+	id S1422660AbWHXVRR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHXVRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:15:06 -0400
-Received: from alpha.polcom.net ([83.143.162.52]:37868 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1751619AbWHXVPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:15:03 -0400
-Date: Thu, 24 Aug 2006 23:14:57 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Oleg Verych <olecom@flower.upol.cz>
-Cc: linux-kernel@vger.kernel.org, pingved@gmail.com
-Subject: Re: [PATCH] boot: small change of halt method
-In-Reply-To: <44EE2228.5020807@flower.upol.cz>
-Message-ID: <Pine.LNX.4.63.0608242312570.14363@alpha.polcom.net>
-References: <20060824184447.GA3346@windows95> <44EDF923.4030607@zytor.com>
- <44EE2228.5020807@flower.upol.cz>
+	Thu, 24 Aug 2006 17:17:17 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22022 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030392AbWHXVRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:17:16 -0400
+Date: Thu, 24 Aug 2006 23:17:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/4] Inconsistent extern declarations.
+Message-ID: <20060824211715.GQ19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433118.3012.117.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156433118.3012.117.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006, Oleg Verych wrote:
-> H. Peter Anvin wrote:
->>  Andrew Brukhov wrote:
->> 
->> >  I'm new here.
->> >  After reading boot code i'm immidiatly change this string:
-> ...
->> >  + * Small fix of halt method Andrew Brukhov, Aug. 2006 
->> >  */
->> > 
-> <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
->
->>
->>      while (1)
->>          asm volatile("hlt");
->>
->>  ... since HLT only pauses until interrupt.
->> 
-> Why not to have a reboot here?
-> Testing and getting such errors on my laptop, it needs a power cycle.
+On Thu, Aug 24, 2006 at 04:25:18PM +0100, David Woodhouse wrote:
 
-And what if hlt is buggy? I have at least one pIII tualatin based server 
-that has some strange mainboard problem and will work only if nohlt is 
-passed to the kernel.
+> When you compile multiple files together with --combine, the compiler
+> starts to _notice_ when you do things like this in one file:
+> 
+>  extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
+>                                 struct iovec *iov, int len, int noblock);
+> 
+> .. but the actual function looks like this:
+> 
+>  extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
+>                                 struct iovec *iov, size_t len, int noblock);
+> 
+> This fixes a bunch of those, which are mostly just a missing 'const' on
+> the extern declaration.
+>...
 
+Nice.
 
-Thanks,
+This is a subset of -Wmissing-prototypes warnings, and I'm working for 
+some time to get the function prototypes into header files to avoid such 
+bugs (that can in some cases lead to nasty stack corruptions).
 
-Grzegorz Kulewski
+But they should be fixed properly by moving the prototypes to header 
+files.
+
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

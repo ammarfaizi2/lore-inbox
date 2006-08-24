@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWHXL7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWHXMAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWHXL7X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWHXL7X
+	id S1751185AbWHXMAL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWHXMAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:59:23 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:52431 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751160AbWHXL7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:59:22 -0400
-Date: Thu, 24 Aug 2006 21:01:36 +0900
+	Thu, 24 Aug 2006 08:00:11 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:21205 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751185AbWHXMAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:00:08 -0400
+Date: Thu, 24 Aug 2006 21:03:03 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: ebiederm@xmission.com, kamezawa.hiroyu@jp.fujitsu.com,
        Andrew Morton <akpm@osdl.org>, saito.tadashi@soft.fujitsu.com,
        ak@suse.de
-Subject: [RFC][PATCH] ps command race fix take 3 [2/4]  add member to task
- struct
-Message-Id: <20060824210136.dcfb7d15.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [RFC][PATCH] ps command race fix take 3 [3/4]  proc_pid_readdir()
+Message-Id: <20060824210303.9fe7e77a.kamezawa.hiroyu@jp.fujitsu.com>
 Organization: Fujitsu
 X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
@@ -26,121 +25,185 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- add watch_head to task_struct.
- This is used by /proc/<pid> readdir() routine.
+For remembering 'what process should be read in the next time',
+uses watch_head, dual direction pointer.
 
- pointer from /proc (which traverse task_list) is moved to next_task()
- if target task is removed.
+If a task which is pointed by file descriptor is removed,
+that pointer is moved to the next task (see release_task()).
+This will guarantee readdir() can traverse all task in the safe way.
 
- Note: next_task() in release_task() never return stale task struct.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
- Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
- include/linux/init_task.h |    2 ++
- include/linux/sched.h     |    4 +++-
- kernel/exit.c             |    7 ++++++-
- kernel/fork.c             |    3 +++
- 4 files changed, 14 insertions(+), 2 deletions(-)
+ fs/proc/base.c |  113 +++++++++++++++++++++++++++------------------------------
+ 1 files changed, 55 insertions(+), 58 deletions(-)
 
-Index: linux-2.6.18-rc4/include/linux/sched.h
+Index: linux-2.6.18-rc4/fs/proc/base.c
 ===================================================================
---- linux-2.6.18-rc4.orig/include/linux/sched.h
-+++ linux-2.6.18-rc4/include/linux/sched.h
-@@ -80,6 +80,7 @@ struct sched_param {
- #include <linux/resource.h>
- #include <linux/timer.h>
- #include <linux/hrtimer.h>
+--- linux-2.6.18-rc4.orig/fs/proc/base.c
++++ linux-2.6.18-rc4/fs/proc/base.c
+@@ -71,6 +71,8 @@
+ #include <linux/cpuset.h>
+ #include <linux/audit.h>
+ #include <linux/poll.h>
 +#include <linux/watch_head.h>
++
+ #include "internal.h"
  
- #include <asm/processor.h>
- 
-@@ -988,7 +989,8 @@ struct task_struct {
- 
- 	atomic_t fs_excl;	/* holding fs exclusive resources */
- 	struct rcu_head rcu;
--
-+	/* used by /proc/<pid> */
-+	struct watch_head watch;
- 	/*
- 	 * cache last used pipe for splice
- 	 */
-Index: linux-2.6.18-rc4/kernel/fork.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/fork.c
-+++ linux-2.6.18-rc4/kernel/fork.c
-@@ -45,6 +45,7 @@
- #include <linux/cn_proc.h>
- #include <linux/delayacct.h>
- #include <linux/taskstats_kern.h>
-+#include <linux/watch_head.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1154,6 +1155,7 @@ static struct task_struct *copy_process(
- 	INIT_LIST_HEAD(&p->thread_group);
- 	INIT_LIST_HEAD(&p->ptrace_children);
- 	INIT_LIST_HEAD(&p->ptrace_list);
-+	init_watch(&p->watch);
- 
- 	/* Perform scheduler related setup. Assign this task to a CPU. */
- 	sched_fork(p, clone_flags);
-@@ -1241,6 +1243,7 @@ static struct task_struct *copy_process(
- 			__get_cpu_var(process_counts)++;
- 		}
- 		attach_pid(p, PIDTYPE_PID, p->pid);
-+		make_watch_ready(&p->watch);
- 		nr_threads++;
- 	}
- 
-Index: linux-2.6.18-rc4/include/linux/init_task.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/init_task.h
-+++ linux-2.6.18-rc4/include/linux/init_task.h
-@@ -5,6 +5,7 @@
- #include <linux/rcupdate.h>
- #include <linux/irqflags.h>
- #include <linux/lockdep.h>
-+#include <linux/watch_head.h>
- 
- #define INIT_FDTABLE \
- {							\
-@@ -128,6 +129,7 @@ extern struct group_info init_groups;
- 	.pi_lock	= SPIN_LOCK_UNLOCKED,				\
- 	INIT_TRACE_IRQFLAGS						\
- 	INIT_LOCKDEP							\
-+	.watch		= WATCH_HEAD_INIT(tsk.watch),			\
+ /* NOTE:
+@@ -2140,70 +2142,48 @@ out_no_task:
+ 	return result;
  }
  
- 
-Index: linux-2.6.18-rc4/kernel/exit.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/exit.c
-+++ linux-2.6.18-rc4/kernel/exit.c
-@@ -38,6 +38,7 @@
- #include <linux/pipe_fs_i.h>
- #include <linux/audit.h> /* for audit_free() */
- #include <linux/resource.h>
-+#include <linux/watch_head.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -136,13 +137,17 @@ static void delayed_put_task_struct(stru
- 
- void release_task(struct task_struct * p)
+-/*
+- * Find the first tgid to return to user space.
+- *
+- * Usually this is just whatever follows &init_task, but if the users
+- * buffer was too small to hold the full list or there was a seek into
+- * the middle of the directory we have more work to do.
+- *
+- * In the case of a short read we start with find_task_by_pid.
+- *
+- * In the case of a seek we start with &init_task and walk nr
+- * threads past it.
+- */
+-static struct task_struct *first_tgid(int tgid, unsigned int nr)
++/* caller must take rcu_read_lock() */
++static struct task_struct *first_alive_process(struct task_struct *pos)
  {
--	struct task_struct *leader;
-+	struct task_struct *leader, *next;
- 	int zap_leader;
- repeat:
- 	atomic_dec(&p->user->processes);
- 	write_lock_irq(&tasklist_lock);
- 	ptrace_unlink(p);
- 	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
+-	struct task_struct *pos;
+-	rcu_read_lock();
+-	if (tgid && nr) {
+-		pos = find_task_by_pid(tgid);
+-		if (pos && thread_group_leader(pos))
+-			goto found;
+-	}
+-	/* If nr exceeds the number of processes get out quickly */
+-	pos = NULL;
+-	if (nr && nr >= nr_processes())
+-		goto done;
+-
+-	/* If we haven't found our starting place yet start with
+-	 * the init_task and walk nr tasks forward.
+-	 */
+-	for (pos = next_task(&init_task); nr > 0; --nr) {
++	while (!pid_alive(pos)) {
++		if (pos == &init_task)
++			break;
+ 		pos = next_task(pos);
+-		if (pos == &init_task) {
+-			pos = NULL;
+-			goto done;
+-		}
+ 	}
+-found:
+-	get_task_struct(pos);
+-done:
++	return (pos == &init_task)? NULL : pos;
++}
 +
-+	/* move pointer from /proc to next task */
-+	next = next_task(p);
-+	move_watcher(&p->watch, &next->watch);
- 	__exit_signal(p);
++static struct task_struct *next_tgid(struct task_struct *task)
++{
++	struct task_struct *pos;
++	rcu_read_lock();
++	pos = first_alive_process(next_task(task));
++	put_task_struct(task);
++	if (pos)
++		get_task_struct(pos);
+ 	rcu_read_unlock();
+ 	return pos;
+ }
+-
+ /*
+- * Find the next task in the task list.
+- * Return NULL if we loop or there is any error.
+- *
+- * The reference to the input task_struct is released.
++ * return the first process pointer by head.
++ * if head points no where, returns next_alive_task(init_task)
++ * if head points to init_task, returns NULL.
+  */
+-static struct task_struct *next_tgid(struct task_struct *start)
++static struct task_struct *first_tgid(struct watch_head *head)
+ {
+-	struct task_struct *pos;
++	struct task_struct *pos = NULL;
+ 	rcu_read_lock();
+-	pos = start;
+-	if (pid_alive(start))
+-		pos = next_task(start);
+-	if (pid_alive(pos) && (pos != &init_task)) {
+-		get_task_struct(pos);
+-		goto done;
++	pos = wh_get_remove_pointer(head,struct task_struct,watch);
++	if (!pos) {
++		pos = first_alive_process(next_task(&init_task));
++	} else if (pos == &init_task) {
++		return NULL;
++	} else {
++		pos = first_alive_process(pos);
+ 	}
+-	pos = NULL;
+-done:
++	if (pos)
++		get_task_struct(pos);
+ 	rcu_read_unlock();
+-	put_task_struct(start);
+ 	return pos;
+ }
  
- 	/*
+@@ -2213,6 +2193,7 @@ int proc_pid_readdir(struct file * filp,
+ 	char buf[PROC_NUMBUF];
+ 	unsigned int nr = filp->f_pos - FIRST_PROCESS_ENTRY;
+ 	struct task_struct *task;
++	struct watch_head *head;
+ 	int tgid;
+ 
+ 	if (!nr) {
+@@ -2227,9 +2208,13 @@ int proc_pid_readdir(struct file * filp,
+ 	/* f_version caches the tgid value that the last readdir call couldn't
+ 	 * return. lseek aka telldir automagically resets f_version to 0.
+ 	 */
+-	tgid = filp->f_version;
+-	filp->f_version = 0;
+-	for (task = first_tgid(tgid, nr);
++	head = filp->private_data;
++	/* if we reached to the end of task_list once, head is invalidated */
++	if (is_wh_invalid(head))
++		return 0;
++
++	/* f_pos counts # of read tasks. for lseek() */
++	for (task = first_tgid(head);
+ 	     task;
+ 	     task = next_tgid(task), filp->f_pos++) {
+ 		int len;
+@@ -2238,13 +2223,25 @@ int proc_pid_readdir(struct file * filp,
+ 		len = snprintf(buf, sizeof(buf), "%d", tgid);
+ 		ino = fake_ino(tgid, PROC_TGID_INO);
+ 		if (filldir(dirent, buf, len, filp->f_pos, ino, DT_DIR) < 0) {
+-			/* returning this tgid failed, save it as the first
+-			 * pid for the next readir call */
+-			filp->f_version = tgid;
++			/* this task is failed to be returned. remember this */
++			struct task_struct *pos = task;
++			rcu_read_lock();
++			do {
++				pos = first_alive_process(pos);
++				if (pos && add_watcher(head, &pos->watch))
++					break;
++				if (pos)
++					pos = next_task(pos);
++			} while (pos && pos != &init_task);
++			rcu_read_unlock();
+ 			put_task_struct(task);
++			task = pos;
+ 			break;
+ 		}
+ 	}
++	/* reached to the end of task_list */
++	if (!task)
++		invalidate_wh(head);
+ 	return 0;
+ }
+ 
 

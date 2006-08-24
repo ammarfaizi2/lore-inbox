@@ -1,84 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWHXD7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWHXEHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbWHXD7p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 23:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWHXD7p
+	id S1030270AbWHXEHR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 00:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWHXEHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 23:59:45 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:28876 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1030262AbWHXD7p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 23:59:45 -0400
-Message-ID: <44ED25AE.9030003@student.ltu.se>
-Date: Thu, 24 Aug 2006 06:06:06 +0200
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Thu, 24 Aug 2006 00:07:17 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:11287 "EHLO
+	asav02.insightbb.com") by vger.kernel.org with ESMTP
+	id S1030270AbWHXEHQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 00:07:16 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AR4FAATC7ESBUA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Greg KH <gregkh@suse.de>
+Subject: [GIT PULL] Input updates for 2.6.18
+Date: Thu, 24 Aug 2006 00:07:14 -0400
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Andrew Morton <akpm@osdl.org>, Prajakta Gudadhe <pgudadhe@nvidia.com>,
-       jeff@garzik.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm2] Generic boolean
-References: <1156209426.2840.15.camel@dhcp-172-16-174-114.nvidia.com> <20060821224457.65de5111.akpm@osdl.org> <44EB8B2A.8030603@student.ltu.se> <20060822161706.bad04598.akpm@osdl.org> <44EC3878.9070300@student.ltu.se> <Pine.LNX.4.61.0608231403280.14327@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608231403280.14327@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608240007.14625.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+Hi Greg,
 
->Hi,
->
->
->  
->
->>There has been concern about adding other values then 0 and 1. There has been
->>ideas to do something like:
->>bool b = i & 1 : 0;
->>    
->>
->
->I think you miseed a '?'
->  
->
-Yes, thanks...
+Please pull from:
 
->bool b = (i & 1) ? : 0;
->  
->
-...but I meant: bool b = i ? 1 : 0;
+        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
->  
->
->>/*or*/
->>bool b = !!i;
->>
->>but all that is needed is just a casting:
->>
->>bool b = (bool) i;
->>    
->>
->
->No casting needed (in fact, casting is more evil than !!). If bool is a
->  
->
-Please inform me why casting is evil (other then risking losing data, by 
-cutting the value). But also, _Bool-casting is after all a bit special 
-since it does not seem (at least by me) to be able to get a wrong value 
-(giving it a value other then 0 but reciving 0).
+or
+        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
->bool, then the compiler will (hopefully) ensure that b will only get
->values valid for bools.
->  
->
-No, not really. Because _Bool is a byte and not a bit, you can put in a 
-value other then 0 or 1 if you cast the pointer (if you insert 256 it 
-becomes 0). But after all, there should not be any:
-if (b == true)
-in the code anyway, so it should be ok.
+It has several updates to the input subsystem:
 
->Jan Engelhardt
->  
->
-/Richard Knutsson
+Alexey Dobriyan:
+      Input: remove dead URLs from Doclumentation/input/joystick.txt
+
+Dmitry Torokhov:
+      Input: wistron - fix crash due to referencing __initdata
+
+Florin Malita:
+      Input: atkbd - fix overrun in atkbd_set_repeat_rate()
+
+Pozsar Balazs:
+      Input: psmouse - fix Intellimouse 4.0 initialization
+
+
+ Documentation/input/joystick.txt   |    1 -
+ drivers/input/keyboard/atkbd.c     |    2 +-
+ drivers/input/misc/wistron_btns.c  |   16 ++++++++--------
+ drivers/input/mouse/psmouse-base.c |    7 -------
+ 4 files changed, 9 insertions(+), 17 deletions(-)
+
+
+-- 
+Dmitry

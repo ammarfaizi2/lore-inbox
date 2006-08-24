@@ -1,64 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWHXMac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWHXMaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWHXMac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWHXMac
+	id S1751200AbWHXMaq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWHXMap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:30:32 -0400
-Received: from wx-out-0506.google.com ([66.249.82.227]:41507 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751197AbWHXMab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:30:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QyCclpOOzKrpVWeJJZYscAnffwJHB6LOg6Y3s151w4Rlnd3HXBRTGaBCAvGEPuLam/GivSsF5lyyUrfzqPgCOmhmK7qWKlxGRw07OlFgv6nQVC9u5/QrcUq9FSTtDAE7njBFiBbFpgIhE5HcWADGH4nPoiRdNMGP4lJmRhlG5ag=
-Message-ID: <6bffcb0e0608240530g46c207a0x9dc595eb1dfff45b@mail.gmail.com>
-Date: Thu, 24 Aug 2006 14:30:30 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-24-00-22.tar.gz uploaded
-Cc: "Nathan Scott" <nathans@sgi.com>, xfs-masters@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608240723.k7O7NsBB025642@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 24 Aug 2006 08:30:45 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:7088 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751194AbWHXMao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:30:44 -0400
+Subject: Re: [PATCH] SELinux: 3/3 convert sbsec semaphore to a mutex
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <20060823140440.92bc9a10.akpm@osdl.org>
+References: <1156362637.6662.51.camel@localhost.localdomain>
+	 <20060823140440.92bc9a10.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 24 Aug 2006 08:32:16 -0400
+Message-Id: <1156422737.8506.137.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608240723.k7O7NsBB025642@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> The mm snapshot broken-out-2006-08-24-00-22.tar.gz has been uploaded to
->
->    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-24-00-22.tar.gz
->
-> It contains the following patches against 2.6.18-rc4:
+On Wed, 2006-08-23 at 14:04 -0700, Andrew Morton wrote:
+> On Wed, 23 Aug 2006 15:50:37 -0400
+> Eric Paris <eparis@redhat.com> wrote:
+> 
+> > This patch converts the semaphore in the superblock security struct to a
+> > mutex.  No locking changes or other code changes are done.
+> > 
+> > This is being targeted for 2.6.19
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > 
+> >  security/selinux/hooks.c          |    7 +++----
+> >  security/selinux/include/objsec.h |    2 +-
+> >  2 files changed, 4 insertions(+), 5 deletions(-)
+> > 
+> > --- linux-2.6-sem-changes/security/selinux/include/objsec.h.patch3	2006-08-03 14:04:07.000000000 -0400
+> > +++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-08-03 14:18:44.000000000 -0400
+> > @@ -63,7 +63,7 @@ struct superblock_security_struct {
+> >  	unsigned int behavior;          /* labeling behavior */
+> >  	unsigned char initialized;      /* initialization flag */
+> >  	unsigned char proc;             /* proc fs */
+> > -	struct semaphore sem;
+> > +	struct mutex lock;
+> >  	struct list_head isec_head;
+> >  	spinlock_t isec_lock;
+> >  };
+> > --- linux-2.6-sem-changes/security/selinux/hooks.c.patch3	2006-08-02 14:29:28.000000000 -0400
+> > +++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-08-03 14:21:48.000000000 -0400
+> > @@ -49,7 +49,6 @@
+> >  #include <net/ip.h>		/* for sysctl_local_port_range[] */
+> >  #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
+> >  #include <asm/uaccess.h>
+> > -#include <asm/semaphore.h>
+> >  #include <asm/ioctls.h>
+> >  #include <linux/bitops.h>
+> >  #include <linux/interrupt.h>
+> > @@ -240,7 +239,7 @@ static int superblock_alloc_security(str
+> >  	if (!sbsec)
+> >  		return -ENOMEM;
+> >  
+> > -	init_MUTEX(&sbsec->sem);
+> > +	mutex_init(&sbsec->lock);
+> >  	INIT_LIST_HEAD(&sbsec->list);
+> >  	INIT_LIST_HEAD(&sbsec->isec_head);
+> >  	spin_lock_init(&sbsec->isec_lock);
+> > @@ -595,7 +594,7 @@ static int superblock_doinit(struct supe
+> >  	struct inode *inode = root->d_inode;
+> >  	int rc = 0;
+> >  
+> > -	down(&sbsec->sem);
+> > +	mutex_lock(&sbsec->lock);
+> >  	if (sbsec->initialized)
+> >  		goto out;
+> >  
+> > @@ -690,7 +689,7 @@ next_inode:
+> >  	}
+> >  	spin_unlock(&sbsec->isec_lock);
+> >  out:
+> > -	up(&sbsec->sem);
+> > +	mutex_unlock(&sbsec->lock);
+> >  	return rc;
+> >  }
+> >  
+> > 
+> 
+> Does this lock actually do anything?
 
-Filesystem "loop4": Disabling barriers, not supported by the underlying device
-XFS mounting filesystem loop4
-Slab corruption: start=ef135b6c, len=304
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<fdd1c363>](xfs_buf_free+0xb8/0xbd [xfs])
-0d0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6c 6b 6b 6b
-Prev obj: start=ef135a30, len=304
-Redzone: 0x170fc2a5/0x170fc2a5.
-Last user: [<fdd19dad>](kmem_zone_alloc+0x51/0x97 [xfs])
-000: 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00
-010: ad 4e ad de ff ff ff ff ff ff ff ff 00 00 00 00
-Next obj: start=ef135ca8, len=304
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<fdd1c363>](xfs_buf_free+0xb8/0xbd [xfs])
-000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm3/mm-config
-
-Regards,
-Michal
+The function is called from vfs_kern_mount normally, and from
+selinux_complete_init just for the initial setup after initial policy
+load.  The lock is for the initialization of the superblock security
+struct.  Strictly speaking, we can't race from vfs_kern_mount since the
+caller holds s_umount write lock already, but I didn't think we should
+rely on that here.  Eric noticed that as well when he was preparing the
+sem->mutex conversion patch and was originally going to drop the lock
+altogether.
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Stephen Smalley
+National Security Agency
+

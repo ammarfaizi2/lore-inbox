@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWHXGNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWHXGTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbWHXGNH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 02:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWHXGNH
+	id S1030327AbWHXGTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 02:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbWHXGTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 02:13:07 -0400
-Received: from ns2.suse.de ([195.135.220.15]:46511 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030323AbWHXGNE (ORCPT
+	Thu, 24 Aug 2006 02:19:40 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:21988 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030327AbWHXGTj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 02:13:04 -0400
-From: Neil Brown <neilb@suse.de>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Date: Thu, 24 Aug 2006 16:12:52 +1000
+	Thu, 24 Aug 2006 02:19:39 -0400
+Date: Thu, 24 Aug 2006 07:52:36 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Kirill Korotaev <dev@sw.ru>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH] BC: resource beancounters (v2)
+In-Reply-To: <44EC31FB.2050002@sw.ru>
+Message-ID: <Pine.LNX.4.61.0608240752200.21705@yvahk01.tjqt.qr>
+References: <44EC31FB.2050002@sw.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17645.17252.217583.660976@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       arjan <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] nfsd: lockdep annotation
-In-Reply-To: message from Peter Zijlstra on Wednesday August 23
-References: <1156330112.3382.34.camel@twins>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 23, a.p.zijlstra@chello.nl wrote:
-> Hi,
-> 
-> while doing a kernel make modules_install install over an NFS mount.
-> (
-> 
-> =============================================
-> [ INFO: possible recursive locking detected ]
-> ---------------------------------------------
+>
+> The following patch set presents base of
+> Resource Beancounters (BC).
 
-Thanks for the patch.  I had a patch to fix this in my queue, but I
-just hadn't got around to submitting it yet :-(
-Never mind, we'll go with yours and Andrew already has it.
+Why are they called beans?
 
-I had flags the fh_lock in nfsd_setattr a I_MUTEX_CHILD which you
-didn't however I see that isn't needed (Why do we have PARENT and
-CHILD and NORMAL.... you would think that any two would do ??)
 
-However there is a bit missing: the fh_lock in nfsd_proc_create
-in nfsproc.c needs I_MUTEX_PARENT - I'll send a separate patch to fix
-that.
-
-Thanks,
-NeilBrown
-
+Jan Engelhardt
+-- 

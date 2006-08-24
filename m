@@ -1,86 +1,50 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWHWFMM (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 23 Aug 2006 01:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWHWFMM
+	id S1422749AbWHXWAL (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 24 Aug 2006 18:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWHXWAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 01:12:12 -0400
-Received: from wappsrv1-l3.webley.com ([209.247.32.29]:21965 "EHLO
-	wappsrv1-l3.webley.COM") by vger.kernel.org with ESMTP
-	id S1751033AbWHWFML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 01:12:11 -0400
-Message-Id: <200608230348.k7N3mK9N018246@wweb04-l3.webley>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Thu, 24 Aug 2006 18:00:07 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:38872 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1422675AbWHXWAC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 18:00:02 -0400
+Message-ID: <662161c80604bpjkpst98gxirc8w03x0fpelqpaxz5sjh@mk-mx-2.b2b.uk.tiscali.com>
+Date: Thu, 24 Aug 2006 21:59:39 0000
+From: "Sidney Anderson" <keiron.gray@0800dial.com>
+To: linux-diald@vger.kernel.org
+Subject: We can grow any stock up to 300%
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.420 (Entity 5.420)
-From: "Eufa Champions League Lottery Inc." 
-	<prizeclaims_ecllotto@yahoo.com.hk>
-Subject: **!!!HURRAY!!LUCKY WNNER!!YOU HAVE WON!!**
-Date: Wed, 23 Aug 2006 04:48:20 +0100
-X-Platform-Account: 15091782
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751033AbWHWFMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1422749AbWHXWAL@vger.kernel.org>
 
-Dear Winner,
- 
-The Local Organising Committee of the European Champions League is 
-glad to announce to the world the giving away of the sum of FIFTY 
-MILLION POUNDS to 100 lucky email addresses all over the world. This 
-promotion is in Appreciation of our InternationalSupport for the 
-past Soccer 
-Events and the correspondent earnings at the stock market which was 
-far 
-beyond our projected quarterly earnings.
- 
-Be informed that all winners in this program have been selected 
-randomly  
-through a computer ballot system drawn from over 1,500,000 companies 
-and individual e-mail addresses database. Your email address 
-happened 
-to be one of the lucky winner of FIVE HUNDRED THOUSAND POUNDS among 
-the Hundred email addressess chosen. In other to claim your prize, 
-you will 
-have to fill the form below and send it back to us for verification 
-and then you 
-will be informed on how your Cashier's Check for the sum which has 
-already 
-been deposited with your email contact.
- 
-We use this opportunity to thank all our Sponsors/Contributors of 
-this  
-program: AIR EMIRATES,ADIDAS,NIKE,MCDONALDS,COCA-COLA,UNITED 
-AIRLINES,BMW,PEPSI,VIRGIN ATLANTIC,UMBRO-SPORTLINE,FUJIFILM, 
-AIR-ASIA,BARCLAYS,VODAFONE, NOKIA N-SERIES, LUCOZADE SPORT, AND A 
-HOST OF EMAIL SERVICE PROVIDERS FOR ALLOWING THE USE OF THEIR 
-DATABASE FOR THE DRAWS AND ALSO FOR THE PROVISION OF SECURE (SSL) 
- 
-EMAIL DELIVERY SYSTEMS.
- 
-NAME:..................................................
-AGE:.....................................................
-SEX:......................................................
-ADDRESS:............................................
-EMAIL:.................................................
-TEL.:.....................................................
-CCUPATION:........................................
-COUNTRY:.............................................
- 
-Please you are advised to complete the form and send back to us for 
-prompt collection. You are automatically disqualified if you are 
-below 
-18 yearsof age.This E-mail message (including attachments, if any)is 
-intended for the use of the individual or entity to which it is 
-addressed 
-and may contain Information that isprivileged, 
-proprietary,confidential 
-and exempted from disclosure.If you are not the intended recipient, 
-you 
-are notified that any dissemination,distribution or copying of this 
-communication is strictly prohibited.
- 
-Sincerely,
+Hello Investor/Stock owner,
 
-Susan Brown.
+We are a stock promotion company and we can promote any kind of stocks. We are in search of serious partners with whom we can make bussines together.That proposal is for you if you are:
+
+Stock owner
+
+You own an underrated stock and the market price of your stock is from 0.001 to 1$
+
+We can increase the price of your stock and we can increase average day trading volume. We can increase price up to 200-250% in 2-3 weeks and also we can increase volume by 10 times each trading day. You don't have to pay anything in advance. First we increase the price and the volume, then you pay. We will prove it for 1 day for free.
+
+Payment: Our price for that is 6% from the daily volume. We count it by the following formula: (prev. close price + today open price)/2 * daily volume. 
+
+WE GUARANTY LONG TERM GROWTH 
+
+WE PROMOTE THE COMPANY AND IT'S BUSINESS
+
+
+Investor
+
+You want to invest some money and you want to make big profits? Our company can help you in that. We know exactly which stocks will increase in price and wich will be falling down. We will give you advices and according to that advices you will make decisions. We will prove it for 1 day for free. We will tell you the price of the stock in advance and you will see that our stock promotion group works hard in order to make your investment portfolio grow.
+
+Payment: Our price for that is 25-30% from your income. Before the deal you are telling us on which ammount of money you are buying/selling stock and we are counting the future profit and take 30% from that profit. You don't have to pay anything in advance, you pay only then you receive your profit.
+
+
+If you are interested in our proposal please write me back to the following email: job@secpay1.com
+

@@ -1,158 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWHXVml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWHXVtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbWHXVml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbWHXVml
+	id S1422701AbWHXVtW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWHXVtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:42:41 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:39428 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422701AbWHXVmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:42:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=ua/heACWCYlHN6CHxp6c1rtiFVTGqYcyK2SCJIvLzMqVpTFdFrftinre5kN5thzTyGry0gR0Q/M+OrgJzWgPgrqBdp+ckMDnMbubWUpJ4M1WOF9tiXqj7WvFW7UeotjCf4EObWb+siQVue1SjQZMOmsrofDdaNxtzMw/KQ94+AY=
-Date: Fri, 25 Aug 2006 01:42:33 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Darren Jenkins <darrenrjenkins@gmail.com>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
-Subject: [PATCH 1/2] asus_acpi: fix proc files parsing
-Message-ID: <20060824214233.GA5204@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Thu, 24 Aug 2006 17:49:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39686 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422701AbWHXVtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:49:21 -0400
+Date: Thu, 24 Aug 2006 23:49:19 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+Message-ID: <20060824214919.GT19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433068.3012.115.camel@pmac.infradead.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1156433068.3012.115.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Darren Jenkins <darrenrjenkins@gmail.com>
+On Thu, Aug 24, 2006 at 04:24:28PM +0100, David Woodhouse wrote:
+>...
+> Using a combination of these two compiler options for building kernel
+> code leads to some useful optimisation -- especially with modules which
+> are made up of a bunch of incestuous C files, where none of the global
+> symbols actually _need_ to be visible outside the directory they reside
+> in. File systems are a prime example of this -- on PPC64 I see a
+> reduction in size of ext3.ko by 2.6%, jffs2.ko by 5%, cifs.ko by 8% and
+> befs.ko by a scary 14%. Strangely, udf.ko seems to have _grown_ by 6.6%
+> -- that'll probably be another optimisation bug like GCC PR28755.
+>...
 
-ICC complains about a "Pointless comparsion of unsigned interger with
-zero" @ line 760 & 808 of asus_acpi.c
+Looks good.  :-)
 
-parse_arg() mentioned below returns -E but it's copied into unsigned variable...
+What kernel are your patches against?
 
-Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+2.6.18-rc4 gives me:
 
- drivers/acpi/asus_acpi.c |   46 +++++++++++++++++++++++-----------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+<--  snip  -->
 
---- a/drivers/acpi/asus_acpi.c
-+++ b/drivers/acpi/asus_acpi.c
-@@ -555,11 +555,11 @@ static int
- write_led(const char __user * buffer, unsigned long count,
- 	  char *ledname, int ledmask, int invert)
- {
--	int value;
-+	int rv, value;
- 	int led_out = 0;
+...
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CC      arch/i386/kernel/asm-offsets.s
+  GEN     include/asm-i386/asm-offsets.h
+  HOSTCC  scripts/kallsyms
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/bin2c
+make[1]: *** No rule to make target `/home/bunk/linux/linux-2.6.18-rc4/dummy.c', needed by `init/init.o'.  Stop.
+make: *** [init] Error 2
+
+<--  snip  -->
  
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		led_out = value ? 1 : 0;
- 
- 	hotk->status =
-@@ -572,7 +572,7 @@ write_led(const char __user * buffer, un
- 		printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
- 		       ledname);
- 
--	return count;
-+	return rv;
- }
- 
- /*
-@@ -607,20 +607,20 @@ static int
- proc_write_ledd(struct file *file, const char __user * buffer,
- 		unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0) {
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0) {
- 		if (!write_acpi_int
- 		    (hotk->handle, hotk->methods->mt_ledd, value, NULL))
- 			printk(KERN_WARNING
- 			       "Asus ACPI: LED display write failed\n");
- 		else
- 			hotk->ledd_status = (u32) value;
--	} else if (count < 0)
-+	} else if (rv < 0)
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 
--	return count;
-+	return rv;
- }
- 
- /*
-@@ -761,12 +761,12 @@ static int
- proc_write_lcd(struct file *file, const char __user * buffer,
- 	       unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		set_lcd_state(value);
--	return count;
-+	return rv;
- }
- 
- static int read_brightness(void)
-@@ -830,18 +830,18 @@ static int
- proc_write_brn(struct file *file, const char __user * buffer,
- 	       unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0) {
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0) {
- 		value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
- 		/* 0 <= value <= 15 */
- 		set_brightness(value);
--	} else if (count < 0) {
-+	} else if (rv < 0) {
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 	}
- 
--	return count;
-+	return rv;
- }
- 
- static void set_display(int value)
-@@ -880,15 +880,15 @@ static int
- proc_write_disp(struct file *file, const char __user * buffer,
- 		unsigned long count, void *data)
- {
--	int value;
-+	int rv, value;
- 
--	count = parse_arg(buffer, count, &value);
--	if (count > 0)
-+	rv = parse_arg(buffer, count, &value);
-+	if (rv > 0)
- 		set_display(value);
--	else if (count < 0)
-+	else if (rv < 0)
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 
--	return count;
-+	return rv;
- }
- 
- typedef int (proc_readfunc) (char *page, char **start, off_t off, int count,
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

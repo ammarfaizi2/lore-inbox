@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWHXHlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWHXHu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWHXHlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 03:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHXHl2
+	id S1750772AbWHXHu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 03:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWHXHu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 03:41:28 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38356 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750804AbWHXHlR (ORCPT
+	Thu, 24 Aug 2006 03:50:57 -0400
+Received: from mail.suse.de ([195.135.220.2]:28630 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750772AbWHXHu5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 03:41:17 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 24 Aug 2006 17:41:18 +1000
-Message-Id: <1060824074118.19171@suse.de>
+	Thu, 24 Aug 2006 03:50:57 -0400
+From: Neil Brown <neilb@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Date: Thu, 24 Aug 2006 17:50:49 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17645.23129.674328.872688@cse.unsw.edu.au>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] nfsd: lockdep annotation
+In-Reply-To: message from Arjan van de Ven on Thursday August 24
+References: <1156330112.3382.34.camel@twins>
+	<17645.17252.217583.660976@cse.unsw.edu.au>
+	<1156404952.3014.0.camel@laptopd505.fenrus.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 004 of 4] md: Remove unnecessary variable x in stripe_to_pdidx().
-References: <20060824173647.19026.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday August 24, arjan@infradead.org wrote:
+> On Thu, 2006-08-24 at 16:12 +1000, Neil Brown wrote:
+> > 
+> > I had flags the fh_lock in nfsd_setattr a I_MUTEX_CHILD which you
+> > didn't however I see that isn't needed (Why do we have PARENT and
+> > CHILD and NORMAL.... you would think that any two would do ??)
+> 
+> for cross directory renames 3 are needed ;(
 
->From : Coywolf Qi Hunt <qiyong@freeforge.net>
+I see....
+If one of the source/dest directories is an ancestor to the other
+it gets _PARENT while the descendent gets _CHILD,
+otherwise the destination gets _PARENT and the source gets _CHILD.
+I guess the terms 'PARENT' and 'CHILD' refer more to the relationship
+of the locks than the relationship of the directories.
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@freeforge.net>
+(If the destination name exists, it gets locked with _NORMAL)
 
+I still find the terminology a bit confusing.
+ _GRANDPARENT -> _PARENT -> _NORMAL
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+would make more sense to me, but maybe it isn't that important.
 
-### Diffstat output
- ./drivers/md/raid5.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Thanks for the explanation.
 
-diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
---- .prev/drivers/md/raid5.c	2006-08-24 17:09:42.000000000 +1000
-+++ ./drivers/md/raid5.c	2006-08-24 17:24:17.000000000 +1000
-@@ -1350,10 +1350,9 @@ static int page_is_zero(struct page *p)
- static int stripe_to_pdidx(sector_t stripe, raid5_conf_t *conf, int disks)
- {
- 	int sectors_per_chunk = conf->chunk_size >> 9;
--	sector_t x = stripe;
- 	int pd_idx, dd_idx;
--	int chunk_offset = sector_div(x, sectors_per_chunk);
--	stripe = x;
-+	int chunk_offset = sector_div(stripe, sectors_per_chunk);
-+
- 	raid5_compute_sector(stripe*(disks-1)*sectors_per_chunk
- 			     + chunk_offset, disks, disks-1, &dd_idx, &pd_idx, conf);
- 	return pd_idx;
+NeilBrown

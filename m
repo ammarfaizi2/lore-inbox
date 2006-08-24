@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWHXLdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWHXLkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWHXLdm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 07:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWHXLdm
+	id S1751161AbWHXLkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 07:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWHXLkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 07:33:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:475 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751152AbWHXLdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 07:33:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] x86_64: mm fix x86 cpuid keys used in alternative_smp fix
-Date: Thu, 24 Aug 2006 13:33:35 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Jan Beulich <jbeulich@novell.com>,
-       linux-kernel@vger.kernel.org
-References: <20060824105846.23508.59971.sendpatchset@sam.engr.sgi.com>
-In-Reply-To: <20060824105846.23508.59971.sendpatchset@sam.engr.sgi.com>
+	Thu, 24 Aug 2006 07:40:22 -0400
+Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:30177 "EHLO
+	mail.aftek.com") by vger.kernel.org with ESMTP id S1751161AbWHXLkV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 07:40:21 -0400
+X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.5/1.7):. Processed in 1.901641 secs Process 3530)
+From: "Abu M. Muttalib" <abum@aftek.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Akinobu Mita" <mita@miraclelinux.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: RE: [RFC PATCH] prevent from killing OOM disabled task indo_page_fault()
+Date: Thu, 24 Aug 2006 17:14:52 +0530
+Message-ID: <BKEKJNIHLJDCFGDBOHGMCENPDGAA.abum@aftek.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608241333.35985.ak@suse.de>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <1156419794.3007.99.camel@localhost.localdomain>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 August 2006 12:58, Paul Jackson wrote:
-> From: Paul Jackson <pj@sgi.com>
-> 
-> The x86_64 crosstool build was failing due to:
-> 
->   kernel/built-in.o(.smp_altinstructions+0x58): \
->     include/asm/spinlock.h:54: undefined reference to `X86_FEATURE_UP'
-> 
-> This reference to X86_FEATURE_UP was added to the definition of
-> the alternative_smp() macro in alternative.h by the patch:
->   x86_64-mm-fix-x86-cpuid-keys-used-in-alternative_smp
-> 
-> The alternative_smp() macro is used in spinlock.h.
-> 
-> The definition of X86_FEATURE_UP is in asm-x86_64/cpufeature.h.
-> If this is included in alternative.h, then the build succeeds.
+Hi,
 
-Ok it seems to depend on the .config, but nobody before submitted 
-the buggy .config
+> > > The process protected from oom-killer may be killed when
+do_page_fault()
+> > > runs out of memory. This patch skips those processes as well as init
+task.
+> >
+> > Do we have any patch set to disable OOM all together for linux kernel
+> > 2.6.13?
+>
+> No, its run tme configurable as is selection priority of the processes
+> which you want killed, has been for some time.
 
-I folded the patch in
+Will you please elaborate upon your reply.
 
--Andi
+Thanks,
+Abu.
+
+
+

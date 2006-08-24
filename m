@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWHXMSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWHXM1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWHXMSa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHXMSa
+	id S1751196AbWHXM1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWHXM1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:18:30 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:18223 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751177AbWHXMS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:18:29 -0400
-Date: Thu, 24 Aug 2006 14:18:25 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] dubious process system time.
-Message-ID: <20060824121825.GA4425@skybase>
-MIME-Version: 1.0
+	Thu, 24 Aug 2006 08:27:16 -0400
+Received: from ausmtp06.au.ibm.com ([202.81.18.155]:17844 "EHLO
+	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1751196AbWHXM1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:27:16 -0400
+Date: Thu, 24 Aug 2006 17:58:08 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Gautham R Shenoy <ego@in.ibm.com>, rusty@rustcorp.com.au,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       arjan@linux.intel.com, davej@redhat.com, vatsa@in.ibm.com,
+       dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 3/4] (Refcount + Waitqueue) implementation for cpu_hotplug "locking"
+Message-ID: <20060824122808.GH2395@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20060824103233.GD2395@in.ibm.com> <20060824111440.GA19248@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060824111440.GA19248@elte.hu>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On Thu, Aug 24, 2006 at 01:14:40PM +0200, Ingo Molnar wrote:
+> 
+> * Gautham R Shenoy <ego@in.ibm.com> wrote:
+> 
+> >  void lock_cpu_hotplug(void)
+> >  {
+> 
+> > +	DECLARE_WAITQUEUE(wait, current);
+> > +	spin_lock(&cpu_hotplug.lock);
+> > +	cpu_hotplug.reader_count++;
+> 
+> this should be per-CPU - lock_cpu_hotplug() should _not_ be a globally 
+> synchronized event.
+> CPU removal is such a rare event that we can easily do something like a 
+> global read-mostly 'CPU is locked for writes' flag (plus a completion 
+> queue) that the 'write' side takes atomically - combined with per-CPU 
+> refcount and a waitqueue that the read side increases/decreases and 
+> wakes. Read-locking of the CPU is much more common and should be 
+> fundamentally scalable: it should increase the per-CPU refcount, then 
+> check the global 'writer active' flag, and if the writer flag is set, it 
+> should wait on the global completion queue. When a reader drops the 
+> refcount it should wake up the per-CPU waitqueue. [in which a writer 
+> might be waiting for the refcount to go down to 0.]
+This was the approach I tried to make it cache friendly.
+These are the problems I faced.
 
-[patch] dubious process system time.
+- Reader checks the write_active flag. If set, he waits in the global read
+queue. else, he gets the lock and increments percpu refcount.
 
-The system time that is accounted to a process includes the time spent
-in three different contexts: normal system time, hardirq time and
-softirq time. To account hardirq time and sortirq time to a process
-seems wrong, because the process could just happen to run when the
-interrupt arrives that was caused by an i/o for a completly different
-process. And the sum over stime and cstime of all processes won't
-match cputstat->system either. 
-The following patch changes the accounting of system time so that
-hardirq and softirq time are not accounted to a process anymore.
+- the writer would have to check each cpu's read refcount, and ensure that
+read refcount =0 on all of them before he sets write_active and 
+begins a write operation.
+This will create a big race window - a writer is checking
+for a refcount on cpu(j), a reader comes on cpu(i) where i<j;
+Let's assume the writer checks refcounts in increasing order of cpus.
+Should the reader on cpu(i) wait or go ahead? If we use a global
+lock to serialize this operation, we the whole purpose of maintaining
+per cpu data is lost.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+- If the reader decides to wait on cpu(i) and the writer on cpu(j+1) 
+finds refcount!=0,do we have both reader and writer waiting?
+Or should the writer perform some sort of a rollback, where he wakes up
+the readers on all cpus i < j+1?
 
- kernel/sched.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+- When a reader is done, he decrements his percpu refcount. But, a 
+percpu refcount = 0 does not mean there are no active readers in the 
+system. So the reader too, would have to check for each cpu refcount
+before he wakes up the writer in his queue. this would mean 
+referencing other cpu's data.
 
-diff -urpN linux-2.6/kernel/sched.c linux-2.6-patched/kernel/sched.c
---- linux-2.6/kernel/sched.c	2006-08-01 10:09:55.000000000 +0200
-+++ linux-2.6-patched/kernel/sched.c	2006-08-24 13:42:40.000000000 +0200
-@@ -2939,17 +2939,16 @@ void account_system_time(struct task_str
- 	struct rq *rq = this_rq();
- 	cputime64_t tmp;
- 
--	p->stime = cputime_add(p->stime, cputime);
--
- 	/* Add system time to cpustat. */
- 	tmp = cputime_to_cputime64(cputime);
- 	if (hardirq_count() - hardirq_offset)
- 		cpustat->irq = cputime64_add(cpustat->irq, tmp);
- 	else if (softirq_count())
- 		cpustat->softirq = cputime64_add(cpustat->softirq, tmp);
--	else if (p != rq->idle)
-+	else if (p != rq->idle) {
-+		p->stime = cputime_add(p->stime, cputime);
- 		cpustat->system = cputime64_add(cpustat->system, tmp);
--	else if (atomic_read(&rq->nr_iowait) > 0)
-+	} else if (atomic_read(&rq->nr_iowait) > 0)
- 		cpustat->iowait = cputime64_add(cpustat->iowait, tmp);
- 	else
- 		cpustat->idle = cputime64_add(cpustat->idle, tmp);
+- How do we deal when a reader takes a lock first on cpu(i) gets
+migrated to cpu(j) during an unlock. Again, we have to cross-reference 
+other cpu's data.
+
+I tried and gave up. But I would love to have this whole thing
+implemented in a more cache friendly manner if we can.
+
+Thanks and Regards
+ego
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

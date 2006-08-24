@@ -1,71 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWHXMAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWHXMBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWHXMAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWHXMAX
+	id S1751175AbWHXMBe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHXMBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:00:23 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:32494 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751186AbWHXMAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:00:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=W+txN37BBsDdnuxLaxsNkkGSXoSHT+EN3R4Aoe1wb06xq6Mtlcio4/UrKiggrxsngnrexkxaquEM7Fh4KmO9nEGUkYEEWFsifXyi+nzfJzTLm7/5Up15H1LderNLwxBPwGNz7dcguEKPS1opxU4ldmCvjJ0fSzjwHBsuHwplpJY=
-Date: Thu, 24 Aug 2006 14:00:01 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Amnon Shiloh <amnons@cs.huji.ac.il>
-Cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com, akpm@osdl.org,
-       gregkh@suse.de
-Subject: [2.6.18 patch] fix mem_write return value (was: Re: bug report: mem_write)
-Message-ID: <20060824140001.GE1543@slug>
-References: <E1GGAWv-0001uP-Mu@lucifer.cs.huji.ac.il>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1GGAWv-0001uP-Mu@lucifer.cs.huji.ac.il>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Thu, 24 Aug 2006 08:01:34 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:30422 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751175AbWHXMBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:01:33 -0400
+Date: Thu, 24 Aug 2006 21:04:26 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ebiederm@xmission.com, kamezawa.hiroyu@jp.fujitsu.com,
+       Andrew Morton <akpm@osdl.org>, saito.tadashi@soft.fujitsu.com,
+       ak@suse.de
+Subject: [RFC][PATCH] ps command race fix take 3 [4/4] 
+ proc_root_open/releae/llseek
+Message-Id: <20060824210426.9c8a58d5.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 11:25:37AM +0300, Amnon Shiloh wrote:
-> Hi,
-> 
-> Alright, I know that "mem_write" (fs/proc/base.c) is a "security hazard",
-> but I need to use it anyway (as super-user only), and find it broken,
-> somewhere between Linux-2.6.17 and Linux-2.6.18-rc4.
-> 
-> The point is that in the beginning of the routine, "copied" is set to 0,
-> but it is no good because in lines 805 and 812 it is set to other values.
-> Finally, the routine returns as if it copied 12 (=ENOMEM) bytes less than
-> it actually did.
-True, it looks like the faulty commit is: de7587343bfebc186995ad294e3de0da382eb9bc
+implements open/release/llseek ops are needed by new proc_pid_readdir()
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=99f895518368252ba862cc15ce4eb98ebbe1bec6;hp=8578cea7509cbdec25b31d08b48a92fcc3b1a9e3
+llseek()'s offset is specified by 'bytes' but /proc root doesn't handle
+file->f_pos as bytes. So I disabled llseek for /proc for now.
 
-The attached patch should fix it. Maybe that should go to 2.6.18.
-Thanks for the bug report,
-Frederik
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+ fs/proc/root.c |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+)
 
---- fs/proc/base.c.orig	2006-08-24 13:57:22.000000000 +0200
-+++ fs/proc/base.c	2006-08-24 13:57:10.000000000 +0200
-@@ -797,7 +797,7 @@
- static ssize_t mem_write(struct file * file, const char * buf,
- 			 size_t count, loff_t *ppos)
- {
--	int copied = 0;
-+	int copied;
- 	char *page;
- 	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
- 	unsigned long dst = *ppos;
-@@ -814,6 +814,7 @@
- 	if (!page)
- 		goto out;
+Index: linux-2.6.18-rc4/fs/proc/root.c
+===================================================================
+--- linux-2.6.18-rc4.orig/fs/proc/root.c
++++ linux-2.6.18-rc4/fs/proc/root.c
+@@ -16,6 +16,7 @@
+ #include <linux/module.h>
+ #include <linux/bitops.h>
+ #include <linux/smp_lock.h>
++#include <linux/watch_head.h>
  
-+	copied = 0;
- 	while (count > 0) {
- 		int this_len, retval;
+ #include "internal.h"
  
+@@ -118,14 +119,46 @@ static int proc_root_readdir(struct file
+ 	return ret;
+ }
+ 
++static int proc_root_open(struct inode *inode, struct file *filp)
++{
++	struct watch_head *wh;
++	wh = kzalloc(sizeof(*wh), GFP_KERNEL);
++	if (wh) {
++		filp->private_data = wh;
++		return 0;
++	}
++	return -ENOMEM;
++}
++
++static int proc_root_release(struct inode *inode, struct file *filp)
++{
++	struct watch_head *wh;
++	wh = filp->private_data;
++	rcu_read_lock();
++	wh_get_and_remove_watcher(wh);
++	rcu_read_unlock();
++	kfree(wh);
++	filp->private_data = NULL;
++	return 0;
++}
++
++static loff_t proc_root_llseek(struct file *file, loff_t off, int pos)
++{
++	/* pos is bytes...but we don't use fp->f_pos as bytes... */
++	return -ENOTSUPP;
++}
++
+ /*
+  * The root /proc directory is special, as it has the
+  * <pid> directories. Thus we don't use the generic
+  * directory handling functions for that..
+  */
+ static struct file_operations proc_root_operations = {
++	.open		 = proc_root_open,
+ 	.read		 = generic_read_dir,
+ 	.readdir	 = proc_root_readdir,
++	.release	= proc_root_release,
++	.llseek		= proc_root_llseek,
+ };
+ 
+ /*
+

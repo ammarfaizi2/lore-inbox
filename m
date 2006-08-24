@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWHXR6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbWHXSA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751661AbWHXR6f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 13:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWHXR6f
+	id S1751648AbWHXSA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 14:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbWHXSA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 13:58:35 -0400
-Received: from bay0-omc2-s32.bay0.hotmail.com ([65.54.246.168]:45049 "EHLO
-	bay0-omc2-s32.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751657AbWHXR6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 13:58:34 -0400
-Message-ID: <BAY123-F83FB9BEE7F065A45CA6BDDF440@phx.gbl>
-X-Originating-IP: [75.34.181.35]
-X-Originating-Email: [dravet@hotmail.com]
-From: "Jason Dravet" <dravet@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: INFO: possible recursive locking detected
-Date: Thu, 24 Aug 2006 12:58:29 -0500
+	Thu, 24 Aug 2006 14:00:59 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:39360 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1751613AbWHXSA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:00:58 -0400
+Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
+From: David Safford <safford@watson.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Serge E Hallyn <sergeh@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       David Safford <safford@us.ibm.com>, kjhall@us.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       linux-security-module-owner@vger.kernel.org
+In-Reply-To: <20060824131127.GB7052@elf.ucw.cz>
+References: <20060817230213.GA18786@elf.ucw.cz>
+	 <OFA16BD859.1B593DA2-ON852571CE.005FA4FF-852571CE.004BD083@us.ibm.com>
+	 <20060824054933.GA1952@elf.ucw.cz>
+	 <20060824130340.GB15680@sergelap.austin.ibm.com>
+	 <20060824131127.GB7052@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 14:00:54 -0400
+Message-Id: <1156442454.2476.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 24 Aug 2006 17:58:33.0983 (UTC) FILETIME=[EA86A8F0:01C6C7A6]
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a recent attempted install of fedora's rawhide I saw the following in my 
-anaconda.log file.
+On Thu, 2006-08-24 at 15:11 +0200, Pavel Machek wrote:
+> Hmm.. you are the security expert here :-). But it still needs private
+> key while accessing the net.. so even if it does read from
+> ~/.ssh/private_key, first,  what stops mozilla from waiting for
+> ssh to start talking on the network, and then read the key from ssh's
+> memory?
 
-<4>=============================================
-<4>[ INFO: possible recursive locking detected ]
-<4>2.6.17-1.2571.fc6 #1
-<4>---------------------------------------------
-<4>anaconda/432 is trying to acquire lock:
-<4> (&bdev->bd_mutex){--..}, at: [<c04658bb>] __blkdev_put+0x1f/0x11f
-<4>
-<4>but task is already holding lock:
-<4> (&bdev->bd_mutex){--..}, at: [<c0465b4e>] do_open+0x6b/0x3b2
-<4>
-<4>other info that might help us debug this:
-<4>1 lock held by anaconda/432:
-<4> #0:  (&bdev->bd_mutex){--..}, at: [<c0465b4e>] do_open+0x6b/0x3b2
-<4>
-<4>stack backtrace:
-<4> [<c04037db>] show_trace_log_lvl+0x58/0x159
-<4> [<c0403d9e>] show_trace+0xd/0x10
-<4> [<c0403e3b>] dump_stack+0x19/0x1b
-<4> [<c042bddb>] __lock_acquire+0x765/0x97c
-<4> [<c042c563>] lock_acquire+0x4b/0x6c
-<4> [<c05f37ee>] mutex_lock_nested+0xcb/0x214
-<4> [<c04658bb>] __blkdev_put+0x1f/0x11f
-<4> [<c04659d4>] blkdev_put+0xa/0xc
-<4> [<c0465e26>] do_open+0x343/0x3b2
-<4> [<c0466030>] blkdev_open+0x1f/0x48
-<4> [<c045d83c>] __dentry_open+0xb8/0x186
-<4> [<c045d978>] nameidata_to_filp+0x1c/0x2e
-<4> [<c045d9b9>] do_filp_open+0x2f/0x36
-<4> [<c045da00>] do_sys_open+0x40/0xbb
-<4> [<c045daa7>] sys_open+0x16/0x18
-<4> [<c0402e57>] syscall_call+0x7/0xb
-<4>DWARF2 unwinder stuck at syscall_call+0x7/0xb
-<4>Leftover inexact backtrace:
-<4> [<c0403d9e>] show_trace+0xd/0x10
-<4> [<c0403e3b>] dump_stack+0x19/0x1b
-<4> [<c042bddb>] __lock_acquire+0x765/0x97c
-<4> [<c042c563>] lock_acquire+0x4b/0x6c
-<4> [<c05f37ee>] mutex_lock_nested+0xcb/0x214
-<4> [<c04658bb>] __blkdev_put+0x1f/0x11f
-<4> [<c04659d4>] blkdev_put+0xa/0xc
-<4> [<c0465e26>] do_open+0x343/0x3b2
-<4> [<c0466030>] blkdev_open+0x1f/0x48
-<4> [<c045d83c>] __dentry_open+0xb8/0x186
-<4> [<c045d978>] nameidata_to_filp+0x1c/0x2e
-<4> [<c045d9b9>] do_filp_open+0x2f/0x36
-<4> [<c045da00>] do_sys_open+0x40/0xbb
-<4> [<c045daa7>] sys_open+0x16/0x18
-<4> [<c0402e57>] syscall_call+0x7/0xb
+I think the only good way to protect a private key is not to
+let the application see it at all, either by pushing the signature
+operation into a wrapper, or into the kernel key ring, or even better,
+into a hardware token, such as a TPM. Secrecy is really hard. There
+are classes of software covert channels which have been proven to
+be undetectable, so if you let software (particularly a browser)
+see your private key, it may well not be your key any more.
 
-Also posted at https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=203137
+> Do you have examples where this security model stops an attack?
+> 								Pavel
+
+The main goal of this model is to stop some of the most common real 
+attacks on client machines, in particular the downloading and execution
+of malicious code, through a browser or email attachment. By making
+the email and browser applications run in an untrusted level, we can
+keep them from modifying user or system level files, and any files they
+create are labeled untrusted so that even system level processes can't 
+accidentally invoke them at a trusted level. Also, we can control what 
+applications are allowed to install packages, so that only signed packages 
+(which are initially labeled as untrusted, since they came in over the net), 
+are promoted and installed by the guard (e.g. rpm).
+
+In one demo I like to run, I deliberately download a trojaned game, and
+run it both as a user and even as root/system. Since the game is labeled
+untrusted, it is invoked untrusted regardless of who runs it.
+
+dave
 
 

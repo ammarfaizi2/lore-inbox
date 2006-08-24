@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWHXSmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWHXSvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWHXSmC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 14:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHXSmC
+	id S1030454AbWHXSvP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 14:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWHXSvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:42:02 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33178 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030446AbWHXSmA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:42:00 -0400
-Message-Id: <200608241841.k7OIfmRB004765@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, okuji@enbug.org
-Subject: Re: [patch 0/5] RFC: fault-injection capabilities
-In-Reply-To: Your message of "Wed, 23 Aug 2006 20:32:43 +0900."
-             <20060823113243.210352005@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <20060823113243.210352005@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1156444906_3023P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Aug 2006 14:41:48 -0400
+	Thu, 24 Aug 2006 14:51:15 -0400
+Received: from khc.piap.pl ([195.187.100.11]:59776 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030448AbWHXSvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:51:14 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Stuart MacDonald <stuartm@connecttech.com>,
+       linux-serial@vger.kernel.org, "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: Serial custom speed deprecated?
+References: <028a01c6c6fc$e792be90$294b82ce@stuartm>
+	<1156411101.3012.15.camel@pmac.infradead.org>
+	<m3bqqap09a.fsf@defiant.localdomain>
+	<1156441293.3007.184.camel@localhost.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 24 Aug 2006 20:51:12 +0200
+In-Reply-To: <1156441293.3007.184.camel@localhost.localdomain> (Alan Cox's message of "Thu, 24 Aug 2006 18:41:33 +0100")
+Message-ID: <m31wr6otlr.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1156444906_3023P
-Content-Type: text/plain; charset=us-ascii
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Wed, 23 Aug 2006 20:32:43 +0900, Akinobu Mita said:
+>> Does that mean that standard things like termios will use:
+>> #define B9600   9600
+>> #define B19200 19200
+>
+> That would have been very smart when Linus did Linux 0.12, unfortunately
+> he didn't and we've also got no spare bits. Worse still if we exported
+> them that way glibc has now way to map new speeds onto the old ones for
+> applications.
 
-> For example about kmalloc failures:
-> 
-> /debug/failslab/probability
-> 
-> 	specifies how often it should fail in percent.
+Hmm... I'm not sure if I understand this correctly. Can't we just
+create the 3 new ioctls in the kernel and teach glibc to use it?
 
-As others have noted, the *right* semantics for this is being able to inject a
-1% or higher rate in the code you're interested in, while maintaining a 0
-injection rate for things outside the module under test.  Maybe a /debug/
-failslab/address_start and address_end, and a userspace helper that peeks at a
-System.map and injects the right values - then it's a simple compare of the
-high/low addresses provided against the caller address.
+The compatibility ioctls would talk to new ioctls only and translate
+things. Anything (userspace) wanting non-traditional speeds would
+have to use new interface (i.e., be compiled against the new glibc)
+and the speeds would show as EXTA or EXTB or something when queried
+using old ioctl.
 
+Yes, the binary interface between glibc and userland would change
+(with compatibility calls translated by glibc to new ioctls, or to
+old ones on older kernels).
 
---==_Exmh_1156444906_3023P
-Content-Type: application/pgp-signature
+The old ioctls would be optional in the kernel (and perhaps in glibc,
+sometime).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFE7fLqcC3lWbTT17ARAvA6AJ0XHtnVMlHMELOg9qNCbE8CEHI6AQCg9EZB
-e0j9BN4ZEo7DYI9yGs00nd8=
-=bvk0
------END PGP SIGNATURE-----
-
---==_Exmh_1156444906_3023P--
+Not sure if we want int, uint, or long long for speed values :-)
+-- 
+Krzysztof Halasa

@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWHXRHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWHXRJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbWHXRHN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 13:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWHXRHM
+	id S1030393AbWHXRJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 13:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWHXRJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 13:07:12 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4356 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030392AbWHXRHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 13:07:10 -0400
-Date: Thu, 24 Aug 2006 19:07:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       Jens Axboe <axboe@suse.de>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
-Message-ID: <20060824170709.GO19810@stusta.de>
-References: <32640.1156424442@warthog.cambridge.redhat.com> <20060824152937.GK19810@stusta.de> <1156434274.3012.128.camel@pmac.infradead.org> <20060824155814.GL19810@stusta.de> <1156435216.3012.130.camel@pmac.infradead.org> <20060824160926.GM19810@stusta.de> <20060824164752.GC5205@martell.zuzino.mipt.ru>
-MIME-Version: 1.0
+	Thu, 24 Aug 2006 13:09:36 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:50877 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1030393AbWHXRJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 13:09:35 -0400
+Date: Fri, 25 Aug 2006 01:33:45 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+Message-ID: <20060824213345.GB952@oleg>
+References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060824164752.GC5205@martell.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44EC35EB.1030000@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 08:47:52PM +0400, Alexey Dobriyan wrote:
-> On Thu, Aug 24, 2006 at 06:09:26PM +0200, Adrian Bunk wrote:
-> > On Thu, Aug 24, 2006 at 05:00:16PM +0100, David Woodhouse wrote:
-> > > On Thu, 2006-08-24 at 17:58 +0200, Adrian Bunk wrote:
-> > > > There's no reason for getting linux-kernel swamped with
-> > > > "my kernel doesn't boot" messages by people who accidentally disabled
-> > > > this option.
-> > >
-> > > By that logic, you should make it necessary to set CONFIG_EMBEDDED
-> > > before you can set CONFIG_EXT3 != Y or CONFIG_IDE != Y too.
-> >
-> > That's the difference between Aunt Tillie and a system administrator:
-> > A system administrator knows which filesystems he wants to use.
-> >
-> > > However you dress it up, it's pandering to someone who either lacks the
-> > > wit, or just can't be bothered, to _look_ at what they're doing when
-> > > they configure their kernel. And it's a bad thing.
-> >
-> > We already have too many user visible options
-> 
-> Examples please.
->...
+On 08/23, Kirill Korotaev wrote:
+>
+> +struct beancounter *beancounter_findcreate(uid_t uid, int mask)
+> +{
+> +	struct beancounter *new_bc, *bc;
+> +	unsigned long flags;
+> +	struct hlist_head *slot;
+> +	struct hlist_node *pos;
+> +
+> +	slot = &bc_hash[bc_hash_fun(uid)];
+> +	new_bc = NULL;
+> +
+> +retry:
+> +	spin_lock_irqsave(&bc_hash_lock, flags);
+> +	hlist_for_each_entry (bc, pos, slot, hash)
+> +		if (bc->bc_id == uid)
+> +			break;
+> +
+> +	if (pos != NULL) {
+> +		get_beancounter(bc);
+> +		spin_unlock_irqrestore(&bc_hash_lock, flags);
+> +
+> +		if (new_bc != NULL)
+> +			kmem_cache_free(bc_cachep, new_bc);
+> +		return bc;
+> +	}
+> +
+> +	if (!(mask & BC_ALLOC))
+> +		goto out_unlock;
 
-Do a "make menuconfig" and look at the number of options.
+Very minor nit: it is not clear why we are doing this check under
+bc_hash_lock. I'd suggest to do
 
-There's e.g. no reason to ask all users whether they want to compile all 
-I/O schedulers into their kernel.
+	if (!(mask & BC_ALLOC))
+		goto out;
 
-To avoid misunderstandings:
+after unlock(bc_hash_lock) and kill out_unlock label.
 
-I'm not talking about people subscribed to this list.
+> +	if (new_bc != NULL)
+> +		goto out_install;
+> +
+> +	spin_unlock_irqrestore(&bc_hash_lock, flags);
+> +
+> +	new_bc = kmem_cache_alloc(bc_cachep,
+> +			mask & BC_ALLOC_ATOMIC ? GFP_ATOMIC : GFP_KERNEL);
+> +	if (new_bc == NULL)
+> +		goto out;
+> +
+> +	memcpy(new_bc, &default_beancounter, sizeof(*new_bc));
 
-It's more about a system administrator who must for some reason (e.g. 
-hardware support or the requirement of some external patch) compile his 
-own kernel.
+May be it is just me, but I need a couple of seconds to parse this 'memcpy'.
+How about
 
-cu
-Adrian
+	*new_bc = default_beancounter;
 
--- 
+?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Oleg.
 

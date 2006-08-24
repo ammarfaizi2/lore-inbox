@@ -1,139 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWHXUXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWHXUXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWHXUXX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 16:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422641AbWHXUXX
+	id S1422644AbWHXUXj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 16:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWHXUXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 16:23:23 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:23523 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422637AbWHXUXX
+	Thu, 24 Aug 2006 16:23:39 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:19677 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1422641AbWHXUXi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 16:23:23 -0400
-Subject: 2.6.18-rc4 panic in fs/buffer.c: 2791
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Cc: ext2-devel <Ext2-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Date: Thu, 24 Aug 2006 13:26:28 -0700
-Message-Id: <1156451188.5392.3.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 24 Aug 2006 16:23:38 -0400
+Date: Thu, 24 Aug 2006 13:13:28 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/18] 2.6.17.9 perfmon2 patch for review: new system calls support
+Message-ID: <20060824201328.GB4688@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230805.k7N85tfm000384@frankl.hpl.hp.com> <20060823151439.a44aa13f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060823151439.a44aa13f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew,
 
-I get following panic while running fsx tests on 2.6.18-rc4
-(randomly). 
+On Wed, Aug 23, 2006 at 03:14:39PM -0700, Andrew Morton wrote:
+> > sys_pfm_load_context():
+> > 	- attach a perfmon2 context to a task or the current processor.
+> > 
+> > sys_pfm_unload_context():
+> > 	- detach the perfmon2 context
+> > 
+> > sys_pfm_create_evtsets():
+> > 	- create or change an event sets. By default a context is created with only one
+> > 	  set
+> > 
+> > sys_pfm_delete_evtsets():
+> > 	- delete any explicitely created event set
+> > 
+> > sys_pfm_getinfo_evtsets():
+> > 	- get information about event sets, such as the number of activations. Accepts
+> > 	  vector arguments of type pfarg_setinfo_t
+> > 
+> > There are other more indirect system calls related to the fact that a context uses a file
+> > descriptor. Those system calls are in perfmon_file.c and part of another patch.
+> > 
+> 
+> This code does quite a lot of worrisome poking around inside task lifetime
+> internals.
+> 
+> Perhaps you could describe what problems are being solved here so we can
+> take a closer look at whether this is the best way in which to solve them?
+> 
+Sure, let me try to explain why we have to do this.
 
-This is the check in submit_bh()
+Each system call represents an action to perfmon on the perfmon context, e.g.,
+read/write the registers, start/stop monitoring. A context is either system-wide, i.e.,
+bound to a CPU, or per-thread, i.e., attached to a task_struct. A context is
+never attached automatically on creation, it must be attched via pfm_load_context().
 
-        BUG_ON(!buffer_mapped(bh));
+A context can be is different states. Depending on the state, certain action may not
+be allowed, for instance you cannot start monitoring if the context is not
+attached.
 
-Has anyone seen this before ?
+For a system-wide context, the caller must be running on the CPU being monitored for
+certain actions, such as reading and writing the registers, i.e., we don't do IPI.
 
-Thanks,
-Badari
+For a per-thread context, and when you are not monitoring yourself, the thread you
+want to operate on MUST be stopped in order to access its machine state.
 
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at fs/buffer.c:2791
-invalid opcode: 0000 [1] SMP
-CPU 0
-Modules linked in: autofs4 hidp rfcomm l2cap bluetooth sunrpc af_packet xt_state ip_conntrack nfnetlink xt_tcpudp ip6table_filter ip6_tables x_tables ipv6 acpi_cpufreq freq_table processor binfmt_misc parport_pc lp parport ide_cd cdrom generic floppy shpchp e752x_edac edac_mc piix serio_raw ehci_hcd pci_hotplug i2c_i801 i2c_core uhci_hcd usbcore dm_snapshot dm_zero dm_mirror dm_mod ide_disk ide_core
-Pid: 2450, comm: kjournald Not tainted 2.6.18-rc4-smp #7
-RIP: 0010:[<ffffffff80280d11>]  [<ffffffff80280d11>] submit_bh+0x1f/0x111
-RSP: 0018:ffff810103f33db8  EFLAGS: 00010246
-RAX: 0000000000000005 RBX: ffff8100d05e9a90 RCX: ffff81012274b918
-RDX: ffff8100d004f0b0 RSI: ffff8100d05e9a90 RDI: 0000000000000001
-RBP: 0000000000000001 R08: ffff8100d004f0b0 R09: 00000000004614ee
-R10: ffff810122cf33b8 R11: ffffffff8032db73 R12: 0000000000000003
-R13: 0000000000000054 R14: 0000000000000080 R15: ffff810105105a40
-FS:  0000000000000000(0000) GS:ffffffff8060b000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 00002ab0bf346000 CR3: 0000000102fd1000 CR4: 00000000000006e0
-Process kjournald (pid: 2450, threadinfo ffff810103f32000, task ffff8101183ac7a0)
-Stack:  ffff8100d05e9a90 ffff810105105770 0000000000000003 ffffffff80281e4f
- ffff8100d00a16d0 ffff8101051058e8 ffff810103c76c70 ffff81011a3af818
- 0000000000000080 ffffffff802fbd68 000000000000000a ffff8101051054d0
-Call Trace:
- [<ffffffff80281e4f>] ll_rw_block+0x9d/0xc0
- [<ffffffff802fbd68>] journal_commit_transaction+0x554/0x1464
- [<ffffffff80242d3a>] autoremove_wake_function+0x0/0x2e
- [<ffffffff80300d11>] kjournald+0x13c/0x378
- [<ffffffff80242d3a>] autoremove_wake_function+0x0/0x2e
- [<ffffffff8024297c>] keventd_create_kthread+0x0/0x66
- [<ffffffff80300bd5>] kjournald+0x0/0x378
- [<ffffffff8024297c>] keventd_create_kthread+0x0/0x66
- [<ffffffff80242c1c>] kthread+0xec/0x120
- [<ffffffff8020a562>] child_rip+0x8/0x12
- [<ffffffff8024297c>] keventd_create_kthread+0x0/0x66
- [<ffffffff80242b30>] kthread+0x0/0x120
- [<ffffffff8020a55a>] child_rip+0x0/0x12
+The pfm_check_task_state() function perform all those nasty tests. It runs with
+the context loacked and interrupt masked.
 
+The tricky part is when you want to operate on another task. As I said it must
+be stopped and OFF the CPU to guarantee its PMU state has been saved. So we
+first check the task state, if it is STOPPED we ave to wait until it is acutally
+off the CPU using wait_task_inactive() which need to run with interrupts unmasked.
+So we unmask and unlock the context in order to wait. The context cannot
+disapparead for under us because of the file descriptor reference count protecting us.
+We take care of propagating the flags value for spin_lock_irq() to our caller.
 
-Code: 0f 0b 68 dc c3 48 80 c2 e7 0a 48 83 7b 38 00 75 0a 0f 0b 68
-RIP  [<ffffffff80280d11>] submit_bh+0x1f/0x111
- RSP <ffff810103f33db8>
- <0>general protection fault: 0000 [2] SMP
-CPU 1
-Modules linked in: autofs4 hidp rfcomm l2cap bluetooth sunrpc af_packet xt_state ip_conntrack nfnetlink xt_tcpudp ip6table_filter ip6_tables x_tables ipv6 acpi_cpufreq freq_table processor binfmt_misc parport_pc lp parport ide_cd cdrom generic floppy shpchp e752x_edac edac_mc piix serio_raw ehci_hcd pci_hotplug i2c_i801 i2c_core uhci_hcd usbcore dm_snapshot dm_zero dm_mirror dm_mod ide_disk ide_core
-Pid: 2454, comm: fsx-linux Not tainted 2.6.18-rc4-smp #7
-RIP: 0010:[<ffffffff802273b5>]  [<ffffffff802273b5>] task_rq_lock+0x26/0x6f
-RSP: 0000:ffff81012348fe60  EFLAGS: 00010086
-RAX: 6b6b6b6b6b6b6b6b RBX: ffffffff8066a380 RCX: ffff810105105b38
-RDX: 0000000000000000 RSI: ffff81012348fed8 RDI: ffff8101183ac7a0
-RBP: ffff81012348fe80 R08: 0000000000000003 R09: 0000000000000004
-R10: 0000000000000001 R11: 0000000000000001 R12: ffffffff8066a380
-R13: ffff81012348fed8 R14: ffff8101183ac7a0 R15: 0000000000000000
-FS:  00002b2b19908200(0000) GS:ffff8101234636d0(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00002b2b19997000 CR3: 0000000103e35000 CR4: 00000000000006e0
-Process fsx-linux (pid: 2454, threadinfo ffff810103e0c000, task ffff81012201f0c0)
-Stack:  000000000000000f ffff8101183ac7a0 ffffffff80300574 0000000000000000
- ffff81012348ff10 ffffffff8022887d 0000000100000002 0000000000000001
- 0000000000000000 0000000000000001 0000000000000000 00000000000013a4
-Call Trace:
- <IRQ> [<ffffffff80300574>] commit_timeout+0x0/0x5
- [<ffffffff8022887d>] try_to_wake_up+0x24/0x3ec
- [<ffffffff80300574>] commit_timeout+0x0/0x5
- [<ffffffff80238ab8>] run_timer_softirq+0x13b/0x1be
- [<ffffffff80229b44>] scheduler_tick+0x323/0x34d
- [<ffffffff802355ab>] __do_softirq+0x5e/0xd5
- [<ffffffff8020a8b0>] call_softirq+0x1c/0x28
- [<ffffffff8020bc83>] do_softirq+0x2c/0x7d
- [<ffffffff8020a24e>] apic_timer_interrupt+0x66/0x6c
- <EOI>
-
-Code: 8b 40 18 48 8b 04 c5 40 6b 62 80 4c 03 60 08 4c 89 e7 e8 c0
-RIP  [<ffffffff802273b5>] task_rq_lock+0x26/0x6f
- RSP <ffff81012348fe60>
- <3>BUG: sleeping function called from invalid context at kernel/rwsem.c:20
-in_atomic():1, irqs_disabled():1
-
-Call Trace:
- <IRQ> [<ffffffff802454f9>] down_read+0x15/0x24
- [<ffffffff8023cd57>] blocking_notifier_call_chain+0x13/0x36
- [<ffffffff80232d28>] do_exit+0x20/0x8cc
- [<ffffffff8020aec0>] kernel_math_error+0x0/0x90
- [<ffffffff80278df8>] cache_free_debugcheck+0x1e7/0x1f6
- [<ffffffff80458ec0>] do_general_protection+0xfe/0x107
- [<ffffffff8020a3a9>] error_exit+0x0/0x84
- [<ffffffff802273b5>] task_rq_lock+0x26/0x6f
- [<ffffffff80300574>] commit_timeout+0x0/0x5
- [<ffffffff8022887d>] try_to_wake_up+0x24/0x3ec
- [<ffffffff80300574>] commit_timeout+0x0/0x5
- [<ffffffff80238ab8>] run_timer_softirq+0x13b/0x1be
- [<ffffffff80229b44>] scheduler_tick+0x323/0x34d
- [<ffffffff802355ab>] __do_softirq+0x5e/0xd5
- [<ffffffff8020a8b0>] call_softirq+0x1c/0x28
- [<ffffffff8020bc83>] do_softirq+0x2c/0x7d
- [<ffffffff8020a24e>] apic_timer_interrupt+0x66/0x6c
- <EOI>
-Kernel panic - not syncing: Aiee, killing interrupt handler!
+This is not very pretty and I am open to any better suggestion you may have to perfmon
+this check.
 
 
 
+More on the rest of your comments on this patch later...
 
+Thanks for you feedback.
 
-
+> > +	/*
+> > +	 * for syswide, we accept if running on the cpu the context is bound
+> > +	 * to. When monitoring another thread, must wait until stopped.
+> > +	 */
+> > +	if (ctx->flags.system) {
+> > +		if (ctx->cpu != smp_processor_id())
+> > +			return -EBUSY;
+> > +		return 0;
+> > +	}
+> 
+> Hopefully we're running atomically here.  Inside preempt_disable().
+> 
+> > +
+> > +		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
+> > +			task->pid,
+> > +			task->state,
+> > +			local_flags);
+> > +
+> > +		spin_unlock_irqrestore(&ctx->lock, local_flags);
+> > +
+> > +		wait_task_inactive(task);
+> > +
+> > +		spin_lock_irqsave(&ctx->lock, new_flags);
+> 
+> This sort of thing..
+> 

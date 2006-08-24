@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWHXTQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWHXTYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWHXTQY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 15:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWHXTQY
+	id S1751670AbWHXTYg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 15:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWHXTYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 15:16:24 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:38084 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750760AbWHXTQX (ORCPT
+	Thu, 24 Aug 2006 15:24:36 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:5560 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750760AbWHXTYg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 15:16:23 -0400
-Date: Thu, 24 Aug 2006 14:16:11 -0500
-From: "Serge E. Hallyn" <sergeh@us.ibm.com>
-To: David Safford <safford@watson.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Serge E Hallyn <sergeh@us.ibm.com>,
-       kjhall@us.ibm.com, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>
-Subject: Re: [PATCH 3/7] SLIM main patch
-Message-ID: <20060824191611.GB1625@sergelap.austin.ibm.com>
-References: <1156359937.6720.66.camel@localhost.localdomain> <20060823192733.GG28594@kvack.org> <1156365357.6720.87.camel@localhost.localdomain> <1156418815.3007.89.camel@localhost.localdomain> <20060824133248.GC15680@sergelap.austin.ibm.com> <1156428917.3007.150.camel@localhost.localdomain> <20060824152322.GD32764@sergelap.austin.ibm.com> <1156439113.3007.170.camel@localhost.localdomain> <1156440849.2476.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Aug 2006 15:24:36 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: Unnecessary Relocation Hiding?
+Date: Thu, 24 Aug 2006 21:24:14 +0200
+User-Agent: KMail/1.9.3
+Cc: Dong Feng <middle.fengdong@gmail.com>, linux-kernel@vger.kernel.org
+References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com> <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1156440849.2476.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608242124.14504.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting David Safford (safford@watson.ibm.com):
-> On Thu, 2006-08-24 at 18:05 +0100, Alan Cox wrote:
-> > It is a matter of the timing and the device. You need to do revocation
-> > at the device level because your security state change must occur after
-> > the devices have all been dealt with. This is why I said you need the
-> > core of revoke() to do this.
+On Thursday 24 August 2006 20:26, Christoph Lameter wrote:
+> On Wed, 23 Aug 2006, Dong Feng wrote:
 > 
-> In a typical system, most applications are started at the correct level,
-> and we don't have to demote/promote them. In those cases where demotion
-> or promotion are needed, only a small number actually already have
-> access that needs to be revoked. Of those, most involve shmem, which
-> I believe we are revoking safely, as we don't have the same problems
-> with drivers and incomplete I/O. In the remaining cases, where we really
-> can't revoke safely, we could simply not allow the requested access, and
-> not demote/promote the process.
+> > I have a question. Why shall we need a RELOC_HIDE() macro in the
+> > definition of per_cpu()? Maybe the question is actually why we need
+> > macro RELOC_HIDE() at all. I changed the following line in
+> > include/asm-generic/percpu.h, from
 > 
-> I think this would give us a useful balance of allowing "safe" demotion
-> or promotions, while not requiring general revocation. Does this sound
-> like a reasonable approach?
+> Guess it was copied from IA64 but the semantics were not preserved.
+> I think it should either be changed the way you suggest or the 
+> implementation needs to be fixed to actually do a linker relocation.
 
-It sounds like you're saying "This should not be a problem unless the
-system is being abused/exploited so let's not worry about it."
+The reason the original code is like it is because gcc assumes there
+is no wrapping on arithmetic on symbol addresses (it is allowed to assume
+that because it is undefined in the C standard). And in same cases wrapping
+can happen. There was at least one miscompilation in the past that lead to the 
+current construct.
 
-Assuming that wasn't your intent :), could you please rephrase?
-
-thanks,
--serge
-
-
+-Andi

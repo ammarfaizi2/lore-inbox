@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbWHXVwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbWHXVz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030483AbWHXVwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWHXVwb
+	id S1030488AbWHXVz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWHXVz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:52:31 -0400
-Received: from homer.mvista.com ([63.81.120.158]:24667 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1030483AbWHXVwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:52:30 -0400
-Subject: Re: [RFC] maximum latency tracking infrastructure
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-In-Reply-To: <1156441295.3014.75.camel@laptopd505.fenrus.org>
-References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
+	Thu, 24 Aug 2006 17:55:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2284 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030488AbWHXVz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:55:26 -0400
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
+In-Reply-To: <20060824214919.GT19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org>
+	 <1156433068.3012.115.camel@pmac.infradead.org>
+	 <20060824214919.GT19810@stusta.de>
 Content-Type: text/plain
-Date: Thu, 24 Aug 2006 14:52:29 -0700
-Message-Id: <1156456349.6951.10.camel@dwalker1.mvista.com>
+Date: Thu, 24 Aug 2006 22:54:52 +0100
+Message-Id: <1156456492.2984.2.camel@pmac.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 19:41 +0200, Arjan van de Ven wrote:
-> Subject: [RFC] maximum latency tracking infrastructure
-> From: Arjan van de Ven <arjan@linux.intel.com>
+On Thu, 2006-08-24 at 23:49 +0200, Adrian Bunk wrote:
 > 
-> The patch below adds infrastructure to track "maximum allowable latency" for power
-> saving policies.
-> 
-> The reason for adding this infrastructure is that power management in the
-> idle loop needs to make a tradeoff between latency and power savings (deeper
-> power save modes have a longer latency to running code again). 
-> The code that today makes this tradeoff just does a rather simple algorithm;
+> make[1]: *** No rule to make target
+> `/home/bunk/linux/linux-2.6.18-rc4/dummy.c', needed by `init/init.o'.
+> Stop. 
 
-I was just thinking that it might be cleaner to register a structure
-instead of tracking identifiers to usecs. You might get a speed up on
-some of the operations, like unregister.
+oops, sorry. touch dummy.c -- evil makefile hack ;)
 
-Another thing I was thinking about is that this seems somewhat contrary
-to the idea of using dynamic tick (assuming it was in mainline) to
-heuristically pick a power state. Do you have any thoughts on how you
-would combine the two?
-
-Daniel
+-- 
+dwmw2
 

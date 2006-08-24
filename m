@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWHXJFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWHXJH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWHXJFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 05:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWHXJFE
+	id S1750963AbWHXJH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 05:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWHXJH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 05:05:04 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:45067 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750956AbWHXJFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 05:05:03 -0400
-Date: Thu, 24 Aug 2006 10:04:55 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [HELP] Power management for embedded system
-Message-ID: <20060824090455.GA18202@flint.arm.linux.org.uk>
-Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
-	linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-References: <20060824084425.83538.qmail@web25802.mail.ukl.yahoo.com>
-Mime-Version: 1.0
+	Thu, 24 Aug 2006 05:07:27 -0400
+Received: from xs.wurtel.net ([83.68.3.130]:36752 "EHLO mx.wurtel.net")
+	by vger.kernel.org with ESMTP id S1750962AbWHXJH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 05:07:27 -0400
+Date: Thu, 24 Aug 2006 11:07:03 +0200
+From: Paul Slootman <paul+nospam@wurtel.net>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
+Message-ID: <20060824090703.GB1422@wurtel.net>
+Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <3aa654a40608072039r2b5c5a19hbd3e68e4fee40869@mail.gmail.com> <9a8748490608110133v5f973cf6w1af340f59bb229ec@mail.gmail.com> <9a8748490608110325k25c340e2yac925eb226d1fe4f@mail.gmail.com> <20060814120032.E2698880@wobbly.melbourne.sgi.com> <ebv3ji$gls$1@news.cistron.nl> <20060817084750.B2787212@wobbly.melbourne.sgi.com> <20060817090149.GA7919@wurtel.net> <20060823084210.GA7106@wurtel.net> <20060824165534.A3003989@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060824084425.83538.qmail@web25802.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060824165534.A3003989@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Scanner: exiscan *1GGBB2-00052e-00*B0ZYm7q/4wM*Wurtel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 08:44:25AM +0000, moreau francis wrote:
-> Mips one seems to be a copy and paste of arm one and both of them
-> have removed all APM bios stuff orginally part of i386 implementation.
+On Thu 24 Aug 2006, Nathan Scott wrote:
+> On Wed, Aug 23, 2006 at 10:42:10AM +0200, Paul Slootman wrote:
+> > 
+> > I compiled 2.6.17.9 yesterday with gcc 4.1 (the previous kernel that
+> > showed problems was 2.6.17.7 compiled with gcc 3.3.5), and the same
+> > problem showed itself again, after 2.6.15.6 had run with no problems
+> > whatsoever for 5 days.
+> > 
+> > I'll now give 2.6.16.1 a go (we have that kernel lying around :-)
 
-The BIOS stuff makes no sense on ARM - there isn't a BIOS to do anything
-with.
+That also fell over.
 
-> It doesn't seem that APM is something really stable and finished.
+> Hmm, if there's no reproducible case, next best thing is a git bisect
+> to try to identify potential commits which are causing the problem...
+> not easy on your production server, I know.  I had believed this to be
+> a long-standing issue though, I'm sure I've seen it reported before -
+> we've never had any information to go on to try to diagnose it however.
+> Jesper's rename hint is the most helpful information we've had so far.
 
-It's complete.  It's purpose is to provide the interface to userland so
-that programs know about suspend/resume events, and can initiate suspends.
-Eg, the X server.
+To me it seems to have happened somewhere between 2.6.15.6 and 2.6.16.1 :)
+I'll have to boot with 2.6.15.6 again and run that for a couple of days,
+after that I'll try some kernel  2.6.15.6 < x < 2.6.16.1 (any
+suggestions?)
 
-The power management really comes from the Linux drivers themselves,
-which are written to peripherals off when they're not in use.  The other
-power saving comes from things like cpufreq - again, nothing to do with
-the magical "APM" or "ACPI" terms.
 
-On embedded platforms, you shouldn't think about power management in
-terms of the non-embedded PM technologies.
+> > BTW, what's the significance of the xfs_repair message
+> > LEAFN node level is 1 inode 827198 bno = 8388608
+> > (I see a lot more of these this time round).
+> 
+> It basically means a directory inode's btree has got into an invalid
+> state, somehow.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Hmm, what version of xfs_repair is supposed to fix that? Because neither
+the 2.6.20 version that comes with Debian nor the CVS version of August
+10 which calls itself 2.8.11 makes it go away (i.e. multiple runs will
+persistently show those lines).
+
+
+thanks,
+Paul Slootman

@@ -1,93 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWHXRJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbWHXRNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbWHXRJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 13:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWHXRJg
+	id S1030396AbWHXRNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 13:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWHXRNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 13:09:36 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:50877 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1030393AbWHXRJf
+	Thu, 24 Aug 2006 13:13:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:33239 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030396AbWHXRND
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 13:09:35 -0400
-Date: Fri, 25 Aug 2006 01:33:45 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-Message-ID: <20060824213345.GB952@oleg>
-References: <44EC31FB.2050002@sw.ru> <44EC35EB.1030000@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44EC35EB.1030000@sw.ru>
-User-Agent: Mutt/1.5.11
+	Thu, 24 Aug 2006 13:13:03 -0400
+Message-ID: <44EDDE1A.1000408@us.ibm.com>
+Date: Thu, 24 Aug 2006 10:12:58 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+CC: Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] [RFC][PATCH] Manage jbd allocations from its own
+ slabs
+References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com> <1156422573.7908.1.camel@kleikamp.austin.ibm.com>
+In-Reply-To: <1156422573.7908.1.camel@kleikamp.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/23, Kirill Korotaev wrote:
+Dave Kleikamp wrote:
+> On Wed, 2006-08-23 at 16:08 -0700, Badari Pulavarty wrote:
+>   
+>> Hi,
+>>
+>> Here is the fix to "bh: Ensure bh fits within a page" problem
+>> caused by JBD.
+>>
+>> BTW, I realized that this problem can happen only with 1k, 2k
+>> filesystems - as 4k, 8k allocations disable slab debug 
+>> automatically. But for completeness, I created slabs for those
+>> also.
+>>     
 >
-> +struct beancounter *beancounter_findcreate(uid_t uid, int mask)
-> +{
-> +	struct beancounter *new_bc, *bc;
-> +	unsigned long flags;
-> +	struct hlist_head *slot;
-> +	struct hlist_node *pos;
-> +
-> +	slot = &bc_hash[bc_hash_fun(uid)];
-> +	new_bc = NULL;
-> +
-> +retry:
-> +	spin_lock_irqsave(&bc_hash_lock, flags);
-> +	hlist_for_each_entry (bc, pos, slot, hash)
-> +		if (bc->bc_id == uid)
-> +			break;
-> +
-> +	if (pos != NULL) {
-> +		get_beancounter(bc);
-> +		spin_unlock_irqrestore(&bc_hash_lock, flags);
-> +
-> +		if (new_bc != NULL)
-> +			kmem_cache_free(bc_cachep, new_bc);
-> +		return bc;
-> +	}
-> +
-> +	if (!(mask & BC_ALLOC))
-> +		goto out_unlock;
+> With a larger base page size, you could run into the same problems for
+> 4K and 8K allocations, so it's a good thing to do them all.
+>
+>   
+Yes, with bigger base page size - this can happen for 4k, 8k also.
 
-Very minor nit: it is not clear why we are doing this check under
-bc_hash_lock. I'd suggest to do
+And also, I am re-doing the patch to address Andrew's comments - I will 
+send out latest
+in few hours (currently testing).
 
-	if (!(mask & BC_ALLOC))
-		goto out;
+Thanks,
+Badari
 
-after unlock(bc_hash_lock) and kill out_unlock label.
-
-> +	if (new_bc != NULL)
-> +		goto out_install;
-> +
-> +	spin_unlock_irqrestore(&bc_hash_lock, flags);
-> +
-> +	new_bc = kmem_cache_alloc(bc_cachep,
-> +			mask & BC_ALLOC_ATOMIC ? GFP_ATOMIC : GFP_KERNEL);
-> +	if (new_bc == NULL)
-> +		goto out;
-> +
-> +	memcpy(new_bc, &default_beancounter, sizeof(*new_bc));
-
-May be it is just me, but I need a couple of seconds to parse this 'memcpy'.
-How about
-
-	*new_bc = default_beancounter;
-
-?
-
-Oleg.
 

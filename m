@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWHXXR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWHXXYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWHXXR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 19:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbWHXXR6
+	id S1030299AbWHXXYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 19:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWHXXYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 19:17:58 -0400
-Received: from aa001msr.fastwebnet.it ([85.18.95.64]:18837 "EHLO
-	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S964844AbWHXXR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 19:17:57 -0400
-Subject: Re: Motorola v360 external USB storage
-From: Luca Corti <luca@leenoox.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.05.10608250753020.17309-100000@marina.lowendale.com.au>
-References: <Pine.LNX.4.05.10608250753020.17309-100000@marina.lowendale.com.au>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 01:17:54 +0200
-Message-Id: <1156461474.15341.4.camel@cdevo.cdlan.it>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
+	Thu, 24 Aug 2006 19:24:08 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:22444 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1030299AbWHXXYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 19:24:06 -0400
+Message-ID: <44EE3515.6000304@vmware.com>
+Date: Thu, 24 Aug 2006 16:24:05 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove default_ldt, and simplify ldt-setting.
+References: <44EE308B.8000304@goop.org> <200608250115.36879.ak@suse.de>
+In-Reply-To: <200608250115.36879.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 07:58 +1000, Neale Banks wrote:
-> I've also got a v360, and this "works for me" on Linux (admittedly with
-> older kernels, including 2.4 (Debian Sarge)).
+Andi Kleen wrote:
+>
+>> If there are no LDT entries, the LDT register is loaded
+>> with a NULL descriptor.
+>>     
+>
+> x86-64 currently doesn't do this -- do you see an particular advantage 
+> in it?
+>   
 
-I I have the chance I will try with 2.4. This would be a bug on 2.6
-anyway.
-
-> You sure the flash is not broken?  Any chance of trying a different flash
-> in this phone or trying this flash in another device?
-
-If I reboot in windows everything works fine. Same cellphone, same
-flash, same cable, same laptop. I don't think flash has any problem.
-
-Thanks
-
+It's friendlier to virtual machines ;)  And you can't get a zero sized 
+LDT otherwise.

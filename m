@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWHXVcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422682AbWHXVdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422676AbWHXVcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422677AbWHXVcR
+	id S1422682AbWHXVdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWHXVdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:32:17 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:10699 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1422676AbWHXVcQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:32:16 -0400
-Date: Thu, 24 Aug 2006 23:31:14 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, Jens Axboe <axboe@suse.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-ID: <20060824213114.GA18667@linuxtv.org>
-References: <32640.1156424442@warthog.cambridge.redhat.com> <20060824152937.GK19810@stusta.de> <1156434274.3012.128.camel@pmac.infradead.org> <20060824155814.GL19810@stusta.de> <Pine.LNX.4.61.0608241838430.16422@yvahk01.tjqt.qr> <20060824164808.GN19810@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824164808.GN19810@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-SA-Exim-Connect-IP: 84.189.240.65
-Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Thu, 24 Aug 2006 17:33:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:996 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422682AbWHXVc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:32:58 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 02/17] BLOCK: Remove duplicate declaration of exit_io_context() [try #2]
+Date: Thu, 24 Aug 2006 22:32:56 +0100
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dhowells@redhat.com
+Message-Id: <20060824213255.21323.97639.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
+References: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006, Adrian Bunk wrote:
-> On Thu, Aug 24, 2006 at 06:39:14PM +0200, Jan Engelhardt wrote:
-> > >> On Thu, 2006-08-24 at 17:29 +0200, Adrian Bunk wrote:
-> > >> >         bool "Enable the block layer" depends on EMBEDDED 
-> > >> 
-> > >> Please. no. CONFIG_EMBEDDED was a bad idea in the first place -- its
-> > >> sole purpose is to pander to Aunt Tillie.
-> > >
-> > >It's not for Aunt Tillie.
-> > >It's for an average system administrator who compiles his own kernel.
-> > >
-> > >CONFIG_BLOCK=n will only be for the "the kernel must become as fast as 
-> > >possible, and I really know what I'm doing" people.
-> > 
-> > Then that should be CONFIG_I_AM_AN_EXPERT (CONFIG_EXPERT), not 
-> > CONFIG_EMBEDDED.
-> 
-> It makes sense that there is one option only for additional space 
-> savings.
-> 
-> But you are right, we need a second option for not space related expert 
-> options.
+From: David Howells <dhowells@redhat.com>
 
-I think the sole purpose of CONFIG_EMBEDDED is to reduce noise from
-silly pseudo-bug reports. The rather uninteresting name helps.
-If you have CONFIG_EXPERT, of course _everone_ will enable it,
-shoot themselves in the foot and will be happy to inform you
-about it, wasting their and _your_ time.
+Remove the duplicate declaration of exit_io_context() from linux/sched.h.
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Johannes
+ include/linux/sched.h |    1 -
+ kernel/exit.c         |    1 +
+ 2 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6674fc1..c12c5f9 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -709,7 +709,6 @@ #endif	/* CONFIG_SMP */
+ 
+ 
+ struct io_context;			/* See blkdev.h */
+-void exit_io_context(void);
+ struct cpuset;
+ 
+ #define NGROUPS_SMALL		32
+diff --git a/kernel/exit.c b/kernel/exit.c
+index dba194a..e0abd78 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -38,6 +38,7 @@ #include <linux/compat.h>
+ #include <linux/pipe_fs_i.h>
+ #include <linux/audit.h> /* for audit_free() */
+ #include <linux/resource.h>
++#include <linux/blkdev.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>

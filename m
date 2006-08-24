@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWHXVEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWHXVHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422659AbWHXVEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 17:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWHXVEE
+	id S1030388AbWHXVHe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 17:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWHXVHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 17:04:04 -0400
-Received: from main.gmane.org ([80.91.229.2]:45760 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1422659AbWHXVEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 17:04:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH] boot: small change of halt method
-Date: Fri, 25 Aug 2006 00:03:20 +0200
-Organization: Palacky University in Olomouc, experimental physics dep.
-Message-ID: <44EE2228.5020807@flower.upol.cz>
-References: <20060824184447.GA3346@windows95> <44EDF923.4030607@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 24 Aug 2006 17:07:34 -0400
+Received: from outbound-mail-07.bluehost.com ([67.138.240.207]:62946 "HELO
+	outbound-mail-07.bluehost.com") by vger.kernel.org with SMTP
+	id S1030388AbWHXVHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 17:07:33 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [RFC] maximum latency tracking infrastructure
+Date: Thu, 24 Aug 2006 14:08:03 -0700
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
+In-Reply-To: <1156441295.3014.75.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: linux-kernel@vger.kernel.org, pingved@gmail.com
-X-Gmane-NNTP-Posting-Host: 158.194.192.153
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <44EDF923.4030607@zytor.com>
+Content-Disposition: inline
+Message-Id: <200608241408.03853.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Andrew Brukhov wrote:
-> 
->> I'm new here.
->> After reading boot code i'm immidiatly change this string:
-...
->> + * Small fix of halt method Andrew Brukhov, Aug. 2006                 */
->>  
-<http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
+On Thursday, August 24, 2006 10:41 am, Arjan van de Ven wrote:
+> The reason for adding this infrastructure is that power management in
+> the idle loop needs to make a tradeoff between latency and power
+> savings (deeper power save modes have a longer latency to running code
+> again).
 
-> 
->     while (1)
->         asm volatile("hlt");
-> 
-> ... since HLT only pauses until interrupt.
-> 
-Why not to have a reboot here?
-Testing and getting such errors on my laptop, it needs a power cycle.
+What if a processor was already in a sleep state when a call to 
+set_acceptable_latency() latency occurs?  Should there be a callback so 
+they can be woken up?  A callback would also allow ACPI to tell the 
+user "disabling C3 because of device <foo>" or somesuch, which might be 
+nice.
 
--- 
--o--=O`C  /. .\  (yep) (+)                                    /o-o\
-  #oo'L O      o         |                                     *.
-<___=E M    ^--         |  (you're barking up the wrong tree) =--'
+Also, should subsystems have the ability to set a lower bound on  
+latency?  That would mean set_acceptable_latency() could fail, 
+indicating that the user should buy a better device or a system with 
+better realtime guarantees, which is also valuable info.
 
+Comments aside, this is a nice interface, should help clarify things for 
+devices with response time limits.
+
+Thanks,
+Jesse

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWHXGis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWHXGig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWHXGis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 02:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWHXGii
+	id S1030350AbWHXGig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 02:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWHXGhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 02:38:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33970 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030351AbWHXGh0 (ORCPT
+	Thu, 24 Aug 2006 02:37:25 -0400
+Received: from mx1.suse.de ([195.135.220.2]:39110 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030349AbWHXGhU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 02:37:26 -0400
+	Thu, 24 Aug 2006 02:37:20 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 24 Aug 2006 16:37:27 +1000
-Message-Id: <1060824063727.5048@suse.de>
+Date: Thu, 24 Aug 2006 16:37:22 +1000
+Message-Id: <1060824063722.5032@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 011 of 11] knfsd: knfsd: cache ipmap per TCP socket
+Subject: [PATCH 010 of 11] knfsd: make nfsd readahead params cache SMP-friendly
 References: <20060824162917.3600.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,186 +25,173 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Greg Banks <gnb@melbourne.sgi.com>
 
-knfsd: speed up high call-rate workloads by caching the struct ip_map
-for the peer on the connected struct svc_sock instead of looking it
-up in the ip_map cache hashtable on every call.  This helps workloads
-using AUTH_SYS authentication over TCP.
+knfsd: make the nfsd read-ahead params cache more SMP-friendly by
+changing the single global list and lock into a fixed 16-bucket
+hashtable with per-bucket locks.  This reduces spinlock contention
+in nfsd_read() on read-heavy workloads on multiprocessor servers.
 
-Testing was on a 4 CPU 4 NIC Altix using 4 IRIX clients, each with 16
-synthetic client threads simulating an rsync (i.e. recursive directory
-listing) workload reading from an i386 RH9 install image (161480
-regular files in 10841 directories) on the server.  That tree is small
-enough to fill in the server's RAM so no disk traffic was involved.
-This setup gives a sustained call rate in excess of 60000 calls/sec
-before being CPU-bound on the server.
-
-Profiling showed strcmp(), called from ip_map_match(), was taking 4.8%
-of each CPU, and ip_map_lookup() was taking 2.9%.  This patch drops
-both contribution into the profile noise.
-
-Note that the above result overstates this value of this patch
-for most workloads.  The synthetic clients are all using separate
-IP addresses, so there are 64 entries in the ip_map cache hash.
-Because the kernel measured contained the bug fixed in commit
-
-commit 1f1e030bf75774b6a283518e1534d598e14147d4
-
-and was running on 64bit little-endian machine, probably all of
-those 64 entries were on a single chain, thus increasing the cost
-of ip_map_lookup().
-
-With a modern kernel you would need more clients to see the same
-amount of performance improvement.  This patch has helped to scale
-knfsd to handle a deployment with 2000 NFS clients.
+Testing was on a 4 CPU 4 NIC Altix using 4 IRIX clients each doing 1K
+streaming reads at full line rate.  The server had 128 nfsd threads,
+which sizes the RA cache at 256 entries, of which only a handful
+were used.  Flat profiling shows nfsd_read(), including the inlined
+nfsd_get_raparms(), taking 10.4% of each CPU.  This patch drops the
+contribution from nfsd() to 1.71% for each CPU.
 
 
 Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./include/linux/sunrpc/cache.h   |   11 +++++++++
- ./include/linux/sunrpc/svcauth.h |    1 
- ./include/linux/sunrpc/svcsock.h |    3 ++
- ./net/sunrpc/svcauth_unix.c      |   47 ++++++++++++++++++++++++++++++++++++---
- ./net/sunrpc/svcsock.c           |    2 +
- 5 files changed, 61 insertions(+), 3 deletions(-)
+ ./fs/nfsd/vfs.c |   60 +++++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 44 insertions(+), 16 deletions(-)
 
-diff .prev/include/linux/sunrpc/cache.h ./include/linux/sunrpc/cache.h
---- .prev/include/linux/sunrpc/cache.h	2006-08-24 16:27:18.000000000 +1000
-+++ ./include/linux/sunrpc/cache.h	2006-08-24 16:27:18.000000000 +1000
-@@ -163,6 +163,17 @@ static inline void cache_put(struct cach
- 	kref_put(&h->ref, cd->cache_put);
- }
+diff .prev/fs/nfsd/vfs.c ./fs/nfsd/vfs.c
+--- .prev/fs/nfsd/vfs.c	2006-08-24 16:25:13.000000000 +1000
++++ ./fs/nfsd/vfs.c	2006-08-24 16:27:01.000000000 +1000
+@@ -54,6 +54,7 @@
+ #include <linux/nfsd_idmap.h>
+ #include <linux/security.h>
+ #endif /* CONFIG_NFSD_V4 */
++#include <linux/jhash.h>
  
-+static inline int cache_valid(struct cache_head *h)
-+{
-+	/* If an item has been unhashed pending removal when
-+	 * the refcount drops to 0, the expiry_time will be
-+	 * set to 0.  We don't want to consider such items
-+	 * valid in this context even though CACHE_VALID is
-+	 * set.
-+	 */
-+	return (h->expiry_time != 0 && test_bit(CACHE_VALID, &h->flags));
-+}
-+
- extern int cache_check(struct cache_detail *detail,
- 		       struct cache_head *h, struct cache_req *rqstp);
- extern void cache_flush(void);
-
-diff .prev/include/linux/sunrpc/svcauth.h ./include/linux/sunrpc/svcauth.h
---- .prev/include/linux/sunrpc/svcauth.h	2006-08-24 16:27:18.000000000 +1000
-+++ ./include/linux/sunrpc/svcauth.h	2006-08-24 16:27:18.000000000 +1000
-@@ -126,6 +126,7 @@ extern struct auth_domain *auth_domain_f
- extern struct auth_domain *auth_unix_lookup(struct in_addr addr);
- extern int auth_unix_forget_old(struct auth_domain *dom);
- extern void svcauth_unix_purge(void);
-+extern void svcauth_unix_info_release(void *);
+ #include <asm/uaccess.h>
  
- static inline unsigned long hash_str(char *name, int bits)
- {
-
-diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
---- .prev/include/linux/sunrpc/svcsock.h	2006-08-24 16:27:18.000000000 +1000
-+++ ./include/linux/sunrpc/svcsock.h	2006-08-24 16:27:18.000000000 +1000
-@@ -54,6 +54,9 @@ struct svc_sock {
- 	int			sk_reclen;	/* length of record */
- 	int			sk_tcplen;	/* current read length */
- 	time_t			sk_lastrecv;	/* time of last received request */
-+
-+	/* cache of various info for TCP sockets */
-+	void			*sk_info_authunix;
+@@ -81,10 +82,19 @@ struct raparms {
+ 	dev_t			p_dev;
+ 	int			p_set;
+ 	struct file_ra_state	p_ra;
++	unsigned int		p_hindex;
  };
  
- /*
-
-diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
---- .prev/net/sunrpc/svcauth_unix.c	2006-08-24 16:27:18.000000000 +1000
-+++ ./net/sunrpc/svcauth_unix.c	2006-08-24 16:27:18.000000000 +1000
-@@ -9,6 +9,7 @@
- #include <linux/seq_file.h>
- #include <linux/hash.h>
- #include <linux/string.h>
-+#include <net/sock.h>
++struct raparm_hbucket {
++	struct raparms		*pb_head;
++	spinlock_t		pb_lock;
++} ____cacheline_aligned_in_smp;
++
+ static struct raparms *		raparml;
+-static struct raparms *		raparm_cache;
++#define RAPARM_HASH_BITS	4
++#define RAPARM_HASH_SIZE	(1<<RAPARM_HASH_BITS)
++#define RAPARM_HASH_MASK	(RAPARM_HASH_SIZE-1)
++static struct raparm_hbucket	raparm_hash[RAPARM_HASH_SIZE];
  
- #define RPCDBG_FACILITY	RPCDBG_AUTH
+ /* 
+  * Called from nfsd_lookup and encode_dirent. Check if we have crossed 
+@@ -743,16 +753,20 @@ nfsd_sync_dir(struct dentry *dp)
+  * Obtain the readahead parameters for the file
+  * specified by (dev, ino).
+  */
+-static DEFINE_SPINLOCK(ra_lock);
  
-@@ -375,6 +376,44 @@ void svcauth_unix_purge(void)
- 	cache_purge(&ip_map_cache);
+ static inline struct raparms *
+ nfsd_get_raparms(dev_t dev, ino_t ino)
+ {
+ 	struct raparms	*ra, **rap, **frap = NULL;
+ 	int depth = 0;
++	unsigned int hash;
++	struct raparm_hbucket *rab;
++
++	hash = jhash_2words(dev, ino, 0xfeedbeef) & RAPARM_HASH_MASK;
++	rab = &raparm_hash[hash];
+ 
+-	spin_lock(&ra_lock);
+-	for (rap = &raparm_cache; (ra = *rap); rap = &ra->p_next) {
++	spin_lock(&rab->pb_lock);
++	for (rap = &rab->pb_head; (ra = *rap); rap = &ra->p_next) {
+ 		if (ra->p_ino == ino && ra->p_dev == dev)
+ 			goto found;
+ 		depth++;
+@@ -761,7 +775,7 @@ nfsd_get_raparms(dev_t dev, ino_t ino)
+ 	}
+ 	depth = nfsdstats.ra_size*11/10;
+ 	if (!frap) {	
+-		spin_unlock(&ra_lock);
++		spin_unlock(&rab->pb_lock);
+ 		return NULL;
+ 	}
+ 	rap = frap;
+@@ -769,15 +783,16 @@ nfsd_get_raparms(dev_t dev, ino_t ino)
+ 	ra->p_dev = dev;
+ 	ra->p_ino = ino;
+ 	ra->p_set = 0;
++	ra->p_hindex = hash;
+ found:
+-	if (rap != &raparm_cache) {
++	if (rap != &rab->pb_head) {
+ 		*rap = ra->p_next;
+-		ra->p_next   = raparm_cache;
+-		raparm_cache = ra;
++		ra->p_next   = rab->pb_head;
++		rab->pb_head = ra;
+ 	}
+ 	ra->p_count++;
+ 	nfsdstats.ra_depth[depth*10/nfsdstats.ra_size]++;
+-	spin_unlock(&ra_lock);
++	spin_unlock(&rab->pb_lock);
+ 	return ra;
  }
  
-+static inline struct ip_map *
-+ip_map_cached_get(struct svc_rqst *rqstp)
-+{
-+	struct ip_map *ipm = rqstp->rq_sock->sk_info_authunix;
-+	if (ipm != NULL) {
-+		if (!cache_valid(&ipm->h)) {
-+			/*
-+			 * The entry has been invalidated since it was
-+			 * remembered, e.g. by a second mount from the
-+			 * same IP address.
-+			 */
-+			rqstp->rq_sock->sk_info_authunix = NULL;
-+			cache_put(&ipm->h, &ip_map_cache);
-+			return NULL;
-+		}
-+		cache_get(&ipm->h);
-+	}
-+	return ipm;
-+}
-+
-+static inline void
-+ip_map_cached_put(struct svc_rqst *rqstp, struct ip_map *ipm)
-+{
-+	struct svc_sock *svsk = rqstp->rq_sock;
-+
-+	if (svsk->sk_sock->type == SOCK_STREAM && svsk->sk_info_authunix == NULL)
-+		svsk->sk_info_authunix = ipm;	/* newly cached, keep the reference */
-+	else
-+		cache_put(&ipm->h, &ip_map_cache);
-+}
-+
-+void
-+svcauth_unix_info_release(void *info)
-+{
-+	struct ip_map *ipm = info;
-+	cache_put(&ipm->h, &ip_map_cache);
-+}
-+
- static int
- svcauth_unix_set_client(struct svc_rqst *rqstp)
- {
-@@ -384,8 +423,10 @@ svcauth_unix_set_client(struct svc_rqst 
- 	if (rqstp->rq_proc == 0)
- 		return SVC_OK;
+@@ -856,11 +871,12 @@ nfsd_vfs_read(struct svc_rqst *rqstp, st
  
--	ipm = ip_map_lookup(rqstp->rq_server->sv_program->pg_class,
--			    rqstp->rq_addr.sin_addr);
-+	ipm = ip_map_cached_get(rqstp);
-+	if (ipm == NULL)
-+		ipm = ip_map_lookup(rqstp->rq_server->sv_program->pg_class,
-+				    rqstp->rq_addr.sin_addr);
- 
- 	if (ipm == NULL)
- 		return SVC_DENIED;
-@@ -400,7 +441,7 @@ svcauth_unix_set_client(struct svc_rqst 
- 		case 0:
- 			rqstp->rq_client = &ipm->m_client->h;
- 			kref_get(&rqstp->rq_client->ref);
--			cache_put(&ipm->h, &ip_map_cache);
-+			ip_map_cached_put(rqstp, ipm);
- 			break;
+ 	/* Write back readahead params */
+ 	if (ra) {
+-		spin_lock(&ra_lock);
++		struct raparm_hbucket *rab = &raparm_hash[ra->p_hindex];
++		spin_lock(&rab->pb_lock);
+ 		ra->p_ra = file->f_ra;
+ 		ra->p_set = 1;
+ 		ra->p_count--;
+-		spin_unlock(&ra_lock);
++		spin_unlock(&rab->pb_lock);
  	}
- 	return SVC_OK;
-
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-08-24 16:25:41.000000000 +1000
-+++ ./net/sunrpc/svcsock.c	2006-08-24 16:27:18.000000000 +1000
-@@ -1612,6 +1612,8 @@ svc_delete_socket(struct svc_sock *svsk)
- 			sockfd_put(svsk->sk_sock);
- 		else
- 			sock_release(svsk->sk_sock);
-+		if (svsk->sk_info_authunix != NULL)
-+			svcauth_unix_info_release(svsk->sk_info_authunix);
- 		kfree(svsk);
+ 
+ 	if (err >= 0) {
+@@ -1836,11 +1852,11 @@ nfsd_permission(struct svc_export *exp, 
+ void
+ nfsd_racache_shutdown(void)
+ {
+-	if (!raparm_cache)
++	if (!raparml)
+ 		return;
+ 	dprintk("nfsd: freeing readahead buffers.\n");
+ 	kfree(raparml);
+-	raparm_cache = raparml = NULL;
++	raparml = NULL;
+ }
+ /*
+  * Initialize readahead param cache
+@@ -1849,19 +1865,31 @@ int
+ nfsd_racache_init(int cache_size)
+ {
+ 	int	i;
++	int	j = 0;
++	int	nperbucket;
+ 
+-	if (raparm_cache)
++
++	if (raparml)
+ 		return 0;
++	if (cache_size < 2*RAPARM_HASH_SIZE)
++		cache_size = 2*RAPARM_HASH_SIZE;
+ 	raparml = kmalloc(sizeof(struct raparms) * cache_size, GFP_KERNEL);
+ 
+ 	if (raparml != NULL) {
+ 		dprintk("nfsd: allocating %d readahead buffers.\n",
+ 			cache_size);
++		for (i = 0 ; i < RAPARM_HASH_SIZE ; i++) {
++			raparm_hash[i].pb_head = NULL;
++			spin_lock_init(&raparm_hash[i].pb_lock);
++		}
++		nperbucket = cache_size >> RAPARM_HASH_BITS;
+ 		memset(raparml, 0, sizeof(struct raparms) * cache_size);
+ 		for (i = 0; i < cache_size - 1; i++) {
+-			raparml[i].p_next = raparml + i + 1;
++			if (i % nperbucket == 0)
++				raparm_hash[j++].pb_head = raparml + i;
++			if (i % nperbucket < nperbucket-1)
++				raparml[i].p_next = raparml + i + 1;
+ 		}
+-		raparm_cache = raparml;
  	} else {
- 		spin_unlock_bh(&serv->sv_lock);
+ 		printk(KERN_WARNING
+ 		       "nfsd: Could not allocate memory read-ahead cache.\n");

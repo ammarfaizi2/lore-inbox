@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbWHXPZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWHXP0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbWHXPZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 11:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWHXPZd
+	id S965058AbWHXP0M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 11:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWHXP0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 11:25:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15533 "EHLO
+	Thu, 24 Aug 2006 11:26:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16557 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965054AbWHXPZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 11:25:32 -0400
-Subject: [PATCH 1/4] Inconsistent extern declarations.
+	id S965009AbWHXP0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 11:26:10 -0400
+Subject: [PATCH 2/4] Core support for --combine -fwhole-program
 From: David Woodhouse <dwmw2@infradead.org>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
 In-Reply-To: <1156429585.3012.58.camel@pmac.infradead.org>
 References: <1156429585.3012.58.camel@pmac.infradead.org>
 Content-Type: text/plain
-Date: Thu, 24 Aug 2006 16:25:18 +0100
-Message-Id: <1156433118.3012.117.camel@pmac.infradead.org>
+Date: Thu, 24 Aug 2006 16:26:07 +0100
+Message-Id: <1156433167.3012.119.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -27,161 +26,195 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When you compile multiple files together with --combine, the compiler
-starts to _notice_ when you do things like this in one file:
+This patch adds a config option for COMBINE_COMPILE, adds the __global
+tag to compiler.h and makes EXPORT_SYMBOL automatically use it. It also
+contains a crappy Makefile hack which uses -fwhole-program --combine for
+all multi-obj .o files -- anything which was 
+	obj-m := foo.o
+	foo-objs := bar.o wibble.o 
+... should now use gcc -o foo.o --combine -fwhole-program bar.c wibble.c
 
- extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
-                                struct iovec *iov, int len, int noblock);
+The makefile hack is known not to work properly for generated C files in
+out-of-source-tree builds, and for multi-obj files where one of the
+sources is _assembly_ instead of C. It's good enough for the proof of
+concept, until someone more clueful can do it properly though. It would
+be useful to make built-in.o build with --combine from _everything_
+which uses standard CFLAGS, rather than doing just what I've done here.
 
-.. but the actual function looks like this:
+For example only; do not apply as-is. 
 
- extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
-                                struct iovec *iov, size_t len, int noblock);
-
-This fixes a bunch of those, which are mostly just a missing 'const' on
-the extern declaration.
-
-This patch is a bug-fix which is fairly much independent of the
---combine/-fwhole-program stuff, so can be applied today.
-
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-
-diff --git a/drivers/isdn/hisax/config.c b/drivers/isdn/hisax/config.c
-index e103503..f647ec3 100644
---- a/drivers/isdn/hisax/config.c
-+++ b/drivers/isdn/hisax/config.c
-@@ -369,11 +369,11 @@ #endif /* MODULE */
+diff --git a/include/asm-i386/linkage.h b/include/asm-i386/linkage.h
+index f4a6eba..8b06e3e 100644
+--- a/include/asm-i386/linkage.h
++++ b/include/asm-i386/linkage.h
+@@ -1,7 +1,7 @@
+ #ifndef __ASM_LINKAGE_H
+ #define __ASM_LINKAGE_H
  
- int nrcards;
+-#define asmlinkage CPP_ASMLINKAGE __attribute__((regparm(0)))
++#define asmlinkage CPP_ASMLINKAGE __attribute__((regparm(0))) __global
+ #define FASTCALL(x)	x __attribute__((regparm(3)))
+ #define fastcall	__attribute__((regparm(3)))
  
--extern char *l1_revision;
--extern char *l2_revision;
--extern char *l3_revision;
--extern char *lli_revision;
--extern char *tei_revision;
-+extern const char *l1_revision;
-+extern const char *l2_revision;
-+extern const char *l3_revision;
-+extern const char *lli_revision;
-+extern const char *tei_revision;
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 9b4f110..ed4cf0c 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -156,4 +156,10 @@ #ifndef __attribute_const__
+ # define __attribute_const__	/* unimplemented */
+ #endif
  
- char *HiSax_getrev(const char *revision)
- {
-diff --git a/drivers/net/skfp/smtinit.c b/drivers/net/skfp/smtinit.c
-index 3c8964c..01bf76b 100644
---- a/drivers/net/skfp/smtinit.c
-+++ b/drivers/net/skfp/smtinit.c
-@@ -36,7 +36,7 @@ #endif
++#ifdef CONFIG_COMBINED_COMPILE
++#define __global __attribute__((externally_visible,used))
++#else
++#define __global
++#endif
++
+ #endif /* __LINUX_COMPILER_H */
+diff --git a/include/linux/linkage.h b/include/linux/linkage.h
+index 932021f..d78eec9 100644
+--- a/include/linux/linkage.h
++++ b/include/linux/linkage.h
+@@ -10,7 +10,7 @@ #define CPP_ASMLINKAGE
+ #endif
  
- #ifndef MULT_OEM
- #define OEMID(smc,i)	oem_id[i]
--	extern u_char	oem_id[] ;
-+	extern const u_char	oem_id[] ;
- #else	/* MULT_OEM */
- #define OEMID(smc,i)	smc->hw.oem_id->oi_mark[i]
- 	extern struct s_oem_ids	oem_ids[] ;
-diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-index e8ae304..8a15f70 100644
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -27,7 +27,7 @@ #include <linux/debugfs.h>
- #define DEBUGFS_MAGIC	0x64626720
+ #ifndef asmlinkage
+-#define asmlinkage CPP_ASMLINKAGE
++#define asmlinkage __global CPP_ASMLINKAGE
+ #endif
  
- /* declared over in file.c */
--extern struct file_operations debugfs_file_operations;
-+extern const struct file_operations debugfs_file_operations;
+ #ifndef prevent_tail_call
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 0dfb794..725e5df 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -175,7 +175,7 @@ #ifdef CONFIG_MODVERSIONS
+ #define __CRC_SYMBOL(sym, sec)					\
+ 	extern void *__crc_##sym __attribute__((weak));		\
+ 	static const unsigned long __kcrctab_##sym		\
+-	__attribute_used__					\
++	__attribute_used__ __global				\
+ 	__attribute__((section("__kcrctab" sec), unused))	\
+ 	= (unsigned long) &__crc_##sym;
+ #else
+@@ -184,13 +184,15 @@ #endif
  
- static struct vfsmount *debugfs_mount;
- static int debugfs_mount_count;
-diff --git a/fs/hfsplus/inode.c b/fs/hfsplus/inode.c
-index 924ecde..99f3120 100644
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -269,7 +269,7 @@ static int hfsplus_file_release(struct i
- }
+ /* For every exported symbol, place a struct in the __ksymtab section */
+ #define __EXPORT_SYMBOL(sym, sec)				\
+-	extern typeof(sym) sym;					\
++	extern typeof(sym) sym __global;		\
+ 	__CRC_SYMBOL(sym, sec)					\
+ 	static const char __kstrtab_##sym[]			\
++	asm("__kstrtab_" #sym)					\
+ 	__attribute__((section("__ksymtab_strings")))		\
+ 	= MODULE_SYMBOL_PREFIX #sym;                    	\
+ 	static const struct kernel_symbol __ksymtab_##sym	\
+-	__attribute_used__					\
++	asm("__ksymtab_" #sym)					\
++	__attribute_used__ __global				\
+ 	__attribute__((section("__ksymtab" sec), unused))	\
+ 	= { (unsigned long)&sym, __kstrtab_##sym }
  
- extern struct inode_operations hfsplus_dir_inode_operations;
--extern struct file_operations hfsplus_dir_operations;
-+extern const struct file_operations hfsplus_dir_operations;
+@@ -208,8 +210,8 @@ #ifdef CONFIG_UNUSED_SYMBOLS
+ #define EXPORT_UNUSED_SYMBOL(sym) __EXPORT_SYMBOL(sym, "_unused")
+ #define EXPORT_UNUSED_SYMBOL_GPL(sym) __EXPORT_SYMBOL(sym, "_unused_gpl")
+ #else
+-#define EXPORT_UNUSED_SYMBOL(sym)
+-#define EXPORT_UNUSED_SYMBOL_GPL(sym)
++#define EXPORT_UNUSED_SYMBOL(sym) extern typeof(sym) sym  __global
++#define EXPORT_UNUSED_SYMBOL_GPL(sym) extern typeof(sym) sym  __global
+ #endif
  
- static struct inode_operations hfsplus_file_inode_operations = {
- 	.lookup		= hfsplus_file_lookup,
-diff --git a/fs/reiserfs/dir.c b/fs/reiserfs/dir.c
-index 9aabcc0..68ab9c0 100644
---- a/fs/reiserfs/dir.c
-+++ b/fs/reiserfs/dir.c
-@@ -11,7 +11,7 @@ #include <linux/smp_lock.h>
- #include <linux/buffer_head.h>
- #include <asm/uaccess.h>
+ #endif
+@@ -470,11 +472,12 @@ void module_add_driver(struct module *, 
+ void module_remove_driver(struct device_driver *);
  
--extern struct reiserfs_key MIN_KEY;
-+extern const struct reiserfs_key MIN_KEY;
+ #else /* !CONFIG_MODULES... */
+-#define EXPORT_SYMBOL(sym)
+-#define EXPORT_SYMBOL_GPL(sym)
+-#define EXPORT_SYMBOL_GPL_FUTURE(sym)
+-#define EXPORT_UNUSED_SYMBOL(sym)
+-#define EXPORT_UNUSED_SYMBOL_GPL(sym)
++
++#define EXPORT_SYMBOL(sym) extern typeof(sym) sym __global
++#define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
++#define EXPORT_SYMBOL_GPL_FUTURE(sym) EXPORT_SYMBOL(sym)
++#define EXPORT_UNUSED_SYMBOL(sym) EXPORT_SYMBOL(sym)
++#define EXPORT_UNUSED_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
  
- static int reiserfs_readdir(struct file *, void *, filldir_t);
- static int reiserfs_dir_fsync(struct file *filp, struct dentry *dentry,
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index 0253413..1316556 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -22,7 +22,7 @@ extern __u32 sysctl_rmem_max;
- extern int sysctl_core_destroy_delay;
+ /* Given an address, look for it in the exception tables. */
+ static inline const struct exception_table_entry *
+diff --git a/init/Kconfig b/init/Kconfig
+index a099fc6..b19cfd1 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -468,6 +468,16 @@ config MODULE_FORCE_UNLOAD
+ 	  rmmod).  This is mainly for kernel developers and desperate users.
+ 	  If unsure, say N.
  
- #ifdef CONFIG_NET_DIVERT
--extern char sysctl_divert_version[];
-+extern const char sysctl_divert_version[];
- #endif /* CONFIG_NET_DIVERT */
++config COMBINED_COMPILE
++        bool "Compile multiple source files at once"
++	help
++	  GCC can perform optimisation between different C files by
++	  using its '--combine' option to compile them all at once. By
++	  also adding the '-fwhole-program' option to make global symbols
++	  static, further optimisations are made possible. Say N unless you
++	  have a version of GCC in which at least PR27898, PR28706, PR28712,
++	  PR28744 and PR28779 are fixed.
++	
+ config MODVERSIONS
+ 	bool "Module versioning support"
+ 	depends on MODULES
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 3cb445c..2f2075d 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -128,6 +128,12 @@ modname = $(basetarget)
+ $(multi-objs-y:.o=.s)   : modname = $(modname-multi)
+ $(multi-objs-y:.o=.lst) : modname = $(modname-multi)
  
- #ifdef CONFIG_XFRM
-diff --git a/net/ipx/af_ipx.c b/net/ipx/af_ipx.c
-index aa34ff4..94b3cb8 100644
---- a/net/ipx/af_ipx.c
-+++ b/net/ipx/af_ipx.c
-@@ -87,7 +87,7 @@ extern int ipxrtr_add_route(__u32 networ
- 			    unsigned char *node);
- extern void ipxrtr_del_routes(struct ipx_interface *intrfc);
- extern int ipxrtr_route_packet(struct sock *sk, struct sockaddr_ipx *usipx,
--			       struct iovec *iov, int len, int noblock);
-+			       struct iovec *iov, size_t len, int noblock);
- extern int ipxrtr_route_skb(struct sk_buff *skb);
- extern struct ipx_route *ipxrtr_lookup(__u32 net);
- extern int ipxrtr_ioctl(unsigned int cmd, void __user *arg);
-diff --git a/net/irda/irsysctl.c b/net/irda/irsysctl.c
-index 86805c3..7606ee7 100644
---- a/net/irda/irsysctl.c
-+++ b/net/irda/irsysctl.c
-@@ -44,9 +44,9 @@ extern int  sysctl_slot_timeout;
- extern int  sysctl_fast_poll_increase;
- extern char sysctl_devname[];
- extern int  sysctl_max_baud_rate;
--extern int  sysctl_min_tx_turn_time;
--extern int  sysctl_max_tx_data_size;
--extern int  sysctl_max_tx_window;
-+extern unsigned  sysctl_min_tx_turn_time;
-+extern unsigned  sysctl_max_tx_data_size;
-+extern unsigned  sysctl_max_tx_window;
- extern int  sysctl_max_noreply_time;
- extern int  sysctl_warn_noreply_time;
- extern int  sysctl_lap_keepalive_time;
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index 1ab03a2..2a3657b 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -83,11 +83,11 @@ kmem_cache_t *sctp_chunk_cachep __read_m
- kmem_cache_t *sctp_bucket_cachep __read_mostly;
++ifdef CONFIG_COMBINED_COMPILE
++$(multi-used-m)		: modkern_cflags += $(CFLAGS_MODULE) -fwhole-program --combine $(sort $(addprefix $(srctree)/$(obj)/,$($(subst $(obj)/,,$(@:.o=-y)):.o=.c) $($(subst $(obj)/,,$(@:.o=-objs)):.o=.c)))
++
++$(multi-used-y)		: CFLAGS += -fwhole-program --combine $(sort $(addprefix $(srctree)/$(obj)/,$($(subst $(obj)/,,$(@:.o=-y)):.o=.c) $($(subst $(obj)/,,$(@:.o=-objs)):.o=.c)))
++endif
++
+ quiet_cmd_cc_s_c = CC $(quiet_modtag)  $@
+ cmd_cc_s_c       = $(CC) $(c_flags) -fverbose-asm -S -o $@ $<
  
- extern int sctp_snmp_proc_init(void);
--extern int sctp_snmp_proc_exit(void);
-+extern void sctp_snmp_proc_exit(void);
- extern int sctp_eps_proc_init(void);
--extern int sctp_eps_proc_exit(void);
-+extern void sctp_eps_proc_exit(void);
- extern int sctp_assocs_proc_init(void);
--extern int sctp_assocs_proc_exit(void);
-+extern void sctp_assocs_proc_exit(void);
+@@ -283,6 +289,23 @@ cmd_link_l_target = rm -f $@; $(AR) $(EX
+ targets += $(lib-target)
+ endif
  
- /* Return the address of the control sock. */
- struct sock *sctp_get_ctl_sock(void)
-
++ifdef CONFIG_COMBINED_COMPILE
++# We would rather have a list of rules like
++# 	foo.o: $(foo-objs)
++# but that's not so easy, so we rather make all composite objects depend
++# on the set of all their parts
++
++$(multi-used-y) : %.o: $(srctree)/dummy.c $(multi-objs-y:.o=.c) FORCE
++	$(call cmd,force_checksrc)
++	$(call if_changed_rule,cc_o_c)
++
++$(multi-used-m) : %.o: $(srctree)/dummy.c $(multi-objs-m:.o=.c) FORCE
++	$(call cmd,force_checksrc)
++	$(call if_changed_rule,cc_o_c)
++	@{ echo $(@:.o=.ko); echo $(link_multi_deps); } > $(MODVERDIR)/$(@F:.o=.mod)
++
++targets += $(multi-used-y) $(multi-used-m)
++else
+ #
+ # Rule to link composite objects
+ #
+@@ -313,7 +336,7 @@ # on the set of all their parts
+ 	@{ echo $(@:.o=.ko); echo $(link_multi_deps); } > $(MODVERDIR)/$(@F:.o=.mod)
+ 
+ targets += $(multi-used-y) $(multi-used-m)
+-
++endif
+ 
+ # Descending
+ # ---------------------------------------------------------------------------
 
 -- 
 dwmw2

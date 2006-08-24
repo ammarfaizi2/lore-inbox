@@ -1,122 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWHWXuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965218AbWHXAPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbWHWXuE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 19:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHWXuE
+	id S965218AbWHXAPY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 20:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbWHXAPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 19:50:04 -0400
-Received: from rune.pobox.com ([208.210.124.79]:18304 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S965066AbWHWXuD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 19:50:03 -0400
-Date: Wed, 23 Aug 2006 18:49:53 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
-       nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-ID: <20060823234953.GH11309@localdomain>
-References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme> <20060821140148.435d15f3.pj@sgi.com> <20060821215120.244f1f6f.akpm@osdl.org> <20060822050401.GB11309@localdomain> <20060821221437.255808fa.pj@sgi.com> <20060823221114.GF11309@localdomain>
+	Wed, 23 Aug 2006 20:15:24 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:17637 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965218AbWHXAPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 20:15:24 -0400
+Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Jeff Garzik <jgarzik@pobox.com>,
+       Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
+       Peer.Chen@uli.com.tw, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060823165614.GF10658@goober>
+References: <20060816191139.5d13fda8@griffin.suse.cz>
+	 <20060816174329.GC17650@ojjektum.uhulinux.hu>
+	 <200608162002.06793.prakash@punnoor.de>
+	 <20060816195345.GA12868@ojjektum.uhulinux.hu>
+	 <20060819001640.GE20111@goober>
+	 <20060819061507.GB8571@ojjektum.uhulinux.hu> <44E721E1.2030203@pobox.com>
+	 <20060821090351.GB19425@ojjektum.uhulinux.hu>
+	 <20060823062821.GD10658@goober>
+	 <20060823091919.GA5806@ojjektum.uhulinux.hu>
+	 <20060823165614.GF10658@goober>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 10:14:58 +1000
+Message-Id: <1156378498.9847.12.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823221114.GF11309@localdomain>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Lynch wrote:
-> Paul Jackson wrote:
-> > 
-> > If there is some decent way I can get the cpus_allowed of the top
-> > cpuset to track the cpu_online_map, then we avoid this discontinuity
-> > in system behaviour.
-> 
-> 
-> How about this?  I've verified it fixes the issue but I'm nervous
-> about the locking.
-> 
-> 
-> --- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
-> +++ cpuhp-sched_setaffinity/kernel/cpuset.c
-> @@ -2033,6 +2033,31 @@ out:
->  	return err;
->  }
->  
-> +static int cpuset_handle_cpuhp(struct notifier_block *nb,
-> +				unsigned long phase, void *_cpu)
-> +{
-> +	unsigned long cpu = (unsigned long)_cpu;
-> +
-> +	mutex_lock(&manage_mutex);
-> +	lock_cpu_hotplug();
-> +	mutex_lock(&callback_mutex);
-> +
-> +	switch (phase) {
-> +	case CPU_ONLINE:
-> +		cpu_set(cpu, top_cpuset.cpus_allowed);
-> +		break;
-> +	case CPU_DEAD:
-> +		cpu_clear(cpu, top_cpuset.cpus_allowed);
-> +		break;
-> +	}
-> +
-> +	mutex_unlock(&callback_mutex);
-> +	unlock_cpu_hotplug();
-> +	mutex_unlock(&manage_mutex);
-> +
-> +	return 0;
-> +}
+Hi everyone.
 
-Actually the lock/unlock_cpu_hotplug aren't necessary,
-cpu_add_remove_lock is already held in this context.
+I looked again at the PDF before sending it, and it does say
+"Preliminary, Confidential, Proprietary" in the header. I therefore also
+checked again all the email I received from Peer, and he made no mention
+of it having that status. I thought I'd mention that though: someone
+might see that too and have concerns.
 
+To help clarify before I send it, I've added Peer to the ccs now so that
+he can at least have the opportunity to have input.
 
-Update cpus_allowed in top_cpuset when cpus are hotplugged;
-otherwise binding a task to a newly hotplugged cpu fails since the
-toplevel cpuset has a static copy of whatever cpu_online_map was at
-boot time.
+Peer: I don't know if you'll have seen the rest of the conversation, so
+let me fill you in: I never got the opportunity to finish the work on
+adding power management support, and other people are doing work on the
+driver now. Is it alright for me to forward the PDF datasheet you gave
+to me?)
 
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
+Regards,
 
---- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
-+++ cpuhp-sched_setaffinity/kernel/cpuset.c
-@@ -2033,6 +2033,29 @@ out:
- 	return err;
- }
- 
-+static int cpuset_handle_cpuhp(struct notifier_block *nb,
-+				unsigned long phase, void *_cpu)
-+{
-+	unsigned long cpu = (unsigned long)_cpu;
-+
-+	mutex_lock(&manage_mutex);
-+	mutex_lock(&callback_mutex);
-+
-+	switch (phase) {
-+	case CPU_ONLINE:
-+		cpu_set(cpu, top_cpuset.cpus_allowed);
-+		break;
-+	case CPU_DEAD:
-+		cpu_clear(cpu, top_cpuset.cpus_allowed);
-+		break;
-+	}
-+
-+	mutex_unlock(&callback_mutex);
-+	mutex_unlock(&manage_mutex);
-+
-+	return 0;
-+}
-+
- /**
-  * cpuset_init_smp - initialize cpus_allowed
-  *
-@@ -2043,6 +2066,8 @@ void __init cpuset_init_smp(void)
- {
- 	top_cpuset.cpus_allowed = cpu_online_map;
- 	top_cpuset.mems_allowed = node_online_map;
-+
-+	hotcpu_notifier(cpuset_handle_cpuhp, 0);
- }
- 
- /**
+Nigel
+

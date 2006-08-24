@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWHXSgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbWHXSjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030445AbWHXSgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 14:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWHXSgZ
+	id S1030447AbWHXSjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 14:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWHXSjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:36:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6104 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030445AbWHXSgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:36:24 -0400
-Subject: RE: Generic Disk Driver in Linux
-From: Arjan van de Ven <arjan@infradead.org>
-Reply-To: arjan@infradead.org
-To: Aleksey Gorelov <dared1st@yahoo.com>
-Cc: jengelh@linux01.gwdg.de, daniel.rodrick@gmail.com,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       linux-newbie@vget.kernel.org, satinder.jeet@gmail.com
-In-Reply-To: <20060824181935.90856.qmail@web83102.mail.mud.yahoo.com>
-References: <20060824181935.90856.qmail@web83102.mail.mud.yahoo.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 24 Aug 2006 20:36:13 +0200
-Message-Id: <1156444573.3014.82.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 24 Aug 2006 14:39:37 -0400
+Received: from fmmailgate03.web.de ([217.72.192.234]:20944 "EHLO
+	fmmailgate03.web.de") by vger.kernel.org with ESMTP
+	id S1030454AbWHXSjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 14:39:36 -0400
+Message-ID: <014301c6c7ad$a84b88f0$962e8d52@aldipc>
+From: "roland" <devzero@web.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE][RFC] kvblade-alpha-2 / ATA Over Ethernet kernel "target" module
+Date: Thu, 24 Aug 2006 20:46:43 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 11:19 -0700, Aleksey Gorelov wrote:
-> >From: linux-kernel-owner@vger.kernel.org 
-> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jan Engelhardt
-> >>
-> >> I was curious that can we develop a generic disk driver that could
-> >> handle all the kinds of hard drives - IDE, SCSI, RAID et al?
-> >
-> >ide_generic
-> >sd_mod
-> >
-> >All there, what more do you want?
-> 
-> Unfortunately, not _all_. DMRAID does not support all fake raids yet. 
+Hello !
 
-Hi,
+If you don`t know about AoE and being interested in network-based
+Storage/SAN technology, you may take a look at
+http://www.linuxjournal.com/article/8149 first. This article gives a nice
+introduction into AoE technology.
 
-it'll be easier and quicker to rev engineer 5 more formats than it will
-be to get the bios thing working ;) And the performance of the bios
-thing will be really really bad... (hint: real mode can access only 1Mb
-of memory, so you will bounce buffer all IO's)
+Kvblade is the kernel-based equivalent of (userspace)vblade and also a
+second approach (there is another at http://lpk.com.price.ru/~lelik/AoE/) to
+build an kernel-based AoE "target" (a vblade in AoE terminology is similar
+to iscsi-target or nbd-server, exporting a block-device over the network,
+but working on ethernet-layer instead of TCP/IP)
 
-Greetings,
-   Arjan van de Ven
+Kvblade is counterpart to the AoE driver which is in 2.6 for some time now
+and it basically does in software, what "Coraid EtherDrive® Storage" does in
+hardware.
+
+Kvblade is now part of the aoetools project at
+http://aoetools.sourceforge.net . It`s at an early alpha stage and the
+initial creator, Sam Hopkins from Coraid just decided to release it to the
+public due to lack of time working further on this.
+
+Unfortunately i`m no kernel hacker, but maybe there is someone who likes to
+give it a try, make a little code-review, pick it up and contribute or even
+rewrite it from scratch. :)
+
+regards
+Roland Kletzing
+(sysadmin/engineer, independent linux enthusiast, not related to Coraid)
 

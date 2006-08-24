@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWHXM3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWHXMac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWHXM3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 08:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWHXM3i
+	id S1751197AbWHXMac (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 08:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWHXMac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 08:29:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:15585 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751195AbWHXM3h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 08:29:37 -0400
-Subject: Re: [Ext2-devel] [RFC][PATCH] Manage jbd allocations from its own
-	slabs
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-References: <1156374495.30517.5.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 24 Aug 2006 07:29:33 -0500
-Message-Id: <1156422573.7908.1.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Thu, 24 Aug 2006 08:30:32 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:41507 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751197AbWHXMab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 08:30:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QyCclpOOzKrpVWeJJZYscAnffwJHB6LOg6Y3s151w4Rlnd3HXBRTGaBCAvGEPuLam/GivSsF5lyyUrfzqPgCOmhmK7qWKlxGRw07OlFgv6nQVC9u5/QrcUq9FSTtDAE7njBFiBbFpgIhE5HcWADGH4nPoiRdNMGP4lJmRhlG5ag=
+Message-ID: <6bffcb0e0608240530g46c207a0x9dc595eb1dfff45b@mail.gmail.com>
+Date: Thu, 24 Aug 2006 14:30:30 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-24-00-22.tar.gz uploaded
+Cc: "Nathan Scott" <nathans@sgi.com>, xfs-masters@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200608240723.k7O7NsBB025642@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200608240723.k7O7NsBB025642@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 16:08 -0700, Badari Pulavarty wrote:
-> Hi,
-> 
-> Here is the fix to "bh: Ensure bh fits within a page" problem
-> caused by JBD.
-> 
-> BTW, I realized that this problem can happen only with 1k, 2k
-> filesystems - as 4k, 8k allocations disable slab debug 
-> automatically. But for completeness, I created slabs for those
-> also.
+On 24/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
+> The mm snapshot broken-out-2006-08-24-00-22.tar.gz has been uploaded to
+>
+>    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-24-00-22.tar.gz
+>
+> It contains the following patches against 2.6.18-rc4:
 
-With a larger base page size, you could run into the same problems for
-4K and 8K allocations, so it's a good thing to do them all.
+Filesystem "loop4": Disabling barriers, not supported by the underlying device
+XFS mounting filesystem loop4
+Slab corruption: start=ef135b6c, len=304
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<fdd1c363>](xfs_buf_free+0xb8/0xbd [xfs])
+0d0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6c 6b 6b 6b
+Prev obj: start=ef135a30, len=304
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<fdd19dad>](kmem_zone_alloc+0x51/0x97 [xfs])
+000: 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00
+010: ad 4e ad de ff ff ff ff ff ff ff ff 00 00 00 00
+Next obj: start=ef135ca8, len=304
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<fdd1c363>](xfs_buf_free+0xb8/0xbd [xfs])
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
 
-> What do you think ? I ran basic tests and things are fine.
+http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm3/mm-config
 
-Looks sane to me.
+Regards,
+Michal
 
-Shaggy
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

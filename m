@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbWHXGZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWHXGbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030332AbWHXGZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 02:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWHXGZP
+	id S1030334AbWHXGbI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 02:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWHXGbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 02:25:15 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:49894 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030331AbWHXGZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 02:25:13 -0400
-Message-ID: <44ED4645.4020904@garzik.org>
-Date: Thu, 24 Aug 2006 02:25:09 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 24 Aug 2006 02:31:08 -0400
+Received: from natblert.rzone.de ([81.169.145.181]:33448 "EHLO
+	natblert.rzone.de") by vger.kernel.org with ESMTP id S1030334AbWHXGbH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 02:31:07 -0400
+Date: Thu, 24 Aug 2006 08:29:43 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.17.11
+Message-ID: <20060824062943.GA11477@aepfle.de>
+References: <20060823213108.GA12308@kroah.com> <20060823213130.GB12308@kroah.com>
 MIME-Version: 1.0
-To: Hayim Shaul <hayim@iportent.com>
-CC: linux-kernel@vger.kernel.org, edward_peng@dlink.com.tw,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 2.6.17.1 1/2] dllink driver: porting v1.19 to linux 2.6.17
-References: <1151914780.2859.34.camel@localhost.localdomain>
-In-Reply-To: <1151914780.2859.34.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060823213130.GB12308@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you resend this against 2.6.18-rc1 and/or netdev-2.6.git#upstream ?
+On Wed, Aug 23, Greg KH wrote:
 
-	Jeff
+> +++ b/drivers/serial/Kconfig
+> @@ -803,6 +803,7 @@ config SERIAL_MPC52xx
+>  	tristate "Freescale MPC52xx family PSC serial support"
+>  	depends on PPC_MPC52xx
+>  	select SERIAL_CORE
+> +	select FW_LOADER
+>  	help
+>  	  This drivers support the MPC52xx PSC serial ports. If you would
+>  	  like to use them, you must answer Y or M to this option. Not that
 
-
-
+This was for SERIAL_ICOM

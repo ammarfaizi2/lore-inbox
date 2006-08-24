@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWHXUP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWHXUV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWHXUP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 16:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751693AbWHXUP4
+	id S1422639AbWHXUV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 16:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWHXUV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 16:15:56 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64684 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751694AbWHXUP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 16:15:56 -0400
-Date: Thu, 24 Aug 2006 13:15:44 -0700
-From: Paul Jackson <pj@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>
-Subject: fs cache patch breaks sparc build in 2.6.18-rc4-mm2
-Message-Id: <20060824131544.aa9223f0.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 24 Aug 2006 16:21:26 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:20363 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1422636AbWHXUVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 16:21:25 -0400
+Subject: Re: [PATCH 3/7] SLIM main patch
+From: David Safford <safford@watson.ibm.com>
+To: Serge E Hallyn <sergeh@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, kjhall@us.ibm.com,
+       Benjamin LaHaise <bcrl@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>
+In-Reply-To: <20060824191611.GB1625@sergelap.austin.ibm.com>
+References: <1156359937.6720.66.camel@localhost.localdomain>
+	 <20060823192733.GG28594@kvack.org>
+	 <1156365357.6720.87.camel@localhost.localdomain>
+	 <1156418815.3007.89.camel@localhost.localdomain>
+	 <20060824133248.GC15680@sergelap.austin.ibm.com>
+	 <1156428917.3007.150.camel@localhost.localdomain>
+	 <20060824152322.GD32764@sergelap.austin.ibm.com>
+	 <1156439113.3007.170.camel@localhost.localdomain>
+	 <1156440849.2476.21.camel@localhost.localdomain>
+	 <20060824191611.GB1625@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 16:21:14 -0400
+Message-Id: <1156450874.2476.75.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.6.18-rc4-mm2 patch:
-    fs-cache-make-kafs-use-fs-cache.patch
+On Thu, 2006-08-24 at 14:16 -0500, Serge E Hallyn wrote:
+> Quoting David Safford (safford@watson.ibm.com):
+> > On Thu, 2006-08-24 at 18:05 +0100, Alan Cox wrote:
+> > > It is a matter of the timing and the device. You need to do revocation
+> > > at the device level because your security state change must occur after
+> > > the devices have all been dealt with. This is why I said you need the
+> > > core of revoke() to do this.
+> > 
+> > In a typical system, most applications are started at the correct level,
+> > and we don't have to demote/promote them. In those cases where demotion
+> > or promotion are needed, only a small number actually already have
+> > access that needs to be revoked. Of those, most involve shmem, which
+> > I believe we are revoking safely, as we don't have the same problems
+> > with drivers and incomplete I/O. In the remaining cases, where we really
+> > can't revoke safely, we could simply not allow the requested access, and
+> > not demote/promote the process.
+> > 
+> > I think this would give us a useful balance of allowing "safe" demotion
+> > or promotions, while not requiring general revocation. Does this sound
+> > like a reasonable approach?
+> 
+> It sounds like you're saying "This should not be a problem unless the
+> system is being abused/exploited so let's not worry about it."
+> 
+> Assuming that wasn't your intent :), could you please rephrase?
 
-seems to break the arch=sparc defconfig build, failing with:
+Sorry about that - my explanation was unclear.
 
-  CC [M]  fs/afs/file.o
-fs/afs/file.c: In function `afs_file_releasepage':
-fs/afs/file.c:332: error: structure has no member named `cache'
-make[2]: *** [fs/afs/file.o] Error 1
+What I was trying to say was that I agreed that revocation was not 
+safe, and that we should block any access request that would cause
+demotion/promotion if it would also cause revocation. This would
+close the revocation hole for malicious code/data.
 
-Looking at line numbers 326-337 in the file fs/afs/file.c, I see:
+We could still safely demote/promote processes in the other cases
+which would not trigger revocation, and the security model would
+be not only safer from the removal of revocation, but would still be
+useful, as in practice we found that many/most demotions/promotions do
+not have anything to revoke.
 
-326             /* deny */
-327             if (PageFsMisc(page)) {
-328                     _leave(" = F");
-329                     return 0;
-330             }
-331
-332             fscache_uncache_page(AFS_FS_I(page->mapping->host)->cache, page);
-333
-334             /* indicate that the page can be released */
-335             _leave(" = T");
-336             return 1;
-337     }
+dave
 
-So this does seem to be the line 332 the compile is complaining about.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+
+
+

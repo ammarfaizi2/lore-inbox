@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWHXNhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWHXNlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbWHXNhl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 09:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbWHXNhl
+	id S1751533AbWHXNlF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 09:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWHXNlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 09:37:41 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:41197 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751523AbWHXNhk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 09:37:40 -0400
-Date: Thu, 24 Aug 2006 09:37:33 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Serge E. Hallyn" <sergeh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, kjhall@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>
-Subject: Re: [PATCH 3/7] SLIM main patch
-Message-ID: <20060824133733.GK28594@kvack.org>
-References: <1156359937.6720.66.camel@localhost.localdomain> <20060823192733.GG28594@kvack.org> <1156365357.6720.87.camel@localhost.localdomain> <1156418815.3007.89.camel@localhost.localdomain> <20060824133248.GC15680@sergelap.austin.ibm.com>
+	Thu, 24 Aug 2006 09:41:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22691 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751381AbWHXNlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 09:41:02 -0400
+Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <778.1156426456@warthog.cambridge.redhat.com>
+References: <1156425193.3012.32.camel@pmac.infradead.org>
+	 <32640.1156424442@warthog.cambridge.redhat.com>
+	 <778.1156426456@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Thu, 24 Aug 2006 14:40:59 +0100
+Message-Id: <1156426859.3012.36.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824133248.GC15680@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 08:32:48AM -0500, Serge E. Hallyn wrote:
-> > You also have to deal with existing mmap() mappings and outstanding I/O.
-> 
-> That she does.
+On Thu, 2006-08-24 at 14:34 +0100, David Howells wrote:
+> Ah, but...  The core kernel makes use of the certain header files, even when
+> their actual intended target is compiled as a module.  If I just use
+> "CONFIG_foo" only, then the module won't compile as a module. 
 
-Outstanding I/O is not revoked.  Any in-progress I/O continues.
+So don't put it in the header file itself. Just do 
 
-		-ben
+	#ifdef CONFIG_foo
+	#include <linux/foo.h>
+	#endif
+
+Better still, avoid the need for the external code to poke at fs-private
+header files at all.
+
 -- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+dwmw2
+

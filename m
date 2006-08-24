@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbWHXQWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWHXQ0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030353AbWHXQWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 12:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWHXQWJ
+	id S1030372AbWHXQ0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 12:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbWHXQ0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 12:22:09 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:55187 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030353AbWHXQWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 12:22:07 -0400
-Date: Thu, 24 Aug 2006 17:20:34 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: moreau francis <francis_moreau2000@yahoo.fr>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-pm@lists.osdl.org,
+	Thu, 24 Aug 2006 12:26:44 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:40358 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751309AbWHXQ0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 12:26:44 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44EDD29B.1000207@s5r6.in-berlin.de>
+Date: Thu, 24 Aug 2006 18:23:55 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: Jens Axboe <axboe@suse.de>, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Re : [HELP] Power management for embedded system
-Message-ID: <20060824162034.GB19753@srcf.ucam.org>
-References: <20060824093739.5085.qmail@web25802.mail.ukl.yahoo.com> <1156414325.5555.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156414325.5555.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
+References: <32640.1156424442@warthog.cambridge.redhat.com>
+In-Reply-To: <32640.1156424442@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 11:12:05AM +0100, Richard Purdie wrote:
+David Howells wrote:
+...
+>  (*) Adds dependencies on CONFIG_BLOCK to any configuration item that controls
+>      an item that uses the block layer.  This includes:
+...
+>      (*) The SCSI layer.  As far as I can tell, even SCSI chardevs use the
+>      	 block layer to do scheduling.
+> 
+>      (*) Various block-based device drivers, such as IDE, the old CDROM
+>      	 drivers and USB storage.
+...
 
-> It would be nice to move that to some arch independent generic
-> implementation of these things and to leave the APM emulation behind.
-> The battery information should be a sysfs class (see the backlight/led
-> classes as examples of sysfs classes). The suspend/resume event handling
-> would be something new as far as I know and ideally should support
-> suspending/resuming individual sections of device hardware as well as
-> the whole system.
-
-Triggering suspend/resume is already generic in the form of the 
-/sys/power/state interface. There's been discussion of producing a 
-generic battery class lately. There's some trend towards tying suspend 
-requests into the input layer, but how appropriate that is may depend on 
-the hardware in question. I think most of the pieces are in place to 
-provide an interface that isn't tied to looking like APM, and there's 
-certainly one or two moderately compelling reasons to avoid the APM 
-emulation limitations.
-
+Side note w/o consequence for your patch: usb-storage is not a 
+block-based device driver. It is a SCSI low-level provider which happens 
+to need symbols from the block layer to adjust parameters of the SCSI 
+request queue since there are no fitting abstractions supplied by the 
+SCSI mid-level.
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Stefan Richter
+-=====-=-==- =--- ==---
+http://arcgraph.de/sr/

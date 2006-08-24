@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWHXOns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWHXOob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbWHXOns (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 10:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWHXOns
+	id S964957AbWHXOob (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 10:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWHXOob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 10:43:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5137 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S932121AbWHXOnr (ORCPT
+	Thu, 24 Aug 2006 10:44:31 -0400
+Received: from rtr.ca ([64.26.128.89]:13954 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964946AbWHXOoa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 10:43:47 -0400
-Date: Thu, 24 Aug 2006 14:43:29 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Indan Zupancic <indan@nul.nu>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-Subject: Re: [RFC][PATCH 4/4] deadlock prevention for NBD
-Message-ID: <20060824144329.GA4092@ucw.cz>
-References: <20060812141415.30842.78695.sendpatchset@lappy> <20060812141455.30842.41506.sendpatchset@lappy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060812141455.30842.41506.sendpatchset@lappy>
-User-Agent: Mutt/1.5.9i
+	Thu, 24 Aug 2006 10:44:30 -0400
+Message-ID: <44EDBB4C.6040203@rtr.ca>
+Date: Thu, 24 Aug 2006 10:44:28 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: cpufreq stops working after a while
+References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca> <44DCEAF7.5020005@rtr.ca> <20060811210104.GL26930@redhat.com> <44DCF360.7050305@rtr.ca> <44DCF5C1.4040506@rtr.ca> <20060818151122.GA8275@ucw.cz>
+In-Reply-To: <20060818151122.GA8275@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
+>
+> trip_points should be writeable... but you do not have passive cooling
+> enabled there?!
 
-> Limit each request to 1 page, so that the request throttling also limits the
-> number of in-flight pages and force the IO scheduler to NOOP as anything else
-> doesn't make sense anyway.
+What do you mean -- I don't understand what you were trying to say
+(probably just a language thing).
 
-I'd like to understand why it breaks with other schedulers before
-merging this. Maybe the failure in NOOP is just harder to trigger?
+By definition, "passive" cooling never needs enabling -- this just refers
+to things like heat sinks and air vents.
 
-							Pavel
+"Active" cooling is the term for fans and pumps and such.
 
--- 
-Thanks for all the (sleeping) penguins.
+Cheers
+

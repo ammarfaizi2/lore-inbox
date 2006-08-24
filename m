@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWHXF0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWHXFnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWHXF0q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 01:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWHXF0q
+	id S1030310AbWHXFnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 01:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWHXFnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 01:26:46 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:43977 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030296AbWHXF0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 01:26:45 -0400
-Message-ID: <44ED3851.7040202@zytor.com>
-Date: Wed, 23 Aug 2006 22:25:37 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortel.com>
-CC: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux RAID Mailing List <linux-raid@vger.kernel.org>, marc@perkel.com
-Subject: Re: Linux: Why software RAID?
-References: <44ED1E41.40606@garzik.org> <44ED3723.3090308@nortel.com>
-In-Reply-To: <44ED3723.3090308@nortel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Aug 2006 01:43:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57291 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030308AbWHXFnK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 01:43:10 -0400
+Date: Thu, 24 Aug 2006 15:42:45 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Masayuki Saito <m-saito@tnes.nec.co.jp>, Andrew Morton <akpm@osdl.org>
+Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Add new spin_lock for i_flags of xfs_inode [try #2]
+Message-ID: <20060824154245.D3001216@wobbly.melbourne.sgi.com>
+References: <20060823201251m-saito@mail.aom.tnes.nec.co.jp> <20060823213817.16cdfe8a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060823213817.16cdfe8a.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 23, 2006 at 09:38:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> Jeff Garzik wrote:
+On Wed, Aug 23, 2006 at 09:38:17PM -0700, Andrew Morton wrote:
+> On Wed, 23 Aug 2006 20:12:51 +0900
+> Masayuki Saito <m-saito@tnes.nec.co.jp> wrote:
 > 
->> But anyway, to help answer the question of hardware vs. software RAID, 
->> I wrote up a page:
->>
->>     http://linux.yyz.us/why-software-raid.html
+> > It is the problem that i_flags of xfs_inode has no consistent
+> > locking protection.
+> > 
+> > For the reason, I define a new spin_lock(i_flags_lock) for i_flags
+> > of xfs_inode.  And I add this spin_lock for appropriate places.
 > 
-> Just curious...with these guys 
-> (http://www.bigfootnetworks.com/KillerOverview.aspx) putting linux on a 
-> PCI NIC to allow them to bypass Windows' network stack, has anyone ever 
-> considered doing "hardware" raid by using an embedded cpu running linux 
-> software RAID, with battery-backed memory?
-> 
-> It would theoretically allow you to remain feature-compatible by 
-> downloading new kernels to your RAID card.
-> 
+> You could simply use inode.i_lock for this.  i_lock is a general-purpose
+> per-inode lock.  Its mandate is "use it for whatever you like, but it must
+> always be `innermost'"
 
-Yes.  In fact, I have been told by several RAID chip vendors that their 
-customers are *strongly* demanding that their chips be able to run Linux 
-  md (and still use whatever hardware offload features.)
+Sounds spot on for our needs here, and has the added benefit of
+not increasing the size of the inode (as well as not adding to
+our locking complexity).  Thanks!
 
-So it's happening.
+cheers.
 
-	-hpa
+-- 
+Nathan

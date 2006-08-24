@@ -1,196 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWHXCEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWHXCUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWHXCEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 22:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWHXCEg
+	id S1030203AbWHXCUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 22:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWHXCUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 22:04:36 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:58023 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030189AbWHXCEg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 22:04:36 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: rohitseth@google.com
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1156383881.8324.51.camel@galaxy.corp.google.com>
-References: <44E33893.6020700@sw.ru>
-	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
-	 <1156196721.6479.67.camel@linuxchandra>
-	 <1156211128.11127.37.camel@galaxy.corp.google.com>
-	 <1156272902.6479.110.camel@linuxchandra>
-	 <1156383881.8324.51.camel@galaxy.corp.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 23 Aug 2006 19:04:32 -0700
-Message-Id: <1156385072.7154.59.camel@linuxchandra>
+	Wed, 23 Aug 2006 22:20:09 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:3457 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030203AbWHXCUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 22:20:06 -0400
+Date: Wed, 23 Aug 2006 19:19:47 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: akpm@osdl.org, anton@samba.org, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-Id: <20060823191947.76a6f8ac.pj@sgi.com>
+In-Reply-To: <20060823233944.GG11309@localdomain>
+References: <20060821132709.GB8499@krispykreme>
+	<20060821104334.2faad899.pj@sgi.com>
+	<20060821192133.GC8499@krispykreme>
+	<20060821140148.435d15f3.pj@sgi.com>
+	<20060821215120.244f1f6f.akpm@osdl.org>
+	<20060822050401.GB11309@localdomain>
+	<20060821221437.255808fa.pj@sgi.com>
+	<20060823221114.GF11309@localdomain>
+	<20060823153952.066e9a58.pj@sgi.com>
+	<20060823233944.GG11309@localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-23 at 18:44 -0700, Rohit Seth wrote:
-> On Tue, 2006-08-22 at 11:55 -0700, Chandra Seetharaman wrote:
-> > On Mon, 2006-08-21 at 18:45 -0700, Rohit Seth wrote:
-> > > 
-> > > > > this is not 100% true.
-> > > > > UBC itself doesn't prevent from changing context on the fly.
-> > > > > But since this leads to part of resources to be charged to
-> > > > > one UBC and another part to another UBC and so long and so
-> > > > 
-> > > > Let the controllers and the users worry about that part. 
-> > > > 
-> > > 
-> > > I think as the tasks move around, it becomes very heavy to move all the
-> > > pages belonging to previous container to a new container.
-> > 
-> > Not for all resources, CPU could handle it very nicely, whereas memory
-> > would be heavy. My point is that the infrastructure should be open, and
-> > controller is the one that decides whether it wants to handle it or not.
+Nathan wrote:
+> # echo 1 > /sys/devices/system/cpu/cpu3/online
+> # taskset 0x8 foo
 > 
-> With open you are implying being able to use different ones.  It would
-> be nice to get one in and make sure it is stable and optimized...
+> has a race condition, depending on your kernel's configuration.
 
-No, what I mean is that the infrastructure should allow the task moving
-from one group to another, it should also notify the controller about
-that movement and let the controller decide if it wants to take any
-action. (instead of not having the capability stating that it is not
-useful for all type of controllers).
+Good point.  That's not a nice race to force on users.
 
-> 
-> >  
-> > > 
-> > > > As I mentioned UBC might be perfect for container resource management,
-> > > > but what I am talking for is resource management _without_ a container.
-> > > > 
-> > > 
-> > > Can you explain that part a bit more?
-> > 
-> > Basically I was saying that even though resource management in container
-> > and non-container have mostly same requirements, there are few
-> > requirements that are critical in non-container scenario which are non-
-> > issue in container scenario (for example, moving tasks from one resource
-> > group to another).
-> > 
-> > In effect, Design of the infrastructure should not limit non-container
-> > usages. 
-> > 
-> > IMO, non-container requirements are a superset of container requirements
-> > (resource management purposes only :).
-> > 
-> 
-> hmm, non-container world (and its resource management part) already
-> exist.  And sure those requirements are superset of this discussion.
+I relent -- not udev.
 
-What do you mean by "resource management part for non-container world
-already exist ?
 
-It does not. CKRM/Resource Groups is trying to do that, but is not in
-Linus's tree.
+> Maybe the cpuset code should just stay out of the way unless the admin
+> has instantiated one?
 
-> And hopefully container support will not break/modify that much.
->  
-> > > 
-> > > > > 
-> > > > > > - No ability to maintain resource specific data in the controller.
-> > > > > it's false. fields can be added to user_beancounter struct easily.
-> > > > > and that's what our controllers do.
-> > > > 
-> > > > With the model of static array for resources (struct ubparm ub_parms
-> > > > [UB_RESOURCES] in struct user_beancounter), it is not be possible to
-> > > > attach _different_ "controller specific" information to each of the
-> > > > entries.
-> > > > 
-> > > > I do not think it is good idea to add controller specific information of
-> > > > _different_ controllers to the user_beancounter. Think of all the fields
-> > > > it will have when all the numproc controller needs is just the basic 3-4
-> > > > fields.
-> > > > 
-> > > 
-> > > IMO it is okay to add  the fields whenever necessary as Kirill
-> > > suggested.  I think once the container subject gets baked a little more,
-> > > the controllers will also get tightly coupled.  
-> > 
-> > I think my point is not understood. I do not think it is right to add
-> > _controller specific_ fields to the generic data structure (struct
-> > user_beancounter), as we will end up with a generic data structure which
-> > will have so many fields that are not used in so many controllers.
-> > 
-> 
-> A single centralized structure that has fields that are mostly used by
-> every one should be okay I think.
+I really don't like where such special case, modal behaviour leads us.
 
-You mean to say definition like
+Let's say we have two systems, side by side.  Both have been up for
+many months.  On one of these systems,  one time, a few months ago, the
+sysadmin briefly made and removed a cpuset:
 
-struct user_beancounter {
-	fields;/* fields that exists now */
-	
-	int kmemsize_ctlr_info1;
-	char *kmemsize_ctlr_info2;
+	mkdir /dev/cpuset
+	mount -t cpuset cpuset /dev/cpuset
+	mkdir /dev/cpuset/foo
+	rmdir /dev/cpuset/foo
+	umount /dev/cpuset
+	rmdir /dev/cpuset
 
-	char *oomguar_ctlr_info1;
-	char *oomguar_ctlr_info2;
+On the other of these systems, the sysadmin never did any such thing.
+These two systems are now identical in every other aspect that might
+matter to this discussion.
 
-	/* and so on */
-}
+The sched_setaffinity call should behave the same on these two systems.
 
-is the right thing to do ? even though oomguar controller doesn't care
-about kmemsize_ctlr_info* etc.,
+If the kernel has to impose a trivial bit of policy (such as forcing
+the top cpuset to track what's online) in order to provide uniformally
+consistent (not modal) and race free behaviour, then it should.
 
-> 
-> > > 
-> > > > > 
-> > > > > > - No ability to get the list of tasks belonging to a UBC.
-> > > > > it is not true. it can be read from /proc or system calls interface,
-> > > > > just like the way one finds all tasks belonging to one user :)
-> > > > > 
-> > > > > BTW, what is so valueable in this feature?
-> > > > 
-> > > > Again, it may not be useful for container type usages (you can probably
-> > > > get the list from somewhere else, but for resource management it is
-> > > > useful for sysadmins).
-> > > > 
-> > > 
-> > > I'm also debating about whether printing task information is really any
-> > > useful.  If a sysadm wants to get information about any particular task
-> > > then that can come from /proc/<pid>/container  Though container list
-> > > will be one place where one can easily get the list of all the contained
-> > > tasks (and other resources like files).
-> > 
-> > In non-container environment, there is _no_ /proc/pid/container, as
-> > there is no concept of container :). This will be useful for non-
-> > container scenario.
-> > 
-> 
-> I'm sure when container support gets in then for the above scenario it
-> will read -1 ...
+And besides, as someone else noted, it's alot easier than dealing with
+udev ;).
 
-So, how can one get the list of tasks belonging to a resource group in
-that case ?
-> 
-> -rohit
-> 
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+Conclusion - the kernel should simply force the top_cpuset to track the
+online maps.  See further my response to your patch.
+
 -- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

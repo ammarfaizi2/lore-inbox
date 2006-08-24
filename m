@@ -1,92 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbWHXARE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965319AbWHXARo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965189AbWHXARE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Aug 2006 20:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWHXARD
+	id S965319AbWHXARo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Aug 2006 20:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbWHXARo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Aug 2006 20:17:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3806 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965189AbWHXARB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Aug 2006 20:17:01 -0400
-Date: Wed, 23 Aug 2006 17:12:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Paul Jackson <pj@sgi.com>, anton@samba.org, simon.derr@bull.net,
-       nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-Id: <20060823171239.b1e85cec.akpm@osdl.org>
-In-Reply-To: <20060823234953.GH11309@localdomain>
-References: <20060821132709.GB8499@krispykreme>
-	<20060821104334.2faad899.pj@sgi.com>
-	<20060821192133.GC8499@krispykreme>
-	<20060821140148.435d15f3.pj@sgi.com>
-	<20060821215120.244f1f6f.akpm@osdl.org>
-	<20060822050401.GB11309@localdomain>
-	<20060821221437.255808fa.pj@sgi.com>
-	<20060823221114.GF11309@localdomain>
-	<20060823234953.GH11309@localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 23 Aug 2006 20:17:44 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:12696 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965309AbWHXARn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Aug 2006 20:17:43 -0400
+Subject: Re: [PATCH] BC: resource beancounters (v2)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>
+In-Reply-To: <20060823100532.459da50a.akpm@osdl.org>
+References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 23 Aug 2006 17:17:39 -0700
+Message-Id: <1156378659.7154.19.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Aug 2006 18:49:53 -0500
-Nathan Lynch <ntl@pobox.com> wrote:
-
-> Update cpus_allowed in top_cpuset when cpus are hotplugged;
-> otherwise binding a task to a newly hotplugged cpu fails since the
-> toplevel cpuset has a static copy of whatever cpu_online_map was at
-> boot time.
+On Wed, 2006-08-23 at 10:05 -0700, Andrew Morton wrote:
+> On Wed, 23 Aug 2006 14:46:19 +0400
+> Kirill Korotaev <dev@sw.ru> wrote:
 > 
+> > The following patch set presents base of
+> > Resource Beancounters (BC).
+> > BC allows to account and control consumption
+> > of kernel resources used by group of processes.
+> > 
+> > Draft UBC description on OpenVZ wiki can be found at
+> > http://wiki.openvz.org/UBC_parameters
+> > 
+> > The full BC patch set allows to control:
+> > - kernel memory. All the kernel objects allocatable
+> >  on user demand should be accounted and limited
+> >  for DoS protection.
+> >  E.g. page tables, task structs, vmas etc.
+> > 
+> > - virtual memory pages. BCs allow to
+> >  limit a container to some amount of memory and
+> >  introduces 2-level OOM killer taking into account
+> >  container's consumption.
+> >  pages shared between containers are correctly
+> >  charged as fractions (tunable).
+> > 
+> > - network buffers. These includes TCP/IP rcv/snd
+> >  buffers, dgram snd buffers, unix, netlinks and
+> >  other buffers.
+> > 
+> > - minor resources accounted/limited by number:
+> >  tasks, files, flocks, ptys, siginfo, pinned dcache
+> >  mem, sockets, iptentries (for containers with
+> >  virtualized networking)
+> > 
+> > As the first step we want to propose for discussion
+> > the most complicated parts of resource management:
+> > kernel memory and virtual memory.
+> 
+> The patches look reasonable to me - mergeable after updating them for
+> today's batch of review commentlets.
 
-I must say, that's a pretty simple patch.  It beats dealing with udev
-developers ;)
+If you are considering this infrastructure for generic resource
+management, I have few concerns:
+ - There is no CPU controller under this framework
+ - There is no I/O controller under this framework
+ - Minimum of 3 parameters need to be used to manage memory.
+   (in other words, usage is not simple. In order to provide a minimum 
+    guarantee of a resource, one needs to define a new parameter)
 
 > 
-> --- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
-> +++ cpuhp-sched_setaffinity/kernel/cpuset.c
-> @@ -2033,6 +2033,29 @@ out:
->  	return err;
->  }
->  
-> +static int cpuset_handle_cpuhp(struct notifier_block *nb,
-> +				unsigned long phase, void *_cpu)
-> +{
-> +	unsigned long cpu = (unsigned long)_cpu;
-> +
-> +	mutex_lock(&manage_mutex);
-> +	mutex_lock(&callback_mutex);
-> +
-> +	switch (phase) {
-> +	case CPU_ONLINE:
-> +		cpu_set(cpu, top_cpuset.cpus_allowed);
-> +		break;
-> +	case CPU_DEAD:
-> +		cpu_clear(cpu, top_cpuset.cpus_allowed);
-> +		break;
-> +	}
-> +
-> +	mutex_unlock(&callback_mutex);
-> +	mutex_unlock(&manage_mutex);
-> +
-> +	return 0;
-> +}
-> +
+> I have two high-level problems though.
+> 
+> a) I don't yet have a sense of whether this implementation
+>    is appropriate/sufficient for the various other
+>    applications which people are working on.
+> 
+>    If the general shape is OK and we think this
+>    implementation can be grown into one which everyone can
+>    use then fine.
 
-The above needs #ifdef CONFIG_HOTPLUG_CPU wrappers.
+Here are some of other infrastructure related issues I have raised.
+http://marc.theaimsgroup.com/?l=ckrm-tech&m=115593001810616&w=2
 
->  /**
->   * cpuset_init_smp - initialize cpus_allowed
->   *
-> @@ -2043,6 +2066,8 @@ void __init cpuset_init_smp(void)
->  {
->  	top_cpuset.cpus_allowed = cpu_online_map;
->  	top_cpuset.mems_allowed = node_online_map;
-> +
-> +	hotcpu_notifier(cpuset_handle_cpuhp, 0);
->  }
->  
->  /**
+> 
+> And...
+> 
+> > The patch set to be sent provides core for BC and
+> > management of kernel memory only. Virtual memory
+> > management will be sent in a couple of days.
+> 
+> We need to go over this work before we can commit to the BC
+> core.  Last time I looked at the VM accounting patch it
+> seemed rather unpleasing from a maintainability POV.
+> 
+> And, if I understand it correctly, the only response to a job
+> going over its VM limits is to kill it, rather than trimming
+> it.  Which sounds like a big problem?
+
+Yes, it does.
+
+IMHO (as mentioned in a different email), a group with a resource
+constraint should behave no different than a kernel with a specified
+amount of memory. i.e it should do reclamation before it starts failing
+allocation requests. It could even do it preemptively.
+> 
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

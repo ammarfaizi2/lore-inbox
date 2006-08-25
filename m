@@ -1,118 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWHYLqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWHYLzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWHYLqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 07:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWHYLqZ
+	id S1751139AbWHYLzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 07:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWHYLzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 07:46:25 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:18819 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750748AbWHYLqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 07:46:24 -0400
-Message-ID: <44EEE3BB.10303@sw.ru>
-Date: Fri, 25 Aug 2006 15:49:15 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 25 Aug 2006 07:55:35 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:47285 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S1751139AbWHYLze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 07:55:34 -0400
+Date: Fri, 25 Aug 2006 13:55:32 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Subject: Re: T60 not coming out of suspend to RAM
+Message-ID: <20060825115532.GF221@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	LKML <linux-kernel@vger.kernel.org>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH] BC: resource beancounters (v2)
-References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>
-In-Reply-To: <20060823100532.459da50a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11-2006-07-11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->>As the first step we want to propose for discussion
->>the most complicated parts of resource management:
->>kernel memory and virtual memory.
-> 
-> 
-> The patches look reasonable to me - mergeable after updating them for
-> today's batch of review commentlets.
-sure. will do updates as long as there are reasonable comments.
+Hello Michael,
+I have also a T60 and for me it worked after 2 days of compiling kernels
+and trying combinations.  For me suspend to ram only works with the
+following: Kernel 2.6.17.7 and ipw3945-1.0.5, ATI binary driver and
+*loaded* ATI Kernel Module.  With newer kernel versions or newer ipw3945
+it did not work any longer (or it worked once and as soon as I tried
+consecutive suspend to ram it stopped working). Oh and if you have high
+latency with your e1000 network card (500ms - 1 second and laggy ssh to
+a machine on the same lan segement) disable the parallel port in the
+bios and irq load balancing in the kernel config. Oh and when I have
+sshfs mounted it does not to suspend to ram so get sure that you umount
+all sshfs mounted filesystems, if you use it at all.
 
-> I have two high-level problems though.
-> 
-> a) I don't yet have a sense of whether this implementation
->    is appropriate/sufficient for the various other
->    applications which people are working on.
-> 
->    If the general shape is OK and we think this
->    implementation can be grown into one which everyone can
->    use then fine.
-> 
-> And...
-> 
-> 
->>The patch set to be sent provides core for BC and
->>management of kernel memory only. Virtual memory
->>management will be sent in a couple of days.
-> 
-> 
-> We need to go over this work before we can commit to the BC
-> core.  Last time I looked at the VM accounting patch it
-> seemed rather unpleasing from a maintainability POV.
-hmmm... in which regard?
+With the above combination everything I need works:
 
-> And, if I understand it correctly, the only response to a job
-> going over its VM limits is to kill it, rather than trimming
-> it.  Which sounds like a big problem?
-No, UBC virtual memory management refuses occur on mmap()'s.
-Andrey Savochkin wrote already a brief summary on vm resource management:
+        * sound
+        * ati binary only driver
+        * suspend to ram
+        * e1000
+        * wifi
 
-------------- cut ----------------
-The task of limiting a container to 4.5GB of memory bottles down to the
-question: what to do when the container starts to use more than assigned
-4.5GB of memory?
+When I tried newer / older kernel versions at least one of the above broke. I
+sometimes still have no sound or e1000, but a reboot fixes the problem for me.
+For e1000 I also "#if 0"ed the bios checksum in the driver so that it loads
+often when no ethernet cable is plugged in.
 
-At this moment there are only 3 viable alternatives.
+Also see the notes on: http://vizzzion.org/?id=t60
 
-A) Have separate memory management for each container,
-   with separate buddy allocator, lru lists, page replacement mechanism.
-   That implies a considerable overhead, and the main challenge there
-   is sharing of pages between these separate memory managers.
+Let us know, if you proceed.
 
-B) Return errors on extension of mappings, but not on page faults, where
-   memory is actually consumed.
-   In this case it makes sense to take into account not only the size of used
-   memory, but the size of created mappings as well.
-   This is approximately what "privvmpages" accounting/limiting provides in
-   UBC.
-
-C) Rely on OOM killer.
-   This is a fall-back method in UBC, for the case "privvmpages" limits
-   still leave the possibility to overload the system.
-
-It would be nice, indeed, to invent something new.
-The ideal mechanism would
- - slow down the container over-using memory, to signal the user that
-   he is over his limits,
- - at the same time this slowdown shouldn't lead to the increase of memory
-   usage: for example, a simple slowdown of apache web server would lead
-   to the growth of the number of serving children and consumption of more
-   memory while showing worse performance,
- - and, at the same time, it shouldn't penalize the rest of the system from
-   the performance point of view...
-May be this can be achieved via carefully tuned swapout mechanism together
-with disk bandwidth management capable of tracking asynchronous write
-requests, may be something else is required.
-It's really a big challenge.
-
-Meanwhile, I guess we can only make small steps in improving Linux resource
-management features for this moment.
-------------- cut ----------------
-
-Thanks,
-Kirill
+        Thomas

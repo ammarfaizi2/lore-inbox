@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422827AbWHYT6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422865AbWHYUAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422827AbWHYT6y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422865AbWHYT6y
+	id S1422865AbWHYUAH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422883AbWHYUAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:58:54 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:9053 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1422827AbWHYT6x (ORCPT
+	Fri, 25 Aug 2006 16:00:07 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:41613 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1422865AbWHYUAD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:58:53 -0400
-Message-ID: <44EF5677.8060304@tls.msk.ru>
-Date: Fri, 25 Aug 2006 23:58:47 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to identify serial ports (ttySn)?
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 16:00:03 -0400
+Date: Fri, 25 Aug 2006 22:04:55 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Howells <dhowells@redhat.com>
+Cc: axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4]
+Message-ID: <20060825200455.GA2629@uranus.ravnborg.org>
+References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com> <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a regular basis, /dev/ttySnn devices gets
-renumbered with next kernel version.
+On Fri, Aug 25, 2006 at 08:37:07PM +0100, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
+> 
+> Move the bounce buffer code from mm/highmem.c to mm/bounce.c so that it can be
+> more easily disabled when the block layer is disabled.
+> 
+> !!!NOTE!!! There may be a bug in this code: Should init_emergency_pool() be
+> 	   contingent on CONFIG_HIGHMEM?
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  mm/Makefile  |    4 +
+>  mm/bounce.c  |  302 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  mm/highmem.c |  281 ------------------------------------------------------
+>  3 files changed, 305 insertions(+), 282 deletions(-)
+> 
+> diff --git a/mm/Makefile b/mm/Makefile
+> index 9dd824c..63637f0 100644
+> --- a/mm/Makefile
+> +++ b/mm/Makefile
+> @@ -12,6 +12,9 @@ obj-y			:= bootmem.o filemap.o mempool.o
+>  			   readahead.o swap.o truncate.o vmscan.o \
+>  			   prio_tree.o util.o mmzone.o vmstat.o $(mmu-y)
+>  
+> +ifeq ($(CONFIG_MMU),y)
+> +obj-y			+= bounce.o
+> +endif
 
-For example, we've a PCI serial card (NetMos in
-this case), with, say, one serial port on it.
-Plus some ports on the motherboard (usually one
-or two).  The question is where's the NetMos port,
-on which /dev/ttySnn?
+CONFIG_MMU is a bool so you can do this much more elegant:
+obj-$(CONFIG_MMU) += bounce.o
 
-Some time ago, probably at the time of linux 2.4,
-netmos device number was dependent on the max.
-number of "standard" serial ports configured in
-the kernel during compile.  Ie, if it where set
-to 8 (ttyS0..ttyS7), netmos one becomes ttyS8.
-If set to 4, netmos was ttyS4 etc.  I always
-configured 8 ports in the kernel, so my netmos
-card was always been ttyS8.
 
-Next, with 2.6.something which was the first 2.6
-I tried, it suddenly become ttyS4.  I don't remember
-the details already.  So I reconfigured all the
-machines (it was UPS control program which is
-sitting on that port) to use another device.
-
-At least 2.6.11 assigns ttyS3 to the device, saying
-the first two ports are reserved for the onboard
-devices.  So I again reconfigured the app to use
-ttyS3 (or ttyS2 - I'm not sure).
-
-Now, with 2.6.17, the netmos port is ttyS1.  Because
-in reality, on the motherboard there's only one
-serial port soldered (that's the reason why we
-got the netmos card in the first place), so "next
-unused" device is ttyS1.
-
-So the question is: how to find where's the thing
-on the running kernel, and where it will be with
-next version?  Is there a way to assign a name for
-the thing, so it will be independent of the current
-kernel?  I just want to use it, the hardware is
-*constant* for several years, but each kernel
-release gives yet another surprize, here or there.
-
-And please don't tell me that's some udev thing.
-there's no need to run that f*cked udev on all
-those machines, the hardware is stable for many
-years, there's no hotpluggable, usb or not,
-devices of any sort.
-
-More, there's no way to assign constant name for
-that thing with udev, too - it seems.  Serial
-ports exports no useful information to be
-identified.
-
-Thanks.
-
-/mjt
+	Sam

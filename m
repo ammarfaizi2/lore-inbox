@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422833AbWHYEMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWHYEUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422833AbWHYEMG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 00:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422835AbWHYEMG
+	id S1422835AbWHYEUR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 00:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422836AbWHYEUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 00:12:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29675 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422833AbWHYEME (ORCPT
+	Fri, 25 Aug 2006 00:20:17 -0400
+Received: from ns2.suse.de ([195.135.220.15]:15756 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422835AbWHYEUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 00:12:04 -0400
-Date: Thu, 24 Aug 2006 21:05:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Josh Triplett <josht@us.ibm.com>
+	Fri, 25 Aug 2006 00:20:15 -0400
+Date: Thu, 24 Aug 2006 21:20:03 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jeremy Roberson <jroberson@gtcocalcomp.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Pass sparse the lock expression given to lock
- annotations
-Message-Id: <20060824210531.6264f285.akpm@osdl.org>
-In-Reply-To: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
-References: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH  2.6.9-34.0.1.EL] hid-core.c: Add GTCO CalComp PIDs to blacklist
+Message-ID: <20060825042003.GA20946@suse.de>
+References: <1156463012.32020.63.camel@FC3Dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156463012.32020.63.camel@FC3Dev>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 17:48:56 -0700
-Josh Triplett <josht@us.ibm.com> wrote:
+On Thu, Aug 24, 2006 at 04:43:32PM -0700, Jeremy Roberson wrote:
+> This patch adds all of the PIDs for our company's Digitizers and
+> Interactive School products to hid-core.c
 
-> The lock annotation macros __acquires, __releases, __acquire, and __release
-> all currently throw the lock expression passed as an argument.  Now that
-> sparse can parse __context__ and __attribute__((context)) with a context
-> expression, pass the lock expression down to sparse as the context expression.
+For the 2.6.9 kernel?  What about generating a patch for the latest
+kernel version?
 
-What is the dependency relationship between your kernel changes and your
-proposed change to sparse?
+And you can do this a bit more simply, if you just want to disable all
+devices from a specific manufacturer.  Look at the Watcom change that
+does this in the current -mm tree.
 
+Also, what driver will control these devices if the hid core does not?
+Is it a userspace driver or a kernel one?
+
+thanks,
+
+greg k-h

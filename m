@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHYISv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWHYIUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWHYISv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWHYISv
+	id S932148AbWHYIUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWHYIUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:18:51 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:21123 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932139AbWHYISu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:18:50 -0400
-Subject: Re: [patch] dubious process system time.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17646.14556.535277.434642@cargo.ozlabs.ibm.com>
-References: <20060824121825.GA4425@skybase>
-	 <17646.14556.535277.434642@cargo.ozlabs.ibm.com>
+	Fri, 25 Aug 2006 04:20:09 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:5823 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S932148AbWHYIUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 04:20:07 -0400
+Subject: Re: [RFC] maximum latency tracking infrastructure
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+In-Reply-To: <20060824222417.GA27504@srcf.ucam.org>
+References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
+	 <20060824222417.GA27504@srcf.ucam.org>
 Content-Type: text/plain
-Organization: IBM Corporation
-Date: Fri, 25 Aug 2006 10:18:47 +0200
-Message-Id: <1156493927.1640.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 25 Aug 2006 10:19:45 +0200
+Message-Id: <1156493985.3032.13.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 09:40 +1000, Paul Mackerras wrote:
-> > The system time that is accounted to a process includes the time spent
-> > in three different contexts: normal system time, hardirq time and
-> > softirq time.
+On Thu, 2006-08-24 at 23:24 +0100, Matthew Garrett wrote:
+> On Thu, Aug 24, 2006 at 07:41:35PM +0200, Arjan van de Ven wrote:
 > 
-> Is that true (at the moment) with CONFIG_VIRT_CPU_ACCOUNTING=y?  I
-> thought it wasn't.
+> > +	/* the ipw2100 hardware really doesn't want power management delays
+> > +	 * longer than 500usec
+> > +	 */
+> > +	modify_acceptable_latency("ipw2100", 500);
+> > +
+> 
+> Hm. My BIOS claims that the C3 transition period is 85usec (and even my 
+> C4 is 185) , but I've hit the error path where C3 gets disabled. Is this 
+> really adequate? 
 
-CONFIG_VIRT_CPU_ACCOUNTING improves the precision of the numbers that
-get accounted with account_[user,system,steal]_time. Which bucket the
-time goes into is decided in the three functions.
+first of all that 500 is a bit of a guess on my side; James (the Intel
+wireless guy) is on holiday so I couldn't get real numbers out of it.
+But as proof of concept it's pretty ok :)
 
--- 
-blue skies,
-  Martin.
+> Also, by the looks of it, the C3 disabling path is 
+> still present - is it still theoretically necessary with the above, or 
+> is this just a belt and braces approach?
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
+the "problem" is that bioses lie about these numbers all the time as
+well ;( (it's getting better but still).
 
 
+Those numbers you gave, were those on batter or on AC ? (apparently for
+the problem machines C3 latency goes WAY up when on battery, and then
+the problem hits)

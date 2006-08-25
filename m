@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWHYXxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422925AbWHYX43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWHYXxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWHYXxd
+	id S1422925AbWHYX43 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422927AbWHYX42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:53:33 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:18319 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S964878AbWHYXxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:53:32 -0400
-Subject: Re: Status of driver core struct device changes?
-From: Louis Garcia II <louisg00@bellsouth.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060812161414.GA14182@kroah.com>
-References: <1155332969.2652.8.camel@soncomputer>
-	 <20060812005959.GA25689@kroah.com> <1155357283.19292.3.camel@soncomputer>
-	 <20060812161414.GA14182@kroah.com>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 19:53:20 -0400
-Message-Id: <1156550000.3120.2.camel@soncomputer>
+	Fri, 25 Aug 2006 19:56:28 -0400
+Received: from mga07.intel.com ([143.182.124.22]:27729 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1422925AbWHYX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 19:56:27 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,170,1154934000"; 
+   d="scan'208"; a="107788887:sNHT52182641"
+Date: Fri, 25 Aug 2006 16:56:19 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Akkana Peck <akkana@shallowsky.com>, Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@f00f.org>,
+       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
+Subject: [patch] Relative atime - userspace
+Message-ID: <20060825235619.GB25003@goober>
+References: <20060825235215.820563000@linux.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 (2.7.92-4.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825235215.820563000@linux.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 09:14 -0700, Greg KH wrote:
-> On Sat, Aug 12, 2006 at 12:34:43AM -0400, Louis Garcia II wrote:
-> > On Fri, 2006-08-11 at 17:59 -0700, Greg KH wrote:
-> > > On Fri, Aug 11, 2006 at 05:49:29PM -0400, Louis Garcia II wrote:
-> > > > A couple of months ago greg kh started work toward allowing everything
-> > > > to be a struct device in the sysfs device tree. How is this progressing?
-> > > 
-> > > Quite well.  But next time you might want to CC: me as I almost missed
-> > > this message.
-> > > 
-> > > > Any time frame when we will have a simplified driver core api?
-> > > 
-> > > It's getting there.  If you look in -mm there are a lot of subsystems
-> > > already converted over, along with a lot of patches from andrew that
-> > > revert these changes due to udev issues.
-> > > 
-> > > I'm working on fixing up the udev issues so that the kernel work is not
-> > > held up.  That's a bit slower going as it requires me to install a lot
-> > > of different distros...
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > 
-> > How about block devices? Will it be moved to /sys/class or is that abi
-> > set in stone?
-> 
-> Yes, those will also move, but that's a bit lower on my list of things
-> to do.  Patches to help this out are always welcome.
-> 
-> thanks,
-> 
-> greg k-h
+Add the "relatime" (relative atime) option support to mount.  Relative
+atime only updates the atime if the previous atime is older than the
+mtime or ctime.  Like noatime, but useful for applications like mutt
+that need to know when a file has been read since it was last
+modified.
 
-With the new code will their be much difference between /sys/class/
-and /sys/devices/? Can one of these go away, preferably /sys/class/?
+Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
 
--Louis
+---
+ mount/mount.8           |    7 +++++++
+ mount/mount.c           |    6 ++++++
+ mount/mount_constants.h |    4 ++++
+ 3 files changed, 17 insertions(+)
 
+--- util-linux-2.13-pre7.orig/mount/mount.8
++++ util-linux-2.13-pre7/mount/mount.8
+@@ -586,6 +586,13 @@ access on the news spool to speed up new
+ .B nodiratime
+ Do not update directory inode access times on this filesystem.
+ .TP
++.B relatime
++Update inode access times relative to modify or change time.  Access
++time is only updated if the previous access time was earlier than the
++current modify or change time. (Similar to noatime, but doesn't break
++mutt or other applications that need to know if a file has been read
++since the last time it was modified.)
++.TP
+ .B noauto
+ Can only be mounted explicitly (i.e., the
+ .B \-a
+--- util-linux-2.13-pre7.orig/mount/mount.c
++++ util-linux-2.13-pre7/mount/mount.c
+@@ -164,6 +164,12 @@ static const struct opt_map opt_map[] = 
+   { "diratime",	0, 1, MS_NODIRATIME },	/* Update dir access times */
+   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
+ #endif
++#ifdef MS_RELATIME
++  { "relatime", 0, 0, MS_RELATIME },	/* Update access times relative to
++					   mtime/ctime */
++  { "norelatime", 0, 1, MS_RELATIME },	/* Update access time without regard
++					   to mtime/ctime */
++#endif
+   { NULL,	0, 0, 0		}
+ };
+ 
+--- util-linux-2.13-pre7.orig/mount/mount_constants.h
++++ util-linux-2.13-pre7/mount/mount_constants.h
+@@ -57,6 +57,10 @@ if we have a stack or plain mount - moun
+ #ifndef MS_VERBOSE
+ #define MS_VERBOSE	0x8000	/* 32768 */
+ #endif
++#ifndef MS_RELATIME
++#define MS_RELATIME   0x200000	/* 200000: Update access times relative
++				   to mtime/ctime */
++#endif
+ /*
+  * Magic mount flag number. Had to be or-ed to the flag values.
+  */

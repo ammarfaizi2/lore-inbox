@@ -1,113 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWHYVVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWHYVYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWHYVVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 17:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWHYVVP
+	id S932068AbWHYVYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 17:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWHYVYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 17:21:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:23483 "EHLO
+	Fri, 25 Aug 2006 17:24:46 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:46786 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751447AbWHYVVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 17:21:14 -0400
+	id S1751498AbWHYVYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 17:24:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=hbxRxdR0HryIjbTqLVXb0LD+UlQFC762KUTM5dWgY4I4oMDLPmvTpz31hS8XZWC173DFv0q02zBtrwtCf/Kxhv8SXSyd61JW6tTJheQDV7Jw4VS7cWNpH9X67zucQRh27qagksy3R+Tvk9W9ec26e9JeLmHrJiSenX4RcRl2ttc=
-Date: Sat, 26 Aug 2006 01:21:10 +0400
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=jpPe4EmIAyJ/KF3haoy6qrlUuMsTEgEQQV209RlQZ/MlSdzIbrkEX0nWFp6pZ+NR4ukGdGHtmBplui0FjN8qxNRI458yl84KiocWcbW/BtqS/XlKxJNUJk8uLZ09H/DN2FhcOZKOby3RrmBcQ2jv509ZVL5Rmeb701qvXPDJnDo=
+Date: Sat, 26 Aug 2006 01:24:41 +0400
 From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] Make kmem_cache_destroy() return void
-Message-ID: <20060825212110.GB2246@martell.zuzino.mipt.ru>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Strange transmit corruption in jsm driver on geode sc1200 system
+Message-ID: <20060825212441.GC2246@martell.zuzino.mipt.ru>
+References: <20060825203047.GH13641@csclub.uwaterloo.ca> <1156540817.3007.270.camel@localhost.localdomain> <20060825210305.GL13639@csclub.uwaterloo.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060825210305.GL13639@csclub.uwaterloo.ca>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-un-, de-, -free, -destroy, -exit, etc functions should in general
-return void. Also,
+On Fri, Aug 25, 2006 at 05:03:05PM -0400, Lennart Sorensen wrote:
+> > Is the buffer 32bit aligned ?
+>
+> I honestly don't know.
 
-There is very little, say, filesystem driver code can do upon failed
-kmem_cache_destroy(). If it will be decided to BUG in this case, BUG
-should be put in generic code, instead.
+But you can check. Insert something like this in right place:
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+	printk("%p\n", buffer);
 
- include/linux/slab.h |    4 ++--
- mm/slab.c            |    5 +----
- mm/slob.c            |    3 +--
- 3 files changed, 4 insertions(+), 8 deletions(-)
-
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -60,7 +60,7 @@ extern void __init kmem_cache_init(void)
- extern kmem_cache_t *kmem_cache_create(const char *, size_t, size_t, unsigned long,
- 				       void (*)(void *, kmem_cache_t *, unsigned long),
- 				       void (*)(void *, kmem_cache_t *, unsigned long));
--extern int kmem_cache_destroy(kmem_cache_t *);
-+extern void kmem_cache_destroy(kmem_cache_t *);
- extern int kmem_cache_shrink(kmem_cache_t *);
- extern void *kmem_cache_alloc(kmem_cache_t *, gfp_t);
- extern void *kmem_cache_zalloc(struct kmem_cache *, gfp_t);
-@@ -228,7 +228,7 @@ struct kmem_cache *kmem_cache_create(con
- 	unsigned long,
- 	void (*)(void *, struct kmem_cache *, unsigned long),
- 	void (*)(void *, struct kmem_cache *, unsigned long));
--int kmem_cache_destroy(struct kmem_cache *c);
-+void kmem_cache_destroy(struct kmem_cache *c);
- void *kmem_cache_alloc(struct kmem_cache *c, gfp_t flags);
- void *kmem_cache_zalloc(struct kmem_cache *, gfp_t);
- void kmem_cache_free(struct kmem_cache *c, void *b);
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -2375,7 +2375,6 @@ EXPORT_SYMBOL(kmem_cache_shrink);
-  * @cachep: the cache to destroy
-  *
-  * Remove a struct kmem_cache object from the slab cache.
-- * Returns 0 on success.
-  *
-  * It is expected this function will be called by a module when it is
-  * unloaded.  This will remove the cache completely, and avoid a duplicate
-@@ -2387,7 +2386,7 @@ EXPORT_SYMBOL(kmem_cache_shrink);
-  * The caller must guarantee that noone will allocate memory from the cache
-  * during the kmem_cache_destroy().
-  */
--int kmem_cache_destroy(struct kmem_cache *cachep)
-+void kmem_cache_destroy(struct kmem_cache *cachep)
- {
- 	int i;
- 	struct kmem_list3 *l3;
-@@ -2411,7 +2410,6 @@ int kmem_cache_destroy(struct kmem_cache
- 		list_add(&cachep->next, &cache_chain);
- 		mutex_unlock(&cache_chain_mutex);
- 		unlock_cpu_hotplug();
--		return 1;
- 	}
- 
- 	if (unlikely(cachep->flags & SLAB_DESTROY_BY_RCU))
-@@ -2431,7 +2429,6 @@ int kmem_cache_destroy(struct kmem_cache
- 	}
- 	kmem_cache_free(&cache_cache, cachep);
- 	unlock_cpu_hotplug();
--	return 0;
- }
- EXPORT_SYMBOL(kmem_cache_destroy);
- 
---- a/mm/slob.c
-+++ b/mm/slob.c
-@@ -270,10 +270,9 @@ struct kmem_cache *kmem_cache_create(con
- }
- EXPORT_SYMBOL(kmem_cache_create);
- 
--int kmem_cache_destroy(struct kmem_cache *c)
-+void kmem_cache_destroy(struct kmem_cache *c)
- {
- 	slob_free(c, sizeof(struct kmem_cache));
--	return 0;
- }
- EXPORT_SYMBOL(kmem_cache_destroy);
- 
+> I am just trying to figure out why the jsm
+> driver isn't working on this system while it works on other types of
+> hardware, and so far it seems to come down to the __memcpy assembly not
+> being happy on the SC1200 doing more than one byte at a time.  it is
+> very consistently making the same mistake all the time.
 

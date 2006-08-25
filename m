@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWHYHV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWHYHZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWHYHV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 03:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHYHV6
+	id S1751168AbWHYHZb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 03:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWHYHZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 03:21:58 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:10970 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751155AbWHYHV5 (ORCPT
+	Fri, 25 Aug 2006 03:25:31 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:51650 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751168AbWHYHZa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 03:21:57 -0400
-Date: Fri, 25 Aug 2006 09:26:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-Message-ID: <20060825072654.GC30453@uranus.ravnborg.org>
-References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433068.3012.115.camel@pmac.infradead.org> <Pine.LNX.4.61.0608241840440.16422@yvahk01.tjqt.qr> <1156439110.3012.147.camel@pmac.infradead.org> <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 25 Aug 2006 03:25:30 -0400
+Message-ID: <44EEA5E5.6000509@fr.ibm.com>
+Date: Fri, 25 Aug 2006 09:25:25 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Neil Brown <neilb@suse.de>, nfs@lists.sourceforge.net
+Subject: kthread: update lockd to use kthread
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 08:01:27AM +0200, Jan Engelhardt wrote:
-> >> Compiling files on their own (`make drivers/foo/bar.o`) seems to make 
-> >> the optimization void. Sure, most people don't stop compiling in 
-> >> between. Just a note
-> >
-> >Actually I'm not entirely sure what you write is true. It'll _build_
-> >fs/jffs2/read.o, for example, but it still won't then use it when I make
-> >the kernel -- it'll just use fs/jffs2/jffs2.o which is built from all
-> >the C files with --combine. So the optimisation isn't lost.
-> 
-> Umm then it spends double the time in compilation, doing:
-> 
->   read.o <- read.c
-It will only do this if you ask for it.
-The question was what happened when you did make read.o
+Convert lockd to use kthread rather than kernel_thread, which is deprecated.
 
->   foo.o <- foo.c
->   bar.o <- bar.c
->   built-in.o <- read.c foo.c bar.c
-> 
-> (cf. default current:
->   built-in.o <- read.o foo.o bar.o)
+Not sure how to test it.
 
-And this discussion is btw. mood. If the general opinion is that we shall
-include the -combine support all the kbuild infrastructure will anyway
-be redone.
-There are several small things that are not addressed in todays
-implementation and that will be fixed one way or the other.
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Neil Brown <neilb@suse.de>
+Cc: nfs@lists.sourceforge.net
 
-	Sam
+---
+ fs/lockd/clntlock.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+Index: 2.6.18-rc4-mm2/fs/lockd/clntlock.c
+===================================================================
+--- 2.6.18-rc4-mm2.orig/fs/lockd/clntlock.c
++++ 2.6.18-rc4-mm2/fs/lockd/clntlock.c
+@@ -14,6 +14,7 @@
+ #include <linux/sunrpc/svc.h>
+ #include <linux/lockd/lockd.h>
+ #include <linux/smp_lock.h>
++#include <linux/kthread.h>
+
+ #define NLMDBG_FACILITY		NLMDBG_CLIENT
+
+@@ -181,9 +182,12 @@ nlmclnt_recovery(struct nlm_host *host,
+ 		return;
+ 	host->h_nsmstate = newstate;
+ 	if (!host->h_reclaiming++) {
++		struct task_struct* task;
++
+ 		nlm_get_host(host);
+ 		__module_get(THIS_MODULE);
+-		if (kernel_thread(reclaimer, host, CLONE_KERNEL) < 0)
++		task = kthread_run(reclaimer, host, "%s-reclaim", host->h_name);
++		if (IS_ERR(task))
+ 			module_put(THIS_MODULE);
+ 	}
+ }
+@@ -196,7 +200,6 @@ reclaimer(void *ptr)
+ 	struct file_lock *fl, *next;
+ 	u32 nsmstate;
+
+-	daemonize("%s-reclaim", host->h_name);
+ 	allow_signal(SIGKILL);
+
+ 	/* This one ensures that our parent doesn't terminate while the
+

@@ -1,99 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWHYOvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWHYOxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWHYOvg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHYOt6
+	id S1030230AbWHYOxI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWHYOxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:49:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9345 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030202AbWHYOtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:49:39 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/18] [PATCH] BLOCK: Move __invalidate_device() to block_dev.c [try #3]
-Date: Fri, 25 Aug 2006 15:49:35 +0100
-To: axboe@kernel.dk
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com
-Message-Id: <20060825144935.30722.78154.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
-References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 25 Aug 2006 10:53:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:27509 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030244AbWHYOwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 10:52:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=pJ+gAke5SZyFBCltbElPlN16d/7yEh+D2QK7I+U6vgGgGg30jVcjOndY5rmZ6A3oxV8snaf+waE2goPmtFUwCFLFcdjXoOq/HYVmzpK74+O13PPlZL1IzVmcR7wF0lGUqN+lXUmM3Pjx7LPVnGyhLtODzg3X9Z7EM+xWrplC4mI=
+Date: Fri, 25 Aug 2006 18:52:37 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+Message-ID: <20060825145237.GD5205@martell.zuzino.mipt.ru>
+References: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <20060825142753.GK10659@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825142753.GK10659@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Fri, Aug 25, 2006 at 03:27:53PM +0100, Christoph Hellwig wrote:
+> > --- a/fs/Kconfig
+> > +++ b/fs/Kconfig
+> > @@ -4,6 +4,8 @@ #
+> >
+> >  menu "File systems"
+> >
+> > +if BLOCK
+> > +
+> >  config EXT2_FS
+> >  	tristate "Second extended fs support"
+> >  	help
+> > @@ -383,8 +385,11 @@ config MINIX_FS
+> >  	  partition (the one containing the directory /) cannot be compiled as
+> >  	  a module.
+> >
+> > +endif
+> > +
+> >  config ROMFS_FS
+> >  	tristate "ROM file system support"
+> > +	depends on BLOCK
+>
+> care to group all block-based filesystem in a group so that a single
+> if BLOCK will do it?
 
-Move __invalidate_device() from fs/inode.c to fs/block_dev.c so that it can
-more easily be disabled when the block layer is disabled.
+Note that fs/Kconfig in -mm is mostly split into individual fs/*/Kconfig
+files.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-
- fs/block_dev.c |   21 +++++++++++++++++++++
- fs/inode.c     |   21 ---------------------
- 2 files changed, 21 insertions(+), 21 deletions(-)
-
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 8debde8..ba26d3c 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1306,3 +1306,24 @@ void close_bdev_excl(struct block_device
- }
- 
- EXPORT_SYMBOL(close_bdev_excl);
-+
-+int __invalidate_device(struct block_device *bdev)
-+{
-+	struct super_block *sb = get_super(bdev);
-+	int res = 0;
-+
-+	if (sb) {
-+		/*
-+		 * no need to lock the super, get_super holds the
-+		 * read mutex so the filesystem cannot go away
-+		 * under us (->put_super runs with the write lock
-+		 * hold).
-+		 */
-+		shrink_dcache_sb(sb);
-+		res = invalidate_inodes(sb);
-+		drop_super(sb);
-+	}
-+	invalidate_bdev(bdev, 0);
-+	return res;
-+}
-+EXPORT_SYMBOL(__invalidate_device);
-diff --git a/fs/inode.c b/fs/inode.c
-index 0bf9f04..6426bb0 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -363,27 +363,6 @@ int invalidate_inodes(struct super_block
- }
- 
- EXPORT_SYMBOL(invalidate_inodes);
-- 
--int __invalidate_device(struct block_device *bdev)
--{
--	struct super_block *sb = get_super(bdev);
--	int res = 0;
--
--	if (sb) {
--		/*
--		 * no need to lock the super, get_super holds the
--		 * read mutex so the filesystem cannot go away
--		 * under us (->put_super runs with the write lock
--		 * hold).
--		 */
--		shrink_dcache_sb(sb);
--		res = invalidate_inodes(sb);
--		drop_super(sb);
--	}
--	invalidate_bdev(bdev, 0);
--	return res;
--}
--EXPORT_SYMBOL(__invalidate_device);
- 
- static int can_unuse(struct inode *inode)
- {

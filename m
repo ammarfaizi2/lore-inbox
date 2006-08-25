@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWHYJsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHYJuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbWHYJsG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 05:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWHYJsG
+	id S1751392AbWHYJuy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 05:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWHYJuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 05:48:06 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41143 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750699AbWHYJsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 05:48:03 -0400
-Date: Fri, 25 Aug 2006 18:47:17 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       simon.derr@bull.net, nathanl@austin.ibm.com, akpm@osdl.org,
-       GOTO <y-goto@jp.fujitsu.com>
-Subject: Re: memory hotplug - looking for good place for cpuset hook
-Message-Id: <20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060825015359.1c9eab45.pj@sgi.com>
-References: <20060825015359.1c9eab45.pj@sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 25 Aug 2006 05:50:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6530 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751392AbWHYJux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 05:50:53 -0400
+Date: Fri, 25 Aug 2006 05:50:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ego@in.ibm.com, rusty@rustcorp.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
+       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-ID: <20060825095008.GC22293@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, ego@in.ibm.com,
+	rusty@rustcorp.com.au, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
+	vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
+References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824091704.cae2933c.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 01:53:59 -0700
-Paul Jackson <pj@sgi.com> wrote:
+On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
+ > We already have sufficient locking primitives to get this right.  Let's fix
+ > cpufreq locking rather than introduce complex new primitives which we hope
+ > will work in the presence of the existing mess.
+ > 
+ > Step 1: remove all mention of lock_cpu_hotplug() from cpufreq.
+ > Step 2: work out what data needs to be locked, and how.
+ > Step 3: implement.
 
-> >From what I see so far, the right place to call my cpuset routine to
-> update its copy of node_online_map would be right after the call:
-> 
-> 	node_set_online(nid);
-> 
-> in the routine mm/memory_hotplug.c:add_memory().
-> 
-> Does that seem like a plausible sounding place to you?
-> 
-maybe
+this is what I planned to do weeks ago when this mess first blew up.
+I even went as far as sending Linus a patch for (1).
+He seemed really gung-ho about trying to fix up the current mess though,
+and with each incarnation since, I've been convinced we're making
+the problem worse rather than really improving anything.
 
-if (new_pgdat) {
-	register_one_node(nid); <-- add sysfs entry of node
-	<here>
-}
+		Dave
 
-is good.
-
-(When I implements node-hotplug invoked by cpu-hotplug, I'll care cpuset.)
-
--Kame
-
+-- 
+http://www.codemonkey.org.uk

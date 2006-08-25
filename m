@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWHYLFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWHYLGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWHYLFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 07:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWHYLFM
+	id S964880AbWHYLGK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 07:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWHYLGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 07:05:12 -0400
-Received: from mail.goelsen.net ([195.202.170.130]:51914 "EHLO
-	power2u.goelsen.net") by vger.kernel.org with ESMTP
-	id S1751451AbWHYLFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 07:05:10 -0400
-X-Envelope-From: michael.monnerie@it-management.at
-X-Envelope-From: michael.monnerie@it-management.at
-From: Michael Monnerie <michael.monnerie@it-management.at>
-Organization: it-management http://it-management.at
+	Fri, 25 Aug 2006 07:06:09 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:34361 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S964880AbWHYLGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 07:06:08 -0400
+Date: Fri, 25 Aug 2006 13:06:06 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Bug: sch_teql in 2.6.18-rc3 on Athlon64x2 SMP
-Date: Fri, 25 Aug 2006 13:01:09 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2140291.xIS9QfUJHV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200608251301.10069@zmi.at>
+Subject: Fastfail: Device flag?
+Message-ID: <20060825110606.GA20146@bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2140291.xIS9QfUJHV
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi, I tried using the TEQL network device for load balancing, but it=20
-causes a kernel panic when the network cable is unpluggeg from the=20
-network card (forcedeth driver).
+Hi,
 
-It was an MSI Motherboard with AMD Athlon64x2, stock SMP kernel=20
-2.6.18-rc3, and two forcedeth onboard network cards. If you need other=20
-info, please contact me per e-mail, I'm not on this list. I use the=20
-bonding driver now, works without a glitch.=20
+The "md" and "multpath" drivers set a flag called "fastfail". I would
+like this to become a flag that could also be set/cleared on a
+per-device basis. 
 
-Here are two links to pictures (crash screen foto made with handy, not=20
-best quality, but mostly readable):
-http://zmi.at/x/teql-crash.jpg
-http://zmi.at/x/teql-crash2.jpg
+I'd rather not spend the time doing the retries, and get an error
+immediately. This is an application issue, and I would like to make
+that choice myself.....
 
-Thank you guys for the (otherwise) great kernel!
+If there is a chance I won't have to patch kernels until eternity,
+I'll write the patch to make this settable from userspace.
 
-mfg zmi
-=2D-=20
-// Michael Monnerie, Ing.BSc    -----      http://it-management.at
-// Tel: 0676/846914666                        .network.your.ideas.
-// PGP Key:        "curl -s http://zmi.at/zmi3.asc | gpg --import"
-// Fingerprint: 44A3 C1EC B71E C71A B4C2  9AA6 C818 847C 55CB A4EE
-// Keyserver: www.keyserver.net                 Key-ID: 0x55CBA4EE
+The current situation is that the IDE driver thinks it knows which
+errors stand a chance of retrying (sectoridnotfound), and which don't
+(datacrcerror). This was probably true of some disk in some distant
+past. 
 
---nextPart2140291.xIS9QfUJHV
-Content-Type: application/pgp-signature
+I'd rather not spend the time doing the retries, and get an error
+immediately. This is an application issue.... 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBE7th2yBiEfFXLpO4RAg7sAJ9p2liYuRgmYIf3xpy6YncMJB5AVwCeMBJ7
-QN5fvEF2yFzBQyYnoYkm46c=
-=8LUK
------END PGP SIGNATURE-----
+I was thinking about adding a flag to genhd->flags, and then centrally
+in "make_request" set the flag on the specific request if that flag is
+set. But if I'm not mistaken, make_request has disappeared (possibly
+changed into generic_make_request), and thus this change would have to
+be in all "make_request" functions. I'd rather have a single line. So if
+anbody has a hint as to where to put it, feel free to point me in the
+right direction... ;-)
 
---nextPart2140291.xIS9QfUJHV--
+Comments?
+
+	Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

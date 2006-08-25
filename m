@@ -1,88 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWHYPOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWHYPO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWHYPOh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 11:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWHYPOh
+	id S1030195AbWHYPO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 11:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWHYPOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 25 Aug 2006 11:14:40 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:54877 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964910AbWHYPOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 25 Aug 2006 11:14:37 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:42449 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S964877AbWHYPOg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 11:14:36 -0400
-Date: Fri, 25 Aug 2006 08:00:29 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
-Message-ID: <20060825150029.GJ5330@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <200608251513.58729.ak@suse.de> <20060825142759.GH5330@frankl.hpl.hp.com> <200608251653.52898.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608251653.52898.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=zbm+XlFh7tpwRxoCKQ6rbf1EdEVzGk59V3mZadISPfI7SpaR/pzvcd+iLsa8EVeN6OgzXkfWSl/iOrli/7RlTZgNXt5miBLPWfgnwU1sZMQlZ+F/+HPLCBn0+0R9TXk+eoGxnUtmvikDs4wLXo8xg0GVh/7r+FAQEA7lB67oxWM=  ;
+Message-ID: <44EF13BB.9030406@yahoo.com.au>
+Date: Sat, 26 Aug 2006 01:14:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH] BC: resource beancounters (v2)
+References: <44EC31FB.2050002@sw.ru>	<20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
+In-Reply-To: <20060825073003.e6b5ae16.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
-
-On Fri, Aug 25, 2006 at 04:53:52PM +0200, Andi Kleen wrote:
-> On Friday 25 August 2006 16:27, Stephane Eranian wrote:
+Andrew Morton wrote:
+> On Fri, 25 Aug 2006 15:49:15 +0400
+> Kirill Korotaev <dev@sw.ru> wrote:
 > 
-> > > BTW you might be able to simplify some of your code by exploiting
-> > > those. i386 currently doesn't have them, but i wouldn't see a problem
-> > > with adding them there too.
-> > >  
-> > I think I will drop the EXCL_IDLE feature given that most PMU stop
-> > counting when you go low-power. The feature does not quite do what
-> > we want because it totally exclude the idle from monitoring, yet
-> > the idle may be doing useful kernel work, such as fielding interrupts.
 > 
-> Ok fine. Anything that makes the code less complex is good.
-> Currently it is very big and hard to understand.
+>>>We need to go over this work before we can commit to the BC
+>>>core.  Last time I looked at the VM accounting patch it
+>>>seemed rather unpleasing from a maintainability POV.
+>>
+>>hmmm... in which regard?
 > 
-> (actually at least one newer Intel system I saw seemed to continue counting
-> in idle, but that might have been a specific quirk)
 > 
+> Little changes all over the MM code which might get accidentally broken.
 
-Yes, that's my fear, we may get inconsistent behaviors across architectures.
-I think the only way to ensure some consistency would be to use the
-enter/exit_idle callbacks you mentioned assuming those would be available for
-all architectures.  With this, we could guarantee that we are not monitoring
-usless execution (including low-power mode) simply because we would explicitely
-stop monitoring on enter_idle() and restart monitoring on exit_idle().
+I still think doing simple accounting per-page would be a better way to
+go than trying to pin down all "user allocatable" kernel allocations.
+And would require all of about 2 hooks in the page allocator. And would
+track *actual* RAM allocated by that container.
 
-> > For NMI, you want the counter to overflow at a certain frequency:
-> > 
-> >         wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz * 1000 / nmi_hz));
-> > 
-> > But for RDTSC, I would think you'd simply want the counter to count
-> > monotonically. Given that perfctr0 is not 64-bit but 40, it will also
-> > overflow (or wraparound) but presumably at a lower frequency than the
-> > watchdog timer. I think I am not so clear on the intended usage user
-> > level usage of perfctr0 as a substitute for RDTSC.
-> 
-> Yes we need to underflow. But the users have to live with that.
-> I can make it longer than before though, but the period will be
-> <10s or so.
-
-So the goal of this is for a more realiable way of measuring short
-sections of code, isn't it? If I recall, the TSC does not quite work
-with frequency scaling.
-
-Is anybody lobbying the HW designers to implement another register to
-do what you need here? That would certainly simplify things.
-
-> Two counters would be too much I think.
-> 
-Certainly given that there are other users of that resource and
-that on K8 you only have 4.
+Can we continue that discussion (ie. why it isn't good enough). Last I
+was told it is not perfect and can be unfair... sounds like it fits the
+semantics perfectly ;)
 
 -- 
--Stephane
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

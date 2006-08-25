@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWHYUVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWHYUVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWHYUVW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWHYUVW
+	id S932328AbWHYUVw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWHYUVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:21:22 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20496 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932394AbWHYUVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:21:21 -0400
-Date: Fri, 25 Aug 2006 22:21:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Konrad Rzeszutek <konradr@us.ibm.com>
-Cc: "Darrick J. Wong" <djwong@us.ibm.com>, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: Re: [PATCH 1/2] Add SATA support to libsas
-Message-ID: <20060825202120.GY19810@stusta.de>
-References: <44DBE943.4080303@us.ibm.com> <20060825194338.GA6020@andromeda.dapyr.net>
+	Fri, 25 Aug 2006 16:21:52 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:64191 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932328AbWHYUVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 16:21:51 -0400
+Date: Fri, 25 Aug 2006 16:16:31 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 9/18] 2.6.17.9 perfmon2 patch for review:
+  kernel-level interface
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200608251618_MC3-1-C958-74D1@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060825194338.GA6020@andromeda.dapyr.net>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 03:43:38PM -0400, Konrad Rzeszutek wrote:
-> On Thu, Aug 10, 2006 at 07:19:47PM -0700, Darrick J. Wong wrote:
-> > Hook the scsi_host_template functions in libsas to delegate
-> > functionality to libata when appropriate.
-> > 
-> > Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
-> > 
-> > diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
-> > index b0705ee..76bbb9f 100644
-> > --- a/drivers/scsi/libsas/sas_discover.c
-> > +++ b/drivers/scsi/libsas/sas_discover.c
-> 
-> (...)
-> 
-> >  /* ---------- Domain device ---------- */
-> > @@ -626,4 +634,8 @@ void sas_unregister_devices(struct sas_h
-> >  
-> >  void sas_init_dev(struct domain_device *);
-> >  
-> > +extern void sas_target_destroy(struct scsi_target *);
-> > +extern int sas_slave_alloc(struct scsi_device *);
-> > +extern int sas_ioctl(struct scsi_device *sdev, int cmd, void __user *arg);
-> > +
-> 
-> Those should not be 'extern' otherwise the EXPORT_SYMBOL functions 
-> won't be found when the aic94xx is built as a module.
+In-Reply-To: <20060825134704.GA21398@infradead.org>
 
-The "extern"s can be dropped since they don't have any effect, but 
-I don't see what problem you are thinking of.
+On Fri, 25 Aug 2006 14:47:04 +0100, Christoph Hellwig wrote:
 
-cu
-Adrian
+> > This interface is for people writing kprobes who want to do performance
+> > monitoring within their probe code.  There will probably never be any
+> > in-kernel users, just like there are no in-kernel users of kprobes.
+>
+> Wrong argument.  There is a in-tree user of kprobes and I plan to submit
+> a lot more.
+
+OK.  More than two years after kprobes went into the kernel, a single
+in-kernel user has now appeared in 2.6.18-rc: /net/ipv4/tcp_probe.c
+
+So by your argument kprobes should not have been merged until now.
+
+> If people want to write kprobes for performance mintoring
+> they should submit them for inclusion and we can then find a proper
+> API for it - the current one is rather horrible anyway.
+
+How so?  Last time I tried it I had to manually copy parts of headers 
+from libpfm to get the fields but that should be easy to fix.  And
+some wrappers around the low-level functions might be nice but again
+that's easy to add.
 
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+Chuck
 

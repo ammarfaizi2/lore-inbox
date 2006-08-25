@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422898AbWHYUpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422907AbWHYUyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422898AbWHYUpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422899AbWHYUpJ
+	id S1422907AbWHYUyM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422905AbWHYUyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:45:09 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:25087 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1422898AbWHYUpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:45:07 -0400
-Subject: Re: [PATCH 7/6] Lost bits - fix PG_writeback vs PG_private race in
-	NFS
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
-In-Reply-To: <1156536687.5927.25.camel@localhost>
-References: <20060825153709.24254.28118.sendpatchset@twins>
-	 <1156523815.16027.43.camel@taijtu>  <1156536687.5927.25.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 22:44:21 +0200
-Message-Id: <1156538662.26945.21.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 16:54:12 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:43276 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1422900AbWHYUyL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 16:54:11 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 25 Aug 2006 20:54:08.0973 (UTC) FILETIME=[9C484FD0:01C6C888]
+Content-class: urn:content-classes:message
+Subject: RE: Serial custom speed deprecated?
+Date: Fri, 25 Aug 2006 16:54:02 -0400
+Message-ID: <Pine.LNX.4.61.0608251653180.20746@chaos.analogic.com>
+In-Reply-To: <046701c6c884$1a1638a0$294b82ce@stuartm>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Serial custom speed deprecated?
+Thread-Index: AcbIiJxR1UBoModaTq29wXc5nbl7GA==
+References: <046701c6c884$1a1638a0$294b82ce@stuartm>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Stuart MacDonald" <stuartm@connecttech.com>
+Cc: "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Krzysztof Halasa" <khc@pm.waw.pl>, <linux-serial@vger.kernel.org>,
+       "LKML" <linux-kernel@vger.kernel.org>, <libc-alpha@sources.redhat.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 16:11 -0400, Trond Myklebust wrote:
-> On Fri, 2006-08-25 at 18:36 +0200, Peter Zijlstra wrote:
-> > Make sure we clear PG_writeback after we clear PG_private, otherwise
-> > weird and wonderfull stuff will happen.
-> > 
-> NACK.
-> 
-> Look carefully at the case of unstable writes: your patch does nothing
-> to guarantee that PG_writeback is cleared after PG_private for that
-> case.
 
-Ah, right. Thanks for pointing this out.
+On Fri, 25 Aug 2006, Stuart MacDonald wrote:
 
-> Anyhow, you don't explain exactly what is wrong with clearing
-> PG_writeback before PG_private.
+> From: On Behalf Of Russell King
+>> The "B* cruft" is part of POSIX so needs to be retained.  These are
+>
+> Ah, ok. Didn't know that.
+>
+> ..Stu
 
-Yes, this was a rather hasty patch, I was mortified to find that I
-missed a few changes and my patch-set would crash instantly someone
-would try it.
+... and why "B0" is important as well.
 
-The VM doesn't really like PG_private set on PG_swapcache pages, I guess
-I'll have to rectify that and leave the NFS behaviour as is.
 
-Will correct this in the next round.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-Thanks for the feedback,
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Peter
-
+Thank you.

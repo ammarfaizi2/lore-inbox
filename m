@@ -1,61 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422865AbWHYUAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWHYUBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422865AbWHYUAH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422883AbWHYUAH
+	id S964935AbWHYUBh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWHYUBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:00:07 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:41613 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1422865AbWHYUAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:00:03 -0400
-Date: Fri, 25 Aug 2006 22:04:55 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: David Howells <dhowells@redhat.com>
-Cc: axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4]
-Message-ID: <20060825200455.GA2629@uranus.ravnborg.org>
-References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com> <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
+	Fri, 25 Aug 2006 16:01:37 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:28200 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S964935AbWHYUBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 16:01:36 -0400
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23 of 23] IB/ipath - control receive polarity inversion
+X-Message-Flag: Warning: May contain useful information
+References: <7a03a7b18dcfe1afeeb1.1156530288@eng-12.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 25 Aug 2006 13:01:25 -0700
+In-Reply-To: <7a03a7b18dcfe1afeeb1.1156530288@eng-12.pathscale.com> (Bryan O'Sullivan's message of "Fri, 25 Aug 2006 11:24:48 -0700")
+Message-ID: <aday7tcshyi.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 25 Aug 2006 20:01:34.0954 (UTC) FILETIME=[445734A0:01C6C881]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 08:37:07PM +0100, David Howells wrote:
-> From: David Howells <dhowells@redhat.com>
-> 
-> Move the bounce buffer code from mm/highmem.c to mm/bounce.c so that it can be
-> more easily disabled when the block layer is disabled.
-> 
-> !!!NOTE!!! There may be a bug in this code: Should init_emergency_pool() be
-> 	   contingent on CONFIG_HIGHMEM?
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-> ---
-> 
->  mm/Makefile  |    4 +
->  mm/bounce.c  |  302 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  mm/highmem.c |  281 ------------------------------------------------------
->  3 files changed, 305 insertions(+), 282 deletions(-)
-> 
-> diff --git a/mm/Makefile b/mm/Makefile
-> index 9dd824c..63637f0 100644
-> --- a/mm/Makefile
-> +++ b/mm/Makefile
-> @@ -12,6 +12,9 @@ obj-y			:= bootmem.o filemap.o mempool.o
->  			   readahead.o swap.o truncate.o vmscan.o \
->  			   prio_tree.o util.o mmzone.o vmstat.o $(mmu-y)
->  
-> +ifeq ($(CONFIG_MMU),y)
-> +obj-y			+= bounce.o
-> +endif
+Applied 1-21 and 23 to my for-2.6.19 branch, and skipped 22 for now.
 
-CONFIG_MMU is a bool so you can do this much more elegant:
-obj-$(CONFIG_MMU) += bounce.o
-
-
-	Sam
+ - R.

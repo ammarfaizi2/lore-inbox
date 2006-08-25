@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWHYROs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWHYROu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWHYROs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWHYROs
+	id S1161003AbWHYROu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHYROu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:14:48 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:32828 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1030214AbWHYROr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:14:47 -0400
-Date: Fri, 25 Aug 2006 10:14:46 -0700 (LDT)
-Message-Id: <20060825.101446.01368169.toyoa@mvista.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] x86_64: Adjust the timing of initializing
- cyc2ns_scale.
-From: Toyo <toyoa@mvista.com>
-In-Reply-To: <200608251855.57671.ak@suse.de>
-References: <200608251645.k7PGjCj9003096@dhcp119.mvista.com>
-	<200608251855.57671.ak@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 13:14:50 -0400
+Received: from thunk.org ([69.25.196.29]:64986 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030222AbWHYROt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 13:14:49 -0400
+To: ext2-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: Mailing list move
+From: "Theodore Ts'o" <tytso@mit.edu>
+Phone: (781) 391-3464
+Message-Id: <E1GGfGX-0007XL-TN@candygram.thunk.org>
+Date: Fri, 25 Aug 2006 13:14:45 -0400
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH -mm] x86_64: Adjust the timing of initializing cyc2ns_scale.
-Date: Fri, 25 Aug 2006 18:55:57 +0200
 
-> On Friday 25 August 2006 18:45, Toyo Abe wrote:
-> > The x86_64-mm-monotonic-clock.patch in 2.6.18-rc4-mm2 made a change to
-> > the updating of monotonic_base. It now uses cycles_2_ns().
-> > 
-> > I suggest that a set_cyc2ns_scale() should be done prior to the setup_irq().
-> > Because cycles_2_ns() can be called from the timer ISR right after the irq0
-> > is enabled.
-> 
-> Added thanks. I folded it into the original patch.
-> 
-> Did you actually see a failure or was this just from code review?
-> -Andi
-> 
-I didn't see any failure on it. It was just a speculation. But I think
-it's better thing here.
+Due to some past reliability problems with the mailing list, we are
+planning on moving the ext2-devel mailing list to a new list, hosted on
+vger.  The name of the list is linux-ext4@vger.kernel.org, and it
+archives are available at:
 
-Best Regards,
-toyo
+	http://gmane.org/info.php?group=gmane.comp.file-systems.ext4
+
+Please start subscribing to the list now.  Information on how to
+subscribe to lists at vger.kernel.org are available at
+
+	http://vger.kernel.org/majordomo-info.html
+
+but the short version is to send an e-mail to majordomo@vger.kernel.org,
+with the body of the message containing the text "subscribe linux-ext4".
+
+In order make for an orderly transition, please don't start using the
+new list until Wednesday, August 30th.  After next week's ext2/3/4's
+developers conference call, I will change the settings on the old
+ext2-devel mailing list to be moderated, so I can catch people posting
+to the list and tell them to resend their message to the new list.
+
+
+Despite the listname of linux-ext4, all topics related to the
+development and bug-fixes of the ext2, ext3, and soon-to-be ext4
+filesystems will be discussed on the list.  We are just calling it
+linux-ext4 since the main focus of future development will be on the
+ext4 codebase.
+
+						- Ted

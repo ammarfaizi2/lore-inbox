@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422814AbWHYTfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422828AbWHYThN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422814AbWHYTfq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422815AbWHYTfp
+	id S1422828AbWHYThN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 15:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422818AbWHYThM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:35:45 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:43461 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1422814AbWHYTfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:35:45 -0400
-Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
-From: Daniel Walker <dwalker@mvista.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
-       akpm@osdl.org, jbarnes@virtuousgeek.org, nickpiggin@yahoo.com.au
-In-Reply-To: <44EF4EED.2040904@linux.intel.com>
-References: <1156504939.3032.26.camel@laptopd505.fenrus.org>
-	 <1156520608.10471.5.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-	 <44EF4EED.2040904@linux.intel.com>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 12:35:42 -0700
-Message-Id: <1156534542.10471.13.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 15:37:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23951 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422820AbWHYThH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 15:37:07 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 02/18] [PATCH] BLOCK: Remove duplicate declaration of exit_io_context() [try #4]
+Date: Fri, 25 Aug 2006 20:37:03 +0100
+To: axboe@kernel.dk
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060825193703.11384.54121.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
+References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 21:26 +0200, Arjan van de Ven wrote:
-> > 
-> > The name space here is bugging me a little. Maybe prefix them with
-> > "pm_latency" so you'd have "pm_latency_set_acceptable()" ,
-> > "pm_latency_modify_acceptable()" , something like that. Likewise with
-> > the file names , "include/linux/pm_latency.h"
-> > 
-> 
-> there is no reason why this should JUST be about power management....
+From: David Howells <dhowells@redhat.com>
 
-I'm just suggesting it would be nice to have a clear prefix on each
-function. It's up to you what that prefix is.
+Remove the duplicate declaration of exit_io_context() from linux/sched.h.
 
-Daniel
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ include/linux/sched.h |    1 -
+ kernel/exit.c         |    1 +
+ 2 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6674fc1..c12c5f9 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -709,7 +709,6 @@ #endif	/* CONFIG_SMP */
+ 
+ 
+ struct io_context;			/* See blkdev.h */
+-void exit_io_context(void);
+ struct cpuset;
+ 
+ #define NGROUPS_SMALL		32
+diff --git a/kernel/exit.c b/kernel/exit.c
+index dba194a..e0abd78 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -38,6 +38,7 @@ #include <linux/compat.h>
+ #include <linux/pipe_fs_i.h>
+ #include <linux/audit.h> /* for audit_free() */
+ #include <linux/resource.h>
++#include <linux/blkdev.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>

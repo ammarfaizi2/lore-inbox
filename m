@@ -1,34 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWHYEvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422837AbWHYEzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbWHYEvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 00:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWHYEvY
+	id S1422837AbWHYEzb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 00:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWHYEzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 00:51:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19079 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161002AbWHYEvX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 00:51:23 -0400
-Date: Thu, 24 Aug 2006 21:51:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?SvZybg==?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] LogFS
-Message-Id: <20060824215111.dddcb330.akpm@osdl.org>
-In-Reply-To: <20060824155434.GA31877@wohnheim.fh-wedel.de>
-References: <20060824134430.GB17132@wohnheim.fh-wedel.de>
-	<p73wt8ydu1v.fsf@verdi.suse.de>
-	<20060824155434.GA31877@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 25 Aug 2006 00:55:31 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:60257 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161003AbWHYEza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 00:55:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=D5cvi0dBQGSrlM+04dtr5ckt3pBfrKCcjy8Z9I43swR97Xo9YsuQdjVQxOKYqqthwRbVFdLgenhLxYEsm0RjRHHAj0FS6ADNCMFdHTmKUmK8WEe/BKNw01c5Alg0d1lqD71wh0kPtrbSUL8MO/IcvrPZPLRNQ0s3aNs0DbcTTa4=  ;
+Message-ID: <44EE829C.10606@yahoo.com.au>
+Date: Fri, 25 Aug 2006 14:54:52 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@linux.intel.com>
+CC: Jesse Barnes <jbarnes@virtuousgeek.org>, linux-kernel@vger.kernel.org,
+       len.brown@intel.com, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [RFC] maximum latency tracking infrastructure
+References: <1156441295.3014.75.camel@laptopd505.fenrus.org> <200608241408.03853.jbarnes@virtuousgeek.org> <44EE1801.3060805@linux.intel.com>
+In-Reply-To: <44EE1801.3060805@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 17:54:34 +0200
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+Arjan van de Ven wrote:
+> Jesse Barnes wrote:
+> 
+>> On Thursday, August 24, 2006 10:41 am, Arjan van de Ven wrote:
+>>
+>>> The reason for adding this infrastructure is that power management in
+>>> the idle loop needs to make a tradeoff between latency and power
+>>> savings (deeper power save modes have a longer latency to running code
+>>> again).
+>>
+>>
+>> What if a processor was already in a sleep state when a call to 
+>> set_acceptable_latency() latency occurs? 
+> 
+> 
+> there's nothing sane that can be done in that case; any wake up already 
+> will cause the unwanted latency!
+> A premature wakeup is only making it happen *now*, but now is as 
+> inconvenient a time as any...
+> (in fact it may be a worst case time scenario, say, an audio interrupt...)
 
-> Linux needs a decent flash filesystem.
+Surely you would call set_acceptable_latency() *before* running such
+operation that requires the given latency? And that set_acceptable_latency
+would block the caller until all CPUs are set to wake within this latency.
 
-Would http://nilfs.org/en/ be useful on flash?
+That would be the API semantics I would expect, anyway.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

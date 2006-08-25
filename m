@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWHYOt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWHYOxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWHYOt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWHYOtz
+	id S1030239AbWHYOxs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWHYOwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:49:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22657 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030212AbWHYOtr (ORCPT
+	Fri, 25 Aug 2006 10:52:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27009 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030222AbWHYOtx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:49:47 -0400
+	Fri, 25 Aug 2006 10:49:53 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 12/18] [PATCH] BLOCK: Move the ReiserFS device ioctl compat stuff to the ReiserFS driver [try #3]
-Date: Fri, 25 Aug 2006 15:49:42 +0100
+Subject: [PATCH 13/18] [PATCH] BLOCK: Move the Ext2 device ioctl compat stuff to the Ext2 driver [try #3]
+Date: Fri, 25 Aug 2006 15:49:44 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825144942.30722.18299.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825144944.30722.91487.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,169 +26,154 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the ReiserFS device ioctl compat stuff from fs/compat_ioctl.c to the
-ReiserFS driver so that the ReiserFS header file doesn't need to be included.
+Move the Ext2 device ioctl compat stuff from fs/compat_ioctl.c to the Ext2
+driver so that the Ext2 header file doesn't need to be included.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c           |   12 ------------
- fs/reiserfs/dir.c           |    3 +++
- fs/reiserfs/file.c          |    4 ++++
- fs/reiserfs/ioctl.c         |   35 +++++++++++++++++++++++++++++++++++
- include/linux/reiserfs_fs.h |    9 +++++++++
- 5 files changed, 51 insertions(+), 12 deletions(-)
+ fs/compat_ioctl.c |   17 -----------------
+ fs/ext2/dir.c     |    3 +++
+ fs/ext2/ext2.h    |    1 +
+ fs/ext2/file.c    |    6 ++++++
+ fs/ext2/ioctl.c   |   32 ++++++++++++++++++++++++++++++++
+ 5 files changed, 42 insertions(+), 17 deletions(-)
 
 diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index c4d2849..5e84342 100644
+index 5e84342..24d5538 100644
 --- a/fs/compat_ioctl.c
 +++ b/fs/compat_ioctl.c
-@@ -59,7 +59,6 @@ #include <linux/rtc.h>
- #include <linux/pci.h>
- #include <linux/module.h>
- #include <linux/serial.h>
--#include <linux/reiserfs_fs.h>
- #include <linux/if_tun.h>
- #include <linux/ctype.h>
- #include <linux/ioctl32.h>
-@@ -2016,16 +2015,6 @@ static int vfat_ioctl32(unsigned fd, uns
- 	return ret;
+@@ -45,7 +45,6 @@ #include <linux/auto_fs4.h>
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>
+ #include <linux/fb.h>
+-#include <linux/ext2_fs.h>
+ #include <linux/ext3_jbd.h>
+ #include <linux/ext3_fs.h>
+ #include <linux/videodev.h>
+@@ -159,18 +158,6 @@ static int rw_long(unsigned int fd, unsi
+ 	return err;
  }
  
--#define REISERFS_IOC_UNPACK32               _IOW(0xCD,1,int)
--
--static int reiserfs_ioctl32(unsigned fd, unsigned cmd, unsigned long ptr)
+-static int do_ext2_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
 -{
--        if (cmd == REISERFS_IOC_UNPACK32)
--                cmd = REISERFS_IOC_UNPACK;
--
--        return sys_ioctl(fd,cmd,ptr);
+-	/* These are just misnamed, they actually get/put from/to user an int */
+-	switch (cmd) {
+-	case EXT2_IOC32_GETFLAGS: cmd = EXT2_IOC_GETFLAGS; break;
+-	case EXT2_IOC32_SETFLAGS: cmd = EXT2_IOC_SETFLAGS; break;
+-	case EXT2_IOC32_GETVERSION: cmd = EXT2_IOC_GETVERSION; break;
+-	case EXT2_IOC32_SETVERSION: cmd = EXT2_IOC_SETVERSION; break;
+-	}
+-	return sys_ioctl(fd, cmd, (unsigned long)compat_ptr(arg));
 -}
 -
- struct raw32_config_request
+ static int do_ext3_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
  {
-         compat_int_t    raw_minor;
-@@ -2786,7 +2775,6 @@ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgets
- /* vfat */
- HANDLE_IOCTL(VFAT_IOCTL_READDIR_BOTH32, vfat_ioctl32)
- HANDLE_IOCTL(VFAT_IOCTL_READDIR_SHORT32, vfat_ioctl32)
--HANDLE_IOCTL(REISERFS_IOC_UNPACK32, reiserfs_ioctl32)
- /* Raw devices */
- HANDLE_IOCTL(RAW_SETBIND, raw_ioctl)
- HANDLE_IOCTL(RAW_GETBIND, raw_ioctl)
-diff --git a/fs/reiserfs/dir.c b/fs/reiserfs/dir.c
-index 9aabcc0..657050a 100644
---- a/fs/reiserfs/dir.c
-+++ b/fs/reiserfs/dir.c
-@@ -22,6 +22,9 @@ const struct file_operations reiserfs_di
- 	.readdir = reiserfs_readdir,
- 	.fsync = reiserfs_dir_fsync,
- 	.ioctl = reiserfs_ioctl,
+ 	/* These are just misnamed, they actually get/put from/to user an int */
+@@ -2727,10 +2714,6 @@ HANDLE_IOCTL(PIO_UNIMAP, do_unimap_ioctl
+ HANDLE_IOCTL(GIO_UNIMAP, do_unimap_ioctl)
+ HANDLE_IOCTL(KDFONTOP, do_kdfontop_ioctl)
+ #endif
+-HANDLE_IOCTL(EXT2_IOC32_GETFLAGS, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_SETFLAGS, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_GETVERSION, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_SETVERSION, do_ext2_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_GETVERSION, do_ext3_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_SETVERSION, do_ext3_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_GETRSVSZ, do_ext3_ioctl)
+diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
+index 92ea826..3e7a84a 100644
+--- a/fs/ext2/dir.c
++++ b/fs/ext2/dir.c
+@@ -661,5 +661,8 @@ const struct file_operations ext2_dir_op
+ 	.read		= generic_read_dir,
+ 	.readdir	= ext2_readdir,
+ 	.ioctl		= ext2_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl = reiserfs_compat_ioctl,
++	.compat_ioctl	= ext2_compat_ioctl,
 +#endif
+ 	.fsync		= ext2_sync_file,
  };
+diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+index e65a019..c19ac15 100644
+--- a/fs/ext2/ext2.h
++++ b/fs/ext2/ext2.h
+@@ -137,6 +137,7 @@ extern void ext2_set_inode_flags(struct 
+ /* ioctl.c */
+ extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
+ 		       unsigned long);
++extern long ext2_compat_ioctl(struct file *, unsigned int, unsigned long);
  
- static int reiserfs_dir_fsync(struct file *filp, struct dentry *dentry,
-diff --git a/fs/reiserfs/file.c b/fs/reiserfs/file.c
-index 1627edd..719b367 100644
---- a/fs/reiserfs/file.c
-+++ b/fs/reiserfs/file.c
-@@ -2,6 +2,7 @@
-  * Copyright 2000 by Hans Reiser, licensing governed by reiserfs/README
-  */
- 
-+#include <linux/config.h>
- #include <linux/time.h>
- #include <linux/reiserfs_fs.h>
- #include <linux/reiserfs_acl.h>
-@@ -1568,6 +1569,9 @@ const struct file_operations reiserfs_fi
- 	.read = generic_file_read,
- 	.write = reiserfs_file_write,
- 	.ioctl = reiserfs_ioctl,
+ /* namei.c */
+ struct dentry *ext2_get_parent(struct dentry *child);
+diff --git a/fs/ext2/file.c b/fs/ext2/file.c
+index 23e2c7c..e8bbed9 100644
+--- a/fs/ext2/file.c
++++ b/fs/ext2/file.c
+@@ -46,6 +46,9 @@ const struct file_operations ext2_file_o
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.ioctl		= ext2_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl = reiserfs_compat_ioctl,
++	.compat_ioctl	= ext2_compat_ioctl,
 +#endif
- 	.mmap = generic_file_mmap,
- 	.release = reiserfs_file_release,
- 	.fsync = reiserfs_sync_file,
-diff --git a/fs/reiserfs/ioctl.c b/fs/reiserfs/ioctl.c
-index a986b5e..9c57578 100644
---- a/fs/reiserfs/ioctl.c
-+++ b/fs/reiserfs/ioctl.c
-@@ -9,6 +9,7 @@ #include <linux/time.h>
- #include <asm/uaccess.h>
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
+ 	.mmap		= generic_file_mmap,
+ 	.open		= generic_file_open,
+ 	.release	= ext2_release_file,
+@@ -63,6 +66,9 @@ const struct file_operations ext2_xip_fi
+ 	.read		= xip_file_read,
+ 	.write		= xip_file_write,
+ 	.ioctl		= ext2_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= ext2_compat_ioctl,
++#endif
+ 	.mmap		= xip_file_mmap,
+ 	.open		= generic_file_open,
+ 	.release	= ext2_release_file,
+diff --git a/fs/ext2/ioctl.c b/fs/ext2/ioctl.c
+index 3ca9afd..1dfba77 100644
+--- a/fs/ext2/ioctl.c
++++ b/fs/ext2/ioctl.c
+@@ -11,6 +11,8 @@ #include "ext2.h"
+ #include <linux/capability.h>
+ #include <linux/time.h>
+ #include <linux/sched.h>
 +#include <linux/compat.h>
++#include <linux/smp_lock.h>
+ #include <asm/current.h>
+ #include <asm/uaccess.h>
  
- static int reiserfs_unpack(struct inode *inode, struct file *filp);
- 
-@@ -94,6 +95,40 @@ int reiserfs_ioctl(struct inode *inode, 
+@@ -80,3 +82,33 @@ int ext2_ioctl (struct inode * inode, st
+ 		return -ENOTTY;
  	}
  }
- 
++
 +#ifdef CONFIG_COMPAT
-+long reiserfs_compat_ioctl(struct file *file, unsigned int cmd,
-+				unsigned long arg)
++long ext2_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 +{
 +	struct inode *inode = file->f_dentry->d_inode;
 +	int ret;
 +
 +	/* These are just misnamed, they actually get/put from/to user an int */
 +	switch (cmd) {
-+	case REISERFS_IOC32_UNPACK:
-+		cmd = REISERFS_IOC_UNPACK;
++	case EXT2_IOC32_GETFLAGS:
++		cmd = EXT2_IOC_GETFLAGS;
 +		break;
-+	case REISERFS_IOC32_GETFLAGS:
-+		cmd = REISERFS_IOC_GETFLAGS;
++	case EXT2_IOC32_SETFLAGS:
++		cmd = EXT2_IOC_SETFLAGS;
 +		break;
-+	case REISERFS_IOC32_SETFLAGS:
-+		cmd = REISERFS_IOC_SETFLAGS;
++	case EXT2_IOC32_GETVERSION:
++		cmd = EXT2_IOC_GETVERSION;
 +		break;
-+	case REISERFS_IOC32_GETVERSION:
-+		cmd = REISERFS_IOC_GETVERSION;
-+		break;
-+	case REISERFS_IOC32_SETVERSION:
-+		cmd = REISERFS_IOC_SETVERSION;
++	case EXT2_IOC32_SETVERSION:
++		cmd = EXT2_IOC_SETVERSION;
 +		break;
 +	default:
 +		return -ENOIOCTLCMD;
 +	}
 +	lock_kernel();
-+	ret = reiserfs_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
++	ret = ext2_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
 +	unlock_kernel();
 +	return ret;
 +}
 +#endif
-+
- /*
- ** reiserfs_unpack
- ** Function try to convert tail from direct item into indirect.
-diff --git a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
-index 54c3054..6ab7be9 100644
---- a/include/linux/reiserfs_fs.h
-+++ b/include/linux/reiserfs_fs.h
-@@ -2167,6 +2167,8 @@ #define SPARE_SPACE 500
- /* prototypes from ioctl.c */
- int reiserfs_ioctl(struct inode *inode, struct file *filp,
- 		   unsigned int cmd, unsigned long arg);
-+long reiserfs_compat_ioctl(struct file *filp,
-+		   unsigned int cmd, unsigned long arg);
- 
- /* ioctl's command */
- #define REISERFS_IOC_UNPACK		_IOW(0xCD,1,long)
-@@ -2177,6 +2179,13 @@ #define REISERFS_IOC_SETFLAGS		FS_IOC_SE
- #define REISERFS_IOC_GETVERSION		FS_IOC_GETVERSION
- #define REISERFS_IOC_SETVERSION		FS_IOC_SETVERSION
- 
-+/* the 32 bit compat definitions with int argument */
-+#define REISERFS_IOC32_UNPACK		_IOW(0xCD, 1, int)
-+#define REISERFS_IOC32_GETFLAGS		FS_IOC32_GETFLAGS
-+#define REISERFS_IOC32_SETFLAGS		FS_IOC32_SETFLAGS
-+#define REISERFS_IOC32_GETVERSION	FS_IOC32_GETVERSION
-+#define REISERFS_IOC32_SETVERSION	FS_IOC32_SETVERSION
-+
- /* Locking primitives */
- /* Right now we are still falling back to (un)lock_kernel, but eventually that
-    would evolve into real per-fs locks */

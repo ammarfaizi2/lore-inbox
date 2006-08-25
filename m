@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWHYMtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWHYM6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWHYMtg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 08:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWHYMtg
+	id S1750813AbWHYM6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 08:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWHYM6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 08:49:36 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:28140 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S1750791AbWHYMtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 08:49:36 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 Aug 2006 14:48:58 +0200
+	Fri, 25 Aug 2006 08:58:21 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:52171 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750813AbWHYM6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 08:58:20 -0400
 MIME-Version: 1.0
-Subject: FYI: 2.6.16-smp: DMA memory inbalance for NUMA?
-Message-ID: <44EF0DDC.5186.354E7C@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.31)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=4.06.0+V=4.06+U=2.07.138+R=05 June 2006+T=125865@20060825.124914Z
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17646.62439.526277.862006@cargo.ozlabs.ibm.com>
+Date: Fri, 25 Aug 2006 22:58:15 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: schwidefsky@de.ibm.com
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] dubious process system time.
+In-Reply-To: <1156501768.1640.19.camel@localhost>
+References: <20060824121825.GA4425@skybase>
+	<p731wr6fh54.fsf@verdi.suse.de>
+	<1156426103.28464.29.camel@localhost>
+	<200608241718.29406.ak@suse.de>
+	<1156435363.28464.33.camel@localhost>
+	<44EECCF9.7080902@aitel.hist.no>
+	<1156501768.1640.19.camel@localhost>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin Schwidefsky writes:
 
-my apologies if this is an issue already solved:
-I have no idea what these messages exactly say, but for reasons of symmetry I 
-think there's something wrong:
-For a Sun Fire X4100 with two Dual_Core Operon processors, the kernel (SLES10 
-kernel (x86_64, 2.6.16.21-0.15-smp)) says during boot:
+> The main question still is if it is correct to add softirq/hardirq time
+> to the system time of a process. If the answer turns out to be yes, then
+> it might be a clever idea to account softirq time to the softirqd. That
+> still leaves the question what to do with hardirq time ..
+> My take still is that softirq/hardirq time does not belong to the system
+> time of any process.
 
-<6>SRAT: PXM 0 -> APIC 0 -> Node 0
-<6>SRAT: PXM 0 -> APIC 1 -> Node 0
-<6>SRAT: PXM 1 -> APIC 2 -> Node 1
-<6>SRAT: PXM 1 -> APIC 3 -> Node 1
-<6>SRAT: Node 0 PXM 0 100000-f4000000
-<6>SRAT: Node 1 PXM 1 20c000000-40c000000
-<6>SRAT: Node 0 PXM 0 100000-20c000000
-<6>SRAT: Node 0 PXM 0 0-20c000000
+I agree.
 
-[[ Note: "Node 0" is mentioned three times, but "Node 1" is only mentioned once. 
-If this is intended to be some address assignments, they look quite odd to me. 
-Does the following really mean that only one node can do DMA (the other has zero 
-DMA pages)? ]]
-
-<6>ACPI: SLIT table looks invalid. Not used.
-<7>NUMA: Using 26 for the hash shift.
-<6>Bootmem setup node 0 0000000000000000-000000020c000000
-<6>Bootmem setup node 1 000000020c000000-000000040c000000
-<7>On node 0 totalpages: 2066745
-<7>  DMA zone: 2993 pages, LIFO batch:0
-<7>  DMA32 zone: 981032 pages, LIFO batch:31
-<7>  Normal zone: 1082720 pages, LIFO batch:31
-<7>  HighMem zone: 0 pages, LIFO batch:0
-<7>On node 1 totalpages: 2068480
-<7>  DMA zone: 0 pages, LIFO batch:0
-<7>  DMA32 zone: 0 pages, LIFO batch:0
-<7>  Normal zone: 2068480 pages, LIFO batch:31
-<7>  HighMem zone: 0 pages, LIFO batch:0
-
-As usual, please CC: replies to my address as I'm not subscribed here.
-
-Regards,
-Ulrich
-
+Paul.

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWHYHiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWHYHnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWHYHiM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 03:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWHYHiM
+	id S1751235AbWHYHnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 03:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWHYHnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 03:38:12 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48801 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751233AbWHYHiK (ORCPT
+	Fri, 25 Aug 2006 03:43:22 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3784 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751235AbWHYHnW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 03:38:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: Unnecessary Relocation Hiding?
-Date: Fri, 25 Aug 2006 09:38:06 +0200
-User-Agent: KMail/1.9.3
-Cc: "Dong Feng" <middle.fengdong@gmail.com>,
-       "Christoph Lameter" <clameter@sgi.com>, linux-kernel@vger.kernel.org
-References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com> <200608250818.49139.ak@suse.de> <17646.42148.880959.99796@cargo.ozlabs.ibm.com>
-In-Reply-To: <17646.42148.880959.99796@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608250938.06240.ak@suse.de>
+	Fri, 25 Aug 2006 03:43:22 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Incorrect alignment assumptions in x86_64 stacktrace 
+In-reply-to: Your message of "Fri, 25 Aug 2006 09:33:53 +0200."
+             <200608250933.53623.ak@suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 25 Aug 2006 17:43:01 +1000
+Message-ID: <14016.1156491781@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 August 2006 09:20, Paul Mackerras wrote:
-> Andi Kleen writes:
-> 
-> > Best is to avoid undefined behaviour in new code.
-> 
-> Of course.  But do you have a way to implement per_cpu() without it?
+Andi Kleen (on Fri, 25 Aug 2006 09:33:53 +0200) wrote:
+>On Friday 25 August 2006 08:59, Keith Owens wrote:
+>> 2.6.18-rc4 arch/x86_64/kernel/stacktrace.c::get_stack_end() incorrectly
+>> assumes that the irqstackptr is IRQSTACKSIZE aligned.
+>> 
+>> 	stack_end = (unsigned long)cpu_pda(cpu)->irqstackptr;
+>> 	if (stack_end) {
+>> 		stack_start = stack_end & ~(IRQSTACKSIZE-1);
+>> 
+>> irqstackptr is only guaranteed to be page aligned, not IRQSTACKSIZE
+>> (4*PAGE_SIZE) aligned.
+>
+>Thanks. I have already removed that code post 2.6.18 (the standard backtracer
+>now does both stacktrace and show_trace) 
+>
+>You think it is important enough for 2.6.18?
 
-I was describing the ideal, not the practical reality.
+Depends if any x86_64 distributions are going to be based on 2.6.18.  I
+hear rumours, but no facts.
 
--Andi

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWHYXYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422924AbWHYX3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWHYXYb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHYXYa
+	id S1422924AbWHYX3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422923AbWHYX3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:24:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5074 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932261AbWHYXY3 (ORCPT
+	Fri, 25 Aug 2006 19:29:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422913AbWHYX3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:24:29 -0400
-Date: Fri, 25 Aug 2006 16:24:08 -0700
+	Fri, 25 Aug 2006 19:29:19 -0400
+Date: Fri, 25 Aug 2006 16:29:02 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
 To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -17,7 +17,7 @@ Cc: "David S. Miller" <davem@davemloft.net>,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] IPV6 : segmentation offload not set correctly on TCP
  children
-Message-ID: <20060825162408.6a9dbdcc@localhost.localdomain>
+Message-ID: <20060825162902.2c57eabf@localhost.localdomain>
 In-Reply-To: <20060825230626.GC4570@cip.informatik.uni-erlangen.de>
 References: <20060821212243.GA1558@cip.informatik.uni-erlangen.de>
 	<20060821150231.31a947d4@localhost.localdomain>
@@ -42,15 +42,8 @@ Thomas Glanzmann <sithglan@stud.uni-erlangen.de> wrote:
 > 
 >         Thomas
 
-Using sky2 on Intel motherboard and git bisect. But Jesse found same problem
-on e1000. Bisect was relatively fast since it was either base net code or driver.
-Starting with 2.6.17, everything worked, and latest was busted.
-
-	git bisect start net drivers/net/sky2.c
-	
-Test was ipv6 slogin, then run dmesg. If that worked then run top and cause
-lots of other traffic by just doing a firefox open-tabs to blast lots of connections.
-Wanted to induce tcp-ipv6 to get congested.
+Finding the line was luck. I spotted similar (but correct) code in
+DCCP over IPV6.
 
 -- 
 Stephen Hemminger <shemminger@osdl.org>

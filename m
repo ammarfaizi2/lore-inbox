@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWHYKPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWHYKPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWHYKPP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWHYKPP
+	id S1750913AbWHYKPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWHYKPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:15:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7644 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750827AbWHYKPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:15:14 -0400
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060825072654.GC30453@uranus.ravnborg.org>
-References: <1156429585.3012.58.camel@pmac.infradead.org>
-	 <1156433068.3012.115.camel@pmac.infradead.org>
-	 <Pine.LNX.4.61.0608241840440.16422@yvahk01.tjqt.qr>
-	 <1156439110.3012.147.camel@pmac.infradead.org>
-	 <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
-	 <20060825072654.GC30453@uranus.ravnborg.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 25 Aug 2006 11:14:53 +0100
-Message-Id: <1156500893.2984.70.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 25 Aug 2006 06:15:25 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:54475 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750944AbWHYKPY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:15:24 -0400
+Message-ID: <44EECCF9.7080902@aitel.hist.no>
+Date: Fri, 25 Aug 2006 12:12:09 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: schwidefsky@de.ibm.com
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] dubious process system time.
+References: <20060824121825.GA4425@skybase> <p731wr6fh54.fsf@verdi.suse.de>	 <1156426103.28464.29.camel@localhost>  <200608241718.29406.ak@suse.de> <1156435363.28464.33.camel@localhost>
+In-Reply-To: <1156435363.28464.33.camel@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 09:26 +0200, Sam Ravnborg wrote:
-> And this discussion is btw. mood. If the general opinion is that we shall
-> include the -combine support all the kbuild infrastructure will anyway
-> be redone.
-> There are several small things that are not addressed in todays
-> implementation and that will be fixed one way or the other.
+Martin Schwidefsky wrote:
+> On Thu, 2006-08-24 at 17:18 +0200, Andi Kleen wrote:
+>   
+>>> At the moment hardirq+softirq is just added to a random process, in
+>>> general this is completely wrong. 
+>>>       
+>> It's better than not accounting it at all.
+>>     
+>
+> I think it is worse than not accounting it. You are "charging" a process
+> of some user for something that the user has nothing to do with.
+>
+>   
+>>> You just need a system with a cpu hog 
+>>> and an i/o bound process and you get queer results.
+>>>       
+>> Yes, but system load that is invisible to standard monitoring
+>> tools is even worse.
+>>     
+>
+> But it isn't invisible. cpustat->hardirq and cpustate->softirq will be
+> increased. /proc/stat will show the system time spent in these two
+> contexts.
+>
+>   
+>> If you stop accounting it to random processes you have to 
+>> account it somewhere else. Preferably somewhere that standard tools
+>> automatically pick up.
+>>     
+>
+> Again, why do I have to account non-process related time to a process?
+> Ihmo that is completly wrong.
+>   
+If softirq time have to be accounted to a process (so as to not
+get lost), how about accounting it to the softirqd process?  Much
+more reasonable than random processes.
 
-There's a few _big_ things that aren't addressed in my makefile hack
-either. It's very much a proof of concept.
-
-However, if we limit the use of --combine to files within the same
-directory, the modifications to the kbuild infrastructure shouldn't be
-too intrusive. I strongly suspect that files within the same directory
-are where the majority of the benefit is anyway.
-
-Whole-kernel optimisation is likely to be prohibitively expensive, and
-can wait for LTO¹.
-
--- 
-dwmw2
-¹ http://www.gelato.org/pdf/apr2006/gelato_ICE06apr_lto_mitchell_codesourcery.pdf
-
+Helge Hafting

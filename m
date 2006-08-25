@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWHYIqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWHYIyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWHYIqe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHYIqe
+	id S1751263AbWHYIyW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWHYIyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:46:34 -0400
-Received: from smtp.agh.edu.pl ([149.156.96.16]:55936 "EHLO smtp.agh.edu.pl")
-	by vger.kernel.org with ESMTP id S932249AbWHYIqd (ORCPT
+	Fri, 25 Aug 2006 04:54:22 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56528 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751263AbWHYIyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:46:33 -0400
-Message-ID: <44EEB8EF.5050505@agh.edu.pl>
-Date: Fri, 25 Aug 2006 10:46:39 +0200
-From: Andrzej Szymanski <szymans@agh.edu.pl>
-Organization: AGH University of Science and Technology, Dept. of Telecommunications
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
-References: <44E0A69C.5030103@agh.edu.pl>	<ec19r7$uba$1@news.cistron.nl>	<17641.3304.948174.971955@cse.unsw.edu.au>	<44E9A9C0.6000405@agh.edu.pl>	<17642.46325.818963.951269@cse.unsw.edu.au> <17646.36219.417129.477853@cse.unsw.edu.au>
-In-Reply-To: <17646.36219.417129.477853@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 25 Aug 2006 04:54:21 -0400
+Date: Fri, 25 Aug 2006 01:53:59 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, anton@samba.org, simon.derr@bull.net,
+       nathanl@austin.ibm.com, akpm@osdl.org
+Subject: memory hotplug - looking for good place for cpuset hook
+Message-Id: <20060825015359.1c9eab45.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Tuesday August 22, neilb@suse.de wrote:
->> In my various experimenting the one thing that was effective in
->> improving the fairness was to make Linux impose write throttling more
->> often.
-> 
-> I might have found something else too....
-> 
-> Were you using ext3?
-> 
-> If you, can you try mounting with  data=writeback
-> and see if that makes any difference to the fairness?
-> 
-> Thanks,
-> NeilBrown
+Dave,
 
-I've already tried data=writeback - almost no difference or it makes 
-things even worse. I've briefly tested XFS filesystem, and I've seen the 
-same behavior as in ext3 so it does not seem to be ext3 related.
+I'm looking for a good place to add yet another cpuset hook, this
+one to keep a nodemask in my top (root) cpuset always equal to the
+current value of node_online_map.
 
-Andrzej.
+The motivation for this, if you're interested, comes from the
+following threads, which added similar cpuset tracking of the
+cpu_online_map:
+
+  cpusets not cpu hotplug aware
+  http://lkml.org/lkml/2006/8/21/128
+
+  [PATCH] cpuset: top_cpuset tracks hotplug changes to cpu_online_map
+  http://lkml.org/lkml/2006/8/24/107
+
+(I cc'd the victims of these threads here, in case they're interested.)
+
+>From what I see so far, the right place to call my cpuset routine to
+update its copy of node_online_map would be right after the call:
+
+	node_set_online(nid);
+
+in the routine mm/memory_hotplug.c:add_memory().
+
+Does that seem like a plausible sounding place to you?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

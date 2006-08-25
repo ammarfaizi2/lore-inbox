@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWHYKvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWHYKyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWHYKvB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHYKvB
+	id S1751444AbWHYKyI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:54:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:51:01 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50187 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751439AbWHYKvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:51:00 -0400
-Date: Fri, 25 Aug 2006 12:50:59 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] Add __global tag where needed.
-Message-ID: <20060825105059.GX19810@stusta.de>
-References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433212.3012.120.camel@pmac.infradead.org> <20060824213047.GR19810@stusta.de> <1156499546.2984.43.camel@pmac.infradead.org> <20060825102649.GU19810@stusta.de> <1156502078.2984.81.camel@pmac.infradead.org>
+	Fri, 25 Aug 2006 06:54:07 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:8350 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932418AbWHYKyE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:54:04 -0400
+Message-ID: <44EED77A.20801@sw.ru>
+Date: Fri, 25 Aug 2006 14:56:58 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156502078.2984.81.camel@pmac.infradead.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
+References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru> <44EC5B74.2040104@sw.ru> <20060823095031.cb14cc52.akpm@osdl.org> <1156354182.3007.37.camel@localhost.localdomain> <20060823213512.88f4344d.akpm@osdl.org> <1156417456.3007.72.camel@localhost.localdomain> <20060824130822.GA5205@martell.zuzino.mipt.ru>
+In-Reply-To: <20060824130822.GA5205@martell.zuzino.mipt.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 11:34:38AM +0100, David Woodhouse wrote:
-> On Fri, 2006-08-25 at 12:26 +0200, Adrian Bunk wrote:
->...
-> > But projects like embedded systems or OLPC that really need want 
-> > kernels should be the same projects that already avoid the
-> > 10% size penalty of CONFIG_MODULES=y.
+Alexey Dobriyan wrote:
+> On Thu, Aug 24, 2006 at 12:04:16PM +0100, Alan Cox wrote:
 > 
-> OLPC has USB ports and wants to be fairly flexible about being able to
-> connect stuff -- I don't think we can turn off CONFIG_MODULES in its
-> running kernel.
->...
+>>Ar Mer, 2006-08-23 am 21:35 -0700, ysgrifennodd Andrew Morton:
+>>
+>>>>Its a uid_t because of setluid() and twenty odd years of existing unix
+>>>>practice.
+>>>>
+>>>
+>>>I don't understand.  This number is an identifier for an accounting
+>>>container, which was somehow dreamed up by userspace.
+>>
+>>Which happens to be a uid_t. It could easily be anyother_t of itself and
+>>you can create a container_id_t or whatever. It is just a number.
+>>
+>>The ancient Unix implementations of this kind of resource management and
+>>security are built around setluid() which sets a uid value that cannot
+>>be changed again and is normally used for security purposes. That
+>>happened to be a uid_t and in simple setups at login uid = luid = euid
+>>would be the norm.
+>>
+>>Thus the Linux one happens to be a uid_t. It could be something else but
+>>for the "container per user" model whatever a container is must be able
+>>to hold all possible uid_t values. So we can certainly do something like
+>>
+>>typedef uid_t	container_id_t;
+> 
+> 
+> What about cid_t? Google mentions cid_t was used in HP-UX specific IPC (only if
+> _INCLUDE_HPUX_SOURCE is defined).
+bcid_t?
 
-You can compile many USB modules statically into the kernel before 
-using more additional space than what CONFIG_MODULES=n saves today.
-
-> dwmw2
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks,
+Kirill

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWHYIoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWHYIqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWHYIoz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWHYIoz
+	id S932249AbWHYIqe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHYIqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:44:55 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:14581 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932225AbWHYIoy convert rfc822-to-8bit (ORCPT
+	Fri, 25 Aug 2006 04:46:34 -0400
+Received: from smtp.agh.edu.pl ([149.156.96.16]:55936 "EHLO smtp.agh.edu.pl")
+	by vger.kernel.org with ESMTP id S932249AbWHYIqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:44:54 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 11/17] BLOCK: Move common FS-specific ioctls to linux/fs.h [try #2]
-Date: Fri, 25 Aug 2006 10:44:44 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200608250023.20903.arnd@arndb.de> <20060824213318.21323.12558.stgit@warthog.cambridge.redhat.com> <1925.1156495117@warthog.cambridge.redhat.com>
-In-Reply-To: <1925.1156495117@warthog.cambridge.redhat.com>
+	Fri, 25 Aug 2006 04:46:33 -0400
+Message-ID: <44EEB8EF.5050505@agh.edu.pl>
+Date: Fri, 25 Aug 2006 10:46:39 +0200
+From: Andrzej Szymanski <szymans@agh.edu.pl>
+Organization: AGH University of Science and Technology, Dept. of Telecommunications
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608251044.44901.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+To: Neil Brown <neilb@suse.de>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
+References: <44E0A69C.5030103@agh.edu.pl>	<ec19r7$uba$1@news.cistron.nl>	<17641.3304.948174.971955@cse.unsw.edu.au>	<44E9A9C0.6000405@agh.edu.pl>	<17642.46325.818963.951269@cse.unsw.edu.au> <17646.36219.417129.477853@cse.unsw.edu.au>
+In-Reply-To: <17646.36219.417129.477853@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 August 2006 10:38, David Howells wrote:
+Neil Brown wrote:
+> On Tuesday August 22, neilb@suse.de wrote:
+>> In my various experimenting the one thing that was effective in
+>> improving the fairness was to make Linux impose write throttling more
+>> often.
 > 
-> Arnd Bergmann <arnd@arndb.de> wrote:
+> I might have found something else too....
 > 
-> >       case FS_IOC_GETFLAGS32:
-> >       case FS_IOC_GETFLAGS64:
+> Were you using ext3?
 > 
-> That'll get you a "duplicate case statement" warning on a 32-bit arch.
+> If you, can you try mounting with  data=writeback
+> and see if that makes any difference to the fairness?
 > 
+> Thanks,
+> NeilBrown
 
-No, I defined them with u32 and u64 arguments, respectively, so the
-numbers are distinct on 32 bit.
+I've already tried data=writeback - almost no difference or it makes 
+things even worse. I've briefly tested XFS filesystem, and I've seen the 
+same behavior as in ext3 so it does not seem to be ext3 related.
 
-	Arnd <><
+Andrzej.

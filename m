@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422807AbWHYBFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWHYBFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422807AbWHYBFm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 21:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWHYBFm
+	id S1422805AbWHYBFl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 21:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWHYBFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 21:05:42 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:9577 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422806AbWHYBFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 21:05:41 -0400
+Received: from cs1.cs.huji.ac.il ([132.65.16.10]:32264 "EHLO cs1.cs.huji.ac.il")
+	by vger.kernel.org with ESMTP id S1422805AbWHYBFk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 24 Aug 2006 21:05:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=kEjrZ0Q//aD6g7/pVzmB3L6m8OfKsJvQ37v4+PvJHAVIVWFiXavoKE4qqomfAQBTtb0pWlQm0CYMN0ex2UJfkzMMHsMOPLwk6AwrqQts/hi2a067vPGVAJxZn73W+gkx9HBxcumWexMM7OQCuF+5SHm50n+KIEzkOJ4MOX+SKmc=
-Date: Fri, 25 Aug 2006 05:05:36 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Ban register_filesystem(NULL);
-Message-ID: <20060825010536.GI5204@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Subject: Re: [2.6.18 patch] fix mem_write return value (was: Re: bug report:
+ mem_write)
+In-Reply-To: <20060824220747.GA3197@slug>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Date: Fri, 25 Aug 2006 04:05:36 +0300 (IDT)
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Amnon Shiloh <amnons@cs.huji.ac.il>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, gregkh@suse.de
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E1GGQ8f-00053J-02@cab-20.cs.huji.ac.il>
+From: Amnon Shiloh <amnons@cs.huji.ac.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everyone passes valid pointer there.
+> On Thu, Aug 24, 2006 at 10:33:20AM -0600, Eric W. Biederman wrote:
+> > Frederik Deweerdt <deweerdt@free.fr> writes:
+> > 
+> > > On Thu, Aug 24, 2006 at 11:25:37AM +0300, Amnon Shiloh wrote:
+> > >> Hi,
+> > >> 
+> > >> Alright, I know that "mem_write" (fs/proc/base.c) is a "security hazard",
+> > >> but I need to use it anyway (as super-user only), and find it broken,
+> > >> somewhere between Linux-2.6.17 and Linux-2.6.18-rc4.
+> > >> 
+> > >> The point is that in the beginning of the routine, "copied" is set to 0,
+> > >> but it is no good because in lines 805 and 812 it is set to other values.
+> > >> Finally, the routine returns as if it copied 12 (=ENOMEM) bytes less than
+> > >> it actually did.
+> > > True, it looks like the faulty commit is:
+> > > de7587343bfebc186995ad294e3de0da382eb9bc
+> > 
+> > Actually it was: 99f895518368252ba862cc15ce4eb98ebbe1bec6
+> > Which is what you url points to, odd.
+> > 
+> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=99f895518368252ba862cc15ce4eb98ebbe1bec6;hp=8578cea7509cbdec25b31d08b48a92fcc3b1a9e3
+> > >
+> > > The attached patch should fix it. Maybe that should go to 2.6.18.
+> > > Thanks for the bug report,
+> > 
+> > The patch looks correct.  Although this won't cause anyone problems as the code
+> > is disabled.
+> Right, I missed this, so this is really not urgent.
+> > 
+> > Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+> > 
+> > As for enabling this.  I believe we need an extra permission check just before
+> > we copy the data from our temporary buffer to the target task, to ensure
+> > nothing has changed.  The history does not really capture why this code
+> > was disabled, but before this gets enabled I would like to understand more
+> > than just the comment.  I believe with a little care this can be safely enabled
+> > as it doesn't let you do anything ptrace wouldn't do, and it should let you do
+> > it anytime except when ptrace would allow it.  Thus not introducing any new
+> > security holes.
+> I've found two interesting links on that:
+> http://lkml.org/lkml/2006/3/10/224
+> and
+> http://www.google.com/search?q=cache:4y8MWSuHOpIJ:files.security-protocols.com/kernelhacking/procpidmem.pdf&hl=en&ct=clnk&cd=3&client=firefox-a
+> The second one in particular goes in great detail on why the author
+> thinks this is dangerous, and what could be done to re-enable it.
+> 
+> Regards,
+> Frederik
+> 
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+I am aware of those risks, but since I desparately need this feature
+and the program that needs it is SETUID-root anyway, I have it enabled
+but added a test to make sure that only root can use it.
 
- fs/filesystems.c |    2 --
- 1 file changed, 2 deletions(-)
+It works well and I can see no reason on earth how this could be a
+security hazard when only called by the super-user.
 
---- a/fs/filesystems.c
-+++ b/fs/filesystems.c
-@@ -69,8 +69,6 @@ int register_filesystem(struct file_syst
- 	int res = 0;
- 	struct file_system_type ** p;
- 
--	if (!fs)
--		return -EINVAL;
- 	if (fs->next)
- 		return -EBUSY;
- 	INIT_LIST_HEAD(&fs->fs_supers);
-
+Regards,
+Amnon.

@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWHYO4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422667AbWHYOyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWHYO4I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWHYOz1
+	id S1422667AbWHYOyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422673AbWHYOyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:55:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65408 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030198AbWHYOtd (ORCPT
+	Fri, 25 Aug 2006 10:54:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:12249 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030214AbWHYOx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:49:33 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 06/18] [PATCH] BLOCK: Move bdev_cache_init() declaration to headerfile [try #3]
-Date: Fri, 25 Aug 2006 15:49:29 +0100
-To: axboe@kernel.dk
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com
-Message-Id: <20060825144929.30722.68373.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
-References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 25 Aug 2006 10:53:58 -0400
+From: Andi Kleen <ak@suse.de>
+To: eranian@hpl.hp.com
+Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
+Date: Fri, 25 Aug 2006 16:53:52 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <200608251513.58729.ak@suse.de> <20060825142759.GH5330@frankl.hpl.hp.com>
+In-Reply-To: <20060825142759.GH5330@frankl.hpl.hp.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200608251653.52898.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Friday 25 August 2006 16:27, Stephane Eranian wrote:
 
-Move the bdev_cache_init() extern declaration from fs/dcache.c to
-linux/blkdev.h.
+> > BTW you might be able to simplify some of your code by exploiting
+> > those. i386 currently doesn't have them, but i wouldn't see a problem
+> > with adding them there too.
+> >  
+> I think I will drop the EXCL_IDLE feature given that most PMU stop
+> counting when you go low-power. The feature does not quite do what
+> we want because it totally exclude the idle from monitoring, yet
+> the idle may be doing useful kernel work, such as fielding interrupts.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Ok fine. Anything that makes the code less complex is good.
+Currently it is very big and hard to understand.
 
- fs/dcache.c            |    2 +-
- include/linux/blkdev.h |    1 +
- 2 files changed, 2 insertions(+), 1 deletions(-)
+(actually at least one newer Intel system I saw seemed to continue counting
+in idle, but that might have been a specific quirk)
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 1b4a3a3..886ca6f 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -32,6 +32,7 @@ #include <linux/security.h>
- #include <linux/seqlock.h>
- #include <linux/swap.h>
- #include <linux/bootmem.h>
-+#include <linux/blkdev.h>
+
+> 
+> > > Don't you need more than one counter for this?
+> > 
+> > I don't think so. Why?
+> 
+> For NMI, you want the counter to overflow at a certain frequency:
+> 
+>         wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz * 1000 / nmi_hz));
+> 
+> But for RDTSC, I would think you'd simply want the counter to count
+> monotonically. Given that perfctr0 is not 64-bit but 40, it will also
+> overflow (or wraparound) but presumably at a lower frequency than the
+> watchdog timer. I think I am not so clear on the intended usage user
+> level usage of perfctr0 as a substitute for RDTSC.
+
+Yes we need to underflow. But the users have to live with that.
+I can make it longer than before though, but the period will be
+<10s or so.
+
+Two counters would be too much I think.
+
+
+> Perfmon2 would need to check and atomically secure registers 
+> its users could use. The trick is when is a good time to do this?
+> It cannot just be done at initialiazation of perfmon2. It needs to be
+> done each time a context is created, or each time a context is actually
+> attached because there is where you really need to access the HW resource.
+
+If you do it global per system (which the curren scheme is anyways) you can
+just do it when the user uses system calls.
  
- 
- int sysctl_vfs_cache_pressure __read_mostly = 100;
-@@ -1742,7 +1743,6 @@ kmem_cache_t *filp_cachep __read_mostly;
- 
- EXPORT_SYMBOL(d_genocide);
- 
--extern void bdev_cache_init(void);
- extern void chrdev_init(void);
- 
- void __init vfs_caches_init_early(void)
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index c0c60d3..04a11f7 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -834,5 +834,6 @@ #define MODULE_ALIAS_BLOCKDEV(major,mino
- #define MODULE_ALIAS_BLOCKDEV_MAJOR(major) \
- 	MODULE_ALIAS("block-major-" __stringify(major) "-*")
- 
-+extern void bdev_cache_init(void);
- 
- #endif
+> It is important that we get this allocator in place fairly soon
+
+It's already there.
+
+-Andi

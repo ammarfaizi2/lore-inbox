@@ -1,111 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422890AbWHYUVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWHYUVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422890AbWHYUVB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWHYUVB
+	id S932418AbWHYUVW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWHYUVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:21:01 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:7062 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932284AbWHYUU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:20:59 -0400
-Subject: Re: [PATCH 4/6] nfs: Teach NFS about swap cache pages
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
-In-Reply-To: <1156536228.5927.17.camel@localhost>
-References: <20060825153709.24254.28118.sendpatchset@twins>
-	 <20060825153751.24254.20709.sendpatchset@twins>
-	 <1156536228.5927.17.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 22:20:14 +0200
-Message-Id: <1156537214.26945.6.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 16:21:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20496 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932394AbWHYUVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 16:21:21 -0400
+Date: Fri, 25 Aug 2006 22:21:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Konrad Rzeszutek <konradr@us.ibm.com>
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>
+Subject: Re: [PATCH 1/2] Add SATA support to libsas
+Message-ID: <20060825202120.GY19810@stusta.de>
+References: <44DBE943.4080303@us.ibm.com> <20060825194338.GA6020@andromeda.dapyr.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825194338.GA6020@andromeda.dapyr.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 16:03 -0400, Trond Myklebust wrote:
-> On Fri, 2006-08-25 at 17:37 +0200, Peter Zijlstra wrote:
-> > Teach the NFS client how to treat PG_swapcache pages.
+On Fri, Aug 25, 2006 at 03:43:38PM -0400, Konrad Rzeszutek wrote:
+> On Thu, Aug 10, 2006 at 07:19:47PM -0700, Darrick J. Wong wrote:
+> > Hook the scsi_host_template functions in libsas to delegate
+> > functionality to libata when appropriate.
 > > 
-> > Replace all occurences of page->index and page->mapping in the NFS client
-> > with the new page_file_index() and page_file_mapping() functions.
+> > Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 > > 
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > ---
-> >  fs/nfs/dir.c      |    4 ++--
-> >  fs/nfs/file.c     |    6 +++---
-> >  fs/nfs/pagelist.c |    8 ++++----
-> >  fs/nfs/read.c     |   10 +++++-----
-> >  fs/nfs/write.c    |   34 +++++++++++++++++-----------------
-> >  5 files changed, 31 insertions(+), 31 deletions(-)
+> > diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
+> > index b0705ee..76bbb9f 100644
+> > --- a/drivers/scsi/libsas/sas_discover.c
+> > +++ b/drivers/scsi/libsas/sas_discover.c
 > 
-> <snip>
+> (...)
 > 
-> > @@ -821,7 +821,7 @@ int nfs_updatepage(struct file *file, st
-> >  		unsigned int offset, unsigned int count)
-> >  {
-> >  	struct nfs_open_context *ctx = (struct nfs_open_context *)file->private_data;
-> > -	struct inode	*inode = page->mapping->host;
-> > +	struct inode	*inode = page_file_mapping(page)->host;
-> >  	struct nfs_page	*req;
-> >  	int		status = 0;
+> >  /* ---------- Domain device ---------- */
+> > @@ -626,4 +634,8 @@ void sas_unregister_devices(struct sas_h
 > >  
-> > @@ -854,12 +854,12 @@ int nfs_updatepage(struct file *file, st
-> >  		offset = 0;
-> >  		if (unlikely(end_offs < 0)) {
-> >  			/* Do nothing */
-> > -		} else if (page->index == end_index) {
-> > +		} else if (page_file_index(page) == end_index) {
+> >  void sas_init_dev(struct domain_device *);
+> >  
+> > +extern void sas_target_destroy(struct scsi_target *);
+> > +extern int sas_slave_alloc(struct scsi_device *);
+> > +extern int sas_ioctl(struct scsi_device *sdev, int cmd, void __user *arg);
+> > +
 > 
-> Is this necessary? When will we ever call nfs_updatepage() with a swap
-> page? AFAICS, the swap stuff always uses page dirtying and (ugh)
-> writepage().
+> Those should not be 'extern' otherwise the EXPORT_SYMBOL functions 
+> won't be found when the aic94xx is built as a module.
 
-Yes, swap uses writepage(), Nikita Danilov had a patch that did cluster
-pageout using writepages(), however that tended to deadlock even on
-local disk.
+The "extern"s can be dropped since they don't have any effect, but 
+I don't see what problem you are thinking of.
 
-> >  			unsigned int pglen;
-> >  			pglen = (unsigned int)(end_offs & (PAGE_CACHE_SIZE-1)) + 1;
-> >  			if (count < pglen)
-> >  				count = pglen;
-> > -		} else if (page->index < end_index)
-> > +		} else if (page_file_index(page) < end_index)
-> >  			count = PAGE_CACHE_SIZE;
-> >  	}
-> >  
-> > Index: linux-2.6/fs/nfs/dir.c
-> > ===================================================================
-> > --- linux-2.6.orig/fs/nfs/dir.c
-> > +++ linux-2.6/fs/nfs/dir.c
-> > @@ -177,7 +177,7 @@ int nfs_readdir_filler(nfs_readdir_descr
-> >  
-> >  	dfprintk(DIRCACHE, "NFS: %s: reading cookie %Lu into page %lu\n",
-> >  			__FUNCTION__, (long long)desc->entry->cookie,
-> > -			page->index);
-> > +			page_file_index(page));
-> >  
-> >   again:
-> >  	timestamp = jiffies;
-> > @@ -201,7 +201,7 @@ int nfs_readdir_filler(nfs_readdir_descr
-> >  	 * Note: assumes we have exclusive access to this mapping either
-> >  	 *	 through inode->i_mutex or some other mechanism.
-> >  	 */
-> > -	if (page->index == 0)
-> > +	if (page_file_index(page) == 0)
-> >  		invalidate_inode_pages2_range(inode->i_mapping, PAGE_CACHE_SIZE, -1);
-> >  	unlock_page(page);
-> >  	return 0;
-> 
-> Why are we worried about the possibility of NFS readdir pages being swap
-> pages?
+cu
+Adrian
 
-Indiscriminate search and replace followed by a manual check for
-correctness. They might not be needed, but they're not wrong either.
+-- 
 
-Would you prefer I take them out?
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

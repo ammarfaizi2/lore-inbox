@@ -1,58 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWHYOxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWHYOxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWHYOxI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWHYOxG
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1030251AbWHYOxG (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 25 Aug 2006 10:53:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:27509 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030244AbWHYOwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:52:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=pJ+gAke5SZyFBCltbElPlN16d/7yEh+D2QK7I+U6vgGgGg30jVcjOndY5rmZ6A3oxV8snaf+waE2goPmtFUwCFLFcdjXoOq/HYVmzpK74+O13PPlZL1IzVmcR7wF0lGUqN+lXUmM3Pjx7LPVnGyhLtODzg3X9Z7EM+xWrplC4mI=
-Date: Fri, 25 Aug 2006 18:52:37 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060825145237.GD5205@martell.zuzino.mipt.ru>
-References: <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <20060825142753.GK10659@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825142753.GK10659@infradead.org>
-User-Agent: Mutt/1.5.11
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWHYOwk
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 25 Aug 2006 10:52:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27265 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030218AbWHYOtx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 10:49:53 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 15/18] [PATCH] BLOCK: Move the msdos device ioctl compat stuff to the msdos driver [try #3]
+Date: Fri, 25 Aug 2006 15:49:49 +0100
+To: axboe@kernel.dk
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060825144949.30722.66421.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
+References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 03:27:53PM +0100, Christoph Hellwig wrote:
-> > --- a/fs/Kconfig
-> > +++ b/fs/Kconfig
-> > @@ -4,6 +4,8 @@ #
-> >
-> >  menu "File systems"
-> >
-> > +if BLOCK
-> > +
-> >  config EXT2_FS
-> >  	tristate "Second extended fs support"
-> >  	help
-> > @@ -383,8 +385,11 @@ config MINIX_FS
-> >  	  partition (the one containing the directory /) cannot be compiled as
-> >  	  a module.
-> >
-> > +endif
-> > +
-> >  config ROMFS_FS
-> >  	tristate "ROM file system support"
-> > +	depends on BLOCK
->
-> care to group all block-based filesystem in a group so that a single
-> if BLOCK will do it?
+From: David Howells <dhowells@redhat.com>
 
-Note that fs/Kconfig in -mm is mostly split into individual fs/*/Kconfig
-files.
+Move the msdos device ioctl compat stuff from fs/compat_ioctl.c to the msdos
+driver so that the msdos header file doesn't need to be included.
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ fs/compat_ioctl.c |   49 ------------------------------------------------
+ fs/fat/dir.c      |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 49 deletions(-)
+
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index de3d422..7b8a9b4 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -108,7 +108,6 @@ #include <linux/usbdevice_fs.h>
+ #include <linux/nbd.h>
+ #include <linux/random.h>
+ #include <linux/filter.h>
+-#include <linux/msdos_fs.h>
+ #include <linux/pktcdvd.h>
+ 
+ #include <linux/hiddev.h>
+@@ -1939,51 +1938,6 @@ static int mtd_rw_oob(unsigned int fd, u
+ 	return err;
+ }	
+ 
+-#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
+-#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
+-
+-static long
+-put_dirent32 (struct dirent *d, struct compat_dirent __user *d32)
+-{
+-        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
+-                return -EFAULT;
+-
+-        __put_user(d->d_ino, &d32->d_ino);
+-        __put_user(d->d_off, &d32->d_off);
+-        __put_user(d->d_reclen, &d32->d_reclen);
+-        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
+-		return -EFAULT;
+-
+-        return 0;
+-}
+-
+-static int vfat_ioctl32(unsigned fd, unsigned cmd, unsigned long arg)
+-{
+-	struct compat_dirent __user *p = compat_ptr(arg);
+-	int ret;
+-	mm_segment_t oldfs = get_fs();
+-	struct dirent d[2];
+-
+-	switch(cmd)
+-	{
+-        	case VFAT_IOCTL_READDIR_BOTH32:
+-                	cmd = VFAT_IOCTL_READDIR_BOTH;
+-                	break;
+-        	case VFAT_IOCTL_READDIR_SHORT32:
+-                	cmd = VFAT_IOCTL_READDIR_SHORT;
+-                	break;
+-	}
+-
+-	set_fs(KERNEL_DS);
+-	ret = sys_ioctl(fd,cmd,(unsigned long)&d);
+-	set_fs(oldfs);
+-	if (ret >= 0) {
+-		ret |= put_dirent32(&d[0], p);
+-		ret |= put_dirent32(&d[1], p + 1);
+-	}
+-	return ret;
+-}
+-
+ struct raw32_config_request
+ {
+         compat_int_t    raw_minor;
+@@ -2728,9 +2682,6 @@ HANDLE_IOCTL(SONET_GETFRSENSE, do_atm_io
+ HANDLE_IOCTL(BLKBSZGET_32, do_blkbszget)
+ HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
+ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
+-/* vfat */
+-HANDLE_IOCTL(VFAT_IOCTL_READDIR_BOTH32, vfat_ioctl32)
+-HANDLE_IOCTL(VFAT_IOCTL_READDIR_SHORT32, vfat_ioctl32)
+ /* Raw devices */
+ HANDLE_IOCTL(RAW_SETBIND, raw_ioctl)
+ HANDLE_IOCTL(RAW_GETBIND, raw_ioctl)
+diff --git a/fs/fat/dir.c b/fs/fat/dir.c
+index 698b85b..8e99330 100644
+--- a/fs/fat/dir.c
++++ b/fs/fat/dir.c
+@@ -20,6 +20,7 @@ #include <linux/msdos_fs.h>
+ #include <linux/dirent.h>
+ #include <linux/smp_lock.h>
+ #include <linux/buffer_head.h>
++#include <linux/compat.h>
+ #include <asm/uaccess.h>
+ 
+ static inline loff_t fat_make_i_pos(struct super_block *sb,
+@@ -740,11 +741,64 @@ static int fat_dir_ioctl(struct inode * 
+ 		ret = buf.result;
+ 	return ret;
+ }
++#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
++#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
++
++static long fat_compat_put_dirent32(struct dirent *d,
++				    struct compat_dirent __user *d32)
++{
++        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
++                return -EFAULT;
++
++        __put_user(d->d_ino, &d32->d_ino);
++        __put_user(d->d_off, &d32->d_off);
++        __put_user(d->d_reclen, &d32->d_reclen);
++        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
++		return -EFAULT;
++
++        return 0;
++}
++
++static long fat_compat_dir_ioctl(struct file *file, unsigned cmd,
++				 unsigned long arg)
++{
++	struct compat_dirent __user *p = compat_ptr(arg);
++	int ret;
++	mm_segment_t oldfs = get_fs();
++	struct dirent d[2];
++
++	switch (cmd) {
++	case VFAT_IOCTL_READDIR_BOTH32:
++		cmd = VFAT_IOCTL_READDIR_BOTH;
++		break;
++	case VFAT_IOCTL_READDIR_SHORT32:
++		cmd = VFAT_IOCTL_READDIR_SHORT;
++		break;
++	default:
++		return -ENOIOCTLCMD;
++	}
++
++	set_fs(KERNEL_DS);
++	lock_kernel();
++	ret = fat_dir_ioctl(file->f_dentry->d_inode, file,
++			    cmd, (unsigned long) &d);
++	unlock_kernel();
++	set_fs(oldfs);
++	if (ret >= 0) {
++		ret |= fat_compat_put_dirent32(&d[0], p);
++		ret |= fat_compat_put_dirent32(&d[1], p + 1);
++	}
++	return ret;
++}
++
+ 
+ const struct file_operations fat_dir_operations = {
+ 	.read		= generic_read_dir,
+ 	.readdir	= fat_readdir,
+ 	.ioctl		= fat_dir_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= fat_compat_dir_ioctl,
++#endif
+ 	.fsync		= file_fsync,
+ };
+ 

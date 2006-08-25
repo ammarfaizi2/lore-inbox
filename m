@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422824AbWHYEDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422833AbWHYEMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422824AbWHYEDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 00:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422826AbWHYEDd
+	id S1422833AbWHYEMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 00:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422835AbWHYEMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 00:03:33 -0400
-Received: from ozlabs.org ([203.10.76.45]:49799 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1422824AbWHYEDc (ORCPT
+	Fri, 25 Aug 2006 00:12:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29675 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422833AbWHYEME (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 00:03:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Aug 2006 00:12:04 -0400
+Date: Thu, 24 Aug 2006 21:05:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Pass sparse the lock expression given to lock
+ annotations
+Message-Id: <20060824210531.6264f285.akpm@osdl.org>
+In-Reply-To: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
+References: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17646.29510.296315.569294@cargo.ozlabs.ibm.com>
-Date: Fri, 25 Aug 2006 13:49:26 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: "Dong Feng" <middle.fengdong@gmail.com>
-Cc: ak@suse.de, "Christoph Lameter" <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Unnecessary Relocation Hiding?
-In-Reply-To: <a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
-References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com>
-	<Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
-	<17646.14056.102017.127644@cargo.ozlabs.ibm.com>
-	<a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dong Feng writes:
+On Thu, 24 Aug 2006 17:48:56 -0700
+Josh Triplett <josht@us.ibm.com> wrote:
 
-> Sorry for perhaps extending the specific question to a more generic
-> one. In which cases shall we, in current or future development,
-> prevent gcc from knowing a pointer-addition in the way RELOC_HIDE? And
-> in what cases shall we just write pure C point addition?
+> The lock annotation macros __acquires, __releases, __acquire, and __release
+> all currently throw the lock expression passed as an argument.  Now that
+> sparse can parse __context__ and __attribute__((context)) with a context
+> expression, pass the lock expression down to sparse as the context expression.
 
-Where you are saying to gcc "you think this variable is at this
-address, but I know it's actually at this other address over here" you
-should use RELOC_HIDE.  Where the addition is being used to get the
-address of some part of the object (so the resulting address is still
-within the object) you can just use plain addition.
+What is the dependency relationship between your kernel changes and your
+proposed change to sparse?
 
-Paul.

@@ -1,51 +1,26 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S965079AbWHXSUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1422822AbWHYV7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbWHXSUb (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 24 Aug 2006 14:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHXSUb
+	id S1422822AbWHYV7x (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 25 Aug 2006 17:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422829AbWHYV7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 14:20:31 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:19974 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965079AbWHXSU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 14:20:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bCd5sp2fBspamFN/VD09XInudz5AevYKdBUh2rPMXplZDD4E3VueBWUZCbFD/1to/qk1HxrH+k/qy/rVihRNS6YJIyKxN3Gqz3eOmj7vPDp9IL7kPXn+XaGLYfQT2onqRBH0WpxE5pQqPqlAB8z/o2zmmNKPOCX2dPQZFmvmHAk=
-Message-ID: <6bffcb0e0608241120k2d7a2712sa70bfdffb126f31b@mail.gmail.com>
-Date: Thu, 24 Aug 2006 20:20:28 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Brukhov" <pingved@gmail.com>
-Subject: Re: TEST MESSAGE
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060824181508.GA3018@windows95>
+	Fri, 25 Aug 2006 17:59:52 -0400
+Received: from VPRMAIL.tamu.edu ([165.91.119.178]:8322 "EHLO vprmail.tamu.edu")
+	by vger.kernel.org with ESMTP id S1422822AbWHYV7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 17:59:52 -0400
+From: "Michael M. Dwyer" <mdwyer@vprmail.tamu.edu>
+Organization: Texas A&M University
+To: linux-kernel@vger.kernel.org
+Date: Fri, 25 Aug 2006 16:59:17 -0500
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060824181508.GA3018@windows95>
+Message-Id: <200608251659.18235.mdwyer@vprmail.tamu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-On 24/08/06, Andrew Brukhov <pingved@gmail.com> wrote:
-> Test message
-
-There is a simple vger test
-
-"You can test email delivery between you, and VGER by sending an empty
-test letter to: <autoanswer@vger.kernel.org>"
-http://vger.kernel.org/majordomo-info.html
-
-> --------------
-> Andrew Brukhov
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+unsubscribe

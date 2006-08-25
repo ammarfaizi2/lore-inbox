@@ -1,49 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWHYQfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWHYQgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWHYQfk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 12:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWHYQfk
+	id S1030210AbWHYQgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 12:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWHYQgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 12:35:40 -0400
-Received: from mms3.broadcom.com ([216.31.210.19]:64015 "EHLO
-	MMS3.broadcom.com") by vger.kernel.org with ESMTP id S1030183AbWHYQfk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 12:35:40 -0400
-X-Server-Uuid: 450F6D01-B290-425C-84F8-E170B39A25C9
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: Re: tg3 timeouts with 2.6.17-rc6
-Date: Fri, 25 Aug 2006 09:35:28 -0700
-Message-ID: <1551EAE59135BE47B544934E30FC4FC093FAA4@NT-IRVA-0751.brcm.ad.broadcom.com>
-In-Reply-To: <200608251049.52381.mdwyer@vprmail.tamu.edu>
-Thread-Topic: tg3 timeouts with 2.6.17-rc6
-Thread-Index: AcbIXjRrvz2SxCmXTSCw6XsK+/za9gABG3wA
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Michael M. Dwyer" <mdwyer@vprmail.tamu.edu>
-cc: linux-kernel@vger.kernel.org
-X-TMWD-Spam-Summary: TS=20060825163531; SEV=2.0.2; DFV=A2006082506;
- IFV=2.0.4,4.0-8; RPD=4.00.0004; ENG=IBF;
- RPDID=303030312E30413031303230342E34344546323541462E303032442D412D;
- CAT=NONE; CON=NONE
-X-MMS-Spam-Filter-ID: A2006082506_4.00.0004_4.0-8
-X-WSS-ID: 68F1F95B22G2030452-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Fri, 25 Aug 2006 12:36:53 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:19481 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1030210AbWHYQgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 12:36:52 -0400
+Subject: Re: [PATCH 7/6] Lost bits - fix PG_writeback vs PG_private race in
+	NFS
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+In-Reply-To: <20060825153709.24254.28118.sendpatchset@twins>
+References: <20060825153709.24254.28118.sendpatchset@twins>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 18:36:55 +0200
+Message-Id: <1156523815.16027.43.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael M. Dwyer wrote:
 
-> I wasn't sure if BCM95751 was covered by "5780 class chips".
+Make sure we clear PG_writeback after we clear PG_private, otherwise
+weird and wonderfull stuff will happen.
 
-No, it's not covered but it also has the same problem.
+Also, teach try_to_release_page() about PG_swapcache pages.
 
-2.6.18 will have an elegant fix for this problem on all affected
-chips without disabling TSO.  In the meantime, I will send another
--stable patch for 2.6.17 to disable TSO on other remaining chips
-affected by this problem.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ fs/buffer.c    |    2 +-
+ fs/nfs/write.c |    5 ++---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-Thanks.
+Index: linux-2.6/fs/buffer.c
+===================================================================
+--- linux-2.6.orig/fs/buffer.c
++++ linux-2.6/fs/buffer.c
+@@ -1567,7 +1567,7 @@ static void discard_buffer(struct buffer
+  */
+ int try_to_release_page(struct page *page, gfp_t gfp_mask)
+ {
+-	struct address_space * const mapping = page->mapping;
++	struct address_space * const mapping = page_mapping(page);
+ 
+ 	BUG_ON(!PageLocked(page));
+ 	if (PageWriteback(page))
+Index: linux-2.6/fs/nfs/write.c
+===================================================================
+--- linux-2.6.orig/fs/nfs/write.c
++++ linux-2.6/fs/nfs/write.c
+@@ -902,7 +902,6 @@ done:
+ 
+ static void nfs_writepage_release(struct nfs_page *req)
+ {
+-	end_page_writeback(req->wb_page);
+ 
+ #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
+ 	if (!PageError(req->wb_page)) {
+@@ -922,6 +921,7 @@ out:
+ #else
+ 	nfs_inode_remove_request(req);
+ #endif
++	end_page_writeback(req->wb_page);
+ 	nfs_clear_page_writeback(req);
+ }
+ 
+@@ -1222,12 +1222,10 @@ static void nfs_writeback_done_full(stru
+ 			ClearPageUptodate(page);
+ 			SetPageError(page);
+ 			req->wb_context->error = task->tk_status;
+-			end_page_writeback(page);
+ 			nfs_inode_remove_request(req);
+ 			dprintk(", error = %d\n", task->tk_status);
+ 			goto next;
+ 		}
+-		end_page_writeback(page);
+ 
+ #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
+ 		if (data->args.stable != NFS_UNSTABLE || data->verf.committed == NFS_FILE_SYNC) {
+@@ -1242,6 +1240,7 @@ static void nfs_writeback_done_full(stru
+ 		nfs_inode_remove_request(req);
+ #endif
+ 	next:
++		end_page_writeback(page);
+ 		nfs_clear_page_writeback(req);
+ 	}
+ }
+
 

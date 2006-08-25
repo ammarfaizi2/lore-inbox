@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWHYK0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWHYK3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWHYK0v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWHYK0v
+	id S932410AbWHYK3c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWHYK3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:26:51 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33803 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932390AbWHYK0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:26:50 -0400
-Date: Fri, 25 Aug 2006 12:26:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] Add __global tag where needed.
-Message-ID: <20060825102649.GU19810@stusta.de>
-References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433212.3012.120.camel@pmac.infradead.org> <20060824213047.GR19810@stusta.de> <1156499546.2984.43.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156499546.2984.43.camel@pmac.infradead.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Fri, 25 Aug 2006 06:29:32 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:44381 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932400AbWHYK3c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:29:32 -0400
+Subject: Re: [patch] dubious process system time.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <44EECCF9.7080902@aitel.hist.no>
+References: <20060824121825.GA4425@skybase> <p731wr6fh54.fsf@verdi.suse.de>
+	 <1156426103.28464.29.camel@localhost>  <200608241718.29406.ak@suse.de>
+	 <1156435363.28464.33.camel@localhost>  <44EECCF9.7080902@aitel.hist.no>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 25 Aug 2006 12:29:28 +0200
+Message-Id: <1156501768.1640.19.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 10:52:26AM +0100, David Woodhouse wrote:
-> On Thu, 2006-08-24 at 23:30 +0200, Adrian Bunk wrote:
-> > Applying this doesn't seem to make much sense until it's clear whether a
-> > "build everything except for assembler files at once" approach (that 
-> > needs less globals) or your current "compile only multi-obj at once" 
-> > approach (that requires more globals). 
-> 
-> For the kernel itself, I think that building a directory at once is the
-> way forward. For modules, obviously the scope is more limited.
+On Fri, 2006-08-25 at 12:12 +0200, Helge Hafting wrote:
+> > Again, why do I have to account non-process related time to a process?
+> > Ihmo that is completly wrong.
+> >   
+> If softirq time have to be accounted to a process (so as to not
+> get lost), how about accounting it to the softirqd process?  Much
+> more reasonable than random processes.
 
-For any desktop or server you buy today your patches are a nice 
-improvement but not that important.
-
-But projects like embedded systems or OLPC that really need want 
-kernels should be the same projects that already avoid the
-10% size penalty of CONFIG_MODULES=y.
-
-> Either way, I'd like to prevent the unnecessary proliferation of
-> __global by instrument the link process somehow so that we get a
-> _warning_ during the final link if there are any global symbols which
-> aren't actually used.
->...
-
-That would give many false positives from files like fs/libfs.c .
-
-> dwmw2
-
-cu
-Adrian
+The main question still is if it is correct to add softirq/hardirq time
+to the system time of a process. If the answer turns out to be yes, then
+it might be a clever idea to account softirq time to the softirqd. That
+still leaves the question what to do with hardirq time ..
+My take still is that softirq/hardirq time does not belong to the system
+time of any process.
 
 -- 
+blue skies,
+  Martin.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

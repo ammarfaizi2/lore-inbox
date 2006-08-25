@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422872AbWHYTlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422876AbWHYTly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422872AbWHYTlH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422840AbWHYTj5
+	id S1422876AbWHYTly (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 15:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422869AbWHYTjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:39:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34959 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422820AbWHYThT (ORCPT
+	Fri, 25 Aug 2006 15:39:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39823 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422841AbWHYThY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:37:19 -0400
+	Fri, 25 Aug 2006 15:37:24 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/18] [PATCH] BLOCK: Dissociate generic_writepages() from mpage stuff [try #4]
-Date: Fri, 25 Aug 2006 20:37:16 +0100
+Subject: [PATCH 10/18] [PATCH] BLOCK: Move the loop device ioctl compat stuff to the loop driver [try #4]
+Date: Fri, 25 Aug 2006 20:37:21 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825193716.11384.95147.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825193721.11384.59091.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,226 +26,309 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Dissociate the generic_writepages() function from the mpage stuff, moving its
-declaration to linux/mm.h and actually emitting a full implementation into
-mm/page-writeback.c.
-
-The implementation is a partial duplicate of mpage_writepages() with all BIO
-references removed.
-
-It is used by NFS to do writeback.
+Move the loop device ioctl compat stuff from fs/compat_ioctl.c to the loop
+driver so that the loop header file doesn't need to be included.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/block_dev.c            |    1 
- fs/mpage.c                |    2 +
- include/linux/mpage.h     |    6 --
- include/linux/writeback.h |    2 +
- mm/page-writeback.c       |  134 +++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 139 insertions(+), 6 deletions(-)
+ drivers/block/loop.c         |  160 ++++++++++++++++++++++++++++++++++++++++++
+ fs/compat_ioctl.c            |   68 ------------------
+ include/linux/compat_ioctl.h |    6 --
+ 3 files changed, 160 insertions(+), 74 deletions(-)
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index b7ce764..6e24cd4 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -17,6 +17,7 @@ #include <linux/blkdev.h>
- #include <linux/module.h>
- #include <linux/blkpg.h>
- #include <linux/buffer_head.h>
-+#include <linux/writeback.h>
- #include <linux/mpage.h>
- #include <linux/mount.h>
- #include <linux/uio.h>
-diff --git a/fs/mpage.c b/fs/mpage.c
-index 1e45982..692a3e5 100644
---- a/fs/mpage.c
-+++ b/fs/mpage.c
-@@ -693,6 +693,8 @@ out:
-  * the call was made get new I/O started against them.  If wbc->sync_mode is
-  * WB_SYNC_ALL then we were called for data integrity and we must wait for
-  * existing IO to complete.
-+ *
-+ * If you fix this you should check generic_writepages() also!
-  */
- int
- mpage_writepages(struct address_space *mapping,
-diff --git a/include/linux/mpage.h b/include/linux/mpage.h
-index 3ca8804..517c098 100644
---- a/include/linux/mpage.h
-+++ b/include/linux/mpage.h
-@@ -20,9 +20,3 @@ int mpage_writepages(struct address_spac
- 		struct writeback_control *wbc, get_block_t get_block);
- int mpage_writepage(struct page *page, get_block_t *get_block,
- 		struct writeback_control *wbc);
--
--static inline int
--generic_writepages(struct address_space *mapping, struct writeback_control *wbc)
--{
--	return mpage_writepages(mapping, wbc, NULL);
--}
-diff --git a/include/linux/writeback.h b/include/linux/writeback.h
-index 9e38b56..671c43b 100644
---- a/include/linux/writeback.h
-+++ b/include/linux/writeback.h
-@@ -110,6 +110,8 @@ balance_dirty_pages_ratelimited(struct a
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 7b3b94d..23d3381 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -66,6 +66,7 @@ #include <linux/smp_lock.h>
+ #include <linux/swap.h>
+ #include <linux/slab.h>
+ #include <linux/loop.h>
++#include <linux/compat.h>
+ #include <linux/suspend.h>
+ #include <linux/writeback.h>
+ #include <linux/buffer_head.h>		/* for invalidate_bdev() */
+@@ -1174,6 +1175,162 @@ static int lo_ioctl(struct inode * inode
+ 	return err;
  }
  
- int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
-+extern int generic_writepages(struct address_space *mapping,
-+			      struct writeback_control *wbc);
- int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
- int sync_page_range(struct inode *inode, struct address_space *mapping,
- 			loff_t pos, loff_t count);
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index f75d033..eeeaf43 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -30,6 +30,7 @@ #include <linux/sysctl.h>
- #include <linux/cpu.h>
- #include <linux/syscalls.h>
- #include <linux/buffer_head.h>
-+#include <linux/pagevec.h>
- 
- /*
-  * The maximum number of pages to writeout in a single bdflush/kupdate
-@@ -543,6 +544,139 @@ void __init page_writeback_init(void)
- 	register_cpu_notifier(&ratelimit_nb);
- }
- 
-+/**
-+ * generic_writepages - walk the list of dirty pages of the given
-+ *                      address space and writepage() all of them.
-+ *
-+ * @mapping: address space structure to write
-+ * @wbc: subtract the number of written pages from *@wbc->nr_to_write
-+ *
-+ * This is a library function, which implements the writepages()
-+ * address_space_operation.
-+ *
-+ * If a page is already under I/O, generic_writepages() skips it, even
-+ * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
-+ * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
-+ * and msync() need to guarantee that all the data which was dirty at the time
-+ * the call was made get new I/O started against them.  If wbc->sync_mode is
-+ * WB_SYNC_ALL then we were called for data integrity and we must wait for
-+ * existing IO to complete.
-+ *
-+ * Derived from mpage_writepages() - if you fix this you should check that
-+ * also!
++#ifdef CONFIG_COMPAT
++struct compat_loop_info {
++	compat_int_t	lo_number;      /* ioctl r/o */
++	compat_dev_t	lo_device;      /* ioctl r/o */
++	compat_ulong_t	lo_inode;       /* ioctl r/o */
++	compat_dev_t	lo_rdevice;     /* ioctl r/o */
++	compat_int_t	lo_offset;
++	compat_int_t	lo_encrypt_type;
++	compat_int_t	lo_encrypt_key_size;    /* ioctl w/o */
++	compat_int_t	lo_flags;       /* ioctl r/o */
++	char		lo_name[LO_NAME_SIZE];
++	unsigned char	lo_encrypt_key[LO_KEY_SIZE]; /* ioctl w/o */
++	compat_ulong_t	lo_init[2];
++	char		reserved[4];
++};
++
++/*
++ * Transfer 32-bit compatibility structure in userspace to 64-bit loop info
++ * - noinlined to reduce stack space usage in main part of driver
 + */
-+int generic_writepages(struct address_space *mapping,
-+		       struct writeback_control *wbc)
++static noinline int
++loop_info64_from_compat(const struct compat_loop_info *arg,
++			struct loop_info64 *info64)
 +{
-+	struct backing_dev_info *bdi = mapping->backing_dev_info;
-+	int ret = 0;
-+	int done = 0;
-+	int (*writepage)(struct page *page, struct writeback_control *wbc);
-+	struct pagevec pvec;
-+	int nr_pages;
-+	pgoff_t index;
-+	pgoff_t end;		/* Inclusive */
-+	int scanned = 0;
-+	int range_whole = 0;
++	struct compat_loop_info info;
 +
-+	if (wbc->nonblocking && bdi_write_congested(bdi)) {
-+		wbc->encountered_congestion = 1;
-+		return 0;
-+	}
++	if (copy_from_user(&info, arg, sizeof(info)))
++		return -EFAULT;
 +
-+	writepage = mapping->a_ops->writepage;
-+
-+	/* deal with chardevs and other special file */
-+	if (!writepage)
-+		return 0;
-+
-+	pagevec_init(&pvec, 0);
-+	if (wbc->range_cyclic) {
-+		index = mapping->writeback_index; /* Start from prev offset */
-+		end = -1;
-+	} else {
-+		index = wbc->range_start >> PAGE_CACHE_SHIFT;
-+		end = wbc->range_end >> PAGE_CACHE_SHIFT;
-+		if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
-+			range_whole = 1;
-+		scanned = 1;
-+	}
-+retry:
-+	while (!done && (index <= end) &&
-+	       (nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
-+					      PAGECACHE_TAG_DIRTY,
-+					      min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
-+		unsigned i;
-+
-+		scanned = 1;
-+		for (i = 0; i < nr_pages; i++) {
-+			struct page *page = pvec.pages[i];
-+
-+			/*
-+			 * At this point we hold neither mapping->tree_lock nor
-+			 * lock on the page itself: the page may be truncated or
-+			 * invalidated (changing page->mapping to NULL), or even
-+			 * swizzled back from swapper_space to tmpfs file
-+			 * mapping
-+			 */
-+			lock_page(page);
-+
-+			if (unlikely(page->mapping != mapping)) {
-+				unlock_page(page);
-+				continue;
-+			}
-+
-+			if (!wbc->range_cyclic && page->index > end) {
-+				done = 1;
-+				unlock_page(page);
-+				continue;
-+			}
-+
-+			if (wbc->sync_mode != WB_SYNC_NONE)
-+				wait_on_page_writeback(page);
-+
-+			if (PageWriteback(page) ||
-+			    !clear_page_dirty_for_io(page)) {
-+				unlock_page(page);
-+				continue;
-+			}
-+
-+			ret = (*writepage)(page, wbc);
-+			if (ret) {
-+				if (ret == -ENOSPC)
-+					set_bit(AS_ENOSPC, &mapping->flags);
-+				else
-+					set_bit(AS_EIO, &mapping->flags);
-+			}
-+
-+			if (unlikely(ret == AOP_WRITEPAGE_ACTIVATE))
-+				unlock_page(page);
-+			if (ret || (--(wbc->nr_to_write) <= 0))
-+				done = 1;
-+			if (wbc->nonblocking && bdi_write_congested(bdi)) {
-+				wbc->encountered_congestion = 1;
-+				done = 1;
-+			}
-+		}
-+		pagevec_release(&pvec);
-+		cond_resched();
-+	}
-+	if (!scanned && !done) {
-+		/*
-+		 * We hit the last page and there is more work to be done: wrap
-+		 * back to the start of the file
-+		 */
-+		scanned = 1;
-+		index = 0;
-+		goto retry;
-+	}
-+	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
-+		mapping->writeback_index = index;
-+	return ret;
++	memset(info64, 0, sizeof(*info64));
++	info64->lo_number = info.lo_number;
++	info64->lo_device = info.lo_device;
++	info64->lo_inode = info.lo_inode;
++	info64->lo_rdevice = info.lo_rdevice;
++	info64->lo_offset = info.lo_offset;
++	info64->lo_sizelimit = 0;
++	info64->lo_encrypt_type = info.lo_encrypt_type;
++	info64->lo_encrypt_key_size = info.lo_encrypt_key_size;
++	info64->lo_flags = info.lo_flags;
++	info64->lo_init[0] = info.lo_init[0];
++	info64->lo_init[1] = info.lo_init[1];
++	if (info.lo_encrypt_type == LO_CRYPT_CRYPTOAPI)
++		memcpy(info64->lo_crypt_name, info.lo_name, LO_NAME_SIZE);
++	else
++		memcpy(info64->lo_file_name, info.lo_name, LO_NAME_SIZE);
++	memcpy(info64->lo_encrypt_key, info.lo_encrypt_key, LO_KEY_SIZE);
++	return 0;
 +}
 +
-+EXPORT_SYMBOL(generic_writepages);
++/*
++ * Transfer 64-bit loop info to 32-bit compatibility structure in userspace
++ * - noinlined to reduce stack space usage in main part of driver
++ */
++static noinline int
++loop_info64_to_compat(const struct loop_info64 *info64,
++		      struct compat_loop_info __user *arg)
++{
++	struct compat_loop_info info;
 +
- int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
++	memset(&info, 0, sizeof(info));
++	info.lo_number = info64->lo_number;
++	info.lo_device = info64->lo_device;
++	info.lo_inode = info64->lo_inode;
++	info.lo_rdevice = info64->lo_rdevice;
++	info.lo_offset = info64->lo_offset;
++	info.lo_encrypt_type = info64->lo_encrypt_type;
++	info.lo_encrypt_key_size = info64->lo_encrypt_key_size;
++	info.lo_flags = info64->lo_flags;
++	info.lo_init[0] = info64->lo_init[0];
++	info.lo_init[1] = info64->lo_init[1];
++	if (info.lo_encrypt_type == LO_CRYPT_CRYPTOAPI)
++		memcpy(info.lo_name, info64->lo_crypt_name, LO_NAME_SIZE);
++	else
++		memcpy(info.lo_name, info64->lo_file_name, LO_NAME_SIZE);
++	memcpy(info.lo_encrypt_key, info64->lo_encrypt_key, LO_KEY_SIZE);
++
++	/* error in case values were truncated */
++	if (info.lo_device != info64->lo_device ||
++	    info.lo_rdevice != info64->lo_rdevice ||
++	    info.lo_inode != info64->lo_inode ||
++	    info.lo_offset != info64->lo_offset ||
++	    info.lo_init[0] != info64->lo_init[0] ||
++	    info.lo_init[1] != info64->lo_init[1])
++		return -EOVERFLOW;
++
++	if (copy_to_user(arg, &info, sizeof(info)))
++		return -EFAULT;
++	return 0;
++}
++
++static int
++loop_set_status_compat(struct loop_device *lo,
++		       const struct compat_loop_info __user *arg)
++{
++	struct loop_info64 info64;
++	int ret;
++
++	ret = loop_info64_from_compat(arg, &info64);
++	if (ret < 0)
++		return ret;
++	return loop_set_status(lo, &info64);
++}
++
++static int
++loop_get_status_compat(struct loop_device *lo,
++		       struct compat_loop_info __user *arg)
++{
++	struct loop_info64 info64;
++	int err = 0;
++
++	if (!arg)
++		err = -EINVAL;
++	if (!err)
++		err = loop_get_status(lo, &info64);
++	if (!err)
++		err = loop_info64_to_compat(&info64, arg);
++	return err;
++}
++
++static long lo_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct loop_device *lo = inode->i_bdev->bd_disk->private_data;
++	int err;
++
++	lock_kernel();
++	switch(cmd) {
++	case LOOP_SET_STATUS:
++		mutex_lock(&lo->lo_ctl_mutex);
++		err = loop_set_status_compat(
++			lo, (const struct compat_loop_info __user *) arg);
++		mutex_unlock(&lo->lo_ctl_mutex);
++		break;
++	case LOOP_GET_STATUS:
++		mutex_lock(&lo->lo_ctl_mutex);
++		err = loop_get_status_compat(
++			lo, (struct compat_loop_info __user *) arg);
++		mutex_unlock(&lo->lo_ctl_mutex);
++		break;
++	case LOOP_CLR_FD:
++	case LOOP_GET_STATUS64:
++	case LOOP_SET_STATUS64:
++		arg = (unsigned long) compat_ptr(arg);
++	case LOOP_SET_FD:
++	case LOOP_CHANGE_FD:
++		err = lo_ioctl(inode, file, cmd, arg);
++		break;
++	default:
++		err = -ENOIOCTLCMD;
++		break;
++	}
++	unlock_kernel();
++	return err;
++}
++#endif
++
+ static int lo_open(struct inode *inode, struct file *file)
  {
- 	int ret;
+ 	struct loop_device *lo = inode->i_bdev->bd_disk->private_data;
+@@ -1201,6 +1358,9 @@ static struct block_device_operations lo
+ 	.open =		lo_open,
+ 	.release =	lo_release,
+ 	.ioctl =	lo_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	lo_compat_ioctl,
++#endif
+ };
+ 
+ /*
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index ab74c9b..3b0cf7f 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -40,7 +40,6 @@ #include <linux/if_ppp.h>
+ #include <linux/if_pppox.h>
+ #include <linux/mtio.h>
+ #include <linux/cdrom.h>
+-#include <linux/loop.h>
+ #include <linux/auto_fs.h>
+ #include <linux/auto_fs4.h>
+ #include <linux/tty.h>
+@@ -1214,71 +1213,6 @@ static int cdrom_ioctl_trans(unsigned in
+ 	return err;
+ }
+ 
+-struct loop_info32 {
+-	compat_int_t	lo_number;      /* ioctl r/o */
+-	compat_dev_t	lo_device;      /* ioctl r/o */
+-	compat_ulong_t	lo_inode;       /* ioctl r/o */
+-	compat_dev_t	lo_rdevice;     /* ioctl r/o */
+-	compat_int_t	lo_offset;
+-	compat_int_t	lo_encrypt_type;
+-	compat_int_t	lo_encrypt_key_size;    /* ioctl w/o */
+-	compat_int_t	lo_flags;       /* ioctl r/o */
+-	char		lo_name[LO_NAME_SIZE];
+-	unsigned char	lo_encrypt_key[LO_KEY_SIZE]; /* ioctl w/o */
+-	compat_ulong_t	lo_init[2];
+-	char		reserved[4];
+-};
+-
+-static int loop_status(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct loop_info l;
+-	struct loop_info32 __user *ul;
+-	int err = -EINVAL;
+-
+-	ul = compat_ptr(arg);
+-	switch(cmd) {
+-	case LOOP_SET_STATUS:
+-		err = get_user(l.lo_number, &ul->lo_number);
+-		err |= __get_user(l.lo_device, &ul->lo_device);
+-		err |= __get_user(l.lo_inode, &ul->lo_inode);
+-		err |= __get_user(l.lo_rdevice, &ul->lo_rdevice);
+-		err |= __copy_from_user(&l.lo_offset, &ul->lo_offset,
+-		        8 + (unsigned long)l.lo_init - (unsigned long)&l.lo_offset);
+-		if (err) {
+-			err = -EFAULT;
+-		} else {
+-			set_fs (KERNEL_DS);
+-			err = sys_ioctl (fd, cmd, (unsigned long)&l);
+-			set_fs (old_fs);
+-		}
+-		break;
+-	case LOOP_GET_STATUS:
+-		set_fs (KERNEL_DS);
+-		err = sys_ioctl (fd, cmd, (unsigned long)&l);
+-		set_fs (old_fs);
+-		if (!err) {
+-			err = put_user(l.lo_number, &ul->lo_number);
+-			err |= __put_user(l.lo_device, &ul->lo_device);
+-			err |= __put_user(l.lo_inode, &ul->lo_inode);
+-			err |= __put_user(l.lo_rdevice, &ul->lo_rdevice);
+-			err |= __copy_to_user(&ul->lo_offset, &l.lo_offset,
+-				(unsigned long)l.lo_init - (unsigned long)&l.lo_offset);
+-			if (err)
+-				err = -EFAULT;
+-		}
+-		break;
+-	default: {
+-		static int count;
+-		if (++count <= 20)
+-			printk("%s: Unknown loop ioctl cmd, fd(%d) "
+-			       "cmd(%08x) arg(%08lx)\n",
+-			       __FUNCTION__, fd, cmd, arg);
+-	}
+-	}
+-	return err;
+-}
+-
+ #ifdef CONFIG_VT
+ 
+ static int vt_check(struct file *file)
+@@ -2808,8 +2742,6 @@ HANDLE_IOCTL(MTIOCGET32, mt_ioctl_trans)
+ HANDLE_IOCTL(MTIOCPOS32, mt_ioctl_trans)
+ HANDLE_IOCTL(CDROMREADAUDIO, cdrom_ioctl_trans)
+ HANDLE_IOCTL(CDROM_SEND_PACKET, cdrom_ioctl_trans)
+-HANDLE_IOCTL(LOOP_SET_STATUS, loop_status)
+-HANDLE_IOCTL(LOOP_GET_STATUS, loop_status)
+ #define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
+ HANDLE_IOCTL(AUTOFS_IOC_SETTIMEOUT32, ioc_settimeout)
+ #ifdef CONFIG_VT
+diff --git a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
+index 269d000..13cea44 100644
+--- a/include/linux/compat_ioctl.h
++++ b/include/linux/compat_ioctl.h
+@@ -394,12 +394,6 @@ COMPATIBLE_IOCTL(DVD_WRITE_STRUCT)
+ COMPATIBLE_IOCTL(DVD_AUTH)
+ /* pktcdvd */
+ COMPATIBLE_IOCTL(PACKET_CTRL_CMD)
+-/* Big L */
+-ULONG_IOCTL(LOOP_SET_FD)
+-ULONG_IOCTL(LOOP_CHANGE_FD)
+-COMPATIBLE_IOCTL(LOOP_CLR_FD)
+-COMPATIBLE_IOCTL(LOOP_GET_STATUS64)
+-COMPATIBLE_IOCTL(LOOP_SET_STATUS64)
+ /* Big A */
+ /* sparc only */
+ /* Big Q for sound/OSS */

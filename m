@@ -1,162 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422756AbWHYPqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422741AbWHYPpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422756AbWHYPqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 11:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422735AbWHYPp0
+	id S1422741AbWHYPpX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 11:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWHYPpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 11:45:26 -0400
-Received: from [213.46.243.16] ([213.46.243.16]:45425 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1422737AbWHYPpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 11:45:08 -0400
+	Fri, 25 Aug 2006 11:45:07 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:8605 "EHLO
+	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1422725AbWHYPo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 11:44:59 -0400
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Cc: Indan Zupancic <indan@nul.nu>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
        David Miller <davem@davemloft.net>
-Date: Fri, 25 Aug 2006 17:40:27 +0200
-Message-Id: <20060825154027.24271.43168.sendpatchset@twins>
+Date: Fri, 25 Aug 2006 17:40:17 +0200
+Message-Id: <20060825154017.24271.20362.sendpatchset@twins>
 In-Reply-To: <20060825153946.24271.42758.sendpatchset@twins>
 References: <20060825153946.24271.42758.sendpatchset@twins>
-Subject: [PATCH 4/4] nfs: deadlock prevention for NFS
+Subject: [PATCH 3/4] nbd: deadlock prevention for NBD
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Provide a proper a_ops->swapfile() implementation for NFS. This will
-set the NFS socket to SOCK_VMIO and put the socket reconnection under
-PF_MEMALLOC (I hope this is enough, otherwise more work needs to be done).
+Use sk_set_vmio() on the nbd socket.
+
+Limit each request to 1 page, so that the request throttling also limits the
+number of in-flight pages and force the IO scheduler to NOOP as anything else
+doesn't make sense anyway.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Signed-off-by: Daniel Phillips <phillips@google.com>
 ---
- fs/nfs/file.c               |   21 ++++++++++++++++++++-
- include/linux/sunrpc/xprt.h |    4 +++-
- net/sunrpc/xprtsock.c       |   16 ++++++++++++++++
- 3 files changed, 39 insertions(+), 2 deletions(-)
+ drivers/block/nbd.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-Index: linux-2.6/fs/nfs/file.c
+Index: linux-2.6/drivers/block/nbd.c
 ===================================================================
---- linux-2.6.orig/fs/nfs/file.c
-+++ linux-2.6/fs/nfs/file.c
-@@ -27,6 +27,7 @@
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
-+#include <net/sock.h>
+--- linux-2.6.orig/drivers/block/nbd.c
++++ linux-2.6/drivers/block/nbd.c
+@@ -135,7 +135,6 @@ static int sock_xmit(struct socket *sock
+ 	spin_unlock_irqrestore(&current->sighand->siglock, flags);
  
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -317,7 +318,25 @@ static int nfs_release_page(struct page 
+ 	do {
+-		sock->sk->sk_allocation = GFP_NOIO;
+ 		iov.iov_base = buf;
+ 		iov.iov_len = size;
+ 		msg.msg_name = NULL;
+@@ -361,8 +360,16 @@ static void nbd_do_it(struct nbd_device 
  
- static int nfs_swapfile(struct address_space *mapping, int enable)
- {
--	return 0;
-+	int err = -EINVAL;
-+	struct rpc_clnt *client = NFS_CLIENT(mapping->host);
-+	struct sock *sk = client->cl_xprt->inet;
+ 	BUG_ON(lo->magic != LO_MAGIC);
+ 
++	sk_adjust_memalloc(0, 1);
++	if (sk_set_vmio(lo->sock->sk))
++		printk(KERN_WARNING
++		       "failed to set SOCK_VMIO on NBD socket\n");
 +
-+	if (enable) {
-+		client->cl_xprt->swapper = 1;
-+		/*
-+		 * keep one extra sock reference so the reserve won't dip
-+		 * when the socket gets reconnected.
-+		 */
-+		sk_adjust_memalloc(1, 1);
-+		err = sk_set_vmio(sk);
-+	} else if (client->cl_xprt->swapper) {
-+		client->cl_xprt->swapper = 0;
-+		sk_adjust_memalloc(-1, -1);
-+		err = sk_clear_vmio(sk);
-+	}
+ 	while ((req = nbd_read_stat(lo)) != NULL)
+ 		nbd_end_request(req);
 +
-+	return err;
++	sk_adjust_memalloc(0, -1);
++
+ 	return;
  }
  
- const struct address_space_operations nfs_file_aops = {
-Index: linux-2.6/net/sunrpc/xprtsock.c
-===================================================================
---- linux-2.6.orig/net/sunrpc/xprtsock.c
-+++ linux-2.6/net/sunrpc/xprtsock.c
-@@ -1014,6 +1014,7 @@ static void xs_udp_connect_worker(void *
- {
- 	struct rpc_xprt *xprt = (struct rpc_xprt *) args;
- 	struct socket *sock = xprt->sock;
-+	unsigned long pflags = current->flags;
- 	int err, status = -EIO;
- 
- 	if (xprt->shutdown || xprt->addr.sin_port == 0)
-@@ -1021,6 +1022,9 @@ static void xs_udp_connect_worker(void *
- 
- 	dprintk("RPC:      xs_udp_connect_worker for xprt %p\n", xprt);
- 
-+	if (xprt->swapper)
-+		current->flags |= PF_MEMALLOC;
-+
- 	/* Start by resetting any existing state */
- 	xs_close(xprt);
- 
-@@ -1054,6 +1058,9 @@ static void xs_udp_connect_worker(void *
- 		xprt->sock = sock;
- 		xprt->inet = sk;
- 
-+		if (xprt->swapper)
-+			sk_set_vmio(sk);
-+
- 		write_unlock_bh(&sk->sk_callback_lock);
- 	}
- 	xs_udp_do_set_buffer_size(xprt);
-@@ -1061,6 +1068,7 @@ static void xs_udp_connect_worker(void *
- out:
- 	xprt_wake_pending_tasks(xprt, status);
- 	xprt_clear_connecting(xprt);
-+	current->flags = pflags;
- }
- 
- /*
-@@ -1097,11 +1105,15 @@ static void xs_tcp_connect_worker(void *
- {
- 	struct rpc_xprt *xprt = (struct rpc_xprt *)args;
- 	struct socket *sock = xprt->sock;
-+	unsigned long pflags = current->flags;
- 	int err, status = -EIO;
- 
- 	if (xprt->shutdown || xprt->addr.sin_port == 0)
- 		goto out;
- 
-+	if (xprt->swapper)
-+		current->flags |= PF_MEMALLOC;
-+
- 	dprintk("RPC:      xs_tcp_connect_worker for xprt %p\n", xprt);
- 
- 	if (!xprt->sock) {
-@@ -1170,10 +1182,14 @@ static void xs_tcp_connect_worker(void *
- 				break;
+@@ -525,6 +533,7 @@ static int nbd_ioctl(struct inode *inode
+ 			if (S_ISSOCK(inode->i_mode)) {
+ 				lo->file = file;
+ 				lo->sock = SOCKET_I(inode);
++				lo->sock->sk->sk_allocation = GFP_NOIO;
+ 				error = 0;
+ 			} else {
+ 				fput(file);
+@@ -628,11 +637,16 @@ static int __init nbd_init(void)
+ 		 * every gendisk to have its very own request_queue struct.
+ 		 * These structs are big so we dynamically allocate them.
+ 		 */
+-		disk->queue = blk_init_queue(do_nbd_request, &nbd_lock);
++		disk->queue = blk_init_queue_node_elv(do_nbd_request,
++				&nbd_lock, -1, "noop");
+ 		if (!disk->queue) {
+ 			put_disk(disk);
+ 			goto out;
  		}
++		blk_queue_pin_elevator(disk->queue);
++		blk_queue_max_segment_size(disk->queue, PAGE_SIZE);
++		blk_queue_max_hw_segments(disk->queue, 1);
++		blk_queue_max_phys_segments(disk->queue, 1);
  	}
-+
-+	if (xprt->swapper)
-+		sk_set_vmio(xprt->inet);
- out:
- 	xprt_wake_pending_tasks(xprt, status);
- out_clear:
- 	xprt_clear_connecting(xprt);
-+	current->flags = pflags;
- }
  
- /**
-Index: linux-2.6/include/linux/sunrpc/xprt.h
-===================================================================
---- linux-2.6.orig/include/linux/sunrpc/xprt.h
-+++ linux-2.6/include/linux/sunrpc/xprt.h
-@@ -147,7 +147,9 @@ struct rpc_xprt {
- 	unsigned int		max_reqs;	/* total slots */
- 	unsigned long		state;		/* transport state */
- 	unsigned char		shutdown   : 1,	/* being shut down */
--				resvport   : 1; /* use a reserved port */
-+				resvport   : 1, /* use a reserved port */
-+				swapper    : 1; /* we're swapping over this
-+						   transport */
- 
- 	/*
- 	 * XID
+ 	if (register_blkdev(NBD_MAJOR, "nbd")) {

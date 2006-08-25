@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWHYPb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWHYPgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWHYPb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 11:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWHYPb0
+	id S1030258AbWHYPgI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 11:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWHYPgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 11:31:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12296 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030245AbWHYPbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 11:31:25 -0400
-Date: Thu, 24 Aug 2006 20:31:39 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Polling for battery stauts and lost keypresses
-Message-ID: <20060824203139.GC4539@ucw.cz>
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl> <200608141038.04746.gene.heskett@verizon.net> <20060814152000.GA19065@rhlx01.fht-esslingen.de> <d120d5000608140841q657c6c2euae986b37f6aff605@mail.gmail.com> <20060814155437.GA801@rhlx01.fht-esslingen.de> <d120d5000608140906x47bc572blb1b9821ead987d7e@mail.gmail.com> <1q38ghnxvrliv$.zzgutgu0exkm$.dlg@40tude.net> <d120d5000608141317p50540cd5x5e8ec409dc9343ef@mail.gmail.com> <gd60xm38im9j.a4xxz8tjb0qj$.dlg@40tude.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <gd60xm38im9j.a4xxz8tjb0qj$.dlg@40tude.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 25 Aug 2006 11:36:08 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:41745 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S1030258AbWHYPgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 11:36:05 -0400
+Subject: [BUG] 2.6.18-rc4 oops while running "find"
+To: linux-kernel@vger.kernel.org
+Date: Fri, 25 Aug 2006 10:36:03 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20060825153603.88D61DBA1@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 16-08-06 09:31:48, Giuseppe Bilotta wrote:
-> On Mon, 14 Aug 2006 16:17:01 -0400, Dmitry Torokhov wrote:
-> 
-> > On 8/14/06, Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
-> >> On Mon, 14 Aug 2006 12:06:06 -0400, Dmitry Torokhov wrote:
-> >>
-> >>> On many laptops (including mine) polling battery takes a loooong time
-> >>> and is done in SMI mode in BIOS causing lost keypresses, jerky mouse
-> >>> etc. It is pretty common problem. I think I have my ACPI client
-> >>> refreshing every 3 minutes.
-> >>
-> >> BTW, polling battery status takes a lot on a Dell Inspiron 8200 too,
-> >> and all keypresses and mouse movements (and I think even network
-> >> IRQs?) are totally *dead* while polling.
-> >>
-> >> However, The Other OS(tm) *seems* to do it right enough to have no
-> >> noticeable keypress losses, even when updating the battery status. Is
-> >> it using different system calls, or what?
-> >>
-> > 
-> > I am not sure, but there are many things that may affect it:
-> > 
-> > 1. Battry attributes are divided into 2 groups - static (i think they
-> > go into /proc/acpi/battery/<name>/info and dynamic
-> > (/proc/acpi/batetry/state). Static attributes take really long time to
-> > pull and they do not change so it may wery well be they are polled one
-> > at startup. Dynamic attributes are cheaper to poll and even then OS
-> > may cache access or limit rate.
-> 
-> Well, this would explain why Linux freezes while polling only if Linux
-> polls for the slow, static ones just as much as it does for the
-> dynamic ones ...
+Anyone care to try their luck at decoding an Alpha oops?
 
-I guess patch caching battery/*/state would be welcome.
+A bit of context might be helpful.  The oops happened during the daily
+"updatedb" run by cron, and the "find" command is currently hung in an
+unkillable state (ignores "kill -9").  System is a DEC Alpha PWS 433au,
+and has been up for 17 days as I type this.  The 2.6.18-rc4 kernel was
+built locally from the standard kernel.org sources.  Here's the "oops"
+output from "dmesg":
+
+ Linux version 2.6.18-rc4 (root@smirkin) (gcc version 4.0.4 20060507 (prerelease) (Debian 4.0.3-3)) #1 Mon Aug 7 23:15:09 CDT 2006
+ (...)
+ Unable to handle kernel paging request at virtual address 0000000000000010
+ find(20377): Oops 0
+ pc = [<fffffc0000316278>]  ra = [<fffffc000031d874>]  ps = 0007    Not tainted
+ pc is at process_mcheck_info+0x58/0x330
+ ra is at cia_machine_check+0x94/0xb0
+ v0 = 0000000000000004  t0 = 0000000000000630  t1 = 0000000000000660
+ t2 = 0000000000000000  t3 = 0000000000000000  t4 = 0000000000000010
+ t5 = 000000000009097e  t6 = 0000000000000009  t7 = fffffc00081e8000
+ s0 = 0000000000000000  s1 = fffffc00081ebaa0  s2 = fffffc0000b4d5f0
+ s3 = fffffc0000b4d5f0  s4 = fffffc000fdccf18  s5 = fffffc00081ebca8
+ s6 = fffffc000fdccfd8
+ a0 = fffffc00005cb500  a1 = fffffc00005c75ba  a2 = fffffc00081ebaa0
+ a3 = fffffc0000396f24  a4 = 0000000000000000  a5 = 0000000000000000
+ t8 = 0000000000000000  t9 = 000002000010bd54  t10= 0000000000000080
+ t11= 0000000000002000  pv = fffffc0000316220  at = 0000000000001fff
+ gp = fffffc00006eb500  sp = fffffc00081eba60
+ Trace:
+ [<fffffc000031d874>] cia_machine_check+0x94/0xb0
+ [<fffffc00003d4d9c>] ext3_lookup+0x5c/0x1a0
+ [<fffffc00003161d4>] do_entInt+0x134/0x180
+ [<fffffc0000311280>] ret_from_sys_call+0x0/0x10
+ [<fffffc000039874c>] iget_locked+0xbc/0x190
+ [<fffffc0000403b20>] dummy_inode_alloc_security+0x0/0x10
+ [<fffffc0000396f24>] find_inode_fast+0x24/0x90
+ [<fffffc0000398734>] iget_locked+0xa4/0x190
+ [<fffffc00003d4e10>] ext3_lookup+0xd0/0x1a0
+ [<fffffc000038aa34>] do_lookup+0x224/0x270
+ [<fffffc000038b4b8>] __link_path_walk+0x5d8/0x8a0
+ [<fffffc000038b808>] link_path_walk+0x88/0x1a0
+ [<fffffc000038bdb8>] do_path_lookup+0xb8/0x2c0
+ [<fffffc0000387844>] pipe_write+0x24/0x30
+ [<fffffc000038cd4c>] __user_walk_fd+0x5c/0xa0
+ [<fffffc000038368c>] vfs_lstat_fd+0x2c/0x80
+ [<fffffc0000383b88>] sys_newlstat+0x28/0x50
+ [<fffffc0000387844>] pipe_write+0x24/0x30
+ [<fffffc0000311264>] entSys+0xa4/0xc0
+ 
+ Code: 383dfa61  23de0020  6bfa8001  2ffe0000  a67200c0  261dffee <a2890010> a77dbc98 
+
 -- 
-Thanks for all the (sleeping) penguins.
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

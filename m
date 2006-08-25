@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422820AbWHYTkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422874AbWHYTld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422820AbWHYTkm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422862AbWHYTkA
+	id S1422874AbWHYTld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 15:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422853AbWHYTjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:40:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33167 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422839AbWHYThR (ORCPT
+	Fri, 25 Aug 2006 15:39:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37775 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422840AbWHYThV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:37:17 -0400
+	Fri, 25 Aug 2006 15:37:21 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 07/18] [PATCH] BLOCK: Remove dependence on existence of blockdev_superblock [try #4]
-Date: Fri, 25 Aug 2006 20:37:14 +0100
+Subject: [PATCH 09/18] [PATCH] BLOCK: Move __invalidate_device() to block_dev.c [try #4]
+Date: Fri, 25 Aug 2006 20:37:18 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825193714.11384.92168.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825193718.11384.92765.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,56 +26,74 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move blockdev_superblock extern declaration from fs/fs-writeback.c to a
-headerfile and remove the dependence on it by wrapping it in a macro.
+Move __invalidate_device() from fs/inode.c to fs/block_dev.c so that it can
+more easily be disabled when the block layer is disabled.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/fs-writeback.c |    6 +++---
- fs/internal.h     |    2 ++
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/block_dev.c |   21 +++++++++++++++++++++
+ fs/inode.c     |   21 ---------------------
+ 2 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 0639024..c403b66 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -319,7 +319,7 @@ sync_sb_inodes(struct super_block *sb, s
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 6e24cd4..f2c3637 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1307,3 +1307,24 @@ void close_bdev_excl(struct block_device
+ }
  
- 		if (!bdi_cap_writeback_dirty(bdi)) {
- 			list_move(&inode->i_list, &sb->s_dirty);
--			if (sb == blockdev_superblock) {
-+			if (sb_is_blkdev_sb(sb)) {
- 				/*
- 				 * Dirty memory-backed blockdev: the ramdisk
- 				 * driver does this.  Skip just this inode
-@@ -336,14 +336,14 @@ sync_sb_inodes(struct super_block *sb, s
- 
- 		if (wbc->nonblocking && bdi_write_congested(bdi)) {
- 			wbc->encountered_congestion = 1;
--			if (sb != blockdev_superblock)
-+			if (!sb_is_blkdev_sb(sb))
- 				break;		/* Skip a congested fs */
- 			list_move(&inode->i_list, &sb->s_dirty);
- 			continue;		/* Skip a congested blockdev */
- 		}
- 
- 		if (wbc->bdi && bdi != wbc->bdi) {
--			if (sb != blockdev_superblock)
-+			if (!sb_is_blkdev_sb(sb))
- 				break;		/* fs has the wrong queue */
- 			list_move(&inode->i_list, &sb->s_dirty);
- 			continue;		/* blockdev has wrong queue */
-diff --git a/fs/internal.h b/fs/internal.h
-index c21ecd3..f662b70 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -17,6 +17,8 @@ #include <linux/ioctl32.h>
- extern struct super_block *blockdev_superblock;
- extern void __init bdev_cache_init(void);
- 
-+#define sb_is_blkdev_sb(sb) ((sb) == blockdev_superblock)
+ EXPORT_SYMBOL(close_bdev_excl);
 +
- /*
-  * char_dev.c
-  */
++int __invalidate_device(struct block_device *bdev)
++{
++	struct super_block *sb = get_super(bdev);
++	int res = 0;
++
++	if (sb) {
++		/*
++		 * no need to lock the super, get_super holds the
++		 * read mutex so the filesystem cannot go away
++		 * under us (->put_super runs with the write lock
++		 * hold).
++		 */
++		shrink_dcache_sb(sb);
++		res = invalidate_inodes(sb);
++		drop_super(sb);
++	}
++	invalidate_bdev(bdev, 0);
++	return res;
++}
++EXPORT_SYMBOL(__invalidate_device);
+diff --git a/fs/inode.c b/fs/inode.c
+index 0bf9f04..6426bb0 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -363,27 +363,6 @@ int invalidate_inodes(struct super_block
+ }
+ 
+ EXPORT_SYMBOL(invalidate_inodes);
+- 
+-int __invalidate_device(struct block_device *bdev)
+-{
+-	struct super_block *sb = get_super(bdev);
+-	int res = 0;
+-
+-	if (sb) {
+-		/*
+-		 * no need to lock the super, get_super holds the
+-		 * read mutex so the filesystem cannot go away
+-		 * under us (->put_super runs with the write lock
+-		 * hold).
+-		 */
+-		shrink_dcache_sb(sb);
+-		res = invalidate_inodes(sb);
+-		drop_super(sb);
+-	}
+-	invalidate_bdev(bdev, 0);
+-	return res;
+-}
+-EXPORT_SYMBOL(__invalidate_device);
+ 
+ static int can_unuse(struct inode *inode)
+ {

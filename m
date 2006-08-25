@@ -1,99 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422922AbWHYXjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422928AbWHYXwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422922AbWHYXjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHYXjE
+	id S1422928AbWHYXwm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422927AbWHYXwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:39:04 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:41741 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932288AbWHYXjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:39:01 -0400
-Date: Sat, 26 Aug 2006 00:38:55 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to identify serial ports (ttySn)?
-Message-ID: <20060825233855.GD725@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Tokarev <mjt@tls.msk.ru>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <44EF5677.8060304@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44EF5677.8060304@tls.msk.ru>
-User-Agent: Mutt/1.4.1i
+	Fri, 25 Aug 2006 19:52:41 -0400
+Received: from mga07.intel.com ([143.182.124.22]:21263 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932245AbWHYXwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 19:52:39 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,170,1154934000"; 
+   d="scan'208"; a="107787161:sNHT47248768"
+Message-Id: <20060825235235.605667000@linux.intel.com>
+References: <20060825235215.820563000@linux.intel.com>
+User-Agent: quilt/0.45-1
+Date: Fri, 25 Aug 2006 16:52:16 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Akkana Peck <akkana@shallowsky.com>, Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@foof.org>,
+       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>,
+       Valerie Henson <val_henson@linux.intel.com>
+Subject: [patch 1/1] Relative atime - kernel side
+Content-Disposition: inline; filename=relative-atime-kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 11:58:47PM +0400, Michael Tokarev wrote:
-> For example, we've a PCI serial card (NetMos in
-> this case), with, say, one serial port on it.
-> Plus some ports on the motherboard (usually one
-> or two).  The question is where's the NetMos port,
-> on which /dev/ttySnn?
+Add "relatime" (relative atime) support.  Relative atime only updates
+the atime if the previous atime is older than the mtime or ctime.
+Like noatime, but useful for applications like mutt that need to know
+when a file has been read since it was last modified.
 
-/sys/devices/pciwhatever/tty:ttyS*
+Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
 
-> Next, with 2.6.something which was the first 2.6
-> I tried, it suddenly become ttyS4.  I don't remember
-> the details already.  So I reconfigured all the
-> machines (it was UPS control program which is
-> sitting on that port) to use another device.
-> 
-> At least 2.6.11 assigns ttyS3 to the device, saying
-> the first two ports are reserved for the onboard
-> devices.  So I again reconfigured the app to use
-> ttyS3 (or ttyS2 - I'm not sure).
-> 
-> Now, with 2.6.17, the netmos port is ttyS1.  Because
-> in reality, on the motherboard there's only one
-> serial port soldered (that's the reason why we
-> got the netmos card in the first place), so "next
-> unused" device is ttyS1.
-> 
-> So the question is: how to find where's the thing
-> on the running kernel, and where it will be with
-> next version?  Is there a way to assign a name for
-> the thing, so it will be independent of the current
-> kernel?  I just want to use it, the hardware is
-> *constant* for several years, but each kernel
-> release gives yet another surprize, here or there.
+---
+ fs/inode.c            |   11 ++++++++++-
+ fs/namespace.c        |    5 ++++-
+ include/linux/fs.h    |    1 +
+ include/linux/mount.h |    1 +
+ 4 files changed, 16 insertions(+), 2 deletions(-)
 
-No idea, but at a guess your kernel configuration changed in some way,
-or you didn't think enough about the new options which were added.
+--- linux-2.6.18-rc4-relatime.orig/fs/inode.c
++++ linux-2.6.18-rc4-relatime/fs/inode.c
+@@ -1200,7 +1200,16 @@ void touch_atime(struct vfsmount *mnt, s
+ 		return;
+ 
+ 	now = current_fs_time(inode->i_sb);
+-	if (!timespec_equal(&inode->i_atime, &now)) {
++	if (timespec_equal(&inode->i_atime, &now))
++		return;
++	/*
++	 * With relative atime, only update atime if the previous
++	 * atime is earlier than either the ctime or mtime.
++	 */
++	if (!mnt ||
++	    !(mnt->mnt_flags & MNT_RELATIME) ||
++	    (timespec_compare(&inode->i_atime, &inode->i_mtime) < 0) ||
++	    (timespec_compare(&inode->i_atime, &inode->i_ctime) < 0)) {
+ 		inode->i_atime = now;
+ 		mark_inode_dirty_sync(inode);
+ 	}
+--- linux-2.6.18-rc4-relatime.orig/fs/namespace.c
++++ linux-2.6.18-rc4-relatime/fs/namespace.c
+@@ -376,6 +376,7 @@ static int show_vfsmnt(struct seq_file *
+ 		{ MNT_NOEXEC, ",noexec" },
+ 		{ MNT_NOATIME, ",noatime" },
+ 		{ MNT_NODIRATIME, ",nodiratime" },
++		{ MNT_RELATIME, ",relatime" },
+ 		{ 0, NULL }
+ 	};
+ 	struct proc_fs_info *fs_infop;
+@@ -1413,9 +1414,11 @@ long do_mount(char *dev_name, char *dir_
+ 		mnt_flags |= MNT_NOATIME;
+ 	if (flags & MS_NODIRATIME)
+ 		mnt_flags |= MNT_NODIRATIME;
++	if (flags & MS_RELATIME)
++		mnt_flags |= MNT_RELATIME;
+ 
+ 	flags &= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE |
+-		   MS_NOATIME | MS_NODIRATIME);
++		   MS_NOATIME | MS_NODIRATIME | MS_RELATIME);
+ 
+ 	/* ... and get the mountpoint */
+ 	retval = path_lookup(dir_name, LOOKUP_FOLLOW, &nd);
+--- linux-2.6.18-rc4-relatime.orig/include/linux/fs.h
++++ linux-2.6.18-rc4-relatime/include/linux/fs.h
+@@ -119,6 +119,7 @@ extern int dir_notify_enable;
+ #define MS_PRIVATE	(1<<18)	/* change to private */
+ #define MS_SLAVE	(1<<19)	/* change to slave */
+ #define MS_SHARED	(1<<20)	/* change to shared */
++#define MS_RELATIME	(1<<21)	/* Update atime relative to mtime/ctime. */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+--- linux-2.6.18-rc4-relatime.orig/include/linux/mount.h
++++ linux-2.6.18-rc4-relatime/include/linux/mount.h
+@@ -27,6 +27,7 @@ struct namespace;
+ #define MNT_NOEXEC	0x04
+ #define MNT_NOATIME	0x08
+ #define MNT_NODIRATIME	0x10
++#define MNT_RELATIME	0x20
+ 
+ #define MNT_SHRINKABLE	0x100
+ 
 
-The behaviour of serial has not changed - if the port is already known
-to the kernel, it does it's damnest best to keep the same port.
-
-If it isn't already known, it will look for the first totally unused
-port and unassigned port which has not been previously used.
-
-If it can't find one, it'll find an unused port which has been
-previously used.
-
-No idea what changed between 2.6.something and 2.6.11 - do you have the
-contents of /proc/tty/driver/serial without the PCI driver loaded in
-each case?  If not, can't help, sorry.
-
-In the 2.6.11 to 2.6.17 case, you've been bitten by the "only want present
-ports to appear in my kernel thankyou" udev-based lobby.  There's now a
-configuration option/kernel command line/8250 module option to set the
-number of ports.  It sounds like your kernel has it set to 2, causing
-only ttyS0 and ttyS1 to be available.
-
-In the kernel configuration, it's called 'SERIAL_8250_RUNTIME_UARTS'.
-On the kernel command line, it's something like '8250.nr_uarts', and
-the module option is 'nr_uarts'.
-
-If you set this to 4 + number of PCI serial ports, you'll get your
-PCI ports starting at ttyS4 as it was in old times.
-
-(Note: this is not a change I approved of - I knew it would cause people
-problems, so please don't direct your anger, which is obvious from your
-email, at me.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--

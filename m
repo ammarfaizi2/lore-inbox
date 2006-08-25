@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422850AbWHYWId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422849AbWHYWOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422850AbWHYWId (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 18:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422839AbWHYWId
+	id S1422849AbWHYWOq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 18:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422851AbWHYWOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 18:08:33 -0400
-Received: from mail.suse.de ([195.135.220.2]:20105 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422834AbWHYWIc (ORCPT
+	Fri, 25 Aug 2006 18:14:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18109 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422849AbWHYWOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 18:08:32 -0400
-Date: Fri, 25 Aug 2006 15:07:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Fernando Vazquez <fernando@oss.ntt.co.jp>
-Cc: gregkh@suse.de, akpm@osdl.org, dev@openvz.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net, stable@kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
-Subject: Re: [stable] [PATCH] Linux 2.6.17.11 - fix compilation error on IA64 (try #3)
-Message-ID: <20060825220759.GA26692@kroah.com>
-References: <1156493587.2977.20.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156493587.2977.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 25 Aug 2006 18:14:45 -0400
+Date: Fri, 25 Aug 2006 15:14:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
+       jbarnes@virtuousgeek.org, dwalker@mvista.com, nickpiggin@yahoo.com.au
+Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
+Message-Id: <20060825151434.6bd75ae2.akpm@osdl.org>
+In-Reply-To: <1156504939.3032.26.camel@laptopd505.fenrus.org>
+References: <1156504939.3032.26.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 05:13:07PM +0900, Fernando Vazquez wrote:
-> Resending without Japanese characters in the mail header to avoid spam filters.
-> Sorry for the noise.
+On Fri, 25 Aug 2006 13:22:19 +0200
+Arjan van de Ven <arjan@linux.intel.com> wrote:
 
-Queued to -stable, thanks.
+> One open question is if the sysreq key is considered useful or only a bad hack..
 
-greg k-h
+The latter ;)

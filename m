@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422785AbWHXXzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWHYANw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422785AbWHXXzE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 19:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422787AbWHXXzE
+	id S1030440AbWHYANw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 20:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWHYANw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 19:55:04 -0400
-Received: from smtpout.mac.com ([17.250.248.175]:58612 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1422785AbWHXXzD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 19:55:03 -0400
-In-Reply-To: <1156463308.19702.40.camel@linuxchandra>
-References: <44E33893.6020700@sw.ru> <1155929992.26155.60.camel@linuxchandra> <44E9B3F5.3010000@sw.ru> <1156196721.6479.67.camel@linuxchandra> <1156211128.11127.37.camel@galaxy.corp.google.com> <1156272902.6479.110.camel@linuxchandra> <1156383881.8324.51.camel@galaxy.corp.google.com> <1156385072.7154.59.camel@linuxchandra> <1156417808.3007.78.camel@localhost.localdomain> <1156463308.19702.40.camel@linuxchandra>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <FFE6D792-4D6C-4F19-A939-CBA5F0654FBA@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, rohitseth@google.com,
-       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
-       Pavel Emelianov <xemul@openvz.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-Date: Thu, 24 Aug 2006 19:55:11 -0400
-To: sekharan@us.ibm.com
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAQAAA+k=
-X-Language-Identified: TRUE
+	Thu, 24 Aug 2006 20:13:52 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:17125 "EHLO
+	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030440AbWHYANv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 20:13:51 -0400
+Date: Thu, 24 Aug 2006 18:12:00 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Generic Disk Driver in Linux
+In-reply-to: <fa.RkJMFmeAVY9kZAODCPJ1Yc8Vtww@ifi.uio.no>
+To: Daniel Rodrick <daniel.rodrick@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies <kernelnewbies@nl.linux.org>,
+       linux-newbie@vget.kernel.org
+Message-id: <44EE4050.7020608@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.RkJMFmeAVY9kZAODCPJ1Yc8Vtww@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 24, 2006, at 19:48:28, Chandra Seetharaman wrote:
-> On Thu, 2006-08-24 at 12:10 +0100, Alan Cox wrote:
->> All you need is
->>
->> struct wombat_controller
->> {
->> 	struct user_beancounter counter;
->> 	void (*wombat_pest_control)(struct wombat *w);
->> 	atomic_t wombat_population;
->> 	int (*wombat_destructor)(struct wombat *w);
->> };
->
-> This may not solve the problem, as
->  - we won't be able get the controller data structure given the  
-> beancounter data structure.
+Daniel Rodrick wrote:
+> Hi List,
+> 
+> I was curious that can we develop a generic disk driver that could
+> handle all the kinds of hard drives - IDE, SCSI, RAID et al?
+> 
+> I thought we could use the BIOS interrupt 13H for this purpose, but
+> ran into a LOT of real mode / protected mode issues.
+> 
+> Any other ideas?
 
-Of course you can!  This is what we do for linked lists too.  Here's  
-an example of how to get a pointer to your wombat_controller given  
-the user_beancounter pointer:
-struct wombat_controller *wombat = containerof 
-(ptr_to_user_beancounter, struct wombat_controller, counter);
+Aside from the real/protected mode issues (which are pretty much a 
+show-stopper right there), the performance would be horrible. Usually 
+the Interrupt 13 code on especially the more advanced controllers like 
+hardware RAID, etc. is designed solely to function, with little 
+attention to speed, and the performance tends to be horrible - look at 
+versions of Ghost that run into DOS and look how long it takes to image 
+a drive connected to an IBM ServeRAID controller..
 
-The containerof(PTR, TYPE, MEMBER) returns a pointer to the parent  
-object of type "TYPE" whose member "MEMBER" has address "PTR".
-
-Cheers,
-Kyle Moffett
-
-
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

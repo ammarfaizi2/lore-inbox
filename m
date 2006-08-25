@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHYR6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWHYST4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWHYR6U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWHYR6U
+	id S1422652AbWHYST4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 14:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWHYST4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:58:20 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41889 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750724AbWHYR6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:58:19 -0400
-Date: Sat, 26 Aug 2006 02:57:49 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       simon.derr@bull.net, nathanl@austin.ibm.com, akpm@osdl.org,
-       y-goto@jp.fujitsu.com
-Subject: Re: memory hotplug - looking for good place for cpuset hook
-Message-Id: <20060826025749.6b3ae702.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060825095718.9e22e777.pj@sgi.com>
-References: <20060825015359.1c9eab45.pj@sgi.com>
-	<20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060825095718.9e22e777.pj@sgi.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 14:19:56 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:11071 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422652AbWHYSTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 14:19:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rmfoOE7BhqZbJ9z1AlQdnTBUotcpvb6uJ/hDINiBcRQRDiRYC/de/lOZxFEbYZrTupFf6s1sJqGOdWVM1NHFdogvXG5SgsKRshY6+0v/q7riiVyu4dRI1Rx2U4gznjFINBFVItFBNRam2wwG5ks8d+7WOELA5/gPuc9s1H7BzCI=
+Message-ID: <87f94c370608251119j4e04b33at67e86539b7bd1744@mail.gmail.com>
+Date: Fri, 25 Aug 2006 14:19:53 -0400
+From: "Greg Freemyer" <greg.freemyer@gmail.com>
+To: "Aleksey Gorelov" <dared1st@yahoo.com>
+Subject: Re: Generic Disk Driver in Linux
+Cc: "Helge Hafting" <helge.hafting@aitel.hist.no>, jengelh@linux01.gwdg.de,
+       daniel.rodrick@gmail.com, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
+       satinder.jeet@gmail.com
+In-Reply-To: <20060825170513.60108.qmail@web83113.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44EECF16.6060602@aitel.hist.no>
+	 <20060825170513.60108.qmail@web83113.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 09:57:18 -0700
-Paul Jackson <pj@sgi.com> wrote:
+On 8/25/06, Aleksey Gorelov <dared1st@yahoo.com> wrote:
+>
+>
+> --- Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+>
+> > Aleksey Gorelov wrote:
+> > >> From: linux-kernel-owner@vger.kernel.org
+> > >> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jan Engelhardt
+> > >>
+> > >>> I was curious that can we develop a generic disk driver that could
+> > >>> handle all the kinds of hard drives - IDE, SCSI, RAID et al?
+> > >>>
+> > >> ide_generic
+> > >> sd_mod
+> > >>
+> > >> All there, what more do you want?
+> > >>
+> > >
+> > > Unfortunately, not _all_. DMRAID does not support all fake raids yet. Moreover, there is
+> > usually
+> > > some gap for bleeding edge hw support.
+> > >
+> > Nobody will want to use bleeding edge hardware with an int13 driver,
+> > because the performance will necessarily be much worse than using more
+> > moderate hardware with the generic IDE driver.
+> If some one wants Linux server - I totally agree. I would probably even avoid relying purely on
+> generic IDE and instead use chipset specific variant or libata.
+> But if someone wants to access already installed & working other OS stuff - that's a different
+> story. Bad performance is still better than no support at all.
+>
 
-> ================================================================
-> int add_memory(int nid, u64 start, u64 size)
-> {
->         pg_data_t *pgdat = NULL;
->         ...
->         if (!node_online(nid)) {
->                 pgdat = hotadd_new_pgdat(nid, start);
->                 if (!pgdat)
->                         return -ENOMEM;
->                ...
->         }
->         ...
->         if (pgdat) {
->                 /* we online node here. we can't roll back from here. */
->                 node_set_online(nid);
->                 ret = register_one_node(nid);                         
-> ================================================================
-> 
-> Is this second code chunk just as good?
-> 
+I'll add a vote for this.  Not sure if the user base is large enough
+to justify it being added to the mainline kernel, but Computer
+Forensic professionals often need to image computers with Raid setups.
+ (image == dd copy of logical volume)
 
-Ah yes. I think yours is better logic.
+For many configurations, the current choices are sub-optimal.  It
+would be nice to have a boot disk that could capture any and all raid
+volumes.
 
-> I'd still be inclined to add my new cpuset hook to track
-> node_online_map right after the node_set_online() call, since
-> that's what changes node_online_map.  I don't think I care
-> whether or not the "sysfs entry of node" is setup or not.
-> 
-Ok.
+FYI: There are already many linux boot CDs that specifically target
+Computer Forensics tasks, so there is a bigger user community than
+many might assume.  Examples incude SPADA (law enforcement only),
+smart, Farmer Dude's boot cd, FCCU GNU/Linux Forensic Boot CD, Helix,
+Penguin Sleuth.
 
-Thanks,
--Kame
+All of the above would benefit from a generic, but slow raid driver.
+For this use it would be great if both real raid and fake raid were
+supported.  Not sure if fake raid comes with int13 support or not.
 
+Greg
+-- 
+Greg Freemyer
+The Norcross Group
+Forensics for the 21st Century

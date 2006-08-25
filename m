@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWHYIbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWHYIei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWHYIbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWHYIbJ
+	id S932133AbWHYIei (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWHYIei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:31:09 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:21651 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932179AbWHYIbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:31:08 -0400
-Subject: Re: [RFC] maximum latency tracking infrastructure
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jesse Barnes <jbarnes@virtuousgeek.org>, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-In-Reply-To: <44EEB425.8060707@yahoo.com.au>
-References: <1156441295.3014.75.camel@laptopd505.fenrus.org>
-	 <200608241408.03853.jbarnes@virtuousgeek.org>
-	 <44EE1801.3060805@linux.intel.com> <44EE829C.10606@yahoo.com.au>
-	 <44EEAD8D.6010801@linux.intel.com>  <44EEB425.8060707@yahoo.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 25 Aug 2006 10:30:44 +0200
-Message-Id: <1156494644.3032.17.camel@laptopd505.fenrus.org>
+	Fri, 25 Aug 2006 04:34:38 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:23458 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932133AbWHYIei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 04:34:38 -0400
+Date: Fri, 25 Aug 2006 10:33:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] LogFS
+Message-ID: <20060825083343.GA11136@wohnheim.fh-wedel.de>
+References: <20060824134430.GB17132@wohnheim.fh-wedel.de> <p73wt8ydu1v.fsf@verdi.suse.de> <20060824155434.GA31877@wohnheim.fh-wedel.de> <20060824215111.dddcb330.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060824215111.dddcb330.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 18:26 +1000, Nick Piggin wrote:
-> Arjan van de Ven wrote:
-> > Nick Piggin wrote:
+On Thu, 24 August 2006 21:51:11 -0700, Andrew Morton wrote:
+> On Thu, 24 Aug 2006 17:54:34 +0200
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 > 
-> >> Surely you would call set_acceptable_latency() *before* running such
-> >> operation that requires the given latency? And that 
-> >> set_acceptable_latency
-> >> would block the caller until all CPUs are set to wake within this 
-> >> latency.
-> >>
-> >> That would be the API semantics I would expect, anyway.
-> > 
-> > 
-> > but that means it blocks, and thus can't be used in irq context
+> > Linux needs a decent flash filesystem.
 > 
-> Is that a problem? I guess it could be, but you don't want to
-> give a false sense of security either. Having an explicit _nosync
-> version may make that clear?
+> Would http://nilfs.org/en/ be useful on flash?
 
-well the api is already split between blocking and non-blocking so in
-principle that's easy. The problem is that I suspect most users will use
-the non-blocking variant.
+I am having trouble answering that question, but feel inclined to
+answer no.
 
-Also the "what to do" can be treacherous; it'll need a callback list
-simply because many places can be using the latency values, more than
-just idle. (I can see pstate code for example also using it to limit
-which ones to use, and not use the ones it takes to long to get out of)
+They don't have a cleaner yet.  After my experience and looking at
+their data structure, I wish them luck to succeed without a change to
+the on-disk format.  Most likely they will be unable to prove
+correctness and take the standard approach of keeping "some amount" of
+space reserved and hoping for the best.
 
-I'll investigate what it'll take to get the callback in place; for the
-C-state case it's not THAT critical (after all the cpu you are running
-on when making this call is not in a deep C state.. :-)
+Btrees are an interesting idea.
 
+Buffer heads are a fairly pointless thing when dealing with flash.
+
+Plus my general feeling is that they care only about hard disks and
+optimizations for disks and flash are quite different.  In the future,
+it might make sense to have a generic log-structured filesystem that
+works splendidly on both.  But I see merit in optimizing each on its
+own until it is clear which details work for both and which don't.
+
+Jörn
+
+-- 
+Good warriors cause others to come to them and do not go to others.
+-- Sun Tzu

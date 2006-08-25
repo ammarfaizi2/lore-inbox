@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422866AbWHYPxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWHYP4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422866AbWHYPxu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 11:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422867AbWHYPxu
+	id S1030226AbWHYP4s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 11:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWHYP4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 11:53:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:21917 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422866AbWHYPxt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 11:53:49 -0400
-Subject: Re: [PATCH] Pass sparse the lock expression given to lock
-	annotations
-From: Josh Triplett <josht@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060824210531.6264f285.akpm@osdl.org>
-References: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
-	 <20060824210531.6264f285.akpm@osdl.org>
+	Fri, 25 Aug 2006 11:56:48 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:49899 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1030192AbWHYP4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 11:56:47 -0400
+Subject: Re: [PATCH 0/4] VM deadlock prevention -v5
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Indan Zupancic <indan@nul.nu>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
+       David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0608250849480.9083@schroedinger.engr.sgi.com>
+References: <20060825153946.24271.42758.sendpatchset@twins>
+	 <Pine.LNX.4.64.0608250849480.9083@schroedinger.engr.sgi.com>
 Content-Type: text/plain
-Date: Fri, 25 Aug 2006 08:53:53 -0700
-Message-Id: <1156521234.3420.19.camel@josh-work.beaverton.ibm.com>
+Date: Fri, 25 Aug 2006 17:52:04 +0200
+Message-Id: <1156521124.23000.1.camel@twins>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.7.92 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 21:05 -0700, Andrew Morton wrote:
-> On Thu, 24 Aug 2006 17:48:56 -0700
-> Josh Triplett <josht@us.ibm.com> wrote:
+On Fri, 2006-08-25 at 08:51 -0700, Christoph Lameter wrote:
+> On Fri, 25 Aug 2006, Peter Zijlstra wrote:
 > 
-> > The lock annotation macros __acquires, __releases, __acquire, and __release
-> > all currently throw the lock expression passed as an argument.  Now that
-> > sparse can parse __context__ and __attribute__((context)) with a context
-> > expression, pass the lock expression down to sparse as the context expression.
+> > The basic premises is that network sockets serving the VM need undisturbed
+> > functionality in the face of severe memory shortage.
+> > 
+> > This patch-set provides the framework to provide this.
 > 
-> What is the dependency relationship between your kernel changes and your
-> proposed change to sparse?
+> Hmmm.. Is it not possible to avoid the memory pools by 
+> guaranteeing that a certain number of page is easily reclaimable?
 
-Sparse with my multi-context patch will continue to parse versions of
-the kernel without this kernel patch, since I made the context
-expression optional in sparse.  Versions of sparse without my
-multi-context patch will not parse kernels with this kernel patch (since
-previous versions of sparse will not support the extra argument).  The
-same dependency relationship has held true with past additions to sparse
-and the kernel; furthermore, that dependency relationship often exists
-anyway due to the use of new GCC extensions in the kernel which require
-changes to the sparse parser, such as __builtin_types_compatible_p,
-__builtin_extract_return_addr, __builtin_va_copy, and
-__attribute__((no_instrument_function)).
-
-- Josh Triplett
-
+We're not actually using mempools, but the memalloc reserve. Purely easy
+reclaimable memory is not enough however, since packet receive happens
+from IRQ context, and we cannot unmap pages in IRQ context.
 

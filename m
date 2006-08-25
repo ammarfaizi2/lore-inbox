@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWHYKuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWHYKvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWHYKuz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKuz
+	id S1751439AbWHYKvB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHYKvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:50:55 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:43799 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751438AbWHYKuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:50:54 -0400
-Message-ID: <44EED6BC.3060107@sw.ru>
-Date: Fri, 25 Aug 2006 14:53:48 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 25 Aug 2006 06:51:01 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50187 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751439AbWHYKvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:51:00 -0400
+Date: Fri, 25 Aug 2006 12:50:59 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] Add __global tag where needed.
+Message-ID: <20060825105059.GX19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433212.3012.120.camel@pmac.infradead.org> <20060824213047.GR19810@stusta.de> <1156499546.2984.43.camel@pmac.infradead.org> <20060825102649.GU19810@stusta.de> <1156502078.2984.81.camel@pmac.infradead.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 2/6] BC: beancounters core (API)
-References: <44EC31FB.2050002@sw.ru>	<44EC35EB.1030000@sw.ru>	<20060823094202.ff3a5573.akpm@osdl.org>	<44ED9633.7090504@sw.ru> <20060824080030.05232740.akpm@osdl.org>
-In-Reply-To: <20060824080030.05232740.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156502078.2984.81.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 24 Aug 2006 16:06:11 +0400
-> Kirill Korotaev <dev@sw.ru> wrote:
+On Fri, Aug 25, 2006 at 11:34:38AM +0100, David Woodhouse wrote:
+> On Fri, 2006-08-25 at 12:26 +0200, Adrian Bunk wrote:
+>...
+> > But projects like embedded systems or OLPC that really need want 
+> > kernels should be the same projects that already avoid the
+> > 10% size penalty of CONFIG_MODULES=y.
 > 
-> 
->>>>+#define bc_charge_locked(bc, r, v, s)			(0)
->>>>
->>>>>+#define bc_charge(bc, r, v)				(0)
->>>
->>>akpm:/home/akpm> cat t.c
->>>void foo(void)
->>>{
->>>	(0);
->>>}
->>>akpm:/home/akpm> gcc -c -Wall t.c
->>>t.c: In function 'foo':
->>>t.c:4: warning: statement with no effect
->>
->>these functions return value should always be checked (!).
-> 
-> 
-> We have __must_check for that.
-> 
-> 
->>i.e. it is never called like:
->>  ub_charge(bc, r, v);
-> 
-> 
-> Also...
-> 
-> 	if (bc_charge(tpyo, undefined_variable, syntax_error))
-> 
-> will happily compile if !CONFIG_BEANCOUNTER.
-> 
-> Turning these stubs into static inline __must_check functions fixes all this.
+> OLPC has USB ports and wants to be fairly flexible about being able to
+> connect stuff -- I don't think we can turn off CONFIG_MODULES in its
+> running kernel.
+>...
 
-ok. will replace all empty stubs with inlines (with __must_check where appropriate)
+You can compile many USB modules statically into the kernel before 
+using more additional space than what CONFIG_MODULES=n saves today.
 
-Thanks,
-Kirill
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWHYIEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWHYIGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWHYIEm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWHYIEm
+	id S932077AbWHYIGP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWHYIGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:04:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4283 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751263AbWHYIEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:04:11 -0400
-Subject: RE: Generic Disk Driver in Linux
-From: Arjan van de Ven <arjan@infradead.org>
-To: Aleksey Gorelov <dared1st@yahoo.com>
-Cc: jengelh@linux01.gwdg.de, daniel.rodrick@gmail.com,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       linux-newbie@vger.kernel.org, satinder.jeet@gmail.com
-In-Reply-To: <20060824222136.49055.qmail@web83114.mail.mud.yahoo.com>
-References: <20060824222136.49055.qmail@web83114.mail.mud.yahoo.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 25 Aug 2006 10:03:41 +0200
-Message-Id: <1156493021.3032.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 25 Aug 2006 04:06:14 -0400
+Received: from mail.suse.de ([195.135.220.2]:52705 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751270AbWHYIGN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 04:06:13 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 25 Aug 2006 18:06:15 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <17646.44919.838526.267714@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000 of 4] md: Introduction
+In-Reply-To: message from Andrew Morton on Thursday August 24
+References: <20060824173647.19026.patches@notabene>
+	<20060824150900.36bd9285.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-24 at 15:21 -0700, Aleksey Gorelov wrote:
-> 
-> --- Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> 
-> > > > 
-> > > > it'll be easier and quicker to rev engineer 5 more formats than it will
-> > > > be to get the bios thing working ;) And the performance of the bios
-> > > probably true - I'm actually not great fan of originally proposed approach. But, 
-> > > unfortunately, manufactures and vendors still look more to MS. Until market 
-> > > situation changes, there is always a gap...
+On Thursday August 24, akpm@osdl.org wrote:
+> On Thu, 24 Aug 2006 17:40:56 +1000
+> NeilBrown <neilb@suse.de> wrote:
 > > 
-> > there are only so many different ways to describe raid0.
-> > And those companies aren't going to keep changing that "just because",
-> > changing costs them money, so there is an incentive for them to keep it
-> > as is
+> >  [PATCH 001 of 4] md: Fix recent breakage of md/raid1 array checking
+> >  [PATCH 002 of 4] md: Fix issues with referencing rdev in md/raid1.
+> >  [PATCH 003 of 4] md: new sysfs interface for setting bits in the write-intent-bitmap
+> >  [PATCH 004 of 4] md: Remove unnecessary variable x in stripe_to_pdidx().
 > 
-> Bottom line is - today there is lack of support for it, 
+> The second patch is against -mm and doesn't come within a mile of applying
+> to mainline.
 
-can you name one?
-(so far all you did was claim this but not name even one)
+Bother ... 
+I'll get you a really-truly good patch after the weekend :-(
 
-
+NeilBrown

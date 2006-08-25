@@ -1,31 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWHYIMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWHYINP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWHYIMb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWHYIMb
+	id S1751306AbWHYINP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWHYINP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:12:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15801 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751279AbWHYIMa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:12:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1156455669.5629.87.camel@localhost> 
-References: <1156455669.5629.87.camel@localhost>  <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213330.21323.88530.stgit@warthog.cambridge.redhat.com> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/17] BLOCK: Stop CIFS from using EXT2 ioctl numbers directly [try #2] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 25 Aug 2006 09:12:25 +0100
-Message-ID: <991.1156493545@warthog.cambridge.redhat.com>
+	Fri, 25 Aug 2006 04:13:15 -0400
+Received: from ns.oss.ntt.co.jp ([222.151.198.98]:24295 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1751308AbWHYINN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 04:13:13 -0400
+Subject: [PATCH] Linux 2.6.17.11 - fix compilation error on IA64 (try #3)
+From: Fernando Vazquez <fernando@oss.ntt.co.jp>
+To: gregkh@suse.de
+Cc: dev@openvz.org, xemul@openvz.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, stable@kernel.org, akpm@osdl.org,
+       linux-ia64@vger.kernel.org, kamezawa.hiroyu@jp.fujitsu.com
+Content-Type: text/plain
+Organization: NTT Open Source Software Center
+Date: Fri, 25 Aug 2006 17:13:07 +0900
+Message-Id: <1156493587.2977.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Resending without Japanese characters in the mail header to avoid spam filters.
+Sorry for the noise.
 
-> Err... NACK?
+---
 
-I failed to notice that StGIT folded this into a previous patch.
+The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that broke 
+IA64 compilation as shown below:
 
-David
+  gcc -Wp,-MD,arch/ia64/kernel/.entry.o.d  -nostdinc -isystem /usr/lib/gcc/ia64-linux-gnu/4.1.2/include -D__KERNEL__ -Iinclude  -include include/linux/autoconf.h -DHAVE_WORKING_TEXT_ALIGN -DHAVE_MODEL_SMALL_ATTRIBUTE -DHAVE_SERIALIZE_DIRECTIVE -D__ASSEMBLY__   -mconstant-gp -c -o arch/ia64/kernel/entry.o arch/ia64/kernel/entry.S
+include/asm/mman.h: Assembler messages:
+include/asm/mman.h:13: Error: Unknown opcode `int ia64_map_check_rgn(unsigned long addr,unsigned long len,'
+include/asm/mman.h:14: Error: Unknown opcode `unsigned long flags)'
+make[1]: *** [arch/ia64/kernel/entry.o] Error 1
+make: *** [arch/ia64/kernel] Error 2
+
+The reason is that "asm/mman.h" is being included from entry.S indirectly through
+"asm/pgtable.h" (see code snips below).
+
+* arch/ia64/kernel/entry.S:
+...
+#include <asm/pgtable.h>
+...
+
+* include/asm-ia64/pgtable.h:
+...
+#include <asm/mman.h>
+...
+
+* include/asm-ia64/mman.h
+...
+#ifdef __KERNEL__
+#define arch_mmap_check ia64_map_check_rgn
+int ia64_map_check_rgn(unsigned long addr, unsigned long len,
+                unsigned long flags);
+#endif
+...
+
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+---
+
+diff -urNp linux-2.6.17.11/include/asm-ia64/mman.h linux-2.6.17.11-fix/include/asm-ia64/mman.h
+--- linux-2.6.17.11/include/asm-ia64/mman.h	2006-08-25 11:36:09.000000000 +0900
++++ linux-2.6.17.11-fix/include/asm-ia64/mman.h	2006-08-25 11:39:16.000000000 +0900
+@@ -9,10 +9,12 @@
+  */
+ 
+ #ifdef __KERNEL__
++#ifndef __ASSEMBLY__
+ #define arch_mmap_check	ia64_map_check_rgn
+ int ia64_map_check_rgn(unsigned long addr, unsigned long len,
+ 		unsigned long flags);
+ #endif
++#endif
+ 
+ #include <asm-generic/mman.h>
+ 
+
+

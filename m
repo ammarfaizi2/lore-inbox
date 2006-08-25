@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWHYINP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHYISv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWHYINP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWHYINP
+	id S932139AbWHYISv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 04:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWHYISv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:13:15 -0400
-Received: from ns.oss.ntt.co.jp ([222.151.198.98]:24295 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
-	id S1751308AbWHYINN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:13:13 -0400
-Subject: [PATCH] Linux 2.6.17.11 - fix compilation error on IA64 (try #3)
-From: Fernando Vazquez <fernando@oss.ntt.co.jp>
-To: gregkh@suse.de
-Cc: dev@openvz.org, xemul@openvz.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, stable@kernel.org, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, kamezawa.hiroyu@jp.fujitsu.com
+	Fri, 25 Aug 2006 04:18:51 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:21123 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932139AbWHYISu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 04:18:50 -0400
+Subject: Re: [patch] dubious process system time.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17646.14556.535277.434642@cargo.ozlabs.ibm.com>
+References: <20060824121825.GA4425@skybase>
+	 <17646.14556.535277.434642@cargo.ozlabs.ibm.com>
 Content-Type: text/plain
-Organization: NTT Open Source Software Center
-Date: Fri, 25 Aug 2006 17:13:07 +0900
-Message-Id: <1156493587.2977.20.camel@localhost.localdomain>
+Organization: IBM Corporation
+Date: Fri, 25 Aug 2006 10:18:47 +0200
+Message-Id: <1156493927.1640.5.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resending without Japanese characters in the mail header to avoid spam filters.
-Sorry for the noise.
+On Fri, 2006-08-25 at 09:40 +1000, Paul Mackerras wrote:
+> > The system time that is accounted to a process includes the time spent
+> > in three different contexts: normal system time, hardirq time and
+> > softirq time.
+> 
+> Is that true (at the moment) with CONFIG_VIRT_CPU_ACCOUNTING=y?  I
+> thought it wasn't.
 
----
+CONFIG_VIRT_CPU_ACCOUNTING improves the precision of the numbers that
+get accounted with account_[user,system,steal]_time. Which bucket the
+time goes into is decided in the three functions.
 
-The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that broke 
-IA64 compilation as shown below:
+-- 
+blue skies,
+  Martin.
 
-  gcc -Wp,-MD,arch/ia64/kernel/.entry.o.d  -nostdinc -isystem /usr/lib/gcc/ia64-linux-gnu/4.1.2/include -D__KERNEL__ -Iinclude  -include include/linux/autoconf.h -DHAVE_WORKING_TEXT_ALIGN -DHAVE_MODEL_SMALL_ATTRIBUTE -DHAVE_SERIALIZE_DIRECTIVE -D__ASSEMBLY__   -mconstant-gp -c -o arch/ia64/kernel/entry.o arch/ia64/kernel/entry.S
-include/asm/mman.h: Assembler messages:
-include/asm/mman.h:13: Error: Unknown opcode `int ia64_map_check_rgn(unsigned long addr,unsigned long len,'
-include/asm/mman.h:14: Error: Unknown opcode `unsigned long flags)'
-make[1]: *** [arch/ia64/kernel/entry.o] Error 1
-make: *** [arch/ia64/kernel] Error 2
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-The reason is that "asm/mman.h" is being included from entry.S indirectly through
-"asm/pgtable.h" (see code snips below).
-
-* arch/ia64/kernel/entry.S:
-...
-#include <asm/pgtable.h>
-...
-
-* include/asm-ia64/pgtable.h:
-...
-#include <asm/mman.h>
-...
-
-* include/asm-ia64/mman.h
-...
-#ifdef __KERNEL__
-#define arch_mmap_check ia64_map_check_rgn
-int ia64_map_check_rgn(unsigned long addr, unsigned long len,
-                unsigned long flags);
-#endif
-...
-
-Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
----
-
-diff -urNp linux-2.6.17.11/include/asm-ia64/mman.h linux-2.6.17.11-fix/include/asm-ia64/mman.h
---- linux-2.6.17.11/include/asm-ia64/mman.h	2006-08-25 11:36:09.000000000 +0900
-+++ linux-2.6.17.11-fix/include/asm-ia64/mman.h	2006-08-25 11:39:16.000000000 +0900
-@@ -9,10 +9,12 @@
-  */
- 
- #ifdef __KERNEL__
-+#ifndef __ASSEMBLY__
- #define arch_mmap_check	ia64_map_check_rgn
- int ia64_map_check_rgn(unsigned long addr, unsigned long len,
- 		unsigned long flags);
- #endif
-+#endif
- 
- #include <asm-generic/mman.h>
- 
+"Reality continues to ruin my life." - Calvin.
 
 

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWHYOsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWHYOt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWHYOsc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWHYOsc
+	id S1030188AbWHYOt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWHYOt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:48:32 -0400
-Received: from ns2.suse.de ([195.135.220.15]:7896 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932460AbWHYOsb (ORCPT
+	Fri, 25 Aug 2006 10:49:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57472 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030190AbWHYOt0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:48:31 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] BC: resource beancounters (v2)
-Date: Fri, 25 Aug 2006 16:48:00 +0200
-User-Agent: KMail/1.9.3
-Cc: Kirill Korotaev <dev@sw.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-References: <44EC31FB.2050002@sw.ru> <44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
-In-Reply-To: <20060825073003.e6b5ae16.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608251648.00033.ak@suse.de>
+	Fri, 25 Aug 2006 10:49:26 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 03/18] [PATCH] BLOCK: Stop fallback_migrate_page() from using page_has_buffers() [try #3]
+Date: Fri, 25 Aug 2006 15:49:23 +0100
+To: axboe@kernel.dk
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060825144923.30722.13280.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
+References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: David Howells <dhowells@redhat.com>
 
-> D) Virtual scan of mm's in the over-limit container
-> 
-> E) Modify existing physical scanner to be able to skip pages which
->    belong to not-over-limit containers.
+Stop fallback_migrate_page() from using page_has_buffers() since that might not
+be available.  Use PagePrivate() instead since that's more general.
 
-The same applies to dentries/inodes too, doesn't it? But their
-scan is already virtual so their LRUs could be just split into
-a per container list (but then didn't Christoph L. plan to 
-rewrite that code anyways?)
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-For memory my guess would be that (E) would be easier than (D) for user/file
-memory though less efficient.
+ mm/migrate.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
--Andi
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 3f1e0c2..0227163 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -525,7 +525,7 @@ static int fallback_migrate_page(struct 
+ 	 * Buffers may be managed in a filesystem specific way.
+ 	 * We must have no buffers or drop them.
+ 	 */
+-	if (page_has_buffers(page) &&
++	if (PagePrivate(page) &&
+ 	    !try_to_release_page(page, GFP_KERNEL))
+ 		return -EAGAIN;
+ 

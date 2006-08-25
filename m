@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWHYFlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWHYFlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965080AbWHYFlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 01:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWHYFlQ
+	id S965085AbWHYFlY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 01:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWHYFlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 01:41:16 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:43679 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965080AbWHYFlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 01:41:15 -0400
-Date: Fri, 25 Aug 2006 14:43:50 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: another NUMA build error
-Message-Id: <20060825144350.27530dfb.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060824213559.1be3d60f.rdunlap@xenotime.net>
-References: <20060824213559.1be3d60f.rdunlap@xenotime.net>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 01:41:24 -0400
+Received: from mx1.suse.de ([195.135.220.2]:62926 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965085AbWHYFlX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 01:41:23 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrzej Szymanski <szymans@agh.edu.pl>,
+       Miquel van Smoorenburg <miquels@cistron.nl>,
+       linux-kernel@vger.kernel.org
+Date: Fri, 25 Aug 2006 15:41:15 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17646.36219.417129.477853@cse.unsw.edu.au>
+Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
+In-Reply-To: message from Neil Brown on Tuesday August 22
+References: <44E0A69C.5030103@agh.edu.pl>
+	<ec19r7$uba$1@news.cistron.nl>
+	<17641.3304.948174.971955@cse.unsw.edu.au>
+	<44E9A9C0.6000405@agh.edu.pl>
+	<17642.46325.818963.951269@cse.unsw.edu.au>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 21:35:59 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-
-> Hi,
-> I was just trying to reproduce that 'register_one_node'
-> build error (and couldn't even with the supplied .config file;
-> weird).  Anyway, after I enabled CONFIG_NUMA (but not CONFIG_ACPI),
-> I got the following error message.  Seems that some config
-> options should prevent this config from even being possible
-> to create.  Any ideas or suggestions?
+On Tuesday August 22, neilb@suse.de wrote:
 > 
-Hi, there are 2 ways.
+> In my various experimenting the one thing that was effective in
+> improving the fairness was to make Linux impose write throttling more
+> often.
 
-1. allow only 2 configs for i386/NUMA
-	- CONFIG_NUMA + CONFIG_ACPI + CONFIG_ACPI_SRAT
-	- CONFIG_NUMA + CONFIG_X86_NUMAQ
-2. allow this and fix include/asm-i386/mmzone.h 
-	- CONFIG_NUMA + !CONFIG_ACP
+I might have found something else too....
 
-Which is sane ?
+Were you using ext3?
 
--KameI
+If you, can you try mounting with  data=writeback
+and see if that makes any difference to the fairness?
 
-
+Thanks,
+NeilBrown

@@ -1,91 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422925AbWHYX43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWHZAA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422925AbWHYX43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422927AbWHYX42
+	id S932288AbWHZAA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 20:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHZAA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:56:28 -0400
-Received: from mga07.intel.com ([143.182.124.22]:27729 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1422925AbWHYX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:56:27 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,170,1154934000"; 
-   d="scan'208"; a="107788887:sNHT52182641"
-Date: Fri, 25 Aug 2006 16:56:19 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: Akkana Peck <akkana@shallowsky.com>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@f00f.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
-Subject: [patch] Relative atime - userspace
-Message-ID: <20060825235619.GB25003@goober>
-References: <20060825235215.820563000@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825235215.820563000@linux.intel.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 25 Aug 2006 20:00:28 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:46874 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932288AbWHZAA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 20:00:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=IxkU8F1pGfOlL6Y1kobuaKzcAfez+idlRJ36ear4zHpDMkTpyCI1vIxsK9iazVje+8qdQLjpNa/UEdpYpAyVcDMNth+S9g9hcwvS3aEQOaufhjNetu63jb9mmL+ytd9KXf9JPLW+lYlHKHGJa1NEgyn2VPtscPSHAqNpoJZGZ0A=
+Message-ID: <44EF8E7D.5060905@gmail.com>
+Date: Sat, 26 Aug 2006 02:57:49 +0300
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit (ping)
+References: <445B5524.2090001@gmail.com> <445BCA33.30903@zytor.com>	 <6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com>	 <445C301E.6060509@zytor.com> <44AD583B.5040007@gmail.com>	 <44AD5BB4.9090005@zytor.com> <44AD5D47.8010307@gmail.com>	 <44AD5FD8.6010307@zytor.com>	 <9e0cf0bf0608031436x19262ab0rb2271b52ce75639d@mail.gmail.com>	 <44D278D6.2070106@zytor.com> <9e0cf0bf0608031542q2da20037h828f4b8f0d01c4d5@mail.gmail.com> <44D27F22.4080205@zytor.com>
+In-Reply-To: <44D27F22.4080205@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the "relatime" (relative atime) option support to mount.  Relative
-atime only updates the atime if the previous atime is older than the
-mtime or ctime.  Like noatime, but useful for applications like mutt
-that need to know when a file has been read since it was last
-modified.
 
-Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
+Extending the kernel parameters to a 2048 bytes for
+boot protocol >=2.02 of i386, ia64 and x86_64 architectures for
+linux-2.6.18-rc4-mm2.
+
+Current implementation allows the kernel to receive up to
+255 characters from the bootloader. In current environment,
+the command-line is used in order to specify many values,
+including suspend/resume, module arguments, splash, initramfs
+and more. 255 characters are not enough anymore.
+
+Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
- mount/mount.8           |    7 +++++++
- mount/mount.c           |    6 ++++++
- mount/mount_constants.h |    4 ++++
- 3 files changed, 17 insertions(+)
 
---- util-linux-2.13-pre7.orig/mount/mount.8
-+++ util-linux-2.13-pre7/mount/mount.8
-@@ -586,6 +586,13 @@ access on the news spool to speed up new
- .B nodiratime
- Do not update directory inode access times on this filesystem.
- .TP
-+.B relatime
-+Update inode access times relative to modify or change time.  Access
-+time is only updated if the previous access time was earlier than the
-+current modify or change time. (Similar to noatime, but doesn't break
-+mutt or other applications that need to know if a file has been read
-+since the last time it was modified.)
-+.TP
- .B noauto
- Can only be mounted explicitly (i.e., the
- .B \-a
---- util-linux-2.13-pre7.orig/mount/mount.c
-+++ util-linux-2.13-pre7/mount/mount.c
-@@ -164,6 +164,12 @@ static const struct opt_map opt_map[] = 
-   { "diratime",	0, 1, MS_NODIRATIME },	/* Update dir access times */
-   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
- #endif
-+#ifdef MS_RELATIME
-+  { "relatime", 0, 0, MS_RELATIME },	/* Update access times relative to
-+					   mtime/ctime */
-+  { "norelatime", 0, 1, MS_RELATIME },	/* Update access time without regard
-+					   to mtime/ctime */
-+#endif
-   { NULL,	0, 0, 0		}
- };
- 
---- util-linux-2.13-pre7.orig/mount/mount_constants.h
-+++ util-linux-2.13-pre7/mount/mount_constants.h
-@@ -57,6 +57,10 @@ if we have a stack or plain mount - moun
- #ifndef MS_VERBOSE
- #define MS_VERBOSE	0x8000	/* 32768 */
- #endif
-+#ifndef MS_RELATIME
-+#define MS_RELATIME   0x200000	/* 200000: Update access times relative
-+				   to mtime/ctime */
-+#endif
- /*
-  * Magic mount flag number. Had to be or-ed to the flag values.
-  */
+diff -urNp linux-2.6.18-rc4-mm2/include/asm-i386/param.h linux-2.6.18-rc4-mm2.new/include/asm-i386/param.h
+--- linux-2.6.18-rc4-mm2/include/asm-i386/param.h	2006-08-25 16:10:56.000000000 +0300
++++ linux-2.6.18-rc4-mm2.new/include/asm-i386/param.h	2006-08-26 02:30:52.000000000 +0300
+@@ -18,6 +18,5 @@
+  #endif
+
+  #define MAXHOSTNAMELEN	64	/* max length of hostname */
+-#define COMMAND_LINE_SIZE 256
+
+  #endif
+diff -urNp linux-2.6.18-rc4-mm2/include/asm-i386/setup.h linux-2.6.18-rc4-mm2.new/include/asm-i386/setup.h
+--- linux-2.6.18-rc4-mm2/include/asm-i386/setup.h	2006-08-25 16:10:56.000000000 +0300
++++ linux-2.6.18-rc4-mm2.new/include/asm-i386/setup.h	2006-08-26 02:30:52.000000000 +0300
+@@ -15,7 +15,7 @@
+  #define MAX_NONPAE_PFN	(1 << 20)
+
+  #define PARAM_SIZE 4096
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 2048
+
+  #define OLD_CL_MAGIC_ADDR	0x90020
+  #define OLD_CL_MAGIC		0xA33F
+diff -urNp linux-2.6.18-rc4-mm2/include/asm-ia64/setup.h linux-2.6.18-rc4-mm2.new/include/asm-ia64/setup.h
+--- linux-2.6.18-rc4-mm2/include/asm-ia64/setup.h	2006-06-18 04:49:35.000000000 +0300
++++ linux-2.6.18-rc4-mm2.new/include/asm-ia64/setup.h	2006-08-26 02:30:52.000000000 +0300
+@@ -1,6 +1,6 @@
+  #ifndef __IA64_SETUP_H
+  #define __IA64_SETUP_H
+
+-#define COMMAND_LINE_SIZE	512
++#define COMMAND_LINE_SIZE	2048
+
+  #endif
+diff -urNp linux-2.6.18-rc4-mm2/include/asm-x86_64/setup.h linux-2.6.18-rc4-mm2.new/include/asm-x86_64/setup.h
+--- linux-2.6.18-rc4-mm2/include/asm-x86_64/setup.h	2006-06-18 04:49:35.000000000 +0300
++++ linux-2.6.18-rc4-mm2.new/include/asm-x86_64/setup.h	2006-08-26 02:32:44.000000000 +0300
+@@ -1,6 +1,6 @@
+  #ifndef _x8664_SETUP_H
+  #define _x8664_SETUP_H
+
+-#define COMMAND_LINE_SIZE	256
++#define COMMAND_LINE_SIZE	2048
+
+  #endif

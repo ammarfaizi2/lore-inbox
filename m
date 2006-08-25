@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWHYKab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWHYKel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWHYKab (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHYKab
+	id S932441AbWHYKel (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHYKel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:30:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38155 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932400AbWHYKaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:30:30 -0400
-Date: Fri, 25 Aug 2006 12:30:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
+	Fri, 25 Aug 2006 06:34:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15840 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932441AbWHYKek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:34:40 -0400
+Subject: Re: [PATCH 3/4] Add __global tag where needed.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Core support for --combine -fwhole-program
-Message-ID: <20060825103029.GV19810@stusta.de>
-References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433167.3012.119.camel@pmac.infradead.org> <20060824213302.GS19810@stusta.de> <1156498643.2984.28.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156498643.2984.28.camel@pmac.infradead.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060825102649.GU19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org>
+	 <1156433212.3012.120.camel@pmac.infradead.org>
+	 <20060824213047.GR19810@stusta.de>
+	 <1156499546.2984.43.camel@pmac.infradead.org>
+	 <20060825102649.GU19810@stusta.de>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 11:34:38 +0100
+Message-Id: <1156502078.2984.81.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 10:37:23AM +0100, David Woodhouse wrote:
-> On Thu, 2006-08-24 at 23:33 +0200, Adrian Bunk wrote:
-> > If a "build everything except for assembler files at once" approach is 
-> > possible, it should be possible to revert this and get even further 
-> > savings.
+On Fri, 2006-08-25 at 12:26 +0200, Adrian Bunk wrote:
+> On Fri, Aug 25, 2006 at 10:52:26AM +0100, David Woodhouse wrote:
+> > On Thu, 2006-08-24 at 23:30 +0200, Adrian Bunk wrote:
+> > > Applying this doesn't seem to make much sense until it's clear whether a
+> > > "build everything except for assembler files at once" approach (that 
+> > > needs less globals) or your current "compile only multi-obj at once" 
+> > > approach (that requires more globals). 
+> > 
+> > For the kernel itself, I think that building a directory at once is the
+> > way forward. For modules, obviously the scope is more limited.
 > 
-> Only if we build _everything_ at once, which may take an insane amount
-> of RAM. Doing it a directory at a time makes a certain amount of sense,
-> and tends to combine the most incestuous code -- although maybe
-> combinations like building arch/$ARCH/kernel/ with kernel/ (and likewise
-> mm) could be an interesting experiment.
+> For any desktop or server you buy today your patches are a nice 
+> improvement but not that important.
 
-My hope is "insane" would be something like "1 GB of RAM" that is no 
-longer insane on current computers. [1]
+Yes, I agree -- although I haven't tested for performance yet; there
+_may_ be something surprisingly improved in there but I suspect it's
+unlikely.
 
-> I suspected that most of the 'further savings' to which you refer above
-> could be achieved more easily with -ffunction-sections -fdata-sections
-> --gc-sections
+> But projects like embedded systems or OLPC that really need want 
+> kernels should be the same projects that already avoid the
+> 10% size penalty of CONFIG_MODULES=y.
 
-AFAIR -ffunction-sections/-fdata-sections cause some overhead in the 
-resulting binary?
-
-> dwmw2
-
-cu
-Adrian
-
-[1] The interesting cases are embedded systems needing a small kernel
-    that gets built on a much bigger system.
-    Whether this should be the default compile mode for everyone is a
-    different issue.
+OLPC has USB ports and wants to be fairly flexible about being able to
+connect stuff -- I don't think we can turn off CONFIG_MODULES in its
+running kernel. However, its _boot_ kernel (LinuxBIOS) has
+CONFIG_MODULES=n, and that's where we _really_ care about the space.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+dwmw2
 

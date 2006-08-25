@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWHYS1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWHYS23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422768AbWHYS1u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 14:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422766AbWHYSZe
+	id S1422766AbWHYS23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 14:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWHYSZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 14:25:34 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:46210 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1422780AbWHYSZT (ORCPT
+	Fri, 25 Aug 2006 14:25:32 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:45698 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1422778AbWHYSZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 25 Aug 2006 14:25:19 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 23 of 23] IB/ipath - control receive polarity inversion
-X-Mercurial-Node: 7a03a7b18dcfe1afeeb1a0d1fd67dddd77365231
-Message-Id: <7a03a7b18dcfe1afeeb1.1156530288@eng-12.pathscale.com>
+Subject: [PATCH 22 of 23] IB/ipath - print warning if LID not acquired within
+	one minute
+X-Mercurial-Node: 1a41dc627c5a1bc2f7e9d75af0a7806039541342
+Message-Id: <1a41dc627c5a1bc2f7e9.1156530287@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1156530265@eng-12.pathscale.com>
-Date: Fri, 25 Aug 2006 11:24:48 -0700
+Date: Fri, 25 Aug 2006 11:24:47 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
@@ -26,151 +27,100 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
 diff --git a/drivers/infiniband/hw/ipath/ipath_driver.c b/drivers/infiniband/hw/ipath/ipath_driver.c
---- a/drivers/infiniband/hw/ipath/ipath_driver.c	Fri Aug 25 11:19:46 2006 -0700
+--- a/drivers/infiniband/hw/ipath/ipath_driver.c	Fri Aug 25 11:19:45 2006 -0700
 +++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Fri Aug 25 11:19:46 2006 -0700
-@@ -2156,5 +2156,22 @@ bail:
- 	return ret;
- }
+@@ -114,6 +114,13 @@ static int __devinit ipath_init_one(stru
+ #define PCI_DEVICE_ID_INFINIPATH_HT 0xd
+ #define PCI_DEVICE_ID_INFINIPATH_PE800 0x10
  
-+int ipath_set_rx_pol_inv(struct ipath_devdata *dd, u8 new_pol_inv)
-+{
-+	u64 val;
-+	if ( new_pol_inv > INFINIPATH_XGXS_RX_POL_MASK ) {
-+		return -1;
-+	}
-+	if ( dd->ipath_rx_pol_inv != new_pol_inv ) {
-+		dd->ipath_rx_pol_inv = new_pol_inv;
-+		val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_xgxsconfig);
-+		val &= ~(INFINIPATH_XGXS_RX_POL_MASK <<
-+                         INFINIPATH_XGXS_RX_POL_SHIFT);
-+                val |= ((u64)dd->ipath_rx_pol_inv) <<
-+                        INFINIPATH_XGXS_RX_POL_SHIFT;
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_xgxsconfig, val);
-+	}
-+	return 0;
-+}
- module_init(infinipath_init);
- module_exit(infinipath_cleanup);
-diff --git a/drivers/infiniband/hw/ipath/ipath_iba6110.c b/drivers/infiniband/hw/ipath/ipath_iba6110.c
---- a/drivers/infiniband/hw/ipath/ipath_iba6110.c	Fri Aug 25 11:19:46 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_iba6110.c	Fri Aug 25 11:19:46 2006 -0700
-@@ -1290,6 +1290,15 @@ static int ipath_ht_bringup_serdes(struc
- 		val &= ~INFINIPATH_XGXS_RESET;
- 		change = 1;
- 	}
-+	if (((val >> INFINIPATH_XGXS_RX_POL_SHIFT) &
-+	     INFINIPATH_XGXS_RX_POL_MASK) != dd->ipath_rx_pol_inv ) {
-+		/* need to compensate for Tx inversion in partner */
-+		val &= ~(INFINIPATH_XGXS_RX_POL_MASK <<
-+		         INFINIPATH_XGXS_RX_POL_SHIFT);
-+		val |= dd->ipath_rx_pol_inv <<
-+			INFINIPATH_XGXS_RX_POL_SHIFT;
-+		change = 1;
-+	}
- 	if (change)
- 		ipath_write_kreg(dd, dd->ipath_kregs->kr_xgxsconfig, val);
- 
-diff --git a/drivers/infiniband/hw/ipath/ipath_iba6120.c b/drivers/infiniband/hw/ipath/ipath_iba6120.c
---- a/drivers/infiniband/hw/ipath/ipath_iba6120.c	Fri Aug 25 11:19:46 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_iba6120.c	Fri Aug 25 11:19:46 2006 -0700
-@@ -654,6 +654,15 @@ static int ipath_pe_bringup_serdes(struc
- 		val &= ~INFINIPATH_XGXS_RESET;
- 		change = 1;
- 	}
-+	if (((val >> INFINIPATH_XGXS_RX_POL_SHIFT) &
-+	     INFINIPATH_XGXS_RX_POL_MASK) != dd->ipath_rx_pol_inv ) {
-+		/* need to compensate for Tx inversion in partner */
-+		val &= ~(INFINIPATH_XGXS_RX_POL_MASK <<
-+		         INFINIPATH_XGXS_RX_POL_SHIFT);
-+		val |= dd->ipath_rx_pol_inv <<
-+			INFINIPATH_XGXS_RX_POL_SHIFT;
-+		change = 1;
-+	}
- 	if (change)
- 		ipath_write_kreg(dd, dd->ipath_kregs->kr_xgxsconfig, val);
- 
-diff --git a/drivers/infiniband/hw/ipath/ipath_kernel.h b/drivers/infiniband/hw/ipath/ipath_kernel.h
---- a/drivers/infiniband/hw/ipath/ipath_kernel.h	Fri Aug 25 11:19:46 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_kernel.h	Fri Aug 25 11:19:46 2006 -0700
-@@ -503,6 +503,8 @@ struct ipath_devdata {
- 	u8 ipath_pci_cacheline;
- 	/* LID mask control */
- 	u8 ipath_lmc;
-+	/* Rx Polarity inversion (compensate for ~tx on partner) */
-+	u8 ipath_rx_pol_inv;
- 
- 	/* local link integrity counter */
- 	u32 ipath_lli_counter;
-@@ -570,6 +572,7 @@ int ipath_set_linkstate(struct ipath_dev
- int ipath_set_linkstate(struct ipath_devdata *, u8);
- int ipath_set_mtu(struct ipath_devdata *, u16);
- int ipath_set_lid(struct ipath_devdata *, u32, u8);
-+int ipath_set_rx_pol_inv(struct ipath_devdata *dd, u8 new_pol_inv);
- 
- /* for use in system calls, where we want to know device type, etc. */
- #define port_fp(fp) ((struct ipath_portdata *) (fp)->private_data)
-diff --git a/drivers/infiniband/hw/ipath/ipath_registers.h b/drivers/infiniband/hw/ipath/ipath_registers.h
---- a/drivers/infiniband/hw/ipath/ipath_registers.h	Fri Aug 25 11:19:46 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_registers.h	Fri Aug 25 11:19:46 2006 -0700
-@@ -282,6 +282,8 @@
- #define INFINIPATH_XGXS_RESET          0x7ULL
- #define INFINIPATH_XGXS_MDIOADDR_MASK  0xfULL
- #define INFINIPATH_XGXS_MDIOADDR_SHIFT 4
-+#define INFINIPATH_XGXS_RX_POL_SHIFT 19
-+#define INFINIPATH_XGXS_RX_POL_MASK 0xfULL
- 
- #define INFINIPATH_RT_ADDR_MASK 0xFFFFFFFFFFULL	/* 40 bits valid */
- 
-diff --git a/drivers/infiniband/hw/ipath/ipath_sysfs.c b/drivers/infiniband/hw/ipath/ipath_sysfs.c
---- a/drivers/infiniband/hw/ipath/ipath_sysfs.c	Fri Aug 25 11:19:46 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_sysfs.c	Fri Aug 25 11:19:46 2006 -0700
-@@ -561,6 +561,33 @@ bail:
- 	return ret;
- }
- 
-+static ssize_t store_rx_pol_inv(struct device *dev,
-+			  struct device_attribute *attr,
-+			  const char *buf,
-+			  size_t count)
-+{
-+	struct ipath_devdata *dd = dev_get_drvdata(dev);
-+	int ret, r;
-+	u16 val;
++/*
++ * Number of seconds before we complain about not getting a LID
++ * assignment.
++ */
 +
-+	ret = ipath_parse_ushort(buf, &val);
-+	if (ret < 0)
-+		goto invalid;
++#define LID_TIMEOUT 60
 +
-+	r = ipath_set_rx_pol_inv(dd, val);
-+	if (r < 0) {
-+		ret = r;
-+		goto bail;
-+	}
-+
-+	goto bail;
-+invalid:
-+	ipath_dev_err(dd, "attempt to set invalid Rx Polarity invert\n");
-+bail:
-+	return ret;
-+}
-+
-+
- static DRIVER_ATTR(num_units, S_IRUGO, show_num_units, NULL);
- static DRIVER_ATTR(version, S_IRUGO, show_version, NULL);
- 
-@@ -587,6 +614,7 @@ static DEVICE_ATTR(status_str, S_IRUGO, 
- static DEVICE_ATTR(status_str, S_IRUGO, show_status_str, NULL);
- static DEVICE_ATTR(boardversion, S_IRUGO, show_boardversion, NULL);
- static DEVICE_ATTR(unit, S_IRUGO, show_unit, NULL);
-+static DEVICE_ATTR(rx_pol_inv, S_IWUSR, NULL, store_rx_pol_inv);
- 
- static struct attribute *dev_attributes[] = {
- 	&dev_attr_guid.attr,
-@@ -601,6 +629,7 @@ static struct attribute *dev_attributes[
- 	&dev_attr_boardversion.attr,
- 	&dev_attr_unit.attr,
- 	&dev_attr_enabled.attr,
-+	&dev_attr_rx_pol_inv.attr,
- 	NULL
+ static const struct pci_device_id ipath_pci_tbl[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_PATHSCALE, PCI_DEVICE_ID_INFINIPATH_HT) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_PATHSCALE, PCI_DEVICE_ID_INFINIPATH_PE800) },
+@@ -129,6 +136,29 @@ static struct pci_driver ipath_driver = 
+ 	.id_table = ipath_pci_tbl,
  };
  
++
++static void check_link_status(void *data)
++{
++	struct ipath_devdata *dd = data;
++
++	/*
++	 * If we're in the NOCABLE state, try again in another minute.
++	 */
++
++	if (dd->ipath_flags & IPATH_STATUS_IB_NOCABLE) {
++		schedule_delayed_work(&dd->link_task, HZ * LID_TIMEOUT);
++		return;
++	}
++
++	/*
++	 * If we don't have a LID, let the user know and don't bother
++	 * checking again.
++	 */
++
++	if (dd->ipath_lid == 0)
++		dev_info(&dd->pcidev->dev,
++			 "We don't have a LID yet (no subnet manager?)");
++}
+ 
+ static inline void read_bars(struct ipath_devdata *dd, struct pci_dev *dev,
+ 			     u32 *bar0, u32 *bar1)
+@@ -196,6 +226,8 @@ static struct ipath_devdata *ipath_alloc
+ 
+ 	dd->pcidev = pdev;
+ 	pci_set_drvdata(pdev, dd);
++
++	INIT_WORK(&dd->link_task, check_link_status, dd);
+ 
+ 	list_add(&dd->ipath_list, &ipath_dev_list);
+ 
+@@ -509,6 +541,9 @@ static int __devinit ipath_init_one(stru
+ 	ipath_diag_add(dd);
+ 	ipath_register_ib_device(dd);
+ 
++	/* Check that we have a LID in LID_TIMEOUT seconds. */
++	schedule_delayed_work(&dd->link_task, HZ * LID_TIMEOUT);
++
+ 	goto bail;
+ 
+ bail_iounmap:
+@@ -536,6 +571,9 @@ static void __devexit ipath_remove_one(s
+ 		return;
+ 
+ 	dd = pci_get_drvdata(pdev);
++
++	cancel_delayed_work(&dd->link_task);
++
+ 	ipath_unregister_ib_device(dd->verbs_dev);
+ 	ipath_diag_remove(dd);
+ 	ipath_user_remove(dd);
+@@ -1644,6 +1682,8 @@ int ipath_set_lid(struct ipath_devdata *
+ 	dd->ipath_lid = arg;
+ 	dd->ipath_lmc = lmc;
+ 
++	dev_info(&dd->pcidev->dev, "We got a lid: %u\n", arg);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/infiniband/hw/ipath/ipath_kernel.h b/drivers/infiniband/hw/ipath/ipath_kernel.h
+--- a/drivers/infiniband/hw/ipath/ipath_kernel.h	Fri Aug 25 11:19:45 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_kernel.h	Fri Aug 25 11:19:46 2006 -0700
+@@ -508,6 +508,9 @@ struct ipath_devdata {
+ 	u32 ipath_lli_counter;
+ 	/* local link integrity errors */
+ 	u32 ipath_lli_errors;
++
++	/* Link status check work */
++	struct work_struct link_task;
+ };
+ 
+ extern struct list_head ipath_dev_list;

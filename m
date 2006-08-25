@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWHYK3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWHYKab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWHYK3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWHYK3c
+	id S932400AbWHYKab (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHYKab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:29:32 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:44381 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932400AbWHYK3c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:29:32 -0400
-Subject: Re: [patch] dubious process system time.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <44EECCF9.7080902@aitel.hist.no>
-References: <20060824121825.GA4425@skybase> <p731wr6fh54.fsf@verdi.suse.de>
-	 <1156426103.28464.29.camel@localhost>  <200608241718.29406.ak@suse.de>
-	 <1156435363.28464.33.camel@localhost>  <44EECCF9.7080902@aitel.hist.no>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Fri, 25 Aug 2006 12:29:28 +0200
-Message-Id: <1156501768.1640.19.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 06:30:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38155 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932400AbWHYKaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:30:30 -0400
+Date: Fri, 25 Aug 2006 12:30:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] Core support for --combine -fwhole-program
+Message-ID: <20060825103029.GV19810@stusta.de>
+References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433167.3012.119.camel@pmac.infradead.org> <20060824213302.GS19810@stusta.de> <1156498643.2984.28.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156498643.2984.28.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 12:12 +0200, Helge Hafting wrote:
-> > Again, why do I have to account non-process related time to a process?
-> > Ihmo that is completly wrong.
-> >   
-> If softirq time have to be accounted to a process (so as to not
-> get lost), how about accounting it to the softirqd process?  Much
-> more reasonable than random processes.
+On Fri, Aug 25, 2006 at 10:37:23AM +0100, David Woodhouse wrote:
+> On Thu, 2006-08-24 at 23:33 +0200, Adrian Bunk wrote:
+> > If a "build everything except for assembler files at once" approach is 
+> > possible, it should be possible to revert this and get even further 
+> > savings.
+> 
+> Only if we build _everything_ at once, which may take an insane amount
+> of RAM. Doing it a directory at a time makes a certain amount of sense,
+> and tends to combine the most incestuous code -- although maybe
+> combinations like building arch/$ARCH/kernel/ with kernel/ (and likewise
+> mm) could be an interesting experiment.
 
-The main question still is if it is correct to add softirq/hardirq time
-to the system time of a process. If the answer turns out to be yes, then
-it might be a clever idea to account softirq time to the softirqd. That
-still leaves the question what to do with hardirq time ..
-My take still is that softirq/hardirq time does not belong to the system
-time of any process.
+My hope is "insane" would be something like "1 GB of RAM" that is no 
+longer insane on current computers. [1]
+
+> I suspected that most of the 'further savings' to which you refer above
+> could be achieved more easily with -ffunction-sections -fdata-sections
+> --gc-sections
+
+AFAIR -ffunction-sections/-fdata-sections cause some overhead in the 
+resulting binary?
+
+> dwmw2
+
+cu
+Adrian
+
+[1] The interesting cases are embedded systems needing a small kernel
+    that gets built on a much bigger system.
+    Whether this should be the default compile mode for everyone is a
+    different issue.
 
 -- 
-blue skies,
-  Martin.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

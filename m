@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422635AbWHYCcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWHYCwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422635AbWHYCcq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 22:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWHYCcq
+	id S1751630AbWHYCwy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 22:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHYCwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 22:32:46 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:55198 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751394AbWHYCcp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 22:32:45 -0400
-Message-ID: <44EE6149.7000404@garzik.org>
-Date: Thu, 24 Aug 2006 22:32:41 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 24 Aug 2006 22:52:54 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:62420 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751630AbWHYCwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 22:52:53 -0400
+Date: Fri, 25 Aug 2006 11:52:20 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG[[PATCH] register_one_node compile fix.
+Cc: Andrew Morton <akpm@osdl.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060825105755.55b15220.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060825105755.55b15220.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20060825115024.076F.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA 150 vs SATA 300
-References: <44EDBD0C.9040501@perkel.com>
-In-Reply-To: <44EDBD0C.9040501@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> Another speed related question. How much faster are SATA II drives 
-> compared to regular SATA drives in real life? And - does NCQ really 
-> help? I'm just looking for a general guess in the form of, "The Disk IO 
-> upgrading to SATA II with NCQ will generally be X% faster." What value 
-> is X?
+Looks good.
+Thanks.
 
-SATA 150 and SATA 300 refers to interface speed (1.5Gbps or 3Gbps). 
-Unless its entirely flash-based or RAM-based, it is highly unlikely that 
-your disk max out the SATA cable bandwidth.
+Acked-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-There is "SATA II is x times faster" rule, because it depends on the 
-drive mechanics inside.  A SATA II drive may be exactly the same speed 
-as SATA I, except that it is upgraded to support NCQ and other SATA II 
-features.
+> register_one_node()'s should be defined under CONFIG_NUMA=n.
+> fixes following bug.
+> --
+>   CC	  init/version.o
+>   LD	  init/built-in.o
+>   LD	  .tmp_vmlinux1
+> mm/built-in.o: In function `add_memory':
+> : undefined reference to `register_one_node'
+> --
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> Index: linux-2.6.18-rc4/include/linux/node.h
+> ===================================================================
+> --- linux-2.6.18-rc4.orig/include/linux/node.h
+> +++ linux-2.6.18-rc4/include/linux/node.h
+> @@ -30,12 +30,20 @@ extern struct node node_devices[];
+>  
+>  extern int register_node(struct node *, int, struct node *);
+>  extern void unregister_node(struct node *node);
+> +#ifdef CONFIG_NUMA
+>  extern int register_one_node(int nid);
+>  extern void unregister_one_node(int nid);
+> -#ifdef CONFIG_NUMA
+>  extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
+>  extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
+>  #else
+> +static inline int register_one_node(int nid)
+> +{
+> +	return 0;
+> +}
+> +static inline int unregister_one_node(int nid)
+> +{
+> +	return 0;
+> +}
+>  static inline int register_cpu_under_node(unsigned int cpu, unsigned int nid)
+>  {
+>  	return 0;
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-NCQ definitely helps.
-
-	Jeff
-
+-- 
+Yasunori Goto 
 
 

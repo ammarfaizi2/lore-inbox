@@ -1,55 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWHYJLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWHYJX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWHYJLl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 05:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWHYJLl
+	id S932362AbWHYJX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 05:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWHYJX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 05:11:41 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:3219 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751369AbWHYJLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 05:11:41 -0400
-Date: Fri, 25 Aug 2006 11:11:13 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-In-Reply-To: <1156496116.2984.14.camel@pmac.infradead.org>
-Message-ID: <Pine.LNX.4.61.0608251110060.1212@yvahk01.tjqt.qr>
-References: <1156429585.3012.58.camel@pmac.infradead.org> 
- <1156433068.3012.115.camel@pmac.infradead.org>  <Pine.LNX.4.61.0608241840440.16422@yvahk01.tjqt.qr>
-  <1156439110.3012.147.camel@pmac.infradead.org>  <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
- <1156496116.2984.14.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 25 Aug 2006 05:23:28 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:47235 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932362AbWHYJX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 05:23:27 -0400
+Date: Fri, 25 Aug 2006 18:26:31 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ebiederm@xmission.com, kamezawa.hiroyu@jp.fujitsu.com,
+       Andrew Morton <akpm@osdl.org>, saito.tadashi@soft.fujitsu.com,
+       ak@suse.de
+Subject: [RFC][PATCH] ps command race fix take 4 [2/4] task struct callback
+Message-Id: <20060825182631.7190b449.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> Compiling files on their own (`make drivers/foo/bar.o`) seems to make 
->> >> the optimization void. Sure, most people don't stop compiling in 
->> >> between. Just a note
->> >
->> >Actually I'm not entirely sure what you write is true. It'll _build_
->> >fs/jffs2/read.o, for example, but it still won't then use it when I make
->> >the kernel -- it'll just use fs/jffs2/jffs2.o which is built from all
->> >the C files with --combine. So the optimisation isn't lost.
->> 
->> Umm then it spends double the time in compilation, doing:
->> 
->>   read.o <- read.c
->>   foo.o <- foo.c
->>   bar.o <- bar.c
->>   built-in.o <- read.c foo.c bar.c
->
->Only if you invoke make explicitly for read.o, foo.o and bar.o. If you
->just type 'make' then it won't build those.
+ add addaptive_pointer's target to task_struct.
+ Now, this is used by /proc/<pid> readdir() routine.
 
-That's what I meant. Assume I explicitly built read.o foo.o and bar.o.
-If I then run the regular make, it will rerun gcc for read.c foo.c and 
-bar.c rather than using the already-created .o files for linking.
+ When release_task() is called, call_invalidate_ap() is invoked and
+ pointers are invalidated and registerred callback is called.
 
+ Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Jan Engelhardt
--- 
+ include/linux/init_task.h |    1 +
+ include/linux/sched.h     |    4 +++-
+ kernel/exit.c             |    4 ++++
+ kernel/fork.c             |    2 ++
+ 4 files changed, 10 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.18-rc4/include/linux/sched.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/linux/sched.h
++++ linux-2.6.18-rc4/include/linux/sched.h
+@@ -80,6 +80,7 @@ struct sched_param {
+ #include <linux/resource.h>
+ #include <linux/timer.h>
+ #include <linux/hrtimer.h>
++#include <linux/adaptive_pointer.h>
+ 
+ #include <asm/processor.h>
+ 
+@@ -988,7 +989,8 @@ struct task_struct {
+ 
+ 	atomic_t fs_excl;	/* holding fs exclusive resources */
+ 	struct rcu_head rcu;
+-
++	/* used by /proc/<pid> */
++	struct adaptive_pointer ap_target;
+ 	/*
+ 	 * cache last used pipe for splice
+ 	 */
+Index: linux-2.6.18-rc4/kernel/fork.c
+===================================================================
+--- linux-2.6.18-rc4.orig/kernel/fork.c
++++ linux-2.6.18-rc4/kernel/fork.c
+@@ -1154,6 +1154,7 @@ static struct task_struct *copy_process(
+ 	INIT_LIST_HEAD(&p->thread_group);
+ 	INIT_LIST_HEAD(&p->ptrace_children);
+ 	INIT_LIST_HEAD(&p->ptrace_list);
++	init_adaptive_pointer(&p->ap_target);
+ 
+ 	/* Perform scheduler related setup. Assign this task to a CPU. */
+ 	sched_fork(p, clone_flags);
+@@ -1241,6 +1242,7 @@ static struct task_struct *copy_process(
+ 			__get_cpu_var(process_counts)++;
+ 		}
+ 		attach_pid(p, PIDTYPE_PID, p->pid);
++		ap_alive(&p->ap_target);
+ 		nr_threads++;
+ 	}
+ 
+Index: linux-2.6.18-rc4/include/linux/init_task.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/linux/init_task.h
++++ linux-2.6.18-rc4/include/linux/init_task.h
+@@ -128,6 +128,7 @@ extern struct group_info init_groups;
+ 	.pi_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	INIT_TRACE_IRQFLAGS						\
+ 	INIT_LOCKDEP							\
++	.ap_target	= ADAPTIVE_POINTER_INIT(tsk.ap_target),		\
+ }
+ 
+ 
+Index: linux-2.6.18-rc4/kernel/exit.c
+===================================================================
+--- linux-2.6.18-rc4.orig/kernel/exit.c
++++ linux-2.6.18-rc4/kernel/exit.c
+@@ -38,6 +38,7 @@
+ #include <linux/pipe_fs_i.h>
+ #include <linux/audit.h> /* for audit_free() */
+ #include <linux/resource.h>
++#include <linux/adaptive_pointer.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -143,6 +144,9 @@ repeat:
+ 	write_lock_irq(&tasklist_lock);
+ 	ptrace_unlink(p);
+ 	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
++
++	/* invalidate adaptive pointer to this task */
++	call_invalidate_ap(&p->ap_target);
+ 	__exit_signal(p);
+ 
+ 	/*
+

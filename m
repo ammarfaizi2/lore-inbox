@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWHYHZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWHYHed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWHYHZb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 03:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWHYHZb
+	id S1751164AbWHYHed (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 03:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWHYHed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 03:25:31 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:51650 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751168AbWHYHZa (ORCPT
+	Fri, 25 Aug 2006 03:34:33 -0400
+Received: from ns.suse.de ([195.135.220.2]:57309 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751164AbWHYHed (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 03:25:30 -0400
-Message-ID: <44EEA5E5.6000509@fr.ibm.com>
-Date: Fri, 25 Aug 2006 09:25:25 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Fri, 25 Aug 2006 03:34:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: Incorrect alignment assumptions in x86_64 stacktrace
+Date: Fri, 25 Aug 2006 09:33:53 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+References: <13065.1156489198@kao2.melbourne.sgi.com>
+In-Reply-To: <13065.1156489198@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Neil Brown <neilb@suse.de>, nfs@lists.sourceforge.net
-Subject: kthread: update lockd to use kthread
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608250933.53623.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert lockd to use kthread rather than kernel_thread, which is deprecated.
+On Friday 25 August 2006 08:59, Keith Owens wrote:
+> 2.6.18-rc4 arch/x86_64/kernel/stacktrace.c::get_stack_end() incorrectly
+> assumes that the irqstackptr is IRQSTACKSIZE aligned.
+> 
+> 	stack_end = (unsigned long)cpu_pda(cpu)->irqstackptr;
+> 	if (stack_end) {
+> 		stack_start = stack_end & ~(IRQSTACKSIZE-1);
+> 
+> irqstackptr is only guaranteed to be page aligned, not IRQSTACKSIZE
+> (4*PAGE_SIZE) aligned.
 
-Not sure how to test it.
+Thanks. I have already removed that code post 2.6.18 (the standard backtracer
+now does both stacktrace and show_trace) 
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Neil Brown <neilb@suse.de>
-Cc: nfs@lists.sourceforge.net
+You think it is important enough for 2.6.18?
 
----
- fs/lockd/clntlock.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-Index: 2.6.18-rc4-mm2/fs/lockd/clntlock.c
-===================================================================
---- 2.6.18-rc4-mm2.orig/fs/lockd/clntlock.c
-+++ 2.6.18-rc4-mm2/fs/lockd/clntlock.c
-@@ -14,6 +14,7 @@
- #include <linux/sunrpc/svc.h>
- #include <linux/lockd/lockd.h>
- #include <linux/smp_lock.h>
-+#include <linux/kthread.h>
-
- #define NLMDBG_FACILITY		NLMDBG_CLIENT
-
-@@ -181,9 +182,12 @@ nlmclnt_recovery(struct nlm_host *host,
- 		return;
- 	host->h_nsmstate = newstate;
- 	if (!host->h_reclaiming++) {
-+		struct task_struct* task;
-+
- 		nlm_get_host(host);
- 		__module_get(THIS_MODULE);
--		if (kernel_thread(reclaimer, host, CLONE_KERNEL) < 0)
-+		task = kthread_run(reclaimer, host, "%s-reclaim", host->h_name);
-+		if (IS_ERR(task))
- 			module_put(THIS_MODULE);
- 	}
- }
-@@ -196,7 +200,6 @@ reclaimer(void *ptr)
- 	struct file_lock *fl, *next;
- 	u32 nsmstate;
-
--	daemonize("%s-reclaim", host->h_name);
- 	allow_signal(SIGKILL);
-
- 	/* This one ensures that our parent doesn't terminate while the
+-Andi
 

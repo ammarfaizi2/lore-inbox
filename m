@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHYBzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422821AbWHYCI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWHYBzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 21:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWHYBzU
+	id S1422821AbWHYCI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 22:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422816AbWHYCI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 21:55:20 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27861 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751312AbWHYBzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 21:55:19 -0400
-Date: Fri, 25 Aug 2006 10:57:55 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [BUG[[PATCH] register_one_node compile fix.
-Message-Id: <20060825105755.55b15220.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Aug 2006 22:08:29 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:1708 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751625AbWHYCI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 22:08:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=jbD7aNcxhkvz7jwV7+L6fzjYNoRYjyDSdT5OgCTv1/6kmnlA0Swg4tUcDvh/z9vs6ZsmpY4c2ZMlmYRAVsiEzixFOGrdRQDEXpyoPYg2c4qj0x1gOxclWsubBG4y1aBXPD2c55D4Jn11ZiGaRoZd0eTwZs7TSLfwEfrFdqDI80o=
+Message-ID: <4ae3c140608241908v7a181b38yedc16183ddf44960@mail.gmail.com>
+Date: Thu, 24 Aug 2006 22:08:20 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Why generic_fillattr() is not protected with a lock?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-register_one_node()'s should be defined under CONFIG_NUMA=n.
-fixes following bug.
---
-  CC	  init/version.o
-  LD	  init/built-in.o
-  LD	  .tmp_vmlinux1
-mm/built-in.o: In function `add_memory':
-: undefined reference to `register_one_node'
---
+Hi,
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+I noticed that almost all local disk file systems use the default
+vfs_getattr()->generic_fillattr() to get file attributes. However,
+vfs_getattr()->generic_fillattr() is not protected by a lock. Is this
+problematic?
 
-Index: linux-2.6.18-rc4/include/linux/node.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/node.h
-+++ linux-2.6.18-rc4/include/linux/node.h
-@@ -30,12 +30,20 @@ extern struct node node_devices[];
- 
- extern int register_node(struct node *, int, struct node *);
- extern void unregister_node(struct node *node);
-+#ifdef CONFIG_NUMA
- extern int register_one_node(int nid);
- extern void unregister_one_node(int nid);
--#ifdef CONFIG_NUMA
- extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
- extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
- #else
-+static inline int register_one_node(int nid)
-+{
-+	return 0;
-+}
-+static inline int unregister_one_node(int nid)
-+{
-+	return 0;
-+}
- static inline int register_cpu_under_node(unsigned int cpu, unsigned int nid)
- {
- 	return 0;
+Suppose process A is getting file attributes, after it read the
+"mtime" and before it read the i_size, the process is scheduled out,
+and another process B cuts in, change the file, and cause the change
+on file size. After A is switched back, it goes ahead to read the rest
+fields. Now it will have an old "mtime" but a new "i_size".
 
+Is this scenario possible? If so, will this cause serious problem to
+the file system?
+
+Thanks,
+Xin

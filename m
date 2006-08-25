@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHYJuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWHYJvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWHYJuy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 05:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWHYJuy
+	id S1751431AbWHYJvt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 05:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWHYJvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 05:50:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6530 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751392AbWHYJux (ORCPT
+	Fri, 25 Aug 2006 05:51:49 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:20672 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751395AbWHYJvs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 05:50:53 -0400
-Date: Fri, 25 Aug 2006 05:50:08 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ego@in.ibm.com, rusty@rustcorp.com.au, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
-       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
-Message-ID: <20060825095008.GC22293@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, ego@in.ibm.com,
-	rusty@rustcorp.com.au, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
-	vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
-References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824091704.cae2933c.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 25 Aug 2006 05:51:48 -0400
+Date: Fri, 25 Aug 2006 11:51:28 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+In-Reply-To: <1156499122.2984.36.camel@pmac.infradead.org>
+Message-ID: <Pine.LNX.4.61.0608251149560.5613@yvahk01.tjqt.qr>
+References: <1156429585.3012.58.camel@pmac.infradead.org> 
+ <1156433068.3012.115.camel@pmac.infradead.org>  <Pine.LNX.4.61.0608241840440.16422@yvahk01.tjqt.qr>
+  <1156439110.3012.147.camel@pmac.infradead.org>  <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
+  <1156496116.2984.14.camel@pmac.infradead.org>  <Pine.LNX.4.61.0608251110060.1212@yvahk01.tjqt.qr>
+ <1156499122.2984.36.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
- > We already have sufficient locking primitives to get this right.  Let's fix
- > cpufreq locking rather than introduce complex new primitives which we hope
- > will work in the presence of the existing mess.
- > 
- > Step 1: remove all mention of lock_cpu_hotplug() from cpufreq.
- > Step 2: work out what data needs to be locked, and how.
- > Step 3: implement.
 
-this is what I planned to do weeks ago when this mess first blew up.
-I even went as far as sending Linus a patch for (1).
-He seemed really gung-ho about trying to fix up the current mess though,
-and with each incarnation since, I've been convinced we're making
-the problem worse rather than really improving anything.
+>> That's what I meant. Assume I explicitly built read.o foo.o and bar.o.
+>> If I then run the regular make, it will rerun gcc for read.c foo.c and 
+>> bar.c rather than using the already-created .o files for linking. 
+>
+>You built something manually that wasn't needed, and then it wasn't
+>used. Is there a problem here?
 
-		Dave
+Although I cannot give you any logical reasons, there are possibly reasons 
+why building some things manually might help. Oh well, I think in that case 
+I just pass a make option CONFIG_NOCOMBINE, as you said.
 
+
+Jan Engelhardt
 -- 
-http://www.codemonkey.org.uk

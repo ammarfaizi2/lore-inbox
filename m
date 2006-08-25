@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWHYXA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWHYXDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWHYXA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWHYXA7
+	id S964794AbWHYXDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWHYXDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:00:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:31108 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964775AbWHYXA6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:00:58 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, rohitseth@google.com, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
-       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1156547572.3007.279.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>
-	 <1155929992.26155.60.camel@linuxchandra> <44E9B3F5.3010000@sw.ru>
-	 <1156196721.6479.67.camel@linuxchandra>
-	 <1156211128.11127.37.camel@galaxy.corp.google.com>
-	 <1156272902.6479.110.camel@linuxchandra>
-	 <1156383881.8324.51.camel@galaxy.corp.google.com>
-	 <1156385072.7154.59.camel@linuxchandra>
-	 <1156440461.14648.26.camel@galaxy.corp.google.com>
-	 <1156463572.19702.46.camel@linuxchandra>  <44EEDB23.9050006@sw.ru>
-	 <1156531644.1196.26.camel@linuxchandra>
-	 <1156539168.3007.264.camel@localhost.localdomain>
-	 <1156544604.1196.62.camel@linuxchandra>
-	 <1156547572.3007.279.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 25 Aug 2006 16:00:54 -0700
-Message-Id: <1156546854.1196.67.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 19:03:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:41872 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964789AbWHYXDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 19:03:54 -0400
+Date: Fri, 25 Aug 2006 16:03:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Nix <nix@esperi.org.uk>,
+       linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>,
+       netdev@vger.kernel.org
+Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
+Message-ID: <20060825230316.GA3254@kroah.com>
+References: <87zme9fy94.fsf@hades.wkstn.nix> <20060813125910.GA18463@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060813125910.GA18463@gondor.apana.org.au>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-26 at 00:12 +0100, Alan Cox wrote:
-> Ar Gwe, 2006-08-25 am 15:23 -0700, ysgrifennodd Chandra Seetharaman:
-> > > Bean counters can exist with no tasks, and the CKRM people have been
-> > > corrected repeatedly on this point.
+On Sun, Aug 13, 2006 at 10:59:11PM +1000, Herbert Xu wrote:
+> On Sat, Aug 12, 2006 at 09:19:19PM +0000, Nix wrote:
 > > 
-> > Hmm... from what I understand from the code, when the last resource in
-> > the beancounter is dropped, the beancounter is destroyed. Which to me
-> > means that when there are no tasks in a beancounter it will be
-> > destroyed. (I just tested the code and verified that the beancounter is
-> > destroyed when the task dies).
+> > The kernel log showed a heap of BUGs from somewhere inside the skb
+> > management layer, somewhere in UDP fragment processing while
+> > handling NFS requests. It starts like this:
+> > 
+> > Aug 12 21:31:08 hades warning: kernel: BUG: warning at include/linux/skbuff.h:975/__skb_trim()
+> > Aug 12 21:31:08 hades warning: kernel: <c030ed39> ip_append_data+0x5b3/0x951  <c030fc18> ip_generic_getfrag+0x0/0x96
 > 
-> If a task created resource remains then the beancounter remains until
-> the resources are destroyed, so it may exit well after the last task (eg
-> an object handed to another process with a different luid is stil
-> charged to us)
+> Oops, I missed this code path when I disallowed skb_trim from operating
+> on a paged skb.  This patch should fix the problem.
 > 
+> Greg, we need this for 2.6.17 stable as well if Dave is OK with it.
 
-It is the _implicit destruction_ that is a problem.
- 
-> > Let me reword the requirement: beancounter/resource group should _not_
-> > be destroyed implicitly. It should be destroyed only when requested by
-> > the user/sysadmin. In other words, we need a create_luid() and
-> > destroy_luid().
-> 
-> So that you can preserve the limits on the resource group ? That also
-> makes sense if you are trying to do long term resource management.
+This patch doesn't apply at all to the latest 2.6.17-stable kernel tree.
+Care to rediff it?
 
-Yup.
+thanks,
 
-> 
-> Alan
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+greg k-h

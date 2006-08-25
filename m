@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422844AbWHYW6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422845AbWHYW7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422844AbWHYW6G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 18:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWHYW6F
+	id S1422845AbWHYW7X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 18:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWHYW7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 18:58:05 -0400
-Received: from xenotime.net ([66.160.160.81]:10138 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422844AbWHYW6D (ORCPT
+	Fri, 25 Aug 2006 18:59:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63371 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422845AbWHYW7W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 18:58:03 -0400
-Date: Fri, 25 Aug 2006 16:01:15 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Keith Mannthey" <kmannth@gmail.com>
-Cc: "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>,
+	Fri, 25 Aug 2006 18:59:22 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060825221615.GA11613@us.ibm.com> 
+References: <20060825221615.GA11613@us.ibm.com>  <20060824182044.GE17658@us.ibm.com> <20060824181722.GA17658@us.ibm.com> <22796.1156542677@warthog.cambridge.redhat.com> 
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: another NUMA build error
-Message-Id: <20060825160115.7f768797.rdunlap@xenotime.net>
-In-Reply-To: <a762e240608251544t2e15ec8dq5a8f95f02eecb0a4@mail.gmail.com>
-References: <20060824213559.1be3d60f.rdunlap@xenotime.net>
-	<20060825144350.27530dfb.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060825103507.4f2d193e.rdunlap@xenotime.net>
-	<a762e240608251544t2e15ec8dq5a8f95f02eecb0a4@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 25 Aug 2006 23:59:06 +0100
+Message-ID: <27154.1156546746@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 15:44:58 -0700 Keith Mannthey wrote:
+Michael Halcrow <mhalcrow@us.ibm.com> wrote:
 
-> On 8/25/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> > On Fri, 25 Aug 2006 14:43:50 +0900 KAMEZAWA Hiroyuki wrote:
-> >
-> > > On Thu, 24 Aug 2006 21:35:59 -0700
-> > > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> > >
-> > > > Hi,
-> > > > I was just trying to reproduce that 'register_one_node'
-> > > > build error (and couldn't even with the supplied .config file;
-> > > > weird).  Anyway, after I enabled CONFIG_NUMA (but not CONFIG_ACPI),
-> > > > I got the following error message.  Seems that some config
-> > > > options should prevent this config from even being possible
-> > > > to create.  Any ideas or suggestions?
-> > > >
-> > > Hi, there are 2 ways.
-> > >
-> > > 1. allow only 2 configs for i386/NUMA
-> > >       - CONFIG_NUMA + CONFIG_ACPI + CONFIG_ACPI_SRAT
-> > >       - CONFIG_NUMA + CONFIG_X86_NUMAQ
-> > > 2. allow this and fix include/asm-i386/mmzone.h
-> > >       - CONFIG_NUMA + !CONFIG_ACP
-> > >
-> > > Which is sane ?
-> >
-> > I really can't answer that one.  The people who care about
-> > NUMA would have to do that.  It just shouldn't be possible
-> > to make a config with a build error like this.
+> > > filldir()'s inode number is now type u64 instead of ino_t.
+> > 
+> > Btw, in ecryptfs_interpose(), you have:
+> > 
+> > 	inode = iget(sb, lower_inode->i_ino);
+> > 
+> > But you have to be *very* *very* careful doing that.  i_ino may be
+> > ambiguous.  My suggestions to make i_ino bigger were turned down by
+> > Al Viro; and even it were bigger, it might still not be unique.
 > 
-> I thought there was a patch fix a while ago to fix this build issue.
-> If you want to anything that includes the SUMMIT sub arch you need
-> CONFIG_ACPI_SRAT.
-> 
-> Option 1 is a good solution as only NUMAQ and ACPI_SRAT have tables
-> that are used to setup NUMA in the kernel.
-> 
-> > OK, I prefer option 2 because it is more generic (not hardware-
-> > specific).  Someone else can prefer option 1 because it is
-> > hardware-specific.  :)
-> 
-> I guess I am that other person.  Really you only want/need NUMA if you
-> have ACPI_SRAT (Summit) or NUMAQ.
+> Is this the case as long as we stay under the same mountpoint?
 
-That's fine.  Any fix is OK with me, as long as a .config
-won't generate a build error.
+Yes.
 
----
-~Randy
+Imagine, for a moment, that you are running on a 32-bit system, and that you
+are using, say, XFS, and that XFS has 64-bit inode numbers.  i_ino is 32-bits,
+so clearly XFS can't place its full inode number in there.
+
+What XFS can do is:
+
+ (1) Use iget5 to do its own inode search and set, disregarding i_ino for that
+     purpose.
+
+ (2) Place just the lower 32-bits of the inode number in i_ino.
+
+ (3) Return the 64-bit inode number directly through the getattr() and
+     readdir() ops, without recourse to i_ino.
+
+ (4) Ignore i_ino entirely, except for spicing up printk()'s.
+
+
+Now, consider, say, NFS.  NFS now puts some or all of 64-bit inode numbers in
+the i_ino field, but it actually differentiates inodes using iget5 and
+comparing file handles - which it really can't represent in i_ino.
+
+It doesn't actually check that the server hasn't given it two fileids the same,
+so even with a 64-bit i_ino, you just have to hope that you can get unique
+values.
+
+And, in fact, imagine the following scenario:
+
+ (1) An NFS inode with fileid N is in the client's icache, and this corresponds
+     to some remote file on the server.
+
+ (2) The remote file is then deleted (but the client isn't told).
+
+ (3) A new remote file is created that would has the same fileid (N), but a
+     different file handle.
+
+ (4) The client looks up the new remote file under a different name (so
+     different dentry), and sets up a client inode for it with the new
+     filehandle.
+
+ (5) The client will now have two NFS inodes from the server with the same
+     fileid, but with different filehandles.  As far as the NFS client
+     filesystem is concerned, they are _different_ files, but as far as
+     eCryptFS is concerned, they are the _same_ because is passed the lower
+     i_ino to iget().
+
+
+I think what you need to do is actually simple.  Use iget5 to look up your
+inode, using the _pointer_ to the lower inode as the key.  Then just fill in
+i_ino from the lower inode.  The lower inode can't escape whilst you have it
+pinned, so the pointer is, in effect, invariant whilst you are using it.
+
+David

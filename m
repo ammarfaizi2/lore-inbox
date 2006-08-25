@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWHYKkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWHYKr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWHYKkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWHYKkr
+	id S1751433AbWHYKr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:40:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45962 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932418AbWHYKkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:40:46 -0400
-Subject: Re: [PATCH 2/4] Core support for --combine -fwhole-program
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060825103029.GV19810@stusta.de>
-References: <1156429585.3012.58.camel@pmac.infradead.org>
-	 <1156433167.3012.119.camel@pmac.infradead.org>
-	 <20060824213302.GS19810@stusta.de>
-	 <1156498643.2984.28.camel@pmac.infradead.org>
-	 <20060825103029.GV19810@stusta.de>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 11:40:44 +0100
-Message-Id: <1156502444.2984.89.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 25 Aug 2006 06:47:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7330 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751438AbWHYKr4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 06:47:56 -0400
+Date: Fri, 25 Aug 2006 12:47:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Philip R. Auld" <pauld@egenera.com>
+Cc: Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@google.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+Message-ID: <20060825104738.GA8538@elf.ucw.cz>
+References: <20060813215853.0ed0e973.akpm@osdl.org> <44E3E964.8010602@google.com> <20060816225726.3622cab1.akpm@osdl.org> <44E5015D.80606@google.com> <20060817230556.7d16498e.akpm@osdl.org> <44E62F7F.7010901@google.com> <20060818153455.2a3f2bcb.akpm@osdl.org> <44E650C1.80608@google.com> <20060818194435.25bacee0.akpm@osdl.org> <20060821132717.GD26589@vienna.egenera.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821132717.GD26589@vienna.egenera.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 12:30 +0200, Adrian Bunk wrote:
-> My hope is "insane" would be something like "1 GB of RAM" that is no 
-> longer insane on current computers. [1]
+Hi!
 
-Maybe -- but still, that's quite a steep requirement, and would also
-require a fairly major redesign of the current kbuild architecture. 
-
-I'm inclined to stick with per-directory builds for now, which is both
-relatively simple to implement and where the _majority_ of the benefit
-it likely to be seen.
-
-Whole-kernel optimisation is something I'm inclined to leave until LTO
-happens -- but don't let me stop you from investigating it.
-
-> > I suspected that most of the 'further savings' to which you refer above
-> > could be achieved more easily with -ffunction-sections -fdata-sections
-> > --gc-sections
+> > - We expect that the lots-of-dirty-anon-memory-over-swap-over-network
+> >   scenario might still cause deadlocks.  
+> > 
+> >   I assert that this can be solved by putting swap on local disks.  Peter
+> >   asserts that this isn't acceptable due to disk unreliability.  I point
+> >   out that local disk reliability can be increased via MD, all goes quiet.
 > 
-> AFAIR -ffunction-sections/-fdata-sections cause some overhead in the 
-> resulting binary?
+> Putting swap on local disks really messes up the concept of stateless 
+> servers. I suppose you can do some sort of swap encryption, but
+> otherwise you need to scrub the swap partition on boot if you
+> re-purpose the hardware. You also then need to do hardware
+> configuration to make sure the local disks are all setup the 
+> same way across all server platforms so the common images can 
+> boot. 
 
-Not that I'm aware of. There's overhead in the resulting ELF files, but
-we combine sections in the vmlinux.lds so there isn't even that overhead
-in the vmlinux. 
-
+We should really encrypt swap with random key generated at boot, for
+all the machine. I believe it is possible (with some non-trivial
+setup) today, but it would be nice to do it automagically.
+								Pavel
 -- 
-dwmw2
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

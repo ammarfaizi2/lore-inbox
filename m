@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWHYNeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWHYNjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWHYNeN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 09:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWHYNeN
+	id S932138AbWHYNjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 09:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWHYNjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 09:34:13 -0400
-Received: from mga05.intel.com ([192.55.52.89]:64149 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750762AbWHYNeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 09:34:12 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,168,1154934000"; 
-   d="scan'208"; a="121119443:sNHT32093264"
-Message-ID: <44EEFC49.3010501@linux.intel.com>
-Date: Fri, 25 Aug 2006 15:34:01 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
-       akpm@osdl.org, jbarnes@virtuousgeek.org, dwalker@mvista.com,
-       nickpiggin@yahoo.com.au
-Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
-References: <1156504939.3032.26.camel@laptopd505.fenrus.org> <20060825133034.GC5205@martell.zuzino.mipt.ru>
-In-Reply-To: <20060825133034.GC5205@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 09:39:44 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:21267 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932138AbWHYNjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 09:39:43 -0400
+Date: Fri, 25 Aug 2006 14:39:33 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jan Bernatik <jan.bernatik@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: platform device / driver question
+Message-ID: <20060825133933.GC2287@flint.arm.linux.org.uk>
+Mail-Followup-To: Jan Bernatik <jan.bernatik@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <dca824fc0608250608s3b371291qd313986cffc1e028@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dca824fc0608250608s3b371291qd313986cffc1e028@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> 
->> --- linux-2.6.18-rc4-latency.orig/kernel/Makefile
->> +++ linux-2.6.18-rc4-latency/kernel/Makefile
->> @@ -8,7 +8,7 @@ obj-y     = sched.o fork.o exec_domain.o
->>  	    signal.o sys.o kmod.o workqueue.o pid.o \
->>  	    rcupdate.o extable.o params.o posix-timers.o \
->>  	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
->> -	    hrtimer.o rwsem.o
->> +	    hrtimer.o rwsem.o latency.o
-> 
-> CONFIG_PM=n users aren't interested, right?
+On Fri, Aug 25, 2006 at 03:08:51PM +0200, Jan Bernatik wrote:
+> I studied smc91x driver to understand how platform driver / device
+> subsystem works. On #kernelnewbies channel I was told this driver is
+> "hopelessly broken". How should one create and register the
+> platform_device/driver ? Is the implementation in smc91x correct ?
 
-unknown for now; I've heard some rumbling about using this for more than just pure powermanagement...
+That's probably from some ill-informed person.  As far as I'm aware,
+the driver works perfectly and uses the driver model correctly.
+
+There are some aspects of the driver which are less good (such as all
+the machine specific configuration gunk in smc91x.h) but apart from
+that, it's fine.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

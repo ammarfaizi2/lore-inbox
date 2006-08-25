@@ -1,166 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWHYNtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWHYNtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWHYNtW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 09:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWHYNtV
+	id S932225AbWHYNtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 09:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWHYNtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 09:49:21 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:17887 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S932229AbWHYNtU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 09:49:20 -0400
-Date: Fri, 25 Aug 2006 15:49:09 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] AVR32: Fix output constraints in asm/bitops.h
-Message-ID: <20060825154909.3096827e@cad-250-152.norway.atmel.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 09:49:09 -0400
+Received: from mga07.intel.com ([143.182.124.22]:56851 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932225AbWHYNtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 09:49:08 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,168,1154934000"; 
+   d="scan'208"; a="107511327:sNHT51938740"
+Message-ID: <44EEFFC8.40202@linux.intel.com>
+Date: Fri, 25 Aug 2006 15:48:56 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Jan Kiszka <jan.kiszka@googlemail.com>
+CC: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
+       akpm@osdl.org, jbarnes@virtuousgeek.org, dwalker@mvista.com,
+       nickpiggin@yahoo.com.au, rpm@xenomai.org
+Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
+References: <1156504939.3032.26.camel@laptopd505.fenrus.org> <58d0dbf10608250643v1bb19d0ci99ae30243125a962@mail.gmail.com>
+In-Reply-To: <58d0dbf10608250643v1bb19d0ci99ae30243125a962@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Kiszka wrote:
+>> The patch below adds infrastructure to track "maximum allowable 
+>> latency" for
+>> power saving policies.
+> 
+> Very interesting approach. I wonder if it could be used to cover
+> another problematic source of latencies as well: asynchronous SMIs.
+> They quickly cause delays reaching from a few 100 us up to
+> milliseconds.
+> 
+> Hard-RT extension like Xenomai work around this on several Intel
+> chipsets by disabling SMI unconditionally 
 
-When copying a few files from one nfs-mounted directory to another,
-I suddenly saw this:
 
-Unable to handle kernel paging request at virtual address 00100028
-[ 1001.372000] pc = 9002bed0
-[ 1001.376000] ptbr = 90438610 pgd = 10400c66 pte = 00000000
-[ 1001.380000]
-[ 1001.380000] Oops in arch/avr32/mm/fault.c::do_page_fault, line 247[#3]:
-[ 1001.380000] Modules linked in:
-[ 1001.380000] PC is at page_cache_readahead_adaptive+0x32/0x90a
-[ 1001.380000] LR is at 0x63
-[ 1001.380000] pc : [<9002bed0>]    lr : [<00000063>]    Not tainted
-[ 1001.380000] sp : 90495d34  r12: 90240c68  r11: 90495df4
-[ 1001.380000] r10: 90497870  r9 : 00000028  r8 : 00100028
-[ 1001.380000] r7 : 90495d80  r6 : 00000063  r5 : 90495df4  r4 : 00000000
-[ 1001.380000] r3 : 00000000  r2 : 00000064  r1 : 00000063  r0 : 90497870
+I would consider that a mistake. SMI's are used to do things like emergency thermal protections etc etc.
+Disabling them unconditionally is going to risk you your hardware.
 
-caused by the following invalid code in page_cache_readahead_adaptive():
+> I guess an interface to let also applications / the sysadmin specifiy
+> a latency constraint would be useful as well. sysfs?
 
-9002bec8:       d2 53           ssrf 0x5
-9002beca:       70 09           ld.w r9,r8[0x0]
-9002becc:       12 98           mov r8,r9
-9002bece:       b5 c9           cbr r9,0x14
-9002bed0:       f1 79 00 00     stcond r8[0],r9
-
-This is an inline assembly block from test_and_clear_bit(). Here, r8
-is used both as "old" and as the memory address of *p because "old"
-isn't marked as an earlyclobber operand.
-
-Fix this and similar bugs by making all similar output constraints in
-asm/bitops.h earlyclobber.
-
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
----
- include/asm-avr32/bitops.h |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
-
-Index: linux-2.6.18-rc4-mm2/include/asm-avr32/bitops.h
-===================================================================
---- linux-2.6.18-rc4-mm2.orig/include/asm-avr32/bitops.h	2006-08-25 15:18:10.000000000 +0200
-+++ linux-2.6.18-rc4-mm2/include/asm-avr32/bitops.h	2006-08-25 15:19:47.000000000 +0200
-@@ -40,7 +40,7 @@ static inline void set_bit(int nr, volat
- 			"	sbr	%0, %3\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p)
-+			: "=&r"(tmp), "=o"(*p)
- 			: "m"(*p), "i"(nr)
- 			: "cc");
- 	} else {
-@@ -51,7 +51,7 @@ static inline void set_bit(int nr, volat
- 			"	or	%0, %3\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p)
-+			: "=&r"(tmp), "=o"(*p)
- 			: "m"(*p), "r"(mask)
- 			: "cc");
- 	}
-@@ -79,7 +79,7 @@ static inline void clear_bit(int nr, vol
- 			"	cbr	%0, %3\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p)
-+			: "=&r"(tmp), "=o"(*p)
- 			: "m"(*p), "i"(nr)
- 			: "cc");
- 	} else {
-@@ -90,7 +90,7 @@ static inline void clear_bit(int nr, vol
- 			"	andn	%0, %3\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p)
-+			: "=&r"(tmp), "=o"(*p)
- 			: "m"(*p), "r"(mask)
- 			: "cc");
- 	}
-@@ -117,7 +117,7 @@ static inline void change_bit(int nr, vo
- 		"	eor	%0, %3\n"
- 		"	stcond	%1, %0\n"
- 		"	brne	1b"
--		: "=r"(tmp), "=o"(*p)
-+		: "=&r"(tmp), "=o"(*p)
- 		: "m"(*p), "r"(mask)
- 		: "cc");
- }
-@@ -144,7 +144,7 @@ static inline int test_and_set_bit(int n
- 			"	sbr	%0, %4\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p), "=r"(old)
-+			: "=&r"(tmp), "=o"(*p), "=&r"(old)
- 			: "m"(*p), "i"(nr)
- 			: "memory", "cc");
- 	} else {
-@@ -154,7 +154,7 @@ static inline int test_and_set_bit(int n
- 			"	or	%0, %2, %4\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p), "=r"(old)
-+			: "=&r"(tmp), "=o"(*p), "=&r"(old)
- 			: "m"(*p), "r"(mask)
- 			: "memory", "cc");
- 	}
-@@ -184,7 +184,7 @@ static inline int test_and_clear_bit(int
- 			"	cbr	%0, %4\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p), "=r"(old)
-+			: "=&r"(tmp), "=o"(*p), "=&r"(old)
- 			: "m"(*p), "i"(nr)
- 			: "memory", "cc");
- 	} else {
-@@ -195,7 +195,7 @@ static inline int test_and_clear_bit(int
- 			"	andn	%0, %4\n"
- 			"	stcond	%1, %0\n"
- 			"	brne	1b"
--			: "=r"(tmp), "=o"(*p), "=r"(old)
-+			: "=&r"(tmp), "=o"(*p), "=&r"(old)
- 			: "m"(*p), "r"(mask)
- 			: "memory", "cc");
- 	}
-@@ -223,7 +223,7 @@ static inline int test_and_change_bit(in
- 		"	eor	%0, %2, %4\n"
- 		"	stcond	%1, %0\n"
- 		"	brne	1b"
--		: "=r"(tmp), "=o"(*p), "=r"(old)
-+		: "=&r"(tmp), "=o"(*p), "=&r"(old)
- 		: "m"(*p), "r"(mask)
- 		: "memory", "cc");
- 
-@@ -239,7 +239,7 @@ static inline unsigned long __ffs(unsign
- 
- 	asm("brev %1\n\t"
- 	    "clz %0,%1"
--	    : "=r"(result), "=r"(word)
-+	    : "=r"(result), "=&r"(word)
- 	    : "1"(word));
- 	return result;
- }
+I thought about this a lot but decided against. There are already ways to do things like disable specific C states etc,
+and if we expose this it'll mostly get abused by certain desktop applications who have no idea what they are doing ;=(
+What makes anyone think that userspace could make a better decision than the drivers?
+Video / Audio playback are not good examples since these both already would work automatically correct with only in-kernel
+infrastructure. Hard-RT systems are also not a good example since those should use the existing boot parameters. I couldn't
+come up with other scenarios, and until we have a good one I'm against exposing crap to sysfs "just because we can".

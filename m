@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWHYRwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHYR6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWHYRwV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHYRwV
+	id S1751308AbWHYR6U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWHYR6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:52:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60635 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751138AbWHYRwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:52:21 -0400
-Date: Fri, 25 Aug 2006 10:50:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Savochkin <saw@sw.ru>
-Cc: Kirill Korotaev <dev@sw.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
-       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
-       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: BC: resource beancounters (v2)
-Message-Id: <20060825105047.5ab693a0.akpm@osdl.org>
-In-Reply-To: <20060825203026.A16221@castle.nmd.msu.ru>
-References: <44EC31FB.2050002@sw.ru>
-	<20060823100532.459da50a.akpm@osdl.org>
-	<44EEE3BB.10303@sw.ru>
-	<20060825073003.e6b5ae16.akpm@osdl.org>
-	<20060825203026.A16221@castle.nmd.msu.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 25 Aug 2006 13:58:20 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41889 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750724AbWHYR6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 13:58:19 -0400
+Date: Sat, 26 Aug 2006 02:57:49 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       simon.derr@bull.net, nathanl@austin.ibm.com, akpm@osdl.org,
+       y-goto@jp.fujitsu.com
+Subject: Re: memory hotplug - looking for good place for cpuset hook
+Message-Id: <20060826025749.6b3ae702.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060825095718.9e22e777.pj@sgi.com>
+References: <20060825015359.1c9eab45.pj@sgi.com>
+	<20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060825095718.9e22e777.pj@sgi.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 20:30:26 +0400
-Andrey Savochkin <saw@sw.ru> wrote:
+On Fri, 25 Aug 2006 09:57:18 -0700
+Paul Jackson <pj@sgi.com> wrote:
 
-> On Fri, Aug 25, 2006 at 07:30:03AM -0700, Andrew Morton wrote:
-> > 
-> > D) Virtual scan of mm's in the over-limit container
-> > 
-> > E) Modify existing physical scanner to be able to skip pages which
-> >    belong to not-over-limit containers.
+> ================================================================
+> int add_memory(int nid, u64 start, u64 size)
+> {
+>         pg_data_t *pgdat = NULL;
+>         ...
+>         if (!node_online(nid)) {
+>                 pgdat = hotadd_new_pgdat(nid, start);
+>                 if (!pgdat)
+>                         return -ENOMEM;
+>                ...
+>         }
+>         ...
+>         if (pgdat) {
+>                 /* we online node here. we can't roll back from here. */
+>                 node_set_online(nid);
+>                 ret = register_one_node(nid);                         
+> ================================================================
 > 
-> I've actually tried (E), but it didn't work as I wished.
-> 
-> It didn't handle well shared pages.
-> Then, in my experiments such modified scanner was unable to regulate
-> quality-of-service.  When I ran 2 over-the-limit containers, they worked
-> equally slow regardless of their limits and work set size.
-> That is, I didn't observe a smooth transition "under limit, maximum
-> performance" to "slightly over limit, a bit reduced performance" to
-> "significantly over limit, poor performance".  Neither did I see any fairness
-> in how containers got penalized for exceeding their limits.
-> 
-> My explanation of what I observed is that
->  - since filesystem caches play a huge role in performance, page scanner will
->    be very limited in controlling container's performance if caches
->    stay shared between containers,
->  - in the absence of decent disk I/O manager, stalls due to swapin/swapout
->    are more influenced by disk subsystem than by page scanner policy.
-> So in fact modified page scanner provides control over memory usage only as
-> "stay under limits or die", and doesn't show many advantages over (B) or (C).
-> At the same time, skipping pages visibly penalizes "good citizens", not only
-> in disk bandwidth but in CPU overhead as well.
-> 
-> So I settled for (A)-(C) for now.
-> But it certainly would be interesting to hear if someone else makes such
-> experiments.
+> Is this second code chunk just as good?
 > 
 
-Makes sense.  If one is looking for good machine partitioning then a shared
-disk is obviously a great contention point.  To address that we'd need to
-be able to say "container A swaps to /dev/sda1 and container B swaps to
-/dev/sdb1".  But the swap system at present can't do that.
+Ah yes. I think yours is better logic.
+
+> I'd still be inclined to add my new cpuset hook to track
+> node_online_map right after the node_set_online() call, since
+> that's what changes node_online_map.  I don't think I care
+> whether or not the "sysfs entry of node" is setup or not.
+> 
+Ok.
+
+Thanks,
+-Kame
 

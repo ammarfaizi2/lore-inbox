@@ -1,106 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWHYQ5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422684AbWHYRFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422673AbWHYQ5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 12:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422681AbWHYQ5p
+	id S1422684AbWHYRFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422691AbWHYRFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 12:57:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1446 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422673AbWHYQ5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 12:57:44 -0400
-Date: Fri, 25 Aug 2006 09:57:18 -0700
-From: Paul Jackson <pj@sgi.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       simon.derr@bull.net, nathanl@austin.ibm.com, akpm@osdl.org,
-       y-goto@jp.fujitsu.com
-Subject: Re: memory hotplug - looking for good place for cpuset hook
-Message-Id: <20060825095718.9e22e777.pj@sgi.com>
-In-Reply-To: <20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060825015359.1c9eab45.pj@sgi.com>
-	<20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Fri, 25 Aug 2006 13:05:21 -0400
+Received: from web83113.mail.mud.yahoo.com ([216.252.101.42]:28751 "HELO
+	web83113.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422684AbWHYRFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 13:05:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=5LD5bu3WSPqSu/kTCv6aHqBQqu0MTcOF3hnfaZBNbwnc7Fe64vTt/m3ojft7y7U0IiDGeqrVbIvwnmV/KmgtGEAM0NGYMZmEGDuzRwUeL1161SlcmavOen4Pg5dKrbwAXX9pL+J0dSr6q8mhDHuCb1hqZovVT5wv589aI1hiSqc=  ;
+Message-ID: <20060825170513.60108.qmail@web83113.mail.mud.yahoo.com>
+Date: Fri, 25 Aug 2006 10:05:13 -0700 (PDT)
+From: Aleksey Gorelov <dared1st@yahoo.com>
+Subject: Re: Generic Disk Driver in Linux
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: jengelh@linux01.gwdg.de, daniel.rodrick@gmail.com,
+       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+       linux-newbie@vger.kernel.org, satinder.jeet@gmail.com
+In-Reply-To: <44EECF16.6060602@aitel.hist.no>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kame wrote:
-> maybe
+
+
+--- Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+
+> Aleksey Gorelov wrote:
+> >> From: linux-kernel-owner@vger.kernel.org 
+> >> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jan Engelhardt
+> >>     
+> >>> I was curious that can we develop a generic disk driver that could
+> >>> handle all the kinds of hard drives - IDE, SCSI, RAID et al?
+> >>>       
+> >> ide_generic
+> >> sd_mod
+> >>
+> >> All there, what more do you want?
+> >>     
+> >
+> > Unfortunately, not _all_. DMRAID does not support all fake raids yet. Moreover, there is
+> usually
+> > some gap for bleeding edge hw support.
+> >   
+> Nobody will want to use bleeding edge hardware with an int13 driver,
+> because the performance will necessarily be much worse than using more
+> moderate hardware with the generic IDE driver.
+If some one wants Linux server - I totally agree. I would probably even avoid relying purely on
+generic IDE and instead use chipset specific variant or libata.
+But if someone wants to access already installed & working other OS stuff - that's a different
+story. Bad performance is still better than no support at all.
+
 > 
-> if (new_pgdat) {
-> 	register_one_node(nid); <-- add sysfs entry of node
-> 	<here>
-> }
+> Int13 for new hardware makes no sense to me.  The same goes for
+> fake raids - linux will usually be able to see the disks as single
+> disks, and you can then use them as such with a plain
+> software raid on top.  The fakeraid functionality is not needed,
+> it has no performance edge precicely because it is fake.
+> 
+> If fakeraid support is necessary to read some existing filesystem,
+> then implement support in md or dmraid or even as a userspace
+> filesystem.  Either choice will perform better, and also be
+> easier to do than making a working and stable int13 driver.
+> 
+> 
+> Helge Hafting
+> 
 
-I am not sure why you suggest this, but perhaps you ar saying that I
-don't need to call my new cpuset hook (that tracks node_online_map)
-everytime we set a bit here in node_online_map, but only when we set a
-bit that wasn't previously set.
+You are right here. I only see the possibility of int13 driver as some 'backup' plan for HW that
+not yet have enough support via native drivers, or if someone wants occasional access and does not
+want to upgrade to latest kernels for some reason.
 
-Hmmm ... this mm/memory_hotplug.c:add_memory() code seems to have
-more code than it needs:
-
-================================================================
-int add_memory(int nid, u64 start, u64 size)
-{
-        pg_data_t *pgdat = NULL;
-        int new_pgdat = 0;
-        ...
-        if (!node_online(nid)) {
-                pgdat = hotadd_new_pgdat(nid, start);
-                if (!pgdat)
-                        return -ENOMEM;
-		new_pgdat = 1;
-                ...
-        }
-        ...
-        /* we online node here. we can't roll back from here. */
-        node_set_online(nid);
-
-        if (new_pgdat) {
-                ret = register_one_node(nid);                         
-================================================================
-
-It looks like the call to node_set_online() could also be called
-only if it wasn't already set, and that the 'new_pgdat' is not
-needed as we can just test for pgdat != NULL.
-
-That leads to this code that's a couple lines shorter:
-
-================================================================
-int add_memory(int nid, u64 start, u64 size)
-{
-        pg_data_t *pgdat = NULL;
-        ...
-        if (!node_online(nid)) {
-                pgdat = hotadd_new_pgdat(nid, start);
-                if (!pgdat)
-                        return -ENOMEM;
-               ...
-        }
-        ...
-        if (pgdat) {
-                /* we online node here. we can't roll back from here. */
-                node_set_online(nid);
-                ret = register_one_node(nid);                         
-================================================================
-
-Is this second code chunk just as good?
-
-I'd still be inclined to add my new cpuset hook to track
-node_online_map right after the node_set_online() call, since
-that's what changes node_online_map.  I don't think I care
-whether or not the "sysfs entry of node" is setup or not.
-
-> (When I implements node-hotplug invoked by cpu-hotplug, I'll care cpuset.)
-
-Good - thanks.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

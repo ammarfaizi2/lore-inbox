@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWHYIzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWHYJBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWHYIzj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 04:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWHYIzj
+	id S932296AbWHYJBk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 05:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWHYJBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 04:55:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7320 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751334AbWHYIzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 04:55:38 -0400
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+	Fri, 25 Aug 2006 05:01:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:6378 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751356AbWHYJBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 05:01:40 -0400
+From: Andi Kleen <ak@suse.de>
+To: akpm@osdl.org
+Subject: [PATCH -mm] Disable core ulimit for user core process
+Date: Fri, 25 Aug 2006 11:01:35 +0200
+User-Agent: KMail/1.9.3
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
-References: <1156429585.3012.58.camel@pmac.infradead.org>
-	 <1156433068.3012.115.camel@pmac.infradead.org>
-	 <Pine.LNX.4.61.0608241840440.16422@yvahk01.tjqt.qr>
-	 <1156439110.3012.147.camel@pmac.infradead.org>
-	 <Pine.LNX.4.61.0608250759190.7912@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 09:55:16 +0100
-Message-Id: <1156496116.2984.14.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200608251101.35877.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 08:01 +0200, Jan Engelhardt wrote:
-> >> Compiling files on their own (`make drivers/foo/bar.o`) seems to make 
-> >> the optimization void. Sure, most people don't stop compiling in 
-> >> between. Just a note
-> >
-> >Actually I'm not entirely sure what you write is true. It'll _build_
-> >fs/jffs2/read.o, for example, but it still won't then use it when I make
-> >the kernel -- it'll just use fs/jffs2/jffs2.o which is built from all
-> >the C files with --combine. So the optimisation isn't lost.
-> 
-> Umm then it spends double the time in compilation, doing:
-> 
->   read.o <- read.c
->   foo.o <- foo.c
->   bar.o <- bar.c
->   built-in.o <- read.c foo.c bar.c
+[I can't remember if I already sent this one off or not. If yes
+please ignore the dup.]
+[This is an incremental patch for the user-core patch series which
+is in -mm]
 
-Only if you invoke make explicitly for read.o, foo.o and bar.o. If you
-just type 'make' then it won't build those.
+Disable core files for pipe user helpers
 
-> >So to overcome this, we use GCC's __attribute__((externally_visible))
-> >which, as documented, just makes it global again -- undoing the effect
-> >of -fwhole-program just for this _one_ symbol.
-> 
-> Interesting. __attribute__((visibility("default"))) does the same?
+This addresses one of the review comments earlier for the user core
+patchkit: when the core dump handler is executed make sure there
+is no potential for recursion in case it crashes again.
 
-That much you can test for yourself without a fixed compiler. No, it
-doesn't.
+This currently does it for all pipe user mode helpers. In theory
+it could be done only for core dump user helpers, but there are
+currently no other users of this function.
 
--- 
-dwmw2
+Signed-off-by: Andi Kleen <ak@suse.de>
 
+Index: linux/kernel/kmod.c
+===================================================================
+--- linux.orig/kernel/kmod.c
++++ linux/kernel/kmod.c
+@@ -35,6 +35,7 @@
+ #include <linux/mount.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
++#include <linux/resource.h>
+ #include <asm/uaccess.h>
+ 
+ extern int max_threads;
+@@ -158,6 +159,9 @@ static int ____call_usermodehelper(void 
+ 		FD_SET(0, fdt->open_fds);
+ 		FD_CLR(0, fdt->close_on_exec);
+ 		spin_unlock(&f->file_lock);
++
++		/* and disallow core files too */
++		current->signal->rlim[RLIMIT_CORE] = (struct rlimit){0, 0};
+ 	}
+ 
+ 	/* We can run anywhere, unlike our parent keventd(). */

@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWHYGVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWHYGWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWHYGVN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 02:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWHYGVN
+	id S964823AbWHYGWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 02:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWHYGWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 02:21:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52892 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964810AbWHYGVK (ORCPT
+	Fri, 25 Aug 2006 02:22:25 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:61080 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964823AbWHYGWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 02:21:10 -0400
-Date: Thu, 24 Aug 2006 23:20:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take13 1/3] kevent: Core files.
-Message-Id: <20060824232024.0d230823.akpm@osdl.org>
-In-Reply-To: <20060825054815.GC16504@2ka.mipt.ru>
-References: <11563322941645@2ka.mipt.ru>
-	<11563322971212@2ka.mipt.ru>
-	<20060824200322.GA19533@infradead.org>
-	<20060825054815.GC16504@2ka.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 02:22:24 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Dong Feng" <middle.fengdong@gmail.com>
+Subject: Re: Unnecessary Relocation Hiding?
+Date: Fri, 25 Aug 2006 08:18:49 +0200
+User-Agent: KMail/1.9.3
+Cc: "Paul Mackerras" <paulus@samba.org>,
+       "Christoph Lameter" <clameter@sgi.com>, linux-kernel@vger.kernel.org
+References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com> <17646.14056.102017.127644@cargo.ozlabs.ibm.com> <a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
+In-Reply-To: <a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608250818.49139.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 09:48:15 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+On Friday 25 August 2006 03:30, Dong Feng wrote:
+> Sorry for perhaps extending the specific question to a more generic
+> one. In which cases shall we, in current or future development,
+> prevent gcc from knowing a pointer-addition in the way RELOC_HIDE? And
+> in what cases shall we just write pure C point addition?
+> 
+> After all, we are writing an OS in C not in pure assembly, so I am
+> just trying to learn some generial rules to mimize the raw assembly in
+> development.
 
-> kmalloc is really slow actually - it always shows somewhere on top 
-> in profiles and brings noticeble overhead
+In theory anything that is undefined in the C standard should be avoided
+because gcc is free to make assumptions about it and generate unexpected 
+code.
 
-It shouldn't.  Please describe the workload and send the profiles.
+In practice Linux does a lot of not-quite-legal-in-portable-C things
+already, but tries to avoid areas that are known to have miscompiled in
+the past.
+
+Best is to avoid undefined behaviour in new code.
+
+-Andi

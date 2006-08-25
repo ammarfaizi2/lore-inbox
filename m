@@ -1,69 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWHYKyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWHYK7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWHYKyI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKyH
+	id S1751450AbWHYK7F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWHYK7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:54:07 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:8350 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932418AbWHYKyE (ORCPT
+	Fri, 25 Aug 2006 06:59:05 -0400
+Received: from khc.piap.pl ([195.187.100.11]:28368 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751450AbWHYK7A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:54:04 -0400
-Message-ID: <44EED77A.20801@sw.ru>
-Date: Fri, 25 Aug 2006 14:56:58 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 25 Aug 2006 06:59:00 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-serial@vger.kernel.org, "'LKML'" <linux-kernel@vger.kernel.org>,
+       libc-alpha@sources.redhat.com
+Subject: Re: Serial custom speed deprecated?
+References: <028a01c6c6fc$e792be90$294b82ce@stuartm>
+	<1156411101.3012.15.camel@pmac.infradead.org>
+	<m3bqqap09a.fsf@defiant.localdomain>
+	<1156441293.3007.184.camel@localhost.localdomain>
+	<m31wr6otlr.fsf@defiant.localdomain>
+	<1156459387.3007.218.camel@localhost.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 25 Aug 2006 12:58:57 +0200
+In-Reply-To: <1156459387.3007.218.camel@localhost.localdomain> (Alan Cox's message of "Thu, 24 Aug 2006 23:43:07 +0100")
+Message-ID: <m34pw1cc9a.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH 4/6] BC: user interface (syscalls)
-References: <44EC31FB.2050002@sw.ru> <44EC369D.9050303@sw.ru> <44EC5B74.2040104@sw.ru> <20060823095031.cb14cc52.akpm@osdl.org> <1156354182.3007.37.camel@localhost.localdomain> <20060823213512.88f4344d.akpm@osdl.org> <1156417456.3007.72.camel@localhost.localdomain> <20060824130822.GA5205@martell.zuzino.mipt.ru>
-In-Reply-To: <20060824130822.GA5205@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> On Thu, Aug 24, 2006 at 12:04:16PM +0100, Alan Cox wrote:
-> 
->>Ar Mer, 2006-08-23 am 21:35 -0700, ysgrifennodd Andrew Morton:
->>
->>>>Its a uid_t because of setluid() and twenty odd years of existing unix
->>>>practice.
->>>>
->>>
->>>I don't understand.  This number is an identifier for an accounting
->>>container, which was somehow dreamed up by userspace.
->>
->>Which happens to be a uid_t. It could easily be anyother_t of itself and
->>you can create a container_id_t or whatever. It is just a number.
->>
->>The ancient Unix implementations of this kind of resource management and
->>security are built around setluid() which sets a uid value that cannot
->>be changed again and is normally used for security purposes. That
->>happened to be a uid_t and in simple setups at login uid = luid = euid
->>would be the norm.
->>
->>Thus the Linux one happens to be a uid_t. It could be something else but
->>for the "container per user" model whatever a container is must be able
->>to hold all possible uid_t values. So we can certainly do something like
->>
->>typedef uid_t	container_id_t;
-> 
-> 
-> What about cid_t? Google mentions cid_t was used in HP-UX specific IPC (only if
-> _INCLUDE_HPUX_SOURCE is defined).
-bcid_t?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Thanks,
-Kirill
+> We could implement an entirely new TCSETS/TCGETS/TCSETSA/SAW which used
+> different B* values so B9600 was 9600 etc and the data was stored in
+> c_ospeed/c_ispeed type separate fields and we'd support arbitary speeds
+> for input and output once and for all, shoot all the multiplier hacks
+> etc. As it happens the kernel code for this is easy owing to some
+> fortuitous good design long ago in the tty layer.
+
+I think it makes most sense.
+
+> We could also implement a Linux "improved" TCSET* new set of ioctls that
+> had sensible speed fields, utf-8 characters for the _cc[] array and new
+> flags for all the utf-8 handling and the like. That would be less
+> compatible though.
+
+I think compatibility at the source level is good here. UTF-8 looks
+nice, though.
+
+I think it could remain compatible - c_cc[] could grow into array of
+multibyte characters with:
+#define VINTR 0
+#define VQUIT (1 * n)
+#define VERASE (2 * n)
+#define VKILL (3 * n)
+
+where n is max number of UTF-8 bytes (5 for 32-bit UCS?)
+
+I'm not sure if UTF-8 control codes are needed in practice, though
+(I mean I just don't know).
+
+> Or we could just add a standardised extra set of speed ioctls, but then
+> we need to decide what occurs if I set the speed and then issue a
+> termios call - does it override or not.
+
+A bit messy I think. I think the first way is much better. Especially
+when we have multiple changes (speed and UTF-8, for example).
+
+>> Not sure if we want int, uint, or long long for speed values :-)
+>
+> You want speed_t according to POSIX.
+
+Sure, I meant what does speed_t resolve to.
+
+> I've no idea what the glibc impact of this kind of thing would be
+> (consider new glibc, old kernel etc).  I've cc'd the libc folks but I am
+> not sure it is practical to do.
+
+While obviously I'm not glibc (nor termios) expert I don't think
+we should expect problems. New glibc would just issue the old ioctl
+if the new one isn't available. I think similar things are already
+in place.
+Glibc could be compiled with minimum kernel version = 2.6.20 or so
+to assume the new ioctls are always present.
+-- 
+Krzysztof Halasa

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWHYGa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWHYGcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbWHYGa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 02:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWHYGa3
+	id S964873AbWHYGcj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 02:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWHYGcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 02:30:29 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:22711 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964849AbWHYGa2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 02:30:28 -0400
-Date: Fri, 25 Aug 2006 11:59:41 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ego@in.ibm.com, Ingo Molnar <mingo@elte.hu>, rusty@rustcorp.com.au,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       arjan@linux.intel.com, davej@redhat.com, dipankar@in.ibm.com,
-       ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 3/4] (Refcount + Waitqueue) implementation for cpu_hotplug "locking"
-Message-ID: <20060825062941.GA21940@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060824103233.GD2395@in.ibm.com> <20060824111440.GA19248@elte.hu> <20060824122808.GH2395@in.ibm.com> <20060824122527.GA28275@elte.hu> <20060824125813.GE25452@in.ibm.com> <20060825060425.GB6322@in.ibm.com> <44EE9671.7010804@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44EE9671.7010804@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+	Fri, 25 Aug 2006 02:32:39 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:19891 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964850AbWHYGci (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 02:32:38 -0400
+Date: Fri, 25 Aug 2006 08:23:28 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: David Woodhouse <dwmw2@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Adrian Bunk <bunk@stusta.de>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       David Howells <dhowells@redhat.com>, Jens Axboe <axboe@suse.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BLOCK: Make it possible to disable the block layer
+In-Reply-To: <20060824175922.GA22586@uranus.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0608250822090.7912@yvahk01.tjqt.qr>
+References: <20060824152937.GK19810@stusta.de> <1156434274.3012.128.camel@pmac.infradead.org>
+ <20060824155814.GL19810@stusta.de> <1156435216.3012.130.camel@pmac.infradead.org>
+ <20060824160926.GM19810@stusta.de> <20060824164752.GC5205@martell.zuzino.mipt.ru>
+ <20060824170709.GO19810@stusta.de> <1156439763.3012.155.camel@pmac.infradead.org>
+ <20060824103459.77e5569c.rdunlap@xenotime.net> <1156441724.3012.183.camel@pmac.infradead.org>
+ <20060824175922.GA22586@uranus.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 04:19:29PM +1000, Nick Piggin wrote:
-> Well you would just have a depth count in the task_struct... 
+>
+>Here meuconfig can be a great help for you. Trying the help option
+>tells you a bit more about what needs to be done to disable
+>a given option.
 
-That (if can have) would make life so easy :)
+Some nitpick: when there are a lot of dependencies or a long select 
+or long selected by list, you need to scroll far to the right, and possibly 
+back left again. This takes time because the normal user set a keyboard 
+repeat rate at about 30. (Under X, I prefer 35, but that's unfortunately 
+not available on 80x25/console/tty1.)
+These lines should be wrapped
 
+
+
+Jan Engelhardt
 -- 
-Regards,
-vatsa

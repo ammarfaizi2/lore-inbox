@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWHYLEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWHYLFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWHYLEw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 07:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWHYLEw
+	id S1751451AbWHYLFN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 07:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWHYLFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 07:04:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65457 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750771AbWHYLEv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 07:04:51 -0400
-Date: Fri, 25 Aug 2006 13:04:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-pm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: T60 not coming out of suspend to RAM
-Message-ID: <20060825110441.GB8538@elf.ucw.cz>
-References: <20060822103731.GC13782@mellanox.co.il>
+	Fri, 25 Aug 2006 07:05:12 -0400
+Received: from mail.goelsen.net ([195.202.170.130]:51914 "EHLO
+	power2u.goelsen.net") by vger.kernel.org with ESMTP
+	id S1751451AbWHYLFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 07:05:10 -0400
+X-Envelope-From: michael.monnerie@it-management.at
+X-Envelope-From: michael.monnerie@it-management.at
+From: Michael Monnerie <michael.monnerie@it-management.at>
+Organization: it-management http://it-management.at
+To: linux-kernel@vger.kernel.org
+Subject: Bug: sch_teql in 2.6.18-rc3 on Athlon64x2 SMP
+Date: Fri, 25 Aug 2006 13:01:09 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822103731.GC13782@mellanox.co.il>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart2140291.xIS9QfUJHV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608251301.10069@zmi.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--nextPart2140291.xIS9QfUJHV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I'm running Linus' git tree on my thinkpad T60.
-> It generally seems to work fine after suspend to disk.
-> However, the system does not come out of suspend to ram,
-> with screen staying blank. I'm looking for hints for debugging this.
-> 
-> If I set suspend/resume event tracing, I see this in dmesg
-> after reboot:
-> 
-> dmesg -s 1000000 | grep 'hash matches'
->   hash matches drivers/base/power/resume.c:42
->   hash matches device serio2
-> 
-> serio2 seems to be the psmouse device:
-> ls /sys/bus/serio/drivers/psmouse/
-> bind bind_mode description serio0 serio2 unbind
-> 
-> Does this mean the mouse driver blocks the resume?
-> 
-> I've rebuilt psmouse as a module, unloaded it before suspend, and now
-> I see the same behaviour but after reboot:
-> dmesg -s 1000000 | grep 'hash matches'
->   hash matches drivers/base/power/resume.c:42
->   hash matches device i2c-9191
-> 
-> Which is somewhat weird because
-> ls /sys/bus/i2c/devices
-> does not list any i2c devices
-> 
-> I could continue disabling stuff - but I am looking in the
-> correct place even? How do you debug resume issues?
+Hi, I tried using the TEQL network device for load balancing, but it=20
+causes a kernel panic when the network cable is unpluggeg from the=20
+network card (forcedeth driver).
 
-Yes, disabling stuff is way to go. Just disable everything, and binary
-search from there :-).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+It was an MSI Motherboard with AMD Athlon64x2, stock SMP kernel=20
+2.6.18-rc3, and two forcedeth onboard network cards. If you need other=20
+info, please contact me per e-mail, I'm not on this list. I use the=20
+bonding driver now, works without a glitch.=20
+
+Here are two links to pictures (crash screen foto made with handy, not=20
+best quality, but mostly readable):
+http://zmi.at/x/teql-crash.jpg
+http://zmi.at/x/teql-crash2.jpg
+
+Thank you guys for the (otherwise) great kernel!
+
+mfg zmi
+=2D-=20
+// Michael Monnerie, Ing.BSc    -----      http://it-management.at
+// Tel: 0676/846914666                        .network.your.ideas.
+// PGP Key:        "curl -s http://zmi.at/zmi3.asc | gpg --import"
+// Fingerprint: 44A3 C1EC B71E C71A B4C2  9AA6 C818 847C 55CB A4EE
+// Keyserver: www.keyserver.net                 Key-ID: 0x55CBA4EE
+
+--nextPart2140291.xIS9QfUJHV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBE7th2yBiEfFXLpO4RAg7sAJ9p2liYuRgmYIf3xpy6YncMJB5AVwCeMBJ7
+QN5fvEF2yFzBQyYnoYkm46c=
+=8LUK
+-----END PGP SIGNATURE-----
+
+--nextPart2140291.xIS9QfUJHV--

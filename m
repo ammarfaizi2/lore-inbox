@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422887AbWHYUSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWHYUSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422887AbWHYUSc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWHYUSb
+	id S932096AbWHYUSV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHYUSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:18:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5802 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932236AbWHYUSa (ORCPT
+	Fri, 25 Aug 2006 16:18:21 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:51853 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932236AbWHYUSU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:18:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060825200455.GA2629@uranus.ravnborg.org> 
-References: <20060825200455.GA2629@uranus.ravnborg.org>  <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com> <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com> 
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: David Howells <dhowells@redhat.com>, axboe@kernel.dk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 25 Aug 2006 21:18:24 +0100
-Message-ID: <22040.1156537104@warthog.cambridge.redhat.com>
+	Fri, 25 Aug 2006 16:18:20 -0400
+Subject: Re: [PATCH 1 of 23] IB/ipath - More changes to support InfiniPath
+	on PowerPC 970 systems
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>, Brendan Cully <brendan@kublai.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <adabqq8tx9z.fsf@cisco.com>
+References: <44809b730ac95b39b672.1156530266@eng-12.pathscale.com>
+	 <adabqq8tx9z.fsf@cisco.com>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 13:19:54 -0700
+Message-Id: <1156537194.31531.38.camel@sardonyx>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.3 (2.7.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
+On Fri, 2006-08-25 at 12:45 -0700, Roland Dreier wrote:
+> How did you generate these patches?
 
-> > +ifeq ($(CONFIG_MMU),y)
-> > +obj-y			+= bounce.o
-> > +endif
+Using Mercurial.  
+
+> because the line
 > 
-> CONFIG_MMU is a bool so you can do this much more elegant:
-> obj-$(CONFIG_MMU) += bounce.o
+> diff --git a/drivers/infiniband/hw/ipath/Makefile b/drivers/infiniband/hw/ipath/Makefile
+> 
+> makes git think it's a git diff, but git doesn't put dates on the
+> filename lines.
 
-In patch 18/18, this changes to:
+Ah, interesting.  Looks like a bug in the git-compatible patch
+generator, then.  Sorry about that.
 
-	ifeq ($(CONFIG_MMU)$(CONFIG_BLOCK),yy)
+	<b
 
-So the elegence in the end is irrelevant.
-
-David

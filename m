@@ -1,188 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422885AbWHYUET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422858AbWHYUEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422885AbWHYUET (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422886AbWHYUET
+	id S1422858AbWHYUEK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422885AbWHYUEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:04:19 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:4044 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422885AbWHYUES (ORCPT
+	Fri, 25 Aug 2006 16:04:02 -0400
+Received: from pat.uio.no ([129.240.10.4]:27842 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1422858AbWHYUEA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:04:18 -0400
-Date: Fri, 25 Aug 2006 15:03:59 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com
-Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
-Message-ID: <20060825200359.GC13805@sergelap.austin.ibm.com>
-References: <20060824212241.GB30007@sergelap.austin.ibm.com> <20060825143842.GA27364@infradead.org>
+	Fri, 25 Aug 2006 16:04:00 -0400
+Subject: Re: [PATCH 4/6] nfs: Teach NFS about swap cache pages
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
+In-Reply-To: <20060825153751.24254.20709.sendpatchset@twins>
+References: <20060825153709.24254.28118.sendpatchset@twins>
+	 <20060825153751.24254.20709.sendpatchset@twins>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 16:03:47 -0400
+Message-Id: <1156536228.5927.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825143842.GA27364@infradead.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.193, required 12,
+	autolearn=disabled, AWL 1.81, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Christoph Hellwig (hch@infradead.org):
-> On Thu, Aug 24, 2006 at 04:22:42PM -0500, Serge E. Hallyn wrote:
-> > Update the s390 cooperative memory manager, which can be a module,
-> > to use kthread rather than kernel_thread, whose EXPORT is deprecated.
-> > 
-> > This patch compiles and boots fine, but I don't know how to really
-> > test the driver.
+On Fri, 2006-08-25 at 17:37 +0200, Peter Zijlstra wrote:
+> Teach the NFS client how to treat PG_swapcache pages.
 > 
-> NACK.  Please do a real conversion to the kthread paradigm instead of
-> doctoring around the trivial bits that could be changed with a script.
+> Replace all occurences of page->index and page->mapping in the NFS client
+> with the new page_file_index() and page_file_mapping() functions.
 > 
-> Please use kthread_should_stop() and remove the cmm_thread_wait
-> waitqueue in favour of wake_up_process.  The timer useage could
-> probably be replaced with smart usage of schedule_timeout().
-> Also the code seems to miss a proper thread termination on module
-> removal.
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> ---
+>  fs/nfs/dir.c      |    4 ++--
+>  fs/nfs/file.c     |    6 +++---
+>  fs/nfs/pagelist.c |    8 ++++----
+>  fs/nfs/read.c     |   10 +++++-----
+>  fs/nfs/write.c    |   34 +++++++++++++++++-----------------
+>  5 files changed, 31 insertions(+), 31 deletions(-)
 
-Ok, the patch in -mm does kthread_stop() on module_exit, but still uses
-the timer and cmm_thread_wait.  
+<snip>
 
-I'm not clear what the timer is actually trying to do, or why there is a
-separate cmm_pages_target and cmm_timed_pages_target.  So I'm sure the
-below patch on top of -mm2 is wrong (it compiles, but I just noticed
-2.6.18-rc4-mm2 doesn't boot without this patch either) but hopefully
-Heiko or Martin can tell me what would be the right way, or implement
-it?
+> @@ -821,7 +821,7 @@ int nfs_updatepage(struct file *file, st
+>  		unsigned int offset, unsigned int count)
+>  {
+>  	struct nfs_open_context *ctx = (struct nfs_open_context *)file->private_data;
+> -	struct inode	*inode = page->mapping->host;
+> +	struct inode	*inode = page_file_mapping(page)->host;
+>  	struct nfs_page	*req;
+>  	int		status = 0;
+>  
+> @@ -854,12 +854,12 @@ int nfs_updatepage(struct file *file, st
+>  		offset = 0;
+>  		if (unlikely(end_offs < 0)) {
+>  			/* Do nothing */
+> -		} else if (page->index == end_index) {
+> +		} else if (page_file_index(page) == end_index) {
 
-thanks,
--serge
+Is this necessary? When will we ever call nfs_updatepage() with a swap
+page? AFAICS, the swap stuff always uses page dirtying and (ugh)
+writepage().
 
-Subject: [PATCH] s390: stop using cmm_thread_wait and cmm_timer in cmm
+>  			unsigned int pglen;
+>  			pglen = (unsigned int)(end_offs & (PAGE_CACHE_SIZE-1)) + 1;
+>  			if (count < pglen)
+>  				count = pglen;
+> -		} else if (page->index < end_index)
+> +		} else if (page_file_index(page) < end_index)
+>  			count = PAGE_CACHE_SIZE;
+>  	}
+>  
+> Index: linux-2.6/fs/nfs/dir.c
+> ===================================================================
+> --- linux-2.6.orig/fs/nfs/dir.c
+> +++ linux-2.6/fs/nfs/dir.c
+> @@ -177,7 +177,7 @@ int nfs_readdir_filler(nfs_readdir_descr
+>  
+>  	dfprintk(DIRCACHE, "NFS: %s: reading cookie %Lu into page %lu\n",
+>  			__FUNCTION__, (long long)desc->entry->cookie,
+> -			page->index);
+> +			page_file_index(page));
+>  
+>   again:
+>  	timestamp = jiffies;
+> @@ -201,7 +201,7 @@ int nfs_readdir_filler(nfs_readdir_descr
+>  	 * Note: assumes we have exclusive access to this mapping either
+>  	 *	 through inode->i_mutex or some other mechanism.
+>  	 */
+> -	if (page->index == 0)
+> +	if (page_file_index(page) == 0)
+>  		invalidate_inode_pages2_range(inode->i_mapping, PAGE_CACHE_SIZE, -1);
+>  	unlock_page(page);
+>  	return 0;
 
-Update cmm to stop using cmm_thread_wait or cmm_timer.
+Why are we worried about the possibility of NFS readdir pages being swap
+pages?
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Cheers,
+  Trond
 
----
-
- arch/s390/mm/cmm.c |   67 +++++++++-------------------------------------------
- 1 files changed, 12 insertions(+), 55 deletions(-)
-
-4182dbd937e5084db4cfd63193ff93267ea8042e
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 9b62157..ecd237a 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -48,11 +48,6 @@ static struct cmm_page_array *cmm_timed_
- static DEFINE_SPINLOCK(cmm_lock);
- 
- static struct task_struct *cmm_thread_ptr;
--static wait_queue_head_t cmm_thread_wait;
--static struct timer_list cmm_timer;
--
--static void cmm_timer_fn(unsigned long);
--static void cmm_set_timer(void);
- 
- static long
- cmm_strtoul(const char *cp, char **endp)
-@@ -157,18 +152,10 @@ static struct notifier_block cmm_oom_nb 
- static int
- cmm_thread(void *dummy)
- {
--	int rc;
-+	while (!kthread_should_stop()) {
- 
--	while (1) {
--		rc = wait_event_interruptible(cmm_thread_wait,
--			(cmm_pages != cmm_pages_target ||
--			 cmm_timed_pages != cmm_timed_pages_target ||
--			 kthread_should_stop()));
--		if (kthread_should_stop() || rc == -ERESTARTSYS) {
--			cmm_pages_target = cmm_pages;
--			cmm_timed_pages_target = cmm_timed_pages;
-+		if (kthread_should_stop())
- 			break;
--		}
- 		if (cmm_pages_target > cmm_pages) {
- 			if (cmm_alloc_pages(1, &cmm_pages, &cmm_page_list))
- 				cmm_pages_target = cmm_pages;
-@@ -183,48 +170,19 @@ cmm_thread(void *dummy)
- 			cmm_free_pages(1, &cmm_timed_pages,
- 			       	       &cmm_timed_page_list);
- 		}
--		if (cmm_timed_pages > 0 && !timer_pending(&cmm_timer))
--			cmm_set_timer();
-+
-+		__set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(cmm_timeout_seconds*HZ);
- 	}
-+
- 	return 0;
- }
- 
- static void
- cmm_kick_thread(void)
- {
--	wake_up(&cmm_thread_wait);
--}
--
--static void
--cmm_set_timer(void)
--{
--	if (cmm_timed_pages_target <= 0 || cmm_timeout_seconds <= 0) {
--		if (timer_pending(&cmm_timer))
--			del_timer(&cmm_timer);
--		return;
--	}
--	if (timer_pending(&cmm_timer)) {
--		if (mod_timer(&cmm_timer, jiffies + cmm_timeout_seconds*HZ))
--			return;
--	}
--	cmm_timer.function = cmm_timer_fn;
--	cmm_timer.data = 0;
--	cmm_timer.expires = jiffies + cmm_timeout_seconds*HZ;
--	add_timer(&cmm_timer);
--}
--
--static void
--cmm_timer_fn(unsigned long ignored)
--{
--	long nr;
--
--	nr = cmm_timed_pages_target - cmm_timeout_pages;
--	if (nr < 0)
--		cmm_timed_pages_target = 0;
--	else
--		cmm_timed_pages_target = nr;
--	cmm_kick_thread();
--	cmm_set_timer();
-+	if (cmm_thread_ptr)
-+		wake_up_process(cmm_thread_ptr);
- }
- 
- void
-@@ -258,7 +216,6 @@ cmm_set_timeout(long nr, long seconds)
- {
- 	cmm_timeout_pages = nr;
- 	cmm_timeout_seconds = seconds;
--	cmm_set_timer();
- }
- 
- static inline int
-@@ -450,12 +407,12 @@ cmm_init (void)
- 	rc = register_oom_notifier(&cmm_oom_nb);
- 	if (rc < 0)
- 		goto out_oom_notify;
--	init_waitqueue_head(&cmm_thread_wait);
--	init_timer(&cmm_timer);
- 	cmm_thread_ptr = kthread_run(cmm_thread, NULL, "cmmthread");
--	rc = IS_ERR(cmm_thread_ptr) ? PTR_ERR(cmm_thread_ptr) : 0;
--	if (!rc)
-+	if (IS_ERR(cmm_thread_ptr)) {
-+		rc = PTR_ERR(cmm_thread_ptr);
-+		cmm_thread_ptr = NULL;
- 		goto out;
-+	}
- 	/*
- 	 * kthread_create failed. undo all the stuff from above again.
- 	 */
--- 
-1.1.6

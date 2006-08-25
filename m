@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWHYUht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422897AbWHYUjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWHYUht (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 16:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422901AbWHYUhs
+	id S1422897AbWHYUjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 16:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422899AbWHYUjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 16:37:48 -0400
-Received: from pat.uio.no ([129.240.10.4]:27614 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932466AbWHYUhr (ORCPT
+	Fri, 25 Aug 2006 16:39:44 -0400
+Received: from thunk.org ([69.25.196.29]:23461 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1422897AbWHYUjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 16:37:47 -0400
-Subject: Re: [PATCH 4/6] nfs: Teach NFS about swap cache pages
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
-In-Reply-To: <1156537214.26945.6.camel@lappy>
-References: <20060825153709.24254.28118.sendpatchset@twins>
-	 <20060825153751.24254.20709.sendpatchset@twins>
-	 <1156536228.5927.17.camel@localhost>  <1156537214.26945.6.camel@lappy>
-Content-Type: text/plain
-Date: Fri, 25 Aug 2006 16:37:34 -0400
-Message-Id: <1156538255.5927.46.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.962, required 12,
-	autolearn=disabled, AWL 2.04, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 25 Aug 2006 16:39:43 -0400
+Date: Fri, 25 Aug 2006 16:39:29 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Stuart MacDonald <stuartm@connecttech.com>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Krzysztof Halasa'" <khc@pm.waw.pl>, linux-serial@vger.kernel.org,
+       "'LKML'" <linux-kernel@vger.kernel.org>, libc-alpha@sources.redhat.com
+Subject: Re: Serial custom speed deprecated?
+Message-ID: <20060825203929.GB25595@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Stuart MacDonald <stuartm@connecttech.com>,
+	'Alan Cox' <alan@lxorguk.ukuu.org.uk>,
+	'Krzysztof Halasa' <khc@pm.waw.pl>, linux-serial@vger.kernel.org,
+	'LKML' <linux-kernel@vger.kernel.org>,
+	libc-alpha@sources.redhat.com
+References: <1156459387.3007.218.camel@localhost.localdomain> <043501c6c85a$1eb09a60$294b82ce@stuartm> <20060825193203.GB725@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825193203.GB725@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 22:20 +0200, Peter Zijlstra wrote:
-> Indiscriminate search and replace followed by a manual check for
-> correctness. They might not be needed, but they're not wrong either.
+On Fri, Aug 25, 2006 at 08:32:03PM +0100, Russell King wrote:
+> On Fri, Aug 25, 2006 at 11:21:21AM -0400, Stuart MacDonald wrote:
+> > From: On Behalf Of Alan Cox
+> > > We could implement an entirely new TCSETS/TCGETS/TCSETSA/SAW 
+> > > which used
+> > > different B* values so B9600 was 9600 etc and the data was stored in
+> > 
+> > I think if a numeric baud rate is going to be supported, getting away
+> > from the B* cruft is important. Just use a number.
 > 
-> Would you prefer I take them out?
+> The "B* cruft" is part of POSIX so needs to be retained.  These are
+> used in conjunction with with cfgetispeed(), cfgetospeed(), cfsetispeed()
+> and cfsetospeed() to alter the baud rate settings in the termios
+> structure in an implementation defined manner.
 
-It won't give us any massive performance optimisations, but it is nice
-to be able to avoid that call to test_bit() whenever possible.
+The B* cruft has to be maintained.
 
-Cheers,
-  Trond
+But it would be POSIX complaint for B9600 to be #defined to B9600, and
+B19200 to be #defined to B19200.
 
+What would scare me though about doing something like would be
+potential for the ABI changes.  Not only do you have to worry about a
+consistent set of ioctl's, structure definitions, and B* defines, but
+you also have to worry about userspace libraries that use B* as part
+of their interface, and expect user programs to pass B* constants to
+the userspace library.  (Say, some kind of conveience dialout library,
+for example.)
+
+In that case, the application could have been compiled with the
+new-style termios.h, but the userspace library could have been
+compiled with the old-style termios.h, and hence the old-style ioctl
+definitions, and the opportunities for mischief are endless.
+
+					- Ted

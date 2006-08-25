@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422849AbWHYWOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWHYWQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422849AbWHYWOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 18:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422851AbWHYWOq
+	id S1422863AbWHYWQS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 18:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422864AbWHYWQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 18:14:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18109 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422849AbWHYWOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 18:14:45 -0400
-Date: Fri, 25 Aug 2006 15:14:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
-       jbarnes@virtuousgeek.org, dwalker@mvista.com, nickpiggin@yahoo.com.au
-Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
-Message-Id: <20060825151434.6bd75ae2.akpm@osdl.org>
-In-Reply-To: <1156504939.3032.26.camel@laptopd505.fenrus.org>
-References: <1156504939.3032.26.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 25 Aug 2006 18:16:18 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:24514 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422863AbWHYWQS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 18:16:18 -0400
+Date: Fri, 25 Aug 2006 17:16:15 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: David Howells <dhowells@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir
+Message-ID: <20060825221615.GA11613@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060824182044.GE17658@us.ibm.com> <20060824181722.GA17658@us.ibm.com> <22796.1156542677@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <22796.1156542677@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 13:22:19 +0200
-Arjan van de Ven <arjan@linux.intel.com> wrote:
+On Fri, Aug 25, 2006 at 10:51:17PM +0100, David Howells wrote:
+> Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+> > filldir()'s inode number is now type u64 instead of ino_t.
+> 
+> Btw, in ecryptfs_interpose(), you have:
+> 
+> 	inode = iget(sb, lower_inode->i_ino);
+> 
+> But you have to be *very* *very* careful doing that.  i_ino may be
+> ambiguous.  My suggestions to make i_ino bigger were turned down by
+> Al Viro; and even it were bigger, it might still not be unique.
 
-> One open question is if the sysreq key is considered useful or only a bad hack..
+Is this the case as long as we stay under the same mountpoint?
 
-The latter ;)
+Mike

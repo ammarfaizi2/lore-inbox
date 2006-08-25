@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422817AbWHYBaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHYBzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422817AbWHYBaY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 21:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422818AbWHYBaY
+	id S1751312AbWHYBzU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 21:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWHYBzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 21:30:24 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:23524 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422817AbWHYBaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 21:30:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ldts4HyW95jECM2ND56tbX8p2TE0icb5TFN5dM7gjqJgLBF+QmYn/PFUF8u/s4+hYK3l+Qk00uF+u8xGjTaTam6RZqQOP/68lE/0ZTJCCrUzF7vRtAioIHl/Nw23Qua/dnh7+pdNUTxPpMM+iGKb620XuYcSA3Wu9PCmRnVClpI=
-Message-ID: <a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
-Date: Fri, 25 Aug 2006 09:30:21 +0800
-From: "Dong Feng" <middle.fengdong@gmail.com>
-To: "Paul Mackerras" <paulus@samba.org>, ak@suse.de
-Subject: Re: Unnecessary Relocation Hiding?
-Cc: "Christoph Lameter" <clameter@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <17646.14056.102017.127644@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 24 Aug 2006 21:55:20 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27861 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751312AbWHYBzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Aug 2006 21:55:19 -0400
+Date: Fri, 25 Aug 2006 10:57:55 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [BUG[[PATCH] register_one_node compile fix.
+Message-Id: <20060825105755.55b15220.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com>
-	 <Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
-	 <17646.14056.102017.127644@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for perhaps extending the specific question to a more generic
-one. In which cases shall we, in current or future development,
-prevent gcc from knowing a pointer-addition in the way RELOC_HIDE? And
-in what cases shall we just write pure C point addition?
+register_one_node()'s should be defined under CONFIG_NUMA=n.
+fixes following bug.
+--
+  CC	  init/version.o
+  LD	  init/built-in.o
+  LD	  .tmp_vmlinux1
+mm/built-in.o: In function `add_memory':
+: undefined reference to `register_one_node'
+--
 
-After all, we are writing an OS in C not in pure assembly, so I am
-just trying to learn some generial rules to mimize the raw assembly in
-development.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Feng,Dong
+Index: linux-2.6.18-rc4/include/linux/node.h
+===================================================================
+--- linux-2.6.18-rc4.orig/include/linux/node.h
++++ linux-2.6.18-rc4/include/linux/node.h
+@@ -30,12 +30,20 @@ extern struct node node_devices[];
+ 
+ extern int register_node(struct node *, int, struct node *);
+ extern void unregister_node(struct node *node);
++#ifdef CONFIG_NUMA
+ extern int register_one_node(int nid);
+ extern void unregister_one_node(int nid);
+-#ifdef CONFIG_NUMA
+ extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
+ extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
+ #else
++static inline int register_one_node(int nid)
++{
++	return 0;
++}
++static inline int unregister_one_node(int nid)
++{
++	return 0;
++}
+ static inline int register_cpu_under_node(unsigned int cpu, unsigned int nid)
+ {
+ 	return 0;
 
-
-2006/8/25, Paul Mackerras <paulus@samba.org>:
-> Christoph Lameter writes:
->
-> No, RELOC_HIDE came from ppc originally.  The reason for it is that
-> gcc assumes that if you add something on to the address of a symbol,
-> the resulting address is still inside the bounds of the symbol, and do
-> optimizations based on that.  The RELOC_HIDE macro is designed to
-> prevent gcc knowing that the resulting pointer is obtained by adding
-> an offset to the address of a symbol.  As far as gcc knows, the
-> resulting pointer could point to anything.
->
-> It has nothing to do with linker relocations.
->
-> Paul.

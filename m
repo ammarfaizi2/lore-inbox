@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWHYVvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWHYVzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbWHYVvW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 17:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWHYVvV
+	id S932150AbWHYVzh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 17:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWHYVzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 17:51:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63453 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751509AbWHYVvV (ORCPT
+	Fri, 25 Aug 2006 17:55:37 -0400
+Received: from mail.visionpro.com ([63.91.95.13]:56641 "EHLO
+	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
+	id S1751525AbWHYVzh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 17:51:21 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060824182044.GE17658@us.ibm.com> 
-References: <20060824182044.GE17658@us.ibm.com>  <20060824181722.GA17658@us.ibm.com> 
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 25 Aug 2006 22:51:17 +0100
-Message-ID: <22796.1156542677@warthog.cambridge.redhat.com>
+	Fri, 25 Aug 2006 17:55:37 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: mounting Floppy and USB - 2.6.16.16
+Date: Fri, 25 Aug 2006 14:55:36 -0700
+Message-ID: <14CFC56C96D8554AA0B8969DB825FEA001A651DF@chicken.machinevisionproducts.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: mounting Floppy and USB - 2.6.16.16
+Thread-Index: AcbIeVc8BcyHeLF5SXmuNxKcgSf6AwAF6l+w
+From: "Brian D. McGrew" <brian@visionpro.com>
+To: <linux-kernel@vger.kernel.org>,
+       "For users of Fedora Core releases" <fedora-list@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Hey Guys:
 
-> filldir()'s inode number is now type u64 instead of ino_t.
+With 2.4.20 and 2.6.9 I had all this automated so everything just
+happened automatically.  It's not working with 2.6.16.16 now.  What am I
+missing or what did I forget?
 
-Btw, in ecryptfs_interpose(), you have:
+Thanks,
 
-	inode = iget(sb, lower_inode->i_ino);
-
-But you have to be *very* *very* careful doing that.  i_ino may be ambiguous.
-My suggestions to make i_ino bigger were turned down by Al Viro; and even it
-were bigger, it might still not be unique.
-
-David
+:b! 

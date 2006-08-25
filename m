@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWHYKr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWHYKuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWHYKr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 06:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKr5
+	id S1751438AbWHYKuz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 06:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHYKuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 06:47:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7330 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751438AbWHYKr4 (ORCPT
+	Fri, 25 Aug 2006 06:50:55 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:43799 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751438AbWHYKuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 06:47:56 -0400
-Date: Fri, 25 Aug 2006 12:47:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Philip R. Auld" <pauld@egenera.com>
-Cc: Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@google.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-Message-ID: <20060825104738.GA8538@elf.ucw.cz>
-References: <20060813215853.0ed0e973.akpm@osdl.org> <44E3E964.8010602@google.com> <20060816225726.3622cab1.akpm@osdl.org> <44E5015D.80606@google.com> <20060817230556.7d16498e.akpm@osdl.org> <44E62F7F.7010901@google.com> <20060818153455.2a3f2bcb.akpm@osdl.org> <44E650C1.80608@google.com> <20060818194435.25bacee0.akpm@osdl.org> <20060821132717.GD26589@vienna.egenera.com>
+	Fri, 25 Aug 2006 06:50:54 -0400
+Message-ID: <44EED6BC.3060107@sw.ru>
+Date: Fri, 25 Aug 2006 14:53:48 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821132717.GD26589@vienna.egenera.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH 2/6] BC: beancounters core (API)
+References: <44EC31FB.2050002@sw.ru>	<44EC35EB.1030000@sw.ru>	<20060823094202.ff3a5573.akpm@osdl.org>	<44ED9633.7090504@sw.ru> <20060824080030.05232740.akpm@osdl.org>
+In-Reply-To: <20060824080030.05232740.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > - We expect that the lots-of-dirty-anon-memory-over-swap-over-network
-> >   scenario might still cause deadlocks.  
-> > 
-> >   I assert that this can be solved by putting swap on local disks.  Peter
-> >   asserts that this isn't acceptable due to disk unreliability.  I point
-> >   out that local disk reliability can be increased via MD, all goes quiet.
+Andrew Morton wrote:
+> On Thu, 24 Aug 2006 16:06:11 +0400
+> Kirill Korotaev <dev@sw.ru> wrote:
 > 
-> Putting swap on local disks really messes up the concept of stateless 
-> servers. I suppose you can do some sort of swap encryption, but
-> otherwise you need to scrub the swap partition on boot if you
-> re-purpose the hardware. You also then need to do hardware
-> configuration to make sure the local disks are all setup the 
-> same way across all server platforms so the common images can 
-> boot. 
+> 
+>>>>+#define bc_charge_locked(bc, r, v, s)			(0)
+>>>>
+>>>>>+#define bc_charge(bc, r, v)				(0)
+>>>
+>>>akpm:/home/akpm> cat t.c
+>>>void foo(void)
+>>>{
+>>>	(0);
+>>>}
+>>>akpm:/home/akpm> gcc -c -Wall t.c
+>>>t.c: In function 'foo':
+>>>t.c:4: warning: statement with no effect
+>>
+>>these functions return value should always be checked (!).
+> 
+> 
+> We have __must_check for that.
+> 
+> 
+>>i.e. it is never called like:
+>>  ub_charge(bc, r, v);
+> 
+> 
+> Also...
+> 
+> 	if (bc_charge(tpyo, undefined_variable, syntax_error))
+> 
+> will happily compile if !CONFIG_BEANCOUNTER.
+> 
+> Turning these stubs into static inline __must_check functions fixes all this.
 
-We should really encrypt swap with random key generated at boot, for
-all the machine. I believe it is possible (with some non-trivial
-setup) today, but it would be nice to do it automagically.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ok. will replace all empty stubs with inlines (with __must_check where appropriate)
+
+Thanks,
+Kirill
+

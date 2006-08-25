@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWHYJBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWHYJH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWHYJBk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 05:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWHYJBk
+	id S1751375AbWHYJH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 05:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWHYJH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 05:01:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6378 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751356AbWHYJBk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 05:01:40 -0400
-From: Andi Kleen <ak@suse.de>
-To: akpm@osdl.org
-Subject: [PATCH -mm] Disable core ulimit for user core process
-Date: Fri, 25 Aug 2006 11:01:35 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 05:07:29 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:12816 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751375AbWHYJH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 05:07:28 -0400
+Date: Fri, 25 Aug 2006 10:07:17 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Juha Yrjola <juha.yrjola@solidboot.com>
+Cc: Daniel Drake <dan@reactivated.net>, Pierre Ossman <drzeus-list@drzeus.cx>,
+       Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2GB MMC/SD cards
+Message-ID: <20060825090717.GA2287@flint.arm.linux.org.uk>
+Mail-Followup-To: Juha Yrjola <juha.yrjola@solidboot.com>,
+	Daniel Drake <dan@reactivated.net>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060603141548.GA31182@flint.arm.linux.org.uk> <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com> <4481FB80.40709@drzeus.cx> <4484B5AE.8060404@drzeus.cx> <44869794.9080906@drzeus.cx> <20060607165837.GE13165@flint.arm.linux.org.uk> <448738CD.8030907@drzeus.cx> <4488AC57.7050201@drzeus.cx> <44DEFBA1.6060500@reactivated.net> <44EB2083.8080902@solidboot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608251101.35877.ak@suse.de>
+In-Reply-To: <44EB2083.8080902@solidboot.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I can't remember if I already sent this one off or not. If yes
-please ignore the dup.]
-[This is an incremental patch for the user-core patch series which
-is in -mm]
+On Tue, Aug 22, 2006 at 06:19:31PM +0300, Juha Yrjola wrote:
+> Daniel Drake wrote:
+> >Hi Pierre,
+> >
+> >Pierre Ossman wrote:
+> >>Suggested patch included.
+> >
+> >What's the status on this patch? A Gentoo user at 
+> >http://bugs.gentoo.org/142172 reports that it is required for him to be 
+> >able to access his card, so it definitely works in some form.
+> 
+> I have to pitch in here.  This patch is required for some cards to 
+> operate reliably on the Nokia 770, and we've done quite a bit of 
+> interoperability testing already.
+> 
+> Pierre, could you submit it to RMK's patch tracking system?
 
-Disable core files for pipe user helpers
+Absolutely not.
 
-This addresses one of the review comments earlier for the user core
-patchkit: when the core dump handler is executed make sure there
-is no potential for recursion in case it crashes again.
+MMC is a little up in the air at the moment while I decide whether I want
+to continue the cherade of being the maintainer of it.  It is a cherade
+because the person doing 99% of the work is Pierre, and for some strange
+reason, he's the one who gets all the bug reports.
 
-This currently does it for all pipe user mode helpers. In theory
-it could be done only for core dump user helpers, but there are
-currently no other users of this function.
+This makes it extremely difficult for me to ascertain whether any patch is
+correct or not - all I have to go by is the documentation, and as far as
+I can see, the majority of the documentation I have says this patch is
+wrong.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+So I'm considering handing maintainership over to Pierre.  If I don't
+have the support of the community, which is being voiced pretty loudly
+by its actions, this move makes sense.
 
-Index: linux/kernel/kmod.c
-===================================================================
---- linux.orig/kernel/kmod.c
-+++ linux/kernel/kmod.c
-@@ -35,6 +35,7 @@
- #include <linux/mount.h>
- #include <linux/kernel.h>
- #include <linux/init.h>
-+#include <linux/resource.h>
- #include <asm/uaccess.h>
- 
- extern int max_threads;
-@@ -158,6 +159,9 @@ static int ____call_usermodehelper(void 
- 		FD_SET(0, fdt->open_fds);
- 		FD_CLR(0, fdt->close_on_exec);
- 		spin_unlock(&f->file_lock);
-+
-+		/* and disallow core files too */
-+		current->signal->rlim[RLIMIT_CORE] = (struct rlimit){0, 0};
- 	}
- 
- 	/* We can run anywhere, unlike our parent keventd(). */
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

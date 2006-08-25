@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWHYQnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWHYQuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWHYQnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 12:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWHYQnx
+	id S1422669AbWHYQuT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 12:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422673AbWHYQuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 12:43:53 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:62231 "EHLO
-	dhcp119.mvista.com") by vger.kernel.org with ESMTP id S1751434AbWHYQnw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 12:43:52 -0400
-Date: Fri, 25 Aug 2006 09:45:12 -0700
-Message-Id: <200608251645.k7PGjCj9003096@dhcp119.mvista.com>
-Subject: [PATCH -mm] x86_64: Adjust the timing of initializing cyc2ns_scale.
-From: Toyo Abe <toyoa@mvista.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 25 Aug 2006 12:50:19 -0400
+Received: from web83105.mail.mud.yahoo.com ([216.252.101.34]:44205 "HELO
+	web83105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422669AbWHYQuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 12:50:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=rkEid1NFSH9x35xxQdAHOEnFwW0pvqbzBxdfTWsnyPtLUK6GYWZDyN0AhI+CoF92c7EkQccdOS1WyNXwHruEisv68qip+0teYg3dtLd/gMBwtVysxi3IeqsiOxRArHvk1lyvtkw43qgaefxMs+gdSTC9Y1UzC5xAhH574HbGjb0=  ;
+Message-ID: <20060825165017.75036.qmail@web83105.mail.mud.yahoo.com>
+Date: Fri, 25 Aug 2006 09:50:17 -0700 (PDT)
+From: Aleksey Gorelov <dared1st@yahoo.com>
+Subject: RE: Generic Disk Driver in Linux
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: jengelh@linux01.gwdg.de, daniel.rodrick@gmail.com,
+       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+       linux-newbie@vger.kernel.org, satinder.jeet@gmail.com
+In-Reply-To: <1156493021.3032.2.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The x86_64-mm-monotonic-clock.patch in 2.6.18-rc4-mm2 made a change to
-the updating of monotonic_base. It now uses cycles_2_ns().
-
-I suggest that a set_cyc2ns_scale() should be done prior to the setup_irq().
-Because cycles_2_ns() can be called from the timer ISR right after the irq0
-is enabled.
 
 
-Signed-off-by: Toyo Abe <toyoa@mvista.com>
+--- Arjan van de Ven <arjan@infradead.org> wrote:
 
----
+> On Thu, 2006-08-24 at 15:21 -0700, Aleksey Gorelov wrote:
+> > 
+> > --- Arjan van de Ven <arjan@infradead.org> wrote:
+> > 
+> > 
+> > > > > 
+> > > > > it'll be easier and quicker to rev engineer 5 more formats than it will
+> > > > > be to get the bios thing working ;) And the performance of the bios
+> > > > probably true - I'm actually not great fan of originally proposed approach. But, 
+> > > > unfortunately, manufactures and vendors still look more to MS. Until market 
+> > > > situation changes, there is always a gap...
+> > > 
+> > > there are only so many different ways to describe raid0.
+> > > And those companies aren't going to keep changing that "just because",
+> > > changing costs them money, so there is an incentive for them to keep it
+> > > as is
+> > 
+> > Bottom line is - today there is lack of support for it, 
+> 
+> can you name one?
+> (so far all you did was claim this but not name even one)
+> 
+Here is a good support status
+http://linuxmafia.com/faq/Hardware/sata.html
+you can start with those who has proprietary binary only drivers.
 
- arch/x86_64/kernel/time.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I should admit though, that dmraid support has improved lately. For instance, 
+they recently added Adaptec support, which has not been there before.
 
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 5bbd05d..03ddc1a 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -928,10 +928,10 @@ #endif
- 	vxtime.quot = (USEC_PER_SEC << US_SCALE) / vxtime_hz;
- 	vxtime.tsc_quot = (USEC_PER_MSEC << US_SCALE) / cpu_khz;
- 	vxtime.last_tsc = get_cycles_sync();
--	setup_irq(0, &irq0);
--
- 	set_cyc2ns_scale(cpu_khz);
- 
-+	setup_irq(0, &irq0);
-+
- 	hotcpu_notifier(time_cpu_notifier, 0);
- 	time_cpu_notifier(NULL, CPU_ONLINE, (void *)(long)smp_processor_id());
- 

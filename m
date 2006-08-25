@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWHYTfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422814AbWHYTfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422796AbWHYTfL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWHYTfK
+	id S1422814AbWHYTfq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 15:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422815AbWHYTfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:35:10 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:64392 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1422799AbWHYTfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:35:09 -0400
-X-IronPort-AV: i="4.08,169,1154934000"; 
-   d="scan'208"; a="314145430:sNHT30315154"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 22 of 23] IB/ipath - print warning if LID not acquired within one minute
-X-Message-Flag: Warning: May contain useful information
-References: <1a41dc627c5a1bc2f7e9.1156530287@eng-12.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 25 Aug 2006 12:35:06 -0700
-In-Reply-To: <1a41dc627c5a1bc2f7e9.1156530287@eng-12.pathscale.com> (Bryan O'Sullivan's message of "Fri, 25 Aug 2006 11:24:47 -0700")
-Message-ID: <adafyfktxqt.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Aug 2006 19:35:08.0569 (UTC) FILETIME=[92C81090:01C6C87D]
-Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Fri, 25 Aug 2006 15:35:45 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:43461 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1422814AbWHYTfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 15:35:45 -0400
+Subject: Re: [RFC] maximum latency tracking infrastructure (version 2)
+From: Daniel Walker <dwalker@mvista.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, mingo@elte.hu,
+       akpm@osdl.org, jbarnes@virtuousgeek.org, nickpiggin@yahoo.com.au
+In-Reply-To: <44EF4EED.2040904@linux.intel.com>
+References: <1156504939.3032.26.camel@laptopd505.fenrus.org>
+	 <1156520608.10471.5.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	 <44EF4EED.2040904@linux.intel.com>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 12:35:42 -0700
+Message-Id: <1156534542.10471.13.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1) What makes ipath special so that we want this warning for ipath
-devices but not other IB hardware?  If this warning is actually
-useful, then I think it would make more sense to start a timer when
-any IB device is added, and warn if ports with a physical link don't
-become active after the timeout time.  But I'm having a hard time
-seeing why we want this message in the kernel log.
+On Fri, 2006-08-25 at 21:26 +0200, Arjan van de Ven wrote:
+> > 
+> > The name space here is bugging me a little. Maybe prefix them with
+> > "pm_latency" so you'd have "pm_latency_set_acceptable()" ,
+> > "pm_latency_modify_acceptable()" , something like that. Likewise with
+> > the file names , "include/linux/pm_latency.h"
+> > 
+> 
+> there is no reason why this should JUST be about power management....
 
-2) You do cancel_delayed_work() but not flush_scheduled_work(), so
-it's possible for your timeout function to be running after the module
-text is gone.
+I'm just suggesting it would be nice to have a clear prefix on each
+function. It's up to you what that prefix is.
 
- - R.
+Daniel
+

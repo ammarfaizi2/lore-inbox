@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751554AbWHYWoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbWHYWwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751554AbWHYWoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 18:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWHYWoT
+	id S1751577AbWHYWwz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 18:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbWHYWwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 18:44:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:452 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751545AbWHYWoS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 18:44:18 -0400
-Date: Fri, 25 Aug 2006 15:43:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] IPV6 : segmentation offload not set correctly on TCP
- children
-Message-ID: <20060825154353.3ecaf508@localhost.localdomain>
-In-Reply-To: <20060821222634.GC21790@cip.informatik.uni-erlangen.de>
-References: <20060821212243.GA1558@cip.informatik.uni-erlangen.de>
-	<20060821150231.31a947d4@localhost.localdomain>
-	<20060821222634.GC21790@cip.informatik.uni-erlangen.de>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 18:52:54 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59817 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751493AbWHYWwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 18:52:54 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: sekharan@us.ibm.com
+Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, rohitseth@google.com, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
+       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1156544604.1196.62.camel@linuxchandra>
+References: <44E33893.6020700@sw.ru>
+	 <1155929992.26155.60.camel@linuxchandra> <44E9B3F5.3010000@sw.ru>
+	 <1156196721.6479.67.camel@linuxchandra>
+	 <1156211128.11127.37.camel@galaxy.corp.google.com>
+	 <1156272902.6479.110.camel@linuxchandra>
+	 <1156383881.8324.51.camel@galaxy.corp.google.com>
+	 <1156385072.7154.59.camel@linuxchandra>
+	 <1156440461.14648.26.camel@galaxy.corp.google.com>
+	 <1156463572.19702.46.camel@linuxchandra>  <44EEDB23.9050006@sw.ru>
+	 <1156531644.1196.26.camel@linuxchandra>
+	 <1156539168.3007.264.camel@localhost.localdomain>
+	 <1156544604.1196.62.camel@linuxchandra>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sat, 26 Aug 2006 00:12:52 +0100
+Message-Id: <1156547572.3007.279.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TCP over IPV6 would incorrectly inherit the GSO settings.
-This would cause kernel to send Tcp Segmentation Offload packets for
-IPV6 data to devices that can't handle it. It caused the sky2 driver
-to lock http://bugzilla.kernel.org/show_bug.cgi?id=7050
-and the e1000 would generate bogus packets. I can't blame the
-hardware for gagging if the upper layers feed it garbage.
+Ar Gwe, 2006-08-25 am 15:23 -0700, ysgrifennodd Chandra Seetharaman:
+> > Bean counters can exist with no tasks, and the CKRM people have been
+> > corrected repeatedly on this point.
+> 
+> Hmm... from what I understand from the code, when the last resource in
+> the beancounter is dropped, the beancounter is destroyed. Which to me
+> means that when there are no tasks in a beancounter it will be
+> destroyed. (I just tested the code and verified that the beancounter is
+> destroyed when the task dies).
 
-This was a new bug in 2.6.18 introduced with GSO support.
+If a task created resource remains then the beancounter remains until
+the resources are destroyed, so it may exit well after the last task (eg
+an object handed to another process with a different luid is stil
+charged to us)
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> Let me reword the requirement: beancounter/resource group should _not_
+> be destroyed implicitly. It should be destroyed only when requested by
+> the user/sysadmin. In other words, we need a create_luid() and
+> destroy_luid().
 
+So that you can preserve the limits on the resource group ? That also
+makes sense if you are trying to do long term resource management.
 
---- linux-2.6.orig/net/ipv6/tcp_ipv6.c	2006-08-03 09:09:16.000000000 -0700
-+++ linux-2.6/net/ipv6/tcp_ipv6.c	2006-08-25 15:30:31.000000000 -0700
-@@ -944,7 +944,7 @@
- 	 * comment in that function for the gory details. -acme
- 	 */
- 
--	sk->sk_gso_type = SKB_GSO_TCPV6;
-+	newsk->sk_gso_type = SKB_GSO_TCPV6;
- 	__ip6_dst_store(newsk, dst, NULL);
- 
- 	newtcp6sk = (struct tcp6_sock *)newsk;
+Alan

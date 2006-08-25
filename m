@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWHYOuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWHYOuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWHYOuu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWHYOuJ
+	id S1030202AbWHYOuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWHYOuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:50:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38017 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030230AbWHYOuD (ORCPT
+	Fri, 25 Aug 2006 10:50:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4481 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030200AbWHYOtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:50:03 -0400
+	Fri, 25 Aug 2006 10:49:36 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 16/18] [PATCH] BLOCK: Remove no-longer necessary linux/mpage.h inclusions [try #3]
-Date: Fri, 25 Aug 2006 15:49:51 +0100
+Subject: [PATCH 08/18] [PATCH] BLOCK: Dissociate generic_writepages() from mpage stuff [try #3]
+Date: Fri, 25 Aug 2006 15:49:33 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825144951.30722.57397.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825144933.30722.85792.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,37 +26,227 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Remove inclusions of linux/mpage.h that are no longer necessary due to the
-transfer of generic_writepages().
+Dissociate the generic_writepages() function from the mpage stuff, moving its
+declaration to linux/mm.h and actually emitting a full implementation into
+mm/page-writeback.c.
+
+The implementation is a partial duplicate of mpage_writepages() with all BIO
+references removed.
+
+It is used by NFS to do writeback.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/cifs/file.c |    1 -
- fs/nfs/write.c |    1 -
- 2 files changed, 0 insertions(+), 2 deletions(-)
+ fs/block_dev.c            |    1 
+ fs/mpage.c                |    2 +
+ include/linux/mpage.h     |    6 --
+ include/linux/writeback.h |    2 +
+ mm/page-writeback.c       |  135 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 140 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 944d2b9..8488f27 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -24,7 +24,6 @@ #include <linux/fs.h>
- #include <linux/backing-dev.h>
- #include <linux/stat.h>
- #include <linux/fcntl.h>
--#include <linux/mpage.h>
- #include <linux/pagemap.h>
- #include <linux/pagevec.h>
- #include <linux/smp_lock.h>
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 5077499..18b248e 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -51,7 +51,6 @@ #include <linux/slab.h>
- #include <linux/mm.h>
- #include <linux/pagemap.h>
- #include <linux/file.h>
--#include <linux/mpage.h>
- #include <linux/writeback.h>
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 3753457..8debde8 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -17,6 +17,7 @@ #include <linux/blkdev.h>
+ #include <linux/module.h>
+ #include <linux/blkpg.h>
+ #include <linux/buffer_head.h>
++#include <linux/writeback.h>
+ #include <linux/mpage.h>
+ #include <linux/mount.h>
+ #include <linux/uio.h>
+diff --git a/fs/mpage.c b/fs/mpage.c
+index 1e45982..6792251 100644
+--- a/fs/mpage.c
++++ b/fs/mpage.c
+@@ -693,6 +693,8 @@ out:
+  * the call was made get new I/O started against them.  If wbc->sync_mode is
+  * WB_SYNC_ALL then we were called for data integrity and we must wait for
+  * existing IO to complete.
++ *
++ * !!!! If you fix this you should check generic_writepages() also!!!!
+  */
+ int
+ mpage_writepages(struct address_space *mapping,
+diff --git a/include/linux/mpage.h b/include/linux/mpage.h
+index 3ca8804..517c098 100644
+--- a/include/linux/mpage.h
++++ b/include/linux/mpage.h
+@@ -20,9 +20,3 @@ int mpage_writepages(struct address_spac
+ 		struct writeback_control *wbc, get_block_t get_block);
+ int mpage_writepage(struct page *page, get_block_t *get_block,
+ 		struct writeback_control *wbc);
+-
+-static inline int
+-generic_writepages(struct address_space *mapping, struct writeback_control *wbc)
+-{
+-	return mpage_writepages(mapping, wbc, NULL);
+-}
+diff --git a/include/linux/writeback.h b/include/linux/writeback.h
+index 9e38b56..671c43b 100644
+--- a/include/linux/writeback.h
++++ b/include/linux/writeback.h
+@@ -110,6 +110,8 @@ balance_dirty_pages_ratelimited(struct a
+ }
  
- #include <linux/sunrpc/clnt.h>
+ int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
++extern int generic_writepages(struct address_space *mapping,
++			      struct writeback_control *wbc);
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
+ int sync_page_range(struct inode *inode, struct address_space *mapping,
+ 			loff_t pos, loff_t count);
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index f75d033..c2ed5b6 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -30,6 +30,7 @@ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
+ #include <linux/buffer_head.h>
++#include <linux/pagevec.h>
+ 
+ /*
+  * The maximum number of pages to writeout in a single bdflush/kupdate
+@@ -543,6 +544,140 @@ void __init page_writeback_init(void)
+ 	register_cpu_notifier(&ratelimit_nb);
+ }
+ 
++/**
++ * generic_writepages - walk the list of dirty pages of the given
++ *                      address space and writepage() all of them.
++ *
++ * @mapping: address space structure to write
++ * @wbc: subtract the number of written pages from *@wbc->nr_to_write
++ *
++ * This is a library function, which implements the writepages()
++ * address_space_operation.
++ *
++ * If a page is already under I/O, generic_writepages() skips it, even
++ * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
++ * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
++ * and msync() need to guarantee that all the data which was dirty at the time
++ * the call was made get new I/O started against them.  If wbc->sync_mode is
++ * WB_SYNC_ALL then we were called for data integrity and we must wait for
++ * existing IO to complete.
++ *
++ * !!!! Derived from mpage_writepages() - if you fix this you should check that
++ *      also !!!!
++ */
++int generic_writepages(struct address_space *mapping,
++		       struct writeback_control *wbc)
++{
++	struct backing_dev_info *bdi = mapping->backing_dev_info;
++	int ret = 0;
++	int done = 0;
++	int (*writepage)(struct page *page, struct writeback_control *wbc);
++	struct pagevec pvec;
++	int nr_pages;
++	pgoff_t index;
++	pgoff_t end;		/* Inclusive */
++	int scanned = 0;
++	int range_whole = 0;
++
++	if (wbc->nonblocking && bdi_write_congested(bdi)) {
++		wbc->encountered_congestion = 1;
++		return 0;
++	}
++
++	writepage = mapping->a_ops->writepage;
++
++	/* deal with chardevs and other special file */
++	if (!writepage)
++		return 0;
++
++	pagevec_init(&pvec, 0);
++	if (wbc->range_cyclic) {
++		index = mapping->writeback_index; /* Start from prev offset */
++		end = -1;
++	} else {
++		index = wbc->range_start >> PAGE_CACHE_SHIFT;
++		end = wbc->range_end >> PAGE_CACHE_SHIFT;
++		if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
++			range_whole = 1;
++		scanned = 1;
++	}
++retry:
++	while (!done && (index <= end) &&
++	       (nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
++					      PAGECACHE_TAG_DIRTY,
++					      min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
++		unsigned i;
++
++		scanned = 1;
++		for (i = 0; i < nr_pages; i++) {
++			struct page *page = pvec.pages[i];
++
++			/*
++			 * At this point we hold neither mapping->tree_lock nor
++			 * lock on the page itself: the page may be truncated or
++			 * invalidated (changing page->mapping to NULL), or even
++			 * swizzled back from swapper_space to tmpfs file
++			 * mapping
++			 */
++
++			lock_page(page);
++
++			if (unlikely(page->mapping != mapping)) {
++				unlock_page(page);
++				continue;
++			}
++
++			if (!wbc->range_cyclic && page->index > end) {
++				done = 1;
++				unlock_page(page);
++				continue;
++			}
++
++			if (wbc->sync_mode != WB_SYNC_NONE)
++				wait_on_page_writeback(page);
++
++			if (PageWriteback(page) ||
++			    !clear_page_dirty_for_io(page)) {
++				unlock_page(page);
++				continue;
++			}
++
++			ret = (*writepage)(page, wbc);
++			if (ret) {
++				if (ret == -ENOSPC)
++					set_bit(AS_ENOSPC, &mapping->flags);
++				else
++					set_bit(AS_EIO, &mapping->flags);
++			}
++
++			if (unlikely(ret == AOP_WRITEPAGE_ACTIVATE))
++				unlock_page(page);
++			if (ret || (--(wbc->nr_to_write) <= 0))
++				done = 1;
++			if (wbc->nonblocking && bdi_write_congested(bdi)) {
++				wbc->encountered_congestion = 1;
++				done = 1;
++			}
++		}
++		pagevec_release(&pvec);
++		cond_resched();
++	}
++	if (!scanned && !done) {
++		/*
++		 * We hit the last page and there is more work to be done: wrap
++		 * back to the start of the file
++		 */
++		scanned = 1;
++		index = 0;
++		goto retry;
++	}
++	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
++		mapping->writeback_index = index;
++	return ret;
++}
++
++EXPORT_SYMBOL(generic_writepages);
++
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
+ {
+ 	int ret;

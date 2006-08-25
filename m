@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWHYD5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422824AbWHYEDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWHYD5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 23:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWHYD5n
+	id S1422824AbWHYEDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 00:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422826AbWHYEDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 23:57:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9192 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1160999AbWHYD5m (ORCPT
+	Fri, 25 Aug 2006 00:03:33 -0400
+Received: from ozlabs.org ([203.10.76.45]:49799 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1422824AbWHYEDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 23:57:42 -0400
-Date: Thu, 24 Aug 2006 20:54:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] eCryptfs: Netlink functions for public key
-Message-Id: <20060824205419.c3894612.akpm@osdl.org>
-In-Reply-To: <20060824181831.GB17658@us.ibm.com>
-References: <20060824181722.GA17658@us.ibm.com>
-	<20060824181831.GB17658@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Aug 2006 00:03:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17646.29510.296315.569294@cargo.ozlabs.ibm.com>
+Date: Fri, 25 Aug 2006 13:49:26 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: "Dong Feng" <middle.fengdong@gmail.com>
+Cc: ak@suse.de, "Christoph Lameter" <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Unnecessary Relocation Hiding?
+In-Reply-To: <a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
+References: <a2ebde260608230500o3407b108hc03debb9da6e62c@mail.gmail.com>
+	<Pine.LNX.4.64.0608241125140.4394@schroedinger.engr.sgi.com>
+	<17646.14056.102017.127644@cargo.ozlabs.ibm.com>
+	<a2ebde260608241830p2d26b20bp6bfb9b1b5a267ec6@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Aug 2006 13:18:32 -0500
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Dong Feng writes:
 
-> eCryptfs netlink type, header updates, and messaging code to provide
-> support for userspace callout to perform public key operations.
-> 
+> Sorry for perhaps extending the specific question to a more generic
+> one. In which cases shall we, in current or future development,
+> prevent gcc from knowing a pointer-addition in the way RELOC_HIDE? And
+> in what cases shall we just write pure C point addition?
 
-That tells us (with maximum terseness) what it does.  We're left to our own
-devices to work out why it does this, how it does it and why it does it in
-the way in which it does it?   This leads to dumb questions ;)
+Where you are saying to gcc "you think this variable is at this
+address, but I know it's actually at this other address over here" you
+should use RELOC_HIDE.  Where the addition is being used to get the
+address of some part of the object (so the resulting address is still
+within the object) you can just use plain addition.
 
-- We have a great clod of key mangement code in-kernel.  Why is that not
-  suitable (or growable) for public key management?
-
-- Is it appropriate that new infrastructure for public key management be
-  private to a particular fs?
-
-- I see code in there in which the kernel "knows" about specific
-  userspace processes.  By uid and pid.  What's all that doing and why is
-  it done that way?
-
-  What happens if one of these daemons exits without sending a quit message?
-
-- It uses netlink to transport keys.  What are the security implications
-  of this?  (Can they be sniffed, for example?)
-
-- _why_ does it use netlink?
-
-It's obvious that a string of design decisions have gone into all of this. 
-Please tell us about them.  Please also tell us the answers to all the
-other questions I'd have asked if I knew enough about this to ask them.
-
-
->   *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
-> + *              Trevor S. Highland <trevor.highland@gmail.com>
-> + *		Tyler Hicks <tyhicks@ou.edu>
-
-Do we have signoffs from Trevor and Tyler?
+Paul.

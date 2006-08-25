@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422908AbWHYVDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422911AbWHYVLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422908AbWHYVDH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 17:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422909AbWHYVDH
+	id S1422911AbWHYVLf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 17:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422912AbWHYVLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 17:03:07 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:15071 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1422908AbWHYVDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 17:03:05 -0400
-Date: Fri, 25 Aug 2006 17:03:05 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange transmit corruption in jsm driver on geode sc1200 system
-Message-ID: <20060825210305.GL13639@csclub.uwaterloo.ca>
-References: <20060825203047.GH13641@csclub.uwaterloo.ca> <1156540817.3007.270.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Aug 2006 17:11:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:19528 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1422911AbWHYVLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 17:11:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Oob1nDJCOt+0gnTG/jiyPg1Aui/uTdrSZ28w2EaViUU2I5VpLEX9sNuCYRkiOWD9JfQMxOShq9Xnqth7hrPdBxBEhcgeSMqCiUPw7BxXOsc+eseBR8hLQFoNTc86ODUCVcfLsHjSAk0D8oweZ2hhOkyAFTYihbFKhfIM3GujZO0=
+Message-ID: <361d23520608251411g256804d8t678a98e0ff552454@mail.gmail.com>
+Date: Fri, 25 Aug 2006 17:11:34 -0400
+From: "David Kyle" <david.kyle@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: TPM module: lack of internal kernel interface
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1156540817.3007.270.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 10:20:17PM +0100, Alan Cox wrote:
-> That should be staying in order unless the device memory is mislabelled
-> and prefetchable etc.
+I'm currently working on implementing a trusted computing system using
+the linux TPM driver, similar to enforcer
+(http://enforcer.sourceforge.net).  As my project involves kernel
+modifications that are highly unlikely to be of use within the
+mainstream kernel, I am attempting to confine my kernel-level work to
+a linux security module, so that my system will hopefully not be
+affected too heavily by newer kernel versions.
 
-Hmm, no according to lspci the memory is labeled non-prefetachble, and
-the pci bridge agrees with that setting too.
+Hovever, I have run into difficulty since the TPM driver included in
+the kernel doesn't include a internal interface for TPM access from
+within the kernel itself.  There is only a userspace character device
+interface.  Is there in fact an internal TPM interface I'm not seeing?
+ If not, is there a particular reason why there isn't (and shouldn't
+be) one?
 
-> What happens if you swap the memcpy_toio with while() writeb() ?
+It seems to me that it would be important to have such an interface
+for any trusted computing system.  Enforcer uses it's own tpm kernel
+driver, which I'd definately like to avoid doing with my project.
 
-I tried changing it to a for loop that calles memcpy_toio with one byte
-at a time, and it works fine that way (although probably less
-efficient).  I expect the writeb one at a time will work too.
+If I were to extend the existing TPM driver with an internal kernel
+interface, would it likely be included in the mainstream kernel?
 
-> They do a lot of stuff but it should not affect the PCI side and I'd
-> expect it to do other things than byte lane re-ordering.
-
-Yeah no kidding.
-
-> Is the buffer 32bit aligned ?
-
-I honestly don't know.  I am just trying to figure out why the jsm
-driver isn't working on this system while it works on other types of
-hardware, and so far it seems to come down to the __memcpy assembly not
-being happy on the SC1200 doing more than one byte at a time.  it is
-very consistently making the same mistake all the time.
-
---
-Len Sorensen
+Thanks,
+David Kyle

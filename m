@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWHYXDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWHYXG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWHYXDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWHYXDz
+	id S964806AbWHYXG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWHYXG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:03:55 -0400
-Received: from ns.suse.de ([195.135.220.2]:41872 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964789AbWHYXDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:03:54 -0400
-Date: Fri, 25 Aug 2006 16:03:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, Nix <nix@esperi.org.uk>,
-       linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>,
-       netdev@vger.kernel.org
-Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
-Message-ID: <20060825230316.GA3254@kroah.com>
-References: <87zme9fy94.fsf@hades.wkstn.nix> <20060813125910.GA18463@gondor.apana.org.au>
+	Fri, 25 Aug 2006 19:06:29 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:55943 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S964806AbWHYXG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 19:06:28 -0400
+Date: Sat, 26 Aug 2006 01:06:26 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPV6 : segmentation offload not set correctly on TCP children
+Message-ID: <20060825230626.GC4570@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060821212243.GA1558@cip.informatik.uni-erlangen.de> <20060821150231.31a947d4@localhost.localdomain> <20060821222634.GC21790@cip.informatik.uni-erlangen.de> <20060825154353.3ecaf508@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060813125910.GA18463@gondor.apana.org.au>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060825154353.3ecaf508@localhost.localdomain>
+User-Agent: Mutt/1.5.11-2006-07-11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 10:59:11PM +1000, Herbert Xu wrote:
-> On Sat, Aug 12, 2006 at 09:19:19PM +0000, Nix wrote:
-> > 
-> > The kernel log showed a heap of BUGs from somewhere inside the skb
-> > management layer, somewhere in UDP fragment processing while
-> > handling NFS requests. It starts like this:
-> > 
-> > Aug 12 21:31:08 hades warning: kernel: BUG: warning at include/linux/skbuff.h:975/__skb_trim()
-> > Aug 12 21:31:08 hades warning: kernel: <c030ed39> ip_append_data+0x5b3/0x951  <c030fc18> ip_generic_getfrag+0x0/0x96
-> 
-> Oops, I missed this code path when I disallowed skb_trim from operating
-> on a paged skb.  This patch should fix the problem.
-> 
-> Greg, we need this for 2.6.17 stable as well if Dave is OK with it.
+Hello Stephen,
+thanks for the fix, it fixes the problem for me. I closed the bug. On
+which hardware did you reproduce the bug and how did you found it? Did
+you use git bisect?
 
-This patch doesn't apply at all to the latest 2.6.17-stable kernel tree.
-Care to rediff it?
-
-thanks,
-
-greg k-h
+        Thomas

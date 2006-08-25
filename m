@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWHYOtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWHYOwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWHYOtw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 10:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWHYOtv
+	id S1030229AbWHYOwP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 10:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWHYOtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 10:49:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19585 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030209AbWHYOtp (ORCPT
+	Fri, 25 Aug 2006 10:49:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22401 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030210AbWHYOtr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 10:49:45 -0400
+	Fri, 25 Aug 2006 10:49:47 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 11/18] [PATCH] BLOCK: Move common FS-specific ioctls to linux/fs.h [try #3]
-Date: Fri, 25 Aug 2006 15:49:40 +0100
+Subject: [PATCH 10/18] [PATCH] BLOCK: Move the loop device ioctl compat stuff to the loop driver [try #3]
+Date: Fri, 25 Aug 2006 15:49:38 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825144940.30722.37394.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825144938.30722.69187.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 References: <20060825144916.30722.90944.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,419 +26,309 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move common FS-specific ioctls from linux/ext2_fs.h to linux/fs.h as FS_IOC_*
-and FS_IOC32_* and have the users of them use those as a base.
-
-Also move the GETFLAGS/SETFLAGS flags to linux/fs.h as FS_*_FL macros, and then
-have the other users use them as a base.
+Move the loop device ioctl compat stuff from fs/compat_ioctl.c to the loop
+driver so that the loop header file doesn't need to be included.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/cifs/ioctl.c             |    7 ++---
- fs/compat_ioctl.c           |   15 ----------
- fs/hfsplus/hfsplus_fs.h     |    8 +----
- fs/hfsplus/ioctl.c          |   17 +++++------
- fs/jfs/ioctl.c              |   15 +++++-----
- include/linux/ext2_fs.h     |   66 ++++++++++++++++++++++++-------------------
- include/linux/ext3_fs.h     |   20 ++++++++++---
- include/linux/fs.h          |   39 +++++++++++++++++++++++++
- include/linux/reiserfs_fs.h |   28 ++++++++----------
- 9 files changed, 125 insertions(+), 90 deletions(-)
+ drivers/block/loop.c         |  160 ++++++++++++++++++++++++++++++++++++++++++
+ fs/compat_ioctl.c            |   68 ------------------
+ include/linux/compat_ioctl.h |    6 --
+ 3 files changed, 160 insertions(+), 74 deletions(-)
 
-diff --git a/fs/cifs/ioctl.c b/fs/cifs/ioctl.c
-index b0ea668..e34c7db 100644
---- a/fs/cifs/ioctl.c
-+++ b/fs/cifs/ioctl.c
-@@ -22,7 +22,6 @@
-  */
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 7b3b94d..23d3381 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -66,6 +66,7 @@ #include <linux/smp_lock.h>
+ #include <linux/swap.h>
+ #include <linux/slab.h>
+ #include <linux/loop.h>
++#include <linux/compat.h>
+ #include <linux/suspend.h>
+ #include <linux/writeback.h>
+ #include <linux/buffer_head.h>		/* for invalidate_bdev() */
+@@ -1174,6 +1175,162 @@ static int lo_ioctl(struct inode * inode
+ 	return err;
+ }
  
- #include <linux/fs.h>
--#include <linux/ext2_fs.h>
- #include "cifspdu.h"
- #include "cifsglob.h"
- #include "cifsproto.h"
-@@ -74,7 +73,7 @@ #endif /* CONFIG_CIFS_POSIX */
- 			}
- 			break;
- #ifdef CONFIG_CIFS_POSIX
--		case EXT2_IOC_GETFLAGS:
-+		case FS_IOC_GETFLAGS:
- 			if(CIFS_UNIX_EXTATTR_CAP & caps) {
- 				if (pSMBFile == NULL)
- 					break;
-@@ -82,12 +81,12 @@ #ifdef CONFIG_CIFS_POSIX
- 					&ExtAttrBits, &ExtAttrMask);
- 				if(rc == 0)
- 					rc = put_user(ExtAttrBits &
--						EXT2_FL_USER_VISIBLE,
-+						FS_FL_USER_VISIBLE,
- 						(int __user *)arg);
- 			}
- 			break;
- 
--		case EXT2_IOC_SETFLAGS:
-+		case FS_IOC_SETFLAGS:
- 			if(CIFS_UNIX_EXTATTR_CAP & caps) {
- 				if(get_user(ExtAttrBits,(int __user *)arg)) {
- 					rc = -EFAULT;
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index d33a2b1..c4d2849 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -123,21 +123,6 @@ #include <linux/dvb/frontend.h>
- #include <linux/dvb/video.h>
- #include <linux/lp.h>
- 
--/* Aiee. Someone does not find a difference between int and long */
--#define EXT2_IOC32_GETFLAGS               _IOR('f', 1, int)
--#define EXT2_IOC32_SETFLAGS               _IOW('f', 2, int)
--#define EXT3_IOC32_GETVERSION             _IOR('f', 3, int)
--#define EXT3_IOC32_SETVERSION             _IOW('f', 4, int)
--#define EXT3_IOC32_GETRSVSZ               _IOR('f', 5, int)
--#define EXT3_IOC32_SETRSVSZ               _IOW('f', 6, int)
--#define EXT3_IOC32_GROUP_EXTEND           _IOW('f', 7, unsigned int)
--#ifdef CONFIG_JBD_DEBUG
--#define EXT3_IOC32_WAIT_FOR_READONLY      _IOR('f', 99, int)
--#endif
--
--#define EXT2_IOC32_GETVERSION             _IOR('v', 1, int)
--#define EXT2_IOC32_SETVERSION             _IOW('v', 2, int)
--
- static int do_ioctl32_pointer(unsigned int fd, unsigned int cmd,
- 			      unsigned long arg, struct file *f)
- {
-diff --git a/fs/hfsplus/hfsplus_fs.h b/fs/hfsplus/hfsplus_fs.h
-index 8a1ca5e..3915635 100644
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -246,12 +246,8 @@ #define hfs_part_find hfsplus_part_find
- 
- /* ext2 ioctls (EXT2_IOC_GETFLAGS and EXT2_IOC_SETFLAGS) to support
-  * chattr/lsattr */
--#define HFSPLUS_IOC_EXT2_GETFLAGS	_IOR('f', 1, long)
--#define HFSPLUS_IOC_EXT2_SETFLAGS	_IOW('f', 2, long)
--
--#define EXT2_FLAG_IMMUTABLE		0x00000010 /* Immutable file */
--#define EXT2_FLAG_APPEND		0x00000020 /* writes to file may only append */
--#define EXT2_FLAG_NODUMP		0x00000040 /* do not dump file */
-+#define HFSPLUS_IOC_EXT2_GETFLAGS	FS_IOC_GETFLAGS
-+#define HFSPLUS_IOC_EXT2_SETFLAGS	FS_IOC_SETFLAGS
- 
- 
- /*
-diff --git a/fs/hfsplus/ioctl.c b/fs/hfsplus/ioctl.c
-index 13cf848..79fd104 100644
---- a/fs/hfsplus/ioctl.c
-+++ b/fs/hfsplus/ioctl.c
-@@ -28,11 +28,11 @@ int hfsplus_ioctl(struct inode *inode, s
- 	case HFSPLUS_IOC_EXT2_GETFLAGS:
- 		flags = 0;
- 		if (HFSPLUS_I(inode).rootflags & HFSPLUS_FLG_IMMUTABLE)
--			flags |= EXT2_FLAG_IMMUTABLE; /* EXT2_IMMUTABLE_FL */
-+			flags |= FS_IMMUTABLE_FL; /* EXT2_IMMUTABLE_FL */
- 		if (HFSPLUS_I(inode).rootflags & HFSPLUS_FLG_APPEND)
--			flags |= EXT2_FLAG_APPEND; /* EXT2_APPEND_FL */
-+			flags |= FS_APPEND_FL; /* EXT2_APPEND_FL */
- 		if (HFSPLUS_I(inode).userflags & HFSPLUS_FLG_NODUMP)
--			flags |= EXT2_FLAG_NODUMP; /* EXT2_NODUMP_FL */
-+			flags |= FS_NODUMP_FL; /* EXT2_NODUMP_FL */
- 		return put_user(flags, (int __user *)arg);
- 	case HFSPLUS_IOC_EXT2_SETFLAGS: {
- 		if (IS_RDONLY(inode))
-@@ -44,32 +44,31 @@ int hfsplus_ioctl(struct inode *inode, s
- 		if (get_user(flags, (int __user *)arg))
- 			return -EFAULT;
- 
--		if (flags & (EXT2_FLAG_IMMUTABLE|EXT2_FLAG_APPEND) ||
-+		if (flags & (FS_IMMUTABLE_FL|FS_APPEND_FL) ||
- 		    HFSPLUS_I(inode).rootflags & (HFSPLUS_FLG_IMMUTABLE|HFSPLUS_FLG_APPEND)) {
- 			if (!capable(CAP_LINUX_IMMUTABLE))
- 				return -EPERM;
- 		}
- 
- 		/* don't silently ignore unsupported ext2 flags */
--		if (flags & ~(EXT2_FLAG_IMMUTABLE|EXT2_FLAG_APPEND|
--			      EXT2_FLAG_NODUMP))
-+		if (flags & ~(FS_IMMUTABLE_FL|FS_APPEND_FL|FS_NODUMP_FL))
- 			return -EOPNOTSUPP;
- 
--		if (flags & EXT2_FLAG_IMMUTABLE) { /* EXT2_IMMUTABLE_FL */
-+		if (flags & FS_IMMUTABLE_FL) { /* EXT2_IMMUTABLE_FL */
- 			inode->i_flags |= S_IMMUTABLE;
- 			HFSPLUS_I(inode).rootflags |= HFSPLUS_FLG_IMMUTABLE;
- 		} else {
- 			inode->i_flags &= ~S_IMMUTABLE;
- 			HFSPLUS_I(inode).rootflags &= ~HFSPLUS_FLG_IMMUTABLE;
- 		}
--		if (flags & EXT2_FLAG_APPEND) { /* EXT2_APPEND_FL */
-+		if (flags & FS_APPEND_FL) { /* EXT2_APPEND_FL */
- 			inode->i_flags |= S_APPEND;
- 			HFSPLUS_I(inode).rootflags |= HFSPLUS_FLG_APPEND;
- 		} else {
- 			inode->i_flags &= ~S_APPEND;
- 			HFSPLUS_I(inode).rootflags &= ~HFSPLUS_FLG_APPEND;
- 		}
--		if (flags & EXT2_FLAG_NODUMP) /* EXT2_NODUMP_FL */
-+		if (flags & FS_NODUMP_FL) /* EXT2_NODUMP_FL */
- 			HFSPLUS_I(inode).userflags |= HFSPLUS_FLG_NODUMP;
- 		else
- 			HFSPLUS_I(inode).userflags &= ~HFSPLUS_FLG_NODUMP;
-diff --git a/fs/jfs/ioctl.c b/fs/jfs/ioctl.c
-index 67b3774..37db524 100644
---- a/fs/jfs/ioctl.c
-+++ b/fs/jfs/ioctl.c
-@@ -6,7 +6,6 @@
-  */
- 
- #include <linux/fs.h>
--#include <linux/ext2_fs.h>
- #include <linux/ctype.h>
- #include <linux/capability.h>
- #include <linux/time.h>
-@@ -22,13 +21,13 @@ static struct {
- 	long jfs_flag;
- 	long ext2_flag;
- } jfs_map[] = {
--	{JFS_NOATIME_FL, EXT2_NOATIME_FL},
--	{JFS_DIRSYNC_FL, EXT2_DIRSYNC_FL},
--	{JFS_SYNC_FL, EXT2_SYNC_FL},
--	{JFS_SECRM_FL, EXT2_SECRM_FL},
--	{JFS_UNRM_FL, EXT2_UNRM_FL},
--	{JFS_APPEND_FL, EXT2_APPEND_FL},
--	{JFS_IMMUTABLE_FL, EXT2_IMMUTABLE_FL},
-+	{JFS_NOATIME_FL,	FS_NOATIME_FL},
-+	{JFS_DIRSYNC_FL,	FS_DIRSYNC_FL},
-+	{JFS_SYNC_FL,		FS_SYNC_FL},
-+	{JFS_SECRM_FL,		FS_SECRM_FL},
-+	{JFS_UNRM_FL,		FS_UNRM_FL},
-+	{JFS_APPEND_FL,		FS_APPEND_FL},
-+	{JFS_IMMUTABLE_FL,	FS_IMMUTABLE_FL},
- 	{0, 0},
- };
- 
-diff --git a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
-index facf34e..9996d2e 100644
---- a/include/linux/ext2_fs.h
-+++ b/include/linux/ext2_fs.h
-@@ -169,41 +169,49 @@ #define	EXT2_TIND_BLOCK			(EXT2_DIND_BLO
- #define	EXT2_N_BLOCKS			(EXT2_TIND_BLOCK + 1)
- 
- /*
-- * Inode flags
-- */
--#define	EXT2_SECRM_FL			0x00000001 /* Secure deletion */
--#define	EXT2_UNRM_FL			0x00000002 /* Undelete */
--#define	EXT2_COMPR_FL			0x00000004 /* Compress file */
--#define EXT2_SYNC_FL			0x00000008 /* Synchronous updates */
--#define EXT2_IMMUTABLE_FL		0x00000010 /* Immutable file */
--#define EXT2_APPEND_FL			0x00000020 /* writes to file may only append */
--#define EXT2_NODUMP_FL			0x00000040 /* do not dump file */
--#define EXT2_NOATIME_FL			0x00000080 /* do not update atime */
-+ * Inode flags (GETFLAGS/SETFLAGS)
-+ */
-+#define	EXT2_SECRM_FL			FS_SECRM_FL	/* Secure deletion */
-+#define	EXT2_UNRM_FL			FS_UNRM_FL	/* Undelete */
-+#define	EXT2_COMPR_FL			FS_COMPR_FL	/* Compress file */
-+#define EXT2_SYNC_FL			FS_SYNC_FL	/* Synchronous updates */
-+#define EXT2_IMMUTABLE_FL		FS_IMMUTABLE_FL	/* Immutable file */
-+#define EXT2_APPEND_FL			FS_APPEND_FL	/* writes to file may only append */
-+#define EXT2_NODUMP_FL			FS_NODUMP_FL	/* do not dump file */
-+#define EXT2_NOATIME_FL			FS_NOATIME_FL	/* do not update atime */
- /* Reserved for compression usage... */
--#define EXT2_DIRTY_FL			0x00000100
--#define EXT2_COMPRBLK_FL		0x00000200 /* One or more compressed clusters */
--#define EXT2_NOCOMP_FL			0x00000400 /* Don't compress */
--#define EXT2_ECOMPR_FL			0x00000800 /* Compression error */
-+#define EXT2_DIRTY_FL			FS_DIRTY_FL
-+#define EXT2_COMPRBLK_FL		FS_COMPRBLK_FL	/* One or more compressed clusters */
-+#define EXT2_NOCOMP_FL			FS_NOCOMP_FL	/* Don't compress */
-+#define EXT2_ECOMPR_FL			FS_ECOMPR_FL	/* Compression error */
- /* End compression flags --- maybe not all used */	
--#define EXT2_BTREE_FL			0x00001000 /* btree format dir */
--#define EXT2_INDEX_FL			0x00001000 /* hash-indexed directory */
--#define EXT2_IMAGIC_FL			0x00002000 /* AFS directory */
--#define EXT2_JOURNAL_DATA_FL		0x00004000 /* Reserved for ext3 */
--#define EXT2_NOTAIL_FL			0x00008000 /* file tail should not be merged */
--#define EXT2_DIRSYNC_FL			0x00010000 /* dirsync behaviour (directories only) */
--#define EXT2_TOPDIR_FL			0x00020000 /* Top of directory hierarchies*/
--#define EXT2_RESERVED_FL		0x80000000 /* reserved for ext2 lib */
--
--#define EXT2_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
--#define EXT2_FL_USER_MODIFIABLE		0x000380FF /* User modifiable flags */
-+#define EXT2_BTREE_FL			FS_BTREE_FL	/* btree format dir */
-+#define EXT2_INDEX_FL			FS_INDEX_FL	/* hash-indexed directory */
-+#define EXT2_IMAGIC_FL			FS_IMAGIC_FL	/* AFS directory */
-+#define EXT2_JOURNAL_DATA_FL		FS_JOURNAL_DATA_FL /* Reserved for ext3 */
-+#define EXT2_NOTAIL_FL			FS_NOTAIL_FL	/* file tail should not be merged */
-+#define EXT2_DIRSYNC_FL			FS_DIRSYNC_FL	/* dirsync behaviour (directories only) */
-+#define EXT2_TOPDIR_FL			FS_TOPDIR_FL	/* Top of directory hierarchies*/
-+#define EXT2_RESERVED_FL		FS_RESERVED_FL	/* reserved for ext2 lib */
-+
-+#define EXT2_FL_USER_VISIBLE		FS_FL_USER_VISIBLE	/* User visible flags */
-+#define EXT2_FL_USER_MODIFIABLE		FS_FL_USER_MODIFIABLE	/* User modifiable flags */
- 
- /*
-  * ioctl commands
-  */
--#define	EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
--#define	EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
--#define	EXT2_IOC_GETVERSION		_IOR('v', 1, long)
--#define	EXT2_IOC_SETVERSION		_IOW('v', 2, long)
-+#define	EXT2_IOC_GETFLAGS		FS_IOC_GETFLAGS
-+#define	EXT2_IOC_SETFLAGS		FS_IOC_SETFLAGS
-+#define	EXT2_IOC_GETVERSION		FS_IOC_GETVERSION
-+#define	EXT2_IOC_SETVERSION		FS_IOC_SETVERSION
++#ifdef CONFIG_COMPAT
++struct compat_loop_info {
++	compat_int_t	lo_number;      /* ioctl r/o */
++	compat_dev_t	lo_device;      /* ioctl r/o */
++	compat_ulong_t	lo_inode;       /* ioctl r/o */
++	compat_dev_t	lo_rdevice;     /* ioctl r/o */
++	compat_int_t	lo_offset;
++	compat_int_t	lo_encrypt_type;
++	compat_int_t	lo_encrypt_key_size;    /* ioctl w/o */
++	compat_int_t	lo_flags;       /* ioctl r/o */
++	char		lo_name[LO_NAME_SIZE];
++	unsigned char	lo_encrypt_key[LO_KEY_SIZE]; /* ioctl w/o */
++	compat_ulong_t	lo_init[2];
++	char		reserved[4];
++};
 +
 +/*
-+ * ioctl commands in 32 bit emulation
++ * Transfer 32-bit compatibility structure in userspace to 64-bit loop info
++ * - noinlined to reduce stack space usage in main part of driver
 + */
-+#define EXT2_IOC32_GETFLAGS		FS_IOC32_GETFLAGS
-+#define EXT2_IOC32_SETFLAGS		FS_IOC32_SETFLAGS
-+#define EXT2_IOC32_GETVERSION		FS_IOC32_GETVERSION
-+#define EXT2_IOC32_SETVERSION		FS_IOC32_SETVERSION
- 
- /*
-  * Structure of an inode on the disk
-diff --git a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
-index 9f9cce7..90cfba2 100644
---- a/include/linux/ext3_fs.h
-+++ b/include/linux/ext3_fs.h
-@@ -220,14 +220,14 @@ struct ext3_new_group_data {
- /*
-  * ioctl commands
-  */
--#define	EXT3_IOC_GETFLAGS		_IOR('f', 1, long)
--#define	EXT3_IOC_SETFLAGS		_IOW('f', 2, long)
-+#define	EXT3_IOC_GETFLAGS		FS_IOC_GETFLAGS
-+#define	EXT3_IOC_SETFLAGS		FS_IOC_SETFLAGS
- #define	EXT3_IOC_GETVERSION		_IOR('f', 3, long)
- #define	EXT3_IOC_SETVERSION		_IOW('f', 4, long)
- #define EXT3_IOC_GROUP_EXTEND		_IOW('f', 7, unsigned long)
- #define EXT3_IOC_GROUP_ADD		_IOW('f', 8,struct ext3_new_group_input)
--#define	EXT3_IOC_GETVERSION_OLD		_IOR('v', 1, long)
--#define	EXT3_IOC_SETVERSION_OLD		_IOW('v', 2, long)
-+#define	EXT3_IOC_GETVERSION_OLD		FS_IOC_GETVERSION
-+#define	EXT3_IOC_SETVERSION_OLD		FS_IOC_SETVERSION
- #ifdef CONFIG_JBD_DEBUG
- #define EXT3_IOC_WAIT_FOR_READONLY	_IOR('f', 99, long)
- #endif
-@@ -235,6 +235,18 @@ #define EXT3_IOC_GETRSVSZ		_IOR('f', 5, 
- #define EXT3_IOC_SETRSVSZ		_IOW('f', 6, long)
- 
- /*
-+ * ioctl commands in 32 bit emulation
++static noinline int
++loop_info64_from_compat(const struct compat_loop_info *arg,
++			struct loop_info64 *info64)
++{
++	struct compat_loop_info info;
++
++	if (copy_from_user(&info, arg, sizeof(info)))
++		return -EFAULT;
++
++	memset(info64, 0, sizeof(*info64));
++	info64->lo_number = info.lo_number;
++	info64->lo_device = info.lo_device;
++	info64->lo_inode = info.lo_inode;
++	info64->lo_rdevice = info.lo_rdevice;
++	info64->lo_offset = info.lo_offset;
++	info64->lo_sizelimit = 0;
++	info64->lo_encrypt_type = info.lo_encrypt_type;
++	info64->lo_encrypt_key_size = info.lo_encrypt_key_size;
++	info64->lo_flags = info.lo_flags;
++	info64->lo_init[0] = info.lo_init[0];
++	info64->lo_init[1] = info.lo_init[1];
++	if (info.lo_encrypt_type == LO_CRYPT_CRYPTOAPI)
++		memcpy(info64->lo_crypt_name, info.lo_name, LO_NAME_SIZE);
++	else
++		memcpy(info64->lo_file_name, info.lo_name, LO_NAME_SIZE);
++	memcpy(info64->lo_encrypt_key, info.lo_encrypt_key, LO_KEY_SIZE);
++	return 0;
++}
++
++/*
++ * Transfer 64-bit loop info to 32-bit compatibility structure in userspace
++ * - noinlined to reduce stack space usage in main part of driver
 + */
-+#define EXT3_IOC32_GETVERSION		_IOR('f', 3, int)
-+#define EXT3_IOC32_SETVERSION		_IOW('f', 4, int)
-+#define EXT3_IOC32_GETRSVSZ		_IOR('f', 5, int)
-+#define EXT3_IOC32_SETRSVSZ		_IOW('f', 6, int)
-+#define EXT3_IOC32_GROUP_EXTEND		_IOW('f', 7, unsigned int)
-+#ifdef CONFIG_JBD_DEBUG
-+#define EXT3_IOC32_WAIT_FOR_READONLY	_IOR('f', 99, int)
++static noinline int
++loop_info64_to_compat(const struct loop_info64 *info64,
++		      struct compat_loop_info __user *arg)
++{
++	struct compat_loop_info info;
++
++	memset(&info, 0, sizeof(info));
++	info.lo_number = info64->lo_number;
++	info.lo_device = info64->lo_device;
++	info.lo_inode = info64->lo_inode;
++	info.lo_rdevice = info64->lo_rdevice;
++	info.lo_offset = info64->lo_offset;
++	info.lo_encrypt_type = info64->lo_encrypt_type;
++	info.lo_encrypt_key_size = info64->lo_encrypt_key_size;
++	info.lo_flags = info64->lo_flags;
++	info.lo_init[0] = info64->lo_init[0];
++	info.lo_init[1] = info64->lo_init[1];
++	if (info.lo_encrypt_type == LO_CRYPT_CRYPTOAPI)
++		memcpy(info.lo_name, info64->lo_crypt_name, LO_NAME_SIZE);
++	else
++		memcpy(info.lo_name, info64->lo_file_name, LO_NAME_SIZE);
++	memcpy(info.lo_encrypt_key, info64->lo_encrypt_key, LO_KEY_SIZE);
++
++	/* error in case values were truncated */
++	if (info.lo_device != info64->lo_device ||
++	    info.lo_rdevice != info64->lo_rdevice ||
++	    info.lo_inode != info64->lo_inode ||
++	    info.lo_offset != info64->lo_offset ||
++	    info.lo_init[0] != info64->lo_init[0] ||
++	    info.lo_init[1] != info64->lo_init[1])
++		return -EOVERFLOW;
++
++	if (copy_to_user(arg, &info, sizeof(info)))
++		return -EFAULT;
++	return 0;
++}
++
++static int
++loop_set_status_compat(struct loop_device *lo,
++		       const struct compat_loop_info __user *arg)
++{
++	struct loop_info64 info64;
++	int ret;
++
++	ret = loop_info64_from_compat(arg, &info64);
++	if (ret < 0)
++		return ret;
++	return loop_set_status(lo, &info64);
++}
++
++static int
++loop_get_status_compat(struct loop_device *lo,
++		       struct compat_loop_info __user *arg)
++{
++	struct loop_info64 info64;
++	int err = 0;
++
++	if (!arg)
++		err = -EINVAL;
++	if (!err)
++		err = loop_get_status(lo, &info64);
++	if (!err)
++		err = loop_info64_to_compat(&info64, arg);
++	return err;
++}
++
++static long lo_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct loop_device *lo = inode->i_bdev->bd_disk->private_data;
++	int err;
++
++	lock_kernel();
++	switch(cmd) {
++	case LOOP_SET_STATUS:
++		mutex_lock(&lo->lo_ctl_mutex);
++		err = loop_set_status_compat(
++			lo, (const struct compat_loop_info __user *) arg);
++		mutex_unlock(&lo->lo_ctl_mutex);
++		break;
++	case LOOP_GET_STATUS:
++		mutex_lock(&lo->lo_ctl_mutex);
++		err = loop_get_status_compat(
++			lo, (struct compat_loop_info __user *) arg);
++		mutex_unlock(&lo->lo_ctl_mutex);
++		break;
++	case LOOP_CLR_FD:
++	case LOOP_GET_STATUS64:
++	case LOOP_SET_STATUS64:
++		arg = (unsigned long) compat_ptr(arg);
++	case LOOP_SET_FD:
++	case LOOP_CHANGE_FD:
++		err = lo_ioctl(inode, file, cmd, arg);
++		break;
++	default:
++		err = -ENOIOCTLCMD;
++		break;
++	}
++	unlock_kernel();
++	return err;
++}
 +#endif
 +
-+/*
-  *  Mount options
-  */
- struct ext3_mount_options {
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index cd7fc6a..63d3126 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -216,6 +216,45 @@ #define BMAP_IOCTL 1		/* obsolete - kept
- #define FIBMAP	   _IO(0x00,1)	/* bmap access */
- #define FIGETBSZ   _IO(0x00,2)	/* get the block size used for bmap */
+ static int lo_open(struct inode *inode, struct file *file)
+ {
+ 	struct loop_device *lo = inode->i_bdev->bd_disk->private_data;
+@@ -1201,6 +1358,9 @@ static struct block_device_operations lo
+ 	.open =		lo_open,
+ 	.release =	lo_release,
+ 	.ioctl =	lo_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	lo_compat_ioctl,
++#endif
+ };
  
-+#define	FS_IOC_GETFLAGS			_IOR('f', 1, long)
-+#define	FS_IOC_SETFLAGS			_IOW('f', 2, long)
-+#define	FS_IOC_GETVERSION		_IOR('v', 1, long)
-+#define	FS_IOC_SETVERSION		_IOW('v', 2, long)
-+#define FS_IOC32_GETFLAGS		_IOR('f', 1, int)
-+#define FS_IOC32_SETFLAGS		_IOW('f', 2, int)
-+#define FS_IOC32_GETVERSION		_IOR('v', 1, int)
-+#define FS_IOC32_SETVERSION		_IOW('v', 2, int)
-+
-+/*
-+ * Inode flags (FS_IOC_GETFLAGS / FS_IOC_SETFLAGS)
-+ */
-+#define	FS_SECRM_FL			0x00000001 /* Secure deletion */
-+#define	FS_UNRM_FL			0x00000002 /* Undelete */
-+#define	FS_COMPR_FL			0x00000004 /* Compress file */
-+#define FS_SYNC_FL			0x00000008 /* Synchronous updates */
-+#define FS_IMMUTABLE_FL			0x00000010 /* Immutable file */
-+#define FS_APPEND_FL			0x00000020 /* writes to file may only append */
-+#define FS_NODUMP_FL			0x00000040 /* do not dump file */
-+#define FS_NOATIME_FL			0x00000080 /* do not update atime */
-+/* Reserved for compression usage... */
-+#define FS_DIRTY_FL			0x00000100
-+#define FS_COMPRBLK_FL			0x00000200 /* One or more compressed clusters */
-+#define FS_NOCOMP_FL			0x00000400 /* Don't compress */
-+#define FS_ECOMPR_FL			0x00000800 /* Compression error */
-+/* End compression flags --- maybe not all used */
-+#define FS_BTREE_FL			0x00001000 /* btree format dir */
-+#define FS_INDEX_FL			0x00001000 /* hash-indexed directory */
-+#define FS_IMAGIC_FL			0x00002000 /* AFS directory */
-+#define FS_JOURNAL_DATA_FL		0x00004000 /* Reserved for ext3 */
-+#define FS_NOTAIL_FL			0x00008000 /* file tail should not be merged */
-+#define FS_DIRSYNC_FL			0x00010000 /* dirsync behaviour (directories only) */
-+#define FS_TOPDIR_FL			0x00020000 /* Top of directory hierarchies*/
-+#define FS_RESERVED_FL			0x80000000 /* reserved for ext2 lib */
-+
-+#define FS_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
-+#define FS_FL_USER_MODIFIABLE		0x000380FF /* User modifiable flags */
-+
-+
- #define SYNC_FILE_RANGE_WAIT_BEFORE	1
- #define SYNC_FILE_RANGE_WRITE		2
- #define SYNC_FILE_RANGE_WAIT_AFTER	4
-diff --git a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
-index daa2d83..54c3054 100644
---- a/include/linux/reiserfs_fs.h
-+++ b/include/linux/reiserfs_fs.h
-@@ -813,21 +813,19 @@ #define sd_v1_first_direct_byte(sdp) \
- #define set_sd_v1_first_direct_byte(sdp,v) \
-                                 ((sdp)->sd_first_direct_byte = cpu_to_le32(v))
+ /*
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index 4063a93..d33a2b1 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -40,7 +40,6 @@ #include <linux/if_ppp.h>
+ #include <linux/if_pppox.h>
+ #include <linux/mtio.h>
+ #include <linux/cdrom.h>
+-#include <linux/loop.h>
+ #include <linux/auto_fs.h>
+ #include <linux/auto_fs4.h>
+ #include <linux/tty.h>
+@@ -1214,71 +1213,6 @@ static int cdrom_ioctl_trans(unsigned in
+ 	return err;
+ }
  
--#include <linux/ext2_fs.h>
+-struct loop_info32 {
+-	compat_int_t	lo_number;      /* ioctl r/o */
+-	compat_dev_t	lo_device;      /* ioctl r/o */
+-	compat_ulong_t	lo_inode;       /* ioctl r/o */
+-	compat_dev_t	lo_rdevice;     /* ioctl r/o */
+-	compat_int_t	lo_offset;
+-	compat_int_t	lo_encrypt_type;
+-	compat_int_t	lo_encrypt_key_size;    /* ioctl w/o */
+-	compat_int_t	lo_flags;       /* ioctl r/o */
+-	char		lo_name[LO_NAME_SIZE];
+-	unsigned char	lo_encrypt_key[LO_KEY_SIZE]; /* ioctl w/o */
+-	compat_ulong_t	lo_init[2];
+-	char		reserved[4];
+-};
 -
- /* inode flags stored in sd_attrs (nee sd_reserved) */
+-static int loop_status(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct loop_info l;
+-	struct loop_info32 __user *ul;
+-	int err = -EINVAL;
+-
+-	ul = compat_ptr(arg);
+-	switch(cmd) {
+-	case LOOP_SET_STATUS:
+-		err = get_user(l.lo_number, &ul->lo_number);
+-		err |= __get_user(l.lo_device, &ul->lo_device);
+-		err |= __get_user(l.lo_inode, &ul->lo_inode);
+-		err |= __get_user(l.lo_rdevice, &ul->lo_rdevice);
+-		err |= __copy_from_user(&l.lo_offset, &ul->lo_offset,
+-		        8 + (unsigned long)l.lo_init - (unsigned long)&l.lo_offset);
+-		if (err) {
+-			err = -EFAULT;
+-		} else {
+-			set_fs (KERNEL_DS);
+-			err = sys_ioctl (fd, cmd, (unsigned long)&l);
+-			set_fs (old_fs);
+-		}
+-		break;
+-	case LOOP_GET_STATUS:
+-		set_fs (KERNEL_DS);
+-		err = sys_ioctl (fd, cmd, (unsigned long)&l);
+-		set_fs (old_fs);
+-		if (!err) {
+-			err = put_user(l.lo_number, &ul->lo_number);
+-			err |= __put_user(l.lo_device, &ul->lo_device);
+-			err |= __put_user(l.lo_inode, &ul->lo_inode);
+-			err |= __put_user(l.lo_rdevice, &ul->lo_rdevice);
+-			err |= __copy_to_user(&ul->lo_offset, &l.lo_offset,
+-				(unsigned long)l.lo_init - (unsigned long)&l.lo_offset);
+-			if (err)
+-				err = -EFAULT;
+-		}
+-		break;
+-	default: {
+-		static int count;
+-		if (++count <= 20)
+-			printk("%s: Unknown loop ioctl cmd, fd(%d) "
+-			       "cmd(%08x) arg(%08lx)\n",
+-			       __FUNCTION__, fd, cmd, arg);
+-	}
+-	}
+-	return err;
+-}
+-
+ extern int tty_ioctl(struct inode * inode, struct file * file, unsigned int cmd, unsigned long arg);
  
- /* we want common flags to have the same values as in ext2,
-    so chattr(1) will work without problems */
--#define REISERFS_IMMUTABLE_FL EXT2_IMMUTABLE_FL
--#define REISERFS_APPEND_FL    EXT2_APPEND_FL
--#define REISERFS_SYNC_FL      EXT2_SYNC_FL
--#define REISERFS_NOATIME_FL   EXT2_NOATIME_FL
--#define REISERFS_NODUMP_FL    EXT2_NODUMP_FL
--#define REISERFS_SECRM_FL     EXT2_SECRM_FL
--#define REISERFS_UNRM_FL      EXT2_UNRM_FL
--#define REISERFS_COMPR_FL     EXT2_COMPR_FL
--#define REISERFS_NOTAIL_FL    EXT2_NOTAIL_FL
-+#define REISERFS_IMMUTABLE_FL FS_IMMUTABLE_FL
-+#define REISERFS_APPEND_FL    FS_APPEND_FL
-+#define REISERFS_SYNC_FL      FS_SYNC_FL
-+#define REISERFS_NOATIME_FL   FS_NOATIME_FL
-+#define REISERFS_NODUMP_FL    FS_NODUMP_FL
-+#define REISERFS_SECRM_FL     FS_SECRM_FL
-+#define REISERFS_UNRM_FL      FS_UNRM_FL
-+#define REISERFS_COMPR_FL     FS_COMPR_FL
-+#define REISERFS_NOTAIL_FL    FS_NOTAIL_FL
- 
- /* persistent flags that file inherits from the parent directory */
- #define REISERFS_INHERIT_MASK ( REISERFS_IMMUTABLE_FL |	\
-@@ -2174,10 +2172,10 @@ int reiserfs_ioctl(struct inode *inode, 
- #define REISERFS_IOC_UNPACK		_IOW(0xCD,1,long)
- /* define following flags to be the same as in ext2, so that chattr(1),
-    lsattr(1) will work with us. */
--#define REISERFS_IOC_GETFLAGS		EXT2_IOC_GETFLAGS
--#define REISERFS_IOC_SETFLAGS		EXT2_IOC_SETFLAGS
--#define REISERFS_IOC_GETVERSION		EXT2_IOC_GETVERSION
--#define REISERFS_IOC_SETVERSION		EXT2_IOC_SETVERSION
-+#define REISERFS_IOC_GETFLAGS		FS_IOC_GETFLAGS
-+#define REISERFS_IOC_SETFLAGS		FS_IOC_SETFLAGS
-+#define REISERFS_IOC_GETVERSION		FS_IOC_GETVERSION
-+#define REISERFS_IOC_SETVERSION		FS_IOC_SETVERSION
- 
- /* Locking primitives */
- /* Right now we are still falling back to (un)lock_kernel, but eventually that
+ #ifdef CONFIG_VT
+@@ -2810,8 +2744,6 @@ HANDLE_IOCTL(MTIOCGET32, mt_ioctl_trans)
+ HANDLE_IOCTL(MTIOCPOS32, mt_ioctl_trans)
+ HANDLE_IOCTL(CDROMREADAUDIO, cdrom_ioctl_trans)
+ HANDLE_IOCTL(CDROM_SEND_PACKET, cdrom_ioctl_trans)
+-HANDLE_IOCTL(LOOP_SET_STATUS, loop_status)
+-HANDLE_IOCTL(LOOP_GET_STATUS, loop_status)
+ #define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
+ HANDLE_IOCTL(AUTOFS_IOC_SETTIMEOUT32, ioc_settimeout)
+ #ifdef CONFIG_VT
+diff --git a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
+index 269d000..13cea44 100644
+--- a/include/linux/compat_ioctl.h
++++ b/include/linux/compat_ioctl.h
+@@ -394,12 +394,6 @@ COMPATIBLE_IOCTL(DVD_WRITE_STRUCT)
+ COMPATIBLE_IOCTL(DVD_AUTH)
+ /* pktcdvd */
+ COMPATIBLE_IOCTL(PACKET_CTRL_CMD)
+-/* Big L */
+-ULONG_IOCTL(LOOP_SET_FD)
+-ULONG_IOCTL(LOOP_CHANGE_FD)
+-COMPATIBLE_IOCTL(LOOP_CLR_FD)
+-COMPATIBLE_IOCTL(LOOP_GET_STATUS64)
+-COMPATIBLE_IOCTL(LOOP_SET_STATUS64)
+ /* Big A */
+ /* sparc only */
+ /* Big Q for sound/OSS */

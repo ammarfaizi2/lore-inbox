@@ -1,25 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWHYRqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWHYRwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWHYRqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHYRqk
+	id S1751138AbWHYRwV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHYRwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:46:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62169 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750847AbWHYRqj (ORCPT
+	Fri, 25 Aug 2006 13:52:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60635 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751138AbWHYRwV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:46:39 -0400
-Date: Fri, 25 Aug 2006 10:46:32 -0700
+	Fri, 25 Aug 2006 13:52:21 -0400
+Date: Fri, 25 Aug 2006 10:50:47 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Josh Triplett <josht@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Pass sparse the lock expression given to lock
- annotations
-Message-Id: <20060825104632.df1fd26b.akpm@osdl.org>
-In-Reply-To: <1156521234.3420.19.camel@josh-work.beaverton.ibm.com>
-References: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
-	<20060824210531.6264f285.akpm@osdl.org>
-	<1156521234.3420.19.camel@josh-work.beaverton.ibm.com>
+To: Andrey Savochkin <saw@sw.ru>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
+       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: BC: resource beancounters (v2)
+Message-Id: <20060825105047.5ab693a0.akpm@osdl.org>
+In-Reply-To: <20060825203026.A16221@castle.nmd.msu.ru>
+References: <44EC31FB.2050002@sw.ru>
+	<20060823100532.459da50a.akpm@osdl.org>
+	<44EEE3BB.10303@sw.ru>
+	<20060825073003.e6b5ae16.akpm@osdl.org>
+	<20060825203026.A16221@castle.nmd.msu.ru>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,32 +36,45 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 08:53:53 -0700
-Josh Triplett <josht@us.ibm.com> wrote:
+On Fri, 25 Aug 2006 20:30:26 +0400
+Andrey Savochkin <saw@sw.ru> wrote:
 
-> On Thu, 2006-08-24 at 21:05 -0700, Andrew Morton wrote:
-> > On Thu, 24 Aug 2006 17:48:56 -0700
-> > Josh Triplett <josht@us.ibm.com> wrote:
+> On Fri, Aug 25, 2006 at 07:30:03AM -0700, Andrew Morton wrote:
 > > 
-> > > The lock annotation macros __acquires, __releases, __acquire, and __release
-> > > all currently throw the lock expression passed as an argument.  Now that
-> > > sparse can parse __context__ and __attribute__((context)) with a context
-> > > expression, pass the lock expression down to sparse as the context expression.
+> > D) Virtual scan of mm's in the over-limit container
 > > 
-> > What is the dependency relationship between your kernel changes and your
-> > proposed change to sparse?
+> > E) Modify existing physical scanner to be able to skip pages which
+> >    belong to not-over-limit containers.
 > 
-> Sparse with my multi-context patch will continue to parse versions of
-> the kernel without this kernel patch, since I made the context
-> expression optional in sparse.  Versions of sparse without my
-> multi-context patch will not parse kernels with this kernel patch (since
-> previous versions of sparse will not support the extra argument).
+> I've actually tried (E), but it didn't work as I wished.
+> 
+> It didn't handle well shared pages.
+> Then, in my experiments such modified scanner was unable to regulate
+> quality-of-service.  When I ran 2 over-the-limit containers, they worked
+> equally slow regardless of their limits and work set size.
+> That is, I didn't observe a smooth transition "under limit, maximum
+> performance" to "slightly over limit, a bit reduced performance" to
+> "significantly over limit, poor performance".  Neither did I see any fairness
+> in how containers got penalized for exceeding their limits.
+> 
+> My explanation of what I observed is that
+>  - since filesystem caches play a huge role in performance, page scanner will
+>    be very limited in controlling container's performance if caches
+>    stay shared between containers,
+>  - in the absence of decent disk I/O manager, stalls due to swapin/swapout
+>    are more influenced by disk subsystem than by page scanner policy.
+> So in fact modified page scanner provides control over memory usage only as
+> "stay under limits or die", and doesn't show many advantages over (B) or (C).
+> At the same time, skipping pages visibly penalizes "good citizens", not only
+> in disk bandwidth but in CPU overhead as well.
+> 
+> So I settled for (A)-(C) for now.
+> But it certainly would be interesting to hear if someone else makes such
+> experiments.
+> 
 
-OK.  Is this patch the only one which will break current sparse versions? 
-If not, please identify the others.
-
-I'll keep the non-back-compatible kernel patches in -mm until you've
-informed me that a suitable version of sparse has been released.  Then we
-can include that sparse version number in the kernel changelogs so things
-are nice and organised.
+Makes sense.  If one is looking for good machine partitioning then a shared
+disk is obviously a great contention point.  To address that we'd need to
+be able to say "container A swaps to /dev/sda1 and container B swaps to
+/dev/sdb1".  But the swap system at present can't do that.
 

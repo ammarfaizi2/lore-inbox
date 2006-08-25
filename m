@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWHYL6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHYMAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWHYL6v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 07:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWHYL6v
+	id S1751158AbWHYMAN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 08:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWHYMAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 07:58:51 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:6070 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1750744AbWHYL6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 07:58:50 -0400
-Date: Fri, 25 Aug 2006 13:58:49 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: LKML <linux-kernel@vger.kernel.org>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: T60 not coming out of suspend to RAM
-Message-ID: <20060825115849.GG221@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	LKML <linux-kernel@vger.kernel.org>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060825115532.GF221@cip.informatik.uni-erlangen.de>
+	Fri, 25 Aug 2006 08:00:12 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:48583 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751158AbWHYMAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 08:00:10 -0400
+Date: Fri, 25 Aug 2006 20:59:33 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: trenn@suse.de
+Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
+Cc: akpm@osdl.org, "Brown, Len" <len.brown@intel.com>,
+       keith mannthey <kmannth@us.ibm.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+In-Reply-To: <1155643418.4302.1154.camel@queen.suse.de>
+References: <20060810142329.EB03.Y-GOTO@jp.fujitsu.com> <1155643418.4302.1154.camel@queen.suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20060825205423.0778.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825115532.GF221@cip.informatik.uni-erlangen.de>
-User-Agent: Mutt/1.5.11-2006-07-11
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-oh and before I forget about this:
 
-        Turn SATA in Bios to compatibility mode And don't forget about
-        the following kernel patch: Otherwise you don't have a disk
-        after the resume. But the buffer cache is still there. ;-)
+> I sent a patch a while ago that gets rid of the whole namespace walking
+> by making acpi_memoryhotplug an acpi device and making use of the .add
+> callback function and the acpi_bus_register_driver call.
+> 
+> I am not sure whether this is possible if you have multiple memory
+> devices, though (if not maybe it should be made possible?)...
+> 
+> Yasunori even tested the patch and sent an Ok:
+> http://marc.theaimsgroup.com/?t=114065312400001&r=1&w=2
+> 
+> If this is acceptable I can rebase the patch on a current kernel.
 
-http://vizzzion.org/stuff/thinkpad-t60/libata-acpi.diff
+Hi. Thomas-san.
+Did you rebase your patch?
 
-and yes, it is currently no fun to run a t60 under linux but it can only
-get better.
+I'm trying to do it now too. 
+But, current code (2.6.18-rc4) seems to register handler for
+only enable status devices at boot time.
+So, notification is -discarded- due to no handler for new memory
+device when hot-add event occurs. Hmmm. :-(
 
-        Thomas
+
+Bye.
+
+-- 
+Yasunori Goto 
+
+

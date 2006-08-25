@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWHYBFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422809AbWHYBJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422805AbWHYBFl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Aug 2006 21:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWHYBFl
+	id S1422809AbWHYBJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Aug 2006 21:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422816AbWHYBJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Aug 2006 21:05:41 -0400
-Received: from cs1.cs.huji.ac.il ([132.65.16.10]:32264 "EHLO cs1.cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id S1422805AbWHYBFk (ORCPT
+	Thu, 24 Aug 2006 21:09:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59866 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422809AbWHYBJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Aug 2006 21:05:40 -0400
-Subject: Re: [2.6.18 patch] fix mem_write return value (was: Re: bug report:
- mem_write)
-In-Reply-To: <20060824220747.GA3197@slug>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Date: Fri, 25 Aug 2006 04:05:36 +0300 (IDT)
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Amnon Shiloh <amnons@cs.huji.ac.il>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, gregkh@suse.de
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Aug 2006 21:09:44 -0400
+Date: Thu, 24 Aug 2006 18:09:27 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Update Documentation/devices.txt
+Message-Id: <20060824180927.88742491.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.1; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E1GGQ8f-00053J-02@cab-20.cs.huji.ac.il>
-From: Amnon Shiloh <amnons@cs.huji.ac.il>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Aug 24, 2006 at 10:33:20AM -0600, Eric W. Biederman wrote:
-> > Frederik Deweerdt <deweerdt@free.fr> writes:
-> > 
-> > > On Thu, Aug 24, 2006 at 11:25:37AM +0300, Amnon Shiloh wrote:
-> > >> Hi,
-> > >> 
-> > >> Alright, I know that "mem_write" (fs/proc/base.c) is a "security hazard",
-> > >> but I need to use it anyway (as super-user only), and find it broken,
-> > >> somewhere between Linux-2.6.17 and Linux-2.6.18-rc4.
-> > >> 
-> > >> The point is that in the beginning of the routine, "copied" is set to 0,
-> > >> but it is no good because in lines 805 and 812 it is set to other values.
-> > >> Finally, the routine returns as if it copied 12 (=ENOMEM) bytes less than
-> > >> it actually did.
-> > > True, it looks like the faulty commit is:
-> > > de7587343bfebc186995ad294e3de0da382eb9bc
-> > 
-> > Actually it was: 99f895518368252ba862cc15ce4eb98ebbe1bec6
-> > Which is what you url points to, odd.
-> > 
-> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=99f895518368252ba862cc15ce4eb98ebbe1bec6;hp=8578cea7509cbdec25b31d08b48a92fcc3b1a9e3
-> > >
-> > > The attached patch should fix it. Maybe that should go to 2.6.18.
-> > > Thanks for the bug report,
-> > 
-> > The patch looks correct.  Although this won't cause anyone problems as the code
-> > is disabled.
-> Right, I missed this, so this is really not urgent.
-> > 
-> > Signed-off-by: Eric Biederman <ebiederm@xmission.com>
-> > 
-> > As for enabling this.  I believe we need an extra permission check just before
-> > we copy the data from our temporary buffer to the target task, to ensure
-> > nothing has changed.  The history does not really capture why this code
-> > was disabled, but before this gets enabled I would like to understand more
-> > than just the comment.  I believe with a little care this can be safely enabled
-> > as it doesn't let you do anything ptrace wouldn't do, and it should let you do
-> > it anytime except when ptrace would allow it.  Thus not introducing any new
-> > security holes.
-> I've found two interesting links on that:
-> http://lkml.org/lkml/2006/3/10/224
-> and
-> http://www.google.com/search?q=cache:4y8MWSuHOpIJ:files.security-protocols.com/kernelhacking/procpidmem.pdf&hl=en&ct=clnk&cd=3&client=firefox-a
-> The second one in particular goes in great detail on why the author
-> thinks this is dangerous, and what could be done to re-enable it.
-> 
-> Regards,
-> Frederik
-> 
+> Sync Documentation/devices.txt with the new version from the LANANA
+> site (http://www.lanana.org/docs/device-list/devices-2.6+.txt)
 
-I am aware of those risks, but since I desparately need this feature
-and the program that needs it is SETUID-root anyway, I have it enabled
-but added a test to make sure that only root can use it.
+This doesn't look like a "sync". More like a "replacement, discarding
+changes".
 
-It works well and I can see no reason on earth how this could be a
-security hazard when only called by the super-user.
+> @@ -1522,7 +1522,7 @@ Your cooperation is appreciated.
+>  		disks (see major number 3) except that the limit on
+>  		partitions is 15.
+>  
+> - 83 char	Matrox mga_vid video driver
+> + 83 char	Matrox mga_vid video driver 
+> @@ -1731,7 +1731,7 @@ Your cooperation is appreciated.
+>  		  0 = /dev/ubda		First user-mode block device
+>  		 16 = /dev/udbb		Second user-mode block device
+>  		    ...
+> -
+> +		
 
-Regards,
-Amnon.
+Nice trailing space! I don't remember this happening when HPA was
+in charge.
+
+> @@ -2565,10 +2565,10 @@ Your cooperation is appreciated.
+>  		243 = /dev/usb/dabusb3	Fourth dabusb device
+>  
+>  180 block	USB block devices
+> -		  0 = /dev/uba		First USB block device
+> -		  8 = /dev/ubb		Second USB block device
+> -		 16 = /dev/ubc		Third USB block device
+> -		    ...
+> +		0 = /dev/uba		First USB block device
+> +		8 = /dev/ubb		Second USB block device
+> +		16 = /dev/ubc		Third USB block device
+> + 		    ...
+>  
+>  181 char	Conrad Electronic parallel port radio clocks
+
+Please do not apply this.
+
+-- Pete

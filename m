@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWHYROu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWHYRYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWHYROu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHYROu
+	id S1422737AbWHYRYK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWHYRYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:14:50 -0400
-Received: from thunk.org ([69.25.196.29]:64986 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030222AbWHYROt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:14:49 -0400
-To: ext2-devel@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: Mailing list move
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1GGfGX-0007XL-TN@candygram.thunk.org>
-Date: Fri, 25 Aug 2006 13:14:45 -0400
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Fri, 25 Aug 2006 13:24:10 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5515 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030231AbWHYRYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 13:24:08 -0400
+Date: Fri, 25 Aug 2006 10:23:48 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       anton@samba.org, simon.derr@bull.net, nathanl@austin.ibm.com,
+       akpm@osdl.org, y-goto@jp.fujitsu.com
+Subject: Re: memory hotplug - looking for good place for cpuset hook
+Message-Id: <20060825102348.bb53d307.pj@sgi.com>
+In-Reply-To: <1156517885.12011.170.camel@localhost.localdomain>
+References: <20060825015359.1c9eab45.pj@sgi.com>
+	<20060825184717.3dbb5325.kamezawa.hiroyu@jp.fujitsu.com>
+	<1156517885.12011.170.camel@localhost.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave wrote:
+> Gets it a wee bit farther from memory hotplug anyway. ;)
 
-Due to some past reliability problems with the mailing list, we are
-planning on moving the ext2-devel mailing list to a new list, hosted on
-vger.  The name of the list is linux-ext4@vger.kernel.org, and it
-archives are available at:
+huh?  Where Kame suggested is just a couple lines of code and one test
+below where I suggested.  How is this farther from memory hotplug, as
+it still seems to be in one of the main memory hotplug routines -
+add_memory()?
 
-	http://gmane.org/info.php?group=gmane.comp.file-systems.ext4
+And why would I want to place a hook that tracks hotplug added memory
+nodes 'farther from memory hotplug'?
 
-Please start subscribing to the list now.  Information on how to
-subscribe to lists at vger.kernel.org are available at
-
-	http://vger.kernel.org/majordomo-info.html
-
-but the short version is to send an e-mail to majordomo@vger.kernel.org,
-with the body of the message containing the text "subscribe linux-ext4".
-
-In order make for an orderly transition, please don't start using the
-new list until Wednesday, August 30th.  After next week's ext2/3/4's
-developers conference call, I will change the settings on the old
-ext2-devel mailing list to be moderated, so I can catch people posting
-to the list and tell them to resend their message to the new list.
-
-
-Despite the listname of linux-ext4, all topics related to the
-development and bug-fixes of the ext2, ext3, and soon-to-be ext4
-filesystems will be discussed on the list.  We are just calling it
-linux-ext4 since the main focus of future development will be on the
-ext4 codebase.
-
-						- Ted
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

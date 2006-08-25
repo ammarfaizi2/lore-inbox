@@ -1,36 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWHYXwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWHYXxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWHYXwk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 19:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWHYXwk
+	id S964878AbWHYXxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 19:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWHYXxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 19:52:40 -0400
-Received: from mga06.intel.com ([134.134.136.21]:48781 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932236AbWHYXwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 19:52:39 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,170,1154934000"; 
-   d="scan'208"; a="115147048:sNHT25361581"
-Message-Id: <20060825235215.820563000@linux.intel.com>
-User-Agent: quilt/0.45-1
-Date: Fri, 25 Aug 2006 16:52:15 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: Akkana Peck <akkana@shallowsky.com>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@foof.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
-Subject: [patch 0/1] Relative atime
+	Fri, 25 Aug 2006 19:53:33 -0400
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:18319 "EHLO
+	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S964878AbWHYXxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 19:53:32 -0400
+Subject: Re: Status of driver core struct device changes?
+From: Louis Garcia II <louisg00@bellsouth.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060812161414.GA14182@kroah.com>
+References: <1155332969.2652.8.camel@soncomputer>
+	 <20060812005959.GA25689@kroah.com> <1155357283.19292.3.camel@soncomputer>
+	 <20060812161414.GA14182@kroah.com>
+Content-Type: text/plain
+Date: Fri, 25 Aug 2006 19:53:20 -0400
+Message-Id: <1156550000.3120.2.camel@soncomputer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.92 (2.7.92-4.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was enough interest in the relative atime patches that I went
-ahead and implemented support in the mount command as well, and
-cleaned up the patches for inclusion.  Relative atime only updates the
-atime if the previous atime is older than the mtime or ctime.  It's
-like noatime, but useful for applications like mutt that need to know
-whether a file has been read since it was last modified.
+On Sat, 2006-08-12 at 09:14 -0700, Greg KH wrote:
+> On Sat, Aug 12, 2006 at 12:34:43AM -0400, Louis Garcia II wrote:
+> > On Fri, 2006-08-11 at 17:59 -0700, Greg KH wrote:
+> > > On Fri, Aug 11, 2006 at 05:49:29PM -0400, Louis Garcia II wrote:
+> > > > A couple of months ago greg kh started work toward allowing everything
+> > > > to be a struct device in the sysfs device tree. How is this progressing?
+> > > 
+> > > Quite well.  But next time you might want to CC: me as I almost missed
+> > > this message.
+> > > 
+> > > > Any time frame when we will have a simplified driver core api?
+> > > 
+> > > It's getting there.  If you look in -mm there are a lot of subsystems
+> > > already converted over, along with a lot of patches from andrew that
+> > > revert these changes due to udev issues.
+> > > 
+> > > I'm working on fixing up the udev issues so that the kernel work is not
+> > > held up.  That's a bit slower going as it requires me to install a lot
+> > > of different distros...
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > How about block devices? Will it be moved to /sys/class or is that abi
+> > set in stone?
+> 
+> Yes, those will also move, but that's a bit lower on my list of things
+> to do.  Patches to help this out are always welcome.
+> 
+> thanks,
+> 
+> greg k-h
 
--VAL
+With the new code will their be much difference between /sys/class/
+and /sys/devices/? Can one of these go away, preferably /sys/class/?
+
+-Louis
+

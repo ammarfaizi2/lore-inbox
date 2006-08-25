@@ -1,70 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWHYSVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWHYSVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWHYSVz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 14:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWHYSVz
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 14:21:55 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:12947 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964857AbWHYSVy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964810AbWHYSVy (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 25 Aug 2006 14:21:54 -0400
-Subject: Re: [PATCH] Pass sparse the lock expression given to lock
-	annotations
-From: Josh Triplett <josht@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060825104632.df1fd26b.akpm@osdl.org>
-References: <1156466936.3418.58.camel@josh-work.beaverton.ibm.com>
-	 <20060824210531.6264f285.akpm@osdl.org>
-	 <1156521234.3420.19.camel@josh-work.beaverton.ibm.com>
-	 <20060825104632.df1fd26b.akpm@osdl.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWHYSVy
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 25 Aug 2006 14:21:54 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:45710 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964810AbWHYSVx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 14:21:53 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, rohitseth@google.com, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Kirill Korotaev <dev@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <FFE6D792-4D6C-4F19-A939-CBA5F0654FBA@mac.com>
+References: <44E33893.6020700@sw.ru>
+	 <1155929992.26155.60.camel@linuxchandra> <44E9B3F5.3010000@sw.ru>
+	 <1156196721.6479.67.camel@linuxchandra>
+	 <1156211128.11127.37.camel@galaxy.corp.google.com>
+	 <1156272902.6479.110.camel@linuxchandra>
+	 <1156383881.8324.51.camel@galaxy.corp.google.com>
+	 <1156385072.7154.59.camel@linuxchandra>
+	 <1156417808.3007.78.camel@localhost.localdomain>
+	 <1156463308.19702.40.camel@linuxchandra>
+	 <FFE6D792-4D6C-4F19-A939-CBA5F0654FBA@mac.com>
 Content-Type: text/plain
-Date: Fri, 25 Aug 2006 11:21:58 -0700
-Message-Id: <1156530118.19291.4.camel@josh-work.beaverton.ibm.com>
+Organization: IBM
+Date: Fri, 25 Aug 2006 11:21:48 -0700
+Message-Id: <1156530108.1196.7.camel@linuxchandra>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-25 at 10:46 -0700, Andrew Morton wrote:
-> On Fri, 25 Aug 2006 08:53:53 -0700
-> Josh Triplett <josht@us.ibm.com> wrote:
+On Thu, 2006-08-24 at 19:55 -0400, Kyle Moffett wrote:
+> On Aug 24, 2006, at 19:48:28, Chandra Seetharaman wrote:
+> > On Thu, 2006-08-24 at 12:10 +0100, Alan Cox wrote:
+> >> All you need is
+> >>
+> >> struct wombat_controller
+> >> {
+> >> 	struct user_beancounter counter;
+> >> 	void (*wombat_pest_control)(struct wombat *w);
+> >> 	atomic_t wombat_population;
+> >> 	int (*wombat_destructor)(struct wombat *w);
+> >> };
+> >
+> > This may not solve the problem, as
+> >  - we won't be able get the controller data structure given the  
+> > beancounter data structure.
 > 
-> > On Thu, 2006-08-24 at 21:05 -0700, Andrew Morton wrote:
-> > > On Thu, 24 Aug 2006 17:48:56 -0700
-> > > Josh Triplett <josht@us.ibm.com> wrote:
-> > > 
-> > > > The lock annotation macros __acquires, __releases, __acquire, and __release
-> > > > all currently throw the lock expression passed as an argument.  Now that
-> > > > sparse can parse __context__ and __attribute__((context)) with a context
-> > > > expression, pass the lock expression down to sparse as the context expression.
-> > > 
-> > > What is the dependency relationship between your kernel changes and your
-> > > proposed change to sparse?
-> > 
-> > Sparse with my multi-context patch will continue to parse versions of
-> > the kernel without this kernel patch, since I made the context
-> > expression optional in sparse.  Versions of sparse without my
-> > multi-context patch will not parse kernels with this kernel patch (since
-> > previous versions of sparse will not support the extra argument).
+> Of course you can!  This is what we do for linked lists too.  Here's  
+> an example of how to get a pointer to your wombat_controller given  
+> the user_beancounter pointer:
+> struct wombat_controller *wombat = containerof 
+> (ptr_to_user_beancounter, struct wombat_controller, counter);
 > 
-> OK.  Is this patch the only one which will break current sparse versions? 
-> If not, please identify the others.
+> The containerof(PTR, TYPE, MEMBER) returns a pointer to the parent  
+> object of type "TYPE" whose member "MEMBER" has address "PTR".
 
-Only this patch will break current sparse versions.
+Yes, it would work nicely. 
 
-> I'll keep the non-back-compatible kernel patches in -mm until you've
-> informed me that a suitable version of sparse has been released.  Then we
-> can include that sparse version number in the kernel changelogs so things
-> are nice and organised.
+But, the problem is that the struct user_beancounter (part of
+wombat_controller above) is a _copy_ of the original, not the original
+itself. We cannot keep the original (in _each_ controller), as there may
+be more than one controller in the system and user_beancounter structure
+is created/owned/destroyed by the beancounter infrastructure and not the
+controller.
 
-Sounds good.  Since sparse doesn't really have "releases", just the
-kernel.org GIT tree, I'll let you know when it gets committed and supply
-an updated patch with the appropriate GIT revision in the commit
-message.
+> Cheers,
+> Kyle Moffett
+> 
+> 
+> 
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+-- 
 
-- Josh Triplett
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
 

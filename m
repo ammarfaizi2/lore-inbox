@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWHYLbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWHYLkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWHYLbP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 07:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWHYLbP
+	id S1751104AbWHYLkO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 07:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWHYLkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 07:31:15 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:40267 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751090AbWHYLbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 07:31:14 -0400
-Message-ID: <44EEE02F.3030109@sw.ru>
-Date: Fri, 25 Aug 2006 15:34:07 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Devel] [PATCH 1/6] BC: kconfig
-References: <44EC31FB.2050002@sw.ru>  <44EC35A3.7070308@sw.ru> <1156370698.12011.55.camel@localhost.localdomain>
-In-Reply-To: <1156370698.12011.55.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Aug 2006 07:40:14 -0400
+Received: from boxa.alphawave.net ([207.218.5.130]:38840 "EHLO
+	box.alphawave.net") by vger.kernel.org with ESMTP id S1751104AbWHYLkN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 07:40:13 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Serial custom speed deprecated?
+In-Reply-To: <6NvSc-1go-31@gated-at.bofh.it>
+References: <6N8LR-22A-5@gated-at.bofh.it> <6Njxz-797-13@gated-at.bofh.it> <6NqfR-5Ld-49@gated-at.bofh.it> <6NrbQ-7Ab-27@gated-at.bofh.it> <6NsB4-2GL-37@gated-at.bofh.it> <6NvSc-1go-31@gated-at.bofh.it>
+Date: Fri, 25 Aug 2006 12:40:07 +0100
+Message-Id: <20060825114008.4637214C238@irishsea.home.craig-wood.com>
+From: nick@craig-wood.com (Nick Craig-Wood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Wed, 2006-08-23 at 15:01 +0400, Kirill Korotaev wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>  Ar Iau, 2006-08-24 am 20:51 +0200, ysgrifennodd Krzysztof Halasa:
+> > Not sure if we want int, uint, or long long for speed values :-)
 > 
->>--- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
->>+++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
->>@@ -432,3 +432,5 @@ source "security/Kconfig"
->> source "crypto/Kconfig"
->> 
->> source "lib/Kconfig"
->>+
->>+source "kernel/bc/Kconfig"
-> 
-> ...
-> 
->>--- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
->>+++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
->>@@ -432,3 +432,5 @@ source "security/Kconfig"
->> source "crypto/Kconfig"
->> 
->> source "lib/Kconfig"
->>+
->>+source "kernel/bc/Kconfig"
-> 
-> 
-> Is it just me, or do these patches look a little funky?  Looks like it
-> is trying to patch the same thing into the same file, twice.  Also, the
-> patches look to be -p0 instead of -p1.  
-> 
-> I'm having a few problems applying them.
-Oh, it's my fault. I pasted text twice :/
+>  You want speed_t according to POSIX.
 
-Kirill
+To get non-integral baud rates (of which there are a few but no longer
+in common use) you'd probably want to supply a two integers which you
+then divide.
+
+This matches most hardware quite well, and for most cases you'd just
+supply the divisor as 1.
+
+-- 
+Nick Craig-Wood <nick@craig-wood.com> -- http://www.craig-wood.com/nick

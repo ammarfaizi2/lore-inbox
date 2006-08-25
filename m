@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWHYRME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWHYROs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWHYRME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 13:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWHYRME
+	id S1030214AbWHYROs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 13:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWHYROs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 13:12:04 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:30996 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1030208AbWHYRMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 13:12:02 -0400
-Date: Fri, 25 Aug 2006 19:14:30 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: Yi Yang <yang.y.yi@gmail.com>
+	Fri, 25 Aug 2006 13:14:48 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:32828 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1030214AbWHYROr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 13:14:47 -0400
+Date: Fri, 25 Aug 2006 10:14:46 -0700 (LDT)
+Message-Id: <20060825.101446.01368169.toyoa@mvista.com>
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmsplice complains bad address
-Message-ID: <20060825171430.GG24258@kernel.dk>
-References: <44EF133D.8050102@gmail.com>
+Subject: Re: [PATCH -mm] x86_64: Adjust the timing of initializing
+ cyc2ns_scale.
+From: Toyo <toyoa@mvista.com>
+In-Reply-To: <200608251855.57671.ak@suse.de>
+References: <200608251645.k7PGjCj9003096@dhcp119.mvista.com>
+	<200608251855.57671.ak@suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44EF133D.8050102@gmail.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25 2006, Yi Yang wrote:
-> Hi, Jens
+From: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH -mm] x86_64: Adjust the timing of initializing cyc2ns_scale.
+Date: Fri, 25 Aug 2006 18:55:57 +0200
+
+> On Friday 25 August 2006 18:45, Toyo Abe wrote:
+> > The x86_64-mm-monotonic-clock.patch in 2.6.18-rc4-mm2 made a change to
+> > the updating of monotonic_base. It now uses cycles_2_ns().
+> > 
+> > I suggest that a set_cyc2ns_scale() should be done prior to the setup_irq().
+> > Because cycles_2_ns() can be called from the timer ISR right after the irq0
+> > is enabled.
 > 
-> When I tested vmsplice syscall, it always complains bad address, I don't
-> understand why, does vmsplice have a special reqiurement for address
-> alignment?
+> Added thanks. I folded it into the original patch.
 > 
-> The following file is a test program which is extracted from your patch
-> and modified in order to adapt to the latest interface. its output is:
+> Did you actually see a failure or was this just from code review?
+> -Andi
 > 
-> getpagesize = 4096
-> page size: 4096 bytes
-> vmsplice: Bad address
-> here: len = 4096, written = -1
+I didn't see any failure on it. It was just a speculation. But I think
+it's better thing here.
 
-First of all, please send code that is actually readable (eg indent it
-and if your mailer writes lines (which it does), then attach it instead
-of inlining).
-
-What arch are you testing on? If x86-64, you have an error:
-
-> //#include "splice.h"
-> #if defined(__i386__)
-> #define __NR_splice 313
-> #define __NR_tee 315
-> #define __NR_vmsplice 316
-> #elif defined(__x86_64__)
-> #define __NR_splice 275
-> #define __NR_tee 276
-> #define __NR_vmsplice 277
-
-vmsplice is 278
-
--- 
-Jens Axboe
-
+Best Regards,
+toyo

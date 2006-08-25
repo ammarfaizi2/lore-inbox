@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422852AbWHYTiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422873AbWHYTkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422852AbWHYTiv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 15:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422858AbWHYTiC
+	id S1422873AbWHYTkN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 15:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422820AbWHYTkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 15:38:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47247 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422848AbWHYThe (ORCPT
+	Fri, 25 Aug 2006 15:40:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32911 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422834AbWHYThR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 15:37:34 -0400
+	Fri, 25 Aug 2006 15:37:17 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/18] [PATCH] BLOCK: Move the Ext3 device ioctl compat stuff to the Ext3 driver [try #4]
-Date: Fri, 25 Aug 2006 20:37:31 +0100
+Subject: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4]
+Date: Fri, 25 Aug 2006 20:37:07 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060825193730.11384.1455.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,199 +26,645 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the Ext3 device ioctl compat stuff from fs/compat_ioctl.c to the Ext3
-driver so that the Ext3 header file doesn't need to be included.
+Move the bounce buffer code from mm/highmem.c to mm/bounce.c so that it can be
+more easily disabled when the block layer is disabled.
+
+!!!NOTE!!! There may be a bug in this code: Should init_emergency_pool() be
+	   contingent on CONFIG_HIGHMEM?
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c       |   27 -----------------------
- fs/ext3/dir.c           |    3 +++
- fs/ext3/file.c          |    3 +++
- fs/ext3/ioctl.c         |   55 ++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/ext3_fs.h |    6 +++++
- 5 files changed, 66 insertions(+), 28 deletions(-)
+ mm/Makefile  |    4 +
+ mm/bounce.c  |  302 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ mm/highmem.c |  281 ------------------------------------------------------
+ 3 files changed, 305 insertions(+), 282 deletions(-)
 
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index 3594668..e5eb0f1 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -45,8 +45,6 @@ #include <linux/auto_fs4.h>
- #include <linux/tty.h>
- #include <linux/vt_kern.h>
- #include <linux/fb.h>
--#include <linux/ext3_jbd.h>
--#include <linux/ext3_fs.h>
- #include <linux/videodev.h>
- #include <linux/netdevice.h>
- #include <linux/raw.h>
-@@ -158,22 +156,6 @@ static int rw_long(unsigned int fd, unsi
- 	return err;
- }
+diff --git a/mm/Makefile b/mm/Makefile
+index 9dd824c..63637f0 100644
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -12,6 +12,9 @@ obj-y			:= bootmem.o filemap.o mempool.o
+ 			   readahead.o swap.o truncate.o vmscan.o \
+ 			   prio_tree.o util.o mmzone.o vmstat.o $(mmu-y)
  
--static int do_ext3_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++ifeq ($(CONFIG_MMU),y)
++obj-y			+= bounce.o
++endif
+ obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
+ obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
+ obj-$(CONFIG_NUMA) 	+= mempolicy.o
+@@ -23,4 +26,3 @@ obj-$(CONFIG_SLAB) += slab.o
+ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_hotplug.o
+ obj-$(CONFIG_FS_XIP) += filemap_xip.o
+ obj-$(CONFIG_MIGRATION) += migrate.o
+-
+diff --git a/mm/bounce.c b/mm/bounce.c
+new file mode 100644
+index 0000000..e4b62d2
+--- /dev/null
++++ b/mm/bounce.c
+@@ -0,0 +1,302 @@
++/* bounce buffer handling for block devices
++ *
++ * - Split from highmem.c
++ */
++
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/swap.h>
++#include <linux/bio.h>
++#include <linux/pagemap.h>
++#include <linux/mempool.h>
++#include <linux/blkdev.h>
++#include <linux/init.h>
++#include <linux/hash.h>
++#include <linux/highmem.h>
++#include <linux/blktrace_api.h>
++#include <asm/tlbflush.h>
++
++#define POOL_SIZE	64
++#define ISA_POOL_SIZE	16
++
++static mempool_t *page_pool, *isa_page_pool;
++
++#ifdef CONFIG_HIGHMEM
++static __init int init_emergency_pool(void)
++{
++	struct sysinfo i;
++	si_meminfo(&i);
++	si_swapinfo(&i);
++
++	if (!i.totalhigh)
++		return 0;
++
++	page_pool = mempool_create_page_pool(POOL_SIZE, 0);
++	BUG_ON(!page_pool);
++	printk("highmem bounce pool size: %d pages\n", POOL_SIZE);
++
++	return 0;
++}
++
++__initcall(init_emergency_pool);
++
++/*
++ * highmem version, map in to vec
++ */
++static void bounce_copy_vec(struct bio_vec *to, unsigned char *vfrom)
++{
++	unsigned long flags;
++	unsigned char *vto;
++
++	local_irq_save(flags);
++	vto = kmap_atomic(to->bv_page, KM_BOUNCE_READ);
++	memcpy(vto + to->bv_offset, vfrom, to->bv_len);
++	kunmap_atomic(vto, KM_BOUNCE_READ);
++	local_irq_restore(flags);
++}
++
++#else /* CONFIG_HIGHMEM */
++
++#define bounce_copy_vec(to, vfrom)	\
++	memcpy(page_address((to)->bv_page) + (to)->bv_offset, vfrom, (to)->bv_len)
++
++#endif /* CONFIG_HIGHMEM */
++
++/*
++ * allocate pages in the DMA region for the ISA pool
++ */
++static void *mempool_alloc_pages_isa(gfp_t gfp_mask, void *data)
++{
++	return mempool_alloc_pages(gfp_mask | GFP_DMA, data);
++}
++
++/*
++ * gets called "every" time someone init's a queue with BLK_BOUNCE_ISA
++ * as the max address, so check if the pool has already been created.
++ */
++int init_emergency_isa_pool(void)
++{
++	if (isa_page_pool)
++		return 0;
++
++	isa_page_pool = mempool_create(ISA_POOL_SIZE, mempool_alloc_pages_isa,
++				       mempool_free_pages, (void *) 0);
++	BUG_ON(!isa_page_pool);
++
++	printk("isa bounce pool size: %d pages\n", ISA_POOL_SIZE);
++	return 0;
++}
++
++/*
++ * Simple bounce buffer support for highmem pages. Depending on the
++ * queue gfp mask set, *to may or may not be a highmem page. kmap it
++ * always, it will do the Right Thing
++ */
++static void copy_to_high_bio_irq(struct bio *to, struct bio *from)
++{
++	unsigned char *vfrom;
++	struct bio_vec *tovec, *fromvec;
++	int i;
++
++	__bio_for_each_segment(tovec, to, i, 0) {
++		fromvec = from->bi_io_vec + i;
++
++		/*
++		 * not bounced
++		 */
++		if (tovec->bv_page == fromvec->bv_page)
++			continue;
++
++		/*
++		 * fromvec->bv_offset and fromvec->bv_len might have been
++		 * modified by the block layer, so use the original copy,
++		 * bounce_copy_vec already uses tovec->bv_len
++		 */
++		vfrom = page_address(fromvec->bv_page) + tovec->bv_offset;
++
++		flush_dcache_page(tovec->bv_page);
++		bounce_copy_vec(tovec, vfrom);
++	}
++}
++
++static void bounce_end_io(struct bio *bio, mempool_t *pool, int err)
++{
++	struct bio *bio_orig = bio->bi_private;
++	struct bio_vec *bvec, *org_vec;
++	int i;
++
++	if (test_bit(BIO_EOPNOTSUPP, &bio->bi_flags))
++		set_bit(BIO_EOPNOTSUPP, &bio_orig->bi_flags);
++
++	/*
++	 * free up bounce indirect pages used
++	 */
++	__bio_for_each_segment(bvec, bio, i, 0) {
++		org_vec = bio_orig->bi_io_vec + i;
++		if (bvec->bv_page == org_vec->bv_page)
++			continue;
++
++		dec_zone_page_state(bvec->bv_page, NR_BOUNCE);
++		mempool_free(bvec->bv_page, pool);
++	}
++
++	bio_endio(bio_orig, bio_orig->bi_size, err);
++	bio_put(bio);
++}
++
++static int bounce_end_io_write(struct bio *bio, unsigned int bytes_done, int err)
++{
++	if (bio->bi_size)
++		return 1;
++
++	bounce_end_io(bio, page_pool, err);
++	return 0;
++}
++
++static int bounce_end_io_write_isa(struct bio *bio, unsigned int bytes_done, int err)
++{
++	if (bio->bi_size)
++		return 1;
++
++	bounce_end_io(bio, isa_page_pool, err);
++	return 0;
++}
++
++static void __bounce_end_io_read(struct bio *bio, mempool_t *pool, int err)
++{
++	struct bio *bio_orig = bio->bi_private;
++
++	if (test_bit(BIO_UPTODATE, &bio->bi_flags))
++		copy_to_high_bio_irq(bio_orig, bio);
++
++	bounce_end_io(bio, pool, err);
++}
++
++static int bounce_end_io_read(struct bio *bio, unsigned int bytes_done, int err)
++{
++	if (bio->bi_size)
++		return 1;
++
++	__bounce_end_io_read(bio, page_pool, err);
++	return 0;
++}
++
++static int bounce_end_io_read_isa(struct bio *bio, unsigned int bytes_done, int err)
++{
++	if (bio->bi_size)
++		return 1;
++
++	__bounce_end_io_read(bio, isa_page_pool, err);
++	return 0;
++}
++
++static void __blk_queue_bounce(request_queue_t *q, struct bio **bio_orig,
++			       mempool_t *pool)
++{
++	struct page *page;
++	struct bio *bio = NULL;
++	int i, rw = bio_data_dir(*bio_orig);
++	struct bio_vec *to, *from;
++
++	bio_for_each_segment(from, *bio_orig, i) {
++		page = from->bv_page;
++
++		/*
++		 * is destination page below bounce pfn?
++		 */
++		if (page_to_pfn(page) < q->bounce_pfn)
++			continue;
++
++		/*
++		 * irk, bounce it
++		 */
++		if (!bio)
++			bio = bio_alloc(GFP_NOIO, (*bio_orig)->bi_vcnt);
++
++		to = bio->bi_io_vec + i;
++
++		to->bv_page = mempool_alloc(pool, q->bounce_gfp);
++		to->bv_len = from->bv_len;
++		to->bv_offset = from->bv_offset;
++		inc_zone_page_state(to->bv_page, NR_BOUNCE);
++
++		if (rw == WRITE) {
++			char *vto, *vfrom;
++
++			flush_dcache_page(from->bv_page);
++			vto = page_address(to->bv_page) + to->bv_offset;
++			vfrom = kmap(from->bv_page) + from->bv_offset;
++			memcpy(vto, vfrom, to->bv_len);
++			kunmap(from->bv_page);
++		}
++	}
++
++	/*
++	 * no pages bounced
++	 */
++	if (!bio)
++		return;
++
++	/*
++	 * at least one page was bounced, fill in possible non-highmem
++	 * pages
++	 */
++	__bio_for_each_segment(from, *bio_orig, i, 0) {
++		to = bio_iovec_idx(bio, i);
++		if (!to->bv_page) {
++			to->bv_page = from->bv_page;
++			to->bv_len = from->bv_len;
++			to->bv_offset = from->bv_offset;
++		}
++	}
++
++	bio->bi_bdev = (*bio_orig)->bi_bdev;
++	bio->bi_flags |= (1 << BIO_BOUNCED);
++	bio->bi_sector = (*bio_orig)->bi_sector;
++	bio->bi_rw = (*bio_orig)->bi_rw;
++
++	bio->bi_vcnt = (*bio_orig)->bi_vcnt;
++	bio->bi_idx = (*bio_orig)->bi_idx;
++	bio->bi_size = (*bio_orig)->bi_size;
++
++	if (pool == page_pool) {
++		bio->bi_end_io = bounce_end_io_write;
++		if (rw == READ)
++			bio->bi_end_io = bounce_end_io_read;
++	} else {
++		bio->bi_end_io = bounce_end_io_write_isa;
++		if (rw == READ)
++			bio->bi_end_io = bounce_end_io_read_isa;
++	}
++
++	bio->bi_private = *bio_orig;
++	*bio_orig = bio;
++}
++
++void blk_queue_bounce(request_queue_t *q, struct bio **bio_orig)
++{
++	mempool_t *pool;
++
++	/*
++	 * for non-isa bounce case, just check if the bounce pfn is equal
++	 * to or bigger than the highest pfn in the system -- in that case,
++	 * don't waste time iterating over bio segments
++	 */
++	if (!(q->bounce_gfp & GFP_DMA)) {
++		if (q->bounce_pfn >= blk_max_pfn)
++			return;
++		pool = page_pool;
++	} else {
++		BUG_ON(!isa_page_pool);
++		pool = isa_page_pool;
++	}
++
++	blk_add_trace_bio(q, *bio_orig, BLK_TA_BOUNCE);
++
++	/*
++	 * slow path
++	 */
++	__blk_queue_bounce(q, bio_orig, pool);
++}
++
++EXPORT_SYMBOL(blk_queue_bounce);
+diff --git a/mm/highmem.c b/mm/highmem.c
+index 9b2a540..1ac20d6 100644
+--- a/mm/highmem.c
++++ b/mm/highmem.c
+@@ -29,13 +29,6 @@ #include <linux/highmem.h>
+ #include <linux/blktrace_api.h>
+ #include <asm/tlbflush.h>
+ 
+-static mempool_t *page_pool, *isa_page_pool;
+-
+-static void *mempool_alloc_pages_isa(gfp_t gfp_mask, void *data)
 -{
--	/* These are just misnamed, they actually get/put from/to user an int */
--	switch (cmd) {
--	case EXT3_IOC32_GETVERSION: cmd = EXT3_IOC_GETVERSION; break;
--	case EXT3_IOC32_SETVERSION: cmd = EXT3_IOC_SETVERSION; break;
--	case EXT3_IOC32_GETRSVSZ: cmd = EXT3_IOC_GETRSVSZ; break;
--	case EXT3_IOC32_SETRSVSZ: cmd = EXT3_IOC_SETRSVSZ; break;
--	case EXT3_IOC32_GROUP_EXTEND: cmd = EXT3_IOC_GROUP_EXTEND; break;
--#ifdef CONFIG_JBD_DEBUG
--	case EXT3_IOC32_WAIT_FOR_READONLY: cmd = EXT3_IOC_WAIT_FOR_READONLY; break;
--#endif
--	}
--	return sys_ioctl(fd, cmd, (unsigned long)compat_ptr(arg));
+-	return mempool_alloc_pages(gfp_mask | GFP_DMA, data);
 -}
 -
- struct compat_video_event {
- 	int32_t		type;
- 	compat_time_t	timestamp;
-@@ -2712,15 +2694,6 @@ HANDLE_IOCTL(PIO_UNIMAP, do_unimap_ioctl
- HANDLE_IOCTL(GIO_UNIMAP, do_unimap_ioctl)
- HANDLE_IOCTL(KDFONTOP, do_kdfontop_ioctl)
- #endif
--HANDLE_IOCTL(EXT3_IOC32_GETVERSION, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_SETVERSION, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_GETRSVSZ, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_SETRSVSZ, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_GROUP_EXTEND, do_ext3_ioctl)
--COMPATIBLE_IOCTL(EXT3_IOC_GROUP_ADD)
--#ifdef CONFIG_JBD_DEBUG
--HANDLE_IOCTL(EXT3_IOC32_WAIT_FOR_READONLY, do_ext3_ioctl)
--#endif
- /* One SMB ioctl needs translations. */
- #define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, compat_uid_t)
- HANDLE_IOCTL(SMB_IOC_GETMOUNTUID_32, do_smb_getmountuid)
-diff --git a/fs/ext3/dir.c b/fs/ext3/dir.c
-index fbb0d4e..7ba8917 100644
---- a/fs/ext3/dir.c
-+++ b/fs/ext3/dir.c
-@@ -44,6 +44,9 @@ const struct file_operations ext3_dir_op
- 	.read		= generic_read_dir,
- 	.readdir	= ext3_readdir,		/* we take BKL. needed?*/
- 	.ioctl		= ext3_ioctl,		/* BKL held */
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext3_compat_ioctl,
-+#endif
- 	.fsync		= ext3_sync_file,	/* BKL held */
- #ifdef CONFIG_EXT3_INDEX
- 	.release	= ext3_release_dir,
-diff --git a/fs/ext3/file.c b/fs/ext3/file.c
-index 1efefb6..40320da 100644
---- a/fs/ext3/file.c
-+++ b/fs/ext3/file.c
-@@ -114,6 +114,9 @@ const struct file_operations ext3_file_o
- 	.readv		= generic_file_readv,
- 	.writev		= generic_file_writev,
- 	.ioctl		= ext3_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext3_compat_ioctl,
-+#endif
- 	.mmap		= generic_file_mmap,
- 	.open		= generic_file_open,
- 	.release	= ext3_release_file,
-diff --git a/fs/ext3/ioctl.c b/fs/ext3/ioctl.c
-index 3a6b012..12daa68 100644
---- a/fs/ext3/ioctl.c
-+++ b/fs/ext3/ioctl.c
-@@ -13,9 +13,10 @@ #include <linux/capability.h>
- #include <linux/ext3_fs.h>
- #include <linux/ext3_jbd.h>
- #include <linux/time.h>
-+#include <linux/compat.h>
-+#include <linux/smp_lock.h>
- #include <asm/uaccess.h>
- 
--
- int ext3_ioctl (struct inode * inode, struct file * filp, unsigned int cmd,
- 		unsigned long arg)
- {
-@@ -252,3 +253,55 @@ #endif
- 		return -ENOTTY;
- 	}
+ /*
+  * Virtual_count is not a pure "count".
+  *  0 means that it is not mapped, and has not been mapped
+@@ -204,282 +197,8 @@ void fastcall kunmap_high(struct page *p
  }
-+
-+#ifdef CONFIG_COMPAT
-+long ext3_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	int ret;
-+
-+	/* These are just misnamed, they actually get/put from/to user an int */
-+	switch (cmd) {
-+	case EXT3_IOC32_GETFLAGS:
-+		cmd = EXT3_IOC_GETFLAGS;
-+		break;
-+	case EXT3_IOC32_SETFLAGS:
-+		cmd = EXT3_IOC_SETFLAGS;
-+		break;
-+	case EXT3_IOC32_GETVERSION:
-+		cmd = EXT3_IOC_GETVERSION;
-+		break;
-+	case EXT3_IOC32_SETVERSION:
-+		cmd = EXT3_IOC_SETVERSION;
-+		break;
-+	case EXT3_IOC32_GROUP_EXTEND:
-+		cmd = EXT3_IOC_GROUP_EXTEND;
-+		break;
-+	case EXT3_IOC32_GETVERSION_OLD:
-+		cmd = EXT3_IOC_GETVERSION_OLD;
-+		break;
-+	case EXT3_IOC32_SETVERSION_OLD:
-+		cmd = EXT3_IOC_SETVERSION_OLD;
-+		break;
-+#ifdef CONFIG_JBD_DEBUG
-+	case EXT3_IOC32_WAIT_FOR_READONLY:
-+		cmd = EXT3_IOC_WAIT_FOR_READONLY;
-+		break;
-+#endif
-+	case EXT3_IOC32_GETRSVSZ:
-+		cmd = EXT3_IOC_GETRSVSZ;
-+		break;
-+	case EXT3_IOC32_SETRSVSZ:
-+		cmd = EXT3_IOC_SETRSVSZ;
-+		break;
-+	case EXT3_IOC_GROUP_ADD:
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+	lock_kernel();
-+	ret = ext3_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
-+	unlock_kernel();
-+	return ret;
-+}
-+#endif
-diff --git a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
-index 90cfba2..690c730 100644
---- a/include/linux/ext3_fs.h
-+++ b/include/linux/ext3_fs.h
-@@ -237,6 +237,8 @@ #define EXT3_IOC_SETRSVSZ		_IOW('f', 6, 
- /*
-  * ioctl commands in 32 bit emulation
-  */
-+#define EXT3_IOC32_GETFLAGS		FS_IOC32_GETFLAGS
-+#define EXT3_IOC32_SETFLAGS		FS_IOC32_SETFLAGS
- #define EXT3_IOC32_GETVERSION		_IOR('f', 3, int)
- #define EXT3_IOC32_SETVERSION		_IOW('f', 4, int)
- #define EXT3_IOC32_GETRSVSZ		_IOR('f', 5, int)
-@@ -245,6 +247,9 @@ #define EXT3_IOC32_GROUP_EXTEND		_IOW('f
- #ifdef CONFIG_JBD_DEBUG
- #define EXT3_IOC32_WAIT_FOR_READONLY	_IOR('f', 99, int)
+ 
+ EXPORT_SYMBOL(kunmap_high);
+-
+-#define POOL_SIZE	64
+-
+-static __init int init_emergency_pool(void)
+-{
+-	struct sysinfo i;
+-	si_meminfo(&i);
+-	si_swapinfo(&i);
+-        
+-	if (!i.totalhigh)
+-		return 0;
+-
+-	page_pool = mempool_create_page_pool(POOL_SIZE, 0);
+-	BUG_ON(!page_pool);
+-	printk("highmem bounce pool size: %d pages\n", POOL_SIZE);
+-
+-	return 0;
+-}
+-
+-__initcall(init_emergency_pool);
+-
+-/*
+- * highmem version, map in to vec
+- */
+-static void bounce_copy_vec(struct bio_vec *to, unsigned char *vfrom)
+-{
+-	unsigned long flags;
+-	unsigned char *vto;
+-
+-	local_irq_save(flags);
+-	vto = kmap_atomic(to->bv_page, KM_BOUNCE_READ);
+-	memcpy(vto + to->bv_offset, vfrom, to->bv_len);
+-	kunmap_atomic(vto, KM_BOUNCE_READ);
+-	local_irq_restore(flags);
+-}
+-
+-#else /* CONFIG_HIGHMEM */
+-
+-#define bounce_copy_vec(to, vfrom)	\
+-	memcpy(page_address((to)->bv_page) + (to)->bv_offset, vfrom, (to)->bv_len)
+-
  #endif
-+#define EXT3_IOC32_GETVERSION_OLD	FS_IOC32_GETVERSION
-+#define EXT3_IOC32_SETVERSION_OLD	FS_IOC32_SETVERSION
-+
  
- /*
-  *  Mount options
-@@ -828,6 +833,7 @@ extern void ext3_set_aops(struct inode *
- /* ioctl.c */
- extern int ext3_ioctl (struct inode *, struct file *, unsigned int,
- 		       unsigned long);
-+extern long ext3_compat_ioctl (struct file *, unsigned int, unsigned long);
+-#define ISA_POOL_SIZE	16
+-
+-/*
+- * gets called "every" time someone init's a queue with BLK_BOUNCE_ISA
+- * as the max address, so check if the pool has already been created.
+- */
+-int init_emergency_isa_pool(void)
+-{
+-	if (isa_page_pool)
+-		return 0;
+-
+-	isa_page_pool = mempool_create(ISA_POOL_SIZE, mempool_alloc_pages_isa,
+-				       mempool_free_pages, (void *) 0);
+-	BUG_ON(!isa_page_pool);
+-
+-	printk("isa bounce pool size: %d pages\n", ISA_POOL_SIZE);
+-	return 0;
+-}
+-
+-/*
+- * Simple bounce buffer support for highmem pages. Depending on the
+- * queue gfp mask set, *to may or may not be a highmem page. kmap it
+- * always, it will do the Right Thing
+- */
+-static void copy_to_high_bio_irq(struct bio *to, struct bio *from)
+-{
+-	unsigned char *vfrom;
+-	struct bio_vec *tovec, *fromvec;
+-	int i;
+-
+-	__bio_for_each_segment(tovec, to, i, 0) {
+-		fromvec = from->bi_io_vec + i;
+-
+-		/*
+-		 * not bounced
+-		 */
+-		if (tovec->bv_page == fromvec->bv_page)
+-			continue;
+-
+-		/*
+-		 * fromvec->bv_offset and fromvec->bv_len might have been
+-		 * modified by the block layer, so use the original copy,
+-		 * bounce_copy_vec already uses tovec->bv_len
+-		 */
+-		vfrom = page_address(fromvec->bv_page) + tovec->bv_offset;
+-
+-		flush_dcache_page(tovec->bv_page);
+-		bounce_copy_vec(tovec, vfrom);
+-	}
+-}
+-
+-static void bounce_end_io(struct bio *bio, mempool_t *pool, int err)
+-{
+-	struct bio *bio_orig = bio->bi_private;
+-	struct bio_vec *bvec, *org_vec;
+-	int i;
+-
+-	if (test_bit(BIO_EOPNOTSUPP, &bio->bi_flags))
+-		set_bit(BIO_EOPNOTSUPP, &bio_orig->bi_flags);
+-
+-	/*
+-	 * free up bounce indirect pages used
+-	 */
+-	__bio_for_each_segment(bvec, bio, i, 0) {
+-		org_vec = bio_orig->bi_io_vec + i;
+-		if (bvec->bv_page == org_vec->bv_page)
+-			continue;
+-
+-		dec_zone_page_state(bvec->bv_page, NR_BOUNCE);
+-		mempool_free(bvec->bv_page, pool);
+-	}
+-
+-	bio_endio(bio_orig, bio_orig->bi_size, err);
+-	bio_put(bio);
+-}
+-
+-static int bounce_end_io_write(struct bio *bio, unsigned int bytes_done, int err)
+-{
+-	if (bio->bi_size)
+-		return 1;
+-
+-	bounce_end_io(bio, page_pool, err);
+-	return 0;
+-}
+-
+-static int bounce_end_io_write_isa(struct bio *bio, unsigned int bytes_done, int err)
+-{
+-	if (bio->bi_size)
+-		return 1;
+-
+-	bounce_end_io(bio, isa_page_pool, err);
+-	return 0;
+-}
+-
+-static void __bounce_end_io_read(struct bio *bio, mempool_t *pool, int err)
+-{
+-	struct bio *bio_orig = bio->bi_private;
+-
+-	if (test_bit(BIO_UPTODATE, &bio->bi_flags))
+-		copy_to_high_bio_irq(bio_orig, bio);
+-
+-	bounce_end_io(bio, pool, err);
+-}
+-
+-static int bounce_end_io_read(struct bio *bio, unsigned int bytes_done, int err)
+-{
+-	if (bio->bi_size)
+-		return 1;
+-
+-	__bounce_end_io_read(bio, page_pool, err);
+-	return 0;
+-}
+-
+-static int bounce_end_io_read_isa(struct bio *bio, unsigned int bytes_done, int err)
+-{
+-	if (bio->bi_size)
+-		return 1;
+-
+-	__bounce_end_io_read(bio, isa_page_pool, err);
+-	return 0;
+-}
+-
+-static void __blk_queue_bounce(request_queue_t *q, struct bio **bio_orig,
+-			       mempool_t *pool)
+-{
+-	struct page *page;
+-	struct bio *bio = NULL;
+-	int i, rw = bio_data_dir(*bio_orig);
+-	struct bio_vec *to, *from;
+-
+-	bio_for_each_segment(from, *bio_orig, i) {
+-		page = from->bv_page;
+-
+-		/*
+-		 * is destination page below bounce pfn?
+-		 */
+-		if (page_to_pfn(page) < q->bounce_pfn)
+-			continue;
+-
+-		/*
+-		 * irk, bounce it
+-		 */
+-		if (!bio)
+-			bio = bio_alloc(GFP_NOIO, (*bio_orig)->bi_vcnt);
+-
+-		to = bio->bi_io_vec + i;
+-
+-		to->bv_page = mempool_alloc(pool, q->bounce_gfp);
+-		to->bv_len = from->bv_len;
+-		to->bv_offset = from->bv_offset;
+-		inc_zone_page_state(to->bv_page, NR_BOUNCE);
+-
+-		if (rw == WRITE) {
+-			char *vto, *vfrom;
+-
+-			flush_dcache_page(from->bv_page);
+-			vto = page_address(to->bv_page) + to->bv_offset;
+-			vfrom = kmap(from->bv_page) + from->bv_offset;
+-			memcpy(vto, vfrom, to->bv_len);
+-			kunmap(from->bv_page);
+-		}
+-	}
+-
+-	/*
+-	 * no pages bounced
+-	 */
+-	if (!bio)
+-		return;
+-
+-	/*
+-	 * at least one page was bounced, fill in possible non-highmem
+-	 * pages
+-	 */
+-	__bio_for_each_segment(from, *bio_orig, i, 0) {
+-		to = bio_iovec_idx(bio, i);
+-		if (!to->bv_page) {
+-			to->bv_page = from->bv_page;
+-			to->bv_len = from->bv_len;
+-			to->bv_offset = from->bv_offset;
+-		}
+-	}
+-
+-	bio->bi_bdev = (*bio_orig)->bi_bdev;
+-	bio->bi_flags |= (1 << BIO_BOUNCED);
+-	bio->bi_sector = (*bio_orig)->bi_sector;
+-	bio->bi_rw = (*bio_orig)->bi_rw;
+-
+-	bio->bi_vcnt = (*bio_orig)->bi_vcnt;
+-	bio->bi_idx = (*bio_orig)->bi_idx;
+-	bio->bi_size = (*bio_orig)->bi_size;
+-
+-	if (pool == page_pool) {
+-		bio->bi_end_io = bounce_end_io_write;
+-		if (rw == READ)
+-			bio->bi_end_io = bounce_end_io_read;
+-	} else {
+-		bio->bi_end_io = bounce_end_io_write_isa;
+-		if (rw == READ)
+-			bio->bi_end_io = bounce_end_io_read_isa;
+-	}
+-
+-	bio->bi_private = *bio_orig;
+-	*bio_orig = bio;
+-}
+-
+-void blk_queue_bounce(request_queue_t *q, struct bio **bio_orig)
+-{
+-	mempool_t *pool;
+-
+-	/*
+-	 * for non-isa bounce case, just check if the bounce pfn is equal
+-	 * to or bigger than the highest pfn in the system -- in that case,
+-	 * don't waste time iterating over bio segments
+-	 */
+-	if (!(q->bounce_gfp & GFP_DMA)) {
+-		if (q->bounce_pfn >= blk_max_pfn)
+-			return;
+-		pool = page_pool;
+-	} else {
+-		BUG_ON(!isa_page_pool);
+-		pool = isa_page_pool;
+-	}
+-
+-	blk_add_trace_bio(q, *bio_orig, BLK_TA_BOUNCE);
+-
+-	/*
+-	 * slow path
+-	 */
+-	__blk_queue_bounce(q, bio_orig, pool);
+-}
+-
+-EXPORT_SYMBOL(blk_queue_bounce);
+-
+ #if defined(HASHED_PAGE_VIRTUAL)
  
- /* namei.c */
- extern int ext3_orphan_add(handle_t *, struct inode *);
+ #define PA_HASH_ORDER	7

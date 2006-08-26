@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWHZTJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWHZTJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWHZTJb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 15:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWHZTJb
+	id S1751650AbWHZTJj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 15:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWHZTJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 15:09:31 -0400
-Received: from mail.bmts.com ([216.183.128.202]:32948 "EHLO mail.bmts.com")
-	by vger.kernel.org with ESMTP id S1751650AbWHZTJb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 15:09:31 -0400
-Date: Sat, 26 Aug 2006 15:09:28 -0400
-From: Mike Houston <mikeserv@bmts.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4: sundance.c compile failure without CONFIG_HOTPLUG
-Message-Id: <20060826150928.2e291f94.mikeserv@bmts.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 26 Aug 2006 15:09:39 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:48644 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751650AbWHZTJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 15:09:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R5aQstw9fIIMzDyK1AHR1uaTYYZRsEKazGt+QE8XrFHe/ySLUmtNwzY7LMXeX2IRrUQBxPzUmHNGWsrMb13jPJK0JIGZFVRyT2WRi3vjDj2UX23N0babYp58pvn3KElz5aNi/ihlxUdebqCLAKm8HNKZtNVrSnD5lCuleSCn9YA=
+Message-ID: <41840b750608261209t1c8ad460jc7bee7f9f093a6a6@mail.gmail.com>
+Date: Sat, 26 Aug 2006 22:09:37 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [-mm patch] fix drivers/hwmon/hdaps.c:hdaps_check_ec() function declaration
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Pavel Machek" <pavel@suse.cz>
+In-Reply-To: <20060826152855.GG4765@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060819220008.843d2f64.akpm@osdl.org>
+	 <20060826152855.GG4765@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In compiling 2.6.18-rc4 last night, I ran into a compile failure with
-sundance.c, which is the driver my DLink 530TXS card uses.
+On 8/26/06, Adrian Bunk <bunk@stusta.de> wrote:
+> Both sparce and SVN gcc complained about this non-ANSI function
+> declaration.
 
-gcc -m32 -Wp,-MD,drivers/net/.sundance.o.d  -nostdinc
--isystem /usr/lib/gcc/i686-pc-linux-gnu/3.4.6/include -D__KERNEL__
--Iinclude  -include include/linux/autoconf.h -Wall -Wundef
--Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common
--Os -fomit-frame-pointer -pipe -msoft-float
--mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686
--mtune=pentium4 -mregparm=3 -ffreestanding
--Iinclude/asm-i386/mach-default -Wdeclaration-after-statement
--D"KBUILD_STR(s)=#s" -D"KBUILD_BASENAME=KBUILD_STR(sundance)"
--D"KBUILD_MODNAME=KBUILD_STR(sundance)" -c -o drivers/net/sundance.o
-drivers/net/sundance.c drivers/net/sundance.c:226: error: pci_id_tbl
-causes a section type conflict
-make[2]: *** [drivers/net/sundance.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
+Yeah, I was about to submit the same warning fix myself.
+(The void param thing is a nasty historical artifact...)
 
-Compiler is gcc 3.4.6
+Acked-by: Shem Multinymous <multinymous@gmail.com>
 
-I generally exclude support for all things I don't use (I maintain my
-own old school style "from scratch" system and have no need for hot
-plug). I don't think it is intended to have hotplug be a requirement
-to compile a PCI NIC driver.
-
-At the time, I didn't realize it had to do with CONFIG_HOTPLUG so I
-did this to get it to compile. (works for me, with my card, though
-I'm sure it's not correct to do this)
-
---- linux-2.6.18-rc4-orig/drivers/net/sundance.c
-+++ linux-2.6.18-rc4/drivers/net/sundance.c
-@@ -223,7 +223,7 @@
- struct pci_id_info {
-         const char *name;
- };
--static const struct pci_id_info pci_id_tbl[] __devinitdata = {
-+static const struct pci_id_info pci_id_tbl[] = {
- 	{"D-Link DFE-550TX FAST Ethernet Adapter"},
- 	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter"},
- 	{"D-Link DFE-580TX 4 port Server Adapter"},
-@@ -231,7 +231,7 @@
- 	{"D-Link DL10050-based FAST Ethernet Adapter"},
- 	{"Sundance Technology Alta"},
- 	{"IC Plus Corporation IP100A FAST Ethernet Adapter"},
--	{ }	/* terminate list. */
-+	{NULL,},	/* terminate list. */
- };
-
- /* This driver was written to use PCI memory space, however
-x86-oriented
-
-Anyhow, after further testing, with support for hot pluggable devices
-enabled, the sundance driver compiles without messing with the above.
-
-In case anyone wants to look at it, the .config for the failed build
-is here:
-
-http://www.mikeserv.com/temp/config-2.6.18-rc4
-
-Mike Houston
+  Shem

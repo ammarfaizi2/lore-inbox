@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422961AbWHZENz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWHZEvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422961AbWHZENz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 00:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422962AbWHZENz
+	id S932449AbWHZEvE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 00:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWHZEvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 00:13:55 -0400
-Received: from xenotime.net ([66.160.160.81]:49793 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422961AbWHZENy (ORCPT
+	Sat, 26 Aug 2006 00:51:04 -0400
+Received: from mx1.suse.de ([195.135.220.2]:46772 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932449AbWHZEvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 00:13:54 -0400
-Date: Fri, 25 Aug 2006 21:17:05 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: kmannth@gmail.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: another NUMA build error
-Message-Id: <20060825211705.68e6a1dc.rdunlap@xenotime.net>
-In-Reply-To: <20060826105639.5680429d.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060824213559.1be3d60f.rdunlap@xenotime.net>
-	<20060825144350.27530dfb.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060825103507.4f2d193e.rdunlap@xenotime.net>
-	<a762e240608251544t2e15ec8dq5a8f95f02eecb0a4@mail.gmail.com>
-	<20060825160115.7f768797.rdunlap@xenotime.net>
-	<20060826105639.5680429d.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Aug 2006 00:51:01 -0400
+Date: Fri, 25 Aug 2006 21:50:34 -0700
+From: Greg KH <greg@kroah.com>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: linux-kernel@vger.kernel.org,
+       For users of Fedora Core releases 
+	<fedora-list@redhat.com>
+Subject: Re: mounting Floppy and USB - 2.6.16.16
+Message-ID: <20060826045034.GC4504@kroah.com>
+References: <14CFC56C96D8554AA0B8969DB825FEA001A651DF@chicken.machinevisionproducts.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA001A651DF@chicken.machinevisionproducts.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> Hmm... is this the way to go ?
-> Keith-san, please ack if Okay.
-
-Works for me.  No build errors.  Thanks.
-There are a couple of typos noted below that could be fixed up.
-
-> --
-> When we select NUMA with i386, the system is only X86_NUMAQ or using ACPI.
+On Fri, Aug 25, 2006 at 02:55:36PM -0700, Brian D. McGrew wrote:
+> Hey Guys:
 > 
-> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> 
-> Index: linux-2.6.18-rc4/arch/i386/Kconfig
-> ===================================================================
-> --- linux-2.6.18-rc4.orig/arch/i386/Kconfig
-> +++ linux-2.6.18-rc4/arch/i386/Kconfig
-> @@ -142,6 +142,7 @@ config X86_SUMMIT
->  	  In particular, it is needed for the x440.
->  
->  	  If you don't have one of these computers, you should say N here.
-> +	  If you want to build NUMA kernel, you have to select ACPI
+> With 2.4.20 and 2.6.9 I had all this automated so everything just
+> happened automatically.  It's not working with 2.6.16.16 now.  What am I
+> missing or what did I forget?
 
-		end with '.'
+What version of udev and hal are you using?
 
->  
->  config X86_BIGSMP
->  	bool "Support for other sub-arch SMP systems with more than 8 CPUs"
-> @@ -169,6 +170,7 @@ config X86_GENERICARCH
->         help
->            This option compiles in the Summit, bigsmp, ES7000, default subarchitectures.
->  	  It is intended for a generic binary kernel.
-> +	  if you want NUMA kernel, select ACPI. we need SRAT for build NUMA
+What specific errors are you having?
 
-	  If you want a NUMA kernel, enable ACPI. We need SRAT to build NUMA.
+thanks,
 
->  
->  config X86_ES7000
->  	bool "Support for Unisys ES7000 IA32 series"
-> @@ -542,7 +544,7 @@ config X86_PAE
->  # Common NUMA Features
->  config NUMA
->  	bool "Numa Memory Allocation and Scheduler Support"
-> -	depends on SMP && HIGHMEM64G && (X86_NUMAQ || X86_GENERICARCH || (X86_SUMMIT && ACPI))
-> +	depends on SMP && HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT || X86_GENERICARCH) && ACPI)
->  	default n if X86_PC
->  	default y if (X86_NUMAQ || X86_SUMMIT)
-
-
----
-~Randy
+greg k-h

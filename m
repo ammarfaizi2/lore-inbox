@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422946AbWHZAEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422942AbWHZAFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422946AbWHZAEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 20:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422937AbWHZADI
+	id S1422942AbWHZAFD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 20:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422936AbWHZAEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 20:03:08 -0400
+	Fri, 25 Aug 2006 20:04:20 -0400
 Received: from mga06.intel.com ([134.134.136.21]:59488 "EHLO
 	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1422930AbWHZADG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 20:03:06 -0400
+	id S1422932AbWHZADH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 20:03:07 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.08,170,1154934000"; 
-   d="scan'208"; a="115152394:sNHT16656332"
-Message-Id: <20060826000302.959538000@linux.intel.com>
+   d="scan'208"; a="115152417:sNHT19815299"
+Message-Id: <20060826000304.507563000@linux.intel.com>
 References: <20060826000227.818796000@linux.intel.com>
 User-Agent: quilt/0.45-1
-Date: Fri, 25 Aug 2006 17:02:30 -0700
+Date: Fri, 25 Aug 2006 17:02:36 -0700
 From: Valerie Henson <val_henson@linux.intel.com>
 To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Thibaut Varene <varenet@parisc-linux.org>,
-       Kyle McMartin <kyle@parisc-linux.org>,
-       Valerie Henson <val_henson@linux.intel.com>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: [patch 03/10] [TULIP] Make DS21143 printout match lspci output
-Content-Disposition: inline; filename=tulip-make-ds21143-printout-match-lspci-output
+Cc: Valerie Henson <val_henson@linux.intel.com>, Jeff Garzik <jeff@garzik.org>
+Subject: [patch 09/10] [TULIP] Update tulip version
+Content-Disposition: inline; filename=tulip-rev-tulip-version
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thibaut Varene <varenet@parisc-linux.org>
-
-Signed-off-by: Thibaut Varene <varenet@parisc-linux.org>
-Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
 Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Cc: Jeff Garzik <jeff@garzik.org>
 
 ---
- drivers/net/tulip/tulip_core.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/tulip/tulip_core.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 --- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/tulip_core.c
 +++ linux-2.6.18-rc4-mm1/drivers/net/tulip/tulip_core.c
-@@ -147,7 +147,7 @@ struct tulip_chip_table tulip_tbl[] = {
- 	HAS_MII | HAS_MEDIA_TABLE | CSR12_IN_SROM | HAS_PCI_MWI, tulip_timer },
+@@ -17,11 +17,11 @@
  
-   /* DC21142, DC21143 */
--  { "Digital DS21143 Tulip", 128, 0x0801fbff,
-+  { "Digital DS21142/43 Tulip", 128, 0x0801fbff,
- 	HAS_MII | HAS_MEDIA_TABLE | ALWAYS_CHECK_MII | HAS_ACPI | HAS_NWAY
- 	| HAS_INTR_MITIGATION | HAS_PCI_MWI, t21142_timer },
+ #define DRV_NAME	"tulip"
+ #ifdef CONFIG_TULIP_NAPI
+-#define DRV_VERSION    "1.1.14-NAPI" /* Keep at least for test */
++#define DRV_VERSION    "1.1.15-NAPI" /* Keep at least for test */
+ #else
+-#define DRV_VERSION	"1.1.14"
++#define DRV_VERSION	"1.1.15"
+ #endif
+-#define DRV_RELDATE	"May 6, 2006"
++#define DRV_RELDATE	"Aug 23, 2006"
  
+ 
+ #include <linux/module.h>
 
 --

@@ -1,42 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWHZEvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422791AbWHZGdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWHZEvE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 00:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWHZEvE
+	id S1422791AbWHZGdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 02:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422884AbWHZGdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 00:51:04 -0400
-Received: from mx1.suse.de ([195.135.220.2]:46772 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932449AbWHZEvB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 00:51:01 -0400
-Date: Fri, 25 Aug 2006 21:50:34 -0700
-From: Greg KH <greg@kroah.com>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Cc: linux-kernel@vger.kernel.org,
-       For users of Fedora Core releases 
-	<fedora-list@redhat.com>
-Subject: Re: mounting Floppy and USB - 2.6.16.16
-Message-ID: <20060826045034.GC4504@kroah.com>
-References: <14CFC56C96D8554AA0B8969DB825FEA001A651DF@chicken.machinevisionproducts.com>
+	Sat, 26 Aug 2006 02:33:09 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:24765 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1422791AbWHZGdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 02:33:08 -0400
+Date: Sat, 26 Aug 2006 08:32:47 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       schwidefsky@de.ibm.com
+Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
+Message-ID: <20060826063247.GA6928@osiris.boeblingen.de.ibm.com>
+References: <20060824212241.GB30007@sergelap.austin.ibm.com> <20060825143842.GA27364@infradead.org> <20060825200359.GC13805@sergelap.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA001A651DF@chicken.machinevisionproducts.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060825200359.GC13805@sergelap.austin.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 02:55:36PM -0700, Brian D. McGrew wrote:
-> Hey Guys:
-> 
-> With 2.4.20 and 2.6.9 I had all this automated so everything just
-> happened automatically.  It's not working with 2.6.16.16 now.  What am I
-> missing or what did I forget?
+> below patch on top of -mm2 is wrong (it compiles, but I just noticed
+> 2.6.18-rc4-mm2 doesn't boot without this patch either) but hopefully
 
-What version of udev and hal are you using?
-
-What specific errors are you having?
-
-thanks,
-
-greg k-h
+2.6.18-rc4-mm2 works fine for me. What configuration and machine setup did
+you use?

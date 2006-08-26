@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422938AbWHZRmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWHZRmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422938AbWHZRmP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 13:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWHZRmP
+	id S964814AbWHZRmg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 13:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWHZRmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 13:42:15 -0400
-Received: from main.gmane.org ([80.91.229.2]:21926 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964802AbWHZRmP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 13:42:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Peter" <sw98234@hotmail.com>
-Subject: Re: wrt: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-Date: Sat, 26 Aug 2006 17:41:53 +0000 (UTC)
-Message-ID: <ecq151$9t3$2@sea.gmane.org>
-References: <ecpru4$9t3$1@sea.gmane.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Sat, 26 Aug 2006 13:42:35 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:27259 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964949AbWHZRmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 13:42:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
+  b=VG0KXCm8F/04NbPTwpKy5pRkNkVP4mzQQplOOw716xmZqXOGJJ2nKRuxqw8ZOcblqP/FIM58NuuGgsm4BidhJvdoUsqr1H3qvx3qxjcYbSsS3zv1AbxYlNHsy7VeqO0PqZxJ6V4NbFVyOHvap4piXFnkaAhO725h+Gtyo1k5y8w=  ;
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH RFP-V4 05/13] RFP prot support: disallow mprotect() on manyprots mappings
+Date: Sat, 26 Aug 2006 19:42:24 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Message-Id: <20060826174224.14790.16609.stgit@memento.home.lan>
+In-Reply-To: <200608261933.36574.blaisorblade@yahoo.it>
+References: <200608261933.36574.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pool-70-106-95-181.pskn.east.verizon.net
-X-Archive: encrypt
-User-Agent: pan 0.109 (Beable)
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Aug 2006 16:12:52 +0000, Peter wrote:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-> Using 2.6.17.11 with reiser4 patch only. Voluntary preempt.
-> 
-> Recently, I have been receiving this sequence of errors:
-> 
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide: failed opcode was: unknown
+For now we (I and Hugh) have found no agreement on which behavior to implement
+here. So, at least as a stop-gap, return an error here.
 
-snip....
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-I should mention that I have an 80 pin IDE cables, and did try replacing
-it. Same result. This problem is new, so I do not believe the cable is the
-issue -- esp since manu diags show all is well.
+ mm/mprotect.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
--- 
-Peter
-+++++
-Do not reply to this email, it is a spam trap and not monitored.
-I can be reached via this list, or via 
-jabber: pete4abw at jabber.org
-ICQ: 73676357
-
+diff --git a/mm/mprotect.c b/mm/mprotect.c
+index 638edab..401ae11 100644
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -240,6 +240,13 @@ sys_mprotect(unsigned long start, size_t
+ 	error = -ENOMEM;
+ 	if (!vma)
+ 		goto out;
++
++	/* If a need is felt, an appropriate behaviour may be implemented for
++	 * this case. We haven't agreed yet on which behavior is appropriate. */
++	error = -EACCES;
++	if (vma->vm_flags & VM_MANYPROTS)
++		goto out;
++
+ 	if (unlikely(grows & PROT_GROWSDOWN)) {
+ 		if (vma->vm_start >= end)
+ 			goto out;
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

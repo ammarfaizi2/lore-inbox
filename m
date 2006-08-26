@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWHZAAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422930AbWHZADP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWHZAAl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 20:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWHZAAk
+	id S1422930AbWHZADP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 20:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422948AbWHZADO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 20:00:40 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:12558 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932293AbWHZAAj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 20:00:39 -0400
-Date: Sat, 26 Aug 2006 09:59:41 +1000
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IPV6 : segmentation offload not set correctly on TCP children
-Message-ID: <20060825235940.GA13086@gondor.apana.org.au>
-References: <20060821212243.GA1558@cip.informatik.uni-erlangen.de> <20060821150231.31a947d4@localhost.localdomain> <20060821222634.GC21790@cip.informatik.uni-erlangen.de> <20060825154353.3ecaf508@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825154353.3ecaf508@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 25 Aug 2006 20:03:14 -0400
+Received: from mga05.intel.com ([192.55.52.89]:30870 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1422930AbWHZADJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 20:03:09 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,170,1154934000"; 
+   d="scan'208"; a="121404833:sNHT27921425"
+Message-Id: <20060826000302.833529000@linux.intel.com>
+References: <20060826000227.818796000@linux.intel.com>
+User-Agent: quilt/0.45-1
+Date: Fri, 25 Aug 2006 17:02:29 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Kyle McMartin <kyle@parisc-linux.org>,
+       Valerie Henson <val_henson@linux.intel.com>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [patch 02/10] [TULIP] Print physical address in tulip_init_one
+Content-Disposition: inline; filename=tulip-print-physical-address-in-tulip_init_one
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 03:43:53PM -0700, Stephen Hemminger wrote:
-> TCP over IPV6 would incorrectly inherit the GSO settings.
-> This would cause kernel to send Tcp Segmentation Offload packets for
-> IPV6 data to devices that can't handle it. It caused the sky2 driver
-> to lock http://bugzilla.kernel.org/show_bug.cgi?id=7050
-> and the e1000 would generate bogus packets. I can't blame the
-> hardware for gagging if the upper layers feed it garbage.
-> 
-> This was a new bug in 2.6.18 introduced with GSO support.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+From: Grant Grundler <grundler@parisc-linux.org>
 
-Thanks for catching this Stephen!
+As the cookie returned by pci_iomap() is fairly useless...
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+[Compile warning on pci_resource_start() format fixed up by Valerie
+Henson.]
+
+Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
+Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
+Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+---
+ drivers/net/tulip/tulip_core.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+--- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/tulip_core.c
++++ linux-2.6.18-rc4-mm1/drivers/net/tulip/tulip_core.c
+@@ -1656,8 +1656,14 @@ static int __devinit tulip_init_one (str
+ 	if (register_netdev(dev))
+ 		goto err_out_free_ring;
+ 
+-	printk(KERN_INFO "%s: %s rev %d at %p,",
+-	       dev->name, chip_name, chip_rev, ioaddr);
++	printk(KERN_INFO "%s: %s rev %d at "
++#ifdef CONFIG_TULIP_MMIO
++		"MMIO"
++#else
++		"Port"
++#endif
++		" %#llx,", dev->name, chip_name, chip_rev,
++		(unsigned long long) pci_resource_start(pdev, TULIP_BAR));
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	if (eeprom_missing)
+
+--

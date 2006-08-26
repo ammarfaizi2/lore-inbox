@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422991AbWHZSQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422994AbWHZSdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422991AbWHZSQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 14:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422992AbWHZSQp
+	id S1422994AbWHZSdV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 14:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWHZSdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 14:16:45 -0400
-Received: from science.horizon.com ([192.35.100.1]:12076 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1422991AbWHZSQp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 14:16:45 -0400
-Date: 26 Aug 2006 14:16:39 -0400
-Message-ID: <20060826181639.6545.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serial custom speed deprecated?
+	Sat, 26 Aug 2006 14:33:21 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:1940
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1422994AbWHZSdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 14:33:20 -0400
+Subject: Re: Linux 2.6.16.28
+From: Paul Fulghum <paulkf@microgate.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060826155159.GJ4765@stusta.de>
+References: <200608261023_MC3-1-C96A-6EC3@compuserve.com>
+	 <20060826155159.GJ4765@stusta.de>
+Content-Type: text/plain
+Date: Sat, 26 Aug 2006 13:30:16 -0500
+Message-Id: <1156617016.2567.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or we could just add a standardised extra set of speed ioctls, but then
-> we need to decide what occurs if I set the speed and then issue a
-> termios call - does it override or not.
+On Sat, 2006-08-26 at 17:51 +0200, Adrian Bunk wrote:
+> Paul, can you ACK that this patch is OK for 2.6.16?
+> Subject: tty serialize flush_to_ldisc
 
-Actually, we're not QUITE out of bits.  CBAUDEX | B0 is not taken.
-That would make a reasonable encoding for a custom speed.
-(But I haven't checked glibc... ah, yes, it should work!
-See glibc-2.4/sysdeps/unix/sysv/linux/speed.c; browse at
-http://sources.redhat.com/cgi-bin/cvsweb.cgi/libc/sysdeps/unix/sysv/linux/?cvsroot=glibc
-if you don't have a local copy source handy.)
+Yes, it is OK for 2.6.16.
 
-What I'd do is, when converting to the old-style for tcgetattr, if the
-current baud rate is not representable, cache it somewhere and return that
-(or some other magic value).  If a tcsetatt call comes in that specifies
-that magic value, use the cached baud rate.
-
-If you make the cache just the current baud rate setting (the magic
-value on set means "don't alter"), that will handle a lot of programs
-that just want to play with handshaking.
-
-If you make the cache separate, you can also survive an
-old-interface-using program switching to a different baud rate and then
-switching back.
+Thanks,
+Paul
 
 
-Also note that if you truly want to support all baud rates in historical
-use, you'll need to include at least one fractional bit for 134.5 baud.
-(Unless you're sure that IBM 2741 terminals are truly dead. :-))
-
-Alternatively, you could observe that asynchronous communications only
-requires agreement withing 5% between sender and receiver, so specifying
-a baud rate to much better than 1% is not too important.
-
-Half-precision floating point would be ideal for the job. :-)

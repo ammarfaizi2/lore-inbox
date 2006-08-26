@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWHZWY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWHZWZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWHZWY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 18:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWHZWY1
+	id S1751232AbWHZWZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 18:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWHZWZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 18:24:27 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52866 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751228AbWHZWY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 18:24:26 -0400
-Subject: Re: wrt: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Peter <sw98234@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ecpru4$9t3$1@sea.gmane.org>
-References: <ecpru4$9t3$1@sea.gmane.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 26 Aug 2006 23:46:05 +0100
-Message-Id: <1156632365.3007.298.camel@localhost.localdomain>
+	Sat, 26 Aug 2006 18:25:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22731 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751232AbWHZWZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 18:25:27 -0400
+Date: Sat, 26 Aug 2006 15:25:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       ego@in.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       arjan@intel.linux.com, vatsa@in.ibm.com, dipankar@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-Id: <20060826152500.34f56d01.akpm@osdl.org>
+In-Reply-To: <20060826220525.GA27933@elte.hu>
+References: <20060824102618.GA2395@in.ibm.com>
+	<20060824091704.cae2933c.akpm@osdl.org>
+	<20060825095008.GC22293@redhat.com>
+	<Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
+	<20060826220525.GA27933@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-08-26 am 16:12 +0000, ysgrifennodd Peter:
-> 2) VMWare. I have noticed recently that the errors are occurring during or
-> after VMWare is run.
+On Sun, 27 Aug 2006 00:05:25 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Then please report them to the vmware people unless you can reproduce it
-from a clean boot which never touched vmware or loaded any vmware
-modules.
+> 
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > I personally doubt that it's the case that we'd want to accelerate 
+> > inclusion - very few things actually do CPU hotplug, and right now the 
+> > only way to even hit the sequences in normal use is literally just the 
+> > "suspend under SMP" case that hasn't historically worked very well 
+> > anyway, but was what made at least me personally aware of the problems 
+> > ;^).
+> 
+> there's also bootup on SMP that is technically a series of hot-cpu-add 
+> events. That already tests some aspects of it. Maybe we should turn 
+> shutdown into the logical reverse: into a series of hot-cpu-remove 
+> events?
+> 
 
-The only real way this error can occur other than hardware is if
-something crapped on the drive configuration. If it is triggered by
-vmware you know who to talk to 8)
-
+Would be logical, but we would want to avoid making CONFIG_HOTPLUG_CPU a
+requirement for SMP. 

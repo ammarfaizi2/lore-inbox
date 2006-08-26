@@ -1,751 +1,841 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWHZXSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWHZX3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWHZXSS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 19:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWHZXSS
+	id S1751244AbWHZX3V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 19:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWHZX3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 19:18:18 -0400
-Received: from vscan05.westnet.com.au ([203.10.1.139]:4574 "EHLO
-	vscan05.westnet.com.au") by vger.kernel.org with ESMTP
-	id S1751241AbWHZXSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 19:18:17 -0400
-Message-ID: <44F0D6B2.9070201@westnet.com.au>
-Date: Sun, 27 Aug 2006 09:18:10 +1000
-From: Noel <ressy@westnet.com.au>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Sat, 26 Aug 2006 19:29:21 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:33710 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751244AbWHZX3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 19:29:20 -0400
+Message-ID: <44F0DAEF.9040403@student.ltu.se>
+Date: Sun, 27 Aug 2006 01:36:15 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Seg Fault loading 2.4.33.2
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18-rc4-mm2] fs/partitions: Conversion to generic boolean
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System does not boot with latest 2.4.33.2 kernel
+From: Richard Knutsson <ricknu-0@student.ltu.se>
 
-The same kernel options ( a cp .config ) from 2.4.32 to new kernel 
-2.4.33.2 tree
-make menuconfig and saved (no changes made)
+Conversion of booleans to: generic-boolean.patch (2006-08-23)
 
-This is Slackware 10.2
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
-all makes and installs succeed without a glitch
+---
 
-ver_linux output:
-Linux valhalla 2.4.32.s #2 SMP Fri Jun 16 17:58:07 EST 2006 i686 unknown 
-unknown GNU/Linux
+Compile-tested
+
+
+ ldm.c |  267 ++++++++++++++++++++++++++++++++----------------------------------
+ 1 files changed, 131 insertions(+), 136 deletions(-)
+
+
+diff --git a/fs/partitions/ldm.c b/fs/partitions/ldm.c
+index 7ab1c11..1a60926 100644
+--- a/fs/partitions/ldm.c
++++ b/fs/partitions/ldm.c
+@@ -30,11 +30,6 @@ #include "ldm.h"
+ #include "check.h"
+ #include "msdos.h"
  
-Gnu C                  3.3.6
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12p
-mount                  2.12p
-modutils               2.4.27
-e2fsprogs              1.38
-jfsutils               1.1.8
-xfsprogs               2.6.13
-pcmcia-cs              3.2.8
-quota-tools            3.12.
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Linux C++ Library      5.0.7
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-Modules Loaded         ipt_state ip_conntrack ipt_REJECT iptable_mangle 
-iptable_filter ip_tables i810_rng pcmcia_core ide-scsi agpgart
-
-
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.60GHz
-stepping        : 9
-cpu MHz         : 2593.521
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5177.34
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.60GHz
-stepping        : 9
-cpu MHz         : 2593.521
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5177.34
-
-# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1056575488 417181696 639393792        0  5332992 75481088
-Swap: 954122240        0 954122240
-
-
-
-
-# capture file:
-                                                                                
-
->
-> LILO 22.7.1
->
-> Welcome to the LILO Boot Loader!
->
-> Please enter the name of the partition you would like to boot
->
-> at the prompt below.  The choices are:
->
-> Linux    -  (Linux partition)
->
-> boot:
->
-> Loading Linux........................
->
-> BIOS data check successful
->
-> Linux version 2.4.33.2 (root@valhalla) (gcc version 3.3.6) #2 SMP Sun 
-> Aug 27 07:56:31 EST 2006
->
-> BIOS-provided physical RAM map:
->
-> BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->
-> BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->
-> BIOS-e820: 00000000000e6000 - 0000000000100000 (reserved)
->
-> BIOS-e820: 0000000000100000 - 000000003fe30000 (usable)
->
-> BIOS-e820: 000000003fe30000 - 000000003fe3e05e (ACPI NVS)
->
-> BIOS-e820: 000000003fe3e05e - 000000003ff30000 (usable)
->
-> BIOS-e820: 000000003ff30000 - 000000003ff40000 (ACPI data)
->
-> BIOS-e820: 000000003ff40000 - 000000003fff0000 (ACPI NVS)
->
-> BIOS-e820: 000000003fff0000 - 0000000040000000 (reserved)
->
-> BIOS-e820: 00000000fecf0000 - 00000000fecf1000 (reserved)
->
-> BIOS-e820: 00000000fed20000 - 00000000feda0000 (reserved)
->
-> 127MB HIGHMEM available.
->
-> 896MB LOWMEM available.
->
-> found SMP MP-table at 000ff780
->
-> hm, page 000ff000 reserved twice.
->
-> hm, page 00100000 reserved twice.
->
-> hm, page 000fc000 reserved twice.
->
-> hm, page 000fd000 reserved twice.
->
-> On node 0 totalpages: 261936
->
-> zone(0): 4096 pages.
->
-> zone(1): 225280 pages.
->
-> zone(2): 32560 pages.
->
-> ACPI: RSDP (v000 ACPIAM                                    ) @ 0x000f63b0
->
-> ACPI: RSDT (v001 INTEL  D865PERL 0x20040122 MSFT 0x00000097) @ 0x3ff30000
->
-> ACPI: FADT (v002 INTEL  D865PERL 0x20040122 MSFT 0x00000097) @ 0x3ff30200
->
-> ACPI: MADT (v001 INTEL  D865PERL 0x20040122 MSFT 0x00000097) @ 0x3ff30300
->
-> ACPI: ASF! (v016 LEGEND I865PASF 0x00000001 MSFT 0x0100000d) @ 0x3ff344e0
->
-> ACPI: WDDT (v001 INTEL  OEMWDDT  0x00000001 MSFT 0x0100000d) @ 0x3ff34579
->
-> ACPI: DSDT (v001 INTEL  D865PERL 0x00000006 MSFT 0x0100000d) @ 0x00000000
->
-> ACPI: Local APIC address 0xfee00000
->
-> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
->
-> Processor #0 Pentium 4(tm) XEON(tm) APIC version 20
->
-> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
->
-> Processor #1 Pentium 4(tm) XEON(tm) APIC version 20
->
-> ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
->
-> ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
->
-> Using ACPI for processor (LAPIC) configuration information
->
-> Intel MultiProcessor Specification v1.4
->
->    Virtual Wire compatibility mode.
->
-> OEM ID:  Product ID: Springdale-G APIC at: 0xFEE00000
->
-> I/O APIC #2 Version 32 at 0xFEC00000.
->
-> Enabling APIC mode: Flat. Using 1 I/O APICs
->
-> Processors: 2
->
-> Kernel command line: auto BOOT_IMAGE=Linux ro root=301 apm=power-off 
-> console=ttyS0,9600n8
->
-> Initializing CPU#0
->
-> Detected 2593.562 MHz processor.
->
-> Console: colour VGA+ 80x25
->
-> Calibrating delay loop... 5177.34 BogoMIPS
->
-> Memory: 1031640k/1047744k available (1812k kernel code, 15656k 
-> reserved, 682k data, 172k init, 130180k highmem)
->
-> Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
->
-> Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
->
-> Mount cache hash table entries: 512 (order: 0, 4096 bytes)
->
-> Buffer cache hash table entries: 65536 (order: 6, 262144 bytes)
->
-> Page-cache hash table entries: 262144 (order: 8, 1048576 bytes)
->
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
->
-> CPU: L2 cache: 512K
->
-> CPU: Physical Processor ID: 0
->
-> Intel machine check architecture supported.
->
-> Intel machine check reporting enabled on CPU#0.
->
-> Enabling fast FPU save and restore... done.
->
-> Enabling unmasked SIMD FPU exception support... done.
->
-> Checking 'hlt' instruction... OK.
->
-> POSIX conformance testing by UNIFIX
->
-> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
->
-> mtrr: detected mtrr type: Intel
->
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
->
-> CPU: L2 cache: 512K
->
-> CPU: Physical Processor ID: 0
->
-> Intel machine check reporting enabled on CPU#0.
->
-> CPU0: Intel(R) Pentium(R) 4 CPU 2.60GHz stepping 09
->
-> per-CPU timeslice cutoff: 1462.72 usecs.
->
-> enabled ExtINT on CPU#0
->
-> ESR value before enabling vector: 00000000
->
-> ESR value after enabling vector: 00000000
->
-> Booting processor 1/1 eip 2000
->
-> Initializing CPU#1
->
-> masked ExtINT on CPU#1
->
-> ESR value before enabling vector: 00000000
->
-> ESR value after enabling vector: 00000000
->
-> Calibrating delay loop... 5177.34 BogoMIPS
->
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
->
-> CPU: L2 cache: 512K
->
-> CPU: Physical Processor ID: 0
->
-> Intel machine check reporting enabled on CPU#1.
->
-> CPU1: Intel(R) Pentium(R) 4 CPU 2.60GHz stepping 09
->
-> Total of 2 processors activated (10354.68 BogoMIPS).
->
-> cpu_sibling_map[0] = 1
->
-> cpu_sibling_map[1] = 0
->
-> ENABLING IO-APIC IRQs
->
-> Setting 2 in the phys_id_present_map
->
-> ...changing IO-APIC physical APIC ID to 2 ... ok.
->
-> ..TIMER: vector=0x31 pin1=2 pin2=0
->
-> testing the IO APIC.......................
->
-> .................................... done.
->
-> Using local APIC timer interrupts.
->
-> calibrating APIC timer ...
->
-> ..... CPU clock speed is 2593.4920 MHz.
->
-> ..... host bus clock speed is 199.4992 MHz.
->
-> cpu: 0, clocks: 1994992, slice: 664997
->
-> CPU0<T0:1994992,T1:1329984,D:11,S:664997,C:1994992>
->
-> cpu: 1, clocks: 1994992, slice: 664997
->
-> CPU1<T0:1994992,T1:664992,D:6,S:664997,C:1994992>
->
-> checking TSC synchronization across CPUs: passed.
->
-> Waiting on wait_init_idle (map = 0x2)
->
-> All processors have done init_idle
->
-> PCI: PCI BIOS revision 2.10 entry at 0xf0031, last bus=2
->
-> PCI: Using configuration type 1
->
-> PCI: Probing PCI hardware
->
-> PCI: Probing PCI hardware (bus 00)
->
-> PCI: Ignoring BAR0-3 of IDE controller 00:1f.1
->
-> Transparent bridge - Intel Corp. 82801BA/CA/DB/EB PCI Bridge
->
-> PCI: Using IRQ router PIIX/ICH [8086/24d0] at 00:1f.0
->
-> PCI->APIC IRQ transform: (B0,I29,P0) -> 16
->
-> PCI->APIC IRQ transform: (B0,I29,P1) -> 19
->
-> PCI->APIC IRQ transform: (B0,I29,P2) -> 18
->
-> PCI->APIC IRQ transform: (B0,I29,P0) -> 16
->
-> PCI->APIC IRQ transform: (B0,I29,P3) -> 23
->
-> PCI->APIC IRQ transform: (B0,I31,P0) -> 18
->
-> PCI->APIC IRQ transform: (B0,I31,P0) -> 18
->
-> PCI->APIC IRQ transform: (B0,I31,P1) -> 17
->
-> PCI->APIC IRQ transform: (B0,I31,P1) -> 17
->
-> PCI->APIC IRQ transform: (B2,I0,P0) -> 21
->
-> PCI->APIC IRQ transform: (B2,I2,P0) -> 17
->
-> isapnp: Scanning for PnP cards...
->
-> isapnp: No Plug & Play device found
->
-> Linux NET4.0 for Linux 2.4
->
-> Based upon Swansea University Computer Society NET3.039
->
-> Initializing RT netlink socket
->
-> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
->
-> apm: disabled - APM is not SMP safe (power off active).
->
-> Starting kswapd
->
-> allocated 32 pages and 32 bhs reserved for the highmem bounces
->
-> VFS: Disk quotas vdquot_6.5.1
->
-> Journalled Block Device driver loaded
->
-> Detected PS/2 Mouse Port.
->
-> pty: 2048 Unix98 ptys configured
->
-> keyboard: Timeout - AT keyboard not present?(ed)
->
-> keyboard: Timeout - AT keyboard not present?(f4)
->
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS MULTIPORT 
-> SHARE_IRQ SERIAL_PCI ISAPNP enabled
->
-> ttyS00 at 0x03f8 (irq = 4) is a 16550A
->
-> Real Time Clock Driver v1.10f
->
-> Floppy drive(s): fd0 is 1.44M
->
-> FDC 0 is a post-1991 82077
->
-> NET4: Frame Diverter 0.46
->
-> RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
->
-> Intel(R) PRO/100 Network Driver - version 2.3.43-k1
->
-> Copyright (c) 2004 Intel Corporation
->
-> e100: eth0: Intel(R) PRO/100 Network Connection
->
->  Hardware receive checksums enabled
->
->  cpu cycle saver enabled
->
-> Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
->
-> ide: Assuming 33MHz system bus speed for PIO modes; override with 
-> idebus=xx
->
-> ICH5: IDE controller at PCI slot 00:1f.1
->
-> PCI: Enabling device 00:1f.1 (0005 -> 0007)
->
-> ICH5: chipset revision 2
->
-> ICH5: not 100% native mode: will probe irqs later
->
->    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
->
->    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
->
-> hda: Maxtor 6Y080L0, ATA DISK drive
->
-> hdb: ST3300622A, ATA DISK drive
->
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->
-> hda: attached ide-disk driver.
->
-> hda: host protected area => 1
->
-> hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, 
-> UDMA(33)
->
-> hdb: attached ide-disk driver.
->
-> hdb: host protected area => 1
->
-> hdb: 586072368 sectors (300069 MB) w/16384KiB Cache, CHS=36481/255/63, 
-> UDMA(33)
->
-> Partition check:
->
-> hda: [PTBL] [9964/255/63] hda1 hda2
->
-> hdb: hdb1
->
-> ide: late registration of driver.
->
-> SCSI subsystem driver Revision: 1.00
->
-> sym53c416.c: Version 1.0.0-ac
->
-> DC390: 0 adapters found
->
-> kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
->
-> kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
->
-> kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
->
-> kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
->
-> md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
->
-> md: Autodetecting RAID arrays.
->
-> md: autorun ...
->
-> md: ... autorun DONE.
->
-> NET4: Linux TCP/IP 1.0 for NET4.0
->
-> IP Protocols: ICMP, UDP, TCP, IGMP
->
-> IP: routing cache hash table of 8192 buckets, 64Kbytes
->
-> TCP: Hash tables configured (established 262144 bind 65536)
->
-> Linux IP multicast router 0.06 plus PIM-SM
->
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
->
-> VFS: Mounted root (ext2 filesystem) readonly.
->
-> Freeing unused kernel memory: 172k freed
->
-> INIT: version 2.84 booting
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 11:    17 Segmentation fault      /sbin/mount -v 
-> proc /proc -n -t proc
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 36:    18 Segmentation fault      cat 
-> /proc/filesystems
->
->        19                       | grep -w sysfs >/dev/null 2>/dev/null
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 46:    20 Segmentation fault      /sbin/swapon -a
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 55:    21 Segmentation fault      touch 
-> /fsrwtestfile 2>/dev/null
->
-> Testing root filesystem status:  read-only filesystem
->
-> Checking root filesystem:
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    22 Segmentation fault      /sbin/fsck 
-> $FORCEFSCK -C -a /
->
-> ***********************************************************
->
-> *** An error occurred during the root filesystem check. ***
->
-> *** You will now be given a chance to log into the      ***
->
-> *** system in single-user mode to fix the problem.      ***
->
-> ***                                                     ***
->
-> *** If you are using the ext2 filesystem, running       ***
->
-> *** 'e2fsck -v -y <partition>' might help.              ***
->
-> ***********************************************************
->
-> Once you exit the single-user shell, the system will reboot.
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    23 Segmentation fault      sulogin
->
-> Unmounting file systems.
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    24 Segmentation fault      /sbin/umount -a -r
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    25 Segmentation fault      /sbin/mount -n 
-> -o remount,ro /
->
-> Rebooting system.
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    26 Segmentation fault      sleep 2
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    27 Segmentation fault      reboot -f
->
-> Remounting root device with read-write enabled.
->
-> sh: ../nptl/sysdeps/unix/sysv/linux/fork.c:138: __libc_fork: Assertion 
-> `({ __typeof (self->tid) __value; if (sizeof (__value) == 1) asm 
-> volatile ("movb %%gs:%P2,%b0" : "=q" (__value) : "0" (0), "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else if (sizeof (__value) 
-> == 4) asm volatile ("movl %%gs:%P1,%0" : "=r" (__value) : "i" 
-> (((size_t) &((struct pthread *)0)->tid))); else { if (sizeof (__value) 
-> != 8) abort (); asm volatile ("movl %%gs:%P1,%%eax\n\t" "movl 
-> %%gs:%P2,%%edx" : "=A" (__value) : "i" (((size_t) &((struct pthread 
-> *)0)->tid)), "i" (((size_t) &((struct pthread *)0)->tid) + 4)); } 
-> __value; }) != ppid' failed.
->
-> /etc/rc.d/rc.S: line 159:    28 Segmentation fault      /sbin/mount -w 
-> -v -n -o remount /
->
-> Attempt to remount root device as read-write failed!  This is going to
->
-> cause serious problems.
->
-> If you're using the UMSDOS filesystem, you **MUST** mount the root 
-> partition
->
-> read-write!  You can make sure the root filesystem is getting mounted
->
-> read-write with the 'rw' flag to Loadlin:
->
-> loadlin vmlinuz root=/dev/hda1 rw   (replace /dev/hda1 with your root 
-> device)
->
-> Normal bootdisks can be made to mount a system read-write with the 
-> rdev command:
->
-> rdev -R /dev/fd0 0
->
-> You can also get into your system by using a boot disk with a command 
-> like this
->
-> on the LILO prompt line:  (change the root partition name as needed)
->
-> LILO: mount root=/dev/hda1 rw
->
-> Please press ENTER to continue, then reboot and use one of the above 
-> methods to
->
-> get into your
->
-
+-typedef enum {
+-	FALSE = 0,
+-	TRUE  = 1
+-} BOOL;
+-
+ /**
+  * ldm_debug/info/error/crit - Output an error message
+  * @f:    A printf format string containing the message
+@@ -103,24 +98,24 @@ static int ldm_parse_hexbyte (const u8 *
+  *
+  * N.B. The GUID need not be NULL terminated.
+  *
+- * Return:  TRUE   @dest contains binary GUID
+- *          FALSE  @dest contents are undefined
++ * Return:  'true'   @dest contains binary GUID
++ *          'false'  @dest contents are undefined
+  */
+-static BOOL ldm_parse_guid (const u8 *src, u8 *dest)
++static bool ldm_parse_guid (const u8 *src, u8 *dest)
+ {
+ 	static const int size[] = { 4, 2, 2, 2, 6 };
+ 	int i, j, v;
  
-..at this time I power cycled and reloaded to kern 2.4.32 and it remains 
-active
+ 	if (src[8]  != '-' || src[13] != '-' ||
+ 	    src[18] != '-' || src[23] != '-')
+-		return FALSE;
++		return false;
+ 
+ 	for (j = 0; j < 5; j++, src++)
+ 		for (i = 0; i < size[j]; i++, src+=2, *dest++ = v)
+ 			if ((v = ldm_parse_hexbyte (src)) < 0)
+-				return FALSE;
++				return false;
+ 
+-	return TRUE;
++	return true;
+ }
+ 
+ 
+@@ -132,17 +127,17 @@ static BOOL ldm_parse_guid (const u8 *sr
+  * This parses the LDM database PRIVHEAD structure supplied in @data and
+  * sets up the in-memory privhead structure @ph with the obtained information.
+  *
+- * Return:  TRUE   @ph contains the PRIVHEAD data
+- *          FALSE  @ph contents are undefined
++ * Return:  'true'   @ph contains the PRIVHEAD data
++ *          'false'  @ph contents are undefined
+  */
+-static BOOL ldm_parse_privhead (const u8 *data, struct privhead *ph)
++static bool ldm_parse_privhead (const u8 *data, struct privhead *ph)
+ {
+ 	BUG_ON (!data || !ph);
+ 
+ 	if (MAGIC_PRIVHEAD != BE64 (data)) {
+ 		ldm_error ("Cannot find PRIVHEAD structure. LDM database is"
+ 			" corrupt. Aborting.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	ph->ver_major          = BE16 (data + 0x000C);
+@@ -155,7 +150,7 @@ static BOOL ldm_parse_privhead (const u8
+ 	if ((ph->ver_major != 2) || (ph->ver_minor != 11)) {
+ 		ldm_error ("Expected PRIVHEAD version %d.%d, got %d.%d."
+ 			" Aborting.", 2, 11, ph->ver_major, ph->ver_minor);
+-		return FALSE;
++		return false;
+ 	}
+ 	if (ph->config_size != LDM_DB_SIZE) {	/* 1 MiB in sectors. */
+ 		/* Warn the user and continue, carefully */
+@@ -166,16 +161,16 @@ static BOOL ldm_parse_privhead (const u8
+ 	if ((ph->logical_disk_size == 0) ||
+ 	    (ph->logical_disk_start + ph->logical_disk_size > ph->config_start)) {
+ 		ldm_error ("PRIVHEAD disk size doesn't match real disk size");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	if (!ldm_parse_guid (data + 0x0030, ph->disk_id)) {
+ 		ldm_error ("PRIVHEAD contains an invalid GUID.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	ldm_debug ("Parsed PRIVHEAD successfully.");
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -189,16 +184,16 @@ static BOOL ldm_parse_privhead (const u8
+  *
+  * N.B.  The *_start and *_size values returned in @toc are not range-checked.
+  *
+- * Return:  TRUE   @toc contains the TOCBLOCK data
+- *          FALSE  @toc contents are undefined
++ * Return:  'true'   @toc contains the TOCBLOCK data
++ *          'false'  @toc contents are undefined
+  */
+-static BOOL ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
++static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
+ {
+ 	BUG_ON (!data || !toc);
+ 
+ 	if (MAGIC_TOCBLOCK != BE64 (data)) {
+ 		ldm_crit ("Cannot find TOCBLOCK, database may be corrupt.");
+-		return FALSE;
++		return false;
+ 	}
+ 	strncpy (toc->bitmap1_name, data + 0x24, sizeof (toc->bitmap1_name));
+ 	toc->bitmap1_name[sizeof (toc->bitmap1_name) - 1] = 0;
+@@ -209,7 +204,7 @@ static BOOL ldm_parse_tocblock (const u8
+ 			sizeof (toc->bitmap1_name)) != 0) {
+ 		ldm_crit ("TOCBLOCK's first bitmap is '%s', should be '%s'.",
+ 				TOC_BITMAP1, toc->bitmap1_name);
+-		return FALSE;
++		return false;
+ 	}
+ 	strncpy (toc->bitmap2_name, data + 0x46, sizeof (toc->bitmap2_name));
+ 	toc->bitmap2_name[sizeof (toc->bitmap2_name) - 1] = 0;
+@@ -219,10 +214,10 @@ static BOOL ldm_parse_tocblock (const u8
+ 			sizeof (toc->bitmap2_name)) != 0) {
+ 		ldm_crit ("TOCBLOCK's second bitmap is '%s', should be '%s'.",
+ 				TOC_BITMAP2, toc->bitmap2_name);
+-		return FALSE;
++		return false;
+ 	}
+ 	ldm_debug ("Parsed TOCBLOCK successfully.");
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -235,16 +230,16 @@ static BOOL ldm_parse_tocblock (const u8
+  *
+  * N.B.  The *_start, *_size and *_seq values will be range-checked later.
+  *
+- * Return:  TRUE   @vm contains VMDB info
+- *          FALSE  @vm contents are undefined
++ * Return:  'true'   @vm contains VMDB info
++ *          'false'  @vm contents are undefined
+  */
+-static BOOL ldm_parse_vmdb (const u8 *data, struct vmdb *vm)
++static bool ldm_parse_vmdb (const u8 *data, struct vmdb *vm)
+ {
+ 	BUG_ON (!data || !vm);
+ 
+ 	if (MAGIC_VMDB != BE32 (data)) {
+ 		ldm_crit ("Cannot find the VMDB, database may be corrupt.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	vm->ver_major = BE16 (data + 0x12);
+@@ -252,7 +247,7 @@ static BOOL ldm_parse_vmdb (const u8 *da
+ 	if ((vm->ver_major != 4) || (vm->ver_minor != 10)) {
+ 		ldm_error ("Expected VMDB version %d.%d, got %d.%d. "
+ 			"Aborting.", 4, 10, vm->ver_major, vm->ver_minor);
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	vm->vblk_size     = BE32 (data + 0x08);
+@@ -260,7 +255,7 @@ static BOOL ldm_parse_vmdb (const u8 *da
+ 	vm->last_vblk_seq = BE32 (data + 0x04);
+ 
+ 	ldm_debug ("Parsed VMDB successfully.");
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -270,10 +265,10 @@ static BOOL ldm_parse_vmdb (const u8 *da
+  *
+  * This compares the two privhead structures @ph1 and @ph2.
+  *
+- * Return:  TRUE   Identical
+- *          FALSE  Different
++ * Return:  'true'   Identical
++ *          'false'  Different
+  */
+-static BOOL ldm_compare_privheads (const struct privhead *ph1,
++static bool ldm_compare_privheads (const struct privhead *ph1,
+ 				   const struct privhead *ph2)
+ {
+ 	BUG_ON (!ph1 || !ph2);
+@@ -294,10 +289,10 @@ static BOOL ldm_compare_privheads (const
+  *
+  * This compares the two tocblock structures @toc1 and @toc2.
+  *
+- * Return:  TRUE   Identical
+- *          FALSE  Different
++ * Return:  'true'   Identical
++ *          'false'  Different
+  */
+-static BOOL ldm_compare_tocblocks (const struct tocblock *toc1,
++static bool ldm_compare_tocblocks (const struct tocblock *toc1,
+ 				   const struct tocblock *toc2)
+ {
+ 	BUG_ON (!toc1 || !toc2);
+@@ -323,17 +318,17 @@ static BOOL ldm_compare_tocblocks (const
+  * the configuration area (the database).  The values are range-checked against
+  * @hd, which contains the real size of the disk.
+  *
+- * Return:  TRUE   Success
+- *          FALSE  Error
++ * Return:  'true'   Success
++ *          'false'  Error
+  */
+-static BOOL ldm_validate_privheads (struct block_device *bdev,
++static bool ldm_validate_privheads (struct block_device *bdev,
+ 				    struct privhead *ph1)
+ {
+ 	static const int off[3] = { OFF_PRIV1, OFF_PRIV2, OFF_PRIV3 };
+ 	struct privhead *ph[3] = { ph1 };
+ 	Sector sect;
+ 	u8 *data;
+-	BOOL result = FALSE;
++	bool result = false;
+ 	long num_sects;
+ 	int i;
+ 
+@@ -393,7 +388,7 @@ static BOOL ldm_validate_privheads (stru
+ 		goto out;
+ 	}*/
+ 	ldm_debug ("Validated PRIVHEADs successfully.");
+-	result = TRUE;
++	result = true;
+ out:
+ 	kfree (ph[1]);
+ 	kfree (ph[2]);
+@@ -411,10 +406,10 @@ out:
+  *
+  * The offsets and sizes of the configs are range-checked against a privhead.
+  *
+- * Return:  TRUE   @toc1 contains validated TOCBLOCK info
+- *          FALSE  @toc1 contents are undefined
++ * Return:  'true'   @toc1 contains validated TOCBLOCK info
++ *          'false'  @toc1 contents are undefined
+  */
+-static BOOL ldm_validate_tocblocks (struct block_device *bdev,
++static bool ldm_validate_tocblocks (struct block_device *bdev,
+ 	unsigned long base, struct ldmdb *ldb)
+ {
+ 	static const int off[4] = { OFF_TOCB1, OFF_TOCB2, OFF_TOCB3, OFF_TOCB4};
+@@ -422,7 +417,7 @@ static BOOL ldm_validate_tocblocks (stru
+ 	struct privhead *ph;
+ 	Sector sect;
+ 	u8 *data;
+-	BOOL result = FALSE;
++	bool result = false;
+ 	int i;
+ 
+ 	BUG_ON (!bdev || !ldb);
+@@ -465,7 +460,7 @@ static BOOL ldm_validate_tocblocks (stru
+ 	}
+ 
+ 	ldm_debug ("Validated TOCBLOCKs successfully.");
+-	result = TRUE;
++	result = true;
+ out:
+ 	kfree (tb[1]);
+ 	kfree (tb[2]);
+@@ -482,15 +477,15 @@ out:
+  * Find the vmdb of the LDM Database stored on @bdev and return the parsed
+  * information in @ldb.
+  *
+- * Return:  TRUE   @ldb contains validated VBDB info
+- *          FALSE  @ldb contents are undefined
++ * Return:  'true'   @ldb contains validated VBDB info
++ *          'false'  @ldb contents are undefined
+  */
+-static BOOL ldm_validate_vmdb (struct block_device *bdev, unsigned long base,
++static bool ldm_validate_vmdb (struct block_device *bdev, unsigned long base,
+ 			       struct ldmdb *ldb)
+ {
+ 	Sector sect;
+ 	u8 *data;
+-	BOOL result = FALSE;
++	bool result = false;
+ 	struct vmdb *vm;
+ 	struct tocblock *toc;
+ 
+@@ -502,7 +497,7 @@ static BOOL ldm_validate_vmdb (struct bl
+ 	data = read_dev_sector (bdev, base + OFF_VMDB, &sect);
+ 	if (!data) {
+ 		ldm_crit ("Disk read failed.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	if (!ldm_parse_vmdb (data, vm))
+@@ -527,7 +522,7 @@ static BOOL ldm_validate_vmdb (struct bl
+ 		goto out;
+ 	}
+ 
+-	result = TRUE;
++	result = true;
+ out:
+ 	put_dev_sector (sect);
+ 	return result;
+@@ -547,23 +542,23 @@ out:
+  *       only likely to happen if the underlying device is strange.  If that IS
+  *       the case we should return zero to let someone else try.
+  *
+- * Return:  TRUE   @bdev is a dynamic disk
+- *          FALSE  @bdev is not a dynamic disk, or an error occurred
++ * Return:  'true'   @bdev is a dynamic disk
++ *          'false'  @bdev is not a dynamic disk, or an error occurred
+  */
+-static BOOL ldm_validate_partition_table (struct block_device *bdev)
++static bool ldm_validate_partition_table (struct block_device *bdev)
+ {
+ 	Sector sect;
+ 	u8 *data;
+ 	struct partition *p;
+ 	int i;
+-	BOOL result = FALSE;
++	bool result = false;
+ 
+ 	BUG_ON (!bdev);
+ 
+ 	data = read_dev_sector (bdev, 0, &sect);
+ 	if (!data) {
+ 		ldm_crit ("Disk read failed.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	if (*(__le16*) (data + 0x01FE) != cpu_to_le16 (MSDOS_LABEL_MAGIC))
+@@ -572,7 +567,7 @@ static BOOL ldm_validate_partition_table
+ 	p = (struct partition*)(data + 0x01BE);
+ 	for (i = 0; i < 4; i++, p++)
+ 		if (SYS_IND (p) == WIN2K_DYNAMIC_PARTITION) {
+-			result = TRUE;
++			result = true;
+ 			break;
+ 		}
+ 
+@@ -625,10 +620,10 @@ static struct vblk * ldm_get_disk_objid 
+  * N.B.  This function creates the partitions in the order it finds partition
+  *       objects in the linked list.
+  *
+- * Return:  TRUE   Partition created
+- *          FALSE  Error, probably a range checking problem
++ * Return:  'true'   Partition created
++ *          'false'  Error, probably a range checking problem
+  */
+-static BOOL ldm_create_data_partitions (struct parsed_partitions *pp,
++static bool ldm_create_data_partitions (struct parsed_partitions *pp,
+ 					const struct ldmdb *ldb)
+ {
+ 	struct list_head *item;
+@@ -642,7 +637,7 @@ static BOOL ldm_create_data_partitions (
+ 	disk = ldm_get_disk_objid (ldb);
+ 	if (!disk) {
+ 		ldm_crit ("Can't find the ID of this disk in the database.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	printk (" [LDM]");
+@@ -661,7 +656,7 @@ static BOOL ldm_create_data_partitions (
+ 	}
+ 
+ 	printk ("\n");
+-	return TRUE;
++	return true;
+ }
+ 
+ 
+@@ -766,10 +761,10 @@ static int ldm_get_vstr (const u8 *block
+  *
+  * Read a raw VBLK Component object (version 3) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Component VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Component VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_cmp3 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_cmp3 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	int r_objid, r_name, r_vstate, r_child, r_parent, r_stripe, r_cols, len;
+ 	struct vblk_comp *comp;
+@@ -792,11 +787,11 @@ static BOOL ldm_parse_cmp3 (const u8 *bu
+ 		len = r_parent;
+ 	}
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_CMP3;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	comp = &vb->vblk.comp;
+ 	ldm_get_vstr (buffer + 0x18 + r_name, comp->state,
+@@ -806,7 +801,7 @@ static BOOL ldm_parse_cmp3 (const u8 *bu
+ 	comp->parent_id = ldm_get_vnum (buffer + 0x2D + r_child);
+ 	comp->chunksize = r_stripe ? ldm_get_vnum (buffer+r_parent+0x2E) : 0;
+ 
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -817,8 +812,8 @@ static BOOL ldm_parse_cmp3 (const u8 *bu
+  *
+  * Read a raw VBLK Disk Group object (version 3) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Disk Group VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Disk Group VBLK
++ *          'false'  @vb contents are not defined
+  */
+ static int ldm_parse_dgr3 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+@@ -841,16 +836,16 @@ static int ldm_parse_dgr3 (const u8 *buf
+ 		len = r_diskid;
+ 	}
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_DGR3;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	dgrp = &vb->vblk.dgrp;
+ 	ldm_get_vstr (buffer + 0x18 + r_name, dgrp->disk_id,
+ 		sizeof (dgrp->disk_id));
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -861,10 +856,10 @@ static int ldm_parse_dgr3 (const u8 *buf
+  *
+  * Read a raw VBLK Disk Group object (version 4) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Disk Group VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Disk Group VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_dgr4 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_dgr4 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	char buf[64];
+ 	int r_objid, r_name, r_id1, r_id2, len;
+@@ -885,16 +880,16 @@ static BOOL ldm_parse_dgr4 (const u8 *bu
+ 		len = r_name;
+ 	}
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_DGR4;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	dgrp = &vb->vblk.dgrp;
+ 
+ 	ldm_get_vstr (buffer + 0x18 + r_objid, buf, sizeof (buf));
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -905,10 +900,10 @@ static BOOL ldm_parse_dgr4 (const u8 *bu
+  *
+  * Read a raw VBLK Disk object (version 3) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Disk VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Disk VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_dsk3 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_dsk3 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	int r_objid, r_name, r_diskid, r_altname, len;
+ 	struct vblk_disk *disk;
+@@ -921,19 +916,19 @@ static BOOL ldm_parse_dsk3 (const u8 *bu
+ 	r_altname = ldm_relative (buffer, buflen, 0x18, r_diskid);
+ 	len = r_altname;
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_DSK3;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	disk = &vb->vblk.disk;
+ 	ldm_get_vstr (buffer + 0x18 + r_diskid, disk->alt_name,
+ 		sizeof (disk->alt_name));
+ 	if (!ldm_parse_guid (buffer + 0x19 + r_name, disk->disk_id))
+-		return FALSE;
++		return false;
+ 
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -944,10 +939,10 @@ static BOOL ldm_parse_dsk3 (const u8 *bu
+  *
+  * Read a raw VBLK Disk object (version 4) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Disk VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Disk VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_dsk4 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_dsk4 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	int r_objid, r_name, len;
+ 	struct vblk_disk *disk;
+@@ -958,15 +953,15 @@ static BOOL ldm_parse_dsk4 (const u8 *bu
+ 	r_name  = ldm_relative (buffer, buflen, 0x18, r_objid);
+ 	len     = r_name;
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_DSK4;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	disk = &vb->vblk.disk;
+ 	memcpy (disk->disk_id, buffer + 0x18 + r_name, GUID_SIZE);
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -977,10 +972,10 @@ static BOOL ldm_parse_dsk4 (const u8 *bu
+  *
+  * Read a raw VBLK Partition object (version 3) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Partition VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Partition VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_prt3 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_prt3 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	int r_objid, r_name, r_size, r_parent, r_diskid, r_index, len;
+ 	struct vblk_part *part;
+@@ -1001,11 +996,11 @@ static BOOL ldm_parse_prt3 (const u8 *bu
+ 		len = r_diskid;
+ 	}
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_PRT3;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	part = &vb->vblk.part;
+ 	part->start         = BE64         (buffer + 0x24 + r_name);
+@@ -1018,7 +1013,7 @@ static BOOL ldm_parse_prt3 (const u8 *bu
+ 	else
+ 		part->partnum = 0;
+ 
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -1029,10 +1024,10 @@ static BOOL ldm_parse_prt3 (const u8 *bu
+  *
+  * Read a raw VBLK Volume object (version 5) into a vblk structure.
+  *
+- * Return:  TRUE   @vb contains a Volume VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a Volume VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_vol5 (const u8 *buffer, int buflen, struct vblk *vb)
++static bool ldm_parse_vol5 (const u8 *buffer, int buflen, struct vblk *vb)
+ {
+ 	int r_objid, r_name, r_vtype, r_child, r_size, r_id1, r_id2, r_size2;
+ 	int r_drive, len;
+@@ -1068,11 +1063,11 @@ static BOOL ldm_parse_vol5 (const u8 *bu
+ 
+ 	len = r_drive;
+ 	if (len < 0)
+-		return FALSE;
++		return false;
+ 
+ 	len += VBLK_SIZE_VOL5;
+ 	if (len != BE32 (buffer + 0x14))
+-		return FALSE;
++		return false;
+ 
+ 	volu = &vb->vblk.volu;
+ 
+@@ -1087,7 +1082,7 @@ static BOOL ldm_parse_vol5 (const u8 *bu
+ 		ldm_get_vstr (buffer + 0x53 + r_size,  volu->drive_hint,
+ 			sizeof (volu->drive_hint));
+ 	}
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -1100,12 +1095,12 @@ static BOOL ldm_parse_vol5 (const u8 *bu
+  * information common to all VBLK types, then delegates the rest of the work to
+  * helper functions: ldm_parse_*.
+  *
+- * Return:  TRUE   @vb contains a VBLK
+- *          FALSE  @vb contents are not defined
++ * Return:  'true'   @vb contains a VBLK
++ *          'false'  @vb contents are not defined
+  */
+-static BOOL ldm_parse_vblk (const u8 *buf, int len, struct vblk *vb)
++static bool ldm_parse_vblk (const u8 *buf, int len, struct vblk *vb)
+ {
+-	BOOL result = FALSE;
++	bool result = false;
+ 	int r_objid;
+ 
+ 	BUG_ON (!buf || !vb);
+@@ -1113,7 +1108,7 @@ static BOOL ldm_parse_vblk (const u8 *bu
+ 	r_objid = ldm_relative (buf, len, 0x18, 0);
+ 	if (r_objid < 0) {
+ 		ldm_error ("VBLK header is corrupt.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	vb->flags  = buf[0x12];
+@@ -1152,10 +1147,10 @@ static BOOL ldm_parse_vblk (const u8 *bu
+  *
+  * N.B.  This function does not check the validity of the VBLKs.
+  *
+- * Return:  TRUE   The VBLK was added
+- *          FALSE  An error occurred
++ * Return:  'true'   The VBLK was added
++ *          'false'  An error occurred
+  */
+-static BOOL ldm_ldmdb_add (u8 *data, int len, struct ldmdb *ldb)
++static bool ldm_ldmdb_add (u8 *data, int len, struct ldmdb *ldb)
+ {
+ 	struct vblk *vb;
+ 	struct list_head *item;
+@@ -1165,12 +1160,12 @@ static BOOL ldm_ldmdb_add (u8 *data, int
+ 	vb = kmalloc (sizeof (*vb), GFP_KERNEL);
+ 	if (!vb) {
+ 		ldm_crit ("Out of memory.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	if (!ldm_parse_vblk (data, len, vb)) {
+ 		kfree(vb);
+-		return FALSE;			/* Already logged */
++		return false;			/* Already logged */
+ 	}
+ 
+ 	/* Put vblk into the correct list. */
+@@ -1196,13 +1191,13 @@ static BOOL ldm_ldmdb_add (u8 *data, int
+ 			if ((v->vblk.part.disk_id == vb->vblk.part.disk_id) &&
+ 			    (v->vblk.part.start > vb->vblk.part.start)) {
+ 				list_add_tail (&vb->list, &v->list);
+-				return TRUE;
++				return true;
+ 			}
+ 		}
+ 		list_add_tail (&vb->list, &ldb->v_part);
+ 		break;
+ 	}
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -1214,10 +1209,10 @@ static BOOL ldm_ldmdb_add (u8 *data, int
+  * Fragmented VBLKs may not be consecutive in the database, so they are placed
+  * in a list so they can be pieced together later.
+  *
+- * Return:  TRUE   Success, the VBLK was added to the list
+- *          FALSE  Error, a problem occurred
++ * Return:  'true'   Success, the VBLK was added to the list
++ *          'false'  Error, a problem occurred
+  */
+-static BOOL ldm_frag_add (const u8 *data, int size, struct list_head *frags)
++static bool ldm_frag_add (const u8 *data, int size, struct list_head *frags)
+ {
+ 	struct frag *f;
+ 	struct list_head *item;
+@@ -1230,7 +1225,7 @@ static BOOL ldm_frag_add (const u8 *data
+ 	num   = BE16 (data + 0x0E);
+ 	if ((num < 1) || (num > 4)) {
+ 		ldm_error ("A VBLK claims to have %d parts.", num);
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	list_for_each (item, frags) {
+@@ -1242,7 +1237,7 @@ static BOOL ldm_frag_add (const u8 *data
+ 	f = kmalloc (sizeof (*f) + size*num, GFP_KERNEL);
+ 	if (!f) {
+ 		ldm_crit ("Out of memory.");
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	f->group = group;
+@@ -1255,7 +1250,7 @@ found:
+ 	if (f->map & (1 << rec)) {
+ 		ldm_error ("Duplicate VBLK, part %d.", rec);
+ 		f->map &= 0x7F;			/* Mark the group as broken */
+-		return FALSE;
++		return false;
+ 	}
+ 
+ 	f->map |= (1 << rec);
+@@ -1266,7 +1261,7 @@ found:
+ 	}
+ 	memcpy (f->data+rec*(size-VBLK_SIZE_HEAD)+VBLK_SIZE_HEAD, data, size);
+ 
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -1295,10 +1290,10 @@ static void ldm_frag_free (struct list_h
+  * Now that all the fragmented VBLKs have been collected, they must be added to
+  * the database for later use.
+  *
+- * Return:  TRUE   All the fragments we added successfully
+- *          FALSE  One or more of the fragments we invalid
++ * Return:  'true'   All the fragments we added successfully
++ *          'false'  One or more of the fragments we invalid
+  */
+-static BOOL ldm_frag_commit (struct list_head *frags, struct ldmdb *ldb)
++static bool ldm_frag_commit (struct list_head *frags, struct ldmdb *ldb)
+ {
+ 	struct frag *f;
+ 	struct list_head *item;
+@@ -1311,13 +1306,13 @@ static BOOL ldm_frag_commit (struct list
+ 		if (f->map != 0xFF) {
+ 			ldm_error ("VBLK group %d is incomplete (0x%02x).",
+ 				f->group, f->map);
+-			return FALSE;
++			return false;
+ 		}
+ 
+ 		if (!ldm_ldmdb_add (f->data, f->num*ldb->vm.vblk_size, ldb))
+-			return FALSE;		/* Already logged */
++			return false;		/* Already logged */
+ 	}
+-	return TRUE;
++	return true;
+ }
+ 
+ /**
+@@ -1329,16 +1324,16 @@ static BOOL ldm_frag_commit (struct list
+  * To use the information from the VBLKs, they need to be read from the disk,
+  * unpacked and validated.  We cache them in @ldb according to their type.
+  *
+- * Return:  TRUE   All the VBLKs were read successfully
+- *          FALSE  An error occurred
++ * Return:  'true'   All the VBLKs were read successfully
++ *          'false'  An error occurred
+  */
+-static BOOL ldm_get_vblks (struct block_device *bdev, unsigned long base,
++static bool ldm_get_vblks (struct block_device *bdev, unsigned long base,
+ 			   struct ldmdb *ldb)
+ {
+ 	int size, perbuf, skip, finish, s, v, recs;
+ 	u8 *data = NULL;
+ 	Sector sect;
+-	BOOL result = FALSE;
++	bool result = false;
+ 	LIST_HEAD (frags);
+ 
+ 	BUG_ON (!bdev || !ldb);
 
-Hope you can offer some suggestions.
 
-Thanks.
-Res

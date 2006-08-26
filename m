@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWHZVym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWHZWFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWHZVym (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 17:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWHZVyl
+	id S1751203AbWHZWFG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 18:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWHZWFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 17:54:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17030 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750745AbWHZVyl (ORCPT
+	Sat, 26 Aug 2006 18:05:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17096 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751203AbWHZWFE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 17:54:41 -0400
-Message-ID: <44F0C312.1050300@redhat.com>
-Date: Sat, 26 Aug 2006 17:54:26 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH 6/6] nfs: Enable swap over NFS
-References: <20060825153709.24254.28118.sendpatchset@twins> <20060825153812.24254.9718.sendpatchset@twins> <20060826143622.GA5260@ucw.cz>
-In-Reply-To: <20060826143622.GA5260@ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sat, 26 Aug 2006 18:05:04 -0400
+Date: Sat, 26 Aug 2006 15:04:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, ego@in.ibm.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
+       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-Id: <20060826150422.a1d492a7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
+References: <20060824102618.GA2395@in.ibm.com>
+	<20060824091704.cae2933c.akpm@osdl.org>
+	<20060825095008.GC22293@redhat.com>
+	<Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Sat, 26 Aug 2006 14:09:55 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
+
 > 
->> Now that NFS can handle swap cache pages, add a swapfile method to allow
->> swapping over NFS.
->>
->> NOTE: this dummy method is obviously not enough to make it safe.
->> A more complete version of the nfs_swapfile() function will be present
->> in the next VM deadlock avoidance patches.
->>
->> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 > 
-> We probably do not want to enable functionality before it is safe...
+> On Fri, 25 Aug 2006, Dave Jones wrote:
+> >
+> > On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
+> >  > We already have sufficient locking primitives to get this right.  Let's fix
+> >  > cpufreq locking rather than introduce complex new primitives which we hope
+> >  > will work in the presence of the existing mess.
+> >  > 
+> >  > Step 1: remove all mention of lock_cpu_hotplug() from cpufreq.
+> >  > Step 2: work out what data needs to be locked, and how.
+> >  > Step 3: implement.
+> > 
+> > this is what I planned to do weeks ago when this mess first blew up.
+> > I even went as far as sending Linus a patch for (1).
+> > He seemed really gung-ho about trying to fix up the current mess though,
+> > and with each incarnation since, I've been convinced we're making
+> > the problem worse rather than really improving anything.
+> 
+> I definitely want to have this fixed, and Gautham's patches look like a 
+> good thing to me, but the "trying to fix up the current mess" part was 
+> really about trying to get 2.6.18 in a mostly working state rather than 
+> anything else. I think it's been too late to try to actually _fix_ it for 
+> 2.6.18 for a long time already.
+> 
+> So my reaction is that this redesign should go in asap after 2.6.18, 
+> unless people feel strongly that the current locking has so many bugs that 
+> people can actually _hit_ in practice that it's better to go for the 
+> redesign early.
 
-OTOH, if we never enable this, what motivation do we have to
-make it safe? :)
+It certainly needs a redesign.  A new sort of lock which makes it appear to
+work won't fix races like:
 
-Scratching an itch works, so maybe we ought to create an itch?
+int cpufreq_update_policy(unsigned int cpu)
+{
+	struct cpufreq_policy *data = cpufreq_cpu_get(cpu);
 
--- 
-What is important?  What you want to be true, or what is true?
+	...
+
+	lock_cpu_hotplug();
+
+
+I rather doubt that anyone will be hitting the races in practice.  I'd
+recommend simply removing all the lock_cpu_hotplug() calls for 2.6.18.
+

@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWHZUda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWHZUg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWHZUda (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 16:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWHZUda
+	id S1750873AbWHZUg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 16:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWHZUg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 16:33:30 -0400
-Received: from p02c11o143.mxlogic.net ([208.65.145.66]:61348 "EHLO
-	p02c11o143.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1750842AbWHZUda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 16:33:30 -0400
-Date: Sat, 26 Aug 2006 23:33:19 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       Randy Dunlap <randy_d_dunlap@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: T60 not coming out of suspend to RAM
-Message-ID: <20060826203319.GC21703@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060825115849.GG221@cip.informatik.uni-erlangen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825115849.GG221@cip.informatik.uni-erlangen.de>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 26 Aug 2006 20:39:40.0421 (UTC) FILETIME=[C0FF8B50:01C6C94F]
-X-Spam: [F=0.0100000000; S=0.010(2006081701)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+	Sat, 26 Aug 2006 16:36:59 -0400
+Received: from science.horizon.com ([192.35.100.1]:57655 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750873AbWHZUg6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 16:36:58 -0400
+Date: 26 Aug 2006 16:30:48 -0400
+Message-ID: <20060826203048.2463.qmail@science.horizon.com>
+From: linux@horizon.com
+To: ian.stirling@mauve.plus.com, linux@horizon.com
+Subject: Re: Serial custom speed deprecated?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44F0A310.4010107@mauve.plus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Thomas Glanzmann <sithglan@stud.uni-erlangen.de>:
-> Subject: Re: T60 not coming out of suspend to RAM
-> 
-> Hello,
-> oh and before I forget about this:
-> 
->         Turn SATA in Bios to compatibility mode And don't forget about
->         the following kernel patch: Otherwise you don't have a disk
->         after the resume. But the buffer cache is still there. ;-)
-> 
-> http://vizzzion.org/stuff/thinkpad-t60/libata-acpi.diff
-> 
-> and yes, it is currently no fun to run a t60 under linux but it can only
-> get better.
-> 
->         Thomas
-> 
+> To nitpick.
+> For a 10 bit long word, if the receiver syncs to within 1/8th of  the 
+> middle of a bit-time at the start, you've got 2/8th of a bit-time of 
+> disagreement possible, before you are likely to get errors, especially 
+> on limited slew-rate signals. (more modern chips will likely sample faster)
+> Or 3/80, or 2.5%. If the other side has made a similar calculation, then 
+> you should only really rely on 1%.
+> 5% is the best possible case - that will in most circumstances cause errors.
 
-I do indeed not have a disk after resume - get a bunch of errors
-out of libata.
-Is this patch still needed under 2.6.18 git?
-If yes, is there an updated version?
+You're quite right; 5% assumes perfect signal edges, which you don't
+get in practice, especially at high baud rates.  Also, you have
+frational stop bit tricks from some modems.
 
--- 
-MST
+Still, as I suggested, half-precision floating point (1 sign, 5 exponent,
+10 mantissa) as used for HDR graphics has a relative error range of 1/1024
+(0.098%) to 1/2047 (0.049%), and would be an excellent match.
+
+It's not a terribly serious suggestion, as I don't think 134.5 baud
+is a serious issue these days, but it does make clear that there's no
+difference between 115,200 baud and 115,299 baud.

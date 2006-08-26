@@ -1,37 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422954AbWHZCAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422864AbWHZCBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422954AbWHZCAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 22:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422955AbWHZCAV
+	id S1422864AbWHZCBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 22:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422915AbWHZCBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 22:00:21 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:1158 "EHLO
-	mail.arcor.de") by vger.kernel.org with ESMTP id S1422954AbWHZCAU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 22:00:20 -0400
-In-Reply-To: <1156538115.3038.6.camel@pmac.infradead.org>
-References: <1156429585.3012.58.camel@pmac.infradead.org> <1156433068.3012.115.camel@pmac.infradead.org> <200608251611.50616.rob@landley.net> <1156538115.3038.6.camel@pmac.infradead.org>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <D02D0DC3-D19E-4411-BD27-5BDC17BD4D21@kernel.crashing.org>
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org,
-       linux-tiny@selenic.com, devel@laptop.org
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-Date: Sat, 26 Aug 2006 03:59:40 +0200
-To: David Woodhouse <dwmw2@infradead.org>
-X-Mailer: Apple Mail (2.750)
+	Fri, 25 Aug 2006 22:01:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32018 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422864AbWHZCBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 22:01:25 -0400
+Date: Sat, 26 Aug 2006 04:01:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: drivers/char/synclink_gt.c: chars don't have more than 8 bits
+Message-ID: <20060826020123.GB4765@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And you get a nice progress indicator at the moment -- a new warning
-> about global register variables every time it eats a new file, due to
-> GCC PR27899 :)
+The GNU C compiler (SVN version) spotted the following buggy code in 
+drivers/char/synclink_gt.c:
 
-Or pass -Q to the compiler, it'll print the name of every function
-it compiles, and a nice timing report at the end.
+<--  snip  -->
 
+...
+static void rx_async(struct slgt_info *info)
+{
+...
+        unsigned char *p;
+        unsigned char status;
+...
+                        if ((status = *(p+1) & (BIT9 + BIT8))) {
+                                if (status & BIT9)
+                                        icount->parity++;
+                                else if (status & BIT8)
+                                        icount->frame++;
+                                /* discard char if tty control flags say so */
+                                if (status & info->ignore_status_mask)
+                                        continue;
+                                if (status & BIT9)
+                                        stat = TTY_PARITY;
+                                else if (status & BIT8)
+                                        stat = TTY_FRAME;
+                        }
+...
 
-Segher
+<--  snip  -->
+
+Since there are no bits 8 or 9 in a char this code is currently
+dead code.
+
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWHZUSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWHZUW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWHZUSt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 16:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWHZUSt
+	id S1750802AbWHZUW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 16:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWHZUW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 16:18:49 -0400
-Received: from ns.suse.de ([195.135.220.2]:37558 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750799AbWHZUSs (ORCPT
+	Sat, 26 Aug 2006 16:22:57 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:63923 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1750802AbWHZUW4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 16:18:48 -0400
-Date: Sat, 26 Aug 2006 13:18:20 -0700
-From: Greg KH <greg@kroah.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] SCSI bug fixes for 2.6.18-rc4
-Message-ID: <20060826201820.GA16690@kroah.com>
-References: <1156614381.3501.12.camel@mulgrave.il.steeleye.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156614381.3501.12.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 26 Aug 2006 16:22:56 -0400
+Date: Sat, 26 Aug 2006 22:22:54 +0200 (MEST)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <200608262022.k7QKMs126222@apps.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: flaw in the mount system call
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 26, 2006 at 12:46:21PM -0500, James Bottomley wrote:
-> This is the set of accumulated bug fixes (I'm afraid it's bigger than it
-> should be on account of me missing 2.6.18-rc2.  This is basically a set
-> of driver bug fixes, plus a scsi mid-layer regression fix.
-> 
-> The patch is here:
-> 
-> master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+I no longer maintain mount or util-linux, but people still
+send mail concerning mount. One letter complained that
+asking for a bind mount with flags nosuid,noexec does not work,
+while first doing the bind mount, and then afterwards doing
+a remount with nosuid,noexec does work (but is insecure).
 
-Pulled from, and pushed out.
+And indeed, looking at a random recent kernel source I see
 
-thanks,
+	mnt_flags := per_mountpoint_flags;
 
-greg k-h
+        if (flags & MS_REMOUNT)
+                retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+                                    data_page);
+        else if (flags & MS_BIND)
+                retval = do_loopback(&nd, dev_name, flags & MS_REC);
+        else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+                retval = do_change_type(&nd, flags);
+        else if (flags & MS_MOVE)
+                retval = do_move_mount(&nd, dev_name);
+        else
+                retval = do_new_mount(&nd, type_page, flags, mnt_flags,
+                                      dev_name, data_page);
+
+That is, the per-mountpoint flags are used for ordinary mounts
+and for remounts, but ignored on bind mounts.
+Probably do_loopback() should have an additional parameter.
+Doing things one-by-one may be less good since it leaves a race.
+
+Andries
+
+
+
+

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWHZThz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWHZUSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWHZThz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 15:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHZThz
+	id S1750799AbWHZUSt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 16:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWHZUSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 15:37:55 -0400
-Received: from ptb-relay03.plus.net ([212.159.14.214]:55509 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S1750734AbWHZThz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 15:37:55 -0400
-Message-ID: <44F0A310.4010107@mauve.plus.com>
-Date: Sat, 26 Aug 2006 20:37:52 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Sat, 26 Aug 2006 16:18:49 -0400
+Received: from ns.suse.de ([195.135.220.2]:37558 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750799AbWHZUSs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 16:18:48 -0400
+Date: Sat, 26 Aug 2006 13:18:20 -0700
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: [GIT PATCH] SCSI bug fixes for 2.6.18-rc4
+Message-ID: <20060826201820.GA16690@kroah.com>
+References: <1156614381.3501.12.camel@mulgrave.il.steeleye.com>
 MIME-Version: 1.0
-To: linux@horizon.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serial custom speed deprecated?
-References: <20060826181639.6545.qmail@science.horizon.com>
-In-Reply-To: <20060826181639.6545.qmail@science.horizon.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156614381.3501.12.camel@mulgrave.il.steeleye.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
->> Or we could just add a standardised extra set of speed ioctls, but then
->> we need to decide what occurs if I set the speed and then issue a
->> termios call - does it override or not.
+On Sat, Aug 26, 2006 at 12:46:21PM -0500, James Bottomley wrote:
+> This is the set of accumulated bug fixes (I'm afraid it's bigger than it
+> should be on account of me missing 2.6.18-rc2.  This is basically a set
+> of driver bug fixes, plus a scsi mid-layer regression fix.
 > 
-<snip>
-> Alternatively, you could observe that asynchronous communications only
-> requires agreement withing 5% between sender and receiver, so specifying
-> a baud rate to much better than 1% is not too important.
+> The patch is here:
+> 
+> master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
-To nitpick.
-For a 10 bit long word, if the receiver syncs to within 1/8th of  the 
-middle of a bit-time at the start, you've got 2/8th of a bit-time of 
-disagreement possible, before you are likely to get errors, especially 
-on limited slew-rate signals. (more modern chips will likely sample faster)
-Or 3/80, or 2.5%. If the other side has made a similar calculation, then 
-you should only really rely on 1%.
-5% is the best possible case - that will in most circumstances cause errors.
+Pulled from, and pushed out.
+
+thanks,
+
+greg k-h

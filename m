@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWHZPAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWHZPG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWHZPAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 11:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWHZPAu
+	id S1751589AbWHZPG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 11:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWHZPG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 11:00:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54241 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751587AbWHZPAu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 11:00:50 -0400
-Date: Sat, 26 Aug 2006 17:00:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Fix typo in rtc kconfig
-Message-ID: <20060826150039.GA1888@elf.ucw.cz>
+	Sat, 26 Aug 2006 11:06:56 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:37126 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750794AbWHZPG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 11:06:56 -0400
+Date: Sat, 26 Aug 2006 17:06:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/xfs/xfs_bmap.c:xfs_bmapi(): fix a bug
+Message-ID: <20060826150654.GE4765@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix simple typo in RTC_HCTOSYS option.
+This patch fixes the following bug introduced by commit 
+39269e29d4aad04252e0debec4c9b01bac16a257:
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Since bma.conv is a char and XFS_BMAPI_CONVERT is 0x1000, bma.conv was 
+always assigned zero.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 8272feb..d8fa0a9 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -27,7 +27,7 @@ config RTC_HCTOSYS
- 	help
- 	  If you say yes here, the system time will be set using
- 	  the value read from the specified RTC device. This is useful
--	  in order to avoid unnecessary fschk runs.
-+	  in order to avoid unnecessary fsck runs.
- 
- config RTC_HCTOSYS_DEVICE
- 	string "The RTC to read the time from"
+Spotted by the GNU C compiler (SVN version).
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc4-mm2/fs/xfs/xfs_bmap.c.old	2006-08-26 03:31:23.000000000 +0200
++++ linux-2.6.18-rc4-mm2/fs/xfs/xfs_bmap.c	2006-08-26 03:31:28.000000000 +0200
+@@ -4993,7 +4993,7 @@ xfs_bmapi(
+ 				bma.firstblock = *firstblock;
+ 				bma.alen = alen;
+ 				bma.off = aoff;
+-				bma.conv = (flags & XFS_BMAPI_CONVERT);
++				bma.conv = !!(flags & XFS_BMAPI_CONVERT);
+ 				bma.wasdel = wasdelay;
+ 				bma.minlen = minlen;
+ 				bma.low = flist->xbf_low;
+
+

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422976AbWHZRnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945901AbWHZRoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422976AbWHZRnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 13:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422951AbWHZRmu
+	id S1945901AbWHZRoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 13:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422975AbWHZRnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 13:42:50 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:50557 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1422943AbWHZRmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 13:42:37 -0400
+	Sat, 26 Aug 2006 13:43:11 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:44417 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1422968AbWHZRm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 13:42:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=GQSzruphRKMzASfckksygyGDpBCCgPeC7uh9wnZw/eHHU35ZpTnrKaPAFAU6vf9PBMKK8PTzJLh6eemGD5k+rb0OOCCyyHeFwGDLD8bJdz9KOOgxFZ3xjctlB+Z+XsdkqbBc2CcDF1+W23lFXZSHNWHbqVxHMFGvUzLFZI9hUGQ=  ;
+  b=0moRZwyviKdVQoeH+1fE2CG+1mr1tS/r9t7LJaxd6vsmglKJq2bPMrRw+OqKroaCd6GzoD0MuSoPi8P8d5YsK/2TtPdcTtmYBbzKF6vl7/oDwjIlnjTUKOsFfjhm+t3Ef8T3O1py1to2e8XxhZlbiDb5EwaAqn2tlsxPi+g6z4Q=  ;
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH RFP-V4 06/13] RFP prot support: cleanup syscall checks
-Date: Sat, 26 Aug 2006 19:42:29 +0200
+Subject: [PATCH RFP-V4 12/13] RFP prot support: also set VM_NONLINEAR on nonuniform VMAs
+Date: Sat, 26 Aug 2006 19:42:49 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Message-Id: <20060826174229.14790.15931.stgit@memento.home.lan>
+Message-Id: <20060826174249.14790.91862.stgit@memento.home.lan>
 In-Reply-To: <200608261933.36574.blaisorblade@yahoo.it>
 References: <200608261933.36574.blaisorblade@yahoo.it>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -29,124 +29,70 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-This patch reorganizes the code only, without differences in behaviour. It
-makes the code more readable on its own, and is needed for next patches. I've
-split this out to avoid cluttering real patches.
+To simplify the VM code, and to reflect expected application usage, we decide
+to also set VM_NONLINEAR when setting VM_MANYPROTS. Otherwise, we'd have to
+possibly save nonlinear PTEs even on paths which cope with linear VMAs. It's
+possible, but intrusive (it's done in one of the next patches).
 
-*) remap_file_pages protection support: use EOVERFLOW ret code
+Obviously, this has a performance cost, since we potentially have to handle a
+linear VMA with nonlinear handling code. But I didn't know of any application
+which might have this usage.
 
-Use -EOVERFLOW ("Value too large for defined data type") rather than -EINVAL
-when we cannot store the file offset in the PTE.
+XXX: update: glibc wants to replace mprotect() with linear VM_MANYPROTS areas,
+to handle guard pages and data mappings of shared objects.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- mm/fremap.c |   44 +++++++++++++++++++++++++++++---------------
- 1 files changed, 29 insertions(+), 15 deletions(-)
+ mm/fremap.c |   27 ++++++++++++++-------------
+ 1 files changed, 14 insertions(+), 13 deletions(-)
 
 diff --git a/mm/fremap.c b/mm/fremap.c
-index f57cd6d..dfe5d71 100644
+index b1db410..3438caf 100644
 --- a/mm/fremap.c
 +++ b/mm/fremap.c
-@@ -147,7 +147,7 @@ out:
-  * future.
-  */
- asmlinkage long sys_remap_file_pages(unsigned long start, unsigned long size,
--	unsigned long __prot, unsigned long pgoff, unsigned long flags)
-+	unsigned long prot, unsigned long pgoff, unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct address_space *mapping;
-@@ -155,9 +155,10 @@ asmlinkage long sys_remap_file_pages(uns
- 	struct vm_area_struct *vma;
- 	int err = -EINVAL;
- 	int has_write_lock = 0;
-+	pgprot_t pgprot;
+@@ -213,8 +213,9 @@ retry:
  
--	if (__prot)
--		return err;
-+	if (prot)
-+		goto out;
- 	/*
- 	 * Sanitize the syscall parameters:
- 	 */
-@@ -166,17 +167,19 @@ asmlinkage long sys_remap_file_pages(uns
- 
- 	/* Does the address range wrap, or is the span zero-sized? */
- 	if (start + size <= start)
--		return err;
-+		goto out;
- 
- 	/* Can we represent this offset inside this architecture's pte's? */
- #if PTE_FILE_MAX_BITS < BITS_PER_LONG
--	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
--		return err;
-+	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS)) {
-+		err = -EOVERFLOW;
-+		goto out;
-+	}
- #endif
- 
- 	/* We need down_write() to change vma->vm_flags. */
- 	down_read(&mm->mmap_sem);
-- retry:
-+retry:
- 	vma = find_vma(mm, start);
- 
- 	/*
-@@ -185,12 +188,21 @@ #endif
- 	 * the single existing vma.  vm_private_data is used as a
- 	 * swapout cursor in a VM_NONLINEAR vma.
- 	 */
--	if (vma && (vma->vm_flags & VM_SHARED) &&
--		(!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) &&
--		vma->vm_ops && vma->vm_ops->populate &&
--			end > start && start >= vma->vm_start &&
--				end <= vma->vm_end) {
-+	if (!vma)
-+		goto out_unlock;
-+
-+	if (!(vma->vm_flags & VM_SHARED))
-+		goto out_unlock;
- 
-+	if (!vma->vm_ops || !vma->vm_ops->populate)
-+		goto out_unlock;
-+
-+	if (end <= start || start < vma->vm_start || end > vma->vm_end)
-+		goto out_unlock;
-+
-+	pgprot = vma->vm_page_prot;
-+
-+	if (!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) {
+ 	if (!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) {
  		/* Must set VM_NONLINEAR before any pages are populated. */
- 		if (pgoff != linear_page_index(vma, start) &&
- 		    !(vma->vm_flags & VM_NONLINEAR)) {
-@@ -210,9 +222,8 @@ #endif
+-		if (pgoff != linear_page_index(vma, start) &&
+-		    !(vma->vm_flags & VM_NONLINEAR)) {
++		if (!(vma->vm_flags & VM_NONLINEAR) &&
++			(pgoff != linear_page_index(vma, start) ||
++			pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot))) {
+ 			if (!(vma->vm_flags & VM_SHARED))
+ 				goto out_unlock;
+ 			if (!has_write_lock) {
+@@ -231,19 +232,19 @@ retry:
+ 			vma_nonlinear_insert(vma, &mapping->i_mmap_nonlinear);
+ 			flush_dcache_mmap_unlock(mapping);
  			spin_unlock(&mapping->i_mmap_lock);
+-		}
+ 
+-		if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot) &&
+-				!(vma->vm_flags & VM_MANYPROTS)) {
+-			if (!(vma->vm_flags & VM_SHARED))
+-				goto out_unlock;
+-			if (!has_write_lock) {
+-				up_read(&mm->mmap_sem);
+-				down_write(&mm->mmap_sem);
+-				has_write_lock = 1;
+-				goto retry;
++			if (!(vma->vm_flags & VM_MANYPROTS) &&
++				pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot)) {
++				if (!(vma->vm_flags & VM_SHARED))
++					goto out_unlock;
++				if (!has_write_lock) {
++					up_read(&mm->mmap_sem);
++					down_write(&mm->mmap_sem);
++					has_write_lock = 1;
++					goto retry;
++				}
++				vma->vm_flags |= VM_MANYPROTS;
+ 			}
+-			vma->vm_flags |= VM_MANYPROTS;
  		}
  
--		err = vma->vm_ops->populate(vma, start, size,
--					    vma->vm_page_prot,
--					    pgoff, flags & MAP_NONBLOCK);
-+		err = vma->vm_ops->populate(vma, start, size, pgprot, pgoff,
-+				flags & MAP_NONBLOCK);
- 
- 		/*
- 		 * We would like to clear VM_NONLINEAR, in the case when
-@@ -221,11 +232,14 @@ #endif
- 		 * successful populate, and have no way to upgrade sem.
- 		 */
- 	}
-+
-+out_unlock:
- 	if (likely(!has_write_lock))
- 		up_read(&mm->mmap_sem);
- 	else
- 		up_write(&mm->mmap_sem);
- 
-+out:
- 	return err;
- }
- 
+ 		err = vma->vm_ops->populate(vma, start, size, pgprot, pgoff,
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

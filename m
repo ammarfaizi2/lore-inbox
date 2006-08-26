@@ -1,137 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422947AbWHZAgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWHZBTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422947AbWHZAgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 20:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422950AbWHZAgl
+	id S1751493AbWHZBTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 21:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422909AbWHZBTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 20:36:41 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62737 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422947AbWHZAgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 20:36:40 -0400
-Date: Sat, 26 Aug 2006 02:36:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.28
-Message-ID: <20060826003639.GA4765@stusta.de>
-MIME-Version: 1.0
+	Fri, 25 Aug 2006 21:19:33 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:14863 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751378AbWHZBTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 21:19:32 -0400
+Date: Sat, 26 Aug 2006 11:18:39 +1000
+To: Greg KH <greg@kroah.com>
+Cc: stable@kernel.org, "David S. Miller" <davem@davemloft.net>,
+       Nix <nix@esperi.org.uk>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@suse.de>, netdev@vger.kernel.org
+Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
+Message-ID: <20060826011839.GA14010@gondor.apana.org.au>
+References: <87zme9fy94.fsf@hades.wkstn.nix> <20060813125910.GA18463@gondor.apana.org.au> <20060825230316.GA3254@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060825230316.GA3254@kroah.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.27:
-- CVE-2006-2935: cdrom: fix bad cgc.buflen assignment
-- CVE-2006-3745: Fix sctp privilege elevation
-- CVE-2006-4093: powerpc: Clear HID0 attention enable on PPC970 at boot time
-- CVE-2006-4145: Fix possible UDF deadlock and memory corruption
+On Fri, Aug 25, 2006 at 04:03:16PM -0700, Greg KH wrote:
+> 
+> This patch doesn't apply at all to the latest 2.6.17-stable kernel tree.
+> Care to rediff it?
 
+Hmm, I just rebased and it actually applied as is to 2.6.17.11 :)
+Anyway, here is the result:
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+[INET]: Use pskb_trim_unique when trimming paged unique skbs
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+The IPv4/IPv6 datagram output path was using skb_trim to trim paged
+packets because they know that the packet has not been cloned yet
+(since the packet hasn't been given to anything else in the system).
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+This broke because skb_trim no longer allows paged packets to be
+trimmed.  Paged packets must be given to one of the pskb_trim functions
+instead.
 
+This patch adds a new pskb_trim_unique function to cover the IPv4/IPv6
+datagram output path scenario and replaces the corresponding skb_trim
+calls with it.
 
-Changes since 2.6.16.27:
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-Adrian Bunk:
-      fix the SND_FM801_TEA575X dependencies
-      SOUND_SSCAPE shouldn't depend on OBSOLETE_OSS_DRIVER
-      update the i386 defconfig
-      Linux 2.6.16.28-rc1
-      Linux 2.6.16.28-rc2
-      Linux 2.6.16.28-rc3
-      Linux 2.6.16.28
-
-Al Boldi:
-      ide-io: increase timeout value to allow for slave wakeup
-
-Andi Kleen:
-      BLOCK: Fix bounce limit address check
-
-Bob Breuer:
-      SPARC32: Fix iommu_flush_iotlb end address
-
-Chuck Ebbert:
-      ieee80211: TKIP requires CRC32
-
-Danny Tholen:
-      1394: fix for recently added firewire patch that breaks things on ppc
-
-Dave Jones:
-      [AGPGART] Fix Nforce3 suspend on amd64.
-
-David S. Miller:
-      SPARC64: Fix quad-float multiply emulation.
-
-Jan Kara:
-      Fix possible UDF deadlock and memory corruption (CVE-2006-4145)
-
-Jens Axboe:
-      Fix missing ret assignment in __bio_map_user() error path
-      fix debugfs inode leak
-      cdrom: fix bad cgc.buflen assignment (CVE-2006-2935)
-
-Michael S. Tsirkin:
-      IB/mthca: restore missing PCI registers after reset
-
-Olof Johansson:
-      powerpc: Clear HID0 attention enable on PPC970 at boot time (CVE-2006-4093)
-
-Pavel Machek:
-      remove obsolete swsusp_encrypt
-      pdflush: handle resume wakeups
-
-Robert Hancock:
-      Fix broken suspend/resume in ohci1394
-
-Sridhar Samudrala:
-      Fix sctp privilege elevation (CVE-2006-3745)
-
-Stefan Richter:
-      ieee1394: sbp2: enable auto spin-up for Maxtor disks
-
-Yasunori Goto:
-      memory hotplug: solve config broken: undefined reference to `online_page'
-
-
- Makefile                                  |    4 
- arch/i386/Kconfig                         |    3 
- arch/i386/defconfig                       | 1261 ++++++++++++++--------
- arch/ia64/Kconfig                         |    3 
- arch/powerpc/Kconfig                      |    3 
- arch/powerpc/kernel/cpu_setup_power4.S    |    2 
- arch/sparc/mm/iommu.c                     |    3 
- arch/x86_64/Kconfig                       |    2 
- block/ll_rw_blk.c                         |    2 
- drivers/cdrom/cdrom.c                     |    2 
- drivers/char/agp/amd64-agp.c              |    3 
- drivers/ide/ide-io.c                      |    2 
- drivers/ieee1394/ohci1394.c               |    3 
- drivers/ieee1394/sbp2.c                   |    3 
- drivers/infiniband/hw/mthca/mthca_reset.c |   59 +
- fs/bio.c                                  |    5 
- fs/debugfs/inode.c                        |    3 
- fs/udf/super.c                            |    2 
- fs/udf/truncate.c                         |   64 -
- include/asm-sparc64/sfp-machine.h         |    2 
- include/net/sctp/sctp.h                   |   13 
- include/net/sctp/sm.h                     |    3 
- kernel/power/Kconfig                      |   12 
- mm/Kconfig                                |    2 
- mm/pdflush.c                              |   15 
- net/ieee80211/Kconfig                     |    1 
- net/sctp/sm_make_chunk.c                  |   30 
- net/sctp/sm_statefuns.c                   |   20 
- net/sctp/socket.c                         |   10 
- sound/oss/Kconfig                         |    2 
- sound/pci/Kconfig                         |   14 
- sound/pci/fm801.c                         |    2 
- 32 files changed, 1010 insertions(+), 545 deletions(-)
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 2c31bb0..a1ce843 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1009,6 +1009,21 @@ static inline int pskb_trim(struct sk_bu
+ }
+ 
+ /**
++ *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
++ *	@skb: buffer to alter
++ *	@len: new length
++ *
++ *	This is identical to pskb_trim except that the caller knows that
++ *	the skb is not cloned so we should never get an error due to out-
++ *	of-memory.
++ */
++static inline void pskb_trim_unique(struct sk_buff *skb, unsigned int len)
++{
++	int err = pskb_trim(skb, len);
++	BUG_ON(err);
++}
++
++/**
+  *	skb_orphan - orphan a buffer
+  *	@skb: buffer to orphan
+  *
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index cff9c3a..d987a27 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -946,7 +946,7 @@ alloc_new_skb:
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+ 				data += fraggap;
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 
+ 			copy = datalen - transhdrlen - fraggap;
+@@ -1139,7 +1139,7 @@ ssize_t	ip_append_page(struct sock *sk, 
+ 					data, fraggap, 0);
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 
+ 			/*
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index e460489..56eddb3 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1047,7 +1047,7 @@ alloc_new_skb:
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+ 				data += fraggap;
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 			copy = datalen - transhdrlen - fraggap;
+ 			if (copy < 0) {

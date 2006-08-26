@@ -1,32 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422791AbWHZGdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWHZHdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422791AbWHZGdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 02:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422884AbWHZGdJ
+	id S1751226AbWHZHdk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 03:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWHZHdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 02:33:09 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:24765 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1422791AbWHZGdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 02:33:08 -0400
-Date: Sat, 26 Aug 2006 08:32:47 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       schwidefsky@de.ibm.com
-Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
-Message-ID: <20060826063247.GA6928@osiris.boeblingen.de.ibm.com>
-References: <20060824212241.GB30007@sergelap.austin.ibm.com> <20060825143842.GA27364@infradead.org> <20060825200359.GC13805@sergelap.austin.ibm.com>
+	Sat, 26 Aug 2006 03:33:40 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:63382 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751007AbWHZHdj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 03:33:39 -0400
+Date: Sat, 26 Aug 2006 09:32:06 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Mahoney <jeffm@suse.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] sun disk label: fix signed int usage for sector count
+In-Reply-To: <44EF1FAA.7000108@suse.com>
+Message-ID: <Pine.LNX.4.61.0608260931070.25807@yvahk01.tjqt.qr>
+References: <44EF1FAA.7000108@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825200359.GC13805@sergelap.austin.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> below patch on top of -mm2 is wrong (it compiles, but I just noticed
-> 2.6.18-rc4-mm2 doesn't boot without this patch either) but hopefully
+>
+> The current sun disklabel code uses a signed int for the sector count. When
+> partitions larger than 1 TB are used, the cast to a sector_t causes the
+> partition sizes to be invalid:
+>
 
-2.6.18-rc4-mm2 works fine for me. What configuration and machine setup did
-you use?
+Is not it that the sun disklabel does not even support 
+[ptabs/partitions] more than 1 TB?
+
+
+Jan Engelhardt
+-- 

@@ -1,136 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWHZLfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWHZMQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWHZLfn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 07:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWHZLfn
+	id S964941AbWHZMQy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 08:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWHZMQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 07:35:43 -0400
-Received: from web52906.mail.yahoo.com ([206.190.49.16]:9831 "HELO
-	web52906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964939AbWHZLfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 07:35:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=HTNpUwZDscgzMNXfKwQXufXvOVojkjg6yIeNVkQYi4gUptPVzSu2kXU3J1cU6QfFeCQYv0t3sBH6AhTW5Ifdcw4V3WHXv4xdAYK1SJnkKh1sJ6aXwGtQ1BkKNk+Y+mv7p4EDn/jXy3a91At+Bj4DLQqWj2ED8YlQLCTLB6p6vQQ=  ;
-Message-ID: <20060826113541.35969.qmail@web52906.mail.yahoo.com>
-Date: Sat, 26 Aug 2006 12:35:41 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Soft lockup with 2.6.17.7
-To: linux-kernel@vger.kernel.org
+	Sat, 26 Aug 2006 08:16:54 -0400
+Received: from khc.piap.pl ([195.187.100.11]:53923 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964941AbWHZMQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 08:16:53 -0400
+To: Theodore Tso <tytso@mit.edu>
+Cc: Stuart MacDonald <stuartm@connecttech.com>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-serial@vger.kernel.org,
+       "'LKML'" <linux-kernel@vger.kernel.org>, libc-alpha@sources.redhat.com
+Subject: Re: Serial custom speed deprecated?
+References: <1156459387.3007.218.camel@localhost.localdomain>
+	<043501c6c85a$1eb09a60$294b82ce@stuartm>
+	<20060825193203.GB725@flint.arm.linux.org.uk>
+	<20060825203929.GB25595@thunk.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 26 Aug 2006 14:16:50 +0200
+In-Reply-To: <20060825203929.GB25595@thunk.org> (Theodore Tso's message of "Fri, 25 Aug 2006 16:39:29 -0400")
+Message-ID: <m3irkf66a5.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Linux 2.6.17.7-SMP, dual P4 Xeon (hyperthreaded), 2 GB RAM]
+Theodore Tso <tytso@mit.edu> writes:
 
-Hi,
+> What would scare me though about doing something like would be
+> potential for the ABI changes.  Not only do you have to worry about a
+> consistent set of ioctl's, structure definitions, and B* defines, but
+> you also have to worry about userspace libraries that use B* as part
+> of their interface, and expect user programs to pass B* constants to
+> the userspace library.  (Say, some kind of conveience dialout library,
+> for example.)
 
-My 2.6.17.7 workstation locked up the other night, and wrote these messages to the serial console:
-
-The system is going down for reboot NOW!
-[root@volcano chris]# BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-BUG: soft lockup detected on CPU#2!
- <c0130b5f> softlockup_tick+0x9c/0xb1  <c011fae8> update_process_times+0x3d/0x60
- <c010d5ea> smp_apic_timer_interrupt+0x52/0x58  <c0103320> apic_timer_interrupt+0x1c/0x24
- <c010c192> flush_tlb_others+0x7e/0xab  <c010c364> flush_tlb_page+0x85/0xa6
- <c013b7f7> do_wp_page+0x223/0x283  <c013ca3f> __handle_mm_fault+0x6aa/0x70d
- <c0110f99> do_page_fault+0x20f/0x532  <c0110d8a> do_page_fault+0x0/0x532
- <c01033eb> error_code+0x4f/0x54 
-
-I was trying to run World of Warcraft under Wine, while simultaneously compiling MESA, and so I
-suspect that a lot of my RAM was active at the time.
-
-Cheers,
-Chris
-
-
-
-		
-___________________________________________________________ 
-The all-new Yahoo! Mail goes wherever you go - free your email address from your Internet provider. http://uk.docs.yahoo.com/nowyoucan.html
+Right, there is a potential problem here. I don't know | think
+if anything like that exists, though. If there is no such software
+the issue can be ignored, and if something turns out then it just
+have to be compiled with the same glibc headers (both parts).
+That probably means even for binary software it's a non-issue.
+-- 
+Krzysztof Halasa

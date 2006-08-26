@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422943AbWHZRot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422971AbWHZRmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422943AbWHZRot (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 13:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422945AbWHZRms
+	id S1422971AbWHZRmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 13:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422945AbWHZRml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 13:42:48 -0400
-Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:38528 "HELO
-	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1422968AbWHZRmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 13:42:43 -0400
+	Sat, 26 Aug 2006 13:42:41 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:36737 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964802AbWHZRmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 13:42:21 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=XPA+U1DmONZEkaW0BjFuyiutWnNuDAlOEv9IGsI96zxseBvwn4+v0P+RRAbq/3VVy14p4BI6u9LHFfjXwlAND6hAPKwGh8TLbU0+aF1aUN5ZuAU+tfNwfZeUFfanZEkgy4KudUMYk7iW0amcW/A9y20ucPRTii9H/A0oH5wTpiI=  ;
+  b=O36svq8/wVJASyKPF/6FO/4/02ScA7ip6nL1mfCCfYKFWi7DuUFbLTnhmNPtfeOw1y+05bHWWyX4Vsjg0C7pgGMEkjI3iDJZXBS5ZPa4RX/Z7TTsEXOaa3CNPgSRMMQTVZOcZPPRFs+tCptNguH9R3mtKcB9xNu++Yj6/zR6rMY=  ;
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH RFP-V4 08/13] RFP prot support: support private vma for MAP_POPULATE
-Date: Sat, 26 Aug 2006 19:42:36 +0200
+Subject: [PATCH RFP-V4 02/13] Fix comment about remap_file_pages
+Date: Sat, 26 Aug 2006 19:42:13 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Message-Id: <20060826174236.14790.79303.stgit@memento.home.lan>
+Message-Id: <20060826174213.14790.50608.stgit@memento.home.lan>
 In-Reply-To: <200608261933.36574.blaisorblade@yahoo.it>
 References: <200608261933.36574.blaisorblade@yahoo.it>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -27,10 +27,10 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Fix mmap(MAP_POPULATE | MAP_PRIVATE). We don't need the VMA to be shared if we
-don't rearrange pages around. And it's trivial to do.
+This comment is a bit unclear and also stale. So fix it. Thanks to Hugh Dickins
+for explaining me what it really referred to, and correcting my first fix.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
@@ -39,36 +39,22 @@ Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
  1 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/mm/fremap.c b/mm/fremap.c
-index e62dc15..b1db410 100644
+index 21b7d0c..cdeabad 100644
 --- a/mm/fremap.c
 +++ b/mm/fremap.c
-@@ -191,9 +191,6 @@ retry:
- 	if (!vma)
- 		goto out_unlock;
+@@ -215,9 +215,10 @@ #endif
+ 					    pgoff, flags & MAP_NONBLOCK);
  
--	if (!(vma->vm_flags & VM_SHARED))
--		goto out_unlock;
--
- 	if (!vma->vm_ops || !vma->vm_ops->populate)
- 		goto out_unlock;
- 
-@@ -218,6 +215,8 @@ retry:
- 		/* Must set VM_NONLINEAR before any pages are populated. */
- 		if (pgoff != linear_page_index(vma, start) &&
- 		    !(vma->vm_flags & VM_NONLINEAR)) {
-+			if (!(vma->vm_flags & VM_SHARED))
-+				goto out_unlock;
- 			if (!has_write_lock) {
- 				up_read(&mm->mmap_sem);
- 				down_write(&mm->mmap_sem);
-@@ -236,6 +235,8 @@ retry:
- 
- 		if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot) &&
- 				!(vma->vm_flags & VM_MANYPROTS)) {
-+			if (!(vma->vm_flags & VM_SHARED))
-+				goto out_unlock;
- 			if (!has_write_lock) {
- 				up_read(&mm->mmap_sem);
- 				down_write(&mm->mmap_sem);
+ 		/*
+-		 * We can't clear VM_NONLINEAR because we'd have to do
+-		 * it after ->populate completes, and that would prevent
+-		 * downgrading the lock.  (Locks can't be upgraded).
++		 * We would like to clear VM_NONLINEAR, in the case when
++		 * sys_remap_file_pages covers the whole vma, so making
++		 * it linear again.  But cannot do so until after a
++		 * successful populate, and have no way to upgrade sem.
+ 		 */
+ 	}
+ 	if (likely(!has_write_lock))
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

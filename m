@@ -1,92 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWHZQJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWHZQRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWHZQJo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 12:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHZQJo
+	id S1030231AbWHZQRN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 12:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWHZQRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 12:09:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42960 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030222AbWHZQJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 12:09:43 -0400
-Subject: Re: 2.6.18 Headers - Long
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org
-In-Reply-To: <1152836749.31372.36.camel@shinybook.infradead.org>
-References: <44B443D2.4070600@jg555.com>
-	 <1152836749.31372.36.camel@shinybook.infradead.org>
+	Sat, 26 Aug 2006 12:17:13 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5015 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030231AbWHZQRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 12:17:12 -0400
+Subject: Re: BC: resource beancounters (v2)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: rohitseth@google.com
+Cc: Andrey Savochkin <saw@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
+       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Matt Helsley <matthltc@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+In-Reply-To: <1156558552.24560.23.camel@galaxy.corp.google.com>
+References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>
+	 <44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
+	 <20060825203026.A16221@castle.nmd.msu.ru>
+	 <1156558552.24560.23.camel@galaxy.corp.google.com>
 Content-Type: text/plain
-Date: Sat, 26 Aug 2006 17:09:20 +0100
-Message-Id: <1156608560.3012.112.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Sat, 26 Aug 2006 17:37:03 +0100
+Message-Id: <1156610224.3007.284.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 01:25 +0100, David Woodhouse wrote:
-> On Tue, 2006-07-11 at 17:35 -0700, Jim Gifford wrote:
-> > I will only document one issue, but there are several more like this
-> > in the kernel.
-> 
-> Please elaborate, preferably in 'diff -u' form as below...
+Ar Gwe, 2006-08-25 am 19:15 -0700, ysgrifennodd Rohit Seth:
+> Yes, sharing of pages across different containers/managers will be a
+> problem.  Why not just disallow that scenario (that is what fake nodes
+> proposal would also end up doing).
 
-Got any more, Jim?
+Because it destroys the entire point of using containers instead of
+something like Xen - which is sharing. Also at the point I am using
+beancounters per user I don't want glibc per use, libX11 per use glib
+per use gtk per user etc..
 
-> > I'm going to use the MIPS architecture in my example, along with the 
-> > file page.h. 
-
-Ralf, you haven't applied this yet AFAICT...
-
-> [PATCH] Reduce user-visible noise in asm-mips/page.h
-> 
-> Since PAGE_SIZE is variable according to configuration options, don't
-> expose it to userspace. Userspace should be using sysconf(_SC_PAGE_SIZE)
-> instead. Move some other noise inside __KERNEL__ too while we're at it.
-> 
-> Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-> 
-> diff --git a/include/asm-mips/page.h b/include/asm-mips/page.h
-> index 6ed1151..ee2ef88 100644
-> --- a/include/asm-mips/page.h
-> +++ b/include/asm-mips/page.h
-> @@ -14,8 +14,6 @@ #ifdef __KERNEL__
->  
->  #include <spaces.h>
->  
-> -#endif
-> -
->  /*
->   * PAGE_SHIFT determines the page size
->   */
-> @@ -35,7 +33,6 @@ #define PAGE_SIZE	(1UL << PAGE_SHIFT)
->  #define PAGE_MASK       (~((1 << PAGE_SHIFT) - 1))
->  
-> 
-> -#ifdef __KERNEL__
->  #ifndef __ASSEMBLY__
->  
->  extern void clear_page(void * page);
-> @@ -168,7 +165,6 @@ #define VM_DATA_DEFAULT_FLAGS	(VM_READ |
->  #define UNCAC_ADDR(addr)	((addr) - PAGE_OFFSET + UNCAC_BASE)
->  #define CAC_ADDR(addr)		((addr) - UNCAC_BASE + PAGE_OFFSET)
->  
-> -#endif /* defined (__KERNEL__) */
->  
->  #ifdef CONFIG_LIMITED_DMA
->  #define WANT_PAGE_VIRTUAL
-> @@ -177,4 +173,6 @@ #endif
->  #include <asm-generic/memory_model.h>
->  #include <asm-generic/page.h>
->  
-> +#endif /* defined (__KERNEL__) */
-> +
->  #endif /* _ASM_PAGE_H */
-> 
-> 
--- 
-dwmw2
 

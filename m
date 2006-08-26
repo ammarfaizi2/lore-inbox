@@ -1,143 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422952AbWHZADv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422937AbWHZAEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422952AbWHZADv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Aug 2006 20:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422948AbWHZADR
+	id S1422937AbWHZAEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Aug 2006 20:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422941AbWHZADL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Aug 2006 20:03:17 -0400
-Received: from mga07.intel.com ([143.182.124.22]:60976 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1422938AbWHZADK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Aug 2006 20:03:10 -0400
+	Fri, 25 Aug 2006 20:03:11 -0400
+Received: from mga06.intel.com ([134.134.136.21]:59488 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422934AbWHZADH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Aug 2006 20:03:07 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.08,170,1154934000"; 
-   d="scan'208"; a="107791839:sNHT42735098"
-Message-Id: <20060826000302.077706000@linux.intel.com>
+   d="h'?scan'208"; a="115152404:sNHT32177166"
+Message-Id: <20060826000303.763296000@linux.intel.com>
 References: <20060826000227.818796000@linux.intel.com>
 User-Agent: quilt/0.45-1
-Date: Fri, 25 Aug 2006 17:02:28 -0700
+Date: Fri, 25 Aug 2006 17:02:33 -0700
 From: Valerie Henson <val_henson@linux.intel.com>
 To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Valerie Henson <val_henson@linux.intel.com>, Jeff Garzik <jeff@garzik.org>
-Subject: [patch 01/10] [TULIP] Change tulip maintainer
-Content-Disposition: inline; filename=tulip-change-tulip-maintainer
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Kyle McMartin <kyle@parisc-linux.org>,
+       Valerie Henson <val_henson@linux.intel.com>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [patch 06/10] [TULIP] Clean up tulip.h
+Content-Disposition: inline; filename=tulip-clean-up-tulip.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Grant Grundler <grundler@parisc-linux.org>
+
+Update/cleanup some definitions in tulip.h and tulip_core.c.
+
+Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
+Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
 Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
-Cc: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
- MAINTAINERS                    |    4 ++--
- drivers/net/tulip/21142.c      |    2 +-
- drivers/net/tulip/eeprom.c     |    2 +-
- drivers/net/tulip/interrupt.c  |    2 +-
- drivers/net/tulip/media.c      |    2 +-
- drivers/net/tulip/pnic.c       |    2 +-
- drivers/net/tulip/pnic2.c      |    2 +-
- drivers/net/tulip/timer.c      |    2 +-
- drivers/net/tulip/tulip_core.c |    2 +-
- 9 files changed, 10 insertions(+), 10 deletions(-)
+---
+ drivers/net/tulip/tulip.h      |   17 +++++++++++------
+ drivers/net/tulip/tulip_core.c |    7 ++-----
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
---- linux-2.6.18-rc4-mm1.orig/MAINTAINERS
-+++ linux-2.6.18-rc4-mm1/MAINTAINERS
-@@ -2956,8 +2956,8 @@ W:	http://www.auk.cx/tms380tr/
- S:	Maintained
+--- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/tulip.h
++++ linux-2.6.18-rc4-mm1/drivers/net/tulip/tulip.h
+@@ -30,11 +30,10 @@
+ /* undefine, or define to various debugging levels (>4 == obscene levels) */
+ #define TULIP_DEBUG 1
  
- TULIP NETWORK DRIVER
--P:	Jeff Garzik
--M:	jgarzik@pobox.com
-+P:	Valerie Henson
-+M:	val_henson@linux.intel.com
- L:	tulip-users@lists.sourceforge.net
- W:	http://sourceforge.net/projects/tulip/
- S:	Maintained
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/21142.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/21142.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/21142.c
+-/* undefine USE_IO_OPS for MMIO, define for PIO */
+ #ifdef CONFIG_TULIP_MMIO
+-# undef USE_IO_OPS
++#define TULIP_BAR	1	/* CBMA */
+ #else
+-# define USE_IO_OPS 1
++#define TULIP_BAR	0	/* CBIO */
+ #endif
  
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
  
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/eeprom.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/eeprom.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/eeprom.c
+@@ -143,6 +142,7 @@ enum status_bits {
+ 	RxNoBuf = 0x80,
+ 	RxIntr = 0x40,
+ 	TxFIFOUnderflow = 0x20,
++	RxErrIntr = 0x10,
+ 	TxJabber = 0x08,
+ 	TxNoBuf = 0x04,
+ 	TxDied = 0x02,
+@@ -193,9 +193,14 @@ struct tulip_tx_desc {
  
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
  
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/interrupt.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/interrupt.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/interrupt.c
+ enum desc_status_bits {
+-	DescOwned = 0x80000000,
+-	RxDescFatalErr = 0x8000,
+-	RxWholePkt = 0x0300,
++	DescOwned    = 0x80000000,
++	DescWholePkt = 0x60000000,
++	DescEndPkt   = 0x40000000,
++	DescStartPkt = 0x20000000,
++	DescEndRing  = 0x02000000,
++	DescUseLink  = 0x01000000,
++	RxDescFatalErr = 0x008000,
++	RxWholePkt   = 0x00000300,
+ };
  
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
- 
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/media.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/media.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/media.c
- 
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
- 
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/pnic.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/pnic.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/pnic.c
- 
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
- 
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/pnic2.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/pnic2.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/pnic2.c
- 
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
-         Modified to hep support PNIC_II by Kevin B. Hendricks
---- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/timer.c
-+++ linux-2.6.18-rc4-mm1/drivers/net/tulip/timer.c
-@@ -1,7 +1,7 @@
- /*
- 	drivers/net/tulip/timer.c
- 
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
  
 --- linux-2.6.18-rc4-mm1.orig/drivers/net/tulip/tulip_core.c
 +++ linux-2.6.18-rc4-mm1/drivers/net/tulip/tulip_core.c
-@@ -1,7 +1,7 @@
- /* tulip_core.c: A DEC 21x4x-family ethernet driver for Linux. */
+@@ -1369,11 +1369,8 @@ static int __devinit tulip_init_one (str
+ 	if (pci_request_regions (pdev, "tulip"))
+ 		goto err_out_free_netdev;
  
- /*
--	Maintained by Jeff Garzik <jgarzik@pobox.com>
-+	Maintained by Valerie Henson <val_henson@linux.intel.com>
- 	Copyright 2000,2001  The Linux Kernel Team
- 	Written/copyright 1994-2001 by Donald Becker.
+-#ifndef USE_IO_OPS
+-	ioaddr =  pci_iomap(pdev, 1, tulip_tbl[chip_idx].io_size);
+-#else
+-	ioaddr =  pci_iomap(pdev, 0, tulip_tbl[chip_idx].io_size);
+-#endif
++	ioaddr =  pci_iomap(pdev, TULIP_BAR, tulip_tbl[chip_idx].io_size);
++
+ 	if (!ioaddr)
+ 		goto err_out_free_res;
  
 
 --

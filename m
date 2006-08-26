@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWHZHdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWHZHwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWHZHdk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 03:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWHZHdk
+	id S964919AbWHZHwW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 03:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWHZHwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 03:33:40 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:63382 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751007AbWHZHdj (ORCPT
+	Sat, 26 Aug 2006 03:52:22 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:16442 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S964919AbWHZHwW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 03:33:39 -0400
-Date: Sat, 26 Aug 2006 09:32:06 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Mahoney <jeffm@suse.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] sun disk label: fix signed int usage for sector count
-In-Reply-To: <44EF1FAA.7000108@suse.com>
-Message-ID: <Pine.LNX.4.61.0608260931070.25807@yvahk01.tjqt.qr>
-References: <44EF1FAA.7000108@suse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sat, 26 Aug 2006 03:52:22 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Martin Bligh <mbligh@mbligh.org>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Edward Falk <efalk@google.com>, linux-kernel@vger.kernel.org,
+       Michael Davidson <md@google.com>
+Subject: Re: [PATCH] Fix x86_64 _spin_lock_irqsave() 
+In-reply-to: Your message of "Thu, 24 Aug 2006 08:53:39 MST."
+             <44EDCB83.2010806@mbligh.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 26 Aug 2006 17:52:22 +1000
+Message-ID: <2772.1156578742@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The current sun disklabel code uses a signed int for the sector count. When
-> partitions larger than 1 TB are used, the cast to a sector_t causes the
-> partition sizes to be invalid:
->
+Martin Bligh (on Thu, 24 Aug 2006 08:53:39 -0700) wrote:
+>Andrew Morton wrote:
+>> On Thu, 24 Aug 2006 13:10:09 +1000
+>> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>> 
+>> 
+>>>Edward Falk wrote:
+>>>
+>>>>Add spin_lock_string_flags and _raw_spin_lock_flags() to 
+>>>>asm-x86_64/spinlock.h so that _spin_lock_irqsave() has the same 
+>>>>semantics on x86_64 as it does on i386 and does *not* have interrupts 
+>>>>disabled while it is waiting for the lock.
+>>>>
+>>>>This fix is courtesy of Michael Davidson
+>>>
+>>>So, what's the bug? You shouldn't rely on these semantics anyway
+>>>because you should never expect to wait for a spinlock for so long
+>>>(and it may be the case that irqs can't be enabled anyway).
 
-Is not it that the sun disklabel does not even support 
-[ptabs/partitions] more than 1 TB?
+AFAICT the first architecture that enabled interrupts while spinning
+was IA64.  http://www.gelato.unsw.edu.au/archives/linux-ia64/0404/9161.html
+I did that patch because large NUMA systems were suffering from cache
+line bouncing on spinlocks which increased the time that interrupts
+were disabled.  This effect tends not to show up on small systems, but
+it does make a measurable difference for large systems.
 
+An additional benefit of enabling interrupts in the contention path is
+that it lets you get in with a profiler or debugger to track down
+deadlock or long lock problems.  Enabling interrupts in the contention
+path has no disadvantages and it increases system responsiveness and
+availability.
 
-Jan Engelhardt
--- 

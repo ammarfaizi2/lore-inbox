@@ -1,38 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422994AbWHZSdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWHZSwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422994AbWHZSdV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 14:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWHZSdV
+	id S932337AbWHZSwI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 14:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWHZSwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 14:33:21 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:1940
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1422994AbWHZSdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 14:33:20 -0400
-Subject: Re: Linux 2.6.16.28
-From: Paul Fulghum <paulkf@microgate.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060826155159.GJ4765@stusta.de>
-References: <200608261023_MC3-1-C96A-6EC3@compuserve.com>
-	 <20060826155159.GJ4765@stusta.de>
-Content-Type: text/plain
-Date: Sat, 26 Aug 2006 13:30:16 -0500
-Message-Id: <1156617016.2567.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sat, 26 Aug 2006 14:52:08 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:17106 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932337AbWHZSwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 14:52:05 -0400
+In-Reply-To: <20060826155905.GC2900@elf.ucw.cz>
+References: <20060826155905.GC2900@elf.ucw.cz>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <29339CE5-A279-411F-9637-5E15E2DCD5C8@kernel.crashing.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: strange usb device in thinkpad x60: 17ef:1000
+Date: Sat, 26 Aug 2006 20:51:57 +0200
+To: Pavel Machek <pavel@ucw.cz>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-26 at 17:51 +0200, Adrian Bunk wrote:
-> Paul, can you ACK that this patch is OK for 2.6.16?
-> Subject: tty serialize flush_to_ldisc
+> ...any ideas what it is?
 
-Yes, it is OK for 2.6.16.
+17ef is Lenovo.  The device is a USB hub AFAICT?
 
-Thanks,
-Paul
 
+Segher
 

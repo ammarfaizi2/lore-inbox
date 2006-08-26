@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWHZUzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHZVK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWHZUzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 16:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWHZUzn
+	id S1750894AbWHZVK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 17:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWHZVK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 16:55:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:3475 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750872AbWHZUzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 16:55:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ss3u9CvFFoPygFGl7CK4F3OKejalOe/bZoeJpFLzNoRSdUYXyk1X/tzPxPJ17YY2d9m/2tQVb+WOv1JW7Zs22L7xFHGFdd/ogRTB2/3nAp6+kQ1yTsRVCAwbKtPihHL/gfkPn8PhdqbWI+tNZ19S2hOFEHonfrZXfzNfF4kLgfM=
-Message-ID: <e9c3a7c20608261355k41692c64w9165a22a9b7fab29@mail.gmail.com>
-Date: Sat, 26 Aug 2006 13:55:36 -0700
-From: "Dan Williams" <dan.j.williams@gmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux: Why software RAID?
-Cc: "Chris Friesen" <cfriesen@nortel.com>, "Jeff Garzik" <jeff@garzik.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux RAID Mailing List" <linux-raid@vger.kernel.org>, marc@perkel.com
-In-Reply-To: <44ED3851.7040202@zytor.com>
+	Sat, 26 Aug 2006 17:10:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36282 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750887AbWHZVK1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 17:10:27 -0400
+Date: Sat, 26 Aug 2006 14:09:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, ego@in.ibm.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
+       vatsa@in.ibm.com, dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+In-Reply-To: <20060825095008.GC22293@redhat.com>
+Message-ID: <Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
+References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org>
+ <20060825095008.GC22293@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44ED1E41.40606@garzik.org> <44ED3723.3090308@nortel.com>
-	 <44ED3851.7040202@zytor.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/23/06, H. Peter Anvin <hpa@zytor.com> wrote:
-> Chris Friesen wrote:
-> > Jeff Garzik wrote:
-> >
-> >> But anyway, to help answer the question of hardware vs. software RAID,
-> >> I wrote up a page:
-> >>
-> >>     http://linux.yyz.us/why-software-raid.html
-> >
-> > Just curious...with these guys
-> > (http://www.bigfootnetworks.com/KillerOverview.aspx) putting linux on a
-> > PCI NIC to allow them to bypass Windows' network stack, has anyone ever
-> > considered doing "hardware" raid by using an embedded cpu running linux
-> > software RAID, with battery-backed memory?
-> >
-> > It would theoretically allow you to remain feature-compatible by
-> > downloading new kernels to your RAID card.
-> >
+
+
+On Fri, 25 Aug 2006, Dave Jones wrote:
 >
-> Yes.  In fact, I have been told by several RAID chip vendors that their
-> customers are *strongly* demanding that their chips be able to run Linux
->   md (and still use whatever hardware offload features.)
->
-> So it's happening.
-Speaking of md with hardware offload features:
+> On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
+>  > We already have sufficient locking primitives to get this right.  Let's fix
+>  > cpufreq locking rather than introduce complex new primitives which we hope
+>  > will work in the presence of the existing mess.
+>  > 
+>  > Step 1: remove all mention of lock_cpu_hotplug() from cpufreq.
+>  > Step 2: work out what data needs to be locked, and how.
+>  > Step 3: implement.
+> 
+> this is what I planned to do weeks ago when this mess first blew up.
+> I even went as far as sending Linus a patch for (1).
+> He seemed really gung-ho about trying to fix up the current mess though,
+> and with each incarnation since, I've been convinced we're making
+> the problem worse rather than really improving anything.
 
-http://prdownloads.sourceforge.net/xscaleiop/ols_paper_2006.pdf?download
+I definitely want to have this fixed, and Gautham's patches look like a 
+good thing to me, but the "trying to fix up the current mess" part was 
+really about trying to get 2.6.18 in a mostly working state rather than 
+anything else. I think it's been too late to try to actually _fix_ it for 
+2.6.18 for a long time already.
 
->         -hpa
+So my reaction is that this redesign should go in asap after 2.6.18, 
+unless people feel strongly that the current locking has so many bugs that 
+people can actually _hit_ in practice that it's better to go for the 
+redesign early.
 
-Dan
+I personally doubt that it's the case that we'd want to accelerate 
+inclusion - very few things actually do CPU hotplug, and right now the 
+only way to even hit the sequences in normal use is literally just the 
+"suspend under SMP" case that hasn't historically worked very well anyway, 
+but was what made at least me personally aware of the problems ;^).
+
+		Linus

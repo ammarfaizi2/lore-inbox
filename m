@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWH0WBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWH0WCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWH0WBs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 18:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWH0WBs
+	id S1751190AbWH0WCa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 18:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWH0WCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 18:01:48 -0400
-Received: from avas-mr14.fibertel.com.ar ([24.232.0.245]:54440 "EHLO
-	avas-mr14.fibertel.com.ar") by vger.kernel.org with ESMTP
-	id S1751188AbWH0WBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 18:01:47 -0400
-Subject: Re: Touchpad problems with latest kernels
-From: Javier Kohen <jkohen@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 27 Aug 2006 18:26:14 -0300
-Message-Id: <1156713975.20067.15.camel@null.tough.com.ar>
+	Sun, 27 Aug 2006 18:02:30 -0400
+Received: from xenotime.net ([66.160.160.81]:6888 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751190AbWH0WC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 18:02:29 -0400
+Date: Sun, 27 Aug 2006 15:05:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>, forrest.zhao@intel.com
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>
+Subject: Re: Updated libata acpi patches for GIT HEAD
+Message-Id: <20060827150542.7d50213a.rdunlap@xenotime.net>
+In-Reply-To: <20060827215032.GG8271@cip.informatik.uni-erlangen.de>
+References: <20060827215032.GG8271@cip.informatik.uni-erlangen.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-X-Fib-Al-Info: Al
-X-Fib-Al-MRId: 68c78303b1763dacb5fef4347b3492b3
-X-Fib-Al-SA: analyzed
-X-Fib-Al-From: jkohen@users.sourceforge.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Aug 2006 23:50:32 +0200 Thomas Glanzmann wrote:
+
+> Hello Randy,
+
 Hi,
+Please use rdunlap@xenotime.net or randy.dunlap@oracle.com now.
 
-I just got a HP dv8301nr laptop and found out about this problem. I'm
-running kernel 2.6.17-debian and 2.6.17-ck1. The Touchpad is a model: 1,
-fw: 6.2, id: 0x1a0b1, caps: 0xa04713/0x200000.
+> I have a T60 and use your libata acpi patch which saves/restores the
+> taskfile of the disk on hibernation and resume. I wonder if you have an
+> updated patch for GIT HEAD because a colleague with a similar notebook
+> has to use GIT HEAD to get his soundcard supported. I tried to port it
+> myself and there was only one reject which I maybe fixed, but I don't
+> intend to try the patch so I don't know:
 
-I've tried many suggested workarounds that I found on the net to no
-avail. Even forcing the imps/exps protocols cause a similar problem
-here: no pointer freezes as with the SynPS protocol, but yes periodical
-random jerky mouse movements and clicks. Moreover, I haven't found a way
-to disable the mouse-tap feature (which I find annoying) when using this
-protocol and X. I haven't tried the bare protocol because I'm very used
-to the scrolling wheel behavior.
-Incidentally, it seems that the driver resynchs are always useless, at
-least for me.
+I don't have a suitable machine for testing.
+Forrest Zhao at Intel was picking up continuing work on this patch.
 
-I booted with the ec_intr=0 option (it took effect according to the boot
-logs) to no avail. I'd like to help fix this problem, so if there is
-anything that I can do, please let me know. I modified synaptics.c to
-print the packets that were failed the validation check to fail, but
-they don't say much to me.
+Someone else did a patch update and put that function call in
+ata_bus_probe().  See
+http://vizzzion.org/stuff/thinkpad-t60/libata-acpi.diff
 
-Meanwhile, I think I'll get a cheap external mouse (I read they work
-fine) and keep my hopes up.
 
-Thanks in advance,
--- 
-Javier Kohen <jkohen@users.sourceforge.net>
-ICQ: blashyrkh #2361802
-Jabber: jkohen@jabber.org
+> @@ -4290,6 +4294,7 @@ int ata_device_resume(struct ata_port *a
+>         }
+>         if (!ata_dev_present(dev))
+>                 return 0;
+> +       ata_acpi_exec_tfs(ap);
+>         if (dev->class == ATA_DEV_ATA)
+>                 ata_start_drive(ap, dev);
+> 
+> in libata-core.c. This function ata_device_resume does no longer exist in GIT
+> HEAD, so I modified the following function ata_scsi_device_resume instead:
+> 
+> diff -ruN linux-2.6.orig/drivers/scsi/libata-scsi.c linux-2.6/drivers/scsi/libata-scsi.c
+> --- linux-2.6.orig/drivers/scsi/libata-scsi.c   2006-08-27 20:01:34.000000000 +0200
+> +++ linux-2.6/drivers/scsi/libata-scsi.c        2006-08-27 23:13:00.000000000 +0200
+> @@ -499,6 +499,8 @@
+>             sdev->sdev_state == SDEV_CANCEL || sdev->sdev_state == SDEV_DEL)
+>                 goto out_unlock;
+> 
+> +       ata_acpi_exec_tfs(ap);
+> +
+>         /* request resume */
+>         action = ATA_EH_RESUME;
+>         if (sdev->sdev_gendev.power.power_state.event == PM_EVENT_SUSPEND)
+
+
+---
+~Randy

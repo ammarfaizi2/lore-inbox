@@ -1,132 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWH0ImB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWH0IoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWH0ImB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 04:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWH0ImB
+	id S1750918AbWH0IoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWH0IoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 04:42:01 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.4.203]:50 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1750829AbWH0ImA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 04:42:00 -0400
-Date: Sun, 27 Aug 2006 04:42:03 -0400
-From: Lee Trager <Lee@PicturesInMotion.net>
-Subject: HPA Resume patch
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Message-id: <44F15ADB.5040609@PicturesInMotion.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_P+o2gIDjKl1TKo+gMfpnjQ)"
-User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
+	Sun, 27 Aug 2006 04:44:13 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:19208 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750918AbWH0IoL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 04:44:11 -0400
+Date: Sun, 27 Aug 2006 10:44:15 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>, i2c@lm-sensors.org
+Subject: Re: [-mm patch] struct i2c_algo_pcf_data: remove the mdelay member
+Message-Id: <20060827104415.159a8726.khali@linux-fr.org>
+In-Reply-To: <20060827024702.GP4765@stusta.de>
+References: <20060826160922.3324a707.akpm@osdl.org>
+	<20060827024702.GP4765@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Adrian,
 
---Boundary_(ID_P+o2gIDjKl1TKo+gMfpnjQ)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.18-rc4-mm2:
+> >...
+> > +gregkh-i2c-i2c-algo-bit-kill-mdelay.patch
+> >...
+> >  I2C tree updates
+> >...
+> 
+> This patch also removes the only usage of the mdelay member in 
+> struct i2c_algo_pcf_data, but doesn't remove the struct member itself.
+> 
+> Is seems this patch was also intended?
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h.old	2006-08-27 04:01:35.000000000 +0200
+> +++ linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h	2006-08-27 04:01:40.000000000 +0200
+> @@ -35,7 +35,6 @@ struct i2c_algo_pcf_data {
+>  
+>  	/* local settings */
+>  	int udelay;
+> -	int mdelay;
+>  	int timeout;
+>  };
 
-This patch fixes a problem with computers that have HPA on their hard
-drive and not being able to come out of resume from RAM or disk. I've
-tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
-of these. This patch also fixes the bug #6840. This is my first patch to
-the kernel and I was told to e-mail the above people to get my patch
-into the kernel. If I made a mistake please be gentle and correct me ;)
+I removed mdelay from i2c-elektor thinking that it was using
+i2c-algo-bit, I didn't realize it was using a different i2c algorithm.
+And I didn't know i2c-algo-pcf also had an unused mdelay.
 
-Lee Trager
+I will send an updated i2c-algo-bit-kill-mdelay.patch to Greg which
+doesn't affect i2c-elektor. Then we can stack a second patch doing the
+same for i2c-algo-pcf, which will include your change above, and my
+change to i2c-elektor.
 
---Boundary_(ID_P+o2gIDjKl1TKo+gMfpnjQ)
-Content-type: text/plain; name=hpa-resume.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=hpa-resume.patch
+I agree it doesn't matter much, in the end we end up removing
+everything and it was dead code anyway, but let's still have clean
+separate patches doing just one thing at a time.
 
-diff -Naur linux-2.6.18-rc4-old/include/linux/ide.h linux-2.6.18-rc4/include/linux/ide.h
---- linux-2.6.18-rc4-old/include/linux/ide.h	2006-08-19 03:49:03.000000000 -0400
-+++ linux-2.6.18-rc4/include/linux/ide.h	2006-08-20 19:13:10.000000000 -0400
-@@ -1201,6 +1201,17 @@
- void ide_register_subdriver(ide_drive_t *, ide_driver_t *);
- void ide_unregister_subdriver(ide_drive_t *, ide_driver_t *);
- 
-+/* Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-+ * so on non-buggy drives we need test only one.
-+ * However, we should also check whether these fields are valid.
-+*/
-+static inline int idedisk_supports_hpa(const struct hd_driveid *id)
-+{
-+        return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
-+}
-+
-+extern void init_idedisk_capacity (ide_drive_t  *drive);
-+
- #define ON_BOARD		1
- #define NEVER_BOARD		0
+I just found that i2c-algo-ite has the same unused mdelay member in its
+algorithm data structure... But I wouldn't bother cleaning it up, given
+that it is planed for removal next month anyway.
 
-diff -Naur linux-2.6.18-rc4-old/drivers/ide/ide-disk.c linux-2.6.18-rc4/drivers/ide/ide-disk.c
---- linux-2.6.18-rc4-old/drivers/ide/ide-disk.c	2006-08-19 03:49:03.000000000 -0400
-+++ linux-2.6.18-rc4/drivers/ide/ide-disk.c	2006-08-20 19:13:56.000000000 -0400
-@@ -464,16 +464,6 @@
- }
- 
- /*
-- * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-- * so on non-buggy drives we need test only one.
-- * However, we should also check whether these fields are valid.
-- */
--static inline int idedisk_supports_hpa(const struct hd_driveid *id)
--{
--	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
--}
--
--/*
-  * The same here.
-  */
- static inline int idedisk_supports_lba48(const struct hd_driveid *id)
-@@ -528,7 +518,7 @@
-  * in above order (i.e., if value of higher priority is available,
-  * reset will be ignored).
-  */
--static void init_idedisk_capacity (ide_drive_t  *drive)
-+void init_idedisk_capacity (ide_drive_t  *drive)
- {
- 	struct hd_driveid *id = drive->id;
- 	/*
-@@ -555,6 +545,8 @@
- 	}
- }
- 
-+EXPORT_SYMBOL(init_idedisk_capacity);
-+
- static sector_t idedisk_capacity (ide_drive_t *drive)
- {
- 	return drive->capacity64 - drive->sect0;
-diff -Naur linux-2.6.18-rc4-old/drivers/ide/ide.c linux-2.6.18-rc4/drivers/ide/ide.c
---- linux-2.6.18-rc4-old/drivers/ide/ide.c	2006-08-19 03:49:03.000000000 -0400
-+++ linux-2.6.18-rc4/drivers/ide/ide.c	2006-08-20 19:12:38.000000000 -0400
-@@ -1232,6 +1232,7 @@
- 	struct request rq;
- 	struct request_pm_state rqpm;
- 	ide_task_t args;
-+	int ide_cmd;
- 
- 	memset(&rq, 0, sizeof(rq));
- 	memset(&rqpm, 0, sizeof(rqpm));
-@@ -1242,7 +1243,15 @@
- 	rqpm.pm_step = ide_pm_state_start_resume;
- 	rqpm.pm_state = PM_EVENT_ON;
- 
--	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
-+	ide_cmd = ide_do_drive_cmd(drive, &rq, ide_head_wait);
-+
-+	/* check to see if this is a hard drive
-+	 * if it is then checkhpa needs to be
-+	 * disabled */
-+	if(drive->media == ide_disk && idedisk_supports_hpa(drive->id))
-+		init_idedisk_capacity(drive);
-+
-+	return ide_cmd;
- }
- 
- int generic_ide_ioctl(ide_drive_t *drive, struct file *file, struct block_device *bdev,
-
---Boundary_(ID_P+o2gIDjKl1TKo+gMfpnjQ)--
+Thanks,
+-- 
+Jean Delvare

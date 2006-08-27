@@ -1,74 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWH0CNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWH0C2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWH0CNG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 22:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWH0CNF
+	id S1750983AbWH0C2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWH0C2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 22:13:05 -0400
-Received: from es1036.belits.com ([64.58.22.200]:3798 "EHLO es1036.belits.com")
-	by vger.kernel.org with ESMTP id S1751013AbWH0CND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 22:13:03 -0400
-Message-ID: <44F0FF87.90907@belits.com>
-Date: Sat, 26 Aug 2006 20:12:23 -0600
-From: Alex Belits <abelits@belits.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.17.11 (and probably earlier versions) -- crash after  loading
- 8250_pnp
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 26 Aug 2006 22:28:20 -0400
+Received: from out-mta2.ai270.net ([83.244.130.25]:34252 "EHLO
+	out-mta1.ai270.net") by vger.kernel.org with ESMTP id S1750930AbWH0C2T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 22:28:19 -0400
+Mime-Version: 1.0 (Apple Message framework v752.2)
 Content-Transfer-Encoding: 7bit
+Message-Id: <18AC2580-555A-460F-B9D7-3E4CBBA73941@lougher.org.uk>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+From: Phillip Lougher <phillip@lougher.org.uk>
+Subject: [ANN] Squashfs 3.1 released
+Date: Sun, 27 Aug 2006 03:28:16 +0100
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.6.17.11 boots on a dual Athlon Tyan S2669 motherboard with 
-serial console enabled. Serial console works until 8250_pnp module 
-loads, then crashes.
+Hi,
 
-Disabling the module fixes the problem.
+I'm pleased to announce Squashfs version 3.1.  Squashfs 3.1 has some
+major improvements to the squashfs-tools, a couple of major bug fixes,
+lots of small improvements/bug fixes, and new kernel patches.
 
-00:09: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-00:0a: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-BUG: unable to handle kernel NULL pointer dereference at virtual address 
-0000000 c
-  printing eip:
-c027b60d
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-Modules linked in: 8250_pnp psmouse pcspkr rtc hw_random amd76x_edac 
-edac_mc amd _k7_agp agpgart ohci_hcd usbcore e100 mii e1000 w83781d 
-hwmon_vid hwmon i2c_isa i2c_amd756 i2c_core mousedev ide_cd cdrom 
-non_fatal unix
-CPU:    0
-EIP:    0060:[<c027b60d>]    Not tainted VLI
-EFLAGS: 00010296   (2.6.17.11 #1)
-EIP is at uart_write_room+0xd/0x20
-eax: c154e8c0   ebx: dfe53000   ecx: dea77efc   edx: 00000000
-esi: 00000022   edi: dea76000   ebp: df97b000   esp: dea77e98
-ds: 007b   es: 007b   ss: 0068
-Process isapnp.rc (pid: 2950, threadinfo=dea76000 task=def30a70)
-Stack: c026b25f dfe53000 00000282 00000282 00000022 df97b000 dea76000 
-dfe53000
-        c026d27e dfe53000 df97b000 00000022 dfe53134 00000000 00000000 
-def30a70
-        c0118cd0 00000000 00000000 c0267d92 c0267d92 c0267d92 00000000 
-def30a70
-Call Trace:
-  <c026b25f> opost_block+0x1f/0x120  <c026d27e> write_chan+0x18e/0x230
-  <c0118cd0> default_wake_function+0x0/0x20  <c0267d92> tty_write+0xc2/0x240
-  <c0267d92> tty_write+0xc2/0x240  <c0267d92> tty_write+0xc2/0x240
-  <c0118cd0> default_wake_function+0x0/0x20  <c0225ef6> 
-copy_from_user+0x46/0x90
-  <c0267e77> tty_write+0x1a7/0x240  <c026d0f0> write_chan+0x0/0x230
-  <c0160a39> vfs_write+0xc9/0x1a0  <c0160be1> sys_write+0x51/0x80
-  <c0102ef7> syscall_call+0x7/0xb
-Code: 0a bd 0f 00 8b 4c 24 34 89 0c 24 e8 8e f9 ff ff 8b 44 24 10 e9 2b 
-ff ff ff  90 8d 74 26 00 8b 44 24 04 8b 80 80 01 00 00 8b 50 10 <8b> 42 
-0c 2b 42 08 48 25  ff 0f 00 00 c3 8d b6 00 00 00 00 8b 44
-EIP: [<c027b60d>] uart_write_room+0xd/0x20 SS:ESP 0068:dea77e98
-  BUG: isapnp.rc/2950, lock held at task exit time!
-  [dfe53400] {initialize_tty_struct}
-.. held by:         isapnp.rc: 2950 [def30a70, 125]
-... acquired at:               tty_write+0xc2/0x240
+Squashfs can be dowloaded from http://squashfs.sourceforge.net.
+The list of changes  are:
+
+1. Mksquashfs has been rewritten to be multi-threaded.  It has the
+following improvements
+
+1.1. Parallel compression.  By default as many compression and
+      fragment compression threads are created as there are available
+      processors.  This significantly speeds up performance on SMP
+      systems.
+
+1.2. File input and filesystem output is peformed in parallel on
+      separate threads to maximise I/O performance.  Even on single
+      processor systems this speeds up performance by at least 10%.
+
+1.3. Appending has been significantly improved, and files within the
+      filesystem being appended to are no longer scanned and
+      checksummed.  This significantly improves append time for large
+      filesystems.
+
+1.4. File duplicate checking has been optimised, and split into two
+      separate phases.  Only files which are considered possible
+      duplicates after the first phase are checksummed and cached in
+      memory.
+
+1.5  The use of swap memory was found to significantly impact
+      performance. The amount of memory used to cache files is now a
+      command line option, by default this is 512 Mbytes.
+
+2. Unsquashfs has the following improvements
+
+2.1  Unsquashfs now allows you to specify the filename or the
+      directory within the Squashfs filesystem that is to be
+      extracted, rather than always extracting the entire filesystem.
+
+2.2  A new -force option has been added which forces Unsquashfs to
+      output to the destination directory even if files and directories
+      already exist in the destination directory.  This allows you to
+      update an already existing directory tree, or to Unsquashfs to
+      a partially filled directory tree.  Without the -force option
+      Unsquashfs will refuse to output.
+
+3.  The following major bug fixes have been made
+
+3.1   A fragment table rounding bug has been fixed in Mksquashfs.
+       Previously if the number of fragments in the filesystem
+       were a multiple of 512, Mksquashfs would generate an
+       incorrect filesystem.
+
+3.2   A rare SMP bug which occurred when simultaneously acccessing
+       multiply mounted Squashfs filesystems has been fixed.
+
+4. Miscellaneous improvements/bug fixes
+
+4.1   Kernel code stack usage has been reduced.  This is to ensure
+       Squashfs works with 4K stacks.
+
+4.2   Readdir (Squashfs kernel code) has been fixed to always
+       return 0, rather than the number of directories read.  Squashfs
+       should now interact better with NFS.
+
+4.3   Lseek bug in Mksquashfs when appending to larger than 4GB
+       filesystems fixed.
+
+4.4   Squashfs 2.x initrds can now been mounted.
+
+4.5   Unsquashfs exit status fixed.
+
+4.6   New patches for linux-2.6.18 and linux-2.4.33.
+
+Comments, especially any performance results of the new parallelised
+Mksquashfs are welcome.
+
+Phillip
+

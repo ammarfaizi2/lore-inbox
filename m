@@ -1,58 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWH0HGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWH0HLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWH0HGy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 03:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWH0HGx
+	id S1751291AbWH0HLM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 03:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWH0HLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 03:06:53 -0400
-Received: from ont-static-208.57.99.88.mpowercom.net ([208.57.99.88]:19205
-	"EHLO USCMEDSERVER") by vger.kernel.org with ESMTP id S1750840AbWH0HGt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 03:06:49 -0400
-Message-ID: <27370419019938.F4B25716BB@5U4MA2>
-From: "crud" <anomalycharity@earthlink.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: deluxe
-Date: Sun, 27 Aug 2006 00:06:00 -0700
-MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: QuvlbKmayPDVl9ZA0rkmg3eHZpAFwFqLih9V
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Aug 2006 03:11:11 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:33411 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750755AbWH0HLJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 03:11:09 -0400
+Date: Sun, 27 Aug 2006 12:41:16 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       ego@in.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       arjan@intel.linux.com, mingo@elte.hu, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-ID: <20060827071116.GD22565@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org> <20060825095008.GC22293@redhat.com> <Pine.LNX.4.64.0608261404350.11811@g5.osdl.org> <20060826150422.a1d492a7.akpm@osdl.org> <20060827061155.GC22565@in.ibm.com> <20060826234618.b9b2535a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060826234618.b9b2535a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W a t c h   o u t!
+On Sat, Aug 26, 2006 at 11:46:18PM -0700, Andrew Morton wrote:
+> On Sun, 27 Aug 2006 11:41:55 +0530
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> 
+> > Now coming to the read-side of lock_cpu_hotplug() - cpu hotplug
+> > is a very special asynchronous event. You cannot protect against
+> > it using your own subsystem lock because you don't control
+> > access to cpu_online_map.
+> 
+> Yes you do.  Please, read _cpu_up(), _cpu_down() and the example in
+> workqueue_cpu_callback().  It's really very simple.
 
-ALLIACNE ENTERRPISE (AET R)
-Crurent Pirce: 0.80
-Add this g e m to your wat ch list, and w atch it tard closely!
+What are you talking about here ? That is the write side. You are
+*not* supposed to do lock_cpu_hotplug() in cpu callbacks paths AFAICT. 
+If someone does it (like cpufreq did), it is just *wrong*.
 
-Nwes Releaes!
+> > With multiple low-level subsystems
+> > needing it, it also becomes difficult to work out the lock
+> > hierarchies.
+> 
+> That'll matter if we do crappy code.  Let's not do that?
 
-Taeocrp announces breackrough in removing deadly landmine s.
+I am talking about readsides here - you read cpu_online_map and
+block then reuse the map and make some calls to another subsystem
+that may again do a similar read-side cpu_hotplug lock. I suspect
+that it hard to get rid of all possible dependencies.
 
-Mill Valley, California August 25, 2006 - The Alilance Entreprise Corproation announced today a breakthrough in developing an Areial Landimne Ssytem aimed at locating, detecting and mapping deadly l andmines.
+> > > I rather doubt that anyone will be hitting the races in practice.  I'd
+> > > recommend simply removing all the lock_cpu_hotplug() calls for 2.6.18.
+> > 
+> > I don't think that is a good idea.
+> 
+> The code's already racy and I don't think anyone has reported a
+> cpufreq-vs-hotplug race.
 
-TaeCrop's mission is to reclaim lands around the globe embedded with l andmines that victimize countries and their stakeholders.
+Do cpu hotplugs in a one cpu and change frequencies in another -
+I think Gautham has a script to reproduce this. Besides
+lockdep apparently complains about it -
 
-More than 100 m i l l i o n landmi nes in 83 countries are holding international communities and industries hostage, preventing the invest ment in and development of pro ductive lands and the re-building of infrastructure. A broad variety of lan dmines have been scattered over produc tive areas effectively crippling the e conomy and disabling thousands of children and adults.  There are no reliable records that accurately show where these d e v a s t a t i n g landm ines lie in wait for their vi ctims.
- 
-With the present day c osts to clear a single land mine ranging between $1,000 to $1,500, solving the problem of de-mining lands will reach billions of do llars.  TaeCorp has developed a technology based, co st effective solution to this problem using its three tiered approach to scanning, mapping and removing lan dmines. TaeCorp's System will provide many social and econo mic ben efits to countries and their industries including oil and gas, mining, agriculture, roads and infrastructure development.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115359728428432&w=2
 
-About TaeCorp.
+> > The right thing to do would be to
+> > do an audit and clean up the bad lock_cpu_hotplug() calls.
+> 
+> No, that won't fix it.  For example, take a look at all the *callers* of
+> cpufreq_update_policy().  AFAICT they're all buggy.  Fiddling with the
+> existing lock_cpu_hotplug() sites won't fix that.  (Possibly this
+> particular problem can be fixed by checking that the relevant CPU is still
+> online after the appropriate locking has been taken - dunno).
+> 
+> It needs to be ripped out and some understanding, thought and design should
+> be applied to the problem.
 
-TaeCorp's vision is to be the recognized leader in providing Aeiral Detcetion Systmes including global de-mining, clearing a path to a safer planet for all humankind.
+Really, the hotplug locking rules are fairly simple-
 
-Here comes the big one! 
-All signs show that AET R is going to Explode!
+1. If you are in cpu hotplug callback path, don't take any lock.
 
-Co nclusion:
-The examples above show the awesome, earning potential of little known companies that explode onto invsetor's radar screens; Many of you are already familiar with this. Is AET R poised and positioned to do that for you? Then you may feel the time has come to act... And please watch this one trdae tomorrow! Go AE TR.
-Pe nny stcoks are considered highly speculative and may be unsuitable for all but very aggressive invesotrs.  This p rofile is not in any way affili ated with the featured company.  This report is for entertainment and advertising purposes only and should not be used as ivnestment advice.  If you wish to stop future m a i lings, or if you feel you have been wrongfully placed in our membership, send a blank e m a i l with No Thanks in the subject to 
+2. If you are in a non-hotplug path reading cpu_online_map and you don't
+   block, you just disable preemption and you are safe from hotplug.
 
+3. If you are in a non-hotplug path and you use cpu_online_map and
+   you *really* need to block, you use lock_cpu_hotplug() or 
+   cpu_hotplug_disable whatever it is called.
 
+Is this too difficult for people to follow ?
 
+> 
+> > People
+> > seem to have just got lazy with lock_cpu_hotplug().
+> 
+> That's because lock_cpu_hotplug() purports to be some magical thing which
+> makes all your troubles go away.
 
+No it doesn't. Perhaps we should just document the rules better
+and put some static checks for people to get it right.
+
+Thanks
+Dipankar

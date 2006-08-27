@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWH0WCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWH0WML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWH0WCa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 18:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWH0WCa
+	id S1751229AbWH0WML (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 18:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWH0WMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 18:02:30 -0400
-Received: from xenotime.net ([66.160.160.81]:6888 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751190AbWH0WC3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 18:02:29 -0400
-Date: Sun, 27 Aug 2006 15:05:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>, forrest.zhao@intel.com
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: Updated libata acpi patches for GIT HEAD
-Message-Id: <20060827150542.7d50213a.rdunlap@xenotime.net>
-In-Reply-To: <20060827215032.GG8271@cip.informatik.uni-erlangen.de>
-References: <20060827215032.GG8271@cip.informatik.uni-erlangen.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sun, 27 Aug 2006 18:12:10 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:4556 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751206AbWH0WMJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 18:12:09 -0400
+Date: Mon, 28 Aug 2006 00:08:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net, dominik.schulz@gauner.org
+Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
+Message-ID: <20060827220816.GA21788@electric-eye.fr.zoreil.com>
+References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com> <20060823223032.GA25111@electric-eye.fr.zoreil.com> <026c01c6c71d$0fde1730$4964a8c0@icplus.com.tw> <20060824220758.GA19637@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824220758.GA19637@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006 23:50:32 +0200 Thomas Glanzmann wrote:
-
-> Hello Randy,
-
-Hi,
-Please use rdunlap@xenotime.net or randy.dunlap@oracle.com now.
-
-> I have a T60 and use your libata acpi patch which saves/restores the
-> taskfile of the disk on hibernation and resume. I wonder if you have an
-> updated patch for GIT HEAD because a colleague with a similar notebook
-> has to use GIT HEAD to get his soundcard supported. I tried to port it
-> myself and there was only one reject which I maybe fixed, but I don't
-> intend to try the patch so I don't know:
-
-I don't have a suitable machine for testing.
-Forrest Zhao at Intel was picking up continuing work on this patch.
-
-Someone else did a patch update and put that function call in
-ata_bus_probe().  See
-http://vizzzion.org/stuff/thinkpad-t60/libata-acpi.diff
-
-
-> @@ -4290,6 +4294,7 @@ int ata_device_resume(struct ata_port *a
->         }
->         if (!ata_dev_present(dev))
->                 return 0;
-> +       ata_acpi_exec_tfs(ap);
->         if (dev->class == ATA_DEV_ATA)
->                 ata_start_drive(ap, dev);
+Francois Romieu <romieu@fr.zoreil.com> :
+> Jesse Huang <jesse@icplus.com.tw> :
+> [...]
 > 
-> in libata-core.c. This function ata_device_resume does no longer exist in GIT
-> HEAD, so I modified the following function ata_scsi_device_resume instead:
-> 
-> diff -ruN linux-2.6.orig/drivers/scsi/libata-scsi.c linux-2.6/drivers/scsi/libata-scsi.c
-> --- linux-2.6.orig/drivers/scsi/libata-scsi.c   2006-08-27 20:01:34.000000000 +0200
-> +++ linux-2.6/drivers/scsi/libata-scsi.c        2006-08-27 23:13:00.000000000 +0200
-> @@ -499,6 +499,8 @@
->             sdev->sdev_state == SDEV_CANCEL || sdev->sdev_state == SDEV_DEL)
->                 goto out_unlock;
-> 
-> +       ata_acpi_exec_tfs(ap);
-> +
->         /* request resume */
->         action = ATA_EH_RESUME;
->         if (sdev->sdev_gendev.power.power_state.event == PM_EVENT_SUSPEND)
+> Added:
+> 0039-ip1000-cosmetic-in-ipg_interrupt_handler.txt
+> 0040-ip1000-irq-handler-and-device-close-race.txt
+> 0041-ip1000-schedule-the-host-error-recovery-to-user-context.txt
+> 0042-ip1000-no-need-to-mask-a-constant-field-with-RSVD_MASK.txt
 
+Added:
+0043-ip1000-use-the-new-IRQF_-constants-and-the-dma_-alloc-free-_coherent-API.txt
+0044-ip1000-mixed-case-and-upper-case-removal.txt
+0045-ip1000-add-ipg_-r-w-8-16-32-macros.txt
 
----
-~Randy
+The patches beyond 0043 are only available through HTTP. Since 0043
+needs a recent enough kernel and the current driver has branched from
+an old release, I plan to rebase my branch. Does it raise any objection
+or remark ?
+
+-- 
+Ueimor

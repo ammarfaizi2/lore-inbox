@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWH0RRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWH0RUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWH0RRl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 13:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWH0RRl
+	id S932191AbWH0RUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 13:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWH0RUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 13:17:41 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:42453 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932189AbWH0RRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 13:17:41 -0400
-Date: Sun, 27 Aug 2006 19:17:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Ian Lindsay <iml@formicary.org>
-Cc: fsdevel@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: LogFS
-Message-ID: <20060827171728.GB3502@wohnheim.fh-wedel.de>
-References: <20060824134430.GB17132@wohnheim.fh-wedel.de> <20060827053245.GA15747@gen.formicary.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060827053245.GA15747@gen.formicary.org>
-User-Agent: Mutt/1.5.9i
+	Sun, 27 Aug 2006 13:20:43 -0400
+Received: from gw.goop.org ([64.81.55.164]:52661 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932191AbWH0RUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 13:20:42 -0400
+Message-ID: <44F1D464.5020304@goop.org>
+Date: Sun, 27 Aug 2006 10:20:36 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH RFC 3/6] Use %gs as the PDA base-segment in the kernel.
+References: <20060827084417.918992193@goop.org> <20060827084451.492329798@goop.org> <200608271757.18621.ak@suse.de>
+In-Reply-To: <200608271757.18621.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 August 2006 01:32:45 -0400, Ian Lindsay wrote:
-> 
->  +/* FIXME: This should really be somewhere in the 64bit area. */
->  +#define LOGFS_LINK_MAX (2^30)
-> 
-> Interesting choice of constant.
+Andi Kleen wrote:
+>> +1:	movw GS(%esp), %gs
+>>     
+>
+> movl is recommended in 32bit mode
+>   
 
-Yes.  I didn't spend a long time thinking about whether it should be
-2^31 or 2^31-1 or 2^31-2.  It will be a while before it becomes an
-issue in real life anyway. :)
+arch/i386/kernel/entry.S: Assembler messages:
+arch/i386/kernel/entry.S:334: Error: suffix or operands invalid for `mov'
 
-Jörn
-
--- 
-It's not whether you win or lose, it's how you place the blame.
--- unknown
+    J

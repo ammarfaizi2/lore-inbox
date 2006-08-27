@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWH0PdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWH0QCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWH0PdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 11:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWH0PdQ
+	id S932155AbWH0QCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 12:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWH0QCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 11:33:16 -0400
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:8921 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751069AbWH0PdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 11:33:15 -0400
-Subject: Re: translated ATA stat/err 0x51/0c to ... PDC20376 (FastTrak 376)
-	related cold freezes
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <44F167C0.6020903@gmail.com>
-References: <1156440866.29118.14.camel@localhost>
-	 <44F167C0.6020903@gmail.com>
-Content-Type: text/plain
+	Sun, 27 Aug 2006 12:02:11 -0400
+Received: from cantor.suse.de ([195.135.220.2]:33222 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932155AbWH0QCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 12:02:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
+Date: Sun, 27 Aug 2006 18:01:44 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060827084417.918992193@goop.org>
+In-Reply-To: <20060827084417.918992193@goop.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200608271801.44774.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Date: Sun, 27 Aug 2006 15:33:08 +0000
-Message-Id: <1156692788.12244.11.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 18:37 +0900, Tejun Heo wrote:
-> Soeren Sonnenburg wrote:
-> > Dear all,
-> > 
-> > I just upgraded to using 2 sata disks (both seagate drives
-> > ST3400832AS and ST3750640AS) on this asus a7v8x on-board promise fastrak
-> > 376 (PDC20376) controller. However, as soon as I do a lot of io (cp some
-> > G of files) I get swamped in 
-> > 
-> > ata1: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ 0xb/00/00
-> > ata1: status=0x51 { DriveReady SeekComplete Error }
-> > ata1: error=0x0c { DriveStatusError }
-> > ata2: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ 0xb/00/00
-> > ata2: status=0x51 { DriveReady SeekComplete Error }
-> > ata2: error=0x0c { DriveStatusError }
-> > ...
-> 
-> Is the system usable after these messages?
 
-Yes, however I got cold freezes from (time to time) after a while...
+Very cool.
 
-> > messages. For that it is enough to do it on a single drive or copy from
-> > drive to drive. This is on kernel 2.6.17.4, but I remember (when I was
-> > still using a single drive) this very same output to happen on 2.6.15.
-> > 
-> > Can anyone translate these dubious error messages to me ?
-> > 
-> > Here are more details about the system:
-> > 
-> > - the sata_promise driver version 1.04 is used
-> 
-> Can you give a shot at 2.6.18-rc4?
+> - Make it work.  It works UP on a test QEMU machine, but it doesn't
+>   yet work on real hardware, or SMP (though not working SMP on QEMU is
+>   more likely to be a QEMU problem).  Not sure what the problem is yet;
+>   I'm hoping review will reveal something.
 
-I will, though I don't see much changes in that driver...
+I bet qemu doesn't have a real descriptor cache unlike real CPUs.
+So likely it is some disconnect between changing the backing GDT
+and referencing the register. Reload %gs more aggressively?
 
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+Comparing with SimNow! (which should behave more like a real CPU)
+might be also interesting.
+
+> - Measure performance impact.  The patch adds a segment register
+>   save/restore on entry/exit to the kernel.  This expense should be
+>   offset by savings in using the PDA while in the kernel, but I haven't
+>   measured this yet.  Space savings are already appealing though.
+> - Modify more things to use the PDA.  The more that uses it, the more
+>   the cost of the %gs save/restore is amortized.  smp_processor_id and
+>   current are the obvious first choices, which are implemented in this
+>   series.
+
+per cpu data would be the prime candidate. It is pretty simple.
+
+> - Make it a config option?  UP systems don't need to do any of this,
+>   other than having a single pre-allocated PDA.  Unfortunately, it gets
+>   a bit messy to do this given the changes needed in handling %gs.
+
+Please don't.
+
+(weak point:)
+
+- The stack protector code might work one day on i386 too.
+
+-Andi

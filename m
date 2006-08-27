@@ -1,163 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWH0V6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWH0WBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWH0V6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 17:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWH0V6i
+	id S1751188AbWH0WBs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 18:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWH0WBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 17:58:38 -0400
-Received: from www.nabble.com ([72.21.53.35]:10924 "EHLO talk.nabble.com")
-	by vger.kernel.org with ESMTP id S1751169AbWH0V6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 17:58:38 -0400
-Message-ID: <6011508.post@talk.nabble.com>
-Date: Sun, 27 Aug 2006 14:58:37 -0700 (PDT)
-From: altendew <andrew@shiftcode.com>
+	Sun, 27 Aug 2006 18:01:48 -0400
+Received: from avas-mr14.fibertel.com.ar ([24.232.0.245]:54440 "EHLO
+	avas-mr14.fibertel.com.ar") by vger.kernel.org with ESMTP
+	id S1751188AbWH0WBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 18:01:47 -0400
+Subject: Re: Touchpad problems with latest kernels
+From: Javier Kohen <jkohen@users.sourceforge.net>
 To: linux-kernel@vger.kernel.org
-Subject: Server Attack
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 27 Aug 2006 18:26:14 -0300
+Message-Id: <1156713975.20067.15.camel@null.tough.com.ar>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+X-Fib-Al-Info: Al
+X-Fib-Al-MRId: 68c78303b1763dacb5fef4347b3492b3
+X-Fib-Al-SA: analyzed
+X-Fib-Al-From: jkohen@users.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi someone is currently sending requests to our server 20x a second.
+I just got a HP dv8301nr laptop and found out about this problem. I'm
+running kernel 2.6.17-debian and 2.6.17-ck1. The Touchpad is a model: 1,
+fw: 6.2, id: 0x1a0b1, caps: 0xa04713/0x200000.
 
-Here is what one of the logs look like.
+I've tried many suggested workarounds that I found on the net to no
+avail. Even forcing the imps/exps protocols cause a similar problem
+here: no pointer freezes as with the SynPS protocol, but yes periodical
+random jerky mouse movements and clicks. Moreover, I haven't found a way
+to disable the mouse-tap feature (which I find annoying) when using this
+protocol and X. I haven't tried the bare protocol because I'm very used
+to the scrolling wheel behavior.
+Incidentally, it seems that the driver resynchs are always useless, at
+least for me.
 
-[CODE]
-Host: 84.77.19.46   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US) AppleWebKit/578.4
-(KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
+I booted with the ec_intr=0 option (it took effect according to the boot
+logs) to no avail. I'd like to help fix this problem, so if there is
+anything that I can do, please let me know. I modified synaptics.c to
+print the packets that were failed the validation check to fail, but
+they don't say much to me.
 
-Host: 82.234.98.65   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US) AppleWebKit/126.0
-(KHTML, like Geco, Safari) OmniWeb/v554.35  
+Meanwhile, I think I'll get a cheap external mouse (I read they work
+fine) and keep my hopes up.
 
-Host: 84.94.31.161   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US) AppleWebKit/502.6
-(KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
-
-Host: 81.49.24.92   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US) AppleWebKit/230.1
-(KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
-
-Host: 80.129.248.17   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US) AppleWebKit/243.6
-(KHTML, like Geco, Safari) OmniWeb/v846.88  
-
-Host: 87.235.49.194   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US) AppleWebKit/430.1
-(KHTML, like Geco, Safari) OmniWeb/v145.34  
-
-Host: 125.129.12.61   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US) AppleWebKit/455.3
-(KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
-
-Host: 66.110.153.47   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US) AppleWebKit/387.2
-(KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
-
-Host: 62.2.177.250   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US) AppleWebKit/206.1
-(KHTML, like Geco, Safari) OmniWeb/v204.07es  
-
-Host: 200.115.226.143   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US) AppleWebKit/647.0
-(KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
-
-Host: 84.171.125.189   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US) AppleWebKit/778.0
-(KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
-
-Host: 83.242.79.70   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US) AppleWebKit/537.0
-(KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
-
-Host: 86.69.194.172   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US) AppleWebKit/468.2
-(KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
-
-Host: 196.203.176.26   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US) AppleWebKit/840.3
-(KHTML, like Geco, Safari) OmniWeb/v767.50s  
-
-Host: 201.41.241.190   /signUp.php?ref=1945777  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US) AppleWebKit/742.0
-(KHTML, like Geco, Safari) OmniWeb/v715.65C:  
-
-Host: 200.84.144.234   /signUp.php?ref=ec0lag  
-  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
-Bytes: -  
-  Referer: -  
-  Agent: Mozilla/5.0  
-[/CODE]
-
-We are currently blocking this user through our Apache.
-
-.htaccess
-[CODE]
-RewriteEngine On 
-RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\ Mac\
-OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
-OmniWeb/v([0-9]+).([0-9]+)(.+)$
-RewriteRule .* - [F]
-[/CODE]
-
-That works fine and is giving the user a 403 (Forbidden), but the problem is
-that half of our Apache processes are from this user.
-
-Is there a way to block his user agent before he gets to Apache? Sometimes
-this brings our server to a crash.
-
-Thanks
-Andrew
+Thanks in advance,
 -- 
-View this message in context: http://www.nabble.com/Server-Attack-tf2174025.html#a6011508
-Sent from the linux-kernel forum at Nabble.com.
-
+Javier Kohen <jkohen@users.sourceforge.net>
+ICQ: blashyrkh #2361802
+Jabber: jkohen@jabber.org

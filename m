@@ -1,104 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWH0C2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWH0CdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWH0C2U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 22:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWH0C2U
+	id S1750938AbWH0CdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWH0CdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 22:28:20 -0400
-Received: from out-mta2.ai270.net ([83.244.130.25]:34252 "EHLO
-	out-mta1.ai270.net") by vger.kernel.org with ESMTP id S1750930AbWH0C2T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 22:28:19 -0400
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Transfer-Encoding: 7bit
-Message-Id: <18AC2580-555A-460F-B9D7-3E4CBBA73941@lougher.org.uk>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-From: Phillip Lougher <phillip@lougher.org.uk>
-Subject: [ANN] Squashfs 3.1 released
-Date: Sun, 27 Aug 2006 03:28:16 +0100
-X-Mailer: Apple Mail (2.752.2)
+	Sat, 26 Aug 2006 22:33:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56526 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750938AbWH0CdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 22:33:07 -0400
+Date: Sat, 26 Aug 2006 19:32:46 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>, mpm@selenic.com,
+       Manfred Spraul <manfred@colorfullife.com>, Dave Chinner <dgc@sgi.com>,
+       Christoph Lameter <clameter@sgi.com>
+Message-Id: <20060827023245.14731.23294.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [MODSLAB 0/4] A modular slab allocator V2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Changes V1-V2:
+- Drop pageslab and numaslab. Drop support for VMALLOC allocations.
 
-I'm pleased to announce Squashfs version 3.1.  Squashfs 3.1 has some
-major improvements to the squashfs-tools, a couple of major bug fixes,
-lots of small improvements/bug fixes, and new kernel patches.
+- Enhance slabifier with some numa capability. Bypass
+  free list management for slabs with a single object.
+  Drop slab full lists and minimize lock taking
+  for partial lists.
 
-Squashfs can be dowloaded from http://squashfs.sourceforge.net.
-The list of changes  are:
+- Optimize code: Generate general slab array immediately
+  and pass the address of the slab cache in kmalloc(). DMA
+  caches remain dynamic.
 
-1. Mksquashfs has been rewritten to be multi-threaded.  It has the
-following improvements
+- Add support for non power of 2 general caches.
 
-1.1. Parallel compression.  By default as many compression and
-      fragment compression threads are created as there are available
-      processors.  This significantly speeds up performance on SMP
-      systems.
+- Tested on i386, x86_64 and ia64.
 
-1.2. File input and filesystem output is peformed in parallel on
-      separate threads to maximise I/O performance.  Even on single
-      processor systems this speeds up performance by at least 10%.
+The main intend of this patchset is to modularize
+the slab allocator so that development of additions
+or modification to the allocator layer become easier.
+The framework enables the use of multiple slab allocator
+and allows the generation of additional underlying
+page allocators (as f.e. needed for mempools and other
+specialized things).
 
-1.3. Appending has been significantly improved, and files within the
-      filesystem being appended to are no longer scanned and
-      checksummed.  This significantly improves append time for large
-      filesystems.
+The modularization is accomplished by trying to use a few
+concepts from object oriented programming. Allocators are
+described by methods and functions can produce new allocators
+based on existing ones by modifying their methods.
 
-1.4. File duplicate checking has been optimised, and split into two
-      separate phases.  Only files which are considered possible
-      duplicates after the first phase are checksummed and cached in
-      memory.
+So what the patches provide here is:
 
-1.5  The use of swap memory was found to significantly impact
-      performance. The amount of memory used to cache files is now a
-      command line option, by default this is 512 Mbytes.
+1. A framework for page allocators and slab allocators
 
-2. Unsquashfs has the following improvements
+2. Various methods to derive new allocators from old ones
+   (add rcu support, destructors, constructors, dma etc)
 
-2.1  Unsquashfs now allows you to specify the filename or the
-      directory within the Squashfs filesystem that is to be
-      extracted, rather than always extracting the entire filesystem.
+3. A layer that emulates the exist slab interface (the slabulator).
 
-2.2  A new -force option has been added which forces Unsquashfs to
-      output to the destination directory even if files and directories
-      already exist in the destination directory.  This allows you to
-      update an already existing directory tree, or to Unsquashfs to
-      a partially filled directory tree.  Without the -force option
-      Unsquashfs will refuse to output.
+4. A layer that provides kmalloc functionality.
 
-3.  The following major bug fixes have been made
+5. The Slabifier. This is conceptually the Simple Slab (See my RFC
+   from last week) but with the additional allocator modifications
+   possible it grows like on steroids and then can supply most of
+   the functionality of the existing slab allocator and can go even
+   beyond it. My tests with AIM7 seem to indicate that it is
+   equal in performance to the existing slab allocator. However,
+   I am sure that there are specific situtions in which it will
+   not behave optimially. Hopefully the modularization will
+   lead to a fast way to mature this component.
 
-3.1   A fragment table rounding bug has been fixed in Mksquashfs.
-       Previously if the number of fragments in the filesystem
-       were a multiple of 512, Mksquashfs would generate an
-       incorrect filesystem.
+Some of the other issues in the slab layer are also addressed here:
 
-3.2   A rare SMP bug which occurred when simultaneously acccessing
-       multiply mounted Squashfs filesystems has been fixed.
+1. shrink_slab takes a function to move object. Using that
+   function slabs can be defragmented to ease slab reclaim
+   (This is something discussed at the VM summit).
 
-4. Miscellaneous improvements/bug fixes
+2. New slabs that are created can be merged into the kmalloc array
+   if it is detected that they match. This decreases the number of caches
+   and benefits cache use.
 
-4.1   Kernel code stack usage has been reduced.  This is to ensure
-       Squashfs works with 4K stacks.
+3. The slabifier can flag double frees when the act occurs
+   and will attempt to continue.
 
-4.2   Readdir (Squashfs kernel code) has been fixed to always
-       return 0, rather than the number of directories read.  Squashfs
-       should now interact better with NFS.
+4. There is no 2 second slab reaper tick anymore. Each slab has a 10
+   second flusher attached (not needed for UP). The flusher is inactive if
+   slab is inactive. System can get to a quiescent state. Currently
+   we constantly have a 2 second scan through all slabs in the
+   system with expensive processing that causes delays
+   that may be significant for real time processing.
 
-4.3   Lseek bug in Mksquashfs when appending to larger than 4GB
-       filesystems fixed.
+Notably missing features:
 
-4.4   Squashfs 2.x initrds can now been mounted.
+- Slab Debugging
+  (This should be implemented by deriving a new slab allocator from
+  existing ones and adding the necessary processing in alloc and free).
 
-4.5   Unsquashfs exit status fixed.
+Performance tests on an 8p machine show consistently that the performance
+is equal to the standard slab allocator. Memory use is much less with
+this since there is no meta data overhead per slab.
 
-4.6   New patches for linux-2.6.18 and linux-2.4.33.
+This patchset should just leave the existing slab allocator unharmed. It only
+adds a hook to include/linux/slab.h to redirect includes to the definitions
+for the allocation framework by the slabulator.
 
-Comments, especially any performance results of the new parallelised
-Mksquashfs are welcome.
+Deactivate the "Traditional Slab allocator" in order to activate the modular
+slab allocator.
 
-Phillip
+More details may be found in the header of each of the following 4 patches.
+
+I am not sure how something like this could be merged. Maybe put in a
+special directory?
+
+In the current form the modular framework is definitely fitting the
+requirements of the embedded folks since the allocation efficiency
+is comparable if not better than SLOB. It is running to my satisfaction
+on desktops and small servers. However, a lot of tuning is still
+needed. Perhaps a caching framework will be needed to be equal in
+speed to slab in some situations. That may perhaps be added as another
+derived slab allocator.
+
+Christoph Lameter, August 26, 2006.
 

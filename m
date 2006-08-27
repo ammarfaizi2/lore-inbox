@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWH0SQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWH0ST2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWH0SQd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWH0SQd
+	id S932234AbWH0ST2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWH0ST1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:16:33 -0400
-Received: from compunauta.com ([69.36.170.169]:54227 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S932227AbWH0SQd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:16:33 -0400
-From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
-	<gustavo@compunauta.com>
-Organization: www.compunauta.com
-To: Jeff Garzik <jeff@garzik.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't enable DMA over ATA on Intel Chipset 2.6.16
-Date: Sun, 27 Aug 2006 13:16:21 -0500
-User-Agent: KMail/1.9.1
-References: <200608271239.32507.gustavo@compunauta.com> <44F1DD09.6030300@garzik.org>
-In-Reply-To: <44F1DD09.6030300@garzik.org>
+	Sun, 27 Aug 2006 14:19:27 -0400
+Received: from mx2.suse.de ([195.135.220.15]:46536 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932234AbWH0ST1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:19:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC 3/6] Use %gs as the PDA base-segment in the kernel.
+Date: Sun, 27 Aug 2006 20:19:15 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060827084417.918992193@goop.org> <200608271757.18621.ak@suse.de> <44F1D464.5020304@goop.org>
+In-Reply-To: <44F1D464.5020304@goop.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608271316.22992.gustavo@compunauta.com>
+Message-Id: <200608272019.15067.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Domingo, 27 de Agosto de 2006 12:57, escribió:
-> Gustavo Guillermo Pérez wrote:
-> > Hello list, I can't enable DMA on this chipset, even forcing with the
-> > options provided in kconfig.
->
-> Google around for combined mode, and/or set your BIOS to something other
-> than legacy IDE mode.
-already tryed with BIOS legacy
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 69 (UltraDMA mode5)
- using_dma    =  0 (off)
-root@rp-1 /home/gus # hdparm -d1 -X udma1 /dev/hdc
+On Sunday 27 August 2006 19:20, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> >> +1:	movw GS(%esp), %gs
+> >>     
+> >
+> > movl is recommended in 32bit mode
+> >   
+> 
+> arch/i386/kernel/entry.S: Assembler messages:
+> arch/i386/kernel/entry.S:334: Error: suffix or operands invalid for `mov'
 
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 65 (UltraDMA mode1)
- using_dma    =  0 (off)
-root@rp-1 /home/gus # hdparm -d1 -X udma2 /dev/hdc
+Looks like a gas bug to me.
 
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 66 (UltraDMA mode2)
- using_dma    =  0 (off)
-root@rp-1 /home/gus # hdparm -d1 -X udma3 /dev/hdc
-
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 67 (UltraDMA mode3)
- using_dma    =  0 (off)
-root@rp-1 /home/gus # hdparm -d1 -X udma4 /dev/hdc
-
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 68 (UltraDMA mode4)
- using_dma    =  0 (off)
-root@rp-1 /home/gus # hdparm -d1 -X udma5 /dev/hdc
-
-/dev/hdc:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 69 (UltraDMA mode5)
- using_dma    =  0 (off)
-
-
--- 
-Gustavo Guillermo Pérez
-Compunauta uLinux
-www.compunauta.com
+-Andi

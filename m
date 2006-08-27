@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWH0CmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWH0CrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWH0CmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 22:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWH0CmV
+	id S1751125AbWH0CrG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWH0CrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 22:42:21 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9226 "HELO
+	Sat, 26 Aug 2006 22:47:06 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13834 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750917AbWH0CmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 22:42:20 -0400
-Date: Sun, 27 Aug 2006 04:42:19 +0200
+	id S1751125AbWH0CrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 22:47:04 -0400
+Date: Sun, 27 Aug 2006 04:47:02 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
-       davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       coreteam@netfilter.org
-Subject: 2.6.18-rc4-mm3: NF_CONNTRACK_FTP=y compile error
-Message-ID: <20060827024219.GO4765@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       i2c@lm-sensors.org
+Subject: [-mm patch] struct i2c_algo_pcf_data: remove the mdelay member
+Message-ID: <20060827024702.GP4765@stusta.de>
 References: <20060826160922.3324a707.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <20060826160922.3324a707.akpm@osdl.org>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,33 +29,26 @@ On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.18-rc4-mm2:
 >...
->  git-net.patch
+> +gregkh-i2c-i2c-algo-bit-kill-mdelay.patch
 >...
->  git trees
+>  I2C tree updates
 >...
 
-<--  snip  -->
+This patch also removes the only usage of the mdelay member in 
+struct i2c_algo_pcf_data, but doesn't remove the struct member itself.
 
-...
-  CC      net/netfilter/nf_conntrack_ftp.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c: In function ‘get_ipv6_addr’:
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: warning: implicit declaration of function ‘in6_pton’
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: ‘end’ undeclared (first use in this function)
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: (Each undeclared identifier is reported only once
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: for each function it appears in.)
-make[3]: *** [net/netfilter/nf_conntrack_ftp.o] Error 1
+Is seems this patch was also intended?
 
-<--  snip  -->
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h.old	2006-08-27 04:01:35.000000000 +0200
++++ linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h	2006-08-27 04:01:40.000000000 +0200
+@@ -35,7 +35,6 @@ struct i2c_algo_pcf_data {
  
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+ 	/* local settings */
+ 	int udelay;
+-	int mdelay;
+ 	int timeout;
+ };
+ 
 

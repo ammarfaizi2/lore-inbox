@@ -1,58 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWH0PAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWH0PQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWH0PAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 11:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWH0PAF
+	id S932141AbWH0PQw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 11:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWH0PQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 11:00:05 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:21732 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932128AbWH0PAB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 11:00:01 -0400
-Date: Sun, 27 Aug 2006 23:24:17 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] oom_kill_task: cleanup ->mm checks
-Message-ID: <20060827192417.GA2615@oleg>
+	Sun, 27 Aug 2006 11:16:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19722 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932136AbWH0PQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 11:16:51 -0400
+Date: Sun, 27 Aug 2006 15:06:08 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Lee Trager <Lee@PicturesInMotion.net>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, seife@suse.de
+Subject: Re: HPA Resume patch
+Message-ID: <20060827150608.GA4534@ucw.cz>
+References: <44F15ADB.5040609@PicturesInMotion.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44F15ADB.5040609@PicturesInMotion.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- It is not possible to have task->mm == &init_mm.
+Hi!
 
-- task_lock() buys nothing for 'if (!p->mm)' check.
+> This patch fixes a problem with computers that have HPA on their hard
+> drive and not being able to come out of resume from RAM or disk. I've
+> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
+> of these. This patch also fixes the bug #6840. This is my first patch to
+> the kernel and I was told to e-mail the above people to get my patch
+> into the kernel.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Congratulations for a first patch.
 
---- 2.6.18-rc4/mm/oom_kill.c~	2006-08-27 22:28:42.000000000 +0400
-+++ 2.6.18-rc4/mm/oom_kill.c	2006-08-27 23:09:09.000000000 +0400
-@@ -262,14 +262,11 @@ static void __oom_kill_task(struct task_
- 		return;
- 	}
- 
--	task_lock(p);
--	if (!p->mm || p->mm == &init_mm) {
-+	if (!p->mm) {
- 		WARN_ON(1);
- 		printk(KERN_WARNING "tried to kill an mm-less task!\n");
--		task_unlock(p);
- 		return;
- 	}
--	task_unlock(p);
- 
- 	if (message) {
- 		printk(KERN_ERR "%s: Killed process %d (%s).\n",
-@@ -303,7 +300,7 @@ static int oom_kill_task(struct task_str
- 	 * However, this is of no concern to us.
- 	 */
- 
--	if (mm == NULL || mm == &init_mm)
-+	if (mm == NULL)
- 		return 1;
- 
- 	__oom_kill_task(p, message);
+> If I made a mistake please be gentle and correct me ;)
 
+We'll need signed-off-by: line next time.
+
+Stefan, can we get this some testing? Or anyone else with thinkpad
+with host-protected area still enabled?
+							Pavel
+
+
+> diff -Naur linux-2.6.18-rc4-old/include/linux/ide.h linux-2.6.18-rc4/include/linux/ide.h
+> --- linux-2.6.18-rc4-old/include/linux/ide.h	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/include/linux/ide.h	2006-08-20 19:13:10.000000000 -0400
+> @@ -1201,6 +1201,17 @@
+>  void ide_register_subdriver(ide_drive_t *, ide_driver_t *);
+>  void ide_unregister_subdriver(ide_drive_t *, ide_driver_t *);
+>  
+> +/* Bits 10 of command_set_1 and cfs_enable_1 must be equal,
+> + * so on non-buggy drives we need test only one.
+> + * However, we should also check whether these fields are valid.
+> +*/
+> +static inline int idedisk_supports_hpa(const struct hd_driveid *id)
+> +{
+> +        return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
+> +}
+> +
+> +extern void init_idedisk_capacity (ide_drive_t  *drive);
+> +
+>  #define ON_BOARD		1
+>  #define NEVER_BOARD		0
+> 
+> diff -Naur linux-2.6.18-rc4-old/drivers/ide/ide-disk.c linux-2.6.18-rc4/drivers/ide/ide-disk.c
+> --- linux-2.6.18-rc4-old/drivers/ide/ide-disk.c	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/drivers/ide/ide-disk.c	2006-08-20 19:13:56.000000000 -0400
+> @@ -464,16 +464,6 @@
+>  }
+>  
+>  /*
+> - * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
+> - * so on non-buggy drives we need test only one.
+> - * However, we should also check whether these fields are valid.
+> - */
+> -static inline int idedisk_supports_hpa(const struct hd_driveid *id)
+> -{
+> -	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
+> -}
+> -
+> -/*
+>   * The same here.
+>   */
+>  static inline int idedisk_supports_lba48(const struct hd_driveid *id)
+> @@ -528,7 +518,7 @@
+>   * in above order (i.e., if value of higher priority is available,
+>   * reset will be ignored).
+>   */
+> -static void init_idedisk_capacity (ide_drive_t  *drive)
+> +void init_idedisk_capacity (ide_drive_t  *drive)
+>  {
+>  	struct hd_driveid *id = drive->id;
+>  	/*
+> @@ -555,6 +545,8 @@
+>  	}
+>  }
+>  
+> +EXPORT_SYMBOL(init_idedisk_capacity);
+> +
+>  static sector_t idedisk_capacity (ide_drive_t *drive)
+>  {
+>  	return drive->capacity64 - drive->sect0;
+> diff -Naur linux-2.6.18-rc4-old/drivers/ide/ide.c linux-2.6.18-rc4/drivers/ide/ide.c
+> --- linux-2.6.18-rc4-old/drivers/ide/ide.c	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/drivers/ide/ide.c	2006-08-20 19:12:38.000000000 -0400
+> @@ -1232,6 +1232,7 @@
+>  	struct request rq;
+>  	struct request_pm_state rqpm;
+>  	ide_task_t args;
+> +	int ide_cmd;
+>  
+>  	memset(&rq, 0, sizeof(rq));
+>  	memset(&rqpm, 0, sizeof(rqpm));
+> @@ -1242,7 +1243,15 @@
+>  	rqpm.pm_step = ide_pm_state_start_resume;
+>  	rqpm.pm_state = PM_EVENT_ON;
+>  
+> -	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
+> +	ide_cmd = ide_do_drive_cmd(drive, &rq, ide_head_wait);
+> +
+> +	/* check to see if this is a hard drive
+> +	 * if it is then checkhpa needs to be
+> +	 * disabled */
+> +	if(drive->media == ide_disk && idedisk_supports_hpa(drive->id))
+> +		init_idedisk_capacity(drive);
+> +
+> +	return ide_cmd;
+>  }
+>  
+>  int generic_ide_ioctl(ide_drive_t *drive, struct file *file, struct block_device *bdev,
+
+
+-- 
+Thanks for all the (sleeping) penguins.

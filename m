@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWH0Uyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWH0VAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWH0Uyy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 16:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWH0Uyy
+	id S932065AbWH0VAk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 17:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWH0VAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 16:54:54 -0400
-Received: from mail.suse.de ([195.135.220.2]:24555 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932231AbWH0Uyx (ORCPT
+	Sun, 27 Aug 2006 17:00:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51660 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932065AbWH0VAk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 16:54:53 -0400
-From: Andi Kleen <ak@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit (ping)
-Date: Sun, 27 Aug 2006 22:54:13 +0200
-User-Agent: KMail/1.9.3
-Cc: Alon Bar-Lev <alon.barlev@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de> <44F1F356.5030105@zytor.com>
-In-Reply-To: <44F1F356.5030105@zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608272254.13871.ak@suse.de>
+	Sun, 27 Aug 2006 17:00:40 -0400
+Date: Sun, 27 Aug 2006 13:56:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Chuck Lever" <chuck.lever@oracle.com>
+Cc: "Adrian Bunk" <bunk@stusta.de>,
+       "Trond Myklebust" <Trond.Myklebust@netapp.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
+Message-Id: <20060827135654.27e29ee4.akpm@osdl.org>
+In-Reply-To: <000601c6ca06$28b62cc0$b461908d@ralph>
+References: <20060826160922.3324a707.akpm@osdl.org>
+	<20060826235628.GL4765@stusta.de>
+	<000601c6ca06$28b62cc0$b461908d@ralph>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 August 2006 21:32, H. Peter Anvin wrote:
-> Andi Kleen wrote:
-> > 
-> > Just increasing that constant caused various lilo setups to not boot
-> > anymore. I don't know who is actually to blame, just wanting to
-> > point out that this "obvious" patch isn't actually that obvious.
-> > 
+On Sun, 27 Aug 2006 14:25:21 -0400
+"Chuck Lever" <chuck.lever@oracle.com> wrote:
+
+> >  CC      fs/nfs/mount_clnt.o
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c: In 
+> > function ‘mnt_create’:
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
+> > error: implicit declaration of function ‘xprt_create_proto’
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
+> > warning: assignment makes pointer from integer without a cast
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:86: 
+> > error: implicit declaration of function ‘rpc_create_client’
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:88: 
+> > warning: assignment makes pointer from integer without a cast
+> > make[3]: *** [fs/nfs/mount_clnt.o] Error 1
+> >
+> > <--  snip  -->
 > 
-> How would that even be possible (unless you recompiled LILO with the new 
-> headers)?  There would be no difference in the memory image at the point 
-> LILO hands off to the kernel.
+> Looks like a patch got misapplied somewhere.
 
-AFAIK the problem was that some EDD data got overwritten.
+That's quite possible.
 
-> 
-> In order to reproduce this we need some details about your "various LILO 
-> setups", or this will remain as a source of cargo cult programming.
+>  All my copies of this patch 
+> series has this change, but Andrew's doesn't.
 
-You can search the mailing list archives, it's all in there if you don't
-belive me.
-
--Andi
-
+What is "this change"?  The only change I see in Trond's mount_clnt.c is the
+removal of the xprt.h include.

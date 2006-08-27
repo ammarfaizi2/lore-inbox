@@ -1,62 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWH0Vuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWH0V6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWH0Vuf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 17:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWH0Vuf
+	id S1751169AbWH0V6i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 17:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWH0V6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 17:50:35 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:63198 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S932300AbWH0Vue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 17:50:34 -0400
-Date: Sun, 27 Aug 2006 23:50:32 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Updated libata acpi patches for GIT HEAD
-Message-ID: <20060827215032.GG8271@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Randy Dunlap <randy_d_dunlap@linux.intel.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>
+	Sun, 27 Aug 2006 17:58:38 -0400
+Received: from www.nabble.com ([72.21.53.35]:10924 "EHLO talk.nabble.com")
+	by vger.kernel.org with ESMTP id S1751169AbWH0V6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 17:58:38 -0400
+Message-ID: <6011508.post@talk.nabble.com>
+Date: Sun, 27 Aug 2006 14:58:37 -0700 (PDT)
+From: altendew <andrew@shiftcode.com>
+To: linux-kernel@vger.kernel.org
+Subject: Server Attack
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11-2006-07-11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Randy,
-I have a T60 and use your libata acpi patch which saves/restores the
-taskfile of the disk on hibernation and resume. I wonder if you have an
-updated patch for GIT HEAD because a colleague with a similar notebook
-has to use GIT HEAD to get his soundcard supported. I tried to port it
-myself and there was only one reject which I maybe fixed, but I don't
-intend to try the patch so I don't know:
 
-@@ -4290,6 +4294,7 @@ int ata_device_resume(struct ata_port *a
-        }
-        if (!ata_dev_present(dev))
-                return 0;
-+       ata_acpi_exec_tfs(ap);
-        if (dev->class == ATA_DEV_ATA)
-                ata_start_drive(ap, dev);
+Hi someone is currently sending requests to our server 20x a second.
 
-in libata-core.c. This function ata_device_resume does no longer exist in GIT
-HEAD, so I modified the following function ata_scsi_device_resume instead:
+Here is what one of the logs look like.
 
-diff -ruN linux-2.6.orig/drivers/scsi/libata-scsi.c linux-2.6/drivers/scsi/libata-scsi.c
---- linux-2.6.orig/drivers/scsi/libata-scsi.c   2006-08-27 20:01:34.000000000 +0200
-+++ linux-2.6/drivers/scsi/libata-scsi.c        2006-08-27 23:13:00.000000000 +0200
-@@ -499,6 +499,8 @@
-            sdev->sdev_state == SDEV_CANCEL || sdev->sdev_state == SDEV_DEL)
-                goto out_unlock;
+[CODE]
+Host: 84.77.19.46   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US) AppleWebKit/578.4
+(KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
 
-+       ata_acpi_exec_tfs(ap);
-+
-        /* request resume */
-        action = ATA_EH_RESUME;
-        if (sdev->sdev_gendev.power.power_state.event == PM_EVENT_SUSPEND)
+Host: 82.234.98.65   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US) AppleWebKit/126.0
+(KHTML, like Geco, Safari) OmniWeb/v554.35  
 
-        Thomas
+Host: 84.94.31.161   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US) AppleWebKit/502.6
+(KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
+
+Host: 81.49.24.92   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US) AppleWebKit/230.1
+(KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
+
+Host: 80.129.248.17   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US) AppleWebKit/243.6
+(KHTML, like Geco, Safari) OmniWeb/v846.88  
+
+Host: 87.235.49.194   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US) AppleWebKit/430.1
+(KHTML, like Geco, Safari) OmniWeb/v145.34  
+
+Host: 125.129.12.61   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US) AppleWebKit/455.3
+(KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
+
+Host: 66.110.153.47   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US) AppleWebKit/387.2
+(KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
+
+Host: 62.2.177.250   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US) AppleWebKit/206.1
+(KHTML, like Geco, Safari) OmniWeb/v204.07es  
+
+Host: 200.115.226.143   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US) AppleWebKit/647.0
+(KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
+
+Host: 84.171.125.189   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US) AppleWebKit/778.0
+(KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
+
+Host: 83.242.79.70   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US) AppleWebKit/537.0
+(KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
+
+Host: 86.69.194.172   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US) AppleWebKit/468.2
+(KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
+
+Host: 196.203.176.26   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US) AppleWebKit/840.3
+(KHTML, like Geco, Safari) OmniWeb/v767.50s  
+
+Host: 201.41.241.190   /signUp.php?ref=1945777  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US) AppleWebKit/742.0
+(KHTML, like Geco, Safari) OmniWeb/v715.65C:  
+
+Host: 200.84.144.234   /signUp.php?ref=ec0lag  
+  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+Bytes: -  
+  Referer: -  
+  Agent: Mozilla/5.0  
+[/CODE]
+
+We are currently blocking this user through our Apache.
+
+.htaccess
+[CODE]
+RewriteEngine On 
+RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\ Mac\
+OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
+OmniWeb/v([0-9]+).([0-9]+)(.+)$
+RewriteRule .* - [F]
+[/CODE]
+
+That works fine and is giving the user a 403 (Forbidden), but the problem is
+that half of our Apache processes are from this user.
+
+Is there a way to block his user agent before he gets to Apache? Sometimes
+this brings our server to a crash.
+
+Thanks
+Andrew
+-- 
+View this message in context: http://www.nabble.com/Server-Attack-tf2174025.html#a6011508
+Sent from the linux-kernel forum at Nabble.com.
+

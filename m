@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWH0JhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWH0Jmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWH0JhM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 05:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWH0JhL
+	id S1751084AbWH0Jmc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 05:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWH0Jmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 05:37:11 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:32208 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751348AbWH0JhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 05:37:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=d2SrL2pJM9v13/nIJeOXfrxKvRJkwV8pmsf+xjGUGHg36DssH9cnuC+zmoXE9oMUtPVX2hN2gw7bLXzLqxdVW1fVS7XbhbGwNW+aLCWyW2P4Fzd17NV3SvFMxN2ScV0RyS9d+tK8sFup7I5LsXQZVXf+iPclMUA3Zzf/JiVbTL8=
-Message-ID: <44F167C0.6020903@gmail.com>
-Date: Sun, 27 Aug 2006 18:37:04 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: Soeren Sonnenburg <kernel@nn7.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: translated ATA stat/err 0x51/0c to ... PDC20376 (FastTrak 376)
- related cold freezes
-References: <1156440866.29118.14.camel@localhost>
-In-Reply-To: <1156440866.29118.14.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Aug 2006 05:42:32 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:19496 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751084AbWH0Jmb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 05:42:31 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+cc: rusty@rustcorp.com.au, mingo@elte.hu
+Subject: Is stopmachine() preempt safe?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 27 Aug 2006 19:42:32 +1000
+Message-ID: <10990.1156671752@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg wrote:
-> Dear all,
-> 
-> I just upgraded to using 2 sata disks (both seagate drives
-> ST3400832AS and ST3750640AS) on this asus a7v8x on-board promise fastrak
-> 376 (PDC20376) controller. However, as soon as I do a lot of io (cp some
-> G of files) I get swamped in 
-> 
-> ata1: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ 0xb/00/00
-> ata1: status=0x51 { DriveReady SeekComplete Error }
-> ata1: error=0x0c { DriveStatusError }
-> ata2: translated ATA stat/err 0x51/0c to SCSI SK/ASC/ASCQ 0xb/00/00
-> ata2: status=0x51 { DriveReady SeekComplete Error }
-> ata2: error=0x0c { DriveStatusError }
-> ...
+I cannot convince myself that stopmachine() is preempt safe.  What
+prevents this race with CONFIG_PREEMPT=y?
 
-Is the system usable after these messages?
+cpu 0				cpu 1
+stop_machine()
+				Process <n> reads a global resource
+do_stop()
+kernel_thread(stopmachine, 1)
+				Process <n> is preempted
+				stopmachine() runs on cpu 1
+				STOPMACHINE_PREPARE
+				STOPMACHINE_DISABLE_IRQ
+do_stop() calls smdata->fn
+smdata->fn changes global data
+restart_machine()
+				STOPMACHINE_EXIT
+				stopmachine() exits
+				Scheduler resumes process <n>
+				The global resource is out of sync
 
-> messages. For that it is enough to do it on a single drive or copy from
-> drive to drive. This is on kernel 2.6.17.4, but I remember (when I was
-> still using a single drive) this very same output to happen on 2.6.15.
-> 
-> Can anyone translate these dubious error messages to me ?
-> 
-> Here are more details about the system:
-> 
-> - the sata_promise driver version 1.04 is used
+The stopmachine() threads on the other cpus are set to MAX_RT_PRIO-1 so
+they will preempt any existing process.  The yield() in stopmachine()
+only guarantees that these kernel threads get onto the other cpus, it
+does not guarantee that all running tasks will proceed to a yield
+themselves before stopmachine runs.  IOW, what guarantees that the
+scheduler will only run stopmachine() on the target cpus when those
+cpus are completely idle with no locally cached global resources?
 
-Can you give a shot at 2.6.18-rc4?
-
--- 
-tejun

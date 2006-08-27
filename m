@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWH0S2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWH0SbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWH0S2t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWH0S2t
+	id S932246AbWH0SbN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWH0SbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:28:49 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:5099 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932241AbWH0S2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:28:48 -0400
-Message-ID: <000601c6ca06$28b62cc0$b461908d@ralph>
-From: "Chuck Lever" <chuck.lever@oracle.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>,
-       "Trond Myklebust" <Trond.Myklebust@netapp.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20060826160922.3324a707.akpm@osdl.org> <20060826235628.GL4765@stusta.de>
-Subject: Re: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
-Date: Sun, 27 Aug 2006 14:25:21 -0400
+	Sun, 27 Aug 2006 14:31:13 -0400
+Received: from ns2.suse.de ([195.135.220.15]:62921 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932246AbWH0SbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:31:11 -0400
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 9/18] 2.6.17.9 perfmon2 patch for review: kernel-level interface
+References: <200608251618_MC3-1-C958-74D1@compuserve.com>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Aug 2006 20:31:09 +0200
+In-Reply-To: <200608251618_MC3-1-C958-74D1@compuserve.com>
+Message-ID: <p73ejv2do9e.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="utf-8";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Adrian Bunk" <bunk@stusta.de>
-To: "Andrew Morton" <akpm@osdl.org>; "Chuck Lever" <chuck.lever@oracle.com>; 
-"Trond Myklebust" <Trond.Myklebust@netapp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, August 26, 2006 7:56 PM
-Subject: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
+Chuck Ebbert <76306.1226@compuserve.com> writes:
 
+> In-Reply-To: <20060825134704.GA21398@infradead.org>
+> 
+> On Fri, 25 Aug 2006 14:47:04 +0100, Christoph Hellwig wrote:
+> 
+> > > This interface is for people writing kprobes who want to do performance
+> > > monitoring within their probe code.  There will probably never be any
+> > > in-kernel users, just like there are no in-kernel users of kprobes.
+> >
+> > Wrong argument.  There is a in-tree user of kprobes and I plan to submit
+> > a lot more.
+> 
+> OK.  More than two years after kprobes went into the kernel, a single
+> in-kernel user has now appeared in 2.6.18-rc: /net/ipv4/tcp_probe.c
 
-> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
->>...
->> Changes since 2.6.18-rc4-mm2:
->>...
->>  git-nfs.patch
->>...
->>  git trees
->>...
->
-> This breaks CONFIG_ROOT_NFS=y:
->
-> <--  snip  -->
->
-> ...
->  CC      fs/nfs/mount_clnt.o
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c: In 
-> function ‘mnt_create’:
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
-> error: implicit declaration of function ‘xprt_create_proto’
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
-> warning: assignment makes pointer from integer without a cast
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:86: 
-> error: implicit declaration of function ‘rpc_create_client’
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:88: 
-> warning: assignment makes pointer from integer without a cast
-> make[3]: *** [fs/nfs/mount_clnt.o] Error 1
->
-> <--  snip  -->
+No rules without exceptions. But there has to be a quite good rationale.
+kprobes had one.  The mythical perfmon in kernel user doesn't so far.
 
-Looks like a patch got misapplied somewhere.  All my copies of this patch 
-series has this change, but Andrew's doesn't.  Trond, let's hook up Monday 
-and work this out. 
-
+-Andi

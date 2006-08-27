@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWH1AB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWH1ABS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWH1AB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 20:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWH1AB1
+	id S932325AbWH1ABS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 20:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWH0X7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 20:01:27 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:62922 "EHLO
+	Sun, 27 Aug 2006 19:59:20 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:30193 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932327AbWH0X7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 19:59:14 -0400
-Message-Id: <200608280001.01653.arnd@arndb.de>
+	id S932317AbWH0X65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 19:58:57 -0400
+Message-Id: <20060827215636.797086000@klappe.arndb.de>
 References: <20060827214734.252316000@klappe.arndb.de>
-Date: Mon, 28 Aug 2006 00:01:00 +0200
+Date: Sun, 27 Aug 2006 23:47:38 +0200
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
 Cc: linux-arch@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
@@ -20,158 +20,161 @@ Cc: linux-arch@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
        Chase Venters <chase.venters@clientec.com>,
        Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
        rusty@rustcorp.com.au
-Subject: [PATCH 1/7] introduce kernel_execve
-Content-Disposition: inline
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 4/7] Remove the use of _syscallX macros in UML
+Content-Disposition: inline; filename=uml-syscalls.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of execve() in the kernel is dubious, since it relies
-on the __KERNEL_SYSCALLS__ mechanism that stores the result in
-a global errno variable. As a first step of getting rid of
-this, change all users to a global kernel_execve function that
-returns a proper error code.
-
-This function is a terrible hack, and a later patch removes
-it again after the kernel syscalls are gone.
+User mode linux uses _syscallX() to call into the host kernel.
+The recommended way to do this is to use the syscall() function
+from libc.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Index: linux-cg/init/do_mounts_initrd.c
+Index: linux-cg/arch/um/os-Linux/process.c
 ===================================================================
---- linux-cg.orig/init/do_mounts_initrd.c	2006-08-27 23:17:58.000000000 +0200
-+++ linux-cg/init/do_mounts_initrd.c	2006-08-27 23:18:58.000000000 +0200
-@@ -1,4 +1,3 @@
--#define __KERNEL_SYSCALLS__
- #include <linux/unistd.h>
- #include <linux/kernel.h>
- #include <linux/fs.h>
-@@ -35,7 +34,7 @@
- 	(void) sys_open("/dev/console",O_RDWR,0);
- 	(void) sys_dup(0);
- 	(void) sys_dup(0);
--	return execve(shell, argv, envp_init);
-+	return kernel_execve(shell, argv, envp_init);
- }
- 
- static void __init handle_initrd(void)
-Index: linux-cg/kernel/kmod.c
-===================================================================
---- linux-cg.orig/kernel/kmod.c	2006-08-27 23:17:58.000000000 +0200
-+++ linux-cg/kernel/kmod.c	2006-08-27 23:18:58.000000000 +0200
-@@ -18,8 +18,6 @@
- 	call_usermodehelper wait flag, and remove exec_usermodehelper.
- 	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
- */
--#define __KERNEL_SYSCALLS__
--
- #include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/syscalls.h>
-@@ -150,7 +148,8 @@
- 
- 	retval = -EPERM;
- 	if (current->fs->root)
--		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
-+		retval = kernel_execve(sub_info->path,
-+				sub_info->argv, sub_info->envp);
- 
- 	/* Exec failed? */
- 	sub_info->retval = retval;
-Index: linux-cg/lib/Makefile
-===================================================================
---- linux-cg.orig/lib/Makefile	2006-08-27 23:17:58.000000000 +0200
-+++ linux-cg/lib/Makefile	2006-08-27 23:18:58.000000000 +0200
-@@ -33,6 +33,8 @@
-   lib-y += dec_and_lock.o
- endif
- 
-+lib-y += execve.o
-+
- obj-$(CONFIG_CRC_CCITT)	+= crc-ccitt.o
- obj-$(CONFIG_CRC16)	+= crc16.o
- obj-$(CONFIG_CRC32)	+= crc32.o
-Index: linux-cg/lib/execve.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-cg/lib/execve.c	2006-08-27 23:18:58.000000000 +0200
-@@ -0,0 +1,23 @@
-+#include <asm/bug.h>
-+#include <asm/uaccess.h>
-+
-+#define __KERNEL_SYSCALLS__
-+static int errno __attribute__((unused));
-+#include <asm/unistd.h>
-+
-+#ifdef _syscall3
-+int kernel_execve (const char *filename, char *const argv[], char *const envp[])
-+								__attribute__((__weak__));
-+int kernel_execve (const char *filename, char *const argv[], char *const envp[])
-+{
-+	mm_segment_t fs = get_fs();
-+	int ret;
-+
-+	WARN_ON(segment_eq(fs, USER_DS));
-+	ret = execve(filename, (char **)argv, (char **)envp);
-+	if (ret)
-+		ret = -errno;
-+
-+	return ret;
-+}
-+#endif
-Index: linux-cg/init/main.c
-===================================================================
---- linux-cg.orig/init/main.c	2006-08-27 23:17:58.000000000 +0200
-+++ linux-cg/init/main.c	2006-08-27 23:18:58.000000000 +0200
-@@ -9,8 +9,6 @@
-  *  Simplified starting of init:  Michael A. Griffith <grif@acm.org> 
+--- linux-cg.orig/arch/um/os-Linux/process.c	2006-08-16 12:08:06.000000000 +0200
++++ linux-cg/arch/um/os-Linux/process.c	2006-08-27 21:51:06.000000000 +0200
+@@ -12,6 +12,7 @@
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include <sys/mman.h>
++#include <sys/syscall.h>
+ #include "ptrace_user.h"
+ #include "os.h"
+ #include "user.h"
+@@ -141,11 +142,9 @@
+  * syscalls, and also breaks with clone(), which does not unshare the TLS.
   */
  
--#define __KERNEL_SYSCALLS__
+-inline _syscall0(pid_t, getpid)
 -
- #include <linux/types.h>
- #include <linux/module.h>
- #include <linux/proc_fs.h>
-@@ -679,7 +677,7 @@
- static void run_init_process(char *init_filename)
+ int os_getpid(void)
  {
- 	argv_init[0] = init_filename;
--	execve(init_filename, argv_init, envp_init);
-+	kernel_execve(init_filename, argv_init, envp_init);
+-	return(getpid());
++	return(syscall(__NR_getpid));
  }
  
- static int init(void * unused)
-Index: linux-cg/arch/sparc64/kernel/power.c
+ int os_getpgrp(void)
+Index: linux-cg/arch/um/os-Linux/sys-i386/tls.c
 ===================================================================
---- linux-cg.orig/arch/sparc64/kernel/power.c	2006-08-27 23:18:53.000000000 +0200
-+++ linux-cg/arch/sparc64/kernel/power.c	2006-08-27 23:19:04.000000000 +0200
-@@ -4,8 +4,6 @@
-  * Copyright (C) 1999 David S. Miller (davem@redhat.com)
-  */
+--- linux-cg.orig/arch/um/os-Linux/sys-i386/tls.c	2006-04-14 13:18:17.000000000 +0200
++++ linux-cg/arch/um/os-Linux/sys-i386/tls.c	2006-08-27 21:51:21.000000000 +0200
+@@ -1,10 +1,9 @@
+ #include <errno.h>
+ #include <linux/unistd.h>
++#include <sys/syscall.h>
+ #include "sysdep/tls.h"
+ #include "user_util.h"
  
--#define __KERNEL_SYSCALLS__
+-static _syscall1(int, get_thread_area, user_desc_t *, u_info);
 -
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -14,6 +12,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/pm.h>
-+#include <linux/syscalls.h>
+ /* Checks whether host supports TLS, and sets *tls_min according to the value
+  * valid on the host.
+  * i386 host have it == 6; x86_64 host have it == 12, for i386 emulation. */
+@@ -17,7 +16,7 @@
+ 		user_desc_t info;
+ 		info.entry_number = val[i];
  
- #include <asm/system.h>
- #include <asm/auxio.h>
-@@ -98,7 +97,7 @@
+-		if (get_thread_area(&info) == 0) {
++		if (syscall(__NR_get_thread_area, &info) == 0) {
+ 			*tls_min = val[i];
+ 			*supports_tls = 1;
+ 			return;
+Index: linux-cg/arch/um/os-Linux/tls.c
+===================================================================
+--- linux-cg.orig/arch/um/os-Linux/tls.c	2006-04-02 23:16:55.000000000 +0200
++++ linux-cg/arch/um/os-Linux/tls.c	2006-08-27 21:52:23.000000000 +0200
+@@ -1,5 +1,6 @@
+ #include <errno.h>
+ #include <sys/ptrace.h>
++#include <sys/syscall.h>
+ #include <asm/ldt.h>
+ #include "sysdep/tls.h"
+ #include "uml-config.h"
+@@ -48,14 +49,11 @@
+ #ifdef UML_CONFIG_MODE_TT
+ #include "linux/unistd.h"
  
- 	/* Ok, down we go... */
- 	button_pressed = 0;
--	if (execve("/sbin/shutdown", argv, envp) < 0) {
-+	if (kernel_execve("/sbin/shutdown", argv, envp) < 0) {
- 		printk("powerd: shutdown execution failed\n");
- 		add_wait_queue(&powerd_wait, &wait);
- 		goto again;
+-static _syscall1(int, get_thread_area, user_desc_t *, u_info);
+-static _syscall1(int, set_thread_area, user_desc_t *, u_info);
+-
+ int do_set_thread_area_tt(user_desc_t *info)
+ {
+ 	int ret;
+ 
+-	ret = set_thread_area(info);
++	ret = syscall(__NR_set_thread_area,info);
+ 	if (ret < 0) {
+ 		ret = -errno;
+ 	}
+@@ -66,7 +64,7 @@
+ {
+ 	int ret;
+ 
+-	ret = get_thread_area(info);
++	ret = syscall(__NR_get_thread_area,info);
+ 	if (ret < 0) {
+ 		ret = -errno;
+ 	}
+Index: linux-cg/arch/um/sys-i386/unmap.c
+===================================================================
+--- linux-cg.orig/arch/um/sys-i386/unmap.c	2005-11-05 01:59:23.000000000 +0100
++++ linux-cg/arch/um/sys-i386/unmap.c	2006-08-27 21:50:44.000000000 +0200
+@@ -5,20 +5,17 @@
+ 
+ #include <linux/mman.h>
+ #include <asm/unistd.h>
++#include <sys/syscall.h>
+ 
+-static int errno;
+-
+-static inline _syscall2(int,munmap,void *,start,size_t,len)
+-static inline _syscall6(void *,mmap2,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
+ int switcheroo(int fd, int prot, void *from, void *to, int size)
+ {
+-	if(munmap(to, size) < 0){
++	if (syscall(__NR_munmap, to, size) < 0){
+ 		return(-1);
+ 	}
+-	if(mmap2(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1 ){
++	if (syscall(__NR_mmap2, to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1 ){
+ 		return(-1);
+ 	}
+-	if(munmap(from, size) < 0){
++	if (syscall(__NR_munmap, from, size) < 0){
+ 		return(-1);
+ 	}
+ 	return(0);
+Index: linux-cg/arch/um/sys-x86_64/unmap.c
+===================================================================
+--- linux-cg.orig/arch/um/sys-x86_64/unmap.c	2005-11-05 01:59:23.000000000 +0100
++++ linux-cg/arch/um/sys-x86_64/unmap.c	2006-08-27 21:54:04.000000000 +0200
+@@ -5,20 +5,17 @@
+ 
+ #include <linux/mman.h>
+ #include <asm/unistd.h>
++#include <sys/syscall.h>
+ 
+-static int errno;
+-
+-static inline _syscall2(int,munmap,void *,start,size_t,len)
+-static inline _syscall6(void *,mmap,void *,addr,size_t,len,int,prot,int,flags,int,fd,off_t,offset)
+ int switcheroo(int fd, int prot, void *from, void *to, int size)
+ {
+-	if(munmap(to, size) < 0){
++	if (syscall(munmap, to, size) < 0){
+ 		return(-1);
+ 	}
+-	if(mmap(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1){
++	if (syscall(mmap, to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1){
+ 		return(-1);
+ 	}
+-	if(munmap(from, size) < 0){
++	if (syscall(munmap, from, size) < 0){
+ 		return(-1);
+ 	}
+ 	return(0);
 
 --
 

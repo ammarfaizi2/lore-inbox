@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWH0SDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWH0SC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWH0SDW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWH0SDW
+	id S932215AbWH0SC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWH0SC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:03:22 -0400
-Received: from smtpout.mac.com ([17.250.248.181]:18922 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932221AbWH0SDV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:03:21 -0400
-In-Reply-To: <20060827171728.GB3502@wohnheim.fh-wedel.de>
-References: <20060824134430.GB17132@wohnheim.fh-wedel.de> <20060827053245.GA15747@gen.formicary.org> <20060827171728.GB3502@wohnheim.fh-wedel.de>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <E23E222F-25F8-4C2A-8E16-D4B30C01AFDB@mac.com>
-Cc: Ian Lindsay <iml@formicary.org>, fsdevel@wohnheim.fh-wedel.de,
-       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: LogFS
-Date: Sun, 27 Aug 2006 14:02:51 -0400
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAQAAA+k=
-X-Language-Identified: TRUE
+	Sun, 27 Aug 2006 14:02:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45477 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932215AbWH0SCz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:02:55 -0400
+Date: Sun, 27 Aug 2006 11:01:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dipankar@in.ibm.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       ego@in.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       arjan@intel.linux.com, mingo@elte.hu, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-Id: <20060827110143.663d8207.akpm@osdl.org>
+In-Reply-To: <20060827174946.GB11710@in.ibm.com>
+References: <20060824091704.cae2933c.akpm@osdl.org>
+	<20060825095008.GC22293@redhat.com>
+	<Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
+	<20060826150422.a1d492a7.akpm@osdl.org>
+	<20060827061155.GC22565@in.ibm.com>
+	<20060826234618.b9b2535a.akpm@osdl.org>
+	<20060827071116.GD22565@in.ibm.com>
+	<20060827004213.4479e0df.akpm@osdl.org>
+	<20060827110657.GF22565@in.ibm.com>
+	<20060827102116.f9077bac.akpm@osdl.org>
+	<20060827174946.GB11710@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 27, 2006, at 13:17:28, Jörn Engel wrote:
-> On Sun, 27 August 2006 01:32:45 -0400, Ian Lindsay wrote:
->>  +/* FIXME: This should really be somewhere in the 64bit area. */
->>  +#define LOGFS_LINK_MAX (2^30)
->>
->> Interesting choice of constant.
->
-> Yes.  I didn't spend a long time thinking about whether it should  
-> be 2^31 or 2^31-1 or 2^31-2.  It will be a while before it becomes  
-> an issue in real life anyway. :)
+On Sun, 27 Aug 2006 23:19:46 +0530
+Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-Uhm, I think his point is that "^" is the xor operation:
-   2^30   == 28
-   2^31   == 29
-   2^21-1 == 28
-   2^21-2 == 31
+> I don't see why this
+> is needed - 
+> 
+> + break;
+> +
+> + case CPU_DOWN_PREPARE:
+> + 	mutex_lock(&workqueue_mutex);
+> + 	break;
+> +
+> + case CPU_DOWN_FAILED:
+> + 	mutex_unlock(&workqueue_mutex);
+> 	break;
+> 
+> This seems like some implicit code locking to me. Why is it not
+> sufficient to hold the lock in the CPU_DEAD code while walking
+> the workqueues ?
 
-Probably what you wanted was something more like this:
+?
 
-   # define LOGFS_LINK_MAX (1<<30)
+We need to hold workqueue_mutex to protect the per-cpu workqueue resources
+while cpu_online_map is changing and while per-cpu memory is being
+allocated or freed.
 
-Cheers,
-Kyle Moffett
-
+Look at cpu_down() and mentally replace the
+blocking_notifier_call_chain(CPU_DOWN_PREPARE) with
+mutex_lock(workqueue_mutex), etc.  The __stop_machine_run() in there
+modifies the (ie: potentially frees) the workqueue code's per-cpu memory. 
+So we take that resource's lock while doing so.

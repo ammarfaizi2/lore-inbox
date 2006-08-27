@@ -1,397 +1,562 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWH0Cdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWH0Cdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWH0Cdq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 22:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWH0Cdf
+	id S1751044AbWH0Cdr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWH0Cdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 22:33:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16335 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751044AbWH0CdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 22:33:17 -0400
-Date: Sat, 26 Aug 2006 19:33:01 -0700 (PDT)
+	Sat, 26 Aug 2006 22:33:31 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60878 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750999AbWH0CdW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 22:33:22 -0400
+Date: Sat, 26 Aug 2006 19:33:06 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
-       Christoph Lameter <clameter@sgi.com>, mpm@selenic.com,
-       Dave Chinner <dgc@sgi.com>, Manfred Spraul <manfred@colorfullife.com>
-Message-Id: <20060827023301.14731.82171.sendpatchset@schroedinger.engr.sgi.com>
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>, mpm@selenic.com,
+       Manfred Spraul <manfred@colorfullife.com>, Dave Chinner <dgc@sgi.com>,
+       Christoph Lameter <clameter@sgi.com>
+Message-Id: <20060827023306.14731.43619.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060827023245.14731.23294.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060827023245.14731.23294.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [MODSLAB 3/4] A Kmalloc subsystem
+Subject: [MODSLAB 4/4] Slabulator: Emulate the existing Slab Layer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A generic kmalloc layer for the modular slab
+The slab emulation layer.
 
-Regular kmalloc allocations are optimized. DMA kmalloc slabs are
-created on demand.
+This provides a layer that implements the existing slab API.
+We try to keep the definitions that we copy from slab.h
+to an absolute minimum. If things break then more
+(useless) definitions from slab.h may be needed.
 
-Also re exports the kmalloc array as a new slab_allocator that
-can be used to tie into the kmalloc array (the slabulator
-uses that to avoid creating new slabs that are compatible
-with generic kmalloc caches).
+We put a hook into slab.h to redirect includes for slab.h to
+slabulator.h.
+
+The slabulator also contains the slab reaper since it is
+used by the page allocator. However, the slabifier does not
+need any of this since it is not per cpu cache based. The slabifier
+does never reap active slabs in single processor configuration.
+For SMP and NUMA a slab specific reaper is used.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.18-rc4-mm3/include/linux/kmalloc.h
+Index: linux-2.6.18-rc4-mm3/mm/slabulator.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-rc4-mm3/include/linux/kmalloc.h	2006-08-26 18:25:33.360374104 -0700
-@@ -0,0 +1,134 @@
-+#ifndef _LINUX_KMALLOC_H
-+#define _LINUX_KMALLOC_H
++++ linux-2.6.18-rc4-mm3/mm/slabulator.c	2006-08-26 18:27:52.666216263 -0700
+@@ -0,0 +1,287 @@
 +/*
-+ * In kernel dynamic memory allocator.
++ * Slabulator = Emulate the Slab API.
 + *
-+ * (C) 2006 Silicon Graphics, Inc,
-+ * 		Christoph Lameter <clameter@sgi.com>
-+ */
-+
-+#include <linux/allocator.h>
-+#include <linux/config.h>
-+#include <linux/types.h>
-+
-+#ifndef KMALLOC_ALLOCATOR
-+#define KMALLOC_ALLOCATOR slabifier_allocator
-+#endif
-+
-+#define KMALLOC_SHIFT_LOW 3
-+
-+#define KMALLOC_SHIFT_HIGH 18
-+
-+#if L1_CACHE_BYTES <= 64
-+#define KMALLOC_EXTRAS 2
-+#define KMALLOC_EXTRA
-+#else
-+#define KMALLOC_EXTRAS 0
-+#endif
-+
-+#define KMALLOC_NR_CACHES (KMALLOC_SHIFT_HIGH - KMALLOC_SHIFT_LOW \
-+			 + 1 + KMALLOC_EXTRAS)
-+/*
-+ * We keep the general caches in an array of slab caches that are used for
-+ * 2^x bytes of allocations. For each size we generate a DMA and a
-+ * non DMA cache (DMA simply means memory for legacy I/O. The regular
-+ * caches can be used for devices that can DMA to all of memory).
-+ */
-+extern struct slab_control kmalloc_caches[KMALLOC_NR_CACHES];
-+
-+/*
-+ * Sorry that the following has to be that ugly but GCC has trouble
-+ * with constant propagation and loops.
-+ */
-+static inline int kmalloc_index(int size)
-+{
-+	if (size <=    8) return 3;
-+	if (size <=   16) return 4;
-+	if (size <=   32) return 5;
-+	if (size <=   64) return 6;
-+#ifdef KMALLOC_EXTRA
-+	if (size <=   96) return KMALLOC_SHIFT_HIGH + 1;
-+#endif
-+	if (size <=  128) return 7;
-+#ifdef KMALLOC_EXTRA
-+	if (size <=  192) return KMALLOC_SHIFT_HIGH + 2;
-+#endif
-+	if (size <=  256) return 8;
-+	if (size <=  512) return 9;
-+	if (size <= 1024) return 10;
-+	if (size <= 2048) return 11;
-+	if (size <= 4096) return 12;
-+	if (size <=   8 * 1024) return 13;
-+	if (size <=  16 * 1024) return 14;
-+	if (size <=  32 * 1024) return 15;
-+	if (size <=  64 * 1024) return 16;
-+	if (size <= 128 * 1024) return 17;
-+	if (size <= 256 * 1024) return 18;
-+	return -1;
-+}
-+
-+/*
-+ * Find the slab cache for a given combination of allocation flags and size.
++ * (C) 2006 Silicon Graphics, Inc. Christoph Lameter <clameter@sgi.com>
 + *
-+ * This ought to end up with a global pointer to the right cache
-+ * in kmalloc_caches.
 + */
-+static inline struct slab_cache *kmalloc_slab(size_t size)
-+{
-+	int index = kmalloc_index(size) - KMALLOC_SHIFT_LOW;
-+
-+	if (index < 0) {
-+		/*
-+		 * Generate a link failure. Would be great if we could
-+		 * do something to stop the compile here.
-+		 */
-+		extern void __kmalloc_size_too_large(void);
-+		__kmalloc_size_too_large();
-+	}
-+	return &kmalloc_caches[index].sc;
-+}
-+
-+extern void *__kmalloc(size_t, gfp_t);
-+#define ____kmalloc __kmalloc
-+
-+static inline void *kmalloc(size_t size, gfp_t flags)
-+{
-+	if (__builtin_constant_p(size) && !(flags & __GFP_DMA)) {
-+		struct slab_cache *s = kmalloc_slab(size);
-+
-+		return KMALLOC_ALLOCATOR.alloc(s, flags);
-+	} else
-+		return __kmalloc(size, flags);
-+}
-+
-+#ifdef CONFIG_NUMA
-+extern void *__kmalloc_node(size_t, gfp_t, int);
-+static inline void *kmalloc_node(size_t size, gfp_t flags, int node)
-+{
-+	if (__builtin_constant_p(size) && !(flags & __GFP_DMA)) {
-+		struct slab_cache *s = kmalloc_slab(size);
-+
-+		return KMALLOC_ALLOCATOR.alloc_node(s, flags, node);
-+	} else
-+		return __kmalloc_node(size, flags, node);
-+}
-+#else
-+#define kmalloc_node(__size, __flags, __node) kmalloc((__size), (__flags))
-+#endif
-+
-+/* Free an object */
-+static inline void kfree(const void *x)
-+{
-+	return KMALLOC_ALLOCATOR.free(NULL, x);
-+}
-+
-+/* Allocate and zero the specified number of bytes */
-+extern void *kzalloc(size_t, gfp_t);
-+
-+/* Figure out what size the chunk is */
-+extern size_t ksize(const void *);
-+
-+extern struct page_allocator *reclaimable_allocator;
-+extern struct page_allocator *unreclaimable_allocator;
-+
-+#endif	/* _LINUX_KMALLOC_H */
-Index: linux-2.6.18-rc4-mm3/mm/kmalloc.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-rc4-mm3/mm/kmalloc.c	2006-08-26 18:25:33.362327108 -0700
-@@ -0,0 +1,205 @@
-+/*
-+ * Create generic slab caches for memory allocation.
-+ *
-+ * (C) 2006 Silicon Graphics. Inc. Christoph Lameter <clameter@sgi.com>
-+ */
-+
 +#include <linux/mm.h>
-+#include <linux/allocator.h>
-+#include <linux/module.h>
 +#include <linux/kmalloc.h>
++#include <linux/module.h>
++#include <linux/allocator.h>
++#include <linux/bitops.h>
++#include <linux/slabulator.h>
 +#include <linux/slabstat.h>
 +
-+#ifndef ARCH_KMALLOC_MINALIGN
-+#define ARCH_KMALLOC_MINALIGN sizeof(void *)
++#define SLAB_MAX_ORDER 4
++
++#define SLABULATOR_MERGE
++
++#ifndef ARCH_SLAB_MINALIGN
++#define ARCH_SLAB_MINALIGN sizeof(void *)
 +#endif
 +
-+struct slab_control kmalloc_caches[KMALLOC_NR_CACHES] __cacheline_aligned;
-+EXPORT_SYMBOL(kmalloc_caches);
-+
-+static struct page_allocator *dma_allocator;
-+struct page_allocator *reclaimable_allocator;
-+struct page_allocator *unreclaimable_allocator;
-+
-+static struct slab_cache *kmalloc_caches_dma[KMALLOC_NR_CACHES];
-+
-+/*
-+ * Given a slab size find the correct order to use.
-+ * We only support powers of two so there is really
-+ * no need for anything special. Objects will always
-+ * fit exactly into the slabs with no overhead.
-+ */
-+static __init int order(size_t size)
++static int calculate_order(int size)
 +{
-+	if (size >= PAGE_SIZE)
-+		/* One object per slab */
-+		return fls(size -1) - PAGE_SHIFT;
++	int order;
++	int rem;
 +
-+	/* Multiple objects per page which will fit neatly */
-+	return 0;
++	for(order = max(0, fls(size - 1) - PAGE_SHIFT);
++			order < MAX_ORDER; order++) {
++		unsigned long slab_size = PAGE_SIZE << order;
++
++		if (slab_size < size)
++			continue;
++
++		rem = slab_size % size;
++
++		if (rem * 8 <= PAGE_SIZE << order)
++			break;
++
++	}
++	if (order >= MAX_ORDER)
++		return -E2BIG;
++	return order;
 +}
 +
-+static struct slab_cache *create_kmalloc_cache(struct slab_control *x,
-+		const char *name,
-+		const struct page_allocator *p,
-+		int size)
++/*
++ * We can actually operate slabs any time after the page allocator is up.
++ * slab_is_available() merely means that the kmalloc array is available.
++ *
++ * However, be aware that deriving allocators depends on kmalloc being
++ * functional.
++ */
++int slabulator_up = 0;
++
++int slab_is_available(void) {
++	return slabulator_up;
++}
++
++void kmem_cache_init(void)
 +{
++	extern void kmalloc_init(void);
++
++	kmalloc_init();
++	slabulator_up = 1;
++}
++
++struct slab_cache *kmem_cache_create(const char *name, size_t size,
++		size_t align, unsigned long flags,
++		void (*ctor)(void *, struct slab_cache *, unsigned long),
++		void (*dtor)(void *, struct slab_cache *, unsigned long))
++{
++	const struct page_allocator *a;
 +	struct slab_cache s;
 +	struct slab_cache *rs;
-+
-+	s.page_alloc = p;
-+	s.slab_alloc = &KMALLOC_ALLOCATOR;
-+	s.size = size;
-+	s.align = ARCH_KMALLOC_MINALIGN;
-+	s.offset = 0;
-+	s.objsize = size;
-+	s.inuse = size;
-+	s.node = -1;
-+	s.order = order(size);
-+	s.name = "kmalloc";
-+	rs = KMALLOC_ALLOCATOR.create(x, &s);
-+	if (!rs)
-+		panic("Creation of kmalloc slab %s size=%d failed.\n",
-+			name, size);
-+	register_slab(rs);
-+	return rs;
-+}
-+
-+static struct slab_cache *get_slab(size_t size, gfp_t flags)
-+{
-+	int index = kmalloc_index(size) - KMALLOC_SHIFT_LOW;
-+	struct slab_cache *s;
 +	struct slab_control *x;
-+	size_t realsize;
++	int page_size_slab;
 +
-+	BUG_ON(size < 0);
++	s.offset = 0;
++	s.align = max(ARCH_SLAB_MINALIGN, ALIGN(align, sizeof(void *)));
 +
-+	if (!(flags & __GFP_DMA))
-+		return &kmalloc_caches[index].sc;
++	if (flags & (SLAB_MUST_HWCACHE_ALIGN|SLAB_HWCACHE_ALIGN))
++		s.align = L1_CACHE_BYTES;
 +
-+	s = kmalloc_caches_dma[index];
-+	if (s)
-+		return s;
++	s.inuse = size;
++	s.objsize = size;
++	s.size = ALIGN(size, s.align);
 +
-+	/* Dynamically create dma cache */
-+	x = kmalloc(sizeof(struct slab_control), flags & ~(__GFP_DMA));
++	/* Pick the right allocator for our purposes */
++	if (flags & SLAB_RECLAIM_ACCOUNT)
++		a = reclaimable_allocator;
++	else
++		a = unreclaimable_allocator;
++
++	if (flags & SLAB_CACHE_DMA)
++		a = dmaify_page_allocator(a);
++
++	if (flags & SLAB_DESTROY_BY_RCU)
++		a = rcuify_page_allocator(a);
++
++	page_size_slab = (PAGE_SIZE << calculate_order(s.size)) > (s.size << 1);
++
++	if (page_size_slab && ((flags & SLAB_DESTROY_BY_RCU) || ctor || dtor)) {
++		/*
++		 * For RCU processing and constructors / destructors:
++		 * The object must remain intact even if it is free.
++		 * The free pointer would hurt us there.
++		 * Relocate the free object pointer out of
++		 * the space used by the object.
++		 *
++		 * Slabs with a single object do not need this since
++		 * those do not have to deal with free pointers.
++		 */
++		s.offset = s.size - sizeof(void *);
++		if (s.offset < s.objsize) {
++			/*
++			 * Would overlap the object. We need to waste some
++			 * more space to make the object RCU safe
++			 */
++			s.offset = s.size;
++			s.size += s.align;
++		}
++		s.inuse = s.size;
++	}
++
++	s.order = calculate_order(s.size);
++
++	if (s.order < 0)
++		goto error;
++
++	s.name = name;
++	s.node = -1;
++
++	x = kmalloc(sizeof(struct slab_control), GFP_KERNEL);
 +
 +	if (!x)
-+		panic("Unable to allocate memory for dma cache\n");
++		return NULL;
++	s.page_alloc = a;
++	s.slab_alloc = &SLABULATOR_ALLOCATOR;
++#ifdef SLABULATOR_MERGE
++	/*
++	 * This works but is this really something we want?
++	 */
++	if (((s.size & (s.size - 1))==0) && !ctor && !dtor &&
++		   !(flags & (SLAB_DESTROY_BY_RCU|SLAB_RECLAIM_ACCOUNT))) {
 +
-+#ifdef KMALLOC_EXTRA
-+	if (index <= KMALLOC_SHIFT_HIGH - KMALLOC_SHIFT_LOW)
++		printk(KERN_INFO "Merging slab_cache %s size %d into"
++			" kmalloc array\n", name, s.size);
++		rs = kmalloc_slab_allocator.create(x, &s);
++		kfree(x);
++		x = NULL;
++	} else
 +#endif
-+		realsize = 1 << index;
-+#ifdef KMALLOC_EXTRA
-+	else if (index = KMALLOC_EXTRA)
-+		realsize = 96;
-+	else
-+		realsize = 192;
-+#endif
++	rs = SLABULATOR_ALLOCATOR.create(x, &s);
++	if (!rs)
++		goto error;
 +
-+	s = create_kmalloc_cache(x, "kmalloc_dma", dma_allocator, realsize);
-+	kmalloc_caches_dma[index] = s;
-+	return s;
-+}
-+
-+void *__kmalloc(size_t size, gfp_t flags)
-+{
-+	return KMALLOC_ALLOCATOR.alloc(get_slab(size, flags), flags);
-+}
-+EXPORT_SYMBOL(__kmalloc);
-+
-+#ifdef CONFIG_NUMA
-+void *__kmalloc_node(size_t size, gfp_t flags, int node)
-+{
-+	return KMALLOC_ALLOCATOR.alloc_node(get_slab(size, flags),
-+							flags, node);
-+}
-+EXPORT_SYMBOL(__kmalloc_node);
-+#endif
-+
-+void *kzalloc(size_t size, gfp_t flags)
-+{
-+	void *x = __kmalloc(size, flags);
++	/*
++	 * Now deal with constuctors and destructors. We need to know the
++	 * slab_cache address in order to be able to pass the slab_cache
++	 * address down the chain.
++	 */
++	if (ctor || dtor)
++		rs->page_alloc =
++			ctor_and_dtor_for_page_allocator(rs->page_alloc,
++				rs->size, rs,
++				(void *)ctor, (void *)dtor);
 +
 +	if (x)
-+		memset(x, 0, size);
++		register_slab(rs);
++	return rs;
++
++error:
++	a->destructor((struct page_allocator *)a);
++	if (flags & SLAB_PANIC)
++		panic("Cannot create slab %s size=%ld realsize=%d "
++			"order=%d offset=%d flags=%lx\n",
++			s.name, size, s.size, s.order, s.offset, flags);
++
++
++	return NULL;
++}
++EXPORT_SYMBOL(kmem_cache_create);
++
++int kmem_cache_destroy(struct slab_cache *s)
++{
++	SLABULATOR_ALLOCATOR.destroy(s);
++	unregister_slab(s);
++	kfree(s);
++	return 0;
++}
++EXPORT_SYMBOL(kmem_cache_destroy);
++
++void *kmem_cache_zalloc(struct slab_cache *s, gfp_t flags)
++{
++	void *x;
++
++	x = kmem_cache_alloc(s, flags);
++	if (x)
++		memset(x, 0, s->objsize);
 +	return x;
 +}
-+EXPORT_SYMBOL(kzalloc);
-+
-+size_t ksize(const void *object)
-+{
-+	return KMALLOC_ALLOCATOR.object_size(NULL, object);
-+};
-+EXPORT_SYMBOL(ksize);
 +
 +/*
-+ * Provide the kmalloc array as regular slab allocator for the
-+ * generic allocator framework.
++ * Generic reaper (the slabifier has its own way of reaping)
 + */
-+struct slab_allocator kmalloc_slab_allocator;
++#ifdef CONFIG_NUMA
++/*
++ * Special reaping functions for NUMA systems called from cache_reap().
++ */
++static DEFINE_PER_CPU(unsigned long, reap_node);
 +
-+static struct slab_cache *kmalloc_create(struct slab_control *x,
-+	const struct slab_cache *s)
++static void init_reap_node(int cpu)
 +{
-+	struct slab_cache *km;
++	int node;
 +
-+	int index = max(0, fls(s->size - 1) - KMALLOC_SHIFT_LOW);
++	node = next_node(cpu_to_node(cpu), node_online_map);
++	if (node == MAX_NUMNODES)
++		node = first_node(node_online_map);
 +
-+	if (index > KMALLOC_SHIFT_HIGH - KMALLOC_SHIFT_LOW + 1
-+			|| s->offset)
-+		return NULL;
-+
-+	km = &kmalloc_caches[index].sc;
-+
-+	BUG_ON(s->size > km->size);
-+
-+	return KMALLOC_ALLOCATOR.dup(km);
++	__get_cpu_var(reap_node) = node;
 +}
 +
-+static void null_destructor(struct page_allocator *x) {}
-+
-+void __init kmalloc_init(void)
++static void next_reap_node(void)
 +{
-+	int i;
++	int node = __get_cpu_var(reap_node);
 +
-+	for (i =  KMALLOC_SHIFT_LOW; i <= KMALLOC_SHIFT_HIGH; i++) {
-+		create_kmalloc_cache(
-+			&kmalloc_caches[i - KMALLOC_SHIFT_LOW],
-+			"kmalloc", &page_allocator, 1 << i);
-+	}
-+#ifdef KMALLOC_EXTRA
-+	/* Non-power of two caches */
-+	create_kmalloc_cache(&kmalloc_caches
-+		[KMALLOC_SHIFT_HIGH - KMALLOC_SHIFT_LOW + 1], name, pa, 96);
-+	create_kmalloc_cache(&kmalloc_caches
-+		[KMALLOC_SHIFT_HIGH - KMALLOC_SHIFT_LOW + 2], name, pa, 192);
++	/*
++	 * Also drain per cpu pages on remote zones
++	 */
++	if (node != numa_node_id())
++		drain_node_pages(node);
++
++	node = next_node(node, node_online_map);
++	if (unlikely(node >= MAX_NUMNODES))
++		node = first_node(node_online_map);
++	__get_cpu_var(reap_node) = node;
++}
++#else
++#define init_reap_node(cpu) do { } while (0)
++#define next_reap_node(void) do { } while (0)
 +#endif
 +
-+	/*
-+	 * The above must be done first. Deriving a page allocator requires
-+	 * a working (normal) kmalloc array.
-+	 */
-+	unreclaimable_allocator = unreclaimable_slab(&page_allocator);
-+	unreclaimable_allocator->destructor = null_destructor;
++#define REAPTIMEOUT_CPUC	(2*HZ)
 +
-+	/*
-+	 * Fix up the initial arrays. Because of the precending uses
-+	 * we likely have consumed a couple of pages that we cannot account
-+	 * for.
-+	 */
-+	for(i = 0; i < KMALLOC_NR_CACHES; i++)
-+		kmalloc_caches[i].sc.page_alloc = unreclaimable_allocator;
++#ifdef CONFIG_SMP
++static DEFINE_PER_CPU(struct work_struct, reap_work);
 +
-+	reclaimable_allocator = reclaimable_slab(&page_allocator);
-+	reclaimable_allocator->destructor = null_destructor;
-+	dma_allocator = dmaify_page_allocator(unreclaimable_allocator);
++static void cache_reap(void *unused)
++{
++	next_reap_node();
++	refresh_cpu_vm_stats(smp_processor_id());
 +
-+	/* And deal with the kmalloc_cache_allocator */
-+	memcpy(&kmalloc_slab_allocator, &KMALLOC_ALLOCATOR,
-+			sizeof(struct slab_allocator));
-+	kmalloc_slab_allocator.create = kmalloc_create;
-+	kmalloc_slab_allocator.destructor = null_slab_allocator_destructor;
++	schedule_delayed_work(&__get_cpu_var(reap_work),
++				      REAPTIMEOUT_CPUC);
 +}
++
++static void __devinit start_cpu_timer(int cpu)
++{
++	struct work_struct *reap_work = &per_cpu(reap_work, cpu);
++
++	/*
++	 * When this gets called from do_initcalls via cpucache_init(),
++	 * init_workqueues() has already run, so keventd will be setup
++	 * at that time.
++	 */
++	if (keventd_up() && reap_work->func == NULL) {
++		init_reap_node(cpu);
++		INIT_WORK(reap_work, cache_reap, NULL);
++		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
++	}
++}
++
++static int __init cpucache_init(void)
++{
++	int cpu;
++
++	/*
++	 * Register the timers that drain pcp pages and update vm statistics
++	 */
++	for_each_online_cpu(cpu)
++		start_cpu_timer(cpu);
++	return 0;
++}
++__initcall(cpucache_init);
++#endif
++
++
+Index: linux-2.6.18-rc4-mm3/include/linux/slabulator.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.18-rc4-mm3/include/linux/slabulator.h	2006-08-26 18:27:12.869848074 -0700
+@@ -0,0 +1,123 @@
++#ifndef _LINUX_SLABULATOR_H
++#define _LINUX_SLABULATOR_H
++/*
++ * Slabulator: Emulate the existing Slab API.
++ *
++ * (C) 2006 Silicon Graphics, Inc.
++ *		Christoph Lameter <clameter@sgi.com>
++ */
++
++#include <linux/allocator.h>
++#include <linux/kmalloc.h>
++
++#define kmem_cache_t	struct slab_cache
++#define kmem_cache	slab_cache
++
++#ifndef SLABULATOR_ALLOCATOR
++#define SLABULATOR_ALLOCATOR slabifier_allocator
++#endif
++
++/*
++ * We really should be getting rid of these. This is only
++ * a select list/
++ */
++#define	SLAB_KERNEL		GFP_KERNEL
++#define	SLAB_ATOMIC		GFP_ATOMIC
++#define	SLAB_NOFS		GFP_NOFS
++#define SLAB_NOIO		GFP_NOIO
++
++/* No debug features for now */
++#define	SLAB_HWCACHE_ALIGN	0x00002000UL
++#define SLAB_CACHE_DMA		0x00004000UL
++#define SLAB_MUST_HWCACHE_ALIGN	0x00008000UL
++#define SLAB_RECLAIM_ACCOUNT	0x00020000UL
++#define SLAB_PANIC		0x00040000UL
++#define SLAB_DESTROY_BY_RCU	0x00080000UL
++#define SLAB_MEM_SPREAD		0x00100000UL
++
++/* flags passed to a constructor func */
++#define	SLAB_CTOR_CONSTRUCTOR	0x001UL
++#define SLAB_CTOR_ATOMIC	0x002UL
++#define	SLAB_CTOR_VERIFY	0x004UL
++
++/*
++ * slab_allocators are always available after the page allocator
++ * has been brought up. kmem_cache_init creates the kmalloc array:
++ */
++extern int slab_is_available(void);
++extern void kmem_cache_init(void);
++
++/* System wide caches (Should these be really here?) */
++extern struct slab_cache *vm_area_cachep;
++extern struct slab_cache *names_cachep;
++extern struct slab_cache *files_cachep;
++extern struct slab_cache *filp_cachep;
++extern struct slab_cache *fs_cachep;
++extern struct slab_cache *sighand_cachep;
++extern struct slab_cache *bio_cachep;
++
++extern struct slab_cache *kmem_cache_create(const char *name, size_t size,
++	size_t align, unsigned long flags,
++	void (*ctor)(void *, struct slab_cache *, unsigned long),
++	void (*dtor)(void *, struct slab_cache *, unsigned long));
++
++static inline unsigned int kmem_cache_size(struct slab_cache *s)
++{
++	return s->objsize;
++}
++
++static inline const char *kmem_cache_name(struct slab_cache *s)
++{
++	return s->name;
++}
++
++static inline void *kmem_cache_alloc(struct slab_cache *s, gfp_t flags)
++{
++	return SLABULATOR_ALLOCATOR.alloc(s, flags);
++}
++
++static inline void *kmem_cache_alloc_node(struct slab_cache *s,
++					gfp_t flags, int node)
++{
++	return SLABULATOR_ALLOCATOR.alloc_node(s, flags, node);
++}
++
++extern void *kmem_cache_zalloc(struct slab_cache *s, gfp_t flags);
++
++static inline void kmem_cache_free(struct slab_cache *s, const void *x)
++{
++	SLABULATOR_ALLOCATOR.free(s, x);
++}
++
++static inline int kmem_ptr_validate(struct slab_cache *s, void *x)
++{
++	return SLABULATOR_ALLOCATOR.valid_pointer(s, x);
++}
++
++extern int kmem_cache_destroy(struct slab_cache *s);
++
++static inline int kmem_cache_shrink(struct slab_cache *s)
++{
++	return SLABULATOR_ALLOCATOR.shrink(s, NULL);
++}
++
++/**
++ * kcalloc - allocate memory for an array. The memory is set to zero.
++ * @n: number of elements.
++ * @size: element size.
++ * @flags: the type of memory to allocate.
++ */
++static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
++{
++	if (n != 0 && size > ULONG_MAX / n)
++		return NULL;
++	return kzalloc(n * size, flags);
++}
++
++/* No current shrink statistics */
++struct shrinker;
++static inline void kmem_set_shrinker(kmem_cache_t *cachep,
++		struct shrinker *shrinker)
++{}
++#endif /* _LINUX_SLABULATOR_H */
 +
 Index: linux-2.6.18-rc4-mm3/mm/Makefile
 ===================================================================
---- linux-2.6.18-rc4-mm3.orig/mm/Makefile	2006-08-26 16:38:21.426828386 -0700
-+++ linux-2.6.18-rc4-mm3/mm/Makefile	2006-08-26 16:38:22.103544372 -0700
-@@ -25,4 +25,4 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
+--- linux-2.6.18-rc4-mm3.orig/mm/Makefile	2006-08-26 18:27:10.289929422 -0700
++++ linux-2.6.18-rc4-mm3/mm/Makefile	2006-08-26 18:27:12.870824576 -0700
+@@ -25,4 +25,5 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
  obj-$(CONFIG_FS_XIP) += filemap_xip.o
  obj-$(CONFIG_MIGRATION) += migrate.o
  obj-$(CONFIG_SMP) += allocpercpu.o
--obj-$(CONFIG_MODULAR_SLAB) += allocator.o slabifier.o slabstat.o
-+obj-$(CONFIG_MODULAR_SLAB) += allocator.o slabifier.o slabstat.o kmalloc.o
-
+-obj-$(CONFIG_MODULAR_SLAB) += allocator.o slabifier.o slabstat.o kmalloc.o
++obj-$(CONFIG_MODULAR_SLAB) += allocator.o slabifier.o slabstat.o \
++				kmalloc.o slabulator.o
+Index: linux-2.6.18-rc4-mm3/init/Kconfig
+===================================================================
+--- linux-2.6.18-rc4-mm3.orig/init/Kconfig	2006-08-26 16:38:04.676887088 -0700
++++ linux-2.6.18-rc4-mm3/init/Kconfig	2006-08-26 18:27:12.871801078 -0700
+@@ -332,6 +332,26 @@ config CC_OPTIMIZE_FOR_SIZE
+ 
+ 	  If unsure, say N.
+ 
++config SLAB
++	default y
++	bool "Traditional SLAB allocator"
++	help
++	  Disabling this allows the use of alternate slab allocators
++	  with less overhead such as SLOB (very simple) or the
++	  use the slabifier with the module allocator framework.
++	  Note that alternate slab allocators may not provide
++	  the complete functionality for slab.
++
++config MODULAR_SLAB
++	default y
++	bool "Use the modular allocator framework"
++	depends on EXPERIMENTAL && !SLAB
++	help
++	 The modular  allocator framework allows the flexible use
++	 of different slab allocators and page allocators for memory
++	 allocation. This will completely replace the existing
++	 slab allocator. Beware this is experimental code.
++
+ menuconfig EMBEDDED
+ 	bool "Configure standard kernel features (for small systems)"
+ 	help
+@@ -370,7 +390,6 @@ config KALLSYMS_EXTRA_PASS
+ 	   reported.  KALLSYMS_EXTRA_PASS is only a temporary workaround while
+ 	   you wait for kallsyms to be fixed.
+ 
+-
+ config HOTPLUG
+ 	bool "Support for hot-pluggable devices" if EMBEDDED
+ 	default y
+@@ -445,15 +464,6 @@ config SHMEM
+ 	  option replaces shmem and tmpfs with the much simpler ramfs code,
+ 	  which may be appropriate on small systems without swap.
+ 
+-config SLAB
+-	default y
+-	bool "Use full SLAB allocator" if EMBEDDED
+-	help
+-	  Disabling this replaces the advanced SLAB allocator and
+-	  kmalloc support with the drastically simpler SLOB allocator.
+-	  SLOB is more space efficient but does not scale well and is
+-	  more susceptible to fragmentation.
+-
+ config VM_EVENT_COUNTERS
+ 	default y
+ 	bool "Enable VM event counters for /proc/vmstat" if EMBEDDED
+@@ -475,7 +485,7 @@ config BASE_SMALL
+ 	default 1 if !BASE_FULL
+ 
+ config SLOB
+-	default !SLAB
++	default !SLAB && !MODULAR_SLAB
+ 	bool
+ 
+ menu "Loadable module support"
+Index: linux-2.6.18-rc4-mm3/include/linux/slab.h
+===================================================================
+--- linux-2.6.18-rc4-mm3.orig/include/linux/slab.h	2006-08-26 16:38:04.426902539 -0700
++++ linux-2.6.18-rc4-mm3/include/linux/slab.h	2006-08-26 18:27:12.871801078 -0700
+@@ -9,6 +9,10 @@
+ 
+ #if	defined(__KERNEL__)
+ 
++#ifdef CONFIG_MODULAR_SLAB
++#include <linux/slabulator.h>
++#else
++
+ typedef struct kmem_cache kmem_cache_t;
+ 
+ #include	<linux/gfp.h>
+@@ -291,6 +295,8 @@ extern kmem_cache_t	*fs_cachep;
+ extern kmem_cache_t	*sighand_cachep;
+ extern kmem_cache_t	*bio_cachep;
+ 
++#endif /* CONFIG_SLABULATOR */
++
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _LINUX_SLAB_H */

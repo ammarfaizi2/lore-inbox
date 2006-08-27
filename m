@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWH0HTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWH0HhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWH0HTv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 03:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWH0HTv
+	id S1750870AbWH0HhY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 03:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWH0HhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 03:19:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13783 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751315AbWH0HTt (ORCPT
+	Sun, 27 Aug 2006 03:37:24 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:8172 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750768AbWH0HhY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 03:19:49 -0400
-Date: Sun, 27 Aug 2006 00:19:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: 2.6.18-rc4-mm[1,2,3] -- Network card not getting assigned an
- "eth" device name
-Message-Id: <20060827001943.c559d37d.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0608270007gc6a919fx9e36562d8023635d@mail.gmail.com>
-References: <a44ae5cd0608270007gc6a919fx9e36562d8023635d@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 27 Aug 2006 03:37:24 -0400
+Date: Sun, 27 Aug 2006 13:07:30 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       ego@in.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       arjan@linux.intel.com, mingo@elte.hu, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-ID: <20060827073730.GE22565@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org> <20060825095008.GC22293@redhat.com> <Pine.LNX.4.64.0608261404350.11811@g5.osdl.org> <20060826150422.a1d492a7.akpm@osdl.org> <20060827061155.GC22565@in.ibm.com> <20060826234618.b9b2535a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060826234618.b9b2535a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 26, 2006 at 11:46:18PM -0700, Andrew Morton wrote:
+> On Sun, 27 Aug 2006 11:41:55 +0530
+> 
+> > The right thing to do would be to
+> > do an audit and clean up the bad lock_cpu_hotplug() calls.
+> 
+> No, that won't fix it.  For example, take a look at all the *callers* of
+> cpufreq_update_policy().  AFAICT they're all buggy.  Fiddling with the
+> existing lock_cpu_hotplug() sites won't fix that.  (Possibly this
+> particular problem can be fixed by checking that the relevant CPU is still
+> online after the appropriate locking has been taken - dunno).
+> 
 
-Please copy relevant mailing lists and maintainers on bug reports.
+This is a different issue from the ones that relates to lock_cpu_hotplug().
+This one seems like a cpufreq internal locking problem.
 
-On Sun, 27 Aug 2006 00:07:50 -0700
-"Miles Lane" <miles.lane@gmail.com> wrote:
+On a quick look at this, it seems to me that cpufreq_cpu_get() should
+do exactly what you said - use a spinlock in each cpufreq_cpu_data[] to
+protect the per-cpu flag and in cpufreq_cpu_get() check if
+!data and data->online == 0. They may have to do - 
 
-> I have a:
-> 
-> eth0: RealTek RTL8139 at 0xf8fa2800, 00:c0:9f:95:18:1b, IRQ 10
-> eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
-> 
-> and a:
-> 
-> ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.2kd
-> ipw2200: Copyright(c) 2003-2006 Intel Corporation
-> ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
-> ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
-> 
-> My dmesg output includes:
-> w<8E>^U<C1>: link down
-> NET: Registered protocol family 10
-> lo: Disabled Privacy Extensions
-> ADDRCONF(NETDEV_UP): w<8E>^U<C1>: link is not ready
-> 
-> As you can see, one of my network cards is getting "w<8E>^U<C1>" as a
-> device name.  This isn't the actual string.  Here's what I get by
-> cutting and pasting from iwconfig: "w�"
-> 
-> ifconfig shows:
-> HWaddr 00:C0:9F:95:18:1B
->           UP BROADCAST MULTICAST  MTU:1500  Metric:1
->           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000
->           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
->           Interrupt:10 Base address:0x2800
-> 
-> In most of my builds it has been the ipw2200 which gets busted by this
-> problem.  This time, ifconfig sees eth1 and not eth0.  Oddly, dmesg
-> output includes:
-> eth0: RealTek RTL8139 at 0xf8fa2800, 00:c0:9f:95:18:1b, IRQ 10
-> eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
-> so I am puzzled at the disappearance of eth0 from the ifconfig output.
+static struct cpufreq_data {
+	spinlock_t lock;
+	int flag;
+	struct cpufreq_policy *policy;
+} cpufreq_cpu_data[NR_CPUS];
 
-Jeremy reported that a while back too.  I do not know what is causing it
-and as far as I know no net developers have yet looked into it.
 
+Thanks
+Dipankar

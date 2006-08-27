@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWH0Qxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWH0RCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWH0Qxf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 12:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWH0Qxf
+	id S932187AbWH0RCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 13:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWH0RCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 12:53:35 -0400
-Received: from mga03.intel.com ([143.182.124.21]:63338 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932181AbWH0Qxe convert rfc822-to-8bit (ORCPT
+	Sun, 27 Aug 2006 13:02:25 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:39693 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932182AbWH0RCZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 12:53:34 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,174,1154934000"; 
-   d="scan'208"; a="108238376:sNHT17447738"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.18-rc4-mm3
-Date: Sun, 27 Aug 2006 09:53:31 -0700
-Message-ID: <EB12A50964762B4D8111D55B764A8454800B93@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.18-rc4-mm3
-Thread-Index: AcbJ8eUboUE+95aXRL2gaRGmfE5ncwABofXg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Benoit Boissinot" <bboissin@gmail.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 27 Aug 2006 16:53:33.0775 (UTC) FILETIME=[550F65F0:01C6C9F9]
+	Sun, 27 Aug 2006 13:02:25 -0400
+Date: Sun, 27 Aug 2006 19:05:01 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Lee Trager <Lee@PicturesInMotion.net>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       seife@suse.de
+Subject: Re: HPA Resume patch
+Message-ID: <20060827170501.GD30609@kernel.dk>
+References: <44F15ADB.5040609@PicturesInMotion.net> <20060827150608.GA4534@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060827150608.GA4534@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 27 2006, Pavel Machek wrote:
+> Hi!
+> 
+> > This patch fixes a problem with computers that have HPA on their hard
+> > drive and not being able to come out of resume from RAM or disk. I've
+> > tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
+> > of these. This patch also fixes the bug #6840. This is my first patch to
+> > the kernel and I was told to e-mail the above people to get my patch
+> > into the kernel.
+> 
+> Congratulations for a first patch.
+> 
+> > If I made a mistake please be gentle and correct me ;)
+> 
+> We'll need signed-off-by: line next time.
+> 
+> Stefan, can we get this some testing? Or anyone else with thinkpad
+> with host-protected area still enabled?
 
-OK. This is the second system on which failure has happened. Can you
-please send me the acpidump output (You can get latest pmtools from here
-- http://www.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/ ).
-Unfortunately I am not able to reproduce this failure on my local
-systems yet. I will try to find out what may be going wrong.
+It has design issues, at someone else already noticed. hpa restore needs
+to be a driver private step, included in the resume state machine. The
+current patch is a gross layering violation.
 
-Andrew: Can you revert the below patch until the issue is resolved.
+But thanks to Lee for taking a stab at this, I hope he'll continue and
+get it polished :-)
 
-Thanks,
-Venki
+-- 
+Jens Axboe
 
->-----Original Message-----
->From: Benoit Boissinot [mailto:bboissin@gmail.com] 
->Sent: Sunday, August 27, 2006 9:00 AM
->To: Andrew Morton
->Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Brown, Len
->Subject: Re: 2.6.18-rc4-mm3
->
->On 8/27/06, Andrew Morton <akpm@osdl.org> wrote:
->>
->> 
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
->.6.18-rc4/2.6.18-rc4-mm3/
->>
->>  git-acpi.patch
->
->commit f62d31ee2f2f453b07107465fea54540cab418eb broke my laptop
->(pentium M, dell D600).
->I can reliably get a hard lockup (no sysrq) when modprobing ehci_hcd
->and uhci_hci. It works when reverting the changeset.
->
->I can provide cpuinfo or dmesg if necessary.
->
->regards,
->
->Benoit
->

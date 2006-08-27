@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWH0RG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWH0RPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWH0RG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 13:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWH0RG3
+	id S932192AbWH0RPW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 13:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWH0RPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 13:06:29 -0400
-Received: from xenotime.net ([66.160.160.81]:32685 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932186AbWH0RG2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 13:06:28 -0400
-Date: Sun, 27 Aug 2006 10:09:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: HPA Resume patch
-Message-Id: <20060827100942.ef1c06c6.rdunlap@xenotime.net>
-In-Reply-To: <44F15ADB.5040609@PicturesInMotion.net>
-References: <44F15ADB.5040609@PicturesInMotion.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sun, 27 Aug 2006 13:15:22 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:40916 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932188AbWH0RPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 13:15:21 -0400
+Date: Sun, 27 Aug 2006 19:15:10 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+       Eric Van Hensbergen <ericvh@gmail.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] VFS: FS CoW using redirection
+Message-ID: <20060827171510.GA3502@wohnheim.fh-wedel.de>
+References: <200607082041.54489.a1426z@gawab.com> <20060823172402.GC15851@wohnheim.fh-wedel.de> <20060823180552.GC28873@filer.fsl.cs.sunysb.edu> <200608262205.21397.a1426z@gawab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200608262205.21397.a1426z@gawab.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006 04:42:03 -0400 Lee Trager wrote:
+On Sat, 26 August 2006 22:05:21 +0300, Al Boldi wrote:
+> 
+> So what was the rejecting theme?
 
-> This patch fixes a problem with computers that have HPA on their hard
-> drive and not being able to come out of resume from RAM or disk. I've
-> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
-> of these. This patch also fixes the bug #6840. This is my first patch to
-> the kernel and I was told to e-mail the above people to get my patch
-> into the kernel. If I made a mistake please be gentle and correct me ;)
+I don't believe there was one.  Jan simply didn't push much, so noone
+was forced to resist him.  And noone else needed union mount enough to
+push Jan.
 
-Please use inline patches if your mail system supports/allows it.
-Attachments make it difficult to review a patch.
-(now do some cp-n-paste for comments)
+> > Or you can give Unionfs a try: http://www.unionfs.org
+> 
+> UnionFS is great, but it incurs additional overhead, as it lives below the 
+> real VFS.  What could be really great, is to move some basic functionality 
+> abstractions from UnionFS into VFS proper.
 
-+/* Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-+ * so on non-buggy drives we need test only one.
-+ * However, we should also check whether these fields are valid.
-+*/
+Welcome to Jan's work. :)
 
-Long comment style in Linux is:
-/*
- * foo bar
- * comments
- */
+If you want to make this vision happen, one of the missing pieces is a
+method for copyup, an in-kernel copying routine.  Unionfs needs is
+just the same as Jan's patches do and in the past Linus didn't like my
+approach of using sendfile for it.  You could take a stab at the
+splice code and see how that can be used for copyup.
 
-+static inline int idedisk_supports_hpa(const struct hd_driveid *id)
-+{
-+        return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
-+}
+Jörn
 
-Please use a #defined value for the 0x400.
-(Yes, you just moved it from somewhere else.)
-
-+	/* check to see if this is a hard drive
-+	 * if it is then checkhpa needs to be
-+	 * disabled */
-
-Comment style again.
-
-+	if(drive->media == ide_disk && idedisk_supports_hpa(drive->id))
-
-space after "if".
-
-+		init_idedisk_capacity(drive);
-
-
----
-~Randy
+-- 
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface.
+-- Doug MacIlroy

@@ -1,154 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWH0Xtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWH0Xu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWH0Xtv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 19:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWH0Xts
+	id S932294AbWH0Xu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 19:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWH0Xto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 19:49:48 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5248 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932277AbWH0Xta (ORCPT
+	Sun, 27 Aug 2006 19:49:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:3712 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932130AbWH0XtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 19:49:30 -0400
+	Sun, 27 Aug 2006 19:49:24 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 28 Aug 2006 09:49:27 +1000
-Message-Id: <1060827234927.32490@suse.de>
+Date: Mon, 28 Aug 2006 09:49:22 +1000
+Message-Id: <1060827234922.32479@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 003 of 4] md: Remove working_disks from raid1 state data
+Subject: [PATCH 002 of 4] md: Factor out part of raid1d into a separate function
 References: <20060828092849.21292.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: NeilBrown <neilb@suse.de>
 
-It is equivalent to conf->raid_disks - conf->mddev->degraded.
+raid1d has toooo many nested block, so take the fix_read_error functionality
+out into a separate function.
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 ---
 
- drivers/md/raid1.c         |   28 ++++++++++++----------------
- include/linux/raid/raid1.h |    1 -
- 2 files changed, 12 insertions(+), 17 deletions(-)
+ drivers/md/raid1.c |  161 +++++++++++++++++++++++--------------------
+ 1 file changed, 89 insertions(+), 72 deletions(-)
 
 Index: mm-quilt/drivers/md/raid1.c
 ===================================================================
---- mm-quilt.orig/drivers/md/raid1.c	2006-08-28 09:43:14.000000000 +1000
-+++ mm-quilt/drivers/md/raid1.c	2006-08-28 09:43:39.000000000 +1000
-@@ -271,7 +271,7 @@ static int raid1_end_read_request(struct
- 	 */
- 	update_head_pos(mirror, r1_bio);
+--- mm-quilt.orig/drivers/md/raid1.c	2006-08-28 09:06:32.000000000 +1000
++++ mm-quilt/drivers/md/raid1.c	2006-08-28 09:42:51.000000000 +1000
+@@ -1368,6 +1368,95 @@ static void sync_request_write(mddev_t *
+  *	3.	Performs writes following reads for array syncronising.
+  */
  
--	if (uptodate || conf->working_disks <= 1) {
-+	if (uptodate || (conf->raid_disks - conf->mddev->degraded) <= 1) {
- 		/*
- 		 * Set R1BIO_Uptodate in our master bio, so that
- 		 * we will return a good error code for to the higher
-@@ -929,7 +929,7 @@ static void status(struct seq_file *seq,
- 	int i;
- 
- 	seq_printf(seq, " [%d/%d] [", conf->raid_disks,
--						conf->working_disks);
-+		   conf->raid_disks - mddev->degraded);
- 	rcu_read_lock();
- 	for (i = 0; i < conf->raid_disks; i++) {
- 		mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[i].rdev);
-@@ -953,7 +953,7 @@ static void error(mddev_t *mddev, mdk_rd
- 	 * else mark the drive as failed
- 	 */
- 	if (test_bit(In_sync, &rdev->flags)
--	    && conf->working_disks == 1)
-+	    && (conf->raid_disks - mddev->degraded) == 1)
- 		/*
- 		 * Don't fail the drive, act as though we were just a
- 		 * normal single drive
-@@ -961,7 +961,6 @@ static void error(mddev_t *mddev, mdk_rd
- 		return;
- 	if (test_bit(In_sync, &rdev->flags)) {
- 		mddev->degraded++;
--		conf->working_disks--;
- 		/*
- 		 * if recovery is running, make sure it aborts.
- 		 */
-@@ -972,7 +971,7 @@ static void error(mddev_t *mddev, mdk_rd
- 	set_bit(MD_CHANGE_DEVS, &mddev->flags);
- 	printk(KERN_ALERT "raid1: Disk failure on %s, disabling device. \n"
- 		"	Operation continuing on %d devices\n",
--		bdevname(rdev->bdev,b), conf->working_disks);
-+		bdevname(rdev->bdev,b), conf->raid_disks - mddev->degraded);
- }
- 
- static void print_conf(conf_t *conf)
-@@ -984,7 +983,7 @@ static void print_conf(conf_t *conf)
- 		printk("(!conf)\n");
- 		return;
- 	}
--	printk(" --- wd:%d rd:%d\n", conf->working_disks,
-+	printk(" --- wd:%d rd:%d\n", conf->raid_disks - conf->mddev->degraded,
- 		conf->raid_disks);
- 
- 	rcu_read_lock();
-@@ -1024,7 +1023,6 @@ static int raid1_spare_active(mddev_t *m
- 		if (rdev
- 		    && !test_bit(Faulty, &rdev->flags)
- 		    && !test_bit(In_sync, &rdev->flags)) {
--			conf->working_disks++;
- 			mddev->degraded--;
- 			set_bit(In_sync, &rdev->flags);
- 		}
-@@ -1901,15 +1899,11 @@ static int run(mddev_t *mddev)
- 			blk_queue_max_sectors(mddev->queue, PAGE_SIZE>>9);
- 
- 		disk->head_position = 0;
--		if (!test_bit(Faulty, &rdev->flags) && test_bit(In_sync, &rdev->flags))
--			conf->working_disks++;
- 	}
- 	conf->raid_disks = mddev->raid_disks;
- 	conf->mddev = mddev;
- 	spin_lock_init(&conf->device_lock);
- 	INIT_LIST_HEAD(&conf->retry_list);
--	if (conf->working_disks == 1)
--		mddev->recovery_cp = MaxSector;
- 
- 	spin_lock_init(&conf->resync_lock);
- 	init_waitqueue_head(&conf->wait_barrier);
-@@ -1917,11 +1911,6 @@ static int run(mddev_t *mddev)
- 	bio_list_init(&conf->pending_bio_list);
- 	bio_list_init(&conf->flushing_bio_list);
- 
--	if (!conf->working_disks) {
--		printk(KERN_ERR "raid1: no operational mirrors for %s\n",
--			mdname(mddev));
--		goto out_free_conf;
--	}
- 
- 	mddev->degraded = 0;
- 	for (i = 0; i < conf->raid_disks; i++) {
-@@ -1934,6 +1923,13 @@ static int run(mddev_t *mddev)
- 			mddev->degraded++;
- 		}
- 	}
-+	if (mddev->degraded == conf->raid_disks) {
-+		printk(KERN_ERR "raid1: no operational mirrors for %s\n",
-+			mdname(mddev));
-+		goto out_free_conf;
++static void fix_read_error(conf_t *conf, int read_disk,
++			   sector_t sect, int sectors)
++{
++	mddev_t *mddev = conf->mddev;
++	while(sectors) {
++		int s = sectors;
++		int d = read_disk;
++		int success = 0;
++		int start;
++		mdk_rdev_t *rdev;
++
++		if (s > (PAGE_SIZE>>9))
++			s = PAGE_SIZE >> 9;
++
++		do {
++			/* Note: no rcu protection needed here
++			 * as this is synchronous in the raid1d thread
++			 * which is the thread that might remove
++			 * a device.  If raid1d ever becomes multi-threaded....
++			 */
++			rdev = conf->mirrors[d].rdev;
++			if (rdev &&
++			    test_bit(In_sync, &rdev->flags) &&
++			    sync_page_io(rdev->bdev,
++					 sect + rdev->data_offset,
++					 s<<9,
++					 conf->tmppage, READ))
++				success = 1;
++			else {
++				d++;
++				if (d == conf->raid_disks)
++					d = 0;
++			}
++		} while (!success && d != read_disk);
++
++		if (!success) {
++			/* Cannot read from anywhere -- bye bye array */
++			md_error(mddev, conf->mirrors[read_disk].rdev);
++			break;
++		}
++		/* write it back and re-read */
++		start = d;
++		while (d != read_disk) {
++			if (d==0)
++				d = conf->raid_disks;
++			d--;
++			rdev = conf->mirrors[d].rdev;
++			if (rdev &&
++			    test_bit(In_sync, &rdev->flags)) {
++				if (sync_page_io(rdev->bdev,
++						 sect + rdev->data_offset,
++						 s<<9, conf->tmppage, WRITE)
++				    == 0)
++					/* Well, this device is dead */
++					md_error(mddev, rdev);
++			}
++		}
++		d = start;
++		while (d != read_disk) {
++			char b[BDEVNAME_SIZE];
++			if (d==0)
++				d = conf->raid_disks;
++			d--;
++			rdev = conf->mirrors[d].rdev;
++			if (rdev &&
++			    test_bit(In_sync, &rdev->flags)) {
++				if (sync_page_io(rdev->bdev,
++						 sect + rdev->data_offset,
++						 s<<9, conf->tmppage, READ)
++				    == 0)
++					/* Well, this device is dead */
++					md_error(mddev, rdev);
++				else {
++					atomic_add(s, &rdev->corrected_errors);
++					printk(KERN_INFO
++					       "raid1:%s: read error corrected "
++					       "(%d sectors at %llu on %s)\n",
++					       mdname(mddev), s,
++					       (unsigned long long)sect +
++					           rdev->data_offset,
++					       bdevname(rdev->bdev, b));
++				}
++			}
++		}
++		sectors -= s;
++		sect += s;
 +	}
-+	if (conf->raid_disks - mddev->degraded == 1)
-+		mddev->recovery_cp = MaxSector;
++}
++
+ static void raid1d(mddev_t *mddev)
+ {
+ 	r1bio_t *r1_bio;
+@@ -1460,86 +1549,14 @@ static void raid1d(mddev_t *mddev)
+ 			 * This is all done synchronously while the array is
+ 			 * frozen
+ 			 */
+-			sector_t sect = r1_bio->sector;
+-			int sectors = r1_bio->sectors;
+-			freeze_array(conf);
+-			if (mddev->ro == 0) while(sectors) {
+-				int s = sectors;
+-				int d = r1_bio->read_disk;
+-				int success = 0;
+-
+-				if (s > (PAGE_SIZE>>9))
+-					s = PAGE_SIZE >> 9;
+-
+-				do {
+-					/* Note: no rcu protection needed here
+-					 * as this is synchronous in the raid1d thread
+-					 * which is the thread that might remove
+-					 * a device.  If raid1d ever becomes multi-threaded....
+-					 */
+-					rdev = conf->mirrors[d].rdev;
+-					if (rdev &&
+-					    test_bit(In_sync, &rdev->flags) &&
+-					    sync_page_io(rdev->bdev,
+-							 sect + rdev->data_offset,
+-							 s<<9,
+-							 conf->tmppage, READ))
+-						success = 1;
+-					else {
+-						d++;
+-						if (d == conf->raid_disks)
+-							d = 0;
+-					}
+-				} while (!success && d != r1_bio->read_disk);
+-
+-				if (success) {
+-					/* write it back and re-read */
+-					int start = d;
+-					while (d != r1_bio->read_disk) {
+-						if (d==0)
+-							d = conf->raid_disks;
+-						d--;
+-						rdev = conf->mirrors[d].rdev;
+-						if (rdev &&
+-						    test_bit(In_sync, &rdev->flags)) {
+-							if (sync_page_io(rdev->bdev,
+-									 sect + rdev->data_offset,
+-									 s<<9, conf->tmppage, WRITE) == 0)
+-								/* Well, this device is dead */
+-								md_error(mddev, rdev);
+-						}
+-					}
+-					d = start;
+-					while (d != r1_bio->read_disk) {
+-						if (d==0)
+-							d = conf->raid_disks;
+-						d--;
+-						rdev = conf->mirrors[d].rdev;
+-						if (rdev &&
+-						    test_bit(In_sync, &rdev->flags)) {
+-							if (sync_page_io(rdev->bdev,
+-									 sect + rdev->data_offset,
+-									 s<<9, conf->tmppage, READ) == 0)
+-								/* Well, this device is dead */
+-								md_error(mddev, rdev);
+-							else {
+-								atomic_add(s, &rdev->corrected_errors);
+-								printk(KERN_INFO "raid1:%s: read error corrected (%d sectors at %llu on %s)\n",
+-								       mdname(mddev), s, (unsigned long long)(sect + rdev->data_offset), bdevname(rdev->bdev, b));
+-							}
+-						}
+-					}
+-				} else {
+-					/* Cannot read from anywhere -- bye bye array */
+-					md_error(mddev, conf->mirrors[r1_bio->read_disk].rdev);
+-					break;
+-				}
+-				sectors -= s;
+-				sect += s;
++			if (mddev->ro == 0) {
++				freeze_array(conf);
++				fix_read_error(conf, r1_bio->read_disk,
++					       r1_bio->sector,
++					       r1_bio->sectors);
++				unfreeze_array(conf);
+ 			}
  
- 	/*
- 	 * find the first working one and use it as a starting point
-Index: mm-quilt/include/linux/raid/raid1.h
-===================================================================
---- mm-quilt.orig/include/linux/raid/raid1.h	2006-08-28 09:41:37.000000000 +1000
-+++ mm-quilt/include/linux/raid/raid1.h	2006-08-28 09:43:39.000000000 +1000
-@@ -30,7 +30,6 @@ struct r1_private_data_s {
- 	mddev_t			*mddev;
- 	mirror_info_t		*mirrors;
- 	int			raid_disks;
--	int			working_disks;
- 	int			last_used;
- 	sector_t		next_seq_sect;
- 	spinlock_t		device_lock;
+-			unfreeze_array(conf);
+-
+ 			bio = r1_bio->bios[r1_bio->read_disk];
+ 			if ((disk=read_balance(conf, r1_bio)) == -1) {
+ 				printk(KERN_ALERT "raid1: %s: unrecoverable I/O"

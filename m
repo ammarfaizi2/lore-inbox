@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWH0KR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWH0Kta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWH0KR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 06:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWH0KR0
+	id S1750711AbWH0Kta (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 06:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWH0Kta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 06:17:26 -0400
-Received: from master.altlinux.org ([62.118.250.235]:18706 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1750706AbWH0KRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 06:17:25 -0400
-Date: Sun, 27 Aug 2006 14:16:56 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: HPA Resume patch
-Message-Id: <20060827141656.0e4d2c17.vsu@altlinux.ru>
-In-Reply-To: <44F15ADB.5040609@PicturesInMotion.net>
-References: <44F15ADB.5040609@PicturesInMotion.net>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.1; i586-alt-linux-gnu)
+	Sun, 27 Aug 2006 06:49:30 -0400
+Received: from main.gmane.org ([80.91.229.2]:51098 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750711AbWH0Kta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 06:49:30 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Peter" <sw98234@hotmail.com>
+Subject: Re: wrt: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Date: Sun, 27 Aug 2006 10:49:19 +0000 (UTC)
+Message-ID: <ecrtbf$ocr$1@sea.gmane.org>
+References: <ecpru4$9t3$1@sea.gmane.org>
+	<20060827071131.GC6932@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pool-151-204-7-242.pskn.east.verizon.net
+X-Archive: encrypt
+User-Agent: pan 0.109 (Beable)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 27 Aug 2006 09:11:31 +0200, Rogier Wolff wrote:
 
-On Sun, 27 Aug 2006 04:42:03 -0400 Lee Trager wrote:
+> On Sat, Aug 26, 2006 at 04:12:52PM +0000, Peter wrote:
+>> Diagnostics on the drives are fine. Removing the b drive removes the
+>> messages. System functions fine anyway, and no data is lost as a result
+>> of the errors. The persistence of it is frustrating!
+> 
+> What diagnostics did you try? 
+> 
+First badblocks, then Manufacturer's (Maxtor) overnight burn in tests.
 
-> This patch fixes a problem with computers that have HPA on their hard
-> drive and not being able to come out of resume from RAM or disk. I've
-> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
-> of these. This patch also fixes the bug #6840. This is my first patch to
-> the kernel and I was told to e-mail the above people to get my patch
-> into the kernel. If I made a mistake please be gentle and correct me ;)
+> (I've got experience with a guy saying: "I have 5 which test perfect
+> with my diagnostics, but my embedded machine refuses them. What's
+> wrong?" All of them report through SMART that they HAVE reported media
+> errors, and they all have bad blocks.)
 
-The patch adds a call from ide.c to a function inside ide-disk.c - this
-won't work when IDE support is built as modules (it will cause a
-circular dependency between ide-core and ide-disk modules).
+I tried to be more careful before posting here :). I even ran a second
+test on the drives on a second machine.
+> 
+> Do you have "smartd" running? I vaguely remember that it sometimes
+> triggered error messages from the normal driver.
+> 
+No, but I think there is a driver issue such as VMW or the reiserfs.
+Reiser even mentions this error on his faq suggesting it's a bad ide
+cable. Of course, I changed mine (now testing #4). Of course, switching to
+NO preempt has reduced the volume of errors greatly. Even last night
+there were none for the time being.
 
-The proper way to do such calls is to add a new method to ide_driver_t
-and call it from generic_ide_resume().  Also, if the ide_do_drive_cmd()
-call failed, it is probably unsafe to reset HPA, so you need to check
-the result and call the resume method only if the low-level resume has
-succeeded.
+thx.
 
-And please and "-p" to diff options.
+-- 
+Peter
++++++
+Do not reply to this email, it is a spam trap and not monitored.
+I can be reached via this list, or via 
+jabber: pete4abw at jabber.org
+ICQ: 73676357
 
---Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFE8XEcW82GfkQfsqIRAiwaAJ4sB+oiXUP/TUUa0KvF831PpYN0zgCfSz9U
-1ZhSb7fpMOr/2ExK9m984Q4=
-=WDlr
------END PGP SIGNATURE-----
-
---Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z--

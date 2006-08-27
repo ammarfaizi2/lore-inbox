@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWH0Itw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWH0I6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWH0Itw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 04:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWH0Itv
+	id S1751344AbWH0I6V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWH0I6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 04:49:51 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:23109 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751341AbWH0Itv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 04:49:51 -0400
+	Sun, 27 Aug 2006 04:58:21 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:40359 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751344AbWH0I6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 04:58:20 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GqbgoG/4Al/7tnqGHX7zxWWWTMHRLtJaq/XbMxzNuF+7/PuwxuRT6q8t3nQXEqr05/0VWjmsOGXGWH9dej6mXGLaBZLtE4+/s0Xj62O/RWnmPC1OXQJeKg0PimWbkaVLzEKGMAHR136oHzcZ1xgashHh4igC7UxV/C2naYChLFM=
-Message-ID: <2c0942db0608270149r4755cc1dj5a970ecd44dc2350@mail.gmail.com>
-Date: Sun, 27 Aug 2006 01:49:50 -0700
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Reiser4 und LZO compression
-Cc: "Alexey Dobriyan" <adobriyan@gmail.com>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060827010428.5c9d943b.akpm@osdl.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=cuurN5Ep0cadMuGNrGYLaQtMFIvUeZPBP2dXWlWKIAFjAFnMtkf3O6PzPXbx7NdMUT306OHCXKk+suQV5PVizj6bugf978zIWkj/7x8NKmy4CcucMIdO+rdsj9eR3BwGKFG4Lh5R/PovnsOFiZArWQ/ZeRrD2mu6fPjGcSqQrn0=  ;
+Message-ID: <44F15E88.2090509@yahoo.com.au>
+Date: Sun, 27 Aug 2006 18:57:44 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: dipankar@in.ibm.com, Linus Torvalds <torvalds@osdl.org>,
+       Dave Jones <davej@redhat.com>, ego@in.ibm.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, mingo@elte.hu,
+       vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+References: <20060824102618.GA2395@in.ibm.com>	<20060824091704.cae2933c.akpm@osdl.org>	<20060825095008.GC22293@redhat.com>	<Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>	<20060826150422.a1d492a7.akpm@osdl.org>	<20060827061155.GC22565@in.ibm.com>	<20060826234618.b9b2535a.akpm@osdl.org>	<20060827071116.GD22565@in.ibm.com> <20060827004213.4479e0df.akpm@osdl.org>
+In-Reply-To: <20060827004213.4479e0df.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-	 <20060827010428.5c9d943b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/27/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Sun, 27 Aug 2006 04:34:26 +0400
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> > The patch below is so-called reiser4 LZO compression plugin as extracted
-> > from 2.6.18-rc4-mm3.
-> >
-> > I think it is an unauditable piece of shit and thus should not enter
-> > mainline.
+Andrew Morton wrote:
+> On Sun, 27 Aug 2006 12:41:16 +0530
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-Sheesh.
+>>Is this too difficult for people to follow ?
+> 
+> 
+> Apparently.  What's happening is that lock_cpu_hotplug() is seen as some
+> amazing thing which will prevent an *event* from occurring.
 
-> Like lib/inflate.c (and this new code should arguably be in lib/).
->
-> The problem is that if we clean this up, we've diverged very much from the
-> upstream implementation.  So taking in fixes and features from upstream
-> becomes harder and more error-prone.
+It prevents the event from occurring as much as a lock taken in the
+prepare notifier does, right? Or am I misunderstanding something?
 
-Right. How about putting it in as so that everyone can track
-divergences, but to not use it for a real compile. Rather, consider it
-meta-source, and do mechanical, repeatable transformations only,
-starting with something like:
+> 
+> There's an old saying "lock data, not code".  What data is being locked
+> here?  It's the subsystem's per-cpu resources which we want to lock.  We
+> shouldn't consider the lock as being some way of preventing an event from
+> happening.
 
-mv minilzo.c minilzo._c
-cpp 2>/dev/null -w -P -C -nostdinc -dI minilzo._c >minilzo.c
-lindent minilzo.c
+I agree. Where possible these things should be very simple either with
+the per-cpu macros, or using local locking (versus one's notifier).
 
-to generate a version that can be audited. Doing so on a version of
-minilzo.c google found on the web generated something that looked much
-like any other stream coder source I've read, so it approaches
-readability. Of a sorts. Further cleanups could be done with cpp -D to
-rename some of the more bizarre symbols.
+I think there can be some valid use of the hotplug lock when working
+with cpumasks rather than individual CPUs (or if you simply want to
+prevent a cpu from going down while programming hardware) and having a
+new lock and new notifier is too heavyweight. Or do we want to move
+away from the hotplug lock completely?
 
-Downside is that bugs would have to be fixed in the 'meta-source'
-(horrible name, but it's late here), but at least they could be found
-(potentially) easier than in the original.
+Hmm, so I don't know if I like the idea of a reentrant rwmutex for the
+hotplug lock so it can be sprinkled everywhere... call it a refcount
+or not it smells slightly BKLish (looks easy but it could be a
+nightmare to audit).
 
-Ray
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWH0IoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWH0Itw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbWH0IoN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 04:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWH0IoN
+	id S1751341AbWH0Itw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWH0Itv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 04:44:13 -0400
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:19208 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750918AbWH0IoL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 04:44:11 -0400
-Date: Sun, 27 Aug 2006 10:44:15 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>, i2c@lm-sensors.org
-Subject: Re: [-mm patch] struct i2c_algo_pcf_data: remove the mdelay member
-Message-Id: <20060827104415.159a8726.khali@linux-fr.org>
-In-Reply-To: <20060827024702.GP4765@stusta.de>
-References: <20060826160922.3324a707.akpm@osdl.org>
-	<20060827024702.GP4765@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Aug 2006 04:49:51 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:23109 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751341AbWH0Itv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 04:49:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GqbgoG/4Al/7tnqGHX7zxWWWTMHRLtJaq/XbMxzNuF+7/PuwxuRT6q8t3nQXEqr05/0VWjmsOGXGWH9dej6mXGLaBZLtE4+/s0Xj62O/RWnmPC1OXQJeKg0PimWbkaVLzEKGMAHR136oHzcZ1xgashHh4igC7UxV/C2naYChLFM=
+Message-ID: <2c0942db0608270149r4755cc1dj5a970ecd44dc2350@mail.gmail.com>
+Date: Sun, 27 Aug 2006 01:49:50 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Reiser4 und LZO compression
+Cc: "Alexey Dobriyan" <adobriyan@gmail.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060827010428.5c9d943b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
+	 <20060827010428.5c9d943b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On 8/27/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Sun, 27 Aug 2006 04:34:26 +0400
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
+>
+> > The patch below is so-called reiser4 LZO compression plugin as extracted
+> > from 2.6.18-rc4-mm3.
+> >
+> > I think it is an unauditable piece of shit and thus should not enter
+> > mainline.
 
-> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc4-mm2:
-> >...
-> > +gregkh-i2c-i2c-algo-bit-kill-mdelay.patch
-> >...
-> >  I2C tree updates
-> >...
-> 
-> This patch also removes the only usage of the mdelay member in 
-> struct i2c_algo_pcf_data, but doesn't remove the struct member itself.
-> 
-> Is seems this patch was also intended?
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h.old	2006-08-27 04:01:35.000000000 +0200
-> +++ linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h	2006-08-27 04:01:40.000000000 +0200
-> @@ -35,7 +35,6 @@ struct i2c_algo_pcf_data {
->  
->  	/* local settings */
->  	int udelay;
-> -	int mdelay;
->  	int timeout;
->  };
+Sheesh.
 
-I removed mdelay from i2c-elektor thinking that it was using
-i2c-algo-bit, I didn't realize it was using a different i2c algorithm.
-And I didn't know i2c-algo-pcf also had an unused mdelay.
+> Like lib/inflate.c (and this new code should arguably be in lib/).
+>
+> The problem is that if we clean this up, we've diverged very much from the
+> upstream implementation.  So taking in fixes and features from upstream
+> becomes harder and more error-prone.
 
-I will send an updated i2c-algo-bit-kill-mdelay.patch to Greg which
-doesn't affect i2c-elektor. Then we can stack a second patch doing the
-same for i2c-algo-pcf, which will include your change above, and my
-change to i2c-elektor.
+Right. How about putting it in as so that everyone can track
+divergences, but to not use it for a real compile. Rather, consider it
+meta-source, and do mechanical, repeatable transformations only,
+starting with something like:
 
-I agree it doesn't matter much, in the end we end up removing
-everything and it was dead code anyway, but let's still have clean
-separate patches doing just one thing at a time.
+mv minilzo.c minilzo._c
+cpp 2>/dev/null -w -P -C -nostdinc -dI minilzo._c >minilzo.c
+lindent minilzo.c
 
-I just found that i2c-algo-ite has the same unused mdelay member in its
-algorithm data structure... But I wouldn't bother cleaning it up, given
-that it is planed for removal next month anyway.
+to generate a version that can be audited. Doing so on a version of
+minilzo.c google found on the web generated something that looked much
+like any other stream coder source I've read, so it approaches
+readability. Of a sorts. Further cleanups could be done with cpp -D to
+rename some of the more bizarre symbols.
 
-Thanks,
--- 
-Jean Delvare
+Downside is that bugs would have to be fixed in the 'meta-source'
+(horrible name, but it's late here), but at least they could be found
+(potentially) easier than in the original.
+
+Ray

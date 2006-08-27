@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWH0DHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWH0EGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWH0DHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 23:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWH0DHV
+	id S1750731AbWH0EGW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 00:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWH0EGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 23:07:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24552
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751148AbWH0DHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 23:07:20 -0400
-Date: Sat, 26 Aug 2006 20:07:16 -0700 (PDT)
-Message-Id: <20060826.200716.85410384.davem@davemloft.net>
-To: gerrit@erg.abdn.ac.uk
-Cc: netdev@vger.kernel.org, yoshfuji@linux-ipv6.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv2 2.6.17] net/ipv6/udp.c: remove duplicate udp_get_port
- code
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608171325.47349@strip-the-willow>
-References: <200608171325.47349@strip-the-willow>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sun, 27 Aug 2006 00:06:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:5549 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750731AbWH0EGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 00:06:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WNq+fWERvtEfKEhQ/uxN4Ku4XxY+8/CSCCUIZ1aBbbaIiggaVK/ccTfsOq8g4wB9uL2a7lqiFwwx1l0WL6UTal0x8GpPzmvkYYECs8HxLOcyNy9qMh38geFcrwmcwyEC6BIKtHbRZsA4R+fGGo3RD6EtB4KZ1OubBPNNeXRbz1Q=
+Message-ID: <6b4e42d10608262106ibc44172h3eb3e6f68ba8a062@mail.gmail.com>
+Date: Sat, 26 Aug 2006 21:06:20 -0700
+From: "Om Narasimhan" <om.turyx@gmail.com>
+To: "Len Brown" <lenb@kernel.org>
+Subject: Re: memory leak fix in acpi_memhotplug.c, kmalloc to kzalloc conversion.
+Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+In-Reply-To: <200608262143.37390.len.brown@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6b4e42d10608261721h7807e45h6f20a2327f368719@mail.gmail.com>
+	 <200608262143.37390.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: gerrit@erg.abdn.ac.uk
-Date: Thu, 17 Aug 2006 13:25:46 +0100
+On 8/26/06, Len Brown <len.brown@intel.com> wrote:
+> On Saturday 26 August 2006 20:21, Om Narasimhan wrote:
+> > Hi,
+> > This patch fixes one memory leak in drivers/acpi/acpi_memhotplug.c
+> > Replaces all kmalloc() calls succeeded by memset() to kzalloc() calls.
+> > Applies cleanly to 2.6.18-rc4. Compile tested.
+>
+> Compile testing is more effective is you use a .config that
+> builds each of the source files changed.
+I have compiled it with .config files resulting from targets
+'allmodconfig' and 'allyesconfig'.
+> > diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+> > index b0d4b14..eb8a5da 100644
+> > --- a/drivers/acpi/acpi_memhotplug.c
+> > +++ b/drivers/acpi/acpi_memhotplug.c
+> > @@ -297,6 +297,7 @@ static int acpi_memory_disable_device(st
+> >        * Ask the VM to offline this memory range.
+> >        * Note: Assume that this function returns zero on success
+> >        */
+> > +     struct acpi_memory_info *info, *n;
+>
+> What tree is this patch against?
+> This line is already present (above the comment) in 2.6.18-rc4.
+This surprises me. This patch is against 2.6.18-rc4, git-pull -ed today morning.
+Maybe I should do one more git-pull?
 
-> [NET]: UDPv4 and UDPv6 use an almost identical version of the get_port function,
-> which is unnecessary since the (long) code differs in only one if-statement.
-> 
-> This patch creates one common function which is called by udp_v4_get_port() and
-> udp_v6_get_port(). As a result,
->   * duplicated code is removed
->   * udp_port_rover and local port lookup can now be removed from udp.h
->   * further savings follow since the same function will be used by UDP-Litev4 
->     and UDP-Litev6
-> 
-> In contrast to the patch sent in response to Yoshifujis comments (fixed by this
-> variant), the code below also removes the EXPORT_SYMBOL(udp_port_rover), since
-> udp_port_rover can now remain local to net/ipv4/udp.c.
-> 
-> Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-
-Applied, and I marked udp_port_rover "static" for
-good measure.
-
-Thanks.
-
+Thanks,
+Om N

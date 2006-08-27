@@ -1,108 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWH0I2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWH0IeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751703AbWH0I2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 04:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWH0I2u
+	id S1750896AbWH0IeA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWH0IeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 04:28:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28345 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751691AbWH0I2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 04:28:49 -0400
-Date: Sun, 27 Aug 2006 10:25:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       cramerj@intel.com, john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com
-Subject: e1000 driver contains private copy of GPL... and modified one, too
-Message-ID: <20060827082534.GA2397@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Aug 2006 04:34:00 -0400
+Received: from adsl-230-146.dsl.uva.nl ([146.50.230.146]:40852 "EHLO
+	pan.var.cx") by vger.kernel.org with ESMTP id S1750829AbWH0IeA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 04:34:00 -0400
+Date: Sun, 27 Aug 2006 10:34:38 +0200
+From: Frank v Waveren <fvw@var.cx>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ktime_t overflow from sys_nanosleep
+Message-ID: <20060827083438.GA6931@var.cx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Okay, so modifications are not major: different address of free
-software foundation, completely different formatting, some characters
-added, and some characters removed. It no longer contains Linus'
-clarifications.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- LICENSE     2006-07-21 05:42:27.000000000 +0200
-+++ ../../../COPYING    2006-07-21 05:42:27.000000000 +0200
-@@ -1,128 +1,141 @@
+On systems where longs are 64 bits, nanosleep can pass a timespec with
+tv_sec larger than 18446744073 (approx 2^34), which is then multiplied=20
+by NSEC_PER_SEC and stuffed into a single s64 by ktime_set in
+hrtimer_nanosleep. This overflows of course, and causes the sleep to
+return early (instantly if you set the timespec to its maximum).
 
--"This software program is licensed subject to the GNU General Public License
--(GPL). Version 2, June 1991, available at
--<http://www.fsf.org/copyleft/gpl.html>"
-+   NOTE! This copyright does *not* cover user programs that use kernel
-+ services by normal system calls - this is merely considered normal use
-+ of the kernel, and does *not* fall under the heading of "derived work".
-+ Also note that the GPL below is copyrighted by the Free Software
-+ Foundation, but the instance of code that it refers to (the Linux
-+ kernel) is copyrighted by me and others who actually wrote it.
-+
-+ Also note that the only valid version of the GPL as far as the kernel
-+ is concerned is _this_ particular version of the license (ie v2, not
-+ v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+(this gets triggered by doing a "sleep inf" with the sleep from the
+gnu coreutils).
 
--GNU General Public License
-+                       Linus Torvalds
 
-+----------------------------------------
-+
-+                   GNU GENERAL PUBLIC LICENSE
- Version 2, June 1991
+I can think of two solutions, either increase the size of ktime_t to
+something larger than 64 bits, which would probably bring along a host
+of issues and and lose the entire point of having a single scalar, or
+we can limit the range of sys_nanosleep, which is simple, but will have
+to be documented and sleep(1) will still need fixing.
 
- Copyright (C) 1989, 1991 Free Software Foundation, Inc.
--59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
+I've put the check in timespec_valid in the attached patch. This will
+limit the range of timespecs in general, but since most of them seem
+to end up as ktime_t's anyway, it seems like a reasonable precaution.
+
+Signed-off-by: Frank v Waveren <fvw@var.cx>
+
+diff -urpN linux-2.6.17.11/include/linux/time.h linux-2.6.17.11-fvw/include=
+/linux/time.h
+--- linux-2.6.17.11/include/linux/time.h	2006-08-23 23:16:33.000000000 +0200
++++ linux-2.6.17.11-fvw/include/linux/time.h	2006-08-27 10:21:07.000000000 =
++0200
+@@ -68,11 +68,13 @@ extern unsigned long mktime(const unsign
+ extern void set_normalized_timespec(struct timespec *ts, time_t sec, long =
+nsec);
+=20
+ /*
+- * Returns true if the timespec is norm, false if denorm:
++ * Returns true iff the timespec nanoseconds is less than one second=20
++ * ("normalised") and the seconds is in the range 0..2**31:
+  */
+ #define timespec_valid(ts) \
+-	(((ts)->tv_sec >=3D 0) && (((unsigned long) (ts)->tv_nsec) < NSEC_PER_SEC=
+))
 -
--Everyone is permitted to copy and distribute verbatim copies of this license
--document, but changing it is not allowed.
-+                       51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ Everyone is permitted to copy and distribute verbatim copies
-+ of this license document, but changing it is not allowed.
++        (((ts)->tv_sec >=3D 0) && (((ts)->tv_sec) <=3D (~(1<<31))) && \
++        (((unsigned long) (ts)->tv_nsec) < NSEC_PER_SEC))
++         =20
+ extern struct timespec xtime;
+ extern struct timespec wall_to_monotonic;
+ extern seqlock_t xtime_lock;
 
- Preamble
+--=20
+Frank v Waveren                                  Key fingerprint: BDD7 D61E
+fvw@var.cx                                              5D39 CF05 4BFC F57A
+Public key: hkp://wwwkeys.pgp.net/468D62C8              FA00 7D51 468D 62C8
 
-Missing line in Intel's version:
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--The precise terms and conditions for copying, distribution and modification
--follow.
-+  The precise terms and conditions for copying, distribution and
-+modification follow.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-+                   GNU GENERAL PUBLIC LICENSE
- TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+iD8DBQFE8Vke+gB9UUaNYsgRAk/2AJ4y4UK2guY53NcfbE8vMZ7ad3cRvwCfbxtA
+Ozu9NkzBkCShZednOJ0UirQ=
+=BMoO
+-----END PGP SIGNATURE-----
 
-
-For some reason Intel's version likes stars:
-
--   * a) Accompany it with the complete corresponding machine-readable source
--        code, which must be distributed under the terms of Sections 1 and 2
--        above on a medium customarily used for software interchange; or,
-+    a) Accompany it with the complete corresponding machine-readable
-+    source code, which must be distributed under the terms of Sections
-+    1 and 2 above on a medium customarily used for software interchange; or,
-
-...and hates ^Ls and <,>s.
-
- Yoyodyne, Inc., hereby disclaims all copyright interest in the program
--'Gnomovision' (which makes passes at compilers) written by James Hacker.
-+  `Gnomovision' (which makes passes at compilers) written by James Hacker.
-
--signature of Ty Coon, 1 April 1989
-+  <signature of Ty Coon>, 1 April 1989
- Ty Coon, President of Vice
-
-Now... I believe nothing evil is going on, but having two slightly
-different copies of GPL in one source seems wrong, can we get rid of
-e1000 one?
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--ew6BAiZeqk4r7MaW--

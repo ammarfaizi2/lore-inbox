@@ -1,80 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWH0H5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWH0IAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWH0H5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 03:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWH0H5j
+	id S1751345AbWH0IAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWH0IAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 03:57:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18143 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751304AbWH0H5i (ORCPT
+	Sun, 27 Aug 2006 04:00:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36999 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751345AbWH0IAT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 03:57:38 -0400
-Date: Sun, 27 Aug 2006 00:57:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dipankar@in.ibm.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       ego@in.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       arjan@linux.intel.com, mingo@elte.hu, vatsa@in.ibm.com,
-       ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
-Message-Id: <20060827005707.e61984a9.akpm@osdl.org>
-In-Reply-To: <20060827073730.GE22565@in.ibm.com>
-References: <20060824102618.GA2395@in.ibm.com>
-	<20060824091704.cae2933c.akpm@osdl.org>
-	<20060825095008.GC22293@redhat.com>
-	<Pine.LNX.4.64.0608261404350.11811@g5.osdl.org>
-	<20060826150422.a1d492a7.akpm@osdl.org>
-	<20060827061155.GC22565@in.ibm.com>
-	<20060826234618.b9b2535a.akpm@osdl.org>
-	<20060827073730.GE22565@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 27 Aug 2006 04:00:19 -0400
+Date: Sun, 27 Aug 2006 00:59:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: ego@in.ibm.com
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, arjan@infradead.org,
+       rusty@rustcorp.com.au, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
+       dipankar@in.ibm.com, vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+Message-Id: <20060827005944.67f51e92.pj@sgi.com>
+In-Reply-To: <20060825035328.GA6322@in.ibm.com>
+References: <20060824103417.GE2395@in.ibm.com>
+	<1156417200.3014.54.camel@laptopd505.fenrus.org>
+	<20060824140342.GI2395@in.ibm.com>
+	<1156429015.3014.68.camel@laptopd505.fenrus.org>
+	<44EDBDDE.7070203@yahoo.com.au>
+	<20060824150026.GA14853@elte.hu>
+	<20060825035328.GA6322@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006 13:07:30 +0530
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
+Gautham wrote:
+> Which is why I did not expose the locking(at least the write side of it)
+> outside. We don't want too many lazy programmers anyway! 
 
-> On Sat, Aug 26, 2006 at 11:46:18PM -0700, Andrew Morton wrote:
-> > On Sun, 27 Aug 2006 11:41:55 +0530
-> > 
-> > > The right thing to do would be to
-> > > do an audit and clean up the bad lock_cpu_hotplug() calls.
-> > 
-> > No, that won't fix it.  For example, take a look at all the *callers* of
-> > cpufreq_update_policy().  AFAICT they're all buggy.  Fiddling with the
-> > existing lock_cpu_hotplug() sites won't fix that.  (Possibly this
-> > particular problem can be fixed by checking that the relevant CPU is still
-> > online after the appropriate locking has been taken - dunno).
-> > 
-> 
-> This is a different issue from the ones that relates to lock_cpu_hotplug().
+Good thing you did that ;).  This lazy programmer was already
+having fantasies of changing the cpuset locks (in kernel/cpuset.c)
+manage_mutex and callback_mutex to these writer and reader "unfair
+rwsem" locks, respectively.
 
-Well not really.  The thinking goes "gee, we need to lock against CPU
-hotplug.  THe CPU hotplug guys gave us lock_cpu_hotplug() so we're supposed
-to use that somethere".  We see the result.
+Essentially these cpuset locks need to guard the cpuset hierarchy, just
+as your locks need to guard cpu_online_map.
 
-> This one seems like a cpufreq internal locking problem.
-> 
-> On a quick look at this,
+The change agents (such as a system admin changing something in
+the /dev/cpuset hierarchy) are big slow mammoths that appear rarely,
+and need to single thread their entire operation, preventing anyone
+else from changing the cpuset hierarchy for an extended period of time,
+while they validate the request and setup to make the requested change
+or changes.
 
-Me too.  But fixing this will require a long look.  What per-cpu resources
-are being used?  How should they be locked?  Implement.
+The inhibitors are a swarm of locusts, that change nothing, and need
+quick, safe access, free of change during a brief critical section.
 
-> it seems to me that cpufreq_cpu_get() should
-> do exactly what you said - use a spinlock in each cpufreq_cpu_data[] to
-> protect the per-cpu flag and in cpufreq_cpu_get() check if
-> !data and data->online == 0. They may have to do - 
-> 
-> static struct cpufreq_data {
-> 	spinlock_t lock;
-> 	int flag;
-> 	struct cpufreq_policy *policy;
-> } cpufreq_cpu_data[NR_CPUS];
-> 
+Finally the mammoths must not trample the locusts (change what the
+locusts see during their critical sections.)
 
-I think we're agreeing...  cpufreq locking is busted, needs to be redone
-and, I would suggest, fancifying lock_cpu_hotplug() isn't the way to do it.
+The cpuset change agents (mammoths) take manage_mutex for their entire
+operation, locking each other out.  They also take callback_mutex when
+making the actual changes that might momentarilly make the cpuset
+structures inconsistent.
 
+The cpuset readers (locusts) take callback_mutex for the brief critical
+section during which they read out a value or two from the cpuset
+structures.
+
+If I understand your unfair rwsem proposal, the cpuset locks differ
+from your proposal in these ways:
+ 1) The cpuset locks are crafted from existing mutex mechanisms.
+ 2) The 'reader' (change inhibitor) side, aka the callback_mutex,
+    is single threaded.  No nesting or sharing of that lock allowed.
+    This is ok for inhibiting changes to the cpuset structures, as
+    that is not done on any kernel hot code paths (the cpuset
+    'locusts' are actually few in number, with tricks such as
+    the cpuset generation number used to suppress the locust
+    population.)  It would obviously not be ok to single thread
+    reading cpu_online_map.
+ 3) The 'writer' side (the mammoths), after taking the big
+    manage_mutex for its entire operation, *also* has to take the
+    small callback_mutex briefly around any actual changes, to lock
+    out readers.
+ 4) Frequently accessed cpuset data, such as the cpus and memory
+    nodes allowed to a task, are cached in the task struct, to
+    keep from accessing the tasks cpuset frequently (more locust
+    population suppression.)
+
+Differences (2) and (4) are compromises, imposed by difference (1).
+
+The day might come when there are too many cpuset locusts -- too many
+tasks taking the cpuset callback_mutex, and then something like your
+unfair rwsem's could become enticing.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

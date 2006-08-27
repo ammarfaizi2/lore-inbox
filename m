@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWH0IEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWH0ISg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWH0IEo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 04:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWH0IEo
+	id S1751358AbWH0ISg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 04:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWH0ISg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 04:04:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3553 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751283AbWH0IEe (ORCPT
+	Sun, 27 Aug 2006 04:18:36 -0400
+Received: from mail.gmx.de ([213.165.64.20]:43671 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751358AbWH0ISf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 04:04:34 -0400
-Date: Sun, 27 Aug 2006 01:04:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 und LZO compression
-Message-Id: <20060827010428.5c9d943b.akpm@osdl.org>
-In-Reply-To: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Aug 2006 04:18:35 -0400
+X-Authenticated: #5108953
+From: Toralf =?iso-8859-1?q?F=F6rster?= <toralf.foerster@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.18-rc4-git2 Makefile: EXTRAVERSION was not changed
+Date: Sun, 27 Aug 2006 10:18:29 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3245955.fivphYIH4H";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608271018.32360.toralf.foerster@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006 04:34:26 +0400
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
+--nextPart3245955.fivphYIH4H
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> The patch below is so-called reiser4 LZO compression plugin as extracted
-> from 2.6.18-rc4-mm3.
-> 
-> I think it is an unauditable piece of shit and thus should not enter
-> mainline.
+it is still -rc4-git1
+=2D-=20
+MfG/Sincerely
+Toralf F=F6rster
 
-Like lib/inflate.c (and this new code should arguably be in lib/).
+--nextPart3245955.fivphYIH4H
+Content-Type: application/pgp-signature
 
-The problem is that if we clean this up, we've diverged very much from the
-upstream implementation.  So taking in fixes and features from upstream
-becomes harder and more error-prone.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-I'd suspect that the maturity of these utilities is such that we could
-afford to turn them into kernel code in the expectation that any future
-changes will be small.  But it's not a completely simple call.
+iD8DBQBE8VVYhyrlCH22naMRAovKAKDIPzDjp9VNmJV7E4Yh7jAtabtYswCdGeRp
+2gsEMYrapGSRns21VUAq+cM=
+=v4IK
+-----END PGP SIGNATURE-----
 
-(iirc the inflate code had a buffer overrun a while back, which was found
-and fixed in the upstream version).
-
-
+--nextPart3245955.fivphYIH4H--

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWH0JsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWH0Jtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWH0JsW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 05:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWH0JsW
+	id S932073AbWH0Jtb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 05:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWH0Jtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 05:48:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42430 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932069AbWH0JsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 05:48:21 -0400
-Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
-From: Arjan van de Ven <arjan@infradead.org>
+	Sun, 27 Aug 2006 05:49:31 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:20264 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932073AbWH0Jta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 05:49:30 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
        Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
        Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060827084417.918992193@goop.org>
-References: <20060827084417.918992193@goop.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 27 Aug 2006 11:47:51 +0200
-Message-Id: <1156672071.3034.103.camel@laptopd505.fenrus.org>
+Subject: Re: [PATCH RFC 3/6] Use %gs as the PDA base-segment in the kernel. 
+In-reply-to: Your message of "Sun, 27 Aug 2006 01:44:20 MST."
+             <20060827084451.492329798@goop.org> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 27 Aug 2006 19:49:31 +1000
+Message-ID: <11098.1156672171@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Measure performance impact.  The patch adds a segment register
->   save/restore on entry/exit to the kernel.  This expense should be
->   offset by savings in using the PDA while in the kernel, but I haven't
->   measured this yet.  Space savings are already appealing though.
+Jeremy Fitzhardinge (on Sun, 27 Aug 2006 01:44:20 -0700) wrote:
+>2: entry.S constructs the stack in the shape of struct pt_regs, and this
+>   is passed around the kernel so that the process's saved register
+>   state can be accessed.
+>--- a/arch/i386/kernel/entry.S
+>+++ b/arch/i386/kernel/entry.S
+>@@ -30,12 +30,14 @@
+>  *	18(%esp) - %eax
+>  *	1C(%esp) - %ds
+>  *	20(%esp) - %es
+>+ *	24(%esp) - %fs	(not saved/restored)
+>+ *	28(%esp) - %gs
+>+ *	2C(%esp) - orig_eax
+>+ *	30(%esp) - %eip
+>+ *	34(%esp) - %cs
+>+ *	38(%esp) - %eflags
+>+ *	3C(%esp) - %oldesp
+>+ *	40(%esp) - %oldss
+...
+>+FS		= 0x24
+>+GS		= 0x28
+>+ORIG_EAX	= 0x2C
+>+EIP		= 0x30
+>+CS		= 0x34
+>+EFLAGS		= 0x38
+>+OLDESP		= 0x3C
+>+OLDSS		= 0x40
 
-this will be interesting; x86-64 has a nice instruction to help with
-this; 32 bit does not... so far conventional wisdom has been that
-without the instruction it's not going to be worth it.
-
-When you're benchmarking this please use multiple CPU generations from
-different vendors; I suspect this is one of those things that vary
-greatly between models
-
-> - Make it a config option?  UP systems don't need to do any of this,
->   other than having a single pre-allocated PDA.  Unfortunately, it gets
->   a bit messy to do this given the changes needed in handling %gs.
-
-
-A config option for this is a mistake imo. Not every patch is worth a
-config option! It's good or it's not, if it's good it should be there
-always, if it's not....  Something this fundamental to the core doesn't
-really have a "but it's optional" argument going for it, unlike
-individual drivers or subsystems...
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Now would be a good time to get rid of those hard coded numbers and use
+asm-offsets instead.
 

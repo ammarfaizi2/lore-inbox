@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWH0S1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWH0S1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWH0S1W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWH0S1V
+	id S932237AbWH0S1L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWH0S1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:27:21 -0400
-Received: from gw.goop.org ([64.81.55.164]:14788 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932238AbWH0S1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:27:20 -0400
-Message-ID: <44F1E405.6090208@goop.org>
-Date: Sun, 27 Aug 2006 11:27:17 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
-MIME-Version: 1.0
+	Sun, 27 Aug 2006 14:27:10 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:9390 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932237AbWH0S1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:27:09 -0400
+Date: Sun, 27 Aug 2006 20:27:08 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
 To: Andi Kleen <ak@suse.de>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
        Chuck Ebbert <76306.1226@compuserve.com>,
        Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
        Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
-References: <20060827084417.918992193@goop.org> <44F1CC67.8040807@goop.org> <1156700663.3034.118.camel@laptopd505.fenrus.org> <200608272007.47741.ak@suse.de>
-In-Reply-To: <200608272007.47741.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060827182708.GB12642@rhlx01.fht-esslingen.de>
+References: <20060827084417.918992193@goop.org> <20060827172155.GA21724@rhlx01.fht-esslingen.de> <200608272004.38280.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608272004.38280.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On AMD K7/K8 a segment register prefix is a single cycle penalty.
->
-> I couldn't find anything in the Intel optimization manuals on it, but I assume
-> it's also not dramatic.
->   
+Hi,
 
-All I could find was:
+On Sun, Aug 27, 2006 at 08:04:38PM +0200, Andi Kleen wrote:
+> 
+> > Something like that had to be done eventually about the inefficient
+> > current_thread_info() mechanism, 
+> 
+> Inefficient? It's two fast instructions. I won't call that inefficient.
 
-    * avoid multiple prefixes (which was the least important guideline
-      in instruction selection)
-    * avoid using multiple segment registers (the pentium M only has one
-      level of segment register renaming)
-    * avoid prefixes which take the instruction length over 7 bytes
+And that AGI stall?
 
-None of these apply to the use of %gs to access PDA.
+> > I guess it's due to having tried that on an older installation with gcc 3.2,
+> > which probably does less efficient opcode merging of current_thread_info()
+> > requests compared to a current gcc version.
+> 
+> gcc normally doesn't merge inline assembly at all.
 
-Most of the discussion about prefixes is in avoiding the 0x66 16-bit prefix.
+Depends on use of volatile, right?
 
-    J
+OK, so probably there was no merging of separate requests,
+but opcode intermingling could have played a role.
+
+Andreas Mohr

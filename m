@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWH0JL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWH0JSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWH0JL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 05:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWH0JL1
+	id S1751354AbWH0JSr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 05:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWH0JSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 05:11:27 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46302 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751352AbWH0JL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 05:11:26 -0400
-Date: Sun, 27 Aug 2006 02:10:55 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: ego@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, rusty@rustcorp.com.au, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@intel.linux.com,
-       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
-       ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
-Message-Id: <20060827021055.61c9d44f.pj@sgi.com>
-In-Reply-To: <9747.1156668129@ocs10w.ocs.com.au>
-References: <20060827005944.67f51e92.pj@sgi.com>
-	<9747.1156668129@ocs10w.ocs.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Aug 2006 05:18:47 -0400
+Received: from natklopstock.rzone.de ([81.169.145.174]:53925 "EHLO
+	natklopstock.rzone.de") by vger.kernel.org with ESMTP
+	id S1751354AbWH0JSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 05:18:47 -0400
+Date: Sun, 27 Aug 2006 11:17:42 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.17.11
+Message-ID: <20060827091742.GA6067@aepfle.de>
+References: <20060823213108.GA12308@kroah.com> <20060823213130.GB12308@kroah.com> <20060824062943.GA11477@aepfle.de> <20060824071237.GA5577@suse.de> <20060824074041.GA12184@aepfle.de> <20060824075156.GA6457@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060824075156.GA6457@suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith wrote:
-> Updaters (which by
-> definition are extremely rare) stop all other cpus, do their work then
-> restart_machine().
+On Thu, Aug 24, Greg KH wrote:
 
-Cpuset updaters are rare, but they are not -that- rare.
+> > Yes, wrong place in the file, see http://lkml.org/lkml/2006/8/16/236
+> 
+> Ugh, how did patch go so wrong?
 
-And the cpuset file system allows one to configure some
-cpusets to be modifiable by any end user.
+This one is weird. I'm sure I had tested the patch, but the above fails to
+apply to 2.6.17. Its already in since 2.6.17-rc1.
 
-One would not want such an end user to be able to stop
-the machine at will by manipulating the cpusets they
-are allowed to modify.
+> Anyway, care to send me a patch that I can use for the next -stable
+> release that fixes this up?
 
-Nor would one want the cpuset actions done by say a
-batch scheduler during one jobs setup to bring all the
-other presently active jobs to a grinding halt.
-
-So perhaps taking CPUs offline merits a stop_machine().
-
-But I've little desire to stop_machine() when modifying
-cpusets.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Everything is fine.
+Maybe revert 9df256a6742e951aef286bd8ffc859dd79509ad7,
+drivers/serial/mpc52xx_uart.c does not use request_firmware().

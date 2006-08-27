@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWH0S3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWH0S2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWH0S3A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWH0S3A
+	id S932241AbWH0S2t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWH0S2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:29:00 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:47305 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932242AbWH0S27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:28:59 -0400
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit (ping)
-References: <445B5524.2090001@gmail.com> <445BCA33.30903@zytor.com>
-	<6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com>
-	<445C301E.6060509@zytor.com> <44AD583B.5040007@gmail.com>
-	<44AD5BB4.9090005@zytor.com> <44AD5D47.8010307@gmail.com>
-	<44AD5FD8.6010307@zytor.com>
-	<9e0cf0bf0608031436x19262ab0rb2271b52ce75639d@mail.gmail.com>
-	<44D278D6.2070106@zytor.com>
-	<9e0cf0bf0608031542q2da20037h828f4b8f0d01c4d5@mail.gmail.com>
-	<44D27F22.4080205@zytor.com> <44EF8E7D.5060905@gmail.com>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Aug 2006 20:28:57 +0200
-In-Reply-To: <44EF8E7D.5060905@gmail.com>
-Message-ID: <p73irkedod2.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 27 Aug 2006 14:28:49 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:5099 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932241AbWH0S2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:28:48 -0400
+Message-ID: <000601c6ca06$28b62cc0$b461908d@ralph>
+From: "Chuck Lever" <chuck.lever@oracle.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>,
+       "Trond Myklebust" <Trond.Myklebust@netapp.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20060826160922.3324a707.akpm@osdl.org> <20060826235628.GL4765@stusta.de>
+Subject: Re: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
+Date: Sun, 27 Aug 2006 14:25:21 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	format=flowed;
+	charset="utf-8";
+	reply-type=original
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev <alon.barlev@gmail.com> writes:
+----- Original Message ----- 
+From: "Adrian Bunk" <bunk@stusta.de>
+To: "Andrew Morton" <akpm@osdl.org>; "Chuck Lever" <chuck.lever@oracle.com>; 
+"Trond Myklebust" <Trond.Myklebust@netapp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, August 26, 2006 7:56 PM
+Subject: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
 
-> Extending the kernel parameters to a 2048 bytes for
-> boot protocol >=2.02 of i386, ia64 and x86_64 architectures for
-> linux-2.6.18-rc4-mm2.
-> 
-> Current implementation allows the kernel to receive up to
-> 255 characters from the bootloader. In current environment,
-> the command-line is used in order to specify many values,
-> including suspend/resume, module arguments, splash, initramfs
-> and more. 255 characters are not enough anymore.
 
-The last time I tried this on x86-64 lilo on systems that used EDD broke.
-EDD uses part of the bootup page too. So most likely it's not that simple.
+> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
+>>...
+>> Changes since 2.6.18-rc4-mm2:
+>>...
+>>  git-nfs.patch
+>>...
+>>  git trees
+>>...
+>
+> This breaks CONFIG_ROOT_NFS=y:
+>
+> <--  snip  -->
+>
+> ...
+>  CC      fs/nfs/mount_clnt.o
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c: In 
+> function ‘mnt_create’:
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
+> error: implicit declaration of function ‘xprt_create_proto’
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: 
+> warning: assignment makes pointer from integer without a cast
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:86: 
+> error: implicit declaration of function ‘rpc_create_client’
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:88: 
+> warning: assignment makes pointer from integer without a cast
+> make[3]: *** [fs/nfs/mount_clnt.o] Error 1
+>
+> <--  snip  -->
 
-And please don't shout your subjects.
+Looks like a patch got misapplied somewhere.  All my copies of this patch 
+series has this change, but Andrew's doesn't.  Trond, let's hook up Monday 
+and work this out. 
 
--Andi

@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWH0WML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWH0WO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWH0WML (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 18:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWH0WMK
+	id S1751238AbWH0WO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 18:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWH0WO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 18:12:10 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:4556 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751206AbWH0WMJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 18:12:09 -0400
-Date: Mon, 28 Aug 2006 00:08:16 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net, dominik.schulz@gauner.org
-Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
-Message-ID: <20060827220816.GA21788@electric-eye.fr.zoreil.com>
-References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com> <20060823223032.GA25111@electric-eye.fr.zoreil.com> <026c01c6c71d$0fde1730$4964a8c0@icplus.com.tw> <20060824220758.GA19637@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824220758.GA19637@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Sun, 27 Aug 2006 18:14:56 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36487 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751238AbWH0WOz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 18:14:55 -0400
+Date: Sun, 27 Aug 2006 15:14:50 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Dong Feng <middle.fengdong@gmail.com>, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent?
+In-Reply-To: <200608272339.08092.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0608271514130.22931@schroedinger.engr.sgi.com>
+References: <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
+ <200608272252.48946.ak@suse.de> <Pine.LNX.4.64.0608271404260.22510@schroedinger.engr.sgi.com>
+ <200608272339.08092.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-> Jesse Huang <jesse@icplus.com.tw> :
-> [...]
-> 
-> Added:
-> 0039-ip1000-cosmetic-in-ipg_interrupt_handler.txt
-> 0040-ip1000-irq-handler-and-device-close-race.txt
-> 0041-ip1000-schedule-the-host-error-recovery-to-user-context.txt
-> 0042-ip1000-no-need-to-mask-a-constant-field-with-RSVD_MASK.txt
+On Sun, 27 Aug 2006, Andi Kleen wrote:
 
-Added:
-0043-ip1000-use-the-new-IRQF_-constants-and-the-dma_-alloc-free-_coherent-API.txt
-0044-ip1000-mixed-case-and-upper-case-removal.txt
-0045-ip1000-add-ipg_-r-w-8-16-32-macros.txt
+> x86-64 always uses the spinlocked version (vs i386 using the atomic one)
+> and I haven't heard of anybody complaining.
 
-The patches beyond 0043 are only available through HTTP. Since 0043
-needs a recent enough kernel and the current driver has branched from
-an old release, I plan to rebase my branch. Does it raise any objection
-or remark ?
+Ia64 has special counters for rwsemaphores. I'd like to see if there is 
+any performance loss. mmap_sem is a rwsemaphore. This is performance 
+critical.
 
--- 
-Ueimor

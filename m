@@ -1,64 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHZX4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWH0ACS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWHZX4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 19:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHZX4a
+	id S1751209AbWH0ACS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 20:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWH0ACS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 19:56:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17417 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751254AbWHZX43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 19:56:29 -0400
-Date: Sun, 27 Aug 2006 01:56:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Chuck Lever <chuck.lever@oracle.com>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
-Message-ID: <20060826235628.GL4765@stusta.de>
-References: <20060826160922.3324a707.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060826160922.3324a707.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Sat, 26 Aug 2006 20:02:18 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53201
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751209AbWH0ACR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 20:02:17 -0400
+Date: Sat, 26 Aug 2006 17:02:24 -0700 (PDT)
+Message-Id: <20060826.170224.110013012.davem@davemloft.net>
+To: jeffm@suse.com
+Cc: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] sun disk label: fix signed int usage for sector count
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44F070A6.5070209@suse.com>
+References: <44EF1FAA.7000108@suse.com>
+	<Pine.LNX.4.61.0608260931070.25807@yvahk01.tjqt.qr>
+	<44F070A6.5070209@suse.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc4-mm2:
->...
->  git-nfs.patch
->...
->  git trees
->...
+From: Jeff Mahoney <jeffm@suse.com>
+Date: Sat, 26 Aug 2006 12:02:46 -0400
 
-This breaks CONFIG_ROOT_NFS=y:
+> You're right. The Solaris side of things treats this as signed.
 
-<--  snip  -->
-
-...
-  CC      fs/nfs/mount_clnt.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c: In function ‘mnt_create’:
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: error: implicit declaration of function ‘xprt_create_proto’
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:82: warning: assignment makes pointer from integer without a cast
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:86: error: implicit declaration of function ‘rpc_create_client’
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/fs/nfs/mount_clnt.c:88: warning: assignment makes pointer from integer without a cast
-make[3]: *** [fs/nfs/mount_clnt.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+I see no reason to disallow this and use an unsigned quantity.
 

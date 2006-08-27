@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWH0SbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWH0SgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWH0SbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWH0SbN
+	id S932248AbWH0SgM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWH0SgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:31:13 -0400
-Received: from ns2.suse.de ([195.135.220.15]:62921 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932246AbWH0SbL (ORCPT
+	Sun, 27 Aug 2006 14:36:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:59082 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932248AbWH0SgK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:31:11 -0400
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Stephane Eranian <eranian@hpl.hp.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 9/18] 2.6.17.9 perfmon2 patch for review: kernel-level interface
-References: <200608251618_MC3-1-C958-74D1@compuserve.com>
+	Sun, 27 Aug 2006 14:36:10 -0400
 From: Andi Kleen <ak@suse.de>
-Date: 27 Aug 2006 20:31:09 +0200
-In-Reply-To: <200608251618_MC3-1-C958-74D1@compuserve.com>
-Message-ID: <p73ejv2do9e.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
+Date: Sun, 27 Aug 2006 20:35:34 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060827084417.918992193@goop.org> <200608272004.38280.ak@suse.de> <20060827182708.GB12642@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060827182708.GB12642@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608272035.34839.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> writes:
+On Sunday 27 August 2006 20:27, Andreas Mohr wrote:
+> Hi,
+> 
+> On Sun, Aug 27, 2006 at 08:04:38PM +0200, Andi Kleen wrote:
+> > 
+> > > Something like that had to be done eventually about the inefficient
+> > > current_thread_info() mechanism, 
+> > 
+> > Inefficient? It's two fast instructions. I won't call that inefficient.
+> 
+> And that AGI stall?
 
-> In-Reply-To: <20060825134704.GA21398@infradead.org>
-> 
-> On Fri, 25 Aug 2006 14:47:04 +0100, Christoph Hellwig wrote:
-> 
-> > > This interface is for people writing kprobes who want to do performance
-> > > monitoring within their probe code.  There will probably never be any
-> > > in-kernel users, just like there are no in-kernel users of kprobes.
-> >
-> > Wrong argument.  There is a in-tree user of kprobes and I plan to submit
-> > a lot more.
-> 
-> OK.  More than two years after kprobes went into the kernel, a single
-> in-kernel user has now appeared in 2.6.18-rc: /net/ipv4/tcp_probe.c
+What AGI stall?
 
-No rules without exceptions. But there has to be a quite good rationale.
-kprobes had one.  The mythical perfmon in kernel user doesn't so far.
+[btw AGI stall is an outdated concept on modern x86 CPUs]
+
+> > > I guess it's due to having tried that on an older installation with gcc 3.2,
+> > > which probably does less efficient opcode merging of current_thread_info()
+> > > requests compared to a current gcc version.
+> > 
+> > gcc normally doesn't merge inline assembly at all.
+> 
+> Depends on use of volatile, right?
+
+No.  It can only merge statements it knows anything about, and it doesn't
+about inline assembly.
+
+> OK, so probably there was no merging of separate requests,
+> but opcode intermingling could have played a role.
+
+It seems to make some difference if it's able to move asm around
+and if they don't have memory clobbers. memory clobbers really seem
+to cause much worse code in the whole function.
+
+But current_thread_info didn't have that.
 
 -Andi
+

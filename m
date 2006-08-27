@@ -1,99 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWH0BmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWH0CAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWH0BmD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 21:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWH0BmC
+	id S1750986AbWH0CAA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWH0CAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 21:42:02 -0400
-Received: from hera.kernel.org ([140.211.167.34]:49877 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750880AbWH0BmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 21:42:00 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: "Om Narasimhan" <om.turyx@gmail.com>
-Subject: Re: memory leak fix in acpi_memhotplug.c, kmalloc to kzalloc conversion.
-Date: Sat, 26 Aug 2006 21:43:36 -0400
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-References: <6b4e42d10608261721h7807e45h6f20a2327f368719@mail.gmail.com>
-In-Reply-To: <6b4e42d10608261721h7807e45h6f20a2327f368719@mail.gmail.com>
+	Sat, 26 Aug 2006 22:00:00 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59913 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750890AbWH0B77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 21:59:59 -0400
+Date: Sun, 27 Aug 2006 03:59:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, christer@weinigel.se,
+       Greg Kroah-Hartman <gregkh@suse.de>, i2c@lm-sensors.org
+Subject: [-mm patch] drivers/i2c/busses/scx200_i2c.c: update struct scx200_i2c_data
+Message-ID: <20060827015957.GN4765@stusta.de>
+References: <20060826160922.3324a707.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200608262143.37390.len.brown@intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060826160922.3324a707.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 August 2006 20:21, Om Narasimhan wrote:
-> Hi,
-> This patch fixes one memory leak in drivers/acpi/acpi_memhotplug.c
-> Replaces all kmalloc() calls succeeded by memset() to kzalloc() calls.
-> Applies cleanly to 2.6.18-rc4. Compile tested.
+On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc4-mm2:
+>...
+> +gregkh-i2c-i2c-algo-bit-kill-mdelay.patch
+>...
+>  I2C tree updates
+>...
 
-Compile testing is more effective is you use a .config that
-builds each of the source files changed.
+drivers/i2c/busses/scx200_i2c.c was forgotten:
 
-> Patch starts here.
-> 
-> 
->  drivers/acpi/ac.c              |    4 +---
->  drivers/acpi/acpi_memhotplug.c |   14 +++++---------
->  drivers/acpi/asus_acpi.c       |    3 +--
->  drivers/acpi/battery.c         |   13 +++----------
->  drivers/acpi/bus.c             |    3 +--
->  drivers/acpi/button.c          |    4 +---
->  drivers/acpi/container.c       |    4 +---
->  drivers/acpi/ec.c              |   20 +++++---------------
->  drivers/acpi/fan.c             |    3 +--
->  drivers/acpi/i2c_ec.c          |    8 ++------
->  drivers/acpi/osl.c             |    2 +-
->  drivers/acpi/pci_bind.c        |   21 +++++----------------
->  drivers/acpi/pci_irq.c         |   16 +++-------------
->  drivers/acpi/pci_link.c        |    6 ++----
->  drivers/acpi/pci_root.c        |    3 +--
->  drivers/acpi/power.c           |    4 +---
->  drivers/acpi/processor_core.c  |    4 +---
->  drivers/acpi/sbs.c             |    4 +---
->  drivers/acpi/thermal.c         |   13 +++----------
->  drivers/acpi/utils.c           |    4 +---
->  20 files changed, 40 insertions(+), 113 deletions(-)
+<--  snip  -->
 
-Please direct patches touching drivers/acpi to me, cc linux-acpi@vger.kernel.org
+...
+  CC      drivers/i2c/busses/scx200_i2c.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/drivers/i2c/busses/scx200_i2c.c:79: warning: excess elements in struct initializer
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/drivers/i2c/busses/scx200_i2c.c:79: warning: (near initialization for ‘scx200_i2c_data’)
+...
 
-> diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
-> index 96309b9..72738a5 100644
-> --- a/drivers/acpi/ac.c
-> +++ b/drivers/acpi/ac.c
-> @@ -221,11 +221,9 @@ static int acpi_ac_add(struct acpi_devic
->  	if (!device)
->  		return -EINVAL;
-> 
-> -	ac = kmalloc(sizeof(struct acpi_ac), GFP_KERNEL);
-> +	ac = kzalloc(sizeof(struct acpi_ac), GFP_KERNEL);
->  	if (!ac)
->  		return -ENOMEM;
-> -	memset(ac, 0, sizeof(struct acpi_ac));
-> -
->  	ac->device = device;
->  	strcpy(acpi_device_name(device), ACPI_AC_DEVICE_NAME);
->  	strcpy(acpi_device_class(device), ACPI_AC_CLASS);
-> diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
-> index b0d4b14..eb8a5da 100644
-> --- a/drivers/acpi/acpi_memhotplug.c
-> +++ b/drivers/acpi/acpi_memhotplug.c
-> @@ -297,6 +297,7 @@ static int acpi_memory_disable_device(st
->  	 * Ask the VM to offline this memory range.
->  	 * Note: Assume that this function returns zero on success
->  	 */
-> +	struct acpi_memory_info *info, *n;
+<--  snip  -->
 
-What tree is this patch against?
-This line is already present (above the comment) in 2.6.18-rc4.
+While fixing it, I also converted the struct to C99 initializers.
 
-thanks,
--Len
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc4-mm3/drivers/i2c/busses/scx200_i2c.c.old	2006-08-27 03:57:50.000000000 +0200
++++ linux-2.6.18-rc4-mm3/drivers/i2c/busses/scx200_i2c.c	2006-08-27 03:51:50.000000000 +0200
+@@ -71,12 +71,12 @@
+  */
+ 
+ static struct i2c_algo_bit_data scx200_i2c_data = {
+-	NULL,
+-	scx200_i2c_setsda,
+-	scx200_i2c_setscl,
+-	scx200_i2c_getsda,
+-	scx200_i2c_getscl,
+-	10, 10, 100,		/* waits, timeout */
++	.setsda		= scx200_i2c_setsda,
++	.setscl		= scx200_i2c_setscl,
++	.getsda		= scx200_i2c_getsda,
++	.getscl		= scx200_i2c_getscl,
++	.udelay		= 10,
++	.timeout	= 100,
+ };
+ 
+ static struct i2c_adapter scx200_i2c_ops = {
 

@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWH0KRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWH0KR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWH0KRk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 06:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWH0KRk
+	id S1750706AbWH0KR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 06:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWH0KR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 06:17:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5087 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750722AbWH0KRi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 06:17:38 -0400
-Date: Sun, 27 Aug 2006 12:17:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: waking system up using RTC (was Re: rtcwakeup.c)
-Message-ID: <20060827101725.GB9953@elf.ucw.cz>
-References: <20060725124941.GD5034@ucw.cz> <200608261415.33353.david-b@pacbell.net> <20060826214342.GB3784@elf.ucw.cz> <200608261704.05017.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608261704.05017.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 27 Aug 2006 06:17:26 -0400
+Received: from master.altlinux.org ([62.118.250.235]:18706 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1750706AbWH0KRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 06:17:25 -0400
+Date: Sun, 27 Aug 2006 14:16:56 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Lee Trager <Lee@PicturesInMotion.net>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: HPA Resume patch
+Message-Id: <20060827141656.0e4d2c17.vsu@altlinux.ru>
+In-Reply-To: <44F15ADB.5040609@PicturesInMotion.net>
+References: <44F15ADB.5040609@PicturesInMotion.net>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.1; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > > Your new RTC driver seems to work for me (thinkpad x60), but no, I
-> > > > can't get wakeup using RTC to work:
-> > > 
-> > > Does it work using /proc/acpi/alarm?  In my experience, ACPI wakeup
-> > > doesn't work on Linux ... hence my pleasant surprise to see it work
-> > 
-> > No, I could not get it working using /proc/acpi/alarm.
-> 
-> Then I suspect that's the root cause of your problem ... ACPI code,
-> in either Linux or your BIOS, is not sufficiently cooperative.  All
-> that the rtc-acpi driver does is move the wakeup code, it doesn't
-> actually change what the /proc/acpi/alarm stuff does.
+On Sun, 27 Aug 2006 04:42:03 -0400 Lee Trager wrote:
 
-I searched the bios; timer wakeup is enabled, but I can't set timer
-wakeup from the bios.
+> This patch fixes a problem with computers that have HPA on their hard
+> drive and not being able to come out of resume from RAM or disk. I've
+> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
+> of these. This patch also fixes the bug #6840. This is my first patch to
+> the kernel and I was told to e-mail the above people to get my patch
+> into the kernel. If I made a mistake please be gentle and correct me ;)
 
-> > rtc-acpi 00:07: AT compatible RTC (S4wake) (y3k), 1 month alarm
-> 
-> Seems like Intel's chips won't do one year alarms ... so sad.  :)
+The patch adds a call from ide.c to a function inside ide-disk.c - this
+won't work when IDE support is built as modules (it will cause a
+circular dependency between ide-core and ide-disk modules).
 
-:-).
+The proper way to do such calls is to add a new method to ide_driver_t
+and call it from generic_ide_resume().  Also, if the ide_do_drive_cmd()
+call failed, it is probably unsafe to reset HPA, so you need to check
+the result and call the resume method only if the low-level resume has
+succeeded.
 
-(BTW... if STR still does not work on your notebook, let me know, and
-we can try to fix that...)
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+And please and "-p" to diff options.
+
+--Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFE8XEcW82GfkQfsqIRAiwaAJ4sB+oiXUP/TUUa0KvF831PpYN0zgCfSz9U
+1ZhSb7fpMOr/2ExK9m984Q4=
+=WDlr
+-----END PGP SIGNATURE-----
+
+--Signature=_Sun__27_Aug_2006_14_16_56_+0400_KmQY0HRYRUWSpa6Z--

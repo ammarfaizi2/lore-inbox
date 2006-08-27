@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWH0XjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWH0Xil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWH0XjB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 19:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWH0XjB
+	id S1751243AbWH0Xil (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 19:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWH0Xil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 19:39:01 -0400
-Received: from ozlabs.org ([203.10.76.45]:20386 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750787AbWH0Xi7 (ORCPT
+	Sun, 27 Aug 2006 19:38:41 -0400
+Received: from gw.goop.org ([64.81.55.164]:17320 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750787AbWH0Xik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 19:38:59 -0400
-Subject: Re: Is stopmachine() preempt safe?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <10990.1156671752@ocs10w.ocs.com.au>
-References: <10990.1156671752@ocs10w.ocs.com.au>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 09:38:55 +1000
-Message-Id: <1156721935.10467.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 27 Aug 2006 19:38:40 -0400
+Message-ID: <44F22CF7.1030909@goop.org>
+Date: Sun, 27 Aug 2006 16:38:31 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH RFC 3/6] Use %gs as the PDA base-segment in the kernel.
+References: <20060827084417.918992193@goop.org> <200608271757.18621.ak@suse.de> <44F1D464.5020304@goop.org> <200608272019.15067.ak@suse.de>
+In-Reply-To: <200608272019.15067.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 19:42 +1000, Keith Owens wrote:
-> I cannot convince myself that stopmachine() is preempt safe.  What
-> prevents this race with CONFIG_PREEMPT=y?
+Andi Kleen wrote:
+>>> movl is recommended in 32bit mode
+>>>   
+>>>       
+>> arch/i386/kernel/entry.S: Assembler messages:
+>> arch/i386/kernel/entry.S:334: Error: suffix or operands invalid for `mov'
+>>     
+>
+> Looks like a gas bug to me.
+>   
 
-Nothing.  Read side is preempt_disable.  Write side is stopmachine.
+Well, it generates the 32-bit form of the instruction (no 0x66 prefix) 
+anyway.
 
-I wrote it that way to avoid having to touch the scheduler.  A bigger
-stopmachine is possible which schedules all preempted tasks; my plan is
-to write such a thing shortly, to see what it looks like.
-
-Cheers,
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+    J

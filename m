@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWH0S16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWH0S3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWH0S16 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWH0S16
+	id S932242AbWH0S3A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWH0S3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:27:58 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:6294 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932247AbWH0S15 (ORCPT
+	Sun, 27 Aug 2006 14:29:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:47305 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932242AbWH0S27 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:27:57 -0400
-Message-ID: <44F1E42B.2010601@garzik.org>
-Date: Sun, 27 Aug 2006 14:27:55 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Sun, 27 Aug 2006 14:28:59 -0400
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit (ping)
+References: <445B5524.2090001@gmail.com> <445BCA33.30903@zytor.com>
+	<6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com>
+	<445C301E.6060509@zytor.com> <44AD583B.5040007@gmail.com>
+	<44AD5BB4.9090005@zytor.com> <44AD5D47.8010307@gmail.com>
+	<44AD5FD8.6010307@zytor.com>
+	<9e0cf0bf0608031436x19262ab0rb2271b52ce75639d@mail.gmail.com>
+	<44D278D6.2070106@zytor.com>
+	<9e0cf0bf0608031542q2da20037h828f4b8f0d01c4d5@mail.gmail.com>
+	<44D27F22.4080205@zytor.com> <44EF8E7D.5060905@gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Aug 2006 20:28:57 +0200
+In-Reply-To: <44EF8E7D.5060905@gmail.com>
+Message-ID: <p73irkedod2.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Gustavo_Guillermo_P=E9rez?= <gustavo@compunauta.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't enable DMA over ATA on Intel Chipset 2.6.16
-References: <200608271239.32507.gustavo@compunauta.com> <44F1DD09.6030300@garzik.org> <200608271316.22992.gustavo@compunauta.com>
-In-Reply-To: <200608271316.22992.gustavo@compunauta.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gustavo Guillermo Pérez wrote:
-> El Domingo, 27 de Agosto de 2006 12:57, escribió:
->> Gustavo Guillermo Pérez wrote:
->>> Hello list, I can't enable DMA on this chipset, even forcing with the
->>> options provided in kconfig.
->> Google around for combined mode, and/or set your BIOS to something other
->> than legacy IDE mode.
-> already tryed with BIOS legacy
+Alon Bar-Lev <alon.barlev@gmail.com> writes:
 
-Right, that is the problem.
+> Extending the kernel parameters to a 2048 bytes for
+> boot protocol >=2.02 of i386, ia64 and x86_64 architectures for
+> linux-2.6.18-rc4-mm2.
+> 
+> Current implementation allows the kernel to receive up to
+> 255 characters from the bootloader. In current environment,
+> the command-line is used in order to specify many values,
+> including suspend/resume, module arguments, splash, initramfs
+> and more. 255 characters are not enough anymore.
 
-	Jeff
+The last time I tried this on x86-64 lilo on systems that used EDD broke.
+EDD uses part of the bootup page too. So most likely it's not that simple.
 
+And please don't shout your subjects.
 
-
+-Andi

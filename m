@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWH0CrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWH0CtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWH0CrG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Aug 2006 22:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWH0CrG
+	id S1751147AbWH0CtW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Aug 2006 22:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWH0CtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Aug 2006 22:47:06 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13834 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751125AbWH0CrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Aug 2006 22:47:04 -0400
-Date: Sun, 27 Aug 2006 04:47:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       i2c@lm-sensors.org
-Subject: [-mm patch] struct i2c_algo_pcf_data: remove the mdelay member
-Message-ID: <20060827024702.GP4765@stusta.de>
+	Sat, 26 Aug 2006 22:49:22 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9860
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751127AbWH0CtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Aug 2006 22:49:21 -0400
+Date: Sat, 26 Aug 2006 19:49:12 -0700 (PDT)
+Message-Id: <20060826.194912.45512897.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: 2.6.18-rc4-mm3: NF_CONNTRACK_FTP=y compile error
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060827024219.GO4765@stusta.de>
 References: <20060826160922.3324a707.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060826160922.3324a707.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	<20060827024219.GO4765@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc4-mm2:
->...
-> +gregkh-i2c-i2c-algo-bit-kill-mdelay.patch
->...
->  I2C tree updates
->...
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sun, 27 Aug 2006 04:42:19 +0200
 
-This patch also removes the only usage of the mdelay member in 
-struct i2c_algo_pcf_data, but doesn't remove the struct member itself.
+>   CC      net/netfilter/nf_conntrack_ftp.o
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c: In function $,1rx(Bget_ipv6_addr$,1ry(B:
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: warning: implicit declaration of function $,1rx(Bin6_pton$,1ry(B
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: $,1rx(Bend$,1ry(B undeclared (first use in this function)
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: (Each undeclared identifier is reported only once
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm3/net/netfilter/nf_conntrack_ftp.c:117: error: for each function it appears in.)
+> make[3]: *** [net/netfilter/nf_conntrack_ftp.o] Error 1
 
-Is seems this patch was also intended?
+So the one single place where we call this new in6_pton() thing,
+it doesn't even compile.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Yoshifuji, what tree are you testing your builds against?  This
+is the second build failure introduced by this in6_pton()
+changeset.
 
---- linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h.old	2006-08-27 04:01:35.000000000 +0200
-+++ linux-2.6.18-rc4-mm3/include/linux/i2c-algo-pcf.h	2006-08-27 04:01:40.000000000 +0200
-@@ -35,7 +35,6 @@ struct i2c_algo_pcf_data {
+I'm going to butcher it like this so at least it builds.
+
+commit 32677088bc145cf7d45466e39286f1a8c7bf2d67
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Sat Aug 26 19:48:49 2006 -0700
+
+    [NETFILTER]: Fix nf_conntrack_ftp.c build.
+    
+    Noticed by Adrian Bunk.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/netfilter/nf_conntrack_ftp.c b/net/netfilter/nf_conntrack_ftp.c
+index 9dccb40..0c17a5b 100644
+--- a/net/netfilter/nf_conntrack_ftp.c
++++ b/net/netfilter/nf_conntrack_ftp.c
+@@ -21,6 +21,7 @@ #include <linux/netfilter.h>
+ #include <linux/ip.h>
+ #include <linux/ipv6.h>
+ #include <linux/ctype.h>
++#include <linux/inet.h>
+ #include <net/checksum.h>
+ #include <net/tcp.h>
  
- 	/* local settings */
- 	int udelay;
--	int mdelay;
- 	int timeout;
- };
- 
-
+@@ -114,7 +115,8 @@ static struct ftp_search {
+ static int
+ get_ipv6_addr(const char *src, size_t dlen, struct in6_addr *dst, u_int8_t term)
+ {
+-	int ret = in6_pton(src, min_t(size_t, dlen, 0xffff), dst, term, &end);
++	const char *end;
++	int ret = in6_pton(src, min_t(size_t, dlen, 0xffff), (u8 *)dst, term, &end);
+ 	if (ret > 0)
+ 		return (int)(end - src);
+ 	return 0;

@@ -1,103 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWH0P1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWH0Pcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWH0P1X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 11:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWH0P1X
+	id S1751036AbWH0Pcn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 11:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWH0Pcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 11:27:23 -0400
-Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:8347 "EHLO
-	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750743AbWH0P1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 11:27:22 -0400
-X-IronPort-AV: i="4.08,174,1154923200"; 
-   d="scan'208"; a="606876149:sNHT51019190"
-MIME-Version: 1.0
+	Sun, 27 Aug 2006 11:32:43 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:33563 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750907AbWH0Pcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 11:32:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=oybyE6vPOJKCycwoh/bAg8nlYBdlnslR3kKlDeuoBKAdGOA7dTQN8N7b6UebXE8ZFEkqqnRY/wN4NVnorB3NlQ2EcjUXckgr6UMlLk6ZNRYK+Yz5JHMAqy1BLvOkvOuDzK4RlEW4lr+Tg1VKzWD56xLTXwjVJc1kRGgwXg9/QYg=
+Date: Sun, 27 Aug 2006 19:32:34 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFT] sched.h removal from module.h
+Message-ID: <20060827153234.GA31505@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17649.47572.627874.371564@stoffel.org>
-Date: Sun, 27 Aug 2006 11:27:16 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Miles Lane" <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.18-rc4-mm3 -- ACPI Error (utglobal-0125): Unknown exception
- code: 0xFFFFFFEA [20060707]
-In-Reply-To: <20060827001437.ec4f7a7a.akpm@osdl.org>
-References: <a44ae5cd0608262356j29c0234cl198fb207bcad383d@mail.gmail.com>
-	<20060827001437.ec4f7a7a.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+I don't have compile-kernel-in-a-minute box, so
 
-Andrew> On Sat, 26 Aug 2006 23:56:09 -0700
-Andrew> "Miles Lane" <miles.lane@gmail.com> wrote:
+Please, test on your usual configs and send me _new_ warnings and errors
+that appeared.
 
->> PCI: Using ACPI for IRQ routing
->> PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
->> ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
->> [dump_trace+100/418] dump_trace+0x64/0x1a2
->> [show_trace_log_lvl+18/37] show_trace_log_lvl+0x12/0x25
->> [show_trace+13/16] show_trace+0xd/0x10
->> [dump_stack+23/25] dump_stack+0x17/0x19
->> [acpi_format_exception+162/175] acpi_format_exception+0xa2/0xaf
->> [acpi_ut_status_exit+43/88] acpi_ut_status_exit+0x2b/0x58
->> [acpi_walk_resources+269/281] acpi_walk_resources+0x10d/0x119
->> [acpi_motherboard_add+34/52] acpi_motherboard_add+0x22/0x34
->> [acpi_bus_driver_init+42/122] acpi_bus_driver_init+0x2a/0x7a
->> [acpi_bus_register_driver+137/248] acpi_bus_register_driver+0x89/0xf8
->> [acpi_motherboard_init+23/249] acpi_motherboard_init+0x17/0xf9
->> [init+136/512] init+0x88/0x200
->> [kernel_thread_helper+7/16] kernel_thread_helper+0x7/0x10
->> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
->> 
->> Leftover inexact backtrace:
->> 
->> [show_trace_log_lvl+18/37] show_trace_log_lvl+0x12/0x25
->> [show_trace+13/16] show_trace+0xd/0x10
->> [dump_stack+23/25] dump_stack+0x17/0x19
->> [acpi_format_exception+162/175] acpi_format_exception+0xa2/0xaf
->> [acpi_ut_status_exit+43/88] acpi_ut_status_exit+0x2b/0x58
->> [acpi_walk_resources+269/281] acpi_walk_resources+0x10d/0x119
->> [acpi_motherboard_add+34/52] acpi_motherboard_add+0x22/0x34
->> [acpi_bus_driver_init+42/122] acpi_bus_driver_init+0x2a/0x7a
->> [acpi_bus_register_driver+137/248] acpi_bus_register_driver+0x89/0xf8
->> [acpi_motherboard_init+23/249] acpi_motherboard_init+0x17/0xf9
->> [init+136/512] init+0x88/0x200
->> [kernel_thread_helper+7/16] kernel_thread_helper+0x7/0x10
->> =======================
+Patch seems to pass [alpha, i386, x86_64] x [allmodconfig-SMP, -UP] without
+regressions.
 
-Andrew> cc's added.
+[PATCH] sched.h removal from module.h
 
-Thanks Andrew.  I just tried doing this with 2.6.18-rc4-mm3 and it
-hung again.  I also tried booting with irqpoll and pci=routeirq but it
-made no difference at all.  I got the following with irqpoll:
+This is done by duplicating prototype of wake_up_process() which seems
+to be the only thing module.h wants.
 
-   irq 17: nobody cared (try booting with the "irqpoll" option)
-    [<c013e834>] __report_bad_irq+0x24/0x90
-    [<c013eab8>] note_interrupt+0x218/0x250
-    [<c013dd43>] handle_IRQ_event+0x33/0x70
-    [<c013f3ea>] handle_fasteoi_irq+0xca/0xe0
-    [<c013f320>] handle_fasteoi_irq+0x0/0xe0
-    [<c01059dd>] do_IRQ+0x8d/0xf0
-    [<c0554250>] unknown_bootoption+0x0/0x270
-    [<c01039da>] common_interrupt+0x1a/0x20
-    [<c0101c40>] default_idle+0x0/0x60
-    [<c0554250>] unknown_bootoption+0x0/0x270
-    [<c0101c71>] default_idle+0x31/0x60
-    [<c0101d0c>] cpu_idle+0x6c/0x90
-    [<c05547b9>] start_kernel+0x2f9/0x400
-    [<c0554250>] unknown_bootoption+0x0/0x270
-    =======================
-   handlers:
-   [<c0303890>] (ata_interrupt+0x0/0x190)
-   [<c03115b0>] (usb_hcd_irq+0x0/0x60)
-   Disabling IRQ #17
+Some modules doesn't really want more than
+module_init/module_exit/MODULE_LICENSE so dragging 43 headers from sched.h
+mostly slows down compilation.
 
+Examples:
 
-I'm going to try and upgrade the firmware on my RocketPort 133 from
-1.21 to 1.22 to see if that makes a difference, but otherwise there's
-not alot I can do here.
+$ wc lib/sort.i
+ 10933  31212 287154 lib/sort.i
+  7919  21084 198611 lib/sort.i	# after removal
+  ------------------
+                -31%
 
-Any more information I can provide?
+$ wc lib/idr.i
+ 11299  32412 298627 lib/idr.i
+  8269  22287 210083 lib/idr.i	# after removal
+  ------------------
+                -30%
+
+Note that, say, PCI drivers shouldn't shrink much due to linux/pci.h
+including asm/pci.h including linux/mm.h including, you guessed it right,
+sched.h. That's for later.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ drivers/base/cpu.c                |    1 +
+ drivers/hwmon/abituguru.c         |    1 +
+ drivers/leds/ledtrig-ide-disk.c   |    1 +
+ drivers/leds/ledtrig-timer.c      |    1 +
+ drivers/scsi/scsi_transport_sas.c |    2 ++
+ drivers/w1/slaves/w1_therm.c      |    1 +
+ include/linux/acct.h              |    1 +
+ include/linux/module.h            |    3 ++-
+ include/linux/phy.h               |    1 +
+ include/scsi/libiscsi.h           |    1 +
+ 10 files changed, 12 insertions(+), 1 deletion(-)
+
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -9,6 +9,7 @@ #include <linux/cpu.h>
+ #include <linux/topology.h>
+ #include <linux/device.h>
+ #include <linux/node.h>
++#include <linux/sched.h>
+ 
+ #include "base.h"
+ 
+--- a/drivers/hwmon/abituguru.c
++++ b/drivers/hwmon/abituguru.c
+@@ -21,6 +21,7 @@
+     etc voltage & frequency control is not supported!
+ */
+ #include <linux/module.h>
++#include <linux/sched.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/jiffies.h>
+--- a/drivers/leds/ledtrig-ide-disk.c
++++ b/drivers/leds/ledtrig-ide-disk.c
+@@ -15,6 +15,7 @@ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/timer.h>
++#include <linux/jiffies.h>
+ #include <linux/leds.h>
+ 
+ static void ledtrig_ide_timerfunc(unsigned long data);
+--- a/drivers/leds/ledtrig-timer.c
++++ b/drivers/leds/ledtrig-timer.c
+@@ -14,6 +14,7 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
+--- a/drivers/scsi/scsi_transport_sas.c
++++ b/drivers/scsi/scsi_transport_sas.c
+@@ -29,6 +29,8 @@ #include <linux/err.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ 
++#include <asm/param.h>
++
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h>
+--- a/drivers/w1/slaves/w1_therm.c
++++ b/drivers/w1/slaves/w1_therm.c
+@@ -25,6 +25,7 @@ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/device.h>
++#include <linux/sched.h>
+ #include <linux/types.h>
+ #include <linux/delay.h>
+ 
+--- a/include/linux/acct.h
++++ b/include/linux/acct.h
+@@ -119,6 +119,7 @@ #ifdef __KERNEL__
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+ struct vfsmount;
+ struct super_block;
++struct pacct_struct;
+ extern void acct_auto_close_mnt(struct vfsmount *m);
+ extern void acct_auto_close(struct super_block *sb);
+ extern void acct_init_pacct(struct pacct_struct *pacct);
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -6,7 +6,6 @@ #define _LINUX_MODULE_H
+  * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+  * Rewritten again by Rusty Russell, 2002
+  */
+-#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/stat.h>
+@@ -406,6 +405,8 @@ static inline int try_module_get(struct 
+ 	return ret;
+ }
+ 
++/* Prototype duplicated only to not include sched.h */
++int FASTCALL(wake_up_process(struct task_struct * tsk));
+ static inline void module_put(struct module *module)
+ {
+ 	if (module) {
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -20,6 +20,7 @@ #define __PHY_H
+ 
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
++#include <linux/workqueue.h>
+ 
+ #define PHY_BASIC_FEATURES	(SUPPORTED_10baseT_Half | \
+ 				 SUPPORTED_10baseT_Full | \
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -25,6 +25,7 @@ #define LIBISCSI_H
+ 
+ #include <linux/types.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ #include <scsi/iscsi_proto.h>
+ #include <scsi/iscsi_if.h>
+ 
+

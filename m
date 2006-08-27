@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWH0W0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWH0XjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWH0W0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 18:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWH0W0A
+	id S1750787AbWH0XjB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 19:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWH0XjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 18:26:00 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:53319 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1751218AbWH0WZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 18:25:59 -0400
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Robert Walsh <rjwalsh@pathscale.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 22 of 23] IB/ipath - print warning if LID not acquired within one minute
-X-Message-Flag: Warning: May contain useful information
-References: <44EF6053.4010006@pathscale.com>
-	<20060826193126.GF21168@mellanox.co.il>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 27 Aug 2006 15:25:56 -0700
-Message-ID: <adalkp9rf2j.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 27 Aug 2006 22:25:58.0153 (UTC) FILETIME=[C4D5F790:01C6CA27]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Sun, 27 Aug 2006 19:39:01 -0400
+Received: from ozlabs.org ([203.10.76.45]:20386 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750787AbWH0Xi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 19:38:59 -0400
+Subject: Re: Is stopmachine() preempt safe?
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <10990.1156671752@ocs10w.ocs.com.au>
+References: <10990.1156671752@ocs10w.ocs.com.au>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 09:38:55 +1000
+Message-Id: <1156721935.10467.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> Looks like your devices are all single-port. With a multi
-    Michael> port device it is quite common to have one port down.
+On Sun, 2006-08-27 at 19:42 +1000, Keith Owens wrote:
+> I cannot convince myself that stopmachine() is preempt safe.  What
+> prevents this race with CONFIG_PREEMPT=y?
 
-My reading of the patch is that it warns if the link is up physically
-but does not come up logically.  Which would still be reasonable for a
-multi-port device.
+Nothing.  Read side is preempt_disable.  Write side is stopmachine.
 
-But I am still wondering about when this is really useful.
+I wrote it that way to avoid having to touch the scheduler.  A bigger
+stopmachine is possible which schedules all preempted tasks; my plan is
+to write such a thing shortly, to see what it looks like.
 
- - R.
+Cheers,
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

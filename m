@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWH0RpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWH0RpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWH0RpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 13:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWH0RpJ
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 13:45:09 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10988 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932207AbWH0RpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932193AbWH0RpH (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 27 Aug 2006 13:45:07 -0400
-Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <44F1CC67.8040807@goop.org>
-References: <20060827084417.918992193@goop.org>
-	 <1156672071.3034.103.camel@laptopd505.fenrus.org>
-	 <44F1CC67.8040807@goop.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 27 Aug 2006 19:44:23 +0200
-Message-Id: <1156700663.3034.118.camel@laptopd505.fenrus.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWH0RpH
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 27 Aug 2006 13:45:07 -0400
+Received: from main.gmane.org ([80.91.229.2]:54966 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932193AbWH0RpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 13:45:05 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Peter" <sw98234@hotmail.com>
+Subject: RESOLVED: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Date: Sun, 27 Aug 2006 17:44:36 +0000 (UTC)
+Message-ID: <ecslm4$ki8$1@sea.gmane.org>
+References: <ecpru4$9t3$1@sea.gmane.org> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pool-151-204-7-242.pskn.east.verizon.net
+X-Archive: encrypt
+User-Agent: pan 0.109 (Beable)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 09:46 -0700, Jeremy Fitzhardinge wrote:
-> Arjan van de Ven wrote:
-> > this will be interesting; x86-64 has a nice instruction to help with
-> > this; 32 bit does not... so far conventional wisdom has been that
-> > without the instruction it's not going to be worth it.
-> >   
-> 
-> Hm, swapgs may be quick, but it isn't very easy to use since it doesn't 
-> stack, and so requires careful handling for recursive kernel entries, 
-> which involves extra tests and conditional jumps.  I tried doing 
-> something similar with my earlier patches, but it got all too messy.  
-> Stacking %gs like the other registers turns out pretty cleanly.
-> 
-> > When you're benchmarking this please use multiple CPU generations from
-> > different vendors; I suspect this is one of those things that vary
-> > greatly between models
-> >   
-> 
-> Hm, it seems to me that unless the existing %ds/%es register 
-> save/restores are a significant part of the existing cost of going 
-> through entry.S, 
+I am guessing that a recent update with kernel patches for
+iosched-rollup-2.6.17.4-2.patch appears to have removed the problems
+described here. With this and others installed, even with CONFIG_PREEMPT=y
+there are no more io problems being recorded with or without vmware mods.
+For some reason, these patches are not in the vanilla 2.6.17.11 sources.
 
-iirc the %fs one is at least. But it has been a while since I've looked
-at this part of the kernel via performance traces.
+The particular kernel series I used for test were:
 
-> adding %gs to the set shouldn't make too much 
-> difference.  And I'm not sure about the relative cost of using a %gs 
-> override vs. the normal current_task_info() masking, but I'm assuming 
-> they're at worst equal, with the %gs override having a code-size advantage.
+2.6.17.11 - problem persisted
+2.6.17-beyond3.1pre1 - problem persisted
+2.6.17-beyond4pre1 - problem solved ( for half a day anyway :) )
 
-your worst case scenario would be if the segment override would make it
-a "complex" instruction, so not parallel decodable. That'd mean it would
-basically cost you 6 or 7 instruction slots that can't be filled...
-while an and and such at least run nicely in parallel with other stuff.
-I don't know which if any processors actually do this, but it's rare/new
-enough that I'd not be surprised if there are some.
+http://iphitus.loudas.com/beyond/2.6.17/2.6.17-beyond4pre1/
+
+compare dmesg output at point of error:
+
+Failure:
+/dev/vmnet: open called by PID 9443 (vmware-vmx) 
+eth0: Promiscuous mode enabled.
+device eth0 entered promiscuous mode
+bridge-eth0: enabled promiscuous mode 
+/dev/vmnet: port on hub 0 successfully opened 
+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+hda: dma_intr: error=0x84 { DriveStatusError BadCRC } 
+ide: failed opcode was: unknown
+
+NOW:
+/dev/vmnet: open called by PID 11758 (vmware-vmx)
+eth0: Promiscuous mode enabled.
+device eth0 entered promiscuous mode
+bridge-eth0: enabled promiscuous mode
+/dev/vmnet: port on hub 0 successfully opened
+( *** note, error occured here *** )
+/dev/vmmon[11758]: host clock rate change request 83 -> 19
+device eth0 left promiscuous mode
+bridge-eth0: disabled promiscuous mode
+/dev/vmmon[11752]: host clock rate change request 19 -> 0
 
 
+This sequence occured several places, and no times were errors
+reported.
 
+HTH
+
+So, for me, for now, this issue is resolved...
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Peter
++++++
+Do not reply to this email, it is a spam trap and not monitored.
+I can be reached via this list, or via 
+jabber: pete4abw at jabber.org
+ICQ: 73676357
 

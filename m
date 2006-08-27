@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWH0SIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWH0SMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWH0SIP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 14:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWH0SIP
+	id S932223AbWH0SMt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 14:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWH0SMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 14:08:15 -0400
-Received: from ns2.suse.de ([195.135.220.15]:30407 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932221AbWH0SIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 14:08:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for i386.
-Date: Sun, 27 Aug 2006 20:07:47 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Andrew Morton <akpm@osdl.org>
-References: <20060827084417.918992193@goop.org> <44F1CC67.8040807@goop.org> <1156700663.3034.118.camel@laptopd505.fenrus.org>
-In-Reply-To: <1156700663.3034.118.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Aug 2006 14:12:49 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:43195 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S932223AbWH0SMs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 14:12:48 -0400
+Date: Sun, 27 Aug 2006 14:12:45 -0400
+From: Ian Lindsay <iml@formicary.org>
+To: =?unknown-8bit?B?SsO2cm4=?= Engel <joern@wohnheim.fh-wedel.de>,
+       fsdevel@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+Subject: Re: LogFS
+Message-ID: <20060827181245.GA14544@gen.formicary.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608272007.47741.ak@suse.de>
+In-Reply-To: <20060827171728.GB3502@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> your worst case scenario would be if the segment override would make it
-> a "complex" instruction, so not parallel decodable. That'd mean it would
-> basically cost you 6 or 7 instruction slots that can't be filled...
-> while an and and such at least run nicely in parallel with other stuff.
-> I don't know which if any processors actually do this, but it's rare/new
-> enough that I'd not be surprised if there are some.
+> >  +/* FIXME: This should really be somewhere in the 64bit area. */
+> >  +#define LOGFS_LINK_MAX (2^30)
 
-On AMD K7/K8 a segment register prefix is a single cycle penalty.
+> > Interesting choice of constant.
 
-I couldn't find anything in the Intel optimization manuals on it, but I assume
-it's also not dramatic.
+> Yes.  I didn't spend a long time thinking about whether it should be
+> 2^31 or 2^31-1 or 2^31-2.  It will be a while before it becomes an
+> issue in real life anyway. :)
 
--Andi
+So, 28 should be enough for everyone?
+

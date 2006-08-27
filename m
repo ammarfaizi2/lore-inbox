@@ -1,228 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWH0Xu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWH0X6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWH0Xu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 19:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWH0Xto
+	id S932307AbWH0X6o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 19:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWH0X6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 19:49:44 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:3712 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932130AbWH0XtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 19:49:24 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 28 Aug 2006 09:49:22 +1000
-Message-Id: <1060827234922.32479@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 4] md: Factor out part of raid1d into a separate function
-References: <20060828092849.21292.patches@notabene>
+	Sun, 27 Aug 2006 19:58:44 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:12784 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932307AbWH0X6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 19:58:43 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Hollis <dhollis@davehollis.com>
+Subject: [PATCH] mcs7830: clean up use of kernel constants
+Date: Sun, 27 Aug 2006 22:41:04 +0200
+User-Agent: KMail/1.9.1
+Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, support@moschip.com,
+       Michael Helmling <supermihi@web.de>
+References: <200608071500.55903.arnd.bergmann@de.ibm.com> <200608071811.09978.arnd.bergmann@de.ibm.com> <200608202207.39709.arnd@arndb.de>
+In-Reply-To: <200608202207.39709.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608272241.05026.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+This use the MII register constants provided
+by the kernel instead of hardcoding numerical
+values in the driver.
 
-raid1d has toooo many nested block, so take the fix_read_error functionality
-out into a separate function.
-
-Signed-off-by: Neil Brown <neilb@suse.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
 
- drivers/md/raid1.c |  161 +++++++++++++++++++++++--------------------
- 1 file changed, 89 insertions(+), 72 deletions(-)
-
-Index: mm-quilt/drivers/md/raid1.c
+Index: linux-cg/drivers/usb/net/mcs7830.c
 ===================================================================
---- mm-quilt.orig/drivers/md/raid1.c	2006-08-28 09:06:32.000000000 +1000
-+++ mm-quilt/drivers/md/raid1.c	2006-08-28 09:42:51.000000000 +1000
-@@ -1368,6 +1368,95 @@ static void sync_request_write(mddev_t *
-  *	3.	Performs writes following reads for array syncronising.
-  */
+--- linux-cg.orig/drivers/usb/net/mcs7830.c	2006-08-25 21:17:24.000000000 +0200
++++ linux-cg/drivers/usb/net/mcs7830.c	2006-08-25 21:23:35.000000000 +0200
+@@ -35,8 +35,10 @@
+ #include "usbnet.h"
  
-+static void fix_read_error(conf_t *conf, int read_disk,
-+			   sector_t sect, int sectors)
-+{
-+	mddev_t *mddev = conf->mddev;
-+	while(sectors) {
-+		int s = sectors;
-+		int d = read_disk;
-+		int success = 0;
-+		int start;
-+		mdk_rdev_t *rdev;
+ /* requests */
+-#define MCS7830_RD_BMREQ	(USB_DIR_IN  | USB_TYPE_VENDOR | USB_RECIP_DEVICE)
+-#define MCS7830_WR_BMREQ	(USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE)
++#define MCS7830_RD_BMREQ	(USB_DIR_IN  | USB_TYPE_VENDOR | \
++				 USB_RECIP_DEVICE)
++#define MCS7830_WR_BMREQ	(USB_DIR_OUT | USB_TYPE_VENDOR | \
++				 USB_RECIP_DEVICE)
+ #define MCS7830_RD_BREQ		0x0E
+ #define MCS7830_WR_BREQ		0x0D
+ 
+@@ -46,6 +48,10 @@
+ #define MCS7830_VENDOR_ID	0x9710
+ #define MCS7830_PRODUCT_ID	0x7830
+ 
++#define MCS7830_MII_ADVERTISE	(ADVERTISE_PAUSE_CAP | ADVERTISE_100FULL | \
++				 ADVERTISE_100HALF | ADVERTISE_10FULL | \
++				 ADVERTISE_10HALF | ADVERTISE_CSMA)
 +
-+		if (s > (PAGE_SIZE>>9))
-+			s = PAGE_SIZE >> 9;
-+
-+		do {
-+			/* Note: no rcu protection needed here
-+			 * as this is synchronous in the raid1d thread
-+			 * which is the thread that might remove
-+			 * a device.  If raid1d ever becomes multi-threaded....
-+			 */
-+			rdev = conf->mirrors[d].rdev;
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags) &&
-+			    sync_page_io(rdev->bdev,
-+					 sect + rdev->data_offset,
-+					 s<<9,
-+					 conf->tmppage, READ))
-+				success = 1;
-+			else {
-+				d++;
-+				if (d == conf->raid_disks)
-+					d = 0;
-+			}
-+		} while (!success && d != read_disk);
-+
-+		if (!success) {
-+			/* Cannot read from anywhere -- bye bye array */
-+			md_error(mddev, conf->mirrors[read_disk].rdev);
-+			break;
-+		}
-+		/* write it back and re-read */
-+		start = d;
-+		while (d != read_disk) {
-+			if (d==0)
-+				d = conf->raid_disks;
-+			d--;
-+			rdev = conf->mirrors[d].rdev;
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags)) {
-+				if (sync_page_io(rdev->bdev,
-+						 sect + rdev->data_offset,
-+						 s<<9, conf->tmppage, WRITE)
-+				    == 0)
-+					/* Well, this device is dead */
-+					md_error(mddev, rdev);
-+			}
-+		}
-+		d = start;
-+		while (d != read_disk) {
-+			char b[BDEVNAME_SIZE];
-+			if (d==0)
-+				d = conf->raid_disks;
-+			d--;
-+			rdev = conf->mirrors[d].rdev;
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags)) {
-+				if (sync_page_io(rdev->bdev,
-+						 sect + rdev->data_offset,
-+						 s<<9, conf->tmppage, READ)
-+				    == 0)
-+					/* Well, this device is dead */
-+					md_error(mddev, rdev);
-+				else {
-+					atomic_add(s, &rdev->corrected_errors);
-+					printk(KERN_INFO
-+					       "raid1:%s: read error corrected "
-+					       "(%d sectors at %llu on %s)\n",
-+					       mdname(mddev), s,
-+					       (unsigned long long)sect +
-+					           rdev->data_offset,
-+					       bdevname(rdev->bdev, b));
-+				}
-+			}
-+		}
-+		sectors -= s;
-+		sect += s;
-+	}
-+}
-+
- static void raid1d(mddev_t *mddev)
+ /* HIF_REG_XX coressponding index value */
+ enum {
+ 	HIF_REG_MULTICAST_HASH			= 0x00,
+@@ -258,16 +264,18 @@
  {
- 	r1bio_t *r1_bio;
-@@ -1460,86 +1549,14 @@ static void raid1d(mddev_t *mddev)
- 			 * This is all done synchronously while the array is
- 			 * frozen
- 			 */
--			sector_t sect = r1_bio->sector;
--			int sectors = r1_bio->sectors;
--			freeze_array(conf);
--			if (mddev->ro == 0) while(sectors) {
--				int s = sectors;
--				int d = r1_bio->read_disk;
--				int success = 0;
--
--				if (s > (PAGE_SIZE>>9))
--					s = PAGE_SIZE >> 9;
--
--				do {
--					/* Note: no rcu protection needed here
--					 * as this is synchronous in the raid1d thread
--					 * which is the thread that might remove
--					 * a device.  If raid1d ever becomes multi-threaded....
--					 */
--					rdev = conf->mirrors[d].rdev;
--					if (rdev &&
--					    test_bit(In_sync, &rdev->flags) &&
--					    sync_page_io(rdev->bdev,
--							 sect + rdev->data_offset,
--							 s<<9,
--							 conf->tmppage, READ))
--						success = 1;
--					else {
--						d++;
--						if (d == conf->raid_disks)
--							d = 0;
--					}
--				} while (!success && d != r1_bio->read_disk);
--
--				if (success) {
--					/* write it back and re-read */
--					int start = d;
--					while (d != r1_bio->read_disk) {
--						if (d==0)
--							d = conf->raid_disks;
--						d--;
--						rdev = conf->mirrors[d].rdev;
--						if (rdev &&
--						    test_bit(In_sync, &rdev->flags)) {
--							if (sync_page_io(rdev->bdev,
--									 sect + rdev->data_offset,
--									 s<<9, conf->tmppage, WRITE) == 0)
--								/* Well, this device is dead */
--								md_error(mddev, rdev);
--						}
--					}
--					d = start;
--					while (d != r1_bio->read_disk) {
--						if (d==0)
--							d = conf->raid_disks;
--						d--;
--						rdev = conf->mirrors[d].rdev;
--						if (rdev &&
--						    test_bit(In_sync, &rdev->flags)) {
--							if (sync_page_io(rdev->bdev,
--									 sect + rdev->data_offset,
--									 s<<9, conf->tmppage, READ) == 0)
--								/* Well, this device is dead */
--								md_error(mddev, rdev);
--							else {
--								atomic_add(s, &rdev->corrected_errors);
--								printk(KERN_INFO "raid1:%s: read error corrected (%d sectors at %llu on %s)\n",
--								       mdname(mddev), s, (unsigned long long)(sect + rdev->data_offset), bdevname(rdev->bdev, b));
--							}
--						}
--					}
--				} else {
--					/* Cannot read from anywhere -- bye bye array */
--					md_error(mddev, conf->mirrors[r1_bio->read_disk].rdev);
--					break;
--				}
--				sectors -= s;
--				sect += s;
-+			if (mddev->ro == 0) {
-+				freeze_array(conf);
-+				fix_read_error(conf, r1_bio->read_disk,
-+					       r1_bio->sector,
-+					       r1_bio->sectors);
-+				unfreeze_array(conf);
- 			}
+ 	int ret;
+ 	/* Enable all media types */
+-	ret = mcs7830_write_phy(dev, MII_ADVERTISE, 0x05e1);
+-	/* First Disable All */
++	ret = mcs7830_write_phy(dev, MII_ADVERTISE, MCS7830_MII_ADVERTISE);
++
++	/* First reset BMCR */
+ 	if (!ret)
+ 		ret = mcs7830_write_phy(dev, MII_BMCR, 0x0000);
+ 	/* Enable Auto Neg */
+ 	if (!ret)
+-		ret = mcs7830_write_phy(dev, MII_BMCR, 0x1000);
++		ret = mcs7830_write_phy(dev, MII_BMCR, BMCR_ANENABLE);
+ 	/* Restart Auto Neg (Keep the Enable Auto Neg Bit Set) */
+ 	if (!ret)
+-		ret = mcs7830_write_phy(dev, MII_BMCR, 0x1200);
++		ret = mcs7830_write_phy(dev, MII_BMCR,
++				BMCR_ANENABLE | BMCR_ANRESTART	);
+ 	return ret < 0 ? : 0;
+ }
  
--			unfreeze_array(conf);
--
- 			bio = r1_bio->bios[r1_bio->read_disk];
- 			if ((disk=read_balance(conf, r1_bio)) == -1) {
- 				printk(KERN_ALERT "raid1: %s: unrecoverable I/O"
+

@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWH0OB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWH0Oub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWH0OB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 10:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWH0OB0
+	id S932131AbWH0Oub (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 10:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWH0Oub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 10:01:26 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:40888 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932105AbWH0OBZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 10:01:25 -0400
-Date: Sun, 27 Aug 2006 22:25:38 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] select_bad_process: cleanup 'releasing' check
-Message-ID: <20060827182538.GA1779@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Aug 2006 10:50:31 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:59226 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932131AbWH0Oua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 10:50:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=olTERyTvxOBNZa4/zL8N4ZZTMPhmgPUIjnjxfyJ9m0pz04y3X4vLGQ/WvhBdkwQWDdqq2SbgTAtNjtOtU+Pb5syV+MG5EDA8BsZUnMwnvk4cNBx3jYiih7yDycLZs+Q8ETMNg6HhUuMN0g5szVO6ye0jXLB6df9nf/lN394NnfA=
+Message-ID: <7c3341450608270750t26f81d02s45e6b05572b0e255@mail.gmail.com>
+Date: Sun, 27 Aug 2006 15:50:29 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Mikael Pettersson" <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.33.2
+Cc: linux-kernel@vger.kernel.org, wtarreau@hera.kernel.org,
+       gcoady.lk@gmail.com, mtosatti@redhat.com, volkerdi@slackware.com
+In-Reply-To: <200608271235.k7RCZlru005427@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <200608271235.k7RCZlru005427@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of "select_bad_process: kill a bogus PF_DEAD/TASK_DEAD check"
+Good question - all I can find is the slackware package - and it
+appears not many mirrors have this yet:
 
-No logic changes, but imho easier to read.
+http://slackware.it/en/pb/package.php?q=current/glibc-solibs-2.3.6-i486-5
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Nick
 
---- 2.6.18-rc4/mm/oom_kill.c~	2006-08-27 20:56:23.000000000 +0400
-+++ 2.6.18-rc4/mm/oom_kill.c	2006-08-27 21:58:32.000000000 +0400
-@@ -205,7 +205,6 @@ static struct task_struct *select_bad_pr
- 	do_posix_clock_monotonic_gettime(&uptime);
- 	do_each_thread(g, p) {
- 		unsigned long points;
--		int releasing;
- 
- 		/*
- 		 * skip kernel threads and tasks which have already released
-@@ -227,16 +226,15 @@ static struct task_struct *select_bad_pr
- 		 * the process of exiting and releasing its resources.
- 		 * Otherwise we could get an OOM deadlock.
- 		 */
--		releasing = test_tsk_thread_flag(p, TIF_MEMDIE) ||
--						p->flags & PF_EXITING;
--		if (releasing) {
--			if (p->flags & PF_EXITING && p == current) {
--				chosen = p;
--				*ppoints = ULONG_MAX;
--				break;
--			}
--			return ERR_PTR(-1UL);
--		}
-+		if ((p->flags & PF_EXITING) && p == current) {
-+			chosen = p;
-+			*ppoints = ULONG_MAX;
-+			break;
-+		}
-+		if ((p->flags & PF_EXITING) ||
-+				test_tsk_thread_flag(p, TIF_MEMDIE))
-+			return ERR_PTR(-1UL);
-+
- 		if (p->oomkilladj == OOM_DISABLE)
- 			continue;
- 
-@@ -246,6 +244,7 @@ static struct task_struct *select_bad_pr
- 			*ppoints = points;
- 		}
- 	} while_each_thread(g, p);
-+
- 	return chosen;
- }
- 
-
+On 27/08/06, Mikael Pettersson <mikpe@it.uu.se> wrote:
+> On Tue, 22 Aug 2006 21:23:00 +0000, Willy Tarreau wrote:
+> >### Important note for users of Slackware 10.2 ###
+> >
+> >Grant Coady informed me that 2.4.33.1 did not boot for him. After a long
+> >series of tests from him and Pat Volkerding, it appeared that the problem
+> >is caused by glibc 2.3.6 wrongly detecting kernel version as 4.33.1 and
+> >mistakenly using the NTPL libs instead.
+> >
+> >Patrick has fixed the problem and will (has ?) send the fix to the glibc
+> >team. By now people using Slackware 10.2 must upgrade their glibc to
+> >glibc-solibs-2.3.5-i486-6_slack10.2.tgz if they want to run a 2.4.33.x
+> >kernel (user glibc-2.3.6 build -5 for -current). A workaround is either
+> >to rename /lib/tls or to rename the kernel to something different than
+> >4 numbers separated by dots. Since the problem is fixed, I don't intend
+> >to change the numbering.
+> >
+> >I dont think that this problem might affect many other distros since those
+> >shipping an NPTL-enabled libc with both 2.4 and 2.6 mainline are rare. If
+> >anyone else encounters the problem, Pat has the fix.
+>
+> Can anyone provide a URL to the glibc fix?
+> While I don't use Slackware and haven't been bitten by
+> the bug (yet), I want to review the fix for possible
+> inclusion in my glibc patch kit.
+>
+> /Mikael
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

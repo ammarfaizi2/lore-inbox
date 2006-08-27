@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWH0Jmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWH0JnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWH0Jmc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 05:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWH0Jmc
+	id S1751373AbWH0JnE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 05:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWH0JnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 05:42:32 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:19496 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751084AbWH0Jmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 05:42:31 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-cc: rusty@rustcorp.com.au, mingo@elte.hu
-Subject: Is stopmachine() preempt safe?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 27 Aug 2006 19:42:32 +1000
-Message-ID: <10990.1156671752@ocs10w.ocs.com.au>
+	Sun, 27 Aug 2006 05:43:04 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:48569 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751368AbWH0JnB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 05:43:01 -0400
+Message-ID: <44F16923.9050609@slaphack.com>
+Date: Sun, 27 Aug 2006 04:42:59 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Alexey Dobriyan <adobriyan@gmail.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 und LZO compression
+References: <20060827003426.GB5204@martell.zuzino.mipt.ru> <20060827010428.5c9d943b.akpm@osdl.org>
+In-Reply-To: <20060827010428.5c9d943b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I cannot convince myself that stopmachine() is preempt safe.  What
-prevents this race with CONFIG_PREEMPT=y?
+Andrew Morton wrote:
+> On Sun, 27 Aug 2006 04:34:26 +0400
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> 
+>> The patch below is so-called reiser4 LZO compression plugin as extracted
+>> from 2.6.18-rc4-mm3.
+>>
+>> I think it is an unauditable piece of shit and thus should not enter
+>> mainline.
+> 
+> Like lib/inflate.c (and this new code should arguably be in lib/).
+> 
+> The problem is that if we clean this up, we've diverged very much from the
+> upstream implementation.  So taking in fixes and features from upstream
+> becomes harder and more error-prone.
 
-cpu 0				cpu 1
-stop_machine()
-				Process <n> reads a global resource
-do_stop()
-kernel_thread(stopmachine, 1)
-				Process <n> is preempted
-				stopmachine() runs on cpu 1
-				STOPMACHINE_PREPARE
-				STOPMACHINE_DISABLE_IRQ
-do_stop() calls smdata->fn
-smdata->fn changes global data
-restart_machine()
-				STOPMACHINE_EXIT
-				stopmachine() exits
-				Scheduler resumes process <n>
-				The global resource is out of sync
+Well, what kinds of changes have to happen?  I doubt upstream would care 
+about moving some of it to lib/ -- and anyway, reiserfs-list is on the 
+CC.  We are speaking of upstream in the third party in the presence of 
+upstream, so...
 
-The stopmachine() threads on the other cpus are set to MAX_RT_PRIO-1 so
-they will preempt any existing process.  The yield() in stopmachine()
-only guarantees that these kernel threads get onto the other cpus, it
-does not guarantee that all running tasks will proceed to a yield
-themselves before stopmachine runs.  IOW, what guarantees that the
-scheduler will only run stopmachine() on the target cpus when those
-cpus are completely idle with no locally cached global resources?
-
+Maybe just ask upstream?

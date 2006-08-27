@@ -1,70 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWH0GwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWH0Gzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWH0GwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 02:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWH0GwN
+	id S1750764AbWH0Gzd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 02:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWH0Gzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 02:52:13 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:55882 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750700AbWH0GwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 02:52:13 -0400
-Date: Sun, 27 Aug 2006 08:52:11 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
-       Krzysztof Halasa <khc@pm.waw.pl>, David Woodhouse <dwmw2@infradead.org>,
-       Stuart MacDonald <stuartm@connecttech.com>,
-       linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Serial custom speed deprecated?
-Message-ID: <20060827065210.GA6932@bitwizard.nl>
-References: <028a01c6c6fc$e792be90$294b82ce@stuartm> <1156411101.3012.15.camel@pmac.infradead.org> <m3bqqap09a.fsf@defiant.localdomain> <1156441293.3007.184.camel@localhost.localdomain> <m31wr6otlr.fsf@defiant.localdomain> <Pine.LNX.4.61.0608241635090.13499@chaos.analogic.com> <1156457501.3007.193.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Aug 2006 02:55:33 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:56287 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750764AbWH0Gzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 02:55:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=P4vyEW/qenmJx2dBzwcktw2Tmw9DelO5seBGXgYWv14EAiW96NHVqRMr6Qt574iRZDNVOJQY0PXj4AhceYVUGLDRjIj+fUcIi7zkrwp0QNhtcBtJny9xIYyn4YxxJ/Hzf8L5wrGKlWGu+xmIS4PK5/O5jsVlqb7SQr0RxwzSjvc=
+Message-ID: <a44ae5cd0608262355q51279259lc6480f229e520fd5@mail.gmail.com>
+Date: Sat, 26 Aug 2006 23:55:32 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, "akpm@osdl.org" <akpm@osdl.org>
+Subject: 2.6.18-rc4-mm3 -- intel8x0 audio busted
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1156457501.3007.193.camel@localhost.localdomain>
-Organization: BitWizard.nl
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 11:11:41PM +0100, Alan Cox wrote:
-> Ar Iau, 2006-08-24 am 16:43 -0400, ysgrifennodd linux-os (Dick Johnson):
-> > at 75 and increases by powers-of-two. This is because the hardware
-> > always had fixed clocks with dividers that divided by powers-of-two.
-> > What is the claim for the requirement of strange baud-rates set
-> > as an integer of dimension "baud?" Where does this requirement
-> > come from and what devices use these?
+I haven't had working audio in 2.6.18-rc4-mm series (1,2,3).
+I haven't been able to track down the cause yet.  The modules
+all load, and there seems to be the expected enties in /proc,
+but my sound preferences panel shows no available audio card.
 
-> A lot of chips will do all sorts of interesting speeds such as
-> 31.5Kbit because today the clocks are themselves quite configurable.
+# ls /proc/asound/card0/
+codec97#0  id  intel8x0  oss_mixer  pcm0c  pcm0p  pcm1c  pcm2c  pcm3c  pcm4p
 
-More importantly, the base-clocks are getting higher and higher, and
-the division is no longer a "power-of-two". Thus 9600 is no longer
-2.456MHz / 2^8, but something like 33MHz / 3438. This allows modern
-hardware to run much faster baud rates, as well as custom slower baud
-rates.
+0000:00:1f.5 Multimedia audio controller: Intel Corporation
+82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
+        Subsystem: Hewlett-Packard Company: Unknown device 3080
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 5
+        Region 0: I/O ports at 1c00 [size=256]
+        Region 1: I/O ports at 18c0 [size=64]
+        Region 2: Memory at e0100c00 (32-bit, non-prefetchable) [size=512]
+        Region 3: Memory at e0100800 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
 
-Note that IMHO, we should have started hiding this mess from /drivers/
-a long time ago. The tty layer should convert the B_9600 thingies to
-"9600", the integer, and then call the set_termios function. The
-driver should be prohibited from looking at how the the baud rate came
-to be 9600, and attempt to approach the requested baud rate as good as
-possible. It might return a flag somewhere: Not exact. In the example
-above, the resulting baud rate is about 1.4 baud off: 9598.6. This is
-not a problem in very many cases.
+snd_intel8x0           28316  0
+snd_ac97_codec         92576  1 snd_intel8x0
+snd_ac97_bus            2176  1 snd_ac97_codec
+snd_pcm_oss            25632  0
+snd_mixer_oss          15104  1 snd_pcm_oss
+snd_pcm                73352  3 snd_intel8x0,snd_ac97_codec,snd_pcm_oss
+snd_timer              19204  1 snd_pcm
+snd                    48256  6
+snd_intel8x0,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
+soundcore               6880  1 snd
+snd_page_alloc          8584  2 snd_intel8x0,snd_pcm
 
-Once this is in place, you lose a lot of "figure out the baud rate
-integer from the B_xxx settings" code in all the drivers, as well as
-that we get to provide a new interface to userspace without having to
-change ALL drivers at the same time. This decouples the drivers from
-the kernel<->userspace interface.
+Aug 26 23:16:56 localhost kernel: intel8x0_measure_ac97_clock:
+measured 50093 usecs
+Aug 26 23:16:56 localhost kernel: intel8x0: clocking to 48000
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D4p
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D3c
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D2c
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D1c
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:adsp
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D0p
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:pcmC0D0c
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:dsp
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:audio
+Aug 26 23:16:56 localhost kernel: PM: Adding info for ac97:0-0:unknown codec
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:controlC0
+Aug 26 23:16:56 localhost kernel: PM: Adding info for No Bus:mixer
+Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
+obsolete sysctl system call
+Aug 26 23:16:56 localhost kernel: warning: process `ls' used the
+obsolete sysctl system call
+Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
+obsolete sysctl system call
+Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
+obsolete sysctl system call
+Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
+obsolete sysctl system call
 
-	Roger. 
+Linux Dumbleedor 2.6.18-rc4-mm3 #31 Sat Aug 26 22:48:34 PDT 2006 i686 GNU/Linux
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+Gnu C                  4.0.3
+Gnu make               3.81beta4
+binutils               2.16.91
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.38
+jfsutils               1.1.8
+reiserfsprogs          3.6.19
+reiser4progs           1.0.5
+xfsprogs               2.7.7
+pcmcia-cs              3.2.8
+PPP                    2.4.4b1
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Procps                 3.2.6
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.93
+udev                   079
+Modules Loaded         binfmt_misc apm ipv6 processor
+cpufreq_powersave cpufreq_performance cpufreq_ondemand freq_table
+cpufreq_conservative nls_ascii nls_cp437 vfat fat nls_utf8 ntfs
+nls_base sr_mod sbp2 scsi_mod parport_pc lp parport snd_intel8x0
+snd_ac97_codec snd_ac97_bus pcmcia snd_pcm_oss snd_mixer_oss
+yenta_socket rsrc_nonstatic snd_pcm snd_timer snd ide_cd sdhci
+mmc_core ipw2200 ohci1394 ieee1394 pcmcia_core 8139cp 8139too mii
+soundcore uhci_hcd ehci_hcd cdrom psmouse shpchp pci_hotplug
+snd_page_alloc usbcore intel_agp agpgart evdev

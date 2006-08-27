@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWH0NhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWH0OB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWH0NhU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 09:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWH0NhU
+	id S932105AbWH0OB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 10:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWH0OB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 09:37:20 -0400
-Received: from mail.gmx.net ([213.165.64.20]:7620 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750866AbWH0NhT (ORCPT
+	Sun, 27 Aug 2006 10:01:26 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:40888 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S932105AbWH0OBZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 09:37:19 -0400
-X-Authenticated: #5108953
-From: Toralf =?iso-8859-1?q?F=F6rster?= <toralf.foerster@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.18-rc4-git2 Makefile: EXTRAVERSION was not changed
-Date: Sun, 27 Aug 2006 15:37:13 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3320279.4aTNoWu8cW";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200608271537.16302.toralf.foerster@gmx.de>
-X-Y-GMX-Trusted: 0
+	Sun, 27 Aug 2006 10:01:25 -0400
+Date: Sun, 27 Aug 2006 22:25:38 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] select_bad_process: cleanup 'releasing' check
+Message-ID: <20060827182538.GA1779@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3320279.4aTNoWu8cW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On top of "select_bad_process: kill a bogus PF_DEAD/TASK_DEAD check"
 
-Arrgh, script error at my side
+No logic changes, but imho easier to read.
 
-=2D-=20
-MfG/Sincerely
-Toralf F=F6rster
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---nextPart3320279.4aTNoWu8cW
-Content-Type: application/pgp-signature
+--- 2.6.18-rc4/mm/oom_kill.c~	2006-08-27 20:56:23.000000000 +0400
++++ 2.6.18-rc4/mm/oom_kill.c	2006-08-27 21:58:32.000000000 +0400
+@@ -205,7 +205,6 @@ static struct task_struct *select_bad_pr
+ 	do_posix_clock_monotonic_gettime(&uptime);
+ 	do_each_thread(g, p) {
+ 		unsigned long points;
+-		int releasing;
+ 
+ 		/*
+ 		 * skip kernel threads and tasks which have already released
+@@ -227,16 +226,15 @@ static struct task_struct *select_bad_pr
+ 		 * the process of exiting and releasing its resources.
+ 		 * Otherwise we could get an OOM deadlock.
+ 		 */
+-		releasing = test_tsk_thread_flag(p, TIF_MEMDIE) ||
+-						p->flags & PF_EXITING;
+-		if (releasing) {
+-			if (p->flags & PF_EXITING && p == current) {
+-				chosen = p;
+-				*ppoints = ULONG_MAX;
+-				break;
+-			}
+-			return ERR_PTR(-1UL);
+-		}
++		if ((p->flags & PF_EXITING) && p == current) {
++			chosen = p;
++			*ppoints = ULONG_MAX;
++			break;
++		}
++		if ((p->flags & PF_EXITING) ||
++				test_tsk_thread_flag(p, TIF_MEMDIE))
++			return ERR_PTR(-1UL);
++
+ 		if (p->oomkilladj == OOM_DISABLE)
+ 			continue;
+ 
+@@ -246,6 +244,7 @@ static struct task_struct *select_bad_pr
+ 			*ppoints = points;
+ 		}
+ 	} while_each_thread(g, p);
++
+ 	return chosen;
+ }
+ 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE8aAMhyrlCH22naMRAk70AJ9zbRpemwZLNv87PWgRnUyHm2VAHACfcyOk
-2+Qgq1f0aO7K4LfTUhm3vWs=
-=z+BF
------END PGP SIGNATURE-----
-
---nextPart3320279.4aTNoWu8cW--

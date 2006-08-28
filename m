@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWH1QQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWH1QTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWH1QQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 12:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWH1QQJ
+	id S1751064AbWH1QTg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 12:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWH1QTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 12:16:09 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:34778 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751173AbWH1QQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 12:16:07 -0400
-Subject: Re: [PATCH 0/4] RCU: various merge candidates
-From: Arjan van de Ven <arjan@infradead.org>
-To: dipankar@in.ibm.com
-Cc: Paul E McKenney <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060828160845.GB3325@in.ibm.com>
-References: <20060828160845.GB3325@in.ibm.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 28 Aug 2006 18:15:48 +0200
-Message-Id: <1156781748.3034.212.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 28 Aug 2006 12:19:35 -0400
+Received: from mga06.intel.com ([134.134.136.21]:44709 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751064AbWH1QTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 12:19:35 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="scan'208"; a="116218585:sNHT31248035"
+Message-ID: <44F3178F.8010508@linux.intel.com>
+Date: Mon, 28 Aug 2006 18:19:27 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
+       jesse.barnes@intel.com, dwalker@mvista.com
+Subject: Re: [PATCH] maximum latency tracking infrastructure (version 3)
+References: <1156780080.3034.207.camel@laptopd505.fenrus.org> <20060828161145.GA25161@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060828161145.GA25161@rhlx01.fht-esslingen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 21:38 +0530, Dipankar Sarma wrote:
-> This patchset consists of various merge candidates that would
-> do well to have some testing in -mm. This patchset breaks
-> out RCU implementation from its APIs to allow multiple
-> implementations, 
+Andreas Mohr wrote:
+> Hi,
+> 
+> On Mon, Aug 28, 2006 at 05:48:00PM +0200, Arjan van de Ven wrote:
+>> The proposed solution is to have an interface where drivers can
+>> * announce the maximum latency (in microseconds) that they can deal with
+>> * modify this latency
+>> * give up their constraint
+>> and a function where the code that decides on power saving strategy can query
+>> the current global desired maximum.
+> 
+> Nifty (aka "dumb") idea: would it make sense to enable drivers to register a
+> callback "we're going to go idle now" to e.g. let a driver refill or
+> service its hardware buffers the very moment before idling? 
 
-Hi,
+I could have sworn there was an idle call notifier already\
 
-
-can you explain why we would want multiple RCU implementations?
-Isn't one going to be plenty already?
-
-Greetings,
-   Arjan van de Ven
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+ah there is on x86-64 but it is architecture specific...

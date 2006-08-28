@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWH1Ija@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWH1Ikp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWH1Ija (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWH1Ija
+	id S1751301AbWH1Ikp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWH1Ikp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:39:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:30425 "EHLO
+	Mon, 28 Aug 2006 04:40:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51337 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751294AbWH1Ij3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:39:29 -0400
-Subject: Re: linux on Intel D915GOM oops
-From: Arjan van de Ven <arjan@infradead.org>
-To: Henti Smith <henti@geekware.co.za>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060828102149.26b05e8b@yoda.foad.za.net>
-References: <20060828102149.26b05e8b@yoda.foad.za.net>
+	id S1751295AbWH1Iko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:40:44 -0400
+Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: David Miller <davem@davemloft.net>, arnd@arndb.de,
+       linux-arch@vger.kernel.org, jdike@addtoit.com, B.Steinbrink@gmx.de,
+       arjan@infradead.org, chase.venters@clientec.com, akpm@osdl.org,
+       rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200608281028.13652.ak@suse.de>
+References: <200608281003.02757.ak@suse.de> <200608281015.38389.ak@suse.de>
+	 <20060828.011929.66059812.davem@davemloft.net>
+	 <200608281028.13652.ak@suse.de>
 Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 28 Aug 2006 10:39:06 +0200
-Message-Id: <1156754346.3034.167.camel@laptopd505.fenrus.org>
+Date: Mon, 28 Aug 2006 09:40:36 +0100
+Message-Id: <1156754436.5340.20.camel@pmac.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 10:21 +0200, Henti Smith wrote:
-> Hi guys,
+On Mon, 2006-08-28 at 10:28 +0200, Andi Kleen wrote:
+> On Monday 28 August 2006 10:19, David Miller wrote:
 > 
-> I've been given a mecer Xhibitor media center machine to try and get
-> linux on for testing. 
+> > I see it as duplication because the person who writes the
+> > kernel is the one who ends up writing the libc syscall
+> > bits or explains to the libc person for that arch how
+> > things work.  
 > 
-> The machine seems pretty much limited to South Africa, however the
-> setup is used by other companies like
-> http://www.higrade.com/nqcontent.cfm?a_id=3539 and
-> http://www.alienware.com/product_detail_pages/DHS_2/dhs_2_features.aspx?SysCode=PC-DHS2&SubCode=SKU-DEFAULT
-> which use the same mainboard atc. 
+> And the way to explain it is to write the reference code.
+
+That's a new and interesting thing to add to the list of things
+that /usr/include/linux is _not_:
+
+/usr/include/linux is _not_ a place to dump "reference code" in lieu of
+documentation on using kernel interfaces.
+
+Besides, the _syscallX implementations in the kernel were generally
+unsuitable for use in that way anyway -- I'd be much more inclined to
+rely on the libc version. The kernel version would do strange things
+like break with PIC code by using an unavailable register (i386),
+misalign 64-bit syscall arguments on 32-bit machines (MIPS), etc. 
+
+> > And once one libc implmenetation of this 
+> > exists, it can be used as a reference for other libc
+> > variants.
 > 
-> for more information ont he mainboard used:
-> http://www.intel.com/design/motherbd/om/om_documentation.htm
+> At least on x86-64 various glibc versions had quite buggy
+> syscall()s, that is why I never trusted it very much.
+
+I assume these were very _early_ glibc in when the port was new? 
+
+> > Finally, once it's done, it's done, and that's it.
 > 
-> I've tried to boot just about every linux distro I can get my hands on
-> and they all oops at bootup. 
-> 
-> Unfortunately I cannot get to the first few lines (screen cannot scroll
-> after oops) 
-> but here is what I can get to : This is booting with Ubuntu
-> 
-> PREEMPT
-> Modules linked in:
-> CPU:	0
-> EIP:	0060:[<c00f02fa>]	not tainted
-> EFLAGS:	00010046	(2.6.8.1-3-386)
-> EIP is at 0xc00f02fa
-> eax: 49435024 ebx: 00007000 ecx: 00000000 edx: 00000010
-> esi: 00000001 edi: c02cd4a4
-> [<c01f5724>] bios32_service+0x1c/0x68
-> [<c01f5780>] check_pcibios+0x10/0xd3
-> [<c01f5a77>] pci_find_bios+0x70/0x8c
+> Except if you still have to deal with old user land.
 
-this is the known bug where by default Linux uses the BIOS services for
-PCI rather than the native method.
-
-try putting
-
-pci=conf2
-
-on the kerenl commandline
-
-(and you may want to try a kernel newer than 2.6.8 btw)
-
+The limited subset of old userland which elected to use _syscallX()
+instead of libc's syscall(), and which can be fixed fairly easily.
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+dwmw2
 

@@ -1,69 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWH1WfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWH1Wgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWH1WfW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 18:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWH1WfW
+	id S964865AbWH1Wgw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 18:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWH1Wgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 18:35:22 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:58754 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964862AbWH1WfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 18:35:21 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44F36EB9.4070204@s5r6.in-berlin.de>
-Date: Tue, 29 Aug 2006 00:31:21 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       SCSI development list <linux-scsi@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH 0/4] Change return values from queue_work et al.
-References: <Pine.LNX.4.44L0.0608281403330.5680-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0608281403330.5680-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 28 Aug 2006 18:36:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:65247 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964865AbWH1Wgv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 18:36:51 -0400
+Subject: Re: Linux time code
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org, theotso@us.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0608281250060.6761@scrub.home>
+References: <20060824023525.31199.qmail@science.horizon.com>
+	 <Pine.LNX.4.64.0608281250060.6761@scrub.home>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 15:36:49 -0700
+Message-Id: <1156804609.16398.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-[...]
-> It turned out these functions were used in ~800 places, and in ~90% of
-> them the return value was ignored!  This is perhaps understandble, because
-> the only way these functions can fail is if their work_struct argument is
-> uninitialized or already in use.  (Whether it's robust for callers to
-> depend on this behavior remaining unchanged into the indefinite future is
-> more questionable.)
+On Mon, 2006-08-28 at 13:39 +0200, Roman Zippel wrote:
+> On Thu, 23 Aug 2006, linux@horizon.com wrote:
+> > > Additionally creating UTS and UTC at the same time would be a bit
+> > > complicated. Your solution above isn't quite UTS, since it only handles
+> > > the leap insertion, however the insertion case is the one that causes
+> > > users most of the pain (since the clock goes backward), so it may very
+> > > well be good enough.
+> > 
+> > It's not that it's hard to implement leap deletion, but it's code
+> > on a moderately hot path (gettimeofday() is a very popular system
+> > call) that will, as far as anyone knows, never be used.
+> > 
+> > If you want the full version, try:
+> > 
+> > 	case CLOCK_UTS:
+> > 		/* Recommended for gettimeofday() & time() */
+> > 		/* See http://www.cl.cam.ac.uk/~mgk25/uts.txt */
+> > 		clock_gettime(CLOCK_TAI, tp);
+> > 		tp->tv_sec -= tai_minus_utc;
+> > 
+> > 		if (tp->tv_sec > next_leap_second) {
+> > 			tp->tv_sec += (next_leap_second & 1) ? -1 : 1;
+> > 
+> > 		} else if (next_leap_second - tp->tv_sec < 1000) {
+> > 			/* 1000 UTC/TAI seconds = 999 or 1001 UTS seconds */
+> > 			uint32_t offset = next_leap_second - tp->tv_sec + 1;
+> > 			offset *= MILLION;
+> > 			offset += (uint32_t)(BILLION - tp->tv_nsec)/1000;
+> > 			if (next_leap_second & 1) {
+> > 				/* Negative (deleted) leap second */
+> > 				if ((tp->tv_nsec += offset) >= BILLION) {
+> > 					tp->tv_nsec -= BILLION;
+> > 					tp->tv_sec++;
+> > 				}
+> > 			} else {
+> > 				/* Positive (inserted) leap second */
+> > 				if ((tp->tv_nsec -= offset) < 0) {
+> > 					tp->tv_nsec += BILLION;
+> > 					tp->tv_sec--;
+> > 				}
+> > 			}
+> > 		}
+> > 		break;
+> 
+> Doing something like for this for gettimeofday() is pretty much obsolete 
+> with the new time code. OTOH it's rather simple to smooth out the leap 
+> second now, you can set time_adjust and adjust MAX_TICKADJ and the clock 
+> will follow nicely.
 
-You are changing this behavior right now...
+While its possible to smooth out the leapsecond (which would be useful
+to many folks), the problem is one's system would then diverge from UTC
+for that leapsecond. 
 
-> So I took a short cut which allowed most of the usages to remain as they
-> are.  queue_work(), schedule_work(), and their friends still exist and do
-> what they did before, but now they return void.  In addition, they call
-> WARN_ON if the submission fails; this seems safer than letting the failure
-> go silently unnoticed.  
-[...]
+The idea he's proposing here is to keep both UTC and UTS as separate
+clock ids, allowing apps to choose which standard (well, I UTS isn't
+quite a standard) they want to follow.
 
-...by adding a WARN_ON even though "work not enqueued because it is 
-already in queue" may not be a "failure" at all.
+I think this would be quite useful, as I've seen a number of requests
+where users don't want the leapsecond inconsistency, and others where
+they need to strictly follow UTC.
 
-It _is_ robust for callers to depend on the old behavior. This is 
-because /we/ who use these functions will remind /you/ who alters these 
-functions to first research what the actual usage is. So please check 
-every caller which ignores the return code for the actual intent of the 
-caller.
+I think having TAI would be nice too, but that requires quite a bit of
+infrastructure work (NTP distributing absolute leapsecond counts, etc).
 
-Do not add WARN_ON to queue_work() etc.. Instead add WARN_ON or BUG_ON 
-or an actual failure handling to callers which _incorrectly_ expect they 
-could add the same instance of work_struct to queues more than once 
-before the work was executed.
+thanks
+-john
 
-Furthermore, if you already change the type of widely-used exported 
-functions (i.e. you change the workqueue API), why don't you delete 
-these functions right away?
--- 
-Stefan Richter
--=====-=-==- =--- ===-=
-http://arcgraph.de/sr/

@@ -1,75 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWH1Ikp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWH1Ind@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWH1Ikp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWH1Ikp
+	id S1751313AbWH1Ind (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWH1Ind
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:40:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51337 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751295AbWH1Iko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:40:44 -0400
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: David Miller <davem@davemloft.net>, arnd@arndb.de,
-       linux-arch@vger.kernel.org, jdike@addtoit.com, B.Steinbrink@gmx.de,
-       arjan@infradead.org, chase.venters@clientec.com, akpm@osdl.org,
-       rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608281028.13652.ak@suse.de>
-References: <200608281003.02757.ak@suse.de> <200608281015.38389.ak@suse.de>
-	 <20060828.011929.66059812.davem@davemloft.net>
-	 <200608281028.13652.ak@suse.de>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 09:40:36 +0100
-Message-Id: <1156754436.5340.20.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 28 Aug 2006 04:43:33 -0400
+Received: from ns1.suse.de ([195.135.220.2]:49876 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751313AbWH1Inb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:43:31 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, henti@geekware.co.za
+Subject: Re: linux on Intel D915GOM oops
+References: <20060828102149.26b05e8b@yoda.foad.za.net>
+	<1156754346.3034.167.camel@laptopd505.fenrus.org>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Aug 2006 10:43:17 +0200
+In-Reply-To: <1156754346.3034.167.camel@laptopd505.fenrus.org>
+Message-ID: <p7364gddzdm.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 10:28 +0200, Andi Kleen wrote:
-> On Monday 28 August 2006 10:19, David Miller wrote:
+Arjan van de Ven <arjan@infradead.org> writes:
 > 
-> > I see it as duplication because the person who writes the
-> > kernel is the one who ends up writing the libc syscall
-> > bits or explains to the libc person for that arch how
-> > things work.  
-> 
-> And the way to explain it is to write the reference code.
+> this is the known bug where by default Linux uses the BIOS services for
+> PCI rather than the native method.
 
-That's a new and interesting thing to add to the list of things
-that /usr/include/linux is _not_:
+It's a BIOS bug if the PCI BIOS doesn't work, not a Linux bug.
 
-/usr/include/linux is _not_ a place to dump "reference code" in lieu of
-documentation on using kernel interfaces.
-
-Besides, the _syscallX implementations in the kernel were generally
-unsuitable for use in that way anyway -- I'd be much more inclined to
-rely on the libc version. The kernel version would do strange things
-like break with PIC code by using an unavailable register (i386),
-misalign 64-bit syscall arguments on 32-bit machines (MIPS), etc. 
-
-> > And once one libc implmenetation of this 
-> > exists, it can be used as a reference for other libc
-> > variants.
-> 
-> At least on x86-64 various glibc versions had quite buggy
-> syscall()s, that is why I never trusted it very much.
-
-I assume these were very _early_ glibc in when the port was new? 
-
-> > Finally, once it's done, it's done, and that's it.
-> 
-> Except if you still have to deal with old user land.
-
-The limited subset of old userland which elected to use _syscallX()
-instead of libc's syscall(), and which can be fixed fairly easily.
-
--- 
-dwmw2
-
+-Andi

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWH1Oyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWH1Ozq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWH1Oyk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWH1Oyk
+	id S1751053AbWH1Ozq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWH1Ozq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:54:40 -0400
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:5764 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751047AbWH1Oyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:54:39 -0400
-Date: Mon, 28 Aug 2006 07:54:36 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>
-Subject: Re: [PATCH RFC 3/6] Use %gs as the PDA base-segment in the kernel.
-Message-ID: <20060828145436.GA5710@lucon.org>
-References: <20060827084417.918992193@goop.org> <200608271757.18621.ak@suse.de> <44F1D464.5020304@goop.org> <200608272019.15067.ak@suse.de> <44F2D8A4.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F2D8A4.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 28 Aug 2006 10:55:46 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:56903 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751052AbWH1Ozp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:55:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=cMBxdCmPgognXi3RUsvYzRTzYR3cQRDwd2WDz3XxS7rSPXLczI6EvXTxjwRAWbDGSRUgi9K1MYqioLhzb6spOym1m8EAIyiL1irlUpAs86HF9/bQEcN2KAf55fIEw9Y9abJV/mp48XvgBnuiGcbt7brvHoclLO62tuOL1KWPsqg=
+Message-ID: <44F303ED.4040605@gmail.com>
+Date: Mon, 28 Aug 2006 22:55:41 +0800
+From: Yi Yang <yang.y.yi@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Frederik Deweerdt <deweerdt@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
+References: <44F2EF90.9050603@gmail.com> <20060828160800.GA1633@slug>
+In-Reply-To: <20060828160800.GA1633@slug>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 10:51:00AM +0100, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 27.08.06 20:19 >>>
-> >On Sunday 27 August 2006 19:20, Jeremy Fitzhardinge wrote:
-> >> Andi Kleen wrote:
-> >> >> +1:	movw GS(%esp), %gs
-> >> >>     
-> >> >
-> >> > movl is recommended in 32bit mode
-> >> >   
-> >> 
-> >> arch/i386/kernel/entry.S: Assembler messages:
-> >> arch/i386/kernel/entry.S:334: Error: suffix or operands invalid for `mov'
-> >
-> >Looks like a gas bug to me.
-> 
-> This was an intentional change (by H.J. if I recall right) as using movl
-> with segment registers gives the incorrect impression that one gets a
-> 32-bit memory access (especially for stores this is important, since
-> there's really nothing stored to the upper 16 bits). One should always
-> use suffix-less 'mov' for segment register accesses.
+Frederik Deweerdt 写道:
+> On Mon, Aug 28, 2006 at 09:28:48PM +0800, Yi Yang wrote:
+>   
+>> In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
+>> and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
+>> does know them, I think the correct errno should be -EOPNOTSUPP which
+>> means they aren't be implemented or supported.
+>>     
+> Hi, 
+>
+> If I'm not mistaken, returning EINVAL conforms to POSIX, isn't it?
+>   
+But POSIX also defined ENOTSUP which is equal to EOPNOTSUPP for linux.
+> http://www.opengroup.org/onlinepubs/009695399/functions/fsync.html
+> Regards,
+> Frederik
+>  
+>
+>   
 
-mov will generate the optimal opcode with old and new assemblers.
-
-
-H.J.

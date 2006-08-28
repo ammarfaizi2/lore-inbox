@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWH1H1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWH1HaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWH1H1k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 03:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWH1H1k
+	id S932409AbWH1HaP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 03:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWH1HaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 03:27:40 -0400
-Received: from pool-71-116-121-133.snfcca.dsl-w.verizon.net ([71.116.121.133]:59077
-	"EHLO k1lkq.m1z13o.optonline.net") by vger.kernel.org with ESMTP
-	id S932404AbWH1H1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 03:27:37 -0400
-Message-ID: <53150137404692.C9322E7067@PU0ZN8SV>
-From: "chore" <breddebra@earthlink.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: antecedent
-Date: Mon, 28 Aug 2006 00:28:47 -0700
+	Mon, 28 Aug 2006 03:30:15 -0400
+Received: from mail.us.es ([193.147.175.20]:1179 "EHLO us.es")
+	by vger.kernel.org with ESMTP id S932409AbWH1HaN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 03:30:13 -0400
+Message-ID: <44F29CD4.9000707@netfilter.org>
+Date: Mon, 28 Aug 2006 09:35:48 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: jVsNyQrvG1w5lvT96NCn5U24tZmtmdVAf6gm
-Content-Type: text/plain;
-        charset="Windows-1252"
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18-rc4-mm3
+References: <20060826160922.3324a707.akpm@osdl.org> <40f323d00608270550y2b4706a8i95990344f0eccad1@mail.gmail.com>
+In-Reply-To: <40f323d00608270550y2b4706a8i95990344f0eccad1@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W a t c h   o u t!
+Benoit Boissinot wrote:
+> On 8/27/06, Andrew Morton <akpm@osdl.org> wrote:
+> 
+>>
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/ 
+>>
+>>
+>> Changes since 2.6.18-rc4-mm2:
+>>
+>>  git-net.patch
+> 
+> 
+> It introduces a new warning for me:
+> net/netfilter/xt_CONNMARK.c: In function 'target':
+> net/netfilter/xt_CONNMARK.c:59: warning: implicit declaration of
+> function 'nf_conntrack_event_cache'
+> 
+> The warning is due to the following .config:
+> CONFIG_IP_NF_CONNTRACK=m
+> CONFIG_IP_NF_CONNTRACK_MARK=y
+> # CONFIG_IP_NF_CONNTRACK_EVENTS is not set
+> CONFIG_IP_NF_CONNTRACK_NETLINK=m
+> 
+> This change was introduced by:
+> http://www.kernel.org/git/?p=linux/kernel/git/davem/net-2.6.19.git;a=commit;h=76e4b41009b8a2e9dd246135cf43c7fe39553aa5 
+> 
+> Proposed solution (based on the define in
+> include/net/netfilter/nf_conntrack_compat.h:
 
-ALILANCE ENTREPRISE (AET R)
-Current Prcie: 0.80
-Add this g e m to your watc h list, and wat ch it tard closely!
+That is my fault, thanks for catching up this Benoit.
 
-Nwes Relaese!
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
-Taeocrp announces breackrough in removing deadly landmine s.
-
-Mill Valley, California August 25, 2006 - The Alliacne Enetrprise Corpoartion announced today a breakthrough in developing an Areial Ladnmine Sytsem aimed at locating, detecting and mapping deadly l andmines.
-
-TaCeorp's mission is to reclaim lands around the globe embedded with l andmines that victimize countries and their stakeholders.
-
-More than 100 m i l l i o n lan dmines in 83 countries are holding international communities and industries hostage, preventing the inve stment in and development of p roductive lands and the re-building of infrastructure. A broad variety of lan dmines have been scattered over productiv e areas effectively crippling the econ omy and disabling thousands of children and adults.  There are no reliable records that accurately show where these d e v a s t a t i n g land mines lie in wait for their victi ms.
- 
-With the present day cost s to clear a single land mine ranging between $1,000 to $1,500, solving the problem of de-mining lands will reach billions of dollar s.  TaeCorp has developed a technology based, cos t effective solution to this problem using its three tiered approach to scanning, mapping and removing lan dmines. TaeCorp's System will provide many social and eco nomic ben efits to countries and their industries including oil and gas, mining, agriculture, roads and infrastructure development.
-
-About TaeCorp.
-
-TaeCorp's vision is to be the recognized leader in providing Areial Detcetion Sysetms including global de-mining, clearing a path to a safer planet for all humankind.
-
-Here comes the big one! 
-All signs show that AET R is going to Explode!
-
-Conclu sion:
-The examples above show the awesome, earning potential of little known companies that explode onto invetsor's radar screens; Many of you are already familiar with this. Is AE TR poised and positioned to do that for you? Then you may feel the time has come to act... And please watch this one tarde tomorrow! Go AET R.
-P enny sotcks are considered highly speculative and may be unsuitable for all but very aggressive invetsors.  This profi le is not in any way af filiated with the featured company.  This report is for entertainment and advertising purposes only and should not be used as invetsment advice.  If you wish to stop future m a i lings, or if you feel you have been wrongfully placed in our membership, send a blank e m a i l with No Thanks in the subject to 
-
-
-
-
+-- 
+The dawn of the fourth age of Linux firewalling is coming; a time of 
+great struggle and heroic deeds -- J.Kadlecsik got inspired by J.Morris

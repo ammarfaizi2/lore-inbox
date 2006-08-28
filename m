@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWH1RmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWH1RmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWH1RmO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 13:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWH1RmN
+	id S1751201AbWH1RmT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 13:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWH1RmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 13:42:13 -0400
-Received: from www.osadl.org ([213.239.205.134]:49296 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751176AbWH1RmM (ORCPT
+	Mon, 28 Aug 2006 13:42:18 -0400
+Received: from [62.205.161.221] ([62.205.161.221]:50860 "EHLO kir.sacred.ru")
+	by vger.kernel.org with ESMTP id S1751201AbWH1RmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 13:42:12 -0400
-Subject: Re: Linux v2.6.18-rc5
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@elte.hu
-In-Reply-To: <20060828102030.96084a3f.akpm@osdl.org>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-	 <20060827231421.f0fc9db1.akpm@osdl.org> <200608280925.30600.ak@suse.de>
-	 <1156752519.29250.47.camel@localhost.localdomain>
-	 <20060828102030.96084a3f.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 19:45:45 +0200
-Message-Id: <1156787145.29250.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 28 Aug 2006 13:42:17 -0400
+Message-ID: <44F32AC7.1090604@openvz.org>
+Date: Mon, 28 Aug 2006 21:41:27 +0400
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060802)
+MIME-Version: 1.0
+To: rohitseth@google.com, devel@openvz.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [Devel] Re: BC: resource beancounters (v2)
+References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>	<20060825203026.A16221@castle.nmd.msu.ru>	<1156558552.24560.23.camel@galaxy.corp.google.com>	<1156610224.3007.284.camel@localhost.localdomain> <1156783721.8317.6.camel@galaxy.corp.google.com>
+In-Reply-To: <1156783721.8317.6.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Mon, 28 Aug 2006 21:39:53 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 10:20 -0700, Andrew Morton wrote:
-> On Mon, 28 Aug 2006 10:08:39 +0200
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> 
-> > On Mon, 2006-08-28 at 09:25 +0200, Andi Kleen wrote:
-> > > On Monday 28 August 2006 08:14, Andrew Morton wrote:
-> > > 
-> > > > From: Andi Kleen <ak@suse.de>
-> > > > Subject: Futex BUG in 2.6.18rc2-git7
-> > > 
-> > > I don't think I saw a fix for that, but Thomas and Ingo should know.
-> > 
-> > You should know too :)
-> > 
-> > 	tglx
-> > 
-> > 
-> > -------- Forwarded Message --------
-> > From: Olaf Hering <olaf@aepfle.de>
-> > To: Andi Kleen <ak@suse.de>
-> > Cc: Olaf Hering <olaf@aepfle.de>, Thomas Gleixner <tglx@linutronix.de>,
-> > mingo@elte.hu
-> > Subject: Re: Futex BUG in 2.6.18rc2-git7
-> > Date: Sat, 5 Aug 2006 10:07:14 +0200
-> > 
-> > On Sat, Aug 05, 2006 at 01:09:54AM +0200, Andi Kleen wrote:
-> > > On Friday 04 August 2006 22:26, Olaf Hering wrote:
-> > > > On Fri, Aug 04, 2006 at 10:12:15PM +0200, Thomas Gleixner wrote:
-> > > > 
-> > > > > Is the glibc the latest CVS version ?
-> > > > 
-> > > > Its a snapshot from 2006073023.
-> > > 
-> > > Olaf, wagner is running that kernel+Thomas' patch now (although I 
-> > > didn't think any compat was involved) now. Can you please restart
-> > > the glibc test?
-> > 
-> > This patch fixes it, also the ppc32 and ppc64 glibc make check.
-> 
-> Did this fix get merged?
+Rohit Seth wrote:
+> On Sat, 2006-08-26 at 17:37 +0100, Alan Cox wrote:
+>   
+>> Ar Gwe, 2006-08-25 am 19:15 -0700, ysgrifennodd Rohit Seth:
+>>     
+>>> Yes, sharing of pages across different containers/managers will be a
+>>> problem.  Why not just disallow that scenario (that is what fake nodes
+>>> proposal would also end up doing).
+>>>       
+>> Because it destroys the entire point of using containers instead of
+>> something like Xen - which is sharing. Also at the point I am using
+>> beancounters per user I don't want glibc per use, libX11 per use glib
+>> per use gtk per user etc..
+>>
+>>
+>>     
+>
+> I'm not saying per use glibc etc.  That will indeed be useless and bring
+> it to virtualization world.  Just like fake node, one should be allowed
+> to use pages that are already in  (for example) page cache- so that you
+> don't end up duplicating all shared stuff.  But as far as charging is
+> concerned, charge it to container who either got the page in page cache
+> OR if FS based semantics exist then charge it to the container where the
+> file belongs.  What I was suggesting is to not charge a page to
+> different counters.
+>   
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ce2c6b53847afc444c4d0a7a1075c61f499c57a5
+Consider the following simple scenario: there are 50 containers 
+(numbered, say, 1 to 50) all sharing a single installation of Fedora 
+Core 5. They all run sshd, apache, syslogd, crond and some other stuff 
+like that. This is actually quite a real scenario.
 
-AFAICT are all the small fixups merged.
-
-	tglx
-
-
+In the world that you propose the container which was unlucky to start 
+first (probably the one with ID of either 1 or 50) will be charged for 
+all the memory, and all the
+others will have most of their memory for free. And in such a world 
+per-container memory accounting or limiting is just not possible.

@@ -1,316 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWH1QgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWH1Qjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWH1QgH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 12:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWH1QgH
+	id S1750801AbWH1Qjx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 12:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWH1Qjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 12:36:07 -0400
-Received: from gw.goop.org ([64.81.55.164]:23478 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751215AbWH1QgE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 12:36:04 -0400
-Message-ID: <44F31B73.5000903@goop.org>
-Date: Mon, 28 Aug 2006 09:36:03 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@ocs.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Use asm-offsets for offsets into struct pt_regs
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 28 Aug 2006 12:39:53 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:65408 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750801AbWH1Qjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 12:39:52 -0400
+Subject: Re: Serial custom speed deprecated?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0608281047360.388@chaos.analogic.com>
+References: <20060826181639.6545.qmail@science.horizon.com>
+	 <Pine.LNX.4.61.0608280817030.32531@chaos.analogic.com>
+	 <1156775994.6271.28.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0608281047360.388@chaos.analogic.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Aug 2006 18:01:34 +0100
+Message-Id: <1156784494.6271.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use asm-offsets for the offsets of registers into the pt_regs struct,
-rather than having hard-coded constants.
+Ar Llu, 2006-08-28 am 10:50 -0400, ysgrifennodd linux-os (Dick Johnson):
+> It has nothing to do with 'personal laws of physics'. On all recent
+> implementations, B0 is 0, i.e., the absence of any bits set. Therefore,
+> there is no observable difference between CBAUDEX and CBAUDEX | B0,
+> as shown above. 
 
-I left the constants in the comments of entry.S because they're useful
-for reference; the code in entry.S is very dependent on the layout of
-pt_regs, even when using asm-offsets.
+Correct
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Keith Owens <kaos@ocs.com.au>
+> Therefore, as I stated, it won't work.
 
-
----
- arch/i386/kernel/asm-offsets.c |   17 +++++
- arch/i386/kernel/entry.S       |  118 +++++++++++++++++-----------------------
- 2 files changed, 68 insertions(+), 67 deletions(-)
+Incorrect
 
 
-diff -r c7c67fa1698d arch/i386/kernel/asm-offsets.c
---- a/arch/i386/kernel/asm-offsets.c	Thu Aug 24 16:12:47 2006 -0700
-+++ b/arch/i386/kernel/asm-offsets.c	Mon Aug 28 09:33:39 2006 -0700
-@@ -58,6 +58,23 @@ void foo(void)
- 	OFFSET(TI_sysenter_return, thread_info, sysenter_return);
- 	BLANK();
- 
-+	OFFSET(PT_EBX, pt_regs, ebx);
-+	OFFSET(PT_ECX, pt_regs, ecx);
-+	OFFSET(PT_EDX, pt_regs, edx);
-+	OFFSET(PT_ESI, pt_regs, esi);
-+	OFFSET(PT_EDI, pt_regs, edi);
-+	OFFSET(PT_EBP, pt_regs, ebp);
-+	OFFSET(PT_EAX, pt_regs, eax);
-+	OFFSET(PT_DS,  pt_regs, xds);
-+	OFFSET(PT_ES,  pt_regs, xes);
-+	OFFSET(PT_ORIG_EAX, pt_regs, orig_eax);
-+	OFFSET(PT_EIP, pt_regs, eip);
-+	OFFSET(PT_CS,  pt_regs, xcs);
-+	OFFSET(PT_EFLAGS, pt_regs, eflags);
-+	OFFSET(PT_OLDESP, pt_regs, esp);
-+	OFFSET(PT_OLDSS,  pt_regs, xss);
-+	BLANK();
-+
- 	OFFSET(EXEC_DOMAIN_handler, exec_domain, handler);
- 	OFFSET(RT_SIGFRAME_sigcontext, rt_sigframe, uc.uc_mcontext);
- 	BLANK();
-diff -r c7c67fa1698d arch/i386/kernel/entry.S
---- a/arch/i386/kernel/entry.S	Thu Aug 24 16:12:47 2006 -0700
-+++ b/arch/i386/kernel/entry.S	Mon Aug 28 09:33:39 2006 -0700
-@@ -53,22 +53,6 @@
- 
- #define nr_syscalls ((syscall_table_size)/4)
- 
--EBX		= 0x00
--ECX		= 0x04
--EDX		= 0x08
--ESI		= 0x0C
--EDI		= 0x10
--EBP		= 0x14
--EAX		= 0x18
--DS		= 0x1C
--ES		= 0x20
--ORIG_EAX	= 0x24
--EIP		= 0x28
--CS		= 0x2C
--EFLAGS		= 0x30
--OLDESP		= 0x34
--OLDSS		= 0x38
--
- CF_MASK		= 0x00000001
- TF_MASK		= 0x00000100
- IF_MASK		= 0x00000200
-@@ -92,7 +76,7 @@ VM_MASK		= 0x00020000
- 
- .macro TRACE_IRQS_IRET
- #ifdef CONFIG_TRACE_IRQFLAGS
--	testl $IF_MASK,EFLAGS(%esp)     # interrupts off?
-+	testl $IF_MASK,PT_EFLAGS(%esp)     # interrupts off?
- 	jz 1f
- 	TRACE_IRQS_ON
- 1:
-@@ -195,18 +179,18 @@ 4:	movl $0,(%esp);	\
- 
- #define RING0_PTREGS_FRAME \
- 	CFI_STARTPROC simple;\
--	CFI_DEF_CFA esp, OLDESP-EBX;\
--	/*CFI_OFFSET cs, CS-OLDESP;*/\
--	CFI_OFFSET eip, EIP-OLDESP;\
--	/*CFI_OFFSET es, ES-OLDESP;*/\
--	/*CFI_OFFSET ds, DS-OLDESP;*/\
--	CFI_OFFSET eax, EAX-OLDESP;\
--	CFI_OFFSET ebp, EBP-OLDESP;\
--	CFI_OFFSET edi, EDI-OLDESP;\
--	CFI_OFFSET esi, ESI-OLDESP;\
--	CFI_OFFSET edx, EDX-OLDESP;\
--	CFI_OFFSET ecx, ECX-OLDESP;\
--	CFI_OFFSET ebx, EBX-OLDESP
-+	CFI_DEF_CFA esp, PT_OLDESP-PT_EBX;\
-+	/*CFI_OFFSET cs, PT_CS-PT_OLDESP;*/\
-+	CFI_OFFSET eip, PT_EIP-PT_OLDESP;\
-+	/*CFI_OFFSET es, PT_ES-PT_OLDESP;*/\
-+	/*CFI_OFFSET ds, PT_DS-PT_OLDESP;*/\
-+	CFI_OFFSET eax, PT_EAX-PT_OLDESP;\
-+	CFI_OFFSET ebp, PT_EBP-PT_OLDESP;\
-+	CFI_OFFSET edi, PT_EDI-PT_OLDESP;\
-+	CFI_OFFSET esi, PT_ESI-PT_OLDESP;\
-+	CFI_OFFSET edx, PT_EDX-PT_OLDESP;\
-+	CFI_OFFSET ecx, PT_ECX-PT_OLDESP;\
-+	CFI_OFFSET ebx, PT_EBX-PT_OLDESP
- 
- ENTRY(ret_from_fork)
- 	CFI_STARTPROC
-@@ -234,8 +218,8 @@ ret_from_intr:
- ret_from_intr:
- 	GET_THREAD_INFO(%ebp)
- check_userspace:
--	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
--	movb CS(%esp), %al
-+	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS and CS
-+	movb PT_CS(%esp), %al
- 	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
- 	cmpl $USER_RPL, %eax
- 	jb resume_kernel		# not returning to v8086 or userspace
-@@ -258,7 +242,7 @@ need_resched:
- 	movl TI_flags(%ebp), %ecx	# need_resched set ?
- 	testb $_TIF_NEED_RESCHED, %cl
- 	jz restore_all
--	testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
-+	testl $IF_MASK,PT_EFLAGS(%esp)	# interrupts off (exception path) ?
- 	jz restore_all
- 	call preempt_schedule_irq
- 	jmp need_resched
-@@ -323,15 +307,15 @@ 1:	movl (%ebp),%ebp
- 	cmpl $(nr_syscalls), %eax
- 	jae syscall_badsys
- 	call *sys_call_table(,%eax,4)
--	movl %eax,EAX(%esp)
-+	movl %eax,PT_EAX(%esp)
- 	DISABLE_INTERRUPTS
- 	TRACE_IRQS_OFF
- 	movl TI_flags(%ebp), %ecx
- 	testw $_TIF_ALLWORK_MASK, %cx
- 	jne syscall_exit_work
- /* if something modifies registers it must also disable sysexit */
--	movl EIP(%esp), %edx
--	movl OLDESP(%esp), %ecx
-+	movl PT_EIP(%esp), %edx
-+	movl PT_OLDESP(%esp), %ecx
- 	xorl %ebp,%ebp
- 	TRACE_IRQS_ON
- 	ENABLE_INTERRUPTS_SYSEXIT
-@@ -345,7 +329,7 @@ ENTRY(system_call)
- 	CFI_ADJUST_CFA_OFFSET 4
- 	SAVE_ALL
- 	GET_THREAD_INFO(%ebp)
--	testl $TF_MASK,EFLAGS(%esp)
-+	testl $TF_MASK,PT_EFLAGS(%esp)
- 	jz no_singlestep
- 	orl $_TIF_SINGLESTEP,TI_flags(%ebp)
- no_singlestep:
-@@ -357,7 +341,7 @@ no_singlestep:
- 	jae syscall_badsys
- syscall_call:
- 	call *sys_call_table(,%eax,4)
--	movl %eax,EAX(%esp)		# store the return value
-+	movl %eax,PT_EAX(%esp)		# store the return value
- syscall_exit:
- 	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
-@@ -368,12 +352,12 @@ syscall_exit:
- 	jne syscall_exit_work
- 
- restore_all:
--	movl EFLAGS(%esp), %eax		# mix EFLAGS, SS and CS
--	# Warning: OLDSS(%esp) contains the wrong/random values if we
-+	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS, SS and CS
-+	# Warning: PT_OLDSS(%esp) contains the wrong/random values if we
- 	# are returning to the kernel.
- 	# See comments in process.c:copy_thread() for details.
--	movb OLDSS(%esp), %ah
--	movb CS(%esp), %al
-+	movb PT_OLDSS(%esp), %ah
-+	movb PT_CS(%esp), %al
- 	andl $(VM_MASK | (SEGMENT_TI_MASK << 8) | SEGMENT_RPL_MASK), %eax
- 	cmpl $((SEGMENT_LDT << 8) | USER_RPL), %eax
- 	CFI_REMEMBER_STATE
-@@ -400,7 +384,7 @@ iret_exc:
- 
- 	CFI_RESTORE_STATE
- ldt_ss:
--	larl OLDSS(%esp), %eax
-+	larl PT_OLDSS(%esp), %eax
- 	jnz restore_nocheck
- 	testl $0x00400000, %eax		# returning to 32bit stack?
- 	jnz restore_nocheck		# allright, normal return
-@@ -450,7 +434,7 @@ work_resched:
- 
- work_notifysig:				# deal with pending signals and
- 					# notify-resume requests
--	testl $VM_MASK, EFLAGS(%esp)
-+	testl $VM_MASK, PT_EFLAGS(%esp)
- 	movl %esp, %eax
- 	jne work_notifysig_v86		# returning to kernel-space or
- 					# vm86-space
-@@ -475,14 +459,14 @@ work_notifysig_v86:
- 	# perform syscall exit tracing
- 	ALIGN
- syscall_trace_entry:
--	movl $-ENOSYS,EAX(%esp)
-+	movl $-ENOSYS,PT_EAX(%esp)
- 	movl %esp, %eax
- 	xorl %edx,%edx
- 	call do_syscall_trace
- 	cmpl $0, %eax
- 	jne resume_userspace		# ret != 0 -> running under PTRACE_SYSEMU,
- 					# so must skip actual syscall
--	movl ORIG_EAX(%esp), %eax
-+	movl PT_ORIG_EAX(%esp), %eax
- 	cmpl $(nr_syscalls), %eax
- 	jnae syscall_call
- 	jmp syscall_exit
-@@ -507,11 +491,11 @@ syscall_fault:
- 	CFI_ADJUST_CFA_OFFSET 4
- 	SAVE_ALL
- 	GET_THREAD_INFO(%ebp)
--	movl $-EFAULT,EAX(%esp)
-+	movl $-EFAULT,PT_EAX(%esp)
- 	jmp resume_userspace
- 
- syscall_badsys:
--	movl $-ENOSYS,EAX(%esp)
-+	movl $-ENOSYS,PT_EAX(%esp)
- 	jmp resume_userspace
- 	CFI_ENDPROC
- 
-@@ -634,10 +618,10 @@ error_code:
- 	popl %ecx
- 	CFI_ADJUST_CFA_OFFSET -4
- 	/*CFI_REGISTER es, ecx*/
--	movl ES(%esp), %edi		# get the function address
--	movl ORIG_EAX(%esp), %edx	# get the error code
--	movl %eax, ORIG_EAX(%esp)
--	movl %ecx, ES(%esp)
-+	movl PT_ES(%esp), %edi		# get the function address
-+	movl PT_ORIG_EAX(%esp), %edx	# get the error code
-+	movl %eax, PT_ORIG_EAX(%esp)
-+	movl %ecx, PT_ES(%esp)
- 	/*CFI_REL_OFFSET es, ES*/
- 	movl $(__USER_DS), %ecx
- 	movl %ecx, %ds
-@@ -928,26 +912,26 @@ ENTRY(arch_unwind_init_running)
- 	movl	4(%esp), %edx
- 	movl	(%esp), %ecx
- 	leal	4(%esp), %eax
--	movl	%ebx, EBX(%edx)
-+	movl	%ebx, PT_EBX(%edx)
- 	xorl	%ebx, %ebx
--	movl	%ebx, ECX(%edx)
--	movl	%ebx, EDX(%edx)
--	movl	%esi, ESI(%edx)
--	movl	%edi, EDI(%edx)
--	movl	%ebp, EBP(%edx)
--	movl	%ebx, EAX(%edx)
--	movl	$__USER_DS, DS(%edx)
--	movl	$__USER_DS, ES(%edx)
--	movl	%ebx, ORIG_EAX(%edx)
--	movl	%ecx, EIP(%edx)
-+	movl	%ebx, PT_ECX(%edx)
-+	movl	%ebx, PT_EDX(%edx)
-+	movl	%esi, PT_ESI(%edx)
-+	movl	%edi, PT_EDI(%edx)
-+	movl	%ebp, PT_EBP(%edx)
-+	movl	%ebx, PT_EAX(%edx)
-+	movl	$__USER_DS, PT_DS(%edx)
-+	movl	$__USER_DS, PT_ES(%edx)
-+	movl	%ebx, PT_ORIG_EAX(%edx)
-+	movl	%ecx, PT_EIP(%edx)
- 	movl	12(%esp), %ecx
--	movl	$__KERNEL_CS, CS(%edx)
--	movl	%ebx, EFLAGS(%edx)
--	movl	%eax, OLDESP(%edx)
-+	movl	$__KERNEL_CS, PT_CS(%edx)
-+	movl	%ebx, PT_EFLAGS(%edx)
-+	movl	%eax, PT_OLDESP(%edx)
- 	movl	8(%esp), %eax
- 	movl	%ecx, 8(%esp)
--	movl	EBX(%edx), %ebx
--	movl	$__KERNEL_DS, OLDSS(%edx)
-+	movl	PT_EBX(%edx), %ebx
-+	movl	$__KERNEL_DS, PT_OLDSS(%edx)
- 	jmpl	*%eax
- 	CFI_ENDPROC
- ENDPROC(arch_unwind_init_running)
+The state
+
+	(flag & CBAUD) == (CBAUDEX|0)
+
+is not currently used
+
+CBAUDEX|1 .. CBAUDX|15 are used as are 0-15.
+
 

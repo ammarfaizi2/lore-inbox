@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWH1Khw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWH1KpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWH1Khw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 06:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWH1Khv
+	id S964787AbWH1KpE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 06:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWH1KpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 06:37:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:951 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964784AbWH1Khu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 06:37:50 -0400
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
-       rmk+lkml@arm.linux.org.uk, akpm@osdl.org, chase.venters@clientec.com,
-       B.Steinbrink@gmx.de, jdike@addtoit.com, linux-arch@vger.kernel.org,
-       arnd@arndb.de, David Miller <davem@davemloft.net>,
-       Andi Kleen <ak@suse.de>
-In-Reply-To: <1156759232.5340.36.camel@pmac.infradead.org>
-References: <200608281003.02757.ak@suse.de> <200608281028.13652.ak@suse.de>
-	 <1156754436.5340.20.camel@pmac.infradead.org>
-	 <200608281053.11142.ak@suse.de>
-	 <1156759232.5340.36.camel@pmac.infradead.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 28 Aug 2006 12:37:27 +0200
-Message-Id: <1156761447.3034.178.camel@laptopd505.fenrus.org>
+	Mon, 28 Aug 2006 06:45:03 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55523 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964787AbWH1KpB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 06:45:01 -0400
+Date: Mon, 28 Aug 2006 12:44:59 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] select_bad_process: cleanup 'releasing' check
+Message-ID: <20060828104459.GA14010@wotan.suse.de>
+References: <20060827182538.GA1779@oleg>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060827182538.GA1779@oleg>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 11:00 +0100, David Woodhouse wrote:
-> On Mon, 2006-08-28 at 10:53 +0200, Andi Kleen wrote:
-> > 
-> > > /usr/include/linux is _not_ a place to dump "reference code" in lieu of
-> > > documentation on using kernel interfaces.
-> > 
-> > At least for the system call interface it was always. It is not
-> > my fault you're trying to suddenly redefine it to be something else.
+On Sun, Aug 27, 2006 at 10:25:38PM +0400, Oleg Nesterov wrote:
+> On top of "select_bad_process: kill a bogus PF_DEAD/TASK_DEAD check"
 > 
-> I'm trying to 'suddenly redefine' kernel headers as something that
-> _isn't_ just a library of random crap for people to abuse in userspace
-> as they see fit, then whine when something breaks even though it was
-> never really guaranteed to work when abused in that way anyway.
+> No logic changes, but imho easier to read.
 > 
-> So far, you're just reminding me why that needed to be done.
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 > 
-> > > Besides, the _syscallX implementations in the kernel were generally
-> > > unsuitable for use [as a reference implementation]
-> > 
-> > I disagree. I used them and they worked great for me.
+> --- 2.6.18-rc4/mm/oom_kill.c~	2006-08-27 20:56:23.000000000 +0400
+> +++ 2.6.18-rc4/mm/oom_kill.c	2006-08-27 21:58:32.000000000 +0400
+> @@ -205,7 +205,6 @@ static struct task_struct *select_bad_pr
+>  	do_posix_clock_monotonic_gettime(&uptime);
+>  	do_each_thread(g, p) {
+>  		unsigned long points;
+> -		int releasing;
+>  
+>  		/*
+>  		 * skip kernel threads and tasks which have already released
+> @@ -227,16 +226,15 @@ static struct task_struct *select_bad_pr
+>  		 * the process of exiting and releasing its resources.
+>  		 * Otherwise we could get an OOM deadlock.
+>  		 */
+> -		releasing = test_tsk_thread_flag(p, TIF_MEMDIE) ||
+> -						p->flags & PF_EXITING;
+> -		if (releasing) {
+> -			if (p->flags & PF_EXITING && p == current) {
+> -				chosen = p;
+> -				*ppoints = ULONG_MAX;
+> -				break;
+> -			}
+> -			return ERR_PTR(-1UL);
+> -		}
+> +		if ((p->flags & PF_EXITING) && p == current) {
+> +			chosen = p;
+> +			*ppoints = ULONG_MAX;
+> +			break;
+> +		}
+> +		if ((p->flags & PF_EXITING) ||
+> +				test_tsk_thread_flag(p, TIF_MEMDIE))
+> +			return ERR_PTR(-1UL);
+> +
 
-the x86_64 macros use the VDSO page? great! I didn't know that.
-But that would make them unusable for kernel use I suspect...
+Hmm, actually I think I spot a bug in the original logic: we don't want
+to have more than 1 task with TIF_MEMDIE at once, becaues that gives it
+access to memory reserves (but I saw it first in the new formulation, so
+maybe that does suggest it is more readable ;)
 
+What I think should be done is the check for TIF_MEMDIE (and return -1)
+first, and then the PF_EXITING test. At which point, if current is found to
+be exiting, it should be chosen but not break... that way a subsequent MEMDIE
+or EXITING task has the chance to trigger the -1 return.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Anyway, if you don't want to do all that, I will when my hand gets better.
+Otherwise the 3 patches you sent look good, they could all have an
 
+Acked-by: Nick Piggin <npiggin@suse.de>
+
+Thanks,
+Nick

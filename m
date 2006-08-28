@@ -1,170 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWH1Cmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWH1CzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWH1Cmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWH1Cmy
+	id S932365AbWH1CzT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWH1CzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:42:54 -0400
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:58240 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932351AbWH1Cmx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:42:53 -0400
-Message-ID: <44F259C7.5090505@wolfmountaingroup.com>
-Date: Sun, 27 Aug 2006 20:49:43 -0600
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: altendew <andrew@shiftcode.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Server Attack
-References: <6011508.post@talk.nabble.com>
-In-Reply-To: <6011508.post@talk.nabble.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Aug 2006 22:55:19 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:57145 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932365AbWH1CzR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:55:17 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Is stopmachine() preempt safe? 
+In-reply-to: Your message of "Mon, 28 Aug 2006 09:38:55 +1000."
+             <1156721935.10467.1.camel@localhost.localdomain> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 28 Aug 2006 12:55:18 +1000
+Message-ID: <16193.1156733718@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-altendew wrote:
+Rusty Russell (on Mon, 28 Aug 2006 09:38:55 +1000) wrote:
+>On Sun, 2006-08-27 at 19:42 +1000, Keith Owens wrote:
+>> I cannot convince myself that stopmachine() is preempt safe.  What
+>> prevents this race with CONFIG_PREEMPT=y?
+>
+>Nothing.  Read side is preempt_disable.  Write side is stopmachine.
 
->Hi someone is currently sending requests to our server 20x a second.
->
->Here is what one of the logs look like.
->
->[CODE]
->Host: 84.77.19.46   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US) AppleWebKit/578.4
->(KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
->
->Host: 82.234.98.65   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US) AppleWebKit/126.0
->(KHTML, like Geco, Safari) OmniWeb/v554.35  
->
->Host: 84.94.31.161   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US) AppleWebKit/502.6
->(KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
->
->Host: 81.49.24.92   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US) AppleWebKit/230.1
->(KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
->
->Host: 80.129.248.17   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US) AppleWebKit/243.6
->(KHTML, like Geco, Safari) OmniWeb/v846.88  
->
->Host: 87.235.49.194   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US) AppleWebKit/430.1
->(KHTML, like Geco, Safari) OmniWeb/v145.34  
->
->Host: 125.129.12.61   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US) AppleWebKit/455.3
->(KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
->
->Host: 66.110.153.47   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US) AppleWebKit/387.2
->(KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
->
->Host: 62.2.177.250   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US) AppleWebKit/206.1
->(KHTML, like Geco, Safari) OmniWeb/v204.07es  
->
->Host: 200.115.226.143   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US) AppleWebKit/647.0
->(KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
->
->Host: 84.171.125.189   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US) AppleWebKit/778.0
->(KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
->
->Host: 83.242.79.70   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US) AppleWebKit/537.0
->(KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
->
->Host: 86.69.194.172   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US) AppleWebKit/468.2
->(KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
->
->Host: 196.203.176.26   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US) AppleWebKit/840.3
->(KHTML, like Geco, Safari) OmniWeb/v767.50s  
->
->Host: 201.41.241.190   /signUp.php?ref=1945777  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US) AppleWebKit/742.0
->(KHTML, like Geco, Safari) OmniWeb/v715.65C:  
->
->Host: 200.84.144.234   /signUp.php?ref=ec0lag  
->  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->Bytes: -  
->  Referer: -  
->  Agent: Mozilla/5.0  
->[/CODE]
->
->We are currently blocking this user through our Apache.
->
->.htaccess
->[CODE]
->RewriteEngine On 
->RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\ Mac\
->OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
->OmniWeb/v([0-9]+).([0-9]+)(.+)$
->RewriteRule .* - [F]
->[/CODE]
->
->That works fine and is giving the user a 403 (Forbidden), but the problem is
->that half of our Apache processes are from this user.
->
->Is there a way to block his user agent before he gets to Apache? Sometimes
->this brings our server to a crash.
->
->Thanks
->Andrew
->  
->
-iptables -J drop <ip address>
+That is very worrying.  The whole point of stopmachine is to get all
+cpus to a known state with no locally cached global data, so the caller
+of stopmachine can safely fiddle with some global data (like updating
+the module lists).  But CONFIG_PREEMPT defeats this and turns any code
+that relies on stopmachine into a race.
 
+What we need is either a scheduler flag or a new task state to be
+assigned to the kstopmachine threads.  That indicator says
+
+  If the current state is not preempt active then schedule me.
+
+  If the current state is preempt active then put me back in the active
+  queue.
+
+  While the runqueue contains at least one task with this flag then
+  ignore reschedule on irq and prempt_enable.
+
+That will ensure that the kstopmachine threads get scheduled as soon as
+possible but only when all the preempted tasks have got to a clean stop
+point, e.g. sleep or yield.  At which point they have no locally cached
+global data, making stopmachine race safe again.
 

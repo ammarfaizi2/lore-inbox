@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWH1HZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWH1H1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWH1HZF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 03:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWH1HZF
+	id S932404AbWH1H1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 03:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWH1H1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 03:25:05 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:26037 "EHLO
-	mail.arcor.de") by vger.kernel.org with ESMTP id S932265AbWH1HZD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 03:25:03 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: Linux v2.6.18-rc5
-Date: Mon, 28 Aug 2006 09:24:47 +0200
-User-Agent: KMail/1.9.4
-Cc: Linus Torvalds <torvalds@osdl.org>, Marc Perkel <marc@perkel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACurrid@nvidia.com, len.brown@intel.com
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <Pine.LNX.4.64.0608272246350.27779@g5.osdl.org> <20060828061302.GA45823@muc.de>
-In-Reply-To: <20060828061302.GA45823@muc.de>
+	Mon, 28 Aug 2006 03:27:40 -0400
+Received: from pool-71-116-121-133.snfcca.dsl-w.verizon.net ([71.116.121.133]:59077
+	"EHLO k1lkq.m1z13o.optonline.net") by vger.kernel.org with ESMTP
+	id S932404AbWH1H1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 03:27:37 -0400
+Message-ID: <53150137404692.C9322E7067@PU0ZN8SV>
+From: "chore" <breddebra@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: antecedent
+Date: Mon, 28 Aug 2006 00:28:47 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6989448.DmivDvtaWP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: jVsNyQrvG1w5lvT96NCn5U24tZmtmdVAf6gm
+Content-Type: text/plain;
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608280924.47968.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6989448.DmivDvtaWP
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+W a t c h   o u t!
 
-Am Montag 28 August 2006 08:13 schrieb Andi Kleen:
-> On Sun, Aug 27, 2006 at 10:52:06PM -0700, Linus Torvalds wrote:
-> > On Sun, 27 Aug 2006, Marc Perkel wrote:
-> > > You might want to look at this bug.
-> > >
-> > > http://bugzilla.kernel.org/show_bug.cgi?id=3D6975
-> > >
-> > > The current kernel doesn't run on Asus Motherboards that use the new
-> > > AM2 CPUs.
->
-> That sounds like a overly broad statement. How do you know
-> it affects all Asus boards and not just your specific BIO version?
->
-> > > Should this be addressed before 2.6.18 is finished?
-> >
-> > Hmm. Can you verify that the system boots fine if you get rid of
-> > acpi_skip_timer_override as per the hint from Prakash Punnoor?
->
-> We already should disable it on NF5 automatically. Timer override was all
-> broken on NF3/NF4, but apparently works on NF5 again.
->
-> But the check relies on HPET being present. Maybe Asus "forgot"
-> to set up the HPET table again and the test fails.
+ALILANCE ENTREPRISE (AET R)
+Current Prcie: 0.80
+Add this g e m to your watc h list, and wat ch it tard closely!
 
-At least my dmesg says nothing about hpet and thus wan't to enable the quir=
-k.=20
-It is a nforce430 (thus nf4) chipset, though. You can find my bootlog here:
+Nwes Relaese!
 
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115545986619977&w=3D2
+Taeocrp announces breackrough in removing deadly landmine s.
 
-Cheers,
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+Mill Valley, California August 25, 2006 - The Alliacne Enetrprise Corpoartion announced today a breakthrough in developing an Areial Ladnmine Sytsem aimed at locating, detecting and mapping deadly l andmines.
 
---nextPart6989448.DmivDvtaWP
-Content-Type: application/pgp-signature
+TaCeorp's mission is to reclaim lands around the globe embedded with l andmines that victimize countries and their stakeholders.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+More than 100 m i l l i o n lan dmines in 83 countries are holding international communities and industries hostage, preventing the inve stment in and development of p roductive lands and the re-building of infrastructure. A broad variety of lan dmines have been scattered over productiv e areas effectively crippling the econ omy and disabling thousands of children and adults.  There are no reliable records that accurately show where these d e v a s t a t i n g land mines lie in wait for their victi ms.
+ 
+With the present day cost s to clear a single land mine ranging between $1,000 to $1,500, solving the problem of de-mining lands will reach billions of dollar s.  TaeCorp has developed a technology based, cos t effective solution to this problem using its three tiered approach to scanning, mapping and removing lan dmines. TaeCorp's System will provide many social and eco nomic ben efits to countries and their industries including oil and gas, mining, agriculture, roads and infrastructure development.
 
-iD8DBQBE8po/xU2n/+9+t5gRAvGgAJ94e2A3nmUD7LOOSbSHAViM5l5SAwCgrYe5
-6OV/4MvikC6N1nFCgY/kC8M=
-=wx7U
------END PGP SIGNATURE-----
+About TaeCorp.
 
---nextPart6989448.DmivDvtaWP--
+TaeCorp's vision is to be the recognized leader in providing Areial Detcetion Sysetms including global de-mining, clearing a path to a safer planet for all humankind.
+
+Here comes the big one! 
+All signs show that AET R is going to Explode!
+
+Conclu sion:
+The examples above show the awesome, earning potential of little known companies that explode onto invetsor's radar screens; Many of you are already familiar with this. Is AE TR poised and positioned to do that for you? Then you may feel the time has come to act... And please watch this one tarde tomorrow! Go AET R.
+P enny sotcks are considered highly speculative and may be unsuitable for all but very aggressive invetsors.  This profi le is not in any way af filiated with the featured company.  This report is for entertainment and advertising purposes only and should not be used as invetsment advice.  If you wish to stop future m a i lings, or if you feel you have been wrongfully placed in our membership, send a blank e m a i l with No Thanks in the subject to 
+
+
+
+

@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWH1Pqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWH1PrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWH1Pqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 11:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWH1Pqi
+	id S1751105AbWH1PrP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 11:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWH1PrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 11:46:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14600 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750801AbWH1Pqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 11:46:37 -0400
-Date: Mon, 28 Aug 2006 17:46:35 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, David Woodhouse <dwmw2@infradead.org>,
-       David Miller <davem@davemloft.net>, linux-arch@vger.kernel.org,
-       jdike@addtoit.com, B.Steinbrink@gmx.de, arjan@infradead.org,
-       chase.venters@clientec.com, akpm@osdl.org, rmk+lkml@arm.linux.org.uk,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-Message-ID: <20060828154634.GA3450@stusta.de>
-References: <200608281003.02757.ak@suse.de> <1156759232.5340.36.camel@pmac.infradead.org> <200608281606.00602.arnd@arndb.de> <200608281642.21737.ak@suse.de>
+	Mon, 28 Aug 2006 11:47:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:19600 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751105AbWH1PrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 11:47:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TSSvaIhYG3u3OK5aRjDY9ZU4k+Mr0ML437bb+nS2UT89ePoUGTBfPgOiQWIYKUMFwhy69vPRNHZ5AmroZJuBlEsFbAltu6ALj/cwXEx3i4F5nd/CNnCMfKfkp8h64aMHYcTCzMRXcTP1FoBDDljE9qYTThfng81mI6JJ1ZSCQ6o=
+Message-ID: <d120d5000608280847n221b6d89y93c8cba747d84890@mail.gmail.com>
+Date: Mon, 28 Aug 2006 11:47:12 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Ivo van Doorn" <ivdoorn@gmail.com>
+Subject: Re: [PATCH] RFKILL - Add support for input key to control wireless radio
+Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
+       "Jiri Benc" <jbenc@suse.cz>
+In-Reply-To: <200608271534.58503.IvDoorn@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608281642.21737.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <200608271534.58503.IvDoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 04:42:21PM +0200, Andi Kleen wrote:
-> On Monday 28 August 2006 16:05, Arnd Bergmann wrote:
-> 
-> > The patch below should address both these issues, as long as the libc
-> > has a working implementation of syscall(2).
-> 
-> I would prefer the _syscall() macros to stay independent of the 
-> actual glibc version. Or what do you do otherwise on a system
-> with old glibc? Upgrading glibc is normally a major PITA.
+Hi ivo,
 
-This would only be required if you'd upgrade the userspace kernel 
-headers on this system to a version not matching the ones glibc was 
-built against - and this has never been considered a good idea
-(it should work in theory, but not with our current header mess).
+On 8/27/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+> Hi,
+>
+> This driver has previously be send to the netdev list for inclusion
+> in the wireless-dev tree. But before it can be applied there this
+> patch needs  an stamp of approoval from the Input layer maintainer.
+>
+> Modern (and even older) laptops often have a key to enable or disable
+> the radio of a wireless device (WIFI, IRDA, Bluetooth, etc).
+> It is however not always the case that the button controls the hardware
+> directly. The rfkill driver will provide a uniform interface for hardware
+> drivers to hook the button on and to provide a single method to report
+> the state of the button to userspace.
+>
+> For each button a input device is created, after which rfkill will start polling
+> for the button state. The polling will only occur if the button requires polling,
+> but rfkill also provide a handler for the hardware driver to report the button
+> status to rfkill. Once the status of any button has changed (detected either
+> by polling or by notification from hardware driver) it will go through all
+> registered hardware and will enable/disable the radio of the device if the
+> input device has not been opened by the user. If the input device has been
+> openend by the user the radio will not be touched and the event will be send
+> to userspace to allow userspace to deal with the situation.
+>
 
-> -Andi
+I am not sure if this is a correct approach, kernel should not assume
+that the reason why input device was opened is to control the state of
+the transmitter. For example one could be happy with hardware toggling
+the state but still want to have for example a GKrellm showing state
+of the transmitter.
 
-cu
-Adrian
+Also please explain how userspace would control the state of
+transmitter once KEY_RFKILL is received - there seems to be only
+kernel->userspace link, but not userspace->kernel.
+
+I would rather see you implemented a transmitter control framework
+that would export couple of sysfs attributes. One attribute would
+enable/disable controlling transmitter state automatically by the
+driver and another  would allow controlling transmitter from
+userspace. Then input device would always deliver events to userspace
+(btw, it probably shoudl be switch, not a key event) and it would be
+up to userspace program to explicitely take control over.
 
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+Dmitry

@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWH1Osc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWH1Ouv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWH1Osc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWH1Osc
+	id S1750899AbWH1Ouv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWH1Ouv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:48:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:53211 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751007AbWH1Osb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:48:31 -0400
-Date: Mon, 28 Aug 2006 09:48:29 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com
-Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
-Message-ID: <20060828144829.GA31293@sergelap.austin.ibm.com>
-References: <20060824212241.GB30007@sergelap.austin.ibm.com> <20060825143842.GA27364@infradead.org> <20060825200359.GC13805@sergelap.austin.ibm.com> <20060826063247.GA6928@osiris.boeblingen.de.ibm.com> <20060827185101.GA14976@sergelap.austin.ibm.com> <20060828133755.GC9861@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060828133755.GC9861@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.11
+	Mon, 28 Aug 2006 10:50:51 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:8 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750882AbWH1Ouu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:50:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 28 Aug 2006 14:50:46.0485 (UTC) FILETIME=[5839E850:01C6CAB1]
+Content-class: urn:content-classes:message
+Subject: Re: Serial custom speed deprecated?
+Date: Mon, 28 Aug 2006 10:50:45 -0400
+Message-ID: <Pine.LNX.4.61.0608281047360.388@chaos.analogic.com>
+In-Reply-To: <1156775994.6271.28.camel@localhost.localdomain>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Serial custom speed deprecated?
+Thread-Index: AcbKsVhggsH+ieTESj2TIblolUIp5w==
+References: <20060826181639.6545.qmail@science.horizon.com> <Pine.LNX.4.61.0608280817030.32531@chaos.analogic.com> <1156775994.6271.28.camel@localhost.localdomain>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux@horizon.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Heiko Carstens (heiko.carstens@de.ibm.com):
-> > AP instructions not installed. 
-> > BUG: warning at lib/kref.c:32/kref_get() 
-> > 000000000017719a 0000000000000002 0000000000000000 0000000000a03cf0  
-> >        0000000000a03c68 000000000037fc2c 000000000037fc2c 0000000000015dfa  
-> >        0000000000000000 0000000000000000 000000000043ac30 0000000000000000  
-> >        0000000000000000 000000000000000d 0000000000a03c50 0000000000a03cc8  
-> >        0000000000362488 0000000000015dfa 0000000000a03c50 0000000000a03ca0  
-> > Call Trace: 
-> > (Ý<0000000000015d44>¨ show_trace+0x9c/0xb8) 
-> >  Ý<0000000000015e18>¨ show_stack+0xb8/0xc8 
-> >  Ý<0000000000015e56>¨ dump_stack+0x2e/0x3c 
-> >  Ý<0000000000163f70>¨ kref_get+0x50/0x74 
-> >  Ý<0000000000162ec6>¨ kobject_get+0x32/0x44 
-> >  Ý<0000000000178fd6>¨ get_bus+0x36/0x60 
-> >  Ý<0000000000179a12>¨ bus_add_driver+0x3a/0x1f4 
-> >  Ý<000000000017ae30>¨ driver_register+0xb0/0xc0 
-> >  Ý<000000000021a1fe>¨ ap_driver_register+0x56/0x64 
-> >  Ý<00000000004c6ba6>¨ zcrypt_pcicc_init+0x36/0x44 
-> >  Ý<000000000001330c>¨ init+0x1bc/0x3a4 
-> >  Ý<00000000000184be>¨ kernel_thread_starter+0x6/0xc 
-> >  Ý<00000000000184b8>¨ kernel_thread_starter+0x0/0xc 
-> 
-> This should be fixed with -mm3. In addition you need this one on top of -mm3:
-> 
->  arch/s390/kernel/time.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6.18-rc4-mm3/arch/s390/kernel/time.c
-> ===================================================================
-> --- linux-2.6.18-rc4-mm3.orig/arch/s390/kernel/time.c	2006-08-28 10:32:45.000000000 +0200
-> +++ linux-2.6.18-rc4-mm3/arch/s390/kernel/time.c	2006-08-28 10:42:33.000000000 +0200
-> @@ -85,7 +85,8 @@
->  {
->  	__u64 now;
->  
-> -        now = (get_clock() - jiffies_timer_cc) >> 12;
-> +	now = (get_clock() - jiffies_timer_cc) >> 12;
-> +	now -= (__u64) jiffies * USECS_PER_JIFFY;
->  	return (unsigned long) now;
->  }
 
-This patch appears to be actually in -mm3 (at least the git tree I just
-fetched), and is does boot fine now.
+On Mon, 28 Aug 2006, Alan Cox wrote:
 
-thanks,
--serge
+> Ar Llu, 2006-08-28 am 08:17 -0400, ysgrifennodd linux-os (Dick Johnson):
+>> On Sat, 26 Aug 2006 linux@horizon.com wrote:
+>>
+>>>> Or we could just add a standardised extra set of speed ioctls, but then
+>>>> we need to decide what occurs if I set the speed and then issue a
+>>>> termios call - does it override or not.
+>>>
+>>> Actually, we're not QUITE out of bits.  CBAUDEX | B0 is not taken.
+>>
+>> B0 is not a bit (there are no bits in 0). It won't work.
+>
+> Well that is how it is implemented and everyone else seems happy. If it
+> violates your personal laws of physics you'll just have to cope.
+
+It has nothing to do with 'personal laws of physics'. On all recent
+implementations, B0 is 0, i.e., the absence of any bits set. Therefore,
+there is no observable difference between CBAUDEX and CBAUDEX | B0,
+as shown above. Therefore, as I stated, it won't work.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

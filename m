@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWH1Vvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWH1VvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWH1Vvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWH1Vvh
+	id S932220AbWH1VvW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWH1VvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:51:37 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:44757 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932217AbWH1Vvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:51:35 -0400
-Date: Mon, 28 Aug 2006 17:49:01 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@f00f.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch] Relative atime - userspace
-Message-ID: <20060828214901.GA24374@filer.fsl.cs.sunysb.edu>
-References: <20060825235215.820563000@linux.intel.com> <20060825235619.GB25003@goober>
+	Mon, 28 Aug 2006 17:51:22 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43709
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932202AbWH1VvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:51:21 -0400
+Date: Mon, 28 Aug 2006 14:51:24 -0700 (PDT)
+Message-Id: <20060828.145124.120445347.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: malattia@linux.it, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: divide error: 0000 in fib6_rule_match
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060828143003.aaae0d7d.akpm@osdl.org>
+References: <20060826160922.3324a707.akpm@osdl.org>
+	<20060828200716.GA4244@inferi.kami.home>
+	<20060828143003.aaae0d7d.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825235619.GB25003@goober>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 04:56:19PM -0700, Valerie Henson wrote:
->  #define MS_VERBOSE	0x8000	/* 32768 */
-...
-> +#define MS_RELATIME   0x200000	/* 200000: Update access times relative
+From: Andrew Morton <akpm@osdl.org>
+Date: Mon, 28 Aug 2006 14:30:03 -0700
 
-Just a small thing... 0x200000 != 200000
+> Oh.  It looks like this has already been fixed:
+> 
+> #ifdef CONFIG_IPV6_ROUTE_FWMARK
+>         if ((r->fwmark ^ fl->fl6_fwmark) & r->fwmask)
+>                 return 0;
+> #endif
+> 
+> there's no divide in there now.
 
-Josef "Jeff" Sipek.
-
--- 
-Evolution, n.:
-  A hypothetical process whereby infinitely improbable events occur with
-  alarming frequency, order arises from chaos, and no one is given credit.
+That's right there used to be a typo there.

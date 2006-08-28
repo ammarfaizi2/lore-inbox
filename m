@@ -1,87 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWH1Ci3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWH1Ckx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWH1Ci3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWH1Ci3
+	id S932290AbWH1Ckx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWH1Ckx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:38:29 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:40656 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932317AbWH1Ci2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:38:28 -0400
-Date: Mon, 28 Aug 2006 08:07:53 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ego@in.ibm.com, rusty@rustcorp.com.au, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
-       mingo@elte.hu, dipankar@in.ibm.com, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
-Message-ID: <20060828023753.GA24777@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org>
+	Sun, 27 Aug 2006 22:40:53 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:12248 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932290AbWH1Ckw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:40:52 -0400
+Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
+From: Nicholas Miell <nmiell@comcast.net>
+To: David Miller <davem@davemloft.net>
+Cc: drepper@redhat.com, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
+       hch@infradead.org, chase.venters@clientec.com
+In-Reply-To: <20060827.185744.82374086.davem@davemloft.net>
+References: <11564996832717@2ka.mipt.ru> <44F208A5.4050308@redhat.com>
+	 <20060827.185744.82374086.davem@davemloft.net>
+Content-Type: text/plain
+Date: Sun, 27 Aug 2006 19:40:33 -0700
+Message-Id: <1156732833.2358.13.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060824091704.cae2933c.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
-> > (ii) Though has been introduced recently in workqueue.c , it will only lead to
-> > more deadlock scenarios since more locks would have to be acquired. 
-> > 
-> > Eg: workqueue + cpufreq(ondemand) ABBA deadlock scenario. Consider
-> > - task1: echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-> > - task2: echo 0 > /sys/devices/system/cpu/cpu1/online
-> > entering the system at the same time.
-> > 
-> > task1: calls store_scaling_governor which takes lock_cpu_hotplug.
-> > 
-> > task2: thru a blocking_notifier_call_chain(CPU_DOWN_PREPARE) 
-> > to workqueue subsystem holds workqueue_mutex.
-> > 
-> > task1: calls create_workqueue from cpufreq_governor_dbs[ondemand] 
-> > which tries taking workqueue_mutex but can't.
-> > 
-> > task2: thru blocking_notifier_call_chain(CPU_DOWN_PREPARE) calls
-> > cpufreq_driver_target(cpufreq subsystem),which tries to take lock_cpu_hotplug
-> > but cant since it is already taken by task1.
-> > 
-> > A typical ABBA deadlock!!!
+On Sun, 2006-08-27 at 18:57 -0700, David Miller wrote:
+> From: Ulrich Drepper <drepper@redhat.com>
+> Date: Sun, 27 Aug 2006 14:03:33 -0700
 > 
-> That's a bug in cpufreq.  It should stop using lock_cpu_hotplug() and get
-> its locking sorted out.
-
-I don't think the deadlock scenario changes if cpufreq stops using
-lock_cpu_hotplug() and starts using its own internal lock like
-workqueue_mutex. This is unless the lock-heirarchy can be worked out in 
-advance (i.e at compile time itself), which leads to the next question:
-
-> > Replicating this persubsystem-cpu-hotplug lock model across all other
-> > cpu_hotplug-sensitive subsystems would only create more such problems as 
-> > notifier_callback does not follow any specific ordering while notifying 
-> > the subsystems. 
+> > The biggest problem I see so far is the integration into the existing
+> > interfaces.  kevent notification *really* should be usable as a new
+> > sigevent type.  Whether the POSIX interfaces are liked by kernel folks
+> > or not, they are what the majority of the userlevel programmers use.
+> > The mechanism is easily extensible.  I've described this in my paper.  I
+> > cannot comment on the complexity of the kernel side but I'd imagine it's
+> > not much more difficult, just different from what is implemented now.
+> > Let's learn for a change from the mistakes of the past.  The new and
+> > innovative AIO interfaces never took off because their implementation
+> > differs so much from the POSIX interfaces.  People are interested in
+> > portable code.  So, please, let's introduce SIGEV_KEVENT.  Then we
+> > magically get timer notification etc for free.
 > 
-> The ordering is sufficiently well-defined: it's the order of the chain.  I
-> don't expect there to be any problems here.
+> I have to disagree with this.
+> 
+> SigEvent, and signals in general, are crap.  They are complex
+> and userland gets it wrong more often than not.  Interfaces
+> for userland should be simple, signals are not simple.  A core
+> loop that says "give me events to process", on the other hand,
+> is.  And this is what is most natural for userspace.
+> 
+> The user can say when he wants the process events.  In fact,
+> ripping out the complex signal handling will be a welcome
+> change for most server applications.
+> 
+> We are going to require the use of a new interface to register
+> the events anyways, why keep holding onto the delivery baggage
+> as well when we can break free of those limitations?
 
-How is the "order" of the chain exposed? Moreover this needs to be
-exposed at compile time itself so that people can code it correctly in
-the first place! This cannot be done so easily unless we use priority
-for notifiers (different priorities for different callbacks) or some
-linking magic, which makes it somewhat ugly to maintain.
+struct sigevent is the POSIX method for describing how event
+notifications are delivered.
 
-IMHO ensuring this heriarchy of locking order is maintained to avoid
-deadlocks will be nightmarish. 
+Two methods are specified in POSIX -- SIGEV_SIGNAL, which delivers a
+signal to the process and SIGEV_THREAD which creates a new thread in the
+process and calls a user-supplied function. In addition to these two
+methods, Linux also implements SIGEV_THREAD_ID, which sends a signal to
+a specific thread (this is used internally by glibc to implement
+SIGEV_THREAD, but I imagine that would change on the addition of
+SIGEV_KEVENT).
 
-I would also feel more comfortable at another aspect of this single lock
-- it will make both callback processing and cpu_online_map changes to be
-atomic, though I can't think of specific example where having non-atomic 
-callback processing hurts (*shrug*, just a safety feeling derived from 
-experience of fixing many cpu hotplug bugs in the past).
-
+Ulrich is suggesting the addition of SIGEV_KEVENT, which causes the
+event notification to be delivered to a specific kevent queue. This
+would allow for event delivery to kevent queues from POSIX AIO
+completions, POSIX message queues, POSIX timers, glibc's async name
+resolution interface and anything else that might use a struct sigevent
+in the future.
 
 -- 
-Regards,
-vatsa
+Nicholas Miell <nmiell@comcast.net>
+

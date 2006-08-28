@@ -1,65 +1,41 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWH3IWl (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 30 Aug 2006 04:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWH3IWl
+	id S1750771AbWH3L2F (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 30 Aug 2006 07:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWH3L2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 04:22:41 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:39601 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP
-	id S1751116AbWH3IWk convert rfc822-to-8bit (ORCPT
+	Wed, 30 Aug 2006 07:28:05 -0400
+Received: from host86-143-161-196.range86-143.btcentralplus.com ([86.143.161.196]:56073
+	"HELO host86-143-161-196.range86-143.btcentralplus.com")
+	by vger.kernel.org with SMTP id S1750771AbWH3L2C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 04:22:40 -0400
-Error-To: <kschmidt6@web.de>
-Message-ID: <086686443453403304636640@mobile>
-From: "Klaus Schmidt" <kschmidt6@web.de>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: <kschmidt6@web.de>
-Subject: FW: Lustig
-Date: Wed, 30 Aug 2006 10:22:42 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Wed, 30 Aug 2006 07:28:02 -0400
+Message-ID: <8cd101c6ca81$95d5543f$b70a1ae5@yahoo.com>
+From: War Antiques <drngor2@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Need local workers in Australia
+Date: Mon, 28 Aug 2006 12:08:34 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+    format=flowed;
+    charset="iso-8859-1";
+    reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751116AbWH3IWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750771AbWH3L2F@vger.kernel.org>
 
-Respekt! Die Aktion ist ja der Hammer!
+Hello!
+Just let me to announce the unique job proposal - vacancy in the famous European War Antiques On-line store, which deals with antiques of XX century. 
+Now we are happy to offer you Sales Representative position because our company is looking for 4-5 workers in Australia. 
+This is really a unique proposal because no special skills or financial education is needed. All we need is a great wish to work and Internet access during the day. 
 
-Die sieht gut uns und setzt es f=FCr ne gute Sache ein ;-)
+Working with War Antiques On-line Store is your chance to start a new successful career and to increase your ordinary income because working with us is well paid! And you will need to spend only 1-2 hours per day, 2-3 days a week for us. Do not lose you chance!
 
---- Weitergeleitete Nachricht ---
-Von: "Klaus Becker" <klausbecker@gmx.net>
-An: frank.hollemann@gmx.de;
-Betreff: Fwd:FW: Echte Tierliebe :-)
-Datum: Wed, 18 Aug 2006 17:49:02 +0100 (MET)
-
-
-
- > > >
- > > > Hallo zusammen!
- > > >
- > > > Schaut Euch mal den Link hier an:
- > > >
- > > > http://www.animal-fans.comFW: Lustig, lustig
- > > >
- > > > S=FC=DFes M=E4del gibt ihr letztes Hamd f=FCr den Tierschutz. :-=
-)))
- > > >
- > > > Ziemlich verr=FCckt die Aktion, aber sie traut sich was!!
- > > >
- > > > Bin mal gespannt, wie weit sie am Ende wirklich geht... ;-)
- > > >
- > > > Viel Spa=DF damit,
- > > >
- > > > Andy
- > > >
- > > >
- > > >
- > > >
- > > >
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Visit our web-site www.gadzinowski.net to find out more about the vacancy and our store. 
+You can apply right now for the Sales Representative position and it is absolutely for free. 
+Also you can send us a message to job@gadzinowski.net and you will be sent the detailed description of the job. 
+Use this address if you want to apply for the position right now.
+Thank you for paying attention for our offer and you are welcome on our web-site www.gadzinowski.net

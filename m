@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWH1Uft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWH1UiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWH1Uft (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWH1Ufs
+	id S1751499AbWH1UiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWH1UiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:35:48 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:62184 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751483AbWH1Ufs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:35:48 -0400
-Message-ID: <44F35537.6000308@student.ltu.se>
-Date: Mon, 28 Aug 2006 22:42:31 +0200
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [PATCH 2.6.18-rc4-mm2] fs/jfs: Conversion to generic boolean
-References: <44F086E8.7090602@student.ltu.se> <1156774979.7495.5.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1156774979.7495.5.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 16:38:05 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:7046 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751499AbWH1UiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 16:38:02 -0400
+Date: Mon, 28 Aug 2006 16:35:14 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] arch/um/sys-i386/setjmp.S: useless #ifdef _REGPARM's?
+Message-ID: <20060828203514.GC6728@ccure.user-mode-linux.org>
+References: <20060821215641.GQ11651@stusta.de> <200608261256.36654.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608261256.36654.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp wrote:
+On Sat, Aug 26, 2006 at 12:56:36PM +0200, Blaisorblade wrote:
+> Can anybody explain me how can we use REGPARM if we have to link with host 
+> glibc?
 
->On Sat, 2006-08-26 at 19:37 +0200, Richard Knutsson wrote:
->  
->
->>From: Richard Knutsson <ricknu-0@student.ltu.se>
->>
->>Conversion of booleans to: generic-boolean.patch (2006-08-23)
->>
->>Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
->>
->>---
->>
->>Compile-tested
->>
->>
->> inode.c        |    2 +-
->> jfs_dmap.c     |   12 ++++++------
->> jfs_extent.c   |   14 +++++++-------
->> jfs_extent.h   |    4 ++--
->> jfs_imap.c     |   26 +++++++++++++-------------
->> jfs_imap.h     |    4 ++--
->> jfs_metapage.h |    4 ++--
->> jfs_txnmgr.c   |   16 ++++++++--------
->> jfs_types.h    |    4 ----
->> jfs_xtree.c    |    2 +-
->> xattr.c        |   10 +++++-----
->> 11 files changed, 47 insertions(+), 51 deletions(-)
->>    
->>
->
->  
->
->>>>original patch removed <<<
->>>>        
->>>>
->
->Richard,
->Here's a version of the patch with completely removes any boolean types
->and constants:
->
->JFS: Conversion of boolean to int
->  
->
-<patch removed>
+Umm, yeah, good point.  This regparam behavior is different from the old
+behavior, where regparam functions had to be declared as such.
 
-Just why is it, that when there is a change to make locally defined 
-booleans into a more generic one, it is converted into integers? ;)
-But seriously, what is gained by removing them, other then less 
-understandable code? (Not talking about FALSE -> 0, but boolean_t -> int)
+However, this is a potential problem with all regparam users, who all
+presumably use libc, so I'd imagine it works somehow.
 
-I can understand if authors disprove making an integer into a boolean, 
-but here it already were booleans.
-But hey, you are the maintainer ;)
+> If we are going to use klibc instead of glibc that's ok (and this is not the 
+> case I'm talking about), but I do not know that plan (and nobody discussed 
+> the implications).
 
-Richard Knutsson
+I've been idly considering that, but it's no more than idle consideration
+right now.
+
+				Jeff

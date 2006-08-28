@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWH1RmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWH1Rnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWH1RmT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 13:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWH1RmS
+	id S1751221AbWH1Rnx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 13:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWH1Rnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 13:42:18 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:50860 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S1751201AbWH1RmR (ORCPT
+	Mon, 28 Aug 2006 13:43:53 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:36000 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1751221AbWH1Rnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 13:42:17 -0400
-Message-ID: <44F32AC7.1090604@openvz.org>
-Date: Mon, 28 Aug 2006 21:41:27 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060802)
-MIME-Version: 1.0
-To: rohitseth@google.com, devel@openvz.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [Devel] Re: BC: resource beancounters (v2)
-References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>	<20060825203026.A16221@castle.nmd.msu.ru>	<1156558552.24560.23.camel@galaxy.corp.google.com>	<1156610224.3007.284.camel@localhost.localdomain> <1156783721.8317.6.camel@galaxy.corp.google.com>
-In-Reply-To: <1156783721.8317.6.camel@galaxy.corp.google.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+	Mon, 28 Aug 2006 13:43:52 -0400
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="scan'208"; a="404424357:sNHT935156148"
+Subject: Re: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Chuck Lever <chuck.lever@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <004401c6cac8$85991570$0d71908d@ralph>
+References: <20060826160922.3324a707.akpm@osdl.org>
+	 <20060826235628.GL4765@stusta.de><000601c6ca06$28b62cc0$b461908d@ralph>
+	 <20060827135654.27e29ee4.akpm@osdl.org>
+	 <004401c6cac8$85991570$0d71908d@ralph>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Mon, 28 Aug 2006 21:39:53 +0400 (MSD)
+Organization: Network Appliance Inc
+Date: Mon, 28 Aug 2006 13:43:45 -0400
+Message-Id: <1156787025.5607.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+X-OriginalArrivalTime: 28 Aug 2006 17:43:46.0287 (UTC) FILETIME=[8311FFF0:01C6CAC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth wrote:
-> On Sat, 2006-08-26 at 17:37 +0100, Alan Cox wrote:
->   
->> Ar Gwe, 2006-08-25 am 19:15 -0700, ysgrifennodd Rohit Seth:
->>     
->>> Yes, sharing of pages across different containers/managers will be a
->>> problem.  Why not just disallow that scenario (that is what fake nodes
->>> proposal would also end up doing).
->>>       
->> Because it destroys the entire point of using containers instead of
->> something like Xen - which is sharing. Also at the point I am using
->> beancounters per user I don't want glibc per use, libX11 per use glib
->> per use gtk per user etc..
->>
->>
->>     
->
-> I'm not saying per use glibc etc.  That will indeed be useless and bring
-> it to virtualization world.  Just like fake node, one should be allowed
-> to use pages that are already in  (for example) page cache- so that you
-> don't end up duplicating all shared stuff.  But as far as charging is
-> concerned, charge it to container who either got the page in page cache
-> OR if FS based semantics exist then charge it to the container where the
-> file belongs.  What I was suggesting is to not charge a page to
-> different counters.
->   
+On Mon, 2006-08-28 at 13:36 -0400, Chuck Lever wrote:
+> ----- Original Message ----- 
+> From: "Andrew Morton" <akpm@osdl.org>
+> To: "Chuck Lever" <chuck.lever@oracle.com>
+> Cc: "Adrian Bunk" <bunk@stusta.de>; "Trond Myklebust" 
+> <Trond.Myklebust@netapp.com>; <linux-kernel@vger.kernel.org>
+> Sent: Sunday, August 27, 2006 4:56 PM
+> Subject: Re: 2.6.18-rc4-mm3: ROOT_NFS=y compile error
+> 
+> >>  All my copies of this patch
+> >> series has this change, but Andrew's doesn't.
+> >
+> > What is "this change"?  The only change I see in Trond's mount_clnt.c is 
+> > the
+> > removal of the xprt.h include.
+> 
+> Found the problem.  Because of changes Trond had included already in his 
+> tree, my patches didn't fit on his repository.  When I ported my patches to 
+> his tree, I accidentally left out the hunk that updates fs/nfs/mount_clnt.c.
+> 
+> Trond should be sending out the missing hunk soon. 
 
-Consider the following simple scenario: there are 50 containers 
-(numbered, say, 1 to 50) all sharing a single installation of Fedora 
-Core 5. They all run sshd, apache, syslogd, crond and some other stuff 
-like that. This is actually quite a real scenario.
+Already merged into the NFS git tree. See
 
-In the world that you propose the container which was unlucky to start 
-first (probably the one with ID of either 1 or 50) will be charged for 
-all the memory, and all the
-others will have most of their memory for free. And in such a world 
-per-container memory accounting or limiting is just not possible.
+http://linux-nfs.org/cgi-bin/gitweb.cgi?p=nfs-2.6.git;a=commitdiff;h=f0d01cd34daccb47b7eeab03f80fe7986485528e
+
+The raw patch can also be found on
+
+http://client.linux-nfs.org/Linux-2.6.x/2.6.18-rc5/linux-2.6.18-056-fix_nfsroot.dif
+
+Cheers,
+  Trond

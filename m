@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWH1VXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWH1VXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbWH1VXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWH1VXW
+	id S1751523AbWH1VXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWH1VXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:23:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:39847 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751517AbWH1VXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:23:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: divide error: 0000 in fib6_rule_match [Re: 2.6.18-rc4-mm3]
-Date: Mon, 28 Aug 2006 23:22:48 +0200
-User-Agent: KMail/1.9.3
-Cc: Mattia Dongili <malattia@linux.it>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, netdev@vger.kernel.org
-References: <20060826160922.3324a707.akpm@osdl.org> <20060828200716.GA4244@inferi.kami.home> <20060828132820.ae12ce4f.akpm@osdl.org>
-In-Reply-To: <20060828132820.ae12ce4f.akpm@osdl.org>
+	Mon, 28 Aug 2006 17:23:16 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:11734 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751515AbWH1VXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:23:15 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
+Date: Mon, 28 Aug 2006 23:23:39 +0200
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, David Woodhouse <dwmw2@infradead.org>,
+       David Miller <davem@davemloft.net>, linux-arch@vger.kernel.org,
+       jdike@addtoit.com, B.Steinbrink@gmx.de, arjan@infradead.org,
+       chase.venters@clientec.com, akpm@osdl.org, rmk+lkml@arm.linux.org.uk,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <200608282020.k7SKKntv031777@laptop13.inf.utfsm.cl>
+In-Reply-To: <200608282020.k7SKKntv031777@laptop13.inf.utfsm.cl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608282322.48307.ak@suse.de>
+Message-Id: <200608282323.40178.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Monday 28 August 2006 22:20 schrieb Horst H. von Brand:
+> Could just this macro layer be explicitly BSD (or at least LGPL) licensed?
+> If not, it looks like a SCOX-whining-over-errno.h thing in the making in
+> case somebody wants to build a non-GPL libc on top...
 
-> I cannot work out how the heck you got a divide instruction in
-> fib6_rule_match().
+klibc comes with a BSD licensed version of these macros.
 
-This might be another symptom of the broken smp-alternatives patch.
-It tended to randomly corrupt some instructions by inserting different
-bytes which then crash in interesting ways.
-
-I already sent a fix for that, but it's not in yet.
-
--Andi
+	Arnd <><

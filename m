@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWH1XGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWH1XKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWH1XGI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 19:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbWH1XGI
+	id S1751464AbWH1XKW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 19:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWH1XKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 19:06:08 -0400
-Received: from smtp7.orange.fr ([193.252.22.24]:33521 "EHLO
-	smtp-msa-out07.orange.fr") by vger.kernel.org with ESMTP
-	id S1751406AbWH1XGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 19:06:06 -0400
-X-ME-UUID: 20060828230604685.A77181C00084@mwinf0706.orange.fr
-Date: Tue, 29 Aug 2006 01:04:52 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: debian-kernel@lists.debian.org, Greg KH <greg@kroah.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Message-ID: <20060828230452.GA4393@powerlinux.fr>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <1156803102.3465.34.camel@mulgrave.il.steeleye.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156803102.3465.34.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Mon, 28 Aug 2006 19:10:22 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:30923 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1751464AbWH1XKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 19:10:21 -0400
+Date: Tue, 29 Aug 2006 08:10:19 +0900 (JST)
+Message-Id: <20060829.081019.130229757.kkojima@rr.iij4u.or.jp>
+To: linux-kernel@vger.kernel.org
+Subject: Step down from maintainerships
+From: Kaz Kojima <kkojima@rr.iij4u.or.jp>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 05:11:42PM -0500, James Bottomley wrote:
-> This is a reference implementation with the debian mkinitrd-tools
-> package.  It shows how to identify the firmware files necessary for
-> drivers in the initrd and also includes a primitive system for loading
-> them.
-> 
-> I've tested this with the aic94xx driver using the new MODULE_FIRMWARE()
-> tag.  Initramfs should be much easier because it already includes most
-> of the boot time loading; all it has to do is the piece identifying the
-> firmware for the selected modules.
+Hi,
 
-Notice that mkinitrd-tools is dead, and will probably be removed from etch.
+I think this is a time to step down from my SUPERH architecture
+maintainerships.  The major development issues for this port
+seem to shift on the hardwares I can't access and I have no
+recent activity on kernel.  I shouldn't qualify as a maintainer
+of SUPERH port now and there is no problem because Paul is
+actively maintaining it.  The attached patch drops my name,
+address and web URL from MAINTAINERS file.
 
-mkinitramfs-tools and yaird are the two currently used tools.
+Regards,
+	kaz
+--
 
-Friendly,
+Signed-Off-By: Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
 
-Sven Luther
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3bab239..52d7b8b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2768,12 +2768,9 @@ S:	Maintained
+ SUPERH (sh)
+ P:	Paul Mundt
+ M:	lethal@linux-sh.org
+-P:	Kazumoto Kojima
+-M:	kkojima@rr.iij4u.or.jp
+ L:	linuxsh-dev@lists.sourceforge.net
+ W:	http://www.linux-sh.org
+ W:	http://www.m17n.org/linux-sh/
+-W:	http://www.rr.iij4u.or.jp/~kkojima/linux-sh4.html
+ S:	Maintained
+ 
+ SUPERH64 (sh64)

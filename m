@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWH1IPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWH1IPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWH1IPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWH1IPJ
+	id S1751421AbWH1IPv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWH1IPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:15:09 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17116 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751421AbWH1IPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:15:08 -0400
-Subject: Re: [2.6.17.11] strange pcie errors/warnings on Abit KN9-SLI
-	mainboard
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan De Luyck <ml_linuxkernel_20060528@kcore.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608280755.56015.ml_linuxkernel_20060528@kcore.org>
-References: <200608280755.56015.ml_linuxkernel_20060528@kcore.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 28 Aug 2006 10:14:57 +0200
-Message-Id: <1156752897.3034.163.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 28 Aug 2006 04:15:51 -0400
+Received: from mx1.suse.de ([195.135.220.2]:52689 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751421AbWH1IPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:15:50 -0400
+From: Andi Kleen <ak@suse.de>
+To: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
+Date: Mon, 28 Aug 2006 10:15:38 +0200
+User-Agent: KMail/1.9.3
+Cc: arnd@arndb.de, linux-arch@vger.kernel.org, jdike@addtoit.com,
+       B.Steinbrink@gmx.de, arjan@infradead.org, chase.venters@clientec.com,
+       akpm@osdl.org, rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, dwmw2@infradead.org
+References: <200608280950.04441.ak@suse.de> <200608281003.02757.ak@suse.de> <20060828.010948.131918560.davem@davemloft.net>
+In-Reply-To: <20060828.010948.131918560.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200608281015.38389.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 07:55 +0200, Jan De Luyck wrote:
-> Hello,
+On Monday 28 August 2006 10:09, David Miller wrote:
+> From: Andi Kleen <ak@suse.de>
+> Date: Mon, 28 Aug 2006 10:03:02 +0200
 > 
-> (running 2.6.17.11 vanilla on Debian SID)
+> > Thanks for brining it to my attention. I indeed think think the
+> > patch was wrong.
 > 
-> I recently acquired a new pc, with an ABIT KN9-SLI mainboard, using an AMD64x2 
-> AM2 processor.
-> 
-> System boots fine, but I have some messages/errors in the dmesg that I'm worried 
-> about. Googling around for them didn't really show up much.
-> 
-> First:
-> 
-> Aug 27 15:35:04 whocares kernel: PCI-DMA: Disabling IOMMU.
-> 
-> IOMMU is (as far as I can see) enabled:
-> whocares:/var/log# cat /usr/src/build/linux-2.6/.config | grep IOMMU
-> CONFIG_GART_IOMMU=y
-> 
-> I can't really determine if this is normal. According to the code it seems that 
-> this is disabled by default when you don't have AGP? (I'm not a kernel-coder, so 
-> I may be very wrong on this)
+> I disagree, this stuff really doesn't have a strong argument
+> for existence.
 
-Hi,
+I see it as the reference implementation of the kernel system call ABI
 
-unless you have >= 4Gb of ram you don't need an IOMMU (in fact using it
-would only cause extra overhead)... so the kernel will not use it in
-that case.
-
-Greetings,
-   Arjan van de Ven
-
+-Andi

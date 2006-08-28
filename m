@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWH1LLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWH1LQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWH1LLV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWH1LLV
+	id S964828AbWH1LQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWH1LQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:11:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21394 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964825AbWH1LLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:11:21 -0400
-Subject: Re: Possible gpl problem?
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Rees <drees76@gmail.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <72dbd3150608280022ud3b61b7re3eefd65498b863@mail.gmail.com>
-References: <200608280259.38493.gene.heskett@verizon.net>
-	 <72dbd3150608280022ud3b61b7re3eefd65498b863@mail.gmail.com>
+	Mon, 28 Aug 2006 07:16:30 -0400
+Received: from ns.firmix.at ([62.141.48.66]:19152 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S964780AbWH1LQ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 07:16:29 -0400
+Subject: Re: Conversion to generic boolean
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
+References: <44EFBEFA.2010707@student.ltu.se>
+	 <20060828093202.GC8980@infradead.org>
+	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Date: Mon, 28 Aug 2006 12:11:17 +0100
-Message-Id: <1156763478.5340.70.camel@pmac.infradead.org>
+Organization: Firmix Software GmbH
+Date: Mon, 28 Aug 2006 13:11:54 +0200
+Message-Id: <1156763514.22346.7.camel@tara.firmix.at>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Spam-Score: -2.381 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 00:22 -0700, David Rees wrote:
-> Just because a company doesn't have source freely downloadable on
-> their website does not mean they are violating the GPL even if they
-> are selling GPL licensed software. Only people who buy the GPL
-> licensed software are entitled to a copy of the source of the binaries
-> they receive.
+On Mon, 2006-08-28 at 12:58 +0200, Jan Engelhardt wrote:
+> >> Just would like to ask if you want patches for:
+> >
+> >Total NACK to any of this boolean ididocy.  I very much hope you didn't
+> >get the impression you actually have a chance to get this merged.
+> >
+> >> * (Most importent, may introduce bugs if left alone)
+> >> Fixing boolean checking, ex:
+> >> if (bool == FALSE)
+> >> to
+> >> if (!bool)
+> >
+> >this one of course makes sense, but please do it without introducing
+> >any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
+> >all scsi drivers to classic C integer as boolean semantics would be
+> >very welcome janitorial work.
+> 
+> I don't get it. You object to the 'idiocy' 
+> (http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
+> a good thing?
 
-That's true _only_ if the company ships the source _with_ the binaries
-when people buy the product.
+If the "if (x == FALSE) { ... }" would be a good thing, why don't we
+write "if ((x == FALSE) == TRUE) { ... }"?
 
-There are two (commercial) options:
-
-1. If you _always_ distribute source _with_ the binaries, then you only
-have to give source to those who receive binaries. And of course you've
-already done so.
-
-2. If you ever distribute binaries _without_ source code, then you're
-obliged to make the source code available to _any_ third party on
-request; _not_ only those to whom you gave the binaries.
-
+	Bernd
 -- 
-dwmw2
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

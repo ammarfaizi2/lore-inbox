@@ -1,91 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWH1OLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWH1ONd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWH1OLH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWH1OLH
+	id S1750856AbWH1ONd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWH1ONd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:11:07 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:24201 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S1750793AbWH1OLE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:11:04 -0400
-Content-class: urn:content-classes:message
+	Mon, 28 Aug 2006 10:13:33 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:27069 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750856AbWH1ONc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:13:32 -0400
+Date: Mon, 28 Aug 2006 23:12:34 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Thomas Renninger <trenn@suse.de>
+Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
+Cc: akpm@osdl.org, "Brown, Len" <len.brown@intel.com>,
+       keith mannthey <kmannth@us.ibm.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       naveen.b.s@intel.com
+In-Reply-To: <223978.1156683050640.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+References: <20060825205423.0778.Y-GOTO@jp.fujitsu.com> <223978.1156683050640.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20060828223538.F622.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: mounting Floppy and USB - 2.6.16.16
-Date: Mon, 28 Aug 2006 07:11:02 -0700
-Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B3B16@chicken.machinevisionproducts.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: mounting Floppy and USB - 2.6.16.16
-Thread-Index: AcbIyz3/8/Zk9RlsSdi+8Rus17LfSAB4DqyA
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "For users of Fedora Core releases" <fedora-list@redhat.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Friday, August 25, 2006 9:51 PM
-To: Brian D. McGrew
-Cc: linux-kernel@vger.kernel.org; For users of Fedora Core releases
-Subject: Re: mounting Floppy and USB - 2.6.16.16
+> Am Fr 25.08.2006 13:59 schrieb Yasunori Goto <y-goto@jp.fujitsu.com>:
+> >
+> >>
+> >> > I sent a patch a while ago that gets rid of the whole namespace
+> >> > walking
+> >> > by making acpi_memoryhotplug an acpi device and making use of the
+> >> > .add
+> >> > callback function and the acpi_bus_register_driver call.
+> >> >
+> >> > I am not sure whether this is possible if you have multiple memory
+> >> > devices, though (if not maybe it should be made possible?)...
+> >> >
+> >> > Yasunori even tested the patch and sent an Ok:
+> >> > http://marc.theaimsgroup.com/?t=114065312400001&r=1&w=2
+> >> >
+> >> > If this is acceptable I can rebase the patch on a current kernel.
+> >>
+> >> Hi. Thomas-san.
+> >> Did you rebase your patch?
+> >>
+> >> I'm trying to do it now too.
+> >> But, current code (2.6.18-rc4) seems to register handler for
+> >> only enable status devices at boot time.
+> >> So, notification is -discarded- due to no handler for new memory
+> >> device when hot-add event occurs. Hmmm. :-(
+> >No, what I see the notify handler is always installed.
 
-On Fri, Aug 25, 2006 at 02:55:36PM -0700, Brian D. McGrew wrote:
-> Hey Guys:
-> 
-> With 2.4.20 and 2.6.9 I had all this automated so everything just
-> happened automatically.  It's not working with 2.6.16.16 now.  What am
-I
-> missing or what did I forget?
+Hmm.
+Ok. Followings are current my understanding of sequence
+with your patch.
 
-What version of udev and hal are you using?
+At boot time, acpi_memory_device_init() is called.
 
-What specific errors are you having?
+acpi_memory_device_init()
+   |
+   +---> acpi_bus_register_driver()
+           |
+           +---> acpi_driver_attach()
+                   |
+                   +---> acpi_bus_driver_init()
+                           |
+                           +---> acpi_memory_device_add()
+                                    |
+                                    +---> acpi_install_notify_handler().
 
-thanks,
 
-greg k-h
------
-15_ yum list | grep hal
-hal.i386                                 0.4.7-1.FC3
-installed       
-hal-cups-utils.i386                      0.5.2-8
-installed       
-hal-devel.i386                           0.4.7-1.FC3
-installed       
-hal-gnome.i386                           0.4.7-1.FC3
-installed       
-hal-debuginfo.i386                       0.4.7-1.FC3
-updates-released
-16_
+The problem is in acpi_driver_attach(). This function is using
+"acpi_device_list" to call acpi_bus_driver_init().
 
-16_ yum list | grep udev
-udev.i386                                039-10.FC3.8
-installed       
-udev-debuginfo.i386                      039-10.FC3.8
-updates-released
+This list is registered by acpi_device_register() which is called by
+acpi_add_single_object().
+However, acpi_add_single_object() skips calling it if _STA is not on.
 
-It 'looks' like I have the latest?  I'm not getting any "errors".  But
-with RH7.3/2.4.20 and FC3/2.6.9 inserting a CD or USB Flash drive
-mounted automatically.  I upgraded to 2.6.16.16 on the previously
-working FC3 machines and now it doesn't --- so I'm sure I missing
-something in the kernel configuration and just don't know what it
-is!?!?!
+1015         switch (type) {
+1016         case ACPI_BUS_TYPE_PROCESSOR:
+1017         case ACPI_BUS_TYPE_DEVICE:
+1018                 result = acpi_bus_get_status(device);
+1019                 if (ACPI_FAILURE(result) || !device->status.present) {
+1020                         result = -ENOENT;
+1021                         goto end;
+1022                 }
+1023                 break;
 
-Thanks!
+So, notify handler is registered just for memory device which is enable
+at boot time.
+If notify event occurs for new memory device, there is no notify handler
+for it....
 
-:b!
+Old code registers handler for all of memory devices even if it is not
+enabled.
 
-Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
---
-> This is a test.  This is only a test!
-  Had this been an actual emergency, you would have been
-  told to cancel this test and seek professional assistance!
+If my understanding is wrong, please let me know. ;-)
+Bye.
+
+-- 
+Yasunori Goto 
+
 

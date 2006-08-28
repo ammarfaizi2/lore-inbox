@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWH1Iak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWH1Ifo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWH1Iak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWH1Iaj
+	id S1751288AbWH1Ifo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWH1Ifo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:30:39 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:43676 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751264AbWH1Iai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:30:38 -0400
-Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060827185101.GA14976@sergelap.austin.ibm.com>
-References: <20060824212241.GB30007@sergelap.austin.ibm.com>
-	 <20060825143842.GA27364@infradead.org>
-	 <20060825200359.GC13805@sergelap.austin.ibm.com>
-	 <20060826063247.GA6928@osiris.boeblingen.de.ibm.com>
-	 <20060827185101.GA14976@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 28 Aug 2006 10:30:33 +0200
-Message-Id: <1156753833.15093.1.camel@localhost>
+	Mon, 28 Aug 2006 04:35:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29909 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751288AbWH1Ifn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:35:43 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
+Subject: Re: Linux v2.6.18-rc5 
+In-reply-to: Your message of "Sun, 27 Aug 2006 23:14:21 MST."
+             <20060827231421.f0fc9db1.akpm@osdl.org> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 28 Aug 2006 18:34:56 +1000
+Message-ID: <13331.1156754096@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 13:51 -0500, Serge E. Hallyn wrote:
-> Hmm, with my standard config it actually boots.  It fails when I turn
-> off module support.  The guilty config is attached, as well as the
-> config that boots, and the output when it crashes with the guilty
-> config.
+Andrew Morton (on Sun, 27 Aug 2006 23:14:21 -0700) wrote:
+>(Reporters Bcc'ed: please provide updates)
+>
+>Serious-looking regressions include:
+>From: Keith Owens <kaos@ocs.com.au>
+>Subject: 2.6.18-rc4 Intermittent failures to detect sata disks
 
-That looks like the crypto initialization problem. Currently the new
-crypto driver only works if you compile it as a module.
+Two hours of continuous reboots on an ICH5 chipset passed without any
+problems.  Couple of caveats though -
 
--- 
-blue skies,
-  Martin.
+(1) The "fix" for this bug is to skip the pcs test for SATA ports on
+    ICH5 chipsets.  This results in spurious warning messages for ICH5
+    SATA ports with no disks attached.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+    ATA: abnormal status 0x7F on port 0xCCA7
 
-"Reality continues to ruin my life." - Calvin.
-
+(2) I have seen the same intermittent bug on ICH7 SATA but
+    PIIX_FLAG_IGNORE_PCS is only set for ich5 and i6300esb_sata.  It
+    probably needs to be set for ich7 as well.
 

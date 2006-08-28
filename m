@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWH1Q1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWH1Q2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWH1Q1t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 12:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWH1Q1t
+	id S1751182AbWH1Q2k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 12:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWH1Q2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 12:27:49 -0400
-Received: from mx1.suse.de ([195.135.220.2]:5292 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750777AbWH1Q1s (ORCPT
+	Mon, 28 Aug 2006 12:28:39 -0400
+Received: from mga09.intel.com ([134.134.136.24]:21356 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751080AbWH1Q2i convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 12:27:48 -0400
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
-       jesse.barnes@intel.com, dwalker@mvista.com,
-       andi@rhlx01.fht-esslingen.de
-Subject: Re: [PATCH] maximum latency tracking infrastructure (version 3)
-References: <1156780080.3034.207.camel@laptopd505.fenrus.org>
-	<20060828161145.GA25161@rhlx01.fht-esslingen.de>
-	<44F3178F.8010508@linux.intel.com>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Aug 2006 18:27:46 +0200
-In-Reply-To: <44F3178F.8010508@linux.intel.com>
-Message-ID: <p73bqq47rlp.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 28 Aug 2006 12:28:38 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="scan'208"; a="116224541:sNHT17283798"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [CFT:PATCH] Removing possible wrong asm/serial.h inclusions
+Date: Mon, 28 Aug 2006 09:28:35 -0700
+Message-ID: <617E1C2C70743745A92448908E030B2A6EA45D@scsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [CFT:PATCH] Removing possible wrong asm/serial.h inclusions
+Thread-Index: AcbKf1+Osoxfnk1jSIS53JKo+aKT4QAPsuXA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>, <linux-ia64@vger.kernel.org>,
+       <linux-mips@linux-mips.org>, <linuxppc-embedded@ozlabs.org>,
+       <paulkf@microgate.com>, <takata@linux-m32r.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Aug 2006 16:28:37.0308 (UTC) FILETIME=[038267C0:01C6CABF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@linux.intel.com> writes:
-> 
-> I could have sworn there was an idle call notifier already\
-> 
-> ah there is on x86-64 but it is architecture specific...
+> diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
 
-The original implementation was on s390. But they're not really
-designed for doing anything slow, so I wouldn't recommend using
-them in drivers unless it's very fast.
+Acked-by: Tony Luck <tony.luck@intel.com>
 
--Andi
+[IA-64 part only ... I didn't look at the rest]
+
+-Tony

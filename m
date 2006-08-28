@@ -1,67 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWH1Uuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWH1Uxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWH1Uuh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWH1Uug
+	id S932119AbWH1Uxk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWH1Uxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:50:36 -0400
-Received: from dsl092-068-022.bos1.dsl.speakeasy.net ([66.92.68.22]:55521 "EHLO
-	george.mindlace.net") by vger.kernel.org with ESMTP id S932108AbWH1Uuf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:50:35 -0400
-Message-ID: <44F356C3.3040806@mindlace.net>
-Date: Mon, 28 Aug 2006 16:49:07 -0400
-From: emf <i@mindlace.net>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: emf <i@mindlace.net>
-CC: linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net
-Subject: Re: segfaults, kernel panic using forcedeth nvidia 4
-References: <44F06BB0.4090200@mindlace.net>
-In-Reply-To: <44F06BB0.4090200@mindlace.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 66.92.68.253
-X-SA-Exim-Mail-From: i@mindlace.net
-X-SA-Exim-Scanned: No (on george.mindlace.net); SAEximRunCond expanded to false
+	Mon, 28 Aug 2006 16:53:40 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:7332 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932121AbWH1Uxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 16:53:39 -0400
+Date: Mon, 28 Aug 2006 22:53:38 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] fs/namei.c: replace multiple current->fs by shortcut variable
+Message-ID: <20060828205338.GA19064@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I've got some oops output... if someone could give me the faintest 
-idea as to what is wrong, I would be much obliged.
+Replace current->fs by fs helper variable to reduce some indirection overhead
+and (at least at the moment, before the current_thread_info() %gs PDA
+improvement is available) get rid of more costly current references.
+Reduces fs/namei.o from 37786 to 37082 Bytes (704 Bytes saved).
 
-http://mindlace.net/tmp/latest_segfault.txt
+Compile-tested and run-tested on 2.6.18-rc4-mm3.
 
-emf wrote:
-> Hello!
-> 
-> I'm using debian's 2.6.17-2-amd64 (after having these issues with 2.6.16).
-> 
-> I'm running software raid 5 and LVM on the partition in question; the 
-> machine is connected to my server via gigabit ethernet over the onboard 
-> nforce4 ethernet- my motherboard is  Gigabyte GA-M51GM-S2G Socket AM2 
-> NVIDIA GeForce 6100, and the CPU is a AMD Sempron 64 2800+.
-> 
-> When I try to rsync from my old server, I get user-land segfaults (bash 
-> and sh, mostly) and the machine hangs. This happens with straight scp as 
-> well, and it is 100% replicable. The error messages look like:
-> 
-> sh[5325]: segfault at 0000000081cc893a rip 00002ae181c2bf02 rsp 
-> 00007fffff927c58 error 4
-> 
-> I've now successfully tried copying a large number of files via a 
-> machine connected through a 100mbit connection, without issue.
-> 
-> This leads me to think that it's forcedeth having the problem, but I had 
-> also thought that perhaps I'm asking too much of the md/lvm subsystem.
-> 
-> I've ordered another gigabit ethernet card and a new AMD64x2 cpu, so I 
-> should be able to test these issues more cleanly.
-> 
-> In the meantime, is there anything I can do to diagnose these issues?
-> 
-> Thanks (and please cc me; I'm not a kernel-type by default.)
-> 
-> ~ethan fremen
-> 
 
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+--- linux-2.6.18-rc4-mm3.orig/fs/namei.c	2006-09-04 23:38:48.000000000 +0200
++++ linux-2.6.18-rc4-mm3/fs/namei.c	2006-09-05 22:22:47.000000000 +0200
+@@ -518,18 +518,19 @@
+ static __always_inline int
+ walk_init_root(const char *name, struct nameidata *nd)
+ {
+-	read_lock(&current->fs->lock);
+-	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+-		nd->mnt = mntget(current->fs->altrootmnt);
+-		nd->dentry = dget(current->fs->altroot);
+-		read_unlock(&current->fs->lock);
++	struct fs_struct *fs = current->fs;
++	read_lock(&fs->lock);
++	if (fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
++		nd->mnt = mntget(fs->altrootmnt);
++		nd->dentry = dget(fs->altroot);
++		read_unlock(&fs->lock);
+ 		if (__emul_lookup_dentry(name,nd))
+ 			return 0;
+-		read_lock(&current->fs->lock);
++		read_lock(&fs->lock);
+ 	}
+-	nd->mnt = mntget(current->fs->rootmnt);
+-	nd->dentry = dget(current->fs->root);
+-	read_unlock(&current->fs->lock);
++	nd->mnt = mntget(fs->rootmnt);
++	nd->dentry = dget(fs->root);
++	read_unlock(&fs->lock);
+ 	return 1;
+ }
+ 
+@@ -724,17 +725,18 @@
+ 
+ static __always_inline void follow_dotdot(struct nameidata *nd)
+ {
++	struct fs_struct *fs = current->fs;
+ 	while(1) {
+ 		struct vfsmount *parent;
+ 		struct dentry *old = nd->dentry;
+ 
+-                read_lock(&current->fs->lock);
+-		if (nd->dentry == current->fs->root &&
+-		    nd->mnt == current->fs->rootmnt) {
+-                        read_unlock(&current->fs->lock);
++                read_lock(&fs->lock);
++		if (nd->dentry == fs->root &&
++		    nd->mnt == fs->rootmnt) {
++                        read_unlock(&fs->lock);
+ 			break;
+ 		}
+-                read_unlock(&current->fs->lock);
++                read_unlock(&fs->lock);
+ 		spin_lock(&dcache_lock);
+ 		if (nd->dentry != nd->mnt->mnt_root) {
+ 			nd->dentry = dget(nd->dentry->d_parent);
+@@ -1042,15 +1044,16 @@
+ 		struct vfsmount *old_mnt = nd->mnt;
+ 		struct qstr last = nd->last;
+ 		int last_type = nd->last_type;
++		struct fs_struct *fs = current->fs;
+ 		/*
+ 		 * NAME was not found in alternate root or it's a directory.  Try to find
+ 		 * it in the normal root:
+ 		 */
+ 		nd->last_type = LAST_ROOT;
+-		read_lock(&current->fs->lock);
+-		nd->mnt = mntget(current->fs->rootmnt);
+-		nd->dentry = dget(current->fs->root);
+-		read_unlock(&current->fs->lock);
++		read_lock(&fs->lock);
++		nd->mnt = mntget(fs->rootmnt);
++		nd->dentry = dget(fs->root);
++		read_unlock(&fs->lock);
+ 		if (path_walk(name, nd) == 0) {
+ 			if (nd->dentry->d_inode) {
+ 				dput(old_dentry);
+@@ -1074,6 +1077,7 @@
+ 	struct vfsmount *mnt = NULL, *oldmnt;
+ 	struct dentry *dentry = NULL, *olddentry;
+ 	int err;
++	struct fs_struct *fs = current->fs;
+ 
+ 	if (!emul)
+ 		goto set_it;
+@@ -1083,12 +1087,12 @@
+ 		dentry = nd.dentry;
+ 	}
+ set_it:
+-	write_lock(&current->fs->lock);
+-	oldmnt = current->fs->altrootmnt;
+-	olddentry = current->fs->altroot;
+-	current->fs->altrootmnt = mnt;
+-	current->fs->altroot = dentry;
+-	write_unlock(&current->fs->lock);
++	write_lock(&fs->lock);
++	oldmnt = fs->altrootmnt;
++	olddentry = fs->altroot;
++	fs->altrootmnt = mnt;
++	fs->altroot = dentry;
++	write_unlock(&fs->lock);
+ 	if (olddentry) {
+ 		dput(olddentry);
+ 		mntput(oldmnt);
+@@ -1102,29 +1106,30 @@
+ 	int retval = 0;
+ 	int fput_needed;
+ 	struct file *file;
++	struct fs_struct *fs = current->fs;
+ 
+ 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+ 	nd->flags = flags;
+ 	nd->depth = 0;
+ 
+ 	if (*name=='/') {
+-		read_lock(&current->fs->lock);
+-		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+-			nd->mnt = mntget(current->fs->altrootmnt);
+-			nd->dentry = dget(current->fs->altroot);
+-			read_unlock(&current->fs->lock);
++		read_lock(&fs->lock);
++		if (fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
++			nd->mnt = mntget(fs->altrootmnt);
++			nd->dentry = dget(fs->altroot);
++			read_unlock(&fs->lock);
+ 			if (__emul_lookup_dentry(name,nd))
+ 				goto out; /* found in altroot */
+-			read_lock(&current->fs->lock);
++			read_lock(&fs->lock);
+ 		}
+-		nd->mnt = mntget(current->fs->rootmnt);
+-		nd->dentry = dget(current->fs->root);
+-		read_unlock(&current->fs->lock);
++		nd->mnt = mntget(fs->rootmnt);
++		nd->dentry = dget(fs->root);
++		read_unlock(&fs->lock);
+ 	} else if (dfd == AT_FDCWD) {
+-		read_lock(&current->fs->lock);
+-		nd->mnt = mntget(current->fs->pwdmnt);
+-		nd->dentry = dget(current->fs->pwd);
+-		read_unlock(&current->fs->lock);
++		read_lock(&fs->lock);
++		nd->mnt = mntget(fs->pwdmnt);
++		nd->dentry = dget(fs->pwd);
++		read_unlock(&fs->lock);
+ 	} else {
+ 		struct dentry *dentry;
+ 

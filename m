@@ -1,69 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWH1GEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWH1GQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWH1GEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 02:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWH1GEL
+	id S1751399AbWH1GQR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 02:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWH1GQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 02:04:11 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:13971 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751367AbWH1GEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 02:04:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=dMLQzgjL9Ix1YxDrGNNvVN0ZbHhmocHXs6gSTPj3dE6fKBXYgpbzteGGj+VG6glmsMhI6RgQrom0ejY3KYPZW+gWQt6RftPzoeHUQYpXzAliuYafk08Ci7n55ZFBH27wA/XU1txnt3jxbBqpJAX68FyXoZw/Hn10fXiIIfAYBvs=
-Message-ID: <44F286E8.1000100@gmail.com>
-Date: Mon, 28 Aug 2006 09:02:16 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com, Matt_Domsch@dell.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de> <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com>
-In-Reply-To: <44F21122.3030505@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 28 Aug 2006 02:16:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14571 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751399AbWH1GQQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 02:16:16 -0400
+Date: Sun, 27 Aug 2006 23:14:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc5
+Message-Id: <20060827231421.f0fc9db1.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Found the references.  This seems to imply that EDD overwrites the area 
-> used by LILO 22.6.1.  LILO 22.6.1 uses the new boot protocol, with the 
-> full pointer, and seems to obey the spec as far as I can read the code. 
->  I'm going to try to run it in simulation and observe the failure that way.
-> 
-> However, something is still seriously out of joint.  The EDD data 
-> actually overlays the setup code, not the bootsect code, and thus there 
-> "shouldn't" be any way that this could interfere.  My best guess at this 
-> time is that either the EDD code or LILO uses memory it's not supposed 
-> to use, and the simulation should hopefully reveal that.
-> 
-> Sorry if I seem snarky on this, but if we can't get to the bottom of 
-> this we can't ever fix it.
-> 
->     -hpa
-> 
+On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-I think I've found one problem... But I it should not be the major one.
-The EDD code scans the command-line as fixed string.
-What about something like the following?
+> Linux 2.6.18-rc5 is out there now
 
-Best Regards,
-Alon Bar-Lev.
+(Reporters Bcc'ed: please provide updates)
 
-diff -urNp linux-2.6.18-rc4-mm2/arch/i386/boot/edd.S linux-2.6.18-rc4-mm2.new/arch/i386/boot/edd.S
---- linux-2.6.18-rc4-mm2/arch/i386/boot/edd.S   2006-06-18 04:49:35.000000000 +0300
-+++ linux-2.6.18-rc4-mm2.new/arch/i386/boot/edd.S       2006-08-28 08:55:01.000000000 +0300
-@@ -29,6 +29,8 @@
-         movl    $(COMMAND_LINE_SIZE-7), %ecx
-  # loop through kernel command line one byte at a time
-  cl_loop:
-+       cmpb    $0,(%si)
-+       jz      done_cl
-         cmpl    $EDD_CL_EQUALS, (%si)
-         jz      found_edd_equals
-         incl    %esi
+Serious-looking regressions include:
+
+
+http://bugzilla.kernel.org/show_bug.cgi?id=7062 (HPET)
+
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: PCI: Cannot allocate resource region 7 of bridge 0000:00:04.0
+
+From: "Uwe Bugla" <uwe.bugla@gmx.de>
+Subject: keyboard errors with module atkbd.c in Kernel 2.6.18-rc4
+
+From: Olaf Hering <olaf@aepfle.de>
+Subject: oops in __delayacct_blkio_ticks with 2.6.18-rc4
+
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Possible memory leak in kernel/delayacct.c
+
+From: walt <kernel@nea-fast.com>
+Subject: Sound not working correctly as of 2.6.15-rc1
+
+From: Johan Rutgeerts <johan.rutgeerts@mech.kuleuven.be>
+Subject: Acpi oops 2.6.17.7 vanilla
+
+From: Andrew Benton <b3nt@ukonline.co.uk>
+Subject: ALSA problems with 2.6.18-rc3
+
+From: Sean Bruno <sean.bruno@dsl-only.net>
+Subject: [BUG] Kernel Panic from AHD when power cycling external Disk/Array
+
+From: "Beschorner Daniel" <Daniel.Beschorner@facton.com>
+Subject: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+
+  (I think we fixed this?)
+
+From: Keith Owens <kaos@ocs.com.au>
+Subject: 2.6.18-rc4 Intermittent failures to detect sata disks
+
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: [patch] Crash on evdev disconnect.
+
+From: Andreas Barth <aba@not.so.argh.org>
+Subject: Re: Fw: gdth SCSI driver(?) fails with more than 4GB of memory
+
+  (Long saga - attempts were made to fix it but I think we're stumped?)
+
+From: Andi Kleen <ak@suse.de>
+Subject: Futex BUG in 2.6.18rc2-git7
+
+From: Elias Holman <eholman@holtones.com>
+Subject: PROBLEM: PCI/Intel 82945 trouble on Toshiba M400 notebook
+
+From: "Alex Polvi" <polvi@google.com>
+Subject: [PATCH] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
+
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Subject: Re: Linux v2.6.18-rc3
+
+  (USB Audio regression)
+
+
+That list is maybe a quarter of my list of "recently reported regressions
+which haven't been pushed into bugzilla yet".  There are many more in
+bugzilla.  We have a lot of regressions.
+

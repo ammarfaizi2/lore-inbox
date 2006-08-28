@@ -1,114 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWH1VRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWH1VSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWH1VRA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWH1VRA
+	id S1751507AbWH1VSd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWH1VSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:17:00 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:9681 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S1750806AbWH1VQ6 (ORCPT
+	Mon, 28 Aug 2006 17:18:33 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:50585 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1751507AbWH1VSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:16:58 -0400
-Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot
-	time from 2.6.18-rc4.
-From: Thomas Renninger <mail@renninger.de>
-Reply-To: mail@renninger.de
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Thomas Renninger <trenn@suse.de>, akpm@osdl.org,
-       "Brown, Len" <len.brown@intel.com>, keith mannthey <kmannth@us.ibm.com>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       naveen.b.s@intel.com
-In-Reply-To: <20060828223538.F622.Y-GOTO@jp.fujitsu.com>
-References: <20060825205423.0778.Y-GOTO@jp.fujitsu.com>
-	 <223978.1156683050640.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-	 <20060828223538.F622.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 23:16:58 +0200
-Message-Id: <1156799818.12158.9.camel@linux-1vxn.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 17:18:32 -0400
+Date: Mon, 28 Aug 2006 23:18:16 +0200 (MEST)
+Message-Id: <200608282118.k7SLIGFh008696@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: davem@davemloft.net, mikpe@it.uu.se
+Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 23:12 +0900, Yasunori Goto wrote: 
-> Hmm.
-> Ok. Followings are current my understanding of sequence
-> with your patch.
+On Mon, 28 Aug 2006 00:39:08 -0700 (PDT), David Miller wrote:
+>Ok, I finally figured this one out and reproduced it on my
+>ultra5.
+>
+>If, for example, we have a 4MB PTE and we do a write
+>we'll only update one of the 8KB sub-PTEs of that
+>mapping.
+>
+>This is fine until that new mapping gets displaced from
+>the TLB and someone does a read that ends up hitting one
+>of the sub-PTEs that didn't get it's write-enable bit
+>set yet.
+>
+>At this point we have a problem, because if a write is
+>made to the original address, the kernel says "the writable
+>bit is set, nothing to do".  So it won't flush the TLB,
+>and therefore it won't kick out the TLB mapping brought
+>in by the read.
+>
+>So we just get wedged here until something displaces that
+>TLB entry.  This is why X acts sluggish and since it can
+>loop like this for quite a while the X server and the
+>hardware can get plenty confused.
+>
+>The end result is that we have to make sure any PTE updates
+>propagate to all sub-PTEs of a large mapping during any
+>change.  That's really expensive and we'd have to add some
+>complex code to the set_pte_at() code path just to handle
+>this.
+>
+>So the easiest way to fix this, without having to disable
+>largepage PTE mappings of I/O devices, is the patch below.
+>I will push this to Linus for 2.6.18 and -stable so that
+>2.6.17 gets it too.
+>
+>commit 6ad7d29d2edd8c3d632e71454f619f5c0c6c2703
+>Author: David S. Miller <davem@sunset.davemloft.net>
+>Date:   Mon Aug 28 00:33:03 2006 -0700
+>
+>    [SPARC64]: Fix X server hangs due to large pages.
+>    
+>    This problem was introduced by changeset
+>    14778d9072e53d2171f66ffd9657daff41acfaed
+>    
+>    Unlike the hugetlb code paths, the normal fault code is not setup to
+>    propagate PTE changes for large page sizes correctly like the ones we
+>    make for I/O mappings in io_remap_pfn_range().
+>    
+>    It is absolutely necessary to update all sub-ptes of a largepage
+>    mapping on a fault.  Adding special handling for this would add
+>    considerably complexity to tlb_batch_add().  So let's just side-step
+>    the issue and forcefully dirty any writable PTEs created by
+>    io_remap_pfn_range().
+>    
+>    The only other real option would be to disable to large PTE code of
+>    io_remap_pfn_range() and we really don't want to do that.
+>    
+>    Much thanks to Mikael Pettersson for tracking down this problem and
+>    testing debug patches.
+>    
+>    Signed-off-by: David S. Miller <davem@davemloft.net>
+>
+>diff --git a/arch/sparc64/mm/generic.c b/arch/sparc64/mm/generic.c
+>index 8cb0620..af9d81d 100644
+>--- a/arch/sparc64/mm/generic.c
+>+++ b/arch/sparc64/mm/generic.c
+>@@ -69,6 +69,8 @@ static inline void io_remap_pte_range(st
+> 		} else
+> 			offset += PAGE_SIZE;
 > 
-> At boot time, acpi_memory_device_init() is called.
+>+		if (pte_write(entry))
+>+			entry = pte_mkdirty(entry);
+> 		do {
+> 			BUG_ON(!pte_none(*pte));
+> 			set_pte_at(mm, address, pte, entry);
 > 
-> acpi_memory_device_init()
->    |
->    +---> acpi_bus_register_driver()
->            |
->            +---> acpi_driver_attach()
->                    |
->                    +---> acpi_bus_driver_init()
->                            |
->                            +---> acpi_memory_device_add()
->                                     |
->                                     +---> acpi_install_notify_handler().
-> 
-> 
-> The problem is in acpi_driver_attach(). This function is using
-> "acpi_device_list" to call acpi_bus_driver_init().
-> 
-> This list is registered by acpi_device_register() which is called by
-> acpi_add_single_object().
-> However, acpi_add_single_object() skips calling it if _STA is not on.
-> 
-> 1015         switch (type) {
-> 1016         case ACPI_BUS_TYPE_PROCESSOR:
-> 1017         case ACPI_BUS_TYPE_DEVICE:
-> 1018                 result = acpi_bus_get_status(device);
-> 1019                 if (ACPI_FAILURE(result) || !device->status.present) {
-> 1020                         result = -ENOENT;
-> 1021                         goto end;
-> 1022                 }
-> 1023                 break;
-> 
-> So, notify handler is registered just for memory device which is enable
-> at boot time.
-> If notify event occurs for new memory device, there is no notify handler
-> for it....
-> 
-Ah, good point. That should also be the reason why a battery inserted
-after module loading won't get noticed (I didn't try right now, but I
-remember complains about that).
-I wonder whether the "!device->status.present" condition can just be
-deleted here or checking for device HIDs that potentially can be
-ejected/inserted, not sure. Hopefully someone else could comment on that
-one.
 
-> Old code registers handler for all of memory devices even if it is not
-> enabled.
-Yeah, therefore the mem_device cannot be passed as callback data as it
-might get generated in the notify handler func and all the additional
-stuff is needed..., ouch.
-> 
-> If my understanding is wrong, please let me know. ;-)
-It's me who is wrong, thanks a lot for checking!
+Thanks. X works fine on my U5 now with 2.6.18-rc5 + this patch.
 
-> Memory device might not have _EJ0/_EJD, but parent device 
-> (like one NUMA node) might be able to be ejectable.
-> In this case, only the parent device has _EJ0/_EJD.
-> So, one more check is necessary.
-
-I feared something like that (should have add a comment...), as the EJ0
-and _STA functions are only used on the device itself I thought checking
-for them makes sense, but for a missing EJ0 func powering down the
-device just fails and it should not be harmful.
-So the only useful thing from my patch (as long as .add is only invoked
-if device is present) is using the general acpi_bus_get_status() func. 
-Hmm, it must be used if the _STA function on the memory device is also
-missing and the parent _STA must be used then? Could make sense on a
-machine where a whole node must be inserted/ejected? The
-acpi_bus_get_status() function already contains the checking for the
-parent's _STA function and uses this one if the device itself has none.
-
-  Thomas
-
+/Mikael

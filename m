@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWH1J5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWH1J6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWH1J5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 05:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWH1J5R
+	id S964774AbWH1J6s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 05:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWH1J6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 05:57:17 -0400
-Received: from liaag1ag.mx.compuserve.com ([149.174.40.33]:26852 "EHLO
-	liaag1ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932488AbWH1J5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 05:57:17 -0400
-Date: Mon, 28 Aug 2006 05:50:07 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Linux v2.6.18-rc5
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200608280554_MC3-1-C993-607@compuserve.com>
+	Mon, 28 Aug 2006 05:58:48 -0400
+Received: from plesklinux2.dns26.com ([84.246.225.21]:46306 "EHLO dns26.com")
+	by vger.kernel.org with ESMTP id S964774AbWH1J6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 05:58:47 -0400
+Date: 28 Aug 2006 10:48:20 +0200
+Message-ID: <20060828084820.2978.qmail@dns26.com>
+To: linux-kernel@vger.kernel.org
+Subject: JOB OFFER THE ADDRESS 
+From: jamesmarkart <jamesmarkart@walla.com>
+Reply-To: jamesmarkart@australiamail.com
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
 
-On Sun, 27 Aug 2006 23:14:21 -0700, Andrew Morton wrote:
+Hello, 
+         I am jamesmarkart by name and I am an artist. I have acquired your email address as a person who is actively involved in or is looking for an online business opportunity or looking for a part time job to compliment current earnings. 
+I live in United Kingdom,with my two kids, four cats, one dog and the love of my life. It is definitely a full house. 
+I have been doing artwork since I was a small child. That gives me about 23 years of experience. I majored in art in high school and took a few college art courses. Most of my work is done in either pencil or airbrush mixed with color pencils. I have recently added designing and creating artwork on the computer.I have been selling my art works for the last 3 years and have had my work featured on trading cards, prints and in magazines. 
+I have sold in galleries and to private collectors from all around the world. I am always facing serious difficulties when it comes to selling my art works to Americans, cos they are always offering to pay with a US MONEY ORDER/CERTIFIED CHECK, which is difficult for me to cash here in United Kingdom. 
+I am looking for a representative in the states who will be working for me as a pary-time worker and i will be willing to pay 10% for every transaction,which wouldn't affect your present state of work, someone who would help me recieve payments from my customers in the states. I mean someone that is responsible and reliable, cause the cost of coming to the state and getting payments is very expensive, I am working on setting up a branch in the states, so for now I need a representative in the United States who will be handling the payment aspect. These payments could be in  money order/check and they would come to you in your name, so all you need do is cash the money order deduct your percentage and wire the BALANCE back. But the problem I have is trust as I have been burnt many times in the states by some individuals. 
+It wouldnt cost u any amount, you are to receive payments which will be sent to you via FEDEX or UPS courier services from my business patners, which would come in form of a Money order/Certified Cashier's Check in US Funds then you are to cash it and send the cash to me via Western Union Money Transfer or Moneygram Money Transfer, all transfer fees should be deducted from the money you are sending so you have nothing to lose. If you are interested, kindly get back to me ASAP for further explanation. 
+ JOB OFFER.......URGENT RESPONSE WILL BE APPRECIATED
 
-> > Linux 2.6.18-rc5 is out there now
-> 
-> (Reporters Bcc'ed: please provide updates)
-> 
-> Serious-looking regressions include:
-> 
-> <...>
-> 
-> From: Chuck Ebbert <76306.1226@compuserve.com>
-> Subject: PCI: Cannot allocate resource region 7 of bridge 0000:00:04.0
 
-Also happens on 2.6.16.28 and 2.6.17.11, so not a regression.
 
-> From: "Beschorner Daniel" <Daniel.Beschorner@facton.com>
-> Subject: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
-> 
->   (I think we fixed this?)
-
-Fixed by this -rc5 patch:
-
-        Trond Myklebust:
-              fcntl(F_SETSIG) fix
-
--- 
-Chuck

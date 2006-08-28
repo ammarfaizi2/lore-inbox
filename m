@@ -1,63 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWH1Uqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWH1UsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWH1Uqf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWH1Uqf
+	id S932097AbWH1UsU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWH1UsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:46:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50585 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932079AbWH1Uqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:46:35 -0400
-Date: Mon, 28 Aug 2006 21:46:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Paul E McKenney <paulmck@us.ibm.com>
-Subject: Re: [PATCH 3/4] RCU: preemptible RCU implementation
-Message-ID: <20060828204611.GB719@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	Paul E McKenney <paulmck@us.ibm.com>
-References: <20060828160845.GB3325@in.ibm.com> <20060828161222.GE3325@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060828161222.GE3325@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 28 Aug 2006 16:48:20 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:39913 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932088AbWH1UsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 16:48:19 -0400
+Message-ID: <44F3582B.3060000@student.ltu.se>
+Date: Mon, 28 Aug 2006 22:55:07 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nicholas Miell <nmiell@comcast.net>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+References: <44EFBEFA.2010707@student.ltu.se>	 <20060828093202.GC8980@infradead.org>	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>	 <44F2DEDC.3020608@student.ltu.se> <1156792540.2367.2.camel@entropy>
+In-Reply-To: <1156792540.2367.2.camel@entropy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 09:42:22PM +0530, Dipankar Sarma wrote:
-> From: Paul McKenney <paulmck@us.ibm.com>
-> 
-> This patch implements a new version of RCU which allows its read-side
-> critical sections to be preempted. It uses a set of counter pairs
-> to keep track of the read-side critical sections and flips them
-> when all tasks exit read-side critical section. The details
-> of this implementation can be found in this paper -
-> 
-> http://www.rdrop.com/users/paulmck/RCU/OLSrtRCU.2006.08.11a.pdf
-> 
-> This patch was developed as a part of the -rt kernel
-> development and meant to provide better latencies when
-> read-side critical sections of RCU don't disable preemption.
-> As a consequence of keeping track of RCU readers, the readers
-> have a slight overhead (optimizations in the paper).
-> This implementation co-exists with the "classic" RCU
-> implementations and can be switched to at compiler.
+Nicholas Miell wrote:
 
-NACK.  While a readers can sleep rcu version definitly has it's
-we should make it all or nothing.  Either we always gurantee that
-a rcu reader can sleep or never without external patches.  Having
-this a config option is the ultimate defeat for any kind of bug
-reproducabilility.
+>On Mon, 2006-08-28 at 14:17 +0200, Richard Knutsson wrote:
+>  
+>
+>>Jan Engelhardt wrote:
+>>
+>>    
+>>
+>>>>>Just would like to ask if you want patches for:
+>>>>>     
+>>>>>
+>>>>>          
+>>>>>
+>>>>Total NACK to any of this boolean ididocy.  I very much hope you didn't
+>>>>get the impression you actually have a chance to get this merged.
+>>>>
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>>>* (Most importent, may introduce bugs if left alone)
+>>>>>Fixing boolean checking, ex:
+>>>>>if (bool == FALSE)
+>>>>>to
+>>>>>if (!bool)
+>>>>>     
+>>>>>
+>>>>>          
+>>>>>
+>>>>this one of course makes sense, but please do it without introducing
+>>>>any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
+>>>>all scsi drivers to classic C integer as boolean semantics would be
+>>>>very welcome janitorial work.
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>I don't get it. You object to the 'idiocy' 
+>>>(http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
+>>>a good thing?
+>>> 
+>>>
+>>>      
+>>>
+>>That is error-prone. Not "==FALSE" but what happens if x is (for some 
+>>reason) not 1 and then "if (x==TRUE)".
+>>    
+>>
+>
+>If you're using _Bool, that isn't possible. (Except at the boundaries
+>where you have to validate untrusted data -- and the compiler makes that
+>more difficult, because it "knows" that a _Bool can only be 0 or 1 and
+>therefore your check to see if it's not 0 or 1 can "safely" be
+>eliminated.)
+>  
+>
+Yes, true. But there is no _Bool's in the kernel (linus-git), only one 
+in script/.
 
-Please make the patch undconditional and see if it doesn't cause
-any significant slowdowns in production-like scenaries and then
-we can switch over to the readers can sleep variant unconditionally
-at some point.
-
+Richard Knutsson

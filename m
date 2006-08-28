@@ -1,83 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWH1Ckx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWH1Cmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWH1Ckx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWH1Ckx
+	id S932351AbWH1Cmy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWH1Cmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:40:53 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:12248 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932290AbWH1Ckw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:40:52 -0400
-Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
-From: Nicholas Miell <nmiell@comcast.net>
-To: David Miller <davem@davemloft.net>
-Cc: drepper@redhat.com, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
-       hch@infradead.org, chase.venters@clientec.com
-In-Reply-To: <20060827.185744.82374086.davem@davemloft.net>
-References: <11564996832717@2ka.mipt.ru> <44F208A5.4050308@redhat.com>
-	 <20060827.185744.82374086.davem@davemloft.net>
-Content-Type: text/plain
-Date: Sun, 27 Aug 2006 19:40:33 -0700
-Message-Id: <1156732833.2358.13.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+	Sun, 27 Aug 2006 22:42:54 -0400
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:58240 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932351AbWH1Cmx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:42:53 -0400
+Message-ID: <44F259C7.5090505@wolfmountaingroup.com>
+Date: Sun, 27 Aug 2006 20:49:43 -0600
+From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: altendew <andrew@shiftcode.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Server Attack
+References: <6011508.post@talk.nabble.com>
+In-Reply-To: <6011508.post@talk.nabble.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 18:57 -0700, David Miller wrote:
-> From: Ulrich Drepper <drepper@redhat.com>
-> Date: Sun, 27 Aug 2006 14:03:33 -0700
-> 
-> > The biggest problem I see so far is the integration into the existing
-> > interfaces.  kevent notification *really* should be usable as a new
-> > sigevent type.  Whether the POSIX interfaces are liked by kernel folks
-> > or not, they are what the majority of the userlevel programmers use.
-> > The mechanism is easily extensible.  I've described this in my paper.  I
-> > cannot comment on the complexity of the kernel side but I'd imagine it's
-> > not much more difficult, just different from what is implemented now.
-> > Let's learn for a change from the mistakes of the past.  The new and
-> > innovative AIO interfaces never took off because their implementation
-> > differs so much from the POSIX interfaces.  People are interested in
-> > portable code.  So, please, let's introduce SIGEV_KEVENT.  Then we
-> > magically get timer notification etc for free.
-> 
-> I have to disagree with this.
-> 
-> SigEvent, and signals in general, are crap.  They are complex
-> and userland gets it wrong more often than not.  Interfaces
-> for userland should be simple, signals are not simple.  A core
-> loop that says "give me events to process", on the other hand,
-> is.  And this is what is most natural for userspace.
-> 
-> The user can say when he wants the process events.  In fact,
-> ripping out the complex signal handling will be a welcome
-> change for most server applications.
-> 
-> We are going to require the use of a new interface to register
-> the events anyways, why keep holding onto the delivery baggage
-> as well when we can break free of those limitations?
+altendew wrote:
 
-struct sigevent is the POSIX method for describing how event
-notifications are delivered.
+>Hi someone is currently sending requests to our server 20x a second.
+>
+>Here is what one of the logs look like.
+>
+>[CODE]
+>Host: 84.77.19.46   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US) AppleWebKit/578.4
+>(KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
+>
+>Host: 82.234.98.65   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US) AppleWebKit/126.0
+>(KHTML, like Geco, Safari) OmniWeb/v554.35  
+>
+>Host: 84.94.31.161   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US) AppleWebKit/502.6
+>(KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
+>
+>Host: 81.49.24.92   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US) AppleWebKit/230.1
+>(KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
+>
+>Host: 80.129.248.17   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US) AppleWebKit/243.6
+>(KHTML, like Geco, Safari) OmniWeb/v846.88  
+>
+>Host: 87.235.49.194   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US) AppleWebKit/430.1
+>(KHTML, like Geco, Safari) OmniWeb/v145.34  
+>
+>Host: 125.129.12.61   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US) AppleWebKit/455.3
+>(KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
+>
+>Host: 66.110.153.47   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US) AppleWebKit/387.2
+>(KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
+>
+>Host: 62.2.177.250   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US) AppleWebKit/206.1
+>(KHTML, like Geco, Safari) OmniWeb/v204.07es  
+>
+>Host: 200.115.226.143   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US) AppleWebKit/647.0
+>(KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
+>
+>Host: 84.171.125.189   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US) AppleWebKit/778.0
+>(KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
+>
+>Host: 83.242.79.70   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US) AppleWebKit/537.0
+>(KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
+>
+>Host: 86.69.194.172   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US) AppleWebKit/468.2
+>(KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
+>
+>Host: 196.203.176.26   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US) AppleWebKit/840.3
+>(KHTML, like Geco, Safari) OmniWeb/v767.50s  
+>
+>Host: 201.41.241.190   /signUp.php?ref=1945777  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US) AppleWebKit/742.0
+>(KHTML, like Geco, Safari) OmniWeb/v715.65C:  
+>
+>Host: 200.84.144.234   /signUp.php?ref=ec0lag  
+>  Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>Bytes: -  
+>  Referer: -  
+>  Agent: Mozilla/5.0  
+>[/CODE]
+>
+>We are currently blocking this user through our Apache.
+>
+>.htaccess
+>[CODE]
+>RewriteEngine On 
+>RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\ Mac\
+>OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
+>OmniWeb/v([0-9]+).([0-9]+)(.+)$
+>RewriteRule .* - [F]
+>[/CODE]
+>
+>That works fine and is giving the user a 403 (Forbidden), but the problem is
+>that half of our Apache processes are from this user.
+>
+>Is there a way to block his user agent before he gets to Apache? Sometimes
+>this brings our server to a crash.
+>
+>Thanks
+>Andrew
+>  
+>
+iptables -J drop <ip address>
 
-Two methods are specified in POSIX -- SIGEV_SIGNAL, which delivers a
-signal to the process and SIGEV_THREAD which creates a new thread in the
-process and calls a user-supplied function. In addition to these two
-methods, Linux also implements SIGEV_THREAD_ID, which sends a signal to
-a specific thread (this is used internally by glibc to implement
-SIGEV_THREAD, but I imagine that would change on the addition of
-SIGEV_KEVENT).
-
-Ulrich is suggesting the addition of SIGEV_KEVENT, which causes the
-event notification to be delivered to a specific kevent queue. This
-would allow for event delivery to kevent queues from POSIX AIO
-completions, POSIX message queues, POSIX timers, glibc's async name
-resolution interface and anything else that might use a struct sigevent
-in the future.
-
--- 
-Nicholas Miell <nmiell@comcast.net>
 

@@ -1,47 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWH1G7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWH1HTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWH1G7l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 02:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWH1G7k
+	id S932403AbWH1HTT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 03:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWH1HTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 02:59:40 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:45755 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932399AbWH1G7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 02:59:40 -0400
-Date: Mon, 28 Aug 2006 02:59:38 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Possible gpl problem?
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200608280259.38493.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Mon, 28 Aug 2006 03:19:19 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:14580 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S932403AbWH1HTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 03:19:18 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git
+cc: linux-kernel@vger.kernel.org
+X-maint-at: 60a6bf5f53635005f4f68d8b8a33172309193623
+X-master-at: 370e0966ef4abff81f08c9ea5c7d167eb0b0d354
+Date: Mon, 28 Aug 2006 00:19:36 -0700
+Message-ID: <7vodu5qqd3.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings everybody;
+This is CC'ed to the kernel list as well because the "master"
+update is rather large.
 
-I ran across a notice tonight that K-Linux is changing its name to KaeilOS.
-Nothing wrong with that except they've gone commercial and its no longer 
-freely downloadable.  The only apparent method of getting it, even though 
-its prominently displayed as being released under the GPL V2 license, is 
-to buy the dvd for 299 euros.
+On the "maint" front, I've been wanting to cut 1.4.2.1 for some
+time, but various time constraints prevented me doing so so far.
+I have a vague suspicion that 1.4.3 might happen before that.
 
-Now I'd be the first to say that I'd expect it to come with very good 
-initial support for that amount of money, because thats what you would be 
-buying.  However, the lack of a freely downloadable version with no 
-support certainly seems to be a GPL violation to me.  It should be checked 
-out IMO.
+Also I have been sort-of waiting for the x86-32 machine at
+kernel.org to become available again so that I can do an RPM for
+end users, which unfortunately hasn't happened yet.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+* The 'maint' branch has these fixes since the last announcement.
+
+   Johannes Schindelin:
+      git-mv: special case destination "."
+      git-mv: fix off-by-one error
+      builtin-mv: readability patch
+
+* The 'master' branch has these since the last announcement.
+
+  - Johannes's reimplementation of merge-recursive in C is in
+    'master' for early adopter testing.  Currently it is called
+    'merge-recur', so you either (1) invoke it explicitly with
+    the -s option to 'git pull' and/or 'git merge', or (2) have
+    an environment variable GIT_USE_RECUR_FOR_RECURSIVE set to
+    non-empty string, in which case places that call
+    'git-merge-recursive' would use 'git-merge-recur' instead.
+
+    This has been tested in 'next' for some time, and Johannes
+    ran tests to reproduce all merges in post 2.6.12-rc2 kernel
+    history to validate it produces the same result as the
+    current merge-recursive.  The only difference is that it is
+    about 6x-10x faster and you do not have to have Python
+    installed.
+
+    I intend to retire the current merge-recursive.py and
+    replace it with merge-recur before 1.4.3 happens.
+
+  - Various calls to memcmp/memcpy/memset with length '20' to
+    compare, copy and clear object names have been abstracted
+    out to hashcmp/hashcpy/hashclr wrappers, spearheaded by
+    David Rientjes.  This would make it easier to migrate the
+    code to hashes of other lengths if it is ever needed.
+
+    Obviously migrating the existing data is another story.
+
+  - Updates to git-svn by Eric Wong.
+
+  - git-apply can be given --reject to produce *.rej files,
+    instead of failing the whole patch atomically.  It also can
+    be given --verbose to report what it is doing.
+
+  - Rene Scharfe helped git-tar-tree find its soulmate
+    git-zip-tree.
+
+  - Tilman Sauerbeck taught git-daemon to setuid/setgid before
+    serving the clients.
+
+  - Various small fixes and clean-ups by Haavard Skinnemoen, Jakub
+    Narebski, Jonas Fonseca, Pierre Habouzit, Rene Scharfe,
+    Shawn Pearce, and Tilman Sauerbeck.
+
+  - Various documentation clean-ups by Jonas Fonseca, and Rene
+    Scharfe.
+
+  - The internal is readied to be able to say "32 hours ago" in
+    "git log" and friends by Linus; we do not have an UI to
+    enable it yet.
+
+
+* The 'next' branch, in addition, has these.
+
+  - Various gitweb updates by Jakub Narebski with help from
+    Aneesh Kumar, Luben Tuikov, and Martin Waitz.  The most
+    attractive thing these updates have is that we finally got
+    rid of having to use temporary files to show diffs.
+
+    I'd like to push this out to "master" soonish.  You can get
+    a taste of how it works at the site Jakub maintains
+
+	http://front.fuw.edu.pl/cgi-bin/jnareb/gitweb.cgi
+
+  - Git.pm by Pasky with help from Dennis Stosberg, Eric Wong,
+    Johannes, and Pavel Roskin.  During the next round I'd like
+    to push this out to "master" to see who screams ;-).
+
+  - upload-pack has a bit of updates still held back.
+
+  - git-daemon is taught to optionally serve git-tar-tree
+    output.
+
+
+* In the 'pu' branch, I have my WIP of a library to walk the
+  index, the working tree, and zero or more tree objects in
+  parallel.  Its test program does something that vaguely looks
+  like diff-index with and without --cached in parallel, but it
+  is not polished enough for public testing/consumption yet.
+

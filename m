@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWH1VaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWH1Vcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWH1VaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWH1VaP
+	id S932161AbWH1Vcq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWH1Vcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:30:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52684 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932136AbWH1VaN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:30:13 -0400
-Date: Mon, 28 Aug 2006 14:30:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mattia Dongili <malattia@linux.it>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org
-Subject: Re: divide error: 0000 in fib6_rule_match [Re: 2.6.18-rc4-mm3]
-Message-Id: <20060828143003.aaae0d7d.akpm@osdl.org>
-In-Reply-To: <20060828200716.GA4244@inferi.kami.home>
-References: <20060826160922.3324a707.akpm@osdl.org>
-	<20060828200716.GA4244@inferi.kami.home>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 28 Aug 2006 17:32:46 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:57017 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932161AbWH1Vcp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:32:45 -0400
+Subject: [PATCH -mm] Fix faulty HPET clocksource usage (fix for bug #7062)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, michael.olbrich@gmx.net
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 14:32:39 -0700
+Message-Id: <1156800759.16398.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Aug 2006 22:07:16 +0200
-Mattia Dongili <malattia@linux.it> wrote:
+Apparently some systems export valid HPET addresses, but hpet_enable()
+fails. Then when the HPET clocksource starts up, it only checks for a
+valid HPET address, and the result is a system where time does not
+advance.
 
-> [   44.412000]  =======================
-> [   44.412000] Code: 00 00 00 89 d8 83 e0 1f 0f 85 9a 00 00 00 8b 5d 08 0f b6 53 68 84 d2 75 78 8b 55 08 8b 5d 0c 8b 4a 60 8b 43 28 31 c8 89 d1 31 d2 <f7> 71 64 85 c0 0f 94 c0 0f b6 c0 8b 5d f4 8b 75 f8 8b 7d fc 89 
-> [   44.412000] EIP: [<d1516aca>] fib6_rule_match+0x7a/0x150 [ipv6] SS:ESP 0068:cd9d4d0c
-> [   44.412000]  <6>note: sshd[3780] exited with preempt_count 1
-> 
-> config and full dmesg:
-> http://oioio.altervista.org/linux/config-2.6.18-rc4-mm3-1
-> http://oioio.altervista.org/linux/dmesg-2.6.18-rc4-mm3-1
-> 
-> it's at fib6_rules.c:132 but since I can't tell why r->fwmask is 0 I'll
-> avoid proposing a wrong patch :)
+See http://bugme.osdl.org/show_bug.cgi?id=7062 for details.
 
-Oh.  It looks like this has already been fixed:
+This patch just makes sure we better check that the HPET is functional
+before registering the HPET clocksource.
 
-#ifdef CONFIG_IPV6_ROUTE_FWMARK
-        if ((r->fwmark ^ fl->fl6_fwmark) & r->fwmask)
-                return 0;
-#endif
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
-there's no divide in there now.
+diff --git a/arch/i386/kernel/hpet.c b/arch/i386/kernel/hpet.c
+index c6737c3..17647a5 100644
+--- a/arch/i386/kernel/hpet.c
++++ b/arch/i386/kernel/hpet.c
+@@ -35,7 +35,7 @@ static int __init init_hpet_clocksource(
+ 	void __iomem* hpet_base;
+ 	u64 tmp;
+ 
+-	if (!hpet_address)
++	if (!is_hpet_enabled())
+ 		return -ENODEV;
+ 
+ 	/* calculate the hpet address: */
+
+

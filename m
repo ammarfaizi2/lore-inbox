@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWH1KB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWH1KKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWH1KB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 06:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWH1KB0
+	id S964777AbWH1KKr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 06:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWH1KKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 06:01:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15262 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964776AbWH1KBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 06:01:25 -0400
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: David Miller <davem@davemloft.net>, arnd@arndb.de,
-       linux-arch@vger.kernel.org, jdike@addtoit.com, B.Steinbrink@gmx.de,
-       arjan@infradead.org, chase.venters@clientec.com, akpm@osdl.org,
-       rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608281053.11142.ak@suse.de>
-References: <200608281003.02757.ak@suse.de> <200608281028.13652.ak@suse.de>
-	 <1156754436.5340.20.camel@pmac.infradead.org>
-	 <200608281053.11142.ak@suse.de>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 11:00:32 +0100
-Message-Id: <1156759232.5340.36.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Mon, 28 Aug 2006 06:10:47 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:59728 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964777AbWH1KKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 06:10:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fh0pTLiIoaoHYWZOwT0KEQ95wGphgqtzaJB3h0LRlCfsk3HrVFxu5IaxxrDStp9OMRxdd5nWzpOIAx2sIhWdkXP6yNnVfbCVQrwPXb/yH1PhG3gd9iM8dJsRLXn3TFC1ohkhC0KI6yrauro+yBBrn8yq+ScklxikrNdggvk1xdQ=
+Message-ID: <9a8748490608280310q65c1335cr2603b044c340a489@mail.gmail.com>
+Date: Mon, 28 Aug 2006 12:10:45 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Linux v2.6.18-rc5
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Nathan Scott" <nathans@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 10:53 +0200, Andi Kleen wrote:
-> 
-> > /usr/include/linux is _not_ a place to dump "reference code" in lieu of
-> > documentation on using kernel interfaces.
-> 
-> At least for the system call interface it was always. It is not
-> my fault you're trying to suddenly redefine it to be something else.
+On 28/08/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Ok,
+>  this was delayed three weeks due to a combination of vacations and a
+> funeral in Finland, but Greg and Andrew kept on top of things, and we were
+> fairly late in the release cycle anyway, so it hopefully caused no real
+> problems apart from obviously delaying the final release a tiny bit.
+>
+> Linux 2.6.18-rc5 is out there now, both in git form and as patches and
+> tar-balls (the latter which I forgot for -rc4, but Greg covered for me -
+> blush).
+>
+> The shortlog (appended) tells the story: various fixes all around.
+> Powerpc, V4L, networking, SCSI..
+>
+> Pls test it out, and please remind all the appropriate people about any
+> regressions you find (including any found earlier if they haven't been
+> addressed yet).
+>
+Not really a regression, more like a long standing bug, but XFS has
+issues in 2.6.18-rc* (and earlier kernels, at least post 2.6.11).
+With heavy rsync load to a machine with XFS filesystems, XFS falls
+over and filesystems are in need of xfs_repair.
+I'm doing all I can to gather info for Nathan so he can fix the bug,
+but it's hard to trigger reliably.
+My point is that perhaps it's worth delaying 2.6.18 a little longer in
+the hope of getting that bug fixed before release. Nathan?
+At least for me, XFS in its current state (and thus 2.6.18)  is
+unusable in production environments.
 
-I'm trying to 'suddenly redefine' kernel headers as something that
-_isn't_ just a library of random crap for people to abuse in userspace
-as they see fit, then whine when something breaks even though it was
-never really guaranteed to work when abused in that way anyway.
-
-So far, you're just reminding me why that needed to be done.
-
-> > Besides, the _syscallX implementations in the kernel were generally
-> > unsuitable for use [as a reference implementation]
-> 
-> I disagree. I used them and they worked great for me.
-
-Really? You used them as a reference implementation? Didn't you already
-know how x86_64 syscalls work?
-
-Or were you saying you just happened to use the x86_64 implementation of
-_syscallX stuff in some userspace hacks, and it happened to work? In
-which case go and line up behind the guy who said that about atomic.h on
-i386 and only ever tested it on UP. The doctor will get to you later.
+See the thread titled "2.6.18-rc3-git3 - XFS - BUG: unable to handle
+kernel NULL pointer dereference at virtual address 00000078" for the
+full story.
 
 -- 
-dwmw2
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,77 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWH1Lkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWH1Lqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWH1Lkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1Lkm
+	id S964822AbWH1Lqz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1Lqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:40:42 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:41369 "EHLO
-	mail.arcor.de") by vger.kernel.org with ESMTP id S964836AbWH1Lkl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:40:41 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Valerie Henson <val_henson@linux.intel.com>
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Date: Mon, 28 Aug 2006 13:40:26 +0200
-User-Agent: KMail/1.9.4
-Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Jiri Benc <jbenc@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-References: <20050427124911.6212670f@griffin.suse.cz> <200608231859.32304.prakash@punnoor.de> <20060824172347.GA24434@goober>
-In-Reply-To: <20060824172347.GA24434@goober>
+	Mon, 28 Aug 2006 07:46:54 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:31737 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964822AbWH1Lqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 07:46:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iqWcDeClu05Dc9lXfEII0JY8EfNUbv02dV1HnPEe2Tc4GRiHU05FYrxXMI5cuTutOxmpGJZQ1JMwb3oZ0xYmEiXBbI6DlErXKg7hUMQxkoEiLbk7LyVYqwT6JJ1a9XNkvOV5fTHfdAPe+Q+CL8ssNVcFitNnmZd91eww8ggakNE=
+Message-ID: <742b1fb30608280446x2b0cf2d4p5aae2bb66ba41555@mail.gmail.com>
+Date: Mon, 28 Aug 2006 13:46:52 +0200
+From: "Patrizio Bassi" <patrizio.bassi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG?] 2.6.17.x suspend problems
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1598133.lTIfM6dPXV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608281340.26913.prakash@punnoor.de>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1598133.lTIfM6dPXV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+when i try to suspend my notebook i have problems with ide controller.
+the copy lasts a lot and i get oops.
 
-Am Donnerstag 24 August 2006 19:23 schrieb Valerie Henson:
-> On Wed, Aug 23, 2006 at 06:59:32PM +0200, Prakash Punnoor wrote:
-> > Am Samstag 19 August 2006 02:16 schrieb Valerie Henson:
-> > > Hey folks,
-> > >
-> > > Added to my to-do list.  Let me know if you figure out anything else.
-> >
-> > As it comes back to my mind: Last time I tested dhcpcd doesn't work.
-> > dhclient does, but takes a lot of time. (The dhcp server is debian
-> > based.) Other cards don't have a problem. They get their ip assigned fa=
-st
-> > and with either dhcpocd or dhclient.
->
-> Tcpdump on client and server, please?
 
-Hi, I couldn't try earlier. Since I noticed the server generates a very big=
-=20
-log in short time, so I think the irrelevant infos should be filtered out -=
-=20
-it is simply to big to post. As I never used tcpdump, could you give me an=
-=20
-example how to accomplish this?
+Stopping tasks: ==========================================|
+Shrinking memory... done (22776 pages freed)
+pnp: Device 00:08 disabled.
+swsusp: Need to copy 30898 pages
+ACPI: PCI Interrupt 0000:00:00.1[A]: no GSI - using IRQ 14
+eth0: Media Link Off
+ACPI: PCI Interrupt 0000:00: 01.2[D] -> Link [LNKD] -> GSI 5 (level,
+low) -> IRQ 5
+ACPI: PCI Interrupt 0000:00:01.3[D] -> Link [LNKD] -> GSI 5 (level,
+low) -> IRQ 5
+ACPI: PCI Interrupt 0000:00:01.4[B] -> Link [LNKB] -> GSI 5 (level,
+low) -> IRQ 5
+ACPI: PCI Interrupt 0000:00:01.6[B] -> Link [LNKB] -> GSI 5 (level,
+low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:02.0 to 64
+PM: Writing back config space on device 0000:00:0a.0 at offset 1 (was
+82100003, writing 82100007)
+ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKA] -> GSI 11 (level,
+low) -> IRQ 11
+PM: Writing back config space on device 0000:00:0a.1 at offset 1 (was
+2100003, writing 82100007)
+ACPI: PCI Interrupt 0000:00: 0a.1[B] -> Link [LNKC] -> GSI 5 (level,
+low) -> IRQ 5
+pnp: Device 00:08 activated.
+pnp: Failed to activate device 00:0c.
+pnp: Failed to activate device 00:0d.
+irq 14: nobody cared (try booting with the "irqpoll" option)
+ <c012c987> __report_bad_irq+0x2b/0x69  <c012cb3d> note_interrupt+0x178/0x1a7
+ <c012c53d> handle_IRQ_event+0x22/0x4e  <c012c5ce> __do_IRQ+0x65/0x8f
+ <c0104b2d> do_IRQ+0x19/0x24  <c01033da> common_interrupt+0x1a/0x20
+ <c0118f4b> __do_softirq+0x2c/0x7f  <c0118fc0> do_softirq+0x22/0x26
+ <c0104b32> do_IRQ+0x1e/0x24  <c01033da> common_interrupt+0x1a/0x20
+ <c0214224> acpi_processor_idle+0x157/0x323  <c0101da2> cpu_idle+0x3a/0x4f
+ <c03b0635> start_kernel+0x29c/0x29e
+handlers:
+[<c0230301>] (ide_intr+0x0/0x16c)
+Disabling IRQ #14
+Restarting tasks... done
+hda: dma_timer_expiry: dma status == 0x24
+hda: DMA interrupt recovery
+hda: lost interrupt
 
-Thx,
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+           CPU0
+  0:     431861          XT-PIC  timer
+  1:        638          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:          0          XT-PIC  yenta, ohci_hcd:usb1, ohci_hcd:usb2,
+Trident Audio, SiS630, eth0
+  7:          0          XT-PIC  parport0
+  8:          2          XT-PIC  rtc
+  9:          1          XT-PIC  acpi
+ 11:          0          XT-PIC  yenta
+ 12:      10982          XT-PIC  i8042
+ 14:     200771          XT-PIC  ide0
+ 15:         26          XT-PIC  ide1
+NMI:          0
+LOC:          0
+ERR:          0
+MIS:          0
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 11)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] SiS85C503/5513 (LPC Bridge)
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+PCI Fast Ethernet (rev 80)
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] USB  1.0
+Controller (rev 07)
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 07)
+00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
+SiS PCI Audio Accelerator (rev 01)
+  00:01.6 Modem: Silicon Integrated Systems [SiS] AC'97 Modem
+Controller (rev a0)
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] Virtual
+PCI-to-PCI bridge (AGP)
+00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+630/730 PCI/AGP VGA Display Adapter (rev 11)
 
---nextPart1598133.lTIfM6dPXV
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBE8tYqxU2n/+9+t5gRAtx8AJ9yUj1ujFJkelaHWYBAQjSOLAkJsQCcDh30
-wGoqLNDBQI1QJ0OqBnnqvLA=
-=PgE5
------END PGP SIGNATURE-----
+I have another two problems too:
+1) have to disable synaptics driver (editing sources) otherwise i get
+kernel panic
+ 2) dri accelleration is working no more after suspend. glxgears shows
+a black window only.
 
---nextPart1598133.lTIfM6dPXV--
+i think i should open 2 different threads for the last two.
+
+please CC me, i'm not subscribed.
+
+
+-- 
+
+ Patrizio Bassi
+www.patriziobassi.it

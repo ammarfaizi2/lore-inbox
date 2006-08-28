@@ -1,66 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWH1BqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWH1Bue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWH1BqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 21:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWH1BqX
+	id S932326AbWH1Bue (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 21:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWH1Bue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 21:46:23 -0400
-Received: from msr3.hinet.net ([168.95.4.103]:34481 "EHLO msr3.hinet.net")
-	by vger.kernel.org with ESMTP id S932159AbWH1BqW (ORCPT
+	Sun, 27 Aug 2006 21:50:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15521 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932326AbWH1Bue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 21:46:22 -0400
-Message-ID: <002a01c6ca43$ae73ebd0$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Francois Romieu" <romieu@fr.zoreil.com>
-Cc: <penberg@cs.Helsinki.FI>, <akpm@osdl.org>, <dvrabel@cantab.net>,
-       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <david@pleyades.net>, <dominik.schulz@gauner.org>
-References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com> <20060823223032.GA25111@electric-eye.fr.zoreil.com> <026c01c6c71d$0fde1730$4964a8c0@icplus.com.tw> <20060824220758.GA19637@electric-eye.fr.zoreil.com> <20060827220816.GA21788@electric-eye.fr.zoreil.com>
-Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
-Date: Mon, 28 Aug 2006 09:45:46 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Sun, 27 Aug 2006 21:50:34 -0400
+Date: Sun, 27 Aug 2006 18:50:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: vatsa@in.ibm.com
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, akpm@osdl.org,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com
+Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
+Message-Id: <20060827185004.dd3c569e.pj@sgi.com>
+In-Reply-To: <20060821174906.GB21130@in.ibm.com>
+References: <20060820174015.GA13917@in.ibm.com>
+	<20060820174839.GH13917@in.ibm.com>
+	<20060820134849.ac449471.pj@sgi.com>
+	<20060821174906.GB21130@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vatsa, responding to pj:
+> > I can certainly imagine that such constraints make it easier to write
+> > correct scheduler group management code.  And I can certainly allow
+> > that the cpuset style API, allowing one bit at a time to be changed
+> > with each separate open/write/close sequence of system calls, makes it
+> > difficult to impose such constraints over the state of several settings
+> > at once.
+> 
+> Could you elaborate this a bit? What do you mean by "difficult to impose
+> such constraints"? Are you referring to things like after metered child
+> cpusets have been created, any changes to cpus field of parent has to be
+> reflected in all its child-cpusets 'atomically'?
+> 
+> > It sure would be nice to avoid the implicit side affects of copying
+> > parent state on the mkdir, and it sure would be nice to reduce the
+> > enforced sequencing of operations. 
+> 
+> How would this help?
 
-It's Ok. Thanks for that.
+Sorry for the delay in responding - I got distracted by other stuff.
 
-Jesse
------ Original Message ----- 
-From: "Francois Romieu" <romieu@fr.zoreil.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <penberg@cs.Helsinki.FI>; <akpm@osdl.org>; <dvrabel@cantab.net>;
-<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<david@pleyades.net>; <dominik.schulz@gauner.org>
-Sent: Monday, August 28, 2006 6:08 AM
-Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
+I wasn't very clear ... Let me try again.  You have some reasonable
+enough constraints that apply to several per-cpuset attributes in
+several cpusets, including a parent and its children.  However, it
+took me a bit of reading to figure this out, as these constraints are
+magically imposed on the child cpusets when created beneath a parent
+marked cpu_meter_enabled.
+
+Normal cpuset operations are done by an open/write/close on a single
+per-cpuset attribute at a time.  I prefer to avoid magic in the cpuset
+API, such as the special copying of the 'cpus', 'mems' and
+'cpu_meter_enabled' attributes from the parent to the new child as a
+consequence of doing the mkdir. Rather, if some setup requires these
+particular settings, I prefer that we require the user code to have to
+set each of these attributes, explicitly, one at a time.
+
+However, your code, reasonably enough, does not want to deal with half
+baked cpu_meter enabled setups.  If the child is there at all, it must
+instantly conform to all the necessary constraints.  So you need to have
+the kernel code modify several per-cpuset attributes instantly (from the
+user perspective) and automagically, as a side affect of the mkdir call.
+
+I don't like that kind of magic, because I think it makes it a bit
+harder to understand the interface.  But I don't have any idea how to
+avoid it in this case.  So, as I noted before, this seems worth some
+more head scratching, if this  CPU controller ends up adapting this
+sort of cpuset API mechanism.
+
+Granted, even the current cpuset code sometimes does that magic, as
+for instance the creation of the several per-cpuset special files as
+a side affect of the mkdir creating the cpuset.  So I can understand
+that you might not have realized I had any dislike of that style of
+API ;).
+
+On a related note, I am inclined, whenever I think about this, toward
+suggesting that the 'cpu_meter_enabled' flag, which is set in both the
+parent and child, should be two flags.  Just as I like my operations
+to be simple, with minimum side affects and special cases, so do I
+like my flags to be simple, with minimum logical complications.  In this
+case, that flag means one of two different things, depending on whether
+it is the parent or child.  Perhaps splitting that flag into two flags,
+cpuset_meter_parent and cpuset_meter_child, would help clarify this.
+
+Sorry ... too many words ... hopefully it is clearer this time.
+
+ 
+> There is atleast another serious issue in using cpusets for this API -
+> how do we easily find all tasks belonging to a cpuset? There seems to be
+> no easy way of doing this, w/o walking thr' the complete task-list.
+> 
+> We need this task-list for various reasons - like change
+> taks->load_weight of all tasks in a child-cpuset when its cpu quota is
+> changed etc.
+
+Yes, the only way that exists with the current cpuset code to get a list
+of the tasks in a cpuset requires locking and scanning the tasklist.
+
+For current cpuset needs, that seems reasonable enough - a fairly
+minimal kernel solution sufficient for our uses.
+
+But I can well imagine that you would need a more efficient, scalable
+way to list the tasks in a cpuset.
+
+I suppose this would lead to a linked list of the tasks in a cpuset.
+Given the already somewhat fancy [grep rcu kernel/cpuset.c] mechanism
+we use to allow one task to modify another tasks cpuset pointer, even
+as that affected task is accessing that cpuset lock free, this could be
+interesting coding.
 
 
-Francois Romieu <romieu@fr.zoreil.com> :
-> Jesse Huang <jesse@icplus.com.tw> :
-> [...]
->
-> Added:
-> 0039-ip1000-cosmetic-in-ipg_interrupt_handler.txt
-> 0040-ip1000-irq-handler-and-device-close-race.txt
-> 0041-ip1000-schedule-the-host-error-recovery-to-user-context.txt
-> 0042-ip1000-no-need-to-mask-a-constant-field-with-RSVD_MASK.txt
+> > One other question ... how does all this interact with Suresh's
+> > dynamic sched domains?
+> 
+> By "all this" I presume you are referring to the changes to cpuset in
+> this patch. I see little interaction. AFAICS all metered child-cpusets should 
+> be in the same dynamic sched-domain afaics.
 
-Added:
-0043-ip1000-use-the-new-IRQF_-constants-and-the-dma_-alloc-free-_coherent-AP
-I.txt
-0044-ip1000-mixed-case-and-upper-case-removal.txt
-0045-ip1000-add-ipg_-r-w-8-16-32-macros.txt
+That's the possible issue -- ensuring that all metered child-cpusets are
+in the same dynamic sched domain.  If you know that works out that way,
+then good.  I have had to impose a voluntary retirement on myself from
+commenting on sched domain code -- it's just too hard for my modest
+brain.
 
-The patches beyond 0043 are only available through HTTP. Since 0043
-needs a recent enough kernel and the current driver has branched from
-an old release, I plan to rebase my branch. Does it raise any objection
-or remark ?
+My basic concern was not that there would be specific detailed code
+level conflicts between your cpu controllers and Suresh's dynamic sched
+domains, but rather that I sensed two mechanisms here both intending to
+group tasks for the purposes of affecting their scheduling, and I hoped
+that it was clear how these two mechanisms played together.
 
 -- 
-Ueimor
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

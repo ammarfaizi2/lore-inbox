@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWH1JXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWH1JZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWH1JXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 05:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWH1JXy
+	id S932417AbWH1JZL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 05:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWH1JZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 05:23:54 -0400
-Received: from ns1.suse.de ([195.135.220.2]:16089 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751326AbWH1JXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 05:23:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: linux on Intel D915GOM oops
-Date: Mon, 28 Aug 2006 11:23:49 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, henti@geekware.co.za
-References: <20060828102149.26b05e8b@yoda.foad.za.net> <p7364gddzdm.fsf@verdi.suse.de> <1156754850.3034.169.camel@laptopd505.fenrus.org>
-In-Reply-To: <1156754850.3034.169.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 05:25:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55726 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932417AbWH1JZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 05:25:09 -0400
+Date: Mon, 28 Aug 2006 10:24:29 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc4 1/5] ieee1394: sbp2: workaround for write protect bit of Initio firmware
+Message-ID: <20060828092429.GA8980@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+References: <tkrat.bbaf8d081f6a31b7@s5r6.in-berlin.de> <tkrat.94cecc462a778dde@s5r6.in-berlin.de> <Pine.LNX.4.64.0608271308360.27779@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608281123.49027.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.64.0608271308360.27779@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 August 2006 10:47, Arjan van de Ven wrote:
-> On Mon, 2006-08-28 at 10:43 +0200, Andi Kleen wrote:
-> > Arjan van de Ven <arjan@infradead.org> writes:
-> > > 
-> > > this is the known bug where by default Linux uses the BIOS services for
-> > > PCI rather than the native method.
-> > 
-> > It's a BIOS bug if the PCI BIOS doesn't work, not a Linux bug.
+On Sun, Aug 27, 2006 at 01:17:31PM -0700, Linus Torvalds wrote:
 > 
-> it's a bios bug if it doesn't work.
-> it's a linux mistake to depend on the bios for this in the first place
-> (since other OSes don't use this afaik)
+> 
+> On Sun, 27 Aug 2006, Stefan Richter wrote:
+> >
+> > Yet another mode pages related bug of Initio firmwares was seen.
+> > INIC-1530 with a firmware by Initio responded with garbage to MODE SENSE
+> > (10).  Some HDDs were therefore incorrectly marked as write protected:
+> > http://bugzilla.kernel.org/show_bug.cgi?id=6947
+> 
+> Why does sbp2scsi_slave_configure() set "use_10_for_ms" in the first 
+> place?
 
+I suspect that's because the typical command set for ieee1394 devices is
+RBC which only specifies the 10-byte commands.
 
-The patch that fixed the order changed it just from random to 
-consistent.
-
-But as discussed earlier if someone can show that 2.4 did it the other
-way around consistently we can change the order to be like 2.4.
-
--Andi

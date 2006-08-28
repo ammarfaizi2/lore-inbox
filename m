@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWH1TPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWH1TQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWH1TPp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 15:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWH1TPo
+	id S1750717AbWH1TQh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 15:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWH1TQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 15:15:44 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:25474 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751363AbWH1TPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 15:15:43 -0400
-Subject: Re: Conversion to generic boolean
-From: Nicholas Miell <nmiell@comcast.net>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <44F2DEDC.3020608@student.ltu.se>
-References: <44EFBEFA.2010707@student.ltu.se>
-	 <20060828093202.GC8980@infradead.org>
-	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
-	 <44F2DEDC.3020608@student.ltu.se>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 12:15:40 -0700
-Message-Id: <1156792540.2367.2.camel@entropy>
+	Mon, 28 Aug 2006 15:16:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:60394 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750717AbWH1TQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 15:16:36 -0400
+Date: Tue, 29 Aug 2006 00:46:42 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Paul E McKenney <paulmck@us.ibm.com>
+Subject: Re: [PATCH 0/4] RCU: various merge candidates
+Message-ID: <20060828191642.GA32697@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060828160845.GB3325@in.ibm.com> <20060828120611.afad8b0f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060828120611.afad8b0f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 14:17 +0200, Richard Knutsson wrote:
-> Jan Engelhardt wrote:
+On Mon, Aug 28, 2006 at 12:06:11PM -0700, Andrew Morton wrote:
+> On Mon, 28 Aug 2006 21:38:45 +0530
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
 > 
-> >>>Just would like to ask if you want patches for:
-> >>>      
-> >>>
-> >>Total NACK to any of this boolean ididocy.  I very much hope you didn't
-> >>get the impression you actually have a chance to get this merged.
-> >>
-> >>    
-> >>
-> >>>* (Most importent, may introduce bugs if left alone)
-> >>>Fixing boolean checking, ex:
-> >>>if (bool == FALSE)
-> >>>to
-> >>>if (!bool)
-> >>>      
-> >>>
-> >>this one of course makes sense, but please do it without introducing
-> >>any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
-> >>all scsi drivers to classic C integer as boolean semantics would be
-> >>very welcome janitorial work.
-> >>    
-> >>
-> >
-> >I don't get it. You object to the 'idiocy' 
-> >(http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
-> >a good thing?
-> >  
-> >
-> That is error-prone. Not "==FALSE" but what happens if x is (for some 
-> reason) not 1 and then "if (x==TRUE)".
+> > This patchset consists of various merge candidates that would
+> > do well to have some testing in -mm. This patchset breaks
+> > out RCU implementation from its APIs to allow multiple
+> > implementations, gives RCU its own softirq and finally
+> > lines up preemptible RCU from -rt tree as a configurable
+> > RCU implementation for mainline.
+> > 
+> > All comments and testing is welcome. RFC at the moment, but
+> > I can later submit patches against -mm, Andrew, if you want.
+> > They have been tested lightly using dbench, kernbench and ltp
+> > (both CONFIG_CLASSIC_RCU=y and n) on x86 and ppc64.
+> 
+> ouch.
+> 
+> akpm:/usr/src/25> grep rcu series
+> radix-tree-rcu-lockless-readside.patch
+> adix-tree-rcu-lockless-readside-update.patch
+> radix-tree-rcu-lockless-readside-semicolon.patch
+> adix-tree-rcu-lockless-readside-update-tidy.patch
+> adix-tree-rcu-lockless-readside-fix-2.patch
+> adix-tree-rcu-lockless-readside-fix-3.patch
 
-If you're using _Bool, that isn't possible. (Except at the boundaries
-where you have to validate untrusted data -- and the compiler makes that
-more difficult, because it "knows" that a _Bool can only be 0 or 1 and
-therefore your check to see if it's not 0 or 1 can "safely" be
-eliminated.)
+Not related to RCU implementation.
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+> rcu-add-lock-annotations-to-rcu_bh_torture_read_lockunlock.patch
 
+rcutorture (test module) patch independent of the implementation changes.
+
+> srcu-3-rcu-variant-permitting-read-side-blocking.patch
+> srcu-3-rcu-variant-permitting-read-side-blocking-fix.patch
+> srcu-3-rcu-variant-permitting-read-side-blocking-srcu-add-lock-annotations.patch
+> srcu-3-add-srcu-operations-to-rcutorture.patch
+> srcu-3-add-srcu-operations-to-rcutorture-fix.patch
+> add-srcu-based-notifier-chains.patch
+> add-srcu-based-notifier-chains-cleanup.patch
+> srcu-report-out-of-memory-errors.patch
+> srcu-report-out-of-memory-errors-fixlet.patch
+> cpufreq-make-the-transition_notifier-chain-use-srcu.patch
+
+srcu (sleepable rcu) patches independent of the core RCU implementation
+changes in the patchset. You can queue these up either before
+or after srcu.
+
+
+> rcu-add-module_author-to-rcutorture-module.patch
+> rcu-fix-incorrect-description-of-default-for-rcutorture.patch
+> rcu-mention-rcu_bh-in-description-of-rcutortures.patch
+> rcu-avoid-kthread_stop-on-invalid-pointer-if-rcutorture.patch
+> rcu-fix-sign-bug-making-rcu_random-always-return-the-same.patch
+> rcu-add-fake-writers-to-rcutorture.patch
+> rcu-add-fake-writers-to-rcutorture-tidy.patch
+
+rcutorture fix patches independent of rcu implementation changes
+in this patchset.
+
+> 
+> Now what?
+
+Heh. I can always re-submit against -mm after I wait for a day or two
+for comments :) Or I can wait. I think rcutorture patches are
+fairly safe to merge and should go in soon. srcu and the patchset
+I mailed today should probably get more testing in -mm before
+going in.
+
+Thanks
+Dipankar
+
+Thanks
+Dipankar

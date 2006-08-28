@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWH1VvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWH1Vzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWH1VvW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWH1VvW
+	id S964791AbWH1Vzx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWH1Vzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:51:22 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43709
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932202AbWH1VvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:51:21 -0400
-Date: Mon, 28 Aug 2006 14:51:24 -0700 (PDT)
-Message-Id: <20060828.145124.120445347.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: malattia@linux.it, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: divide error: 0000 in fib6_rule_match
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060828143003.aaae0d7d.akpm@osdl.org>
-References: <20060826160922.3324a707.akpm@osdl.org>
-	<20060828200716.GA4244@inferi.kami.home>
-	<20060828143003.aaae0d7d.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 17:55:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28319 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964791AbWH1Vzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:55:52 -0400
+Date: Mon, 28 Aug 2006 23:55:40 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
+       axboe@suse.de, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: megaraid_sas suspend ok, resume oops
+Message-ID: <20060828215540.GA1335@elf.ucw.cz>
+References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Mon, 28 Aug 2006 14:30:03 -0700
+Hi!
 
-> Oh.  It looks like this has already been fixed:
+> Anyone working on suspend/resume for the Megaraid SAS RAID card?
 > 
-> #ifdef CONFIG_IPV6_ROUTE_FWMARK
->         if ((r->fwmark ^ fl->fl6_fwmark) & r->fwmask)
->                 return 0;
-> #endif
+> This is on a DELL 2950.
 > 
-> there's no divide in there now.
+> Suspend/resume (to disk) has been running great on my IBM x60s, but
+> when I tried the same kernel (2.6.18-rc4) on the DELL 2950, it
+> suspended ok, but when resuming, the megaraid driver crashed.
 
-That's right there used to be a typo there.
+Debug megaraid driver, then ;-). Really, without any details, no, I
+do not think we can help.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

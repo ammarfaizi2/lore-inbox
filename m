@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWH1UCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWH1UER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWH1UCm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWH1UCm
+	id S1750760AbWH1UER (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWH1UER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:02:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16044 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751128AbWH1UCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:02:41 -0400
-Date: Mon, 28 Aug 2006 13:02:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, tchicks@us.ibm.com, tshighla@us.ibm.com
-Subject: Re: [PATCH 1/4] eCryptfs: Netlink functions for public key
-Message-Id: <20060828130237.23d965aa.akpm@osdl.org>
-In-Reply-To: <20060825191837.GA3122@us.ibm.com>
-References: <20060824181722.GA17658@us.ibm.com>
-	<20060824181831.GB17658@us.ibm.com>
-	<20060824205419.c3894612.akpm@osdl.org>
-	<20060825191837.GA3122@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 28 Aug 2006 16:04:17 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:18073 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750760AbWH1UER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 16:04:17 -0400
+Date: Mon, 28 Aug 2006 22:04:16 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] lib/rwsem.c: un-inline rwsem_down_failed_common()
+Message-ID: <20060828200416.GA31315@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2006 14:18:37 -0500
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Un-inlining rwsem_down_failed_common() (two callsites) reduced
+lib/rwsem.o on my Athlon, gcc 4.1.2 from 5935 to 5480 Bytes (455 Bytes saved).
 
-> > - _why_ does it use netlink?
-> 
-> Netlink provides the transport mechanism that would minimize the
-> complexity of the implementation, given that we can have multiple
-> daemons (one per user). I explored the possibility of using relayfs,
-> but that would involve having to introduce control channels and a
-> protocol for creating and tearing down channels for the daemons. We do
-> not have to worry about any of that with netlink.
+I thus guess that reduced icache footprint (and better function caching)
+is worth more than any function call overhead.
 
-I'd have thought that a more appropriate communication mechanism would be
-something which uses a file descriptor: a pipe, or a /dev node or whatever.
+Compile-tested and run-tested on 2.6.18-rc4-mm3.
 
-That way, the endpoints are more tightly defined and the
-daemon-didnt-send-quit problem gets solved.  In fact, the quit message
-might become unneeded: just use close()?
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+--- linux-2.6.18-rc4-mm3.orig/lib/rwsem.c	2006-08-22 21:09:55.000000000 +0200
++++ linux-2.6.18-rc4-mm3/lib/rwsem.c	2006-09-05 21:52:09.000000000 +0200
+@@ -146,7 +146,7 @@
+ /*
+  * wait for a lock to be granted
+  */
+-static inline struct rw_semaphore *
++static struct rw_semaphore *
+ rwsem_down_failed_common(struct rw_semaphore *sem,
+ 			struct rwsem_waiter *waiter, signed long adjustment)
+ {

@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWH1FRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWH1FV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWH1FRe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 01:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWH1FRe
+	id S932350AbWH1FV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 01:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWH1FV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 01:17:34 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:8900 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S932292AbWH1FRd (ORCPT
+	Mon, 28 Aug 2006 01:21:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25020 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932350AbWH1FV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 01:17:33 -0400
-Message-ID: <44F27C6C.30709@perkel.com>
-Date: Sun, 27 Aug 2006 22:17:32 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Mon, 28 Aug 2006 01:21:27 -0400
+Date: Sun, 27 Aug 2006 22:21:17 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Paul Mackerras <paulus@samba.org>, Dong Feng <middle.fengdong@gmail.com>,
+       ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent?
+In-Reply-To: <20060828051409.GA17891@tuatara.stupidest.org>
+Message-ID: <Pine.LNX.4.64.0608272220470.24098@schroedinger.engr.sgi.com>
+References: <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
+ <17650.13915.413019.784343@cargo.ozlabs.ibm.com> <20060828051409.GA17891@tuatara.stupidest.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc5
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might want to look at this bug.
+On Sun, 27 Aug 2006, Chris Wedgwood wrote:
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6975
+> On Mon, Aug 28, 2006 at 10:18:35AM +1000, Paul Mackerras wrote:
+> 
+> > I believe the reason for not doing something like this on x86 was
+> > the fact that we still support i386 processors, which don't have the
+> > cmpxchg instruction.  That's fair enough, but I would be opposed to
+> > making semaphores bigger and slower on PowerPC because of that.
+> > Hence the two different styles of implementation.
+> 
+> The i386 is older than some of the kernel hackers, and given that a
+> modern kernel is pretty painful with less than say 16MB or RAM in
+> practice, I don't see that it would be all that terrible to drop
+> support for ancient CPUs at some point (yes, I know some newer
+> embedded (and similar) CPUs might be affected here too, but surely not
+> that many that people really use --- and they could just use 2.4.x).
 
-The current kernel doesn't run on Asus Motherboards that use the new AM2 
-CPUs. Should this be addressed before 2.6.18 is finished?
+Also note that i386 has a cmpxchg emulation for those machines that do not 
+support cmpxchg.
 

@@ -1,46 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWH1FV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWH1Fd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWH1FV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 01:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWH1FV2
+	id S1750763AbWH1Fd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 01:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWH1Fd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 01:21:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25020 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932350AbWH1FV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 01:21:27 -0400
-Date: Sun, 27 Aug 2006 22:21:17 -0700 (PDT)
+	Mon, 28 Aug 2006 01:33:57 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:65453 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750763AbWH1Fd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 01:33:56 -0400
+Date: Sun, 27 Aug 2006 22:33:28 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Paul Mackerras <paulus@samba.org>, Dong Feng <middle.fengdong@gmail.com>,
-       ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-In-Reply-To: <20060828051409.GA17891@tuatara.stupidest.org>
-Message-ID: <Pine.LNX.4.64.0608272220470.24098@schroedinger.engr.sgi.com>
-References: <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
- <17650.13915.413019.784343@cargo.ozlabs.ibm.com> <20060828051409.GA17891@tuatara.stupidest.org>
+To: akpm@osdl.org
+cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>, mpm@selenic.com,
+       Manfred Spraul <manfred@colorfullife.com>, Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 2/4] A slab allocator: SLABIFIER
+In-Reply-To: <20060827023256.14731.24569.sendpatchset@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0608272232130.24179@schroedinger.engr.sgi.com>
+References: <20060827023245.14731.23294.sendpatchset@schroedinger.engr.sgi.com>
+ <20060827023256.14731.24569.sendpatchset@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006, Chris Wedgwood wrote:
+Some fixups. Clean up #ifdefs and use the right list function to go 
+through the slabs:
 
-> On Mon, Aug 28, 2006 at 10:18:35AM +1000, Paul Mackerras wrote:
-> 
-> > I believe the reason for not doing something like this on x86 was
-> > the fact that we still support i386 processors, which don't have the
-> > cmpxchg instruction.  That's fair enough, but I would be opposed to
-> > making semaphores bigger and slower on PowerPC because of that.
-> > Hence the two different styles of implementation.
-> 
-> The i386 is older than some of the kernel hackers, and given that a
-> modern kernel is pretty painful with less than say 16MB or RAM in
-> practice, I don't see that it would be all that terrible to drop
-> support for ancient CPUs at some point (yes, I know some newer
-> embedded (and similar) CPUs might be affected here too, but surely not
-> that many that people really use --- and they could just use 2.4.x).
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Also note that i386 has a cmpxchg emulation for those machines that do not 
-support cmpxchg.
+Index: linux-2.6.18-rc4-mm3/mm/slabifier.c
+===================================================================
+--- linux-2.6.18-rc4-mm3.orig/mm/slabifier.c	2006-08-26 19:10:49.594764694 -0700
++++ linux-2.6.18-rc4-mm3/mm/slabifier.c	2006-08-27 22:31:24.188711553 -0700
+@@ -112,12 +112,12 @@ static __always_inline void dec_object_c
+ static __always_inline void set_object_counter(struct page *page,
+ 							int counter)
+ {
+-	(*object_counter(page))= counter;
++	*object_counter(page) = counter;
+ }
+ 
+ static __always_inline int get_object_counter(struct page *page)
+ {
+-	return (*object_counter(page));
++	return *object_counter(page);
+ }
+ 
+ /*
+@@ -168,60 +168,58 @@ static __always_inline int lock_and_del_
+ 	return 0;
+ }
+ 
+-struct page *numa_search(struct slab *s, int node)
+-{
++/*
++ * Get a partial page, lock it and return it.
++ */
+ #ifdef CONFIG_NUMA
+-	struct list_head *h;
++static struct page *get_partial(struct slab *s, int node)
++{
+ 	struct page *page;
++	int searchnode = (node == -1) ? numa_node_id() : node;
+ 
++	spin_lock(&s->list_lock);
+ 	/*
+ 	 * Search for slab on the right node
+ 	 */
+-
+-	if (node == -1)
+-		node =  numa_node_id();
+-
+-	list_for_each(h, &s->partial) {
+-		page = container_of(h, struct page, lru);
+-
+-		if (likely(page_to_nid(page) == node) &&
++	list_for_each_entry(page, &s->partial, lru)
++		if (likely(page_to_nid(page) == searchnode) &&
+ 			lock_and_del_slab(s, page))
+-				return page;
++				goto out;
++
++	if (likely(node == -1)) {
++		/*
++		 * We can fall back to any other node in order to
++		 * reduce the size of the partial list.
++		 */
++		list_for_each_entry(page, &s->partial, lru)
++			if (likely(lock_and_del_slab(s, page)))
++				goto out;
+ 	}
+-#endif
+-	return NULL;
+-}
+ 
+-/*
+- * Get a partial page, lock it and return it.
+- */
++	/* Nothing found */
++	page = NULL;
++out:
++	spin_unlock(&s->list_lock);
++	return page;
++}
++#else
+ static struct page *get_partial(struct slab *s, int node)
+ {
+ 	struct page *page;
+-	struct list_head *h;
+ 
+ 	spin_lock(&s->list_lock);
+-
+-	page = numa_search(s, node);
+-	if (page)
+-		goto out;
+-#ifdef CONFIG_NUMA
+-	if (node >= 0)
+-		goto fail;
+-#endif
+-
+-	list_for_each(h, &s->partial) {
+-		page = container_of(h, struct page, lru);
+-
++	list_for_each_entry(page, &s->partial, lru)
+ 		if (likely(lock_and_del_slab(s, page)))
+ 			goto out;
+-	}
+-fail:
++
++	/* No slab or all slabs busy */
+ 	page = NULL;
+ out:
+ 	spin_unlock(&s->list_lock);
+ 	return page;
+ }
++#endif
++
+ 
+ /*
+  * Debugging checks
+@@ -758,8 +756,7 @@ dumpret:
+ 		goto out_unlock;
+ 
+ 	if (unlikely(get_object_counter(page) == 0)) {
+-		if (s->objects > 1)
+-			remove_partial(s, page);
++		remove_partial(s, page);
+ 		check_free_chain(s, page);
+ 		slab_unlock(page);
+ 		discard_slab(s, page);
+@@ -908,6 +905,7 @@ static int slab_shrink(struct slab_cache
+ 		 * This will put the slab on the front of the partial
+ 		 * list, the used list or free it.
+ 		 */
++		ClearPageActive(page);
+ 		putback_slab(s, page);
+ 	}
+ 	local_irq_restore(flags);
+@@ -957,15 +955,12 @@ static int slab_destroy(struct slab_cach
+ static unsigned long count_objects(struct slab *s, struct list_head *list)
+ {
+ 	int count = 0;
+-	struct list_head *h;
++	struct page *page;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&s->list_lock, flags);
+-	list_for_each(h, list) {
+-		struct page *page = lru_to_first_page(h);
+-
++	list_for_each_entry(page, list, lru)
+ 		count += get_object_counter(page);
+-	}
+ 	spin_unlock_irqrestore(&s->list_lock, flags);
+ 	return count;
+ }
+@@ -975,23 +970,21 @@ static unsigned long slab_objects(struct
+ 	unsigned long *p_partial)
+ {
+ 	struct slab *s = (void *)sc;
+-	int partial;
++	int partial = count_objects(s, &s->partial);
++	int nr_slabs = atomic_read(&s->nr_slabs);
+ 	int active = 0;		/* Active slabs */
+ 	int nr_active = 0;	/* Objects in active slabs */
+ 	int cpu;
+-	int nr_slabs = atomic_read(&s->nr_slabs);
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		struct page *page = s->active[cpu];
+ 
+-		if (s->active[cpu]) {
++		if (page) {
+ 			nr_active++;
+ 			active += get_object_counter(page);
+ 		}
+ 	}
+ 
+-	partial = count_objects(s, &s->partial);
+-
+ 	if (p_partial)
+ 		*p_partial = s->nr_partial;
+ 
 

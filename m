@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWH1Vsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWH1Vsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWH1Vsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWH1Vsh
+	id S932205AbWH1Vsz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWH1Vsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:48:37 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:38381 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932190AbWH1Vsh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:48:37 -0400
-Message-ID: <44F3664A.80607@student.ltu.se>
-Date: Mon, 28 Aug 2006 23:55:22 +0200
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nicholas Miell <nmiell@comcast.net>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Conversion to generic boolean
-References: <44EFBEFA.2010707@student.ltu.se>	 <20060828093202.GC8980@infradead.org>	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>	 <44F2DEDC.3020608@student.ltu.se> <1156792540.2367.2.camel@entropy>	 <44F3582B.3060000@student.ltu.se> <1156799964.24135.2.camel@entropy>
-In-Reply-To: <1156799964.24135.2.camel@entropy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 28 Aug 2006 17:48:54 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:2962 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932202AbWH1Vsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:48:52 -0400
+Subject: Re: Reiser4 und LZO compression
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Edward Shishkin <edward@namesys.com>
+Cc: Stefan Traby <stefan@hello-penguin.com>, Hans Reiser <reiser@namesys.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44F332D6.6040209@namesys.com>
+References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
+	 <44F322A6.9020200@namesys.com> <20060828173721.GA11332@hello-penguin.com>
+	 <44F332D6.6040209@namesys.com>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 07:48:25 +1000
+Message-Id: <1156801705.2969.6.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Miell wrote:
+Hi.
 
->On Mon, 2006-08-28 at 22:55 +0200, Richard Knutsson wrote:
->  
->
->>Nicholas Miell wrote:
->>
->>    
->>
->>>On Mon, 2006-08-28 at 14:17 +0200, Richard Knutsson wrote: 
->>>
->>>      
->>>
->>>>Jan Engelhardt wrote:
->>>>   
->>>>
->>>>        
->>>>
->>>>>>>Just would like to ask if you want patches for:
->>>>>>>        
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>Total NACK to any of this boolean ididocy.  I very much hope you didn't
->>>>>>get the impression you actually have a chance to get this merged.
->>>>>>
->>>>>>
->>>>>>            
->>>>>>
->>>>>>>* (Most importent, may introduce bugs if left alone)
->>>>>>>Fixing boolean checking, ex:
->>>>>>>if (bool == FALSE)
->>>>>>>to
->>>>>>>if (!bool)
->>>>>>>         
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>this one of course makes sense, but please do it without introducing
->>>>>>any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
->>>>>>all scsi drivers to classic C integer as boolean semantics would be
->>>>>>very welcome janitorial work.
->>>>>>  
->>>>>>
->>>>>>            
->>>>>>
->>>>>I don't get it. You object to the 'idiocy' 
->>>>>(http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
->>>>>a good thing?
->>>>>    
->>>>>
->>>>>          
->>>>>
->>>>That is error-prone. Not "==FALSE" but what happens if x is (for some 
->>>>reason) not 1 and then "if (x==TRUE)".
->>>>   
->>>>        
->>>>
->>>If you're using _Bool, that isn't possible. (Except at the boundaries
->>>where you have to validate untrusted data -- and the compiler makes that
->>>more difficult, because it "knows" that a _Bool can only be 0 or 1 and
->>>therefore your check to see if it's not 0 or 1 can "safely" be
->>>eliminated.)
->>> 
->>>
->>>      
->>>
->>Yes, true. But there is no _Bool's in the kernel (linus-git), only one 
->>in script/.
->>
->>    
->>
->
->Sorry, I was under the impression that the purpose of the generic
->boolean patch was to switch the kernel over to C's generic boolean.
->  
->
-Oh no, my bad. Well, at least some like to do it (including me).
-But you really have to bend it to make _Bool take another value then 0/1.
-Regarding "== FALSE" and co., there is still no reason for them, other 
-then bloater the code.
+On Mon, 2006-08-28 at 22:15 +0400, Edward Shishkin wrote:
+> Stefan Traby wrote:
+> > On Mon, Aug 28, 2006 at 10:06:46AM -0700, Hans Reiser wrote:
+> > 
+> > 
+> >>Hmm.  LZO is the best compression algorithm for the task as measured by
+> >>the objectives of good compression effectiveness while still having very
+> >>low CPU usage (the best of those written and GPL'd, there is a slightly
+> >>better one which is proprietary and uses more CPU, LZRW if I remember
+> >>right.  The gzip code base uses too much CPU, though I think Edward made
+> > 
+> > 
+> > I don't think that LZO beats LZF in both speed and compression ratio.
+> > 
+> > LZF is also available under GPL (dual-licensed BSD) and was choosen in favor
+> > of LZO for the next generation suspend-to-disk code of the Linux kernel.
+> > 
+> > see: http://www.goof.com/pcg/marc/liblzf.html
+> > 
+> 
+> thanks for the info, we will compare them
 
-Richard Knutsson
+For Suspend2, we ended up converting the LZF support to a cryptoapi
+plugin. Is there any chance that you could use cryptoapi modules? We
+could then have a hope of sharing the support.
+
+Regards,
+
+Nigel
 

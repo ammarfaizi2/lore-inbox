@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWH1QTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWH1QUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWH1QTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 12:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWH1QTf
+	id S1751154AbWH1QUY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 12:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWH1QUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 12:19:35 -0400
-Received: from mga06.intel.com ([134.134.136.21]:44709 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751064AbWH1QTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 12:19:35 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,176,1154934000"; 
-   d="scan'208"; a="116218585:sNHT31248035"
-Message-ID: <44F3178F.8010508@linux.intel.com>
-Date: Mon, 28 Aug 2006 18:19:27 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
-       jesse.barnes@intel.com, dwalker@mvista.com
-Subject: Re: [PATCH] maximum latency tracking infrastructure (version 3)
-References: <1156780080.3034.207.camel@laptopd505.fenrus.org> <20060828161145.GA25161@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060828161145.GA25161@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 12:20:24 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:44269 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S1751154AbWH1QUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 12:20:23 -0400
+Date: Mon, 28 Aug 2006 09:10:00 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
+Message-ID: <20060828161000.GF20394@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <p733bbn7m6o.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p733bbn7m6o.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
-> Hi,
-> 
-> On Mon, Aug 28, 2006 at 05:48:00PM +0200, Arjan van de Ven wrote:
->> The proposed solution is to have an interface where drivers can
->> * announce the maximum latency (in microseconds) that they can deal with
->> * modify this latency
->> * give up their constraint
->> and a function where the code that decides on power saving strategy can query
->> the current global desired maximum.
-> 
-> Nifty (aka "dumb") idea: would it make sense to enable drivers to register a
-> callback "we're going to go idle now" to e.g. let a driver refill or
-> service its hardware buffers the very moment before idling? 
+Andi,
 
-I could have sworn there was an idle call notifier already\
+On Wed, Aug 23, 2006 at 12:58:55PM +0200, Andi Kleen wrote:
+> 
+> > +
+> > +fastcall void smp_pmu_interrupt(struct pt_regs *regs)
+> > +{
+> 
+> This misses enter/exit_idle on x86-64.
+> 
+I have been working on adding idle notifier for i386.
+I am wondering about this code:
 
-ah there is on x86-64 but it is architecture specific...
+/* Called from interrupts to signify idle end */
+void exit_idle(void)
+{
+        if (current->pid | read_pda(irqcount))
+                return;
+        __exit_idle();
+}
+
+And in particular the irqcount. I am guessing you are trying
+to protect against nested interrupts. In fact, I think we only
+want to get notified once the interrupt stack is fully unwound.
+because we get way more exit_idle() than enter_idle().
+
+Is there an irqcount mechanism on i386?
+
+Thanks
+
+--
+-Stephane

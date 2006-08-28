@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWH1LQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWH1LRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWH1LQa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWH1LQa
+	id S964818AbWH1LRq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWH1LRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:16:30 -0400
-Received: from ns.firmix.at ([62.141.48.66]:19152 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S964780AbWH1LQ3 (ORCPT
+	Mon, 28 Aug 2006 07:17:46 -0400
+Received: from khc.piap.pl ([195.187.100.11]:27296 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964818AbWH1LRp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:16:29 -0400
-Subject: Re: Conversion to generic boolean
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Richard Knutsson <ricknu-0@student.ltu.se>,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
-References: <44EFBEFA.2010707@student.ltu.se>
-	 <20060828093202.GC8980@infradead.org>
-	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 28 Aug 2006 13:11:54 +0200
-Message-Id: <1156763514.22346.7.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.381 () AWL,BAYES_00,FORGED_RCVD_HELO
+	Mon, 28 Aug 2006 07:17:45 -0400
+To: Willy Tarreau <w@1wt.eu>
+Cc: Solar Designer <solar@openwall.com>, Ernie Petrides <petrides@redhat.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: printk()s of user-supplied strings
+References: <20060822030755.GB830@openwall.com>
+	<200608222023.k7MKNHpH018036@pasta.boston.redhat.com>
+	<20060824164425.GA17692@openwall.com> <20060824164633.GA21807@1wt.eu>
+	<20060826022955.GB21620@openwall.com> <20060826082236.GA29736@1wt.eu>
+	<20060826231314.GA24109@openwall.com> <20060827200440.GA229@1wt.eu>
+	<20060828015224.GA27199@openwall.com> <20060828080246.GB9078@1wt.eu>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 28 Aug 2006 13:17:43 +0200
+In-Reply-To: <20060828080246.GB9078@1wt.eu> (Willy Tarreau's message of "Mon, 28 Aug 2006 10:02:46 +0200")
+Message-ID: <m3sljhp0rs.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 12:58 +0200, Jan Engelhardt wrote:
-> >> Just would like to ask if you want patches for:
-> >
-> >Total NACK to any of this boolean ididocy.  I very much hope you didn't
-> >get the impression you actually have a chance to get this merged.
-> >
-> >> * (Most importent, may introduce bugs if left alone)
-> >> Fixing boolean checking, ex:
-> >> if (bool == FALSE)
-> >> to
-> >> if (!bool)
-> >
-> >this one of course makes sense, but please do it without introducing
-> >any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
-> >all scsi drivers to classic C integer as boolean semantics would be
-> >very welcome janitorial work.
-> 
-> I don't get it. You object to the 'idiocy' 
-> (http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
-> a good thing?
+Willy Tarreau <w@1wt.eu> writes:
 
-If the "if (x == FALSE) { ... }" would be a good thing, why don't we
-write "if ((x == FALSE) == TRUE) { ... }"?
+> Well, I'm not sure about this. Nearly all patches which get merged pass
+> through a public review first, and when you see how many replies you get
+> for and 'else' and and 'if' on two different lines, I expect lots of
+> spontaneous replies such as "use %S for user-supplied strings".
 
-	Bernd
+I wouldn't rely on that.
+
+>> A solution would be to normally use "%S" and only use
+>> "%s" where "%S" wouldn't work.  In that case, we could as well swap "%s"
+>> and "%S", though - hardening the existing "%s" and introducing "%S" for
+>> those callers that depend on the old behavior.
+
+I think it's the way to go.
+
+> I'd rather not change "%s" semantics if we introduce another specifier
+> which does exactly what we would expect "%s" to do.
+
+Both would be equivalent in most cases. It's better to use "%s" for
+most cases (either secured or not) and leave "%S" for the bunch of
+special cases whose authors better know what are they doing.
+
+> I will try your proposal to retain the trailing '\n' unescaped.
+
+I think with "%s" and "%S" this is no longer needed.
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Krzysztof Halasa

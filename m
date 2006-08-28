@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWH1B5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWH1CLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWH1B5n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 21:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWH1B5n
+	id S932354AbWH1CLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWH1CLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 21:57:43 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54453
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932332AbWH1B5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 21:57:42 -0400
-Date: Sun, 27 Aug 2006 18:57:44 -0700 (PDT)
-Message-Id: <20060827.185744.82374086.davem@davemloft.net>
-To: drepper@redhat.com
-Cc: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org,
-       chase.venters@clientec.com
-Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <44F208A5.4050308@redhat.com>
-References: <11564996832717@2ka.mipt.ru>
-	<44F208A5.4050308@redhat.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sun, 27 Aug 2006 22:11:04 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:29316 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S932347AbWH1CLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:11:01 -0400
+Date: Sun, 27 Aug 2006 22:10:57 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Al Boldi <a1426z@gawab.com>, Eric Van Hensbergen <ericvh@gmail.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] VFS: FS CoW using redirection
+Message-ID: <20060828021057.GA30334@filer.fsl.cs.sunysb.edu>
+References: <200607082041.54489.a1426z@gawab.com> <20060823172402.GC15851@wohnheim.fh-wedel.de> <20060823180552.GC28873@filer.fsl.cs.sunysb.edu> <200608262205.21397.a1426z@gawab.com> <20060827171510.GA3502@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060827171510.GA3502@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ulrich Drepper <drepper@redhat.com>
-Date: Sun, 27 Aug 2006 14:03:33 -0700
+On Sun, Aug 27, 2006 at 07:15:10PM +0200, Jörn Engel wrote:
+> On Sat, 26 August 2006 22:05:21 +0300, Al Boldi wrote:
+... 
+> > > Or you can give Unionfs a try: http://www.unionfs.org
+> > 
+> > UnionFS is great, but it incurs additional overhead, as it lives below the 
+> > real VFS.  What could be really great, is to move some basic functionality 
+> > abstractions from UnionFS into VFS proper.
+> 
+> If you want to make this vision happen, one of the missing pieces is a
+> method for copyup, an in-kernel copying routine.  Unionfs needs is
+> just the same as Jan's patches do and in the past Linus didn't like my
+> approach of using sendfile for it.  You could take a stab at the
+> splice code and see how that can be used for copyup.
 
-> The biggest problem I see so far is the integration into the existing
-> interfaces.  kevent notification *really* should be usable as a new
-> sigevent type.  Whether the POSIX interfaces are liked by kernel folks
-> or not, they are what the majority of the userlevel programmers use.
-> The mechanism is easily extensible.  I've described this in my paper.  I
-> cannot comment on the complexity of the kernel side but I'd imagine it's
-> not much more difficult, just different from what is implemented now.
-> Let's learn for a change from the mistakes of the past.  The new and
-> innovative AIO interfaces never took off because their implementation
-> differs so much from the POSIX interfaces.  People are interested in
-> portable code.  So, please, let's introduce SIGEV_KEVENT.  Then we
-> magically get timer notification etc for free.
+The thing with union mounts/unionfs is that some of the functionality makes
+sense to have in a file system while other parts make sense to have in the
+VFS - the way I see it, namespace related bits should be in VFS while
+persistent state should be done on the file system level.
 
-I have to disagree with this.
+Josef "Jeff" Sipek.
 
-SigEvent, and signals in general, are crap.  They are complex
-and userland gets it wrong more often than not.  Interfaces
-for userland should be simple, signals are not simple.  A core
-loop that says "give me events to process", on the other hand,
-is.  And this is what is most natural for userspace.
-
-The user can say when he wants the process events.  In fact,
-ripping out the complex signal handling will be a welcome
-change for most server applications.
-
-We are going to require the use of a new interface to register
-the events anyways, why keep holding onto the delivery baggage
-as well when we can break free of those limitations?
+-- 
+If I have trouble installing Linux, something is wrong. Very wrong.
+		- Linus Torvalds

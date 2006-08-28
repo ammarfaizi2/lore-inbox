@@ -1,146 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWH1C2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWH1Ci3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWH1C2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWH1C2Z
+	id S932317AbWH1Ci3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWH1Ci3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:28:25 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:28072 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S932343AbWH1C2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:28:24 -0400
-Message-Id: <5.1.1.5.2.20060828120653.03334040@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Mon, 28 Aug 2006 12:29:10 +1000
-To: Peter Williams <pwil3058@bigpond.net.au>
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Re: Fwd: Re: New Metrics to measure Load average
-Cc: fekete@cs.usyd.edu.au, david Levy <dlevy@ee.usyd.edu.au>,
-       balbir@in.ibm.com, nagar@watson.ibm.com, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44F24DF6.3000001@bigpond.net.au>
-References: <5.1.1.5.2.20060828105624.033aecc8@brain.sedal.usyd.edu.au>
- <5.1.1.5.2.20060828105624.033aecc8@brain.sedal.usyd.edu.au>
+	Sun, 27 Aug 2006 22:38:29 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:40656 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932317AbWH1Ci2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:38:28 -0400
+Date: Mon, 28 Aug 2006 08:07:53 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ego@in.ibm.com, rusty@rustcorp.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@intel.linux.com, davej@redhat.com,
+       mingo@elte.hu, dipankar@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 0/4] Redesign cpu_hotplug locking.
+Message-ID: <20060828023753.GA24777@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060824102618.GA2395@in.ibm.com> <20060824091704.cae2933c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060824091704.cae2933c.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
+On Thu, Aug 24, 2006 at 09:17:04AM -0700, Andrew Morton wrote:
+> > (ii) Though has been introduced recently in workqueue.c , it will only lead to
+> > more deadlock scenarios since more locks would have to be acquired. 
+> > 
+> > Eg: workqueue + cpufreq(ondemand) ABBA deadlock scenario. Consider
+> > - task1: echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+> > - task2: echo 0 > /sys/devices/system/cpu/cpu1/online
+> > entering the system at the same time.
+> > 
+> > task1: calls store_scaling_governor which takes lock_cpu_hotplug.
+> > 
+> > task2: thru a blocking_notifier_call_chain(CPU_DOWN_PREPARE) 
+> > to workqueue subsystem holds workqueue_mutex.
+> > 
+> > task1: calls create_workqueue from cpufreq_governor_dbs[ondemand] 
+> > which tries taking workqueue_mutex but can't.
+> > 
+> > task2: thru blocking_notifier_call_chain(CPU_DOWN_PREPARE) calls
+> > cpufreq_driver_target(cpufreq subsystem),which tries to take lock_cpu_hotplug
+> > but cant since it is already taken by task1.
+> > 
+> > A typical ABBA deadlock!!!
+> 
+> That's a bug in cpufreq.  It should stop using lock_cpu_hotplug() and get
+> its locking sorted out.
 
-Currently we are on our own. For my PhD I only need to separate the CPU and 
-Disk loads according to the  login user.
-Previously as you too suggested I need to refine it. I will refine it with 
-Balbir Singh and Naga's work. In fact this IBM team  is splitting and 
-measuring resources  per task level.
+I don't think the deadlock scenario changes if cpufreq stops using
+lock_cpu_hotplug() and starts using its own internal lock like
+workqueue_mutex. This is unless the lock-heirarchy can be worked out in 
+advance (i.e at compile time itself), which leads to the next question:
 
-Yes I have read the early papers on their CKRM or Control frame as well. In 
-those they were talking about some class base measuring system. Certainly 
-this for the controller.
+> > Replicating this persubsystem-cpu-hotplug lock model across all other
+> > cpu_hotplug-sensitive subsystems would only create more such problems as 
+> > notifier_callback does not follow any specific ordering while notifying 
+> > the subsystems. 
+> 
+> The ordering is sufficiently well-defined: it's the order of the chain.  I
+> don't expect there to be any problems here.
 
-But currently I am only interested in "per task delay accounting" which 
-were posted to kernel group since 2005 December. In this regard both Balbir 
-Singh and Shailabh Naga have done a good job. Also there is avenue to build 
-on their work.
+How is the "order" of the chain exposed? Moreover this needs to be
+exposed at compile time itself so that people can code it correctly in
+the first place! This cannot be done so easily unless we use priority
+for notifiers (different priorities for different callbacks) or some
+linking magic, which makes it somewhat ugly to maintain.
 
-Thanks
-Sena Seneviraten
-School of Electrical and Information Engineering
-Sydney University
-Australia
+IMHO ensuring this heriarchy of locking order is maintained to avoid
+deadlocks will be nightmarish. 
+
+I would also feel more comfortable at another aspect of this single lock
+- it will make both callback processing and cpu_online_map changes to be
+atomic, though I can't think of specific example where having non-atomic 
+callback processing hurts (*shrug*, just a safety feeling derived from 
+experience of fixing many cpu hotplug bugs in the past).
 
 
-
-At 11:59 AM 8/28/2006 +1000, you wrote:
->sena seneviratne wrote:
->>Dear Sir,
->>Dr Fekete,
->>Few months ago I had some correspondence through 
->>"inux-kernel@vger.kernel.org"  working group.
->>(1) I am forwarding one of the last correspondence with this IBM team.
->>As they are from IBM and it looks a rather general project, I agreed to 
->>incorporate/build on with them in the future.
->>This is where we concluded and agreed yet before that we had few e-mails.
->>Currently for the Phd, I am using division of load as per login users and 
->>this is what I want to have for HPC and for the "Task Profiling Model".
->>  They have done something in general at the task level. I will see how I 
->> can use theirs or what changes I need to add on top of theirs. This will 
->> happen after finishing the Phd. I will install their Linux patch and 
->> test it first.
->
->OK.  Be very wary if their planned CPU controller as the model that they 
->intend to use (i.e. allocating different time slices) will only work with 
->CPU bound processes.
->
->>(2) Other work done by the researchers from  Computer Science was also 
->>involved the measuring resources,  yet they have not introduced any 
->>metric as such and therefore there is no overlapping with our project. 
->>Their main concern was changing the internal scheduler.
->>Thanks
->>Sena Seneviratne
->>Computer Engineering Lab
->>School of Electrical and Information Engineering
->>Sydney University
->>
->>>Date: Tue, 20 Jun 2006 14:29:14 +0530
->>>From: Balbir Singh <balbir@in.ibm.com>
->>>Reply-To: balbir@in.ibm.com
->>>Organization: IBM India Private Limited
->>>User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) 
->>>Gecko/20060413 Red Hat/1.7.13-1.4.1
->>>X-Accept-Language: en-us, en
->>>To: sena seneviratne <auntvini@cel.usyd.edu.au>
->>>Cc: vatsa@in.ibm.com, Shailabh Nagar <nagar@watson.ibm.com>
->>>Subject: Re: New Metrics to measure Load average
->>>
->>>sena seneviratne wrote:
->>>>Dear Balbir Singh,
->>>>Thanks for your valuable reply.
->>>>Balbir  It looks like that there is a general project where we all can 
->>>>incorporate our work.
->>>
->>>
->>>Yes it is. It is currently in -mm and we hope that it makes it into
->>>2.6.18. The folder Documentation/accounting contains all the necessary
->>>details for you to build on top of delay stats.
->>>
->>>
->>>>--How do you calculate disk load? Is it the
->>>>---number of uninterruptible tasks in the system?  Yes I started at 
->>>>that point
->>>>
->>>>Few years ago the few additions I have explained, have been implemented 
->>>>in linux 2.4.18 kernel at  the Sydney Uni as part of a large research project.
->>>>Also few years ago I have posted many posts about this topic to this 
->>>>forum.  Few very experience hands  were advising me in coding at that 
->>>>time. To prove this I have all the e-mails with me. Yet then I had not 
->>>>explained to this forum about the research project which involved 
->>>>prediction algorithm as then it had not been published.
->>>>Thereafter few research papers have been published with regard to this. 
->>>>1 in US.
->>>>Currently I am preparing the changes to a more recent linux patch. In 
->>>>fact this is not hard as I have already changed the previous linux 2.4.18.
->>>
->>>Please cc us when you post the patches.
->>>
->>>>Before coming to do research I had worked as a Senior software engineer 
->>>>in few companies and my last was LogicaCMG. Yet as far as the kernel 
->>>>programming is concerned I will ask for your comments and advice.
->>>
->>>Let us know if you need any help for coding on top of taskstats.
->>>
->>>>Thanks
->>>>Sena Seneviratne
->>>>Computer Engineering Lab
->>>>School of Electrical and Information Engineering
->>>>Sydney University
->>>>Australia
->
->Good luck,
->Peter
->--
->Peter Williams                                   pwil3058@bigpond.net.au
->
->"Learning, n. The kind of ignorance distinguishing the studious."
->  -- Ambrose Bierce
-
+-- 
+Regards,
+vatsa

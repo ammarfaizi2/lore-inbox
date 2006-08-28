@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWH1ReG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWH1Rgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWH1ReG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWH1ReG
+	id S1750915AbWH1Rgs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 13:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWH1Rgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 13:34:06 -0400
-Received: from www.suchdol.net ([82.208.33.2]:14978 "EHLO www.suchdol.net")
-	by vger.kernel.org with ESMTP id S1750859AbWH1ReF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 13:34:05 -0400
-Date: Mon, 28 Aug 2006 19:34:01 +0200
-From: Jindrich Makovicka <makovick@gmail.com>
-To: David Masover <ninja@slaphack.com>
-Cc: Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 und LZO compression
-Message-ID: <20060828193401.5232e23c@holly.localdomain>
-In-Reply-To: <44F16923.9050609@slaphack.com>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-	<20060827010428.5c9d943b.akpm@osdl.org>
-	<44F16923.9050609@slaphack.com>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 28 Aug 2006 13:36:48 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:644 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750915AbWH1Rgs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 13:36:48 -0400
+Message-Id: <200608281735.k7SHZdo6012805@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Solar Designer <solar@openwall.com>
+Cc: Willy Tarreau <w@1wt.eu>, Ernie Petrides <petrides@redhat.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: printk()s of user-supplied strings
+In-Reply-To: Your message of "Mon, 28 Aug 2006 05:52:24 +0400."
+             <20060828015224.GA27199@openwall.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060822030755.GB830@openwall.com> <200608222023.k7MKNHpH018036@pasta.boston.redhat.com> <20060824164425.GA17692@openwall.com> <20060824164633.GA21807@1wt.eu> <20060826022955.GB21620@openwall.com> <20060826082236.GA29736@1wt.eu> <20060826231314.GA24109@openwall.com> <20060827200440.GA229@1wt.eu>
+            <20060828015224.GA27199@openwall.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1156786539_3039P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Aug 2006 13:35:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Aug 2006 04:42:59 -0500
-David Masover <ninja@slaphack.com> wrote:
+--==_Exmh_1156786539_3039P
+Content-Type: text/plain; charset=us-ascii
 
-> Andrew Morton wrote:
-> > On Sun, 27 Aug 2006 04:34:26 +0400
-> > Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > 
-> >> The patch below is so-called reiser4 LZO compression plugin as
-> >> extracted from 2.6.18-rc4-mm3.
-> >>
-> >> I think it is an unauditable piece of shit and thus should not
-> >> enter mainline.
-> > 
-> > Like lib/inflate.c (and this new code should arguably be in lib/).
-> > 
-> > The problem is that if we clean this up, we've diverged very much
-> > from the upstream implementation.  So taking in fixes and features
-> > from upstream becomes harder and more error-prone.
+On Mon, 28 Aug 2006 05:52:24 +0400, Solar Designer said:
+
+> > Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_P
+CI ISAPNP enabled^J<6>ttyS00 at 0x03f8 (irq = 4) is a 16550A
 > 
-> Well, what kinds of changes have to happen?  I doubt upstream would
-> care about moving some of it to lib/ -- and anyway, reiserfs-list is
-> on the CC.  We are speaking of upstream in the third party in the
-> presence of upstream, so...
+> The first line (before the ^J) is output with:
+> 
+> 	printk(KERN_INFO "%s version %s%s (%s) with%s", serial_name,
+> 	       serial_version, LOCAL_VERSTRING, serial_revdate,
+> 	       serial_options);
+> 
+> The linefeed is embedded in serial_options.
 
-The ifdef jungle is ugly, and especially the WIN / 16-bit DOS stuff is
-completely useless here.
+Gaak.  And I suppose that in *addition* to having an embedded trailing \n,
+it *also* has a leading blank to make 'with%s' work correctly?
 
-> Maybe just ask upstream?
+Fortunately, find . | xargs grep 'serial_revdate' comes up empty on
+a 2.6.18-rc4-mm3 tree, so somebody's swatted this blecherousness already.
 
-I am not sure if Mr. Oberhumer still cares about LZO 1.x, AFAIK he now
-develops a new compressor under a commercial license.
+--==_Exmh_1156786539_3039P
+Content-Type: application/pgp-signature
 
-Regards,
--- 
-Jindrich Makovicka
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFE8ylqcC3lWbTT17ARArIjAJ9+X/lJcLOmapp4XkopZB3HlrfgNwCg4wNR
+KguUPh8us3aDlRpGaHLKZys=
+=8noF
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1156786539_3039P--

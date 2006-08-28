@@ -1,64 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWH1Mnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWH1MsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWH1Mnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 08:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWH1Mnm
+	id S1750715AbWH1MsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 08:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWH1MsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 08:43:42 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:63690 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750703AbWH1Mnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 08:43:42 -0400
-Date: Mon, 28 Aug 2006 14:42:13 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, reiserfs-list@namesys.com,
+	Mon, 28 Aug 2006 08:48:18 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:8321 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750713AbWH1MsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 08:48:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=gLWfV7ItrndqViFX4cCc3GQiz/ni+EpF9zwTvjDwksFijD70Vz8aJnoNF6LZeYO3C4cljpuFwnXjZo4q8pmh7QjRHYWFRk8c3JoW0m3fjDACR60wsAu8wSrl3Th5ID/q1uFkJ5CwbS4aKjGPvcO88T41qP0iXodoArIfCC+O0p4=
+Message-ID: <39e6f6c70608280548p5ba363d7o18cfd3bdb2f9e894@mail.gmail.com>
+Date: Mon, 28 Aug 2006 09:48:16 -0300
+From: "Arnaldo Carvalho de Melo" <acme@ghostprotocols.net>
+To: "gerrit@erg.abdn.ac.uk" <gerrit@erg.abdn.ac.uk>
+Subject: Re: [RFC][PATCH 0/3] net: a lighter UDP-Lite (RFC 3828)
+Cc: davem@davemloft.net, jmorris@namei.org, alan@lxorguk.ukuu.org.uk,
+       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, kaber@coreworks.de,
+       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 und LZO compression
-Message-ID: <20060828124213.GA26698@wohnheim.fh-wedel.de>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru> <20060827010428.5c9d943b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <200608281159.21583@strip-the-willow>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060827010428.5c9d943b.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+References: <200608231150.37895@strip-the-willow>
+	 <200608281159.21583@strip-the-willow>
+X-Google-Sender-Auth: 40b7a59a7b2549a6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 August 2006 01:04:28 -0700, Andrew Morton wrote:
-> 
-> Like lib/inflate.c (and this new code should arguably be in lib/).
-> 
-> The problem is that if we clean this up, we've diverged very much from the
-> upstream implementation.  So taking in fixes and features from upstream
-> becomes harder and more error-prone.
+On 8/28/06, gerrit@erg.abdn.ac.uk <gerrit@erg.abdn.ac.uk> wrote:
+> [NET/IPv4]: update for udp.c only, to match 2.6.18-rc4-mm3
+>
+> This is an update only, as the previous patch can not cope
+> with recent changes to udp.c (all other files remain the same).
+>
+> Up-to-date, complete patches can always be taken from
+> http://www.erg.abdn.ac.uk/users/gerrit/udp-lite/files/udplite_linux.tar.gz
+>
+> Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
+> ---
+>   udp.c |  606 ++++++++++++++++++++++++++++++++++++++++++++----------------------
+>  1 file changed, 410 insertions(+), 196 deletions(-)
+>
+>
+> diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+> index 514c1e9..4ddd8e6 100644
 
-I've had an identical argument with Linus about lib/zlib_*.  He
-decided that he didn't care about diverging, I went ahead and changed
-the code.  In the process, I merged a couple of outstanding bugfixes
-and reduced memory consumption by 25%.  Looks like Linus was right on
-that one.
 
-> I'd suspect that the maturity of these utilities is such that we could
-> afford to turn them into kernel code in the expectation that any future
-> changes will be small.  But it's not a completely simple call.
-> 
-> (iirc the inflate code had a buffer overrun a while back, which was found
-> and fixed in the upstream version).
+> @@ -731,12 +801,12 @@ out:
+>  }
+>
+>  /*
+> - *     IOCTL requests applicable to the UDP protocol
+> + *     IOCTL requests applicable to the UDP(-Lite) protocol
+>   */
 
-Dito in lib/zlib_*.  lib/inflage.c is only used for the various
-in-kernel bootloaders to uncompress a kernel image.  Anyone tampering
-with the image to cause a buffer overrun already owns the machine
-anyway.
+Avoid these changes to reduce patch file size, please
 
-Whether any of our experiences with zlib apply to lzo remains a
-question, though.
+> -
+> +
+>  int udp_ioctl(struct sock *sk, int cmd, unsigned long arg)
+>  {
+> -       switch(cmd)
+> +       switch(cmd)
 
-Jörn
+Ditto
 
--- 
-I've never met a human being who would want to read 17,000 pages of
-documentation, and if there was, I'd kill him to get him out of the
-gene pool.
--- Joseph Costello
+
+> -/*
+> - *     This should be easy, if there is something there we
+> - *     return it, otherwise we block.
+> +/**
+> + *     udp_recvmsg  -  generic UDP/-Lite receive processing
+> + *
+> + *     This routine is udplite-aware and works for both protocols.
+
+
+> @@ -980,7 +1055,11 @@ #else
+>  #endif
+>  }
+>
+> -/* returns:
+> +/**
+> + *     udp_queue_rcv_skb  -  receive queue processing
+> + *
+> + * This routine is udplite-aware and works on both sockets.
+
+>
+>         if (up->encap_type) {
+> @@ -1010,7 +1087,7 @@ static int udp_queue_rcv_skb(struct sock
+>                  * If it's an encapsulateed packet, then pass it to the
+>                  * IPsec xfrm input and return the response
+>                  * appropriately.  Otherwise, just fall through and
+> -                * pass this up the UDP socket.
+> +                * pass this up the UDP/-Lite socket.
+>                  */
+
+> -               /* FALLTHROUGH -- it's a UDP Packet */
+> +               /* FALLTHROUGH -- it's a UDP/-Lite Packet */
+>         }
+
+>
+>  /*
+> - *     All we need to do is get the socket, and then do a checksum.
+> + *     All we need to do is get the socket, and then do a checksum.
+>   */
+> -
+
+Huh, what was this one? trailing whitespace? Can you leave this for
+another cset doing just the reformatting?
+
+> @@ -1219,7 +1363,7 @@ static int udp_destroy_sock(struct sock
+>  }
+>
+>  /*
+> - *     Socket option code for UDP
+> + *     Socket option code for UDP and UDP-Lite (shared).
+>   */
+
+>  #endif
+> +
+>  /**
+> - *     udp_poll - wait for a UDP event.
+> + *     udp_poll  -  wait for a UDP(-Lite) event.
+
+See next comment
+
+>   *     @file - file struct
+>   *     @sock - socket
+>   *     @wait - poll table
+> @@ -1348,11 +1528,14 @@ #endif
+>   *     then it could get return from select indicating data available
+>   *     but then block when reading it. Add special case code
+>   *     to work around these arguably broken applications.
+> + *
+> + *     The routine is udplite-aware and works for both protocols.
+
+I guess these comments can go as well, as one can quickly realise the
+functions handles UDP lite with all the "IS_UDPLITE(sk)" calls and
+"is_{udp}lite" variables :-)
+
+>   */
+>  unsigned int udp_poll(struct file *file, struct socket *sock, poll_table *wait)
+>  {
+>         unsigned int mask = datagram_poll(file, sock, wait);
+>         struct sock *sk = sock->sk;
+> +       int     is_lite = IS_UDPLITE(sk);
+
+Regards,
+
+- Arnaldo

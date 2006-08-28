@@ -1,250 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWH1D6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWH1D7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWH1D6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 23:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWH1D6f
+	id S932395AbWH1D7v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 23:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWH1D7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 23:58:35 -0400
-Received: from www.nabble.com ([72.21.53.35]:17092 "EHLO talk.nabble.com")
-	by vger.kernel.org with ESMTP id S932378AbWH1D6f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 23:58:35 -0400
-Message-ID: <6014209.post@talk.nabble.com>
-Date: Sun, 27 Aug 2006 20:58:33 -0700 (PDT)
-From: altendew <andrew@shiftcode.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Server Attack
-In-Reply-To: <20060827171125.5e1a0a60.largret@gmail.com>
-MIME-Version: 1.0
+	Sun, 27 Aug 2006 23:59:51 -0400
+Received: from mother.openwall.net ([195.42.179.200]:52877 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S932395AbWH1D7u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 23:59:50 -0400
+Date: Mon, 28 Aug 2006 07:55:56 +0400
+From: Solar Designer <solar@openwall.com>
+To: Julio Auto <mindvortex@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] loop.c: kernel_thread() retval check - 2.6.17.9
+Message-ID: <20060828035556.GA27902@openwall.com>
+References: <18d709710608232341x491b4bf6g87f74ef830a203@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-References: <6011508.post@talk.nabble.com> <20060827171125.5e1a0a60.largret@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <18d709710608232341x491b4bf6g87f74ef830a203@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 24, 2006 at 03:41:00AM -0300, Julio Auto wrote:
+> this is my porting (to 2.6.x) of the loop.c issue reported and patched
+> by Solar Designer, to whom all credits of the original idea to the
+> patch go (more info in the original "[PATCH] loop.c: kernel_thread()
+> retval check" e-mail thread).
 
-This does not spit anything out.
+The patch looks good to me, although I did not test it.
 
-I have changed it to this.
+> Honestly, I couldn't test it on other computers, but mine. But the
+> tests were made against a stock (unmodified) 2.6.17.9 kernel and the
+> patch works like it should. Nevertheless, a second thought/review is
+> always appreciated.
 
-tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
-/signUp.php?ref=ec0lag'|cut '-d ' -f 1|xargs /sbin/iptables -A INPUT -p tcp
--j DROP -s
+I think that testing this on a single machine is fine, but it is
+preferable that you also check for any resource leaks.  That is, replace
+the kernel_thread() call with -EAGAIN, then run losetup in a loop and
+see whether the system possibly leaks a resource.  I did apply this sort
+of testing to my original 2.4 patch.
 
-When I run this
+> Signed-off-by: Julio Auto <mindvortex@gmail.com>
 
-tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
-/signUp.php?ref=ec0lag'|cut '-d ' -f 1
+Acked-by: Solar Designer <solar@openwall.com>
 
-it lists the IPs fine.. when I run
+> --- drivers/block/loop.c.orig	2006-08-23 11:44:51.000000000 -0700
+> +++ drivers/block/loop.c	2006-08-24 00:33:54.000000000 -0700
+> @@ -841,10 +841,20 @@ static int loop_set_fd(struct loop_devic
+> 
+> 	error = kernel_thread(loop_thread, lo, CLONE_KERNEL);
+> 	if (error < 0)
+> -		goto out_putf;
+> +		goto out_clr;
+> 	wait_for_completion(&lo->lo_done);
+> 	return 0;
+> 
+> + out_clr:
+> +	lo->lo_device = NULL;
+> +	lo->lo_flags = 0;
+> +	lo->lo_backing_file = NULL;
+> +	set_capacity(disks[lo->lo_number], 0);
+> +	invalidate_bdev(bdev, 0);
+> +	bd_set_size(bdev, 0);
+> +	mapping_set_gfp_mask(mapping, lo->old_gfp_mask);
+> +	lo->lo_state = Lo_unbound;
+> +
+>  out_putf:
+> 	fput(file);
+>  out:
 
-tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
-/signUp.php?ref=ec0lag'|cut '-d ' -f 1|xargs /sbin/iptables -A INPUT -p tcp
--j DROP -s
+Thanks,
 
-It doesnt spit out anything, how do I kno its working.
-
-Chris Largret wrote:
-> 
-> 
-> I'm going to go ahead and top-post on this (sorry). There has to be a
-> limited number of computers these requests are coming from since the
-> requests are coming over TCP. I'd write a quick script to grab the ip
-> addresses and block them at the firewall level. Maybe something like this:
-> 
-> tail -f /var/log/apache/access_log|grep AppleWebKit|cut '-d ' -f 1|xargs
-> /sbin/iptables -A INPUT -p tcp -j DROP -s
-> 
-> I haven't tested it (don't have a problem on my current server), but it
-> _should_ follow the Apache requests, grab the IP addresses of users with a
-> UserAgent of AppleWebKit and drop all TCP packets from the IP address
-> until you reset your firewall.
-> 
-> ~ Chris Largret
-> 
-> 
-> On Sun, 27 Aug 2006 14:58:37 -0700 (PDT)
-> altendew <andrew@shiftcode.com> wrote:
-> 
->> 
->> Hi someone is currently sending requests to our server 20x a second.
->> 
->> Here is what one of the logs look like.
->> 
->> [CODE]
->> Host: 84.77.19.46   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US)
->> AppleWebKit/578.4
->> (KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
->> 
->> Host: 82.234.98.65   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US)
->> AppleWebKit/126.0
->> (KHTML, like Geco, Safari) OmniWeb/v554.35  
->> 
->> Host: 84.94.31.161   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US)
->> AppleWebKit/502.6
->> (KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
->> 
->> Host: 81.49.24.92   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US)
->> AppleWebKit/230.1
->> (KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
->> 
->> Host: 80.129.248.17   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US)
->> AppleWebKit/243.6
->> (KHTML, like Geco, Safari) OmniWeb/v846.88  
->> 
->> Host: 87.235.49.194   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US)
->> AppleWebKit/430.1
->> (KHTML, like Geco, Safari) OmniWeb/v145.34  
->> 
->> Host: 125.129.12.61   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US)
->> AppleWebKit/455.3
->> (KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
->> 
->> Host: 66.110.153.47   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US)
->> AppleWebKit/387.2
->> (KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
->> 
->> Host: 62.2.177.250   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US)
->> AppleWebKit/206.1
->> (KHTML, like Geco, Safari) OmniWeb/v204.07es  
->> 
->> Host: 200.115.226.143   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US)
->> AppleWebKit/647.0
->> (KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
->> 
->> Host: 84.171.125.189   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US)
->> AppleWebKit/778.0
->> (KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
->> 
->> Host: 83.242.79.70   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US)
->> AppleWebKit/537.0
->> (KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
->> 
->> Host: 86.69.194.172   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US)
->> AppleWebKit/468.2
->> (KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
->> 
->> Host: 196.203.176.26   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US)
->> AppleWebKit/840.3
->> (KHTML, like Geco, Safari) OmniWeb/v767.50s  
->> 
->> Host: 201.41.241.190   /signUp.php?ref=1945777  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US)
->> AppleWebKit/742.0
->> (KHTML, like Geco, Safari) OmniWeb/v715.65C:  
->> 
->> Host: 200.84.144.234   /signUp.php?ref=ec0lag  
->>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
->> Bytes: -  
->>   Referer: -  
->>   Agent: Mozilla/5.0  
->> [/CODE]
->> 
->> We are currently blocking this user through our Apache.
->> 
->> .htaccess
->> [CODE]
->> RewriteEngine On 
->> RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\
->> Mac\
->> OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
->> OmniWeb/v([0-9]+).([0-9]+)(.+)$
->> RewriteRule .* - [F]
->> [/CODE]
->> 
->> That works fine and is giving the user a 403 (Forbidden), but the problem
->> is
->> that half of our Apache processes are from this user.
->> 
->> Is there a way to block his user agent before he gets to Apache?
->> Sometimes
->> this brings our server to a crash.
->> 
->> Thanks
->> Andrew
->> -- 
->> View this message in context:
->> http://www.nabble.com/Server-Attack-tf2174025.html#a6011508
->> Sent from the linux-kernel forum at Nabble.com.
->> 
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->> in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> -- 
-> Chris Largret <http://www.largret.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
--- 
-View this message in context: http://www.nabble.com/Server-Attack-tf2174025.html#a6014209
-Sent from the linux-kernel forum at Nabble.com.
-
+Alexander

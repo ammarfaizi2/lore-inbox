@@ -1,72 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWH1POg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWH1PYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWH1POg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 11:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWH1POg
+	id S1751060AbWH1PYF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 11:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWH1PYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 11:14:36 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:51199 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751061AbWH1POg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 11:14:36 -0400
-Date: Mon, 28 Aug 2006 11:14:25 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Possible gpl problem?
-In-reply-to: <1156763478.5340.70.camel@pmac.infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: webmaster@gpl-violations.org
-Message-id: <200608281114.25129.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200608280259.38493.gene.heskett@verizon.net>
- <72dbd3150608280022ud3b61b7re3eefd65498b863@mail.gmail.com>
- <1156763478.5340.70.camel@pmac.infradead.org>
-User-Agent: KMail/1.7
+	Mon, 28 Aug 2006 11:24:05 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:8764 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751060AbWH1PYC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 11:24:02 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Tejun Heo <htejun@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: Linux v2.6.18-rc5 
+In-reply-to: Your message of "Mon, 28 Aug 2006 17:42:22 +0900."
+             <44F2AC6E.90608@gmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 29 Aug 2006 01:24:12 +1000
+Message-ID: <6353.1156778652@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 August 2006 07:11, David Woodhouse wrote:
->On Mon, 2006-08-28 at 00:22 -0700, David Rees wrote:
->> Just because a company doesn't have source freely downloadable on
->> their website does not mean they are violating the GPL even if they
->> are selling GPL licensed software. Only people who buy the GPL
->> licensed software are entitled to a copy of the source of the binaries
->> they receive.
+Tejun Heo (on Mon, 28 Aug 2006 17:42:22 +0900) wrote:
+>Keith Owens wrote:
+>> Two hours of continuous reboots on an ICH5 chipset passed without any
+>> problems.  Couple of caveats though -
+>> 
+>> (1) The "fix" for this bug is to skip the pcs test for SATA ports on
+>>     ICH5 chipsets.  This results in spurious warning messages for ICH5
+>>     SATA ports with no disks attached.
+>> 
+>>     ATA: abnormal status 0x7F on port 0xCCA7
 >
->That's true _only_ if the company ships the source _with_ the binaries
->when people buy the product.
+>This is a known annoyance and will be fixed in time.
 >
->There are two (commercial) options:
+>> (2) I have seen the same intermittent bug on ICH7 SATA but
+>>     PIIX_FLAG_IGNORE_PCS is only set for ich5 and i6300esb_sata.  It
+>>     probably needs to be set for ich7 as well.
 >
->1. If you _always_ distribute source _with_ the binaries, then you only
->have to give source to those who receive binaries. And of course you've
->already done so.
->
->2. If you ever distribute binaries _without_ source code, then you're
->obliged to make the source code available to _any_ third party on
->request; _not_ only those to whom you gave the binaries.
+>No, ICH7 up to this point has been believed to have well-behaving PCS. 
+>If you report PCS problem, you'll be the first.  Also, note that ICH7 
+>suffers from ghost device probing problem if PCS is not honored exactly. 
+>  Are you sure it's the same problem?
 
-This (2) was my opinion also, and when you read the FAQ, it becomes 
-apparent that as far as srcs are concerned, you are more of less expected 
-to search the net and find the src for a rather lengthy list of binaries 
-that are on the dvd.  This doesn't quite seem to fit my understanding that 
-*they* should be supplying the src, they are not, or at least thats what I 
-have read and interpreted the FAQ as saying.
+It definitely looks like it.  Stock 2.6.18-rc5 plus this patch to
+activate ata_debug from boot until just after probing drives.
 
-To Harold W., this thread is re the former "k-linux" distro, which has been 
-renamed and is now being sold for 299 euros on their website, with no 
-functional download links.
+---
+ drivers/scsi/ata_piix.c |    5 ++++-
+ include/linux/libata.h  |    4 ++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-This will be my last post on this since its off-topic for lkml.
+Index: linux/drivers/scsi/ata_piix.c
+===================================================================
+--- linux.orig/drivers/scsi/ata_piix.c
++++ linux/drivers/scsi/ata_piix.c
+@@ -536,6 +536,8 @@ static void piix_pata_error_handler(stru
+ 			   ata_std_postreset);
+ }
+ 
++int ata_debug = 1;
++
+ /**
+  *	piix_sata_present_mask - determine present mask for SATA host controller
+  *	@ap: Target port
+@@ -615,6 +617,7 @@ static void piix_sata_error_handler(stru
+ {
+ 	ata_bmdma_drive_eh(ap, ata_std_prereset, piix_sata_softreset, NULL,
+ 			   ata_std_postreset);
++	ata_debug = 0;
+ }
+ 
+ /**
+Index: linux/include/linux/libata.h
+===================================================================
+--- linux.orig/include/linux/libata.h
++++ linux/include/linux/libata.h
+@@ -61,6 +61,10 @@
+ #define VPRINTK(fmt, args...)
+ #endif	/* ATA_DEBUG */
+ 
++extern int ata_debug;
++#undef DPRINTK
++#define DPRINTK(fmt, args...) if (ata_debug) printk(KERN_ERR "%s: " fmt, __FUNCTION__, ## args)
++
+ #define BPRINTK(fmt, args...) if (ap->flags & ATA_FLAG_DEBUGMSG) printk(KERN_ERR "%s: " fmt, __FUNCTION__, ## args)
+ 
+ /* NEW: debug levels */
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+
+Typical debug messages from a series of boots
+
+<3>piix_sata_present_mask: ata1: ENTER, pcs=0x15 base=0
+<3>piix_sata_present_mask: ata1: LEAVE, pcs=0x15 present_mask=0x3
+<3>piix_sata_present_mask: ata1: ENTER, pcs=0x0 base=0
+<3>piix_sata_present_mask: ata1: LEAVE, pcs=0x0 present_mask=0x3
+<3>piix_sata_present_mask: ata1: ENTER, pcs=0x15 base=0
+<3>piix_sata_present_mask: ata1: LEAVE, pcs=0x15 present_mask=0x3
+<3>piix_sata_present_mask: ata1: ENTER, pcs=0x0 base=0
+<3>piix_sata_present_mask: ata1: LEAVE, pcs=0x0 present_mask=0x3
+<3>piix_sata_present_mask: ata1: ENTER, pcs=0x15 base=0
+
+Note the pcs=0x0 values.  Adding PIIX_FLAG_IGNORE_PCS to
+ich6m_sata_ahci gets past the failure to detect pcs, with no sign of
+any ghost devices.  BTW, dropping down to 2.6.17 with the same config
+has no problem detecting the disk, even without PIIX_FLAG_IGNORE_PCS on
+ich6m_sata_ahci.
+
+lspci extract, this is an ICH7M.
+
+00:1f.0 Class 0601: 8086:27b9 (rev 02)
+	Subsystem: 1033:832c
+	Flags: bus master, medium devsel, latency 0
+	Capabilities: [e0] Vendor Specific Information
+
+00:1f.2 Class 0101: 8086:27c4 (rev 02) (prog-if 80)
+	Subsystem: 1033:832c
+	Flags: bus master, 66MHz, medium devsel, latency 0, IRQ 18
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at 18b0 [size=16]
+	Capabilities: [70] Power Management version 2
+
+00:1f.3 Class 0c05: 8086:27da (rev 02)
+	Subsystem: 1033:832c
+	Flags: medium devsel, IRQ 11
+	I/O ports at 18c0 [size=32]
+

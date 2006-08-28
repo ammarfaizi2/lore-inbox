@@ -1,89 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWH1CMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWH1CRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWH1CMS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWH1CMS
+	id S932356AbWH1CRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWH1CRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:12:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31922 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932349AbWH1CMR (ORCPT
+	Sun, 27 Aug 2006 22:17:16 -0400
+Received: from xenotime.net ([66.160.160.81]:63973 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932356AbWH1CRP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:12:17 -0400
-Message-ID: <44F250D9.90904@redhat.com>
-Date: Sun, 27 Aug 2006 19:11:37 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       netdev@vger.kernel.org, zach.brown@oracle.com, hch@infradead.org,
-       chase.venters@clientec.com
-Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
-References: <11564996832717@2ka.mipt.ru>	<44F208A5.4050308@redhat.com> <20060827.185744.82374086.davem@davemloft.net>
-In-Reply-To: <20060827.185744.82374086.davem@davemloft.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD070FAD1FCD3FAED83C8D367"
+	Sun, 27 Aug 2006 22:17:15 -0400
+Date: Sun, 27 Aug 2006 19:20:30 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Jeff Dike <jdike@addtoit.com>, Bjoern Steinbrink <B.Steinbrink@gmx.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH 2/7] rename the provided execve functions to
+ kernel_execve
+Message-Id: <20060827192030.633cf467.rdunlap@xenotime.net>
+In-Reply-To: <20060827215636.091665000@klappe.arndb.de>
+References: <20060827214734.252316000@klappe.arndb.de>
+	<20060827215636.091665000@klappe.arndb.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD070FAD1FCD3FAED83C8D367
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Sun, 27 Aug 2006 23:47:36 +0200 Arnd Bergmann wrote:
 
-David Miller wrote:
-> SigEvent, and signals in general, are crap.  They are complex
-> and userland gets it wrong more often than not.  Interfaces
-> for userland should be simple, signals are not simple.
+> --- linux-cg.orig/drivers/sbus/char/envctrl.c	2006-08-27 23:36:36.000000000 +0200
+> +++ linux-cg/drivers/sbus/char/envctrl.c	2006-08-27 23:36:42.000000000 +0200
+> @@ -19,9 +19,6 @@
+>   *              Daniele Bellucci <bellucda@tiscali.it>
+>   */
+>  
+> -#define __KERNEL_SYSCALLS__
+> -static int errno;
+> -
+>  #include <linux/module.h>
+>  #include <linux/sched.h>
+>  #include <linux/kthread.h>
+> @@ -982,7 +979,7 @@
+>  
+>  	inprog = 1;
+>  	printk(KERN_CRIT "kenvctrld: WARNING: Shutting down the system now.\n");
+> -	if (0 > execve("/sbin/shutdown", argv, envp)) {
+> +	if (0 > kernel_execve("/sbin/shutdown", argv, envp)) {
+>  		printk(KERN_CRIT "kenvctrld: WARNING: system shutdown failed!\n"); 
+>  		inprog = 0;  /* unlikely to succeed, but we could try again */
+>  	}
 
-You miss the point.
-
-sigevent has nothing necessarily to do with signals.  I don't want
-signals.  I just want the same interface to specify the action to be used=
-=2E
-
-If I'm using
-
-  struct sigevent sigev;
-  int kfd;
-
-  kfd =3D kevent_create (...);
-
-  sigev.sigev_notify =3D SIGEV_KEVENT;
-  sigev.sigev_kfd =3D kfd;
-  sigev.sigev_valie.sival_ptr =3D &some_data;
-
-
-then I can use this sigev variable in an unmodified timer_create call.
-The kernel would see SIGEV_KEVENT (as opposed to SIGEV_SIGNAL etc) and
-**not** generate a signal but instead create the event in the kevent queu=
-e.
+Linux just educated the git mailing list (yesterday) about ordering
+of comparisons, so while here, please change the order inside the if()
+to be like the others:
+	if (kernel_execv(...) < 0)
 
 
-The proposal to use sigevent has nothing to do with signals.  It's just
-about the interface and to have smooth integration with existing
-functionality.
+> Index: linux-cg/include/linux/syscalls.h
+> ===================================================================
+> --- linux-cg.orig/include/linux/syscalls.h	2006-08-27 23:36:36.000000000 +0200
+> +++ linux-cg/include/linux/syscalls.h	2006-08-27 23:36:42.000000000 +0200
+> @@ -597,4 +597,6 @@
+>  asmlinkage long sys_set_robust_list(struct robust_list_head __user *head,
+>  				    size_t len);
+>  
+> +int kernel_execve(const char *filename, char *const argv[], char *const envp[]);
+> +
+>  #endif
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Question:
+All other syscalls (in syscalls.h) return long or unsigned long
+or ssize_t etc.  I.e., none of them return int.  Does this one
+return int because it's strictly an inside-the-kernel "syscall",
+not exposed to userspace?
 
 
---------------enigD070FAD1FCD3FAED83C8D367
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFE8lDZ2ijCOnn/RHQRAsTYAJ0bUeSaOflzWljtW+bC6hLDSLAEdgCgpKIn
-bFaoVNSv9J2QdddkB3D7LBI=
-=/h+i
------END PGP SIGNATURE-----
-
---------------enigD070FAD1FCD3FAED83C8D367--
+---
+~Randy

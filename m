@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWH1Lhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWH1LkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWH1Lhh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1Lhh
+	id S964784AbWH1LkB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1LkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:37:37 -0400
-Received: from razorback.tcsn.co.za ([196.41.199.53]:24329 "EHLO tcsn.co.za")
-	by vger.kernel.org with ESMTP id S964830AbWH1Lhh (ORCPT
+	Mon, 28 Aug 2006 07:40:01 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:10697 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964784AbWH1LkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:37:37 -0400
-Date: Mon, 28 Aug 2006 13:38:11 +0200
-From: Henti Smith <henti@geekware.co.za>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux on Intel D915GOM oops
-Message-ID: <20060828133811.5338a49b@yoda.foad.za.net>
-In-Reply-To: <1156754346.3034.167.camel@laptopd505.fenrus.org>
-References: <20060828102149.26b05e8b@yoda.foad.za.net>
-	<1156754346.3034.167.camel@laptopd505.fenrus.org>
-Organization: Geek Ware
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 07:40:00 -0400
+Date: Mon, 28 Aug 2006 13:39:49 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: linux@horizon.com
+cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org, theotso@us.ibm.com
+Subject: Re: Linux time code
+In-Reply-To: <20060824023525.31199.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0608281250060.6761@scrub.home>
+References: <20060824023525.31199.qmail@science.horizon.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Aug 2006 10:39:06 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+Hi,
 
-> this is the known bug where by default Linux uses the BIOS services
-> for PCI rather than the native method.
+On Thu, 23 Aug 2006, linux@horizon.com wrote:
+
+> > Additionally creating UTS and UTC at the same time would be a bit
+> > complicated. Your solution above isn't quite UTS, since it only handles
+> > the leap insertion, however the insertion case is the one that causes
+> > users most of the pain (since the clock goes backward), so it may very
+> > well be good enough.
 > 
-> try putting
+> It's not that it's hard to implement leap deletion, but it's code
+> on a moderately hot path (gettimeofday() is a very popular system
+> call) that will, as far as anyone knows, never be used.
 > 
-> pci=conf2
+> If you want the full version, try:
 > 
-> on the kerenl commandline
+> 	case CLOCK_UTS:
+> 		/* Recommended for gettimeofday() & time() */
+> 		/* See http://www.cl.cam.ac.uk/~mgk25/uts.txt */
+> 		clock_gettime(CLOCK_TAI, tp);
+> 		tp->tv_sec -= tai_minus_utc;
 > 
-> (and you may want to try a kernel newer than 2.6.8 btw)
+> 		if (tp->tv_sec > next_leap_second) {
+> 			tp->tv_sec += (next_leap_second & 1) ? -1 : 1;
+> 
+> 		} else if (next_leap_second - tp->tv_sec < 1000) {
+> 			/* 1000 UTC/TAI seconds = 999 or 1001 UTS seconds */
+> 			uint32_t offset = next_leap_second - tp->tv_sec + 1;
+> 			offset *= MILLION;
+> 			offset += (uint32_t)(BILLION - tp->tv_nsec)/1000;
+> 			if (next_leap_second & 1) {
+> 				/* Negative (deleted) leap second */
+> 				if ((tp->tv_nsec += offset) >= BILLION) {
+> 					tp->tv_nsec -= BILLION;
+> 					tp->tv_sec++;
+> 				}
+> 			} else {
+> 				/* Positive (inserted) leap second */
+> 				if ((tp->tv_nsec -= offset) < 0) {
+> 					tp->tv_nsec += BILLION;
+> 					tp->tv_sec--;
+> 				}
+> 			}
+> 		}
+> 		break;
 
-Thanks Arjan, I can boot now .. tho everything else after that goes to
-a ball of shit .. still trying to get it up and running for an install
-hehe 
+Doing something like for this for gettimeofday() is pretty much obsolete 
+with the new time code. OTOH it's rather simple to smooth out the leap 
+second now, you can set time_adjust and adjust MAX_TICKADJ and the clock 
+will follow nicely.
 
-I had to use acpi=off as well ... this main-board doesn't seem to be
-very stable ;P 
-
--- 
-Henti Smith
-henti@geekware.co.za
-+27 82 958 2525
-http://www.geekware.co.za
-
-DISCLAIMER : 
-
-Unauthorised use of characters, images, sounds, odors, severed limbs,
-noodles, wierd dreams, strange looking fruit, oxygen, and certain parts
-of Jupiter are strictly forbidden.  If I find you violating, or
-molesting my property in any way, I will employ a pair of burly
-convicts to find you, kidnap you, and perform god-awful sexual
-experiments on you until you lose the ability to sound out vowels.  I
-don't know why you are still reading this, but by doing so you have
-proven that you have far too much time on your hands, and you should go
-plant a tree, or read a book or something.
-	- http://www.ctrlaltdel-online.com/
+bye, Roman

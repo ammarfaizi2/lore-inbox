@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWH1Ud1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWH1Uft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWH1Ud1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWH1Ud1
+	id S1751483AbWH1Uft (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWH1Ufs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:33:27 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:10117 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751496AbWH1Ud0
+	Mon, 28 Aug 2006 16:35:48 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:62184 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751483AbWH1Ufs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:33:26 -0400
-Message-ID: <44F35304.7010807@zytor.com>
-Date: Mon, 28 Aug 2006 13:33:08 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 28 Aug 2006 16:35:48 -0400
+Message-ID: <44F35537.6000308@student.ltu.se>
+Date: Mon, 28 Aug 2006 22:42:31 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Alon Bar-Lev <alon.barlev@gmail.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com> <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com> <44F335C8.7020108@zytor.com> <20060828184637.GD13464@lists.us.dell.com> <44F33D55.4080704@zytor.com> <20060828201223.GE13464@lists.us.dell.com>
-In-Reply-To: <20060828201223.GE13464@lists.us.dell.com>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: [PATCH 2.6.18-rc4-mm2] fs/jfs: Conversion to generic boolean
+References: <44F086E8.7090602@student.ltu.se> <1156774979.7495.5.camel@kleikamp.austin.ibm.com>
+In-Reply-To: <1156774979.7495.5.camel@kleikamp.austin.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
-> On Mon, Aug 28, 2006 at 12:00:37PM -0700, H. Peter Anvin wrote:
->> Matt Domsch wrote:
->>> No reason.  I was just trying to be careful, not leaving data in the
->>> upper bits of those registers going uninitialized.  If we know they're
->>> not being used ever, then it's not a problem.  But I don't think
->>> that's the source of the command line size concern, is it?
->>>
->> No, it's treating the command line as a fixed buffer, as opposed to a 
->> null-terminated string.  This was always a bug, by the way.
-> 
-> OK, I'll look at fixing that, and using %esi throughout.
-> 
+Dave Kleikamp wrote:
 
-NAK on that.  "Using %esi throughout" is a red herring, and just will 
-produce worse code for no gain.
+>On Sat, 2006-08-26 at 19:37 +0200, Richard Knutsson wrote:
+>  
+>
+>>From: Richard Knutsson <ricknu-0@student.ltu.se>
+>>
+>>Conversion of booleans to: generic-boolean.patch (2006-08-23)
+>>
+>>Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+>>
+>>---
+>>
+>>Compile-tested
+>>
+>>
+>> inode.c        |    2 +-
+>> jfs_dmap.c     |   12 ++++++------
+>> jfs_extent.c   |   14 +++++++-------
+>> jfs_extent.h   |    4 ++--
+>> jfs_imap.c     |   26 +++++++++++++-------------
+>> jfs_imap.h     |    4 ++--
+>> jfs_metapage.h |    4 ++--
+>> jfs_txnmgr.c   |   16 ++++++++--------
+>> jfs_types.h    |    4 ----
+>> jfs_xtree.c    |    2 +-
+>> xattr.c        |   10 +++++-----
+>> 11 files changed, 47 insertions(+), 51 deletions(-)
+>>    
+>>
+>
+>  
+>
+>>>>original patch removed <<<
+>>>>        
+>>>>
+>
+>Richard,
+>Here's a version of the patch with completely removes any boolean types
+>and constants:
+>
+>JFS: Conversion of boolean to int
+>  
+>
+<patch removed>
 
-	-hpa
+Just why is it, that when there is a change to make locally defined 
+booleans into a more generic one, it is converted into integers? ;)
+But seriously, what is gained by removing them, other then less 
+understandable code? (Not talking about FALSE -> 0, but boolean_t -> int)
+
+I can understand if authors disprove making an integer into a boolean, 
+but here it already were booleans.
+But hey, you are the maintainer ;)
+
+Richard Knutsson

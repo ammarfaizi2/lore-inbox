@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWH1Vzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWH1V5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWH1Vzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWH1Vzw
+	id S964799AbWH1V5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWH1V5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:55:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28319 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964791AbWH1Vzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:55:52 -0400
-Date: Mon, 28 Aug 2006 23:55:40 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-Cc: Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
-       axboe@suse.de, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: megaraid_sas suspend ok, resume oops
-Message-ID: <20060828215540.GA1335@elf.ucw.cz>
-References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 28 Aug 2006 17:57:38 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:24729 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964799AbWH1V5h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:57:37 -0400
+Subject: Re: [PATCH -mm] Fix faulty HPET clocksource usage (fix for bug
+	#7062)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, michael.olbrich@gmx.net
+In-Reply-To: <20060828143928.c6fc1b85.akpm@osdl.org>
+References: <1156800759.16398.6.camel@localhost.localdomain>
+	 <20060828143928.c6fc1b85.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 14:57:35 -0700
+Message-Id: <1156802255.16398.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Anyone working on suspend/resume for the Megaraid SAS RAID card?
+On Mon, 2006-08-28 at 14:39 -0700, Andrew Morton wrote:
+> On Mon, 28 Aug 2006 14:32:39 -0700
+> john stultz <johnstul@us.ibm.com> wrote:
 > 
-> This is on a DELL 2950.
+> > Apparently some systems export valid HPET addresses, but hpet_enable()
+> > fails. Then when the HPET clocksource starts up, it only checks for a
+> > valid HPET address, and the result is a system where time does not
+> > advance.
+> > 
+> > See http://bugme.osdl.org/show_bug.cgi?id=7062 for details.
+> > 
+> > This patch just makes sure we better check that the HPET is functional
+> > before registering the HPET clocksource.
+> > 
+> > Signed-off-by: John Stultz <johnstul@us.ibm.com>
+> > 
+> > diff --git a/arch/i386/kernel/hpet.c b/arch/i386/kernel/hpet.c
+> > index c6737c3..17647a5 100644
+> > --- a/arch/i386/kernel/hpet.c
+> > +++ b/arch/i386/kernel/hpet.c
+> > @@ -35,7 +35,7 @@ static int __init init_hpet_clocksource(
+> >  	void __iomem* hpet_base;
+> >  	u64 tmp;
+> >  
+> > -	if (!hpet_address)
+> > +	if (!is_hpet_enabled())
+> >  		return -ENODEV;
+> >  
+> >  	/* calculate the hpet address: */
 > 
-> Suspend/resume (to disk) has been running great on my IBM x60s, but
-> when I tried the same kernel (2.6.18-rc4) on the DELL 2950, it
-> suspended ok, but when resuming, the megaraid driver crashed.
+> Thanks.   This would be a 2.6.18 thing, wouldn't it?
 
-Debug megaraid driver, then ;-). Really, without any details, no, I
-do not think we can help.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I would think so.
+
+thanks
+-john
+
+

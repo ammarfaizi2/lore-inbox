@@ -1,84 +1,332 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWH1SLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWH1SLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWH1SLx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 14:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWH1SLx
+	id S1751022AbWH1SLO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 14:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWH1SLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 14:11:53 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:27576 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1750916AbWH1SLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 14:11:52 -0400
-Date: Mon, 28 Aug 2006 14:11:41 -0400
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Strange transmit corruption in jsm driver on geode sc1200 system
-Message-ID: <20060828181141.GK13641@csclub.uwaterloo.ca>
-References: <20060825203047.GH13641@csclub.uwaterloo.ca> <1156540817.3007.270.camel@localhost.localdomain> <20060825210305.GL13639@csclub.uwaterloo.ca> <20060825212441.GC2246@martell.zuzino.mipt.ru> <20060825215724.GI13641@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Aug 2006 14:11:14 -0400
+Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:18841 "EHLO erg.abdn.ac.uk")
+	by vger.kernel.org with ESMTP id S1750836AbWH1SLM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 14:11:12 -0400
+From: gerrit@erg.abdn.ac.uk
+To: davem@davemloft.net
+Subject: [RFC][PATCHv2 2.6.18-rc4-mm3 1/3] net/ipv4:  UDP-Lite extensions
+Date: Mon, 28 Aug 2006 19:10:07 +0100
+User-Agent: KMail/1.8.3
+Cc: jmorris@namei.org, alan@lxorguk.ukuu.org.uk, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, kaber@coreworks.de, yoshfuji@linux-ipv6.org,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200608231150.37895@strip-the-willow> <39e6f6c70608280548p5ba363d7o18cfd3bdb2f9e894@mail.gmail.com> <200608281513.49959@strip-the-willow>
+In-Reply-To: <200608281513.49959@strip-the-willow>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060825215724.GI13641@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608281910.08101@strip-the-willow>
+X-ERG-MailScanner: Found to be clean
+X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 05:57:24PM -0400, Lennart Sorensen wrote:
-> Of course given the __memcpy assembly seems to work fine unalligned on a
-> pentium4, and probably most othe systems, what could make it not work
-> correctly on a geode SC1200?
+[Net/IPv4]: REVISED UDP-Lite standalone support and shared UDP/-Lite socket structure.
 
-Related to the SC1200, I notied cyrix.c doesn't actually know about the
-SC1200 that we are using.  This one returs dir0_msn = 11, while cyrix.c
-only knows about 0 through 5.  If I add 11 to the block handling geode
-GX1, then I get this cpuinfo:
+This is in principle the same patch as posted earlier, with the difference that
+all whitespace changes have been removed; in addition, statements have been re-ordered
+so as to give a better-readable patch.
 
-processor       : 0
-vendor_id       : CyrixInstead
-cpu family      : 5
-model           : 9
-model name      : Geode(TM) Integrated Processor by National Semi
-stepping        : 1
-cpu MHz         : 266.729
-cache size      : 16 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu tsc msr cx8 cmov mmx cxmmx
-bogomips        : 535.35
 
-So the get_model_name function seems to do something on it.  Otherwise I
-get "model name" of Unknown, since there is no entry for it in cyrix.c
+Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
+---
 
-Since it is unknown, no setup calls are being done, although it seems a
-number of features exist that could be enabled on the geode gx1, which I
-believe is what a geode sc1200 really is.  The full label of the CPU is:
+ include/linux/udp.h   |   11 ++
+ include/net/udplite.h |   35 ++++++++
+ net/ipv4/udplite.c    |  209 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 255 insertions(+)
 
-(national semi conductors logo)
-Geode(tm)
-SC1200
-SC1200UL-266
-(C)(M)NSC1999 D3
-VS424AB
 
-Does anyone know what should be called on this CPU type, and how to fix
-cyrix.c to handle it correcly rather than ignoring it?
-
-Forcing it to be treated like a GX1 and calling the geode_configure
-function call, does not make my memcpy_toio problem go away.  On the
-other hand I have a small optimistic hope that if it actually turns on
-power saving on HLT, and some cache and memory optimizations, that it
-might actually make the system run slightly faster and use slightly less
-power.  If someone knows that part for sure I would love to know.
-
---
-Len Sorensen
+diff --git a/include/linux/udp.h b/include/linux/udp.h
+index 90223f0..1b7cf10 100644
+--- a/include/linux/udp.h
++++ b/include/linux/udp.h
+@@ -50,12 +50,23 @@ struct udp_sock {
+ 	 * when the socket is uncorked.
+ 	 */
+ 	__u16		 len;		/* total length of pending frames */
++	/*
++	 * Fields specific to UDP-Lite.
++	 */
++	__u16		 pcslen;
++	__u16		 pcrlen;
++/* indicator bits used by pcflag: */
++#define UDPLITE_BIT      0x1  		/* set by udplite proto init function */
++#define UDPLITE_SEND_CC  0x2  		/* set via udplite setsockopt         */
++#define UDPLITE_RECV_CC  0x4		/* set via udplite setsocktopt        */
++	__u8		 pcflag;        /* marks socket as UDP-Lite if > 0    */
+ };
+ 
+ static inline struct udp_sock *udp_sk(const struct sock *sk)
+ {
+ 	return (struct udp_sock *)sk;
+ }
++#define IS_UDPLITE(__sk) (udp_sk(__sk)->pcflag)
+ 
+ #endif
+ 
+diff --git a/net/ipv4/udplite.c b/net/ipv4/udplite.c
+new file mode 100644
+index 0000000..3911403
+--- /dev/null
++++ b/net/ipv4/udplite.c
+@@ -0,0 +1,209 @@
++/*
++ *  UDPLITE     An implementation of the UDP-Lite protocol (RFC 3828).
++ *
++ *  Version:    $Id: udplite.c,v 1.22 2006/08/22 13:01:52 gerrit Exp gerrit $
++ *
++ *  Authors:    Gerrit Renker       <gerrit@erg.abdn.ac.uk>
++ *
++ *  Changes:
++ *  Fixes:
++ *
++ *		This program is free software; you can redistribute it and/or
++ *		modify it under the terms of the GNU General Public License
++ *		as published by the Free Software Foundation; either version
++ *		2 of the License, or (at your option) any later version.
++ */
++
++struct hlist_head 	udplite_hash[UDP_HTABLE_SIZE];
++int    			udplite_port_rover;
++DEFINE_SNMP_STAT(struct udp_mib, udplite_statistics)	__read_mostly;
++
++/* these functions are called by UDP-Lite with protocol-specific parameters */
++static int	    __udp_get_port(struct sock *, unsigned short,
++				   struct hlist_head *, int *    );
++static struct sock *__udp_lookup(u32 , u16, u32, u16, int, struct hlist_head *);
++static int	    __udp_mcast_deliver(struct sk_buff *, struct udphdr *,
++					u32, u32, struct hlist_head *     );
++static int	    __udp_common_rcv(struct sk_buff *, int is_udplite);
++static void	    __udp_err(struct sk_buff *, u32, struct hlist_head *);
++#ifdef CONFIG_PROC_FS
++static int	    udp4_seq_show(struct seq_file *, void *);
++#endif
++
++/*
++ * 	Designate sk as UDP-Lite socket
++ */
++static	inline int udplite_sk_init(struct sock *sk)
++{
++	udp_sk(sk)->pcflag = UDPLITE_BIT;
++	return 0;
++}
++
++static __inline__ int udplite_v4_get_port(struct sock *sk, unsigned short snum)
++{
++	return	__udp_get_port(sk, snum, udplite_hash, &udplite_port_rover);
++}
++
++static __inline__ struct sock *udplite_v4_lookup(u32 saddr, u16 sport,
++						 u32 daddr, u16 dport, int dif)
++{
++	return __udp_lookup(saddr, sport, daddr, dport, dif, udplite_hash);
++}
++
++static __inline__ int udplite_v4_mcast_deliver(struct sk_buff *skb,
++					struct udphdr *uh, u32 saddr, u32 daddr)
++{
++	return __udp_mcast_deliver(skb, uh, saddr, daddr, udplite_hash);
++}
++
++__inline__ int udplite_rcv(struct sk_buff *skb)
++{
++	return __udp_common_rcv(skb, 1);
++}
++
++__inline__ void udplite_err(struct sk_buff *skb, u32 info)
++{
++	return __udp_err(skb, info, udplite_hash);
++}
++
++static int udplite_checksum_init(struct sk_buff *skb, struct udphdr *uh,
++				 unsigned short len, u32 saddr, u32 daddr)
++{
++	u16 cscov;
++
++        /* In UDPv4 a zero checksum means that the transmitter generated no
++         * checksum. UDP-Lite (like IPv6) mandates checksums, hence packets
++         * with a zero checksum field are illegal.                            */
++	if (uh->check == 0) {
++		LIMIT_NETDEBUG(KERN_DEBUG "UDPLITE: zeroed csum field"
++	                "(%d.%d.%d.%d:%d -> %d.%d.%d.%d:%d)\n", NIPQUAD(saddr),
++			ntohs(uh->source), NIPQUAD(daddr), ntohs(uh->dest)    );
++		return 0;
++	}
++
++        UDP_SKB_CB(skb)->partial_cov = 0;
++        cscov = ntohs(uh->len);
++
++	if (cscov == 0)		 /* Indicates that full coverage is required. */
++		cscov = len;
++	else if (cscov < 8  || cscov > len) {
++		/*
++		 * Coverage length violates RFC 3828: log and discard silently.
++		 */
++		LIMIT_NETDEBUG(KERN_DEBUG "UDPLITE: bad csum coverage %d/%d "
++			"(%d.%d.%d.%d:%d -> %d.%d.%d.%d:%d)\n", cscov, len,
++			NIPQUAD(saddr), ntohs(uh->source),
++			NIPQUAD(daddr), ntohs(uh->dest)                       );
++		return 0;
++
++	} else if (cscov < len)
++        	UDP_SKB_CB(skb)->partial_cov = 1;
++
++        UDP_SKB_CB(skb)->cscov = cscov;
++
++	/*
++	 * Initialise pseudo-header for checksum computation.
++	 *
++	 * There is no known NIC manufacturer supporting UDP-Lite yet,
++	 * hence ip_summed is always (re-)set to CHECKSUM_NONE.
++	 */
++	skb->csum = csum_tcpudp_nofold(saddr, daddr, len, IPPROTO_UDPLITE, 0);
++	skb->ip_summed = CHECKSUM_NONE;
++
++	return 1;
++}
++
++static void udplite_csum_outgoing(struct sock *sk, struct sk_buff *skb,
++				  int totlen, int cscov, u32 src, u32 dst)
++{
++	unsigned int csum = 0, len;
++	struct udphdr *uh = skb->h.uh;
++
++	uh->check = 0;
++
++	skb->ip_summed = CHECKSUM_NONE;    /* no HW support for checksumming */
++
++	if (skb_queue_len(&sk->sk_write_queue) == 1) {
++		/*
++		 * Only one fragment on the socket.
++		 */
++		csum = skb_checksum(skb, skb->h.raw - skb->data, cscov, 0);
++
++	} else {
++		skb_queue_walk(&sk->sk_write_queue, skb) {
++			len = skb->tail - skb->h.raw;
++
++			skb->csum = skb_checksum(skb, skb->h.raw - skb->data,
++						 (cscov > len)? len : cscov, 0);
++			csum = csum_add(csum, skb->csum);
++
++			if (cscov < len)      /* Enough seen. */
++				break;
++			cscov -= len;
++		}
++	}
++
++	uh->check = csum_tcpudp_magic(src, dst, totlen, IPPROTO_UDPLITE, csum);
++	if (uh->check == 0)
++		uh->check = -1;
++}
++
++
++static	struct net_protocol udplite_protocol = {
++	.handler	= udplite_rcv,
++	.err_handler	= udplite_err,
++	.no_policy	= 1,
++};
++
++static struct inet_protosw udplite4_protosw = {
++	.type		=  SOCK_DGRAM,
++	.protocol	=  IPPROTO_UDPLITE,
++	.prot		=  &udplite_prot,
++	.ops		=  &inet_dgram_ops,
++	.capability	= -1,
++	.no_check	=  0,		/* must checksum (RFC 3828) */
++	.flags		=  INET_PROTOSW_PERMANENT,
++};
++
++void __init udplite4_register(void)
++{
++	if (proto_register(&udplite_prot, 1))
++		goto out_register_err;
++
++	if (inet_add_protocol(&udplite_protocol, IPPROTO_UDPLITE) < 0)
++		goto out_unregister_proto;
++
++	inet_register_protosw(&udplite4_protosw);
++
++	return;
++
++out_unregister_proto:
++	proto_unregister(&udplite_prot);
++out_register_err:
++	printk(KERN_CRIT "udplite4_register: Cannot add UDP-Lite protocol\n");
++}
++
++#ifdef CONFIG_PROC_FS
++static struct file_operations udplite4_seq_fops;
++static struct udp_seq_afinfo udplite4_seq_afinfo = {
++	.owner		= THIS_MODULE,
++	.name		= "udplite",
++	.family		= AF_INET,
++	.hashtable	= udplite_hash,
++	.seq_show	= udp4_seq_show,
++	.seq_fops	= &udplite4_seq_fops,
++};
++
++__inline__ int __init udplite4_proc_init(void)
++{
++	return udp_proc_register(&udplite4_seq_afinfo);
++}
++
++__inline__ void udplite4_proc_exit(void)
++{
++	udp_proc_unregister(&udplite4_seq_afinfo);
++}
++#endif /* CONFIG_PROC_FS */
++
++EXPORT_SYMBOL(udplite_hash);
++EXPORT_SYMBOL(udplite_prot);
+diff --git a/include/net/udplite.h b/include/net/udplite.h
+new file mode 100644
+index 0000000..1a32c42
+--- /dev/null
++++ b/include/net/udplite.h
+@@ -0,0 +1,35 @@
++/*
++ *	Definitions for the UDP-Lite (RFC 3828) code.
++ */
++#ifndef _UDPLITE_H
++#define _UDPLITE_H
++
++/* UDP-Lite socket options */
++#define UDPLITE_SEND_CSCOV   10 /* sender partial coverage (as sent)      */
++#define UDPLITE_RECV_CSCOV   11 /* receiver partial coverage (threshold ) */
++
++extern struct proto 		udplite_prot;
++extern struct hlist_head 	udplite_hash[UDP_HTABLE_SIZE];
++
++/* UDP-Lite does not have a standardized MIB yet, so we inherit from UDP */
++DECLARE_SNMP_STAT(struct udp_mib, udplite_statistics);
++
++/*
++ *	Checksum computation is all in software, hence simpler getfrag.
++ */
++static __inline__ int udplite_getfrag(void *from, char *to, int  offset,
++				      int len, int odd, struct sk_buff *skb)
++{
++	return memcpy_fromiovecend(to, (struct iovec *) from, offset, len);
++}
++
++/*
++ *  	net/ipv4/udplite.c
++ */
++extern void	udplite4_register(void);
++#ifdef CONFIG_PROC_FS
++extern int	udplite4_proc_init(void);
++extern void	udplite4_proc_exit(void);
++#endif
++
++#endif	/* _UDPLITE_H */

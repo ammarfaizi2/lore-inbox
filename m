@@ -1,174 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWH1RiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWH1Rhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWH1RiI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 13:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWH1RiI
+	id S1750805AbWH1Rhk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 13:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWH1Rhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 13:38:08 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:52651 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750859AbWH1RiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 13:38:04 -0400
-Subject: Re: [PATCH 1/4] net: VM deadlock avoidance framework
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Indan Zupancic <indan@nul.nu>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <3720.81.207.0.53.1156780999.squirrel@81.207.0.53>
-References: <20060825153946.24271.42758.sendpatchset@twins>
-	 <20060825153957.24271.6856.sendpatchset@twins>
-	 <1396.81.207.0.53.1156559843.squirrel@81.207.0.53>
-	 <1156760564.23000.31.camel@twins>
-	 <3720.81.207.0.53.1156780999.squirrel@81.207.0.53>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 19:32:24 +0200
-Message-Id: <1156786344.23000.47.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 13:37:40 -0400
+Received: from mga01.intel.com ([192.55.52.88]:20598 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750805AbWH1Rhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 13:37:38 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="p7s'?scan'208"; a="122310639:sNHT27152174"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RBP save and restore on x86-64 system calls
+Date: Mon, 28 Aug 2006 10:37:31 -0700
+Content-Type: multipart/signed;
+	boundary="----=_NextPart_000_000E_01C6CA8D.F7401790";
+	protocol="application/x-pkcs7-signature";
+	micalg=SHA1
+Message-ID: <3B326087ABEA7940953BF629CAA40E17035BE455@azsmsx402>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: RBP save and restore on x86-64 system calls
+Thread-Index: AcbKyKJnS6CCxRfUT6m3G2sWzUVFkA==
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Aug 2006 17:37:32.0429 (UTC) FILETIME=[A43BCBD0:01C6CAC8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 18:03 +0200, Indan Zupancic wrote:
-> On Mon, August 28, 2006 12:22, Peter Zijlstra said:
+This is a multi-part message in MIME format.
 
-> >> > @@ -391,6 +391,7 @@ enum sock_flags {
-> >> >  	SOCK_RCVTSTAMP, /* %SO_TIMESTAMP setting */
-> >> >  	SOCK_LOCALROUTE, /* route locally only, %SO_DONTROUTE setting */
-> >> >  	SOCK_QUEUE_SHRUNK, /* write queue has been shrunk recently */
-> >> > +	SOCK_VMIO, /* promise to never block on receive */
-> >>
-> >> It might be used for IO related to the VM, but that doesn't tell _what_ it does.
-> >> It also does much more than just not blocking on receive, so overal, aren't
-> >> both the vmio name and the comment slightly misleading?
-> >
-> > I'm so having trouble with this name; I had SOCK_NONBLOCKING for a
-> > while, but that is a very bad name because nonblocking has this well
-> > defined meaning when talking about sockets, and this is not that.
-> >
-> > Hence I came up with the VMIO, because that is the only selecting
-> > criteria for being special. - I'll fix up the comment.
-> 
-> It's nice and short, but it might be weird if someone after a while finds another way
-> of using this stuff. And it's relation to 'emergency' looks unclear. So maybe calling
-> both the same makes most sense, no matter how you name it.
+------=_NextPart_000_000E_01C6CA8D.F7401790
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-I've tried to come up with another use-case, but failed (of course that
-doesn't mean there is no). Also, I'm really past caring what the thing
-is called ;-) But if ppl object I guess its easy enough to run yet
-another sed command over the patches.
+	This may not be a kernel question per se but I was hoping someone on
+this list might be able to shed some light into where RBP is saved to on an
+x86-64 system when a non-tracing system call is made.
+	An ioctl() triggers my kernel module and I need to have a way to
+reliably retrieve what RBP was immediately before the system call. RBP is
+not saved on the process' stack on kernel entry. The code in entry.S says
+that it's up to the C code (which I'm taking to mean glibc) to deal with
+these non-saved registers. I have a statically compiled application and I
+can't see the glibc code doing anything to save or restore RBP in the
+assembly. It has to be saved somewhere or these would be all kinds of
+problems after control returned to the user application from the system
+call.
+	Please reply directly to me as well as the list as I'm not a current
+subscriber. Thanks for your time.
 
-> >> > @@ -82,6 +82,7 @@ EXPORT_SYMBOL(zone_table);
-> >> >
-> >> >  static char *zone_names[MAX_NR_ZONES] = { "DMA", "DMA32", "Normal", "HighMem" };
-> >> >  int min_free_kbytes = 1024;
-> >> > +int var_free_kbytes;
-> >>
-> >> Using var_free_pages makes the code slightly simpler, as all that needless
-> >> convertion isn't needed anymore. Perhaps the same is true for min_free_kbytes...
-> >
-> > 't seems I'm a bit puzzled as to what you mean here.
-> 
-> I mean to store the variable reserve in pages instead of kilobytes. Currently you're
-> converting from the one to the other both when setting and when using the value. That
-> doesn't make much sense and can be avoided by storing the value in pages from the start.
 
-right, will have a peek.
+------=_NextPart_000_000E_01C6CA8D.F7401790
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
 
-> void kfree_skbmem(struct sk_buff *skb)
-> {
-> 	struct sk_buff *other;
-> 	atomic_t *fclone_ref;
-> 	struct kmem_cache *cache = skbuff_head_cache;
-> 	struct sk_buff *free = skb;
-> 
-> 	skb_release_data(skb);
-> 	switch (skb->fclone) {
-> 	case SKB_FCLONE_UNAVAILABLE:
-> 		goto free;
-> 
-> 	case SKB_FCLONE_ORIG:
-> 		fclone_ref = (atomic_t *) (skb + 2);
-> 		if (atomic_dec_and_test(fclone_ref)){
-> 			cache = skbuff_fclone_cache;
-> 			goto free;
-> 		}
-> 		break;
-> 
-> 	case SKB_FCLONE_CLONE:
-> 		fclone_ref = (atomic_t *) (skb + 1);
-> 		other = skb - 1;
-> 
-> 		/* The clone portion is available for
-> 		 * fast-cloning again.
-> 		 */
-> 		skb->fclone = SKB_FCLONE_UNAVAILABLE;
-> 
-> 		if (atomic_dec_and_test(fclone_ref)){
-> 			cache = skbuff_fclone_cache;
-> 			free = other;
-> 			goto free;
-> 		}
-> 		break;
-> 	};
-> 	return;
-> free:
-> 	if (!skb->emergency)
-> 		kmem_cache_free(cache, free);
-> 	else
-> 		emergency_rx_free(free, kmem_cache_size(cache));
-> }
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIInszCCB3Qw
+ggZcoAMCAQICCmEiIAUAAAAAAAgwDQYJKoZIhvcNAQEFBQAwgZ8xHDAaBgkqhkiG9w0BCQEWDXBr
+aUBpbnRlbC5jb20xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhDaGFu
+ZGxlcjEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24xCzAJBgNVBAsTAklUMSQwIgYDVQQDExtJ
+bnRlbCBFbnRlcnByaXNlIEJhc2ljUENBLTEwHhcNMDIxMjA1MTczMzEwWhcNMDcxMjA1MjAwMzEw
+WjCB3jEcMBoGCSqGSIb3DQEJARYNcGtpQGludGVsLmNvbTELMAkGA1UEBhMCVVMxCzAJBgNVBAgT
+AkNBMQ8wDQYDVQQHEwZGb2xzb20xGjAYBgNVBAoTEUludGVsIENvcnBvcmF0aW9uMT0wOwYDVQQL
+EzRJbmZvcm1hdGlvbiBUZWNobm9sb2d5IEVudGVycHJpc2UgQnVzaW5lc3MgQ29tcHV0aW5nMTgw
+NgYDVQQDEy9JbnRlbCBDb3Jwb3JhdGlvbiBCYXNpYyBFbnRlcnByaXNlIElzc3VpbmcgQ0EgMTCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALRzs//JBB6y7FN9ze2a6ZnEiX+/YfyQ5g6X
+GgGxwP87tRqPnZU14W2s0L6q8oWfwi7Dc9Xmns5gYZdQweDEklOjYA9C5ixEFZ3joXUxPsuMAYUt
+PT8BDzyq9zdsee4c6rqQ1kPEnqtiJc/VlU1kK2zpgXahXy4TpjjVsiz2L5zJ8amT5VdGuSHs3Hz4
+Ng6+jw9WQGExJnxYcGNDZMYP45e2VAw1gVZK1bXw7xlM/vcrkx0Lu43dZQc2SXImg2GuJ/5R7iuX
+EpTsaKDOkjIN+Q6JAGHeQ/2a3mpZOwCF+fSD9Nqcj9AS5u5N0xtsfR/UrOazRrWBa1lOWxaD0/Ph
+FrcCAwEAAaOCA28wggNrMBAGCSsGAQQBgjcVAQQDAgEAMB0GA1UdDgQWBBSoM2ug7tAG6zllMHb7
+U4Phawje/jALBgNVHQ8EBAMCAcYwDwYDVR0TAQH/BAUwAwEB/zCB0wYDVR0jBIHLMIHIgBTKIc61
+FcEg45pP/hywTm0mQlxHtaGBo6SBoDCBnTEcMBoGCSqGSIb3DQEJARYNcGtpQGludGVsLmNvbTEL
+MAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExETAPBgNVBAcTCENoYW5kbGVyMRowGAYDVQQK
+ExFJbnRlbCBDb3Jwb3JhdGlvbjELMAkGA1UECxMCSVQxIjAgBgNVBAMTGUludGVsIEVudGVycHJp
+c2UgUm9vdENBLTGCCmErj20AAAAAAAQwggEeBgNVHR8EggEVMIIBETCB1qCB06CB0IaBzWxkYXA6
+Ly8vQ049SW50ZWwlMjBFbnRlcnByaXNlJTIwQmFzaWNQQ0EtMSxDTj1QQ0EtQkEwMSxDTj1DRFAs
+Q049UHVibGljJTIwS2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixE
+Qz1jb3JwLERDPWludGVsLERDPWNvbT9jZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0P2Jhc2U/b2Jq
+ZWN0Y2xhc3M9Y1JMRGlzdHJpYnV0aW9uUG9pbnQwNqA0oDKGMGh0dHA6Ly93d3cuaW50ZWwuY29t
+L3JlcG9zaXRvcnkvQ1JML1BDQS1CQS0xLmNybDCCASAGCCsGAQUFBwEBBIIBEjCCAQ4wgcQGCCsG
+AQUFBzAChoG3bGRhcDovLy9DTj1JbnRlbCUyMEVudGVycHJpc2UlMjBCYXNpY1BDQS0xLENOPUFJ
+QSxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9u
+LERDPWNvcnAsREM9aW50ZWwsREM9Y29tP2NBQ2VydGlmaWNhdGU/YmFzZT9vYmplY3RjbGFzcz1j
+ZXJ0aWZpY2F0aW9uQXV0aG9yaXR5MEUGCCsGAQUFBzAChjlodHRwOi8vd3d3LmludGVsLmNvbS9y
+ZXBvc2l0b3J5L2NlcnRpZmljYXRlcy9QQ0EtQkEtMS5jcnQwDQYJKoZIhvcNAQEFBQADggEBAKo+
+KVd0DYrX6k2Tq7dypUOYLKlvfZ/VYYZbseNBEOGVYRbFMARyHYJLnWDe5YP/bGaPTolEh7HgmW9r
+MLzgq4CJjqN61zYPrkeRWX9krbhD9+4cB1KklxjbGT/LzPxEjPj/e40z06k1gColzPTk0nepKxUK
+56P0XYWYSGRvMmprgO0cWQ/eUSG2ax6CyOQbmK4FM73MFuzmXm2yIZLm0TiMJd6kCRgWHGPCWRKZ
+hFf8uioRbWCV9kUzUT3aGPAqm9vKSM47yGWf17mjthdQ2WhHPjt06sjkyhdVu4V+ni/OaBx2IB6s
+/WhlhSTJMsp6otUjtO+ne+i1brThVv1bOCYwggepMIIGkaADAgECAgoTQixmAAAAAD+WMA0GCSqG
+SIb3DQEBBQUAMIHeMRwwGgYJKoZIhvcNAQkBFg1wa2lAaW50ZWwuY29tMQswCQYDVQQGEwJVUzEL
+MAkGA1UECBMCQ0ExDzANBgNVBAcTBkZvbHNvbTEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24x
+PTA7BgNVBAsTNEluZm9ybWF0aW9uIFRlY2hub2xvZ3kgRW50ZXJwcmlzZSBCdXNpbmVzcyBDb21w
+dXRpbmcxODA2BgNVBAMTL0ludGVsIENvcnBvcmF0aW9uIEJhc2ljIEVudGVycHJpc2UgSXNzdWlu
+ZyBDQSAxMB4XDTA1MTEyMzEzMTgyM1oXDTA2MTEyMzEzMTgyM1owgbIxEzARBgoJkiaJk/IsZAEZ
+FgNjb20xFTATBgoJkiaJk/IsZAEZFgVpbnRlbDEUMBIGCgmSJomT8ixkARkWBGNvcnAxEzARBgoJ
+kiaJk/IsZAEZFgNhbXIxEDAOBgNVBAsTB1dvcmtlcnMxGzAZBgNVBAMTEkhhbnNvbiwgSm9uYXRo
+YW4gTTEqMCgGCSqGSIb3DQEJARYbam9uYXRoYW4ubS5oYW5zb25AaW50ZWwuY29tMIGfMA0GCSqG
+SIb3DQEBAQUAA4GNADCBiQKBgQDH3Nv3KgD8VgCeJDD55HRpvB/4b8Wg5sjB+fVh8mQawfKgM0nP
+HTxFSOpYpLo4xilBnGc0ezZPJfYRrbZmSQ6IMYHhsw1eg5NWEDYvqixM1arLNlGzL5deb4pTO4lD
+kuNDaEyKc9mloQ7D6nWB0ZPE3L/pQB75ZjKXJHNCGNvheQIDAQABo4IEFTCCBBEwCwYDVR0PBAQD
+AgeAMB0GA1UdDgQWBBSW7IB1eX9T3S5woJ6/52S0wE9sbDA8BgkrBgEEAYI3FQcELzAtBiUrBgEE
+AYI3FQiGw4x1hJnlUYP9gSiFjp9TgpHACWeB3r05lfBDAgFkAgECMB8GA1UdIwQYMBaAFKgza6Du
+0AbrOWUwdvtTg+FrCN7+MIIBbgYDVR0fBIIBZTCCAWEwggFdoIIBWaCCAVWGge1sZGFwOi8vL0NO
+PUludGVsJTIwQ29ycG9yYXRpb24lMjBCYXNpYyUyMEVudGVycHJpc2UlMjBJc3N1aW5nJTIwQ0El
+MjAxLENOPVBLSUJBRU5UQ0EwMSxDTj1DRFAsQ049UHVibGljJTIwS2V5JTIwU2VydmljZXMsQ049
+U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1jb3JwLERDPWludGVsLERDPWNvbT9jZXJ0aWZp
+Y2F0ZVJldm9jYXRpb25MaXN0P2Jhc2U/b2JqZWN0Q2xhc3M9Y1JMRGlzdHJpYnV0aW9uUG9pbnSG
+Y2h0dHA6Ly93d3cuaW50ZWwuY29tL3JlcG9zaXRvcnkvQ1JML0ludGVsJTIwQ29ycG9yYXRpb24l
+MjBCYXNpYyUyMEVudGVycHJpc2UlMjBJc3N1aW5nJTIwQ0ElMjAxLmNybDCCAW8GCCsGAQUFBwEB
+BIIBYTCCAV0wgeAGCCsGAQUFBzAChoHTbGRhcDovLy9DTj1JbnRlbCUyMENvcnBvcmF0aW9uJTIw
+QmFzaWMlMjBFbnRlcnByaXNlJTIwSXNzdWluZyUyMENBJTIwMSxDTj1BSUEsQ049UHVibGljJTIw
+S2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1jb3JwLERDPWlu
+dGVsLERDPWNvbT9jQUNlcnRpZmljYXRlP2Jhc2U/b2JqZWN0Q2xhc3M9Y2VydGlmaWNhdGlvbkF1
+dGhvcml0eTB4BggrBgEFBQcwAoZsaHR0cDovL3d3dy5pbnRlbC5jb20vcmVwb3NpdG9yeS9jZXJ0
+aWZpY2F0ZXMvSW50ZWwlMjBDb3Jwb3JhdGlvbiUyMEJhc2ljJTIwRW50ZXJwcmlzZSUyMElzc3Vp
+bmclMjBDQSUyMDEuY3J0MB8GA1UdJQQYMBYGCCsGAQUFBwMEBgorBgEEAYI3CgMMMCkGCSsGAQQB
+gjcVCgQcMBowCgYIKwYBBQUHAwQwDAYKKwYBBAGCNwoDDDBTBgNVHREETDBKoCsGCisGAQQBgjcU
+AgOgHQwbam9uYXRoYW4ubS5oYW5zb25AaW50ZWwuY29tgRtqb25hdGhhbi5tLmhhbnNvbkBpbnRl
+bC5jb20wDQYJKoZIhvcNAQEFBQADggEBADpUEAtNPTVj45YCvKjizZHuJUaLXpXiRPXQNvhWFARG
+is4o7dijJA79LU632fKvgZT0VcgLRzOmdKRFiOxWhR+F+zNyGMIarYF0jjw0H/ILfpB5ZH7tN3+/
+7o2OoytFCLxUwAbe4GizFF1YzwOD4AAkWFrO9Lpty8TfTyduL88XmHX7sSTu+rDqJp1dnTxPpcV9
+FhwD6u35NR601/a+BRpLfhT45aqHYqZl3PAdU7oDHb5dCJ0nTzLIapl9KA8m3YIbpLdPn5xnuV0X
+Y03qKSqPBlLHu+Z+ERLjPOcdrm4KO9rlyNCUXidGQlivylGd5o46mFhZIKafOpQ3kOYHNOowggfw
+MIIG2KADAgECAgoTQ14gAAAAAD+aMA0GCSqGSIb3DQEBBQUAMIHeMRwwGgYJKoZIhvcNAQkBFg1w
+a2lAaW50ZWwuY29tMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExDzANBgNVBAcTBkZvbHNvbTEa
+MBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24xPTA7BgNVBAsTNEluZm9ybWF0aW9uIFRlY2hub2xv
+Z3kgRW50ZXJwcmlzZSBCdXNpbmVzcyBDb21wdXRpbmcxODA2BgNVBAMTL0ludGVsIENvcnBvcmF0
+aW9uIEJhc2ljIEVudGVycHJpc2UgSXNzdWluZyBDQSAxMB4XDTA1MTEyMzEzMTk0MVoXDTA2MTEy
+MzEzMTk0MVowgbIxEzARBgoJkiaJk/IsZAEZFgNjb20xFTATBgoJkiaJk/IsZAEZFgVpbnRlbDEU
+MBIGCgmSJomT8ixkARkWBGNvcnAxEzARBgoJkiaJk/IsZAEZFgNhbXIxEDAOBgNVBAsTB1dvcmtl
+cnMxGzAZBgNVBAMTEkhhbnNvbiwgSm9uYXRoYW4gTTEqMCgGCSqGSIb3DQEJARYbam9uYXRoYW4u
+bS5oYW5zb25AaW50ZWwuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzbuOb5vf9BO2k
+PP3zTDliPEEcGre+4387mI1wr3E0TVL98KKE2VuB1mVbDrlY/KwyuqEnLf+H8h+BQv1AWe/AMDJA
+B9tH9kFHdVPEq1tAPZmHpF1F+HZimS92nxrVsRxxsgh5hvGfca6gbiSKMT4FXvOukKebOD15DHL3
++ihBTQIDAQABo4IEXDCCBFgwCwYDVR0PBAQDAgUgMEQGCSqGSIb3DQEJDwQ3MDUwDgYIKoZIhvcN
+AwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBzAdBgNVHQ4EFgQUgz1E
+cUbRKvUiDCOnVqGplfOzD84wPQYJKwYBBAGCNxUHBDAwLgYmKwYBBAGCNxUIhsOMdYSZ5VGD/YEo
+hY6fU4KRwAlnhLnZQYeE/04CAWQCAQUwHwYDVR0jBBgwFoAUqDNroO7QBus5ZTB2+1OD4WsI3v4w
+ggFuBgNVHR8EggFlMIIBYTCCAV2gggFZoIIBVYaB7WxkYXA6Ly8vQ049SW50ZWwlMjBDb3Jwb3Jh
+dGlvbiUyMEJhc2ljJTIwRW50ZXJwcmlzZSUyMElzc3VpbmclMjBDQSUyMDEsQ049UEtJQkFFTlRD
+QTAxLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25m
+aWd1cmF0aW9uLERDPWNvcnAsREM9aW50ZWwsREM9Y29tP2NlcnRpZmljYXRlUmV2b2NhdGlvbkxp
+c3Q/YmFzZT9vYmplY3RDbGFzcz1jUkxEaXN0cmlidXRpb25Qb2ludIZjaHR0cDovL3d3dy5pbnRl
+bC5jb20vcmVwb3NpdG9yeS9DUkwvSW50ZWwlMjBDb3Jwb3JhdGlvbiUyMEJhc2ljJTIwRW50ZXJw
+cmlzZSUyMElzc3VpbmclMjBDQSUyMDEuY3JsMIIBbwYIKwYBBQUHAQEEggFhMIIBXTCB4AYIKwYB
+BQUHMAKGgdNsZGFwOi8vL0NOPUludGVsJTIwQ29ycG9yYXRpb24lMjBCYXNpYyUyMEVudGVycHJp
+c2UlMjBJc3N1aW5nJTIwQ0ElMjAxLENOPUFJQSxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxD
+Tj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPWNvcnAsREM9aW50ZWwsREM9Y29tP2NBQ2Vy
+dGlmaWNhdGU/YmFzZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9yaXR5MHgGCCsGAQUF
+BzAChmxodHRwOi8vd3d3LmludGVsLmNvbS9yZXBvc2l0b3J5L2NlcnRpZmljYXRlcy9JbnRlbCUy
+MENvcnBvcmF0aW9uJTIwQmFzaWMlMjBFbnRlcnByaXNlJTIwSXNzdWluZyUyMENBJTIwMS5jcnQw
+HwYDVR0lBBgwFgYIKwYBBQUHAwQGCisGAQQBgjcKAwQwKQYJKwYBBAGCNxUKBBwwGjAKBggrBgEF
+BQcDBDAMBgorBgEEAYI3CgMEMFMGA1UdEQRMMEqgKwYKKwYBBAGCNxQCA6AdDBtqb25hdGhhbi5t
+LmhhbnNvbkBpbnRlbC5jb22BG2pvbmF0aGFuLm0uaGFuc29uQGludGVsLmNvbTANBgkqhkiG9w0B
+AQUFAAOCAQEADL4N4FRWnaEWURQGCPzWMHDMn26bDQCVriyCvgS385hFaHxVq4m0UW2IpWD1qCnP
+jl2LX7Qxg2ihCI0R2H/TRJwMKhz0nUQ9B3n02S1+m7MwJ2JMdxjmn/RMzcFNFBZ+QJVCocwFSZMy
+VF+AjKHO/iRgNDArwcXJVP38eD1aHi1I5aFl6VjMCUIH26hGmzcUg3vyn8qqMt2rgvp/bFwX3/BI
+6Tu+D1D/jftkVHVXOA2BrO47v5J5jQFQ8nFZNaWZpBimSTGx15uQqgioONV2ivOVGMng2UI6NpVv
+nP0pCe1bNuJx9YqNPQielpMSHOLSXtjQ9O0SAgYj//w8dN3OEzCCCDUwggYdoAMCAQICCmErj20A
+AAAAAAQwDQYJKoZIhvcNAQEFBQAwgZ0xHDAaBgkqhkiG9w0BCQEWDXBraUBpbnRlbC5jb20xCzAJ
+BgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhDaGFuZGxlcjEaMBgGA1UEChMR
+SW50ZWwgQ29ycG9yYXRpb24xCzAJBgNVBAsTAklUMSIwIAYDVQQDExlJbnRlbCBFbnRlcnByaXNl
+IFJvb3RDQS0xMB4XDTAxMDkyODE3MjE1OFoXDTExMDkyODE5NTE1OFowgZ8xHDAaBgkqhkiG9w0B
+CQEWDXBraUBpbnRlbC5jb20xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQH
+EwhDaGFuZGxlcjEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24xCzAJBgNVBAsTAklUMSQwIgYD
+VQQDExtJbnRlbCBFbnRlcnByaXNlIEJhc2ljUENBLTEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+ggEKAoIBAQCsxErklgPl8xH6riWJWr07EjTupPSl/i/XyJQHNL+cZ+n+gG9WNUd6ddw6s/6luQ80
+IRHju5+hkUoHiBrtHOUNGE8sH7NMSfK//VOF8kQVXMSetTZKmGFb3gHzswSKvB59IBngQhbUVYJ1
+fs/OlNxfvo5bQu9TcqVJa4Dq1SUZbVT/gtGQrWVbu8Q1e4vyjrNNw/dI7mJ2Gy93usGhpV361VK4
+HQocEzMdLxusAjdMHfYvHxaPLWZiswUmZBrbWEN8yFdg7EQfEoGKZxtuLGkpzVVKStDIi7N79EXJ
+HE1rPR/P0glTxBjRI+HQ1rG60+IphDCqYnbIfMhFXZNot4OhAgMBAAGjggNxMIIDbTAQBgkrBgEE
+AYI3FQEEAwIBADAdBgNVHQ4EFgQUyiHOtRXBIOOaT/4csE5tJkJcR7UwCwYDVR0PBAQDAgHGMA8G
+A1UdEwEB/wQFMAMBAf8wgdkGA1UdIwSB0TCBzoAUJyUlaFIuOEQ6JC4EdUK5tYtNB5yhgaOkgaAw
+gZ0xHDAaBgkqhkiG9w0BCQEWDXBraUBpbnRlbC5jb20xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdB
+cml6b25hMREwDwYDVQQHEwhDaGFuZGxlcjEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24xCzAJ
+BgNVBAsTAklUMSIwIAYDVQQDExlJbnRlbCBFbnRlcnByaXNlIFJvb3RDQS0xghAV8I1T9liRtUr+
+3+BjOYaKMIIBHAYDVR0fBIIBEzCCAQ8wgdSggdGggc6GgctsZGFwOi8vL0NOPUludGVsJTIwRW50
+ZXJwcmlzZSUyMFJvb3RDQS0xLENOPVJPT1RDQTAxLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBT
+ZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPWNvcnAsREM9aW50ZWwsREM9
+Y29tP2NlcnRpZmljYXRlUmV2b2NhdGlvbkxpc3Q/YmFzZT9vYmplY3RjbGFzcz1jUkxEaXN0cmli
+dXRpb25Qb2ludDA2oDSgMoYwaHR0cDovL3d3dy5pbnRlbC5jb20vcmVwb3NpdG9yeS9DUkwvUm9v
+dENBLTEuY3JsMIIBHgYIKwYBBQUHAQEEggEQMIIBDDCBwgYIKwYBBQUHMAKGgbVsZGFwOi8vL0NO
+PUludGVsJTIwRW50ZXJwcmlzZSUyMFJvb3RDQS0xLENOPUFJQSxDTj1QdWJsaWMlMjBLZXklMjBT
+ZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPWNvcnAsREM9aW50ZWwsREM9
+Y29tP2NBQ2VydGlmaWNhdGU/YmFzZT9vYmplY3RjbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9yaXR5
+MEUGCCsGAQUFBzAChjlodHRwOi8vd3d3LmludGVsLmNvbS9yZXBvc2l0b3J5L2NlcnRpZmljYXRl
+cy9Sb290Q0EtMS5jcnQwDQYJKoZIhvcNAQEFBQADggIBAFYRt+UD9h0WDY7q1EbPg2G4ffolR7dH
+dB2Sty4So1Kxnyq4U5oaFgUzNaHxMepovivHiEoKyyDgRQ17HTY/Us4CgDCRvLzYTM5sf/KYVBKi
+iUhiWhBEMzOEdvZWavt8uwJRRhnC1DmJGbFM0R+6CX5SBfY4/N8wIJpIwI5AFYI2O3z3EzESU0c6
+7B7h9dC/27ZmHMRycG2gY1CvQ+3mYKLWZpaEJFONpJ8ljywFLyZvXKnxD3TRa78pi8oBJOe2Saqw
+cOwpqvRN5fHLGcUxIKjeSKbFfjK0A5Ge+lMcpfsPQOJ3NCSZMpoBQR6QP5IaYru0kfUtY4eM8Lho
+GfNOSz8P9vVpnNpuH1/OfGzcT7Nx8byvVHkR/0OLaa7d3Ill0L1aZUQazAy80jMoQbJeW853ByAJ
+OLKESs50GZXVtRa4XkhcRm9zjgCCQSjIARRbCZc+L7dg/MsQY8D4Ag60j5FVzOFIo4/MgzfYrrh0
+wkjgLNsGQAqGUi6ytkEEk5AzjmUYnPW9xuJlq5PL7x9P6oxMOHUfiixrRUWHz8y+6GXNA19cuug+
+q2ptRqzf4pNOf58KX2my1PPAnVSx28MJi185CEWC7RBrjoWcocV4lZxeEnCIomNJGArOMG+aS4IY
+KOzyV7WrTeaK6lnyPaifIqmmQmvgAH5AqEjbr8wepY+0MIIIXTCCBkWgAwIBAgIQFfCNU/ZYkbVK
+/t/gYzmGijANBgkqhkiG9w0BAQUFADCBnTEcMBoGCSqGSIb3DQEJARYNcGtpQGludGVsLmNvbTEL
+MAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExETAPBgNVBAcTCENoYW5kbGVyMRowGAYDVQQK
+ExFJbnRlbCBDb3Jwb3JhdGlvbjELMAkGA1UECxMCSVQxIjAgBgNVBAMTGUludGVsIEVudGVycHJp
+c2UgUm9vdENBLTEwHhcNMDEwOTI3MTYzOTQ2WhcNMjEwOTI3MTY0NjA4WjCBnTEcMBoGCSqGSIb3
+DQEJARYNcGtpQGludGVsLmNvbTELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExETAPBgNV
+BAcTCENoYW5kbGVyMRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlvbjELMAkGA1UECxMCSVQxIjAg
+BgNVBAMTGUludGVsIEVudGVycHJpc2UgUm9vdENBLTEwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAw
+ggIKAoICAQDdRzT0LK2ax/EaBL98Ql0mhPxc1d7kMuUL1+ib8p5Abb4iFNJGFwt83M400CEq65JZ
+6QxznkPGa/31u9s0g/Sd2Vb7qg7RbhVZb/SkNDAUAES86ipMX7spFw3ReRblQ80gDe46Wl5fRwZX
+2OV/QGkF4yUM7ehQmNZFRETt3JZbnnqvYzCPiazJMv440cDSkaFl/y+qm52ihTvtLADJ/yXEkwg/
+FcJ/lTZbdC18xQ+Z3jL1uT0tW0mHWCu7Q4Y9SS3GCQQwIHjm7U/x9W33Qxz5RLbv54RdeOgzeQIH
+SkEZQj+CEnoPmLnC0XoC696IbvBWspLHKgnUVNM4j+5sItp/smJWv16bo4q3XLI9LWMLxgMjd5mU
+z+1ObNdpotaoTw+vJqaEFscGu/F8slX/AjKtYNGbCWYNcl/uE380un0xMiqrUPz1gmkQmfqSeJVa
+HFapNv/mYJsgDWnLgWqLvyvND/ael+zctS2tAyNoNGy8+U6xYVamuFYvmkDye1GJBg8aAdX4shqc
+8nyNIUI9btDLg2+EGM5b5+Sna0CAtBdpgN1JQqCU4Cy+eXaKtCSCTe0wv1zytW9VHeW43CQOjFfm
+rdww9aTISIRRMZl2tST92OV+JVpoW/x6La5bO/q8jUv//rf5tfh9LqrBMDp9xAEwQHs+DO4XYDpb
+Vx9Z5g3VJwIDAQABo4IClTCCApEwCwYDVR0PBAQDAgHGMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0O
+BBYEFCclJWhSLjhEOiQuBHVCubWLTQecMIIBHAYDVR0fBIIBEzCCAQ8wgdSggdGggc6GgctsZGFw
+Oi8vL0NOPUludGVsJTIwRW50ZXJwcmlzZSUyMFJvb3RDQS0xLENOPVJPT1RDQTAxLENOPUNEUCxD
+Tj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERD
+PWNvcnAsREM9aW50ZWwsREM9Y29tP2NlcnRpZmljYXRlUmV2b2NhdGlvbkxpc3Q/YmFzZT9vYmpl
+Y3RjbGFzcz1jUkxEaXN0cmlidXRpb25Qb2ludDA2oDSgMoYwaHR0cDovL3d3dy5pbnRlbC5jb20v
+cmVwb3NpdG9yeS9DUkwvUm9vdENBLTEuY3JsMBAGCSsGAQQBgjcVAQQDAgEAMIIBHgYIKwYBBQUH
+AQEEggEQMIIBDDCBwgYIKwYBBQUHMAKGgbVsZGFwOi8vL0NOPUludGVsJTIwRW50ZXJwcmlzZSUy
+MFJvb3RDQS0xLENOPUFJQSxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxD
+Tj1Db25maWd1cmF0aW9uLERDPWNvcnAsREM9aW50ZWwsREM9Y29tP2NBQ2VydGlmaWNhdGU/YmFz
+ZT9vYmplY3RjbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9yaXR5MEUGCCsGAQUFBzAChjlodHRwOi8v
+d3d3LmludGVsLmNvbS9yZXBvc2l0b3J5L2NlcnRpZmljYXRlcy9Sb290Q0EtMS5jcnQwDQYJKoZI
+hvcNAQEFBQADggIBANTCZl0sI27SnC8TgnvU4typ8WfQknfp5IIlgBPLyoFSQnflPY7XYbz3YU43
+uVgDufm895uh4x+Z+UFQO/QvZkS5WoYd7tAX4hlgSeao51MDnRNDhVDmz2Q4970ciQRdbprh1u1I
++sqSJ7LYGLDVChW3f33eIqgg+me+oo/IGx4ump7/wa2v2wMhCai+QYMvKgZ6bz0nHM1kUlYuXSYM
+FkE2ptWJ+kaSII1mmq+bjhWq0Fod33XGx7sD9nYccBWkR2PGtFedFkqwvr97SqyQiKLrfuoc0oRR
+/Y5wcAdPgo2nG9zP7S5da3aqHJWNG788LIvf+lz4why780qo1Y5XnojbEw+dQDgxx0Du1CA2EaRg
+CIvYbm1fiaWyE869eHH/V0Dsn/0QKJbNS5wCt/VPnNh4FFGsVnDBnMks65ryT+PaoCj8ZsYx/O9R
+zBe1Ujo3mzMeRo53dUyFyv5CDWN90psedNFOJYKKZc5VRzcvRVUXcqTcL9KCI0FR3TIS/1sYuj2C
+w2PbQsHf1zlyzJ9jhO1B/nMEiflsNjXo5pCzcxGoXPlEsPFlgTXLJob+aFhdwqQTgjo4JPx6SGUd
+yu+tZSlrlk24Mui+ch9ooWPdXVUkpa2UqY7uy9yC+/BQBEAzLoesduGwOCulApTbaIWD0QmDXlQN
+mxjDrgn6gewo1HbeMYIEYzCCBF8CAQEwge0wgd4xHDAaBgkqhkiG9w0BCQEWDXBraUBpbnRlbC5j
+b20xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEPMA0GA1UEBxMGRm9sc29tMRowGAYDVQQKExFJ
+bnRlbCBDb3Jwb3JhdGlvbjE9MDsGA1UECxM0SW5mb3JtYXRpb24gVGVjaG5vbG9neSBFbnRlcnBy
+aXNlIEJ1c2luZXNzIENvbXB1dGluZzE4MDYGA1UEAxMvSW50ZWwgQ29ycG9yYXRpb24gQmFzaWMg
+RW50ZXJwcmlzZSBJc3N1aW5nIENBIDECChNCLGYAAAAAP5YwCQYFKw4DAhoFAKCCAsswGAYJKoZI
+hvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDYwODI4MTczNzMxWjAjBgkqhkiG
+9w0BCQQxFgQUTki+gjB6orWTiRXDSWsYPZjomZ4wZwYJKoZIhvcNAQkPMVowWDAKBggqhkiG9w0D
+BzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgw
+BwYFKw4DAhowCgYIKoZIhvcNAgUwgf4GCSsGAQQBgjcQBDGB8DCB7TCB3jEcMBoGCSqGSIb3DQEJ
+ARYNcGtpQGludGVsLmNvbTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMQ8wDQYDVQQHEwZGb2xz
+b20xGjAYBgNVBAoTEUludGVsIENvcnBvcmF0aW9uMT0wOwYDVQQLEzRJbmZvcm1hdGlvbiBUZWNo
+bm9sb2d5IEVudGVycHJpc2UgQnVzaW5lc3MgQ29tcHV0aW5nMTgwNgYDVQQDEy9JbnRlbCBDb3Jw
+b3JhdGlvbiBCYXNpYyBFbnRlcnByaXNlIElzc3VpbmcgQ0EgMQIKE0NeIAAAAAA/mjCCAQAGCyqG
+SIb3DQEJEAILMYHwoIHtMIHeMRwwGgYJKoZIhvcNAQkBFg1wa2lAaW50ZWwuY29tMQswCQYDVQQG
+EwJVUzELMAkGA1UECBMCQ0ExDzANBgNVBAcTBkZvbHNvbTEaMBgGA1UEChMRSW50ZWwgQ29ycG9y
+YXRpb24xPTA7BgNVBAsTNEluZm9ybWF0aW9uIFRlY2hub2xvZ3kgRW50ZXJwcmlzZSBCdXNpbmVz
+cyBDb21wdXRpbmcxODA2BgNVBAMTL0ludGVsIENvcnBvcmF0aW9uIEJhc2ljIEVudGVycHJpc2Ug
+SXNzdWluZyBDQSAxAgoTQ14gAAAAAD+aMA0GCSqGSIb3DQEBAQUABIGAbXpP3m3x8oo2MNLED9DA
+8OXDi3HqG+WXY5cu77134TV0/5DE0jqn7WlBzQhyGD0PuAqBpEOVOAX1DwwrhMm/oVl2Bd04ER0A
+FEu67VRRI05XyDlPdJ2QK56XoTqJtnjBnii8/q6r6SIEcQLpbkD4inRyFKpjuooGWQlMdWIibSgA
+AAAAAAA=
 
-Ah, like so, sure, that looks good.
-
-> >> You can get rid of the memalloc_reserve and vmio_request_queues variables
-> >> if you want, they aren't really needed for anything. If using them reduces
-> >> the total code size I'd keep them though.
-> >
-> > I find my version easier to read, but that might just be the way my
-> > brain works.
-> 
-> Maybe true, but I believe my version is more natural in the sense that it makes
-> more clear what the code is doing. Less bookkeeping, more real work, so to speak.
-
-Ok, I'll have another look at it, perhaps my gray matter has shifted ;-)
-
-> But after another look things seem a bit shaky, in the locking corner anyway.
-> 
-> sk_adjust_memalloc() calls adjust_memalloc_reserve(), which changes var_free_kbytes
-> and then calls setup_per_zone_pages_min(), which does the real work. But it reads
-> min_free_kbytes without holding any locks. In mainline that's fine as the function
-> is only called by the proc handler and in obscure memory hotplug stuff. But with
-> your code it can also be called at any moment when a VMIO socket is made, which now
-> races with the proc callback. More a theoretical than a real problem, but still
-> slightly messy.
-
-Knew about that, hadn't made up my mind on a fix yet. Good spot never
-the less. Time to actually fix it I guess.
-
-> adjust_memalloc_reserve() has no locking at all, while it might be called concurrently
-> from different sources. Luckily sk_adjust_memalloc() is the only user, and which uses
-> its own spinlock for synchronization, so things go well by accident now. It seems
-> cleaner to move that spinlock so that it protects var|min_free_kbytes instead.
-
-Ah, no accident there, I'm fully aware that there would need to be a
-spinlock in adjust_memalloc_reserve() if there were another caller.
-(I even had it there for some time) - added comment.
-
-> +int adjust_memalloc_reserve(int pages)
-> +{
-> +	int kbytes;
-> +	int err = 0;
-> +
-> +	kbytes = var_free_kbytes + (pages << (PAGE_SHIFT - 10));
-> +	if (kbytes < 0) {
-> +		err = -EINVAL;
-> +		goto out;
-> +	}
-> 
-> Shouldn't that be a BUG_ON instead?
-
-Yeah, might as well be.
-
+------=_NextPart_000_000E_01C6CA8D.F7401790--

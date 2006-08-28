@@ -1,95 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWH1D27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWH1DeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWH1D27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 23:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWH1D27
+	id S932381AbWH1DeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 23:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWH1DeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 23:28:59 -0400
-Received: from ms-smtp-02.socal.rr.com ([66.75.162.134]:1727 "EHLO
-	ms-smtp-02.socal.rr.com") by vger.kernel.org with ESMTP
-	id S932375AbWH1D27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 23:28:59 -0400
-Message-Id: <6.2.3.4.0.20060827202250.04911d70@pop-server.san.rr.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
-Date: Sun, 27 Aug 2006 20:28:44 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-From: John Coffman <johninsd@san.rr.com>
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
-  limit (ping)
-Cc: Andi Kleen <ak@suse.de>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com, Matt_Domsch@dell.com
-In-Reply-To: <44F21122.3030505@zytor.com>
-References: <445B5524.2090001@gmail.com>
- <200608272116.23498.ak@suse.de>
- <44F1F356.5030105@zytor.com>
- <200608272254.13871.ak@suse.de>
- <44F21122.3030505@zytor.com>
+	Sun, 27 Aug 2006 23:34:10 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:21194 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932381AbWH1DeH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 23:34:07 -0400
+Date: Mon, 28 Aug 2006 09:03:32 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 1/7] CPU controller V1 - split runqueue
+Message-ID: <20060828033331.GA25119@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174147.GB13917@in.ibm.com> <44EEEF28.4080707@sw.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Antivirus: avast! (VPS 0634-2, 08/24/2006), Outbound message
-X-Antivirus-Status: Clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44EEEF28.4080707@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LILO memory usage:
+On Fri, Aug 25, 2006 at 04:38:00PM +0400, Kirill Korotaev wrote:
+> Srivatsa,
+> 
+> I suggest to split existing runqueue structure
+> into 2 pieces: physical cpu (sd, ...) and
+> virtual cpu (essentially a runqueue - array, nr_running, loac etc.)
+> 
+> Then replace all references to cpu as int with vcpu_t pointer.
 
-000600 - 001000 BIOS data check area.  Okay to overwrite.  LILO usage 
-suppressed with command line "nobd" option.  There's also a config 
-file option to suppress usage.
+That's going to be a massive change! If I understand you correctly,
+things like get_cpu() return virtual CPU number rather than the
+corresponding "physical" CPU (the later is anyway a misnomer on
+virtualized platforms)? Also we have get_cpu() now reading some structure and be
+able to tell which CPU a task is running. Now with virtual CPUs, another
+level of translation is needed? Wonder what the performance impact of
+that would be ..
 
-LILO typically loads at 9000:0000 up to the top of the EBDA.  Top of 
-EBDA is determined by "int 12h."  Some BIOS's on add-in cards do not 
-properly allocate the EBDA.  Use LILO Makefile option "BUG_SI_EBDA" 
-to allocate extra EBDA for the BIOS.  If the BIOS data check area is 
-created at boot time by LILO, then:
+> What advantages does it give?
+> 1. it isolates Linux std scheduler code for scheduling
+>   tasks inside runqueues, while adds possibility
+>   to add cleanly more high-level scheduler, which can select
+>   runqueues to run (lets call it "process groups scheduler" - PGS).
+> 2. runqueues can run on arbitrary physical CPUs if needed
+>   which helps to solve balancing problem on SMP.
 
-    >  lilo -T ebda
+How do you see the relation between load-balance done thr sched-domain
+heirarchy today and what will be done thr' virtal runqueues? 
 
-will tell you where LILO is loaded on your system.
+> 3. it allows naturally to use different PGS algorithms
+>   on top of Linux one. e.g. yours algorithm (probobalistic) or
+>   fair scheduling algorithms like SFQ, EEVDF, BVT with more 
+>   predictable parameters of QoS.
+> 4. it will help us to get to the consensus and commit this work
+>   into mainstream, because different PGS with different properties
+>   will be possible.
+> 
+> Part of this idea is implemented in OpenVZ scheduler and in some
+> regards looks very much like your work, so I think if you like the idea
+> we can eloborate.
+> 
+> What do you think?
 
---John
+I believe hypervisors like Xen have a similar approach (virtualing CPU
+resource and running a virtual CPU on any available physical CPU). The 
+worry I have applying this to Linux kernel scheduler is in terms of its 
+invasiveness and thus general acceptability. I will however let the maintainers 
+decide on that. Sending some patches also probably will help measure this 
+"invasiveness/acceptability".
 
+I had another question related to real-time tasks. How do you control
+CPU usage of real-time tasks in different containers (especially if they
+are SCHED_FIFO types)? Do they get capped at the bandwidth provided to
+the container?
 
-At 02:39 PM  Sunday 8/27/2006, H. Peter Anvin wrote:
->Andi Kleen wrote:
->>On Sunday 27 August 2006 21:32, H. Peter Anvin wrote:
->>>Andi Kleen wrote:
->>>>Just increasing that constant caused various lilo setups to not boot
->>>>anymore. I don't know who is actually to blame, just wanting to
->>>>point out that this "obvious" patch isn't actually that obvious.
->>>How would that even be possible (unless you recompiled LILO with 
->>>the new headers)?  There would be no difference in the memory 
->>>image at the point LILO hands off to the kernel.
->>AFAIK the problem was that some EDD data got overwritten.
->>
->>>In order to reproduce this we need some details about your 
->>>"various LILO setups", or this will remain as a source of cargo 
->>>cult programming.
->>You can search the mailing list archives, it's all in there if you don't
->>belive me.
->
->Found the references.  This seems to imply that EDD overwrites the 
->area used by LILO 22.6.1.  LILO 22.6.1 uses the new boot protocol, 
->with the full pointer, and seems to obey the spec as far as I can 
->read the code.  I'm going to try to run it in simulation and observe 
->the failure that way.
->
->However, something is still seriously out of joint.  The EDD data 
->actually overlays the setup code, not the bootsect code, and thus 
->there "shouldn't" be any way that this could interfere.  My best 
->guess at this time is that either the EDD code or LILO uses memory 
->it's not supposed to use, and the simulation should hopefully reveal that.
->
->Sorry if I seem snarky on this, but if we can't get to the bottom of 
->this we can't ever fix it.
->
->         -hpa
+Also do you take any special steps to retain interactivity?
 
-
-         PGP KeyID: 6781C9C8  (good until 31-Dec-2008)
-         Keyserver at  ldap://keyserver.pgp.com  OR  http://pgp.mit.edu
-         LILO links at http://freshmeat.net/projects/lilo
-         and Help link at http://lilo.go.dyndns.org
-
-
+-- 
+Regards,
+vatsa

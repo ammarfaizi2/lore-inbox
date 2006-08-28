@@ -1,178 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWH1IxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWH1Ixq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWH1IxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWH1IxF
+	id S1751318AbWH1Ixq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWH1Ixq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:53:05 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:21774 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751311AbWH1IxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:53:01 -0400
-Date: Mon, 28 Aug 2006 09:52:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-ia64@vger.kernel.org, linux-mips@linux-mips.org,
-       linuxppc-embedded@ozlabs.org, paulkf@microgate.com,
-       takata@linux-m32r.org, linux-kernel@vger.kernel.org
-Subject: [CFT:PATCH] Removing possible wrong asm/serial.h inclusions
-Message-ID: <20060828085244.GA13544@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-ia64@vger.kernel.org, linux-mips@linux-mips.org,
-	linuxppc-embedded@ozlabs.org, paulkf@microgate.com,
-	takata@linux-m32r.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Aug 2006 04:53:46 -0400
+Received: from mail.suse.de ([195.135.220.2]:726 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751318AbWH1Ixo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:53:44 -0400
+From: Andi Kleen <ak@suse.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
+Date: Mon, 28 Aug 2006 10:53:11 +0200
+User-Agent: KMail/1.9.3
+Cc: David Miller <davem@davemloft.net>, arnd@arndb.de,
+       linux-arch@vger.kernel.org, jdike@addtoit.com, B.Steinbrink@gmx.de,
+       arjan@infradead.org, chase.venters@clientec.com, akpm@osdl.org,
+       rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+References: <200608281003.02757.ak@suse.de> <200608281028.13652.ak@suse.de> <1156754436.5340.20.camel@pmac.infradead.org>
+In-Reply-To: <1156754436.5340.20.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200608281053.11142.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-asm/serial.h is supposed to contain the definitions for the architecture
-specific 8250 ports for the 8250 driver.  It may also define BASE_BAUD,
-but this is the base baud for the architecture specific ports _only_.
 
-Therefore, nothing other than the 8250 driver should be including this
-header file.  In order to move towards this goal, here is a patch which
-removes some of the more obvious incorrect includes of the file.
 
-MIPS and PPC has rather a lot of stuff in asm/serial.h, some of it looks
-related to non-8250 ports.  Hence, it's not trivial to conclude that
-these includes are indeed unnecessary, so can mips and ppc people please
-test this patch carefully.
+> /usr/include/linux is _not_ a place to dump "reference code" in lieu of
+> documentation on using kernel interfaces.
 
-Thanks.
+At least for the system call interface it was always. It is not
+my fault you're trying to suddenly redefine it to be something else.
 
-diff --git a/arch/frv/kernel/setup.c b/arch/frv/kernel/setup.c
---- a/arch/frv/kernel/setup.c
-+++ b/arch/frv/kernel/setup.c
-@@ -31,7 +31,6 @@
- #include <linux/serial_reg.h>
- 
- #include <asm/setup.h>
--#include <asm/serial.h>
- #include <asm/irq.h>
- #include <asm/sections.h>
- #include <asm/pgalloc.h>
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -54,7 +54,6 @@
- #include <asm/processor.h>
- #include <asm/sal.h>
- #include <asm/sections.h>
--#include <asm/serial.h>
- #include <asm/setup.h>
- #include <asm/smp.h>
- #include <asm/system.h>
-diff --git a/arch/mips/cobalt/setup.c b/arch/mips/cobalt/setup.c
---- a/arch/mips/cobalt/setup.c
-+++ b/arch/mips/cobalt/setup.c
-@@ -23,7 +23,6 @@
- #include <asm/processor.h>
- #include <asm/reboot.h>
- #include <asm/gt64120.h>
--#include <asm/serial.h>
- 
- #include <asm/mach-cobalt/cobalt.h>
- 
-diff --git a/arch/mips/lasat/setup.c b/arch/mips/lasat/setup.c
---- a/arch/mips/lasat/setup.c
-+++ b/arch/mips/lasat/setup.c
-@@ -34,7 +34,6 @@
- #include <asm/cpu.h>
- #include <asm/bootinfo.h>
- #include <asm/irq.h>
--#include <asm/serial.h>
- #include <asm/lasat/lasat.h>
- #include <asm/lasat/serial.h>
- 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -51,7 +51,6 @@
- #include <asm/system.h>
- #include <asm/rtas.h>
- #include <asm/iommu.h>
--#include <asm/serial.h>
- #include <asm/cache.h>
- #include <asm/page.h>
- #include <asm/mmu.h>
-diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
---- a/arch/powerpc/kernel/setup_32.c
-+++ b/arch/powerpc/kernel/setup_32.c
-@@ -38,7 +38,6 @@
- #include <asm/nvram.h>
- #include <asm/xmon.h>
- #include <asm/time.h>
--#include <asm/serial.h>
- #include <asm/udbg.h>
- 
- #include "setup.h"
-diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -51,7 +51,6 @@
- #include <asm/system.h>
- #include <asm/rtas.h>
- #include <asm/iommu.h>
--#include <asm/serial.h>
- #include <asm/cache.h>
- #include <asm/page.h>
- #include <asm/mmu.h>
-diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
---- a/drivers/char/pcmcia/synclink_cs.c
-+++ b/drivers/char/pcmcia/synclink_cs.c
-@@ -57,7 +57,6 @@
- #include <linux/netdevice.h>
- #include <linux/vmalloc.h>
- #include <linux/init.h>
--#include <asm/serial.h>
- #include <linux/delay.h>
- #include <linux/ioctl.h>
- 
-diff --git a/drivers/char/synclink.c b/drivers/char/synclink.c
---- a/drivers/char/synclink.c
-+++ b/drivers/char/synclink.c
-@@ -87,7 +87,6 @@
- 
- #include <linux/vmalloc.h>
- #include <linux/init.h>
--#include <asm/serial.h>
- 
- #include <linux/delay.h>
- #include <linux/ioctl.h>
-diff --git a/drivers/serial/m32r_sio.c b/drivers/serial/m32r_sio.c
---- a/drivers/serial/m32r_sio.c
-+++ b/drivers/serial/m32r_sio.c
-@@ -76,17 +76,16 @@
-  */
- #define is_real_interrupt(irq)	((irq) != 0)
- 
--#include <asm/serial.h>
-+#define BASE_BAUD	115200
- 
- /* Standard COM flags */
- #define STD_COM_FLAGS (UPF_BOOT_AUTOCONF | UPF_SKIP_TEST)
- 
- /*
-  * SERIAL_PORT_DFNS tells us about built-in ports that have no
-  * standard enumeration mechanism.   Platforms that can find all
-  * serial ports via mechanisms like ACPI or PCI need not supply it.
-  */
--#undef SERIAL_PORT_DFNS
- #if defined(CONFIG_PLAT_USRV)
- 
- #define SERIAL_PORT_DFNS						\
-@@ -109,7 +108,7 @@
- #endif /* !CONFIG_PLAT_USRV */
- 
- static struct old_serial_port old_serial_port[] = {
--	SERIAL_PORT_DFNS	/* defined in asm/serial.h */
-+	SERIAL_PORT_DFNS
- };
- 
- #define UART_NR	ARRAY_SIZE(old_serial_port)
+> 
+> Besides, the _syscallX implementations in the kernel were generally
+> unsuitable for use 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I disagree. I used them and they worked great for me.
+
+> in that way anyway -- I'd be much more inclined to 
+> rely on the libc version. The kernel version would do strange things
+> like break with PIC code by using an unavailable register (i386),
+> misalign 64-bit syscall arguments on 32-bit machines (MIPS), etc. 
+
+The glibc versions would do similar things. Just try to use a 6 argument
+call on i386 for once.
+
+-Andi

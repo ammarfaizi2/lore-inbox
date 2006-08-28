@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWH1CzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWH1C75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWH1CzT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWH1CzT
+	id S932376AbWH1C75 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 22:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWH1C75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:55:19 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:57145 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932365AbWH1CzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:55:17 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: Is stopmachine() preempt safe? 
-In-reply-to: Your message of "Mon, 28 Aug 2006 09:38:55 +1000."
-             <1156721935.10467.1.camel@localhost.localdomain> 
+	Sun, 27 Aug 2006 22:59:57 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:12736 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932372AbWH1C74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 22:59:56 -0400
+Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
+From: Nicholas Miell <nmiell@comcast.net>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+In-Reply-To: <44F208A5.4050308@redhat.com>
+References: <11564996832717@2ka.mipt.ru>  <44F208A5.4050308@redhat.com>
+Content-Type: text/plain
+Date: Sun, 27 Aug 2006 19:59:37 -0700
+Message-Id: <1156733977.2358.31.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 28 Aug 2006 12:55:18 +1000
-Message-ID: <16193.1156733718@ocs10w.ocs.com.au>
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell (on Mon, 28 Aug 2006 09:38:55 +1000) wrote:
->On Sun, 2006-08-27 at 19:42 +1000, Keith Owens wrote:
->> I cannot convince myself that stopmachine() is preempt safe.  What
->> prevents this race with CONFIG_PREEMPT=y?
->
->Nothing.  Read side is preempt_disable.  Write side is stopmachine.
+On Sun, 2006-08-27 at 14:03 -0700, Ulrich Drepper wrote:
 
-That is very worrying.  The whole point of stopmachine is to get all
-cpus to a known state with no locally cached global data, so the caller
-of stopmachine can safely fiddle with some global data (like updating
-the module lists).  But CONFIG_PREEMPT defeats this and turns any code
-that relies on stopmachine into a race.
+[ note: there was lots of good stuff that I cut out because it was a
+long email and I'm only replying to some of its points ]
 
-What we need is either a scheduler flag or a new task state to be
-assigned to the kstopmachine threads.  That indicator says
+> Events to wait for are basically all those with syscalls which can
+> potentially block indefinitely:
+> 
+> - file descriptor
+> - POSIX message queues (these are in fact file descriptors but
+>   let's make it legitimate)
+> - timer expiration
+> - signals (just as sigwait, not normal delivery instead of a handler)
 
-  If the current state is not preempt active then schedule me.
+For some of them (like SIGTERM), delivery to a kevent queue would
+actually make sense.
 
-  If the current state is preempt active then put me back in the active
-  queue.
+> The ring buffer interface is not described in Nicholas' description.
 
-  While the runqueue contains at least one task with this flag then
-  ignore reschedule on irq and prempt_enable.
+I wasn't even aware there was a ring-buffer interface in the proposed
+patches. Another reason why the onus of documenting a patch is on the
+originator: the random nobody who ends up doing the documenting may
+screw it up.
 
-That will ensure that the kstopmachine threads get scheduled as soon as
-possible but only when all the preempted tasks have got to a clean stop
-point, e.g. sleep or yield.  At which point they have no locally cached
-global data, making stopmachine race safe again.
+> Which brings me to the second point about the current kevent_get_events
+> syscall.  I don't think the min_nr parameter is useful.  Probably we
+> should not even allow the kevent queue to be used with different max_nr
+> parameters in different thread.  If you'd allow this, how would the
+> event notification be handled?  A waiter with a smaller required number
+> of events would always be woken first.  I think the number of required
+> events should be a property of the kevent object.  Then the code would
+> create different kevent object if the requirement is different.  At the
+> very least I'd declare it an error if at any time there are two or more
+> threads delayed which have different requirements on the number of
+> events.  This could provide all the flexibility needed while preventing
+> some of the mistakes one can make.
+
+I was thinking about this, and it's even worse in the case where a
+kevent fd is shared by different processes (either by forking or by
+passing it via PF_UNIX sockets).
+
+What happens when you queue an AIO completion to a shared kevent queue?
+(The AIO read only happened in one address space, or did it? What if the
+read was to a shared memory region? What if the memory region is shared,
+but mapped at different addresses? What if not all of the processes
+involved have that AIO fd open?)
+
+Also complicated is the case where waiting threads have different
+priorities, different timeouts, and different minimum event counts --
+how do you decide which thread gets events first? What if the decisions
+are different depending on whether you want to maximize throughput or
+interactivity?
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

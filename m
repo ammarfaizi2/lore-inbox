@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWH1S2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWH1Sau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWH1S2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 14:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWH1S2w
+	id S1750903AbWH1Sau (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 14:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWH1Sau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 14:28:52 -0400
-Received: from stinky.trash.net ([213.144.137.162]:20945 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750930AbWH1S2v
+	Mon, 28 Aug 2006 14:30:50 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:16795 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750903AbWH1Sat
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 14:28:51 -0400
-Message-ID: <44F335DE.5030307@trash.net>
-Date: Mon, 28 Aug 2006 20:28:46 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Mon, 28 Aug 2006 14:30:49 -0400
+Message-ID: <44F335C8.7020108@zytor.com>
+Date: Mon, 28 Aug 2006 11:28:24 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: gerrit@erg.abdn.ac.uk
-CC: davem@davemloft.net, jmorris@namei.org, alan@lxorguk.ukuu.org.uk,
-       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, kaber@coreworks.de,
-       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCHv2 2.6.18-rc4-mm3 3/3] net/ipv4:  misc. support files
-References: <200608231150.37895@strip-the-willow> <39e6f6c70608280548p5ba363d7o18cfd3bdb2f9e894@mail.gmail.com> <200608281513.49959@strip-the-willow> <200608281910.50647@strip-the-willow>
-In-Reply-To: <200608281910.50647@strip-the-willow>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johninsd@san.rr.com, Matt_Domsch@dell.com
+Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+ (ping)
+References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de>	 <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de>	 <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com>	 <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com>
+In-Reply-To: <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gerrit@erg.abdn.ac.uk wrote:
-> [Net/IPv4]: REVISED Miscellaneous changes which complete the 
->             v4 support for UDP-Lite.
+Alon Bar-Lev wrote:
+> On 8/28/06, H. Peter Anvin <hpa@zytor.com> wrote:
+>> Totally pointless since we're in 16-bit mode (as is the "incl %esi")...
+>> I guess it's "better" in the sense that if we run out of that we'll
+>> crash due to a segment overrun... maybe (some BIOSes leave us
+>> unknowningly in big real mode...)
+> 
+> So leave as is? Loading address into esi and reference as si?
+> Or modify the whole code to use 16 bits?
 > 
 
-> --- a/include/net/xfrm.h
-> +++ b/include/net/xfrm.h
-> @@ -467,6 +467,7 @@ u16 xfrm_flowi_sport(struct flowi *fl)
->  	switch(fl->proto) {
->  	case IPPROTO_TCP:
->  	case IPPROTO_UDP:
-> +	case IPPROTO_UDPLITE:
->  	case IPPROTO_SCTP:
->  		port = fl->fl_ip_sport;
->  		break;
-> @@ -492,6 +493,7 @@ u16 xfrm_flowi_dport(struct flowi *fl)
->  	switch(fl->proto) {
->  	case IPPROTO_TCP:
->  	case IPPROTO_UDP:
-> +	case IPPROTO_UDPLITE:
->  	case IPPROTO_SCTP:
->  		port = fl->fl_ip_dport;
->  		break;
+Probably modifying the whole code to use 16 bits, unless there is a 
+specific reason not to (Matt?)
 
-You also need to adapt _decode_session[46] in xfrm[46]_policy.c for
-IPsec. While you're at it you might consider adjusting xt_tcpudp,
-xt_multiport, ipt_LOG and ip6t_LOG as well to get some basic
-netfilter support. I'm going to take care of connection tracking
-and NAT once this is in mainline.
+	-hpa
 

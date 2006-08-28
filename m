@@ -1,51 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWH1PiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWH1Pjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWH1PiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 11:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWH1PiG
+	id S1751136AbWH1Pjc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 11:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWH1Pjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 11:38:06 -0400
-Received: from 70-90-12-177-BusName-hershey.pa.panjde.hfc.comcastbusiness.net ([70.90.12.177]:15379 "EHLO o0cpce.iuuxn3ji.ameritech.net")
-	by vger.kernel.org with ESMTP id S1750903AbWH1PiE (ORCPT
+	Mon, 28 Aug 2006 11:39:32 -0400
+Received: from xenotime.net ([66.160.160.81]:58851 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751136AbWH1Pjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 11:38:04 -0400
-Message-ID: <50405871216389.F02CE79C92@TGJ6>
-From: "annunciate" <annunciate.authenticate@rovseamor.com>
-To: <linux-laptop@vger.kernel.org>
-Subject: Credits situation
-Date: Mon, 28 Aug 2006 11:37:46 -0400
-MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: Nf3RiUzHI5FBDcmmQDvjnAxh9YR9fTszUO6A
-Content-Type: text/plain;
-        charset="Windows-1252"
+	Mon, 28 Aug 2006 11:39:31 -0400
+Date: Mon, 28 Aug 2006 08:42:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
+Message-Id: <20060828084247.38107d15.rdunlap@xenotime.net>
+In-Reply-To: <44F2EF90.9050603@gmail.com>
+References: <44F2EF90.9050603@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear member. 
+On Mon, 28 Aug 2006 21:28:48 +0800 Yi Yang wrote:
 
-Your credit doesn't matter to us!
-If you OWN real estate and want IMMEDIATE cash to spend ANY way you 
-like, or simply wish to LOWER your monthly payments by a third or more, here are the deals we have TODAY:
+> In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
+> and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
+> does know them, I think the correct errno should be -EOPNOTSUPP which
+> means they aren't be implemented or supported.
+> 
+> >From the kernel source code, we can see they can be supported without
+> any code modification if a specific filesystem implements aio_fsync.
+> 
+> Another obvious problem is the function aio_fsync is as same as the
+> function aio_fdsync, so they are duplicate, only one is enough.
+> 
+> Here this patch is.
+> 
+gmail ate all of the tabs, maybe other whitespace problems.
 
-$488,000.00 at a 3.67% fixed-rate
-$372,000.00 at a 3.90% variable-rate
-$492,000.00 at a 3.21% interest-only
-$248,000.00 at a 3.36% fixed-rate
-$198,000.00 at a 3.55% variable-rate
+> 
+> --- a/fs/aio.c.orig 2006-08-28 15:15:18.000000000 +0800
+> +++ b/fs/aio.c 2006-08-28 15:33:59.000000000 +0800
+> @@ -1363,20 +1363,10 @@ static ssize_t aio_pwrite(struct kiocb *
+> return ret;
+> }
+> 
+> -static ssize_t aio_fdsync(struct kiocb *iocb)
+> -{
+> - struct file *file = iocb->ki_filp;
+> - ssize_t ret = -EINVAL;
+> -
+> - if (file->f_op->aio_fsync)
+> - ret = file->f_op->aio_fsync(iocb, 1);
+> - return ret;
+> -}
+> -
+> static ssize_t aio_fsync(struct kiocb *iocb)
+> {
+> struct file *file = iocb->ki_filp;
+> - ssize_t ret = -EINVAL;
+> + ssize_t ret = -EOPNOTSUPP;
+> 
+> if (file->f_op->aio_fsync)
+> ret = file->f_op->aio_fsync(iocb, 0);
+> @@ -1425,12 +1415,12 @@ static ssize_t aio_setup_iocb(struct kio
+> kiocb->ki_retry = aio_pwrite;
+> break;
+> case IOCB_CMD_FDSYNC:
+> - ret = -EINVAL;
+> + ret = -EOPNOTSUPP;
+> if (file->f_op->aio_fsync)
+> - kiocb->ki_retry = aio_fdsync;
+> + kiocb->ki_retry = aio_fsync;
+> break;
+> case IOCB_CMD_FSYNC:
+> - ret = -EINVAL;
+> + ret = -EOPNOTSUPP;
+> if (file->f_op->aio_fsync)
+> kiocb->ki_retry = aio_fsync;
+> break;
+> -
 
-Hurry, we have requests limits, so when these deals are gone, they are 
-gone!
-
-We have one-mimute form to apply the request,
-please CLICK HERE
-
-http://D83PX.yourcreditpartner.biz/?ncache=103622
-
-Don't worry about approval, your credit will not disqualify you!
-
-Approval Manager.
-
-
+---
+~Randy

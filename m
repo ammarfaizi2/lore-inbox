@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWH1Tdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWH1TlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWH1Tdv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 15:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWH1Tdv
+	id S1751380AbWH1TlY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 15:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWH1TlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 15:33:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48034 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751368AbWH1Tdu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 15:33:50 -0400
-Date: Mon, 28 Aug 2006 12:33:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: "Miles Lane" <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: 2.6.18-rc4-mm3 -- intel8x0 audio busted
-Message-Id: <20060828123344.fc580902.akpm@osdl.org>
-In-Reply-To: <p737j0s7kad.fsf@verdi.suse.de>
-References: <a44ae5cd0608262355q51279259lc6480f229e520fd5@mail.gmail.com>
-	<s5hac5o7v47.wl%tiwai@suse.de>
-	<20060828114939.90341479.akpm@osdl.org>
-	<p737j0s7kad.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 28 Aug 2006 15:41:24 -0400
+Received: from mga07.intel.com ([143.182.124.22]:46489 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751380AbWH1TlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 15:41:22 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="scan'208"; a="108704765:sNHT19429312"
+Date: Mon, 28 Aug 2006 12:41:02 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Val Henson <val.henson@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ron Yorston <rmy@tigress.co.uk>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Mingming Cao <cmm@us.ibm.com>
+Subject: Re: [PATCH] ext2: avoid needless discard of preallocated blocks
+Message-ID: <20060828194100.GF25003@goober>
+References: <200608171945.k7HJjaLk029781@tiffany.internal.tigress.co.uk> <20060819224603.bf687be2.akpm@osdl.org> <200608201148.k7KBm8XA005948@tiffany.internal.tigress.co.uk> <1156087499.23756.39.camel@laptopd505.fenrus.org> <70b6f0bf0608200833r46305438x783e62b4827db0ef@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <70b6f0bf0608200833r46305438x783e62b4827db0ef@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Aug 2006 21:05:46 +0200
-Andi Kleen <ak@suse.de> wrote:
-
-> Andrew Morton <akpm@osdl.org> writes:
+On Sun, Aug 20, 2006 at 08:33:29AM -0700, Val Henson wrote:
+> On 8/20/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> >maybe porting the reservation code to ext2 (as Val has done) is a nicer
+> >long term solution..
 > 
-> > 
-> > No, they're just a little warning we put in there to find out how
-> > removeable sys_sysctl() is.  (Answer: not very.  I'll drop that patch).
+> The even nicer solution long term solution is to abstract out the
+> reservation code as much as possible and share it.   But if you want
+> my (hasty and unlovely) port, you can grab it out of this patch:
 > 
-> I made the same experiment some time ago -- all of them use only a single
-> sysctl (KERN_VERSION). If that one is emulated there are basically no users 
-> left. I can resend a patch to warn only for those that are not KERN_VERSION
-> if there is interest.
-> 
+> http://infohost.nmt.edu/~val/patches/fswide_latest_patch
 
-Yes, that would be useful, thanks.
+As it turns out, I already split it out:
 
-Eric, it sounds like one way to settle this would be to keep sys_sysctl()
-if CONFIG_SYSCTL_SYSCALL=n, but only a stripped-down version which supports
-KERN_VERSION.  And which spits a once-per-boot warning so people stop using
-it one day.
+http://infohost.nmt.edu/~val/patches/resv_only_patch
 
-Or we give up and go do something else.  This is all a bit of a pita.
+I added this to the Easy File System Projects wiki:
 
+http://linuxfs.pbwiki.com/EasyFsProjects
+
+-VAL

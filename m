@@ -1,55 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWH1JPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWH1JU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWH1JPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 05:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWH1JPY
+	id S932373AbWH1JU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 05:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWH1JU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 05:15:24 -0400
-Received: from rosi.naasa.net ([212.8.0.13]:41401 "EHLO rosi.naasa.net")
-	by vger.kernel.org with ESMTP id S932353AbWH1JPX (ORCPT
+	Mon, 28 Aug 2006 05:20:26 -0400
+Received: from mx2.suse.de ([195.135.220.15]:61626 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932373AbWH1JUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 05:15:23 -0400
-From: Joerg Platte <lists@naasa.net>
-Reply-To: jplatte@naasa.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.17.11: soft lockup detected on CPU#0
-Date: Mon, 28 Aug 2006 11:15:20 +0200
-User-Agent: KMail/1.9.4
+	Mon, 28 Aug 2006 05:20:25 -0400
+Message-ID: <44F2B557.6020403@suse.de>
+Date: Mon, 28 Aug 2006 11:20:23 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200608281115.20692.lists@naasa.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andreas Kleen <ak@suse.de>
+Subject: [patch] fix up smp alternatives on x86-64
+Content-Type: multipart/mixed;
+ boundary="------------050906040207010302050700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------050906040207010302050700
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I'm regulary suspending my notebook. After resume skype typically produces a 
-lot of processor load when trying to call somebody and I have to restart it 
-to make it work again. Today, with a new kernel, skype seems to cause a soft 
-lockup resulting in a freeze for a few seconds:
+Don't use alternative_smp() in for __raw_spin_lock.  gcc
+sometimes generates rip-relative addressing, so we can't
+simply copy the instruction to another place.
 
-BUG: soft lockup detected on CPU#0!
- <c012dd51> softlockup_tick+0x85/0x99  <c011b6d4> 
-update_process_times+0x35/0x57
- <c01053b1> timer_interrupt+0x3e/0x69  <c012ddee> handle_IRQ_event+0x23/0x4c
- <c012de8f> __do_IRQ+0x78/0xd1  <c01042cb> do_IRQ+0x19/0x24
- <c0102cae> common_interrupt+0x1a/0x20
-BUG: soft lockup detected on CPU#0!
- <c012dd51> softlockup_tick+0x85/0x99  <c011b6d4> 
-update_process_times+0x35/0x57
- <c01053b1> timer_interrupt+0x3e/0x69  <c012ddee> handle_IRQ_event+0x23/0x4c
- <c012de8f> __do_IRQ+0x78/0xd1  <c01042cb> do_IRQ+0x19/0x24
- <c0102cae> common_interrupt+0x1a/0x20
+Replace some leftover "lock;" with LOCK_PREFIX.
 
-I know, skype is closed source and cannot be debugged, but even a closed 
-source userland program should not be able to cause a lockup. Is the 
-information given above useful to find the problem inside the kernel? If not, 
-what can I do to provide better debug information? I'm using a vanilla 
-2.6.17.11 kernel: 
-Linux ibm 2.6.17.11 #1 PREEMPT Sat Aug 26 18:55:43 CEST 2006 i686 GNU/Linux
+Fillup space with 0x90 (nop) instead of 0x42, so
+"objdump -d -j .smp_altinstr_replacement vmlinux" gives more
+readable results.
 
-regards,
-Jörg
+-- 
+Gerd Hoffmann <kraxel@suse.de>
+http://www.suse.de/~kraxel/julika-dora.jpeg
+
+--------------050906040207010302050700
+Content-Type: text/plain;
+ name="smpalt-fixup"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="smpalt-fixup"
+
+Subject: fix up smp alternatives on x86-64
+
+Don't use alternative_smp() in for __raw_spin_lock.  gcc
+sometimes generates rip-relative addressing, so we can't
+simply copy the instruction to another place.
+
+Replace some leftover "lock;" with LOCK_PREFIX.
+
+Fillup space with 0x90 (nop) instead of 0x42, so
+"objdump -d -j .smp_altinstr_replacement vmlinux" gives more
+readable results.
+
+Signed-off-by: Gerd Hoffmann <kraxel@suse.de>
+Index: linux-2.6.17/include/asm-i386/alternative.h
+===================================================================
+--- linux-2.6.17.orig/include/asm-i386/alternative.h	2006-08-28 10:21:18.000000000 +0200
++++ linux-2.6.17/include/asm-i386/alternative.h	2006-08-28 10:22:59.000000000 +0200
+@@ -122,7 +122,7 @@ static inline void alternatives_smp_swit
+ 		      ".previous\n"					\
+ 		      ".section .smp_altinstr_replacement,\"awx\"\n"   	\
+ 		      "663:\n\t" upinstr "\n"     /* replacement */	\
+-		      "664:\n\t.fill 662b-661b,1,0x42\n" /* space for original */ \
++		      "664:\n\t.fill 662b-661b,1,0x90\n" /* space for original */ \
+ 		      ".previous" : args)
+ 
+ #define LOCK_PREFIX \
+Index: linux-2.6.17/include/asm-x86_64/alternative.h
+===================================================================
+--- linux-2.6.17.orig/include/asm-x86_64/alternative.h	2006-08-28 10:21:21.000000000 +0200
++++ linux-2.6.17/include/asm-x86_64/alternative.h	2006-08-28 10:23:13.000000000 +0200
+@@ -136,7 +136,7 @@ static inline void alternatives_smp_swit
+ 		      ".previous\n"					\
+ 		      ".section .smp_altinstr_replacement,\"awx\"\n"	\
+ 		      "663:\n\t" upinstr "\n"     /* replacement */	\
+-		      "664:\n\t.fill 662b-661b,1,0x42\n" /* space for original */ \
++		      "664:\n\t.fill 662b-661b,1,0x90\n" /* space for original */ \
+ 		      ".previous" : args)
+ 
+ #define LOCK_PREFIX \
+Index: linux-2.6.17/include/asm-x86_64/spinlock.h
+===================================================================
+--- linux-2.6.17.orig/include/asm-x86_64/spinlock.h	2006-08-28 10:21:21.000000000 +0200
++++ linux-2.6.17/include/asm-x86_64/spinlock.h	2006-08-28 11:07:14.000000000 +0200
+@@ -21,7 +21,7 @@
+ 
+ #define __raw_spin_lock_string \
+ 	"\n1:\t" \
+-	"lock ; decl %0\n\t" \
++	LOCK_PREFIX "decl %0\n\t" \
+ 	"js 2f\n" \
+ 	LOCK_SECTION_START("") \
+ 	"2:\t" \
+@@ -40,10 +40,18 @@
+ 
+ static inline void __raw_spin_lock(raw_spinlock_t *lock)
+ {
++#if 0
++	/* gcc sometimes uses %(rip) addressing, so we can't
++	 * simply move around instructions ... */
+ 	alternative_smp(
+ 		__raw_spin_lock_string,
+ 		__raw_spin_lock_string_up,
+ 		"=m" (lock->slock) : : "memory");
++#else
++	__asm__ __volatile__(
++		__raw_spin_lock_string
++		: "=m" (lock->slock) : : "memory");
++#endif
+ }
+ 
+ #define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
+@@ -125,12 +133,12 @@ static inline int __raw_write_trylock(ra
+ 
+ static inline void __raw_read_unlock(raw_rwlock_t *rw)
+ {
+-	asm volatile("lock ; incl %0" :"=m" (rw->lock) : : "memory");
++	asm volatile(LOCK_PREFIX "incl %0" :"=m" (rw->lock) : : "memory");
+ }
+ 
+ static inline void __raw_write_unlock(raw_rwlock_t *rw)
+ {
+-	asm volatile("lock ; addl $" RW_LOCK_BIAS_STR ",%0"
++	asm volatile(LOCK_PREFIX "lock ; addl $" RW_LOCK_BIAS_STR ",%0"
+ 				: "=m" (rw->lock) : : "memory");
+ }
+ 
+
+--------------050906040207010302050700--

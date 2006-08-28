@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWH1Un2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWH1Uqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWH1Un2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 16:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWH1Un2
+	id S932079AbWH1Uqf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 16:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWH1Uqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 16:43:28 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:33412 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751503AbWH1Un1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 16:43:27 -0400
-Message-ID: <44F3555F.6060306@zytor.com>
-Date: Mon, 28 Aug 2006 13:43:11 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Alon Bar-Lev <alon.barlev@gmail.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com> <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com> <44F335C8.7020108@zytor.com> <20060828184637.GD13464@lists.us.dell.com> <44F33D55.4080704@zytor.com> <20060828201223.GE13464@lists.us.dell.com>
-In-Reply-To: <20060828201223.GE13464@lists.us.dell.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 16:46:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50585 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932079AbWH1Uqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 16:46:35 -0400
+Date: Mon, 28 Aug 2006 21:46:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Paul E McKenney <paulmck@us.ibm.com>
+Subject: Re: [PATCH 3/4] RCU: preemptible RCU implementation
+Message-ID: <20060828204611.GB719@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	Paul E McKenney <paulmck@us.ibm.com>
+References: <20060828160845.GB3325@in.ibm.com> <20060828161222.GE3325@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060828161222.GE3325@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
-> On Mon, Aug 28, 2006 at 12:00:37PM -0700, H. Peter Anvin wrote:
->> Matt Domsch wrote:
->>> No reason.  I was just trying to be careful, not leaving data in the
->>> upper bits of those registers going uninitialized.  If we know they're
->>> not being used ever, then it's not a problem.  But I don't think
->>> that's the source of the command line size concern, is it?
->>>
->> No, it's treating the command line as a fixed buffer, as opposed to a 
->> null-terminated string.  This was always a bug, by the way.
+On Mon, Aug 28, 2006 at 09:42:22PM +0530, Dipankar Sarma wrote:
+> From: Paul McKenney <paulmck@us.ibm.com>
 > 
-> OK, I'll look at fixing that, and using %esi throughout.
+> This patch implements a new version of RCU which allows its read-side
+> critical sections to be preempted. It uses a set of counter pairs
+> to keep track of the read-side critical sections and flips them
+> when all tasks exit read-side critical section. The details
+> of this implementation can be found in this paper -
 > 
+> http://www.rdrop.com/users/paulmck/RCU/OLSrtRCU.2006.08.11a.pdf
+> 
+> This patch was developed as a part of the -rt kernel
+> development and meant to provide better latencies when
+> read-side critical sections of RCU don't disable preemption.
+> As a consequence of keeping track of RCU readers, the readers
+> have a slight overhead (optimizations in the paper).
+> This implementation co-exists with the "classic" RCU
+> implementations and can be switched to at compiler.
 
-There is a lot of weirdness in this code; it's broken in an enormous 
-amount of ways (sorry, Matt).  This comment, for example:
+NACK.  While a readers can sleep rcu version definitly has it's
+we should make it all or nothing.  Either we always gurantee that
+a rcu reader can sleep or never without external patches.  Having
+this a config option is the ultimate defeat for any kind of bug
+reproducabilility.
 
-	pushl	%esi
-     	cmpl	$0, %cs:cmd_line_ptr
-	jz	done_cl
-	movl	%cs:(cmd_line_ptr), %esi
-# ds:esi has the pointer to the command line now
+Please make the patch undconditional and see if it doesn't cause
+any significant slowdowns in production-like scenaries and then
+we can switch over to the readers can sleep variant unconditionally
+at some point.
 
-... doesn't handle the old boot protocol, and doesn't at all deal with 
-the fact that cmd_line_ptr is an absolute address, and not at all 
-relative to SETUPSEG, which is the normal value for %ds at this point. 
-For the old protocol, this is a 16-bit pointer which is relative to 
-INITSEG (not SETUPSEG), but this code just completely ignores it.
-
-I'll hack up a patch for this.
-
-	-hpa

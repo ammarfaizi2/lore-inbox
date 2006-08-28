@@ -1,103 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWH1MuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWH1MxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWH1MuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 08:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWH1MuL
+	id S1750766AbWH1MxO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 08:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWH1MxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 08:50:11 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:30160 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750751AbWH1MuJ
+	Mon, 28 Aug 2006 08:53:14 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:18324 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750766AbWH1MxN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 08:50:09 -0400
-Date: Mon, 28 Aug 2006 07:50:06 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Julio Auto <mindvortex@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Solar Designer <solar@openwall.com>,
-       Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [PATCH] loop.c: kernel_thread() retval check - 2.6.17.9
-Message-ID: <20060828125006.GC8282@sergelap.austin.ibm.com>
-References: <18d709710608232341x491b4bf6g87f74ef830a203@mail.gmail.com> <20060828035556.GA27902@openwall.com> <20060827214141.db40620d.akpm@osdl.org> <18d709710608272203q740962rd0c3f2a3be95138b@mail.gmail.com>
+	Mon, 28 Aug 2006 08:53:13 -0400
+Date: Mon, 28 Aug 2006 18:22:41 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kirill Korotaev <dev@sw.ru>, Ingo Molnar <mingo@elte.hu>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 1/7] CPU controller V1 - split runqueue
+Message-ID: <20060828125241.GA30644@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <20060820174147.GB13917@in.ibm.com> <44EEEF28.4080707@sw.ru> <20060828033331.GA25119@in.ibm.com> <44F2A62C.9090609@sw.ru> <20060828110330.GA30090@in.ibm.com> <44F2E216.7090300@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <18d709710608272203q740962rd0c3f2a3be95138b@mail.gmail.com>
+In-Reply-To: <44F2E216.7090300@yahoo.com.au>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Julio Auto (mindvortex@gmail.com):
-> On 8/28/06, Andrew Morton <akpm@osdl.org> wrote:
-> >The plan is to stop using the deprecated kernel_thread() in loop 
-> >altogether.
-> >
-> >Please review
-> >
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/kthread-convert-loopc-to-kthread.patch
-> >
+On Mon, Aug 28, 2006 at 10:31:18PM +1000, Nick Piggin wrote:
+> I still haven't had much time to look at the implementation, but this
+> design seems cleanest I've considered, IMO.
 > 
-> Well, the reason behind this patch is just adding a little bit of
-> cleanup code (ie., cleaning the 'lo' object) to the case when the
-> kernel thread creation fails, regardless of what implementation
-> loop_set_fd() uses to accomplish this.
-> In fact, I think the concept it's still usable after applying the
-> patch you mentioned, since after changing kernel_thread() for
-> kthread_create(), the only cleanup code added is setting lo->lo_thread
-> to NULL.
+> Of course I would really hope we don't need any special casing in the
+> SMP balancing (which may be the tricky part). However hopefully if
+> things don't work well in that department, they can be made to by
+> improving the core code to be more general rather than special casing.
 > 
-> Cheers,
-> 
->    Julio Auto
+> Do you have a better (/another) idea for the design?
 
-The attached patch does the same resource checks in the kthread version
-from 2.6.18-rc4-mm2.
+I dont' know if it is a better idea - but I have been trying to
+experiment with some token-based system where task-groups run until
+exhausted out of their tokens. Of course, this will be work-conserving
+in the sense that expired task-groups continue running if there arent
+others who want to use their share. Token are renewed at periodic
+intervals. I believe that is how vserver scheduler works (though havent
+looked at their code).
 
-thanks,
--serge
+And I was thinking of using something similar to smpnice for
+load-balance purposes.
 
-Subject: [PATCH] loop: forward-port resource leak checks from Solar
+The main point here is that scheduling next-task-group decision is local
+to each CPU (very similar to how next-task is picked up currently), with
+some load-balance code expected to balance tasks/task-groups across all
+CPUs.
 
-Forward port of the patch by Solar and ported by Julio, ported
-to the -mm tree.
+In what Kirill is proposing, this "scheduling next-task-group decision"
+on each CPU perhaps takes a global view and because of the
+physical/virtual CPU separation, any CPU can be running any other CPU's
+tasks (smp_processor_id/get_cpu etc now returning virtual CPU number rather than
+the actual CPU on which they are running). Kirill is that description correct?
 
-Compiles, boots, and passes my looptorturetest.sh.
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-
----
-
- drivers/block/loop.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
-
-1a32f47ff67796d8ee8d088d3ba6f54e834e6004
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index ced8a78..c2e1862 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -826,13 +826,22 @@ static int loop_set_fd(struct loop_devic
- 						lo->lo_number);
- 	if (IS_ERR(lo->lo_thread)) {
- 		error = PTR_ERR(lo->lo_thread);
--		lo->lo_thread = NULL;
--		goto out_putf;
-+		goto out_clr;
- 	}
- 	lo->lo_state = Lo_bound;
- 	wake_up_process(lo->lo_thread);
- 	return 0;
- 
-+out_clr:
-+	lo->lo_thread = NULL;
-+	lo->lo_device = NULL;
-+	lo->lo_backing_file = NULL;
-+	lo->lo_flags = 0;
-+	set_capacity(disks[lo->lo_number], 0);
-+	invalidate_bdev(bdev, 0);
-+	bd_set_size(bdev, 0);
-+	mapping_set_gfp_mask(mapping, lo->old_gfp_mask);
-+	lo->lo_state = Lo_unbound;
-  out_putf:
- 	fput(file);
-  out:
 -- 
-1.1.6
+Regards,
+vatsa

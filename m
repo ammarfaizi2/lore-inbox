@@ -1,87 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWH1C75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWH1D27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWH1C75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 22:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWH1C75
+	id S932375AbWH1D27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 23:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWH1D27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 22:59:57 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:12736 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932372AbWH1C74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 22:59:56 -0400
-Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-In-Reply-To: <44F208A5.4050308@redhat.com>
-References: <11564996832717@2ka.mipt.ru>  <44F208A5.4050308@redhat.com>
-Content-Type: text/plain
-Date: Sun, 27 Aug 2006 19:59:37 -0700
-Message-Id: <1156733977.2358.31.camel@entropy>
+	Sun, 27 Aug 2006 23:28:59 -0400
+Received: from ms-smtp-02.socal.rr.com ([66.75.162.134]:1727 "EHLO
+	ms-smtp-02.socal.rr.com") by vger.kernel.org with ESMTP
+	id S932375AbWH1D27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 23:28:59 -0400
+Message-Id: <6.2.3.4.0.20060827202250.04911d70@pop-server.san.rr.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Sun, 27 Aug 2006 20:28:44 -0700
+To: "H. Peter Anvin" <hpa@zytor.com>
+From: John Coffman <johninsd@san.rr.com>
+Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
+  limit (ping)
+Cc: Andi Kleen <ak@suse.de>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johninsd@san.rr.com, Matt_Domsch@dell.com
+In-Reply-To: <44F21122.3030505@zytor.com>
+References: <445B5524.2090001@gmail.com>
+ <200608272116.23498.ak@suse.de>
+ <44F1F356.5030105@zytor.com>
+ <200608272254.13871.ak@suse.de>
+ <44F21122.3030505@zytor.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0634-2, 08/24/2006), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-27 at 14:03 -0700, Ulrich Drepper wrote:
+LILO memory usage:
 
-[ note: there was lots of good stuff that I cut out because it was a
-long email and I'm only replying to some of its points ]
+000600 - 001000 BIOS data check area.  Okay to overwrite.  LILO usage 
+suppressed with command line "nobd" option.  There's also a config 
+file option to suppress usage.
 
-> Events to wait for are basically all those with syscalls which can
-> potentially block indefinitely:
-> 
-> - file descriptor
-> - POSIX message queues (these are in fact file descriptors but
->   let's make it legitimate)
-> - timer expiration
-> - signals (just as sigwait, not normal delivery instead of a handler)
+LILO typically loads at 9000:0000 up to the top of the EBDA.  Top of 
+EBDA is determined by "int 12h."  Some BIOS's on add-in cards do not 
+properly allocate the EBDA.  Use LILO Makefile option "BUG_SI_EBDA" 
+to allocate extra EBDA for the BIOS.  If the BIOS data check area is 
+created at boot time by LILO, then:
 
-For some of them (like SIGTERM), delivery to a kevent queue would
-actually make sense.
+    >  lilo -T ebda
 
-> The ring buffer interface is not described in Nicholas' description.
+will tell you where LILO is loaded on your system.
 
-I wasn't even aware there was a ring-buffer interface in the proposed
-patches. Another reason why the onus of documenting a patch is on the
-originator: the random nobody who ends up doing the documenting may
-screw it up.
+--John
 
-> Which brings me to the second point about the current kevent_get_events
-> syscall.  I don't think the min_nr parameter is useful.  Probably we
-> should not even allow the kevent queue to be used with different max_nr
-> parameters in different thread.  If you'd allow this, how would the
-> event notification be handled?  A waiter with a smaller required number
-> of events would always be woken first.  I think the number of required
-> events should be a property of the kevent object.  Then the code would
-> create different kevent object if the requirement is different.  At the
-> very least I'd declare it an error if at any time there are two or more
-> threads delayed which have different requirements on the number of
-> events.  This could provide all the flexibility needed while preventing
-> some of the mistakes one can make.
 
-I was thinking about this, and it's even worse in the case where a
-kevent fd is shared by different processes (either by forking or by
-passing it via PF_UNIX sockets).
+At 02:39 PM  Sunday 8/27/2006, H. Peter Anvin wrote:
+>Andi Kleen wrote:
+>>On Sunday 27 August 2006 21:32, H. Peter Anvin wrote:
+>>>Andi Kleen wrote:
+>>>>Just increasing that constant caused various lilo setups to not boot
+>>>>anymore. I don't know who is actually to blame, just wanting to
+>>>>point out that this "obvious" patch isn't actually that obvious.
+>>>How would that even be possible (unless you recompiled LILO with 
+>>>the new headers)?  There would be no difference in the memory 
+>>>image at the point LILO hands off to the kernel.
+>>AFAIK the problem was that some EDD data got overwritten.
+>>
+>>>In order to reproduce this we need some details about your 
+>>>"various LILO setups", or this will remain as a source of cargo 
+>>>cult programming.
+>>You can search the mailing list archives, it's all in there if you don't
+>>belive me.
+>
+>Found the references.  This seems to imply that EDD overwrites the 
+>area used by LILO 22.6.1.  LILO 22.6.1 uses the new boot protocol, 
+>with the full pointer, and seems to obey the spec as far as I can 
+>read the code.  I'm going to try to run it in simulation and observe 
+>the failure that way.
+>
+>However, something is still seriously out of joint.  The EDD data 
+>actually overlays the setup code, not the bootsect code, and thus 
+>there "shouldn't" be any way that this could interfere.  My best 
+>guess at this time is that either the EDD code or LILO uses memory 
+>it's not supposed to use, and the simulation should hopefully reveal that.
+>
+>Sorry if I seem snarky on this, but if we can't get to the bottom of 
+>this we can't ever fix it.
+>
+>         -hpa
 
-What happens when you queue an AIO completion to a shared kevent queue?
-(The AIO read only happened in one address space, or did it? What if the
-read was to a shared memory region? What if the memory region is shared,
-but mapped at different addresses? What if not all of the processes
-involved have that AIO fd open?)
 
-Also complicated is the case where waiting threads have different
-priorities, different timeouts, and different minimum event counts --
-how do you decide which thread gets events first? What if the decisions
-are different depending on whether you want to maximize throughput or
-interactivity?
+         PGP KeyID: 6781C9C8  (good until 31-Dec-2008)
+         Keyserver at  ldap://keyserver.pgp.com  OR  http://pgp.mit.edu
+         LILO links at http://freshmeat.net/projects/lilo
+         and Help link at http://lilo.go.dyndns.org
 
--- 
-Nicholas Miell <nmiell@comcast.net>
 

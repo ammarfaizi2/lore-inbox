@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWH1TLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWH1TPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWH1TLs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 15:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWH1TLs
+	id S1751363AbWH1TPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 15:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWH1TPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 15:11:48 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:14246 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751350AbWH1TLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 15:11:47 -0400
-Date: Mon, 28 Aug 2006 19:09:11 +0000
-From: David Hollis <dhollis@davehollis.com>
-Subject: Re: [PATCH] mcs7830: clean up use of kernel constants
-In-reply-to: <200608272241.05026.arnd@arndb.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, support@moschip.com,
-       Michael Helmling <supermihi@web.de>
-Message-id: <1156792151.2699.8.camel@dhollis-lnx.sunera.com>
-MIME-version: 1.0
-X-Mailer: Evolution 2.7.92 (2.7.92-4.fc6)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-ipcfUTceK1wWdxQvIHYe"
-References: <200608071500.55903.arnd.bergmann@de.ibm.com>
-	<200608071811.09978.arnd.bergmann@de.ibm.com>
-	<200608202207.39709.arnd@arndb.de>  <200608272241.05026.arnd@arndb.de>
+	Mon, 28 Aug 2006 15:15:44 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:25474 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751363AbWH1TPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 15:15:43 -0400
+Subject: Re: Conversion to generic boolean
+From: Nicholas Miell <nmiell@comcast.net>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <44F2DEDC.3020608@student.ltu.se>
+References: <44EFBEFA.2010707@student.ltu.se>
+	 <20060828093202.GC8980@infradead.org>
+	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
+	 <44F2DEDC.3020608@student.ltu.se>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 12:15:40 -0700
+Message-Id: <1156792540.2367.2.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-08-28 at 14:17 +0200, Richard Knutsson wrote:
+> Jan Engelhardt wrote:
+> 
+> >>>Just would like to ask if you want patches for:
+> >>>      
+> >>>
+> >>Total NACK to any of this boolean ididocy.  I very much hope you didn't
+> >>get the impression you actually have a chance to get this merged.
+> >>
+> >>    
+> >>
+> >>>* (Most importent, may introduce bugs if left alone)
+> >>>Fixing boolean checking, ex:
+> >>>if (bool == FALSE)
+> >>>to
+> >>>if (!bool)
+> >>>      
+> >>>
+> >>this one of course makes sense, but please do it without introducing
+> >>any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
+> >>all scsi drivers to classic C integer as boolean semantics would be
+> >>very welcome janitorial work.
+> >>    
+> >>
+> >
+> >I don't get it. You object to the 'idiocy' 
+> >(http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
+> >a good thing?
+> >  
+> >
+> That is error-prone. Not "==FALSE" but what happens if x is (for some 
+> reason) not 1 and then "if (x==TRUE)".
 
---=-ipcfUTceK1wWdxQvIHYe
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+If you're using _Bool, that isn't possible. (Except at the boundaries
+where you have to validate untrusted data -- and the compiler makes that
+more difficult, because it "knows" that a _Bool can only be 0 or 1 and
+therefore your check to see if it's not 0 or 1 can "safely" be
+eliminated.)
 
-On Sun, 2006-08-27 at 22:41 +0200, Arnd Bergmann wrote:
-> This use the MII register constants provided
-> by the kernel instead of hardcoding numerical
-> values in the driver.
->=20
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-Acked-by: David Hollis <dhollis@davehollis.com>
-
---=20
-David Hollis <dhollis@davehollis.com>
-
---=-ipcfUTceK1wWdxQvIHYe
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD4DBQBE8z9XxasLqOyGHncRAvTmAJdPIXHUJvgHThy80b4NKwJpz14BAJ486wU/
-JlTQlC3/zlsfZ4PIn5tHVw==
-=Q+J1
------END PGP SIGNATURE-----
-
---=-ipcfUTceK1wWdxQvIHYe--
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

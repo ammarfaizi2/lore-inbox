@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWH1LxC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWH1MKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWH1LxC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWH1LxC
+	id S964819AbWH1MKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 08:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWH1MKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:53:02 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:24813 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964837AbWH1LxA convert rfc822-to-8bit
+	Mon, 28 Aug 2006 08:10:41 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:39355 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964819AbWH1MKk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:53:00 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4]
-Date: Mon, 28 Aug 2006 13:52:57 +0200
-User-Agent: KMail/1.9.1
-Cc: Sam Ravnborg <sam@ravnborg.org>, axboe@kernel.dk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060825200455.GA2629@uranus.ravnborg.org> <20060825193707.11384.97372.stgit@warthog.cambridge.redhat.com> <22040.1156537104@warthog.cambridge.redhat.com>
-In-Reply-To: <22040.1156537104@warthog.cambridge.redhat.com>
+	Mon, 28 Aug 2006 08:10:40 -0400
+Message-ID: <44F2DEDC.3020608@student.ltu.se>
+Date: Mon, 28 Aug 2006 14:17:32 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608281352.58281.arnd.bergmann@de.ibm.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+References: <44EFBEFA.2010707@student.ltu.se> <20060828093202.GC8980@infradead.org> <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 August 2006 22:18, David Howells wrote:
-> > > +ifeq ($(CONFIG_MMU),y)
-> > > +obj-y                      += bounce.o
-> > > +endif
-> > 
-> > CONFIG_MMU is a bool so you can do this much more elegant:
-> > obj-$(CONFIG_MMU) += bounce.o
-> 
-> In patch 18/18, this changes to:
-> 
->         ifeq ($(CONFIG_MMU)$(CONFIG_BLOCK),yy)
-> 
-> So the elegence in the end is irrelevant.
+Jan Engelhardt wrote:
 
-You could write it as
+>>>Just would like to ask if you want patches for:
+>>>      
+>>>
+>>Total NACK to any of this boolean ididocy.  I very much hope you didn't
+>>get the impression you actually have a chance to get this merged.
+>>
+>>    
+>>
+>>>* (Most importent, may introduce bugs if left alone)
+>>>Fixing boolean checking, ex:
+>>>if (bool == FALSE)
+>>>to
+>>>if (!bool)
+>>>      
+>>>
+>>this one of course makes sense, but please do it without introducing
+>>any boolean type.  Getting rid of all the TRUE/FALSE defines and converting
+>>all scsi drivers to classic C integer as boolean semantics would be
+>>very welcome janitorial work.
+>>    
+>>
+>
+>I don't get it. You object to the 'idiocy' 
+>(http://lkml.org/lkml/2006/7/27/281), but find the x==FALSE -> !x 
+>a good thing?
+>  
+>
+That is error-prone. Not "==FALSE" but what happens if x is (for some 
+reason) not 1 and then "if (x==TRUE)". There has been suggestions of doing:
+if (x != FALSE)
+or
+if (!x == !TRUE)
+but a simple "if (x)" is (in my opinion) the correct way.
 
-bounce-$(CONFIG_MMU) += bounce.o
-obj-$(CONFIG_BLOCK)  += $(bounce-y)
+Then that there is some objections booleans not being the "classical 
+C"-way, is another story.
 
-	Arnd <><
+>Jan Engelhardt
+>  
+>
+Richard Knutsson

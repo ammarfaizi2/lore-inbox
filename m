@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWH1Vsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWH1Vvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWH1Vsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 17:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWH1Vsy
+	id S932235AbWH1Vvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 17:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWH1Vvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 17:48:54 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:2962 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932202AbWH1Vsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 17:48:52 -0400
-Subject: Re: Reiser4 und LZO compression
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Edward Shishkin <edward@namesys.com>
-Cc: Stefan Traby <stefan@hello-penguin.com>, Hans Reiser <reiser@namesys.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <44F332D6.6040209@namesys.com>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-	 <44F322A6.9020200@namesys.com> <20060828173721.GA11332@hello-penguin.com>
-	 <44F332D6.6040209@namesys.com>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 07:48:25 +1000
-Message-Id: <1156801705.2969.6.camel@nigel.suspend2.net>
+	Mon, 28 Aug 2006 17:51:37 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:44757 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S932217AbWH1Vvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 17:51:35 -0400
+Date: Mon, 28 Aug 2006 17:49:01 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Akkana Peck <akkana@shallowsky.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@f00f.org>,
+       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [patch] Relative atime - userspace
+Message-ID: <20060828214901.GA24374@filer.fsl.cs.sunysb.edu>
+References: <20060825235215.820563000@linux.intel.com> <20060825235619.GB25003@goober>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060825235619.GB25003@goober>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Aug 25, 2006 at 04:56:19PM -0700, Valerie Henson wrote:
+>  #define MS_VERBOSE	0x8000	/* 32768 */
+...
+> +#define MS_RELATIME   0x200000	/* 200000: Update access times relative
 
-On Mon, 2006-08-28 at 22:15 +0400, Edward Shishkin wrote:
-> Stefan Traby wrote:
-> > On Mon, Aug 28, 2006 at 10:06:46AM -0700, Hans Reiser wrote:
-> > 
-> > 
-> >>Hmm.  LZO is the best compression algorithm for the task as measured by
-> >>the objectives of good compression effectiveness while still having very
-> >>low CPU usage (the best of those written and GPL'd, there is a slightly
-> >>better one which is proprietary and uses more CPU, LZRW if I remember
-> >>right.  The gzip code base uses too much CPU, though I think Edward made
-> > 
-> > 
-> > I don't think that LZO beats LZF in both speed and compression ratio.
-> > 
-> > LZF is also available under GPL (dual-licensed BSD) and was choosen in favor
-> > of LZO for the next generation suspend-to-disk code of the Linux kernel.
-> > 
-> > see: http://www.goof.com/pcg/marc/liblzf.html
-> > 
-> 
-> thanks for the info, we will compare them
+Just a small thing... 0x200000 != 200000
 
-For Suspend2, we ended up converting the LZF support to a cryptoapi
-plugin. Is there any chance that you could use cryptoapi modules? We
-could then have a hope of sharing the support.
+Josef "Jeff" Sipek.
 
-Regards,
-
-Nigel
-
+-- 
+Evolution, n.:
+  A hypothetical process whereby infinitely improbable events occur with
+  alarming frequency, order arises from chaos, and no one is given credit.

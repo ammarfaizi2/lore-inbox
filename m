@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWH1Srq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWH1Stq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWH1Srq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 14:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWH1Srq
+	id S1751205AbWH1Stq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 14:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWH1Stq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 14:47:46 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35777 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751329AbWH1Srp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 14:47:45 -0400
-Subject: Re: Strange transmit corruption in jsm driver on geode sc1200
-	system
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060828181141.GK13641@csclub.uwaterloo.ca>
-References: <20060825203047.GH13641@csclub.uwaterloo.ca>
-	 <1156540817.3007.270.camel@localhost.localdomain>
-	 <20060825210305.GL13639@csclub.uwaterloo.ca>
-	 <20060825212441.GC2246@martell.zuzino.mipt.ru>
-	 <20060825215724.GI13641@csclub.uwaterloo.ca>
-	 <20060828181141.GK13641@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 28 Aug 2006 20:09:38 +0100
-Message-Id: <1156792178.6271.46.camel@localhost.localdomain>
+	Mon, 28 Aug 2006 14:49:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18832 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751205AbWH1Stp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 14:49:45 -0400
+Date: Mon, 28 Aug 2006 11:49:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: "Miles Lane" <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc4-mm3 -- intel8x0 audio busted
+Message-Id: <20060828114939.90341479.akpm@osdl.org>
+In-Reply-To: <s5hac5o7v47.wl%tiwai@suse.de>
+References: <a44ae5cd0608262355q51279259lc6480f229e520fd5@mail.gmail.com>
+	<s5hac5o7v47.wl%tiwai@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-08-28 am 14:11 -0400, ysgrifennodd Lennart Sorensen:
-> Related to the SC1200, I notied cyrix.c doesn't actually know about the
-> SC1200 that we are using.  This one returs dir0_msn = 11, while cyrix.c
-> only knows about 0 through 5.  If I add 11 to the block handling geode
+On Mon, 28 Aug 2006 17:11:52 +0200
+Takashi Iwai <tiwai@suse.de> wrote:
 
-That is worth fixing.
+> At Sat, 26 Aug 2006 23:55:32 -0700,
+> Miles Lane wrote:
+> > 
+> > I haven't had working audio in 2.6.18-rc4-mm series (1,2,3).
+> > I haven't been able to track down the cause yet.  The modules
+> > all load, and there seems to be the expected enties in /proc,
+> > but my sound preferences panel shows no available audio card.
+> (snip)
+> > Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
+> > obsolete sysctl system call
+> > Aug 26 23:16:56 localhost kernel: warning: process `ls' used the
+> > obsolete sysctl system call
+> > Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
+> > obsolete sysctl system call
+> > Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
+> > obsolete sysctl system call
+> > Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
+> > obsolete sysctl system call
+> 
+> Are these messages relavant?  Even "ls" fails there...
+> 
 
-> Does anyone know what should be called on this CPU type, and how to fix
-> cyrix.c to handle it correcly rather than ignoring it?
+No, they're just a little warning we put in there to find out how
+removeable sys_sysctl() is.  (Answer: not very.  I'll drop that patch).
 
-The databook is available from www.amd.com I believe. You'd need to look
-at that and see what needs setting. It is quite similar so it probably
-will benefit a little - but that also depends what the BIOS does for you
-and with ACPI that should be handled by the ACPI.
-
-Alan
+It isn't relevant to this problem.

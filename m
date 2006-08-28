@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWH1OPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWH1OS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWH1OPX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWH1OPX
+	id S1750921AbWH1OS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWH1OS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:15:23 -0400
-Received: from smarthost2.sentex.ca ([205.211.164.50]:14803 "EHLO
-	smarthost2.sentex.ca") by vger.kernel.org with ESMTP
-	id S1750878AbWH1OPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:15:20 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Rogier Wolff'" <R.E.Wolff@BitWizard.nl>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "'linux-os \(Dick Johnson\)'" <linux-os@analogic.com>,
-       "'Krzysztof Halasa'" <khc@pm.waw.pl>,
-       "'David Woodhouse'" <dwmw2@infradead.org>,
-       <linux-serial@vger.kernel.org>, "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: RE: Serial custom speed deprecated?
-Date: Mon, 28 Aug 2006 10:14:30 -0400
-Organization: Connect Tech Inc.
-Message-ID: <000901c6caac$478bfca0$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Mon, 28 Aug 2006 10:18:26 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31880 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750901AbWH1OSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:18:25 -0400
+Subject: Re: Serial custom speed deprecated?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0608280817030.32531@chaos.analogic.com>
+References: <20060826181639.6545.qmail@science.horizon.com>
+	 <Pine.LNX.4.61.0608280817030.32531@chaos.analogic.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20060827065210.GA6932@bitwizard.nl>
-Importance: Normal
+Date: Mon, 28 Aug 2006 15:39:53 +0100
+Message-Id: <1156775994.6271.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: On Behalf Of Rogier Wolff
-> Note that IMHO, we should have started hiding this mess from /drivers/
-> a long time ago. The tty layer should convert the B_9600 thingies to
-> "9600", the integer, and then call the set_termios function. The
-> driver should be prohibited from looking at how the the baud rate came
-> to be 9600, and attempt to approach the requested baud rate as good as
-> possible. It might return a flag somewhere: Not exact. In the example
-> above, the resulting baud rate is about 1.4 baud off: 9598.6. This is
-> not a problem in very many cases.
+Ar Llu, 2006-08-28 am 08:17 -0400, ysgrifennodd linux-os (Dick Johnson):
+> On Sat, 26 Aug 2006 linux@horizon.com wrote:
 > 
-> Once this is in place, you lose a lot of "figure out the baud rate
-> integer from the B_xxx settings" code in all the drivers, as well as
-> that we get to provide a new interface to userspace without having to
-> change ALL drivers at the same time. This decouples the drivers from
-> the kernel<->userspace interface.
+> >> Or we could just add a standardised extra set of speed ioctls, but then
+> >> we need to decide what occurs if I set the speed and then issue a
+> >> termios call - does it override or not.
+> >
+> > Actually, we're not QUITE out of bits.  CBAUDEX | B0 is not taken.
+> 
+> B0 is not a bit (there are no bits in 0). It won't work.
 
-I'll second the motion. :-)
-
-..Stu
+Well that is how it is implemented and everyone else seems happy. If it
+violates your personal laws of physics you'll just have to cope.
 

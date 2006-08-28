@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWH1B24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWH1BoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWH1B24 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 21:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWH1B24
+	id S932178AbWH1BoO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 21:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWH1BoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 21:28:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43679 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932313AbWH1B24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 21:28:56 -0400
-Date: Mon, 28 Aug 2006 11:28:30 +1000
-From: David Chinner <dgc@sgi.com>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
-Message-ID: <20060828012830.GH807830@melbourne.sgi.com>
-References: <20060818001102.GW51703024@melbourne.sgi.com> <20060817232942.c35b1371.akpm@osdl.org> <20060818070314.GE798@suse.de> <p73hd0998is.fsf@verdi.suse.de> <17640.65491.458305.525471@cse.unsw.edu.au> <20060821031505.GQ51703024@melbourne.sgi.com> <17641.24478.496091.79901@cse.unsw.edu.au> <20060821135132.GG4290@suse.de> <17646.32332.572865.919526@cse.unsw.edu.au> <20060825063723.GO24258@kernel.dk>
-Mime-Version: 1.0
+	Sun, 27 Aug 2006 21:44:13 -0400
+Received: from mxsf38.cluster1.charter.net ([209.225.28.165]:48573 "EHLO
+	mxsf38.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932154AbWH1BoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Aug 2006 21:44:12 -0400
+X-IronPort-AV: i="4.08,174,1154923200"; 
+   d="scan'208"; a="442056071:sNHT69619718"
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825063723.GO24258@kernel.dk>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17650.19049.326213.978165@stoffel.org>
+Date: Sun, 27 Aug 2006 21:44:09 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Miles Lane" <miles.lane@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.18-rc4-mm3 -- ACPI Error (utglobal-0125): Unknown exception
+ code: 0xFFFFFFEA [20060707]
+In-Reply-To: <17649.47572.627874.371564@stoffel.org>
+References: <a44ae5cd0608262356j29c0234cl198fb207bcad383d@mail.gmail.com>
+	<20060827001437.ec4f7a7a.akpm@osdl.org>
+	<17649.47572.627874.371564@stoffel.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 08:37:24AM +0200, Jens Axboe wrote:
-> On Fri, Aug 25 2006, Neil Brown wrote:
-> 
-> > I'm beginning to think that the current scheme really works very well
-> > - except for a few 'bugs'(*).
-> 
-> It works ok, but it makes it hard to experiment with larger queue depths
-> when the vm falls apart :-). It's not a big deal, though, even if the
-> design isn't very nice - nr_requests is not a well defined entity. It
-> can be anywhere from 512b to megabyte(s) in size. So throttling on X
-> number of requests tends to be pretty vague and depends hugely on the
-> workload (random vs sequential IO).
+>>>>> "John" == John Stoffel <john@stoffel.org> writes:
 
-So maybe we need a different control parameter - the amount of memory we
-allow to be backed up in a queue rather than the number of requests the
-queue can take...
+Just to give some more information, I tried upping the BIOS on my
+Rocket 133 (HPT302) card from 1.21 to 1.22, and it's taken me most of
+the day to recover.  The system would boot, then hang at the HPT
+BIOS... and it looked like to toasted my Dell's bios as well.  So I
+ended up a) upping the DELL Precision 610 Dual Xeon 550mhz from A10 to
+A11 BIOS, and b) moving the HPT302 card to another system and booting
+of flopyy and downgrading from 1.22 to 1.21, where it then started
+working again for me.
 
-Cheers,
+Sigh... looks like for now that I'm going to steer clear of the libata
+drivers.  Oh well, let me know when to try them again, since
+2.6.18-rc4-mm3 doesn't do the trick.  Why, I dunno, but it looks like
+some sort of IRQ handling conflicts.  
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Maybe I'll try pulling all my USB drivers and seeing how that works,
+since it looks like it was a conflict in there somewhere.  
+
+Please let me know if I can provide more details.  I've dropped back
+to 2.6.17, since that's the only recent version which seems to work
+for me, none of the 2.6.18-rc* have so far.
+
+John

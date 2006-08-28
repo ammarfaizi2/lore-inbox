@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWH1QUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWH1QZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWH1QUY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 12:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWH1QUY
+	id S1750792AbWH1QZE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 12:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWH1QZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 12:20:24 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:44269 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1751154AbWH1QUX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 12:20:23 -0400
-Date: Mon, 28 Aug 2006 09:10:00 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
-Message-ID: <20060828161000.GF20394@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <p733bbn7m6o.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Aug 2006 12:25:04 -0400
+Received: from mga01.intel.com ([192.55.52.88]:54692 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750792AbWH1QZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 12:25:01 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,176,1154934000"; 
+   d="scan'208"; a="122267072:sNHT17086041"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [PATCH] maximum latency tracking infrastructure (version 3)
+Date: Mon, 28 Aug 2006 09:25:34 -0700
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
+       dwalker@mvista.com
+References: <1156780080.3034.207.camel@laptopd505.fenrus.org>
+In-Reply-To: <1156780080.3034.207.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <p733bbn7m6o.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+Message-Id: <200608280925.34326.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Monday, August 28, 2006 8:48 am, Arjan van de Ven wrote:
+> 3rd version; only minor changes this time, the sysreq stuff is gone
+> however.
+>
+> I've decided to not use a namespace prefix; these functions are meant
+> to be generic,  and a namespace prefix is not common for such
+> functions, and it would in addition cause a too narrow usage of this
+> infrastructure.
 
-On Wed, Aug 23, 2006 at 12:58:55PM +0200, Andi Kleen wrote:
-> 
-> > +
-> > +fastcall void smp_pmu_interrupt(struct pt_regs *regs)
-> > +{
-> 
-> This misses enter/exit_idle on x86-64.
-> 
-I have been working on adding idle notifier for i386.
-I am wondering about this code:
+Almost forgot--what about documentation?  This is an addition to the 
+driver API, so it should probably be described clearly somewhere, 
+probably in Documentation/ somewhere...
 
-/* Called from interrupts to signify idle end */
-void exit_idle(void)
-{
-        if (current->pid | read_pda(irqcount))
-                return;
-        __exit_idle();
-}
-
-And in particular the irqcount. I am guessing you are trying
-to protect against nested interrupts. In fact, I think we only
-want to get notified once the interrupt stack is fully unwound.
-because we get way more exit_idle() than enter_idle().
-
-Is there an irqcount mechanism on i386?
-
-Thanks
-
---
--Stephane
+Jesse

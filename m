@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWH1JVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWH1JWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWH1JVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 05:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWH1JVZ
+	id S932389AbWH1JWp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 05:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWH1JWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 05:21:25 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:41175 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932341AbWH1JVY (ORCPT
+	Mon, 28 Aug 2006 05:22:45 -0400
+Received: from ns2.suse.de ([195.135.220.15]:9403 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751326AbWH1JWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 05:21:24 -0400
-Subject: Re: Is stopmachine() preempt safe?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <10518.1156747016@kao2.melbourne.sgi.com>
-References: <10518.1156747016@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Date: Mon, 28 Aug 2006 19:21:18 +1000
-Message-Id: <1156756878.10467.94.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 28 Aug 2006 05:22:44 -0400
+From: Andi Kleen <ak@suse.de>
+To: Gerd Hoffmann <kraxel@suse.de>
+Subject: Re: [patch] fix up smp alternatives on x86-64
+Date: Mon, 28 Aug 2006 11:22:38 +0200
+User-Agent: KMail/1.9.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <44F2B557.6020403@suse.de>
+In-Reply-To: <44F2B557.6020403@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608281122.38829.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-28 at 16:36 +1000, Keith Owens wrote:
-> There is a lot of code in the kernel that runs cpu_online_map without
-> taking any locks and without disabling preemption.  Obviously we do not
-> want all that code to lock or disable preemption, it will kill
-> scalability.
+On Monday 28 August 2006 11:20, Gerd Hoffmann wrote:
+> Don't use alternative_smp() in for __raw_spin_lock.  gcc
+> sometimes generates rip-relative addressing, so we can't
+> simply copy the instruction to another place.
+> 
+> Replace some leftover "lock;" with LOCK_PREFIX.
+> 
+> Fillup space with 0x90 (nop) instead of 0x42, so
+> "objdump -d -j .smp_altinstr_replacement vmlinux" gives more
+> readable results.
 
-There is actually not much code which should use cpu_online_map.  Code
-which does must be careful: you generally need to think about handling
-cpu hotplug notifiers as well as the map changing underneath you.
+I already fixed it myself.
 
-Doing a brief audit, ignoring the already-acknowledged cpufreq code and
-arch-specifics, I can see these cases which seem suspicious:
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/remove-alternative-smp
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/i386-remove-alternative-smp
 
-./drivers/acpi/processor_core.c:acpi_processor_handle_eject()
-        - I assume this is relying on some other mechanism so the cpu
-        doesn't get onlined?
-        - A couple of other num_online_cpus() there in ACPI might need a
-        rethink for hotplug CPU though.
+And all the left over lock prefixes are also gone in that tree.
 
-./kernel/irq/proc.c:  irq_affinity_write_proc()
-        - seems complicated, but I think migration.c handles when cpus
-        gone offline?
-
-./drivers/oprofile/cpu_buffer.c:
-        - needs to handle hotplug cpus (or just say don't do that?)
-
-./drivers/infiniband/hw/ipath/ipath_file_ops.c:
-        - seems to be using num_online_cpus as a really poor heuristic,
-        and incorrectly (for i = 0; i < num_online_cpus(); i++) <-- i is
-        not a valid CPU number!).
-
-./kernel/power/main.c:suspend_prepare()
-        - suspicious, code here, too.
-        
-./net/core/dev.c: net_dma_rebalance()
-        - This is a heuristic, which may be OK.
-./net/core/dev.c: softnet_get_online()
-        - It'd be nice if net/dev/core.c used cpu_possible() not
-        cpu_online() to report stats, so they don't get lost from
-        offlined CPUs.
-
-./net/core/pktgen.c: pg_init()
-        - Assumes no CPU plugging, but is a pretty specialized driver.
-        
-(Other uses get away with being in initcalls, or on platforms without
-hotplug CPU).
-
-Disappointingly, none of these would be fixed by changing the semantics
-of stop_machine; they rely on the online cpus and must take action when
-they change, whether they are reading the online_cpu_map at the time or
-not.
-
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+-Andi

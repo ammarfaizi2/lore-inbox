@@ -1,53 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWH1DrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWH1D6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWH1DrW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Aug 2006 23:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWH1DrW
+	id S932378AbWH1D6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Aug 2006 23:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWH1D6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Aug 2006 23:47:22 -0400
-Received: from ns2.suse.de ([195.135.220.15]:40861 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932382AbWH1DrV (ORCPT
+	Sun, 27 Aug 2006 23:58:35 -0400
+Received: from www.nabble.com ([72.21.53.35]:17092 "EHLO talk.nabble.com")
+	by vger.kernel.org with ESMTP id S932378AbWH1D6f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Aug 2006 23:47:21 -0400
-From: Neil Brown <neilb@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Date: Mon, 28 Aug 2006 13:47:17 +1000
+	Sun, 27 Aug 2006 23:58:35 -0400
+Message-ID: <6014209.post@talk.nabble.com>
+Date: Sun, 27 Aug 2006 20:58:33 -0700 (PDT)
+From: altendew <andrew@shiftcode.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Server Attack
+In-Reply-To: <20060827171125.5e1a0a60.largret@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17650.26437.447617.467168@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-raid <linux-raid@vger.kernel.org>
-Subject: Re: [bug?] raid1 integrity checking is broken on 2.6.18-rc4
-In-Reply-To: message from Chuck Ebbert on Thursday August 17
-References: <200608171605_MC3-1-C870-8190@compuserve.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+References: <6011508.post@talk.nabble.com> <20060827171125.5e1a0a60.largret@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday August 17, 76306.1226@compuserve.com wrote:
+
+This does not spit anything out.
+
+I have changed it to this.
+
+tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
+/signUp.php?ref=ec0lag'|cut '-d ' -f 1|xargs /sbin/iptables -A INPUT -p tcp
+-j DROP -s
+
+When I run this
+
+tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
+/signUp.php?ref=ec0lag'|cut '-d ' -f 1
+
+it lists the IPs fine.. when I run
+
+tail -f /usr/local/apache/domlogs/leapcash.com|grep 'GET
+/signUp.php?ref=ec0lag'|cut '-d ' -f 1|xargs /sbin/iptables -A INPUT -p tcp
+-j DROP -s
+
+It doesnt spit out anything, how do I kno its working.
+
+Chris Largret wrote:
 > 
-> I just tried the patch and now it seems to be syncing the drives instead
-> of only checking them?  (At the very least the message is misleading.)
+> 
+> I'm going to go ahead and top-post on this (sorry). There has to be a
+> limited number of computers these requests are coming from since the
+> requests are coming over TCP. I'd write a quick script to grab the ip
+> addresses and block them at the firewall level. Maybe something like this:
+> 
+> tail -f /var/log/apache/access_log|grep AppleWebKit|cut '-d ' -f 1|xargs
+> /sbin/iptables -A INPUT -p tcp -j DROP -s
+> 
+> I haven't tested it (don't have a problem on my current server), but it
+> _should_ follow the Apache requests, grab the IP addresses of users with a
+> UserAgent of AppleWebKit and drop all TCP packets from the IP address
+> until you reset your firewall.
+> 
+> ~ Chris Largret
+> 
+> 
+> On Sun, 27 Aug 2006 14:58:37 -0700 (PDT)
+> altendew <andrew@shiftcode.com> wrote:
+> 
+>> 
+>> Hi someone is currently sending requests to our server 20x a second.
+>> 
+>> Here is what one of the logs look like.
+>> 
+>> [CODE]
+>> Host: 84.77.19.46   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; MTQ; PPC Mac OS X; en-US)
+>> AppleWebKit/578.4
+>> (KHTML, like Geco, Safari) OmniWeb/v643.68e=C:  
+>> 
+>> Host: 82.234.98.65   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; CDB; PPC Mac OS X; en-US)
+>> AppleWebKit/126.0
+>> (KHTML, like Geco, Safari) OmniWeb/v554.35  
+>> 
+>> Host: 84.94.31.161   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; TLD; PPC Mac OS X; en-US)
+>> AppleWebKit/502.6
+>> (KHTML, like Geco, Safari) OmniWeb/v401.63ive=C:  
+>> 
+>> Host: 81.49.24.92   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; SZS; PPC Mac OS X; en-US)
+>> AppleWebKit/230.1
+>> (KHTML, like Geco, Safari) OmniWeb/v710.56ive=C:  
+>> 
+>> Host: 80.129.248.17   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; OST; PPC Mac OS X; en-US)
+>> AppleWebKit/243.6
+>> (KHTML, like Geco, Safari) OmniWeb/v846.88  
+>> 
+>> Host: 87.235.49.194   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.1  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; SDD; PPC Mac OS X; en-US)
+>> AppleWebKit/430.1
+>> (KHTML, like Geco, Safari) OmniWeb/v145.34  
+>> 
+>> Host: 125.129.12.61   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; WCG; PPC Mac OS X; en-US)
+>> AppleWebKit/455.3
+>> (KHTML, like Geco, Safari) OmniWeb/v042.84stemDrive=\x81  
+>> 
+>> Host: 66.110.153.47   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; ZAM; PPC Mac OS X; en-US)
+>> AppleWebKit/387.2
+>> (KHTML, like Geco, Safari) OmniWeb/v456.02ve=C:  
+>> 
+>> Host: 62.2.177.250   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:38  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; LMZ; PPC Mac OS X; en-US)
+>> AppleWebKit/206.1
+>> (KHTML, like Geco, Safari) OmniWeb/v204.07es  
+>> 
+>> Host: 200.115.226.143   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; EDE; PPC Mac OS X; en-US)
+>> AppleWebKit/647.0
+>> (KHTML, like Geco, Safari) OmniWeb/v760.47emDrive=C:\x81  
+>> 
+>> Host: 84.171.125.189   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; QHA; PPC Mac OS X; en-US)
+>> AppleWebKit/778.0
+>> (KHTML, like Geco, Safari) OmniWeb/v456.03=C:  
+>> 
+>> Host: 83.242.79.70   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; GFS; PPC Mac OS X; en-US)
+>> AppleWebKit/537.0
+>> (KHTML, like Geco, Safari) OmniWeb/v313.01rive=C:  
+>> 
+>> Host: 86.69.194.172   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; ZCV; PPC Mac OS X; en-US)
+>> AppleWebKit/468.2
+>> (KHTML, like Geco, Safari) OmniWeb/v026.14stemDrive=\x81  
+>> 
+>> Host: 196.203.176.26   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; BXT; PPC Mac OS X; en-US)
+>> AppleWebKit/840.3
+>> (KHTML, like Geco, Safari) OmniWeb/v767.50s  
+>> 
+>> Host: 201.41.241.190   /signUp.php?ref=1945777  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.0  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0 (Macintosh; TYZ; PPC Mac OS X; en-US)
+>> AppleWebKit/742.0
+>> (KHTML, like Geco, Safari) OmniWeb/v715.65C:  
+>> 
+>> Host: 200.84.144.234   /signUp.php?ref=ec0lag  
+>>   Http Code: 403  Date: Aug 27 17:44:37  Http Version: HTTP/1.1  Size in
+>> Bytes: -  
+>>   Referer: -  
+>>   Agent: Mozilla/5.0  
+>> [/CODE]
+>> 
+>> We are currently blocking this user through our Apache.
+>> 
+>> .htaccess
+>> [CODE]
+>> RewriteEngine On 
+>> RewriteCond %{HTTP_USER_AGENT} ^Mozilla/5\.0\ \(Macintosh;\ (.+)\ PPC\
+>> Mac\
+>> OS\ X;\ en-US\)\ AppleWebKit/(.+)\ \(KHTML,\ like\ Geco,\ Safari\)\
+>> OmniWeb/v([0-9]+).([0-9]+)(.+)$
+>> RewriteRule .* - [F]
+>> [/CODE]
+>> 
+>> That works fine and is giving the user a 403 (Forbidden), but the problem
+>> is
+>> that half of our Apache processes are from this user.
+>> 
+>> Is there a way to block his user agent before he gets to Apache?
+>> Sometimes
+>> this brings our server to a crash.
+>> 
+>> Thanks
+>> Andrew
+>> -- 
+>> View this message in context:
+>> http://www.nabble.com/Server-Attack-tf2174025.html#a6011508
+>> Sent from the linux-kernel forum at Nabble.com.
+>> 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+>> in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -- 
+> Chris Largret <http://www.largret.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 > 
 
-Yes, the message is misleading.  I should fix that.
+-- 
+View this message in context: http://www.nabble.com/Server-Attack-tf2174025.html#a6014209
+Sent from the linux-kernel forum at Nabble.com.
 
-NeilBrown
-
-
->  # echo "check" >/sys/block/md0/md/sync_action
->  # dmesg | tail -9
->  md: syncing RAID array md0
->  md: minimum _guaranteed_ reconstruction speed: 1000 KB/sec/disc.
->  md: using maximum available idle IO bandwidth (but not more than 200000 KB/sec) for reconstruction.
->  md: using 128k window, over a total of 104256 blocks.
->  md: md0: sync done.
->  RAID1 conf printout:
->   --- wd:2 rd:2
->   disk 0, wo:0, o:1, dev:hda9
->   disk 1, wo:0, o:1, dev:sda5
-> 

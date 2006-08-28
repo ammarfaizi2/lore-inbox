@@ -1,157 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWH1MsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWH1MuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWH1MsS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 08:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWH1MsS
+	id S1750751AbWH1MuL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 08:50:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWH1MuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 08:48:18 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:8321 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750713AbWH1MsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 08:48:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=gLWfV7ItrndqViFX4cCc3GQiz/ni+EpF9zwTvjDwksFijD70Vz8aJnoNF6LZeYO3C4cljpuFwnXjZo4q8pmh7QjRHYWFRk8c3JoW0m3fjDACR60wsAu8wSrl3Th5ID/q1uFkJ5CwbS4aKjGPvcO88T41qP0iXodoArIfCC+O0p4=
-Message-ID: <39e6f6c70608280548p5ba363d7o18cfd3bdb2f9e894@mail.gmail.com>
-Date: Mon, 28 Aug 2006 09:48:16 -0300
-From: "Arnaldo Carvalho de Melo" <acme@ghostprotocols.net>
-To: "gerrit@erg.abdn.ac.uk" <gerrit@erg.abdn.ac.uk>
-Subject: Re: [RFC][PATCH 0/3] net: a lighter UDP-Lite (RFC 3828)
-Cc: davem@davemloft.net, jmorris@namei.org, alan@lxorguk.ukuu.org.uk,
-       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, kaber@coreworks.de,
-       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608281159.21583@strip-the-willow>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 08:50:11 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:30160 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750751AbWH1MuJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 08:50:09 -0400
+Date: Mon, 28 Aug 2006 07:50:06 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Julio Auto <mindvortex@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Solar Designer <solar@openwall.com>,
+       Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [PATCH] loop.c: kernel_thread() retval check - 2.6.17.9
+Message-ID: <20060828125006.GC8282@sergelap.austin.ibm.com>
+References: <18d709710608232341x491b4bf6g87f74ef830a203@mail.gmail.com> <20060828035556.GA27902@openwall.com> <20060827214141.db40620d.akpm@osdl.org> <18d709710608272203q740962rd0c3f2a3be95138b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608231150.37895@strip-the-willow>
-	 <200608281159.21583@strip-the-willow>
-X-Google-Sender-Auth: 40b7a59a7b2549a6
+In-Reply-To: <18d709710608272203q740962rd0c3f2a3be95138b@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/28/06, gerrit@erg.abdn.ac.uk <gerrit@erg.abdn.ac.uk> wrote:
-> [NET/IPv4]: update for udp.c only, to match 2.6.18-rc4-mm3
->
-> This is an update only, as the previous patch can not cope
-> with recent changes to udp.c (all other files remain the same).
->
-> Up-to-date, complete patches can always be taken from
-> http://www.erg.abdn.ac.uk/users/gerrit/udp-lite/files/udplite_linux.tar.gz
->
-> Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-> ---
->   udp.c |  606 ++++++++++++++++++++++++++++++++++++++++++++----------------------
->  1 file changed, 410 insertions(+), 196 deletions(-)
->
->
-> diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-> index 514c1e9..4ddd8e6 100644
+Quoting Julio Auto (mindvortex@gmail.com):
+> On 8/28/06, Andrew Morton <akpm@osdl.org> wrote:
+> >The plan is to stop using the deprecated kernel_thread() in loop 
+> >altogether.
+> >
+> >Please review
+> >
+> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/kthread-convert-loopc-to-kthread.patch
+> >
+> 
+> Well, the reason behind this patch is just adding a little bit of
+> cleanup code (ie., cleaning the 'lo' object) to the case when the
+> kernel thread creation fails, regardless of what implementation
+> loop_set_fd() uses to accomplish this.
+> In fact, I think the concept it's still usable after applying the
+> patch you mentioned, since after changing kernel_thread() for
+> kthread_create(), the only cleanup code added is setting lo->lo_thread
+> to NULL.
+> 
+> Cheers,
+> 
+>    Julio Auto
 
+The attached patch does the same resource checks in the kthread version
+from 2.6.18-rc4-mm2.
 
-> @@ -731,12 +801,12 @@ out:
->  }
->
->  /*
-> - *     IOCTL requests applicable to the UDP protocol
-> + *     IOCTL requests applicable to the UDP(-Lite) protocol
->   */
+thanks,
+-serge
 
-Avoid these changes to reduce patch file size, please
+Subject: [PATCH] loop: forward-port resource leak checks from Solar
 
-> -
-> +
->  int udp_ioctl(struct sock *sk, int cmd, unsigned long arg)
->  {
-> -       switch(cmd)
-> +       switch(cmd)
+Forward port of the patch by Solar and ported by Julio, ported
+to the -mm tree.
 
-Ditto
+Compiles, boots, and passes my looptorturetest.sh.
 
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-> -/*
-> - *     This should be easy, if there is something there we
-> - *     return it, otherwise we block.
-> +/**
-> + *     udp_recvmsg  -  generic UDP/-Lite receive processing
-> + *
-> + *     This routine is udplite-aware and works for both protocols.
+---
 
+ drivers/block/loop.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
-> @@ -980,7 +1055,11 @@ #else
->  #endif
->  }
->
-> -/* returns:
-> +/**
-> + *     udp_queue_rcv_skb  -  receive queue processing
-> + *
-> + * This routine is udplite-aware and works on both sockets.
-
->
->         if (up->encap_type) {
-> @@ -1010,7 +1087,7 @@ static int udp_queue_rcv_skb(struct sock
->                  * If it's an encapsulateed packet, then pass it to the
->                  * IPsec xfrm input and return the response
->                  * appropriately.  Otherwise, just fall through and
-> -                * pass this up the UDP socket.
-> +                * pass this up the UDP/-Lite socket.
->                  */
-
-> -               /* FALLTHROUGH -- it's a UDP Packet */
-> +               /* FALLTHROUGH -- it's a UDP/-Lite Packet */
->         }
-
->
->  /*
-> - *     All we need to do is get the socket, and then do a checksum.
-> + *     All we need to do is get the socket, and then do a checksum.
->   */
-> -
-
-Huh, what was this one? trailing whitespace? Can you leave this for
-another cset doing just the reformatting?
-
-> @@ -1219,7 +1363,7 @@ static int udp_destroy_sock(struct sock
->  }
->
->  /*
-> - *     Socket option code for UDP
-> + *     Socket option code for UDP and UDP-Lite (shared).
->   */
-
->  #endif
-> +
->  /**
-> - *     udp_poll - wait for a UDP event.
-> + *     udp_poll  -  wait for a UDP(-Lite) event.
-
-See next comment
-
->   *     @file - file struct
->   *     @sock - socket
->   *     @wait - poll table
-> @@ -1348,11 +1528,14 @@ #endif
->   *     then it could get return from select indicating data available
->   *     but then block when reading it. Add special case code
->   *     to work around these arguably broken applications.
-> + *
-> + *     The routine is udplite-aware and works for both protocols.
-
-I guess these comments can go as well, as one can quickly realise the
-functions handles UDP lite with all the "IS_UDPLITE(sk)" calls and
-"is_{udp}lite" variables :-)
-
->   */
->  unsigned int udp_poll(struct file *file, struct socket *sock, poll_table *wait)
->  {
->         unsigned int mask = datagram_poll(file, sock, wait);
->         struct sock *sk = sock->sk;
-> +       int     is_lite = IS_UDPLITE(sk);
-
-Regards,
-
-- Arnaldo
+1a32f47ff67796d8ee8d088d3ba6f54e834e6004
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index ced8a78..c2e1862 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -826,13 +826,22 @@ static int loop_set_fd(struct loop_devic
+ 						lo->lo_number);
+ 	if (IS_ERR(lo->lo_thread)) {
+ 		error = PTR_ERR(lo->lo_thread);
+-		lo->lo_thread = NULL;
+-		goto out_putf;
++		goto out_clr;
+ 	}
+ 	lo->lo_state = Lo_bound;
+ 	wake_up_process(lo->lo_thread);
+ 	return 0;
+ 
++out_clr:
++	lo->lo_thread = NULL;
++	lo->lo_device = NULL;
++	lo->lo_backing_file = NULL;
++	lo->lo_flags = 0;
++	set_capacity(disks[lo->lo_number], 0);
++	invalidate_bdev(bdev, 0);
++	bd_set_size(bdev, 0);
++	mapping_set_gfp_mask(mapping, lo->old_gfp_mask);
++	lo->lo_state = Lo_unbound;
+  out_putf:
+ 	fput(file);
+  out:
+-- 
+1.1.6

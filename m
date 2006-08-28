@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWH1OI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWH1OLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWH1OI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWH1OI1
+	id S1750793AbWH1OLH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWH1OLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:08:27 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:45177 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750837AbWH1OI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:08:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=AyDzOs52El8PyY6hhDaUrrGEZpXGE2Ni98I7nP4hWbCavppbn52lv1YawOmEsSQkQgg6dHOAp1OP6FCSgk79QSRbqyjGDmOz0kGd847O6fzJTcK5ACkP07r+33+8Fp4ZWauKB2bWblx8Pxyd643CxgsAE52gT9l/JHv9JcBXLwo=
-Date: Mon, 28 Aug 2006 16:08:00 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
-Message-ID: <20060828160800.GA1633@slug>
-References: <44F2EF90.9050603@gmail.com>
+	Mon, 28 Aug 2006 10:11:07 -0400
+Received: from mail.visionpro.com ([63.91.95.13]:24201 "EHLO
+	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
+	id S1750793AbWH1OLE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:11:04 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F2EF90.9050603@gmail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: mounting Floppy and USB - 2.6.16.16
+Date: Mon, 28 Aug 2006 07:11:02 -0700
+Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B3B16@chicken.machinevisionproducts.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: mounting Floppy and USB - 2.6.16.16
+Thread-Index: AcbIyz3/8/Zk9RlsSdi+8Rus17LfSAB4DqyA
+From: "Brian D. McGrew" <brian@visionpro.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>,
+       "For users of Fedora Core releases" <fedora-list@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 09:28:48PM +0800, Yi Yang wrote:
-> In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
-> and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
-> does know them, I think the correct errno should be -EOPNOTSUPP which
-> means they aren't be implemented or supported.
-Hi, 
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Friday, August 25, 2006 9:51 PM
+To: Brian D. McGrew
+Cc: linux-kernel@vger.kernel.org; For users of Fedora Core releases
+Subject: Re: mounting Floppy and USB - 2.6.16.16
 
-If I'm not mistaken, returning EINVAL conforms to POSIX, isn't it?
-http://www.opengroup.org/onlinepubs/009695399/functions/fsync.html
-Regards,
-Frederik
- 
+On Fri, Aug 25, 2006 at 02:55:36PM -0700, Brian D. McGrew wrote:
+> Hey Guys:
+> 
+> With 2.4.20 and 2.6.9 I had all this automated so everything just
+> happened automatically.  It's not working with 2.6.16.16 now.  What am
+I
+> missing or what did I forget?
+
+What version of udev and hal are you using?
+
+What specific errors are you having?
+
+thanks,
+
+greg k-h
+-----
+15_ yum list | grep hal
+hal.i386                                 0.4.7-1.FC3
+installed       
+hal-cups-utils.i386                      0.5.2-8
+installed       
+hal-devel.i386                           0.4.7-1.FC3
+installed       
+hal-gnome.i386                           0.4.7-1.FC3
+installed       
+hal-debuginfo.i386                       0.4.7-1.FC3
+updates-released
+16_
+
+16_ yum list | grep udev
+udev.i386                                039-10.FC3.8
+installed       
+udev-debuginfo.i386                      039-10.FC3.8
+updates-released
+
+It 'looks' like I have the latest?  I'm not getting any "errors".  But
+with RH7.3/2.4.20 and FC3/2.6.9 inserting a CD or USB Flash drive
+mounted automatically.  I upgraded to 2.6.16.16 on the previously
+working FC3 machines and now it doesn't --- so I'm sure I missing
+something in the kernel configuration and just don't know what it
+is!?!?!
+
+Thanks!
+
+:b!
+
+Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
+--
+> This is a test.  This is only a test!
+  Had this been an actual emergency, you would have been
+  told to cancel this test and seek professional assistance!
+

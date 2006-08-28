@@ -1,45 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWH1IT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWH1IVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWH1IT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWH1IT1
+	id S1751402AbWH1IVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWH1IVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:19:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31117
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750969AbWH1IT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:19:27 -0400
-Date: Mon, 28 Aug 2006 01:19:29 -0700 (PDT)
-Message-Id: <20060828.011929.66059812.davem@davemloft.net>
-To: ak@suse.de
-Cc: arnd@arndb.de, linux-arch@vger.kernel.org, jdike@addtoit.com,
-       B.Steinbrink@gmx.de, arjan@infradead.org, chase.venters@clientec.com,
-       akpm@osdl.org, rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, dwmw2@infradead.org
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608281015.38389.ak@suse.de>
-References: <200608281003.02757.ak@suse.de>
-	<20060828.010948.131918560.davem@davemloft.net>
-	<200608281015.38389.ak@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 28 Aug 2006 04:21:14 -0400
+Received: from razorback.tcsn.co.za ([196.41.199.53]:62212 "EHLO tcsn.co.za")
+	by vger.kernel.org with ESMTP id S1751402AbWH1IVN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:21:13 -0400
+Date: Mon, 28 Aug 2006 10:21:49 +0200
+From: Henti Smith <henti@geekware.co.za>
+To: linux-kernel@vger.kernel.org
+Subject: linux on Intel D915GOM oops
+Message-ID: <20060828102149.26b05e8b@yoda.foad.za.net>
+Organization: Geek Ware
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Mon, 28 Aug 2006 10:15:38 +0200
+Hi guys,
 
-> I see it as the reference implementation of the kernel system call
-> ABI
+I've been given a mecer Xhibitor media center machine to try and get
+linux on for testing. 
 
-I see it as duplication because the person who writes the
-kernel is the one who ends up writing the libc syscall
-bits or explains to the libc person for that arch how
-things work.  And once one libc implmenetation of this
-exists, it can be used as a reference for other libc
-variants.
+The machine seems pretty much limited to South Africa, however the
+setup is used by other companies like
+http://www.higrade.com/nqcontent.cfm?a_id=3539 and
+http://www.alienware.com/product_detail_pages/DHS_2/dhs_2_features.aspx?SysCode=PC-DHS2&SubCode=SKU-DEFAULT
+which use the same mainboard atc. 
 
-Finally, once it's done, it's done, and that's it.
+for more information ont he mainboard used:
+http://www.intel.com/design/motherbd/om/om_documentation.htm
+
+I've tried to boot just about every linux distro I can get my hands on
+and they all oops at bootup. 
+
+Unfortunately I cannot get to the first few lines (screen cannot scroll
+after oops) 
+but here is what I can get to : This is booting with Ubuntu
+
+PREEMPT
+Modules linked in:
+CPU:	0
+EIP:	0060:[<c00f02fa>]	not tainted
+EFLAGS:	00010046	(2.6.8.1-3-386)
+EIP is at 0xc00f02fa
+eax: 49435024 ebx: 00007000 ecx: 00000000 edx: 00000010
+esi: 00000001 edi: c02cd4a4 ebp: 49435024 esp: c17f3f90
+ds: 007b es: 007b ss: 0068
+Process swapper (pid: 1, threadinfo=c17f2000 task=c17f1670)
+Stack: 
+c00e0060 c01f5724 00000060 00000287 00000000 c00fe140 00000001 00000000
+00000000 c01f5780 49435024 c00fe140 c00fe140 c00fe140 00000001 00000000
+00000000 c01f5a77 c0336eb0 c031b822 c03086ac c010039e 00000000 c01003d5
+Call Trace
+[<c01f5724>] bios32_service+0x1c/0x68
+[<c01f5780>] check_pcibios+0x10/0xd3
+[<c01f5a77>] pci_find_bios+0x70/0x8c
+[<c031b822>] pci_pcbios_init+0xe/0x2e
+[<c03086ac>] do_initcalls+0x4b/0x99
+[<c010039e>] init+0x0/0x10a
+[<c01003d5>] init+0x37/0x10a
+[<c01041e1>] kernel_thread_helper+0x5/0xb
+Code: 00 66 33 d2 66 ba 0d 03 00 00 66 b9 4a 00 00 00 b0 00 cb 66
+ <0>Kernel Panic: Attempted to kill init!
+
+any ideas on what the problem could be ... or how to get around it ? 
+
+-- 
+Henti Smith
+henti@geekware.co.za
++27 82 958 2525
+http://www.geekware.co.za
+
+DISCLAIMER : 
+
+Unauthorised use of characters, images, sounds, odors, severed limbs,
+noodles, wierd dreams, strange looking fruit, oxygen, and certain parts
+of Jupiter are strictly forbidden.  If I find you violating, or
+molesting my property in any way, I will employ a pair of burly
+convicts to find you, kidnap you, and perform god-awful sexual
+experiments on you until you lose the ability to sound out vowels.  I
+don't know why you are still reading this, but by doing so you have
+proven that you have far too much time on your hands, and you should go
+plant a tree, or read a book or something.
+	- http://www.ctrlaltdel-online.com/

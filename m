@@ -1,127 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWH1Lqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWH1Lrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWH1Lqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1Lqy
+	id S964832AbWH1Lrw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWH1Lrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:46:54 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:31737 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964822AbWH1Lqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:46:54 -0400
+	Mon, 28 Aug 2006 07:47:52 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:11177 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964834AbWH1Lrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 07:47:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iqWcDeClu05Dc9lXfEII0JY8EfNUbv02dV1HnPEe2Tc4GRiHU05FYrxXMI5cuTutOxmpGJZQ1JMwb3oZ0xYmEiXBbI6DlErXKg7hUMQxkoEiLbk7LyVYqwT6JJ1a9XNkvOV5fTHfdAPe+Q+CL8ssNVcFitNnmZd91eww8ggakNE=
-Message-ID: <742b1fb30608280446x2b0cf2d4p5aae2bb66ba41555@mail.gmail.com>
-Date: Mon, 28 Aug 2006 13:46:52 +0200
-From: "Patrizio Bassi" <patrizio.bassi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG?] 2.6.17.x suspend problems
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TIa8OQe7Be/XpAGbRjZLgSvb7LMOmOZ4dGTcNSFzCJdDscPvjoMDx76peA1FzIEE7YDY36YU/9wB3hI3p2jHo6YgBAWCHGrGeVcWPNlfRws0yOGh/LAP/uceq/O9q0s/mYL8za5yLQY4pbdzOF+nSrz1afSWIAOwuaJO+fiibK8=
+Message-ID: <b3f268590608280447s793f79fu8e6086cde1db8daf@mail.gmail.com>
+Date: Mon, 28 Aug 2006 13:47:50 +0200
+From: "Jari Sundell" <sundell.software@gmail.com>
+To: "Nicholas Miell" <nmiell@comcast.net>
+Subject: Re: [take14 0/3] kevent: Generic event handling mechanism.
+Cc: "Ulrich Drepper" <drepper@redhat.com>,
+       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "David Miller" <davem@davemloft.net>, "Andrew Morton" <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, "Zach Brown" <zach.brown@oracle.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Chase Venters" <chase.venters@clientec.com>
+In-Reply-To: <1156733977.2358.31.camel@entropy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <11564996832717@2ka.mipt.ru> <44F208A5.4050308@redhat.com>
+	 <1156733977.2358.31.camel@entropy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-when i try to suspend my notebook i have problems with ide controller.
-the copy lasts a lot and i get oops.
+On 8/28/06, Nicholas Miell <nmiell@comcast.net> wrote:
+> Also complicated is the case where waiting threads have different
+> priorities, different timeouts, and different minimum event counts --
+> how do you decide which thread gets events first? What if the decisions
+> are different depending on whether you want to maximize throughput or
+> interactivity?
 
+BTW, what is the intended use of the min event count parameter? The
+obvious reason I can see, avoiding waking up a thread too often with
+few queued events, would imo be handled cleaner by just passing a
+parameter telling the kernel to try to queue more events.
 
-Stopping tasks: ==========================================|
-Shrinking memory... done (22776 pages freed)
-pnp: Device 00:08 disabled.
-swsusp: Need to copy 30898 pages
-ACPI: PCI Interrupt 0000:00:00.1[A]: no GSI - using IRQ 14
-eth0: Media Link Off
-ACPI: PCI Interrupt 0000:00: 01.2[D] -> Link [LNKD] -> GSI 5 (level,
-low) -> IRQ 5
-ACPI: PCI Interrupt 0000:00:01.3[D] -> Link [LNKD] -> GSI 5 (level,
-low) -> IRQ 5
-ACPI: PCI Interrupt 0000:00:01.4[B] -> Link [LNKB] -> GSI 5 (level,
-low) -> IRQ 5
-ACPI: PCI Interrupt 0000:00:01.6[B] -> Link [LNKB] -> GSI 5 (level,
-low) -> IRQ 5
-PCI: Setting latency timer of device 0000:00:02.0 to 64
-PM: Writing back config space on device 0000:00:0a.0 at offset 1 (was
-82100003, writing 82100007)
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKA] -> GSI 11 (level,
-low) -> IRQ 11
-PM: Writing back config space on device 0000:00:0a.1 at offset 1 (was
-2100003, writing 82100007)
-ACPI: PCI Interrupt 0000:00: 0a.1[B] -> Link [LNKC] -> GSI 5 (level,
-low) -> IRQ 5
-pnp: Device 00:08 activated.
-pnp: Failed to activate device 00:0c.
-pnp: Failed to activate device 00:0d.
-irq 14: nobody cared (try booting with the "irqpoll" option)
- <c012c987> __report_bad_irq+0x2b/0x69  <c012cb3d> note_interrupt+0x178/0x1a7
- <c012c53d> handle_IRQ_event+0x22/0x4e  <c012c5ce> __do_IRQ+0x65/0x8f
- <c0104b2d> do_IRQ+0x19/0x24  <c01033da> common_interrupt+0x1a/0x20
- <c0118f4b> __do_softirq+0x2c/0x7f  <c0118fc0> do_softirq+0x22/0x26
- <c0104b32> do_IRQ+0x1e/0x24  <c01033da> common_interrupt+0x1a/0x20
- <c0214224> acpi_processor_idle+0x157/0x323  <c0101da2> cpu_idle+0x3a/0x4f
- <c03b0635> start_kernel+0x29c/0x29e
-handlers:
-[<c0230301>] (ide_intr+0x0/0x16c)
-Disabling IRQ #14
-Restarting tasks... done
-hda: dma_timer_expiry: dma status == 0x24
-hda: DMA interrupt recovery
-hda: lost interrupt
+With a min event count you'd have to use a rather low timeout to
+ensure that events get handled within a resonable time.
 
-           CPU0
-  0:     431861          XT-PIC  timer
-  1:        638          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  5:          0          XT-PIC  yenta, ohci_hcd:usb1, ohci_hcd:usb2,
-Trident Audio, SiS630, eth0
-  7:          0          XT-PIC  parport0
-  8:          2          XT-PIC  rtc
-  9:          1          XT-PIC  acpi
- 11:          0          XT-PIC  yenta
- 12:      10982          XT-PIC  i8042
- 14:     200771          XT-PIC  ide0
- 15:         26          XT-PIC  ide1
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 11)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] SiS85C503/5513 (LPC Bridge)
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-PCI Fast Ethernet (rev 80)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] USB  1.0
-Controller (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
-Controller (rev 07)
-00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
-SiS PCI Audio Accelerator (rev 01)
-  00:01.6 Modem: Silicon Integrated Systems [SiS] AC'97 Modem
-Controller (rev a0)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] Virtual
-PCI-to-PCI bridge (AGP)
-00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
-630/730 PCI/AGP VGA Display Adapter (rev 11)
-
-
-
-I have another two problems too:
-1) have to disable synaptics driver (editing sources) otherwise i get
-kernel panic
- 2) dri accelleration is working no more after suspend. glxgears shows
-a black window only.
-
-i think i should open 2 different threads for the last two.
-
-please CC me, i'm not subscribed.
-
-
--- 
-
- Patrizio Bassi
-www.patriziobassi.it
+Rakshasa

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWH1I2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWH1Iak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWH1I2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 04:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWH1I23
+	id S1751264AbWH1Iak (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 04:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWH1Iaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 04:28:29 -0400
-Received: from ns1.suse.de ([195.135.220.2]:15315 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751307AbWH1I22 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 04:28:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-Date: Mon, 28 Aug 2006 10:28:13 +0200
-User-Agent: KMail/1.9.3
-Cc: arnd@arndb.de, linux-arch@vger.kernel.org, jdike@addtoit.com,
-       B.Steinbrink@gmx.de, arjan@infradead.org, chase.venters@clientec.com,
-       akpm@osdl.org, rmk+lkml@arm.linux.org.uk, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, dwmw2@infradead.org
-References: <200608281003.02757.ak@suse.de> <200608281015.38389.ak@suse.de> <20060828.011929.66059812.davem@davemloft.net>
-In-Reply-To: <20060828.011929.66059812.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 28 Aug 2006 04:30:39 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:43676 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751264AbWH1Iai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 04:30:38 -0400
+Subject: Re: [PATCH 1/3] kthread: update s390 cmm driver to use kthread
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060827185101.GA14976@sergelap.austin.ibm.com>
+References: <20060824212241.GB30007@sergelap.austin.ibm.com>
+	 <20060825143842.GA27364@infradead.org>
+	 <20060825200359.GC13805@sergelap.austin.ibm.com>
+	 <20060826063247.GA6928@osiris.boeblingen.de.ibm.com>
+	 <20060827185101.GA14976@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Mon, 28 Aug 2006 10:30:33 +0200
+Message-Id: <1156753833.15093.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608281028.13652.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 August 2006 10:19, David Miller wrote:
+On Sun, 2006-08-27 at 13:51 -0500, Serge E. Hallyn wrote:
+> Hmm, with my standard config it actually boots.  It fails when I turn
+> off module support.  The guilty config is attached, as well as the
+> config that boots, and the output when it crashes with the guilty
+> config.
 
-> I see it as duplication because the person who writes the
-> kernel is the one who ends up writing the libc syscall
-> bits or explains to the libc person for that arch how
-> things work.  
+That looks like the crypto initialization problem. Currently the new
+crypto driver only works if you compile it as a module.
 
-And the way to explain it is to write the reference code.
+-- 
+blue skies,
+  Martin.
 
-> And once one libc implmenetation of this 
-> exists, it can be used as a reference for other libc
-> variants.
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-At least on x86-64 various glibc versions had quite buggy
-syscall()s, that is why I never trusted it very much.
- 
-> Finally, once it's done, it's done, and that's it.
+"Reality continues to ruin my life." - Calvin.
 
-Except if you still have to deal with old user land.
 
--Andi

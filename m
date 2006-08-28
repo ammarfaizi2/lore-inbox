@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWH1Oln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWH1Om4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWH1Oln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 10:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWH1Oln
+	id S1751027AbWH1Om4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 10:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWH1Om4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 10:41:43 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:53949 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751011AbWH1Olm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 10:41:42 -0400
-Message-ID: <44F300A8.2000408@watson.ibm.com>
-Date: Mon, 28 Aug 2006 10:41:44 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Olaf Hering <olaf@aepfle.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc5
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>	<20060827231421.f0fc9db1.akpm@osdl.org>	<20060828061940.GA12671@aepfle.de> <20060827232437.821110f3.akpm@osdl.org>
-In-Reply-To: <20060827232437.821110f3.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 28 Aug 2006 10:42:56 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:40666
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751026AbWH1Omz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 10:42:55 -0400
+Subject: Re: [CFT:PATCH] Removing possible wrong asm/serial.h inclusions
+From: Paul Fulghum <paulkf@microgate.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060828085244.GA13544@flint.arm.linux.org.uk>
+References: <20060828085244.GA13544@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 09:42:08 -0500
+Message-Id: <1156776128.4528.3.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 28 Aug 2006 08:19:40 +0200
-> Olaf Hering <olaf@aepfle.de> wrote:
+On Mon, 2006-08-28 at 09:52 +0100, Russell King wrote:
+> asm/serial.h is supposed to contain the definitions for the architecture
+> specific 8250 ports for the 8250 driver.  It may also define BASE_BAUD,
+> but this is the base baud for the architecture specific ports _only_.
 > 
->> On Sun, Aug 27, Andrew Morton wrote:
->>
->>> On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
->>> Linus Torvalds <torvalds@osdl.org> wrote:
->>>
->>>> Linux 2.6.18-rc5 is out there now
->>> (Reporters Bcc'ed: please provide updates)
->>> Subject: oops in __delayacct_blkio_ticks with 2.6.18-rc4
->> This patch is supposed to fix it.
->>
->> http://lkml.org/lkml/2006/8/22/245
->> http://lkml.org/lkml/2006/8/24/299
+> Therefore, nothing other than the 8250 driver should be including this
+> header file.  In order to move towards this goal, here is a patch which
+> removes some of the more obvious incorrect includes of the file.
 > 
-> Yes, there are two delay-accounting fixes pending - this and a memory leak. 
-> Shailabh is off preparing the final versions (I hope).
-> 
+> MIPS and PPC has rather a lot of stuff in asm/serial.h, some of it looks
+> related to non-8250 ports.  Hence, it's not trivial to conclude that
+> these includes are indeed unnecessary, so can mips and ppc people please
+> test this patch carefully.
+...
+> diff --git a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
+> diff --git a/drivers/char/synclink.c b/drivers/char/synclink.c
 
-Both the problems are solved by the same patch.
+Acked-by: Paul Fulghum <paulkf@microgate.com>
 
-I'll submit the same by eod. Wanted to get some more stress testing
-of the fix using not just the /proc interface (which caused the oops reported)
-but also the command interface provided by taskstats/delay accounting.
+-- 
+Paul Fulghum
+Microgate Systems, Ltd
 
-Thanks,
-Shailabh

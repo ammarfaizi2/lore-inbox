@@ -1,66 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWH1MP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWH1MRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWH1MP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 08:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWH1MP5
+	id S932431AbWH1MRo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 08:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWH1MRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 08:15:57 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:22728 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932127AbWH1MP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 08:15:56 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: Linux v2.6.18-rc5
-Date: Mon, 28 Aug 2006 14:15:40 +0200
-User-Agent: KMail/1.9.4
-Cc: Linus Torvalds <torvalds@osdl.org>, Marc Perkel <marc@perkel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACurrid@nvidia.com, len.brown@intel.com
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <200608280924.47968.prakash@punnoor.de> <20060828120540.GA69511@muc.de>
-In-Reply-To: <20060828120540.GA69511@muc.de>
+	Mon, 28 Aug 2006 08:17:44 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:34064 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932431AbWH1MRn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 08:17:43 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart35069246.7V3cemqVdR";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200608281415.41025.prakash@punnoor.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 28 Aug 2006 12:17:39.0874 (UTC) FILETIME=[F4945020:01C6CA9B]
+Content-class: urn:content-classes:message
+Subject: Re: Serial custom speed deprecated?
+Date: Mon, 28 Aug 2006 08:17:39 -0400
+Message-ID: <Pine.LNX.4.61.0608280817030.32531@chaos.analogic.com>
+In-Reply-To: <20060826181639.6545.qmail@science.horizon.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Serial custom speed deprecated?
+Thread-Index: AcbKm/SdIEnZQm5hQ+WhDC/Fz99cjg==
+References: <20060826181639.6545.qmail@science.horizon.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: <linux@horizon.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart35069246.7V3cemqVdR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Am Montag 28 August 2006 14:05 schrieb Andi Kleen:
-> > At least my dmesg says nothing about hpet and thus wan't to enable the
-> > quirk. It is a nforce430 (thus nf4) chipset, though. You can find my
-> > bootlog here:
+On Sat, 26 Aug 2006 linux@horizon.com wrote:
+
+>> Or we could just add a standardised extra set of speed ioctls, but then
+>> we need to decide what occurs if I set the speed and then issue a
+>> termios call - does it override or not.
 >
-> Only NF5 is interesting in this case. On NF4 skipping the timer override
-> is correct.
+> Actually, we're not QUITE out of bits.  CBAUDEX | B0 is not taken.
 
-Well, then please explain me why it hangs on my nf430 with skipping and wor=
-ks=20
-normally w/o skipping?
+B0 is not a bit (there are no bits in 0). It won't work.
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+> That would make a reasonable encoding for a custom speed.
+> (But I haven't checked glibc... ah, yes, it should work!
+> See glibc-2.4/sysdeps/unix/sysv/linux/speed.c; browse at
+> http://sources.redhat.com/cgi-bin/cvsweb.cgi/libc/sysdeps/unix/sysv/linux/?cvsroot=glibc
+> if you don't have a local copy source handy.)
+>
+> What I'd do is, when converting to the old-style for tcgetattr, if the
+> current baud rate is not representable, cache it somewhere and return that
+> (or some other magic value).  If a tcsetatt call comes in that specifies
+> that magic value, use the cached baud rate.
+>
+> If you make the cache just the current baud rate setting (the magic
+> value on set means "don't alter"), that will handle a lot of programs
+> that just want to play with handshaking.
+>
+> If you make the cache separate, you can also survive an
+> old-interface-using program switching to a different baud rate and then
+> switching back.
+>
+>
+> Also note that if you truly want to support all baud rates in historical
+> use, you'll need to include at least one fractional bit for 134.5 baud.
+> (Unless you're sure that IBM 2741 terminals are truly dead. :-))
+>
+> Alternatively, you could observe that asynchronous communications only
+> requires agreement withing 5% between sender and receiver, so specifying
+> a baud rate to much better than 1% is not too important.
+>
+> Half-precision floating point would be ideal for the job. :-)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
---nextPart35069246.7V3cemqVdR
-Content-Type: application/pgp-signature
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-iD8DBQBE8t5txU2n/+9+t5gRAlkMAJ9kxYUWLgLVhXl8/GnLRf6DI9mZoACeI1py
-tTG0ICBK5fS/XsUeFUEuf3o=
-=VbOh
------END PGP SIGNATURE-----
-
---nextPart35069246.7V3cemqVdR--
+Thank you.

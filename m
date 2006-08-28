@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWH1GYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWH1G3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWH1GYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 02:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWH1GYn
+	id S932382AbWH1G3r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 02:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWH1G3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 02:24:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38125 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932357AbWH1GYn (ORCPT
+	Mon, 28 Aug 2006 02:29:47 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:34983 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932382AbWH1G3r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 02:24:43 -0400
-Date: Sun, 27 Aug 2006 23:24:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>
+	Mon, 28 Aug 2006 02:29:47 -0400
+Message-ID: <44F28D58.8060307@garzik.org>
+Date: Mon, 28 Aug 2006 02:29:44 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.6.18-rc5
-Message-Id: <20060827232437.821110f3.akpm@osdl.org>
-In-Reply-To: <20060828061940.GA12671@aepfle.de>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-	<20060827231421.f0fc9db1.akpm@osdl.org>
-	<20060828061940.GA12671@aepfle.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060827231421.f0fc9db1.akpm@osdl.org>
+In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Aug 2006 08:19:40 +0200
-Olaf Hering <olaf@aepfle.de> wrote:
+Andrew Morton wrote:
+> From: Keith Owens <kaos@ocs.com.au>
+> Subject: 2.6.18-rc4 Intermittent failures to detect sata disks
 
-> On Sun, Aug 27, Andrew Morton wrote:
-> 
-> > On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
-> > Linus Torvalds <torvalds@osdl.org> wrote:
-> > 
-> > > Linux 2.6.18-rc5 is out there now
-> > 
-> > (Reporters Bcc'ed: please provide updates)
-> 
-> > Subject: oops in __delayacct_blkio_ticks with 2.6.18-rc4
-> 
-> This patch is supposed to fix it.
-> 
-> http://lkml.org/lkml/2006/8/22/245
-> http://lkml.org/lkml/2006/8/24/299
+Should already be fixed in -rc5, by
 
-Yes, there are two delay-accounting fixes pending - this and a memory leak. 
-Shailabh is off preparing the final versions (I hope).
+commit f3745a3f9fa39fa3c62f7d5b8549ee787d2c6848
+Author: Tejun Heo <htejun@gmail.com>
+Date:   Tue Aug 22 21:06:46 2006 +0900
+
+     [PATCH] ata_piix: ignore PCS on ICH5
+
+BTW, as of 9dd9c16465c82d1385f97d2a245641464fcb7894 we have a force_pcs 
+module (& command line) parameter which can tune the driver a bit, if 
+people are having problems.
+
+	JEff
+
 

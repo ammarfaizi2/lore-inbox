@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWH1Xfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWH1Xqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWH1Xfi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 19:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWH1Xfi
+	id S964890AbWH1Xqu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 19:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWH1Xqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 19:35:38 -0400
-Received: from main.gmane.org ([80.91.229.2]:41351 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964900AbWH1Xfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 19:35:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Date: Tue, 29 Aug 2006 02:35:26 +0200
-Organization: Palacky University in Olomouc, experimental physics dep.
-Message-ID: <44F38BCE.2080108@flower.upol.cz>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <1156803102.3465.34.camel@mulgrave.il.steeleye.com> <20060828230452.GA4393@powerlinux.fr>
+	Mon, 28 Aug 2006 19:46:50 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:44475 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964890AbWH1Xqt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 19:46:49 -0400
+Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@osdl.org>,
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+In-Reply-To: <200608290054.47781.ak@suse.de>
+References: <20060820013121.GA18401@fieldses.org>
+	 <44EAD613.76E4.0078.0@novell.com>
+	 <1156804352.447.5.camel@dyn9047017100.beaverton.ibm.com>
+	 <200608290054.47781.ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 16:50:00 -0700
+Message-Id: <1156809000.447.20.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: debian-kernel@lists.debian.org, Greg KH <greg@kroah.com>
-X-Gmane-NNTP-Posting-Host: 158.194.192.153
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <20060828230452.GA4393@powerlinux.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Luther wrote:
-> On Mon, Aug 28, 2006 at 05:11:42PM -0500, James Bottomley wrote:
- >
->>I've tested this with the aic94xx driver using the new MODULE_FIRMWARE()
->>tag.  Initramfs should be much easier because it already includes most
->>of the boot time loading; all it has to do is the piece identifying the
->>firmware for the selected modules.
-...
-> Notice that mkinitrd-tools is dead, and will probably be removed from etch.
+On Tue, 2006-08-29 at 00:54 +0200, Andi Kleen wrote:
+> Thanks for the test cases. If you have more keep them comming.
 > 
-request_firmware() is dead also.
-YMMV, but three years, and there are still big chunks of binary in kernel.
-And please don't add new useless info _in_ it.
+...
+> > 
+> > Call Trace:
+> >  [<ffffffff8020ad7f>] show_trace+0xae/0x30e
+> >  [<ffffffff8020aff4>] dump_stack+0x15/0x17
+> >  [<ffffffff802288a5>] __might_sleep+0xb2/0xb4
+> >  [<ffffffff8024750e>] down_read+0x1d/0x2f
+> >  [<ffffffff8023e674>] blocking_notifier_call_chain+0x1b/0x41
+> >  [<ffffffff80232511>] profile_task_exit+0x15/0x17
+> >  [<ffffffff80233f95>] do_exit+0x25/0x91e
+> >  [<ffffffff8020b222>] kernel_math_error+0x0/0x96
+> >  [<ffff81010b6a30c0>]
+> 
+> 
+> Hmm, not sure about that one. In theory it should have been fixed
+> in rc4 already. Was this from an earlier kernel?
+> 
 
-Nobody cares.
-While this implementation exists, it wasn't well designed and hard to use.
-As with in-kernel bootsplash and i18n, everything maybe done in userspace, only
-with little help from the kernel:
-<http://permalink.gmane.org/gmane.linux.kernel/435955>.
+No. All these traces are from -rc4.
 
-Thanks.
-
--- 
--o--=O`C  /. .\   (+)
-  #oo'L O      o    |
-<___=E M    ^--    |  (you're barking up the wrong tree)
+Thanks,
+Badari
 

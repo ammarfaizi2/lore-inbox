@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWH1LRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWH1LZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWH1LRq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 07:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWH1LRq
+	id S964824AbWH1LZv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 07:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWH1LZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 07:17:46 -0400
-Received: from khc.piap.pl ([195.187.100.11]:27296 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964818AbWH1LRp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 07:17:45 -0400
-To: Willy Tarreau <w@1wt.eu>
-Cc: Solar Designer <solar@openwall.com>, Ernie Petrides <petrides@redhat.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: printk()s of user-supplied strings
-References: <20060822030755.GB830@openwall.com>
-	<200608222023.k7MKNHpH018036@pasta.boston.redhat.com>
-	<20060824164425.GA17692@openwall.com> <20060824164633.GA21807@1wt.eu>
-	<20060826022955.GB21620@openwall.com> <20060826082236.GA29736@1wt.eu>
-	<20060826231314.GA24109@openwall.com> <20060827200440.GA229@1wt.eu>
-	<20060828015224.GA27199@openwall.com> <20060828080246.GB9078@1wt.eu>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 28 Aug 2006 13:17:43 +0200
-In-Reply-To: <20060828080246.GB9078@1wt.eu> (Willy Tarreau's message of "Mon, 28 Aug 2006 10:02:46 +0200")
-Message-ID: <m3sljhp0rs.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Aug 2006 07:25:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1950 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964824AbWH1LZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 07:25:51 -0400
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+From: David Woodhouse <dwmw2@infradead.org>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org,
+       linux-tiny@selenic.com, devel@laptop.org
+In-Reply-To: <44F2CB09.2010809@aitel.hist.no>
+References: <1156429585.3012.58.camel@pmac.infradead.org>
+	 <1156433068.3012.115.camel@pmac.infradead.org>
+	 <200608251611.50616.rob@landley.net>
+	 <1156538115.3038.6.camel@pmac.infradead.org>
+	 <44F2CB09.2010809@aitel.hist.no>
+Content-Type: text/plain
+Date: Mon, 28 Aug 2006 12:21:16 +0100
+Message-Id: <1156764076.5340.75.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <w@1wt.eu> writes:
+On Mon, 2006-08-28 at 12:52 +0200, Helge Hafting wrote:
+> And a "make optImage" (optimized image) when building a
+> kernel for production use, when you believe compiling every file
+> and spending lots of extra time is worth it. 
 
-> Well, I'm not sure about this. Nearly all patches which get merged pass
-> through a public review first, and when you see how many replies you get
-> for and 'else' and and 'if' on two different lines, I expect lots of
-> spontaneous replies such as "use %S for user-supplied strings".
+If we revamp the entire kbuild infrastructure to allow building the
+_whole_ kernel with --combine then I might be inclined to agree -- we
+could do that instead of a CONFIG_COMBINED_COMPILE option.
 
-I wouldn't rely on that.
+But if, as I suggest, we're doing the simple option which combines only
+the files which tend to get most benefit from it -- those which are in
+the same directory -- then there's not a lot of point in the separate
+target. It really doesn't take that much extra time.
 
->> A solution would be to normally use "%S" and only use
->> "%s" where "%S" wouldn't work.  In that case, we could as well swap "%s"
->> and "%S", though - hardening the existing "%s" and introducing "%S" for
->> those callers that depend on the old behavior.
-
-I think it's the way to go.
-
-> I'd rather not change "%s" semantics if we introduce another specifier
-> which does exactly what we would expect "%s" to do.
-
-Both would be equivalent in most cases. It's better to use "%s" for
-most cases (either secured or not) and leave "%S" for the bunch of
-special cases whose authors better know what are they doing.
-
-> I will try your proposal to retain the trailing '\n' unescaped.
-
-I think with "%s" and "%S" this is no longer needed.
 -- 
-Krzysztof Halasa
+dwmw2
+

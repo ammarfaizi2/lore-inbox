@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWH1NYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWH1N2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWH1NYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 09:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWH1NYz
+	id S1750807AbWH1N2x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 09:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWH1N2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 09:24:55 -0400
-Received: from vsmtp14.tin.it ([212.216.176.118]:59809 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S1750807AbWH1NYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 09:24:54 -0400
-Message-ID: <10d54f33674.m.haruna@virgilio.it>
-Date: Mon, 28 Aug 2006 14:23:47 +0100 (GMT+01:00)
-From: <m.haruna@virgilio.it>
-Reply-To: <m.haruna@virgilio.it>
-Subject: From Mrs. Susan Simon.
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
+	Mon, 28 Aug 2006 09:28:53 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:19756 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750809AbWH1N2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 09:28:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=qeB3LadWmtexxPhCSNydP3MQp6erksQ349NNX8wn4Bqa0rjaKSsrsRNHChvfCbMYMsbbG/QK7gjXtY81mwVZ6hdpEmdLy83ABFmgHws344RQDpf5cCmwRIvxeREXAjm5cRWAKE3SaPpwUtes7E6QVD5HnjrK2YaseD9W/11K/7E=
+Message-ID: <44F2EF90.9050603@gmail.com>
+Date: Mon, 28 Aug 2006 21:28:48 +0800
+From: Yi Yang <yang.y.yi@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
+Content-Type: text/plain; charset=GB2312
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: 194.122.95.89
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
+and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
+does know them, I think the correct errno should be -EOPNOTSUPP which
+means they aren't be implemented or supported.
 
->From Mrs. Susan Simon. 
+>From the kernel source code, we can see they can be supported without
+any code modification if a specific filesystem implements aio_fsync.
 
-We are glad to inform you that your E-mail 
-address appears as the confirmed Winner of our last [E.U.I.L] email 
-lottery program held on the 27th August 2006. Your e-mail address 
-attached to Reference number 216-365-787 lucky numbers 32-15-54-35-47, 
-which consequently won in the 2nd category, you have therefore been 
-approved for a lump sum payment of EUR 500.000 Euros. [Five hundred 
-thousand euros only] 
+Another obvious problem is the function aio_fsync is as same as the
+function aio_fdsync, so they are duplicate, only one is enough.
 
-CONGRATULATIONS!!! 
-This promotional program 
-takes place every year. All participants were selected through a 
-computer ballot system from over 200,000 companies and 50,000, 000 
-individual email addresses and names from all over the world. In order 
-to avoid unnecessary delays and complications please remember to quote 
-your reference number and lucky numbers in all correspondence. We ask 
-that you should keep your winning information confidential until your 
-claim has been processed and your money remitted to you. 
+Here this patch is.
 
-To file for 
-your claim or for further details please contact our agent: 
 
-CONTACT 
-NAME: Dr. P. Williams 
-FREE SERVICE NUMBER: 
-0031-619-134-645 
-EMAIL: 
-drwilliamschamber@hotmail.com 
 
-In respect of our commitment towards 
-helping the less privileged, we ask that you voluntarily contribute 1% 
-of your Global winnings to any 
-charity organization you desire at your 
-convenience. 
-NOTE; that all winning must be claimed not later than 14 
-working days from this day you receive this mail. Congratulations once 
-more from our members of staff. 
+--- a/fs/aio.c.orig 2006-08-28 15:15:18.000000000 +0800
++++ b/fs/aio.c 2006-08-28 15:33:59.000000000 +0800
+@@ -1363,20 +1363,10 @@ static ssize_t aio_pwrite(struct kiocb *
+return ret;
+}
 
-Yours sincerely, 
-Mrs. Susan Simon 
+-static ssize_t aio_fdsync(struct kiocb *iocb)
+-{
+- struct file *file = iocb->ki_filp;
+- ssize_t ret = -EINVAL;
+-
+- if (file->f_op->aio_fsync)
+- ret = file->f_op->aio_fsync(iocb, 1);
+- return ret;
+-}
+-
+static ssize_t aio_fsync(struct kiocb *iocb)
+{
+struct file *file = iocb->ki_filp;
+- ssize_t ret = -EINVAL;
++ ssize_t ret = -EOPNOTSUPP;
 
-This email and its attachments are confidential and may contain legally 
-privileged information. You should not disclose the contents to any 
-other person. If you are not the intended recipient, please notify the 
-sender immediately and delete this email from your system. 
-
+if (file->f_op->aio_fsync)
+ret = file->f_op->aio_fsync(iocb, 0);
+@@ -1425,12 +1415,12 @@ static ssize_t aio_setup_iocb(struct kio
+kiocb->ki_retry = aio_pwrite;
+break;
+case IOCB_CMD_FDSYNC:
+- ret = -EINVAL;
++ ret = -EOPNOTSUPP;
+if (file->f_op->aio_fsync)
+- kiocb->ki_retry = aio_fdsync;
++ kiocb->ki_retry = aio_fsync;
+break;
+case IOCB_CMD_FSYNC:
+- ret = -EINVAL;
++ ret = -EOPNOTSUPP;
+if (file->f_op->aio_fsync)
+kiocb->ki_retry = aio_fsync;
+break;

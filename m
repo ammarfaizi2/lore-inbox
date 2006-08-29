@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbWH2SGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWH2SGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbWH2SGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 14:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWH2SGi
+	id S965223AbWH2SGd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 14:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWH2SGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 14:06:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49124 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965215AbWH2SG1 (ORCPT
+	Tue, 29 Aug 2006 14:06:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50148 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965216AbWH2SG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 14:06:27 -0400
+	Tue, 29 Aug 2006 14:06:28 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/19] BLOCK: Move the Ext3 device ioctl compat stuff to the Ext3 driver [try #6]
-Date: Tue, 29 Aug 2006 19:06:23 +0100
+Subject: [PATCH 13/19] BLOCK: Move the Ext2 device ioctl compat stuff to the Ext2 driver [try #6]
+Date: Tue, 29 Aug 2006 19:06:20 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060829180623.32596.616.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060829180620.32596.22266.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 References: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,199 +26,154 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the Ext3 device ioctl compat stuff from fs/compat_ioctl.c to the Ext3
-driver so that the Ext3 header file doesn't need to be included.
+Move the Ext2 device ioctl compat stuff from fs/compat_ioctl.c to the Ext2
+driver so that the Ext2 header file doesn't need to be included.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c       |   27 -----------------------
- fs/ext3/dir.c           |    3 +++
- fs/ext3/file.c          |    3 +++
- fs/ext3/ioctl.c         |   55 ++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/ext3_fs.h |    6 +++++
- 5 files changed, 66 insertions(+), 28 deletions(-)
+ fs/compat_ioctl.c |   17 -----------------
+ fs/ext2/dir.c     |    3 +++
+ fs/ext2/ext2.h    |    1 +
+ fs/ext2/file.c    |    6 ++++++
+ fs/ext2/ioctl.c   |   32 ++++++++++++++++++++++++++++++++
+ 5 files changed, 42 insertions(+), 17 deletions(-)
 
 diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index 3594668..e5eb0f1 100644
+index 0346f2a..3594668 100644
 --- a/fs/compat_ioctl.c
 +++ b/fs/compat_ioctl.c
-@@ -45,8 +45,6 @@ #include <linux/auto_fs4.h>
+@@ -45,7 +45,6 @@ #include <linux/auto_fs4.h>
  #include <linux/tty.h>
  #include <linux/vt_kern.h>
  #include <linux/fb.h>
--#include <linux/ext3_jbd.h>
--#include <linux/ext3_fs.h>
+-#include <linux/ext2_fs.h>
+ #include <linux/ext3_jbd.h>
+ #include <linux/ext3_fs.h>
  #include <linux/videodev.h>
- #include <linux/netdevice.h>
- #include <linux/raw.h>
-@@ -158,22 +156,6 @@ static int rw_long(unsigned int fd, unsi
+@@ -159,18 +158,6 @@ static int rw_long(unsigned int fd, unsi
  	return err;
  }
  
--static int do_ext3_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-static int do_ext2_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
 -{
 -	/* These are just misnamed, they actually get/put from/to user an int */
 -	switch (cmd) {
--	case EXT3_IOC32_GETVERSION: cmd = EXT3_IOC_GETVERSION; break;
--	case EXT3_IOC32_SETVERSION: cmd = EXT3_IOC_SETVERSION; break;
--	case EXT3_IOC32_GETRSVSZ: cmd = EXT3_IOC_GETRSVSZ; break;
--	case EXT3_IOC32_SETRSVSZ: cmd = EXT3_IOC_SETRSVSZ; break;
--	case EXT3_IOC32_GROUP_EXTEND: cmd = EXT3_IOC_GROUP_EXTEND; break;
--#ifdef CONFIG_JBD_DEBUG
--	case EXT3_IOC32_WAIT_FOR_READONLY: cmd = EXT3_IOC_WAIT_FOR_READONLY; break;
--#endif
+-	case EXT2_IOC32_GETFLAGS: cmd = EXT2_IOC_GETFLAGS; break;
+-	case EXT2_IOC32_SETFLAGS: cmd = EXT2_IOC_SETFLAGS; break;
+-	case EXT2_IOC32_GETVERSION: cmd = EXT2_IOC_GETVERSION; break;
+-	case EXT2_IOC32_SETVERSION: cmd = EXT2_IOC_SETVERSION; break;
 -	}
 -	return sys_ioctl(fd, cmd, (unsigned long)compat_ptr(arg));
 -}
 -
- struct compat_video_event {
- 	int32_t		type;
- 	compat_time_t	timestamp;
-@@ -2712,15 +2694,6 @@ HANDLE_IOCTL(PIO_UNIMAP, do_unimap_ioctl
+ static int do_ext3_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+ {
+ 	/* These are just misnamed, they actually get/put from/to user an int */
+@@ -2725,10 +2712,6 @@ HANDLE_IOCTL(PIO_UNIMAP, do_unimap_ioctl
  HANDLE_IOCTL(GIO_UNIMAP, do_unimap_ioctl)
  HANDLE_IOCTL(KDFONTOP, do_kdfontop_ioctl)
  #endif
--HANDLE_IOCTL(EXT3_IOC32_GETVERSION, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_SETVERSION, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_GETRSVSZ, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_SETRSVSZ, do_ext3_ioctl)
--HANDLE_IOCTL(EXT3_IOC32_GROUP_EXTEND, do_ext3_ioctl)
--COMPATIBLE_IOCTL(EXT3_IOC_GROUP_ADD)
--#ifdef CONFIG_JBD_DEBUG
--HANDLE_IOCTL(EXT3_IOC32_WAIT_FOR_READONLY, do_ext3_ioctl)
--#endif
- /* One SMB ioctl needs translations. */
- #define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, compat_uid_t)
- HANDLE_IOCTL(SMB_IOC_GETMOUNTUID_32, do_smb_getmountuid)
-diff --git a/fs/ext3/dir.c b/fs/ext3/dir.c
-index fbb0d4e..7ba8917 100644
---- a/fs/ext3/dir.c
-+++ b/fs/ext3/dir.c
-@@ -44,6 +44,9 @@ const struct file_operations ext3_dir_op
+-HANDLE_IOCTL(EXT2_IOC32_GETFLAGS, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_SETFLAGS, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_GETVERSION, do_ext2_ioctl)
+-HANDLE_IOCTL(EXT2_IOC32_SETVERSION, do_ext2_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_GETVERSION, do_ext3_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_SETVERSION, do_ext3_ioctl)
+ HANDLE_IOCTL(EXT3_IOC32_GETRSVSZ, do_ext3_ioctl)
+diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
+index 92ea826..3e7a84a 100644
+--- a/fs/ext2/dir.c
++++ b/fs/ext2/dir.c
+@@ -661,5 +661,8 @@ const struct file_operations ext2_dir_op
  	.read		= generic_read_dir,
- 	.readdir	= ext3_readdir,		/* we take BKL. needed?*/
- 	.ioctl		= ext3_ioctl,		/* BKL held */
+ 	.readdir	= ext2_readdir,
+ 	.ioctl		= ext2_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext3_compat_ioctl,
++	.compat_ioctl	= ext2_compat_ioctl,
 +#endif
- 	.fsync		= ext3_sync_file,	/* BKL held */
- #ifdef CONFIG_EXT3_INDEX
- 	.release	= ext3_release_dir,
-diff --git a/fs/ext3/file.c b/fs/ext3/file.c
-index 1efefb6..40320da 100644
---- a/fs/ext3/file.c
-+++ b/fs/ext3/file.c
-@@ -114,6 +114,9 @@ const struct file_operations ext3_file_o
- 	.readv		= generic_file_readv,
- 	.writev		= generic_file_writev,
- 	.ioctl		= ext3_ioctl,
+ 	.fsync		= ext2_sync_file,
+ };
+diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+index e65a019..c19ac15 100644
+--- a/fs/ext2/ext2.h
++++ b/fs/ext2/ext2.h
+@@ -137,6 +137,7 @@ extern void ext2_set_inode_flags(struct 
+ /* ioctl.c */
+ extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
+ 		       unsigned long);
++extern long ext2_compat_ioctl(struct file *, unsigned int, unsigned long);
+ 
+ /* namei.c */
+ struct dentry *ext2_get_parent(struct dentry *child);
+diff --git a/fs/ext2/file.c b/fs/ext2/file.c
+index 23e2c7c..e8bbed9 100644
+--- a/fs/ext2/file.c
++++ b/fs/ext2/file.c
+@@ -46,6 +46,9 @@ const struct file_operations ext2_file_o
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.ioctl		= ext2_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext3_compat_ioctl,
++	.compat_ioctl	= ext2_compat_ioctl,
 +#endif
  	.mmap		= generic_file_mmap,
  	.open		= generic_file_open,
- 	.release	= ext3_release_file,
-diff --git a/fs/ext3/ioctl.c b/fs/ext3/ioctl.c
-index 3a6b012..12daa68 100644
---- a/fs/ext3/ioctl.c
-+++ b/fs/ext3/ioctl.c
-@@ -13,9 +13,10 @@ #include <linux/capability.h>
- #include <linux/ext3_fs.h>
- #include <linux/ext3_jbd.h>
+ 	.release	= ext2_release_file,
+@@ -63,6 +66,9 @@ const struct file_operations ext2_xip_fi
+ 	.read		= xip_file_read,
+ 	.write		= xip_file_write,
+ 	.ioctl		= ext2_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= ext2_compat_ioctl,
++#endif
+ 	.mmap		= xip_file_mmap,
+ 	.open		= generic_file_open,
+ 	.release	= ext2_release_file,
+diff --git a/fs/ext2/ioctl.c b/fs/ext2/ioctl.c
+index 3ca9afd..1dfba77 100644
+--- a/fs/ext2/ioctl.c
++++ b/fs/ext2/ioctl.c
+@@ -11,6 +11,8 @@ #include "ext2.h"
+ #include <linux/capability.h>
  #include <linux/time.h>
+ #include <linux/sched.h>
 +#include <linux/compat.h>
 +#include <linux/smp_lock.h>
+ #include <asm/current.h>
  #include <asm/uaccess.h>
  
--
- int ext3_ioctl (struct inode * inode, struct file * filp, unsigned int cmd,
- 		unsigned long arg)
- {
-@@ -252,3 +253,55 @@ #endif
+@@ -80,3 +82,33 @@ int ext2_ioctl (struct inode * inode, st
  		return -ENOTTY;
  	}
  }
 +
 +#ifdef CONFIG_COMPAT
-+long ext3_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++long ext2_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 +{
 +	struct inode *inode = file->f_dentry->d_inode;
 +	int ret;
 +
 +	/* These are just misnamed, they actually get/put from/to user an int */
 +	switch (cmd) {
-+	case EXT3_IOC32_GETFLAGS:
-+		cmd = EXT3_IOC_GETFLAGS;
++	case EXT2_IOC32_GETFLAGS:
++		cmd = EXT2_IOC_GETFLAGS;
 +		break;
-+	case EXT3_IOC32_SETFLAGS:
-+		cmd = EXT3_IOC_SETFLAGS;
++	case EXT2_IOC32_SETFLAGS:
++		cmd = EXT2_IOC_SETFLAGS;
 +		break;
-+	case EXT3_IOC32_GETVERSION:
-+		cmd = EXT3_IOC_GETVERSION;
++	case EXT2_IOC32_GETVERSION:
++		cmd = EXT2_IOC_GETVERSION;
 +		break;
-+	case EXT3_IOC32_SETVERSION:
-+		cmd = EXT3_IOC_SETVERSION;
-+		break;
-+	case EXT3_IOC32_GROUP_EXTEND:
-+		cmd = EXT3_IOC_GROUP_EXTEND;
-+		break;
-+	case EXT3_IOC32_GETVERSION_OLD:
-+		cmd = EXT3_IOC_GETVERSION_OLD;
-+		break;
-+	case EXT3_IOC32_SETVERSION_OLD:
-+		cmd = EXT3_IOC_SETVERSION_OLD;
-+		break;
-+#ifdef CONFIG_JBD_DEBUG
-+	case EXT3_IOC32_WAIT_FOR_READONLY:
-+		cmd = EXT3_IOC_WAIT_FOR_READONLY;
-+		break;
-+#endif
-+	case EXT3_IOC32_GETRSVSZ:
-+		cmd = EXT3_IOC_GETRSVSZ;
-+		break;
-+	case EXT3_IOC32_SETRSVSZ:
-+		cmd = EXT3_IOC_SETRSVSZ;
-+		break;
-+	case EXT3_IOC_GROUP_ADD:
++	case EXT2_IOC32_SETVERSION:
++		cmd = EXT2_IOC_SETVERSION;
 +		break;
 +	default:
 +		return -ENOIOCTLCMD;
 +	}
 +	lock_kernel();
-+	ret = ext3_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
++	ret = ext2_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
 +	unlock_kernel();
 +	return ret;
 +}
 +#endif
-diff --git a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
-index 90cfba2..690c730 100644
---- a/include/linux/ext3_fs.h
-+++ b/include/linux/ext3_fs.h
-@@ -237,6 +237,8 @@ #define EXT3_IOC_SETRSVSZ		_IOW('f', 6, 
- /*
-  * ioctl commands in 32 bit emulation
-  */
-+#define EXT3_IOC32_GETFLAGS		FS_IOC32_GETFLAGS
-+#define EXT3_IOC32_SETFLAGS		FS_IOC32_SETFLAGS
- #define EXT3_IOC32_GETVERSION		_IOR('f', 3, int)
- #define EXT3_IOC32_SETVERSION		_IOW('f', 4, int)
- #define EXT3_IOC32_GETRSVSZ		_IOR('f', 5, int)
-@@ -245,6 +247,9 @@ #define EXT3_IOC32_GROUP_EXTEND		_IOW('f
- #ifdef CONFIG_JBD_DEBUG
- #define EXT3_IOC32_WAIT_FOR_READONLY	_IOR('f', 99, int)
- #endif
-+#define EXT3_IOC32_GETVERSION_OLD	FS_IOC32_GETVERSION
-+#define EXT3_IOC32_SETVERSION_OLD	FS_IOC32_SETVERSION
-+
- 
- /*
-  *  Mount options
-@@ -828,6 +833,7 @@ extern void ext3_set_aops(struct inode *
- /* ioctl.c */
- extern int ext3_ioctl (struct inode *, struct file *, unsigned int,
- 		       unsigned long);
-+extern long ext3_compat_ioctl (struct file *, unsigned int, unsigned long);
- 
- /* namei.c */
- extern int ext3_orphan_add(handle_t *, struct inode *);

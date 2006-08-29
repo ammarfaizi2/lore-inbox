@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWH2IK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWH2IMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWH2IK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWH2IK6
+	id S1751259AbWH2IMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWH2IMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:10:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2995 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750911AbWH2IK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:10:57 -0400
-Subject: Re: [RPC] OLPC tablet input driver.
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Zephaniah E. Hull" <warp@aehallh.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <mtosatti@redhat.com>
-In-Reply-To: <20060829073339.GA4181@aehallh.com>
-References: <20060829073339.GA4181@aehallh.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 29 Aug 2006 10:10:19 +0200
-Message-Id: <1156839019.2722.39.camel@laptopd505.fenrus.org>
+	Tue, 29 Aug 2006 04:12:36 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:52532 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751259AbWH2IMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 04:12:34 -0400
+Date: Tue, 29 Aug 2006 10:15:18 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: megaraid_sas suspend ok, resume oops
+Message-ID: <20060829081518.GD12257@kernel.dk>
+References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#undef DEBUG
-> +#ifdef DEBUG
-> +#define dbg(format, arg...) printk(KERN_INFO "olpc.c(%d): " format "\n", __LINE__, ## arg)
-> +#else
-> +#define dbg(format, arg...) do {} while (0)
-> +#endif
+On Tue, Aug 29 2006, Jeff Chua wrote:
+> Anyone working on suspend/resume for the Megaraid SAS RAID card?
+> 
+> This is on a DELL 2950.
+> 
+> Suspend/resume (to disk) has been running great on my IBM x60s, but
+> when I tried the same kernel (2.6.18-rc4) on the DELL 2950, it
+> suspended ok, but when resuming, the megaraid driver crashed.
 
-why not use pr_debug or even dev_debug() ?
-Those already have this ifdef included
+And what exactly is your intention with this email? It can't be getting
+the bug fixed, since there's exactly 0% information to help people doing
+so :-)
 
-> +
-> +static struct olpc_model_info olpc_model_data[] = {
-> +	{ { 0x67, 0x00, 0x0a }, 0xeb, 0xff, OLPC_PTGS },	/* OLPC in PT+GS mode. */
-> +};
+IOW, provide the oops from the resume crash at least.
 
-const?
-
-
-
-also.. there's no locking visible anywhere in the driver... is this
-right?
-
-Greetings,
-   Arjan van de Ven
+-- 
+Jens Axboe
 

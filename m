@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWH2Nym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWH2N5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWH2Nym (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 09:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWH2Nyk
+	id S1751427AbWH2N5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 09:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWH2N5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 09:54:40 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:26271 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751385AbWH2Nyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 09:54:40 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44F44639.90103@s5r6.in-berlin.de>
-Date: Tue, 29 Aug 2006 15:50:49 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+	Tue, 29 Aug 2006 09:57:48 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:60170 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751427AbWH2N5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 09:57:47 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Possible gpl problem?
+Date: Tue, 29 Aug 2006 06:57:40 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEEDOBAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       zippel@linux-m68k.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer
- [try #2]
-References: <20060829115138.GA32714@infradead.org> <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org>
-In-Reply-To: <20060829122501.GA7814@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1156763478.5340.70.camel@pmac.infradead.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 29 Aug 2006 06:52:35 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 29 Aug 2006 06:52:37 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Aug 29, 2006 at 01:23:18PM +0100, David Howells wrote:
->> Christoph Hellwig <hch@infradead.org> wrote:
->>
->>> Same as above.  USB_STORAGE already selects scsi so it shouldn't need
->>> to depend on block.
->> Ah, you've got it the wrong way round.
->>
->> Because USB_STORAGE _selects_ SCSI rather than depending on it, even if SCSI
->> is disabled, USB_STORAGE can be enabled, and that turns on CONFIG_SCSI, even
->> if not all of its dependencies are available.
->>
->> Run "make allyesconfig" and then try to turn off CONFIG_SCSI without this...
-> 
-> Eeek.  The easy fix is to change USB_STORAGE to depend on SCSI (*), but in
-> addition to that we should probably fix Kconfig aswell to adhere to
-> such constraints.
-> 
-> 
-> (*) that selects is really wrong to start with, the other scsi drivers don't
->     select scsi either.
 
-It is not wrong per se.
+> 2. If you ever distribute binaries _without_ source code, then you're
+> obliged to make the source code available to _any_ third party on
+> request; _not_ only those to whom you gave the binaries.
 
-If SCSI is set to "N", then any menu items which depend on SCSI are not 
-visible anymore. This is not a problem with any of the items in the SCSI 
-configuration section.
+	That's not what the GPL says. The only clauses I think you could be talking
+about are:
 
-But it is a problem for any items that live _in other configuration 
-sections_, such as USB_STORAGE (currently not affected because it 
-selects SCSI) and IEEE1394_SBP2 (does select SCSI now too in -mm).
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
 
-If "select" cannot be fixed or is not en vogue for any other reason, the 
-configuration tools need to be improved otherwise, so that users are 
-guided to options like USB_STORAGE and IEEE1394_SBP2 when SCSI or other 
-"foreign" options were disabled.
+	Note that providing a license does not require providing media. A license
+is a right to use, not an ability to use or a copy of the covered work. And:
 
-The kernel configuration is currently presented as a tree, although the 
-dependencies of config options are not a tree. That's were "select" helps.
--- 
-Stefan Richter
--=====-=-==- =--- ===-=
-http://arcgraph.de/sr/
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
+
+	Which, you'll notice, says you must *accompany* the distribution with a
+written offer. There is no way this offer could be enforced by someone who
+did not possess it or a copy of it. How would you know who to contact, the
+amount to pay, and so on?
+
+	So if you neither possess the binary nor a copy of an offer for the source,
+you are not entitled to it. At least, that's how I read this.
+
+	DS
+
+

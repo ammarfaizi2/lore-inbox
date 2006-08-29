@@ -1,48 +1,50 @@
-X-Warning: Original message contained 8-bit characters, however during
-	   the SMTP transport session the receiving system did not announce
-	   capability of receiving 8-bit SMTP (RFC 1651-1653), and as this
-	   message does not have MIME headers (RFC 2045-2049) to enable
-	   encoding change, we had very little choice.
-X-Warning: We ASSUME it is less harmful to add the MIME headers, and
-	   convert the text to Quoted-Printable, than not to do so,
-	   and to strip the message to 7-bits.. (RFC 1428 Appendix A)
-X-Warning: We don't know what character set the user used, thus we had to
-	   write these MIME-headers with our local system default value.
-MIME-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWH2BEb (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 28 Aug 2006 21:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWH2BEb
+	id S965313AbWH2Uml (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 29 Aug 2006 16:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbWH2Umk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 21:04:31 -0400
-Received: from mail.bmzcouros.com.br ([200.181.112.52]:37831 "EHLO
-	bmzcouros.com.br") by vger.kernel.org with ESMTP id S1750782AbWH2BEa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 21:04:30 -0400
-BrmaOutput: root@localhost
-Date: Mon, 28 Aug 2006 21:09:10 -0300
-Message-Id: <200608290009.k7T09AR3029706@bmzcouros.com.br>
-From: postmaster@bmzcouros.com.br
-To: linux-kernel@vger.kernel.org
-Subject: (BRMA) Mensagem  =?ISO-8859-1?Q?=20n=E3o?= autorizada
+	Tue, 29 Aug 2006 16:42:40 -0400
+Received: from [61.254.20.193] ([61.254.20.193]:10763 "EHLO COMPUTER")
+	by vger.kernel.org with ESMTP id S965304AbWH2Umh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 16:42:37 -0400
+Message-ID: <46382963318197.77CDB38292@EWMDIUG>
+From: "covariate" <covariate.counterattack@royaloakgrinders.com>
+To: <linux-laptop@vger.kernel.org>
+Subject: Your home credit
+Date: Wed, 30 Aug 2006 05:42:42 +0900
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: mgOUCm1w4cLRoBQygcEgfkNJnW3hpbGrlOlK
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750782AbWH2BEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965313AbWH2Uml@vger.kernel.org>
+
+Hello, 
+
+Your credit doesn't matter to us!
+If you OWN real estate and want IMMEDIATE cash to spend ANY way you 
+like, or simply wish to LOWER your monthly payments by a third or more, here are the deals we have TODAY:
+
+$488,000.00 at a 3.67% fixed-rate
+$372,000.00 at a 3.90% variable-rate
+$492,000.00 at a 3.21% interest-only
+$248,000.00 at a 3.36% fixed-rate
+$198,000.00 at a 3.55% variable-rate
+
+Hurry, we have requests limits, so when these deals are gone, they are 
+gone!
+
+We have one-mimute form to apply the request,
+please CLICK HERE
+
+http://NDVCF.bulkercreditprocess.com/?ncache=103396
+
+Don't worry about approval, your credit will not disqualify you!
+
+Approval Manager.
 
 
-Mensagem n=E3o autorizada
-----------------------------------------
-V=EDrus encontrado no email de entrada =20
-        Found the W32/Mydoom.o@MM!zip virus !!!
-
-----------------------------------------
-Para:  clayton@bmzcouros.com.br
-Assunto:  Jber
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

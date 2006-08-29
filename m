@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWH2MVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWH2MVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWH2MVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWH2MVf
+	id S1751021AbWH2MVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWH2MVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:21:35 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:53848 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750822AbWH2MV2 (ORCPT
+	Tue, 29 Aug 2006 08:21:12 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:59099 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750761AbWH2MVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:21:28 -0400
-Message-ID: <44F43209.6040603@sw.ru>
-Date: Tue, 29 Aug 2006 16:24:41 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 29 Aug 2006 08:21:10 -0400
+Date: Tue, 29 Aug 2006 14:17:12 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Nicholas Miell <nmiell@comcast.net>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+In-Reply-To: <20060829114143.GB4076@infradead.org>
+Message-ID: <Pine.LNX.4.61.0608291416370.8031@yvahk01.tjqt.qr>
+References: <44EFBEFA.2010707@student.ltu.se> <20060828093202.GC8980@infradead.org>
+ <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr> <44F2DEDC.3020608@student.ltu.se>
+ <1156792540.2367.2.camel@entropy> <20060829114143.GB4076@infradead.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Luck, Tony" <tony.luck@intel.com>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>, gregkh@suse.de,
-       akpm@osdl.org, dev@openvz.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net, stable@kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
-Subject: Re: [stable] [PATCH] Linux 2.6.17.11 - fix compilation error on IA64
- (try #3)
-References: <617E1C2C70743745A92448908E030B2A72869D@scsmsx411.amr.corp.intel.com> <20060829013137.GA27869@kroah.com>
-In-Reply-To: <20060829013137.GA27869@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Aug 28, 2006 at 03:11:31PM -0700, Luck, Tony wrote:
-> 
->>>The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that broke 
->>>IA64 compilation as shown below:
->>
->>What happened to the mainline version of the patch to which this
->>is a fix (local DoS with corrupted ELFs)?  I don't see it in 2.6.18-rc5.
->>Did it get fixed some other way, or is it just queued somewhere?  Or do
->>we have a fix in -stable that isn't in mainline?
-> 
-> 
-> I thought this was a fix for a prior -stable patch that did not affect
-> mainline.  Or was this thought wrong?
-both patches should be passed to Linus.
-Probably it is my fault, since I thought that patches which got into -stable
-automatically go into Linus tree.
+>> > That is error-prone. Not "==FALSE" but what happens if x is (for some 
+>> > reason) not 1 and then "if (x==TRUE)".
+>> 
+>> If you're using _Bool, that isn't possible. (Except at the boundaries
+>> where you have to validate untrusted data -- and the compiler makes that
+>> more difficult, because it "knows" that a _Bool can only be 0 or 1 and
+>> therefore your check to see if it's not 0 or 1 can "safely" be
+>> eliminated.)
+>
+>gcc lets you happily assign any integer value to bool/_Bool, so unless
 
-Thanks,
-Kirill
+But, it coerces the rvalue into 0 or 1, which may be a gain.
 
+>you write sparse support for actually checking things there's not the
+>slightest advantage in value range checking.
+
+
+Jan Engelhardt
+-- 

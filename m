@@ -1,43 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWH2I61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWH2JAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWH2I61 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWH2I60
+	id S1751281AbWH2JAh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWH2JAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:58:26 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:24291 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750844AbWH2I60
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:58:26 -0400
-Message-ID: <44F400EA.5020506@aitel.hist.no>
-Date: Tue, 29 Aug 2006 10:55:06 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Tue, 29 Aug 2006 05:00:37 -0400
+Received: from web37911.mail.mud.yahoo.com ([209.191.91.173]:16044 "HELO
+	web37911.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750844AbWH2JAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:00:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=EgzIhaN1YT8DH327FqLwWuRiFtIlHea5jC4og5GsAoIg8RPHK3kl9VFnUr2rZ1EXz1ndu8bVU+DGhYVbsZS7yOGW9rNzB7sXPzp0uxd2DFxof1NCStI5i244QzXjQQBkI2IBBf/FvfHZHD9cv4uxaTbVw3c8fibQRlo931CjPp0=  ;
+Message-ID: <20060829090035.34294.qmail@web37911.mail.mud.yahoo.com>
+Date: Tue, 29 Aug 2006 02:00:35 -0700 (PDT)
+From: Komal Shah <komal_shah802003@yahoo.com>
+Subject: Re: [RPC] OLPC tablet input driver.
+To: "Zephaniah E. Hull" <warp@aehallh.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <mtosatti@redhat.com>
+In-Reply-To: <20060829073339.GA4181@aehallh.com>
 MIME-Version: 1.0
-To: =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszor@dunaweb.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to determine whether a file was opened O_DIRECT?
-References: <3557.213.163.11.81.1156838596.squirrel@www.dunaweb.hu>
-In-Reply-To: <3557.213.163.11.81.1156838596.squirrel@www.dunaweb.hu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Böszörményi Zoltán wrote:
-> Hi,
->
-> I would like to run some diagnostics on a database
-> process and I would like to know what flags it used
-> for opening its files. Is there any way to get this info?
->
-> Thanks in advance,
-> Zoltán Böszörményi
->   
-1. Look at the source code for the database - if you have it.
-2. Run your database under strace, then search the voluminous
-    output for "open" calls and look at the flags.
-3. Patch your kernel to "printk" information whenever
-    someone opens with O_DIRECT.
+--- "Zephaniah E. Hull" <warp@aehallh.com> wrote:
 
-Helge Hafting
+> 
+> 
+> That said, here the patch is for comments.
+> (And possibly for the OLPC kernel tree for others with samples to
+> play
+> with.)
+> 
+> 
+> Signed-off-by: Zephaniah E. Hull <warp@aehallh.com>
+> 
+> diff --git a/drivers/input/mouse/Makefile
+> b/drivers/input/mouse/Makefile
+> index 21a1de6..6218e5a 100644
+> --- a/drivers/input/mouse/Makefile
+> +++ b/drivers/input/mouse/Makefile
+> @@ -14,4 +14,4 @@ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+>  obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
+>  obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
+>  
+> -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
+> lifebook.o trackpoint.o
+> +psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
+> lifebook.o trackpoint.o olpc.o
+
+Where is KConfigurable entry ?
+
+> diff --git a/drivers/input/mouse/olpc.c b/drivers/input/mouse/olpc.c
+> new file mode 100644
+> index 0000000..245f29e
+> --- /dev/null
+> +++ b/drivers/input/mouse/olpc.c
+> @@ -0,0 +1,327 @@
+
+
+> +/*
+> + * OLPC touchpad PS/2 mouse driver
+> + *
+> +int olpc_init(struct psmouse *psmouse)
+> +{
+> +	struct olpc_data *priv;
+> +	struct input_dev *dev = psmouse->dev;
+> +	struct input_dev *dev2;
+> +
+> +	psmouse->private = priv = kzalloc(sizeof(struct olpc_data),
+> GFP_KERNEL);
+
+I think you should assign priv to private only if !NULL.
+
+> +	dev2 = input_allocate_device();
+> +	if (!priv || !dev2)
+> +		goto init_fail;
+> +
+> +	priv->dev2 = dev2;
+> +
+> +	if (!(priv->i = olpc_get_model(psmouse)))
+> +		goto init_fail;
+> +
+> +	if (olpc_absolute_mode(psmouse)) {
+> +		printk(KERN_ERR "olpc.c: Failed to enable absolute mode\n");
+> +		goto init_fail;
+> +	}
+> +
+> +	dev->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
+> +	dev->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
+> +	dev->keybit[LONG(BTN_TOOL_PEN)] |= BIT(BTN_TOOL_PEN);
+> +	dev->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
+> +
+> +	dev->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
+> +	input_set_abs_params(dev, ABS_X, 0, 1023, 0, 0);
+> +	input_set_abs_params(dev, ABS_Y, 0, 1023, 0, 0);
+> +
+> +	snprintf(priv->phys, sizeof(priv->phys), "%s/input1",
+> psmouse->ps2dev.serio->phys);
+> +	dev2->phys = priv->phys;
+> +	dev2->name = "OLPC OLPC GlideSensor";
+> +	dev2->id.bustype = BUS_I8042;
+> +	dev2->id.vendor  = 0x0002;
+> +	dev2->id.product = PSMOUSE_OLPC;
+> +	dev2->id.version = 0x0000;
+> +
+> +	dev2->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
+> +	dev2->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
+> +	input_set_abs_params(dev2, ABS_X, 0, 2047, 0, 0);
+> +	input_set_abs_params(dev2, ABS_Y, 0, 1023, 0, 0);
+> +	input_set_abs_params(dev2, ABS_PRESSURE, 0, 63, 0, 0);
+> +	dev2->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
+> +	dev2->keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
+> +	dev2->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
+> +
+> +	input_register_device(priv->dev2);
+
+Please check the return value of input_register_device and its friends.
+
+> +
+> +
+> +	psmouse->protocol_handler = olpc_process_byte;
+> +	psmouse->poll = olpc_poll;
+> +	psmouse->disconnect = olpc_disconnect;
+> +	psmouse->reconnect = olpc_reconnect;
+> +	psmouse->pktsize = 9;
+> +
+> +	/* We are having trouble resyncing OLPC touchpads so disable it for
+> now */
+> +	psmouse->resync_time = 0;
+> +
+> +	return 0;
+> +
+> +init_fail:
+> +	input_free_device(dev2);
+> +	kfree(priv);
+> +	return -1;
+> +}
+> +
+
+
+---Komal Shah
+http://komalshah.blogspot.com/
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

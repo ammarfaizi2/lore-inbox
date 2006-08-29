@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWH2Bgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWH2BmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWH2Bgu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 21:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWH2Bgu
+	id S1750936AbWH2BmX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 21:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWH2BmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 21:36:50 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:63173 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750936AbWH2Bgt
+	Mon, 28 Aug 2006 21:42:23 -0400
+Received: from compunauta.com ([69.36.170.169]:40593 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S1750924AbWH2BmW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 21:36:49 -0400
-Message-ID: <44F39A23.4000409@zytor.com>
-Date: Mon, 28 Aug 2006 18:36:35 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 28 Aug 2006 21:42:22 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Can't enable DMA over ATA on Intel Chipset 2.6.16
+Date: Mon, 28 Aug 2006 20:42:26 -0500
+User-Agent: KMail/1.8.2
+References: <200608271239.32507.gustavo@compunauta.com> <200608271434.35840.gustavo@compunauta.com> <20060828195709.GL13641@csclub.uwaterloo.ca>
+In-Reply-To: <20060828195709.GL13641@csclub.uwaterloo.ca>
 MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: Matt Domsch <Matt_Domsch@dell.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com
-Subject: Re: [PATCH] Fix the EDD code misparsing the command line
-References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de> <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com> <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com> <44F335C8.7020108@zytor.com> <20060828184637.GD13464@lists.us.dell.com> <44F386B8.8000209@zytor.com> <44F3974B.6060501@vc.cvut.cz>
-In-Reply-To: <44F3974B.6060501@vc.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608282042.26594.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
->> +
->> +# Old-style boot protocol?
->> +old_cl:
->> +    push    %ds            # aka INITSEG
->> +    pop    %fs
->> +
->> +    cmpw    $0xa33f, (0x20)
->> +    jne    done_cl            # No command line at all?
->> +    movw    (0x22), %si        # Pointer relative to INITSEG
-> 
-> Perhaps you should convert ds:si to flat pointer and then this flat 
-> pointer to fs:si using method above, to avoid problems with dword access 
-> with si > 0xfffc or word access with si > 0xfffe ?
-> 
->> +
->> +# fs:si has the pointer to the command line now
->> +have_cl_pointer:
->> +   
->>  # loop through kernel command line one byte at a time
->> -cl_loop:
->> -    cmpl    $EDD_CL_EQUALS, (%si)
->> +cl_atspace:
->> +    movl    %fs:(%si), %eax
-> 
-> This looks fine for new boot protocol, but what if old boot protocol 
-> puts command line so that its last byte is at INITSEG:0xffff ?  You get 
-> #GP here, then, although command line is correctly zero terminated and 
-> does not overflow segment.
-> 
+El Lunes, 28 de Agosto de 2006 14:57, escribió:
+> Make sure the piix ide drive is loaded BEFORE the ide-generic driver,
+> otherwise the wrong driver will run the PATA port, and the generic
+> driver doesn't do DMA.  Your dmesg did not look like it was using the
+> piix driver for PATA, it looked like ide-generic.  Some initrd systems
+> seem to load ide-generic for cdrom, if the HD is on sata or scsi, or
+> something later in the boot process does it.
+>
+> You should see something like (using piix driver, ata_piix would look
+> somewhat different I think):
+Builded into kernel we can't specify the load order, then you suggest to made 
+an initrd with insmod loading firs scsi subsystem and piix before 
+ide-generic... Ok I can do that, but imagine, making a kernel for a 
+distribution, ;)
 
-With the old protocol, the command line is supposed to fit inside the 
-64K segment, so I don't think that's an issue.  Putting "Hail Mary" 
-break at 0xfffd isn't a bad idea, though (especially since even if that 
-is legitimate, we can't fit "edd=" into that one.)
+No problem, let me try.
 
-> If si is 0xfffb here, bad things happen.  I know, things I've pointed 
-> out should not be problem in real world, and new code is definitely 
-> better than old one, but if you already have code to avoid endless loop 
-> if command line points to 64KB array of 0xFF let's do that right, no?
+> ICH5: IDE controller at PCI slot 0000:00:1f.1
+> PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 193
+> ICH5: chipset revision 2
+> ICH5: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
+> Probing IDE interface ide0...
+> hda: PLEXTOR DVDR PX-708A, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Probing IDE interface ide1...
+> hda: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.20
+> Probing IDE interface ide1...
+>
+> Yours had:
+>
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> Probing IDE interface ide0...
+> Probing IDE interface ide1...
+> hdc: SAMSUNG SP0802N, ATA DISK drive
+> hdd: TSSTcorpCD/DVDW TS-H552L, ATAPI CD/DVD-ROM drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hdc: max request size: 512KiB
+> hdc: 156368016 sectors (80060 MB) w/2048KiB Cache, CHS=16383/255/63
+> hdc: cache flushes supported
+>  /dev/ide/host1/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 >
+> hdd: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache
+> Uniform CD-ROM driver Revision: 3.20
+> ide-floppy driver 0.99.newide
+> libata version 1.20 loaded.
+> ata_piix 0000:00:1f.2: version 1.05
+> ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 16
+> ata: 0x170 IDE port busy
+> PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+> ATA: abnormal status 0x7F on port 0x1F7
+> ata1: disabling port
+> scsi0 : ata_piix
+>
+> That looks like ata_piix couldn't get at the ide port because it was
+> already taken by the generic driver already.
+>
+> --
+> Len Sorensen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Agreed.  I'll update the patch shortly.
-
-	-hpa
+-- 
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWH2Qxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbWH2QwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbWH2Qxq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWH2Qxp
+	id S965145AbWH2QwF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWH2QtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:53:45 -0400
-Received: from mail.freedom.ind.br ([201.35.65.90]:20458 "EHLO
-	mail.freedom.ind.br") by vger.kernel.org with ESMTP id S965156AbWH2Qxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:53:43 -0400
-From: Otavio Salvador <otavio@debian.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Failed to setup console
-Organization: O.S. Systems Ltda.
-References: <873bbfsoqv.fsf@neumann.lab.ossystems.com.br>
-	<Pine.LNX.4.61.0608291443540.9815@yvahk01.tjqt.qr>
-X-URL: http://www.debian.org/~otavio/
-X-Attribution: O.S.
-Date: Tue, 29 Aug 2006 13:53:11 -0300
-In-Reply-To: <Pine.LNX.4.61.0608291443540.9815@yvahk01.tjqt.qr> (Jan
-	Engelhardt's message of "Tue, 29 Aug 2006 14:44:26 +0200 (MEST)")
-Message-ID: <87r6yzv5zc.fsf@neumann.lab.ossystems.com.br>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Aug 2006 12:49:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30621 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965112AbWH2QqI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 12:46:08 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 05/19] BLOCK: Don't call block_sync_page() from AFS [try #5]
+Date: Tue, 29 Aug 2006 17:46:00 +0100
+To: axboe@kernel.dk
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060829164600.15723.44280.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
+References: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+From: David Howells <dhowells@redhat.com>
 
->>Hello,
->>
->>I'm trying to use 2.6.18-rc5 but it doesn't work to me. I failed to
->>identify what's missing or if it's a bug somewhere.
->>
->>My system, while booting, shows that it fails to setup a console. I'm
->>attaching my .config for reference.
->
-> Precise error messages please.
->
-> You most likely lack /dev/console.
+The AFS filesystem no longer needs to override its sync_page() op.
 
-You gotcha!
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Worked fine!
+ fs/afs/file.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Thanks!
-
--- 
-        O T A V I O    S A L V A D O R
----------------------------------------------
- E-mail: otavio@debian.org      UIN: 5906116
- GNU/Linux User: 239058     GPG ID: 49A5F855
- Home Page: http://www.freedom.ind.br/otavio
----------------------------------------------
-"Microsoft gives you Windows ... Linux gives
- you the whole house."
+diff --git a/fs/afs/file.c b/fs/afs/file.c
+index 67d6634..5ff8e3a 100644
+--- a/fs/afs/file.c
++++ b/fs/afs/file.c
+@@ -37,7 +37,9 @@ struct inode_operations afs_file_inode_o
+ 
+ const struct address_space_operations afs_fs_aops = {
+ 	.readpage	= afs_file_readpage,
++#if 0 /* probably shouldn't do this - needs reconsideration */
+ 	.sync_page	= block_sync_page,
++#endif
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
+ 	.releasepage	= afs_file_releasepage,
+ 	.invalidatepage	= afs_file_invalidatepage,

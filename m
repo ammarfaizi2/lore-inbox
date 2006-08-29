@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWH2MVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWH2MXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWH2MVR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWH2MVR
+	id S1751343AbWH2MXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWH2MXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:21:17 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:17215 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751005AbWH2MVQ (ORCPT
+	Tue, 29 Aug 2006 08:23:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17556 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751343AbWH2MXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:21:16 -0400
-Message-ID: <44F431F5.7020703@sw.ru>
-Date: Tue, 29 Aug 2006 16:24:21 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Luck, Tony" <tony.luck@intel.com>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>, gregkh@suse.de,
-       akpm@osdl.org, dev@openvz.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net, stable@kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
-Subject: Re: [stable] [PATCH] Linux 2.6.17.11 - fix compilation error on IA64
- (try #3)
-References: <617E1C2C70743745A92448908E030B2A72869D@scsmsx411.amr.corp.intel.com> <20060829013137.GA27869@kroah.com>
-In-Reply-To: <20060829013137.GA27869@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 08:23:23 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060829115138.GA32714@infradead.org> 
+References: <20060829115138.GA32714@infradead.org>  <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> 
+To: Christoph Hellwig <hch@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 29 Aug 2006 13:23:18 +0100
+Message-ID: <15945.1156854198@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Aug 28, 2006 at 03:11:31PM -0700, Luck, Tony wrote:
-> 
->>>The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that broke 
->>>IA64 compilation as shown below:
->>
->>What happened to the mainline version of the patch to which this
->>is a fix (local DoS with corrupted ELFs)?  I don't see it in 2.6.18-rc5.
->>Did it get fixed some other way, or is it just queued somewhere?  Or do
->>we have a fix in -stable that isn't in mainline?
-> 
-> 
-> I thought this was a fix for a prior -stable patch that did not affect
-> mainline.  Or was this thought wrong?
-it should be passed to Linus.
-Probably it is my fault, since I thought that patches which got into -stable
-automatically go into Linus tree.
+Christoph Hellwig <hch@infradead.org> wrote:
 
-Thanks,
-Kirill
+> Same as above.  USB_STORAGE already selects scsi so it shouldn't need
+> to depend on block.
 
+Ah, you've got it the wrong way round.
+
+Because USB_STORAGE _selects_ SCSI rather than depending on it, even if SCSI
+is disabled, USB_STORAGE can be enabled, and that turns on CONFIG_SCSI, even
+if not all of its dependencies are available.
+
+Run "make allyesconfig" and then try to turn off CONFIG_SCSI without this...
+
+David

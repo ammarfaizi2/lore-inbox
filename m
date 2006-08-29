@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWH2JN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWH2JQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWH2JN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWH2JNZ
+	id S932224AbWH2JQC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWH2JQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:13:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23425 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932210AbWH2JNY (ORCPT
+	Tue, 29 Aug 2006 05:16:01 -0400
+Received: from szamitogep.hu ([62.77.196.4]:25007 "EHLO www.szamitogep.hu")
+	by vger.kernel.org with ESMTP id S932224AbWH2JQA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:13:24 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060827214734.252316000@klappe.arndb.de> 
-References: <20060827214734.252316000@klappe.arndb.de> 
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Jeff Dike <jdike@addtoit.com>, Bjoern Steinbrink <B.Steinbrink@gmx.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH 0/7] kill __KERNEL_SYSCALLS__ 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 29 Aug 2006 10:12:47 +0100
-Message-ID: <10191.1156842767@warthog.cambridge.redhat.com>
+	Tue, 29 Aug 2006 05:16:00 -0400
+Message-ID: <4830.213.163.11.81.1156842958.squirrel@www.dunaweb.hu>
+In-Reply-To: <44F400EA.5020506@aitel.hist.no>
+References: <3557.213.163.11.81.1156838596.squirrel@www.dunaweb.hu>
+    <44F400EA.5020506@aitel.hist.no>
+Date: Tue, 29 Aug 2006 11:15:58 +0200 (CEST)
+Subject: Re: How to determine whether a file was opened O_DIRECT?
+From: =?iso-8859-2?Q?B=F6sz=F6rm=E9nyi_Zolt=E1n?= <zboszor@dunaweb.hu>
+To: "Helge Hafting" <helge.hafting@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann <arnd@arndb.de> wrote:
+> Böszörményi Zoltán wrote:
+>> Hi,
+>>
+>> I would like to run some diagnostics on a database
+>> process and I would like to know what flags it used
+>> for opening its files. Is there any way to get this info?
+>>
+>> Thanks in advance,
+>> Zoltán Böszörményi
+>>
+> 1. Look at the source code for the database - if you have it.
 
-> Ok, next try. This time a full series that tries to kill
-> off __KERNEL_SYSCALLS__, _syscallX() and the global errno
-> for good.
+Unfortunately not.
 
-Have you checked uClibc?  Does that use _syscallX()?
+> 2. Run your database under strace, then search the voluminous
+>     output for "open" calls and look at the flags.
 
-David
+I can't do that, it's a production machine. But ...
+
+> 3. Patch your kernel to "printk" information whenever
+>     someone opens with O_DIRECT.
+
+... this should have been obvious. :-) Thanks.
+
+I just thought a command like fuser
+may already exists to give me this info.
+Or something under /proc/PID/fd.
+
+>
+> Helge Hafting
+>
+

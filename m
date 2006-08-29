@@ -1,104 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWH2RHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbWH2RK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbWH2RHM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 13:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWH2RHL
+	id S965159AbWH2RK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbWH2RK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 13:07:11 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:1956 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S965157AbWH2RHJ (ORCPT
+	Tue, 29 Aug 2006 13:10:27 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:15354 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S965159AbWH2RKZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 13:07:09 -0400
-Date: Tue, 29 Aug 2006 13:06:46 -0400 (EDT)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: Wim Van Sebroeck <wim@iguana.be>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH][SBC8360] Re: Neverending module_param() bugs
-In-Reply-To: <20060812214709.GC6252@martell.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0608291301140.23609@light.int.webcon.net>
-References: <20060812214709.GC6252@martell.zuzino.mipt.ru>
-Organization: Webcon, Inc
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463806462-1472440461-1156871206=:23609"
-X-Assp-Spam-Prob: 0.00000
-X-Assp-Whitelisted: Yes
-X-Assp-Envelope-From: imorgan@webcon.ca
+	Tue, 29 Aug 2006 13:10:25 -0400
+Date: Tue, 29 Aug 2006 09:59:57 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/18] 2.6.17.9 perfmon2 patch for review: new system calls support
+Message-ID: <20060829165957.GN22011@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230805.k7N85tfm000384@frankl.hpl.hp.com> <20060823151439.a44aa13f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060823151439.a44aa13f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Andrew,
 
----1463806462-1472440461-1156871206=:23609
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-On Sun, 13 Aug 2006, Alexey Dobriyan wrote:
-
-> Can someone think of a way to explicitly tell driver author that last
-> argument of module_param is PERMISSIONS, not default value? It's late
-> here I can't. Preferably resulting in compilation failure.
+On Wed, Aug 23, 2006 at 03:14:39PM -0700, Andrew Morton wrote:
+> > 
+> > sys_pfm_getinfo_evtsets():
+> > 	- get information about event sets, such as the number of activations. Accepts
+> > 	  vector arguments of type pfarg_setinfo_t
+> > 
+> > There are other more indirect system calls related to the fact that a context uses a file
+> > descriptor. Those system calls are in perfmon_file.c and part of another patch.
+> > 
 > 
-> drivers/char/watchdog/sbc8360.c:203:module_param(timeout, int, 27);
+> This code does quite a lot of worrisome poking around inside task lifetime
+> internals.
+> 
+The only thing that needs to be checked for certain commands is task->state.
+As I explained in an ealier reply, we can only operate on a task, to modify
+its PMU state (effectively its machine state) when the task is not running.
+For that we need to check its state. We enforce that the task must be STOPPED
+(which you can do via ptrace, for instance). Being runnable and off any cpu
+is not enough as it may be scheduled again as we operate on it. Also this
+would not set any bound as to when it would be scheduled out if it is running
+by the time we come to check on its state.
 
-Here's my fix for sbc8360, inlined and attached. Please merge.
 
-Regards,
-Ian Morgan
+> Perhaps you could describe what problems are being solved here so we can
+> take a closer look at whether this is the best way in which to solve them?
+> 
+> > +	/*
+> > +	 * for syswide, we accept if running on the cpu the context is bound
+> > +	 * to. When monitoring another thread, must wait until stopped.
+> > +	 */
+> > +	if (ctx->flags.system) {
+> > +		if (ctx->cpu != smp_processor_id())
+> > +			return -EBUSY;
+> > +		return 0;
+> > +	}
+> 
+> Hopefully we're running atomically here.  Inside preempt_disable().
+> 
+We are running inside spin_lock_irqsave(). I would assume this is sufficient
+to prevent preeemption.
+
+> > +
+> > +		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
+> > +			task->pid,
+> > +			task->state,
+> > +			local_flags);
+> > +
+> > +		spin_unlock_irqrestore(&ctx->lock, local_flags);
+> > +
+> > +		wait_task_inactive(task);
+> > +
+> > +		spin_lock_irqsave(&ctx->lock, new_flags);
+> 
+> This sort of thing..
+
+We need to wait until the task is effectively off the CPU, i.e., with its
+machine state (incl PMU) saved. When we come back we re-run the series of tests.
+This applies only to per-thread, therefore it is not affected by smp_processor_id().
+
+
+> > +asmlinkage long sys_pfm_write_pmcs(int fd, struct pfarg_pmc __user *ureq, int count)
+> > +{
+> > +	struct pfm_context *ctx;
+> > +	struct pfarg_pmc pmcs[PFM_PMC_STK_ARG];
+> > +	struct pfarg_pmc *req;
+> > +	unsigned long flags;
+> > +	size_t sz;
+> > +	int ret;
+> > +
+> > +	if (count < 0)
+> > +		return -EINVAL;
+> > +
+> > +	ctx = pfm_get_ctx(fd);
+> > +	if (unlikely(ctx == NULL))
+> > +		return -EBADF;
+> > +
+> > +	sz = count*sizeof(*ureq);
+> 
+> I'm worried about multiplication overflow here.  A large value of `count'
+> can cause `count*sizeof(*ureq)' to yield a small positive result.  It
+> appears that very bad things might happen.
+> 
+I have fixed that now.
+
+> > +asmlinkage long sys_pfm_write_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
+> > +{
+> > +	struct pfm_context *ctx;
+> > +	struct pfarg_pmd pmds[PFM_PMD_STK_ARG];
+> > +	struct pfarg_pmd *req;
+> > +	unsigned long flags;
+> > +	size_t sz;
+> > +	int ret;
+> > +
+> > +	if (count < 0)
+> > +		return -EINVAL;
+> > +
+> > +	ctx = pfm_get_ctx(fd);
+> > +	if (unlikely(ctx == NULL))
+> > +		return -EBADF;
+> > +
+> > +	sz = count*sizeof(*ureq);
+> 
+> Please check all the syscalls for multiplication overflow.
+> 
+I fixed all of them now.
+
+
+
+> > +asmlinkage long sys_pfm_read_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
+> > +{
+> > +	struct pfm_context *ctx;
+> > +	struct pfarg_pmd pmds[PFM_PMD_STK_ARG];
+> > +	struct pfarg_pmd *req;
+> > +	unsigned long flags;
+> > +	size_t sz;
+> > +	int ret;
+> > +
+> > +	if (count < 0)
+> > +		return -EINVAL;
+> > +
+> > +	ctx = pfm_get_ctx(fd);
+> > +	if (unlikely(ctx == NULL))
+> > +		return -EBADF;
+> > +
+> > +	sz = count*sizeof(*ureq);
+> > +
+> > +	ret = pfm_get_args(ureq, sz, sizeof(pmds), pmds, (void **)&req);
+> > +	if (ret)
+> > +		goto error;
+> > +
+> > +	spin_lock_irqsave(&ctx->lock, flags);
+> > +
+> > +	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
+> > +	if (!ret)
+> > +		ret = __pfm_read_pmds(ctx, req, count);
+> > +
+> > +	spin_unlock_irqrestore(&ctx->lock, flags);
+> > +
+> > +	if (copy_to_user(ureq, req, sz))
+> > +		ret = -EFAULT;
+> 
+> There's a risk here that if pfm_check_task_state() returned false, we just
+> copied a hunk of uninitialised kernel memory out to userspace.
+> 
+> AFAICT that won't happen because the memory at *req was also copied _in_
+> from userspace.  But this idiom is all over the place in this patch and I'd
+> like you to say that this is all expected, designed-for and will be forever
+> safe.
+
+Yes, that will not happen for the exact reason you are presenting. This is
+the expected behavior. In this case, you get back what you passed in. Notice
+also that the copy_to_user() error code takes over the return value of 
+any preceding calls. That is simply because if you cannot communicate through
+the buffer, then you have a bigger problem than just passing trying to operate
+on a task that is running for instance.
+
+> > +	if (count > PFM_PMD_STK_ARG)
+> > +		kfree(req);
+> > +error:
+> > +	pfm_put_ctx(ctx);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> >
+> > ...
+> >
+> > +asmlinkage long sys_pfm_stop(int fd)
+> 
+> None of these syscalls are documented.  Where does one go to find the API
+> description?
+> 
+There exists an older description of the interface that does not cover sets and multiplexing.
+I am certainly planning on publishing a full specfication.
+
+> 
+> When copying a struct from kernel to userspace we must beware of
+> compiler-inserted padding.  Because that can cause the kernel to leak
+> a few bytes of uninitialised kernel memory.
+
+We are copying out exactly the same amount of data that was passed in.
+
+Are you suggesting that copy_from/copy_to may copy more data?
+
+> Unless `struct pfarg_setdesc' is very carefully designed and very simply
+> laid out it might be best just to zero out the kernel memory in
+> pfm_get_args().
+
+I have tried to have every field aligned propely in both 32-bit and 64-bit.
+Keep in mind that we are ABI compatible in for 32 and 64 bit modes on x86
+for all perfmon2 system calls.
+
+Thanks.
 
 -- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-    *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
-
---- linux-2.6.17.11/drivers/char/watchdog/sbc8360.c.orig	2006-08-29 12:55:26.000000000 -0400
-+++ linux-2.6.17.11/drivers/char/watchdog/sbc8360.c	2006-08-29 12:58:20.000000000 -0400
-@@ -201,7 +201,7 @@ static int wd_margin = 0xB;
- static int wd_multiplier = 2;
- static int nowayout = WATCHDOG_NOWAYOUT;
- 
--module_param(timeout, int, 27);
-+module_param(timeout, int, 0);
- MODULE_PARM_DESC(timeout, "Index into timeout table (0-63) (default=27 (60s))");
- module_param(nowayout, int, 0);
- MODULE_PARM_DESC(nowayout,
-@@ -408,7 +408,7 @@ module_exit(sbc8360_exit);
- MODULE_AUTHOR("Ian E. Morgan <imorgan@webcon.ca>");
- MODULE_DESCRIPTION("SBC8360 watchdog driver");
- MODULE_LICENSE("GPL");
--MODULE_VERSION("1.0");
-+MODULE_VERSION("1.01");
- MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
- 
- /* end of sbc8360.c */
----1463806462-1472440461-1156871206=:23609
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=sbc8360-1.01.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0608291306460.23609@light.int.webcon.net>
-Content-Description: 
-Content-Disposition: attachment; filename=sbc8360-1.01.patch
-
-LS0tIGxpbnV4LTIuNi4xNy4xMS9kcml2ZXJzL2NoYXIvd2F0Y2hkb2cvc2Jj
-ODM2MC5jLm9yaWcJMjAwNi0wOC0yOSAxMjo1NToyNi4wMDAwMDAwMDAgLTA0
-MDANCisrKyBsaW51eC0yLjYuMTcuMTEvZHJpdmVycy9jaGFyL3dhdGNoZG9n
-L3NiYzgzNjAuYwkyMDA2LTA4LTI5IDEyOjU4OjIwLjAwMDAwMDAwMCAtMDQw
-MA0KQEAgLTIwMSw3ICsyMDEsNyBAQCBzdGF0aWMgaW50IHdkX21hcmdpbiA9
-IDB4QjsNCiBzdGF0aWMgaW50IHdkX211bHRpcGxpZXIgPSAyOw0KIHN0YXRp
-YyBpbnQgbm93YXlvdXQgPSBXQVRDSERPR19OT1dBWU9VVDsNCiANCi1tb2R1
-bGVfcGFyYW0odGltZW91dCwgaW50LCAyNyk7DQorbW9kdWxlX3BhcmFtKHRp
-bWVvdXQsIGludCwgMCk7DQogTU9EVUxFX1BBUk1fREVTQyh0aW1lb3V0LCAi
-SW5kZXggaW50byB0aW1lb3V0IHRhYmxlICgwLTYzKSAoZGVmYXVsdD0yNyAo
-NjBzKSkiKTsNCiBtb2R1bGVfcGFyYW0obm93YXlvdXQsIGludCwgMCk7DQog
-TU9EVUxFX1BBUk1fREVTQyhub3dheW91dCwNCkBAIC00MDgsNyArNDA4LDcg
-QEAgbW9kdWxlX2V4aXQoc2JjODM2MF9leGl0KTsNCiBNT0RVTEVfQVVUSE9S
-KCJJYW4gRS4gTW9yZ2FuIDxpbW9yZ2FuQHdlYmNvbi5jYT4iKTsNCiBNT0RV
-TEVfREVTQ1JJUFRJT04oIlNCQzgzNjAgd2F0Y2hkb2cgZHJpdmVyIik7DQog
-TU9EVUxFX0xJQ0VOU0UoIkdQTCIpOw0KLU1PRFVMRV9WRVJTSU9OKCIxLjAi
-KTsNCitNT0RVTEVfVkVSU0lPTigiMS4wMSIpOw0KIE1PRFVMRV9BTElBU19N
-SVNDREVWKFdBVENIRE9HX01JTk9SKTsNCiANCiAvKiBlbmQgb2Ygc2JjODM2
-MC5jICovDQo=
-
----1463806462-1472440461-1156871206=:23609--
+-Stephane

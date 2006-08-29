@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWH2Hq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWH2HwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWH2Hq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 03:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWH2Hq3
+	id S1750859AbWH2HwL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 03:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWH2HwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 03:46:29 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:43026 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751252AbWH2Hq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 03:46:28 -0400
-Date: Tue, 29 Aug 2006 08:46:10 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Stuart MacDonald <stuartm@connecttech.com>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
-       "'Krzysztof Halasa'" <khc@pm.waw.pl>,
-       "'David Woodhouse'" <dwmw2@infradead.org>, linux-serial@vger.kernel.org,
-       "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: Serial custom speed deprecated?
-Message-ID: <20060829074610.GA29882@flint.arm.linux.org.uk>
-Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Stuart MacDonald <stuartm@connecttech.com>,
-	'Alan Cox' <alan@lxorguk.ukuu.org.uk>,
-	"'linux-os (Dick Johnson)'" <linux-os@analogic.com>,
-	'Krzysztof Halasa' <khc@pm.waw.pl>,
-	'David Woodhouse' <dwmw2@infradead.org>,
-	linux-serial@vger.kernel.org, 'LKML' <linux-kernel@vger.kernel.org>
-References: <20060827065210.GA6932@bitwizard.nl> <000901c6caac$478bfca0$294b82ce@stuartm> <20060828200918.GA959@flint.arm.linux.org.uk> <20060829062049.GA18752@bitwizard.nl>
-Mime-Version: 1.0
+	Tue, 29 Aug 2006 03:52:11 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55215 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750859AbWH2HwK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 03:52:10 -0400
+Date: Tue, 29 Aug 2006 00:51:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul B Schroeder <pschroeder@uplogix.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       "'TechSupport'" <techsupport@moschip.com>, AJN Rao <ajnrao@moschip.com>,
+       AJN Rao <ajn@moschip.com>
+Subject: Re: [PATCH] Moschip 7840 USB-Serial Driver
+Message-ID: <20060829075103.GA5952@kroah.com>
+References: <44F3ED45.7080502@uplogix.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060829062049.GA18752@bitwizard.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <44F3ED45.7080502@uplogix.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 08:20:49AM +0200, Rogier Wolff wrote:
-> On Mon, Aug 28, 2006 at 09:09:18PM +0100, Russell King wrote:
-> > So, while I whole heartedly agree with passing baud rates
-> > numerically, I do not think we need any of this inexact flagging
-> > nonsense provided we implement something as userland programs expect
-> > - iow, the POSIX behaviour.
+On Tue, Aug 29, 2006 at 02:31:17AM -0500, Paul B Schroeder wrote:
+> Worked with the tech support folks at Moschip Semiconductor to get the 
+> driver working on the latest kernel.  We've been using it for a bit now and 
+> it appears to be working well.  They're okay with kernel inclusion of the 
+> driver.  I've cleaned it up a bit and put this patch together.
 > 
-> I fully agree we should implement Posix behaviour. Wether that specifies
-> what userland programmers expect is where I disagree. 
-> 
-> If you happen to change RTS/CTS at the same time as you change baud,
-> the call will return succes, even though the most important part (for
-> you) of your call failed. Note that if the succes of the call depends
-> on the previous state of RTS/CTS. Thus the error will depend on
-> whatever happened before. This creates difficult-to-diagnose problems
-> for sysadmins.
+> The patch is against 2.6.18-rc5.  Please apply, it can be found here:
+> http://paul.schroeder.name/DEV/kernel/mos7840.patch
 
-I disagree.  POSIX recommends the following sequence when setting termios
-modes:
+Great, but can you submit it as per the Documentation/SubmittingPatches
+file?
 
-	tcgetattr(fd, &termios);
-	/* modify termios */
-	if (tcsetattr(fd, &termios) == -1)
-		/* whatever error handling, none of the modes worked */
-	tcgetattr(fd, &real_termios);
+Also, I've included the following text at the top of the file in my port
+of the mos7720 driver from the same developers.  It also applies to this
+driver and you should add it too:
 
-and in that respect it's the classic negotiation between two differing
-sets of code - the application asks for what it wants, and then requests
-what it actually got.  It can then check real_termios to see if the
-settings it actually got are compatible with what it wants to achieve.
+ * Originally based on drivers/usb/serial/io_edgeport.c which is:
+ *      Copyright (C) 2000 Inside Out Networks, All rights reserved.
+ *      Copyright (C) 2001-2002 Greg Kroah-Hartman <greg@kroah.com>
 
-For example, if it couldn't enable CRTSCTS, it might decide to use XON/
-XOFF flow control instead.
+You can see the same function names and comments, as well as variable
+usages where they don't really need to be used.
 
-If tcsetattr() were to return an error if _any_ mode failed, then you
-wouldn't know if it failed because CRTSCTS wasn't supported, or the
-baud rate, or maybe some other mode you asked for.  That's multiple
-times worse, and it would actually result in lots of programs failing
-just because one setting wasn't supported - and will result in more
-sysadmins scratching their collective heads.
+Can you also please clean up those functions to be more kernel-like, and
+fix the variable names to follow the coding style rules of the kernel?
 
-So, the key idea here is that fiddling with termios is a _negotiation_
-between the application and the driver.
+The #defines at the start of the file also can be removed, as they are
+not needed (TRUE and FALSE don't belong in a driver, use 0 and -ERR
+instead).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Also, look at the variables in struct moschip_port.  A lot of them can
+be simply removed as they are never used.  The wait queues are one
+example of these.  And the use of the "__" type of variables should be
+examined, as I don't think it's necessary as these variables never cross
+the kernel/user boundry.
+
+There are also a lot of global variables that should be static.
+
+I'll go over the rest when you submit it in an email message so it can
+be quoted.
+
+It's a great start though, I remember what the original version looked
+like :)
+
+thanks,
+
+greg k-h

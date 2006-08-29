@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWH2CJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWH2COV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWH2CJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 22:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWH2CJJ
+	id S1751011AbWH2COV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 22:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWH2COV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 22:09:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40648 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932088AbWH2CJH (ORCPT
+	Mon, 28 Aug 2006 22:14:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13492 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751011AbWH2COU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 22:09:07 -0400
-Date: Mon, 28 Aug 2006 19:01:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>, 76306.1226@compuserve.com
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc5
-Message-ID: <20060829020107.GA31565@kroah.com>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060827231421.f0fc9db1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 28 Aug 2006 22:14:20 -0400
+Date: Mon, 28 Aug 2006 19:14:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: NeilBrown <neilb@suse.de>
+Cc: v9fs-developer@lists.sourceforge.net, trond.myklebust@fys.uio.no,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000 of 2] Invalidate_inode_pages2 changes.
+Message-Id: <20060828191408.f6177de4.akpm@osdl.org>
+In-Reply-To: <20060829111641.18391.patches@notabene>
+References: <20060829111641.18391.patches@notabene>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 27, 2006 at 11:14:21PM -0700, Andrew Morton wrote:
-> On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > Linux 2.6.18-rc5 is out there now
-> 
-> (Reporters Bcc'ed: please provide updates)
-> 
-> Serious-looking regressions include:
-> 
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=7062 (HPET)
-> 
-> From: Chuck Ebbert <76306.1226@compuserve.com>
-> Subject: PCI: Cannot allocate resource region 7 of bridge 0000:00:04.0
+On Tue, 29 Aug 2006 11:30:15 +1000
+NeilBrown <neilb@suse.de> wrote:
 
-I thought this was resolved.
+>  I'm picking up on a conversation that was started in late March
+>  this year, and which didn't get anywhere much.
+>  See
+>    http://lkml.org/lkml/2006/3/31/93
+>  and following.
 
-Chuck, do you still have issues with this with the -rc5 release?
+Nick's "possible lock_page fix for Andrea's nopage vs invalidate race?"
+patch (linux-mm) should fix this?
 
-thanks,
-
-greg k-h
+If filemap_nopage() does lock_page(), invalidate_inode_pages2_range() is solid?

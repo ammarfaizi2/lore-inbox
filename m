@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWH2J7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWH2KFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWH2J7U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWH2J7U
+	id S964895AbWH2KFr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 06:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWH2KFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:59:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22971 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964868AbWH2J7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:59:19 -0400
-Subject: Re: [PATCH -mm] lib/rwsem.c: un-inline rwsem_down_failed_common()
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <11555.1156845039@warthog.cambridge.redhat.com>
-References: <20060828200416.GA31315@rhlx01.fht-esslingen.de>
-	 <11555.1156845039@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 29 Aug 2006 11:59:09 +0200
-Message-Id: <1156845549.2722.45.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 29 Aug 2006 06:05:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49824 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964886AbWH2KFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 06:05:46 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <44F395DE.10804@yahoo.com.au> 
+References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
+       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: Why Semaphore Hardware-Dependent? 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 29 Aug 2006 11:05:27 +0100
+Message-ID: <11861.1156845927@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 10:50 +0100, David Howells wrote:
-> Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
-> 
-> > Un-inlining rwsem_down_failed_common() (two callsites) reduced
-> > lib/rwsem.o on my Athlon, gcc 4.1.2 from 5935 to 5480 Bytes (455 Bytes saved).
-> 
-> Maybe this should be judged according to CONFIG_CC_OPTIMIZE_FOR_SIZE.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-gcc already does this if you don't manually specify the inline
-keyword ;)
+> I wonder if we can just start with the nice powerpc code that uses
+> atomic_add_return and cmpxchg (should use atomic_cmpxchg)
 
-static functions get inlined if they're small enough in relation to the
-nr of call sites, where "small enough" is a function of -O2 vs -Os. So
-leaving away inline makes gcc do its smarts.
+Because i386 (and x86_64) can do better by using XADDL/XADDQ.
 
+The problem with CMPXCHG is that it might fail and you might have to attempt
+it again.  This may be unlikely - it depends on the circumstances.  The same
+applies to LL/ST equivalents.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+On i386, CMPXCHG also ties you to what registers you may use for what to some
+extent.  OTOH, whilst XADD does less so, the slowpath function does instead,
+though with the XADD version, we can make sure that the semaphore address is
+in EAX, something we can't do with CMPXCHG.
 
+For those archs where CMPXCHG is the best available, a better algorithm than
+the XADD based one is available, though I haven't submitted it.  I may still
+have the patch somewhere.
+
+However!  If what you have is LL/ST equivalents than emulating CMPXCHG to
+emulate the XADD algorithm probably isn't the most optimal way either.  Don't
+get stuck on using LL/ST to emulate what other CPUs have available.
+
+> and chuck out the "crappy" rwsem fallback implementation,
+
+CMPXCHG is not available on all archs, and may not be implemented on all archs
+through other atomic instructions.
+
+> as well as all the arch specific code?
+
+Using CMPXCHG is only optimal where that's the best available.
+
+David

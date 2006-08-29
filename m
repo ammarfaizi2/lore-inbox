@@ -1,88 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWH2I2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWH2Ios@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWH2I2v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWH2I2v
+	id S932116AbWH2Ios (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWH2Ios
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:28:51 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10673 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750834AbWH2I2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:28:50 -0400
-Subject: Re: [PATCH] exit early in floppy_init when no floppy exists
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060829080738.GA22708@aepfle.de>
-References: <20060829080738.GA22708@aepfle.de>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 18:28:31 +1000
-Message-Id: <1156840111.8433.534.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 04:44:48 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:30129 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S1750834AbWH2Ior (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 04:44:47 -0400
+Date: Tue, 29 Aug 2006 04:44:43 -0400
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [RPC] OLPC tablet input driver.
+Message-ID: <20060829084443.GA4187@aehallh.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <mtosatti@redhat.com>
+References: <20060829073339.GA4181@aehallh.com> <1156839019.2722.39.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Disposition: inline
+In-Reply-To: <1156839019.2722.39.camel@laptopd505.fenrus.org>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 10:07 +0200, Olaf Hering wrote:
-> modprobe -v floppy on a Apple G5 writes incorrect stuff to dmesg:
-> 
-> Floppy drive(s): fd0 is 2.88M
-> 
-> The reason is that the legacy io check happens very late,
-> when part of the floppy stuff is already initialized.
-> check_legacy_ioport() returns either -ENODEV right away, or it walks
-> the device-tree looking for a floppy node.
-> 
-> 
-> Signed-off-by: Olaf Hering <olaf@aepfle.de>
 
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> ---
+On Tue, Aug 29, 2006 at 10:10:19AM +0200, Arjan van de Ven wrote:
+> > +#undef DEBUG
+> > +#ifdef DEBUG
+> > +#define dbg(format, arg...) printk(KERN_INFO "olpc.c(%d): " format "\n", __LINE__, ## arg)
+> > +#else
+> > +#define dbg(format, arg...) do {} while (0)
+> > +#endif
 > 
-> Can this go into 2.6.18 please? Our installer parses dmesg to find
-> floppy devices. Dont ask....
-> 
-> 
-> 
-> 
->  drivers/block/floppy.c |   12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-> Index: linux-2.6.18-rc4/drivers/block/floppy.c
-> ===================================================================
-> --- linux-2.6.18-rc4.orig/drivers/block/floppy.c
-> +++ linux-2.6.18-rc4/drivers/block/floppy.c
-> @@ -4177,6 +4177,11 @@ static int __init floppy_init(void)
->  	int i, unit, drive;
->  	int err, dr;
->  
-> +#if defined(CONFIG_PPC_MERGE)
-> +	if (check_legacy_ioport(FDC1))
-> +		return -ENODEV;
-> +#endif
-> +
->  	raw_cmd = NULL;
->  
->  	for (dr = 0; dr < N_DRIVE; dr++) {
-> @@ -4234,13 +4239,6 @@ static int __init floppy_init(void)
->  	}
->  
->  	use_virtual_dma = can_use_virtual_dma & 1;
-> -#if defined(CONFIG_PPC_MERGE)
-> -	if (check_legacy_ioport(FDC1)) {
-> -		del_timer(&fd_timeout);
-> -		err = -ENODEV;
-> -		goto out_unreg_region;
-> -	}
-> -#endif
->  	fdc_state[0].address = FDC1;
->  	if (fdc_state[0].address == -1) {
->  		del_timer(&fd_timeout);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> why not use pr_debug or even dev_debug() ?
+> Those already have this ifdef included
 
+I was not thinking of them at the time, however dev_dbg is not an option
+because we do not have a struct device at hand when we want to print
+some debugging lines.
+
+pr_debug might work, but I would rather have file and line already
+there.
+
+Though, admittedly, that would be a better argument if it used __FILE__
+there instead of hard coding it.
+
+In any case, I don't think any of the debug prints will have to stick
+around that much longer.
+> 
+> > +
+> > +static struct olpc_model_info olpc_model_data[] = {
+> > +	{ { 0x67, 0x00, 0x0a }, 0xeb, 0xff, OLPC_PTGS },	/* OLPC in PT+GS mode. */
+> > +};
+> 
+> const?
+
+Added.
+(Along with associated changes so that it's kept const everywhere.)
+> 
+> also.. there's no locking visible anywhere in the driver... is this
+> right?
+
+It looks like psmouse handles it with a mutex lock around freeing stuff
+and calling the callback function pointers we set on init, so we
+_should_ be safe unless I've missed something.
+
+Add to it that none of the other psmouse drivers are doing locking on
+their own, and I'm fairly sure that this is correct. (But if someone
+knows better, please correct me.)
+
+
+Thank you.
+
+Zephaniah E. Hull.
+
+-- 
+	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+Mike Sphar (Scary Devil Monastery):
+>I am hired because I know what I am doing, not because I will do
+>whatever I am told is a good idea.  This might cost me bonuses, raises,
+>promotions, and may even label me as "undesirable" by places I don't
+>want to work at anyway, but I don't care.  I will not compromise my own
+>principles and judgement without putting up a fight.  Of course, I
+>won't always win, and I will sometimes be forced to do things I don't
+>agree with, but if I am my objections will be known, and if I am shown
+>to be right and problems later develop, I will shout "I told you so!"
+>repeatedly, laugh hysterically, and do a small dance or jig as
+>appropriate to my heritage.
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFE8/57RFMAi+ZaeAERAuMNAJ92sEh65cI8SwDkHbVtVTc7Yeqs4ACfQ0jj
+tjlmifvL4Swv0WsuxRpO4uY=
+=DIfY
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

@@ -1,92 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWH2M0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWH2M12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWH2M0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWH2M0t
+	id S1751435AbWH2M12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWH2M11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:26:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:18761 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751391AbWH2M0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:26:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n305p6UGp2oZsr5PCTsf/aPgSamEE/Cc6suINwEcUDuKYOiQrOOtbw3nMWeCIZrUJSrCF4SrAlVjNboS6WQRfzhGnHpFj3q4rEO1uW4wDHTrrrxLPdJMiBy0JGHCZ3RzWHhq7r3zWhbyjD8G1+6CV/svcPWO7lwsfMVFFLMCNpo=
-Message-ID: <d120d5000608290526i208885f4u9eed3269e1d3ffb1@mail.gmail.com>
-Date: Tue, 29 Aug 2006 08:26:46 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Zephaniah E. Hull" <warp@aehallh.com>
-Subject: Re: [RPC] OLPC tablet input driver.
-Cc: "Komal Shah" <komal_shah802003@yahoo.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Marcelo Tosatti" <mtosatti@redhat.com>
-In-Reply-To: <20060829104049.GB4181@aehallh.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Aug 2006 08:27:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30173 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751370AbWH2M10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 08:27:26 -0400
+Subject: Re: Conversion to generic boolean
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Nicholas Miell <nmiell@comcast.net>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060829114143.GB4076@infradead.org>
+References: <44EFBEFA.2010707@student.ltu.se>
+	 <20060828093202.GC8980@infradead.org>
+	 <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr>
+	 <44F2DEDC.3020608@student.ltu.se> <1156792540.2367.2.camel@entropy>
+	 <20060829114143.GB4076@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060829073339.GA4181@aehallh.com>
-	 <20060829085537.22755.qmail@web37903.mail.mud.yahoo.com>
-	 <20060829104049.GB4181@aehallh.com>
+Date: Tue, 29 Aug 2006 13:48:20 +0100
+Message-Id: <1156855700.6271.104.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> On Tue, Aug 29, 2006 at 01:55:37AM -0700, Komal Shah wrote:
-> > --- "Zephaniah E. Hull" <warp@aehallh.com> wrote:
-> > >
-> > > -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> > > lifebook.o trackpoint.o
-> > > +psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> > > lifebook.o trackpoint.o olpc.o
-> >
-> > Where is KConfigurable entry ?
->
-> It is a component of psmouse.o, which is a few lines up.
->
-> Breaking out the components of psmouse.o into separate configuration
-> items might be interesting, but it is quite a bit beyond the scope of
-> this patch.
+Ar Maw, 2006-08-29 am 12:41 +0100, ysgrifennodd Christoph Hellwig:
+> gcc lets you happily assign any integer value to bool/_Bool, so unless
+> you write sparse support for actually checking things there's not the
+> slightest advantage in value range checking.
 
-Is there a chance that this device will be used on generally-available
-hardware? If not then having Kconfig sub-option would be nice.
+Not the case: gcc allows you to assign 0 or 1 to an _Bool type object.
+When you are "assigning" integers you are merely seeing implicit casting
+before the assignment.
 
-> >
-> > > diff --git a/drivers/input/mouse/olpc.c b/drivers/input/mouse/olpc.c
-> > > new file mode 100644
-> > > index 0000000..245f29e
-> > > --- /dev/null
-> > > +++ b/drivers/input/mouse/olpc.c
-> > > @@ -0,0 +1,327 @@
-> >
-> >
-> > > +/*
-> > > + * OLPC touchpad PS/2 mouse driver
-> > > + *
-> > > +int olpc_init(struct psmouse *psmouse)
-> > > +{
-> > > +   struct olpc_data *priv;
-> > > +   struct input_dev *dev = psmouse->dev;
-> > > +   struct input_dev *dev2;
-> > > +
-> > > +   psmouse->private = priv = kzalloc(sizeof(struct olpc_data),
-> > > GFP_KERNEL);
-> >
-> > I think you should assign priv to private only if !NULL.
->
-> Fixed.
->
-> It should not actually matter, as a failure to get a !NULL value causes
-> us to return false, which will fall over to other psmouse drivers which
-> will either set it themselves, or not use it at all, however.
->
-> It should be noted that alps.c contains the same issue.
->
+Try   int a = 4; _Bool b = a; int c = b; printf("%d\n", c);
 
-I do not consider this is an issue. priv is just a shortcut or alias
-for psmouse->private that saves some typing and allows the compiled to
-generate better code.
+Alan
 
--- 
-Dmitry

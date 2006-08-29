@@ -1,64 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWH2TcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWH2Th1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWH2TcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWH2TcS
+	id S1751204AbWH2Th1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWH2ThW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:32:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47552 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751196AbWH2TcR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:32:17 -0400
-Date: Tue, 29 Aug 2006 12:28:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: [PATCH 1/2] NOMMU: Set BDI capabilities for /dev/mem and
- /dev/kmem
-Message-Id: <20060829122851.690e5219.akpm@osdl.org>
-In-Reply-To: <1082.1156876794@warthog.cambridge.redhat.com>
-References: <20060829112030.a2a8c763.akpm@osdl.org>
-	<20060829175949.32281.21374.stgit@warthog.cambridge.redhat.com>
-	<1082.1156876794@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 15:37:22 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:48136 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751219AbWH2ThU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 15:37:20 -0400
+Date: Tue, 29 Aug 2006 15:37:18 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Jonathan Corbet <corbet@lwn.net>
+cc: linux-kernel@vger.kernel.org,
+       SCSI development list <linux-scsi@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: [PATCH] export the queue_work wrappers GPL-only
+Message-ID: <Pine.LNX.4.44L0.0608291448380.3753-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 19:39:54 +0100
-David Howells <dhowells@redhat.com> wrote:
+This patch (as777) fixes an oversight in a couple of earlier patches.  Now 
+the wrapper routines:
 
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > #else
-> > #define get_unmapped_area_mem NULL
-> > #endif
-> 
-> Blech.
-> 
-> Of course, I could just declare the new symbols weak, and stick
-> get_unmapped_area_mem() and mem_bdi in their own file which would be
-> conditional on !CONFIG_MMU.
+	queue_work(), queue_delayed_work(), queue_delayed_work_on(),
+	schedule_work(), schedule_delayed_work(), and
+	schedule_delayed_work_on()
 
-Or you could use the approach I suggested, like wot everyone else does.
+are exported GPL-only, just as the originals used to be.
 
-> > This changes behaviour, doesn't it?
-> 
-> Yes.
-> 
-> >  But only for !CONFIG_MMU kernels?
-> 
-> Yes.  For the moment, nothing in MMU world actually looks at these
-> capabilities, though perhaps they should.
-> 
-> > Perhaps some additional commentary around this is needed.
-> 
-> Perhaps... or perhaps it should have different capabilities if there's an MMU.
-> 
-> Is doing a private mapping of /dev/mem a valid thing to do anyway, even if
-> there is an MMU?
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-It would be strange, I guess.  But the important thing is to not change
-behaviour.
+---
+
+On Tue, 29 Aug 2006, Jonathan Corbet wrote:
+
+> One little thing I just noticed.  The old queue_work() functions were
+> exported GPL-only.  And the new ones are too:
+> 
+> > -EXPORT_SYMBOL_GPL(queue_work);
+> > +EXPORT_SYMBOL_GPL(add_work_to_q);
+> 
+> But the new wrappers are not:
+> 
+> > +EXPORT_SYMBOL(queue_work);
+> 
+> They should probably be exported in the same mode as before.
+
+You're right...  I don't know how I managed to miss that.
+
+> Also, should there be an entry added to
+> Documentation/feature-removal-schedule.txt?
+
+It's a question of whether anyone feels the need to remove the legacy
+routines.
+
+Andrew, if you think that after (say) a year's time those WARN_ON()s no
+longer serve any useful purpose, I could do a big search-and-replace to
+get rid of those old functions entirely.  I assume there's no problem with
+accepting patches that change hundreds of files.
+
+Alan Stern
+
+
+Index: mm/kernel/workqueue.c
+===================================================================
+--- mm.orig/kernel/workqueue.c
++++ mm/kernel/workqueue.c
+@@ -501,7 +501,7 @@ void fastcall queue_work(struct workqueu
+ 	rc = add_work_to_q(wq, work);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(queue_work);
++EXPORT_SYMBOL_GPL(queue_work);
+ 
+ void fastcall queue_delayed_work(struct workqueue_struct *wq,
+ 		struct work_struct *work, unsigned long delay)
+@@ -511,7 +511,7 @@ void fastcall queue_delayed_work(struct 
+ 	rc = add_delayed_work_to_q(wq, work, delay);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(queue_delayed_work);
++EXPORT_SYMBOL_GPL(queue_delayed_work);
+ 
+ void queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
+ 		struct work_struct *work, unsigned long delay)
+@@ -521,7 +521,7 @@ void queue_delayed_work_on(int cpu, stru
+ 	rc = add_delayed_work_to_q_on(cpu, wq, work, delay);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(queue_delayed_work_on);
++EXPORT_SYMBOL_GPL(queue_delayed_work_on);
+ 
+ void fastcall schedule_work(struct work_struct *work)
+ {
+@@ -530,7 +530,7 @@ void fastcall schedule_work(struct work_
+ 	rc = add_work_to_q(keventd_wq, work);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(schedule_work);
++EXPORT_SYMBOL_GPL(schedule_work);
+ 
+ void fastcall schedule_delayed_work(struct work_struct *work,
+ 		unsigned long delay)
+@@ -540,7 +540,7 @@ void fastcall schedule_delayed_work(stru
+ 	rc = add_delayed_work_to_q(keventd_wq, work, delay);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(schedule_delayed_work);
++EXPORT_SYMBOL_GPL(schedule_delayed_work);
+ 
+ void schedule_delayed_work_on(int cpu, struct work_struct *work,
+ 		unsigned long delay)
+@@ -550,7 +550,7 @@ void schedule_delayed_work_on(int cpu, s
+ 	rc = add_delayed_work_to_q_on(cpu, keventd_wq, work, delay);
+ 	WARN_ON(rc < 0);
+ }
+-EXPORT_SYMBOL(schedule_delayed_work_on);
++EXPORT_SYMBOL_GPL(schedule_delayed_work_on);
+ 
+ /**
+  * schedule_on_each_cpu - call a function on each online CPU from keventd
+

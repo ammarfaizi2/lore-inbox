@@ -1,96 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWH2JGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWH2JJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWH2JGf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWH2JGf
+	id S1751333AbWH2JJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWH2JJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:06:35 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:54974 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751333AbWH2JGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:06:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VMdUZjIB9XM42bl00yY6kOPymqlr0yQib+zRF0gCJI3psjHpDa0S9kZ7AJlCNe5b0yzZOPbL/yBjyLWB9TVFjVSW4WmymBwj77KC94IDDIB0YHmCUnLewazJGatq8f2V6lE0yuGtPFKkz9gISER2LKRfOoWYNq/rlvwuOlSEFN8=
-Message-ID: <a44ae5cd0608290206l6d0235abu41a09240da31b204@mail.gmail.com>
-Date: Tue, 29 Aug 2006 02:06:33 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Takashi Iwai" <tiwai@suse.de>
-Subject: Re: 2.6.18-rc4-mm3 -- intel8x0 audio busted
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hy7t76hjn.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 05:09:18 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:50460 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751342AbWH2JJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:09:17 -0400
+Date: Tue, 29 Aug 2006 11:12:00 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Lee Trager <Lee@PicturesInMotion.net>
+Cc: Pavel Machek <pavel@ucw.cz>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       seife@suse.de
+Subject: Re: HPA Resume patch
+Message-ID: <20060829091200.GF12257@kernel.dk>
+References: <44F15ADB.5040609@PicturesInMotion.net> <20060827150608.GA4534@ucw.cz> <20060827170501.GD30609@kernel.dk> <44F3A30A.3090509@PicturesInMotion.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <a44ae5cd0608262355q51279259lc6480f229e520fd5@mail.gmail.com>
-	 <s5hac5o7v47.wl%tiwai@suse.de> <20060828114939.90341479.akpm@osdl.org>
-	 <s5hlkp87ks2.wl%tiwai@suse.de>
-	 <a44ae5cd0608290157s346e8371j1ee73baf14f7ba62@mail.gmail.com>
-	 <s5hy7t76hjn.wl%tiwai@suse.de>
+In-Reply-To: <44F3A30A.3090509@PicturesInMotion.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/06, Takashi Iwai <tiwai@suse.de> wrote:
-> At Tue, 29 Aug 2006 01:57:11 -0700,
-> Miles Lane wrote:
+On Mon, Aug 28 2006, Lee Trager wrote:
+> Jens Axboe wrote:
+> > On Sun, Aug 27 2006, Pavel Machek wrote:
+> >   
+> >> Hi!
+> >>
+> >>     
+> >>> This patch fixes a problem with computers that have HPA on their hard
+> >>> drive and not being able to come out of resume from RAM or disk. I've
+> >>> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
+> >>> of these. This patch also fixes the bug #6840. This is my first patch to
+> >>> the kernel and I was told to e-mail the above people to get my patch
+> >>> into the kernel.
+> >>>       
+> >> Congratulations for a first patch.
+> >>
+> >>     
+> >>> If I made a mistake please be gentle and correct me ;)
+> >>>       
+> >> We'll need signed-off-by: line next time.
+> >>
+> >> Stefan, can we get this some testing? Or anyone else with thinkpad
+> >> with host-protected area still enabled?
+> >>     
 > >
-> > On 8/28/06, Takashi Iwai <tiwai@suse.de> wrote:
-> > > At Mon, 28 Aug 2006 11:49:39 -0700,
-> > > Andrew Morton wrote:
-> > > >
-> > > > On Mon, 28 Aug 2006 17:11:52 +0200
-> > > > Takashi Iwai <tiwai@suse.de> wrote:
-> > > >
-> > > > > At Sat, 26 Aug 2006 23:55:32 -0700,
-> > > > > Miles Lane wrote:
-> > > > > >
-> > > > > > I haven't had working audio in 2.6.18-rc4-mm series (1,2,3).
-> > > > > > I haven't been able to track down the cause yet.  The modules
-> > > > > > all load, and there seems to be the expected enties in /proc,
-> > > > > > but my sound preferences panel shows no available audio card.
-> > > > > (snip)
-> > > > > > Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
-> > > > > > obsolete sysctl system call
-> > > > > > Aug 26 23:16:56 localhost kernel: warning: process `ls' used the
-> > > > > > obsolete sysctl system call
-> > > > > > Aug 26 23:16:56 localhost kernel: warning: process `alsactl' used the
-> > > > > > obsolete sysctl system call
-> > > > > > Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
-> > > > > > obsolete sysctl system call
-> > > > > > Aug 26 23:16:56 localhost kernel: warning: process `amixer' used the
-> > > > > > obsolete sysctl system call
-> > > > >
-> > > > > Are these messages relavant?  Even "ls" fails there...
-> > > > >
-> > > >
-> > > > No, they're just a little warning we put in there to find out how
-> > > > removeable sys_sysctl() is.  (Answer: not very.  I'll drop that patch).
-> > > >
-> > > > It isn't relevant to this problem.
-> > >
-> > > OK.
-> > >
-> > > Then it must be something in the driver communication.
-> > > Miles, do you have proper /dev/snd/* entries?
+> > It has design issues, at someone else already noticed. hpa restore needs
+> > to be a driver private step, included in the resume state machine. The
+> > current patch is a gross layering violation.
 > >
-> > Hello,
+> > But thanks to Lee for taking a stab at this, I hope he'll continue and
+> > get it polished :-)
 > >
-> > I have no /dev/snd directory.
->
-> That's odd.  Any udev errors?
-> Do you have /sys/class/sound/* directories?
+> >   
+> Ok I redid the patch following exactly what Sergey and Randy said. This
+> problem happens on any computer that has HPA on their drive when they
+> come back from resume so I don't think you have to only test this with
+> Thinkpad users. Anyway my only question is how to I get my patched
+> signed off by someone?
+> 
+> Thanks for all your help!
 
-I don't know how to track down udev errors, unfortunately.
-I now suspect that the problems I am having with network
-device names getting messed up and this problem with
-the sound drivers spring from the same cause (some
-failure in device setup in udev).
+While this is a _lot_ better than your previous patch, I don't think you
+quite understood my suggestion. Which is probably fault, so I'll try to
+be a little more verbose.
 
-Any suggestions on how to track down udev issues are
-most appreciated!  I am curious to know whether this
-is a bug in udev or in the kernel code.
+If you look at the suspend state machine, it goes through a (small)
+sequence of steps (see drivers/ide/ide-io.c:ide_complete_power_step())
+and get the device suspended. Same thing for resume, just not that many
+steps there. My suggestion was to continue using this infrastructure and
+just add the HPA restore as a resume state. Right now it does:
 
-Thanks,
-        Miles
+        ide_pm_state_start_resume (== idedisk_pm_idle)
+                complete that
+        ide_pm_restore_dma
+                complete that
+
+and we are done. Your patch basically puts more actions into a single
+resume state switch, not ideal. What you want to do is have the HPA
+restore as an additional state.
+
+Is that clearer? If not, let me know...
+
+-- 
+Jens Axboe
+

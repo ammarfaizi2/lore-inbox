@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWH2Rkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWH2RrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbWH2Rkw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 13:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWH2Rkw
+	id S965058AbWH2RrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbWH2RrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 13:40:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22683 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965181AbWH2Rkv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 13:40:51 -0400
-Date: Tue, 29 Aug 2006 10:40:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: David Howells <dhowells@redhat.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-Message-Id: <20060829104017.875733e5.akpm@osdl.org>
-In-Reply-To: <200608291256.54665.ak@suse.de>
-References: <44F395DE.10804@yahoo.com.au>
-	<1156750249.3034.155.camel@laptopd505.fenrus.org>
-	<11861.1156845927@warthog.cambridge.redhat.com>
-	<200608291256.54665.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 29 Aug 2006 13:47:00 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:29361 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP id S965058AbWH2Rq7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 13:46:59 -0400
+Subject: [Patch] blktrace: cleanup using on_each_cpu
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@kernel.dk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 19:46:52 +0200
+Message-Id: <1156873612.2993.6.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 12:56:54 +0200
-Andi Kleen <ak@suse.de> wrote:
+This patch kills a few lines of code in blktrace by making use of
+on_each_cpu().
 
-> While I'm sure it's an interesting intellectual exercise to do these
-> advanced rwsems it would be better for everybody else to go for a single 
-> maintainable C implementation.
+Patch against 2.6.18-rc4-mm3.
+(Tested with 2.6.17.11, though, as -rc4-mm3 refuses to come up on my
+s390 guest.)
 
-metoo.  It's irritating having multiple implementations around, never being
-sure which version people are running with.
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+---
+
+ blktrace.c |   19 ++++---------------
+ 1 files changed, 4 insertions(+), 15 deletions(-)
+
+diff -urp a/block/blktrace.c b/block/blktrace.c
+--- a/block/blktrace.c	2006-08-29 18:10:51.000000000 +0200
++++ b/block/blktrace.c	2006-08-29 19:00:37.000000000 +0200
+@@ -476,6 +476,9 @@ static void blk_check_time(unsigned long
+ 	*t -= (a + b) / 2;
+ }
+ 
++/*
++ * calibrate our inter-CPU timings
++ */
+ static void blk_trace_check_cpu_time(void *data)
+ {
+ 	unsigned long long *t;
+@@ -493,20 +496,6 @@ static void blk_trace_check_cpu_time(voi
+ 	put_cpu();
+ }
+ 
+-/*
+- * Call blk_trace_check_cpu_time() on each CPU to calibrate our
+inter-CPU
+- * timings
+- */
+-static void blk_trace_calibrate_offsets(void)
+-{
+-	unsigned long flags;
+-
+-	smp_call_function(blk_trace_check_cpu_time, NULL, 1, 1);
+-	local_irq_save(flags);
+-	blk_trace_check_cpu_time(NULL);
+-	local_irq_restore(flags);
+-}
+-
+ static void blk_trace_set_ht_offsets(void)
+ {
+ #if defined(CONFIG_SCHED_SMT)
+@@ -535,7 +524,7 @@ static void blk_trace_set_ht_offsets(voi
+ static __init int blk_trace_init(void)
+ {
+ 	mutex_init(&blk_tree_mutex);
+-	blk_trace_calibrate_offsets();
++	on_each_cpu(blk_trace_check_cpu_time, NULL, 1, 1);
+ 	blk_trace_set_ht_offsets();
+ 
+ 	return 0;
+
+

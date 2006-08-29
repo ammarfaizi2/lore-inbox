@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWH2LvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWH2Lv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWH2LvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 07:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWH2LvQ
+	id S964951AbWH2Lv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWH2Lv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 07:51:16 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:14549 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S964962AbWH2LvP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 07:51:15 -0400
-Message-ID: <44F42A2D.3010502@compro.net>
-Date: Tue, 29 Aug 2006 07:51:09 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: Nix <nix@esperi.org.uk>
-Cc: dmarkh@cfl.rr.com, Lee Revell <rlrevell@joe-job.com>,
-       Luka Marinko <luka.marinko@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: question on pthreads
-References: <3420082f0608201046q53bb60b5u5ca8915e588ee9e3@mail.gmail.com>	<ecakcv$m06$1@sea.gmane.org> <1156112486.10565.64.camel@mindpipe>	<44E98ECB.3040603@cfl.rr.com> <87r6z0pf1e.fsf@hades.wkstn.nix>
-In-Reply-To: <87r6z0pf1e.fsf@hades.wkstn.nix>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 07:51:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61921 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964951AbWH2Lv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:51:56 -0400
+Date: Tue, 29 Aug 2006 12:51:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+Message-ID: <20060829115138.GA32714@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10117.1156522985@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nix wrote:
-> On 21 Aug 2006, Mark Hounschell said:
->> glibc 2.4.31 has a man page for it.
->>
->> PTHREAD_MUTEXATTR_GETPSHARED(P)                                 POSIX
->> Programmer's Manual                                PTHREAD_MUTEXATTR_GETPSHARED(P)
+On Fri, Aug 25, 2006 at 05:23:05PM +0100, David Howells wrote:
+> > >  config USB_STORAGE
+> > >  	tristate "USB Mass Storage support"
+> > > -	depends on USB
+> > > +	depends on USB && BLOCK
+> > 
+> > ditto.
 > 
-> That's not in glibc, that's in the POSIX part of the manpages
-> distribution.
-> 
+> ditto?
 
-True but non of my machines had that manpage until the support was in glibc.
-Coincidence? Could be I guess...
+Same as above.  USB_STORAGE already selects scsi so it shouldn't need
+to depend on block.
 
-Mark

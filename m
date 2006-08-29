@@ -1,188 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWH2BwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWH2ByM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWH2BwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 21:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWH2BwN
+	id S1750966AbWH2ByM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 21:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWH2ByM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 21:52:13 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:1225 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750951AbWH2BwM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 21:52:12 -0400
-Message-ID: <44F39DB9.6050004@zytor.com>
-Date: Mon, 28 Aug 2006 18:51:53 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 28 Aug 2006 21:54:12 -0400
+Received: from mother.pmc-sierra.com ([216.241.224.12]:30168 "HELO
+	mother.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
+	id S1750966AbWH2ByK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 21:54:10 -0400
+Message-ID: <478F19F21671F04298A2116393EEC3D5540A32@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Cc: linuxppc-dev <linuxppc-dev@ozlabs.org>,
+       Radjendirane Codandaramane 
+	<Radjendirane_Codandaramane@pmc-sierra.com>,
+       Ronald Lee <Ronald_Lee@pmc-sierra.com>,
+       Shawn Jin <Shawn_Jin@pmc-sierra.com>
+Subject: PPC 2.6.11.4 kernel panics while doing insmod (store fault with d
+	cbst in icache_flush_range)
+Date: Mon, 28 Aug 2006 18:53:58 -0700
 MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com
-Subject: Re: [PATCH] Fix the EDD code misparsing the command line (rev 2)
-References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de> <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com> <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com> <44F335C8.7020108@zytor.com> <20060828184637.GD13464@lists.us.dell.com> <44F386B8.8000209@zytor.com> <44F3974B.6060501@vc.cvut.cz>
-In-Reply-To: <44F3974B.6060501@vc.cvut.cz>
-Content-Type: multipart/mixed;
- boundary="------------000306020208020909000409"
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000306020208020909000409
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I have been getting an "oops" while doing insmod.
+
+Sys_init_module() -> Load_module() -> module_alloc(mod->core_size)
+
+Mod->core_size is = 0x1ff4
+
+A few lines from module_alloc() routine:
+
+ptr = module_alloc(mod->core_size); // core_size is 0x1ff4
+        if (!ptr) {
+                err = -ENOMEM;
+                goto free_percpu;
+        }
+  memset(ptr, 0, mod->core_size);
+  mod->module_core = ptr;
+
+Module_alloc calls vmalloc, which populates the page tables entries; no TLB entry is updated at this moment for the newly vmalloc'd memory.
+
+Next, when memset is done, we do see two TLB entries are allocated one for each page (ptr == D21B8000, core_size being 0x1ff4 we need two pages).
+
+0x0000-0000
+0xD21B-8210
+0x0063-B000
+0x0000-0107
+
+0x0000-0000
+0xD21B-9210
+0x0063-7000
+0x0000-0107
+
+A few lines from sys_init_module()
+  /* Do all the hard work */
+        mod = load_module(umod, len, uargs);
+        if (IS_ERR(mod)) {
+                up(&module_mutex);
+                return PTR_ERR(mod);
+        }
+
+        /* Flush the instruction cache, since we've played with text */
+        if (mod->module_init)
+                flush_icache_range((unsigned long)mod->module_init,
+                                   (unsigned long)mod->module_init
+                                   + mod->init_size);
+        flush_icache_range((unsigned long)mod->module_core,
+                           (unsigned long)mod->module_core + mod->core_size);
+
+Next, at the routine          
+
+flush_icache_range((unsigned long)mod->module_core,
+                       (unsigned long)mod->module_core + mod->core_size);
+
+we see that one of the TLB entries is not present, which is probably normal.
+
+A few lines from flush_icache_range():
+
+        mr      r6,r3
+1:      dcbst   0,r3
+        addi    r3,r3,L1_CACHE_LINE_SIZE
+        bdnz    1b
+
+The instruction takes a store fault (DST bit, bit 8 of ESR gets set), kernel panics with oops (signal 11).
+
+It is probably normal that the TLB entry for vmalloc'd memory may not be present.
+
+How do we fix the problem?
+
+We do see the problem only when we have big drivers compiled into the kernel.
+
+Thanks,
+Kallol
 
 
---------------000306020208020909000409
-Content-Type: text/x-patch;
- name="edd-cmdline-fix-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="edd-cmdline-fix-2.patch"
 
-The EDD code would scan the command line as a fixed array, without
-taking account of either whitespace, null-termination, the old
-command-line protocol, late overrides early, or the fact that the
-command line may not be reachable from INITSEG.
-
-This should fix those problems, and enable us to use a longer command
-line.
-
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
-
-
-diff --git a/arch/i386/boot/edd.S b/arch/i386/boot/edd.S
-index 4b84ea2..5d52908 100644
---- a/arch/i386/boot/edd.S
-+++ b/arch/i386/boot/edd.S
-@@ -15,42 +15,95 @@ #include <linux/edd.h>
- #include <asm/setup.h>
- 
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-+
-+# It is assumed that %ds == INITSEG here
-+	
- 	movb	$0, (EDD_MBR_SIG_NR_BUF)
- 	movb	$0, (EDDNR)
- 
--# Check the command line for two options:
-+# Check the command line for options:
- # edd=of  disables EDD completely  (edd=off)
- # edd=sk  skips the MBR test    (edd=skipmbr)
-+# edd=on  re-enables EDD (edd=on)
-+	
- 	pushl	%esi
--    	cmpl	$0, %cs:cmd_line_ptr
--	jz	done_cl
-+	movw	$edd_mbr_sig_start, %di	# Default to edd=on
-+	
- 	movl	%cs:(cmd_line_ptr), %esi
--# ds:esi has the pointer to the command line now
--	movl	$(COMMAND_LINE_SIZE-7), %ecx
--# loop through kernel command line one byte at a time
--cl_loop:
--	cmpl	$EDD_CL_EQUALS, (%si)
-+	andl	%esi, %esi
-+	jz	old_cl			# Old boot protocol?
-+
-+# Convert to a real-mode pointer in fs:si
-+	movl	%esi, %eax
-+	shrl	$4, %eax
-+	movw	%ax, %fs
-+	andw	$0xf, %si
-+	jmp	have_cl_pointer
-+
-+# Old-style boot protocol?
-+old_cl:
-+	push	%ds			# aka INITSEG
-+	pop	%fs
-+
-+	cmpw	$0xa33f, (0x20)
-+	jne	done_cl			# No command line at all?
-+	movw	(0x22), %si		# Pointer relative to INITSEG
-+
-+# fs:si has the pointer to the command line now
-+have_cl_pointer:
-+	
-+# Loop through kernel command line one byte at a time.  Just in
-+# case the loader is buggy and failed to null-terminate the command line
-+# terminate if we get close enough to the end of the segment that we
-+# cannot fit "edd=XX"...
-+cl_atspace:
-+	cmpw	$-5, %si		# Watch for segment wraparound
-+	jae	done_cl
-+	movl	%fs:(%si), %eax
-+	andb	%al, %al		# End of line?
-+	jz	done_cl
-+	cmpl	$EDD_CL_EQUALS, %eax
- 	jz	found_edd_equals
--	incl	%esi
--	loop	cl_loop
--	jmp	done_cl
-+	cmpb	$0x20, %al		# <= space consider whitespace
-+	ja	cl_skipword
-+	incw	%si
-+	jmp	cl_atspace
-+
-+cl_skipword:
-+	cmpw	$-5, %si		# Watch for segment wraparound
-+	jae	done_cl
-+	movb	%fs:(%si), %al		# End of string?
-+	andb	%al, %al
-+	jz	done_cl
-+	cmpb	$0x20, %al
-+	jbe	cl_atspace
-+	incw	%si
-+	jmp	cl_skipword
-+	
- found_edd_equals:
- # only looking at first two characters after equals
--    	addl	$4, %esi
--	cmpw	$EDD_CL_OFF, (%si)	# edd=of
--	jz	do_edd_off
--	cmpw	$EDD_CL_SKIP, (%si)	# edd=sk
--	jz	do_edd_skipmbr
--	jmp	done_cl
-+# late overrides early on the command line, so keep going after finding something
-+	movw	%fs:4(%si), %ax
-+	cmpw	$EDD_CL_OFF, %ax	# edd=of
-+	je	do_edd_off
-+	cmpw	$EDD_CL_SKIP, %ax	# edd=sk
-+	je	do_edd_skipmbr
-+	cmpw	$EDD_CL_ON, %ax		# edd=on
-+	je	do_edd_on
-+	jmp	cl_skipword
- do_edd_skipmbr:
--    	popl	%esi
--	jmp	edd_start
-+	movw	$edd_start, %di
-+	jmp	cl_skipword
- do_edd_off:
--	popl	%esi
--	jmp	edd_done
-+	movw	$edd_done, %di
-+	jmp	cl_skipword
-+do_edd_on:
-+	movw	$edd_mbr_sig_start, %di
-+	jmp	cl_skipword
-+	
- done_cl:
- 	popl	%esi
--
-+	jmpw	*%di
- 
- # Read the first sector of each BIOS disk device and store the 4-byte signature
- edd_mbr_sig_start:
-diff --git a/include/linux/edd.h b/include/linux/edd.h
-index 162512b..b2b3e68 100644
---- a/include/linux/edd.h
-+++ b/include/linux/edd.h
-@@ -52,6 +52,7 @@ #define EDD_MBR_SIG_NR_BUF 0x1ea  /* add
- #define EDD_CL_EQUALS   0x3d646465     /* "edd=" */
- #define EDD_CL_OFF      0x666f         /* "of" for off  */
- #define EDD_CL_SKIP     0x6b73         /* "sk" for skipmbr */
-+#define EDD_CL_ON       0x6e6f	       /* "on" for on */
- 
- #ifndef __ASSEMBLY__
- 
-
---------------000306020208020909000409--

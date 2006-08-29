@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWH2TQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWH2TW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWH2TQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965261AbWH2TQk
+	id S965060AbWH2TW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbWH2TW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:16:40 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:63475 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965143AbWH2TQk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:16:40 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=VgSgeYVuBpp852/kCEMSIUzApyNifVXqTzxzgSil28Ow5cF5RbTq2HpZx/BXE3DOJ
-	BeHliccPAdFmo01I1efCw==
-Subject: Re: [Devel] Re: BC: resource beancounters (v2)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kir Kolyshkin <kir@openvz.org>, devel@openvz.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <1156878413.6271.118.camel@localhost.localdomain>
-References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>
-	 <44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
-	 <20060825203026.A16221@castle.nmd.msu.ru>
-	 <1156558552.24560.23.camel@galaxy.corp.google.com>
-	 <1156610224.3007.284.camel@localhost.localdomain>
-	 <1156783721.8317.6.camel@galaxy.corp.google.com>
-	 <44F32AC7.1090604@openvz.org>
-	 <1156804089.8985.19.camel@galaxy.corp.google.com>
-	 <1156846535.6271.76.camel@localhost.localdomain>
-	 <1156872635.16595.14.camel@galaxy.corp.google.com>
-	 <1156878413.6271.118.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Tue, 29 Aug 2006 12:15:16 -0700
-Message-Id: <1156878916.16595.55.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 15:22:26 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:63373 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S965060AbWH2TWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 15:22:25 -0400
+Date: Tue, 29 Aug 2006 21:21:25 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: Drop cache has no effect?
+In-Reply-To: <20060829110048.20e23e75.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0608292117320.5502@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
+ <20060829110048.20e23e75.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 20:06 +0100, Alan Cox wrote:
-> Ar Maw, 2006-08-29 am 10:30 -0700, ysgrifennodd Rohit Seth:
-> > On Tue, 2006-08-29 at 11:15 +0100, Alan Cox wrote:
-> > > Ar Llu, 2006-08-28 am 15:28 -0700, ysgrifennodd Rohit Seth:
-> > > > Though if we have file/directory based accounting then shared pages
-> > > > belonging to /usr/lib or /usr/bin can go to a common container.
-> > > 
-> > > So that one user can map all the spare libraries and config files and
-> > > DoS the system by preventing people from accessing the libraries they do
-> > > need ?
-> > > 
-> > 
-> > Well, there is a risk whenever there is sharing across containers. The
-> > point though is, give the choice to sysadmin to configure the platform
-> > the way it is appropriate.
-> 
-> In other words your suggestion doesn't actually work for the real world
-> cases like web serving.
-> 
+>> Hello,
+>> 
+>> recently I picked up knowledge of /proc/sys/vm/drop_caches 
+>> (http://lkml.org/lkml/2006/8/4/95)
+>> 
+>> It does not always work right away:
+>> 
+>> (/U is a vfat, that is, permissions are back to 755 as soon as the caches 
+>> are gone)
+>> 14:51 gwdg-wb04A:/U # chmod 644 *
+>> 14:51 gwdg-wb04A:/U # sync
+>> 14:51 gwdg-wb04A:/U # echo 2 >/proc/sys/vm/drop_caches 
+>> 14:51 gwdg-wb04A:/U # l
+>> total 50713
+>> drwxr-xr-x   3 jengelh users     2048 2006-08-29 14:48 .
+>> drwxr-xr-x  22 root    root      4096 2006-08-25 14:00 ..
+>> drw-r--r--   2 jengelh users     2048 2006-08-29 13:55 as
+>> -rw-r--r--   1 jengelh users 13806629 2006-08-29 14:00 all-20060611.tar.bz2
+>> -rw-r--r--   1 jengelh users 37816633 2006-07-28 19:25 
+>> inkscape-0.44-2.guru.suse101.i686.rpm
+>> -rw-r--r--   1 jengelh users   297243 2006-08-15 01:13 
+>> vmware-any-any-update104.tar.gz
+>> 
+>> Remains 644.
+>
+>That would be a vfat problem - the changed permission bits weren't written
+>back to disk, so when you re-read them from disk (or, more likely, from
+>blockdev pagecache) they came back with the original values.
 
-Containers are not going to solve all the problems particularly the
-scenarios like when a machine is a web server and an odd user can log on
-to the same machine and (w/o any ulimits) claim all the memory that is
-present in the system.
+Yes, that's _intended_.
 
-Though it is quite possible to implement a combination of two (task and
-fs based) policies in containers and sysadmin can set a preference of
-each each container.  [this probably is another reason for having a per
-page container pointer].
+Fact:
+If you chmod 644 some files on vfat, then unmount and mount it again, they show
+up as 755 again. That is ok.
 
--rohit
+Observation:
+Dropping the cache does not imply the 644->755 change observed on unmount.
 
+Conclusion:
+Caches not dropped.
+
+
+>Does vfat even have the ability to store the seven bits?  Don't think so? 
+>If not, permitting the user to change them in icache but not being to write
+>them out to permanent store seems rather bad behaviour.
+
+It is, I think, for compat reasons. Who knows how many apps don't expect chmod
+to fail when they know you are the owner.
+
+
+
+thanks,
+Jan Engelhardt
+-- 

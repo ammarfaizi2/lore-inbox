@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWH2MSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWH2MVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWH2MSt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWH2MSt
+	id S1750822AbWH2MVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWH2MVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:18:49 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:61595 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750714AbWH2MSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:18:48 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Conversion to generic boolean
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Richard Knutsson <ricknu-0@student.ltu.se>,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060829114634.GE4076@infradead.org>
-References: <44EFBEFA.2010707@student.ltu.se>
-	 <20060828093202.GC8980@infradead.org>
-	 <20060828171804.09c01846.akpm@osdl.org> <44F3952B.5000500@yahoo.com.au>
-	 <1156836578.26009.6.camel@imp.csi.cam.ac.uk>
-	 <20060829114634.GE4076@infradead.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Tue, 29 Aug 2006 13:18:21 +0100
-Message-Id: <1156853901.5036.0.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Tue, 29 Aug 2006 08:21:35 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:53848 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750822AbWH2MV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 08:21:28 -0400
+Message-ID: <44F43209.6040603@sw.ru>
+Date: Tue, 29 Aug 2006 16:24:41 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: "Luck, Tony" <tony.luck@intel.com>,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>, gregkh@suse.de,
+       akpm@osdl.org, dev@openvz.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net, stable@kernel.org,
+       kamezawa.hiroyu@jp.fujitsu.com, xemul@openvz.org
+Subject: Re: [stable] [PATCH] Linux 2.6.17.11 - fix compilation error on IA64
+ (try #3)
+References: <617E1C2C70743745A92448908E030B2A72869D@scsmsx411.amr.corp.intel.com> <20060829013137.GA27869@kroah.com>
+In-Reply-To: <20060829013137.GA27869@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 12:46 +0100, Christoph Hellwig wrote:
-> On Tue, Aug 29, 2006 at 08:29:38AM +0100, Anton Altaparmakov wrote:
-> > Not sure whether this is meant in favour of one or the other but we are
-> > not programming in C strictly speaking but in C99+gccisms and C99
-> > includes _Bool...
+Greg KH wrote:
+> On Mon, Aug 28, 2006 at 03:11:31PM -0700, Luck, Tony wrote:
 > 
-> as does it include float, double, _Complex and other things we don't use.
+>>>The commit 8833ebaa3f4325820fe3338ccf6fae04f6669254 introduced a change that broke 
+>>>IA64 compilation as shown below:
+>>
+>>What happened to the mainline version of the patch to which this
+>>is a fix (local DoS with corrupted ELFs)?  I don't see it in 2.6.18-rc5.
+>>Did it get fixed some other way, or is it just queued somewhere?  Or do
+>>we have a fix in -stable that isn't in mainline?
+> 
+> 
+> I thought this was a fix for a prior -stable patch that did not affect
+> mainline.  Or was this thought wrong?
+both patches should be passed to Linus.
+Probably it is my fault, since I thought that patches which got into -stable
+automatically go into Linus tree.
 
-We don't use those for completely different reasons...  But you knew
-that already...
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://www.linux-ntfs.org/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Thanks,
+Kirill
 

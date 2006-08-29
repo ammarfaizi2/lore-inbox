@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965370AbWH2VGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965379AbWH2VJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965370AbWH2VGu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965367AbWH2VGu
+	id S965379AbWH2VJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 17:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965378AbWH2VJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 17:06:50 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:46704 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965363AbWH2VGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 17:06:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z/Jg/5xrBv9IiIuwKgfGjyVv6VgYMKVBdyY5s4PMcCO3xkptrztG+v93kRN5OqlZsg6vJMeb5OZG9dwaGO4hIpO6qIySZvBPBi0MRGDelZs4+D+NDgniB52qpUpfkMhVwXbRtQJ8QVOExTVLPcRIC1XfPxqq0PlFG+bY3S4pkek=
-Message-ID: <b0943d9e0608291406o423c2e7axb4131b928257c3da@mail.gmail.com>
-Date: Tue, 29 Aug 2006 22:06:49 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+	Tue, 29 Aug 2006 17:09:57 -0400
+Received: from mxsf31.cluster1.charter.net ([209.225.28.130]:59331 "EHLO
+	mxsf31.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S965371AbWH2VJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 17:09:56 -0400
+X-IronPort-AV: i="4.08,183,1154923200"; 
+   d="scan'208"; a="1583680957:sNHT27777000"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+Message-ID: <17652.44254.620358.974993@stoffel.org>
+Date: Tue, 29 Aug 2006 17:08:46 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+In-Reply-To: <20060829195845.GA13357@kroah.com>
+References: <20060829115138.GA32714@infradead.org>
+	<20060825142753.GK10659@infradead.org>
+	<20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
+	<20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
+	<10117.1156522985@warthog.cambridge.redhat.com>
+	<15945.1156854198@warthog.cambridge.redhat.com>
+	<20060829122501.GA7814@infradead.org>
+	<20060829195845.GA13357@kroah.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> it looks like it was caused by commit
-> fc818301a8a39fedd7f0a71f878f29130c72193d where free_block() now calls
-> slab_destroy() with l3->list_lock held.
-[...]
-> It leaves me with the options of either implementing my own memory
-> allocator based on pages (including a simple hash table instead of
-> radix tree) or fix the locking in kmemleak so that memory allocations
-> happen without memleak_lock held. The latter is a bit complicated as
-> well since any slab allocation causes a re-entrance into kmemleak.
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
-FYI, I couldn't fix the locking dependency issues without modifying
-the radix-tree implementation since even if you preload the tree
-outside the memleak lock, it still tries to allocate memory in
-radix_tree_insert.
+Greg> On Tue, Aug 29, 2006 at 01:25:01PM +0100, Christoph Hellwig wrote:
+>> On Tue, Aug 29, 2006 at 01:23:18PM +0100, David Howells wrote:
+>> > Christoph Hellwig <hch@infradead.org> wrote:
+>> > 
+>> > > Same as above.  USB_STORAGE already selects scsi so it shouldn't need
+>> > > to depend on block.
+>> > 
+>> > Ah, you've got it the wrong way round.
+>> > 
+>> > Because USB_STORAGE _selects_ SCSI rather than depending on it, even if SCSI
+>> > is disabled, USB_STORAGE can be enabled, and that turns on CONFIG_SCSI, even
+>> > if not all of its dependencies are available.
+>> > 
+>> > Run "make allyesconfig" and then try to turn off CONFIG_SCSI without this...
+>> 
+>> Eeek.  The easy fix is to change USB_STORAGE to depend on SCSI (*), but in
+>> addition to that we should probably fix Kconfig aswell to adhere to
+>> such constraints.
 
-I'll instead use a hash table (together with hlist) where I can
-control the memory allocations and make more use of RCU. In my few
-initial tests, the memory search with hash tables is about the same
-speed (if not slightly faster) as the radix-tree implementation.
+Greg> No, the reason this was switched around like this (it used to be the
+Greg> other way), was that people constantly complained about not being able
+Greg> to select the usb-storage driver in their configurations.
 
-I will post a new kmemleak version by the end of this week.
+Maybe the better solution is to remove SCSI as an option, and to just
+offer SCSI drivers and USB-STORAGE and other SCSI core using drivers
+instead.  Then the SCSI core gets pulled in automatically.  It's not
+like people care about the SCSI core, just the drivers which depend on
+it.
 
--- 
-Catalin
+John

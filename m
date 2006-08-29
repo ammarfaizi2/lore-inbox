@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWH2Frm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWH2F7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWH2Frm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 01:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWH2Frm
+	id S1751189AbWH2F7O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 01:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWH2F7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 01:47:42 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:39817 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751115AbWH2Frl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 01:47:41 -0400
-Subject: Re: Reiser4 und LZO compression
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Edward Shishkin <edward@namesys.com>,
-       Stefan Traby <stefan@hello-penguin.com>,
-       Hans Reiser <reiser@namesys.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, nitingupta.mail@gmail.com
-In-Reply-To: <20060829045937.GA9181@localhost.hsdv.com>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>
-	 <44F322A6.9020200@namesys.com> <20060828173721.GA11332@hello-penguin.com>
-	 <44F332D6.6040209@namesys.com> <1156801705.2969.6.camel@nigel.suspend2.net>
-	 <20060829045937.GA9181@localhost.hsdv.com>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 15:47:15 +1000
-Message-Id: <1156830435.3790.21.camel@nigel.suspend2.net>
+	Tue, 29 Aug 2006 01:59:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34540 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751076AbWH2F7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 01:59:12 -0400
+Date: Mon, 28 Aug 2006 22:59:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: NeilBrown <neilb@suse.de>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 4] md: Define backing_dev_info.congested_fn for
+ raid0 and linear
+Message-Id: <20060828225908.af114751.akpm@osdl.org>
+In-Reply-To: <1060829053924.6610@suse.de>
+References: <20060829153414.6475.patches@notabene>
+	<1060829053924.6610@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 29 Aug 2006 15:39:24 +1000
+NeilBrown <neilb@suse.de> wrote:
 
-On Tue, 2006-08-29 at 13:59 +0900, Paul Mundt wrote:
-> On Tue, Aug 29, 2006 at 07:48:25AM +1000, Nigel Cunningham wrote:
-> > For Suspend2, we ended up converting the LZF support to a cryptoapi
-> > plugin. Is there any chance that you could use cryptoapi modules? We
-> > could then have a hope of sharing the support.
-> > 
-> Using cryptoapi plugins for the compression methods is an interesting
-> approach, there's a few other places in the kernel that could probably
-> benefit from this as well, such as jffs2 (which at the moment rolls its
-> own compression subsystem), and the out-of-tree page and swap cache
-> compression work.
 > 
-> Assuming you were wrapping in to LZF directly prior to the cryptoapi
-> integration, do you happen to have before and after numbers to determine
-> how heavyweight the rest of the cryptoapi overhead is? It would be
-> interesting to profile this and consider migrating the in-tree users,
-> rather than duplicating the compress/decompress routines all over the
-> place.
+> Each backing_dev needs to be able to report whether it is congested,
+> either by modulating BDI_*_congested in ->state, or by
+> defining a ->congested_fn.
+> md/raid did neither of these.  This patch add a congested_fn
+> which simply checks all component devices to see if they are
+> congested.
+> 
+> Signed-off-by: Neil Brown <neilb@suse.de>
+> 
+> +static int linear_congested(void *data, int bits)
+> +{
+> +	mddev_t *mddev = data;
+> +	linear_conf_t *conf = mddev_to_conf(mddev);
+> +	int i, ret = 0;
+> +
+> +	for (i = 0; i < mddev->raid_disks && !ret ; i++) {
+> +		request_queue_t *q = bdev_get_queue(conf->disks[i].rdev->bdev);
+> +		ret |= bdi_congested(&q->backing_dev_info, bits);
 
-I was, but I don't have numbers right now. I'm about to go out, but will
-see if I can find them when I get back later. From memory, it wasn't a
-huge change in terms of lines of code.
+nit: `ret = ' would suffice here.
 
-Regards,
+> +static int raid0_congested(void *data, int bits)
+> +{
+> +	mddev_t *mddev = data;
+> +	raid0_conf_t *conf = mddev_to_conf(mddev);
+> +	mdk_rdev_t **devlist = conf->strip_zone[0].dev;
+> +	int i, ret = 0;
+> +
+> +	for (i = 0; i < mddev->raid_disks && !ret ; i++) {
+> +		request_queue_t *q = bdev_get_queue(devlist[i]->bdev);
+> +
+> +		ret |= bdi_congested(&q->backing_dev_info, bits);
 
-Nigel
+And here.
 
+> +	}
+> +	return ret;
+> +}
+> +
+>  
+>  static int create_strip_zones (mddev_t *mddev)
+>  {
+> @@ -236,6 +251,8 @@ static int create_strip_zones (mddev_t *
+>  	mddev->queue->unplug_fn = raid0_unplug;
+>  
+>  	mddev->queue->issue_flush_fn = raid0_issue_flush;
+> +	mddev->queue->backing_dev_info.congested_fn = raid0_congested;
+> +	mddev->queue->backing_dev_info.congested_data = mddev;
+>  
+>  	printk("raid0: done.\n");
+>  	return 0;

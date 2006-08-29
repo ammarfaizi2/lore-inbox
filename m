@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWH2M1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWH2M3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWH2M1z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWH2M1z
+	id S1751440AbWH2M3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWH2M3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:27:55 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:63278 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751426AbWH2M1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:27:54 -0400
+	Tue, 29 Aug 2006 08:29:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:46669 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751440AbWH2M3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 08:29:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cyNPUtEvh7M9ZJqHe5RMcQBzDUyMCDo8rvdHU7rm+6EFn4WYc2xrTJdO7utVMbsRnA3brK0n66bLZqBraLGzMJLqk3ilK5Z1siJB5fuDRlZH3wq83qWB4jxtbu3lyGQ0zyYPrA8MLdpFKbzlwOFfRi/XX2nT3iC/EkXXCKUtPRY=
-Message-ID: <b6a2187b0608290527l7405b708jdd4c40c7ea09aa14@mail.gmail.com>
-Date: Tue, 29 Aug 2006 20:27:46 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Jon Escombe" <lists@dresco.co.uk>
-Subject: Re: Lenovo T60 - unable to resume from disk with CONFIG_HIGHMEM64G
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <loom.20060829T084849-443@post.gmane.org>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=QjnjZqmvGzYWcaUrYQXou07mZqgJ78dT0+1rkLdFN/7BIOCT9Wp4mvuBmnJvGIQhE8tk69GlXqjbVgGtdBTB+YelqIpvyHTIhGUYgQfq9XvTlrQmTGOKGhN+MfbU3x7j/5BhGof9emurdSMIYnd/+fdB/5mwpL9hFQbF7ZR+ooI=
+Message-ID: <d120d5000608290529j904b10bh58696820b159fcd4@mail.gmail.com>
+Date: Tue, 29 Aug 2006 08:29:13 -0400
+From: "Dmitry Torokhov" <dtor@insightbb.com>
+To: "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: Re: [RPC] OLPC tablet input driver.
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Marcelo Tosatti" <mtosatti@redhat.com>
+In-Reply-To: <20060829084443.GA4187@aehallh.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <loom.20060829T084849-443@post.gmane.org>
+References: <20060829073339.GA4181@aehallh.com>
+	 <1156839019.2722.39.camel@laptopd505.fenrus.org>
+	 <20060829084443.GA4187@aehallh.com>
+X-Google-Sender-Auth: 634ad519bbb12c29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/06, Jon Escombe <lists@dresco.co.uk> wrote:
+On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> >
+> > also.. there's no locking visible anywhere in the driver... is this
+> > right?
 >
-> Using a Lenovo T60 laptop - suspend to disk has always failed for me on resume.
+> It looks like psmouse handles it with a mutex lock around freeing stuff
+> and calling the callback function pointers we set on init, so we
+> _should_ be safe unless I've missed something.
 >
-> Through trial and error, I've found that this problem only occurs with
-> CONFIG_HIGHMEM64G (the default in a Fedora installation). On a couple of
-> occasions I've seen a hang or an oops instead of a reboot. Apologies for the
-> poor quality, but an image of the oops screen can be found at
-> http://www.dresco.co.uk/debug/resume_from_disk.jpg
+> Add to it that none of the other psmouse drivers are doing locking on
+> their own, and I'm fairly sure that this is correct. (But if someone
+> knows better, please correct me.)
+>
 
-I had the same problem on my IBM x60s. In my case, I see no oops. Just
-reboot right after resume with CONFIG_HIGHMEM64G=y. Turning off
-CONFIG_HIGHMEM64G, problem goes away. Don't know how to fix. Just to
-confirm your findings. 2.6.18-rc5 has the same problem.
+Serio and psmouse cores should handle all necessary locking, no worries here.
 
-Thanks,
-Jeff.
+-- 
+Dmitry

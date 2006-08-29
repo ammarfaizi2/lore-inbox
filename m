@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWH2ScJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbWH2Sdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965246AbWH2ScJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 14:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbWH2ScJ
+	id S965253AbWH2Sdh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 14:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965254AbWH2Sdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 14:32:09 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:12492 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S965246AbWH2ScH (ORCPT
+	Tue, 29 Aug 2006 14:33:37 -0400
+Received: from ns1.suse.de ([195.135.220.2]:3756 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965253AbWH2Sdg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 14:32:07 -0400
-Message-ID: <44F48825.4050408@zabbo.net>
-Date: Tue, 29 Aug 2006 11:32:05 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 29 Aug 2006 14:33:36 -0400
+From: Andi Kleen <ak@suse.de>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: Why Semaphore Hardware-Dependent?
+Date: Tue, 29 Aug 2006 20:33:25 +0200
+User-Agent: KMail/1.9.3
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+References: <200608292018.01602.ak@suse.de> <Pine.LNX.4.64.0608291033380.19174@schroedinger.engr.sgi.com> <809.1156876259@warthog.cambridge.redhat.com>
+In-Reply-To: <809.1156876259@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Yi Yang <yang.y.yi@gmail.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
-References: <44F43F46.1070702@gmail.com>
-In-Reply-To: <44F43F46.1070702@gmail.com>
-Content-Type: text/plain; charset=GB2312
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608292033.25194.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 29 August 2006 20:30, David Howells wrote:
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > BTW maybe it would be a good idea to switch the wait list to a hlist,
+> > then the last user in the queue wouldn't need to 
+> > touch the cache line of the head. Or maybe even a single linked
+> > list then some more cache bounces might be avoidable.
+> 
+> You need a list_head to get O(1) push at one end and O(1) pop at the other.
 
-Sorry, we shouldn't merge this patch in its current form.
+The poper should know its node address already because it's on its own stack.
 
-> In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
-> and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
-> does know them, I think the correct errno should be -EOPNOTSUPP which
-> means they aren't be implemented or supported.
+> In addition a singly-linked list makes interruptible ops non-O(1) also.
 
-Like it or not, the sys_io_submit() interface returns -EINVAL when the
-file descriptor doesn't support the requested command.  Changing the
-binary interface is a big deal and should not be done lightly.  What is
-the motivation for making this change?
+When they are interrupted I guess? Hardly a problem to make that slower.
 
-Even if we decided to, we'd want to do it for all the commands.  This
-patch only addresses F{D,}SYNC.  All the other commands would still
-return -EINVAL if the descriptor doesn't have the corresponding ->aio_
-method, leaving userspace do deal with more complexity.
+-Andi
 
-> -static ssize_t aio_fdsync(struct kiocb *iocb)
-> -{
-> -	struct file *file = iocb->ki_filp;
-> -	ssize_t ret = -EINVAL;
-> -
-> -	if (file->f_op->aio_fsync)
-> -		ret = file->f_op->aio_fsync(iocb, 1);
-> -	return ret;
-> -}
-> -
->  static ssize_t aio_fsync(struct kiocb *iocb)
->  {
->  	struct file *file = iocb->ki_filp;
-> -	ssize_t ret = -EINVAL;
-> +	ssize_t ret = -EOPNOTSUPP;
->  
->  	if (file->f_op->aio_fsync)
->  		ret = file->f_op->aio_fsync(iocb, 0);
-
->  	case IOCB_CMD_FDSYNC:
-> -		ret = -EINVAL;
-> +		ret = -EOPNOTSUPP;
->  		if (file->f_op->aio_fsync)
-> -			kiocb->ki_retry = aio_fdsync;
-> +			kiocb->ki_retry = aio_fsync;
-
-Hmm, your most recent patch didn't mention this aio_f{d,}sync() change
-though the earlier one did.  Please make sure all patch submissions have
-complete descriptions.
-
-These calls are not the same, notice that they differ in the second
-argument to their ->aio_fsync() calls.  Cleaning up the ->aio_fsync()
-interface might well be reasonable.  Missing that subtle difference
-suggests that it should be more clear and there are precisely zero
-merged ->aio_fsync() users.  But that kind of cleanup belongs in a
-separate patch with its own justification.
-
-Are you working with an ->aio_fsync() user that might be merged?
-
-- z

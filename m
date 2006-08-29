@@ -1,133 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965398AbWH2Vja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965424AbWH2Vjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965398AbWH2Vja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 17:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965423AbWH2Vja
+	id S965424AbWH2Vjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 17:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965426AbWH2Vjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 17:39:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29618 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965398AbWH2Vj3 (ORCPT
+	Tue, 29 Aug 2006 17:39:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6630 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965424AbWH2Vjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 17:39:29 -0400
-Message-ID: <44F4B3FF.90601@sandeen.net>
-Date: Tue, 29 Aug 2006 16:39:11 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: [PATCH] ext3 should use uint for internal inode containers
-References: <44EE015E.8040904@redhat.com>
-In-Reply-To: <44EE015E.8040904@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Aug 2006 17:39:43 -0400
+Date: Tue, 29 Aug 2006 14:39:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sukadev Bhattiprolu <sukadev@us.ibm.com>, video4linux-list@redhat.com,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: kraxel@bytesex.org, clg@fr.ibm.com, haveblue@us.ibm.com, serue@us.ibm.com,
+       Containers@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kthread: saa7134-tvaudio.c
+Message-Id: <20060829143902.a6aa2712.akpm@osdl.org>
+In-Reply-To: <20060829211555.GB1945@us.ibm.com>
+References: <20060829211555.GB1945@us.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Talking to sct, he'd prefer to see ext3 continue to use only uints for 
-inode number containers which are internal to the filesystem, since the 
-filesystem itself can only do 32-bit inode numbers (on-disk format 
-restriction), and uint is always 32, while ulong is sometimes 64.  
-So, this patch bumps the unsigned longs from 
-ext3-inode-numbers-are-unsigned-long.patch back down to unsigned ints.
+On Tue, 29 Aug 2006 14:15:55 -0700
+Sukadev Bhattiprolu <sukadev@us.ibm.com> wrote:
 
-(this patch applies over that one)
+> 
+> Replace kernel_thread() with kthread_run() since kernel_thread()
+> is deprecated in drivers/modules. 
+> 
+> Note that this driver, like a few others, allows SIGTERM. Not
+> sure if that is affected by conversion to kthread. Appreciate
+> any comments on that.
+> 
 
-Thanks,
+hm, I think this driver needs more help.
 
--Eric
+- It shouldn't be using signals at all, really.  Signals are for
+  userspace IPC.  The kernel internally has better/richer/faster/tighter
+  ways of inter-thread communication.
 
-Signed-off-by: Eric Sandeen <esandeen@redhat.com>
+- saa7134_tvaudio_fini()-versus-tvaudio_sleep() looks racy:
 
-diff -u a/fs/ext3/ialloc.c linux-2.6.17/fs/ext3/ialloc.c
---- a/fs/ext3/ialloc.c
-+++ linux-2.6.17/fs/ext3/ialloc.c
-@@ -202,7 +202,7 @@
- static int find_group_dir(struct super_block *sb, struct inode *parent)
- {
- 	int ngroups = EXT3_SB(sb)->s_groups_count;
--	unsigned long freei, avefreei;
-+	unsigned int freei, avefreei;
- 	struct ext3_group_desc *desc, *best_desc = NULL;
- 	struct buffer_head *bh;
- 	int group, best_group = -1;
-@@ -261,10 +261,10 @@
- 	struct ext3_super_block *es = sbi->s_es;
- 	int ngroups = sbi->s_groups_count;
- 	int inodes_per_group = EXT3_INODES_PER_GROUP(sb);
--	unsigned long freei, avefreei;
-+	unsigned int freei, avefreei;
- 	ext3_fsblk_t freeb, avefreeb;
- 	ext3_fsblk_t blocks_per_dir;
--	unsigned long ndirs;
-+	unsigned int ndirs;
- 	int max_debt, max_dirs, min_inodes;
- 	ext3_grpblk_t min_blocks;
- 	int group = -1, i;
-diff -u a/fs/ext3/super.c linux-2.6.17/fs/ext3/super.c
---- a/fs/ext3/super.c
-+++ linux-2.6.17/fs/ext3/super.c
-@@ -45,7 +45,7 @@
- static int ext3_load_journal(struct super_block *, struct ext3_super_block *,
- 			     unsigned long journal_devnum);
- static int ext3_create_journal(struct super_block *, struct ext3_super_block *,
--			       unsigned long);
-+			       unsigned int);
- static void ext3_commit_super (struct super_block * sb,
- 			       struct ext3_super_block * es,
- 			       int sync);
-@@ -711,7 +711,7 @@
- }
- 
- static int parse_options (char *options, struct super_block *sb,
--			  unsigned long *inum, unsigned long *journal_devnum,
-+			  unsigned int *inum, unsigned long *journal_devnum,
- 			  ext3_fsblk_t *n_blocks_count, int is_remount)
- {
- 	struct ext3_sb_info *sbi = EXT3_SB(sb);
-@@ -1353,7 +1353,7 @@
- 	ext3_fsblk_t sb_block = get_sb_block(&data);
- 	ext3_fsblk_t logic_sb_block;
- 	unsigned long offset = 0;
--	unsigned long journal_inum = 0;
-+	unsigned int journal_inum = 0;
- 	unsigned long journal_devnum = 0;
- 	unsigned long def_mount_opts;
- 	struct inode *root;
-@@ -1803,7 +1803,7 @@
- }
- 
- static journal_t *ext3_get_journal(struct super_block *sb,
--				   unsigned long journal_inum)
-+				   unsigned int journal_inum)
- {
- 	struct inode *journal_inode;
- 	journal_t *journal;
-@@ -1938,7 +1938,7 @@
- 			     unsigned long journal_devnum)
- {
- 	journal_t *journal;
--	unsigned long journal_inum = le32_to_cpu(es->s_journal_inum);
-+	unsigned int journal_inum = le32_to_cpu(es->s_journal_inum);
- 	dev_t journal_dev;
- 	int err = 0;
- 	int really_read_only;
-@@ -2024,7 +2024,7 @@
- 
- static int ext3_create_journal(struct super_block * sb,
- 			       struct ext3_super_block * es,
--			       unsigned long journal_inum)
-+			       unsigned int journal_inum)
- {
- 	journal_t *journal;
- 
-@@ -2037,7 +2037,7 @@
- 	if (!(journal = ext3_get_journal(sb, journal_inum)))
- 		return -EINVAL;
- 
--	printk(KERN_INFO "EXT3-fs: creating new journal on inode %lu\n",
-+	printk(KERN_INFO "EXT3-fs: creating new journal on inode %u\n",
- 	       journal_inum);
- 
- 	if (journal_create(journal)) {
+	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
+		if (timeout < 0) {
+			set_current_state(TASK_INTERRUPTIBLE);
+			schedule();
+
+  If the wakeup happens after the test of dev->thread.shutdown, that sleep will
+  be permanent.
 
 
+So in general, yes, the driver should be converted to the kthread API -
+this is a requirement for virtualisation, but I forget why, and that's the
+"standard" way of doing it.
+
+- The signal stuff should go away if at all possible.
+
+- the thread.shutdown field should go away and be replaced by
+  kthread_should_stop().
+
+- the tvaudio_sleep() race might need some attention (simply moving the
+  set_current_state() to before the add_wait_queue() will suffice).
+
+- the complete_and_exit() stuff might (should) no longer be needed -
+  kthread_stop() does that.
+
+Sorry ;)
+
+>  2 files changed, 17 insertions(+), 20 deletions(-)
+> 
+> Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134.h
+> ===================================================================
+> --- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134.h	2006-08-29 14:02:44.000000000 -0700
+> +++ lx26-18-rc5/drivers/media/video/saa7134/saa7134.h	2006-08-29 14:04:21.000000000 -0700
+> @@ -311,10 +311,8 @@ struct saa7134_pgtable {
+>  
+>  /* tvaudio thread status */
+>  struct saa7134_thread {
+> -	pid_t                      pid;
+> -	struct completion          exit;
+> +	struct task_struct *       task;
+>  	wait_queue_head_t          wq;
+> -	unsigned int               shutdown;
+>  	unsigned int               scan1;
+>  	unsigned int               scan2;
+>  	unsigned int               mode;
+> Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c
+> ===================================================================
+> --- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-29 14:02:44.000000000 -0700
+> +++ lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-29 14:06:24.000000000 -0700
+> @@ -28,6 +28,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+>  #include <linux/smp_lock.h>
+> +#include <linux/kthread.h>
+>  #include <asm/div64.h>
+>  
+>  #include "saa7134-reg.h"
+> @@ -357,7 +358,7 @@ static int tvaudio_sleep(struct saa7134_
+>  	DECLARE_WAITQUEUE(wait, current);
+>  
+>  	add_wait_queue(&dev->thread.wq, &wait);
+> -	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
+> +	if (dev->thread.scan1 == dev->thread.scan2 && !kthread_should_stop()) {
+>  		if (timeout < 0) {
+>  			set_current_state(TASK_INTERRUPTIBLE);
+>  			schedule();
+> @@ -525,7 +526,7 @@ static int tvaudio_thread(void *data)
+>  	allow_signal(SIGTERM);
+>  	for (;;) {
+>  		tvaudio_sleep(dev,-1);
+> -		if (dev->thread.shutdown || signal_pending(current))
+> +		if (kthread_should_stop() || signal_pending(current))
+>  			goto done;
+>  
+>  	restart:
+> @@ -633,7 +634,7 @@ static int tvaudio_thread(void *data)
+>  		for (;;) {
+>  			if (tvaudio_sleep(dev,5000))
+>  				goto restart;
+> -			if (dev->thread.shutdown || signal_pending(current))
+> +			if (kthread_should_stop() || signal_pending(current))
+>  				break;
+>  			if (UNSET == dev->thread.mode) {
+>  				rx = tvaudio_getstereo(dev,&tvaudio[i]);
+> @@ -649,7 +650,6 @@ static int tvaudio_thread(void *data)
+>  	}
+>  
+>   done:
+> -	complete_and_exit(&dev->thread.exit, 0);
+>  	return 0;
+>  }
+>  
+> @@ -798,7 +798,6 @@ static int tvaudio_thread_ddep(void *dat
+>  	struct saa7134_dev *dev = data;
+>  	u32 value, norms, clock;
+>  
+> -	daemonize("%s", dev->name);
+>  	allow_signal(SIGTERM);
+>  
+>  	clock = saa7134_boards[dev->board].audio_clock;
+> @@ -812,7 +811,7 @@ static int tvaudio_thread_ddep(void *dat
+>  
+>  	for (;;) {
+>  		tvaudio_sleep(dev,-1);
+> -		if (dev->thread.shutdown || signal_pending(current))
+> +		if (kthread_should_stop() || signal_pending(current))
+>  			goto done;
+>  
+>  	restart:
+> @@ -894,7 +893,6 @@ static int tvaudio_thread_ddep(void *dat
+>  	}
+>  
+>   done:
+> -	complete_and_exit(&dev->thread.exit, 0);
+>  	return 0;
+>  }
+>  
+> @@ -1004,15 +1002,16 @@ int saa7134_tvaudio_init2(struct saa7134
+>  		break;
+>  	}
+>  
+> -	dev->thread.pid = -1;
+> +	dev->thread.task = NULL;
+>  	if (my_thread) {
+>  		/* start tvaudio thread */
+>  		init_waitqueue_head(&dev->thread.wq);
+> -		init_completion(&dev->thread.exit);
+> -		dev->thread.pid = kernel_thread(my_thread,dev,0);
+> -		if (dev->thread.pid < 0)
+> +		dev->thread.task = kthread_run(my_thread,dev,dev->name);
+> +		if (IS_ERR(dev->thread.task)) {
+>  			printk(KERN_WARNING "%s: kernel_thread() failed\n",
+> -			       dev->name);
+> +			                              dev->name);
+> +			dev->thread.task = NULL;
+> +		}
+>  		saa7134_tvaudio_do_scan(dev);
+>  	}
+>  
+> @@ -1023,10 +1022,10 @@ int saa7134_tvaudio_init2(struct saa7134
+>  int saa7134_tvaudio_fini(struct saa7134_dev *dev)
+>  {
+>  	/* shutdown tvaudio thread */
+> -	if (dev->thread.pid >= 0) {
+> -		dev->thread.shutdown = 1;
+> -		wake_up_interruptible(&dev->thread.wq);
+> -		wait_for_completion(&dev->thread.exit);
+> +	if (dev->thread.task) {
+> +		/* kthread_stop() wakes up the thread */
+> +		kthread_stop(dev->thread.task);
+> +		dev->thread.task = NULL;
+>  	}
+>  	saa_andorb(SAA7134_ANALOG_IO_SELECT, 0x07, 0x00); /* LINE1 */
+>  	return 0;
+> @@ -1034,7 +1033,7 @@ int saa7134_tvaudio_fini(struct saa7134_
+>  
+>  int saa7134_tvaudio_do_scan(struct saa7134_dev *dev)
+>  {
+> -	if (dev->thread.pid >= 0) {
+> +	if (dev->thread.task) {
+>  		dev->thread.mode = UNSET;
+>  		dev->thread.scan2++;
+>  		wake_up_interruptible(&dev->thread.wq);

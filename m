@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWH2QqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWH2Qqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965113AbWH2QqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWH2Qp7
+	id S965134AbWH2Qqf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWH2Qqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:45:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16541 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965108AbWH2Qp5 (ORCPT
+	Tue, 29 Aug 2006 12:46:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51101 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965127AbWH2Qq1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:45:57 -0400
+	Tue, 29 Aug 2006 12:46:27 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/19] BLOCK: Remove duplicate declaration of exit_io_context() [try #5]
-Date: Tue, 29 Aug 2006 17:45:53 +0100
+Subject: [PATCH 16/19] BLOCK: Remove no-longer necessary linux/mpage.h inclusions [try #5]
+Date: Tue, 29 Aug 2006 17:46:24 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060829164553.15723.94566.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060829164624.15723.14215.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
 References: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,36 +26,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Remove the duplicate declaration of exit_io_context() from linux/sched.h.
+Remove inclusions of linux/mpage.h that are no longer necessary due to the
+transfer of generic_writepages().
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/sched.h |    1 -
- kernel/exit.c         |    1 +
- 2 files changed, 1 insertions(+), 1 deletions(-)
+ fs/cifs/file.c |    1 -
+ fs/nfs/write.c |    1 -
+ 2 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 6674fc1..c12c5f9 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -709,7 +709,6 @@ #endif	/* CONFIG_SMP */
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 944d2b9..8488f27 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -24,7 +24,6 @@ #include <linux/fs.h>
+ #include <linux/backing-dev.h>
+ #include <linux/stat.h>
+ #include <linux/fcntl.h>
+-#include <linux/mpage.h>
+ #include <linux/pagemap.h>
+ #include <linux/pagevec.h>
+ #include <linux/smp_lock.h>
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 5077499..18b248e 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -51,7 +51,6 @@ #include <linux/slab.h>
+ #include <linux/mm.h>
+ #include <linux/pagemap.h>
+ #include <linux/file.h>
+-#include <linux/mpage.h>
+ #include <linux/writeback.h>
  
- 
- struct io_context;			/* See blkdev.h */
--void exit_io_context(void);
- struct cpuset;
- 
- #define NGROUPS_SMALL		32
-diff --git a/kernel/exit.c b/kernel/exit.c
-index dba194a..e0abd78 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -38,6 +38,7 @@ #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
- #include <linux/audit.h> /* for audit_free() */
- #include <linux/resource.h>
-+#include <linux/blkdev.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
+ #include <linux/sunrpc/clnt.h>

@@ -1,33 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWH2S2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbWH2SbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWH2S2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 14:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWH2S2e
+	id S965248AbWH2SbY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 14:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWH2SbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 14:28:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30600 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964986AbWH2S2c (ORCPT
+	Tue, 29 Aug 2006 14:31:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23690 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965203AbWH2SbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 14:28:32 -0400
+	Tue, 29 Aug 2006 14:31:22 -0400
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060829175421.GS12257@kernel.dk> 
-References: <20060829175421.GS12257@kernel.dk>  <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com> 
-To: Jens Axboe <axboe@kernel.dk>
-Cc: David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/19] BLOCK: Permit block layer to be disabled [try #5] 
+In-Reply-To: <200608292018.01602.ak@suse.de> 
+References: <200608292018.01602.ak@suse.de>  <44F395DE.10804@yahoo.com.au> <200608291922.04354.ak@suse.de> <Pine.LNX.4.64.0608291033380.19174@schroedinger.engr.sgi.com> 
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent? 
 X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 29 Aug 2006 19:28:28 +0100
-Message-ID: <750.1156876108@warthog.cambridge.redhat.com>
+Date: Tue, 29 Aug 2006 19:30:59 +0100
+Message-ID: <809.1156876259@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@kernel.dk> wrote:
+Andi Kleen <ak@suse.de> wrote:
 
-> Any remaining changes? Looks fine to me, although I wonder why you did
-> not kill the block_sync_page() completely in AFS. Christophs analysis
-> looked correct to me.
+> BTW maybe it would be a good idea to switch the wait list to a hlist,
+> then the last user in the queue wouldn't need to 
+> touch the cache line of the head. Or maybe even a single linked
+> list then some more cache bounces might be avoidable.
 
-Try #6 which I've just posted should do the trick.
+You need a list_head to get O(1) push at one end and O(1) pop at the other.
+In addition a singly-linked list makes interruptible ops non-O(1) also.
 
 David

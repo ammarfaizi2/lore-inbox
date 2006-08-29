@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWH2RZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbWH2Rcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWH2RZH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 13:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbWH2RZH
+	id S965168AbWH2Rcy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWH2Rcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 13:25:07 -0400
-Received: from ns1.suse.de ([195.135.220.2]:18078 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965156AbWH2RZE (ORCPT
+	Tue, 29 Aug 2006 13:32:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:664 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965168AbWH2Rcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 13:25:04 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: Why Semaphore Hardware-Dependent?
-Date: Tue, 29 Aug 2006 19:22:04 +0200
-User-Agent: KMail/1.9.3
-Cc: David Howells <dhowells@redhat.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-References: <44F395DE.10804@yahoo.com.au> <11861.1156845927@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 29 Aug 2006 13:32:53 -0400
+Date: Tue, 29 Aug 2006 10:26:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eranian@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/18] 2.6.17.9 perfmon2 patch for review: new system
+ calls support
+Message-Id: <20060829102627.1fee475b.akpm@osdl.org>
+In-Reply-To: <20060829165957.GN22011@frankl.hpl.hp.com>
+References: <200608230805.k7N85tfm000384@frankl.hpl.hp.com>
+	<20060823151439.a44aa13f.akpm@osdl.org>
+	<20060829165957.GN22011@frankl.hpl.hp.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608291922.04354.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 17:56, Christoph Lameter wrote:
-> On Tue, 29 Aug 2006, David Howells wrote:
+On Tue, 29 Aug 2006 09:59:57 -0700
+Stephane Eranian <eranian@hpl.hp.com> wrote:
+
+> > > +
+> > > +		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
+> > > +			task->pid,
+> > > +			task->state,
+> > > +			local_flags);
+> > > +
+> > > +		spin_unlock_irqrestore(&ctx->lock, local_flags);
+> > > +
+> > > +		wait_task_inactive(task);
+> > > +
+> > > +		spin_lock_irqsave(&ctx->lock, new_flags);
+> > 
+> > This sort of thing..
 > 
-> > Because i386 (and x86_64) can do better by using XADDL/XADDQ.
+> We need to wait until the task is effectively off the CPU, i.e., with its
+> machine state (incl PMU) saved. When we come back we re-run the series of tests.
+> This applies only to per-thread, therefore it is not affected by smp_processor_id().
 > 
-> And Ia64 would like to use fetchadd....
 
-This might be a dumb question, but I would expect even on altix 
-with lots of parallel faulting threads rwsem performance be basically
-limited by aquiring the cache line and releasing it later to another CPU.
+Generally, if a reviewer asks a question and the developer answers that
+question, this is a sign that a code comment is needed.  Because others are
+likely to ask themselves the same question ;)
 
-Do you really think it will make much difference what particular atomic
-operation is used? The basic cost of sending the cache line over the
-interconnect should be all the same, no? And once the cache line is local
-it should be reasonably fast either way.
-
-> > CMPXCHG is not available on all archs, and may not be implemented on all archs
-> > through other atomic instructions.
 > 
-> Which arches do not support cmpxchg?
+> ..
+>
+> > 
+> > When copying a struct from kernel to userspace we must beware of
+> > compiler-inserted padding.  Because that can cause the kernel to leak
+> > a few bytes of uninitialised kernel memory.
+> 
+> We are copying out exactly the same amount of data that was passed in.
+> 
+> Are you suggesting that copy_from/copy_to may copy more data?
 
-parisc at least iirc (it practically doesn't support very much atomically)
-and likely sparcv8.
+No, that's OK.  I was pointing out the problem in situations like this:
 
--Andi 
+struct foo {
+	u32 a;
+	u64 b;
+};
+
+{
+	struct foo f;
+
+	f.a = 0;
+	f.b = 0;
+	copy_to_user(p, &f, sizeof(f));
+}
+
+which exposes kernel memory.  As you appear to be confident that the
+perfmon code can't do this, all is OK.
+
+

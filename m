@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWH2SLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965240AbWH2SMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWH2SLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 14:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWH2SK7
+	id S965240AbWH2SMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 14:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbWH2SMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 14:10:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55780 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965221AbWH2SGd (ORCPT
+	Tue, 29 Aug 2006 14:12:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27108 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965206AbWH2SGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 14:06:33 -0400
+	Tue, 29 Aug 2006 14:06:03 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/19] BLOCK: Move the msdos device ioctl compat stuff to the msdos driver [try #6]
-Date: Tue, 29 Aug 2006 19:06:25 +0100
+Subject: [PATCH 01/19] BLOCK: Move functions out of buffer code [try #6]
+Date: Tue, 29 Aug 2006 19:05:54 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060829180625.32596.23713.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060829180554.32596.63974.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 References: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,164 +26,546 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the msdos device ioctl compat stuff from fs/compat_ioctl.c to the msdos
-driver so that the msdos header file doesn't need to be included.
+Move some functions out of the buffering code that aren't strictly buffering
+specific.  This is a precursor to being able to disable the block layer.
+
+ (*) Moved some stuff out of fs/buffer.c:
+
+     (*) The file sync and general sync stuff moved to fs/sync.c.
+
+     (*) The superblock sync stuff moved to fs/super.c.
+
+     (*) do_invalidatepage() moved to mm/truncate.c.
+
+     (*) try_to_release_page() moved to mm/filemap.c.
+
+ (*) Moved some related declarations between header files:
+
+     (*) declarations for do_invalidatepage() and try_to_release_page() moved
+     	 to linux/mm.h.
+
+     (*) __set_page_dirty_buffers() moved to linux/buffer_head.h.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c |   49 ------------------------------------------------
- fs/fat/dir.c      |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 49 deletions(-)
+ fs/buffer.c                 |  174 -------------------------------------------
+ fs/super.c                  |   31 ++++++++
+ fs/sync.c                   |  113 ++++++++++++++++++++++++++++
+ include/linux/buffer_head.h |    3 -
+ include/linux/fs.h          |    1 
+ include/linux/mm.h          |    4 +
+ mm/filemap.c                |   30 +++++++
+ mm/page-writeback.c         |    1 
+ mm/truncate.c               |   24 ++++++
+ 9 files changed, 204 insertions(+), 177 deletions(-)
 
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index e5eb0f1..e1a5643 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -108,7 +108,6 @@ #include <linux/usbdevice_fs.h>
- #include <linux/nbd.h>
- #include <linux/random.h>
- #include <linux/filter.h>
--#include <linux/msdos_fs.h>
- #include <linux/pktcdvd.h>
+diff --git a/fs/buffer.c b/fs/buffer.c
+index 71649ef..314b9c4 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -159,31 +159,6 @@ int sync_blockdev(struct block_device *b
+ }
+ EXPORT_SYMBOL(sync_blockdev);
  
- #include <linux/hiddev.h>
-@@ -1937,51 +1936,6 @@ static int mtd_rw_oob(unsigned int fd, u
- 	return err;
- }	
- 
--#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
--#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
--
--static long
--put_dirent32 (struct dirent *d, struct compat_dirent __user *d32)
+-static void __fsync_super(struct super_block *sb)
 -{
--        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
--                return -EFAULT;
--
--        __put_user(d->d_ino, &d32->d_ino);
--        __put_user(d->d_off, &d32->d_off);
--        __put_user(d->d_reclen, &d32->d_reclen);
--        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
--		return -EFAULT;
--
--        return 0;
+-	sync_inodes_sb(sb, 0);
+-	DQUOT_SYNC(sb);
+-	lock_super(sb);
+-	if (sb->s_dirt && sb->s_op->write_super)
+-		sb->s_op->write_super(sb);
+-	unlock_super(sb);
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
+-	sync_blockdev(sb->s_bdev);
+-	sync_inodes_sb(sb, 1);
 -}
 -
--static int vfat_ioctl32(unsigned fd, unsigned cmd, unsigned long arg)
+-/*
+- * Write out and wait upon all dirty data associated with this
+- * superblock.  Filesystem data as well as the underlying block
+- * device.  Takes the superblock lock.
+- */
+-int fsync_super(struct super_block *sb)
 -{
--	struct compat_dirent __user *p = compat_ptr(arg);
--	int ret;
--	mm_segment_t oldfs = get_fs();
--	struct dirent d[2];
+-	__fsync_super(sb);
+-	return sync_blockdev(sb->s_bdev);
+-}
 -
--	switch(cmd)
--	{
--        	case VFAT_IOCTL_READDIR_BOTH32:
--                	cmd = VFAT_IOCTL_READDIR_BOTH;
--                	break;
--        	case VFAT_IOCTL_READDIR_SHORT32:
--                	cmd = VFAT_IOCTL_READDIR_SHORT;
--                	break;
+ /*
+  * Write out and wait upon all dirty data associated with this
+  * device.   Filesystem data as well as the underlying block
+@@ -260,118 +235,6 @@ void thaw_bdev(struct block_device *bdev
+ EXPORT_SYMBOL(thaw_bdev);
+ 
+ /*
+- * sync everything.  Start out by waking pdflush, because that writes back
+- * all queues in parallel.
+- */
+-static void do_sync(unsigned long wait)
+-{
+-	wakeup_pdflush(0);
+-	sync_inodes(0);		/* All mappings, inodes and their blockdevs */
+-	DQUOT_SYNC(NULL);
+-	sync_supers();		/* Write the superblocks */
+-	sync_filesystems(0);	/* Start syncing the filesystems */
+-	sync_filesystems(wait);	/* Waitingly sync the filesystems */
+-	sync_inodes(wait);	/* Mappings, inodes and blockdevs, again. */
+-	if (!wait)
+-		printk("Emergency Sync complete\n");
+-	if (unlikely(laptop_mode))
+-		laptop_sync_completion();
+-}
+-
+-asmlinkage long sys_sync(void)
+-{
+-	do_sync(1);
+-	return 0;
+-}
+-
+-void emergency_sync(void)
+-{
+-	pdflush_operation(do_sync, 0);
+-}
+-
+-/*
+- * Generic function to fsync a file.
+- *
+- * filp may be NULL if called via the msync of a vma.
+- */
+- 
+-int file_fsync(struct file *filp, struct dentry *dentry, int datasync)
+-{
+-	struct inode * inode = dentry->d_inode;
+-	struct super_block * sb;
+-	int ret, err;
+-
+-	/* sync the inode to buffers */
+-	ret = write_inode_now(inode, 0);
+-
+-	/* sync the superblock to buffers */
+-	sb = inode->i_sb;
+-	lock_super(sb);
+-	if (sb->s_op->write_super)
+-		sb->s_op->write_super(sb);
+-	unlock_super(sb);
+-
+-	/* .. finally sync the buffers to disk */
+-	err = sync_blockdev(sb->s_bdev);
+-	if (!ret)
+-		ret = err;
+-	return ret;
+-}
+-
+-long do_fsync(struct file *file, int datasync)
+-{
+-	int ret;
+-	int err;
+-	struct address_space *mapping = file->f_mapping;
+-
+-	if (!file->f_op || !file->f_op->fsync) {
+-		/* Why?  We can still call filemap_fdatawrite */
+-		ret = -EINVAL;
+-		goto out;
 -	}
 -
--	set_fs(KERNEL_DS);
--	ret = sys_ioctl(fd,cmd,(unsigned long)&d);
--	set_fs(oldfs);
--	if (ret >= 0) {
--		ret |= put_dirent32(&d[0], p);
--		ret |= put_dirent32(&d[1], p + 1);
+-	ret = filemap_fdatawrite(mapping);
+-
+-	/*
+-	 * We need to protect against concurrent writers, which could cause
+-	 * livelocks in fsync_buffers_list().
+-	 */
+-	mutex_lock(&mapping->host->i_mutex);
+-	err = file->f_op->fsync(file, file->f_dentry, datasync);
+-	if (!ret)
+-		ret = err;
+-	mutex_unlock(&mapping->host->i_mutex);
+-	err = filemap_fdatawait(mapping);
+-	if (!ret)
+-		ret = err;
+-out:
+-	return ret;
+-}
+-
+-static long __do_fsync(unsigned int fd, int datasync)
+-{
+-	struct file *file;
+-	int ret = -EBADF;
+-
+-	file = fget(fd);
+-	if (file) {
+-		ret = do_fsync(file, datasync);
+-		fput(file);
 -	}
 -	return ret;
 -}
 -
- struct raw32_config_request
- {
-         compat_int_t    raw_minor;
-@@ -2726,9 +2680,6 @@ HANDLE_IOCTL(SONET_GETFRSENSE, do_atm_io
- HANDLE_IOCTL(BLKBSZGET_32, do_blkbszget)
- HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
- HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
--/* vfat */
--HANDLE_IOCTL(VFAT_IOCTL_READDIR_BOTH32, vfat_ioctl32)
--HANDLE_IOCTL(VFAT_IOCTL_READDIR_SHORT32, vfat_ioctl32)
- /* Raw devices */
- HANDLE_IOCTL(RAW_SETBIND, raw_ioctl)
- HANDLE_IOCTL(RAW_GETBIND, raw_ioctl)
-diff --git a/fs/fat/dir.c b/fs/fat/dir.c
-index 698b85b..8e99330 100644
---- a/fs/fat/dir.c
-+++ b/fs/fat/dir.c
-@@ -20,6 +20,7 @@ #include <linux/msdos_fs.h>
- #include <linux/dirent.h>
- #include <linux/smp_lock.h>
- #include <linux/buffer_head.h>
-+#include <linux/compat.h>
- #include <asm/uaccess.h>
- 
- static inline loff_t fat_make_i_pos(struct super_block *sb,
-@@ -740,11 +741,64 @@ static int fat_dir_ioctl(struct inode * 
- 		ret = buf.result;
- 	return ret;
+-asmlinkage long sys_fsync(unsigned int fd)
+-{
+-	return __do_fsync(fd, 0);
+-}
+-
+-asmlinkage long sys_fdatasync(unsigned int fd)
+-{
+-	return __do_fsync(fd, 1);
+-}
+-
+-/*
+  * Various filesystems appear to want __find_get_block to be non-blocking.
+  * But it's the page lock which protects the buffers.  To get around this,
+  * we get exclusion from try_to_free_buffers with the blockdev mapping's
+@@ -1551,35 +1414,6 @@ static void discard_buffer(struct buffer
  }
-+#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
-+#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
-+
-+static long fat_compat_put_dirent32(struct dirent *d,
-+				    struct compat_dirent __user *d32)
+ 
+ /**
+- * try_to_release_page() - release old fs-specific metadata on a page
+- *
+- * @page: the page which the kernel is trying to free
+- * @gfp_mask: memory allocation flags (and I/O mode)
+- *
+- * The address_space is to try to release any data against the page
+- * (presumably at page->private).  If the release was successful, return `1'.
+- * Otherwise return zero.
+- *
+- * The @gfp_mask argument specifies whether I/O may be performed to release
+- * this page (__GFP_IO), and whether the call may block (__GFP_WAIT).
+- *
+- * NOTE: @gfp_mask may go away, and this function may become non-blocking.
+- */
+-int try_to_release_page(struct page *page, gfp_t gfp_mask)
+-{
+-	struct address_space * const mapping = page->mapping;
+-
+-	BUG_ON(!PageLocked(page));
+-	if (PageWriteback(page))
+-		return 0;
+-	
+-	if (mapping && mapping->a_ops->releasepage)
+-		return mapping->a_ops->releasepage(page, gfp_mask);
+-	return try_to_free_buffers(page);
+-}
+-EXPORT_SYMBOL(try_to_release_page);
+-
+-/**
+  * block_invalidatepage - invalidate part of all of a buffer-backed page
+  *
+  * @page: the page which is affected
+@@ -1630,14 +1464,6 @@ out:
+ }
+ EXPORT_SYMBOL(block_invalidatepage);
+ 
+-void do_invalidatepage(struct page *page, unsigned long offset)
+-{
+-	void (*invalidatepage)(struct page *, unsigned long);
+-	invalidatepage = page->mapping->a_ops->invalidatepage ? :
+-		block_invalidatepage;
+-	(*invalidatepage)(page, offset);
+-}
+-
+ /*
+  * We attach and possibly dirty the buffers atomically wrt
+  * __set_page_dirty_buffers() via private_lock.  try_to_free_buffers
+diff --git a/fs/super.c b/fs/super.c
+index 6d4e817..22c2fd1 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -219,6 +219,37 @@ static int grab_super(struct super_block
+ 	return 0;
+ }
+ 
++/*
++ * Write out and wait upon all dirty data associated with this
++ * superblock.  Filesystem data as well as the underlying block
++ * device.  Takes the superblock lock.  Requires a second blkdev
++ * flush by the caller to complete the operation.
++ */
++void __fsync_super(struct super_block *sb)
 +{
-+        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
-+                return -EFAULT;
-+
-+        __put_user(d->d_ino, &d32->d_ino);
-+        __put_user(d->d_off, &d32->d_off);
-+        __put_user(d->d_reclen, &d32->d_reclen);
-+        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
-+		return -EFAULT;
-+
-+        return 0;
++	sync_inodes_sb(sb, 0);
++	DQUOT_SYNC(sb);
++	lock_super(sb);
++	if (sb->s_dirt && sb->s_op->write_super)
++		sb->s_op->write_super(sb);
++	unlock_super(sb);
++	if (sb->s_op->sync_fs)
++		sb->s_op->sync_fs(sb, 1);
++	sync_blockdev(sb->s_bdev);
++	sync_inodes_sb(sb, 1);
 +}
 +
-+static long fat_compat_dir_ioctl(struct file *file, unsigned cmd,
-+				 unsigned long arg)
++/*
++ * Write out and wait upon all dirty data associated with this
++ * superblock.  Filesystem data as well as the underlying block
++ * device.  Takes the superblock lock.
++ */
++int fsync_super(struct super_block *sb)
 +{
-+	struct compat_dirent __user *p = compat_ptr(arg);
-+	int ret;
-+	mm_segment_t oldfs = get_fs();
-+	struct dirent d[2];
++	__fsync_super(sb);
++	return sync_blockdev(sb->s_bdev);
++}
 +
-+	switch (cmd) {
-+	case VFAT_IOCTL_READDIR_BOTH32:
-+		cmd = VFAT_IOCTL_READDIR_BOTH;
-+		break;
-+	case VFAT_IOCTL_READDIR_SHORT32:
-+		cmd = VFAT_IOCTL_READDIR_SHORT;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
+ /**
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
+  *	@sb: superblock to kill
+diff --git a/fs/sync.c b/fs/sync.c
+index 955aef0..1de747b 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -10,11 +10,124 @@ #include <linux/writeback.h>
+ #include <linux/syscalls.h>
+ #include <linux/linkage.h>
+ #include <linux/pagemap.h>
++#include <linux/quotaops.h>
++#include <linux/buffer_head.h>
+ 
+ #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
+ 			SYNC_FILE_RANGE_WAIT_AFTER)
+ 
+ /*
++ * sync everything.  Start out by waking pdflush, because that writes back
++ * all queues in parallel.
++ */
++static void do_sync(unsigned long wait)
++{
++	wakeup_pdflush(0);
++	sync_inodes(0);		/* All mappings, inodes and their blockdevs */
++	DQUOT_SYNC(NULL);
++	sync_supers();		/* Write the superblocks */
++	sync_filesystems(0);	/* Start syncing the filesystems */
++	sync_filesystems(wait);	/* Waitingly sync the filesystems */
++	sync_inodes(wait);	/* Mappings, inodes and blockdevs, again. */
++	if (!wait)
++		printk("Emergency Sync complete\n");
++	if (unlikely(laptop_mode))
++		laptop_sync_completion();
++}
++
++asmlinkage long sys_sync(void)
++{
++	do_sync(1);
++	return 0;
++}
++
++void emergency_sync(void)
++{
++	pdflush_operation(do_sync, 0);
++}
++
++/*
++ * Generic function to fsync a file.
++ *
++ * filp may be NULL if called via the msync of a vma.
++ */
++int file_fsync(struct file *filp, struct dentry *dentry, int datasync)
++{
++	struct inode * inode = dentry->d_inode;
++	struct super_block * sb;
++	int ret, err;
++
++	/* sync the inode to buffers */
++	ret = write_inode_now(inode, 0);
++
++	/* sync the superblock to buffers */
++	sb = inode->i_sb;
++	lock_super(sb);
++	if (sb->s_op->write_super)
++		sb->s_op->write_super(sb);
++	unlock_super(sb);
++
++	/* .. finally sync the buffers to disk */
++	err = sync_blockdev(sb->s_bdev);
++	if (!ret)
++		ret = err;
++	return ret;
++}
++
++long do_fsync(struct file *file, int datasync)
++{
++	int ret;
++	int err;
++	struct address_space *mapping = file->f_mapping;
++
++	if (!file->f_op || !file->f_op->fsync) {
++		/* Why?  We can still call filemap_fdatawrite */
++		ret = -EINVAL;
++		goto out;
 +	}
 +
-+	set_fs(KERNEL_DS);
-+	lock_kernel();
-+	ret = fat_dir_ioctl(file->f_dentry->d_inode, file,
-+			    cmd, (unsigned long) &d);
-+	unlock_kernel();
-+	set_fs(oldfs);
-+	if (ret >= 0) {
-+		ret |= fat_compat_put_dirent32(&d[0], p);
-+		ret |= fat_compat_put_dirent32(&d[1], p + 1);
++	ret = filemap_fdatawrite(mapping);
++
++	/*
++	 * We need to protect against concurrent writers, which could cause
++	 * livelocks in fsync_buffers_list().
++	 */
++	mutex_lock(&mapping->host->i_mutex);
++	err = file->f_op->fsync(file, file->f_dentry, datasync);
++	if (!ret)
++		ret = err;
++	mutex_unlock(&mapping->host->i_mutex);
++	err = filemap_fdatawait(mapping);
++	if (!ret)
++		ret = err;
++out:
++	return ret;
++}
++
++static long __do_fsync(unsigned int fd, int datasync)
++{
++	struct file *file;
++	int ret = -EBADF;
++
++	file = fget(fd);
++	if (file) {
++		ret = do_fsync(file, datasync);
++		fput(file);
 +	}
 +	return ret;
 +}
 +
++asmlinkage long sys_fsync(unsigned int fd)
++{
++	return __do_fsync(fd, 0);
++}
++
++asmlinkage long sys_fdatasync(unsigned int fd)
++{
++	return __do_fsync(fd, 1);
++}
++
++/*
+  * sys_sync_file_range() permits finely controlled syncing over a segment of
+  * a file in the range offset .. (offset+nbytes-1) inclusive.  If nbytes is
+  * zero then sys_sync_file_range() will operate from offset out to EOF.
+diff --git a/include/linux/buffer_head.h b/include/linux/buffer_head.h
+index 737e407..64b508e 100644
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -190,9 +190,7 @@ extern int buffer_heads_over_limit;
+  * Generic address_space_operations implementations for buffer_head-backed
+  * address_spaces.
+  */
+-int try_to_release_page(struct page * page, gfp_t gfp_mask);
+ void block_invalidatepage(struct page *page, unsigned long offset);
+-void do_invalidatepage(struct page *page, unsigned long offset);
+ int block_write_full_page(struct page *page, get_block_t *get_block,
+ 				struct writeback_control *wbc);
+ int block_read_full_page(struct page*, get_block_t*);
+@@ -302,4 +300,5 @@ static inline void lock_buffer(struct bu
+ 		__lock_buffer(bh);
+ }
  
- const struct file_operations fat_dir_operations = {
- 	.read		= generic_read_dir,
- 	.readdir	= fat_readdir,
- 	.ioctl		= fat_dir_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= fat_compat_dir_ioctl,
-+#endif
- 	.fsync		= file_fsync,
- };
++extern int __set_page_dirty_buffers(struct page *page);
+ #endif /* _LINUX_BUFFER_HEAD_H */
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 4ab0066..9b2e4f7 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1542,6 +1542,7 @@ extern int __filemap_fdatawrite_range(st
+ extern long do_fsync(struct file *file, int datasync);
+ extern void sync_supers(void);
+ extern void sync_filesystems(int wait);
++extern void __fsync_super(struct super_block *sb);
+ extern void emergency_sync(void);
+ extern void emergency_remount(void);
+ extern int do_remount_sb(struct super_block *sb, int flags,
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index f0b135c..c3c25ef 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -767,7 +767,9 @@ int get_user_pages(struct task_struct *t
+ 		int len, int write, int force, struct page **pages, struct vm_area_struct **vmas);
+ void print_bad_pte(struct vm_area_struct *, pte_t, unsigned long);
  
+-int __set_page_dirty_buffers(struct page *page);
++extern int try_to_release_page(struct page * page, gfp_t gfp_mask);
++extern void do_invalidatepage(struct page *page, unsigned long offset);
++
+ int __set_page_dirty_nobuffers(struct page *page);
+ int redirty_page_for_writepage(struct writeback_control *wbc,
+ 				struct page *page);
+diff --git a/mm/filemap.c b/mm/filemap.c
+index b9a60c4..20a8a9b 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2474,3 +2474,33 @@ generic_file_direct_IO(int rw, struct ki
+ 	}
+ 	return retval;
+ }
++
++/**
++ * try_to_release_page() - release old fs-specific metadata on a page
++ *
++ * @page: the page which the kernel is trying to free
++ * @gfp_mask: memory allocation flags (and I/O mode)
++ *
++ * The address_space is to try to release any data against the page
++ * (presumably at page->private).  If the release was successful, return `1'.
++ * Otherwise return zero.
++ *
++ * The @gfp_mask argument specifies whether I/O may be performed to release
++ * this page (__GFP_IO), and whether the call may block (__GFP_WAIT).
++ *
++ * NOTE: @gfp_mask may go away, and this function may become non-blocking.
++ */
++int try_to_release_page(struct page *page, gfp_t gfp_mask)
++{
++	struct address_space * const mapping = page->mapping;
++
++	BUG_ON(!PageLocked(page));
++	if (PageWriteback(page))
++		return 0;
++
++	if (mapping && mapping->a_ops->releasepage)
++		return mapping->a_ops->releasepage(page, gfp_mask);
++	return try_to_free_buffers(page);
++}
++
++EXPORT_SYMBOL(try_to_release_page);
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index e630188..f75d033 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -29,6 +29,7 @@ #include <linux/smp.h>
+ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
++#include <linux/buffer_head.h>
+ 
+ /*
+  * The maximum number of pages to writeout in a single bdflush/kupdate
+diff --git a/mm/truncate.c b/mm/truncate.c
+index cf1b015..4b742cf 100644
+--- a/mm/truncate.c
++++ b/mm/truncate.c
+@@ -16,6 +16,30 @@ #include <linux/buffer_head.h>	/* grr. t
+ 				   do_invalidatepage */
+ 
+ 
++/**
++ * do_invalidatepage - invalidate part of all of a page
++ * @page: the page which is affected
++ * @offset: the index of the truncation point
++ *
++ * do_invalidatepage() is called when all or part of the page has become
++ * invalidated by a truncate operation.
++ *
++ * do_invalidatepage() does not have to release all buffers, but it must
++ * ensure that no dirty buffer is left outside @offset and that no I/O
++ * is underway against any of the blocks which are outside the truncation
++ * point.  Because the caller is about to free (and possibly reuse) those
++ * blocks on-disk.
++ */
++void do_invalidatepage(struct page *page, unsigned long offset)
++{
++	void (*invalidatepage)(struct page *, unsigned long);
++	invalidatepage = page->mapping->a_ops->invalidatepage;
++	if (!invalidatepage)
++		invalidatepage = block_invalidatepage;
++	if (invalidatepage)
++		(*invalidatepage)(page, offset);
++}
++
+ static inline void truncate_partial_page(struct page *page, unsigned partial)
+ {
+ 	memclear_highpage_flush(page, partial, PAGE_CACHE_SIZE-partial);

@@ -1,126 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWH2UEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWH2UG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWH2UEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWH2UEa
+	id S1751452AbWH2UG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWH2UG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:04:30 -0400
-Received: from mga02.intel.com ([134.134.136.20]:13681 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751420AbWH2UE3 convert rfc822-to-8bit (ORCPT
+	Tue, 29 Aug 2006 16:06:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13529 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751452AbWH2UG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:04:29 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,183,1154934000"; 
-   d="scan'208"; a="117165682:sNHT19236042"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: one more ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-Date: Tue, 29 Aug 2006 13:04:09 -0700
-Message-ID: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: one more ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-Thread-Index: AcbK8L+FcfTWVo3dQM+XmIXCXgYPrwAHkqCgACXI3HA=
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Li, Shaohua" <shaohua.li@intel.com>, "Mattia Dongili" <malattia@linux.it>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 29 Aug 2006 20:04:10.0518 (UTC) FILETIME=[4AB76360:01C6CBA6]
+	Tue, 29 Aug 2006 16:06:58 -0400
+Subject: [PATCH] SELinux: work around filesystems which call d_instantiate
+	before setting inode mode
+From: Eric Paris <eparis@parisplace.org>
+To: linux-kernel@vger.kernel.org
+Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>, akpm@osdl.org
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 16:08:25 -0400
+Message-Id: <1156882105.3195.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as the unknown exception,
+One filesystem in particular, CIFS, is known to call d_instantiate
+before setting the mode for for some operations.  It will create a
+dentry for any children when doing a directory search and thereby is
+calling d_instantiate.   But it does so before setting the inode mode
+for the child inodes.  Thus the selinux sclass in the corresponding
+inode security struct is set incorrectly to always believe these inodes
+are regular files.  Then when operations are performed on these inodes
+at a later point in time SELinux will deny operations which may be
+allowed for the correct class but not for files or SELinux may check for
+access permissions to do operations which do not even pertain to the
+'file' class.  An example would be the user may attempt to remove a
+subdirectory which would need SELinux permissions to rmdir what it
+believes is a 'file.'  rmdir'ing a regular file doesn't make sense and
+is obviously not properly defined.  What this patch does is to
+recalculate the sclass for each inode on each permission check.  Thus if
+a filesystem decided to later (after the d_instantiate) set the mode
+bits (as CIFS does) we will make the correct security checks.  We also
+output a warning message letting the user know that they have a
+filesystem which doing operations in a questionable order.
+(Questionable because after calling d_instantiate the new inode may be
+available to other threads through the dentry cache with the mode set
+improperly)
 
->[    9.392729]  [<c0246fb6>] acpi_ut_status_exit+0x31/0x5e
->[    9.393453]  [<c0243352>] acpi_walk_resources+0x10e/0x11b
->[    9.394174]  [<c025697e>] acpi_motherboard_add+0x22/0x31
+I believe that the CIFS people were contacted twice trying to get this
+changed but we want SELinux users to be able to work now and we want to
+know if any other filesystem uses this same ordering or choose to
+implement it in the future.
 
-I would guess that the callback routine for walk_resources is returning
-a non-zero status value which is causing an immediate abort of the walk
-with that value -- and the value is bogus.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: James Morris <jmorris@redhat.com>
 
-Bob
+ security/selinux/hooks.c       |   27 +++++++++++++++++++++++++++
+ security/selinux/include/avc.h |    2 ++
+ security/selinux/avc.c         |   14 +++++++++++++-
+ 3 files changed, 42 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5d1b8c7..5527aec 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1066,6 +1066,25 @@ static int task_has_system(struct task_s
+ 			    SECCLASS_SYSTEM, perms, NULL);
+ }
+ 
++/*
++ * Update the sclass of an inode.  This shouldn't ever do anything unless a FS
++ * actually called d_instantiate before it set the i_mode.
++ */
++static inline void inode_update_sclass(struct inode *inode)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	if (isec->sclass == SECCLASS_FILE)
++	{
++		isec->sclass = inode_mode_to_security_class(inode->i_mode);
++		if (unlikely(isec->sclass != SECCLASS_FILE) && printk_ratelimit())
++			printk(KERN_WARNING "SELinux: Inode on a %s filesystem "
++				"with sclass=file but should have been sclass="
++				"%s, fixing up this issue\n",
++				inode->i_sb->s_type->name,
++				avc_class_to_string(isec->sclass));
++	}
++}
++
+ /* Check whether a task has a particular permission to an inode.
+    The 'adp' parameter is optional and allows other audit
+    data to be passed (e.g. the dentry). */
+@@ -1081,6 +1100,8 @@ static int inode_has_perm(struct task_st
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
++	inode_update_sclass(inode);
++
+ 	if (!adp) {
+ 		adp = &ad;
+ 		AVC_AUDIT_DATA_INIT(&ad, FS);
+@@ -1220,6 +1241,8 @@ static int may_link(struct inode *dir,
+ 	dsec = dir->i_security;
+ 	isec = dentry->d_inode->i_security;
+ 
++	inode_update_sclass(dentry->d_inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+@@ -1266,6 +1289,8 @@ static inline int may_rename(struct inod
+ 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+ 	new_dsec = new_dir->i_security;
+ 
++	inode_update_sclass(old_dir);
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 
+ 	ad.u.fs.dentry = old_dentry;
+@@ -2260,6 +2285,8 @@ static int selinux_inode_setxattr(struct
+ 	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+ 		return -EPERM;
+ 
++	inode_update_sclass(inode);
++
+ 	AVC_AUDIT_DATA_INIT(&ad,FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 960ef18..043d479 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -125,6 +125,8 @@ int avc_add_callback(int (*callback)(u32
+ 		     u32 events, u32 ssid, u32 tsid,
+ 		     u16 tclass, u32 perms);
+ 
++const char *avc_class_to_string(u16 tclass);
++
+ /* Exported to selinuxfs */
+ int avc_get_hash_stats(char *page);
+ extern unsigned int avc_cache_threshold;
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index a300702..88bba69 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -218,7 +218,7 @@ static void avc_dump_query(struct audit_
+ 		audit_log_format(ab, " tcontext=%s", scontext);
+ 		kfree(scontext);
+ 	}
+-	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
++	audit_log_format(ab, " tclass=%s", avc_class_to_string(tclass));
+ }
+ 
+ /**
+@@ -913,3 +913,15 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
+ 	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
+ 	return rc;
+ }
++
++/**
++ * avc_class_to_string - return a human readable string given an object class.
++ * @tclass: the target class we wish to translate
++ *
++ * Simply take the target object class passed to us and return the human
++ * readable string associated with that class
++ */
++const char *avc_class_to_string(u16 tclass)
++{
++	return class_to_string[tclass];
++}
 
 
-> -----Original Message-----
-> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
-> owner@vger.kernel.org] On Behalf Of Li, Shaohua
-> Sent: Monday, August 28, 2006 7:06 PM
-> To: Mattia Dongili; Andrew Morton
-> Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org
-> Subject: RE: one more ACPI Error (utglobal-0125): Unknown exception
-code:
-> 0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-> 
-> 
-> 
-> >-----Original Message-----
-> >From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> >owner@vger.kernel.org] On Behalf Of Mattia Dongili
-> >Sent: Tuesday, August 29, 2006 4:24 AM
-> >To: Andrew Morton
-> >Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org
-> >Subject: one more ACPI Error (utglobal-0125): Unknown exception code:
-> >0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-> >
-> >On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
-> >>
-> >>
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-
-> >rc4/2.6.18-rc4-mm3/
-> >[...]
-> >>  git-acpi.patch
-> >
-> >Sorry for reporting separately, I deleted the other thread on the
-> issue.
-> >Here we go:
-> >[    9.386644] PCI: Using ACPI for IRQ routing
-> >[    9.386688] PCI: If a device doesn't work, try "pci=routeirq".  If
-> it
-> >helps, post a report
-> >[    9.391209] ACPI Error (utglobal-0125): Unknown exception code:
-> >0xFFFFFFEA [20060707]
-> >[    9.391521]  [<c0103a9f>] dump_trace+0x1ef/0x230
-> >[    9.391626]  [<c0103b06>] show_trace_log_lvl+0x26/0x40
-> >[    9.391724]  [<c01042bb>] show_trace+0x1b/0x20
-> >[    9.391820]  [<c01043a4>] dump_stack+0x24/0x30
-> >[    9.391918]  [<c0249f15>] acpi_format_exception+0xa3/0xb0
-> >[    9.392729]  [<c0246fb6>] acpi_ut_status_exit+0x31/0x5e
-> >[    9.393453]  [<c0243352>] acpi_walk_resources+0x10e/0x11b
-> >[    9.394174]  [<c025697e>] acpi_motherboard_add+0x22/0x31
-> >[    9.394977]  [<c0255890>] acpi_bus_driver_init+0x2b/0x7c
-> >[    9.395742]  [<c02568da>] acpi_bus_register_driver+0xa1/0x123
-> >[    9.396507]  [<c0418adb>] acpi_motherboard_init+0x17/0xfb
-> >[    9.397268]  [<c01003d0>] init+0x80/0x290
-> >[    9.397343]  [<c0103593>] kernel_thread_helper+0x7/0x14
-> >[    9.397439]  =======================
-> >
-> >full dmesg: http://oioio.altervista.org/linux/dmesg-2.6.18-rc4-mm3-1
-> >config: http://oioio.altervista.org/linux/config-2.6.18-rc4-mm3-1
-> >DSDT: http://oioio.altervista.org/linux/DSDT.aml
-> >      http://oioio.altervista.org/linux/DSDT.dsl
-> >lspci: http://oioio.altervista.org/linux/lspci-v
-> Below patch is the root cause.
->
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc
->
-4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-fix.patc
-> h
-> 
-> motherboard driver is expected to reserve resources used by
-motherboard,
-> so hotplug will not fail. I don't know why memory hotplug guys change
-> it.
-> 
-> Thanks,
-> Shaohua
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
-in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

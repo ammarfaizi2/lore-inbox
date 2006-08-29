@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWH2KnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWH2KoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWH2KnT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 06:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWH2KnS
+	id S932262AbWH2KoS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 06:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWH2KoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 06:43:18 -0400
-Received: from spock.bluecherry.net ([66.138.159.248]:36277 "EHLO
-	spock.bluecherry.net") by vger.kernel.org with ESMTP
-	id S932260AbWH2KnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 06:43:18 -0400
-Date: Tue, 29 Aug 2006 06:43:15 -0400
-From: "Zephaniah E. Hull" <warp@aehallh.com>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: SDRAM or DDRAM in linux
-Message-ID: <20060829104315.GB4187@aehallh.com>
-Mail-Followup-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-	Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
-References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com> <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com> <20060829080024.GA917@rhlx01.fht-esslingen.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VrqPEDrXMn8OVzN4"
-Content-Disposition: inline
-In-Reply-To: <20060829080024.GA917@rhlx01.fht-esslingen.de>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 29 Aug 2006 06:44:17 -0400
+Received: from vsmtp2.tin.it ([212.216.176.222]:30705 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S932262AbWH2KoQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 06:44:16 -0400
+Message-ID: <10d595ee236.denis01cnmbeke@virgilio.it>
+Date: Tue, 29 Aug 2006 10:59:53 +0100 (GMT+01:00)
+From: DENIS & CLARA NMBEKE <denis01cnmbeke@virgilio.it>
+Reply-To: denisnmbeke_dcn@yahoo.fr
+Subject: MAY PEACE BE WITH YOU..
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 196.201.71.45
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FROM DENIS AND CLARA NMBEKE
+AVENUE 12 RUE 47 ABIDJAN
+DANANI REFUGEE 
+CAMP, ABIDJAN
+REPUBLIC OF COTE-D'IVOIRE
 
---VrqPEDrXMn8OVzN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please contact us through this 
+our private EMAIL ADDRESS.( denisnmbeke_dcn@yahoo.fr )  
 
-On Tue, Aug 29, 2006 at 10:00:24AM +0200, Andreas Mohr wrote:
-> > 2) Can both SDRAM and DDRAM be present at a time in the same
-> > motherboard. I mean can i have 256MB of SDRAM chip and a 256 MB of
-> > DDRAM on the same motherboard.
-> > 
-> > If yes what are the conditions.
-> 
-> Yes, iff the board has both DDRAM and SDRAM slots (ECS K7S5A comes to mind,
-> most popularly).
+Dear,
 
-Er, I owned a K7S5A, and as best as I can remember the manual was pretty
-explicit that you could have one, or the other, but _not_ both at the
-same time. :)
+Good 
+Day and God bless as I introduce my self to you with all faith and hope 
+you will understand us and not to betray us at the end. 
 
-Regards.
-Zephaniah E. Hull.
+I have the 
+intention to introduces myself to you My name is DENIS the only son and 
+my sister's name is CLARA NMBEKE the only daughter, We are the children 
+of late CHIEF BENSON NMBEKE. I am 19 Years old, our father died about 2 
+years ago on the 5th of April 2004, in a gold mine in MENDE, Republic 
+of Serria Leone . He was into legal gold mining, he has succeeded in 
+saving $18 millions dollars (eighteen million U.S. Dollars) during his 
+Business on Gold, before he went on a trip to Republic of Cote D' 
+Ivoire near by country to our country to save his money for security 
+reasons because of the political problem in our country unfortunately 
+he is dead and I will not want the money to be kept like that without 
+any investment purpose, so I am contacting you with full trust that you 
+will not let us down .
 
--- 
-	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
+We need help from you to help us transfer this 
+money to your country for investment and who will be sincere to invert 
+us to his country with out cheating us or doing bad to us on my arrival 
+with my sister, I'm willing to give you 20% of the money after the 
+transfer of the money 
+and 5% extra for any expense you incurs in this 
+transaction, please mail us immediately urgent to know your stands 
+before looking else where you're the first person we are contacting and 
+also send your phone number as soon as possible to enable us to beat 
+the said time.
 
-Perl == Being
-  -- Descartes (paraphrased).
+Now permit us to ask these few questions:-
 
---VrqPEDrXMn8OVzN4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+1. Can you 
+honestly help us as your own person?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+2. Can we completely trust you?
 
-iD8DBQFE9BpDRFMAi+ZaeAERAkSqAKCq8m3ayVhupvJENmn1nwIdfKsg0QCfRf7w
-6Cmd7w20iv8q0ATTls+nSz8=
-=Uqz2
------END PGP SIGNATURE-----
+3. Hope our percentage offer is good accepted by you?
 
---VrqPEDrXMn8OVzN4--
+Please, Treat 
+this email confidential and get back to us as soon as possible.
+
+Yours 
+Sincerely,
+
+Denis and Clara Nmbeke
+

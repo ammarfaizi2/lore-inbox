@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWH2OoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWH2OoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbWH2OoQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S965003AbWH2OoQ (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 29 Aug 2006 10:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWH2OoQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWH2OoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 29 Aug 2006 10:44:16 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59861 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965004AbWH2OoP (ORCPT
+Received: from mailer.gwdg.de ([134.76.10.26]:60065 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S965003AbWH2OoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 29 Aug 2006 10:44:15 -0400
-Date: Tue, 29 Aug 2006 16:43:58 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: linux@horizon.com, linux-kernel@vger.kernel.org, theotso@us.ibm.com
-Subject: Re: Linux time code
-In-Reply-To: <1156804609.16398.17.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0608291635260.6761@scrub.home>
-References: <20060824023525.31199.qmail@science.horizon.com> 
- <Pine.LNX.4.64.0608281250060.6761@scrub.home> <1156804609.16398.17.camel@localhost.localdomain>
+Date: Tue, 29 Aug 2006 16:36:40 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Dong Feng <middle.fengdong@gmail.com>
+cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: The 3G (or nG) Kernel Memory Space Offset
+In-Reply-To: <a2ebde260608290715o627c631uca67e5b84b8c0777@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0608291634380.16371@yvahk01.tjqt.qr>
+References: <a2ebde260608290715o627c631uca67e5b84b8c0777@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+> The Linux kernel permenantly map 3-4G linear memory space to 0-4G
+> physical memory space.
 
-On Mon, 28 Aug 2006, john stultz wrote:
+"3-4G linear memory space" is usually the "kernel space", i.e. 0xc0000000 
+upwards. mostly the kernel is loaded here (on x86).
 
-> While its possible to smooth out the leapsecond (which would be useful
-> to many folks), the problem is one's system would then diverge from UTC
-> for that leapsecond. 
-> 
-> The idea he's proposing here is to keep both UTC and UTS as separate
-> clock ids, allowing apps to choose which standard (well, I UTS isn't
-> quite a standard) they want to follow.
+"0-4G physical memory space" denotes RAM. Since kernelspace is resident, it 
+only seems logical to map it to 0G (that is, the start of RAM), because the 
+end of RAM can be flexible.
 
-Making it a separate clock would be a bit more complex and I don't know if 
-it's really worth it for an event that only happens every few years.
-We already have everything we need to adjust CLOCK_REALTIME, so it would 
-be not a real problem to support a timezone UTS.
+IOW, you cannot map kernelspace to the physical location 0xc0000000 because 
+there might not be that much RAM.
 
-> I think this would be quite useful, as I've seen a number of requests
-> where users don't want the leapsecond inconsistency, and others where
-> they need to strictly follow UTC.
-> 
-> I think having TAI would be nice too, but that requires quite a bit of
-> infrastructure work (NTP distributing absolute leapsecond counts, etc).
+(Also note the PCI memory hole which is near the end of the 4G range.)
 
-That's the other possibility, as soon as we update the userspace interface 
-to NTP4, it will also include the TAI value, so it will be available via 
-adjtimex()/ntp_gettime().
+> My question is that what is the rationality
+> behind this counterintuitive mapping. Is this just some personal
+> choice for the earlier kernel developers?
 
-bye, Roman
+
+Jan Engelhardt
+-- 

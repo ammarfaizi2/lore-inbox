@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWH2J1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWH2J07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWH2J1J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWH2J1J
+	id S932239AbWH2J07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWH2J07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:27:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59589
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932228AbWH2J1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:27:07 -0400
-Date: Tue, 29 Aug 2006 02:26:35 -0700 (PDT)
-Message-Id: <20060829.022635.08324656.davem@davemloft.net>
-To: miles.lane@gmail.com
-Cc: akpm@osdl.org, dcbw@redhat.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, jeremy@goop.org, rml@novell.com
-Subject: Re: 2.6.18-rc4-mm[1,2,3] -- Network card not getting assigned an
- "eth" device name
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <a44ae5cd0608290143m3ad300eej5b325270c9d57b66@mail.gmail.com>
-References: <20060828120328.ae734de0.akpm@osdl.org>
-	<20060828.132717.57158097.davem@davemloft.net>
-	<a44ae5cd0608290143m3ad300eej5b325270c9d57b66@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp-2
+	Tue, 29 Aug 2006 05:26:59 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9347 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932239AbWH2J06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:26:58 -0400
+From: Neil Brown <neilb@suse.de>
+To: Nico Schottelius <nico-kernel20060829@schottelius.org>
+Date: Tue, 29 Aug 2006 19:26:52 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17652.2140.871672.919816@cse.unsw.edu.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with md: Not rebuilding rai5
+In-Reply-To: message from Nico Schottelius on Tuesday August 29
+References: <20060829091205.GB21160@schottelius.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Miles Lane" <miles.lane@gmail.com>
-Date: Tue, 29 Aug 2006 01:43:48 -0700
-
-> Then, when I testing running NetworkManager.bak, I got:
+On Tuesday August 29, nico-kernel20060829@schottelius.org wrote:
+> Hello!
 > 
-> [NetworkManager.:6078]: Changing netdevice name from [eth1] to [`$,3u=(B$,3u=(B]
-> [NetworkManager.:6078]: Changing netdevice name from [eth0] to [`$,3u=(B$,3u=(B]
+> I created a degrated raid5 on top of md1 and hde1. Then moved the data
+> from /dev/hdk to the mounted raid5, and then added hdk1 (repartitoned)
+> to the array. The sync began, but after that hde1 was faulty.
 
-Someone who can debug NetworkManager with gdb or similar needs
-to step through it and figure out why it wants to use this
-crazy garbage string as the name.
+So you created a raid5 containing one drive that was already faulty.
+That is unfortunate!
+
+> 
+> I removed it, readded it, but now I've a raid5 with only one active
+> disk (which should not be possible imho, a raid5 always needs 2 disks)
+> AND what's even stranger for me, I've two spare disks.
+
+If you have a raid5 with 2 working drives and one fails, how many
+working drives do you expect to be left?  1.  So the raid is no longer
+fully functional.  You might be able to read some data, but you want
+able to write.
+What did you expect to happen when hde1 failed?
+
+
+> 
+> Is there a way to force rebuilding the array?
+
+Well, you can create the array over md1 and hde1 again, and your data
+should still be there, but it will just  fail again whenever it tries
+to access the block on hde1 which is bad.
+
+I suggest you:
+  - recreate the array over md1 and hde1
+  - copy the data back to hdk
+  - stop the array
+  - replace hde1
+  - make the array.
+  - read the entire array (dd > /dev/null) to make sure it is safe
+  - copy data back from hdk
+
+NeilBrown

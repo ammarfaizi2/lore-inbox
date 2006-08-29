@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWH2IWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWH2I0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWH2IWs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWH2IWs
+	id S1750808AbWH2I0n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWH2I0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:22:48 -0400
-Received: from web25224.mail.ukl.yahoo.com ([217.146.176.210]:33181 "HELO
-	web25224.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750831AbWH2IWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:22:47 -0400
+	Tue, 29 Aug 2006 04:26:43 -0400
+Received: from web25222.mail.ukl.yahoo.com ([217.146.176.208]:1370 "HELO
+	web25222.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750808AbWH2I0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 04:26:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=GRVJSjE9U1KAswdbSmh8HL85odGRz8rYwz3KtHLwX2gRlKzy91oPOKpc6ABTWfHp1OhRW60oibmj9oRSJ7G0Xb6w72GoAECr0YkalrmxlGbivZjdwUxvJU0VBMjGMdt9aRE8laVCfBEUmdVT0v9nir5l0F0gfVflnkxz9bMB5uw=  ;
-Message-ID: <20060829082246.92663.qmail@web25224.mail.ukl.yahoo.com>
-Date: Tue, 29 Aug 2006 10:22:45 +0200 (CEST)
+  b=twN2TkSrtHumayzwHpHQ0LHjFzNF6n/wLxAjET3pQp0Y5HWgiqWZxDDqxvFjnITJkb1OcCaUmqCOiY5JAXkxB2rjWYmkmlKdhb5Us4jbr5dZJfblr9uo7qAGuXDiFlLRSIyiixHChIR1Ty5l0igkJNXX0+JtX2A8RY2qhfKBMUs=  ;
+Message-ID: <20060829082641.48020.qmail@web25222.mail.ukl.yahoo.com>
+Date: Tue, 29 Aug 2006 10:26:41 +0200 (CEST)
 From: Paolo Giarrusso <blaisorblade@yahoo.it>
-Subject: Re: [PATCH RFP-V4 00/13] remap_file_pages protection support - 4th attempt
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jeff Dike <jdike@addtoit.com>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Val Henson <val.henson@intel.com>
-In-Reply-To: <20060828134915.f7787422.akpm@osdl.org>
+Subject: Re: [uml-devel] arch/um/sys-i386/setjmp.S: useless #ifdef _REGPARM's?
+To: Jeff Dike <jdike@addtoit.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060828203514.GC6728@ccure.user-mode-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> ha scritto: 
+Jeff Dike <jdike@addtoit.com> ha scritto: 
 
-> On Sat, 26 Aug 2006 19:33:35 +0200
-> Blaisorblade <blaisorblade@yahoo.it> wrote:
-> 
-> > Again, about 4 month since last time (for lack of time) I'm
-> sending for final 
-> > review and for inclusion into -mm protection support for
-> remap_file_pages (in 
-> > short "RFP prot support"), i.e. setting per-pte protections
-> (beyond file 
-> > offset) through this syscall.
+> On Sat, Aug 26, 2006 at 12:56:36PM +0200, Blaisorblade wrote:
+> > Can anybody explain me how can we use REGPARM if we have to link
+> with host 
+> > glibc?
 
-> This all looks a bit too fresh and TODO-infested for me to put it
-> in -mm at
-> this time.
+> Umm, yeah, good point.  This regparam behavior is different from
+> the old
+> behavior, where regparam functions had to be declared as such.
 
-It is possible, subsequent rounds of review should be near to each
-other, but calling the code "new" is maybe exaggerate. I do not
-remember all these TODOs but I may forget (and I don't have my box
-right now, so I can't check).
+And which can still be enabled - I think fastcall is for this, and it
+is still useful.
 
-> I could toss them in to get some testing underway, but that makes
-> life
-> complex for other ongoing MM work.  (And there's a _lot_ of that -
-> I
-> presently have >180 separate patches which alter ./mm/*).
+However more useful is to move many wrappers where this is possible
+to headers (for instance the ones calling just
+CHOOSE_MODE($me_tt,$me_skas) - moving them to headers is always
+possible and saves a call).
 
-That's fine. If this can help I could try to base next version
-against -mm.
+> However, this is a potential problem with all regparam users, who
+> all
+> presumably use libc, so I'd imagine it works somehow.
 
-> Also, it looks like another round of detailed review is needed
-> before this
-> work will really start to settle into its final form.
+For my knowledge, the only user is the non-UML Linux kernel, which
+doesn't use libc :-).
 
-That's ok, I prefer reviews to testing right now. Almost all but 1
-patch (which is marked) is unit tested on i386, x86_64 and uml (but
-if I don't have a multithreaded concurrent fault tester), so it's
-time to catch remaining bugs by review.
+And if you want to mix regparm and not regparm calls, you end up
+marking it at a prototype level (i.e. with the old approach); GCC
+could be smarter and allow specifying it at a per-header or per
+header-folder level, but I do not think it does.
 
-> So..   I'll await version 5, sorry.   Please persist.
+> > If we are going to use klibc instead of glibc that's ok (and this
+> is not the 
+> > case I'm talking about), but I do not know that plan (and nobody
+> discussed 
+> > the implications).
 
-I'll try. I just hope we'll not have it next summer (I know it's my
-problem, I'm not complaining on you).
+> I've been idly considering that, but it's no more than idle
+> consideration
+> right now.
 
-Thanks!
-Bye
---
-Paolo Giarrusso 
+Fine... it is actually a good idea for some points (we currently
+refrain from using certain things, such as futexes, because our
+tricks could conflict with glibc tricks which we don't know - with
+klibc it would be different).
+We'll see.
 
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

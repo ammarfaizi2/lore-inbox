@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWH2OPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWH2OP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWH2OPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWH2OPc
+	id S964988AbWH2OP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWH2OP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:15:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:6043 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964985AbWH2OPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:15:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lCB2HrfJoz3VmNFK1fXHtbhuODxZ052Lb7x+xRzCCGvFp1WuXHXH288k+XVjgbsgjZ1z8WaOoALLawDLH8WELqq2XO1lKiCt3u5FmSCf75cYNWvlOV5kAlVaqVXq4ejDoW5FxgS+Qk1wMlfhEjJwUZRRbf258YvQwOZvmyMMtLg=
-Message-ID: <a2ebde260608290715o627c631uca67e5b84b8c0777@mail.gmail.com>
-Date: Tue, 29 Aug 2006 22:15:19 +0800
-From: "Dong Feng" <middle.fengdong@gmail.com>
-To: "Andi Kleen" <ak@suse.de>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Dong Feng" <middle.fengdong@gmail.com>,
-       "Paul Mackerras" <paulus@samba.org>,
-       "Christoph Lameter" <clameter@sgi.com>,
-       "David Howells" <dhowells@redhat.com>
-Subject: The 3G (or nG) Kernel Memory Space Offset
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Aug 2006 10:15:28 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40115 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964984AbWH2OP1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 10:15:27 -0400
+Message-Id: <200608291414.k7TEETg8003595@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Lee Trager <Lee@PicturesInMotion.net>
+Cc: Jens Axboe <axboe@kernel.dk>, Pavel Machek <pavel@ucw.cz>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, seife@suse.de
+Subject: Re: HPA Resume patch
+In-Reply-To: Your message of "Mon, 28 Aug 2006 22:14:34 EDT."
+             <44F3A30A.3090509@PicturesInMotion.net>
+From: Valdis.Kletnieks@vt.edu
+References: <44F15ADB.5040609@PicturesInMotion.net> <20060827150608.GA4534@ucw.cz> <20060827170501.GD30609@kernel.dk>
+            <44F3A30A.3090509@PicturesInMotion.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1156860868_3126P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Tue, 29 Aug 2006 10:14:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux kernel permenantly map 3-4G linear memory space to 0-4G
-physical memory space. My question is that what is the rationality
-behind this counterintuitive mapping. Is this just some personal
-choice for the earlier kernel developers?
+--==_Exmh_1156860868_3126P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 28 Aug 2006 22:14:34 EDT, Lee Trager said:
+
+> Thinkpad users. Anyway my only question is how to I get my patched
+> signed off by someone?
+
+You read Documentation/SubmittingPatches, and follow the directions there,
+and remember to merge in any comments people might have...
+
+> +	err = ide_do_drive_cmd(drive, &rq, ide_head_wait);
+> +
+> +	if (err == 0 && drv->resume)
+
+Often better written as:
+
+	if (!err && drv->resume)
+
+--==_Exmh_1156860868_3126P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFE9EvEcC3lWbTT17ARAhsmAJ9HOcLzLEnR3g7RSUG+RprFTGS8nwCeMVKR
+EvI5vJ8N/7zUzxIMwehfvFk=
+=fAM3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1156860868_3126P--

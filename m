@@ -1,88 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWH2OZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWH2Oaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964989AbWH2OZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWH2OZQ
+	id S964990AbWH2Oaf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWH2Oaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:25:16 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:14557 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964989AbWH2OZO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:25:14 -0400
-Message-Id: <200608291425.k7TEP7XR004029@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4-mm3: BUG: warning at include/net/dst.h:154/dst_release()
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1156861507_3126P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 29 Aug 2006 10:30:35 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:10623 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964990AbWH2Oae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 10:30:34 -0400
+Message-ID: <44F45045.70402@sw.ru>
+Date: Tue, 29 Aug 2006 18:33:41 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: [PATCH] BC: resource beancounters (v3)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 29 Aug 2006 10:25:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1156861507_3126P
-Content-Type: text/plain; charset=us-ascii
+The following patch set presents base of
+Resource Beancounters (BC).
+BC allows to account and control consumption
+of kernel resources used by group of processes.
 
-Seeing this a lot on 2.6.18-rc4-mm3 with 2 different stack tracebacks
-(one for received packets, other for sending).  I already picked up the
-fix for the ^ / confusion in fib_rules.c and that didn't help matters.
+Draft UBC description on OpenVZ wiki can be found at
+http://wiki.openvz.org/UBC_parameters
 
-[  731.252000] BUG: warning at include/net/dst.h:154/dst_release()
-[  731.252000]  [<c01036d4>] dump_trace+0x64/0x1b2
-[  731.252000]  [<c0103834>] show_trace_log_lvl+0x12/0x25
-[  731.252000]  [<c0103d62>] show_trace+0xd/0x10
-[  731.252000]  [<c0103dff>] dump_stack+0x19/0x1b
-[  731.252000]  [<c0347fe8>] fib6_rule_action+0x79/0xad
-[  731.253000]  [<c02dfe62>] fib_rules_lookup+0x4e/0x93
-[  731.255000]  [<c0348065>] fib6_rule_lookup+0x2d/0x7d
-[  731.256000]  [<c032fe6d>] rt6_lookup+0x45/0x83
-[  731.257000]  [<c032d9cd>] addrconf_prefix_rcv+0xf4/0x743
-[  731.258000]  [<c0335410>] ndisc_rcv+0x7d5/0xaf3
-[  731.259000]  [<c033ad0e>] icmpv6_rcv+0x767/0x7e9
-[  731.260000]  [<c03286d4>] ip6_input+0x1e0/0x2a2
-[  731.262000]  [<c03287c8>] ip6_mc_input+0x32/0x40
-[  731.263000]  [<c0328bf6>] ipv6_rcv+0x19f/0x1cd
-[  731.264000]  [<c02d480b>] netif_receive_skb+0x143/0x1b6
-[  731.265000]  [<c02d5bb0>] process_backlog+0x71/0xf3
-[  731.266000]  [<c02d5a92>] net_rx_action+0x56/0xcf
-[  731.267000]  [<c0116d3c>] __do_softirq+0x38/0x7a
-[  731.267000]  [<c010460c>] do_softirq+0x3e/0x87
-[  731.267000]  [<c0116cf8>] irq_exit+0x28/0x34
-[  731.267000]  [<c01045c1>] do_IRQ+0xab/0xb8
-[  731.267000]  [<c010323a>] common_interrupt+0x1a/0x20
+The full BC patch set allows to control:
+- kernel memory. All the kernel objects allocatable
+on user demand should be accounted and limited
+for DoS protection.
+E.g. page tables, task structs, vmas etc.
 
-[ 1498.555000] BUG: warning at include/net/dst.h:154/dst_release()
-[ 1498.555000]  [<c01036d4>] dump_trace+0x64/0x1b2
-[ 1498.555000]  [<c0103834>] show_trace_log_lvl+0x12/0x25
-[ 1498.555000]  [<c0103d62>] show_trace+0xd/0x10
-[ 1498.555000]  [<c0103dff>] dump_stack+0x19/0x1b
-[ 1498.555000]  [<c0347db8>] fib6_rule_action+0x79/0xad
-[ 1498.557000]  [<c02dfc32>] fib_rules_lookup+0x4e/0x93
-[ 1498.558000]  [<c0347e35>] fib6_rule_lookup+0x2d/0x7d
-[ 1498.560000]  [<c032fc9c>] ip6_route_output+0x21/0x24
-[ 1498.561000]  [<c032647c>] ip6_dst_lookup_tail+0x19/0x92
-[ 1498.562000]  [<c0326503>] ip6_dst_lookup+0xe/0x10
-[ 1498.563000]  [<c0344727>] ip6_datagram_connect+0x322/0x50a
-[ 1498.565000]  [<c0309850>] inet_dgram_connect+0x4b/0x55
-[ 1498.566000]  [<c02cc970>] sys_connect+0x67/0x84
-[ 1498.567000]  [<c02ccfeb>] sys_socketcall+0x8c/0x186
-[ 1498.568000]  [<c01028cf>] syscall_call+0x7/0xb
-[ 1498.568000] DWARF2 unwinder stuck at syscall_call+0x7/0xb
+- virtual memory pages. BCs allow to
+limit a container to some amount of memory and
+introduces 2-level OOM killer taking into account
+container's consumption.
+pages shared between containers are correctly
+charged as fractions (tunable).
 
+- network buffers. These includes TCP/IP rcv/snd
+buffers, dgram snd buffers, unix, netlinks and
+other buffers.
 
---==_Exmh_1156861507_3126P
-Content-Type: application/pgp-signature
+- minor resources accounted/limited by number:
+tasks, files, flocks, ptys, siginfo, pinned dcache
+mem, sockets, iptentries (for containers with
+virtualized networking)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+As the first step we want to propose for discussion
+the most complicated parts of resource management:
+kernel memory and virtual memory.
+The patch set to be sent provides core for BC and
+management of kernel memory only. Virtual memory
+management will be sent in a couple of days.
 
-iD8DBQFE9E5DcC3lWbTT17ARAvFdAJ4tnmu7PwFQxBp6D//1bUVsRJ9HtQCdHQH/
-6xRSQHopxPJB4f/3cVqJIjA=
-=s/hp
------END PGP SIGNATURE-----
+The patches in these series are:
+diff-atomic-dec-and-lock-irqsave.patch
+  introduce atomic_dec_and_lock_irqsave()
 
---==_Exmh_1156861507_3126P--
+diff-bc-kconfig.patch:
+  Adds kernel/bc/Kconfig file with UBC options and
+  includes it into arch Kconfigs
+
+diff-bc-core.patch:
+  Contains core functionality and interfaces of BC:
+  find/create beancounter, initialization,
+  charge/uncharge of resource, core objects' declarations.
+
+diff-bc-task.patch:
+  Contains code responsible for setting BC on task,
+  it's inheriting and setting host context in interrupts.
+
+  Task contains three beancounters:
+  1. exec_bc  - current context. all resources are charged
+                to this beancounter.
+  2. fork_bc  - beancounter which is inherited by
+                task's children on fork
+
+diff-bc-syscalls.patch:
+  Patch adds system calls for BC management:
+  1. sys_get_bcid    - get current BC id
+  2. sys_set_bcid    - changes exec_ and fork_ BCs on current
+  3. sys_set_bclimit - set limits for resources consumtions
+  4. sys_get_bcstat  - returns limits/usages/fails for BC
+
+diff-bc-kmem-core.patch:
+  Introduces BC_KMEMSIZE resource which accounts kernel
+  objects allocated by task's request.
+
+  Objects are accounted via struct page and slab objects.
+  For the latter ones each slab contains a set of pointers
+  corresponding object is charged to.
+
+  Allocation charge rules:
+  1. Pages - if allocation is performed with __GFP_BC flag - page
+     is charged to current's exec_bc.
+  2. Slabs - kmem_cache may be created with SLAB_BC flag - in this
+     case each allocation is charged. Caches used by kmalloc are
+     created with SLAB_BC | SLAB_BC_NOCHARGE flags. In this case
+     only __GFP_BC allocations are charged.
+
+diff-bc-kmem-charge.patch:
+  Adds SLAB_BC and __GFP_BC flags in appropriate places
+  to cause charging/limiting of specified resources.
+
+Summary of changes from v2 patch set:
+
+* introduced atomic_dec_and_lock_irqsave()
+* bc_adjust_held_minmax comment
+* added __must_check for bc_*charge* funcs
+* use hash_long() instead of own one
+* bc/Kconfig is sourced from init/Kconfig now
+* introduced bcid_t type with comment from Alan Cox
+* check for barrier <= limit in sys_set_bclimit()
+* removed (bc == NULL) checks
+* replaced memcpy in beancounter_findcrate with assignment
+* moved check 'if (mask & BC_ALLOC)' out of the lock
+* removed unnecessary memset()
+
+Summary of changes from v1 patch set:
+
+* CONFIG_BEANCOUNTERS is 'n' by default
+* fixed Kconfig includes in arches
+* removed hierarchical beancounters to simplify first patchset
+* removed unused 'private' pointer
+* removed unused EXPORTS
+* MAXVALUE redeclared as LONG_MAX
+* beancounter_findcreate clarification
+* renamed UBC -> BC, ub -> bc etc.
+* moved BC inheritance into copy_process
+* introduced reset_exec_bc() with proposed BUG_ON
+* removed task_bc beancounter (not used yet, for numproc)
+* fixed syscalls for sparc
+* added sys_get_bcstat(): return info that was in /proc
+* cond_syscall instead of #ifdefs
+
+Many thanks to Oleg Nesterov, Alan Cox, Matt Helsley and others
+for patch review and comments.
+
+Patch set is applicable to 2.6.18-rc4-mm3
+
+Thanks,
+Kirill

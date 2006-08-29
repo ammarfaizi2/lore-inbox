@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWH2OwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWH2Ozq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbWH2OwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWH2OwZ
+	id S965025AbWH2Ozq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWH2Ozq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:52:25 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:38933 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965024AbWH2OwY (ORCPT
+	Tue, 29 Aug 2006 10:55:46 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:56411 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965025AbWH2Ozo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:52:24 -0400
-Message-ID: <44F45568.6000204@sw.ru>
-Date: Tue, 29 Aug 2006 18:55:36 +0400
+	Tue, 29 Aug 2006 10:55:44 -0400
+Message-ID: <44F45631.3030900@sw.ru>
+Date: Tue, 29 Aug 2006 18:58:57 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -24,7 +24,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-Subject: [PATCH 5/7] BC: user interface (syscalls)
+Subject: [PATCH 7/7] BC: kernel memory (marks)
 References: <44F45045.70402@sw.ru>
 In-Reply-To: <44F45045.70402@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -32,382 +32,560 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the following system calls for BC management:
- 1. sys_get_bcid     - get current BC id
- 2. sys_set_bcid     - change exec_ and fork_ BCs on current
- 3. sys_set_bclimit  - set limits for resources consumtions 
- 4. sys_get_bcstat   - return br_resource_parm on resource
+Mark some kmem caches with SLAB_BC and some allocations
+with __GFP_BC to cause charging/limiting of appropriate
+kernel resources.
 
 Signed-off-by: Pavel Emelianov <xemul@sw.ru>
 Signed-off-by: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- arch/i386/kernel/syscall_table.S |    4 +
- arch/ia64/kernel/entry.S         |    4 +
- arch/sparc/kernel/entry.S        |    2 
- arch/sparc/kernel/systbls.S      |    6 +
- arch/sparc64/kernel/entry.S      |    2 
- arch/sparc64/kernel/systbls.S    |   10 ++-
- include/asm-i386/unistd.h        |    6 +
- include/asm-ia64/unistd.h        |    6 +
- include/asm-powerpc/systbl.h     |    4 +
- include/asm-powerpc/unistd.h     |    6 +
- include/asm-sparc/unistd.h       |    4 +
- include/asm-sparc64/unistd.h     |    4 +
- include/asm-x86_64/unistd.h      |   10 ++-
- kernel/bc/Makefile               |    1 
- kernel/bc/sys.c                  |  120 +++++++++++++++++++++++++++++++++++++++
- kernel/sys_ni.c                  |    6 +
- 16 files changed, 186 insertions(+), 9 deletions(-)
+ arch/i386/kernel/ldt.c           |    4 ++--
+ arch/i386/mm/init.c              |    4 ++--
+ arch/i386/mm/pgtable.c           |    6 ++++--
+ drivers/char/tty_io.c            |   10 +++++-----
+ fs/file.c                        |    8 ++++----
+ fs/locks.c                       |    2 +-
+ fs/namespace.c                   |    3 ++-
+ fs/select.c                      |    7 ++++---
+ include/asm-i386/thread_info.h   |    4 ++--
+ include/asm-ia64/pgalloc.h       |   24 +++++++++++++++++-------
+ include/asm-x86_64/pgalloc.h     |   12 ++++++++----
+ include/asm-x86_64/thread_info.h |    5 +++--
+ ipc/msgutil.c                    |    4 ++--
+ ipc/sem.c                        |    7 ++++---
+ ipc/util.c                       |    8 ++++----
+ kernel/fork.c                    |   15 ++++++++-------
+ kernel/posix-timers.c            |    3 ++-
+ kernel/signal.c                  |    2 +-
+ kernel/user.c                    |    2 +-
+ mm/rmap.c                        |    3 ++-
+ mm/shmem.c                       |    3 ++-
+ 21 files changed, 80 insertions(+), 56 deletions(-)
 
---- ./arch/i386/kernel/syscall_table.S.ve3	2006-08-21 13:15:37.000000000 +0400
-+++ ./arch/i386/kernel/syscall_table.S	2006-08-21 14:15:47.000000000 +0400
-@@ -318,3 +318,7 @@ ENTRY(sys_call_table)
- 	.long sys_vmsplice
- 	.long sys_move_pages
- 	.long sys_getcpu
-+	.long sys_get_bcid
-+	.long sys_set_bcid		/* 320 */
-+	.long sys_set_bclimit
-+	.long sys_get_bcstat
---- ./arch/ia64/kernel/entry.S.ve3	2006-08-21 13:15:37.000000000 +0400
-+++ ./arch/ia64/kernel/entry.S	2006-08-21 14:17:07.000000000 +0400
-@@ -1610,5 +1610,9 @@ sys_call_table:
- 	data8 sys_sync_file_range		// 1300
- 	data8 sys_tee
- 	data8 sys_vmsplice
-+	data8 sys_get_bcid
-+	data8 sys_set_bcid
-+	data8 sys_set_bclimit			// 1305
-+	data8 sys_get_bcstat
+--- ./arch/i386/kernel/ldt.c.bckmemc	2006-08-28 12:20:10.000000000 +0400
++++ ./arch/i386/kernel/ldt.c	2006-08-28 13:05:46.000000000 +0400
+@@ -39,9 +39,9 @@ static int alloc_ldt(mm_context_t *pc, i
+ 	oldsize = pc->size;
+ 	mincount = (mincount+511)&(~511);
+ 	if (mincount*LDT_ENTRY_SIZE > PAGE_SIZE)
+-		newldt = vmalloc(mincount*LDT_ENTRY_SIZE);
++		newldt = vmalloc_bc(mincount*LDT_ENTRY_SIZE);
+ 	else
+-		newldt = kmalloc(mincount*LDT_ENTRY_SIZE, GFP_KERNEL);
++		newldt = kmalloc(mincount*LDT_ENTRY_SIZE, GFP_KERNEL_BC);
  
- 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
---- ./arch/sparc/kernel/entry.S.ve3	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc/kernel/entry.S	2006-08-21 14:29:44.000000000 +0400
-@@ -37,7 +37,7 @@
+ 	if (!newldt)
+ 		return -ENOMEM;
+--- ./arch/i386/mm/init.c.bckmemc	2006-08-28 12:20:10.000000000 +0400
++++ ./arch/i386/mm/init.c	2006-08-28 13:05:46.000000000 +0400
+@@ -709,7 +709,7 @@ void __init pgtable_cache_init(void)
+ 		pmd_cache = kmem_cache_create("pmd",
+ 					PTRS_PER_PMD*sizeof(pmd_t),
+ 					PTRS_PER_PMD*sizeof(pmd_t),
+-					0,
++					SLAB_BC,
+ 					pmd_ctor,
+ 					NULL);
+ 		if (!pmd_cache)
+@@ -718,7 +718,7 @@ void __init pgtable_cache_init(void)
+ 	pgd_cache = kmem_cache_create("pgd",
+ 				PTRS_PER_PGD*sizeof(pgd_t),
+ 				PTRS_PER_PGD*sizeof(pgd_t),
+-				0,
++				SLAB_BC,
+ 				pgd_ctor,
+ 				PTRS_PER_PMD == 1 ? pgd_dtor : NULL);
+ 	if (!pgd_cache)
+--- ./arch/i386/mm/pgtable.c.bckmemc	2006-08-28 12:20:10.000000000 +0400
++++ ./arch/i386/mm/pgtable.c	2006-08-28 13:05:46.000000000 +0400
+@@ -186,9 +186,11 @@ struct page *pte_alloc_one(struct mm_str
+ 	struct page *pte;
  
- #define curptr      g6
- 
--#define NR_SYSCALLS 300      /* Each OS is different... */
-+#define NR_SYSCALLS 304      /* Each OS is different... */
- 
- /* These are just handy. */
- #define _SV	save	%sp, -STACKFRAME_SZ, %sp
---- ./arch/sparc/kernel/systbls.S.ve3	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc/kernel/systbls.S	2006-08-21 14:30:43.000000000 +0400
-@@ -78,7 +78,8 @@ sys_call_table:
- /*285*/	.long sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
- /*290*/	.long sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- /*295*/	.long sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
--/*300*/	.long sys_set_robust_list, sys_get_robust_list
-+/*300*/	.long sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
-+/*305*/	.long sys_get_bcstat
- 
- #ifdef CONFIG_SUNOS_EMUL
- 	/* Now the SunOS syscall table. */
-@@ -192,4 +193,7 @@ sunos_sys_table:
- 	.long sunos_nosys, sunos_nosys, sunos_nosys
- 	.long sunos_nosys, sunos_nosys, sunos_nosys
- 
-+	.long sunos_nosys, sunos_nosys, sunos_nosys,
-+	.long sunos_nosys
-+
+ #ifdef CONFIG_HIGHPTE
+-	pte = alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO, 0);
++	pte = alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO|
++			__GFP_BC | __GFP_BC_LIMIT, 0);
+ #else
+-	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
++	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO|
++			__GFP_BC | __GFP_BC_LIMIT, 0);
  #endif
---- ./arch/sparc64/kernel/entry.S.ve3	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc64/kernel/entry.S	2006-08-21 14:29:56.000000000 +0400
-@@ -25,7 +25,7 @@
+ 	return pte;
+ }
+--- ./drivers/char/tty_io.c.bckmemc	2006-08-28 12:20:11.000000000 +0400
++++ ./drivers/char/tty_io.c	2006-08-28 13:05:46.000000000 +0400
+@@ -165,7 +165,7 @@ static void release_mem(struct tty_struc
  
- #define curptr      g6
+ static struct tty_struct *alloc_tty_struct(void)
+ {
+-	return kzalloc(sizeof(struct tty_struct), GFP_KERNEL);
++	return kzalloc(sizeof(struct tty_struct), GFP_KERNEL_BC);
+ }
  
--#define NR_SYSCALLS 300      /* Each OS is different... */
-+#define NR_SYSCALLS 304      /* Each OS is different... */
+ static void tty_buffer_free_all(struct tty_struct *);
+@@ -1904,7 +1904,7 @@ static int init_dev(struct tty_driver *d
  
- 	.text
- 	.align		32
---- ./arch/sparc64/kernel/systbls.S.ve3	2006-07-10 12:39:11.000000000 +0400
-+++ ./arch/sparc64/kernel/systbls.S	2006-08-21 14:32:26.000000000 +0400
-@@ -79,7 +79,8 @@ sys_call_table32:
- 	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compat_sys_fstatat64
- /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- 	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll, sys_unshare
--/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list
-+/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
-+	.word sys_nis_syscall
+ 	if (!*tp_loc) {
+ 		tp = (struct termios *) kmalloc(sizeof(struct termios),
+-						GFP_KERNEL);
++						GFP_KERNEL_BC);
+ 		if (!tp)
+ 			goto free_mem_out;
+ 		*tp = driver->init_termios;
+@@ -1912,7 +1912,7 @@ static int init_dev(struct tty_driver *d
  
- #endif /* CONFIG_COMPAT */
+ 	if (!*ltp_loc) {
+ 		ltp = (struct termios *) kmalloc(sizeof(struct termios),
+-						 GFP_KERNEL);
++						 GFP_KERNEL_BC);
+ 		if (!ltp)
+ 			goto free_mem_out;
+ 		memset(ltp, 0, sizeof(struct termios));
+@@ -1937,7 +1937,7 @@ static int init_dev(struct tty_driver *d
  
-@@ -149,7 +150,9 @@ sys_call_table:
- 	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
- /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- 	.word sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
--/*300*/	.word sys_set_robust_list, sys_get_robust_list
-+/*300*/	.word sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
-+	.word sys_get_bcstat
-+
+ 		if (!*o_tp_loc) {
+ 			o_tp = (struct termios *)
+-				kmalloc(sizeof(struct termios), GFP_KERNEL);
++				kmalloc(sizeof(struct termios), GFP_KERNEL_BC);
+ 			if (!o_tp)
+ 				goto free_mem_out;
+ 			*o_tp = driver->other->init_termios;
+@@ -1945,7 +1945,7 @@ static int init_dev(struct tty_driver *d
  
- #if defined(CONFIG_SUNOS_EMUL) || defined(CONFIG_SOLARIS_EMUL) || \
-     defined(CONFIG_SOLARIS_EMUL_MODULE)
-@@ -263,4 +266,7 @@ sunos_sys_table:
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
-+
-+	.word sunos_nosys, sunos_nosys, sunos_nosys
-+	.word sunos_nosys
+ 		if (!*o_ltp_loc) {
+ 			o_ltp = (struct termios *)
+-				kmalloc(sizeof(struct termios), GFP_KERNEL);
++				kmalloc(sizeof(struct termios), GFP_KERNEL_BC);
+ 			if (!o_ltp)
+ 				goto free_mem_out;
+ 			memset(o_ltp, 0, sizeof(struct termios));
+--- ./fs/file.c.bckmemc	2006-08-28 12:20:12.000000000 +0400
++++ ./fs/file.c	2006-08-28 13:05:46.000000000 +0400
+@@ -44,9 +44,9 @@ struct file ** alloc_fd_array(int num)
+ 	int size = num * sizeof(struct file *);
+ 
+ 	if (size <= PAGE_SIZE)
+-		new_fds = (struct file **) kmalloc(size, GFP_KERNEL);
++		new_fds = (struct file **) kmalloc(size, GFP_KERNEL_BC);
+ 	else 
+-		new_fds = (struct file **) vmalloc(size);
++		new_fds = (struct file **) vmalloc_bc(size);
+ 	return new_fds;
+ }
+ 
+@@ -213,9 +213,9 @@ fd_set * alloc_fdset(int num)
+ 	int size = num / 8;
+ 
+ 	if (size <= PAGE_SIZE)
+-		new_fdset = (fd_set *) kmalloc(size, GFP_KERNEL);
++		new_fdset = (fd_set *) kmalloc(size, GFP_KERNEL_BC);
+ 	else
+-		new_fdset = (fd_set *) vmalloc(size);
++		new_fdset = (fd_set *) vmalloc_bc(size);
+ 	return new_fdset;
+ }
+ 
+--- ./fs/locks.c.bckmemc	2006-08-28 12:20:12.000000000 +0400
++++ ./fs/locks.c	2006-08-28 13:05:46.000000000 +0400
+@@ -2228,7 +2228,7 @@ EXPORT_SYMBOL(lock_may_write);
+ static int __init filelock_init(void)
+ {
+ 	filelock_cache = kmem_cache_create("file_lock_cache",
+-			sizeof(struct file_lock), 0, SLAB_PANIC,
++			sizeof(struct file_lock), 0, SLAB_PANIC | SLAB_BC,
+ 			init_once, NULL);
+ 	return 0;
+ }
+--- ./fs/namespace.c.bckmemc	2006-08-28 12:20:12.000000000 +0400
++++ ./fs/namespace.c	2006-08-28 13:05:46.000000000 +0400
+@@ -1813,7 +1813,8 @@ void __init mnt_init(unsigned long mempa
+ 	init_rwsem(&namespace_sem);
+ 
+ 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct vfsmount),
+-			0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL, NULL);
++			0, SLAB_HWCACHE_ALIGN | SLAB_BC | SLAB_PANIC,
++			NULL, NULL);
+ 
+ 	mount_hashtable = (struct list_head *)__get_free_page(GFP_ATOMIC);
+ 
+--- ./fs/select.c.bckmemc	2006-08-28 12:20:12.000000000 +0400
++++ ./fs/select.c	2006-08-28 13:05:46.000000000 +0400
+@@ -103,7 +103,8 @@ static struct poll_table_entry *poll_get
+ 	if (!table || POLL_TABLE_FULL(table)) {
+ 		struct poll_table_page *new_table;
+ 
+-		new_table = (struct poll_table_page *) __get_free_page(GFP_KERNEL);
++		new_table = (struct poll_table_page *)
++			__get_free_page(GFP_KERNEL_BC);
+ 		if (!new_table) {
+ 			p->error = -ENOMEM;
+ 			__set_current_state(TASK_RUNNING);
+@@ -339,7 +340,7 @@ static int core_sys_select(int n, fd_set
+ 	if (size > sizeof(stack_fds) / 6) {
+ 		/* Not enough space in on-stack array; must use kmalloc */
+ 		ret = -ENOMEM;
+-		bits = kmalloc(6 * size, GFP_KERNEL);
++		bits = kmalloc(6 * size, GFP_KERNEL_BC);
+ 		if (!bits)
+ 			goto out_nofds;
+ 	}
+@@ -693,7 +694,7 @@ int do_sys_poll(struct pollfd __user *uf
+ 		if (!stack_pp)
+ 			stack_pp = pp = (struct poll_list *)stack_pps;
+ 		else {
+-			pp = kmalloc(size, GFP_KERNEL);
++			pp = kmalloc(size, GFP_KERNEL_BC);
+ 			if (!pp)
+ 				goto out_fds;
+ 		}
+--- ./include/asm-i386/thread_info.h.bckmemc	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-i386/thread_info.h	2006-08-28 13:05:46.000000000 +0400
+@@ -99,13 +99,13 @@ static inline struct thread_info *curren
+ 	({							\
+ 		struct thread_info *ret;			\
+ 								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		ret = kmalloc(THREAD_SIZE, GFP_KERNEL_BC);	\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL_BC)
  #endif
---- ./include/asm-i386/unistd.h.ve3	2006-08-21 13:15:39.000000000 +0400
-+++ ./include/asm-i386/unistd.h	2006-08-21 14:22:53.000000000 +0400
-@@ -324,10 +324,14 @@
- #define __NR_vmsplice		316
- #define __NR_move_pages		317
- #define __NR_getcpu		318
-+#define __NR_get_bcid		319
-+#define __NR_set_bcid		320
-+#define __NR_set_bclimit	321
-+#define __NR_get_bcstat		322
  
- #ifdef __KERNEL__
+ #define free_thread_info(info)	kfree(info)
+--- ./include/asm-ia64/pgalloc.h.bckmemc	2006-07-10 12:39:19.000000000 +0400
++++ ./include/asm-ia64/pgalloc.h	2006-08-28 13:05:46.000000000 +0400
+@@ -19,6 +19,8 @@
+ #include <linux/page-flags.h>
+ #include <linux/threads.h>
  
--#define NR_syscalls 318
-+#define NR_syscalls 323
- #include <linux/err.h>
++#include <bc/kmem.h>
++
+ #include <asm/mmu_context.h>
+ 
+ DECLARE_PER_CPU(unsigned long *, __pgtable_quicklist);
+@@ -37,7 +39,7 @@ static inline long pgtable_quicklist_tot
+ 	return ql_size;
+ }
+ 
+-static inline void *pgtable_quicklist_alloc(void)
++static inline void *pgtable_quicklist_alloc(int charge)
+ {
+ 	unsigned long *ret = NULL;
+ 
+@@ -45,13 +47,20 @@ static inline void *pgtable_quicklist_al
+ 
+ 	ret = pgtable_quicklist;
+ 	if (likely(ret != NULL)) {
++		if (charge && bc_page_charge(virt_to_page(ret),
++					0, __GFP_BC_LIMIT)) {
++			ret = NULL;
++			goto out;
++		}
+ 		pgtable_quicklist = (unsigned long *)(*ret);
+ 		ret[0] = 0;
+ 		--pgtable_quicklist_size;
++out:
+ 		preempt_enable();
+ 	} else {
+ 		preempt_enable();
+-		ret = (unsigned long *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
++		ret = (unsigned long *)__get_free_page(GFP_KERNEL |
++				__GFP_ZERO | __GFP_BC | __GFP_BC_LIMIT);
+ 	}
+ 
+ 	return ret;
+@@ -69,6 +78,7 @@ static inline void pgtable_quicklist_fre
+ #endif
+ 
+ 	preempt_disable();
++	bc_page_uncharge(virt_to_page(pgtable_entry), 0);
+ 	*(unsigned long *)pgtable_entry = (unsigned long)pgtable_quicklist;
+ 	pgtable_quicklist = (unsigned long *)pgtable_entry;
+ 	++pgtable_quicklist_size;
+@@ -77,7 +87,7 @@ static inline void pgtable_quicklist_fre
+ 
+ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+-	return pgtable_quicklist_alloc();
++	return pgtable_quicklist_alloc(1);
+ }
+ 
+ static inline void pgd_free(pgd_t * pgd)
+@@ -94,7 +104,7 @@ pgd_populate(struct mm_struct *mm, pgd_t
+ 
+ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
+ {
+-	return pgtable_quicklist_alloc();
++	return pgtable_quicklist_alloc(1);
+ }
+ 
+ static inline void pud_free(pud_t * pud)
+@@ -112,7 +122,7 @@ pud_populate(struct mm_struct *mm, pud_t
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
+ {
+-	return pgtable_quicklist_alloc();
++	return pgtable_quicklist_alloc(1);
+ }
+ 
+ static inline void pmd_free(pmd_t * pmd)
+@@ -137,13 +147,13 @@ pmd_populate_kernel(struct mm_struct *mm
+ static inline struct page *pte_alloc_one(struct mm_struct *mm,
+ 					 unsigned long addr)
+ {
+-	return virt_to_page(pgtable_quicklist_alloc());
++	return virt_to_page(pgtable_quicklist_alloc(1));
+ }
+ 
+ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
+ 					  unsigned long addr)
+ {
+-	return pgtable_quicklist_alloc();
++	return pgtable_quicklist_alloc(0);
+ }
+ 
+ static inline void pte_free(struct page *pte)
+--- ./include/asm-x86_64/pgalloc.h.bckmemc	2006-04-21 11:59:36.000000000 +0400
++++ ./include/asm-x86_64/pgalloc.h	2006-08-28 13:05:46.000000000 +0400
+@@ -31,12 +31,14 @@ static inline void pmd_free(pmd_t *pmd)
+ 
+ static inline pmd_t *pmd_alloc_one (struct mm_struct *mm, unsigned long addr)
+ {
+-	return (pmd_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
++	return (pmd_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT|
++			__GFP_BC | __GFP_BC_LIMIT);
+ }
+ 
+ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
+ {
+-	return (pud_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
++	return (pud_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT|
++			__GFP_BC | __GFP_BC_LIMIT);
+ }
+ 
+ static inline void pud_free (pud_t *pud)
+@@ -74,7 +76,8 @@ static inline void pgd_list_del(pgd_t *p
+ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+ 	unsigned boundary;
+-	pgd_t *pgd = (pgd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
++	pgd_t *pgd = (pgd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|
++			__GFP_BC | __GFP_BC_LIMIT);
+ 	if (!pgd)
+ 		return NULL;
+ 	pgd_list_add(pgd);
+@@ -105,7 +108,8 @@ static inline pte_t *pte_alloc_one_kerne
+ 
+ static inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	void *p = (void *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
++	void *p = (void *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT|
++			__GFP_BC | __GFP_BC_LIMIT);
+ 	if (!p)
+ 		return NULL;
+ 	return virt_to_page(p);
+--- ./include/asm-x86_64/thread_info.h.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./include/asm-x86_64/thread_info.h	2006-08-28 13:05:46.000000000 +0400
+@@ -78,14 +78,15 @@ static inline struct thread_info *stack_
+     ({								\
+ 	struct thread_info *ret;				\
+ 								\
+-	ret = ((struct thread_info *) __get_free_pages(GFP_KERNEL,THREAD_ORDER)); \
++	ret = ((struct thread_info *) __get_free_pages(GFP_KERNEL_BC,	\
++				THREAD_ORDER)); 		\
+ 	if (ret)						\
+ 		memset(ret, 0, THREAD_SIZE);			\
+ 	ret;							\
+     })
+ #else
+ #define alloc_thread_info(tsk) \
+-	((struct thread_info *) __get_free_pages(GFP_KERNEL,THREAD_ORDER))
++	((struct thread_info *) __get_free_pages(GFP_KERNEL_BC,THREAD_ORDER))
+ #endif
+ 
+ #define free_thread_info(ti) free_pages((unsigned long) (ti), THREAD_ORDER)
+--- ./ipc/msgutil.c.bckmemc	2006-04-21 11:59:36.000000000 +0400
++++ ./ipc/msgutil.c	2006-08-28 13:05:46.000000000 +0400
+@@ -36,7 +36,7 @@ struct msg_msg *load_msg(const void __us
+ 	if (alen > DATALEN_MSG)
+ 		alen = DATALEN_MSG;
+ 
+-	msg = (struct msg_msg *)kmalloc(sizeof(*msg) + alen, GFP_KERNEL);
++	msg = (struct msg_msg *)kmalloc(sizeof(*msg) + alen, GFP_KERNEL_BC);
+ 	if (msg == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -57,7 +57,7 @@ struct msg_msg *load_msg(const void __us
+ 		if (alen > DATALEN_SEG)
+ 			alen = DATALEN_SEG;
+ 		seg = (struct msg_msgseg *)kmalloc(sizeof(*seg) + alen,
+-						 GFP_KERNEL);
++						 GFP_KERNEL_BC);
+ 		if (seg == NULL) {
+ 			err = -ENOMEM;
+ 			goto out_err;
+--- ./ipc/sem.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./ipc/sem.c	2006-08-28 13:05:46.000000000 +0400
+@@ -1006,7 +1006,7 @@ static inline int get_undo_list(struct s
+ 
+ 	undo_list = current->sysvsem.undo_list;
+ 	if (!undo_list) {
+-		undo_list = kzalloc(sizeof(*undo_list), GFP_KERNEL);
++		undo_list = kzalloc(sizeof(*undo_list), GFP_KERNEL_BC);
+ 		if (undo_list == NULL)
+ 			return -ENOMEM;
+ 		spin_lock_init(&undo_list->lock);
+@@ -1069,7 +1069,8 @@ static struct sem_undo *find_undo(struct
+ 	ipc_rcu_getref(sma);
+ 	sem_unlock(sma);
+ 
+-	new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
++	new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) +
++			sizeof(short)*nsems, GFP_KERNEL_BC);
+ 	if (!new) {
+ 		ipc_lock_by_ptr(&sma->sem_perm);
+ 		ipc_rcu_putref(sma);
+@@ -1130,7 +1131,7 @@ asmlinkage long sys_semtimedop(int semid
+ 	if (nsops > ns->sc_semopm)
+ 		return -E2BIG;
+ 	if(nsops > SEMOPM_FAST) {
+-		sops = kmalloc(sizeof(*sops)*nsops,GFP_KERNEL);
++		sops = kmalloc(sizeof(*sops)*nsops,GFP_KERNEL_BC);
+ 		if(sops==NULL)
+ 			return -ENOMEM;
+ 	}
+--- ./ipc/util.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./ipc/util.c	2006-08-28 13:05:46.000000000 +0400
+@@ -406,9 +406,9 @@ void* ipc_alloc(int size)
+ {
+ 	void* out;
+ 	if(size > PAGE_SIZE)
+-		out = vmalloc(size);
++		out = vmalloc_bc(size);
+ 	else
+-		out = kmalloc(size, GFP_KERNEL);
++		out = kmalloc(size, GFP_KERNEL_BC);
+ 	return out;
+ }
+ 
+@@ -491,14 +491,14 @@ void* ipc_rcu_alloc(int size)
+ 	 * workqueue if necessary (for vmalloc). 
+ 	 */
+ 	if (rcu_use_vmalloc(size)) {
+-		out = vmalloc(HDRLEN_VMALLOC + size);
++		out = vmalloc_bc(HDRLEN_VMALLOC + size);
+ 		if (out) {
+ 			out += HDRLEN_VMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 1;
+ 			container_of(out, struct ipc_rcu_hdr, data)->refcount = 1;
+ 		}
+ 	} else {
+-		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
++		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL_BC);
+ 		if (out) {
+ 			out += HDRLEN_KMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 0;
+--- ./kernel/fork.c.bckmemc	2006-08-28 12:52:11.000000000 +0400
++++ ./kernel/fork.c	2006-08-28 13:05:46.000000000 +0400
+@@ -142,7 +142,7 @@ void __init fork_init(unsigned long memp
+ 	/* create a slab on which task_structs can be allocated */
+ 	task_struct_cachep =
+ 		kmem_cache_create("task_struct", sizeof(struct task_struct),
+-			ARCH_MIN_TASKALIGN, SLAB_PANIC, NULL, NULL);
++			ARCH_MIN_TASKALIGN, SLAB_PANIC | SLAB_BC, NULL, NULL);
+ #endif
+ 
+ 	/*
+@@ -1435,23 +1435,24 @@ void __init proc_caches_init(void)
+ {
+ 	sighand_cachep = kmem_cache_create("sighand_cache",
+ 			sizeof(struct sighand_struct), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_DESTROY_BY_RCU,
++			SLAB_HWCACHE_ALIGN | SLAB_PANIC | \
++				SLAB_DESTROY_BY_RCU | SLAB_BC,
+ 			sighand_ctor, NULL);
+ 	signal_cachep = kmem_cache_create("signal_cache",
+ 			sizeof(struct signal_struct), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_BC, NULL, NULL);
+ 	files_cachep = kmem_cache_create("files_cache", 
+ 			sizeof(struct files_struct), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_BC, NULL, NULL);
+ 	fs_cachep = kmem_cache_create("fs_cache", 
+ 			sizeof(struct fs_struct), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_BC, NULL, NULL);
+ 	vm_area_cachep = kmem_cache_create("vm_area_struct",
+ 			sizeof(struct vm_area_struct), 0,
+-			SLAB_PANIC, NULL, NULL);
++			SLAB_PANIC|SLAB_BC, NULL, NULL);
+ 	mm_cachep = kmem_cache_create("mm_struct",
+ 			sizeof(struct mm_struct), ARCH_MIN_MMSTRUCT_ALIGN,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_BC, NULL, NULL);
+ }
+ 
+ 
+--- ./kernel/posix-timers.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./kernel/posix-timers.c	2006-08-28 13:05:46.000000000 +0400
+@@ -242,7 +242,8 @@ static __init int init_posix_timers(void
+ 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
+ 
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+-					sizeof (struct k_itimer), 0, 0, NULL, NULL);
++					sizeof (struct k_itimer), 0, SLAB_BC,
++					NULL, NULL);
+ 	idr_init(&posix_timers_id);
+ 	return 0;
+ }
+--- ./kernel/signal.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./kernel/signal.c	2006-08-28 13:05:46.000000000 +0400
+@@ -2744,5 +2744,5 @@ void __init signals_init(void)
+ 		kmem_cache_create("sigqueue",
+ 				  sizeof(struct sigqueue),
+ 				  __alignof__(struct sigqueue),
+-				  SLAB_PANIC, NULL, NULL);
++				  SLAB_PANIC | SLAB_BC, NULL, NULL);
+ }
+--- ./kernel/user.c.bckmemc	2006-08-28 12:32:54.000000000 +0400
++++ ./kernel/user.c	2006-08-28 13:05:46.000000000 +0400
+@@ -194,7 +194,7 @@ static int __init uid_cache_init(void)
+ 	int n;
+ 
+ 	uid_cachep = kmem_cache_create("uid_cache", sizeof(struct user_struct),
+-			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_BC, NULL, NULL);
+ 
+ 	for(n = 0; n < UIDHASH_SZ; ++n)
+ 		INIT_LIST_HEAD(uidhash_table + n);
+--- ./mm/rmap.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./mm/rmap.c	2006-08-28 13:05:46.000000000 +0400
+@@ -179,7 +179,8 @@ static void anon_vma_ctor(void *data, st
+ void __init anon_vma_init(void)
+ {
+ 	anon_vma_cachep = kmem_cache_create("anon_vma", sizeof(struct anon_vma),
+-			0, SLAB_DESTROY_BY_RCU|SLAB_PANIC, anon_vma_ctor, NULL);
++			0, SLAB_DESTROY_BY_RCU|SLAB_PANIC|SLAB_BC,
++			anon_vma_ctor, NULL);
+ }
  
  /*
---- ./include/asm-ia64/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-ia64/unistd.h	2006-08-21 14:24:29.000000000 +0400
-@@ -291,11 +291,15 @@
- #define __NR_sync_file_range		1300
- #define __NR_tee			1301
- #define __NR_vmsplice			1302
-+#define __NR_get_bcid			1303
-+#define __NR_set_bcid			1304
-+#define __NR_set_bclimit		1305
-+#define __NR_get_bcstat			1306
+--- ./mm/shmem.c.bckmemc	2006-08-28 12:20:13.000000000 +0400
++++ ./mm/shmem.c	2006-08-28 13:05:46.000000000 +0400
+@@ -368,7 +368,8 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 		}
  
- #ifdef __KERNEL__
- 
- 
--#define NR_syscalls			279 /* length of syscall table */
-+#define NR_syscalls			283 /* length of syscall table */
- 
- #define __ARCH_WANT_SYS_RT_SIGACTION
- 
---- ./include/asm-powerpc/systbl.h.ve3	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-powerpc/systbl.h	2006-08-21 14:28:46.000000000 +0400
-@@ -304,3 +304,7 @@ SYSCALL_SPU(fchmodat)
- SYSCALL_SPU(faccessat)
- COMPAT_SYS_SPU(get_robust_list)
- COMPAT_SYS_SPU(set_robust_list)
-+SYSCALL(sys_get_bcid)
-+SYSCALL(sys_set_bcid)
-+SYSCALL(sys_set_bclimit)
-+SYSCALL(sys_get_bcstat)
---- ./include/asm-powerpc/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-powerpc/unistd.h	2006-08-21 14:28:24.000000000 +0400
-@@ -323,10 +323,14 @@
- #define __NR_faccessat		298
- #define __NR_get_robust_list	299
- #define __NR_set_robust_list	300
-+#define __NR_get_bcid		301
-+#define __NR_set_bcid		302
-+#define __NR_set_bclimit	303
-+#define __NR_get_bcstat		304
- 
- #ifdef __KERNEL__
- 
--#define __NR_syscalls		301
-+#define __NR_syscalls		305
- 
- #define __NR__exit __NR_exit
- #define NR_syscalls	__NR_syscalls
---- ./include/asm-sparc/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-sparc/unistd.h	2006-08-21 14:33:20.000000000 +0400
-@@ -318,6 +318,10 @@
- #define __NR_unshare		299
- #define __NR_set_robust_list	300
- #define __NR_get_robust_list	301
-+#define __NR_get_bcid		302
-+#define __NR_set_bcid		303
-+#define __NR_set_bclimit	304
-+#define __NR_get_bcstat		305
- 
- #ifdef __KERNEL__
- /* WARNING: You MAY NOT add syscall numbers larger than 301, since
---- ./include/asm-sparc64/unistd.h.ve3	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-sparc64/unistd.h	2006-08-21 14:34:10.000000000 +0400
-@@ -320,6 +320,10 @@
- #define __NR_unshare		299
- #define __NR_set_robust_list	300
- #define __NR_get_robust_list	301
-+#define __NR_get_bcid		302
-+#define __NR_set_bcid		303
-+#define __NR_set_bclimit	304
-+#define __NR_get_bcstat		305
- 
- #ifdef __KERNEL__
- /* WARNING: You MAY NOT add syscall numbers larger than 301, since
---- ./include/asm-x86_64/unistd.h.ve3	2006-08-21 13:15:39.000000000 +0400
-+++ ./include/asm-x86_64/unistd.h	2006-08-21 14:35:19.000000000 +0400
-@@ -619,10 +619,18 @@ __SYSCALL(__NR_sync_file_range, sys_sync
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages		279
- __SYSCALL(__NR_move_pages, sys_move_pages)
-+#define __NR_get_bcid		280
-+__SYSCALL(__NR_get_bcid, sys_get_bcid)
-+#define __NR_set_bcid		281
-+__SYSCALL(__NR_set_bcid, sys_set_bcid)
-+#define __NR_set_bclimit	282
-+__SYSCALL(__NR_set_bclimit, sys_set_bclimit)
-+#define __NR_get_bcstat		283
-+__SYSCALL(__NR_get_bcstat, sys_get_bcstat)
- 
- #ifdef __KERNEL__
- 
--#define __NR_syscall_max __NR_move_pages
-+#define __NR_syscall_max __NR_get_bcstat
- #include <linux/err.h>
- 
- #ifndef __NO_STUBS
---- ./kernel/sys_ni.c.ve3	2006-07-10 12:39:20.000000000 +0400
-+++ ./kernel/sys_ni.c	2006-08-21 14:12:49.000000000 +0400
-@@ -134,3 +134,9 @@ cond_syscall(sys_madvise);
- cond_syscall(sys_mremap);
- cond_syscall(sys_remap_file_pages);
- cond_syscall(compat_sys_move_pages);
-+
-+/* user resources syscalls */
-+cond_syscall(sys_set_bcid);
-+cond_syscall(sys_get_bcid);
-+cond_syscall(sys_set_bclimit);
-+cond_syscall(sys_get_bcstat);
---- ./kernel/bc/Makefile.ve3	2006-08-21 13:49:49.000000000 +0400
-+++ ./kernel/bc/Makefile	2006-08-21 13:55:39.000000000 +0400
-@@ -6,3 +6,4 @@
- 
- obj-$(CONFIG_BEANCOUNTERS) += beancounter.o
- obj-$(CONFIG_BEANCOUNTERS) += misc.o
-+obj-$(CONFIG_BEANCOUNTERS) += sys.o
---- ./kernel/bc/sys.c.ve3	2006-08-21 13:49:49.000000000 +0400
-+++ ./kernel/bc/sys.c	2006-08-21 14:43:04.000000000 +0400
-@@ -0,0 +1,120 @@
-+/*
-+ *  kernel/bc/sys.c
-+ *
-+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
-+ *
-+ */
-+
-+#include <linux/sched.h>
-+#include <asm/uaccess.h>
-+
-+#include <bc/beancounter.h>
-+#include <bc/task.h>
-+
-+asmlinkage long sys_get_bcid(void)
-+{
-+	struct beancounter *bc;
-+
-+	bc = get_exec_bc();
-+	return bc->bc_id;
-+}
-+
-+asmlinkage long sys_set_bcid(bcid_t id)
-+{
-+	int error;
-+	struct beancounter *bc;
-+	struct task_beancounter *task_bc;
-+
-+	task_bc = &current->task_bc;
-+
-+	/* You may only set an bc as root */
-+	error = -EPERM;
-+	if (!capable(CAP_SETUID))
-+		goto out;
-+
-+	/* Ok - set up a beancounter entry for this user */
-+	error = -ENOMEM;
-+	bc = beancounter_findcreate(id, BC_ALLOC);
-+	if (bc == NULL)
-+		goto out;
-+
-+	/* install bc */
-+	put_beancounter(task_bc->exec_bc);
-+	task_bc->exec_bc = bc;
-+	put_beancounter(task_bc->fork_bc);
-+	task_bc->fork_bc = get_beancounter(bc);
-+	error = 0;
-+out:
-+	return error;
-+}
-+
-+asmlinkage long sys_set_bclimit(bcid_t id, unsigned long resource,
-+		unsigned long __user *limits)
-+{
-+	int error;
-+	unsigned long flags;
-+	struct beancounter *bc;
-+	unsigned long new_limits[2];
-+
-+	error = -EPERM;
-+	if(!capable(CAP_SYS_RESOURCE))
-+		goto out;
-+
-+	error = -EINVAL;
-+	if (resource >= BC_RESOURCES)
-+		goto out;
-+
-+	error = -EFAULT;
-+	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
-+		goto out;
-+
-+	error = -EINVAL;
-+	if (new_limits[0] > BC_MAXVALUE || new_limits[1] > BC_MAXVALUE ||
-+			new_limits[0] > new_limits[1])
-+		goto out;
-+
-+	error = -ENOENT;
-+	bc = beancounter_findcreate(id, BC_LOOKUP);
-+	if (bc == NULL)
-+		goto out;
-+
-+	spin_lock_irqsave(&bc->bc_lock, flags);
-+	bc->bc_parms[resource].barrier = new_limits[0];
-+	bc->bc_parms[resource].limit = new_limits[1];
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+
-+	put_beancounter(bc);
-+	error = 0;
-+out:
-+	return error;
-+}
-+
-+int sys_get_bcstat(bcid_t id, unsigned long resource,
-+		struct bc_resource_parm __user *uparm)
-+{
-+	int error;
-+	unsigned long flags;
-+	struct beancounter *bc;
-+	struct bc_resource_parm parm;
-+
-+	error = -EINVAL;
-+	if (resource >= BC_RESOURCES)
-+		goto out;
-+
-+	error = -ENOENT;
-+	bc = beancounter_findcreate(id, BC_LOOKUP);
-+	if (bc == NULL)
-+		goto out;
-+
-+	spin_lock_irqsave(&bc->bc_lock, flags);
-+	parm = bc->bc_parms[resource];
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+	put_beancounter(bc);
-+
-+	error = 0;
-+	if (copy_to_user(uparm, &parm, sizeof(parm)))
-+		error = -EFAULT;
-+
-+out:
-+	return error;
-+}
+ 		spin_unlock(&info->lock);
+-		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping) | __GFP_ZERO);
++		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping) | \
++				__GFP_ZERO | __GFP_BC);
+ 		if (page)
+ 			set_page_private(page, 0);
+ 		spin_lock(&info->lock);

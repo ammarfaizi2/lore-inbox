@@ -1,101 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWH2ByM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWH2B6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWH2ByM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 21:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWH2ByM
+	id S1750974AbWH2B6a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 21:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWH2B6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 21:54:12 -0400
-Received: from mother.pmc-sierra.com ([216.241.224.12]:30168 "HELO
-	mother.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
-	id S1750966AbWH2ByK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 21:54:10 -0400
-Message-ID: <478F19F21671F04298A2116393EEC3D5540A32@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Cc: linuxppc-dev <linuxppc-dev@ozlabs.org>,
-       Radjendirane Codandaramane 
-	<Radjendirane_Codandaramane@pmc-sierra.com>,
-       Ronald Lee <Ronald_Lee@pmc-sierra.com>,
-       Shawn Jin <Shawn_Jin@pmc-sierra.com>
-Subject: PPC 2.6.11.4 kernel panics while doing insmod (store fault with d
-	cbst in icache_flush_range)
-Date: Mon, 28 Aug 2006 18:53:58 -0700
+	Mon, 28 Aug 2006 21:58:30 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:23528 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750974AbWH2B63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 21:58:29 -0400
+Date: Tue, 29 Aug 2006 10:57:23 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: mail@renninger.de
+Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
+Cc: Thomas Renninger <trenn@suse.de>, akpm@osdl.org,
+       "Brown, Len" <len.brown@intel.com>, keith mannthey <kmannth@us.ibm.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       naveen.b.s@intel.com
+In-Reply-To: <1156799818.12158.9.camel@linux-1vxn.site>
+References: <20060828223538.F622.Y-GOTO@jp.fujitsu.com> <1156799818.12158.9.camel@linux-1vxn.site>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20060829102200.FC1D.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been getting an "oops" while doing insmod.
+> > Old code registers handler for all of memory devices even if it is not
+> > enabled.
+> Yeah, therefore the mem_device cannot be passed as callback data as it
+> might get generated in the notify handler func and all the additional
+> stuff is needed..., ouch.
+> > 
+> > If my understanding is wrong, please let me know. ;-)
+> It's me who is wrong, thanks a lot for checking!
+> 
+> > Memory device might not have _EJ0/_EJD, but parent device 
+> > (like one NUMA node) might be able to be ejectable.
+> > In this case, only the parent device has _EJ0/_EJD.
+> > So, one more check is necessary.
+> 
+> I feared something like that (should have add a comment...), as the EJ0
+> and _STA functions are only used on the device itself I thought checking
+> for them makes sense, but for a missing EJ0 func powering down the
+> device just fails and it should not be harmful.
+> So the only useful thing from my patch (as long as .add is only invoked
+> if device is present) is using the general acpi_bus_get_status() func. 
+> Hmm, it must be used if the _STA function on the memory device is also
+> missing and the parent _STA must be used then? Could make sense on a
+> machine where a whole node must be inserted/ejected? The
+> acpi_bus_get_status() function already contains the checking for the
+> parent's _STA function and uses this one if the device itself has none.
 
-Sys_init_module() -> Load_module() -> module_alloc(mod->core_size)
+I don't have any report like "no _STA on memory device" so far.
+Current code assume each memory device has _STA.
+I suppose each memory device should have _STA method. For example,
+if a memory device is broken, its _STA should return disable status. 
+So, basically checking _STA of only memory device should be ok now.
 
-Mod->core_size is = 0x1ff4
+However I'm not sure that every vendor will do it in the future.
+If there is no _STA on memory device, parents, grand-parents or
+more ancestor might have _STA for it.
+(See acpi_get_pxm() in driver/acpi/numa.c. It searches ancestor's _PXM.
+ If insane vendor make like it, it will be good reference.)
 
-A few lines from module_alloc() routine:
-
-ptr = module_alloc(mod->core_size); // core_size is 0x1ff4
-        if (!ptr) {
-                err = -ENOMEM;
-                goto free_percpu;
-        }
-  memset(ptr, 0, mod->core_size);
-  mod->module_core = ptr;
-
-Module_alloc calls vmalloc, which populates the page tables entries; no TLB entry is updated at this moment for the newly vmalloc'd memory.
-
-Next, when memset is done, we do see two TLB entries are allocated one for each page (ptr == D21B8000, core_size being 0x1ff4 we need two pages).
-
-0x0000-0000
-0xD21B-8210
-0x0063-B000
-0x0000-0107
-
-0x0000-0000
-0xD21B-9210
-0x0063-7000
-0x0000-0107
-
-A few lines from sys_init_module()
-  /* Do all the hard work */
-        mod = load_module(umod, len, uargs);
-        if (IS_ERR(mod)) {
-                up(&module_mutex);
-                return PTR_ERR(mod);
-        }
-
-        /* Flush the instruction cache, since we've played with text */
-        if (mod->module_init)
-                flush_icache_range((unsigned long)mod->module_init,
-                                   (unsigned long)mod->module_init
-                                   + mod->init_size);
-        flush_icache_range((unsigned long)mod->module_core,
-                           (unsigned long)mod->module_core + mod->core_size);
-
-Next, at the routine          
-
-flush_icache_range((unsigned long)mod->module_core,
-                       (unsigned long)mod->module_core + mod->core_size);
-
-we see that one of the TLB entries is not present, which is probably normal.
-
-A few lines from flush_icache_range():
-
-        mr      r6,r3
-1:      dcbst   0,r3
-        addi    r3,r3,L1_CACHE_LINE_SIZE
-        bdnz    1b
-
-The instruction takes a store fault (DST bit, bit 8 of ESR gets set), kernel panics with oops (signal 11).
-
-It is probably normal that the TLB entry for vmalloc'd memory may not be present.
-
-How do we fix the problem?
-
-We do see the problem only when we have big drivers compiled into the kernel.
-
-Thanks,
-Kallol
-
+Bye.
+-- 
+Yasunori Goto 
 
 

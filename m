@@ -1,179 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWH2ABn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWH2APB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWH2ABn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 20:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWH2ABn
+	id S964920AbWH2APB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 20:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWH2APA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 20:01:43 -0400
-Received: from helium.samage.net ([83.149.67.129]:58339 "EHLO
-	helium.samage.net") by vger.kernel.org with ESMTP id S964905AbWH2ABm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 20:01:42 -0400
-Message-ID: <3994.81.207.0.53.1156809691.squirrel@81.207.0.53>
-In-Reply-To: <1156786344.23000.47.camel@twins>
-References: <20060825153946.24271.42758.sendpatchset@twins> 
-    <20060825153957.24271.6856.sendpatchset@twins> 
-    <1396.81.207.0.53.1156559843.squirrel@81.207.0.53> 
-    <1156760564.23000.31.camel@twins> 
-    <3720.81.207.0.53.1156780999.squirrel@81.207.0.53>
-    <1156786344.23000.47.camel@twins>
-Date: Tue, 29 Aug 2006 02:01:31 +0200 (CEST)
-Subject: Re: [PATCH 1/4] net: VM deadlock avoidance framework
-From: "Indan Zupancic" <indan@nul.nu>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
-       "Daniel Phillips" <phillips@google.com>,
-       "Rik van Riel" <riel@redhat.com>, "David Miller" <davem@davemloft.net>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 28 Aug 2006 20:15:00 -0400
+Received: from mga09.intel.com ([134.134.136.24]:57108 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964920AbWH2AO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 20:14:59 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,177,1154934000"; 
+   d="scan'208"; a="116498696:sNHT837711924"
+Date: Mon, 28 Aug 2006 17:14:37 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Akkana Peck <akkana@shallowsky.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@f00f.org>,
+       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [patch] Relative atime - userspace
+Message-ID: <20060829001437.GI25003@goober>
+References: <20060825235215.820563000@linux.intel.com> <20060825235619.GB25003@goober> <20060828214901.GA24374@filer.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060828214901.GA24374@filer.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, August 28, 2006 19:32, Peter Zijlstra said:
-> Also, I'm really past caring what the thing
-> is called ;-) But if ppl object I guess its easy enough to run yet
-> another sed command over the patches.
+On Mon, Aug 28, 2006 at 05:49:01PM -0400, Josef Sipek wrote:
+> On Fri, Aug 25, 2006 at 04:56:19PM -0700, Valerie Henson wrote:
+> >  #define MS_VERBOSE	0x8000	/* 32768 */
+> ...
+> > +#define MS_RELATIME   0x200000	/* 200000: Update access times relative
+> 
+> Just a small thing... 0x200000 != 200000
 
-True, same here.
+Just goes to show what my default base is... :)
 
->> >> You can get rid of the memalloc_reserve and vmio_request_queues variables
->> >> if you want, they aren't really needed for anything. If using them reduces
->> >> the total code size I'd keep them though.
->> >
->> > I find my version easier to read, but that might just be the way my
->> > brain works.
->>
->> Maybe true, but I believe my version is more natural in the sense that it makes
->> more clear what the code is doing. Less bookkeeping, more real work, so to speak.
->
-> Ok, I'll have another look at it, perhaps my gray matter has shifted ;-)
+Somehow "2097152: blah blah blah" just doesn't seem helpful - I just
+removed it.  Fresh patch below.
 
-I don't care either way, just providing an alternative. I'd compile both and see
-which one is smaller.
+-VAL
 
+---
+ mount/mount.8           |    7 +++++++
+ mount/mount.c           |    6 ++++++
+ mount/mount_constants.h |    4 ++++
+ 3 files changed, 17 insertions(+)
 
-> Ah, no accident there, I'm fully aware that there would need to be a
-> spinlock in adjust_memalloc_reserve() if there were another caller.
-> (I even had it there for some time) - added comment.
-
-Good that you're aware of it. Thing is, how much sense does the split-up into
-adjust_memalloc_reserve() and sk_adjust_memalloc() make at this point? Why not
-merge the code of adjust_memalloc_reserve() with sk_adjust_memalloc() and only
-add adjust_memalloc_reserve() when it's really needed? It saves an export.
-
-Feedback on the 28-Aug-2006 19:24 version from
-programming.kicks-ass.net/kernel-patches/vm_deadlock/current/
-
-
-> +void setup_per_zone_pages_min(void)
-> +{
-> +	static DEFINE_SPINLOCK(lock);
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&lock, flags);
-> +	__setup_per_zone_pages_min();
-> +	spin_unlock_irqrestore(&lock, flags);
-> +}
-
-Better to put the lock next to min_free_kbytes, both for readability and
-cache behaviour. And it satisfies the "lock data, not code" mantra.
-
-
-> +static inline void * emergency_rx_alloc(size_t size, gfp_t gfp_mask)
-> +{
-> +	void * page = NULL;
-> +
-> +	if (size > PAGE_SIZE)
-> +		return page;
-> +
-> +	if (atomic_add_unless(&emergency_rx_pages_used, 1, RX_RESERVE_PAGES)) {
-> +		page = (void *)__get_free_page(gfp_mask);
-> +		if (!page) {
-> +			WARN_ON(1);
-> +			atomic_dec(&emergency_rx_pages_used);
-> +		}
-> +	}
-> +
-> +	return page;
-> +}
-
-If you prefer to avoid cmpxchg (which is often used in atomic_add_unless
-and can be expensive) then you can use something like:
-
-static inline void * emergency_rx_alloc(size_t size, gfp_t gfp_mask)
-{
-	void * page;
-
-	if (size > PAGE_SIZE)
-		return NULL;
-
-	if (atomic_inc_return(&emergency_rx_pages_used) == RX_RESERVE_PAGES)
-		goto out;
-	page = (void *)__get_free_page(gfp_mask);
-	if (page)
-		return page;
-	WARN_ON(1);
-out:
-	atomic_dec(&emergency_rx_pages_used);
-	return NULL;
-}
-
-The tiny race should be totally harmless. Both versions are a bit big
-to inline though.
-
-
-> @@ -195,6 +196,86 @@ __u32 sysctl_rmem_default = SK_RMEM_MAX;
->  /* Maximal space eaten by iovec or ancilliary data plus some space */
->  int sysctl_optmem_max = sizeof(unsigned long)*(2*UIO_MAXIOV + 512);
->
-> +static DEFINE_SPINLOCK(memalloc_lock);
-> +static int memalloc_reserve;
-> +static unsigned int vmio_request_queues;
-> +
-> +atomic_t vmio_socks;
-> +atomic_t emergency_rx_pages_used;
-> +EXPORT_SYMBOL_GPL(vmio_socks);
-
-Is this export needed? It's only used in net/core/skbuff.c and net/core/sock.c,
-which are compiled into one module.
-
-> +EXPORT_SYMBOL_GPL(emergency_rx_pages_used);
-
-Same here. It's only used by code in sock.c and skbuff.c, and no external
-code calls emergency_rx_alloc(), nor emergency_rx_free().
-
---
-
-I think I depleted my usefulness, there isn't much left to say for me.
-It's up to the big guys to decide about the merrit of this patch.
-If Evgeniy's network allocator fixes all deadlocks and also has other
-advantages, then great.
-
-IMHO:
-
-- This patch isn't really a framework, more a minimal fix for one specific,
-though important problem. But it's small and doesn't have much impact
-(numbers would be nice, e.g. vmlinux/modules size before and after, and
-some network benchmark results).
-
-- If Evgeniy's network allocator is as good as it looks, then why can't it
-replace the existing one? Just adding private subsystem specific memory
-allocators seems wrong. I might be missing the big picture, but it looks
-like memory allocator things should be at least synchronized and discussed
-with Christoph Lameter and his "modular slab allocator" patch.
-
-All in all it seems it will take a while until Evgeniy's code will be merged,
-so I think applying Peter's patch soonish and removing it again the moment it
-becomes unnecessary is reasonable.
-
-Greetings,
-
-Indan
-
-
+--- util-linux-2.13-pre7.orig/mount/mount.8
++++ util-linux-2.13-pre7/mount/mount.8
+@@ -586,6 +586,13 @@ access on the news spool to speed up new
+ .B nodiratime
+ Do not update directory inode access times on this filesystem.
+ .TP
++.B relatime
++Update inode access times relative to modify or change time.  Access
++time is only updated if the previous access time was earlier than the
++current modify or change time. (Similar to noatime, but doesn't break
++mutt or other applications that need to know if a file has been read
++since the last time it was modified.)
++.TP
+ .B noauto
+ Can only be mounted explicitly (i.e., the
+ .B \-a
+--- util-linux-2.13-pre7.orig/mount/mount.c
++++ util-linux-2.13-pre7/mount/mount.c
+@@ -164,6 +164,12 @@ static const struct opt_map opt_map[] = 
+   { "diratime",	0, 1, MS_NODIRATIME },	/* Update dir access times */
+   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
+ #endif
++#ifdef MS_RELATIME
++  { "relatime", 0, 0, MS_RELATIME },	/* Update access times relative to
++					   mtime/ctime */
++  { "norelatime", 0, 1, MS_RELATIME },	/* Update access time without regard
++					   to mtime/ctime */
++#endif
+   { NULL,	0, 0, 0		}
+ };
+ 
+--- util-linux-2.13-pre7.orig/mount/mount_constants.h
++++ util-linux-2.13-pre7/mount/mount_constants.h
+@@ -57,6 +57,10 @@ if we have a stack or plain mount - moun
+ #ifndef MS_VERBOSE
+ #define MS_VERBOSE	0x8000	/* 32768 */
+ #endif
++#ifndef MS_RELATIME
++#define MS_RELATIME   0x200000	/* Update access times relative
++				   to mtime/ctime */
++#endif
+ /*
+  * Magic mount flag number. Had to be or-ed to the flag values.
+  */

@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWH2ASP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWH2AV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWH2ASP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 20:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWH2ASP
+	id S964936AbWH2AV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 20:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWH2AV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 20:18:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14483 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964931AbWH2ASO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 20:18:14 -0400
-Date: Mon, 28 Aug 2006 17:18:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Richard Knutsson <ricknu-0@student.ltu.se>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Conversion to generic boolean
-Message-Id: <20060828171804.09c01846.akpm@osdl.org>
-In-Reply-To: <20060828093202.GC8980@infradead.org>
-References: <44EFBEFA.2010707@student.ltu.se>
-	<20060828093202.GC8980@infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Aug 2006 20:21:59 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15112 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964936AbWH2AV6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Aug 2006 20:21:58 -0400
+To: dmarkh@cfl.rr.com
+Cc: Lee Revell <rlrevell@joe-job.com>, Luka Marinko <luka.marinko@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: question on pthreads
+References: <3420082f0608201046q53bb60b5u5ca8915e588ee9e3@mail.gmail.com>
+	<ecakcv$m06$1@sea.gmane.org> <1156112486.10565.64.camel@mindpipe>
+	<44E98ECB.3040603@cfl.rr.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: more than just a Lisp interpreter, a text editor as well!
+Date: Tue, 29 Aug 2006 01:21:49 +0100
+In-Reply-To: <44E98ECB.3040603@cfl.rr.com> (Mark Hounschell's message of "21 Aug 2006 11:46:09 +0100")
+Message-ID: <87r6z0pf1e.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Aug 2006 10:32:02 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
-
-> On Sat, Aug 26, 2006 at 05:24:42AM +0200, Richard Knutsson wrote:
-> > Hello
-> > 
-> > Just would like to ask if you want patches for:
+On 21 Aug 2006, Mark Hounschell said:
+> glibc 2.4.31 has a man page for it.
 > 
-> Total NACK to any of this boolean ididocy.  I very much hope you didn't
-> get the impression you actually have a chance to get this merged.
+> PTHREAD_MUTEXATTR_GETPSHARED(P)                                 POSIX
+> Programmer's Manual                                PTHREAD_MUTEXATTR_GETPSHARED(P)
 
-I was kinda planning on merging it ;)
+That's not in glibc, that's in the POSIX part of the manpages
+distribution.
 
-I can't say that I'm in love with the patches, but they do improve the
-situation.
-
-At present we have >50 different definitions of TRUE and gawd knows how
-many private implementations of various flavours of bool.
-
-In that context, Richard's approach of giving the kernel a single
-implementation of bool/true/false and then converting things over to use it
-makes sense.  The other approach would be to go through and nuke the lot,
-convert them to open-coded 0/1.
-
-I'm not particularly fussed either way, really.  But the present situation
-is nuts.
+-- 
+`In typical emacs fashion, it is both absurdly ornate and
+ still not really what one wanted.' --- jdev

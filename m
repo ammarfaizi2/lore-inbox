@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWH2ThJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWH2Tty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWH2ThJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWH2ThI
+	id S1751219AbWH2Tty (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWH2Tty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:37:08 -0400
-Received: from Powered.by.Root24.be ([81.169.180.23]:30948 "EHLO root24.de")
-	by vger.kernel.org with ESMTP id S1751204AbWH2ThG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:37:06 -0400
-From: =?iso-8859-1?Q?J=F6rg_Hoffmann?= <jh2000@root24.eu>
-To: <linux-kernel@vger.kernel.org>
-Subject: /proc/net/tcp information drop
-Date: Tue, 29 Aug 2006 21:36:54 +0200
-Organization: Root24
-Message-ID: <000201c6cba2$7c6bae10$2000a8c0@jhnotebook>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+	Tue, 29 Aug 2006 15:49:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63428 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751219AbWH2Ttx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 15:49:53 -0400
+Date: Tue, 29 Aug 2006 12:49:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: Drop cache has no effect?
+Message-Id: <20060829124945.656dbaa1.akpm@osdl.org>
 In-Reply-To: <Pine.LNX.4.61.0608292117320.5502@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
+	<20060829110048.20e23e75.akpm@osdl.org>
+	<Pine.LNX.4.61.0608292117320.5502@yvahk01.tjqt.qr>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone (yes, i´m new at this list, just correct me if i´m wrong),
+On Tue, 29 Aug 2006 21:21:25 +0200 (MEST)
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-I have some trouble with /proc/net/tcp and tcp6
-I´m not sure if it’s a feature or a bug or maybe some cleanup of the
-cache...
+> >> -rw-r--r--   1 jengelh users 37816633 2006-07-28 19:25 
+> >> inkscape-0.44-2.guru.suse101.i686.rpm
+> >> -rw-r--r--   1 jengelh users   297243 2006-08-15 01:13 
+> >> vmware-any-any-update104.tar.gz
+> >> 
+> >> Remains 644.
+> >
+> >That would be a vfat problem - the changed permission bits weren't written
+> >back to disk, so when you re-read them from disk (or, more likely, from
+> >blockdev pagecache) they came back with the original values.
+> 
+> Yes, that's _intended_.
+> 
+> Fact:
+> If you chmod 644 some files on vfat, then unmount and mount it again, they show
+> up as 755 again. That is ok.
+> 
+> Observation:
+> Dropping the cache does not imply the 644->755 change observed on unmount.
+> 
+> Conclusion:
+> Caches not dropped.
 
-A long time After a connection has been established the information about
-the process name and the pid itself gets lost, just a - appears.
-My own network-monitoring tool uses netstat to get some information about
-the network-connections. But without the pid I can't see (I could over a few
-more corners but ... crap) if there are more programs at the same pid or
-even which program it is (maybe an undetected Trojan or just an user with
-more connections then allowed...)
-Here's a link to the netstat output
-http://netstat.root24.eu/netstat.php?dump=1
-And to my connection-statistics (the red colored hosts/ips have no special
-meaning/ just shows unresolved/new connections)
-http://netstat.root24.eu/connmon.php
-Normal there is a Pid and prog name in every line... since the server is
-online for about a month and some connections are even so long you can see
-some 'holes'
+Not all caches dropped.  It'd be silly to try that - see the implementation.
 
-Greetings
-Jörg
-
+Running the same command a few more times might wring a couple more dentries
+and inodes out of it.

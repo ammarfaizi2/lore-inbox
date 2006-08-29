@@ -1,593 +1,615 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWH2MxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWH2MzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWH2MxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 08:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWH2MxU
+	id S964891AbWH2MzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 08:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWH2MzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 08:53:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:28802 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932284AbWH2MxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 08:53:19 -0400
+	Tue, 29 Aug 2006 08:55:22 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:14457 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964795AbWH2MzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 08:55:21 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=TkpV7t5ytfwW6Y0eHqTRsoFMOaUKkNxfT19BEbjJqIWMWh+8KcmSCXx9pg/VDbbYFMaWusvn2VjuNqgaJ8BpYanIr9Ge4hB81fu43w7P1q53criGhKT0kl0gIIZKvO67cDa6JGQzxIJaJvaH6AJZ9FjTRNS4pHl3LUG/rfaits0=
-Message-ID: <d120d5000608290553t275b4acar925f66b3d0c7434b@mail.gmail.com>
-Date: Tue, 29 Aug 2006 08:53:17 -0400
-From: "Dmitry Torokhov" <dtor@insightbb.com>
-To: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Marcelo Tosatti" <mtosatti@redhat.com>
-Subject: Re: [RPC] OLPC tablet input driver.
-In-Reply-To: <20060829073339.GA4181@aehallh.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nGKZfwOV2wKSQ5W42CUcBsqQct1NWmcNklV+wuIvNK2P5CdPTHSuc7IeOwrzKR8cxswUcYXySbwoNdJ7VFCo9i6qsY6Bcw1sD1OgQp6VRgEEGNrIZKHMFj74uVIzsd7cSWn1E3z/B0Lmd2t6tHBcR1aXqBmiyX3dTuUTVPnTUBg=
+Message-ID: <85e0e3140608290555k31aadba5l8ecf814bae0a7484@mail.gmail.com>
+Date: Tue, 29 Aug 2006 18:55:20 +0600
+From: Niklaus <niklaus@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: SDRAM or DDRAM in linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1156849696.6271.99.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060829073339.GA4181@aehallh.com>
-X-Google-Sender-Auth: 20cd255af7a97a0b
+References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com>
+	 <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com>
+	 <1156849696.6271.99.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> The OLPC will ship with a somewhat unique input device made by ALPS,
-> connected via PS/2 and speaking a protocol only loosely based on that
-> spoken by other ALPS devices.
+On 8/29/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Maw, 2006-08-29 am 12:34 +0530, ysgrifennodd Niklaus:
+> > 1) How do i find out when the machine is online , if it is SDRAM or
+> > DDRAM. I tried dmidecode utility but i was not sure about the type.
+> > Can someone help me out by pasting the output for both DDR and SDRAM
+> > in dmidecode or similar.
 >
-
-Do you have a formal programming spec for it?
-
-> This is required by the noticeable different between this device and
-> others made by alps, specificly that it is very wide, with the center
-> 1/3rd usable with the GS sensor, and the entire area usable with the PT
-> sensor, with support for using both at once.
+> Except for very high quality server boxes don't trust the dmidecode data
+> for the RAM. Get the motherboard/system name from dmidecode then look it
+> up manually
 >
+Can you tell anything about it ? I have IBM x-series 206 server. Here
+is the dmidecode information. Is SDRAM or DDRAM installed on it. It
+would be great if you can tell me where to look.
 
-Coudl youp please tell me what GS and PT stand for?
+# dmidecode 2.8
+SMBIOS 2.33 present.
+46 structures occupying 1419 bytes.
+Table at 0x0FF77000.
 
-> The protocol differs enough that I split the driver for this off from
-> the ALPS driver.
+Handle 0x0000, DMI type 0, 20 bytes
+BIOS Information
+	Vendor: IBM
+	Version: -[KEE124AUS-1.24]-
+	Release Date: 08/05/2004
+	Address: 0xE0F40
+	Runtime Size: 127168 bytes
+	ROM Size: 1024 kB
+	Characteristics:
+		ISA is supported
+		PCI is supported
+		PNP is supported
+		BIOS is upgradeable
+		BIOS shadowing is allowed
+		ESCD support is available
+		Boot from CD is supported
+		Selectable boot is supported
+		BIOS ROM is socketed
+		EDD is supported
+		5.25"/360 KB floppy services are supported (int 13h)
+		5.25"/1.2 MB floppy services are supported (int 13h)
+		3.5"/720 KB floppy services are supported (int 13h)
+		3.5"/2.88 MB floppy services are supported (int 13h)
+		Print screen service is supported (int 5h)
+		8042 keyboard services are supported (int 9h)
+		Serial services are supported (int 14h)
+		Printer services are supported (int 17h)
+		CGA/mono video services are supported (int 10h)
+		USB legacy is supported
+		Smart battery is supported
+		BIOS boot specification is supported
+
+Handle 0x0001, DMI type 1, 25 bytes
+System Information
+	Manufacturer: IBM CORPORATION
+	Product Name: -[848225X]-
+	Version: IBM CORPORATION
+	Serial Number: 99N0186
+	UUID: A175F69D-0042-9D11-ABCA-0E7E66E64D8F
+	Wake-up Type: Power Switch
+
+Handle 0x0002, DMI type 2, 8 bytes
+Base Board Information
+	Manufacturer: IBM
+	Product Name: M71IX
+	Version: -1
+	Serial Number: J1XGV49W1PF
+
+Handle 0x0003, DMI type 3, 17 bytes
+Chassis Information
+	Manufacturer: IBM
+	Type: Other
+	Lock: Not Present
+	Version: N/A
+	Serial Number: 123456
+	Asset Tag: No Asset Tag
+	Boot-up State: Safe
+	Power Supply State: Safe
+	Thermal State: Safe
+	Security Status: None
+	OEM Information: 0x00001234
+
+Handle 0x0004, DMI type 4, 35 bytes
+Processor Information
+	Socket Designation: WMT478/NWD
+	Type: Central Processor
+	Family: Pentium 4
+	Manufacturer: Intel
+	ID: 34 0F 00 00 FF FB EB BF
+	Signature: Type 0, Family 15, Model 3, Stepping 4
+	Flags:
+		FPU (Floating-point unit on-chip)
+		VME (Virtual mode extension)
+		DE (Debugging extension)
+		PSE (Page size extension)
+		TSC (Time stamp counter)
+		MSR (Model specific registers)
+		PAE (Physical address extension)
+		MCE (Machine check exception)
+		CX8 (CMPXCHG8 instruction supported)
+		APIC (On-chip APIC hardware supported)
+		SEP (Fast system call)
+		MTRR (Memory type range registers)
+		PGE (Page global enable)
+		MCA (Machine check architecture)
+		CMOV (Conditional move instruction supported)
+		PAT (Page attribute table)
+		PSE-36 (36-bit page size extension)
+		CLFSH (CLFLUSH instruction supported)
+		DS (Debug store)
+		ACPI (ACPI supported)
+		MMX (MMX technology supported)
+		FXSR (Fast floating-point save and restore)
+		SSE (Streaming SIMD extensions)
+		SSE2 (Streaming SIMD extensions 2)
+		SS (Self-snoop)
+		HTT (Hyper-threading technology)
+		TM (Thermal monitor supported)
+		PBE (Pending break enabled)
+	Version: D0
+	Voltage: 1.8 V
+	External Clock: 200 MHz
+	Max Speed: 3400 MHz
+	Current Speed: 3000 MHz
+	Status: Populated, Enabled
+	Upgrade: Slot 1
+	L1 Cache Handle: 0x000A
+	L2 Cache Handle: 0x000B
+	L3 Cache Handle: Not Provided
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+
+Handle 0x0005, DMI type 5, 22 bytes
+Memory Controller Information
+	Error Detecting Method: None
+	Error Correcting Capabilities:
+		None
+	Supported Interleave: One-way Interleave
+	Current Interleave: One-way Interleave
+	Maximum Memory Module Size: 256 MB
+	Maximum Total Memory Size: 768 MB
+	Supported Speeds:
+		70 ns
+		60 ns
+	Supported Memory Types:
+		FPM
+		EDO
+		DIMM
+		SDRAM
+	Memory Module Voltage: 3.3 V
+	Associated Memory Slots: 3
+		0x0006
+		0x0007
+		0x0008
+	Enabled Error Correcting Capabilities:
+		None
+
+Handle 0x0006, DMI type 6, 12 bytes
+Memory Module Information
+	Socket Designation: DIMM0
+	Bank Connections: 0 1
+	Current Speed: Unknown
+	Type: ECC DIMM SDRAM
+	Installed Size: Not Installed
+	Enabled Size: Not Installed
+	Error Status: See Event Log
+
+Handle 0x0007, DMI type 6, 12 bytes
+Memory Module Information
+	Socket Designation: DIMM1
+	Bank Connections: 2 3
+	Current Speed: Unknown
+	Type: ECC DIMM SDRAM
+	Installed Size: Not Installed
+	Enabled Size: Not Installed
+	Error Status: See Event Log
+
+Handle 0x0008, DMI type 6, 12 bytes
+Memory Module Information
+	Socket Designation: DIMM2
+	Bank Connections: 4 5
+	Current Speed: Unknown
+	Type: ECC DIMM SDRAM
+	Installed Size: Not Installed
+	Enabled Size: Not Installed
+	Error Status: See Event Log
+
+Handle 0x0009, DMI type 6, 12 bytes
+Memory Module Information
+	Socket Designation: DIMM3
+	Bank Connections: 6 7
+	Current Speed: Unknown
+	Type: ECC DIMM SDRAM
+	Installed Size: 256 MB (Single-bank Connection)
+	Enabled Size: 256 MB (Single-bank Connection)
+	Error Status: See Event Log
+
+Handle 0x000A, DMI type 7, 19 bytes
+Cache Information
+	Socket Designation: L1 Cache
+	Configuration: Enabled, Not Socketed, Level 1
+	Operational Mode: Write Through
+	Location: Internal
+	Installed Size: 16 KB
+	Maximum Size: 32 KB
+	Supported SRAM Types:
+		Burst
+		Pipeline Burst
+		Asynchronous
+	Installed SRAM Type: Asynchronous
+	Speed: Unknown
+	Error Correction Type: Parity
+	System Type: Data
+	Associativity: 4-way Set-associative
+
+Handle 0x000B, DMI type 7, 19 bytes
+Cache Information
+	Socket Designation: L2 Cache
+	Configuration: Enabled, Not Socketed, Level 2
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 1024 KB
+	Maximum Size: 1024 KB
+	Supported SRAM Types:
+		Burst
+		Pipeline Burst
+		Asynchronous
+	Installed SRAM Type: Burst
+	Speed: Unknown
+	Error Correction Type: Unknown
+	System Type: Unknown
+	Associativity: Unknown
+
+Handle 0x000C, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J2A1
+	Internal Connector Type: 9 Pin Dual Inline (pin 10 cut)
+	External Reference Designator: COM 1
+	External Connector Type: DB-9 male
+	Port Type: Serial Port 16550A Compatible
+
+Handle 0x000D, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J3A1
+	Internal Connector Type: 25 Pin Dual Inline (pin 26 cut)
+	External Reference Designator: Parallel
+	External Connector Type: DB-25 female
+	Port Type: Parallel Port ECP/EPP
+
+Handle 0x000E, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J1A1
+	Internal Connector Type: None
+	External Reference Designator: Keyboard
+	External Connector Type: Circular DIN-8 male
+	Port Type: Keyboard Port
+
+Handle 0x000F, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J1A1
+	Internal Connector Type: None
+	External Reference Designator: PS/2 Mouse
+	External Connector Type: Circular DIN-8 male
+	Port Type: Keyboard Port
+
+Handle 0x0010, DMI type 9, 13 bytes
+System Slot Information
+	Designation: PCI Slot #1 - J6B3
+	Type: 32-bit PCI
+	Current Usage: Available
+	Length: Long
+	ID: 1
+	Characteristics:
+		5.0 V is provided
+		3.3 V is provided
+
+Handle 0x0011, DMI type 9, 13 bytes
+System Slot Information
+	Designation: PCI Slot #2 - J6B2
+	Type: 32-bit PCI
+	Current Usage: Available
+	Length: Long
+	ID: 2
+	Characteristics:
+		5.0 V is provided
+		3.3 V is provided
+
+Handle 0x0012, DMI type 9, 13 bytes
+System Slot Information
+	Designation: PCI Slot #3 - J7B1
+	Type: 32-bit PCI
+	Current Usage: Available
+	Length: Long
+	ID: 3
+	Characteristics:
+		5.0 V is provided
+		3.3 V is provided
+
+Handle 0x0013, DMI type 9, 13 bytes
+System Slot Information
+	Designation: PCI Slot #4 - J7B1
+	Type: 32-bit PCI
+	Current Usage: In Use
+	Length: Long
+	ID: 4
+	Characteristics:
+		5.0 V is provided
+		3.3 V is provided
+
+Handle 0x0014, DMI type 9, 13 bytes
+System Slot Information
+	Designation: PCI Slot #5 - J7B1
+	Type: 32-bit PCI
+	Current Usage: In Use
+	Length: Long
+	ID: 5
+	Characteristics:
+		5.0 V is provided
+		3.3 V is provided
+
+Handle 0x0015, DMI type 10, 14 bytes
+On Board Device 1 Information
+	Type: Ethernet
+	Status: Enabled
+	Description: 82547
+On Board Device 2 Information
+	Type: Ethernet
+	Status: Enabled
+	Description: 82541
+On Board Device 3 Information
+	Type: SCSI Controller
+	Status: Enabled
+	Description: 7901
+On Board Device 4 Information
+	Type: Video
+	Status: Enabled
+	Description: ATI
+On Board Device 5 Information
+	Type: Other
+	Status: Enabled
+	Description: IBM Automatic Server Restart - Machine Type 8482
+
+Handle 0x0016, DMI type 11, 5 bytes
+OEM Strings
+	String 1: This is the Intel NBVV-G
+	String 2: System Validation Platform
+
+Handle 0x0017, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: Jumper settings can be described here.
+
+Handle 0x0018, DMI type 15, 29 bytes
+System Event Log
+	Area Length: 1024 bytes
+	Header Start Offset: 0x0000
+	Header Length: 16 bytes
+	Data Start Offset: 0x0010
+	Access Method: General-purpose non-volatile data functions
+	Access Address: 0x0000
+	Status: Valid, Invalid
+	Change Token: 0x00000029
+	Header Format: Type 1
+	Supported Log Type Descriptors: 3
+	Descriptor 1: POST error
+	Data Format 1: POST results bitmap
+	Descriptor 2: Single-bit ECC memory error
+	Data Format 2: Multiple-event
+	Descriptor 3: Multi-bit ECC memory error
+	Data Format 3: Multiple-event
+
+Handle 0x0019, DMI type 16, 15 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: Single-bit ECC
+	Maximum Capacity: 4 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 4
+
+Handle 0x001A, DMI type 17, 27 bytes
+Memory Device
+	Array Handle: 0x0019
+	Error Information Handle: No Error
+	Total Width: Unknown
+	Data Width: Unknown
+	Size: No Module Installed
+	Form Factor: DIMM
+	Set: 1
+	Locator: J5G2
+	Bank Locator: DIMM 0
+	Type: DDR
+	Type Detail: Synchronous
+	Speed: 133 MHz (7.5 ns)
+	Manufacturer: Not Specified
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+
+Handle 0x001B, DMI type 17, 27 bytes
+Memory Device
+	Array Handle: 0x0019
+	Error Information Handle: No Error
+	Total Width: Unknown
+	Data Width: Unknown
+	Size: No Module Installed
+	Form Factor: DIMM
+	Set: 1
+	Locator: J5G3
+	Bank Locator: DIMM 1
+	Type: DDR
+	Type Detail: Synchronous
+	Speed: 133 MHz (7.5 ns)
+	Manufacturer: Not Specified
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+
+Handle 0x001C, DMI type 17, 27 bytes
+Memory Device
+	Array Handle: 0x0019
+	Error Information Handle: No Error
+	Total Width: Unknown
+	Data Width: Unknown
+	Size: No Module Installed
+	Form Factor: DIMM
+	Set: 1
+	Locator: J5H1
+	Bank Locator: DIMM 2
+	Type: DDR
+	Type Detail: Synchronous
+	Speed: 133 MHz (7.5 ns)
+	Manufacturer: Not Specified
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+
+Handle 0x001D, DMI type 17, 27 bytes
+Memory Device
+	Array Handle: 0x0019
+	Error Information Handle: No Error
+	Total Width: 72 bits
+	Data Width: 64 bits
+	Size: 256 MB
+	Form Factor: DIMM
+	Set: 1
+	Locator: J5H2
+	Bank Locator: DIMM 3
+	Type: DDR
+	Type Detail: Synchronous
+	Speed: 133 MHz (7.5 ns)
+	Manufacturer: Not Specified
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+
+Handle 0x001E, DMI type 19, 15 bytes
+Memory Array Mapped Address
+	Starting Address: 0x00000000000
+	Ending Address: 0x0000FFFFFFF
+	Range Size: 256 MB
+	Physical Array Handle: 0x0019
+	Partition Width: 0
+
+Handle 0x001F, DMI type 20, 19 bytes
+Memory Device Mapped Address
+	Starting Address: 0x00000000000
+	Ending Address: 0x000000003FF
+	Range Size: 1 kB
+	Physical Device Handle: 0x001A
+	Memory Array Mapped Address Handle: 0x001E
+	Partition Row Position: Unknown
+	Interleave Position: Unknown
+	Interleaved Data Depth: Unknown
+
+Handle 0x0020, DMI type 20, 19 bytes
+Memory Device Mapped Address
+	Starting Address: 0x00000000000
+	Ending Address: 0x000000003FF
+	Range Size: 1 kB
+	Physical Device Handle: 0x001B
+	Memory Array Mapped Address Handle: 0x001E
+	Partition Row Position: Unknown
+	Interleave Position: Unknown
+	Interleaved Data Depth: Unknown
+
+Handle 0x0021, DMI type 23, 13 bytes
+System Reset
+	Status: Enabled
+	Watchdog Timer: Present
+	Boot Option: Do Not Reboot
+	Boot Option On Limit: Do Not Reboot
+	Reset Count: Unknown
+	Reset Limit: Unknown
+	Timer Interval: Unknown
+	Timeout: Unknown
+
+Handle 0x0022, DMI type 24, 5 bytes
+Hardware Security
+	Power-On Password Status: Disabled
+	Keyboard Password Status: Unknown
+	Administrator Password Status: Enabled
+	Front Panel Reset Status: Unknown
+
+Handle 0x0023, DMI type 25, 9 bytes
+	System Power Controls
+	Next Scheduled Power-on: 12-31 23:59:59
+
+Handle 0x0024, DMI type 26, 20 bytes
+Voltage Probe
+	Description: Voltage Probe
+	Location: Processor
+	Status: OK
+	Maximum Value: Unknown
+	Minimum Value: Unknown
+	Resolution: Unknown
+	Tolerance: Unknown
+	Accuracy: Unknown
+	OEM-specific Information: 0x00000000
+
+Handle 0x0025, DMI type 27, 12 bytes
+Cooling Device
+	Temperature Probe Handle: 0x0026
+	Type: Fan
+	Status: OK
+	OEM-specific Information: 0x00000000
+
+Handle 0x0026, DMI type 28, 20 bytes
+Temperature Probe
+	Description: Temperature Probe
+	Location: Processor
+	Status: OK
+	Maximum Value: Unknown
+	Minimum Value Unknown
+	Resolution: Unknown
+	Tolerance: Unknown
+	Accuracy: Unknown
+	OEM-specific Information: 0x00000000
+
+Handle 0x0027, DMI type 29, 20 bytes
+Electrical Current Probe
+	Description: Electrical Current Probe
+	Location: Processor
+	Status: OK
+	Maximum Value: Unknown
+	Minimum Value: Unknown
+	Resolution: Unknown
+	Tolerance: Unknown
+	Accuracy: Unknown
+	OEM-specific Information: 0x00000000
+
+Handle 0x0028, DMI type 30, 6 bytes
+Out-of-band Remote Access
+	Manufacturer Name: Intel
+	Inbound Connection: Enabled
+	Outbound Connection: Disabled
+
+Handle 0x0029, DMI type 32, 20 bytes
+System Boot Information
+	Status: <OUT OF SPEC>
+
+Handle 0x002A, DMI type 126, 4 bytes
+Inactive
+
+Handle 0x002B, DMI type 129, 28 bytes
+OEM-specific Type
+	Header and Data:
+		81 1C 2B 00 01 01 02 01 00 00 00 01 00 00 18 01
+		00 02 08 01 00 00 E0 01 01 03 10 01
+	Strings:
+		Intel_ASF_001
+		Intel_ASF_001
+
+Handle 0x002C, DMI type 127, 4 bytes
+End Of Table
+
+Handle 0x002D, DMI type 127, 4 bytes
+End Of Table
+
+
+
 >
-> The patch is below, but there are a few things of note.
 >
-> 1: Cosmetic: Some line lengths, and outputs with debugging enabled, are
-> over 80 columns wide.  Will be fixed in the next version of this patch.
->
-
-If going to 80 colums will require monstrocities like this:
-
-... do_bla(struct_b->
-               array_g[
-               index_i].
-               submember);
-
-(and I seen quite a few such attempts to "improve" code) then please don't ;)
-
-> 2: Cosmetic: Input device IDs need to be decided on, some feedback on
-> the best values to use here would be appreciated.
-
-I think what you've done is fine.
-
->
-> 3: Patch stuff: Because the protocol uses 9 byte packets I had to
-> increase the size of the buffer in struct psmouse.  Should this be split
-> off into a separate patch?
->
-
-No.
-
-> 4: Technical/policy: Buttons are currently sent to both of the input
-> devices we generate, I don't see any way to avoid this that is not a
-> policy decision on which buttons belong to which device, but I'm open to
-> suggestions.
->
-
-Is it not known how actual hardware wired?
-
-> 5: Technical: Min/max on absolute values are currently reported as the
-> protocol limits (10 bits on GS X, GS Y, and PT Y.  11 bits on PT X.  7
-> bits on GS pressure).  Until we get samples based on the newer design
-> and do some testing to see how big the variations are, we just don't
-> have any numbers to put here.
->
-
-Using protocol limits is fine, I don't think anyone actually uses it.
-Synaptics X driver allows users to tweak it to their preference.
-
-> 6: Technical, maybe: The early samples I have that speak this protocol
-> are doing some odd things with this driver.  Mostly in the realm of
-> sample rate and pressure reporting.  I'm fairly sure that this is
-> hardware related, but it's worth mentioning.
->
->
-> That said, here the patch is for comments.
-> (And possibly for the OLPC kernel tree for others with samples to play
-> with.)
->
->
-> Signed-off-by: Zephaniah E. Hull <warp@aehallh.com>
->
-> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-> index 21a1de6..6218e5a 100644
-> --- a/drivers/input/mouse/Makefile
-> +++ b/drivers/input/mouse/Makefile
-> @@ -14,4 +14,4 @@ obj-$(CONFIG_MOUSE_SERIAL)    += sermouse.o
->  obj-$(CONFIG_MOUSE_HIL)                += hil_ptr.o
->  obj-$(CONFIG_MOUSE_VSXXXAA)    += vsxxxaa.o
->
-> -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o lifebook.o trackpoint.o
-> +psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o lifebook.o trackpoint.o olpc.o
-> diff --git a/drivers/input/mouse/olpc.c b/drivers/input/mouse/olpc.c
-> new file mode 100644
-> index 0000000..245f29e
-> --- /dev/null
-> +++ b/drivers/input/mouse/olpc.c
-> @@ -0,0 +1,327 @@
-> +/*
-> + * OLPC touchpad PS/2 mouse driver
-> + *
-> + * Copyright (c) 2006 One Laptop Per Child, inc.
-> + * Author Zephaniah E. Hull.
-> + *
-> + * This driver is partly based on the ALPS driver, which is:
-> + *
-> + * Copyright (c) 2003 Neil Brown <neilb@cse.unsw.edu.au>
-> + * Copyright (c) 2003-2005 Peter Osterlund <petero2@telia.com>
-> + * Copyright (c) 2004 Dmitry Torokhov <dtor@mail.ru>
-> + * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +
-> +/*
-> + * The touchpad on the OLPC is fairly wide, with the entire area usable
-> + * as a tablet, and the center 1/3rd also usable as a touchpad.
-> + *
-> + * The device has simultanious reporting, so that both can be used at once.
-> + *
-> + * The PT+GS protocol is similar to the base ALPS protocol, in that the
-> + * GS data is where the ALPS parser would expect to find it, however
-> + * there are several additional bytes, the button bits are in a
-> + * different byte, and the bits used for finger and gesture indication
-> + * are replaced by two bits which indicate if it is reporting PT or GS
-> + * coordinate data in that packet.
-> + */
-> +
-> +#include <linux/input.h>
-> +#include <linux/serio.h>
-> +#include <linux/libps2.h>
-> +
-> +#include "psmouse.h"
-> +#include "olpc.h"
-> +
-> +#undef DEBUG
-> +#ifdef DEBUG
-> +#define dbg(format, arg...) printk(KERN_INFO "olpc.c(%d): " format "\n", __LINE__, ## arg)
-> +#else
-> +#define dbg(format, arg...) do {} while (0)
-> +#endif
-> +
-> +#define OLPC_PT                0x01
-> +#define OLPC_GS                0x02
-> +#define OLPC_PTGS      0x04
-> +
-
-Do you need a separate #define? I'd expect it to be OLPC_PT | OLPC_GS?
-
-> +static struct olpc_model_info olpc_model_data[] = {
-> +       { { 0x67, 0x00, 0x0a }, 0xeb, 0xff, OLPC_PTGS },        /* OLPC in PT+GS mode. */
-> +};
-> +
-> +/*
-> + * OLPC absolute Mode - new format
-> + *
-> + * byte 0:  1    ?    ?    ?    1    ?    ?    ?
-> + * byte 1:  0   x6   x5   x4   x3   x2   x1   x0
-> + * byte 2:  0   x10  x9   x8   x7    ?  fin  ges
-> + * byte 3:  0   y9   y8   y7    1    0    R    L
-> + * byte 4:  0   y6   y5   y4   y3   y2   y1   y0
-> + * byte 5:  0   z6   z5   z4   z3   z2   z1   z0
-> + *
-> + * ?'s can have different meanings on different models,
-> + * such as wheel rotation, extra buttons, stick buttons
-> + * on a dualpoint, etc.
-> + */
-> +
-> +static void olpc_process_packet(struct psmouse *psmouse, struct pt_regs *regs)
-> +{
-> +       struct olpc_data *priv = psmouse->private;
-> +       unsigned char *packet = psmouse->packet;
-> +       struct input_dev *dev = psmouse->dev;
-> +       struct input_dev *dev2 = priv->dev2;
-> +       int px, py, gx, gy, gz, gs_down, pt_down, left, right;
-> +
-> +       input_regs(dev, regs);
-> +
-> +       left = packet[6] & 1;
-> +       right = packet[6] & 2;
-> +       gx = packet[1] | ((packet[2] & 0x78) << (7 - 3));
-> +       gy = packet[4] | ((packet[3] & 0x70) << (7 - 4));
-> +       gz = packet[5];
-> +       px = packet[8] | ((packet[2] & 0x7) << 7);
-> +       py = packet[7] | ((packet[6] & 0x70) << (7 - 4));
-> +
-> +       pt_down = packet[3] & 1;
-> +       gs_down = packet[3] & 2;
-> +
-> +       input_report_key(dev, BTN_LEFT, left);
-> +       input_report_key(dev2, BTN_LEFT, left);
-> +       input_report_key(dev, BTN_RIGHT, right);
-> +       input_report_key(dev2, BTN_RIGHT, right);
-> +
-> +       input_report_key(dev, BTN_TOUCH, pt_down);
-> +       input_report_key(dev, BTN_TOOL_PEN, pt_down);
-> +       input_report_key(dev2, BTN_TOUCH, gs_down);
-> +       input_report_key(dev2, BTN_TOOL_FINGER, gs_down);
-> +
-> +       if (gs_down) {
-> +               input_report_abs(dev2, ABS_X, gx);
-> +               input_report_abs(dev2, ABS_Y, gy);
-> +       }
-> +       input_report_abs(dev2, ABS_PRESSURE, gz);
-> +
-> +       if (pt_down) {
-> +               input_report_abs(dev, ABS_X, px);
-> +               input_report_abs(dev, ABS_Y, py);
-> +       }
-> +
-> +       input_sync(dev);
-> +}
-> +
-> +static psmouse_ret_t olpc_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-> +{
-> +       struct olpc_data *priv = psmouse->private;
-> +       psmouse_ret_t ret = PSMOUSE_BAD_DATA;
-> +
-> +       if ((psmouse->packet[0] & priv->i->mask0) != priv->i->byte0) {
-> +               ret = PSMOUSE_BAD_DATA;
-> +               goto out;
-> +       }
-> +
-> +       /* Bytes 2 - 6 should have 0 in the highest bit */
-> +       if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 9 &&
-> +               (psmouse->packet[psmouse->pktcnt - 1] & 0x80)) {
-> +           ret = PSMOUSE_BAD_DATA;
-> +           goto out;
-> +       }
-> +
-> +       if ((psmouse->pktcnt == 4 || psmouse->pktcnt == 7) &&
-> +               ((psmouse->packet[psmouse->pktcnt - 1] & 0x88) != 8)) {
-> +           ret = PSMOUSE_BAD_DATA;
-> +           goto out;
-> +       }
-> +
-> +       if (psmouse->pktcnt == 9) {
-> +           olpc_process_packet(psmouse, regs);
-> +
-> +           ret = PSMOUSE_FULL_PACKET;
-> +           goto out;
-> +       }
-> +
-> +       ret = PSMOUSE_GOOD_DATA;
-> +out:
-> +       if (ret != PSMOUSE_GOOD_DATA)
-> +               dbg("ret: %d, len: %u, data: %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x", ret, psmouse->pktcnt,
-> +                       psmouse->packet[0], psmouse->packet[1], psmouse->packet[2],
-> +                       psmouse->packet[3], psmouse->packet[4], psmouse->packet[5],
-> +                       psmouse->packet[6], psmouse->packet[7], psmouse->packet[8]);
-> +       return ret;
-> +}
-> +
-> +static struct olpc_model_info *olpc_get_model(struct psmouse *psmouse)
-> +{
-> +       struct ps2dev *ps2dev = &psmouse->ps2dev;
-> +       unsigned char param[4];
-> +       int i;
-> +
-> +       /*
-> +        * Now try "E7 report". Allowed responses are in
-> +        * olpc_model_data[].signature
-> +        */
-> +       if (ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
-> +           ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
-> +           ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21))
-> +               return NULL;
-> +
-> +       param[0] = param[1] = param[2] = 0xff;
-> +       if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-> +               return NULL;
-> +
-> +       dbg("E7 report: %2.2x %2.2x %2.2x", param[0], param[1], param[2]);
-> +
-> +       for (i = 0; i < ARRAY_SIZE(olpc_model_data); i++)
-> +               if (!memcmp(param, olpc_model_data[i].signature, sizeof(olpc_model_data[i].signature)))
-> +                       return olpc_model_data + i;
-> +
-> +       return NULL;
-> +}
-> +
-> +static int olpc_absolute_mode(struct psmouse *psmouse)
-> +{
-> +       struct ps2dev *ps2dev = &psmouse->ps2dev;
-> +       unsigned char param;
-> +
-> +       /* Switch to 'Advanced mode.', four disables in a row. */
-> +       if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
-> +           ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
-> +           ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
-> +           ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE))
-> +               return -1;
-> +
-> +       /*
-> +        * Switch to simultanious mode, F2 (GETID) three times with no
-> +        * arguments or reply, followed by SETRES with an argument of 2.
-> +        */
-> +       ps2_command(ps2dev, NULL, 0xF2);
-> +       ps2_command(ps2dev, NULL, 0xF2);
-> +       ps2_command(ps2dev, NULL, 0xF2);
-> +       param = 0x02;
-> +       ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
-> +
-> +       return 0;
-> +}
-> +
-> +/*
-> + * olpc_poll() - poll the touchpad for current motion packet.
-> + * Used in resync.
-> + */
-> +static int olpc_poll(struct psmouse *psmouse)
-> +{
-> +       /*
-> +        * FIXME: We can't poll, find a way to make resync work better.
-> +        */
-> +       return 0;
-> +}
-
-I'd expect it to return -1. It's OK that it can't poll, it looks like
-it should resync fairly well on its own.
-
-> +
-> +static int olpc_reconnect(struct psmouse *psmouse)
-> +{
-> +       struct olpc_data *priv = psmouse->private;
-> +
-> +       psmouse_reset(psmouse);
-> +
-> +       if (!(priv->i = olpc_get_model(psmouse)))
-> +               return -1;
-> +
-> +       if (olpc_absolute_mode(psmouse)) {
-> +               printk(KERN_ERR "olpc.c: Failed to reenable absolute mode\n");
-> +               return -1;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static void olpc_disconnect(struct psmouse *psmouse)
-> +{
-> +       struct olpc_data *priv = psmouse->private;
-> +
-> +       psmouse_reset(psmouse);
-> +       input_unregister_device(priv->dev2);
-> +       kfree(priv);
-> +}
-> +
-> +int olpc_init(struct psmouse *psmouse)
-> +{
-> +       struct olpc_data *priv;
-> +       struct input_dev *dev = psmouse->dev;
-> +       struct input_dev *dev2;
-> +
-> +       psmouse->private = priv = kzalloc(sizeof(struct olpc_data), GFP_KERNEL);
-> +       dev2 = input_allocate_device();
-> +       if (!priv || !dev2)
-> +               goto init_fail;
-> +
-> +       priv->dev2 = dev2;
-> +
-> +       if (!(priv->i = olpc_get_model(psmouse)))
-> +               goto init_fail;
-> +
-> +       if (olpc_absolute_mode(psmouse)) {
-> +               printk(KERN_ERR "olpc.c: Failed to enable absolute mode\n");
-> +               goto init_fail;
-> +       }
-> +
-> +       dev->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-> +       dev->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-> +       dev->keybit[LONG(BTN_TOOL_PEN)] |= BIT(BTN_TOOL_PEN);
-> +       dev->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-> +
-> +       dev->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-> +       input_set_abs_params(dev, ABS_X, 0, 1023, 0, 0);
-> +       input_set_abs_params(dev, ABS_Y, 0, 1023, 0, 0);
-> +
-> +       snprintf(priv->phys, sizeof(priv->phys), "%s/input1", psmouse->ps2dev.serio->phys);
-> +       dev2->phys = priv->phys;
-> +       dev2->name = "OLPC OLPC GlideSensor";
-
-"OLPC OLPC"?
-
-> +       dev2->id.bustype = BUS_I8042;
-> +       dev2->id.vendor  = 0x0002;
-> +       dev2->id.product = PSMOUSE_OLPC;
-> +       dev2->id.version = 0x0000;
-> +
-> +       dev2->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-> +       dev2->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-> +       input_set_abs_params(dev2, ABS_X, 0, 2047, 0, 0);
-> +       input_set_abs_params(dev2, ABS_Y, 0, 1023, 0, 0);
-> +       input_set_abs_params(dev2, ABS_PRESSURE, 0, 63, 0, 0);
-> +       dev2->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-> +       dev2->keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
-> +       dev2->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-> +
-> +       input_register_device(priv->dev2);
-> +
-> +
-> +       psmouse->protocol_handler = olpc_process_byte;
-> +       psmouse->poll = olpc_poll;
-> +       psmouse->disconnect = olpc_disconnect;
-> +       psmouse->reconnect = olpc_reconnect;
-> +       psmouse->pktsize = 9;
-> +
-> +       /* We are having trouble resyncing OLPC touchpads so disable it for now */
-> +       psmouse->resync_time = 0;
-> +
-> +       return 0;
-> +
-> +init_fail:
-> +       input_free_device(dev2);
-> +       kfree(priv);
-> +       return -1;
-> +}
-> +
-> +int olpc_detect(struct psmouse *psmouse, int set_properties)
-> +{
-> +       struct olpc_model_info *model;
-> +
-> +       if (!(model = olpc_get_model(psmouse)))
-> +               return -1;
-> +
-> +       if (set_properties) {
-> +               psmouse->vendor = "OLPC";
-> +               psmouse->name = "PenTablet";
-> +               psmouse->model = 0;
-> +       }
-> +       return 0;
-> +}
-> +
-> diff --git a/drivers/input/mouse/olpc.h b/drivers/input/mouse/olpc.h
-> new file mode 100644
-> index 0000000..49f4e3e
-> --- /dev/null
-> +++ b/drivers/input/mouse/olpc.h
-> @@ -0,0 +1,37 @@
-> +/*
-> + * OLPC touchpad PS/2 mouse driver
-> + *
-> + * Copyright (c) 2006 One Laptop Per Child, inc.
-> + *
-> + * This driver is partly based on the ALPS driver.
-> + * Copyright (c) 2003 Peter Osterlund <petero2@telia.com>
-> + * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +#ifndef _OLPC_H
-> +#define _OLPC_H
-> +
-> +int olpc_detect(struct psmouse *psmouse, int set_properties);
-> +int olpc_init(struct psmouse *psmouse);
-> +
-> +struct olpc_model_info {
-> +        unsigned char signature[3];
-> +        unsigned char byte0, mask0;
-> +        unsigned char flags;
-> +};
-> +
-> +struct olpc_data {
-> +       struct input_dev *dev2;         /* Relative device */
-> +       char name[32];                  /* Name */
-> +       char phys[32];                  /* Phys */
-> +       struct olpc_model_info *i;      /* Info */
-> +       int prev_fin_pt;                /* Finger bit from previous packet */
-> +       int prev_fin_gs;                /* Finger bit from previous packet */
-
-Bad (duplicate) comment?
-
-> +};
-> +
-> +
-> +#endif
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index 8bc9f51..20060b0 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -26,6 +26,7 @@
->  #include "synaptics.h"
->  #include "logips2pp.h"
->  #include "alps.h"
-> +#include "olpc.h"
->  #include "lifebook.h"
->  #include "trackpoint.h"
->
-> @@ -616,6 +617,15 @@ static int psmouse_extensions(struct psm
->  */
->                        max_proto = PSMOUSE_IMEX;
->                }
-> +               ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-> +               if (olpc_detect(psmouse, set_properties) == 0) {
-> +                       if (!set_properties || olpc_init(psmouse) == 0)
-> +                               return PSMOUSE_OLPC;
-> +/*
-> + * Init failed, try basic relative protocols
-> + */
-> +                       max_proto = PSMOUSE_IMEX;
-> +               }
->        }
->
->        if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse, set_properties) == 0)
-> @@ -726,6 +736,13 @@ static struct psmouse_protocol psmouse_p
->                .detect         = trackpoint_detect,
->        },
->        {
-> +               .type           = PSMOUSE_OLPC,
-> +               .name           = "OLPC",
-> +               .alias          = "olpc",
-> +               .maxproto       = 1,
-> +               .detect         = olpc_detect,
-> +       },
-> +       {
->                .type           = PSMOUSE_AUTO,
->                .name           = "auto",
->                .alias          = "any",
-> diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-> index 4d9107f..f3d7199 100644
-> --- a/drivers/input/mouse/psmouse.h
-> +++ b/drivers/input/mouse/psmouse.h
-> @@ -42,7 +42,7 @@ struct psmouse {
->        struct work_struct resync_work;
->        char *vendor;
->        char *name;
-> -       unsigned char packet[8];
-> +       unsigned char packet[9];
->        unsigned char badbyte;
->        unsigned char pktcnt;
->        unsigned char pktsize;
-> @@ -86,6 +86,7 @@ enum psmouse_type {
->        PSMOUSE_ALPS,
->        PSMOUSE_LIFEBOOK,
->        PSMOUSE_TRACKPOINT,
-> +       PSMOUSE_OLPC,
->        PSMOUSE_AUTO            /* This one should always be last */
->  };
->
-> --
->          1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
->           92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
->            CCs of replies from mailing lists are requested.
->
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.5 (GNU/Linux)
->
-> iD8DBQFE8+3TRFMAi+ZaeAERAhiNAJ4t4uF3q9G+bdsGUAYDafNearwMUgCeN0kl
-> se5meohSaoJEMhbRsrxtIOo=
-> =Vd5o
-> -----END PGP SIGNATURE-----
->
->
->
-
-
--- 
-Dmitry

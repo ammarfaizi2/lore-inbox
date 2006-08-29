@@ -1,51 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965397AbWH2VLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965378AbWH2VPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965397AbWH2VLI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 17:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965383AbWH2VLH
+	id S965378AbWH2VPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 17:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965403AbWH2VPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 17:11:07 -0400
-Received: from slackware.com ([64.57.102.34]:61908 "EHLO bob.slackware.com")
-	by vger.kernel.org with ESMTP id S965397AbWH2VLG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 17:11:06 -0400
-Message-ID: <44F4AD1F.7010707@slackware.com>
-Date: Tue, 29 Aug 2006 16:09:51 -0500
-From: "Patrick J. Volkerding" <volkerdi@slackware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Nick Warne <nick@linicks.net>
-CC: Petri Kaukasoina <kaukasoina603mxtg1n@sci.fi>,
-       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
-       wtarreau@hera.kernel.org, gcoady.lk@gmail.com, mtosatti@redhat.com
-Subject: Re: Linux 2.4.33.2
-References: <200608271235.k7RCZlru005427@harpo.it.uu.se> <7c3341450608270750t26f81d02s45e6b05572b0e255@mail.gmail.com> <20060827162828.GA28177@elektroni.phys.tut.fi> <200608271731.36674.nick@linicks.net>
-In-Reply-To: <200608271731.36674.nick@linicks.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 17:15:53 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10398 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965378AbWH2VPv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 17:15:51 -0400
+Date: Tue, 29 Aug 2006 14:15:55 -0700
+From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+To: kraxel@bytesex.org, Andrew Morton <akpm@osdl.org>
+Cc: clg@fr.ibm.com, haveblue@us.ibm.com, serue@us.ibm.com,
+       Containers@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] kthread: saa7134-tvaudio.c
+Message-ID: <20060829211555.GB1945@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Warne wrote:
-> On Sunday 27 August 2006 17:28, Petri Kaukasoina wrote:
->> On Sun, Aug 27, 2006 at 03:50:29PM +0100, Nick Warne wrote:
->>> Good question - all I can find is the slackware package
->> I guess this is what you are looking for:
->>
->> ftp://ftp.slackware.com/pub/slackware/slackware-current/source/l/glibc/glib
->> c.kernelversion.diff.gz
-> 
-> Good god - what a mess...
 
-I agree, even though I'm not sure if you mean the original .h algorithm, 
-my fix, or glibc's system of reducing a Linux kernel version to a single 
-integer for easy comparison, though.
+Replace kernel_thread() with kthread_run() since kernel_thread()
+is deprecated in drivers/modules. 
 
-I'm glad my hack is getting some review.  It's of the "ugly but probably 
-reliable" variety.  More so than if I'd tried to fix the loop below 
-it...  I felt it much safer to just fix the input string to give it 
-those "at most three parts" that it was designed for.
+Note that this driver, like a few others, allows SIGTERM. Not
+sure if that is affected by conversion to kthread. Appreciate
+any comments on that.
 
-All the best,
+Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>
+Cc: Serge Hallyn <serue@us.ibm.com>
+Cc: Containers@lists.osdl.org
+Cc: Gerd Knorr <kraxel@bytesex.org>
 
-Pat
+ drivers/media/video/saa7134/saa7134-tvaudio.c |   33 ++++++++++++--------------
+ drivers/media/video/saa7134/saa7134.h         |    4 ---
+ 2 files changed, 17 insertions(+), 20 deletions(-)
+
+Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134.h
+===================================================================
+--- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134.h	2006-08-29 14:02:44.000000000 -0700
++++ lx26-18-rc5/drivers/media/video/saa7134/saa7134.h	2006-08-29 14:04:21.000000000 -0700
+@@ -311,10 +311,8 @@ struct saa7134_pgtable {
+ 
+ /* tvaudio thread status */
+ struct saa7134_thread {
+-	pid_t                      pid;
+-	struct completion          exit;
++	struct task_struct *       task;
+ 	wait_queue_head_t          wq;
+-	unsigned int               shutdown;
+ 	unsigned int               scan1;
+ 	unsigned int               scan2;
+ 	unsigned int               mode;
+Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c
+===================================================================
+--- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-29 14:02:44.000000000 -0700
++++ lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-29 14:06:24.000000000 -0700
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/smp_lock.h>
++#include <linux/kthread.h>
+ #include <asm/div64.h>
+ 
+ #include "saa7134-reg.h"
+@@ -357,7 +358,7 @@ static int tvaudio_sleep(struct saa7134_
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+ 	add_wait_queue(&dev->thread.wq, &wait);
+-	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
++	if (dev->thread.scan1 == dev->thread.scan2 && !kthread_should_stop()) {
+ 		if (timeout < 0) {
+ 			set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule();
+@@ -525,7 +526,7 @@ static int tvaudio_thread(void *data)
+ 	allow_signal(SIGTERM);
+ 	for (;;) {
+ 		tvaudio_sleep(dev,-1);
+-		if (dev->thread.shutdown || signal_pending(current))
++		if (kthread_should_stop() || signal_pending(current))
+ 			goto done;
+ 
+ 	restart:
+@@ -633,7 +634,7 @@ static int tvaudio_thread(void *data)
+ 		for (;;) {
+ 			if (tvaudio_sleep(dev,5000))
+ 				goto restart;
+-			if (dev->thread.shutdown || signal_pending(current))
++			if (kthread_should_stop() || signal_pending(current))
+ 				break;
+ 			if (UNSET == dev->thread.mode) {
+ 				rx = tvaudio_getstereo(dev,&tvaudio[i]);
+@@ -649,7 +650,6 @@ static int tvaudio_thread(void *data)
+ 	}
+ 
+  done:
+-	complete_and_exit(&dev->thread.exit, 0);
+ 	return 0;
+ }
+ 
+@@ -798,7 +798,6 @@ static int tvaudio_thread_ddep(void *dat
+ 	struct saa7134_dev *dev = data;
+ 	u32 value, norms, clock;
+ 
+-	daemonize("%s", dev->name);
+ 	allow_signal(SIGTERM);
+ 
+ 	clock = saa7134_boards[dev->board].audio_clock;
+@@ -812,7 +811,7 @@ static int tvaudio_thread_ddep(void *dat
+ 
+ 	for (;;) {
+ 		tvaudio_sleep(dev,-1);
+-		if (dev->thread.shutdown || signal_pending(current))
++		if (kthread_should_stop() || signal_pending(current))
+ 			goto done;
+ 
+ 	restart:
+@@ -894,7 +893,6 @@ static int tvaudio_thread_ddep(void *dat
+ 	}
+ 
+  done:
+-	complete_and_exit(&dev->thread.exit, 0);
+ 	return 0;
+ }
+ 
+@@ -1004,15 +1002,16 @@ int saa7134_tvaudio_init2(struct saa7134
+ 		break;
+ 	}
+ 
+-	dev->thread.pid = -1;
++	dev->thread.task = NULL;
+ 	if (my_thread) {
+ 		/* start tvaudio thread */
+ 		init_waitqueue_head(&dev->thread.wq);
+-		init_completion(&dev->thread.exit);
+-		dev->thread.pid = kernel_thread(my_thread,dev,0);
+-		if (dev->thread.pid < 0)
++		dev->thread.task = kthread_run(my_thread,dev,dev->name);
++		if (IS_ERR(dev->thread.task)) {
+ 			printk(KERN_WARNING "%s: kernel_thread() failed\n",
+-			       dev->name);
++			                              dev->name);
++			dev->thread.task = NULL;
++		}
+ 		saa7134_tvaudio_do_scan(dev);
+ 	}
+ 
+@@ -1023,10 +1022,10 @@ int saa7134_tvaudio_init2(struct saa7134
+ int saa7134_tvaudio_fini(struct saa7134_dev *dev)
+ {
+ 	/* shutdown tvaudio thread */
+-	if (dev->thread.pid >= 0) {
+-		dev->thread.shutdown = 1;
+-		wake_up_interruptible(&dev->thread.wq);
+-		wait_for_completion(&dev->thread.exit);
++	if (dev->thread.task) {
++		/* kthread_stop() wakes up the thread */
++		kthread_stop(dev->thread.task);
++		dev->thread.task = NULL;
+ 	}
+ 	saa_andorb(SAA7134_ANALOG_IO_SELECT, 0x07, 0x00); /* LINE1 */
+ 	return 0;
+@@ -1034,7 +1033,7 @@ int saa7134_tvaudio_fini(struct saa7134_
+ 
+ int saa7134_tvaudio_do_scan(struct saa7134_dev *dev)
+ {
+-	if (dev->thread.pid >= 0) {
++	if (dev->thread.task) {
+ 		dev->thread.mode = UNSET;
+ 		dev->thread.scan2++;
+ 		wake_up_interruptible(&dev->thread.wq);

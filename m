@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbWH2Q5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWH2Q7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbWH2Q5u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWH2Q5t
+	id S965153AbWH2Q7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWH2Q7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:57:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25000 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965138AbWH2Q5s (ORCPT
+	Tue, 29 Aug 2006 12:59:51 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:63124 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S965122AbWH2Q7t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:57:48 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0608290926230.18503@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0608290926230.18503@schroedinger.engr.sgi.com>  <20060829162055.GA31159@linux-mips.org> <44F395DE.10804@yahoo.com.au> <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com> <5878.1156868702@warthog.cambridge.redhat.com> 
-To: Christoph Lameter <clameter@sgi.com>
-Cc: David Howells <dhowells@redhat.com>, Ralf Baechle <ralf@linux-mips.org>,
+	Tue, 29 Aug 2006 12:59:49 -0400
+Date: Tue, 29 Aug 2006 18:58:45 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+cc: David Howells <dhowells@redhat.com>, Christoph Lameter <clameter@sgi.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Arjan van de Ven <arjan@infradead.org>,
        Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
        linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent? 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 29 Aug 2006 17:57:36 +0100
-Message-ID: <21013.1156870656@warthog.cambridge.redhat.com>
+Subject: Re: Why Semaphore Hardware-Dependent?
+In-Reply-To: <20060829165352.GA20453@linux-mips.org>
+Message-ID: <Pine.LNX.4.62.0608291858300.3907@pademelon.sonytel.be>
+References: <20060829162055.GA31159@linux-mips.org> <44F395DE.10804@yahoo.com.au>
+ <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
+ <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
+ <5878.1156868702@warthog.cambridge.redhat.com> <20060829165352.GA20453@linux-mips.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> > Some of these have LL/SC or equivalent instead, but ARM5 and before, FRV,
-> > M68K before 68020 to name but a few.
+On Tue, 29 Aug 2006, Ralf Baechle wrote:
+> On Tue, Aug 29, 2006 at 05:25:02PM +0100, David Howells wrote:
 > 
-> This is all pretty ancient hardware, right? And they are mostly single 
-> processor so no need to worry about concurrency. Just disable interrupts.
-
-No, they're not all ancient h/w, and "just disabling interrupts" can be really
-expensive.
-
-> > And anything that implements CMPXCHG with spinlocks is a really bad
-> > candidate for CMPXCHG-based rwsems.
+> > Some of these have LL/SC or equivalent instead, but ARM5 and before, FRV, M68K
+> > before 68020 to name but a few.
 > 
-> Those will optimize out if it is a single processor configuration.
+> 68k before 68020 isn't supported by Linux anyway.
 
-Not necessarily.  Consider preemption.
+uClinux anyone?
 
-David
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

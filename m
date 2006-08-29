@@ -1,128 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWH2Th1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWH2ThJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWH2Th1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWH2ThW
+	id S965114AbWH2ThJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWH2ThI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:37:22 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:48136 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751219AbWH2ThU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:37:20 -0400
-Date: Tue, 29 Aug 2006 15:37:18 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jonathan Corbet <corbet@lwn.net>
-cc: linux-kernel@vger.kernel.org,
-       SCSI development list <linux-scsi@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>
-Subject: [PATCH] export the queue_work wrappers GPL-only
-Message-ID: <Pine.LNX.4.44L0.0608291448380.3753-100000@iolanthe.rowland.org>
+	Tue, 29 Aug 2006 15:37:08 -0400
+Received: from Powered.by.Root24.be ([81.169.180.23]:30948 "EHLO root24.de")
+	by vger.kernel.org with ESMTP id S1751204AbWH2ThG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 15:37:06 -0400
+From: =?iso-8859-1?Q?J=F6rg_Hoffmann?= <jh2000@root24.eu>
+To: <linux-kernel@vger.kernel.org>
+Subject: /proc/net/tcp information drop
+Date: Tue, 29 Aug 2006 21:36:54 +0200
+Organization: Root24
+Message-ID: <000201c6cba2$7c6bae10$2000a8c0@jhnotebook>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+In-Reply-To: <Pine.LNX.4.61.0608292117320.5502@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (as777) fixes an oversight in a couple of earlier patches.  Now 
-the wrapper routines:
+Hello everyone (yes, i´m new at this list, just correct me if i´m wrong),
 
-	queue_work(), queue_delayed_work(), queue_delayed_work_on(),
-	schedule_work(), schedule_delayed_work(), and
-	schedule_delayed_work_on()
+I have some trouble with /proc/net/tcp and tcp6
+I´m not sure if it’s a feature or a bug or maybe some cleanup of the
+cache...
 
-are exported GPL-only, just as the originals used to be.
+A long time After a connection has been established the information about
+the process name and the pid itself gets lost, just a - appears.
+My own network-monitoring tool uses netstat to get some information about
+the network-connections. But without the pid I can't see (I could over a few
+more corners but ... crap) if there are more programs at the same pid or
+even which program it is (maybe an undetected Trojan or just an user with
+more connections then allowed...)
+Here's a link to the netstat output
+http://netstat.root24.eu/netstat.php?dump=1
+And to my connection-statistics (the red colored hosts/ips have no special
+meaning/ just shows unresolved/new connections)
+http://netstat.root24.eu/connmon.php
+Normal there is a Pid and prog name in every line... since the server is
+online for about a month and some connections are even so long you can see
+some 'holes'
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
----
-
-On Tue, 29 Aug 2006, Jonathan Corbet wrote:
-
-> One little thing I just noticed.  The old queue_work() functions were
-> exported GPL-only.  And the new ones are too:
-> 
-> > -EXPORT_SYMBOL_GPL(queue_work);
-> > +EXPORT_SYMBOL_GPL(add_work_to_q);
-> 
-> But the new wrappers are not:
-> 
-> > +EXPORT_SYMBOL(queue_work);
-> 
-> They should probably be exported in the same mode as before.
-
-You're right...  I don't know how I managed to miss that.
-
-> Also, should there be an entry added to
-> Documentation/feature-removal-schedule.txt?
-
-It's a question of whether anyone feels the need to remove the legacy
-routines.
-
-Andrew, if you think that after (say) a year's time those WARN_ON()s no
-longer serve any useful purpose, I could do a big search-and-replace to
-get rid of those old functions entirely.  I assume there's no problem with
-accepting patches that change hundreds of files.
-
-Alan Stern
-
-
-Index: mm/kernel/workqueue.c
-===================================================================
---- mm.orig/kernel/workqueue.c
-+++ mm/kernel/workqueue.c
-@@ -501,7 +501,7 @@ void fastcall queue_work(struct workqueu
- 	rc = add_work_to_q(wq, work);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(queue_work);
-+EXPORT_SYMBOL_GPL(queue_work);
- 
- void fastcall queue_delayed_work(struct workqueue_struct *wq,
- 		struct work_struct *work, unsigned long delay)
-@@ -511,7 +511,7 @@ void fastcall queue_delayed_work(struct 
- 	rc = add_delayed_work_to_q(wq, work, delay);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(queue_delayed_work);
-+EXPORT_SYMBOL_GPL(queue_delayed_work);
- 
- void queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 		struct work_struct *work, unsigned long delay)
-@@ -521,7 +521,7 @@ void queue_delayed_work_on(int cpu, stru
- 	rc = add_delayed_work_to_q_on(cpu, wq, work, delay);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(queue_delayed_work_on);
-+EXPORT_SYMBOL_GPL(queue_delayed_work_on);
- 
- void fastcall schedule_work(struct work_struct *work)
- {
-@@ -530,7 +530,7 @@ void fastcall schedule_work(struct work_
- 	rc = add_work_to_q(keventd_wq, work);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(schedule_work);
-+EXPORT_SYMBOL_GPL(schedule_work);
- 
- void fastcall schedule_delayed_work(struct work_struct *work,
- 		unsigned long delay)
-@@ -540,7 +540,7 @@ void fastcall schedule_delayed_work(stru
- 	rc = add_delayed_work_to_q(keventd_wq, work, delay);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(schedule_delayed_work);
-+EXPORT_SYMBOL_GPL(schedule_delayed_work);
- 
- void schedule_delayed_work_on(int cpu, struct work_struct *work,
- 		unsigned long delay)
-@@ -550,7 +550,7 @@ void schedule_delayed_work_on(int cpu, s
- 	rc = add_delayed_work_to_q_on(cpu, keventd_wq, work, delay);
- 	WARN_ON(rc < 0);
- }
--EXPORT_SYMBOL(schedule_delayed_work_on);
-+EXPORT_SYMBOL_GPL(schedule_delayed_work_on);
- 
- /**
-  * schedule_on_each_cpu - call a function on each online CPU from keventd
+Greetings
+Jörg
 

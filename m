@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbWH2Rcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWH2Rc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbWH2Rcy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 13:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWH2Rcy
+	id S965172AbWH2Rc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWH2Rc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 13:32:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:664 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965168AbWH2Rcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 13:32:53 -0400
-Date: Tue, 29 Aug 2006 10:26:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: eranian@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/18] 2.6.17.9 perfmon2 patch for review: new system
- calls support
-Message-Id: <20060829102627.1fee475b.akpm@osdl.org>
-In-Reply-To: <20060829165957.GN22011@frankl.hpl.hp.com>
-References: <200608230805.k7N85tfm000384@frankl.hpl.hp.com>
-	<20060823151439.a44aa13f.akpm@osdl.org>
-	<20060829165957.GN22011@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 29 Aug 2006 13:32:26 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:60105 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965172AbWH2RcZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 13:32:25 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=Ya6ve/Xw0P0+5VUAx5ry5VynxaSEpH0BtLeQ8o63f7x0SFEfdJStACE632k8lZyOF
+	86kaA94v+GvZusFCHeQsQ==
+Subject: Re: [Devel] Re: BC: resource beancounters (v2)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kir Kolyshkin <kir@openvz.org>, devel@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <1156846535.6271.76.camel@localhost.localdomain>
+References: <44EC31FB.2050002@sw.ru> <20060823100532.459da50a.akpm@osdl.org>
+	 <44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
+	 <20060825203026.A16221@castle.nmd.msu.ru>
+	 <1156558552.24560.23.camel@galaxy.corp.google.com>
+	 <1156610224.3007.284.camel@localhost.localdomain>
+	 <1156783721.8317.6.camel@galaxy.corp.google.com>
+	 <44F32AC7.1090604@openvz.org>
+	 <1156804089.8985.19.camel@galaxy.corp.google.com>
+	 <1156846535.6271.76.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Tue, 29 Aug 2006 10:30:35 -0700
+Message-Id: <1156872635.16595.14.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 09:59:57 -0700
-Stephane Eranian <eranian@hpl.hp.com> wrote:
-
-> > > +
-> > > +		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
-> > > +			task->pid,
-> > > +			task->state,
-> > > +			local_flags);
-> > > +
-> > > +		spin_unlock_irqrestore(&ctx->lock, local_flags);
-> > > +
-> > > +		wait_task_inactive(task);
-> > > +
-> > > +		spin_lock_irqsave(&ctx->lock, new_flags);
-> > 
-> > This sort of thing..
+On Tue, 2006-08-29 at 11:15 +0100, Alan Cox wrote:
+> Ar Llu, 2006-08-28 am 15:28 -0700, ysgrifennodd Rohit Seth:
+> > Though if we have file/directory based accounting then shared pages
+> > belonging to /usr/lib or /usr/bin can go to a common container.
 > 
-> We need to wait until the task is effectively off the CPU, i.e., with its
-> machine state (incl PMU) saved. When we come back we re-run the series of tests.
-> This applies only to per-thread, therefore it is not affected by smp_processor_id().
+> So that one user can map all the spare libraries and config files and
+> DoS the system by preventing people from accessing the libraries they do
+> need ?
 > 
 
-Generally, if a reviewer asks a question and the developer answers that
-question, this is a sign that a code comment is needed.  Because others are
-likely to ask themselves the same question ;)
+Well, there is a risk whenever there is sharing across containers. The
+point though is, give the choice to sysadmin to configure the platform
+the way it is appropriate.
 
-> 
-> ..
->
-> > 
-> > When copying a struct from kernel to userspace we must beware of
-> > compiler-inserted padding.  Because that can cause the kernel to leak
-> > a few bytes of uninitialised kernel memory.
-> 
-> We are copying out exactly the same amount of data that was passed in.
-> 
-> Are you suggesting that copy_from/copy_to may copy more data?
-
-No, that's OK.  I was pointing out the problem in situations like this:
-
-struct foo {
-	u32 a;
-	u64 b;
-};
-
-{
-	struct foo f;
-
-	f.a = 0;
-	f.b = 0;
-	copy_to_user(p, &f, sizeof(f));
-}
-
-which exposes kernel memory.  As you appear to be confident that the
-perfmon code can't do this, all is OK.
-
+-rohit
 

@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWH2Cqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWH2CxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWH2Cqv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 22:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWH2Cqv
+	id S1751049AbWH2CxM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 22:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWH2CxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 22:46:51 -0400
-Received: from mx2.suse.de ([195.135.220.15]:13512 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751076AbWH2Cqu (ORCPT
+	Mon, 28 Aug 2006 22:53:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60882 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751042AbWH2CxM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 22:46:50 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 29 Aug 2006 12:46:44 +1000
+	Mon, 28 Aug 2006 22:53:12 -0400
+Date: Mon, 28 Aug 2006 19:49:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Message-ID: <20060829024901.GA32426@kroah.com>
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <1156803102.3465.34.camel@mulgrave.il.steeleye.com> <20060828230452.GA4393@powerlinux.fr> <44F38BCE.2080108@flower.upol.cz> <1156809344.3465.41.camel@mulgrave.il.steeleye.com> <44F3A355.6090408@flower.upol.cz> <20060829015103.GA28162@kroah.com> <20060829031430.GA9820@flower.upol.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17651.43668.16773.512828@cse.unsw.edu.au>
-Cc: v9fs-developer@lists.sourceforge.net, trond.myklebust@fys.uio.no,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 2] Invalidate_inode_pages2 changes.
-In-Reply-To: message from Andrew Morton on Monday August 28
-References: <20060829111641.18391.patches@notabene>
-	<20060828191408.f6177de4.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060829031430.GA9820@flower.upol.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday August 28, akpm@osdl.org wrote:
-> On Tue, 29 Aug 2006 11:30:15 +1000
-> NeilBrown <neilb@suse.de> wrote:
-> 
-> >  I'm picking up on a conversation that was started in late March
-> >  this year, and which didn't get anywhere much.
-> >  See
-> >    http://lkml.org/lkml/2006/3/31/93
-> >  and following.
-> 
-> Nick's "possible lock_page fix for Andrea's nopage vs invalidate race?"
-> patch (linux-mm) should fix this?
-> 
-> If filemap_nopage() does lock_page(), invalidate_inode_pages2_range() is solid?
+On Tue, Aug 29, 2006 at 05:14:30AM +0200, Oleg Verych wrote:
+> On Mon, Aug 28, 2006 at 06:51:03PM -0700, Greg KH wrote:
+> > On Tue, Aug 29, 2006 at 04:15:49AM +0200, Oleg Verych wrote:
+> > > >>request_firmware() is dead also.
+> > > >>YMMV, but three years, and there are still big chunks of binary in kernel.
+> > > >>And please don't add new useless info _in_ it.
+> > > Hell, what can be as easy as this:
+> > > ,-
+> > > |modprobe $drv
+> > > |(dd </lib/firmware/$drv.bin>/dev/blobs && echo OK) || echo Error
+> > > `-
+> > > where /dev/blobs is similar to /dev/port or even /dev/null char device.
+> > > if synchronization is needed, add `echo $drv >/dev/blobs`, remove modprobe,
+> > 
+> > I don't see such code in the kernel at this time.  So it's not a
+> > solution, sorry.
+> > 
+> I know. return -ENOPATCH
 
-UHmm.... yes.  In that case we can remove lots of stuff from
-invalidate_inode_pages2_range as we can be sure the page won't be
-dirty or in writeback so invalidate_complete_page will be certain to
-succeed. 
+Yes, and that's the only way to make changes in the kernel, sorry.
 
-So if that goes ahead, these become moot.  But until it does, these
-would be nice to have :-)
+> I'm nether a CS nor software engineer, just wondering why simple thing isn't
+> simple _in_ the Kernel. I'm reading list "just for fun (C)" and any good word
+> about this (IMHO) unix-way design *may* lead professional programmers to do
+> tiny worthy things (think about kevent discussion).
+> If it's (i'm) stupid, please, say so (in the way Nicholas Miell did ;).
 
-Also, the patch at
-  http://marc.theaimsgroup.com/?l=linux-mm&m=115443228617576&w=2
-appears not to set 
-  +	.vm_flags	= VM_CAN_INVLD,
-for nfs_fs_vm_operations, but maybe they are a later addition to
-nfs...
+I don't think it's workable, and goes against the current way the kernel
+does things.  But please, feel free to prove me wrong with a patch
+otherwise.  I don't want to debate it otherwise.
 
-Thinks: should I subscribe to linux-mm... only about 100 messages per
-week.... maybe :-)
+I think the current way we handle firmware works quite well, especially
+given the wide range of different devices that it works for (everything
+from BIOS upgrades to different wireless driver stages).
 
-Thanks,
-NeilBrown
+thanks,
+
+greg k-h

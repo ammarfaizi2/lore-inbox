@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWH2PTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWH2PTA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964820AbWH2PTL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWH2PTL
+	id S965018AbWH2PTA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:19:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWH2PTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:19:11 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:35782 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964820AbWH2PTJ
+	Tue, 29 Aug 2006 11:19:00 -0400
+Received: from science.horizon.com ([192.35.100.1]:32312 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S965018AbWH2PTA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:19:09 -0400
-Message-ID: <44F45AE2.6000309@fr.ibm.com>
-Date: Tue, 29 Aug 2006 17:18:58 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: 2.6.18-rc4-mm3
-References: <20060826160922.3324a707.akpm@osdl.org> <20060829153700.309334d6@cad-250-152.norway.atmel.com>
-In-Reply-To: <20060829153700.309334d6@cad-250-152.norway.atmel.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 11:19:00 -0400
+Date: 29 Aug 2006 11:18:56 -0400
+Message-ID: <20060829151856.10441.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux@horizon.com, tytso@mit.edu
+Subject: Re: Linux time code
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org, theotso@us.ibm.com,
+       zippel@linux-m68k.org
+In-Reply-To: <20060829131533.GC31760@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haavard Skinnemoen wrote:
-> On Sat, 26 Aug 2006 16:09:22 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
->> +namespaces-add-nsproxy-move-init_nsproxy-into-kernel-nsproxyc.patch
-> 
-> This causes a multiple definition of init_nsproxy on AVR32. Reverting
-> namespaces-add-nsproxy-avr32-fix.patch fixes it.
+>> The Posix-mandated behaviour *requires* diverging from UTC for some
+>> time period around the leap second.  All you can do is decide how
+>> to schedule the divergence.
 
-Could you try this ?
+> POSIX mandates this for gettimeofday() and CLOCK_REALTIME.  
 
-thanks,
+> However, a conforming implementation, could (either in userspace or in
+> the kernel) provide access to other time bases, include TAI or the
+> proposed UTS time scales.
 
-C.
+The suggestion is to use UTS to implement CLOCK_REALTIME and
+gettimeofday().
 
+Since CLOCK_REALTIME has no specified accuracy bounds, it's a legal
+realization, but UTS provides defined behavior when you have better time
+sync than the 1s uncertainty inherent in the POSIX spec.
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-
----
- arch/avr32/kernel/init_task.c |    2 --
- 1 file changed, 2 deletions(-)
-
-Index: 2.6.18-rc4-mm3/arch/avr32/kernel/init_task.c
-===================================================================
---- 2.6.18-rc4-mm3.orig/arch/avr32/kernel/init_task.c
-+++ 2.6.18-rc4-mm3/arch/avr32/kernel/init_task.c
-@@ -10,7 +10,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
-
- #include <asm/pgtable.h>
-
-@@ -19,7 +18,6 @@ static struct files_struct init_files =
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
-
- EXPORT_SYMBOL(init_mm);
-
+time() is more interesting, since it's so quantized already.  Is it better
+to have a 2-second second, or to keep it in sync with gettimeofday()
+and have 1000 1.001-second seconds?

@@ -1,87 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWH2DoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWH2D5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWH2DoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 23:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWH2DoK
+	id S932130AbWH2D5e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 23:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWH2D5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 23:44:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48071 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751078AbWH2DoI (ORCPT
+	Mon, 28 Aug 2006 23:57:34 -0400
+Received: from xenotime.net ([66.160.160.81]:30118 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932130AbWH2D5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 23:44:08 -0400
-Date: Mon, 28 Aug 2006 20:43:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: v9fs-developer@lists.sourceforge.net, trond.myklebust@fys.uio.no,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 2] Invalidate_inode_pages2 changes.
-Message-Id: <20060828204354.00acafcb.akpm@osdl.org>
-In-Reply-To: <17651.43668.16773.512828@cse.unsw.edu.au>
-References: <20060829111641.18391.patches@notabene>
-	<20060828191408.f6177de4.akpm@osdl.org>
-	<17651.43668.16773.512828@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 28 Aug 2006 23:57:33 -0400
+Date: Mon, 28 Aug 2006 21:00:53 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Lee Trager <Lee@PicturesInMotion.net>
+Cc: Jens Axboe <axboe@kernel.dk>, Pavel Machek <pavel@ucw.cz>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, seife@suse.de
+Subject: Re: HPA Resume patch
+Message-Id: <20060828210053.f0b58058.rdunlap@xenotime.net>
+In-Reply-To: <44F3A30A.3090509@PicturesInMotion.net>
+References: <44F15ADB.5040609@PicturesInMotion.net>
+	<20060827150608.GA4534@ucw.cz>
+	<20060827170501.GD30609@kernel.dk>
+	<44F3A30A.3090509@PicturesInMotion.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 12:46:44 +1000
-Neil Brown <neilb@suse.de> wrote:
+On Mon, 28 Aug 2006 22:14:34 -0400 Lee Trager wrote:
 
-> On Monday August 28, akpm@osdl.org wrote:
-> > On Tue, 29 Aug 2006 11:30:15 +1000
-> > NeilBrown <neilb@suse.de> wrote:
-> > 
-> > >  I'm picking up on a conversation that was started in late March
-> > >  this year, and which didn't get anywhere much.
-> > >  See
-> > >    http://lkml.org/lkml/2006/3/31/93
-> > >  and following.
-> > 
-> > Nick's "possible lock_page fix for Andrea's nopage vs invalidate race?"
-> > patch (linux-mm) should fix this?
-> > 
-> > If filemap_nopage() does lock_page(), invalidate_inode_pages2_range() is solid?
+> Jens Axboe wrote:
+> > On Sun, Aug 27 2006, Pavel Machek wrote:
+> >   
+> >> Hi!
+> >>
+> >>     
+> >>> This patch fixes a problem with computers that have HPA on their hard
+> >>> drive and not being able to come out of resume from RAM or disk. I've
+> >>> tested this patch on 2.6.17.x and 2.6.18-rc4 and it works great on both
+> >>> of these. This patch also fixes the bug #6840. This is my first patch to
+> >>> the kernel and I was told to e-mail the above people to get my patch
+> >>> into the kernel.
+> >>>       
+> >> Congratulations for a first patch.
+> >>
+> >>     
+> >>> If I made a mistake please be gentle and correct me ;)
+> >>>       
+> >> We'll need signed-off-by: line next time.
+> >>
+> >> Stefan, can we get this some testing? Or anyone else with thinkpad
+> >> with host-protected area still enabled?
+> >>     
+> >
+> > It has design issues, at someone else already noticed. hpa restore needs
+> > to be a driver private step, included in the resume state machine. The
+> > current patch is a gross layering violation.
+> >
+> > But thanks to Lee for taking a stab at this, I hope he'll continue and
+> > get it polished :-)
+> >
+> >   
+> Ok I redid the patch following exactly what Sergey and Randy said. This
+> problem happens on any computer that has HPA on their drive when they
+> come back from resume so I don't think you have to only test this with
+> Thinkpad users. Anyway my only question is how to I get my patched
+> signed off by someone?
+
+You do that :) after you read Documentation/SubmittingPatches and can "sign off"
+on the patch.
+
+
+> Thanks for all your help!
 > 
-> UHmm.... yes.  In that case we can remove lots of stuff from
-> invalidate_inode_pages2_range as we can be sure the page won't be
-> dirty or in writeback so invalidate_complete_page will be certain to
-> succeed. 
+> --- linux-2.6.18-rc4-old/include/linux/ide.h	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/include/linux/ide.h	2006-08-28 05:45:06.000000000 -0400
+> @@ -987,6 +987,7 @@ typedef struct ide_driver_s {
+>  	int		(*probe)(ide_drive_t *);
+>  	void		(*remove)(ide_drive_t *);
+>  	void		(*shutdown)(ide_drive_t *);
+> +	void		(*resume)(ide_drive_t *);
+>  } ide_driver_t;
+>  
+>  #define to_ide_driver(drv) container_of(drv, ide_driver_t, gen_driver)
+> --- linux-2.6.18-rc4-old/drivers/ide/ide.c	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/drivers/ide/ide.c	2006-08-28 21:38:50.000000000 -0400
+> @@ -1229,9 +1229,11 @@ static int generic_ide_suspend(struct de
+>  static int generic_ide_resume(struct device *dev)
+>  {
+>  	ide_drive_t *drive = dev->driver_data;
+> +	ide_driver_t *drv = to_ide_driver(dev->driver);
+>  	struct request rq;
+>  	struct request_pm_state rqpm;
+>  	ide_task_t args;
+> +	int err;
+>  
+>  	memset(&rq, 0, sizeof(rq));
+>  	memset(&rqpm, 0, sizeof(rqpm));
+> @@ -1242,7 +1244,12 @@ static int generic_ide_resume(struct dev
+>  	rqpm.pm_step = ide_pm_state_start_resume;
+>  	rqpm.pm_state = PM_EVENT_ON;
+>  
+> -	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
+> +	err = ide_do_drive_cmd(drive, &rq, ide_head_wait);
+> +
+> +	if (err == 0 && drv->resume)
+> +		drv->resume(drive);
+> +
+> +	return err;
+>  }
+>  
+>  int generic_ide_ioctl(ide_drive_t *drive, struct file *file, struct block_device *bdev,
+> --- linux-2.6.18-rc4-old/drivers/ide/ide-disk.c	2006-08-19 03:49:03.000000000 -0400
+> +++ linux-2.6.18-rc4/drivers/ide/ide-disk.c	2006-08-28 21:54:17.000000000 -0400
+> @@ -1024,6 +1024,17 @@ static void ide_disk_release(struct kref
+>  
+>  static int ide_disk_probe(ide_drive_t *drive);
+>  
+> +/*
+> + * On HPA drives the capacity needs to be
+> + * reinitilized on resume otherwise the disk
+> + * can not be used and a hard reset is required
+> + */
+> +static void ide_disk_resume(ide_drive_t *drive)
+> +{
+> +	if (idedisk_supports_hpa(drive->id))
+> +		init_idedisk_capacity(drive);
+> +}
+> +
+>  static void ide_device_shutdown(ide_drive_t *drive)
+>  {
+>  #ifdef	CONFIG_ALPHA
+> @@ -1067,6 +1078,7 @@ static ide_driver_t idedisk_driver = {
+>  	.error			= __ide_error,
+>  	.abort			= __ide_abort,
+>  	.proc			= idedisk_proc,
+> +	.resume			= ide_disk_resume,
+>  };
+>  
+>  static int idedisk_open(struct inode *inode, struct file *filp)
 
-I'm not sure we can remove much from invalidate_inode_pages2_range(). 
-After lock_page() returns the page can be under writeback, so the
-wait_on_page_writeback() is appropriate.  After the page has been unmapped
-from pagetables it could have been be redirtied.
 
-Perhaps the while() loop is no longer necessary - nobody else will be
-mapping this locked page into pagetables.
-
-> So if that goes ahead, these become moot.  But until it does, these
-> would be nice to have :-)
-
-I guess we need to repair Nick's broken wing.
-
-> Also, the patch at
->   http://marc.theaimsgroup.com/?l=linux-mm&m=115443228617576&w=2
-> appears not to set 
->   +	.vm_flags	= VM_CAN_INVLD,
-> for nfs_fs_vm_operations, but maybe they are a later addition to
-> nfs...
-
-I'm hoping all that stuff can go away.  Instead, change do_page_fault to
-declare a new `struct page_fault_args' thing and pass that all the way up
-and down the pagefault path.  Then, ->nopage implementations can simply set
-page_fault_args.i_locked_the_page, to be examined at higher levels.
-
-page_fault_args can also be used to tell do_no_page() to rerun the fault,
-which would be needed if we want to stop holding down_read(mmap_sem) while
-doing synchronous disk reads.
-
-It'd be a fairly big-but-simple patch though.
-
-> Thinks: should I subscribe to linux-mm... only about 100 messages per
-> week.... maybe :-)
-
-And no spam!
+---
+~Randy

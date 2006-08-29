@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWH2Px0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWH2P5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWH2Px0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWH2Px0
+	id S965042AbWH2P5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWH2P5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:53:26 -0400
-Received: from natlemon.rzone.de ([81.169.145.170]:13006 "EHLO
-	natlemon.rzone.de") by vger.kernel.org with ESMTP id S965036AbWH2PxZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:53:25 -0400
-Date: Tue, 29 Aug 2006 17:52:16 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org
-Subject: Re: Linux v2.6.18-rc5
-Message-ID: <20060829155216.GA25861@aepfle.de>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060829115537.GA24256@aepfle.de> <20060829130629.GW11309@localdomain>
+	Tue, 29 Aug 2006 11:57:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13448 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965042AbWH2P5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 11:57:10 -0400
+Date: Tue, 29 Aug 2006 08:56:36 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: David Howells <dhowells@redhat.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent? 
+In-Reply-To: <11861.1156845927@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
+References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
+ <1156750249.3034.155.camel@laptopd505.fenrus.org> 
+ <11861.1156845927@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060829130629.GW11309@localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, Nathan Lynch wrote:
+On Tue, 29 Aug 2006, David Howells wrote:
 
-> Hi Olaf-
-> 
-> Olaf Hering wrote:
-> > On Sun, Aug 27, Linus Torvalds wrote:
-> > 
-> > > Pls test it out, and please remind all the appropriate people about any 
-> > > regressions you find (including any found earlier if they haven't been 
-> > > addressed yet).
-> > 
-> > > Nathan Lynch:
-> > >       [POWERPC] Fix gettimeofday inaccuracies
-> > 
-> > Tested on B&W G3, iBook1 and a G4/466.
-> > This patch causes deadlocks on ppc32, but not on ppc64. Have to verify
-> > it on a vanilla kernel, but I'm sure there are no funky patches in
-> > openSuSE.
-> > 
-> > https://bugzilla.novell.com/show_bug.cgi?id=202146
-> 
-> Sorry about that, does this (a partial revert of the change) fix it
-> for you?
+> Because i386 (and x86_64) can do better by using XADDL/XADDQ.
 
-Yes, it works ok with this change.
+And Ia64 would like to use fetchadd....
 
+> CMPXCHG is not available on all archs, and may not be implemented on all archs
+> through other atomic instructions.
+
+Which arches do not support cmpxchg?
+ 

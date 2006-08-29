@@ -1,103 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWH2RIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWH2RHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbWH2RIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 13:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWH2RIY
+	id S965123AbWH2RHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWH2RHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 13:08:24 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:33763 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965158AbWH2RIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 13:08:23 -0400
-Message-ID: <44F4749D.9050403@in.ibm.com>
-Date: Tue, 29 Aug 2006 22:38:45 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Rohit Seth <rohitseth@google.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [PATCH] BC: resource beancounters (v2)
-References: <44EC31FB.2050002@sw.ru>	<20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org> <44F45ED7.3050708@sw.ru>
-In-Reply-To: <44F45ED7.3050708@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Aug 2006 13:07:12 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:56019 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S965123AbWH2RHL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 13:07:11 -0400
+Message-Id: <200608291706.k7TH6ukf003997@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       vnuorval@tcs.hut.fi, davem@davemloft.net
+Subject: Re: 2.6.18-rc4-mm3: BUG: warning at include/net/dst.h:154/dst_release()
+In-Reply-To: Your message of "Tue, 29 Aug 2006 18:19:36 -0000."
+             <20060829181936.GB1633@slug>
+From: Valdis.Kletnieks@vt.edu
+References: <200608291425.k7TEP7XR004029@turing-police.cc.vt.edu>
+            <20060829181936.GB1633@slug>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1156871215_3428P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 29 Aug 2006 13:06:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> ------------- cut ----------------
->>> The task of limiting a container to 4.5GB of memory bottles down to the
->>> question: what to do when the container starts to use more than assigned
->>> 4.5GB of memory?
->>>
->>> At this moment there are only 3 viable alternatives.
->>>
->>> A) Have separate memory management for each container,
->>>   with separate buddy allocator, lru lists, page replacement mechanism.
->>>   That implies a considerable overhead, and the main challenge there
->>>   is sharing of pages between these separate memory managers.
->>>
->>> B) Return errors on extension of mappings, but not on page faults, where
->>>   memory is actually consumed.
->>>   In this case it makes sense to take into account not only the size 
->>> of used
->>>   memory, but the size of created mappings as well.
->>>   This is approximately what "privvmpages" accounting/limiting 
->>> provides in
->>>   UBC.
->>>
->>> C) Rely on OOM killer.
->>>   This is a fall-back method in UBC, for the case "privvmpages" limits
->>>   still leave the possibility to overload the system.
->>>
->>
->>
->> D) Virtual scan of mm's in the over-limit container
->>
->> E) Modify existing physical scanner to be able to skip pages which
->>    belong to not-over-limit containers.
->>
->> F) Something else ;)
-> We fully agree that other possible algorithms can and should exist.
-> My idea only is that any of them would need accounting anyway
-> (which is the most part of beancounters).
-> Throtling, modified scanners etc. can be implemented as a separate
-> BC parameters. Thus, an administrator will be able to select
-> which policy should be applied to the container which is near its limit.
+--==_Exmh_1156871215_3428P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 29 Aug 2006 18:19:36 -0000, Frederik Deweerdt said:
+> On Tue, Aug 29, 2006 at 10:25:07AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > Seeing this a lot on 2.6.18-rc4-mm3 with 2 different stack tracebacks
+> > (one for received packets, other for sending).  I already picked up the
+> > fix for the ^ / confusion in fib_rules.c and that didn't help matters.
+> > 
+> Hi,
 > 
-> So the patches I'm trying to send are a step-by-step accounting of all
-> the resources and their simple limitations. More comprehensive limitation
-> policy will be built on top of it later.
-> 
+> I'm not familiary with net code, but willing to help :). It looks like
+> the fib6_rule_lookup function is increasing dst.__refcnt in one code
+> path and not the other. Does the (untested) attached patch help?
 
-One of the issues I see is that bean counters are not very flexible. Tasks 
-cannot change bean counters dynamically after fork()/exec() that is - can they?
+Not taking a ref it should is probably a bug, but it doesn't fix the
+problem I'm seeing, sorry....
 
+--==_Exmh_1156871215_3428P
+Content-Type: application/pgp-signature
 
-> BTW, UBC page beancounters allow to distinguish pages used by only one
-> container and pages which are shared. So scanner can try to reclaim
-> container private pages first, thus not influencing other containers.
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-But can you select the specific container for which we intend to scan pages?
+iD8DBQFE9HQvcC3lWbTT17ARAlZwAKDW4c5cQ1zOe6mALHsX3JEHGFNFPACeJ3Oq
+tPp6nqwhmR0UcifdhG9LzhM=
+=cx+M
+-----END PGP SIGNATURE-----
 
-> Thanks,
-> Kirill
-> 
-
--- 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+--==_Exmh_1156871215_3428P--

@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWH2JQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWH2JQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWH2JQC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWH2JQB
+	id S932244AbWH2JQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWH2JQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:16:01 -0400
-Received: from szamitogep.hu ([62.77.196.4]:25007 "EHLO www.szamitogep.hu")
-	by vger.kernel.org with ESMTP id S932224AbWH2JQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:16:00 -0400
-Message-ID: <4830.213.163.11.81.1156842958.squirrel@www.dunaweb.hu>
-In-Reply-To: <44F400EA.5020506@aitel.hist.no>
-References: <3557.213.163.11.81.1156838596.squirrel@www.dunaweb.hu>
-    <44F400EA.5020506@aitel.hist.no>
-Date: Tue, 29 Aug 2006 11:15:58 +0200 (CEST)
-Subject: Re: How to determine whether a file was opened O_DIRECT?
-From: =?iso-8859-2?Q?B=F6sz=F6rm=E9nyi_Zolt=E1n?= <zboszor@dunaweb.hu>
-To: "Helge Hafting" <helge.hafting@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.5
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 29 Aug 2006 05:16:14 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48329
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932226AbWH2JQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:16:13 -0400
+Date: Tue, 29 Aug 2006 02:15:46 -0700 (PDT)
+Message-Id: <20060829.021546.85419569.davem@davemloft.net>
+To: mita@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kaber@trash.net,
+       akpm@osdl.org
+Subject: Re: call panic if nl_table allocation fails
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060823113740.GA7834@miraclelinux.com>
+References: <20060823113740.GA7834@miraclelinux.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Böszörményi Zoltán wrote:
->> Hi,
->>
->> I would like to run some diagnostics on a database
->> process and I would like to know what flags it used
->> for opening its files. Is there any way to get this info?
->>
->> Thanks in advance,
->> Zoltán Böszörményi
->>
-> 1. Look at the source code for the database - if you have it.
+From: Akinobu Mita <mita@miraclelinux.com>
+Date: Wed, 23 Aug 2006 20:37:40 +0900
 
-Unfortunately not.
+> This patch makes crash happen if initialization of nl_table fails
+> in initcalls. It is better than getting use after free crash later.
+> 
+> Cc: Patrick McHardy <kaber@trash.net>
+> Cc: David Miller <davem@davemloft.net>
+> Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-> 2. Run your database under strace, then search the voluminous
->     output for "open" calls and look at the flags.
-
-I can't do that, it's a production machine. But ...
-
-> 3. Patch your kernel to "printk" information whenever
->     someone opens with O_DIRECT.
-
-... this should have been obvious. :-) Thanks.
-
-I just thought a command like fuser
-may already exists to give me this info.
-Or something under /proc/PID/fd.
-
->
-> Helge Hafting
->
-
+Patch applied, thank you.

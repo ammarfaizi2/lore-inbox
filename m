@@ -1,30 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWH2Kky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWH2KnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWH2Kky (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 06:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWH2Kky
+	id S932260AbWH2KnT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 06:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWH2KnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 06:40:54 -0400
-Received: from spock.bluecherry.net ([66.138.159.248]:25781 "EHLO
+	Tue, 29 Aug 2006 06:43:18 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:36277 "EHLO
 	spock.bluecherry.net") by vger.kernel.org with ESMTP
-	id S932254AbWH2Kkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 06:40:53 -0400
-Date: Tue, 29 Aug 2006 06:40:49 -0400
+	id S932260AbWH2KnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 06:43:18 -0400
+Date: Tue, 29 Aug 2006 06:43:15 -0400
 From: "Zephaniah E. Hull" <warp@aehallh.com>
-To: Komal Shah <komal_shah802003@yahoo.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [RPC] OLPC tablet input driver.
-Message-ID: <20060829104049.GB4181@aehallh.com>
-Mail-Followup-To: Komal Shah <komal_shah802003@yahoo.com>,
-	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <mtosatti@redhat.com>
-References: <20060829073339.GA4181@aehallh.com> <20060829085537.22755.qmail@web37903.mail.mud.yahoo.com>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: SDRAM or DDRAM in linux
+Message-ID: <20060829104315.GB4187@aehallh.com>
+Mail-Followup-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+	Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
+References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com> <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com> <20060829080024.GA917@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
+	protocol="application/pgp-signature"; boundary="VrqPEDrXMn8OVzN4"
 Content-Disposition: inline
-In-Reply-To: <20060829085537.22755.qmail@web37903.mail.mud.yahoo.com>
+In-Reply-To: <20060829080024.GA917@rhlx01.fht-esslingen.de>
 X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
 X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
 X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
@@ -34,84 +32,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hHWLQfXTYDoKhP50
+--VrqPEDrXMn8OVzN4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Aug 29, 2006 at 01:55:37AM -0700, Komal Shah wrote:
-> --- "Zephaniah E. Hull" <warp@aehallh.com> wrote:
-> 
+On Tue, Aug 29, 2006 at 10:00:24AM +0200, Andreas Mohr wrote:
+> > 2) Can both SDRAM and DDRAM be present at a time in the same
+> > motherboard. I mean can i have 256MB of SDRAM chip and a 256 MB of
+> > DDRAM on the same motherboard.
 > > 
-> > 
-> > That said, here the patch is for comments.
-> > (And possibly for the OLPC kernel tree for others with samples to
-> > play
-> > with.)
-> > 
-> > 
-> > Signed-off-by: Zephaniah E. Hull <warp@aehallh.com>
-> > 
-> > diff --git a/drivers/input/mouse/Makefile
-> > b/drivers/input/mouse/Makefile
-> > index 21a1de6..6218e5a 100644
-> > --- a/drivers/input/mouse/Makefile
-> > +++ b/drivers/input/mouse/Makefile
-> > @@ -14,4 +14,4 @@ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
-> >  obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
-> >  obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
-> >  
-> > -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> > lifebook.o trackpoint.o
-> > +psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> > lifebook.o trackpoint.o olpc.o
+> > If yes what are the conditions.
 > 
-> Where is KConfigurable entry ?
+> Yes, iff the board has both DDRAM and SDRAM slots (ECS K7S5A comes to mind,
+> most popularly).
 
-It is a component of psmouse.o, which is a few lines up.
+Er, I owned a K7S5A, and as best as I can remember the manual was pretty
+explicit that you could have one, or the other, but _not_ both at the
+same time. :)
 
-Breaking out the components of psmouse.o into separate configuration
-items might be interesting, but it is quite a bit beyond the scope of
-this patch.
-> 
-> > diff --git a/drivers/input/mouse/olpc.c b/drivers/input/mouse/olpc.c
-> > new file mode 100644
-> > index 0000000..245f29e
-> > --- /dev/null
-> > +++ b/drivers/input/mouse/olpc.c
-> > @@ -0,0 +1,327 @@
-> 
-> 
-> > +/*
-> > + * OLPC touchpad PS/2 mouse driver
-> > + *
-> > +int olpc_init(struct psmouse *psmouse)
-> > +{
-> > +	struct olpc_data *priv;
-> > +	struct input_dev *dev = psmouse->dev;
-> > +	struct input_dev *dev2;
-> > +
-> > +	psmouse->private = priv = kzalloc(sizeof(struct olpc_data),
-> > GFP_KERNEL);
-> 
-> I think you should assign priv to private only if !NULL.
-
-Fixed.
-
-It should not actually matter, as a failure to get a !NULL value causes
-us to return false, which will fall over to other psmouse drivers which
-will either set it themselves, or not use it at all, however.
-
-It should be noted that alps.c contains the same issue.
-
-> > +	input_register_device(priv->dev2);
-> 
-> Please check the return value of input_register_device and its friends.
-
-Alright, added to my todo, should have it done by the next patch
-revision.
-
-
-Thank you very much.
+Regards.
 Zephaniah E. Hull.
 
 -- 
@@ -119,10 +58,10 @@ Zephaniah E. Hull.
 	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
 	    CCs of replies from mailing lists are requested.
 
-"And now, little kittens, we're going to run across red-hot
-motherboards, with our bare feet." -- Buzh.
+Perl == Being
+  -- Descartes (paraphrased).
 
---hHWLQfXTYDoKhP50
+--VrqPEDrXMn8OVzN4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -130,9 +69,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQFE9BmxRFMAi+ZaeAERAq1WAJ93EqSaqf4309qyO9PnKaUSFxxV0ACgvlbA
-7xggqCPqzIcaj1dZEK13k6I=
-=tBVo
+iD8DBQFE9BpDRFMAi+ZaeAERAkSqAKCq8m3ayVhupvJENmn1nwIdfKsg0QCfRf7w
+6Cmd7w20iv8q0ATTls+nSz8=
+=Uqz2
 -----END PGP SIGNATURE-----
 
---hHWLQfXTYDoKhP50--
+--VrqPEDrXMn8OVzN4--

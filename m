@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWH2TW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWH2TXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbWH2TW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbWH2TW0
+	id S965063AbWH2TXR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWH2TXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:22:26 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:63373 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S965060AbWH2TWZ (ORCPT
+	Tue, 29 Aug 2006 15:23:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:6887 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965063AbWH2TXP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:22:25 -0400
-Date: Tue, 29 Aug 2006 21:21:25 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: Drop cache has no effect?
-In-Reply-To: <20060829110048.20e23e75.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0608292117320.5502@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
- <20060829110048.20e23e75.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 29 Aug 2006 15:23:15 -0400
+Subject: Re: Linux time code
+From: john stultz <johnstul@us.ibm.com>
+To: linux@horizon.com
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org, theotso@us.ibm.com
+In-Reply-To: <20060829032829.28776.qmail@science.horizon.com>
+References: <20060829032829.28776.qmail@science.horizon.com>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 12:23:05 -0700
+Message-Id: <1156879386.7748.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Hello,
->> 
->> recently I picked up knowledge of /proc/sys/vm/drop_caches 
->> (http://lkml.org/lkml/2006/8/4/95)
->> 
->> It does not always work right away:
->> 
->> (/U is a vfat, that is, permissions are back to 755 as soon as the caches 
->> are gone)
->> 14:51 gwdg-wb04A:/U # chmod 644 *
->> 14:51 gwdg-wb04A:/U # sync
->> 14:51 gwdg-wb04A:/U # echo 2 >/proc/sys/vm/drop_caches 
->> 14:51 gwdg-wb04A:/U # l
->> total 50713
->> drwxr-xr-x   3 jengelh users     2048 2006-08-29 14:48 .
->> drwxr-xr-x  22 root    root      4096 2006-08-25 14:00 ..
->> drw-r--r--   2 jengelh users     2048 2006-08-29 13:55 as
->> -rw-r--r--   1 jengelh users 13806629 2006-08-29 14:00 all-20060611.tar.bz2
->> -rw-r--r--   1 jengelh users 37816633 2006-07-28 19:25 
->> inkscape-0.44-2.guru.suse101.i686.rpm
->> -rw-r--r--   1 jengelh users   297243 2006-08-15 01:13 
->> vmware-any-any-update104.tar.gz
->> 
->> Remains 644.
->
->That would be a vfat problem - the changed permission bits weren't written
->back to disk, so when you re-read them from disk (or, more likely, from
->blockdev pagecache) they came back with the original values.
+On Mon, 2006-08-28 at 23:28 -0400, linux@horizon.com wrote:
+> > With the new clocksource code, we can (currently just i386, but the
+> > architecture is generic and I'm working on the other arches) make use of
+> > continuous clocksources for accumulating time instead of having the deal
+> > with the problematic PIT (as well as the lost ticks issue).
+> 
+> If it's there, it's great, but what about i386EX embedded boards and
+> the like?
 
-Yes, that's _intended_.
+The PIT clocksource is available for those situations, but is one of the
+lowest rated clocksources, so anything else will be used if its
+available.
 
-Fact:
-If you chmod 644 some files on vfat, then unmount and mount it again, they show
-up as 755 again. That is ok.
+>   It's approximately manageable on uniprocessor, but can
+> I be sure there's always something (what?) better than the PIT on
+> *every* SMP system?
 
-Observation:
-Dropping the cache does not imply the 644->755 change observed on unmount.
-
-Conclusion:
-Caches not dropped.
+Yea. With the exception of NUMAQ almost every i386 SMP system either can
+use the TSC or has an alternative clocksource (acpi pm, hpet, cyclone).
 
 
->Does vfat even have the ability to store the seven bits?  Don't think so? 
->If not, permitting the user to change them in icache but not being to write
->them out to permanent store seems rather bad behaviour.
+> I need to study what you've done and see how to use it.
 
-It is, I think, for compat reasons. Who knows how many apps don't expect chmod
-to fail when they know you are the owner.
+Let me know if you have any questions or thoughts about it.
+
+thanks
+-john
 
 
-
-thanks,
-Jan Engelhardt
--- 

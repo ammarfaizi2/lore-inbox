@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWH2HOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWH2HQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWH2HOt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 03:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWH2HOs
+	id S1751113AbWH2HQF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 03:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWH2HQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 03:14:48 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:12747 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S932154AbWH2HOr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 03:14:47 -0400
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCODE
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] unusual device Sony Ericsson M600i
-Date: Tue, 29 Aug 2006 09:13:13 +0200
-User-Agent: KMail/1.9.3
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608290913.13875.rene@exactcode.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, the Sony Ericsson M600i needs some overwrites to be
-	accessed properly: --- git/drivers/usb/storage/unusual_devs.h.vanilla
-	2006-08-29 09:02:39.000000000 +0200 +++
-	git/drivers/usb/storage/unusual_devs.h 2006-08-29 09:03:22.000000000
-	+0200 @@ -1257,6 +1257,13 @@ US_SC_DEVICE, US_PR_DEVICE, NULL,
-	US_FL_NO_WP_DETECT ), [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Tue, 29 Aug 2006 03:16:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63151 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932156AbWH2HQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 03:16:02 -0400
+Date: Tue, 29 Aug 2006 00:15:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nathanl@austin.ibm.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       ntl@pobox.com, y-goto@jp.fujitsu.com, anton@samba.org,
+       haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH] cpuset: hotunplug cpus and mems in all cpusets
+Message-Id: <20060829001512.36839323.pj@sgi.com>
+In-Reply-To: <20060828231917.6f4bb9af.akpm@osdl.org>
+References: <20060829060824.6621.28300.sendpatchset@jackhammer.engr.sgi.com>
+	<20060828231917.6f4bb9af.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew wrote:
+> Did you consider failing the hotremove request instead?
 
-the Sony Ericsson M600i needs some overwrites to be accessed properly:
+Eh ... we'd end up with another complaint from the hotplug
+folks, in another year, when some obscure constraint on
+nested cpusets thwarted their efforts to unplug something.
 
---- git/drivers/usb/storage/unusual_devs.h.vanilla	2006-08-29 09:02:39.000000000 +0200
-+++ git/drivers/usb/storage/unusual_devs.h	2006-08-29 09:03:22.000000000 +0200
-@@ -1257,6 +1257,13 @@
- 		US_SC_DEVICE, US_PR_DEVICE, NULL,
- 		US_FL_NO_WP_DETECT ),
- 
-+/* Reported by Rene Rebe <rene@exactcode.de> */
-+UNUSUAL_DEV(  0x0fce, 0xe031, 0x0000, 0xffff,
-+		"Sony Ericsson Mobile Communications",
-+		"M600i",
-+		US_SC_DEVICE, US_PR_DEVICE, NULL,
-+		US_FL_IGNORE_RESIDUE | US_FL_FIX_CAPACITY ),
-+
- /* Reported by Kevin Cernekee <kpc-usbdev@gelato.uiuc.edu>
-  * Tested on hardware version 1.10.
-  * Entry is needed only for the initializer function override.
+It's best if cpusets just deals with it somehow, and doesn't
+complain about the comings and goings of hardware.
 
-Best regards,
+At least, that's my take on it ...
 
 -- 
-René Rebe - ExactCODE - Berlin (Europe / Germany)
-            http://exactcode.de | http://t2-project.org | http://rene.rebe.name
-            +49 (0)30 / 255 897 45
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

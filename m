@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWH2Pmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWH2Prg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWH2Pmf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWH2Pmf
+	id S965038AbWH2Prg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWH2Prf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:42:35 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:9964 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S965034AbWH2Pme (ORCPT
+	Tue, 29 Aug 2006 11:47:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34772 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964875AbWH2Pre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:42:34 -0400
-Date: Tue, 29 Aug 2006 17:42:35 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: 2.6.18-rc4-mm3
-Message-ID: <20060829174235.2da4368b@cad-250-152.norway.atmel.com>
-In-Reply-To: <44F45AE2.6000309@fr.ibm.com>
-References: <20060826160922.3324a707.akpm@osdl.org>
-	<20060829153700.309334d6@cad-250-152.norway.atmel.com>
-	<44F45AE2.6000309@fr.ibm.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Tue, 29 Aug 2006 11:47:34 -0400
+Date: Tue, 29 Aug 2006 08:47:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Richard Knutsson <ricknu-0@student.ltu.se>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+Message-Id: <20060829084714.9ae799a7.akpm@osdl.org>
+In-Reply-To: <20060829114502.GD4076@infradead.org>
+References: <44EFBEFA.2010707@student.ltu.se>
+	<20060828093202.GC8980@infradead.org>
+	<20060828171804.09c01846.akpm@osdl.org>
+	<20060829114502.GD4076@infradead.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 17:18:58 +0200
-Cedric Le Goater <clg@fr.ibm.com> wrote:
+On Tue, 29 Aug 2006 12:45:02 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-> Haavard Skinnemoen wrote:
-> > On Sat, 26 Aug 2006 16:09:22 -0700
-> > Andrew Morton <akpm@osdl.org> wrote:
+> On Mon, Aug 28, 2006 at 05:18:04PM -0700, Andrew Morton wrote:
+> > At present we have >50 different definitions of TRUE and gawd knows how
+> > many private implementations of various flavours of bool.
 > > 
-> >> +namespaces-add-nsproxy-move-init_nsproxy-into-kernel-nsproxyc.patch
+> > In that context, Richard's approach of giving the kernel a single
+> > implementation of bool/true/false and then converting things over to use it
+> > makes sense.  The other approach would be to go through and nuke the lot,
+> > convert them to open-coded 0/1.
 > > 
-> > This causes a multiple definition of init_nsproxy on AVR32.
-> > Reverting namespaces-add-nsproxy-avr32-fix.patch fixes it.
+> > I'm not particularly fussed either way, really.  But the present situation
+> > is nuts.
 > 
-> Could you try this ?
+> Let's start to kill all those utterly silly if (x == true) and if (x == false)
+> into if (x) and if (!x) and pospone the type decision.  Adding a bool type
+> only makes sense if we have any kind of static typechecking that no one
+> ever assign an invalid type to it.
 
-Yes, this works fine. This does in fact revert
-namespaces-add-nsproxy-avr32-fix.patch, so it would work equally well
-to just drop that patch.
-
-Thanks,
-
-Haavard
+Not really.  bool/true/false have readability advantages over int/1/0.

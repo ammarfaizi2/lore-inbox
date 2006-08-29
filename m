@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWH2IqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWH2Itk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWH2IqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWH2IqT
+	id S932144AbWH2Itk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWH2Itk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:46:19 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:4185 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750834AbWH2IqT (ORCPT
+	Tue, 29 Aug 2006 04:49:40 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:15593 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750834AbWH2Itj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:46:19 -0400
-Date: Tue, 29 Aug 2006 10:46:17 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "Limeng [??????]" <avlimeng@kingsoft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] thread identification (was: help)
-Message-ID: <20060829084616.GA7584@harddisk-recovery.com>
+	Tue, 29 Aug 2006 04:49:39 -0400
+Date: Tue, 29 Aug 2006 10:48:39 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: =?UTF-8?B?TGltZW5nIFvmnY7okIxd?= <avlimeng@kingsoft.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: help
+In-Reply-To: <004a01c6cb42$dbdbc110$8940a8c0@liibook>
+Message-ID: <Pine.LNX.4.61.0608291046440.6963@yvahk01.tjqt.qr>
 References: <004a01c6cb42$dbdbc110$8940a8c0@liibook>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004a01c6cb42$dbdbc110$8940a8c0@liibook>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-461829666-1156841319=:6963"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 04:12:18PM +0800, Limeng [??????] wrote:
->     How can I get one thread???s  LWP id on linux??? 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-See gettid(2).
+--1283855629-461829666-1156841319=:6963
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
->     The thread is not the main thread, so that getpid() does not
->     work. And the LWP id is not the same as the result by
->     pthread_self().
-> 
->     Any suggestion?
+>Hi,
+>    How can I get one thread’s  LWP id on linux？ 
+>    The thread is not the main thread, so that getpid() does not work. 
+>And the LWP id is not the same as the result by pthread_self().
+>
+>    Any suggestion?
 
-Don't ask it over here, this list is about kernel development, not
-about pthread questions.
+gettid(), I assume.
 
 
-Erik
 
+Jan Engelhardt
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+--1283855629-461829666-1156841319=:6963--

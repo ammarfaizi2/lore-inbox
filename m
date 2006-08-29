@@ -1,140 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWH2Jzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWH2J4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWH2Jzf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWH2Jzf
+	id S964869AbWH2J4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWH2J4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:55:35 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:51611 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964853AbWH2Jze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:55:34 -0400
-Subject: Re: [PATCH 1/4] net: VM deadlock avoidance framework
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Indan Zupancic <indan@nul.nu>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <3994.81.207.0.53.1156809691.squirrel@81.207.0.53>
-References: <20060825153946.24271.42758.sendpatchset@twins>
-	 <20060825153957.24271.6856.sendpatchset@twins>
-	 <1396.81.207.0.53.1156559843.squirrel@81.207.0.53>
-	 <1156760564.23000.31.camel@twins>
-	 <3720.81.207.0.53.1156780999.squirrel@81.207.0.53>
-	 <1156786344.23000.47.camel@twins>
-	 <3994.81.207.0.53.1156809691.squirrel@81.207.0.53>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 11:49:41 +0200
-Message-Id: <1156844981.23000.75.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
+	Tue, 29 Aug 2006 05:56:32 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:42956 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S964860AbWH2J4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:56:31 -0400
+Message-Id: <1156845390.1676.269651325@webmail.messagingengine.com>
+X-Sasl-Enc: o7Vhv2vRPDFg7rtWxfNXWkw01cIvqZKc8eBqKUkHP50I 1156845390
+From: "Komal Shah" <komal_shah802003@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
 Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="_----------=_115684539016760"; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Subject: [PATCH] debugfs: spelling fix
+Date: Tue, 29 Aug 2006 15:26:30 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 02:01 +0200, Indan Zupancic wrote:
-> On Mon, August 28, 2006 19:32, Peter Zijlstra said:
+This is a multi-part message in MIME format.
 
-> > Ah, no accident there, I'm fully aware that there would need to be a
-> > spinlock in adjust_memalloc_reserve() if there were another caller.
-> > (I even had it there for some time) - added comment.
-> 
-> Good that you're aware of it. Thing is, how much sense does the split-up into
-> adjust_memalloc_reserve() and sk_adjust_memalloc() make at this point? Why not
-> merge the code of adjust_memalloc_reserve() with sk_adjust_memalloc() and only
-> add adjust_memalloc_reserve() when it's really needed? It saves an export.
+--_----------=_115684539016760
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Tue, 29 Aug 2006 09:56:30 UT
 
-mm/ vs net/core/
+Greg,
 
-> Better to put the lock next to min_free_kbytes, both for readability and
-> cache behaviour. And it satisfies the "lock data, not code" mantra.
+Just a single line spell-fix for debugfs.
 
-True enough.
+---Komal Shah
+http://komalshah.blogspot.com
 
-> If you prefer to avoid cmpxchg (which is often used in atomic_add_unless
-> and can be expensive) then you can use something like:
+-- 
+http://www.fastmail.fm - One of many happy users:
+  http://www.fastmail.fm/docs/quotes.html
 
-Yes, way too large, out of lined it already. Don't care about the
-cmpxchg, its not a fast path anyway.
 
-> > @@ -195,6 +196,86 @@ __u32 sysctl_rmem_default = SK_RMEM_MAX;
-> >  /* Maximal space eaten by iovec or ancilliary data plus some space */
-> >  int sysctl_optmem_max = sizeof(unsigned long)*(2*UIO_MAXIOV + 512);
-> >
-> > +static DEFINE_SPINLOCK(memalloc_lock);
-> > +static int memalloc_reserve;
-> > +static unsigned int vmio_request_queues;
-> > +
-> > +atomic_t vmio_socks;
-> > +atomic_t emergency_rx_pages_used;
-> > +EXPORT_SYMBOL_GPL(vmio_socks);
-> 
-> Is this export needed? It's only used in net/core/skbuff.c and net/core/sock.c,
-> which are compiled into one module.
-> 
-> > +EXPORT_SYMBOL_GPL(emergency_rx_pages_used);
-> 
-> Same here. It's only used by code in sock.c and skbuff.c, and no external
-> code calls emergency_rx_alloc(), nor emergency_rx_free().
+--_----------=_115684539016760
+Content-Disposition: attachment; filename="0001-debugfs-spelling-fix.patch"
+Content-Transfer-Encoding: base64
+Content-Type: application/octet-stream; name="0001-debugfs-spelling-fix.patch"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Tue, 29 Aug 2006 09:56:30 UT
 
-Good point, I've gone over the link relations of these things and was
-indeed capable of removing several EXPORTs. Thanks.
+RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
+bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBU
+dWUsIDI5IEF1ZyAyMDA2IDIwOjU0OjUzICswNTMwClN1YmplY3Q6IFtQQVRD
+SF0gZGVidWdmczogc3BlbGxpbmcgZml4CgpDaGFuZ2UgZGVidWZzX2NyZWF0
+ZV9maWxlKCkgdG8gZGVidWdmc19jcmVhdGVfZmlsZSgpLgoKU2lnbmVkLW9m
+Zi1ieTogS29tYWwgU2hhaCA8a29tYWxfc2hhaDgwMjAwM0B5YWhvby5jb20+
+CgotLS0KCiBmcy9kZWJ1Z2ZzL2lub2RlLmMgfCAgICAyICstCiAxIGZpbGVz
+IGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmZi
+NTdmNGY2M2ZkZGYzMzQxNjZmNmE4MTMwYjQxZWFlNDdiMGRhMmUKZGlmZiAt
+LWdpdCBhL2ZzL2RlYnVnZnMvaW5vZGUuYyBiL2ZzL2RlYnVnZnMvaW5vZGUu
+YwppbmRleCBlOGFlMzA0Li5jZThiZjdjIDEwMDY0NAotLS0gYS9mcy9kZWJ1
+Z2ZzL2lub2RlLmMKKysrIGIvZnMvZGVidWdmcy9pbm9kZS5jCkBAIC0yNTYs
+NyArMjU2LDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZGVidWdmc19jcmVhdGVf
+ZGlyKTsKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIHJlbW92ZXMgYSBmaWxlIG9y
+IGRpcmVjdG9yeSBpbiBkZWJ1Z2ZzIHRoYXQgd2FzIHByZXZpb3VzbHkKICAq
+IGNyZWF0ZWQgd2l0aCBhIGNhbGwgdG8gYW5vdGhlciBkZWJ1Z2ZzIGZ1bmN0
+aW9uIChsaWtlCi0gKiBkZWJ1ZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJpYW50
+cyB0aGVyZW9mLikKKyAqIGRlYnVnZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJp
+YW50cyB0aGVyZW9mLikKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIGlzIHJlcXVp
+cmVkIHRvIGJlIGNhbGxlZCBpbiBvcmRlciBmb3IgdGhlIGZpbGUgdG8gYmUK
+ICAqIHJlbW92ZWQsIG5vIGF1dG9tYXRpYyBjbGVhbnVwIG9mIGZpbGVzIHdp
+bGwgaGFwcGVuIHdoZW4gYSBtb2R1bGUgaXMKLS0gCjEuMy4zCgo=
 
-> I think I depleted my usefulness, there isn't much left to say for me.
-> It's up to the big guys to decide about the merrit of this patch.
-
-Thanks for all your feedback.
-
-> IMHO:
-> 
-> - This patch isn't really a framework, more a minimal fix for one specific,
-> though important problem. But it's small and doesn't have much impact
-
-Well, perhaps, its merit is that is allows for full service for a few
-sockets even under severe memory pressure. And it provides the
-primitives to solve this problem for all instances, (NBD, iSCSI, NFS,
-AoE, ...) hence framework.
-
-Evgeniy's allocator does not cater for this, so even if it were to
-replace all the allocation stuff, we would still need the SOCK_VMIO and
-all protocol hooks this patch introduces.
-
-> - If Evgeniy's network allocator is as good as it looks, then why can't it
-> replace the existing one? Just adding private subsystem specific memory
-> allocators seems wrong. I might be missing the big picture, but it looks
-> like memory allocator things should be at least synchronized and discussed
-> with Christoph Lameter and his "modular slab allocator" patch.
-
-SLAB is very very good in that is will not suffer from external
-fragmentation (one could suffer from external fragmentation when viewing
-the slab allocator from the page allocation layer - but most of that is
-avoidable by allocation strategies in the slab layer), it does however
-suffer from internal fragmentation - by design.
-
-For variable size allocators it has been proven that for each allocator
-there is an allocation pattern that will defeat it. And figuring the
-pattern out and proving it will not happen in a long-running system is
-hard hard work.
-
-(free block coalescence is not a guarantee against fragmentation; there
-is even evidence that delayed coalescence will reduce fragmentation - it
-introduces history and this extra information can help predict the
-future.)
-
-This is exactly why long running systems (like our kernel) love slabs.
-
-For those interested in memory allocators, this paper is a good (albeit
-a bit dated) introduction:
-	http://citeseer.ist.psu.edu/wilson95dynamic.html
-
-That said, it might be that Evgeniy's allocator works out for our
-network load - only time will tell, the math is not tractable afaik.
-
-> All in all it seems it will take a while until Evgeniy's code will be merged,
-> so I think applying Peter's patch soonish and removing it again the moment it
-> becomes unnecessary is reasonable.
-
-Thanks and like said, I think even then most of this patch will need to
-survive.
+--_----------=_115684539016760--
 

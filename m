@@ -1,157 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWH2LOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWH2LPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWH2LOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 07:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWH2LOn
+	id S964812AbWH2LPw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWH2LPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 07:14:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:62885 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964874AbWH2LOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 07:14:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i2TohIuSirVUZ8H929kJB/r6ZwsboRKOaKPQqJU0zp6JeFZ19GMbRr+izCS1FqGpQcIjlyhl/pwt3sYhcDQcRXcUtJEynSYsUTFmZJ5mp/ukmHHUNdiFufjA6S8iueOlpYgvLCTmrOSHted4dV8PfLMuIsG+v3dPrQa4jv4RyiE=
-Message-ID: <742b1fb30608290414w5d7efc2et349f5ca32f241834@mail.gmail.com>
-Date: Tue, 29 Aug 2006 13:14:40 +0200
-From: "Patrizio Bassi" <patrizio.bassi@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [BUG?] 2.6.17.x suspend problems
-Cc: linux-kernel@vger.kernel.org, "Pavel Machek" <pavel@ucw.cz>
-In-Reply-To: <200608291216.55551.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 29 Aug 2006 07:15:52 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:51905 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S964812AbWH2LPv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:15:51 -0400
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+From: Marcel Holtmann <marcel@holtmann.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1156802900.3465.30.camel@mulgrave.il.steeleye.com>
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 15:13:34 +0200
+Message-Id: <1156857214.5613.72.camel@aeonflux.holtmann.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <742b1fb30608280446x2b0cf2d4p5aae2bb66ba41555@mail.gmail.com>
-	 <200608291216.55551.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/8/29, Rafael J. Wysocki <rjw@sisk.pl>:
-> On Monday 28 August 2006 13:46, Patrizio Bassi wrote:
-> > when i try to suspend my notebook i have problems with ide controller.
-> > the copy lasts a lot and i get oops.
->
-> I haven't seen any patches related to SIS chipsets recently.
->
-> There is a chance the latest -mm will work, so you can try it (no warranty,
-> though).  If not, please file a bug report at http://bugzilla.kernel.org
-> (with a Cc to rjwysocki@sisk.pl).
+Hi James,
+
+> From: Jon Masters <jcm@redhat.com>
+> 
+> Right now, various kernel modules are being migrated over to use
+> request_firmware in order to pull in binary firmware blobs from userland
+> when the module is loaded. This makes sense.
+> 
+> However, there is right now little mechanism in place to automatically
+> determine which binary firmware blobs must be included with a kernel in
+> order to satisfy the prerequisites of these drivers. This affects
+> vendors, but also regular users to a certain extent too.
+> 
+> The attached patch introduces MODULE_FIRMWARE as a mechanism for
+> advertising that a particular firmware file is to be loaded - it will
+> then show up via modinfo and could be used e.g. when packaging a kernel.
+
+this patch was debated, but we never came to a final conclusion. I am
+all for it. It is simple and can improve the current situation.
+
+> Signed-off-by: Jon Masters <jcm@redhat.com>
+
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+
+Regards
+
+Marcel
 
 
-do you mean the .18-mm sources i guess, not the .17 ones.
-
-Ok, i'll try as soon as possibile.
-
-
-
->
-> Greetings,
-> Rafael
->
->
-> > Stopping tasks: ==========================================|
-> > Shrinking memory... done (22776 pages freed)
-> > pnp: Device 00:08 disabled.
-> > swsusp: Need to copy 30898 pages
-> > ACPI: PCI Interrupt 0000:00:00.1[A]: no GSI - using IRQ 14
-> > eth0: Media Link Off
-> > ACPI: PCI Interrupt 0000:00: 01.2[D] -> Link [LNKD] -> GSI 5 (level,
-> > low) -> IRQ 5
-> > ACPI: PCI Interrupt 0000:00:01.3[D] -> Link [LNKD] -> GSI 5 (level,
-> > low) -> IRQ 5
-> > ACPI: PCI Interrupt 0000:00:01.4[B] -> Link [LNKB] -> GSI 5 (level,
-> > low) -> IRQ 5
-> > ACPI: PCI Interrupt 0000:00:01.6[B] -> Link [LNKB] -> GSI 5 (level,
-> > low) -> IRQ 5
-> > PCI: Setting latency timer of device 0000:00:02.0 to 64
-> > PM: Writing back config space on device 0000:00:0a.0 at offset 1 (was
-> > 82100003, writing 82100007)
-> > ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKA] -> GSI 11 (level,
-> > low) -> IRQ 11
-> > PM: Writing back config space on device 0000:00:0a.1 at offset 1 (was
-> > 2100003, writing 82100007)
-> > ACPI: PCI Interrupt 0000:00: 0a.1[B] -> Link [LNKC] -> GSI 5 (level,
-> > low) -> IRQ 5
-> > pnp: Device 00:08 activated.
-> > pnp: Failed to activate device 00:0c.
-> > pnp: Failed to activate device 00:0d.
-> > irq 14: nobody cared (try booting with the "irqpoll" option)
-> >  <c012c987> __report_bad_irq+0x2b/0x69  <c012cb3d> note_interrupt+0x178/0x1a7
-> >  <c012c53d> handle_IRQ_event+0x22/0x4e  <c012c5ce> __do_IRQ+0x65/0x8f
-> >  <c0104b2d> do_IRQ+0x19/0x24  <c01033da> common_interrupt+0x1a/0x20
-> >  <c0118f4b> __do_softirq+0x2c/0x7f  <c0118fc0> do_softirq+0x22/0x26
-> >  <c0104b32> do_IRQ+0x1e/0x24  <c01033da> common_interrupt+0x1a/0x20
-> >  <c0214224> acpi_processor_idle+0x157/0x323  <c0101da2> cpu_idle+0x3a/0x4f
-> >  <c03b0635> start_kernel+0x29c/0x29e
-> > handlers:
-> > [<c0230301>] (ide_intr+0x0/0x16c)
-> > Disabling IRQ #14
-> > Restarting tasks... done
-> > hda: dma_timer_expiry: dma status == 0x24
-> > hda: DMA interrupt recovery
-> > hda: lost interrupt
-> >
-> >            CPU0
-> >   0:     431861          XT-PIC  timer
-> >   1:        638          XT-PIC  i8042
-> >   2:          0          XT-PIC  cascade
-> >   5:          0          XT-PIC  yenta, ohci_hcd:usb1, ohci_hcd:usb2,
-> > Trident Audio, SiS630, eth0
-> >   7:          0          XT-PIC  parport0
-> >   8:          2          XT-PIC  rtc
-> >   9:          1          XT-PIC  acpi
-> >  11:          0          XT-PIC  yenta
-> >  12:      10982          XT-PIC  i8042
-> >  14:     200771          XT-PIC  ide0
-> >  15:         26          XT-PIC  ide1
-> > NMI:          0
-> > LOC:          0
-> > ERR:          0
-> > MIS:          0
-> > 00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 11)
-> > 00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-> > 00:01.0 ISA bridge: Silicon Integrated Systems [SiS] SiS85C503/5513 (LPC Bridge)
-> > 00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-> > PCI Fast Ethernet (rev 80)
-> > 00:01.2 USB Controller: Silicon Integrated Systems [SiS] USB  1.0
-> > Controller (rev 07)
-> > 00:01.3 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
-> > Controller (rev 07)
-> > 00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
-> > SiS PCI Audio Accelerator (rev 01)
-> >   00:01.6 Modem: Silicon Integrated Systems [SiS] AC'97 Modem
-> > Controller (rev a0)
-> > 00:02.0 PCI bridge: Silicon Integrated Systems [SiS] Virtual
-> > PCI-to-PCI bridge (AGP)
-> > 00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-> > 00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-> > 01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
-> > 630/730 PCI/AGP VGA Display Adapter (rev 11)
-> >
-> >
-> >
-> > I have another two problems too:
-> > 1) have to disable synaptics driver (editing sources) otherwise i get
-> > kernel panic
-> >  2) dri accelleration is working no more after suspend. glxgears shows
-> > a black window only.
-> >
-> > i think i should open 2 different threads for the last two.
-> >
-> > please CC me, i'm not subscribed.
-> >
-> >
->
-> --
-> You never change things by fighting the existing reality.
->                 R. Buckminster Fuller
->
-
-
--- 
-
-Patrizio Bassi
-www.patriziobassi.it

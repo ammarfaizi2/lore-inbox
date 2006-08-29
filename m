@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWH2OP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWH2ORK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWH2OP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWH2OP2
+	id S964992AbWH2ORK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWH2ORK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:15:28 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:40115 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964984AbWH2OP1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:15:27 -0400
-Message-Id: <200608291414.k7TEETg8003595@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: Jens Axboe <axboe@kernel.dk>, Pavel Machek <pavel@ucw.cz>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, seife@suse.de
-Subject: Re: HPA Resume patch
-In-Reply-To: Your message of "Mon, 28 Aug 2006 22:14:34 EDT."
-             <44F3A30A.3090509@PicturesInMotion.net>
-From: Valdis.Kletnieks@vt.edu
-References: <44F15ADB.5040609@PicturesInMotion.net> <20060827150608.GA4534@ucw.cz> <20060827170501.GD30609@kernel.dk>
-            <44F3A30A.3090509@PicturesInMotion.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1156860868_3126P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 29 Aug 2006 10:17:10 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56995 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S964986AbWH2ORH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 10:17:07 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44F44B8D.4010700@s5r6.in-berlin.de>
+Date: Tue, 29 Aug 2006 16:13:33 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+       linux-fsdevel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer
+ [try #2]
+References: <20060829115138.GA32714@infradead.org> <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de>
+In-Reply-To: <44F44639.90103@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 29 Aug 2006 10:14:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1156860868_3126P
-Content-Type: text/plain; charset=us-ascii
+I wrote:
+> If SCSI is set to "N", then any menu items which depend on SCSI are not 
+> visible anymore.
+[...]
+> If "select" cannot be fixed or is not en vogue for any other reason, the 
+> configuration tools need to be improved otherwise, so that users are 
+> guided to options like USB_STORAGE and IEEE1394_SBP2 when SCSI or other 
+> "foreign" options were disabled.
 
-On Mon, 28 Aug 2006 22:14:34 EDT, Lee Trager said:
-
-> Thinkpad users. Anyway my only question is how to I get my patched
-> signed off by someone?
-
-You read Documentation/SubmittingPatches, and follow the directions there,
-and remember to merge in any comments people might have...
-
-> +	err = ide_do_drive_cmd(drive, &rq, ide_head_wait);
-> +
-> +	if (err == 0 && drv->resume)
-
-Often better written as:
-
-	if (!err && drv->resume)
-
---==_Exmh_1156860868_3126P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFE9EvEcC3lWbTT17ARAhsmAJ9HOcLzLEnR3g7RSUG+RprFTGS8nwCeMVKR
-EvI5vJ8N/7zUzxIMwehfvFk=
-=fAM3
------END PGP SIGNATURE-----
-
---==_Exmh_1156860868_3126P--
+An easy but crude fix would be to add an according hint at the help text 
+of the immediately superordinate config option. E.g. at IEEE1394: "Also 
+enable SCSI support to be able to switch on SBP-2 support (IEEE 1394 
+protocol e.g. for storage devices)." But this is extremely ugly /1./ 
+because it would litter help texts of generic options with redundant 
+information about specific options and /2./ because it requires users to 
+find and read help texts in order to convince the configurator to make 
+options visible.
+-- 
+Stefan Richter
+-=====-=-==- =--- ===-=
+http://arcgraph.de/sr/

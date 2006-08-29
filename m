@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWH2T7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWH2UCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbWH2T7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWH2T7t
+	id S1751400AbWH2UCW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWH2UCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:59:49 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:48342 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751389AbWH2T7s (ORCPT
+	Tue, 29 Aug 2006 16:02:22 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:32236 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751400AbWH2UCV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:59:48 -0400
-Date: Tue, 29 Aug 2006 12:58:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       zippel@linux-m68k.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060829195845.GA13357@kroah.com>
-References: <20060829115138.GA32714@infradead.org> <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org>
-MIME-Version: 1.0
+	Tue, 29 Aug 2006 16:02:21 -0400
+Date: Tue, 29 Aug 2006 13:03:04 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: ego@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, rusty@rustcorp.com.au, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@intel.linux.com,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+Message-ID: <20060829200304.GF1290@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060824103417.GE2395@in.ibm.com> <1156417200.3014.54.camel@laptopd505.fenrus.org> <20060824140342.GI2395@in.ibm.com> <1156429015.3014.68.camel@laptopd505.fenrus.org> <44EDBDDE.7070203@yahoo.com.au> <20060824150026.GA14853@elte.hu> <20060825035328.GA6322@in.ibm.com> <20060827005944.67f51e92.pj@sgi.com> <20060829180511.GA1495@us.ibm.com> <20060829123102.88de61fa.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060829122501.GA7814@infradead.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060829123102.88de61fa.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 01:25:01PM +0100, Christoph Hellwig wrote:
-> On Tue, Aug 29, 2006 at 01:23:18PM +0100, David Howells wrote:
-> > Christoph Hellwig <hch@infradead.org> wrote:
-> > 
-> > > Same as above.  USB_STORAGE already selects scsi so it shouldn't need
-> > > to depend on block.
-> > 
-> > Ah, you've got it the wrong way round.
-> > 
-> > Because USB_STORAGE _selects_ SCSI rather than depending on it, even if SCSI
-> > is disabled, USB_STORAGE can be enabled, and that turns on CONFIG_SCSI, even
-> > if not all of its dependencies are available.
-> > 
-> > Run "make allyesconfig" and then try to turn off CONFIG_SCSI without this...
+On Tue, Aug 29, 2006 at 12:31:02PM -0700, Paul Jackson wrote:
+> Paul E. McKenney wrtoe:
+> > Can the locusts reasonably take a return value from the acquisition
+> > primitive and feed it to the release primitive?
 > 
-> Eeek.  The easy fix is to change USB_STORAGE to depend on SCSI (*), but in
-> addition to that we should probably fix Kconfig aswell to adhere to
-> such constraints.
+> Yes - the locusts typically do:
+> 
+>     mutex_lock(&callback_mutex);
+>     ... a line or two to read or write cpusets ...
+>     mutex_unlock(&callback_mutex);
+> 
+> The lock and unlock are just a few lines apart.  I could easily pass
+> a value from the lock (acquisition) to the unlock (release).
+> 
+> Why do you ask?
 
-No, the reason this was switched around like this (it used to be the
-other way), was that people constantly complained about not being able
-to select the usb-storage driver in their configurations.
+Because passing the value from the acquire to the release could remove
+the need to store anything in the task structure, but allow the freedom
+of implementation that would be provided by storing things in the task
+structure.
 
-Can't seem to please everyone these days :)
+Let me throw something together...
 
-thanks,
-
-greg k-h
+							Thanx, Paul

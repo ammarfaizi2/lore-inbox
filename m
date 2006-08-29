@@ -1,153 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWH2JAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWH2JCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWH2JAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWH2JAh
+	id S1751296AbWH2JCy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWH2JCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:00:37 -0400
-Received: from web37911.mail.mud.yahoo.com ([209.191.91.173]:16044 "HELO
-	web37911.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750844AbWH2JAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:00:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=EgzIhaN1YT8DH327FqLwWuRiFtIlHea5jC4og5GsAoIg8RPHK3kl9VFnUr2rZ1EXz1ndu8bVU+DGhYVbsZS7yOGW9rNzB7sXPzp0uxd2DFxof1NCStI5i244QzXjQQBkI2IBBf/FvfHZHD9cv4uxaTbVw3c8fibQRlo931CjPp0=  ;
-Message-ID: <20060829090035.34294.qmail@web37911.mail.mud.yahoo.com>
-Date: Tue, 29 Aug 2006 02:00:35 -0700 (PDT)
-From: Komal Shah <komal_shah802003@yahoo.com>
-Subject: Re: [RPC] OLPC tablet input driver.
-To: "Zephaniah E. Hull" <warp@aehallh.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <mtosatti@redhat.com>
-In-Reply-To: <20060829073339.GA4181@aehallh.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 29 Aug 2006 05:02:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38888 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751297AbWH2JCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:02:52 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060827212136.GA12710@tuatara.stupidest.org> 
+References: <20060827212136.GA12710@tuatara.stupidest.org>  <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com> <20060825193709.11384.79794.stgit@warthog.cambridge.redhat.com> 
+To: Chris Wedgwood <cw@f00f.org>
+Cc: David Howells <dhowells@redhat.com>, axboe@kernel.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/18] [PATCH] BLOCK: Don't call block_sync_page() from AFS [try #4] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 29 Aug 2006 10:00:31 +0100
+Message-ID: <9824.1156842031@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Zephaniah E. Hull" <warp@aehallh.com> wrote:
+Chris Wedgwood <cw@f00f.org> wrote:
 
+> > The AFS filesystem specifies block_sync_page() as its sync_page
+> > address op, which needs to be checked, and so is commented out for
+> > the moment.
 > 
-> 
-> That said, here the patch is for comments.
-> (And possibly for the OLPC kernel tree for others with samples to
-> play
-> with.)
-> 
-> 
-> Signed-off-by: Zephaniah E. Hull <warp@aehallh.com>
-> 
-> diff --git a/drivers/input/mouse/Makefile
-> b/drivers/input/mouse/Makefile
-> index 21a1de6..6218e5a 100644
-> --- a/drivers/input/mouse/Makefile
-> +++ b/drivers/input/mouse/Makefile
-> @@ -14,4 +14,4 @@ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
->  obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
->  obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
->  
-> -psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> lifebook.o trackpoint.o
-> +psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-> lifebook.o trackpoint.o olpc.o
+> Wouldn't it be better to just let the link/build fail so someone who
+> groks AFS internals can look into this?
 
-Where is KConfigurable entry ?
+That would be me...
 
-> diff --git a/drivers/input/mouse/olpc.c b/drivers/input/mouse/olpc.c
-> new file mode 100644
-> index 0000000..245f29e
-> --- /dev/null
-> +++ b/drivers/input/mouse/olpc.c
-> @@ -0,0 +1,327 @@
+I don't want the block patches getting rejected because make allyesconfig fails
+due to AFS not linking.
 
-
-> +/*
-> + * OLPC touchpad PS/2 mouse driver
-> + *
-> +int olpc_init(struct psmouse *psmouse)
-> +{
-> +	struct olpc_data *priv;
-> +	struct input_dev *dev = psmouse->dev;
-> +	struct input_dev *dev2;
-> +
-> +	psmouse->private = priv = kzalloc(sizeof(struct olpc_data),
-> GFP_KERNEL);
-
-I think you should assign priv to private only if !NULL.
-
-> +	dev2 = input_allocate_device();
-> +	if (!priv || !dev2)
-> +		goto init_fail;
-> +
-> +	priv->dev2 = dev2;
-> +
-> +	if (!(priv->i = olpc_get_model(psmouse)))
-> +		goto init_fail;
-> +
-> +	if (olpc_absolute_mode(psmouse)) {
-> +		printk(KERN_ERR "olpc.c: Failed to enable absolute mode\n");
-> +		goto init_fail;
-> +	}
-> +
-> +	dev->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-> +	dev->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-> +	dev->keybit[LONG(BTN_TOOL_PEN)] |= BIT(BTN_TOOL_PEN);
-> +	dev->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-> +
-> +	dev->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-> +	input_set_abs_params(dev, ABS_X, 0, 1023, 0, 0);
-> +	input_set_abs_params(dev, ABS_Y, 0, 1023, 0, 0);
-> +
-> +	snprintf(priv->phys, sizeof(priv->phys), "%s/input1",
-> psmouse->ps2dev.serio->phys);
-> +	dev2->phys = priv->phys;
-> +	dev2->name = "OLPC OLPC GlideSensor";
-> +	dev2->id.bustype = BUS_I8042;
-> +	dev2->id.vendor  = 0x0002;
-> +	dev2->id.product = PSMOUSE_OLPC;
-> +	dev2->id.version = 0x0000;
-> +
-> +	dev2->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-> +	dev2->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-> +	input_set_abs_params(dev2, ABS_X, 0, 2047, 0, 0);
-> +	input_set_abs_params(dev2, ABS_Y, 0, 1023, 0, 0);
-> +	input_set_abs_params(dev2, ABS_PRESSURE, 0, 63, 0, 0);
-> +	dev2->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-> +	dev2->keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
-> +	dev2->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-> +
-> +	input_register_device(priv->dev2);
-
-Please check the return value of input_register_device and its friends.
-
-> +
-> +
-> +	psmouse->protocol_handler = olpc_process_byte;
-> +	psmouse->poll = olpc_poll;
-> +	psmouse->disconnect = olpc_disconnect;
-> +	psmouse->reconnect = olpc_reconnect;
-> +	psmouse->pktsize = 9;
-> +
-> +	/* We are having trouble resyncing OLPC touchpads so disable it for
-> now */
-> +	psmouse->resync_time = 0;
-> +
-> +	return 0;
-> +
-> +init_fail:
-> +	input_free_device(dev2);
-> +	kfree(priv);
-> +	return -1;
-> +}
-> +
-
-
----Komal Shah
-http://komalshah.blogspot.com/
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+David

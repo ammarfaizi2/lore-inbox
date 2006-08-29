@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWH2J4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWH2J5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWH2J4c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 05:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWH2J4c
+	id S964863AbWH2J5O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 05:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWH2J5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 05:56:32 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:42956 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S964860AbWH2J4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 05:56:31 -0400
-Message-Id: <1156845390.1676.269651325@webmail.messagingengine.com>
-X-Sasl-Enc: o7Vhv2vRPDFg7rtWxfNXWkw01cIvqZKc8eBqKUkHP50I 1156845390
-From: "Komal Shah" <komal_shah802003@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
+	Tue, 29 Aug 2006 05:57:14 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:18123 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S964868AbWH2J5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 05:57:08 -0400
+Message-Id: <44F42BB1.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Tue, 29 Aug 2006 11:57:37 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <petkov@math.uni-muenster.de>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, <akpm@osdl.org>,
+       "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+References: <20060820013121.GA18401@fieldses.org>
+ <44E97353.76E4.0078.0@novell.com> <20060829085338.GA8225@gollum.tnic>
+In-Reply-To: <20060829085338.GA8225@gollum.tnic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: multipart/mixed; boundary="_----------=_115684539016760"; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Subject: [PATCH] debugfs: spelling fix
-Date: Tue, 29 Aug 2006 15:26:30 +0530
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+>>> Borislav Petkov <bbpetkov@yahoo.de> 29.08.06 10:53 >>>
+>Hi,
+>    I just read that unwinder thread and I think I have yet another case of
+>    unwinder backtrace that comes up together with the recursive deadlock
+>    protection backtrace and this happens with 18-rc5 so I thought I should
+>    report it before .18 is released:
+>...
+>Aug 29 10:21:22 zmei kernel: [  383.485261]  [<c0105393>] do_IRQ+0xc3/0xd0
+>Aug 29 10:21:22 zmei kernel: [  383.489393]  [<c0103521>] common_interrupt+0x25/0x2c
+>Aug 29 10:21:22 zmei kernel: [  383.494387] DWARF2 unwinder stuck at common_interrupt+0x25/0x2c
+>Aug 29 10:21:22 zmei kernel: [  383.500304] Leftover inexact backtrace:
+></snip>
 
---_----------=_115684539016760
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Tue, 29 Aug 2006 09:56:30 UT
+Unfortunately this leaves unclear whether there was anything reported in
+the leftover portion.
+And in all cases, a sufficiently long raw stack trace is needed to analyse this.
+Ideally a matching System.map would also be attached.
 
-Greg,
-
-Just a single line spell-fix for debugfs.
-
----Komal Shah
-http://komalshah.blogspot.com
-
--- 
-http://www.fastmail.fm - One of many happy users:
-  http://www.fastmail.fm/docs/quotes.html
-
-
---_----------=_115684539016760
-Content-Disposition: attachment; filename="0001-debugfs-spelling-fix.patch"
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream; name="0001-debugfs-spelling-fix.patch"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Tue, 29 Aug 2006 09:56:30 UT
-
-RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
-bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBU
-dWUsIDI5IEF1ZyAyMDA2IDIwOjU0OjUzICswNTMwClN1YmplY3Q6IFtQQVRD
-SF0gZGVidWdmczogc3BlbGxpbmcgZml4CgpDaGFuZ2UgZGVidWZzX2NyZWF0
-ZV9maWxlKCkgdG8gZGVidWdmc19jcmVhdGVfZmlsZSgpLgoKU2lnbmVkLW9m
-Zi1ieTogS29tYWwgU2hhaCA8a29tYWxfc2hhaDgwMjAwM0B5YWhvby5jb20+
-CgotLS0KCiBmcy9kZWJ1Z2ZzL2lub2RlLmMgfCAgICAyICstCiAxIGZpbGVz
-IGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmZi
-NTdmNGY2M2ZkZGYzMzQxNjZmNmE4MTMwYjQxZWFlNDdiMGRhMmUKZGlmZiAt
-LWdpdCBhL2ZzL2RlYnVnZnMvaW5vZGUuYyBiL2ZzL2RlYnVnZnMvaW5vZGUu
-YwppbmRleCBlOGFlMzA0Li5jZThiZjdjIDEwMDY0NAotLS0gYS9mcy9kZWJ1
-Z2ZzL2lub2RlLmMKKysrIGIvZnMvZGVidWdmcy9pbm9kZS5jCkBAIC0yNTYs
-NyArMjU2LDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZGVidWdmc19jcmVhdGVf
-ZGlyKTsKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIHJlbW92ZXMgYSBmaWxlIG9y
-IGRpcmVjdG9yeSBpbiBkZWJ1Z2ZzIHRoYXQgd2FzIHByZXZpb3VzbHkKICAq
-IGNyZWF0ZWQgd2l0aCBhIGNhbGwgdG8gYW5vdGhlciBkZWJ1Z2ZzIGZ1bmN0
-aW9uIChsaWtlCi0gKiBkZWJ1ZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJpYW50
-cyB0aGVyZW9mLikKKyAqIGRlYnVnZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJp
-YW50cyB0aGVyZW9mLikKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIGlzIHJlcXVp
-cmVkIHRvIGJlIGNhbGxlZCBpbiBvcmRlciBmb3IgdGhlIGZpbGUgdG8gYmUK
-ICAqIHJlbW92ZWQsIG5vIGF1dG9tYXRpYyBjbGVhbnVwIG9mIGZpbGVzIHdp
-bGwgaGFwcGVuIHdoZW4gYSBtb2R1bGUgaXMKLS0gCjEuMy4zCgo=
-
---_----------=_115684539016760--
+Jan
 

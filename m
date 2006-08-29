@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWH2Qqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWH2QuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965132AbWH2Qqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWH2Qqa
+	id S965160AbWH2QuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWH2QtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:46:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47773 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965129AbWH2Qq0 (ORCPT
+	Tue, 29 Aug 2006 12:49:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37533 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965120AbWH2QqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:46:26 -0400
+	Tue, 29 Aug 2006 12:46:15 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/19] BLOCK: Move the msdos device ioctl compat stuff to the msdos driver [try #5]
-Date: Tue, 29 Aug 2006 17:46:22 +0100
+Subject: [PATCH 08/19] BLOCK: Dissociate generic_writepages() from mpage stuff [try #5]
+Date: Tue, 29 Aug 2006 17:46:06 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060829164621.15723.39826.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060829164606.15723.65159.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
 References: <20060829164549.15723.15017.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,164 +26,226 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the msdos device ioctl compat stuff from fs/compat_ioctl.c to the msdos
-driver so that the msdos header file doesn't need to be included.
+Dissociate the generic_writepages() function from the mpage stuff, moving its
+declaration to linux/mm.h and actually emitting a full implementation into
+mm/page-writeback.c.
+
+The implementation is a partial duplicate of mpage_writepages() with all BIO
+references removed.
+
+It is used by NFS to do writeback.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c |   49 ------------------------------------------------
- fs/fat/dir.c      |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 49 deletions(-)
+ fs/block_dev.c            |    1 
+ fs/mpage.c                |    2 +
+ include/linux/mpage.h     |    6 --
+ include/linux/writeback.h |    2 +
+ mm/page-writeback.c       |  134 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 139 insertions(+), 6 deletions(-)
 
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index e5eb0f1..e1a5643 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -108,7 +108,6 @@ #include <linux/usbdevice_fs.h>
- #include <linux/nbd.h>
- #include <linux/random.h>
- #include <linux/filter.h>
--#include <linux/msdos_fs.h>
- #include <linux/pktcdvd.h>
- 
- #include <linux/hiddev.h>
-@@ -1937,51 +1936,6 @@ static int mtd_rw_oob(unsigned int fd, u
- 	return err;
- }	
- 
--#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
--#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
--
--static long
--put_dirent32 (struct dirent *d, struct compat_dirent __user *d32)
--{
--        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
--                return -EFAULT;
--
--        __put_user(d->d_ino, &d32->d_ino);
--        __put_user(d->d_off, &d32->d_off);
--        __put_user(d->d_reclen, &d32->d_reclen);
--        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
--		return -EFAULT;
--
--        return 0;
--}
--
--static int vfat_ioctl32(unsigned fd, unsigned cmd, unsigned long arg)
--{
--	struct compat_dirent __user *p = compat_ptr(arg);
--	int ret;
--	mm_segment_t oldfs = get_fs();
--	struct dirent d[2];
--
--	switch(cmd)
--	{
--        	case VFAT_IOCTL_READDIR_BOTH32:
--                	cmd = VFAT_IOCTL_READDIR_BOTH;
--                	break;
--        	case VFAT_IOCTL_READDIR_SHORT32:
--                	cmd = VFAT_IOCTL_READDIR_SHORT;
--                	break;
--	}
--
--	set_fs(KERNEL_DS);
--	ret = sys_ioctl(fd,cmd,(unsigned long)&d);
--	set_fs(oldfs);
--	if (ret >= 0) {
--		ret |= put_dirent32(&d[0], p);
--		ret |= put_dirent32(&d[1], p + 1);
--	}
--	return ret;
--}
--
- struct raw32_config_request
- {
-         compat_int_t    raw_minor;
-@@ -2726,9 +2680,6 @@ HANDLE_IOCTL(SONET_GETFRSENSE, do_atm_io
- HANDLE_IOCTL(BLKBSZGET_32, do_blkbszget)
- HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
- HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
--/* vfat */
--HANDLE_IOCTL(VFAT_IOCTL_READDIR_BOTH32, vfat_ioctl32)
--HANDLE_IOCTL(VFAT_IOCTL_READDIR_SHORT32, vfat_ioctl32)
- /* Raw devices */
- HANDLE_IOCTL(RAW_SETBIND, raw_ioctl)
- HANDLE_IOCTL(RAW_GETBIND, raw_ioctl)
-diff --git a/fs/fat/dir.c b/fs/fat/dir.c
-index 698b85b..8e99330 100644
---- a/fs/fat/dir.c
-+++ b/fs/fat/dir.c
-@@ -20,6 +20,7 @@ #include <linux/msdos_fs.h>
- #include <linux/dirent.h>
- #include <linux/smp_lock.h>
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 1c146a2..02acae1 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -17,6 +17,7 @@ #include <linux/blkdev.h>
+ #include <linux/module.h>
+ #include <linux/blkpg.h>
  #include <linux/buffer_head.h>
-+#include <linux/compat.h>
- #include <asm/uaccess.h>
- 
- static inline loff_t fat_make_i_pos(struct super_block *sb,
-@@ -740,11 +741,64 @@ static int fat_dir_ioctl(struct inode * 
- 		ret = buf.result;
- 	return ret;
++#include <linux/writeback.h>
+ #include <linux/mpage.h>
+ #include <linux/mount.h>
+ #include <linux/uio.h>
+diff --git a/fs/mpage.c b/fs/mpage.c
+index 1e45982..692a3e5 100644
+--- a/fs/mpage.c
++++ b/fs/mpage.c
+@@ -693,6 +693,8 @@ out:
+  * the call was made get new I/O started against them.  If wbc->sync_mode is
+  * WB_SYNC_ALL then we were called for data integrity and we must wait for
+  * existing IO to complete.
++ *
++ * If you fix this you should check generic_writepages() also!
+  */
+ int
+ mpage_writepages(struct address_space *mapping,
+diff --git a/include/linux/mpage.h b/include/linux/mpage.h
+index 3ca8804..517c098 100644
+--- a/include/linux/mpage.h
++++ b/include/linux/mpage.h
+@@ -20,9 +20,3 @@ int mpage_writepages(struct address_spac
+ 		struct writeback_control *wbc, get_block_t get_block);
+ int mpage_writepage(struct page *page, get_block_t *get_block,
+ 		struct writeback_control *wbc);
+-
+-static inline int
+-generic_writepages(struct address_space *mapping, struct writeback_control *wbc)
+-{
+-	return mpage_writepages(mapping, wbc, NULL);
+-}
+diff --git a/include/linux/writeback.h b/include/linux/writeback.h
+index 9e38b56..671c43b 100644
+--- a/include/linux/writeback.h
++++ b/include/linux/writeback.h
+@@ -110,6 +110,8 @@ balance_dirty_pages_ratelimited(struct a
  }
-+#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
-+#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
-+
-+static long fat_compat_put_dirent32(struct dirent *d,
-+				    struct compat_dirent __user *d32)
+ 
+ int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
++extern int generic_writepages(struct address_space *mapping,
++			      struct writeback_control *wbc);
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
+ int sync_page_range(struct inode *inode, struct address_space *mapping,
+ 			loff_t pos, loff_t count);
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index f75d033..eeeaf43 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -30,6 +30,7 @@ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
+ #include <linux/buffer_head.h>
++#include <linux/pagevec.h>
+ 
+ /*
+  * The maximum number of pages to writeout in a single bdflush/kupdate
+@@ -543,6 +544,139 @@ void __init page_writeback_init(void)
+ 	register_cpu_notifier(&ratelimit_nb);
+ }
+ 
++/**
++ * generic_writepages - walk the list of dirty pages of the given
++ *                      address space and writepage() all of them.
++ *
++ * @mapping: address space structure to write
++ * @wbc: subtract the number of written pages from *@wbc->nr_to_write
++ *
++ * This is a library function, which implements the writepages()
++ * address_space_operation.
++ *
++ * If a page is already under I/O, generic_writepages() skips it, even
++ * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
++ * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
++ * and msync() need to guarantee that all the data which was dirty at the time
++ * the call was made get new I/O started against them.  If wbc->sync_mode is
++ * WB_SYNC_ALL then we were called for data integrity and we must wait for
++ * existing IO to complete.
++ *
++ * Derived from mpage_writepages() - if you fix this you should check that
++ * also!
++ */
++int generic_writepages(struct address_space *mapping,
++		       struct writeback_control *wbc)
 +{
-+        if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
-+                return -EFAULT;
++	struct backing_dev_info *bdi = mapping->backing_dev_info;
++	int ret = 0;
++	int done = 0;
++	int (*writepage)(struct page *page, struct writeback_control *wbc);
++	struct pagevec pvec;
++	int nr_pages;
++	pgoff_t index;
++	pgoff_t end;		/* Inclusive */
++	int scanned = 0;
++	int range_whole = 0;
 +
-+        __put_user(d->d_ino, &d32->d_ino);
-+        __put_user(d->d_off, &d32->d_off);
-+        __put_user(d->d_reclen, &d32->d_reclen);
-+        if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
-+		return -EFAULT;
-+
-+        return 0;
-+}
-+
-+static long fat_compat_dir_ioctl(struct file *file, unsigned cmd,
-+				 unsigned long arg)
-+{
-+	struct compat_dirent __user *p = compat_ptr(arg);
-+	int ret;
-+	mm_segment_t oldfs = get_fs();
-+	struct dirent d[2];
-+
-+	switch (cmd) {
-+	case VFAT_IOCTL_READDIR_BOTH32:
-+		cmd = VFAT_IOCTL_READDIR_BOTH;
-+		break;
-+	case VFAT_IOCTL_READDIR_SHORT32:
-+		cmd = VFAT_IOCTL_READDIR_SHORT;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
++	if (wbc->nonblocking && bdi_write_congested(bdi)) {
++		wbc->encountered_congestion = 1;
++		return 0;
 +	}
 +
-+	set_fs(KERNEL_DS);
-+	lock_kernel();
-+	ret = fat_dir_ioctl(file->f_dentry->d_inode, file,
-+			    cmd, (unsigned long) &d);
-+	unlock_kernel();
-+	set_fs(oldfs);
-+	if (ret >= 0) {
-+		ret |= fat_compat_put_dirent32(&d[0], p);
-+		ret |= fat_compat_put_dirent32(&d[1], p + 1);
++	writepage = mapping->a_ops->writepage;
++
++	/* deal with chardevs and other special file */
++	if (!writepage)
++		return 0;
++
++	pagevec_init(&pvec, 0);
++	if (wbc->range_cyclic) {
++		index = mapping->writeback_index; /* Start from prev offset */
++		end = -1;
++	} else {
++		index = wbc->range_start >> PAGE_CACHE_SHIFT;
++		end = wbc->range_end >> PAGE_CACHE_SHIFT;
++		if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
++			range_whole = 1;
++		scanned = 1;
 +	}
++retry:
++	while (!done && (index <= end) &&
++	       (nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
++					      PAGECACHE_TAG_DIRTY,
++					      min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
++		unsigned i;
++
++		scanned = 1;
++		for (i = 0; i < nr_pages; i++) {
++			struct page *page = pvec.pages[i];
++
++			/*
++			 * At this point we hold neither mapping->tree_lock nor
++			 * lock on the page itself: the page may be truncated or
++			 * invalidated (changing page->mapping to NULL), or even
++			 * swizzled back from swapper_space to tmpfs file
++			 * mapping
++			 */
++			lock_page(page);
++
++			if (unlikely(page->mapping != mapping)) {
++				unlock_page(page);
++				continue;
++			}
++
++			if (!wbc->range_cyclic && page->index > end) {
++				done = 1;
++				unlock_page(page);
++				continue;
++			}
++
++			if (wbc->sync_mode != WB_SYNC_NONE)
++				wait_on_page_writeback(page);
++
++			if (PageWriteback(page) ||
++			    !clear_page_dirty_for_io(page)) {
++				unlock_page(page);
++				continue;
++			}
++
++			ret = (*writepage)(page, wbc);
++			if (ret) {
++				if (ret == -ENOSPC)
++					set_bit(AS_ENOSPC, &mapping->flags);
++				else
++					set_bit(AS_EIO, &mapping->flags);
++			}
++
++			if (unlikely(ret == AOP_WRITEPAGE_ACTIVATE))
++				unlock_page(page);
++			if (ret || (--(wbc->nr_to_write) <= 0))
++				done = 1;
++			if (wbc->nonblocking && bdi_write_congested(bdi)) {
++				wbc->encountered_congestion = 1;
++				done = 1;
++			}
++		}
++		pagevec_release(&pvec);
++		cond_resched();
++	}
++	if (!scanned && !done) {
++		/*
++		 * We hit the last page and there is more work to be done: wrap
++		 * back to the start of the file
++		 */
++		scanned = 1;
++		index = 0;
++		goto retry;
++	}
++	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
++		mapping->writeback_index = index;
 +	return ret;
 +}
 +
- 
- const struct file_operations fat_dir_operations = {
- 	.read		= generic_read_dir,
- 	.readdir	= fat_readdir,
- 	.ioctl		= fat_dir_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= fat_compat_dir_ioctl,
-+#endif
- 	.fsync		= file_fsync,
- };
- 
++EXPORT_SYMBOL(generic_writepages);
++
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
+ {
+ 	int ret;

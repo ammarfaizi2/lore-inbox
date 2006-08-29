@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWH2Ocl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWH2OeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbWH2Ocl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWH2Ocl
+	id S964997AbWH2OeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWH2OeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:32:41 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:55251 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964994AbWH2Ock (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:32:40 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: SDRAM or DDRAM in linux
-To: Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 29 Aug 2006 16:30:46 +0200
-References: <6P5Ty-4Qs-5@gated-at.bofh.it> <6P5Ty-4Qs-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 29 Aug 2006 10:34:09 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:62227 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964999AbWH2OeG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 10:34:06 -0400
+Message-ID: <44F4511D.7000903@sw.ru>
+Date: Tue, 29 Aug 2006 18:37:17 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1GI4cN-0000mZ-10@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+To: devel@openvz.org
+CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Devel] [PATCH 6/6] BC: kernel memory accounting (marks)
+References: <44EC31FB.2050002@sw.ru>  <44EC371F.7080205@sw.ru> <1156374231.12011.61.camel@localhost.localdomain>
+In-Reply-To: <1156374231.12011.61.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Niklaus <niklaus@gmail.com> wrote:
+Dave Hansen wrote:
+> On Wed, 2006-08-23 at 15:08 +0400, Kirill Korotaev wrote:
+> 
+>> include/asm-i386/thread_info.h   |    4 ++--
+>> include/asm-ia64/pgalloc.h       |   24 +++++++++++++++++-------
+>> include/asm-x86_64/pgalloc.h     |   12 ++++++++----
+>> include/asm-x86_64/thread_info.h |    5 +++-- 
+> 
+> 
+> Do you think we need to cover a few more architectures before
+> considering merging this, or should we just fix them up as we need them?
+I think doing a part of job is usually bad as it never gets fixed fully then :/
 
-> 1) How do i find out when the machine is online , if it is SDRAM or
-> DDRAM. I tried dmidecode utility but i was not sure about the type.
-> Can someone help me out by pasting the output for both DDR and SDRAM
-> in dmidecode or similar.
+> I'm working on a patch to unify as many of the alloc_thread_info()
+> functions as I can.  That should at least give you one place to modify
+> and track the thread_info allocations.  I've only compiled for x86_64
+> and i386, but I'm working on more.  A preliminary version is attached.
+Oh, I think such code unification is nice!
+Would be perferct if all of them could be merged to some generic
+function. Please, keep me on CC!
 
-If I need to find out the mainboard chipset, I usurally look at the IDE
-controler, and if you know the mb chipset, you can get the specs.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Thanks,
+Kirill
 
-http://david.woodhou.se/why-not-spf.html

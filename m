@@ -1,102 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWH2BmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWH2BwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbWH2BmX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Aug 2006 21:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWH2BmX
+	id S1750958AbWH2BwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Aug 2006 21:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWH2BwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 21:42:23 -0400
-Received: from compunauta.com ([69.36.170.169]:40593 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S1750924AbWH2BmW convert rfc822-to-8bit
+	Mon, 28 Aug 2006 21:52:13 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:1225 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750951AbWH2BwM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 21:42:22 -0400
-From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
-	<gustavo@compunauta.com>
-Organization: www.compunauta.com
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't enable DMA over ATA on Intel Chipset 2.6.16
-Date: Mon, 28 Aug 2006 20:42:26 -0500
-User-Agent: KMail/1.8.2
-References: <200608271239.32507.gustavo@compunauta.com> <200608271434.35840.gustavo@compunauta.com> <20060828195709.GL13641@csclub.uwaterloo.ca>
-In-Reply-To: <20060828195709.GL13641@csclub.uwaterloo.ca>
+	Mon, 28 Aug 2006 21:52:12 -0400
+Message-ID: <44F39DB9.6050004@zytor.com>
+Date: Mon, 28 Aug 2006 18:51:53 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608282042.26594.gustavo@compunauta.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Petr Vandrovec <vandrove@vc.cvut.cz>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johninsd@san.rr.com
+Subject: Re: [PATCH] Fix the EDD code misparsing the command line (rev 2)
+References: <445B5524.2090001@gmail.com> <200608272116.23498.ak@suse.de> <44F1F356.5030105@zytor.com> <200608272254.13871.ak@suse.de> <44F21122.3030505@zytor.com> <44F286E8.1000100@gmail.com> <44F2902B.5050304@gmail.com> <44F29BCD.3080408@zytor.com> <9e0cf0bf0608280519y7a9afcb9od29494b9cacb8852@mail.gmail.com> <44F335C8.7020108@zytor.com> <20060828184637.GD13464@lists.us.dell.com> <44F386B8.8000209@zytor.com> <44F3974B.6060501@vc.cvut.cz>
+In-Reply-To: <44F3974B.6060501@vc.cvut.cz>
+Content-Type: multipart/mixed;
+ boundary="------------000306020208020909000409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Lunes, 28 de Agosto de 2006 14:57, escribió:
-> Make sure the piix ide drive is loaded BEFORE the ide-generic driver,
-> otherwise the wrong driver will run the PATA port, and the generic
-> driver doesn't do DMA.  Your dmesg did not look like it was using the
-> piix driver for PATA, it looked like ide-generic.  Some initrd systems
-> seem to load ide-generic for cdrom, if the HD is on sata or scsi, or
-> something later in the boot process does it.
->
-> You should see something like (using piix driver, ata_piix would look
-> somewhat different I think):
-Builded into kernel we can't specify the load order, then you suggest to made 
-an initrd with insmod loading firs scsi subsystem and piix before 
-ide-generic... Ok I can do that, but imagine, making a kernel for a 
-distribution, ;)
+This is a multi-part message in MIME format.
+--------------000306020208020909000409
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No problem, let me try.
 
-> ICH5: IDE controller at PCI slot 0000:00:1f.1
-> PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 193
-> ICH5: chipset revision 2
-> ICH5: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
-> Probing IDE interface ide0...
-> hda: PLEXTOR DVDR PX-708A, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Probing IDE interface ide1...
-> hda: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> Probing IDE interface ide1...
->
-> Yours had:
->
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> Probing IDE interface ide0...
-> Probing IDE interface ide1...
-> hdc: SAMSUNG SP0802N, ATA DISK drive
-> hdd: TSSTcorpCD/DVDW TS-H552L, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hdc: max request size: 512KiB
-> hdc: 156368016 sectors (80060 MB) w/2048KiB Cache, CHS=16383/255/63
-> hdc: cache flushes supported
->  /dev/ide/host1/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 >
-> hdd: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache
-> Uniform CD-ROM driver Revision: 3.20
-> ide-floppy driver 0.99.newide
-> libata version 1.20 loaded.
-> ata_piix 0000:00:1f.2: version 1.05
-> ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 16
-> ata: 0x170 IDE port busy
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
-> ATA: abnormal status 0x7F on port 0x1F7
-> ata1: disabling port
-> scsi0 : ata_piix
->
-> That looks like ata_piix couldn't get at the ide port because it was
-> already taken by the generic driver already.
->
-> --
-> Len Sorensen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--------------000306020208020909000409
+Content-Type: text/x-patch;
+ name="edd-cmdline-fix-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="edd-cmdline-fix-2.patch"
 
--- 
-Gustavo Guillermo Pérez
-Compunauta uLinux
-www.compunauta.com
+The EDD code would scan the command line as a fixed array, without
+taking account of either whitespace, null-termination, the old
+command-line protocol, late overrides early, or the fact that the
+command line may not be reachable from INITSEG.
+
+This should fix those problems, and enable us to use a longer command
+line.
+
+Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+
+
+diff --git a/arch/i386/boot/edd.S b/arch/i386/boot/edd.S
+index 4b84ea2..5d52908 100644
+--- a/arch/i386/boot/edd.S
++++ b/arch/i386/boot/edd.S
+@@ -15,42 +15,95 @@ #include <linux/edd.h>
+ #include <asm/setup.h>
+ 
+ #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
++
++# It is assumed that %ds == INITSEG here
++	
+ 	movb	$0, (EDD_MBR_SIG_NR_BUF)
+ 	movb	$0, (EDDNR)
+ 
+-# Check the command line for two options:
++# Check the command line for options:
+ # edd=of  disables EDD completely  (edd=off)
+ # edd=sk  skips the MBR test    (edd=skipmbr)
++# edd=on  re-enables EDD (edd=on)
++	
+ 	pushl	%esi
+-    	cmpl	$0, %cs:cmd_line_ptr
+-	jz	done_cl
++	movw	$edd_mbr_sig_start, %di	# Default to edd=on
++	
+ 	movl	%cs:(cmd_line_ptr), %esi
+-# ds:esi has the pointer to the command line now
+-	movl	$(COMMAND_LINE_SIZE-7), %ecx
+-# loop through kernel command line one byte at a time
+-cl_loop:
+-	cmpl	$EDD_CL_EQUALS, (%si)
++	andl	%esi, %esi
++	jz	old_cl			# Old boot protocol?
++
++# Convert to a real-mode pointer in fs:si
++	movl	%esi, %eax
++	shrl	$4, %eax
++	movw	%ax, %fs
++	andw	$0xf, %si
++	jmp	have_cl_pointer
++
++# Old-style boot protocol?
++old_cl:
++	push	%ds			# aka INITSEG
++	pop	%fs
++
++	cmpw	$0xa33f, (0x20)
++	jne	done_cl			# No command line at all?
++	movw	(0x22), %si		# Pointer relative to INITSEG
++
++# fs:si has the pointer to the command line now
++have_cl_pointer:
++	
++# Loop through kernel command line one byte at a time.  Just in
++# case the loader is buggy and failed to null-terminate the command line
++# terminate if we get close enough to the end of the segment that we
++# cannot fit "edd=XX"...
++cl_atspace:
++	cmpw	$-5, %si		# Watch for segment wraparound
++	jae	done_cl
++	movl	%fs:(%si), %eax
++	andb	%al, %al		# End of line?
++	jz	done_cl
++	cmpl	$EDD_CL_EQUALS, %eax
+ 	jz	found_edd_equals
+-	incl	%esi
+-	loop	cl_loop
+-	jmp	done_cl
++	cmpb	$0x20, %al		# <= space consider whitespace
++	ja	cl_skipword
++	incw	%si
++	jmp	cl_atspace
++
++cl_skipword:
++	cmpw	$-5, %si		# Watch for segment wraparound
++	jae	done_cl
++	movb	%fs:(%si), %al		# End of string?
++	andb	%al, %al
++	jz	done_cl
++	cmpb	$0x20, %al
++	jbe	cl_atspace
++	incw	%si
++	jmp	cl_skipword
++	
+ found_edd_equals:
+ # only looking at first two characters after equals
+-    	addl	$4, %esi
+-	cmpw	$EDD_CL_OFF, (%si)	# edd=of
+-	jz	do_edd_off
+-	cmpw	$EDD_CL_SKIP, (%si)	# edd=sk
+-	jz	do_edd_skipmbr
+-	jmp	done_cl
++# late overrides early on the command line, so keep going after finding something
++	movw	%fs:4(%si), %ax
++	cmpw	$EDD_CL_OFF, %ax	# edd=of
++	je	do_edd_off
++	cmpw	$EDD_CL_SKIP, %ax	# edd=sk
++	je	do_edd_skipmbr
++	cmpw	$EDD_CL_ON, %ax		# edd=on
++	je	do_edd_on
++	jmp	cl_skipword
+ do_edd_skipmbr:
+-    	popl	%esi
+-	jmp	edd_start
++	movw	$edd_start, %di
++	jmp	cl_skipword
+ do_edd_off:
+-	popl	%esi
+-	jmp	edd_done
++	movw	$edd_done, %di
++	jmp	cl_skipword
++do_edd_on:
++	movw	$edd_mbr_sig_start, %di
++	jmp	cl_skipword
++	
+ done_cl:
+ 	popl	%esi
+-
++	jmpw	*%di
+ 
+ # Read the first sector of each BIOS disk device and store the 4-byte signature
+ edd_mbr_sig_start:
+diff --git a/include/linux/edd.h b/include/linux/edd.h
+index 162512b..b2b3e68 100644
+--- a/include/linux/edd.h
++++ b/include/linux/edd.h
+@@ -52,6 +52,7 @@ #define EDD_MBR_SIG_NR_BUF 0x1ea  /* add
+ #define EDD_CL_EQUALS   0x3d646465     /* "edd=" */
+ #define EDD_CL_OFF      0x666f         /* "of" for off  */
+ #define EDD_CL_SKIP     0x6b73         /* "sk" for skipmbr */
++#define EDD_CL_ON       0x6e6f	       /* "on" for on */
+ 
+ #ifndef __ASSEMBLY__
+ 
+
+--------------000306020208020909000409--

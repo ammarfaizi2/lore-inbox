@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWH2P5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWH2P5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWH2P5M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWH2P5M
+	id S965049AbWH2P5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWH2P5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:57:12 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13448 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965042AbWH2P5K (ORCPT
+	Tue, 29 Aug 2006 11:57:44 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:8321 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S965046AbWH2P5n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:57:10 -0400
-Date: Tue, 29 Aug 2006 08:56:36 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: David Howells <dhowells@redhat.com>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent? 
-In-Reply-To: <11861.1156845927@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
-References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
- <1156750249.3034.155.camel@laptopd505.fenrus.org> 
- <11861.1156845927@warthog.cambridge.redhat.com>
+	Tue, 29 Aug 2006 11:57:43 -0400
+Message-ID: <44F463EA.1010908@ens-lyon.org>
+Date: Tue, 29 Aug 2006 11:57:30 -0400
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zhu Yi <yi.zhu@intel.com>
+Subject: Re: Linux v2.6.18-rc5
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060827231421.f0fc9db1.akpm@osdl.org>
+In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006, David Howells wrote:
+Andrew Morton wrote:
+> On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
+> Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>   
+>> Linux 2.6.18-rc5 is out there now
+>>     
+>
+> (Reporters Bcc'ed: please provide updates)
+>
+> Serious-looking regressions include:
+>   
 
-> Because i386 (and x86_64) can do better by using XADDL/XADDQ.
+I am having problems with ipw2200. It does not connect to my WPA access
+point unless I help it (for instance by setting the ESSID with
+iwconfig). It seems to be related to driver version 1.1.2. I had the
+same problem when 1.1.2 was the latest external tarball.
 
-And Ia64 would like to use fetchadd....
+I have been using 1.1.3 and 1.1.4 external tarballs without problems for
+a while. Zhu Yi pushed 1.1.4 to netdev-2.6/wireless last week. Is there
+any chance it could be pulled before 2.6.18?
 
-> CMPXCHG is not available on all archs, and may not be implemented on all archs
-> through other atomic instructions.
+Sorry for notifying so late in the release cycle...
 
-Which arches do not support cmpxchg?
- 
+Regards,
+Brice
+

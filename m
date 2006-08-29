@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWH2IMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWH2IMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWH2IMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 04:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWH2IMg
+	id S1751268AbWH2IMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWH2IMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 04:12:36 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:52532 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1751259AbWH2IMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 04:12:34 -0400
-Date: Tue, 29 Aug 2006 10:15:18 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-Cc: Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: megaraid_sas suspend ok, resume oops
-Message-ID: <20060829081518.GD12257@kernel.dk>
-References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
+	Tue, 29 Aug 2006 04:12:52 -0400
+Received: from mail.kingsoft.net ([211.152.52.46]:7249 "HELO mail.kingsoft.net")
+	by vger.kernel.org with SMTP id S1751268AbWH2IMv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 04:12:51 -0400
+From: =?UTF-8?B?TGltZW5nIFvmnY7okIxd?= <avlimeng@kingsoft.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: help
+Date: Tue, 29 Aug 2006 16:12:18 +0800
+Message-ID: <004a01c6cb42$dbdbc110$8940a8c0@liibook>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-Index: AcbLQthDL1kMIts/Ty+iHwxe7Wbq2Q==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29 2006, Jeff Chua wrote:
-> Anyone working on suspend/resume for the Megaraid SAS RAID card?
-> 
-> This is on a DELL 2950.
-> 
-> Suspend/resume (to disk) has been running great on my IBM x60s, but
-> when I tried the same kernel (2.6.18-rc4) on the DELL 2950, it
-> suspended ok, but when resuming, the megaraid driver crashed.
+Hi,
+    How can I get one thread’s  LWP id on linux？ 
+    The thread is not the main thread, so that getpid() does not work. And the LWP id is not the same as the result by pthread_self().
 
-And what exactly is your intention with this email? It can't be getting
-the bug fixed, since there's exactly 0% information to help people doing
-so :-)
+    Any suggestion?
 
-IOW, provide the oops from the resume crash at least.
+Xixi
+2006-8-29
 
--- 
-Jens Axboe
 

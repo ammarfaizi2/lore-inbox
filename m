@@ -1,122 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965347AbWH2Uue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965343AbWH2Uyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965347AbWH2Uue (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965344AbWH2Uu3
+	id S965343AbWH2Uyh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965348AbWH2Uyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:50:29 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:29336 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965347AbWH2Uu1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:50:27 -0400
-Subject: [RFC][PATCH 2/2] ACPI: handle timer ticks proactively
-From: Adam Belay <abelay@novell.com>
-To: Len Brown <len.brown@intel.com>
-Cc: ACPI-ML <linux-acpi@vger.kernel.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Arjan van de Ven <arjan@linux.intel.com>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 16:51:52 -0400
-Message-Id: <1156884713.1781.122.camel@localhost.localdomain>
+	Tue, 29 Aug 2006 16:54:37 -0400
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:49948 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S965343AbWH2Uyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 16:54:35 -0400
+Date: Tue, 29 Aug 2006 22:54:32 +0200
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Antonino A. Daplas" <adaplas@pol.net>
+Subject: Re: [patch 5/6] Convert to use mutexes instead of semaphores
+Message-ID: <20060829205432.GA13522@hansmi.ch>
+References: <20060811050310.958962036.dtor@insightbb.com> <20060811050611.530817371.dtor@insightbb.com> <d120d5000608110558l3d3a5720i1781f4e90f40579b@mail.gmail.com> <1155302169.19959.16.camel@localhost.localdomain> <d120d5000608110634n501d33b0yb7702a24cbf064e3@mail.gmail.com> <20060811134215.GA26017@hansmi.ch> <d120d5000608110707o2b758739x20033b000449113f@mail.gmail.com> <1155314751.25767.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155314751.25767.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Fri, Aug 11, 2006 at 05:45:51PM +0100, Richard Purdie wrote:
+> On Fri, 2006-08-11 at 10:07 -0400, Dmitry Torokhov wrote: 
+> > On 8/11/06, Michael Hanselmann <linux-kernel@hansmi.ch> wrote:
+> > > Because I am responsible/wrote for the broken code, how should I
+> > > proceed?
 
-This patch takes advantage of the infrastructure introduced in the last
-patch, and allows the processor idle algorithm to proactively choose a
-c-state based on the time the next timer interrupt is expected to occur.
-It preserves the residency metric, so the algorithm should, in theory,
-remain effective against bursts of activity from other interrupt
-sources.
+Somehow this got lost, sorry. The patch below fixes at least the
+wrongly ordered up()/down() calls. I know there are outstanding with the
+backlight code in general, but those issues aren't that easy to fix.
 
-This patch is mostly intended to be illustrative.  There may be some
-"#ifdef CONFIG_ACPI" issues, and I would appreciate any advice on
-implementing this more cleanly.
+Is it okay? If yes, I'm going to send it to akpm.
 
-Cheers,
-Adam
-
-Patch is against 2.6.18-rc4.
-Signed-off-by: Adam Belay <abelay@novell.com>
+Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
 
 ---
- drivers/acpi/processor_idle.c |   17 +++++++++++++++++
- include/acpi/processor.h      |    2 ++
- kernel/timer.c                |    7 +++++++
- 3 files changed, 26 insertions(+)
-
-
---- a/drivers/acpi/processor_idle.c	2006-08-28 17:14:54.000000000 -0400
-+++ b/drivers/acpi/processor_idle.c	2006-08-28 17:29:21.000000000 -0400
-@@ -64,6 +64,7 @@
-  * Currently, we aim for the entry/exit latency to be 20% of measured residency.
-  */
- #define RESIDENCY_TO_LATENCY_RATIO	5
-+#define TIMER_TICKS (PM_TIMER_FREQUENCY / HZ)
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/macintosh/via-pmu-backlight.c linux-2.6.18-rc5/drivers/macintosh/via-pmu-backlight.c
+--- linux-2.6.18-rc5.orig/drivers/macintosh/via-pmu-backlight.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/macintosh/via-pmu-backlight.c	2006-08-29 22:40:58.000000000 +0200
+@@ -168,11 +168,11 @@ void __init pmu_backlight_init()
+ 		mutex_unlock(&info->bl_mutex);
+ 	}
  
- /* --------------------------------------------------------------------------
-                                 Power Management
-@@ -271,6 +272,22 @@
- 		int count = min(pr->power.count, (int) max_cstate);
- 		cx = &pr->power.states[state_idx];
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = level;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
  
-+		/*
-+		 * We are proactive with timer interrupts.  After a timer
-+		 * interrupt has occurred the previous sleep_ticks value is
-+		 * restored.
-+		 */
-+		if (pr->power.pretimer_last_ticks) {
-+			sleep_ticks = pr->power.pretimer_last_ticks;
-+			pr->power.pretimer_last_ticks = 0;
-+		}
-+		t1 = inl(acpi_fadt.xpm_tmr_blk.address);
-+		i = TIMER_TICKS - t1 + pr->power.timer_tick;
-+		if (i < sleep_ticks) {
-+			pr->power.pretimer_last_ticks = sleep_ticks;
-+			sleep_ticks = i;
-+		}
-+
- 		if (cx->target_ticks < sleep_ticks) { /* promotion */
- 			for (i = state_idx + 1; i <= count; i++) {
- 				cx = &pr->power.states[i];
---- a/kernel/timer.c	2006-08-03 13:39:22.000000000 -0400
-+++ b/kernel/timer.c	2006-08-28 17:16:36.000000000 -0400
-@@ -41,6 +41,9 @@
- #include <asm/timex.h>
- #include <asm/io.h>
- 
-+#include <acpi/acpi_bus.h>
-+#include <acpi/processor.h>
-+
- #ifdef CONFIG_TIME_INTERPOLATION
- static void time_interpolator_update(long delta_nsec);
- #else
-@@ -1175,6 +1178,10 @@
+ 	mutex_lock(&pmac_backlight_mutex);
+ 	if (!pmac_backlight)
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/video/aty/aty128fb.c linux-2.6.18-rc5/drivers/video/aty/aty128fb.c
+--- linux-2.6.18-rc5.orig/drivers/video/aty/aty128fb.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/video/aty/aty128fb.c	2006-08-29 22:41:24.000000000 +0200
+@@ -1801,10 +1801,10 @@ static struct backlight_properties aty12
+ static void aty128_bl_set_power(struct fb_info *info, int power)
  {
- 	struct task_struct *p = current;
- 	int cpu = smp_processor_id();
-+	struct acpi_processor *pr = processors[cpu];
-+
-+	if (pr)
-+		pr->power.timer_tick = inl(acpi_fadt.xpm_tmr_blk.address);
+ 	mutex_lock(&info->bl_mutex);
+-	up(&info->bl_dev->sem);
++	down(&info->bl_dev->sem);
+ 	info->bl_dev->props->power = power;
+ 	__aty128_bl_update_status(info->bl_dev);
+-	down(&info->bl_dev->sem);
++	up(&info->bl_dev->sem);
+ 	mutex_unlock(&info->bl_mutex);
+ }
  
- 	/* Note: this timer irq context must be accounted for as well. */
- 	if (user_tick)
---- a/include/acpi/processor.h	2006-08-28 17:14:54.000000000 -0400
-+++ b/include/acpi/processor.h	2006-08-28 17:20:25.000000000 -0400
-@@ -60,6 +60,8 @@
- 	u32 bm_activity;
- 	u32 bm_veto_state;
- 	u32 last_ticks;
-+	u32 timer_tick;
-+	u32 pretimer_last_ticks;
- 	int count;
- 	struct acpi_processor_cx states[ACPI_PROCESSOR_MAX_POWER];
- };
-
-
+@@ -1839,11 +1839,11 @@ static void aty128_bl_init(struct aty128
+ 		219 * FB_BACKLIGHT_MAX / MAX_LEVEL);
+ 	mutex_unlock(&info->bl_mutex);
+ 
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = aty128_bl_data.max_brightness;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
+ 
+ #ifdef CONFIG_PMAC_BACKLIGHT
+ 	mutex_lock(&pmac_backlight_mutex);
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/video/aty/atyfb_base.c linux-2.6.18-rc5/drivers/video/aty/atyfb_base.c
+--- linux-2.6.18-rc5.orig/drivers/video/aty/atyfb_base.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/video/aty/atyfb_base.c	2006-08-29 22:41:47.000000000 +0200
+@@ -2200,10 +2200,10 @@ static struct backlight_properties aty_b
+ static void aty_bl_set_power(struct fb_info *info, int power)
+ {
+ 	mutex_lock(&info->bl_mutex);
+-	up(&info->bl_dev->sem);
++	down(&info->bl_dev->sem);
+ 	info->bl_dev->props->power = power;
+ 	__aty_bl_update_status(info->bl_dev);
+-	down(&info->bl_dev->sem);
++	up(&info->bl_dev->sem);
+ 	mutex_unlock(&info->bl_mutex);
+ }
+ 
+@@ -2234,11 +2234,11 @@ static void aty_bl_init(struct atyfb_par
+ 		0xFF * FB_BACKLIGHT_MAX / MAX_LEVEL);
+ 	mutex_unlock(&info->bl_mutex);
+ 
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = aty_bl_data.max_brightness;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
+ 
+ #ifdef CONFIG_PMAC_BACKLIGHT
+ 	mutex_lock(&pmac_backlight_mutex);
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/video/aty/radeon_backlight.c linux-2.6.18-rc5/drivers/video/aty/radeon_backlight.c
+--- linux-2.6.18-rc5.orig/drivers/video/aty/radeon_backlight.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/video/aty/radeon_backlight.c	2006-08-29 22:39:23.000000000 +0200
+@@ -195,11 +195,11 @@ void radeonfb_bl_init(struct radeonfb_in
+ 		217 * FB_BACKLIGHT_MAX / MAX_RADEON_LEVEL);
+ 	mutex_unlock(&rinfo->info->bl_mutex);
+ 
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = radeon_bl_data.max_brightness;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
+ 
+ #ifdef CONFIG_PMAC_BACKLIGHT
+ 	mutex_lock(&pmac_backlight_mutex);
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/video/nvidia/nv_backlight.c linux-2.6.18-rc5/drivers/video/nvidia/nv_backlight.c
+--- linux-2.6.18-rc5.orig/drivers/video/nvidia/nv_backlight.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/video/nvidia/nv_backlight.c	2006-08-29 22:43:03.000000000 +0200
+@@ -113,10 +113,10 @@ static struct backlight_properties nvidi
+ void nvidia_bl_set_power(struct fb_info *info, int power)
+ {
+ 	mutex_lock(&info->bl_mutex);
+-	up(&info->bl_dev->sem);
++	down(&info->bl_dev->sem);
+ 	info->bl_dev->props->power = power;
+ 	__nvidia_bl_update_status(info->bl_dev);
+-	down(&info->bl_dev->sem);
++	up(&info->bl_dev->sem);
+ 	mutex_unlock(&info->bl_mutex);
+ }
+ 
+@@ -151,11 +151,11 @@ void nvidia_bl_init(struct nvidia_par *p
+ 		0x534 * FB_BACKLIGHT_MAX / MAX_LEVEL);
+ 	mutex_unlock(&info->bl_mutex);
+ 
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = nvidia_bl_data.max_brightness;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
+ 
+ #ifdef CONFIG_PMAC_BACKLIGHT
+ 	mutex_lock(&pmac_backlight_mutex);
+diff -Nrup --exclude-from linux-exclude-from linux-2.6.18-rc5.orig/drivers/video/riva/fbdev.c linux-2.6.18-rc5/drivers/video/riva/fbdev.c
+--- linux-2.6.18-rc5.orig/drivers/video/riva/fbdev.c	2006-08-29 22:27:01.000000000 +0200
++++ linux-2.6.18-rc5/drivers/video/riva/fbdev.c	2006-08-29 22:43:26.000000000 +0200
+@@ -355,10 +355,10 @@ static struct backlight_properties riva_
+ static void riva_bl_set_power(struct fb_info *info, int power)
+ {
+ 	mutex_lock(&info->bl_mutex);
+-	up(&info->bl_dev->sem);
++	down(&info->bl_dev->sem);
+ 	info->bl_dev->props->power = power;
+ 	__riva_bl_update_status(info->bl_dev);
+-	down(&info->bl_dev->sem);
++	up(&info->bl_dev->sem);
+ 	mutex_unlock(&info->bl_mutex);
+ }
+ 
+@@ -393,11 +393,11 @@ static void riva_bl_init(struct riva_par
+ 		0x534 * FB_BACKLIGHT_MAX / MAX_LEVEL);
+ 	mutex_unlock(&info->bl_mutex);
+ 
+-	up(&bd->sem);
++	down(&bd->sem);
+ 	bd->props->brightness = riva_bl_data.max_brightness;
+ 	bd->props->power = FB_BLANK_UNBLANK;
+ 	bd->props->update_status(bd);
+-	down(&bd->sem);
++	up(&bd->sem);
+ 
+ #ifdef CONFIG_PMAC_BACKLIGHT
+ 	mutex_lock(&pmac_backlight_mutex);

@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWH2KuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWH2K5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWH2KuB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 06:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWH2KuB
+	id S932291AbWH2K5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 06:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWH2K5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 06:50:01 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61881 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932270AbWH2KuA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 06:50:00 -0400
-Subject: Re: [PATCH] HPA resume fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <44F40F06.4010408@PicturesInMotion.net>
-References: <44F40F06.4010408@PicturesInMotion.net>
-Content-Type: text/plain
+	Tue, 29 Aug 2006 06:57:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:59020 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932284AbWH2K5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 06:57:10 -0400
+From: Andi Kleen <ak@suse.de>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: Why Semaphore Hardware-Dependent?
+Date: Tue, 29 Aug 2006 12:56:54 +0200
+User-Agent: KMail/1.9.3
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>,
+       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <44F395DE.10804@yahoo.com.au> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
+In-Reply-To: <11861.1156845927@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200608291256.54665.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 29 Aug 2006 12:11:51 +0100
-Message-Id: <1156849911.6271.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-29 am 05:55 -0400, ysgrifennodd Lee Trager:
-> This patch fixes a problem with computers that have HPA on their hard
-> drive and not being able to come out of resume from RAM or disk. This is
-> my first patch to the kernel and third time submitting it, hopefully I
-> got it right this time.
-> 
-> Signed-off-by: Lee Trager <Lee@PicturesInMotion.net>
+On Tuesday 29 August 2006 12:05, David Howells wrote:
 
-For -mm only to get more testing
+>Because i386 (and x86_64) can do better by using XADDL/XADDQ.
 
-Acked-by: Alan Cox <alan@redhat.com>
+x86-64 has always used the spinlock based version.
+
+> On i386, CMPXCHG also ties you to what registers you may use for what to some
+> extent. 
+
+We've completely given up these kinds of micro optimization for spinlocks,
+which are 1000x as critical as rwsems.  And nobody was able to benchmark
+a difference.
+
+It is very very likely nobody could benchmark a difference on rwsems either.
+
+While I'm sure it's an interesting intellectual exercise to do these
+advanced rwsems it would be better for everybody else to go for a single 
+maintainable C implementation.
+
+-Andi

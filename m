@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWH2LcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWH2Ldz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWH2LcY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 07:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWH2LcX
+	id S964929AbWH2Ldz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWH2Ldz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 07:32:23 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:59592 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964930AbWH2LcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 07:32:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IbPRMAlgUYyRmALC5FnEZe0eluljnEgTRNYDPqf49k3cytCVfRxUHiNWEQMn9wWxUgBrNFHOJ9HNTTIe+xyk5L9gPFDa/IdQ4Maq2agdBGG563NDTz+y6wl1GPb8r8heFVKgCOlv+G0GgCSs2nXIvDNw44SzLiEct63CU1tFa5o=
-Message-ID: <69304d110608290432m4ada1fccy9fba476c7a97a7fb@mail.gmail.com>
-Date: Tue, 29 Aug 2006 13:32:22 +0200
-From: "Antonio Vargas" <windenntw@gmail.com>
-To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>, Niklaus <niklaus@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: SDRAM or DDRAM in linux
-In-Reply-To: <20060829104315.GB4187@aehallh.com>
+	Tue, 29 Aug 2006 07:33:55 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:58799 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964929AbWH2Ldy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:33:54 -0400
+Message-ID: <44F40E76.5000809@sw.ru>
+Date: Tue, 29 Aug 2006 13:52:54 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: devel@openvz.org
+CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Devel] [PATCH 6/6] BC: kernel memory accounting (marks)
+References: <44EC31FB.2050002@sw.ru>  <44EC371F.7080205@sw.ru> <1156357820.12011.45.camel@localhost.localdomain>
+In-Reply-To: <1156357820.12011.45.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com>
-	 <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com>
-	 <20060829080024.GA917@rhlx01.fht-esslingen.de>
-	 <20060829104315.GB4187@aehallh.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> On Tue, Aug 29, 2006 at 10:00:24AM +0200, Andreas Mohr wrote:
-> > > 2) Can both SDRAM and DDRAM be present at a time in the same
-> > > motherboard. I mean can i have 256MB of SDRAM chip and a 256 MB of
-> > > DDRAM on the same motherboard.
-> > >
-> > > If yes what are the conditions.
-> >
-> > Yes, iff the board has both DDRAM and SDRAM slots (ECS K7S5A comes to mind,
-> > most popularly).
->
-> Er, I owned a K7S5A, and as best as I can remember the manual was pretty
-> explicit that you could have one, or the other, but _not_ both at the
-> same time. :)
->
+Dave Hansen wrote:
+> I'm still a bit concerned about if we actually need the 'struct page'
+> pointer.  I've gone through all of the users, and I'm not sure that I
+> see any that _require_ having a pointer in 'struct page'.  I think it
+> will take some rework, especially with the pagetables, but it should be
+> quite doable.
+don't worry:
+1. we will introduce a separate patch moving this pointer
+  into mirroring array
+2. this pointer is still required for _user_ pages tracking,
+  that's why I don't follow your suggestion right now...
 
-I have a K7S5A working and when I plug a DDRAM, the SDRAM is ignored.
+> vmalloc:
+> 	Store in vm_struct
+> fd_set_bits:
+> poll_get:
+> mount hashtable:
+> 	Don't need alignment.  use the slab?
+> pagetables:
+> 	either store in an extra field of 'struct page', or use the
+> 	mm's.  mm should always be available when alloc/freeing a
+> 	pagetable page
+> 
+> Did I miss any?
+flocks, pipe buffers, task_struct, sighand, signal, vmas,
+posix timers, uid_cache, shmem dirs, 
+
+Thanks,
+Kirill

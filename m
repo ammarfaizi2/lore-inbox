@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWH2NNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWH2NPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWH2NNj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 09:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWH2NNj
+	id S964949AbWH2NPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 09:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWH2NPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 09:13:39 -0400
-Received: from boutiquenumerique.com ([82.67.9.10]:35529 "EHLO peufeu.com")
-	by vger.kernel.org with ESMTP id S964838AbWH2NNj (ORCPT
+	Tue, 29 Aug 2006 09:15:46 -0400
+Received: from thunk.org ([69.25.196.29]:29668 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964949AbWH2NPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 09:13:39 -0400
-Date: Tue, 29 Aug 2006 15:14:42 +0200
-To: "Andrew Morton" <akpm@osdl.org>, "Alexey Dobriyan" <adobriyan@gmail.com>
-Subject: Re: Reiser4 und LZO compression
-From: PFC <lists@peufeu.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+	Tue, 29 Aug 2006 09:15:46 -0400
+Date: Tue, 29 Aug 2006 09:15:33 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: linux@horizon.com
+Cc: johnstul@us.ibm.com, zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
+       theotso@us.ibm.com
+Subject: Re: Linux time code
+Message-ID: <20060829131533.GC31760@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>, linux@horizon.com,
+	johnstul@us.ibm.com, zippel@linux-m68k.org,
+	linux-kernel@vger.kernel.org, theotso@us.ibm.com
+References: <1156804609.16398.17.camel@localhost.localdomain> <20060829032829.28776.qmail@science.horizon.com>
 MIME-Version: 1.0
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru> <20060827010428.5c9d943b.akpm@osdl.org>
-Content-Transfer-Encoding: 7bit
-Message-ID: <op.te1q2sfbcigqcu@apollo13>
-In-Reply-To: <20060827010428.5c9d943b.akpm@osdl.org>
-User-Agent: Opera Mail/9.00 (Linux)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060829032829.28776.qmail@science.horizon.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 28, 2006 at 11:28:29PM -0400, linux@horizon.com wrote:
+> > While its possible to smooth out the leapsecond (which would be useful
+> > to many folks), the problem is one's system would then diverge from UTC
+> > for that leapsecond. 
+> 
+> The Posix-mandated behaviour *requires* diverging from UTC for some
+> time period around the leap second.  All you can do is decide how
+> to schedule the divergence.
 
+POSIX mandates this for gettimeofday() and CLOCK_REALTIME.  
 
-	Would it be, by any chance, possible to tweak the thing so that reiserfs  
-plugins become kernel modules, so that the reiserfs core can be put in the  
-kernel without the plugins slowing down its acceptance ?
+However, a conforming implementation, could (either in userspace or in
+the kernel) provide access to other time bases, include TAI or the
+proposed UTS time scales.
 
-	(and updating plugins without rebooting would be a nice extra)
-
->> The patch below is so-called reiser4 LZO compression plugin as extracted
->> from 2.6.18-rc4-mm3.
->>
->> I think it is an unauditable piece of shit and thus should not enter
->> mainline.
->
-> Like lib/inflate.c (and this new code should arguably be in lib/).
->
-> The problem is that if we clean this up, we've diverged very much from  
-> the
-> upstream implementation.  So taking in fixes and features from upstream
-> becomes harder and more error-prone.
->
-> I'd suspect that the maturity of these utilities is such that we could
-> afford to turn them into kernel code in the expectation that any future
-> changes will be small.  But it's not a completely simple call.
->
-> (iirc the inflate code had a buffer overrun a while back, which was found
-> and fixed in the upstream version).
->
->
-
-
+						- Ted

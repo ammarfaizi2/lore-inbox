@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWH2EMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWH2EPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWH2EMh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 00:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWH2EMh
+	id S1750776AbWH2EPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 00:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWH2EPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 00:12:37 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:9144 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751079AbWH2EMg (ORCPT
+	Tue, 29 Aug 2006 00:15:20 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:54437 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1750776AbWH2EPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 00:12:36 -0400
-Date: Tue, 29 Aug 2006 06:05:15 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-cc: Edward Shishkin <edward@namesys.com>,
-       Stefan Traby <stefan@hello-penguin.com>,
-       Hans Reiser <reiser@namesys.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Reiser4 und LZO compression
-In-Reply-To: <1156801705.2969.6.camel@nigel.suspend2.net>
-Message-ID: <Pine.LNX.4.61.0608290603330.8045@yvahk01.tjqt.qr>
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>  <44F322A6.9020200@namesys.com>
- <20060828173721.GA11332@hello-penguin.com>  <44F332D6.6040209@namesys.com>
- <1156801705.2969.6.camel@nigel.suspend2.net>
+	Tue, 29 Aug 2006 00:15:18 -0400
+Date: Tue, 29 Aug 2006 13:15:00 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Kaz Kojima <kkojima@rr.iij4u.or.jp>
+Cc: linux-kernel@vger.kernel.org, linuxsh-dev@lists.sourceforge.net
+Subject: Re: Step down from maintainerships
+Message-ID: <20060829041500.GB9080@localhost.hsdv.com>
+References: <20060829.081019.130229757.kkojima@rr.iij4u.or.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060829.081019.130229757.kkojima@rr.iij4u.or.jp>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >>Hmm.  LZO is the best compression algorithm for the task as measured by
->> >>the objectives of good compression effectiveness while still having very
->> >>low CPU usage (the best of those written and GPL'd, there is a slightly
->> >>better one which is proprietary and uses more CPU, LZRW if I remember
->> >>right.  The gzip code base uses too much CPU, though I think Edward made
->> > 
->> > I don't think that LZO beats LZF in both speed and compression ratio.
->> > 
->> > LZF is also available under GPL (dual-licensed BSD) and was choosen in favor
->> > of LZO for the next generation suspend-to-disk code of the Linux kernel.
->> > 
->> > see: http://www.goof.com/pcg/marc/liblzf.html
->> 
->> thanks for the info, we will compare them
->
->For Suspend2, we ended up converting the LZF support to a cryptoapi
->plugin. Is there any chance that you could use cryptoapi modules? We
->could then have a hope of sharing the support.
+Kojima-san,
 
-I am throwing in gzip: would it be meaningful to use that instead? The 
-decoder (inflate.c) is already there.
+On Tue, Aug 29, 2006 at 08:10:19AM +0900, Kaz Kojima wrote:
+> I think this is a time to step down from my SUPERH architecture
+> maintainerships.  The major development issues for this port
+> seem to shift on the hardwares I can't access and I have no
+> recent activity on kernel.
 
-06:04 shanghai:~/liblzf-1.6 > l configure*
--rwxr-xr-x  1 jengelh users 154894 Mar  3  2005 configure
--rwxr-xr-x  1 jengelh users  26810 Mar  3  2005 configure.bz2
--rw-r--r--  1 jengelh users  30611 Aug 28 20:32 configure.gz-z9
--rw-r--r--  1 jengelh users  30693 Aug 28 20:32 configure.gz-z6
--rw-r--r--  1 jengelh users  53077 Aug 28 20:32 configure.lzf
+The hardware thing is not that difficult of an issue to resolve, though
+I realize you'd rather spend your time on the toolchain.
 
+> I shouldn't qualify as a maintainer of SUPERH port now and there is no
+> problem because Paul is actively maintaining it.  The attached patch
+> drops my name, address and web URL from MAINTAINERS file.
+> 
+Thanks for all the work and years of finding bugs in my code, I hope
+that this is a trend that will continue and we'll still see some future
+contributions from you.
 
-Jan Engelhardt
--- 
+I suppose now I'll have to be more careful not to break the toolchain
+:-)
+
+> Signed-Off-By: Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
+> 
+Acked-by: Paul Mundt <lethal@linux-sh.org>

@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWH2N7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWH2OCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbWH2N7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 09:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWH2N7Y
+	id S964983AbWH2OCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWH2OCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 09:59:24 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:31120 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964974AbWH2N7X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 09:59:23 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 04/18] [PATCH] BLOCK: Separate the bounce buffering code from the highmem code [try #4]
-Date: Tue, 29 Aug 2006 15:59:20 +0200
-User-Agent: KMail/1.9.1
-Cc: Sam Ravnborg <sam@ravnborg.org>, axboe@kernel.dk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200608281352.58281.arnd.bergmann@de.ibm.com> <22040.1156537104@warthog.cambridge.redhat.com> <29516.1156859236@warthog.cambridge.redhat.com>
-In-Reply-To: <29516.1156859236@warthog.cambridge.redhat.com>
+	Tue, 29 Aug 2006 10:02:20 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:36328 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964980AbWH2OCS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 10:02:18 -0400
+Date: Tue, 29 Aug 2006 15:56:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+cc: Christoph Hellwig <hch@infradead.org>, Nicholas Miell <nmiell@comcast.net>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+In-Reply-To: <44F44072.4020506@bigpond.net.au>
+Message-ID: <Pine.LNX.4.61.0608291556100.16457@yvahk01.tjqt.qr>
+References: <44EFBEFA.2010707@student.ltu.se> <20060828093202.GC8980@infradead.org>
+ <Pine.LNX.4.61.0608281255100.14305@yvahk01.tjqt.qr> <44F2DEDC.3020608@student.ltu.se>
+ <1156792540.2367.2.camel@entropy> <20060829114143.GB4076@infradead.org>
+ <Pine.LNX.4.61.0608291416370.8031@yvahk01.tjqt.qr> <44F44072.4020506@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608291559.20802.arnd.bergmann@de.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 15:47, David Howells wrote:
-> Arnd Bergmann <arnd.bergmann@de.ibm.com> wrote:
-> 
-> > You could write it as
-> > 
-> > bounce-$(CONFIG_MMU) += bounce.o
-> > obj-$(CONFIG_BLOCK)  += $(bounce-y)
-> 
-> I could, yes, but why?  What does it buy?  I think this:
-> 
->         ifeq ($(CONFIG_MMU)$(CONFIG_BLOCK),yy)
->         obj-y += bounce.o
->         endif
-> 
-> is clearer.
 
-I remember having seen the first one in the kernel before
-(e.g. in arch/powerpc/kernel/Makefile), but not the other one.
+>> But, it coerces the rvalue into 0 or 1, which may be a gain.
+>
+> Actually, it's not coercion.  It's the result of evaluating the value as a
+> boolean expression.
 
-I agree that it doesn't make much difference at all, but it
-would be nice to be consistant.
+Don't be such a linguist :p
 
-	Arnd <><
+
+
+Jan Engelhardt
+-- 

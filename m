@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965274AbWH2UVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWH2UYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965274AbWH2UVp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbWH2UVp
+	id S964803AbWH2UYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWH2UYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:21:45 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:19861 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S965274AbWH2UVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:21:44 -0400
-Date: Tue, 29 Aug 2006 16:20:20 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH 3/6] uml: arch/um remove_mapping() clash
-Message-ID: <20060829202020.GB12080@ccure.user-mode-linux.org>
-References: <20060825153709.24254.28118.sendpatchset@twins> <20060825153740.24254.20935.sendpatchset@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060825153740.24254.20935.sendpatchset@twins>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 29 Aug 2006 16:24:21 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:20493 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964803AbWH2UYV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 16:24:21 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 29 Aug 2006 20:24:18.0189 (UTC) FILETIME=[1A8B5BD0:01C6CBA9]
+Content-class: urn:content-classes:message
+Subject: ptrace: umoven:
+Date: Tue, 29 Aug 2006 16:24:17 -0400
+Message-ID: <Pine.LNX.4.61.0608291610310.9209@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ptrace: umoven:
+Thread-Index: AcbLqRqxhSBNKrSyStOWDIJuFKo2NA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 25, 2006 at 05:37:40PM +0200, Peter Zijlstra wrote:
-> Now that 'include/linux/mm.h' includes 'include/linux/swap.h', the global
-> remove_mapping() definition clashes with the arch/um one.
-> 
-> Rename the arch/um one.
 
-If you tested the UML build -
+I googled 'umoven' and see that lots of people have reported
+this problem, but I don't see any solution.
+How do I get rid of the 'umoven' error when `stracing` system calls?
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+Typically:
+open("/home/cat3/work/view.dat", O_RDONLY) = 4
+read(4, ptrace: umoven: Input/output error
+0xa1b6d000, 41884)              = 41884
+read(4, ptrace: umoven: Input/output error
+0xa1b7739c, 41884)              = 41884
+read(4, ptrace: umoven: Input/output error
+0xa1b81738, 41884)              = 41884
+read(4, ptrace: umoven: Input/output error
+0xa1b8bad4, 41884)              = 41884
+
+The read actually succeeds, but ptrace doesn't like it.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

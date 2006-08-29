@@ -1,111 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWH2ODA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWH2ODO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWH2ODA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWH2OC7
+	id S964977AbWH2ODO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 10:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWH2ODO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:02:59 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:46156 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S964984AbWH2OC7 (ORCPT
+	Tue, 29 Aug 2006 10:03:14 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:2229 "EHLO gepetto.dc.ltu.se")
+	by vger.kernel.org with ESMTP id S964977AbWH2ODM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:02:59 -0400
-Date: Tue, 29 Aug 2006 16:05:43 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: vmsplice can't work well
-Message-ID: <20060829140542.GN12257@kernel.dk>
-References: <44F4440F.1090300@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F4440F.1090300@gmail.com>
+	Tue, 29 Aug 2006 10:03:12 -0400
+Message-ID: <44F44AB8.7090204@student.ltu.se>
+Date: Tue, 29 Aug 2006 16:10:00 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+References: <44EFBEFA.2010707@student.ltu.se> <20060828093202.GC8980@infradead.org> <20060828171804.09c01846.akpm@osdl.org> <20060829114502.GD4076@infradead.org>
+In-Reply-To: <20060829114502.GD4076@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29 2006, Yi Yang wrote:
-> Hi, Jens
-> 
-> I try to trace vmsplice and find it can't work in both ppc64 and i386,
-> it always return -EFAULT because of the address of iovec.iov_base no
-> matter it is page alignment or not, I don't know if I should file a
-> bug for it, do you test it on i386 or ppc64?
+Christoph Hellwig wrote:
 
-Please provide an strace of the problem, it works fine for me (on x86-64
-and x86, I've previously also tested ppc64 and ia64). Also please see
-the splice tools here for more examples:
+>On Mon, Aug 28, 2006 at 05:18:04PM -0700, Andrew Morton wrote:
+>  
+>
+>>At present we have >50 different definitions of TRUE and gawd knows how
+>>many private implementations of various flavours of bool.
+>>
+>>In that context, Richard's approach of giving the kernel a single
+>>implementation of bool/true/false and then converting things over to use it
+>>makes sense.  The other approach would be to go through and nuke the lot,
+>>convert them to open-coded 0/1.
+>>
+>>I'm not particularly fussed either way, really.  But the present situation
+>>is nuts.
+>>    
+>>
+>
+>Let's start to kill all those utterly silly if (x == true) and if (x == false)
+>into if (x) and if (!x) and pospone the type decision.
+>
+Ok, sounds like a good idea. But I think those who already use 
+boolean-type can/should be changed. Just have to stop myself of 
+converting "boolean" int's.
 
-http://brick.kernel.dk/snaps/splice-git-20060711102502.tar.gz
-
-I patched your program to fix the x86-64 syscall number and one/two
-bugs, diff attached. Output for me:
-
-axboe@nelson:/home/axboe $ ./f | cat > /dev/null
-getpagesize = 4096
-page size: 4096 bytes
-written len = 4096
-
---- f.c~	2006-08-29 16:02:21.000000000 +0200
-+++ f.c	2006-08-29 16:04:41.000000000 +0200
-@@ -22,7 +22,7 @@
- #elif defined(__x86_64__)
- #define __NR_splice 275
- #define __NR_tee 276
--#define __NR_vmsplice 277
-+#define __NR_vmsplice 278
- #elif defined(__powerpc__) || defined(__powerpc64__)
- #define __NR_splice 283
- #define __NR_tee 284
-@@ -71,23 +71,26 @@
- 	v.iov_base = buffer;
- 	v.iov_len = len;
- 
--	while (len) {
-+	while (v.iov_len) {
- 		/*
- 		 * in a real app you'd be more clever with poll of course,
- 		 * here we are basically just blocking on output room and
- 		 * not using the free time for anything interesting.
- 		 */
- 		if (poll(&pfd, 1, -1) < 0)
--		return xerror("poll");
-+			return xerror("poll");
- 
- 		written = vmsplice(fd, &v, 1, 0);
- 		printf("here: len = %d, written = %d\n", len, written);
- 
--		if (written <= 0)
-+		if (!written)
-+			break;
-+		else if (written < 0)
- 			return xerror("vmsplice");
- 		fprintf(stderr, "written len = %d\n", written);
- 
--		len -= written;
-+		v.iov_len -= written;
-+		v.iov_base += written;
- 	}
- 
- 	return 0;
-@@ -98,7 +101,7 @@
- 	unsigned char *buffer;
- 	struct stat sb;
- 	long page_size;
--	int i, ret;
-+	int i;
- 
- 	if (fstat(STDOUT_FILENO, &sb) < 0)
- 		return xerror("stat");
-@@ -112,7 +115,7 @@
- 		return xerror("_SC_PAGESIZE");
- 
- 	fprintf(stderr, "getpagesize = %d\n", getpagesize());
--	fprintf(stderr, "page size: %d bytes\n", page_size);
-+	fprintf(stderr, "page size: %d bytes\n", (int) page_size);
- 
- 	buffer = malloc(2 * 65536);
- 	buffer[0]='A';
-
--- 
-Jens Axboe
+>                                                        Adding a bool type
+>only makes sense if we have any kind of static typechecking that no one
+>ever assign an invalid type to it.
+>  
+>
+Do not agree on this thou. Of couse it is something to strive for, but 
+_Bool is using the same boolean-logic as C always used:
+0 is false, otherwise it is true
+so blaming _Bool for using this seem a bit odd. Also, do you mean to 
+approve changing the return-type of all the functions who returns a 
+boolean but uses an integer?
 

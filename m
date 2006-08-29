@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWH2HwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWH2IA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWH2HwL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 03:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWH2HwL
+	id S1750809AbWH2IA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 04:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWH2IA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 03:52:11 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55215 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750859AbWH2HwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 03:52:10 -0400
-Date: Tue, 29 Aug 2006 00:51:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul B Schroeder <pschroeder@uplogix.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       "'TechSupport'" <techsupport@moschip.com>, AJN Rao <ajnrao@moschip.com>,
-       AJN Rao <ajn@moschip.com>
-Subject: Re: [PATCH] Moschip 7840 USB-Serial Driver
-Message-ID: <20060829075103.GA5952@kroah.com>
-References: <44F3ED45.7080502@uplogix.com>
-MIME-Version: 1.0
+	Tue, 29 Aug 2006 04:00:26 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:23013 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750809AbWH2IA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 04:00:26 -0400
+Date: Tue, 29 Aug 2006 10:00:24 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Niklaus <niklaus@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SDRAM or DDRAM in linux
+Message-ID: <20060829080024.GA917@rhlx01.fht-esslingen.de>
+References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com> <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44F3ED45.7080502@uplogix.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 02:31:17AM -0500, Paul B Schroeder wrote:
-> Worked with the tech support folks at Moschip Semiconductor to get the 
-> driver working on the latest kernel.  We've been using it for a bit now and 
-> it appears to be working well.  They're okay with kernel inclusion of the 
-> driver.  I've cleaned it up a bit and put this patch together.
+Hi,
+
+On Tue, Aug 29, 2006 at 12:34:24PM +0530, Niklaus wrote:
+> Hi,
 > 
-> The patch is against 2.6.18-rc5.  Please apply, it can be found here:
-> http://paul.schroeder.name/DEV/kernel/mos7840.patch
+> I have access to a remote linux machine. I have a root account on it.
+> I need to know whether the installed RAM is SDRAM or DDRAM.
+> Unfortunately i will be going to the site next month when i have to
+> upgrade the machine with  more capacity. Few of them are hardware
+> related but if you know the answer please help me.
+> 
+> 1) How do i find out when the machine is online , if it is SDRAM or
+> DDRAM. I tried dmidecode utility but i was not sure about the type.
+> Can someone help me out by pasting the output for both DDR and SDRAM
+> in dmidecode or similar.
 
-Great, but can you submit it as per the Documentation/SubmittingPatches
-file?
+Try powertweak (text mode version), that can also yield pretty verbose
+DMI etc. data. Might just provide that extra bit of information you need.
 
-Also, I've included the following text at the top of the file in my port
-of the mos7720 driver from the same developers.  It also applies to this
-driver and you should add it too:
+But with DMI info about the board manufacturer it should be very easy
+to find on the internet what RAM type the board supports anyway!?
 
- * Originally based on drivers/usb/serial/io_edgeport.c which is:
- *      Copyright (C) 2000 Inside Out Networks, All rights reserved.
- *      Copyright (C) 2001-2002 Greg Kroah-Hartman <greg@kroah.com>
+> 2) Can both SDRAM and DDRAM be present at a time in the same
+> motherboard. I mean can i have 256MB of SDRAM chip and a 256 MB of
+> DDRAM on the same motherboard.
+> 
+> If yes what are the conditions.
 
-You can see the same function names and comments, as well as variable
-usages where they don't really need to be used.
+Yes, iff the board has both DDRAM and SDRAM slots (ECS K7S5A comes to mind,
+most popularly).
 
-Can you also please clean up those functions to be more kernel-like, and
-fix the variable names to follow the coding style rules of the kernel?
+> 3) Is a motherboard designed for only one type of RAM , like if we
+> remove all the SDRAMs can we put DDR in it or it is either designed
+> for DDR or SDRAM.
 
-The #defines at the start of the file also can be removed, as they are
-not needed (TRUE and FALSE don't belong in a driver, use 0 and -ERR
-instead).
+Almost all boards are *either* SDRAM *or* DDRAM, to my knowledge,
+only a couple boards during the transition phase offered both slot types.
 
-Also, look at the variables in struct moschip_port.  A lot of them can
-be simply removed as they are never used.  The wait queues are one
-example of these.  And the use of the "__" type of variables should be
-examined, as I don't think it's necessary as these variables never cross
-the kernel/user boundry.
-
-There are also a lot of global variables that should be static.
-
-I'll go over the rest when you submit it in an email message so it can
-be quoted.
-
-It's a great start though, I remember what the original version looked
-like :)
-
-thanks,
-
-greg k-h
+Andreas Mohr

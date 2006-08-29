@@ -1,142 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWH2LjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWH2Ljw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWH2LjO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 07:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWH2LjO
+	id S964952AbWH2Ljw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWH2Ljw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 07:39:14 -0400
-Received: from mail.zelnet.ru ([80.92.97.13]:15609 "EHLO mail.zelnet.ru")
-	by vger.kernel.org with ESMTP id S964905AbWH2LjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 07:39:12 -0400
-Message-ID: <44F42752.1080109@namesys.com>
-Date: Tue, 29 Aug 2006 15:38:58 +0400
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-CC: David Masover <ninja@slaphack.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Stefan Traby <stefan@hello-penguin.com>,
-       Hans Reiser <reiser@namesys.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Reiser4 und LZO compression
-References: <20060827003426.GB5204@martell.zuzino.mipt.ru>	 <44F322A6.9020200@namesys.com> <20060828173721.GA11332@hello-penguin.com>	 <44F332D6.6040209@namesys.com> <1156801705.2969.6.camel@nigel.suspend2.net>	 <Pine.LNX.4.61.0608290603330.8045@yvahk01.tjqt.qr>	 <1156830102.3790.15.camel@nigel.suspend2.net>	 <44F3F993.3000907@slaphack.com> <1156845465.3790.38.camel@nigel.suspend2.net>
-In-Reply-To: <1156845465.3790.38.camel@nigel.suspend2.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 07:39:52 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60115 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964947AbWH2Lju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:39:50 -0400
+Date: Tue, 29 Aug 2006 12:39:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       James.Bottomley@steeleye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Conversion to generic boolean
+Message-ID: <20060829113917.GA4076@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesper Juhl <jesper.juhl@gmail.com>,
+	Richard Knutsson <ricknu-0@student.ltu.se>,
+	James.Bottomley@steeleye.com, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <44EFBEFA.2010707@student.ltu.se> <20060828093202.GC8980@infradead.org> <9a8748490608280245n3228aaf0t99a50ad6f879e7e0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490608280245n3228aaf0t99a50ad6f879e7e0@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi.
-> 
-> On Tue, 2006-08-29 at 03:23 -0500, David Masover wrote:
-> 
->>Nigel Cunningham wrote:
->>
->>>Hi.
->>>
->>>On Tue, 2006-08-29 at 06:05 +0200, Jan Engelhardt wrote:
->>>
->>>>>>>>Hmm.  LZO is the best compression algorithm for the task as measured by
->>>>>>>>the objectives of good compression effectiveness while still having very
->>>>>>>>low CPU usage (the best of those written and GPL'd, there is a slightly
->>>>>>>>better one which is proprietary and uses more CPU, LZRW if I remember
->>>>>>>>right.  The gzip code base uses too much CPU, though I think Edward made
->>>>>>>
->>>>>>>I don't think that LZO beats LZF in both speed and compression ratio.
->>>>>>>
->>>>>>>LZF is also available under GPL (dual-licensed BSD) and was choosen in favor
->>>>>>>of LZO for the next generation suspend-to-disk code of the Linux kernel.
->>>>>>>
->>>>>>>see: http://www.goof.com/pcg/marc/liblzf.html
->>>>>>
->>>>>>thanks for the info, we will compare them
->>>>>
->>>>>For Suspend2, we ended up converting the LZF support to a cryptoapi
->>>>>plugin. Is there any chance that you could use cryptoapi modules? We
->>>>>could then have a hope of sharing the support.
->>>>
->>>>I am throwing in gzip: would it be meaningful to use that instead? The 
->>>>decoder (inflate.c) is already there.
->>>>
->>>>06:04 shanghai:~/liblzf-1.6 > l configure*
->>>>-rwxr-xr-x  1 jengelh users 154894 Mar  3  2005 configure
->>>>-rwxr-xr-x  1 jengelh users  26810 Mar  3  2005 configure.bz2
->>>>-rw-r--r--  1 jengelh users  30611 Aug 28 20:32 configure.gz-z9
->>>>-rw-r--r--  1 jengelh users  30693 Aug 28 20:32 configure.gz-z6
->>>>-rw-r--r--  1 jengelh users  53077 Aug 28 20:32 configure.lzf
->>>
->>>We used gzip when we first implemented compression support, and found it
->>>to be far too slow. Even with the fastest compression options, we were
->>>only getting a few megabytes per second. Perhaps I did something wrong
->>>in configuring it, but there's not that many things to get wrong!
->>
->>All that comes to mind is the speed/quality setting -- the number from 1 
->>to 9.  Recently, I backed up someone's hard drive using -1, and I 
->>believe I was still able to saturate... the _network_.  Definitely try 
->>again if you haven't changed this, but I can't imagine I'm the first 
->>persson to think of it.
->>
->> From what I remember, gzip -1 wasn't faster than the disk.  But at 
->>least for (very) repetitive data, I was wrong:
->>
->>eve:~ sanity$ time bash -c 'dd if=/dev/zero of=test bs=10m count=10; sync'
->>10+0 records in
->>10+0 records out
->>104857600 bytes transferred in 3.261990 secs (32145287 bytes/sec)
->>
->>real    0m3.746s
->>user    0m0.005s
->>sys     0m0.627s
->>eve:~ sanity$ time bash -c 'dd if=/dev/zero bs=10m count=10 | gzip -v1 > 
->>test; sync'
->>10+0 records in
->>10+0 records out
->>104857600 bytes transferred in 2.404093 secs (43616282 bytes/sec)
->>  99.5%
->>
->>real    0m2.558s
->>user    0m1.554s
->>sys     0m0.680s
->>eve:~ sanity$
->>
->>
->>
->>This was on OS X, but I think it's still valid -- this is a slightly 
->>older Powerbook, with a 5400 RPM drive, 1.6 ghz G4.
->>
->>-1 is still worlds better than nothing.  The backup was over 15 gigs, 
->>down to about 6 -- loads of repetitive data, I'm sure, but that's where 
->>you win with compression anyway.
-> 
-> 
-> Wow. That's a lot better; I guess I did get something wrong in trying to
-> tune deflate. That was pre-cryptoapi though; looking at
-> cryptoapi/deflate.c, I don't see any way of controlling the compression
-> level. Am I missing anything?
-> 
+On Mon, Aug 28, 2006 at 11:45:21AM +0200, Jesper Juhl wrote:
+> If you'll take such patches I'd be willing to clean up a few drivers..
+> Any specific ones you'd like me to start with?
 
-zlib is tunable, not cryptoapi's deflate.
-look at zlib_deflateInit2()
-
-> 
->>Well, you use cryptoapi anyway, so it should be easy to just let the 
->>user pick a plugin, right?
-> 
-> 
-> Right. They can already pick deflate if they want to.
-> 
-> Regards,
-> 
-> Nigel
-> 
-> 
-> 
+Everything under drivers/scsi/ would be nice, especially as there are
+a lot with their own TRUE/FALSE definitons there.
 

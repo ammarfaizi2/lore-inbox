@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWH2Q20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWH2QbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWH2Q20 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbWH2Q20
+	id S965070AbWH2QbE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWH2QbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:28:26 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:38546 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965064AbWH2Q2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:28:25 -0400
-Date: Tue, 29 Aug 2006 09:28:08 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: David Howells <dhowells@redhat.com>
-cc: Ralf Baechle <ralf@linux-mips.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent? 
-In-Reply-To: <5878.1156868702@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0608290926230.18503@schroedinger.engr.sgi.com>
-References: <20060829162055.GA31159@linux-mips.org>  <44F395DE.10804@yahoo.com.au>
- <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
- <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com> 
- <5878.1156868702@warthog.cambridge.redhat.com>
+	Tue, 29 Aug 2006 12:31:03 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:61390
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S965070AbWH2QbC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 12:31:02 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Date: Tue, 29 Aug 2006 18:30:25 +0200
+User-Agent: KMail/1.9.1
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <1156809344.3465.41.camel@mulgrave.il.steeleye.com> <44F3A355.6090408@flower.upol.cz>
+In-Reply-To: <44F3A355.6090408@flower.upol.cz>
+Cc: linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200608291830.26033.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006, David Howells wrote:
-
-> Ralf Baechle <ralf@linux-mips.org> wrote:
-> 
-> > > Which arches do not support cmpxchg?
+On Tuesday 29 August 2006 04:15, Oleg Verych wrote:
+> James Bottomley wrote:
+> > On Tue, 2006-08-29 at 02:35 +0200, Oleg Verych wrote:
 > > 
-> > MIPS, Alpha - probably any pure RISC load/store architecture.
-> 
-> Some of these have LL/SC or equivalent instead, but ARM5 and before, FRV, M68K
-> before 68020 to name but a few.
+> >>request_firmware() is dead also.
+> >>YMMV, but three years, and there are still big chunks of binary in kernel.
+> >>And please don't add new useless info _in_ it.
+> > 
+> > 
+> > I er don't think so.
+> > 
+> Hell, what can be as easy as this:
+> ,-
+> |modprobe $drv
+> |(dd </lib/firmware/$drv.bin>/dev/blobs && echo OK) || echo Error
+> `-
+> where /dev/blobs is similar to /dev/port or even /dev/null char device.
+> if synchronization is needed, add `echo $drv >/dev/blobs`, remove modprobe,
 
-This is all pretty ancient hardware, right? And they are mostly single 
-processor so no need to worry about concurrency. Just disable interrupts.
+Please tell me how this is going to work, if we don't
+know which firmware (version) is needed before be actually
+initialize the device?
 
-> And anything that implements CMPXCHG with spinlocks is a really bad candidate
-> for CMPXCHG-based rwsems.
-
-Those will optimize out if it is a single processor configuration.
-
+-- 
+Greetings Michael.

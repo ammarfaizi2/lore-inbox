@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWH2Q7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWH2RIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbWH2Q7v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWH2Q7v
+	id S965158AbWH2RIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 13:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWH2RIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:59:51 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:63124 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S965122AbWH2Q7t (ORCPT
+	Tue, 29 Aug 2006 13:08:24 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:33763 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965158AbWH2RIX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:59:49 -0400
-Date: Tue, 29 Aug 2006 18:58:45 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-cc: David Howells <dhowells@redhat.com>, Christoph Lameter <clameter@sgi.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-In-Reply-To: <20060829165352.GA20453@linux-mips.org>
-Message-ID: <Pine.LNX.4.62.0608291858300.3907@pademelon.sonytel.be>
-References: <20060829162055.GA31159@linux-mips.org> <44F395DE.10804@yahoo.com.au>
- <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
- <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0608290855510.18031@schroedinger.engr.sgi.com>
- <5878.1156868702@warthog.cambridge.redhat.com> <20060829165352.GA20453@linux-mips.org>
+	Tue, 29 Aug 2006 13:08:23 -0400
+Message-ID: <44F4749D.9050403@in.ibm.com>
+Date: Tue, 29 Aug 2006 22:38:45 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH] BC: resource beancounters (v2)
+References: <44EC31FB.2050002@sw.ru>	<20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org> <44F45ED7.3050708@sw.ru>
+In-Reply-To: <44F45ED7.3050708@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006, Ralf Baechle wrote:
-> On Tue, Aug 29, 2006 at 05:25:02PM +0100, David Howells wrote:
+Kirill Korotaev wrote:
+>>> ------------- cut ----------------
+>>> The task of limiting a container to 4.5GB of memory bottles down to the
+>>> question: what to do when the container starts to use more than assigned
+>>> 4.5GB of memory?
+>>>
+>>> At this moment there are only 3 viable alternatives.
+>>>
+>>> A) Have separate memory management for each container,
+>>>   with separate buddy allocator, lru lists, page replacement mechanism.
+>>>   That implies a considerable overhead, and the main challenge there
+>>>   is sharing of pages between these separate memory managers.
+>>>
+>>> B) Return errors on extension of mappings, but not on page faults, where
+>>>   memory is actually consumed.
+>>>   In this case it makes sense to take into account not only the size 
+>>> of used
+>>>   memory, but the size of created mappings as well.
+>>>   This is approximately what "privvmpages" accounting/limiting 
+>>> provides in
+>>>   UBC.
+>>>
+>>> C) Rely on OOM killer.
+>>>   This is a fall-back method in UBC, for the case "privvmpages" limits
+>>>   still leave the possibility to overload the system.
+>>>
+>>
+>>
+>> D) Virtual scan of mm's in the over-limit container
+>>
+>> E) Modify existing physical scanner to be able to skip pages which
+>>    belong to not-over-limit containers.
+>>
+>> F) Something else ;)
+> We fully agree that other possible algorithms can and should exist.
+> My idea only is that any of them would need accounting anyway
+> (which is the most part of beancounters).
+> Throtling, modified scanners etc. can be implemented as a separate
+> BC parameters. Thus, an administrator will be able to select
+> which policy should be applied to the container which is near its limit.
 > 
-> > Some of these have LL/SC or equivalent instead, but ARM5 and before, FRV, M68K
-> > before 68020 to name but a few.
+> So the patches I'm trying to send are a step-by-step accounting of all
+> the resources and their simple limitations. More comprehensive limitation
+> policy will be built on top of it later.
 > 
-> 68k before 68020 isn't supported by Linux anyway.
 
-uClinux anyone?
+One of the issues I see is that bean counters are not very flexible. Tasks 
+cannot change bean counters dynamically after fork()/exec() that is - can they?
 
-Gr{oetje,eeting}s,
 
-						Geert
+> BTW, UBC page beancounters allow to distinguish pages used by only one
+> container and pages which are shared. So scanner can try to reclaim
+> container private pages first, thus not influencing other containers.
+> 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+But can you select the specific container for which we intend to scan pages?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> Thanks,
+> Kirill
+> 
+
+-- 
+	Thanks,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWH2EPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWH2Ehc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWH2EPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 00:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWH2EPU
+	id S1750875AbWH2Ehc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 00:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWH2Ehc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 00:15:20 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:54437 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1750776AbWH2EPS (ORCPT
+	Tue, 29 Aug 2006 00:37:32 -0400
+Received: from ozlabs.org ([203.10.76.45]:26073 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750786AbWH2Ehb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 00:15:18 -0400
-Date: Tue, 29 Aug 2006 13:15:00 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Kaz Kojima <kkojima@rr.iij4u.or.jp>
-Cc: linux-kernel@vger.kernel.org, linuxsh-dev@lists.sourceforge.net
-Subject: Re: Step down from maintainerships
-Message-ID: <20060829041500.GB9080@localhost.hsdv.com>
-References: <20060829.081019.130229757.kkojima@rr.iij4u.or.jp>
+	Tue, 29 Aug 2006 00:37:31 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060829.081019.130229757.kkojima@rr.iij4u.or.jp>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17651.50176.455224.734372@cargo.ozlabs.ibm.com>
+Date: Tue, 29 Aug 2006 14:35:12 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       Ronald Lee <Ronald_Lee@pmc-sierra.com>,
+       Radjendirane Codandaramane 
+	<Radjendirane_Codandaramane@pmc-sierra.com>,
+       Shawn Jin <Shawn_Jin@pmc-sierra.com>
+Subject: Re: PPC 2.6.11.4 kernel panics while doing insmod (store fault with d
+	cbst in icache_flush_range)
+In-Reply-To: <478F19F21671F04298A2116393EEC3D5540A32@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+References: <478F19F21671F04298A2116393EEC3D5540A32@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kojima-san,
+Kallol Biswas writes:
 
-On Tue, Aug 29, 2006 at 08:10:19AM +0900, Kaz Kojima wrote:
-> I think this is a time to step down from my SUPERH architecture
-> maintainerships.  The major development issues for this port
-> seem to shift on the hardwares I can't access and I have no
-> recent activity on kernel.
-
-The hardware thing is not that difficult of an issue to resolve, though
-I realize you'd rather spend your time on the toolchain.
-
-> I shouldn't qualify as a maintainer of SUPERH port now and there is no
-> problem because Paul is actively maintaining it.  The attached patch
-> drops my name, address and web URL from MAINTAINERS file.
+>         mr      r6,r3
+> 1:      dcbst   0,r3
+>         addi    r3,r3,L1_CACHE_LINE_SIZE
+>         bdnz    1b
 > 
-Thanks for all the work and years of finding bugs in my code, I hope
-that this is a trend that will continue and we'll still see some future
-contributions from you.
+> The instruction takes a store fault (DST bit, bit 8 of ESR gets
+> set), kernel panics with oops (signal 11).
 
-I suppose now I'll have to be more careful not to break the toolchain
-:-)
+What processor are you using?
 
-> Signed-Off-By: Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
-> 
-Acked-by: Paul Mundt <lethal@linux-sh.org>
+Which instruction takes a store fault?
+
+Paul.

@@ -1,88 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWH2O7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWH2PMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWH2O7V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 10:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWH2O7V
+	id S964958AbWH2PMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWH2PMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 10:59:21 -0400
-Received: from smtp104.plus.mail.re2.yahoo.com ([206.190.53.29]:1894 "HELO
-	smtp104.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932104AbWH2O7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 10:59:20 -0400
+	Tue, 29 Aug 2006 11:12:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:44489 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964958AbWH2PMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 11:12:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:User-Agent;
-  b=bpKxg7G4RL89AgadBqyqZBbh1Qu4d+DcNaANQev5tWJPCwtZAopLLU56NS3KagijWrCbPcdmgY82PQKhfvRaVgLvz8SoQ4BIgtP1jbq5WG4mP/E2jKnsbtVMdoEZoqupR/rtsY6ONMvw//oPPcTthgwKR0fg1T7fm2rE64Kw6SI=  ;
-Date: Tue, 29 Aug 2006 16:59:17 +0200
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Jan Beulich <jbeulich@novell.com>,
-       "J. Bruce Fields" <bfields@fieldses.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Message-ID: <20060829145917.GA13972@gollum.tnic>
-Reply-To: petkov@math.uni-muenster.de
-References: <20060820013121.GA18401@fieldses.org> <200608291316.22327.ak@suse.de> <20060829130050.GA12773@gollum.tnic> <200608291636.56673.ak@suse.de>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KXt8a2x/aDZc1ZVbfhrKqCfLj6Qdo3kwlWa43uT7T8gZ5LT5X9reTfxAcHDQ402Q/CDU/xk3h/gcLwc+c5tRdwbHUqo9E5tpSUh2XoWCx3U3dyb1n2hRIuQAjLJOeO6zae8kY6o/9Z5FPGBgLhkjbeTIHnNgBgAy16alM0YRAhs=
+Message-ID: <d120d5000608290812g5bcfac3dx928aa55f4777bc3e@mail.gmail.com>
+Date: Tue, 29 Aug 2006 11:12:46 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Dmitry Torokhov" <dtor@insightbb.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Marcelo Tosatti" <mtosatti@redhat.com>
+Subject: Re: [RPC] OLPC tablet input driver.
+In-Reply-To: <20060829143502.GC4187@aehallh.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608291636.56673.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <20060829073339.GA4181@aehallh.com>
+	 <d120d5000608290553t275b4acar925f66b3d0c7434b@mail.gmail.com>
+	 <20060829143502.GC4187@aehallh.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 04:36:56PM +0200, Andi Kleen wrote:
-> On Tuesday 29 August 2006 15:00, Borislav Petkov wrote:
-> > On Tue, Aug 29, 2006 at 01:16:22PM +0200, Andi Kleen wrote:
-> > > 
-> > > > 
-> > > > Without a hex dump of stack contents there's very little I can do.
-> > > 
-> > > Borislav, if you can reproduce the crash please boot with kstack=2048 and send output
-> > > of that.
-> > Yeah, 
-> >     that's a no-go, same output:
-> 
-> Can you please try it with this debug patch?
-> 
-> -Andi
-> 
-> Index: linux/arch/x86_64/kernel/traps.c
-Sorry,
-    but this patches x86_64 arch and mine is i386. I could change the
-    kstack_depth_to_print from 24 to 2048 in
-    linux/arch/i386/kernel/traps.c by hand instead but I don't have
-    a _show_stack function there, do I? Or maybe that is not at all necessary to see a
-    "proper" stack dump?
+On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> On Tue, Aug 29, 2006 at 08:53:17AM -0400, Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > On 8/29/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> > >The OLPC will ship with a somewhat unique input device made by ALPS,
+> > >connected via PS/2 and speaking a protocol only loosely based on that
+> > >spoken by other ALPS devices.
+> > >
+> >
+> > Do you have a formal programming spec for it?
+>
+> Not that I can currently distribute.
+>
+> Converting to html, trimming out hardware detail, and feeding it through
+> channels for ALPS to say that they are comfortable with the amount of
+> data being released is on my todo list, but behind a few other things.
 
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/traps.c
-> +++ linux/arch/x86_64/kernel/traps.c
-> @@ -106,7 +106,7 @@ static inline void preempt_conditional_c
->  	preempt_enable_no_resched();
->  }
->  
-> -static int kstack_depth_to_print = 12;
-> +static int kstack_depth_to_print = 2048;
->  #ifdef CONFIG_STACK_UNWIND
->  static int call_trace = 1;
->  #else
-> @@ -418,7 +418,7 @@ void show_stack(struct task_struct *tsk,
->  void dump_stack(void)
->  {
->  	unsigned long dummy;
-> -	show_trace(NULL, NULL, &dummy);
-> +	_show_stack(NULL, NULL, &dummy);
->  }
->  
->  EXPORT_SYMBOL(dump_stack);
+I see. Well, if you have a decent contacts in ALPS could you ask them
+if they could release any information on their other hardware?
 
-Regards,
-    Boris.
+> >
+> > >4: Technical/policy: Buttons are currently sent to both of the input
+> > >devices we generate, I don't see any way to avoid this that is not a
+> > >policy decision on which buttons belong to which device, but I'm open to
+> > >suggestions.
+> > >
+> >
+> > Is it not known how actual hardware wired?
+>
+> Hardware is wired with one device, which is quite wide.  The entire
+> width can be accessed via the PT sensor, and the middle 1/3rd with the
+> GS sensor.
+>
+> I believe that the buttons will be one on each side, though I'm not
+> positive, and the PT data, the GS data, and the button data all arrive
+> in the same packet.
+>
+> So really there is no 'right' way from the kernel driver's point of
+> view, the buttons belong equally to both.
+>
+> The kernel driver that this will be matched with will probably leave it
+> as a user configuration setting as to which one it will throw button
+> presses away for.
 
-	
+OK.
 
-	
-		
-___________________________________________________________ 
-Der frühe Vogel fängt den Wurm. Hier gelangen Sie zum neuen Yahoo! Mail: http://mail.yahoo.de
+>
+> > >+       dev2->name = "OLPC OLPC GlideSensor";
+> >
+> > "OLPC OLPC"?
+>
+> To match the first one, with a protocol name of OLPC and a vendor of
+> OLPC we end up with 'OLPC OLPC' for the first one, this is, IMHO, rather
+> suboptimal, but I'm not sure what else to do here.
+>
+
+Should not vendor be still ALPS?
+
+-- 
+Dmitry

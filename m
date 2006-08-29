@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWH2QQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWH2QR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWH2QQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 12:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWH2QQe
+	id S965055AbWH2QR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 12:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWH2QR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 12:16:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:20187 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965051AbWH2QQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 12:16:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XY0Ak3MuuHS1M2KkFCaLVb+SjsvtXjxKuspqK13/XiaKt3n1XA2g0M3Xiq1riTU3unG47B7e55P36mAsHTCwJaQq/ys2U1ChKtU79pCoKRrQtHKUk7lRNdp+9OBpCm+TphnEq0dGhBVlEO1ciY3WiMZg/rBUiXD3Pj7mmt+2d5Q=
-Message-ID: <a2ebde260608290916o696bf5d6odbca254af079f2a8@mail.gmail.com>
-Date: Wed, 30 Aug 2006 00:16:27 +0800
-From: "Dong Feng" <middle.fengdong@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: The 3G (or nG) Kernel Memory Space Offset
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Andi Kleen" <ak@suse.de>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Paul Mackerras" <paulus@samba.org>,
-       "David Howells" <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0608290908500.18149@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 12:17:28 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:5514 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S965055AbWH2QR1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 12:17:27 -0400
+Date: Tue, 29 Aug 2006 17:17:48 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: linux-ia64@vger.kernel.org, linux-mips@linux-mips.org,
+       linuxppc-embedded@ozlabs.org, paulkf@microgate.com,
+       takata@linux-m32r.org, linux-kernel@vger.kernel.org
+Subject: Re: [CFT:PATCH] Removing possible wrong asm/serial.h inclusions
+Message-ID: <20060829161748.GF29289@linux-mips.org>
+References: <20060828085244.GA13544@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <a2ebde260608290715o627c631uca67e5b84b8c0777@mail.gmail.com>
-	 <Pine.LNX.4.61.0608291634380.16371@yvahk01.tjqt.qr>
-	 <a2ebde260608290901w73575e18hffd8a9d6c989f523@mail.gmail.com>
-	 <Pine.LNX.4.64.0608290908500.18149@schroedinger.engr.sgi.com>
+In-Reply-To: <20060828085244.GA13544@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, please do not get me wrong. Or perhaps please tolerate my poor English.
+On Mon, Aug 28, 2006 at 09:52:44AM +0100, Russell King wrote:
 
-My intention is just trying to understand whether there is an absolute
-rationality for a design choice or it just has to have a choice and
-the choice can be made arbitrarily.
+> asm/serial.h is supposed to contain the definitions for the architecture
+> specific 8250 ports for the 8250 driver.  It may also define BASE_BAUD,
+> but this is the base baud for the architecture specific ports _only_.
+> 
+> Therefore, nothing other than the 8250 driver should be including this
+> header file.  In order to move towards this goal, here is a patch which
+> removes some of the more obvious incorrect includes of the file.
+> 
+> MIPS and PPC has rather a lot of stuff in asm/serial.h, some of it looks
+> related to non-8250 ports.  Hence, it's not trivial to conclude that
+> these includes are indeed unnecessary, so can mips and ppc people please
+> test this patch carefully.
 
-Sorry again if my English cause any misunderstanding.
+The MIPS bits were just unused leftovers from the days when the arch
+code did did register serials & consoles.  So for the MIPS bits:
 
+Acked-by: Ralf Baechle <ralf@linux-mips.org>
 
-2006/8/30, Christoph Lameter <clameter@sgi.com>:
-> On Wed, 30 Aug 2006, Dong Feng wrote:
->
-> > Or perhaps this offset is just some personal favor. Say if the first
-> > kernel designer decided to locate kernel at 2-3G linear address, then
-> > 2G offset would have appeared in code. Is this the case?
->
-> Well this is the second time that you suggest that the reason for
-> technical decisions have to do with personal favors. Are you trying to
-> provoke us into answering your question?
->
->
+  Ralf

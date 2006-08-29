@@ -1,31 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965310AbWH2Uqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965316AbWH2Uq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965310AbWH2Uqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbWH2Uqp
+	id S965316AbWH2Uq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbWH2Uq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:46:45 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:23436 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965310AbWH2Uqo (ORCPT
+	Tue, 29 Aug 2006 16:46:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10453 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965312AbWH2Uqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:46:44 -0400
-Message-ID: <44F4A7B2.5030901@garzik.org>
-Date: Tue, 29 Aug 2006 16:46:42 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Valerie Henson <val_henson@linux.intel.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 10/10] [TULIP] Update winbond840.c version
-References: <20060826000227.818796000@linux.intel.com> <20060826000304.734423000@linux.intel.com>
-In-Reply-To: <20060826000304.734423000@linux.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Aug 2006 16:46:55 -0400
+Date: Tue, 29 Aug 2006 13:46:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH -mm] PM: Add pm_trace switch
+Message-Id: <20060829134648.451971a1.akpm@osdl.org>
+In-Reply-To: <200608291309.57404.rjw@sisk.pl>
+References: <200608291309.57404.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACK patches 9-10
+On Tue, 29 Aug 2006 13:09:57 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
+> +int pm_trace_enabled;
+> +
+> +static ssize_t pm_trace_show(struct subsystem * subsys, char * buf)
+> +{
+> +	return sprintf(buf, "%d\n", pm_trace_enabled);
+> +}
+> +
+> +static ssize_t
+> +pm_trace_store(struct subsystem * subsys, const char * buf, size_t n)
+> +{
+> +	int val;
+> +
+> +	if (sscanf(buf, "%d", &val) == 1) {
+> +		pm_trace_enabled = !!val;
+> +		return n;
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +power_attr(pm_trace);
+
+<grumbles about documentation>

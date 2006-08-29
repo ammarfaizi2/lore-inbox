@@ -1,41 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWH2Lz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWH2L6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWH2Lz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 07:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWH2Lz5
+	id S964966AbWH2L6G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWH2L6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 07:55:57 -0400
-Received: from natlemon.rzone.de ([81.169.145.170]:41634 "EHLO
-	natlemon.rzone.de") by vger.kernel.org with ESMTP id S964965AbWH2Lz4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 07:55:56 -0400
-Date: Tue, 29 Aug 2006 13:55:37 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Linus Torvalds <torvalds@osdl.org>, Nathan Lynch <ntl@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc5
-Message-ID: <20060829115537.GA24256@aepfle.de>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 29 Aug 2006 07:58:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:63896 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964964AbWH2L6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:58:05 -0400
+Date: Tue, 29 Aug 2006 12:57:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: David Howells <dhowells@redhat.com>, axboe@kernel.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/18] [PATCH] BLOCK: Don't call block_sync_page() from AFS [try #4]
+Message-ID: <20060829115737.GB32714@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wedgwood <cw@f00f.org>, David Howells <dhowells@redhat.com>,
+	axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060825193658.11384.8349.stgit@warthog.cambridge.redhat.com> <20060825193709.11384.79794.stgit@warthog.cambridge.redhat.com> <20060827212136.GA12710@tuatara.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060827212136.GA12710@tuatara.stupidest.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 27, Linus Torvalds wrote:
+On Sun, Aug 27, 2006 at 02:21:36PM -0700, Chris Wedgwood wrote:
+> On Fri, Aug 25, 2006 at 08:37:10PM +0100, David Howells wrote:
+> 
+> > The AFS filesystem specifies block_sync_page() as its sync_page
+> > address op, which needs to be checked, and so is commented out for
+> > the moment.
+> 
+> Wouldn't it be better to just let the link/build fail so someone who
+> groks AFS internals can look into this?
 
-> Pls test it out, and please remind all the appropriate people about any 
-> regressions you find (including any found earlier if they haven't been 
-> addressed yet).
+David wrote most of this code.  But in fact one doesn't need AFS knowledge
+to see that it's not needed.
 
-> Nathan Lynch:
->       [POWERPC] Fix gettimeofday inaccuracies
+Take a look at block_sync_page:
 
-Tested on B&W G3, iBook1 and a G4/466.
-This patch causes deadlocks on ppc32, but not on ppc64. Have to verify
-it on a vanilla kernel, but I'm sure there are no funky patches in
-openSuSE.
+void block_sync_page(struct page *page)
+{
+	struct address_space *mapping;
 
-https://bugzilla.novell.com/show_bug.cgi?id=202146
+	smp_mb();
+	mapping = page_mapping(page);
+	if (mapping)
+		blk_run_backing_dev(mapping->backing_dev_info, page);
+}
+
+so it's a wrapper around blk_run_backing_dev:
+
+static inline void blk_run_backing_dev(struct backing_dev_info *bdi,
+				       struct page *page)
+{
+	if (bdi && bdi->unplug_io_fn)
+		bdi->unplug_io_fn(bdi, page);
+}
+
+AFS never sets a backing_dev_info on it's own and thus uses
+&default_backing_dev_info which sets the unplug_io_fn to
+default_unplug_io_fn.  default_unplug_io_fn is a no-op, and thus
+block_sync_page does nothing for AFS.
+
+It thus can be safely removed, even without the #if 0
+

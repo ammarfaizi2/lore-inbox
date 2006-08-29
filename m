@@ -1,31 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965318AbWH2Unz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965302AbWH2UqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965318AbWH2Unz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965320AbWH2Unz
+	id S965302AbWH2UqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965316AbWH2UqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:43:55 -0400
-Received: from gw.goop.org ([64.81.55.164]:37313 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S965318AbWH2Uny (ORCPT
+	Tue, 29 Aug 2006 16:46:16 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:18828 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965306AbWH2UqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:43:54 -0400
-Message-ID: <44F48F7D.4050908@goop.org>
-Date: Tue, 29 Aug 2006 12:03:25 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Tue, 29 Aug 2006 16:46:15 -0400
+Message-ID: <44F4A794.5060800@garzik.org>
+Date: Tue, 29 Aug 2006 16:46:12 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Zachary Amsden <zach@vmware.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Why set ORIG_EAX(%esp) to -1 in arch/i386/kernel/entry.S:error_code?
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Valerie Henson <val_henson@linux.intel.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Grant Grundler <grundler@parisc-linux.org>,
+       Kyle McMartin <kyle@parisc-linux.org>
+Subject: Re: [patch 07/10] [TULIP] Use tulip.h in winbond-840.c
+References: <20060826000227.818796000@linux.intel.com> <20060826000304.019773000@linux.intel.com>
+In-Reply-To: <20060826000304.019773000@linux.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There doesn't seem much point; nothing seems to use it on the 
-trap-handling paths.  Is it a historical left-over?
+ACK patches 1-7
 
-    J
 

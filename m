@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWH2Prg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWH2Psz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWH2Prg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWH2Prf
+	id S965028AbWH2Psz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWH2Psz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:47:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34772 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964875AbWH2Pre (ORCPT
+	Tue, 29 Aug 2006 11:48:55 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:10455 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965028AbWH2Psy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:47:34 -0400
-Date: Tue, 29 Aug 2006 08:47:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Richard Knutsson <ricknu-0@student.ltu.se>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Conversion to generic boolean
-Message-Id: <20060829084714.9ae799a7.akpm@osdl.org>
-In-Reply-To: <20060829114502.GD4076@infradead.org>
-References: <44EFBEFA.2010707@student.ltu.se>
-	<20060828093202.GC8980@infradead.org>
-	<20060828171804.09c01846.akpm@osdl.org>
-	<20060829114502.GD4076@infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 29 Aug 2006 11:48:54 -0400
+Subject: Re: [Devel] [PATCH 6/6] BC: kernel memory accounting (marks)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: devel@openvz.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Rohit Seth <rohitseth@google.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <44F40E76.5000809@sw.ru>
+References: <44EC31FB.2050002@sw.ru>  <44EC371F.7080205@sw.ru>
+	 <1156357820.12011.45.camel@localhost.localdomain>  <44F40E76.5000809@sw.ru>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 08:48:45 -0700
+Message-Id: <1156866525.5408.56.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 12:45:02 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 2006-08-29 at 13:52 +0400, Kirill Korotaev wrote:
+> 1. we will introduce a separate patch moving this pointer
+>   into mirroring array
+> 2. this pointer is still required for _user_ pages tracking,
+>   that's why I don't follow your suggestion right now... 
 
-> On Mon, Aug 28, 2006 at 05:18:04PM -0700, Andrew Morton wrote:
-> > At present we have >50 different definitions of TRUE and gawd knows how
-> > many private implementations of various flavours of bool.
-> > 
-> > In that context, Richard's approach of giving the kernel a single
-> > implementation of bool/true/false and then converting things over to use it
-> > makes sense.  The other approach would be to go through and nuke the lot,
-> > convert them to open-coded 0/1.
-> > 
-> > I'm not particularly fussed either way, really.  But the present situation
-> > is nuts.
-> 
-> Let's start to kill all those utterly silly if (x == true) and if (x == false)
-> into if (x) and if (!x) and pospone the type decision.  Adding a bool type
-> only makes sense if we have any kind of static typechecking that no one
-> ever assign an invalid type to it.
+You hadn't mentioned that part. ;)
 
-Not really.  bool/true/false have readability advantages over int/1/0.
+I guess we'll wait for the user patches before these can go any further.
+
+-- Dave
+

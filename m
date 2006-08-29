@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWH2SGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbWH2SIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965223AbWH2SGd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 14:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWH2SGd
+	id S965210AbWH2SIB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 14:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWH2SGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 14:06:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50148 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965216AbWH2SG2 (ORCPT
+	Tue, 29 Aug 2006 14:06:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34276 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965209AbWH2SGL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 14:06:28 -0400
+	Tue, 29 Aug 2006 14:06:11 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/19] BLOCK: Move the Ext2 device ioctl compat stuff to the Ext2 driver [try #6]
-Date: Tue, 29 Aug 2006 19:06:20 +0100
+Subject: [PATCH 07/19] BLOCK: Remove dependence on existence of blockdev_superblock [try #6]
+Date: Tue, 29 Aug 2006 19:06:07 +0100
 To: axboe@kernel.dk
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060829180620.32596.22266.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060829180607.32596.93130.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 References: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,154 +26,56 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Move the Ext2 device ioctl compat stuff from fs/compat_ioctl.c to the Ext2
-driver so that the Ext2 header file doesn't need to be included.
+Move blockdev_superblock extern declaration from fs/fs-writeback.c to a
+headerfile and remove the dependence on it by wrapping it in a macro.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/compat_ioctl.c |   17 -----------------
- fs/ext2/dir.c     |    3 +++
- fs/ext2/ext2.h    |    1 +
- fs/ext2/file.c    |    6 ++++++
- fs/ext2/ioctl.c   |   32 ++++++++++++++++++++++++++++++++
- 5 files changed, 42 insertions(+), 17 deletions(-)
+ fs/fs-writeback.c |    6 +++---
+ fs/internal.h     |    2 ++
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index 0346f2a..3594668 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -45,7 +45,6 @@ #include <linux/auto_fs4.h>
- #include <linux/tty.h>
- #include <linux/vt_kern.h>
- #include <linux/fb.h>
--#include <linux/ext2_fs.h>
- #include <linux/ext3_jbd.h>
- #include <linux/ext3_fs.h>
- #include <linux/videodev.h>
-@@ -159,18 +158,6 @@ static int rw_long(unsigned int fd, unsi
- 	return err;
- }
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 0639024..c403b66 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -319,7 +319,7 @@ sync_sb_inodes(struct super_block *sb, s
  
--static int do_ext2_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--	/* These are just misnamed, they actually get/put from/to user an int */
--	switch (cmd) {
--	case EXT2_IOC32_GETFLAGS: cmd = EXT2_IOC_GETFLAGS; break;
--	case EXT2_IOC32_SETFLAGS: cmd = EXT2_IOC_SETFLAGS; break;
--	case EXT2_IOC32_GETVERSION: cmd = EXT2_IOC_GETVERSION; break;
--	case EXT2_IOC32_SETVERSION: cmd = EXT2_IOC_SETVERSION; break;
--	}
--	return sys_ioctl(fd, cmd, (unsigned long)compat_ptr(arg));
--}
--
- static int do_ext3_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
- 	/* These are just misnamed, they actually get/put from/to user an int */
-@@ -2725,10 +2712,6 @@ HANDLE_IOCTL(PIO_UNIMAP, do_unimap_ioctl
- HANDLE_IOCTL(GIO_UNIMAP, do_unimap_ioctl)
- HANDLE_IOCTL(KDFONTOP, do_kdfontop_ioctl)
- #endif
--HANDLE_IOCTL(EXT2_IOC32_GETFLAGS, do_ext2_ioctl)
--HANDLE_IOCTL(EXT2_IOC32_SETFLAGS, do_ext2_ioctl)
--HANDLE_IOCTL(EXT2_IOC32_GETVERSION, do_ext2_ioctl)
--HANDLE_IOCTL(EXT2_IOC32_SETVERSION, do_ext2_ioctl)
- HANDLE_IOCTL(EXT3_IOC32_GETVERSION, do_ext3_ioctl)
- HANDLE_IOCTL(EXT3_IOC32_SETVERSION, do_ext3_ioctl)
- HANDLE_IOCTL(EXT3_IOC32_GETRSVSZ, do_ext3_ioctl)
-diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
-index 92ea826..3e7a84a 100644
---- a/fs/ext2/dir.c
-+++ b/fs/ext2/dir.c
-@@ -661,5 +661,8 @@ const struct file_operations ext2_dir_op
- 	.read		= generic_read_dir,
- 	.readdir	= ext2_readdir,
- 	.ioctl		= ext2_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext2_compat_ioctl,
-+#endif
- 	.fsync		= ext2_sync_file,
- };
-diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
-index e65a019..c19ac15 100644
---- a/fs/ext2/ext2.h
-+++ b/fs/ext2/ext2.h
-@@ -137,6 +137,7 @@ extern void ext2_set_inode_flags(struct 
- /* ioctl.c */
- extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
- 		       unsigned long);
-+extern long ext2_compat_ioctl(struct file *, unsigned int, unsigned long);
+ 		if (!bdi_cap_writeback_dirty(bdi)) {
+ 			list_move(&inode->i_list, &sb->s_dirty);
+-			if (sb == blockdev_superblock) {
++			if (sb_is_blkdev_sb(sb)) {
+ 				/*
+ 				 * Dirty memory-backed blockdev: the ramdisk
+ 				 * driver does this.  Skip just this inode
+@@ -336,14 +336,14 @@ sync_sb_inodes(struct super_block *sb, s
  
- /* namei.c */
- struct dentry *ext2_get_parent(struct dentry *child);
-diff --git a/fs/ext2/file.c b/fs/ext2/file.c
-index 23e2c7c..e8bbed9 100644
---- a/fs/ext2/file.c
-+++ b/fs/ext2/file.c
-@@ -46,6 +46,9 @@ const struct file_operations ext2_file_o
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.ioctl		= ext2_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext2_compat_ioctl,
-+#endif
- 	.mmap		= generic_file_mmap,
- 	.open		= generic_file_open,
- 	.release	= ext2_release_file,
-@@ -63,6 +66,9 @@ const struct file_operations ext2_xip_fi
- 	.read		= xip_file_read,
- 	.write		= xip_file_write,
- 	.ioctl		= ext2_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ext2_compat_ioctl,
-+#endif
- 	.mmap		= xip_file_mmap,
- 	.open		= generic_file_open,
- 	.release	= ext2_release_file,
-diff --git a/fs/ext2/ioctl.c b/fs/ext2/ioctl.c
-index 3ca9afd..1dfba77 100644
---- a/fs/ext2/ioctl.c
-+++ b/fs/ext2/ioctl.c
-@@ -11,6 +11,8 @@ #include "ext2.h"
- #include <linux/capability.h>
- #include <linux/time.h>
- #include <linux/sched.h>
-+#include <linux/compat.h>
-+#include <linux/smp_lock.h>
- #include <asm/current.h>
- #include <asm/uaccess.h>
+ 		if (wbc->nonblocking && bdi_write_congested(bdi)) {
+ 			wbc->encountered_congestion = 1;
+-			if (sb != blockdev_superblock)
++			if (!sb_is_blkdev_sb(sb))
+ 				break;		/* Skip a congested fs */
+ 			list_move(&inode->i_list, &sb->s_dirty);
+ 			continue;		/* Skip a congested blockdev */
+ 		}
  
-@@ -80,3 +82,33 @@ int ext2_ioctl (struct inode * inode, st
- 		return -ENOTTY;
- 	}
- }
+ 		if (wbc->bdi && bdi != wbc->bdi) {
+-			if (sb != blockdev_superblock)
++			if (!sb_is_blkdev_sb(sb))
+ 				break;		/* fs has the wrong queue */
+ 			list_move(&inode->i_list, &sb->s_dirty);
+ 			continue;		/* blockdev has wrong queue */
+diff --git a/fs/internal.h b/fs/internal.h
+index c21ecd3..f662b70 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -17,6 +17,8 @@ #include <linux/ioctl32.h>
+ extern struct super_block *blockdev_superblock;
+ extern void __init bdev_cache_init(void);
+ 
++#define sb_is_blkdev_sb(sb) ((sb) == blockdev_superblock)
 +
-+#ifdef CONFIG_COMPAT
-+long ext2_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	int ret;
-+
-+	/* These are just misnamed, they actually get/put from/to user an int */
-+	switch (cmd) {
-+	case EXT2_IOC32_GETFLAGS:
-+		cmd = EXT2_IOC_GETFLAGS;
-+		break;
-+	case EXT2_IOC32_SETFLAGS:
-+		cmd = EXT2_IOC_SETFLAGS;
-+		break;
-+	case EXT2_IOC32_GETVERSION:
-+		cmd = EXT2_IOC_GETVERSION;
-+		break;
-+	case EXT2_IOC32_SETVERSION:
-+		cmd = EXT2_IOC_SETVERSION;
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+	lock_kernel();
-+	ret = ext2_ioctl(inode, file, cmd, (unsigned long) compat_ptr(arg));
-+	unlock_kernel();
-+	return ret;
-+}
-+#endif
+ /*
+  * char_dev.c
+  */

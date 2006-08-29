@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWH2K5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWH2LBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWH2K5M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 06:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWH2K5M
+	id S1751030AbWH2LBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 07:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWH2LBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 06:57:12 -0400
-Received: from ns2.suse.de ([195.135.220.15]:59020 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932284AbWH2K5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 06:57:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: Why Semaphore Hardware-Dependent?
-Date: Tue, 29 Aug 2006 12:56:54 +0200
-User-Agent: KMail/1.9.3
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <44F395DE.10804@yahoo.com.au> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
-In-Reply-To: <11861.1156845927@warthog.cambridge.redhat.com>
+	Tue, 29 Aug 2006 07:01:13 -0400
+Received: from smtp101.plus.mail.re2.yahoo.com ([206.190.53.26]:20152 "HELO
+	smtp101.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751030AbWH2LBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 07:01:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:User-Agent;
+  b=YPO1gM9deY3kjOJKnvLZInA9mdcg+ipwY3/STMbHaDv/XQo3QfLQWQTgEygfZj8PInOgjSPPe0GpCj4W5NqECpls3JMRqh9nSjtYJyEabb2K9O5QOLw8Fbv4o1JOFhsCPagfymNHbK0ur8xpetw74Gf/DpCZ/gL9NDlDeghV+cQ=  ;
+Date: Tue, 29 Aug 2006 13:01:10 +0200
+From: Borislav Petkov <bbpetkov@yahoo.de>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, akpm@osdl.org,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+Message-ID: <20060829110109.GA10944@gollum.tnic>
+Reply-To: petkov@math.uni-muenster.de
+References: <20060820013121.GA18401@fieldses.org> <44E97353.76E4.0078.0@novell.com> <20060829085338.GA8225@gollum.tnic> <44F42BB1.76E4.0078.0@novell.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608291256.54665.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <44F42BB1.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 12:05, David Howells wrote:
+On Tue, Aug 29, 2006 at 11:57:37AM +0200, Jan Beulich wrote:
+> >>> Borislav Petkov <bbpetkov@yahoo.de> 29.08.06 10:53 >>>
+> >Hi,
+> >    I just read that unwinder thread and I think I have yet another case of
+> >    unwinder backtrace that comes up together with the recursive deadlock
+> >    protection backtrace and this happens with 18-rc5 so I thought I should
+> >    report it before .18 is released:
+> >...
+> >Aug 29 10:21:22 zmei kernel: [  383.485261]  [<c0105393>] do_IRQ+0xc3/0xd0
+> >Aug 29 10:21:22 zmei kernel: [  383.489393]  [<c0103521>] common_interrupt+0x25/0x2c
+> >Aug 29 10:21:22 zmei kernel: [  383.494387] DWARF2 unwinder stuck at common_interrupt+0x25/0x2c
+> >Aug 29 10:21:22 zmei kernel: [  383.500304] Leftover inexact backtrace:
+> ></snip>
+> 
+> Unfortunately this leaves unclear whether there was anything reported in
+> the leftover portion.
+> And in all cases, a sufficiently long raw stack trace is needed to analyse this.
+> Ideally a matching System.map would also be attached.
+> 
+> Jan
 
->Because i386 (and x86_64) can do better by using XADDL/XADDQ.
+Actually, that's all there was in dmesg. System.map is at
+http://tim.dnsalias.org/System.map-2.6.18-rc5.
 
-x86-64 has always used the spinlock based version.
+Regards,
+    Boris.
 
-> On i386, CMPXCHG also ties you to what registers you may use for what to some
-> extent. 
-
-We've completely given up these kinds of micro optimization for spinlocks,
-which are 1000x as critical as rwsems.  And nobody was able to benchmark
-a difference.
-
-It is very very likely nobody could benchmark a difference on rwsems either.
-
-While I'm sure it's an interesting intellectual exercise to do these
-advanced rwsems it would be better for everybody else to go for a single 
-maintainable C implementation.
-
--Andi
+		
+___________________________________________________________ 
+Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de

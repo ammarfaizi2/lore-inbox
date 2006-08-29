@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWH2UN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWH2UOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWH2UN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 16:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWH2UN0
+	id S1751449AbWH2UOb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 16:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWH2UOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:13:26 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:39917 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751445AbWH2UN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:13:26 -0400
-Date: Tue, 29 Aug 2006 16:13:18 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Eric Paris <eparis@parisplace.org>
-Cc: linux-kernel@vger.kernel.org, sds@tycho.nsa.gov,
-       James Morris <jmorris@redhat.com>, akpm@osdl.org
-Subject: Re: [PATCH] SELinux: work around filesystems which call d_instantiate before setting inode mode
-Message-ID: <20060829201318.GN18092@kvack.org>
-References: <1156882105.3195.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Aug 2006 16:14:31 -0400
+Received: from natlemon.rzone.de ([81.169.145.170]:63656 "EHLO
+	natlemon.rzone.de") by vger.kernel.org with ESMTP id S1751449AbWH2UOa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 16:14:30 -0400
+Date: Tue, 29 Aug 2006 22:13:14 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Greg KH <greg@kroah.com>, Oleg Verych <olecom@flower.upol.cz>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org, David Lang <dlang@digitalinsight.com>
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Message-ID: <20060829201314.GA28680@aepfle.de>
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz> <20060829183208.GA11468@kroah.com> <200608292104.24645.mb@bu3sch.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1156882105.3195.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200608292104.24645.mb@bu3sch.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 04:08:25PM -0400, Eric Paris wrote:
-> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-> index 960ef18..043d479 100644
-> --- a/security/selinux/include/avc.h
-> +++ b/security/selinux/include/avc.h
-> @@ -125,6 +125,8 @@ int avc_add_callback(int (*callback)(u32
->  		     u32 events, u32 ssid, u32 tsid,
->  		     u16 tclass, u32 perms);
->  
-> +const char *avc_class_to_string(u16 tclass);
-> +
->  /* Exported to selinuxfs */
->  int avc_get_hash_stats(char *page);
->  extern unsigned int avc_cache_threshold;
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index a300702..88bba69 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -218,7 +218,7 @@ static void avc_dump_query(struct audit_
->  		audit_log_format(ab, " tcontext=%s", scontext);
->  		kfree(scontext);
->  	}
-> -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
-> +	audit_log_format(ab, " tclass=%s", avc_class_to_string(tclass));
->  }
->  
->  /**
-> @@ -913,3 +913,15 @@ int avc_has_perm(u32 ssid, u32 tsid, u16
->  	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
->  	return rc;
->  }
-> +
-> +/**
-> + * avc_class_to_string - return a human readable string given an object class.
-> + * @tclass: the target class we wish to translate
-> + *
-> + * Simply take the target object class passed to us and return the human
-> + * readable string associated with that class
-> + */
-> +const char *avc_class_to_string(u16 tclass)
-> +{
-> +	return class_to_string[tclass];
-> +}
+On Tue, Aug 29, Michael Buesch wrote:
 
-This portion of the patch has absolutely nothing to do with the core 
-changes, and should be separate.  It is also introducing bloat, as the 
-array index is very easy to calculate.
+> On Tuesday 29 August 2006 20:32, Greg KH wrote:
+> > On Tue, Aug 29, 2006 at 08:46:45AM -0700, David Lang wrote:
+> > > On Mon, 28 Aug 2006, Greg KH wrote:
+> > > 
+> > > >I think the current way we handle firmware works quite well, especially
+> > > >given the wide range of different devices that it works for (everything
+> > > >from BIOS upgrades to different wireless driver stages).
+> > > 
+> > > the current system works for many people yes, but not everyone.
+> > > 
+> > > I'm still waiting to find a way to get the iw2200 working without having to 
+> > > use modules.
+> > 
+> > Sounds like a bug you need to pester the iw2200 developers about then.
+> > I don't think it has much to do with the firmware subsystem though :)
+> 
+> Well, yes and no.
+> The ipw needs the firmware on insmod time (in contrast to bcm43xx
+> for example, which needs it on ifconfig up time).
+> So ipw needs to call request_firmware at insmod time. In case of
+> built-in, that is when the initcall happens. No userland is available
+> and request_firmware can not call the userspace helpers to upload
+> the firmware to sysfs.
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+I dont use nor do I have access ipw hardware, but:
+If it is an initcall, the initramfs should be usable at that time.
+A creative CONFIG_INITRAMFS_SOURCE= will help, add the firmware and a
+small helper that does the cat(1).

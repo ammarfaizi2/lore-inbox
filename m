@@ -1,42 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWH2PTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWH2Pcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbWH2PTA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 11:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWH2PTA
+	id S965032AbWH2Pcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 11:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbWH2Pcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 11:19:00 -0400
-Received: from science.horizon.com ([192.35.100.1]:32312 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S965018AbWH2PTA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 11:19:00 -0400
-Date: 29 Aug 2006 11:18:56 -0400
-Message-ID: <20060829151856.10441.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux@horizon.com, tytso@mit.edu
-Subject: Re: Linux time code
-Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org, theotso@us.ibm.com,
-       zippel@linux-m68k.org
-In-Reply-To: <20060829131533.GC31760@thunk.org>
+	Tue, 29 Aug 2006 11:32:46 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:52509 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965032AbWH2Pcq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 11:32:46 -0400
+Message-ID: <44F45ED7.3050708@sw.ru>
+Date: Tue, 29 Aug 2006 19:35:51 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Rohit Seth <rohitseth@google.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [PATCH] BC: resource beancounters (v2)
+References: <44EC31FB.2050002@sw.ru>	<20060823100532.459da50a.akpm@osdl.org>	<44EEE3BB.10303@sw.ru> <20060825073003.e6b5ae16.akpm@osdl.org>
+In-Reply-To: <20060825073003.e6b5ae16.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The Posix-mandated behaviour *requires* diverging from UTC for some
->> time period around the leap second.  All you can do is decide how
->> to schedule the divergence.
+Andrew Morton wrote:
+> On Fri, 25 Aug 2006 15:49:15 +0400
+> Kirill Korotaev <dev@sw.ru> wrote:
+> 
+> 
+>>>We need to go over this work before we can commit to the BC
+>>>core.  Last time I looked at the VM accounting patch it
+>>>seemed rather unpleasing from a maintainability POV.
+>>
+>>hmmm... in which regard?
+> 
+> 
+> Little changes all over the MM code which might get accidentally broken.
+> 
+> 
+>>>And, if I understand it correctly, the only response to a job
+>>>going over its VM limits is to kill it, rather than trimming
+>>>it.  Which sounds like a big problem?
+>>
+>>No, UBC virtual memory management refuses occur on mmap()'s.
+> 
+> 
+> That's worse, isn't it?  Firstly it rules out big sparse mappings and secondly
+1) if mappings are private then yes, you can not mmap too much. This is logical,
+since this whole mappings are potentially allocatable and there is no way to control
+it later except for SIGKILL.
+2) if mappings are shared file mappings (shmem is handled in similar way) then
+  you can mmap as much as you want, since these pages can be reclaimed.
 
-> POSIX mandates this for gettimeofday() and CLOCK_REALTIME.  
+> 	mmap_and_use(80% of container size)
+> 	fork_and_immediately_exec(/bin/true)
+> 
+> will fail at the fork?
+yes, it will fail on fork() or exec() in case of much private (1) mappings.
+fail on fork() and exec() is much friendlier then SIGKILL, don't you think so?
 
-> However, a conforming implementation, could (either in userspace or in
-> the kernel) provide access to other time bases, include TAI or the
-> proposed UTS time scales.
+private mappings parameter which is limited by UBC is a kind of upper estimation
+of container RSS. From our experience such an estimation is ~ 5-20% higher then
+a real physical memory used (with real-life applications).
 
-The suggestion is to use UTS to implement CLOCK_REALTIME and
-gettimeofday().
+>>Andrey Savochkin wrote already a brief summary on vm resource management:
+>>
+>>------------- cut ----------------
+>>The task of limiting a container to 4.5GB of memory bottles down to the
+>>question: what to do when the container starts to use more than assigned
+>>4.5GB of memory?
+>>
+>>At this moment there are only 3 viable alternatives.
+>>
+>>A) Have separate memory management for each container,
+>>   with separate buddy allocator, lru lists, page replacement mechanism.
+>>   That implies a considerable overhead, and the main challenge there
+>>   is sharing of pages between these separate memory managers.
+>>
+>>B) Return errors on extension of mappings, but not on page faults, where
+>>   memory is actually consumed.
+>>   In this case it makes sense to take into account not only the size of used
+>>   memory, but the size of created mappings as well.
+>>   This is approximately what "privvmpages" accounting/limiting provides in
+>>   UBC.
+>>
+>>C) Rely on OOM killer.
+>>   This is a fall-back method in UBC, for the case "privvmpages" limits
+>>   still leave the possibility to overload the system.
+>>
+> 
+> 
+> D) Virtual scan of mm's in the over-limit container
+> 
+> E) Modify existing physical scanner to be able to skip pages which
+>    belong to not-over-limit containers.
+> 
+> F) Something else ;)
+We fully agree that other possible algorithms can and should exist.
+My idea only is that any of them would need accounting anyway
+(which is the most part of beancounters).
+Throtling, modified scanners etc. can be implemented as a separate
+BC parameters. Thus, an administrator will be able to select
+which policy should be applied to the container which is near its limit.
 
-Since CLOCK_REALTIME has no specified accuracy bounds, it's a legal
-realization, but UTS provides defined behavior when you have better time
-sync than the 1s uncertainty inherent in the POSIX spec.
+So the patches I'm trying to send are a step-by-step accounting of all
+the resources and their simple limitations. More comprehensive limitation
+policy will be built on top of it later.
 
-time() is more interesting, since it's so quantized already.  Is it better
-to have a 2-second second, or to keep it in sync with gettimeofday()
-and have 1000 1.001-second seconds?
+BTW, UBC page beancounters allow to distinguish pages used by only one
+container and pages which are shared. So scanner can try to reclaim
+container private pages first, thus not influencing other containers.
+
+Thanks,
+Kirill
+

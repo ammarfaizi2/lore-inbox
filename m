@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWH2TE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965268AbWH2TFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbWH2TE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 15:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbWH2TE1
+	id S965268AbWH2TFy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 15:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbWH2TFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 15:04:27 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:60138 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S965127AbWH2TE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 15:04:27 -0400
-Date: Tue, 29 Aug 2006 15:04:11 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Zach Brown <zab@zabbo.net>
-Cc: Yi Yang <yang.y.yi@gmail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, linux-aio <linux-aio@kvack.org>
-Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
-Message-ID: <20060829190411.GK18092@kvack.org>
-References: <44F43F46.1070702@gmail.com> <44F48825.4050408@zabbo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Aug 2006 15:05:54 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:47026
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S965268AbWH2TFv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 15:05:51 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Date: Tue, 29 Aug 2006 21:04:24 +0200
+User-Agent: KMail/1.9.1
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz> <20060829183208.GA11468@kroah.com>
+In-Reply-To: <20060829183208.GA11468@kroah.com>
+Cc: Oleg Verych <olecom@flower.upol.cz>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org, David Lang <dlang@digitalinsight.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44F48825.4050408@zabbo.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200608292104.24645.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29, 2006 at 11:32:05AM -0700, Zach Brown wrote:
-> Like it or not, the sys_io_submit() interface returns -EINVAL when the
-> file descriptor doesn't support the requested command.  Changing the
-> binary interface is a big deal and should not be done lightly.  What is
-> the motivation for making this change?
+On Tuesday 29 August 2006 20:32, Greg KH wrote:
+> On Tue, Aug 29, 2006 at 08:46:45AM -0700, David Lang wrote:
+> > On Mon, 28 Aug 2006, Greg KH wrote:
+> > 
+> > >I think the current way we handle firmware works quite well, especially
+> > >given the wide range of different devices that it works for (everything
+> > >from BIOS upgrades to different wireless driver stages).
+> > 
+> > the current system works for many people yes, but not everyone.
+> > 
+> > I'm still waiting to find a way to get the iw2200 working without having to 
+> > use modules.
+> 
+> Sounds like a bug you need to pester the iw2200 developers about then.
+> I don't think it has much to do with the firmware subsystem though :)
 
--EOPNOTSUPP also gives the wrong error message, as it is a networking 
-error.  Any program which knows that it is submitting a correctly filled 
-in set of parameters can deduce the reason for the -EINVAL.  Changing it 
-otherwise would result in behaviour outside of that specified in the man 
-page (which lists reasons for the -EINVAL result).
+Well, yes and no.
+The ipw needs the firmware on insmod time (in contrast to bcm43xx
+for example, which needs it on ifconfig up time).
+So ipw needs to call request_firmware at insmod time. In case of
+built-in, that is when the initcall happens. No userland is available
+and request_firmware can not call the userspace helpers to upload
+the firmware to sysfs.
+Well, not really easy to find a sane solution for this. :)
 
-		-ben
 -- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+Greetings Michael.

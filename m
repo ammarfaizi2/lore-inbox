@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWH2HAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWH2HE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWH2HAK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 03:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWH2HAK
+	id S932142AbWH2HE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 03:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWH2HE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 03:00:10 -0400
-Received: from main.gmane.org ([80.91.229.2]:37056 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932113AbWH2HAI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 03:00:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 29 Aug 2006 03:04:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:3924 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932142AbWH2HEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 03:04:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eYEPRz+EstuEldtEvs1lyv6SgznF5vjy7rHznLUk65fpzQ/bzD2dUnKDJKG3ywXfFQMe2scyvd3x1EM9tJQZStmgtfiJZUm4lXuSBp3Xs/fqQO90qHNGtEvs7bcYrNx+yQUdZF3Vep4YhDNZ0xjc3OeBYQkqXTSgU8jxmA0M5Ho=
+Message-ID: <85e0e3140608290004u94da11dr99c4dbcc0e417d7d@mail.gmail.com>
+Date: Tue, 29 Aug 2006 12:34:24 +0530
+From: Niklaus <niklaus@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Jon Escombe <lists@dresco.co.uk>
-Subject: Lenovo T60 - unable to resume from disk with =?utf-8?b?Q09ORklHX0hJR0hNRU02NEc=?=
-Date: Tue, 29 Aug 2006 06:53:49 +0000 (UTC)
-Message-ID: <loom.20060829T084849-443@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: SDRAM or DDRAM in linux
+In-Reply-To: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 82.68.23.174 (Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8.0.6) Gecko/20060808 Fedora/1.5.0.6-2.fc5 Firefox/1.5.0.6 pango-text)
+Content-Disposition: inline
+References: <85e0e3140608281040k61305f88m3f6cd4fcfddadaca@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Using a Lenovo T60 laptop - suspend to disk has always failed for me on resume.
+ I have access to a remote linux machine. I have a root account on it.
+ I need to know whether the installed RAM is SDRAM or DDRAM.
+Unfortunately i will be going to the site next month when i have to
+upgrade the machine with  more capacity. Few of them are hardware
+related but if you know the answer please help me.
 
-The resume image is read from disk, and then the laptop immediately reboots.
-This behavior has been verified up to 2.6.18-rc4, and can be replicated with a
-minimal init=/bin/bash boot. printk's scattered through the resume code are
-getting into the "for (zone_pfn = 0; zone_pfn < zone->spanned_pages;
-++zone_pfn)" loop in snapshot.c / copy_data_pages() before the reboot.
+1) How do i find out when the machine is online , if it is SDRAM or
+DDRAM. I tried dmidecode utility but i was not sure about the type.
+Can someone help me out by pasting the output for both DDR and SDRAM
+in dmidecode or similar.
 
-Through trial and error, I've found that this problem only occurs with
-CONFIG_HIGHMEM64G (the default in a Fedora installation). On a couple of
-occasions I've seen a hang or an oops instead of a reboot. Apologies for the
-poor quality, but an image of the oops screen can be found at
-http://www.dresco.co.uk/debug/resume_from_disk.jpg
+2) Can both SDRAM and DDRAM be present at a time in the same
+motherboard. I mean can i have 256MB of SDRAM chip and a 256 MB of
+DDRAM on the same motherboard.
 
-Any pointers to progressing this further would be welcome...
-
-Regards,
-Jon.
-
-(Please CC me on replies as I'm not currently subscribed to the list).
+If yes what are the conditions.
 
 
+3) Is a motherboard designed for only one type of RAM , like if we
+remove all the SDRAMs can we put DDR in it or it is either designed
+for DDR or SDRAM.
+
+Regards
+Nik

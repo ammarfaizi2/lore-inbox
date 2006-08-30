@@ -1,290 +1,255 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWH3JaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWH3Ja5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWH3JaT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 05:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWH3JaT
+	id S1750795AbWH3Ja5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 05:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWH3Ja5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 05:30:19 -0400
-Received: from 67.111.72.3.ptr.us.xo.net ([67.111.72.3]:14528 "EHLO
+	Wed, 30 Aug 2006 05:30:57 -0400
+Received: from 67.111.72.3.ptr.us.xo.net ([67.111.72.3]:38080 "EHLO
 	nonameb.ptu.promise.com") by vger.kernel.org with ESMTP
-	id S1750780AbWH3JaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 05:30:16 -0400
-Date: Wed, 30 Aug 2006 17:29:26 +0800
+	id S1750795AbWH3Ja4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 05:30:56 -0400
+Date: Wed, 30 Aug 2006 17:30:10 +0800
 From: "Ed Lin" <ed.lin@promise.com>
 To: "linux-scsi" <linux-scsi@vger.kernel.org>
-Cc: "promise_linux@promise.com" <promise_linux@promise.com>,
-       "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "jeff" <jeff@garzik.org>, "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "akpm" <akpm@osdl.org>
-Subject: [PATCH 2/3] stex: use more efficient method for unload/shutdown flush
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, "akpm" <akpm@osdl.org>,
+       "promise_linux" <promise_linux@promise.com>,
+       "james.Bottomley" <james.Bottomley@SteelEye.com>,
+       "jeff" <jeff@garzik.org>
+Subject: [PATCH 3/3] stex: use block layer tagging
 X-mailer: Foxmail 5.0 [cn]
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="gb2312"
 Content-Transfer-Encoding: 7bit
-Message-ID: <NONAMEBLoygXLsxpTlj00000e3d@nonameb.ptu.promise.com>
-X-OriginalArrivalTime: 30 Aug 2006 09:29:18.0078 (UTC) FILETIME=[C44411E0:01C6CC16]
+Message-ID: <NONAMEBfxRydC3hSsxL00000e3e@nonameb.ptu.promise.com>
+X-OriginalArrivalTime: 30 Aug 2006 09:30:02.0203 (UTC) FILETIME=[DE9102B0:01C6CC16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: "Ed Lin" <ed.lin@promise.com>
 
-- indicate correct MODE SENSE caching page for shutdown sd flush
-- implement slave_destroy for driver unload flush
-- modify notification routine(stex_hba_stop) for firmware to prepare shutdown
-- adjust alloc/free tag functions for this purpose as necessary
+use block layer tagging for hot path. we configure it in
+slave_alloc routine because we need tagging from the beginning.
+we implement host-wide tagging using shared map.
 
 Signed-off-by: Ed Lin <ed.lin@promise.com>
 ---
 diff --git a/drivers/scsi/stex.c b/drivers/scsi/stex.c
-index cb17415..fd09330 100644
+index fd09330..7d248c5 100644
 --- a/drivers/scsi/stex.c
 +++ b/drivers/scsi/stex.c
-@@ -309,7 +309,7 @@ static void stex_gettime(__le32 *time)
- 	*(time + 1) = cpu_to_le32((tv.tv_sec >> 16) >> 16);
+@@ -34,6 +34,7 @@ #include <scsi/scsi.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_host.h>
++#include <scsi/scsi_tcq.h>
+ 
+ #define DRV_NAME "stex"
+ #define ST_DRIVER_VERSION "2.9.0.13"
+@@ -280,6 +281,9 @@ struct st_hba {
+ 	unsigned int mu_status;
+ 	int out_req_cnt;
+ 
++	int devnum;
++	int ref;
++	struct request_queue *shared_queue;
+ 	unsigned int cardtype;
+ };
+ 
+@@ -535,11 +539,49 @@ stex_send_cmd(struct st_hba *hba, struct
  }
  
--static u16 stex_alloc_tag(unsigned long *bitmap)
-+static u16 __stex_alloc_tag(unsigned long *bitmap)
- {
- 	int i;
- 	i = find_first_zero_bit(bitmap, TAG_BITMAP_LENGTH);
-@@ -318,11 +318,31 @@ static u16 stex_alloc_tag(unsigned long 
- 	return (u16)i;
- }
- 
--static void stex_free_tag(unsigned long *bitmap, u16 tag)
-+static u16 stex_alloc_tag(struct st_hba *hba, unsigned long *bitmap)
+ static int
++stex_slave_alloc(struct scsi_device *sdev)
 +{
-+	unsigned long flags;
-+	u16 tag;
-+
-+	spin_lock_irqsave(hba->host->host_lock, flags);
-+	tag = __stex_alloc_tag(bitmap);
-+	spin_unlock_irqrestore(hba->host->host_lock, flags);
-+	return tag;
-+}
-+
-+static void __stex_free_tag(unsigned long *bitmap, u16 tag)
- {
- 	__clear_bit((int)tag, bitmap);
- }
- 
-+static void stex_free_tag(struct st_hba *hba, unsigned long *bitmap, u16 tag)
-+{
++	struct st_hba *hba = (struct st_hba *) sdev->host->hostdata;
 +	unsigned long flags;
 +
++	/*
++	 * this should be done in slave_configure routine. but we need
++	 * tagging ever since the first command. we can't wait...
++	 */
 +	spin_lock_irqsave(hba->host->host_lock, flags);
-+	__stex_free_tag(bitmap, tag);
++	if (hba->devnum++ == 0) {
++		if (blk_queue_init_tags(sdev->request_queue,
++				hba->host->can_queue, NULL) == 0) {
++			hba->ref = 1;
++			hba->shared_queue = sdev->request_queue;
++		}
++	} else if (hba->ref) {
++		blk_queue_init_tags(sdev->request_queue,
++			hba->host->can_queue, hba->shared_queue->queue_tags);
++		hba->ref++;
++	}
++
++	if (hba->ref) {
++		sdev->tagged_supported = 1;
++		scsi_set_tag_type(sdev, MSG_SIMPLE_TAG);
++		scsi_adjust_queue_depth(sdev,
++			scsi_get_tag_type(sdev), hba->host->can_queue);
++	} else
++		sdev->tagged_supported = 0;
 +	spin_unlock_irqrestore(hba->host->host_lock, flags);
++
++	return 0;
 +}
 +
- static struct status_msg *stex_get_status(struct st_hba *hba)
++static int
+ stex_slave_config(struct scsi_device *sdev)
  {
- 	struct status_msg *status =
-@@ -523,6 +543,51 @@ stex_slave_config(struct scsi_device *sd
++	struct st_hba *hba = (struct st_hba *) sdev->host->hostdata;
+ 	sdev->use_10_for_rw = 1;
+ 	sdev->use_10_for_ms = 1;
+ 	sdev->timeout = 60 * HZ;
++	sdev->tagged_supported = hba->ref ? 1 : 0;
++
  	return 0;
  }
  
-+static void
-+stex_slave_destroy(struct scsi_device *sdev)
-+{
-+	struct st_hba *hba = (struct st_hba *) sdev->host->hostdata;
-+	struct req_msg *req;
-+	unsigned long flags;
-+	unsigned long before;
-+	u16 tag;
-+
-+	if (sdev->type != TYPE_DISK)
-+		return;
-+
-+	before = jiffies;
-+	while ((tag = stex_alloc_tag(hba, (unsigned long *)&hba->tag))
-+		== TAG_BITMAP_LENGTH) {
-+		if (time_after(jiffies, before + ST_INTERNAL_TIMEOUT * HZ))
-+			return;
-+		msleep(10);
-+	}
-+
+@@ -552,6 +594,12 @@ stex_slave_destroy(struct scsi_device *s
+ 	unsigned long before;
+ 	u16 tag;
+ 
 +	spin_lock_irqsave(hba->host->host_lock, flags);
-+	req = stex_alloc_req(hba);
-+	memset(req->cdb, 0, STEX_CDB_LENGTH);
-+
-+	req->target = sdev->id;
-+	req->lun = sdev->channel; /* firmware lun issue work around */
-+	req->cdb[0] = SYNCHRONIZE_CACHE;
-+
-+	hba->ccb[tag].cmd = NULL;
-+	hba->ccb[tag].sg_count = 0;
-+	hba->ccb[tag].sense_bufflen = 0;
-+	hba->ccb[tag].sense_buffer = NULL;
-+	hba->ccb[tag].req_type |= PASSTHRU_REQ_TYPE;
-+
-+	stex_send_cmd(hba, req, tag);
++	hba->devnum--;
++	if (hba->ref > 0)
++		hba->ref--;
 +	spin_unlock_irqrestore(hba->host->host_lock, flags);
 +
-+	wait_event_timeout(hba->waitq,
-+		!(hba->ccb[tag].req_type), ST_INTERNAL_TIMEOUT * HZ);
-+	if (hba->ccb[tag].req_type & PASSTHRU_REQ_TYPE)
-+		return;
-+
-+	stex_free_tag(hba, (unsigned long *)&hba->tag, tag);
-+}
-+
- static int
- stex_queuecommand(struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
- {
-@@ -539,11 +604,17 @@ stex_queuecommand(struct scsi_cmnd *cmd,
- 	switch (cmd->cmnd[0]) {
- 	case MODE_SENSE_10:
- 	{
--		static char mode_sense10[8] = { 0, 6, 0, 0, 0, 0, 0, 0 };
--
--		stex_direct_copy(cmd, mode_sense10, sizeof(mode_sense10));
--		cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
--		done(cmd);
-+		static char ms10_caching_page[12] =
-+			{ 0, 0x12, 0, 0, 0, 0, 0, 0, 0x8, 0xa, 0x4, 0 };
-+		unsigned char page;
-+		page = cmd->cmnd[2] & 0x3f;
-+		if (page == 0x8 || page == 0x3f) {
-+			stex_direct_copy(cmd, ms10_caching_page,
-+					sizeof(ms10_caching_page));
-+			cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
-+			done(cmd);
-+		} else
-+			stex_invalid_field(cmd, done);
- 		return 0;
- 	}
- 	case INQUIRY:
-@@ -579,7 +650,7 @@ stex_queuecommand(struct scsi_cmnd *cmd,
+ 	if (sdev->type != TYPE_DISK)
+ 		return;
+ 
+@@ -650,8 +698,12 @@ stex_queuecommand(struct scsi_cmnd *cmd,
  
  	cmd->scsi_done = done;
  
--	if (unlikely((tag = stex_alloc_tag((unsigned long *)&hba->tag))
-+	if (unlikely((tag = __stex_alloc_tag((unsigned long *)&hba->tag))
- 		== TAG_BITMAP_LENGTH))
+-	if (unlikely((tag = __stex_alloc_tag((unsigned long *)&hba->tag))
+-		== TAG_BITMAP_LENGTH))
++	if (likely(cmd->device->tagged_supported))
++		tag = cmd->request->tag;
++	else
++		tag = __stex_alloc_tag((unsigned long *)&hba->tag);
++	
++	if (unlikely(tag >= host->can_queue))
  		return SCSI_MLQUEUE_HOST_BUSY;
  
-@@ -718,7 +789,7 @@ static void stex_mu_intr(struct st_hba *
+ 	req = stex_alloc_req(hba);
+@@ -771,26 +823,28 @@ static void stex_mu_intr(struct st_hba *
+ 	while (hba->status_tail != hba->status_head) {
+ 		resp = stex_get_status(hba);
+ 		tag = le16_to_cpu(resp->tag);
+-		if (unlikely(tag >= TAG_BITMAP_LENGTH)) {
++		if (unlikely(tag >= hba->host->can_queue)) {
+ 			printk(KERN_WARNING DRV_NAME
+ 				"(%s): invalid tag\n", pci_name(hba->pdev));
+ 			continue;
+ 		}
+-		if (unlikely((hba->tag & (1 << tag)) == 0)) {
+-			printk(KERN_WARNING DRV_NAME
+-				"(%s): null tag\n", pci_name(hba->pdev));
+-			continue;
+-		}
+ 
+-		hba->out_req_cnt--;
+ 		ccb = &hba->ccb[tag];
++		if (unlikely(ccb->cmd != NULL &&
++				!ccb->cmd->device->tagged_supported)) {
++			if ((hba->tag & (1 << tag)) == 0) {
++				printk(KERN_WARNING DRV_NAME "(%s): null tag\n",
++					pci_name(hba->pdev));
++				continue;
++			}
++		}
++
+ 		if (hba->wait_ccb == ccb)
+ 			hba->wait_ccb = NULL;
  		if (unlikely(ccb->req == NULL)) {
  			printk(KERN_WARNING DRV_NAME
  				"(%s): lagging req\n", pci_name(hba->pdev));
--			stex_free_tag((unsigned long *)&hba->tag, tag);
-+			__stex_free_tag((unsigned long *)&hba->tag, tag);
- 			stex_unmap_sg(hba, ccb->cmd); /* ??? */
+ 			__stex_free_tag((unsigned long *)&hba->tag, tag);
+-			stex_unmap_sg(hba, ccb->cmd); /* ??? */
  			continue;
  		}
-@@ -750,7 +821,7 @@ static void stex_mu_intr(struct st_hba *
- 		if (ccb->cmd->cmnd[0] == PASSTHRU_CMD &&
- 			ccb->cmd->cmnd[1] == PASSTHRU_GET_ADAPTER)
- 			stex_controller_info(hba, ccb);
--		stex_free_tag((unsigned long *)&hba->tag, tag);
-+		__stex_free_tag((unsigned long *)&hba->tag, tag);
- 		stex_unmap_sg(hba, ccb->cmd);
- 		stex_scsi_done(ccb);
- 	}
-@@ -965,34 +1036,6 @@ static int stex_reset(struct scsi_cmnd *
- 	return SUCCESS;
- }
  
--static void stex_internal_flush(struct st_hba *hba, int id, u16 tag)
--{
--	struct req_msg *req;
+@@ -808,7 +862,17 @@ static void stex_mu_intr(struct st_hba *
+ 		ccb->srb_status = resp->srb_status;
+ 		ccb->scsi_status = resp->scsi_status;
+ 
+-		if (ccb->req_type & PASSTHRU_REQ_TYPE) {
++		if (likely(ccb->cmd != NULL)) {
++			if (unlikely(ccb->cmd->cmnd[0] == PASSTHRU_CMD &&
++				ccb->cmd->cmnd[1] == PASSTHRU_GET_ADAPTER))
++				stex_controller_info(hba, ccb);
++			if (unlikely(!ccb->cmd->device->tagged_supported))
++				__stex_free_tag((ulong *)&hba->tag, tag);
++			stex_unmap_sg(hba, ccb->cmd);
++			stex_scsi_done(ccb);
++			hba->out_req_cnt--;
++		} else if (ccb->req_type & PASSTHRU_REQ_TYPE) {
++			hba->out_req_cnt--;
+ 			if (ccb->req_type & PASSTHRU_REQ_NO_WAKEUP) {
+ 				ccb->req_type = 0;
+ 				continue;
+@@ -816,14 +880,7 @@ static void stex_mu_intr(struct st_hba *
+ 			ccb->req_type = 0;
+ 			if (waitqueue_active(&hba->waitq))
+ 				wake_up(&hba->waitq);
+-			continue;
+ 		}
+-		if (ccb->cmd->cmnd[0] == PASSTHRU_CMD &&
+-			ccb->cmd->cmnd[1] == PASSTHRU_GET_ADAPTER)
+-			stex_controller_info(hba, ccb);
+-		__stex_free_tag((unsigned long *)&hba->tag, tag);
+-		stex_unmap_sg(hba, ccb->cmd);
+-		stex_scsi_done(ccb);
+ 	}
+ 
+ update_status:
+@@ -940,14 +997,22 @@ static int stex_abort(struct scsi_cmnd *
+ 	unsigned long flags;
+ 	base = hba->mmio_base;
+ 	spin_lock_irqsave(host->host_lock, flags);
 -
--	req = stex_alloc_req(hba);
--	memset(req->cdb, 0, STEX_CDB_LENGTH);
--
--	if (id < ST_MAX_ARRAY_SUPPORTED*ST_MAX_LUN_PER_TARGET) {
--		req->target = id/ST_MAX_LUN_PER_TARGET;
--		req->lun = id%ST_MAX_LUN_PER_TARGET;
--		req->cdb[0] = CONTROLLER_CMD;
--		req->cdb[1] = CTLR_POWER_STATE_CHANGE;
--		req->cdb[2] = CTLR_POWER_SAVING;
--	} else {
--		req->target = id/ST_MAX_LUN_PER_TARGET - ST_MAX_ARRAY_SUPPORTED;
--		req->lun = id%ST_MAX_LUN_PER_TARGET;
--		req->cdb[0] = SYNCHRONIZE_CACHE;
--	}
--
--	hba->ccb[tag].cmd = NULL;
--	hba->ccb[tag].sg_count = 0;
--	hba->ccb[tag].sense_bufflen = 0;
--	hba->ccb[tag].sense_buffer = NULL;
--	hba->ccb[tag].req_type |= PASSTHRU_REQ_TYPE;
--
--	stex_send_cmd(hba, req, tag);
--}
--
- static int stex_biosparam(struct scsi_device *sdev,
- 	struct block_device *bdev, sector_t capacity, int geom[])
- {
-@@ -1019,6 +1062,7 @@ static struct scsi_host_template driver_
+-	for (tag = 0; tag < MU_MAX_REQUEST; tag++)
+-		if (hba->ccb[tag].cmd == cmd && (hba->tag & (1 << tag))) {
++	if (likely(cmd->device->tagged_supported)) {
++		tag = cmd->request->tag;
++		if (tag < host->can_queue && hba->ccb[tag].cmd == cmd)
+ 			hba->wait_ccb = &(hba->ccb[tag]);
+-			break;
+-		}
+-	if (tag >= MU_MAX_REQUEST)
+-		goto out;
++		else
++			goto out;
++	} else {
++		for (tag = 0; tag < host->can_queue; tag++)
++			if (hba->ccb[tag].cmd == cmd &&
++					(hba->tag & (1 << tag))) {
++				hba->wait_ccb = &(hba->ccb[tag]);
++				break;
++			}
++		if (tag >= host->can_queue)
++			goto out;
++	}
+ 
+ 	data = readl(base + ODBL);
+ 	if (data == 0 || data == 0xffffffff)
+@@ -965,6 +1030,7 @@ static int stex_abort(struct scsi_cmnd *
+ 	}
+ 
+ fail_out:
++	stex_unmap_sg(hba, cmd);
+ 	hba->wait_ccb->req = NULL; /* nullify the req's future return */
+ 	hba->wait_ccb = NULL;
+ 	result = FAILED;
+@@ -1061,6 +1127,7 @@ static struct scsi_host_template driver_
+ 	.proc_name			= DRV_NAME,
  	.bios_param			= stex_biosparam,
  	.queuecommand			= stex_queuecommand,
++	.slave_alloc			= stex_slave_alloc,
  	.slave_configure		= stex_slave_config,
-+	.slave_destroy			= stex_slave_destroy,
+ 	.slave_destroy			= stex_slave_destroy,
  	.eh_abort_handler		= stex_abort,
- 	.eh_host_reset_handler		= stex_reset,
- 	.can_queue			= ST_CAN_QUEUE,
-@@ -1159,31 +1203,42 @@ out_disable:
- 
- static void stex_hba_stop(struct st_hba *hba)
- {
-+	struct req_msg *req;
- 	unsigned long flags;
--	int i;
-+	unsigned long before;
- 	u16 tag;
- 
--	spin_lock_irqsave(hba->host->host_lock, flags);
--	if ((tag = stex_alloc_tag((unsigned long *)&hba->tag))
-+	before = jiffies;
-+	while ((tag = stex_alloc_tag(hba, (unsigned long *)&hba->tag))
- 		== TAG_BITMAP_LENGTH) {
--		spin_unlock_irqrestore(hba->host->host_lock, flags);
--		printk(KERN_ERR DRV_NAME "(%s): unable to alloc tag\n",
--			pci_name(hba->pdev));
--		return;
--	}
--	for (i=0; i<(ST_MAX_ARRAY_SUPPORTED*ST_MAX_LUN_PER_TARGET*2); i++) {
--		stex_internal_flush(hba, i, tag);
--		spin_unlock_irqrestore(hba->host->host_lock, flags);
--
--		wait_event_timeout(hba->waitq,
--			!(hba->ccb[tag].req_type), ST_INTERNAL_TIMEOUT*HZ);
--		if (hba->ccb[tag].req_type & PASSTHRU_REQ_TYPE)
-+		if (time_after(jiffies, before + ST_INTERNAL_TIMEOUT * HZ))
- 			return;
--		spin_lock_irqsave(hba->host->host_lock, flags);
-+		msleep(10);
- 	}
- 
--	stex_free_tag((unsigned long *)&hba->tag, tag);
-+	spin_lock_irqsave(hba->host->host_lock, flags);
-+	req = stex_alloc_req(hba);
-+	memset(req->cdb, 0, STEX_CDB_LENGTH);
-+
-+	req->cdb[0] = CONTROLLER_CMD;
-+	req->cdb[1] = CTLR_POWER_STATE_CHANGE;
-+	req->cdb[2] = CTLR_POWER_SAVING;
-+
-+	hba->ccb[tag].cmd = NULL;
-+	hba->ccb[tag].sg_count = 0;
-+	hba->ccb[tag].sense_bufflen = 0;
-+	hba->ccb[tag].sense_buffer = NULL;
-+	hba->ccb[tag].req_type |= PASSTHRU_REQ_TYPE;
-+
-+	stex_send_cmd(hba, req, tag);
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
-+
-+	wait_event_timeout(hba->waitq,
-+		!(hba->ccb[tag].req_type), ST_INTERNAL_TIMEOUT * HZ);
-+	if (hba->ccb[tag].req_type & PASSTHRU_REQ_TYPE)
-+		return;
-+
-+	stex_free_tag(hba, (unsigned long *)&hba->tag, tag);
- }
- 
- static void stex_hba_free(struct st_hba *hba)
 

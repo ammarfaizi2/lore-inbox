@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWH3Pyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWH3QCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWH3Pyl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 11:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWH3Pyl
+	id S1751098AbWH3QCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWH3QCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 11:54:41 -0400
-Received: from smarthost2.mail.uk.easynet.net ([212.135.6.12]:1030 "EHLO
-	smarthost2.mail.uk.easynet.net") by vger.kernel.org with ESMTP
-	id S1751098AbWH3Pyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 11:54:41 -0400
-Message-ID: <44F5B4BE.5050600@ukonline.co.uk>
-Date: Wed, 30 Aug 2006 16:54:38 +0100
-From: Andrew Benton <b3nt@ukonline.co.uk>
-User-Agent: Thunderbird 3.0a1 (X11/20060827)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc5
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060827231421.f0fc9db1.akpm@osdl.org>
-In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 30 Aug 2006 12:02:20 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:61868 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751098AbWH3QCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 12:02:19 -0400
+Date: Wed, 30 Aug 2006 12:02:14 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: linux-kernel@vger.kernel.org, ak@muc.de, vojtech@suse.cz
+Subject: arch/x86_64/kernel/traps.c:show_trace should use __kernel_text_address
+Message-ID: <20060830160214.GA5557@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 11:58:28 up 7 days, 13:07,  5 users,  load average: 0.99, 0.38, 0.18
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Sun, 27 Aug 2006 21:30:50 -0700 (PDT)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
->> Linux 2.6.18-rc5 is out there now
-> 
-> (Reporters Bcc'ed: please provide updates)
-> 
-> Serious-looking regressions include:
-> 
-> 
-> From: Andrew Benton <b3nt@ukonline.co.uk>
-> Subject: ALSA problems with 2.6.18-rc3
+Hi,
 
-The problem remains in 2.6.18-rc5.
-The workaround people have suggested (using alsactl -F restore) works if 
-I have a working /etc/asound.state created with a 2.6.17 kernel. If I 
-was starting from scratch with 2.6.18-rc5 I would have no way to set the 
-sound level for the digital output. But maybe the bug is in alsamixer 
-and alsactl?
+I noticed arch/x86_64/kernel/traps.c:show_trace uses kernel_text_address to
+verify that an address can potentially belong to kernel code. However, this
+version takes a spinlock and should not be called from oops. I think
+__kernel_text_address would be more appropriate there.
 
-Andy
+Mathieu Desnoyers
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWH3XWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWH3XWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751629AbWH3XWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWH3XWS
+	id S1751633AbWH3XWV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWH3XWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:22:18 -0400
-Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:21694 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751629AbWH3XWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:22:21 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:54214 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751633AbWH3XWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Aug 2006 19:22:17 -0400
-Date: Wed, 30 Aug 2006 19:22:14 -0400
+Date: Wed, 30 Aug 2006 19:16:49 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 9/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
-Message-ID: <20060830232214.GJ17079@Krystal>
+Subject: [PATCH 6/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
+Message-ID: <20060830231649.GG17079@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-15661-1156980134-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-6818-1156979809-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:18:38 up 7 days, 20:27,  9 users,  load average: 1.03, 0.66, 0.38
+X-Uptime: 19:15:57 up 7 days, 20:24,  9 users,  load average: 0.45, 0.37, 0.25
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,285 +32,2016 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-15661-1156980134-0001-2
+--=_Krystal-6818-1156979809-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-9- LTTng architecture dependant instrumentation : ARM
-patch-2.6.17-lttng-0.5.95-instrumentation-arm.diff
+6- LTTng facility loader
+This patch adds kernel modules responsible for loading the facilities
+currently available.
+patch-2.6.17-lttng-0.5.95-facilities-loader.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-15661-1156980134-0001-2
+--=_Krystal-6818-1156979809-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-arm.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-facilities-loader.diff"
 
---- a/arch/arm/kernel/entry-common.S
-+++ b/arch/arm/kernel/entry-common.S
-@@ -21,6 +21,11 @@ #include "entry-header.S"
-  * stack.
-  */
- ret_fast_syscall:
-+#ifdef CONFIG_LTT
-+	mov r7, r0				@ save returned r0
-+	bl  trace_real_syscall_exit
-+	mov r0, r7
-+#endif
- 	disable_irq				@ disable interrupts
- 	ldr	r1, [tsk, #TI_FLAGS]
- 	tst	r1, #_TIF_WORK_MASK
-@@ -178,6 +183,19 @@ #ifdef CONFIG_ALIGNMENT_TRAP
- 	mcr	p15, 0, ip, c1, c0		@ update control register
- #endif
- 	enable_irq
+--- /dev/null
++++ b/ltt/Makefile
+@@ -0,0 +1,27 @@
++#
++# Makefile for the LTT objects.
++#
++obj-$(CONFIG_LTT_FACILITY_CORE)		+= ltt-facility-loader-core.o
++obj-$(CONFIG_LTT_FACILITY_FS)		+= ltt-facility-loader-fs.o
++obj-$(CONFIG_LTT_FACILITY_FS_DATA)	+= ltt-facility-loader-fs_data.o
++obj-$(CONFIG_LTT_FACILITY_IPC)		+= ltt-facility-loader-ipc.o
++obj-$(CONFIG_LTT_FACILITY_KERNEL_ARCH)	+= \
++			ltt-facility-loader-kernel_arch_$(ARCH).o
++obj-$(CONFIG_LTT_FACILITY_KERNEL)	+= ltt-facility-loader-kernel.o
++obj-$(CONFIG_LTT_FACILITY_LOCKING)	+= ltt-facility-loader-locking.o
++obj-$(CONFIG_LTT_FACILITY_MEMORY)	+= ltt-facility-loader-memory.o
++obj-$(CONFIG_LTT_FACILITY_NETWORK)	+= ltt-facility-loader-network.o
++obj-$(CONFIG_LTT_FACILITY_PROCESS)	+= ltt-facility-loader-process.o
++obj-$(CONFIG_LTT_FACILITY_SOCKET)	+= ltt-facility-loader-socket.o
++obj-$(CONFIG_LTT_FACILITY_TIMER)	+= ltt-facility-loader-timer.o
++obj-$(CONFIG_LTT_FACILITY_STATEDUMP)	+= ltt-facility-loader-statedump.o
++obj-$(CONFIG_LTT_FACILITY_STACK)	+= \
++			ltt-facility-loader-stack.o
++obj-$(CONFIG_LTT_FACILITY_STATEDUMP)	+= \
++			ltt-facility-loader-network_ip_interface.o
++
++obj-$(CONFIG_LTT_TRACER)		+= ltt-core.o
++obj-$(CONFIG_LTT_RELAY)			+= ltt-relay.o
++obj-$(CONFIG_LTT_NETLINK_CONTROL)	+= ltt-control.o
++obj-$(CONFIG_LTT_STATEDUMP)		+= ltt-statedump.o
++
+diff --git a/ltt/ltt-control.c b/ltt/ltt-control.c
+new file mode 100644
+index 0000000..76c3e7f
+--- /dev/null
++++ b/ltt/ltt-facility-loader-core.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-core.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-core.h"
++
++
 +#ifdef CONFIG_LTT
 +
-+	mov	r0, scno		@ syscall number
-+	tst	r0, #0x000f0000		@ Is this an ARM specific syscall
-+	orrne	r0, r0, #0x400		@ if so offset the number by 1024
-+	bic     r0, r0, #0xff000000	@ mask off SWI op-code and other syscall offsets
-+	bic     r0, r0, #0x00ff0000
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
 +
-+	add	r1, sp, #S_R0		@ pointer to regs
-+	bl	trace_real_syscall_entry
-+	add	r1, sp, #S_R0		@ pointer to regs
-+	ldmia	r1, {r0 - r3}		@ have to reload r0 - r3
-+#endif
- 
- 	get_thread_info tsk
- 	adr	tbl, sys_call_table		@ load syscall table pointer
-@@ -233,6 +251,9 @@ __sys_trace:
- 
- __sys_trace_return:
- 	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
-+#ifdef CONFIG_LTT
-+	bl	trace_real_syscall_exit
-+#endif
- 	mov	r2, scno
- 	mov	r1, sp
- 	mov	r0, #1				@ trace exit [IP = 1]
-diff --git a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
-index 2d5896b..984ea6e 100644
---- a/arch/arm/kernel/calls.S
-+++ b/arch/arm/kernel/calls.S
-@@ -1,13 +1,13 @@
- /*
-- *  linux/arch/arm/kernel/calls.S
-+ *	linux/arch/arm/kernel/calls.S
-  *
-- *  Copyright (C) 1995-2005 Russell King
-+ *	Copyright (C) 1995-2005 Russell King
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation.
-  *
-- *  This file is included thrice in entry-common.S
-+ *	This file is included thrice in entry-common.S
-  */
- /* 0 */		CALL(sys_restart_syscall)
- 		CALL(sys_exit)
-@@ -331,6 +331,8 @@
- 		CALL(sys_mbind)
- /* 320 */	CALL(sys_get_mempolicy)
- 		CALL(sys_set_mempolicy)
-+		CALL(sys_ltt_trace_generic)
-+		CALL(sys_ltt_register_generic)
- #ifndef syscalls_counted
- .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
- #define syscalls_counted
-diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
-index dbcb11a..bd5c326 100644
---- a/arch/arm/kernel/irq.c
-+++ b/arch/arm/kernel/irq.c
-@@ -35,6 +35,8 @@ #include <linux/init.h>
- #include <linux/seq_file.h>
- #include <linux/errno.h>
- #include <linux/list.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
-+#include <linux/ltt/ltt-facility-statedump.h>
- #include <linux/kallsyms.h>
- #include <linux/proc_fs.h>
- 
-@@ -225,6 +227,24 @@ void disable_irq_wake(unsigned int irq)
- }
- EXPORT_SYMBOL(disable_irq_wake);
- 
-+/* Defined here because of dependency on statically-defined lock & irq_desc */
-+int ltt_enumerate_interrupts(void)
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
 +{
-+	unsigned int i;
-+	unsigned long flags = 0;
++	printk(KERN_INFO "LTT : ltt-facility-core init in kernel\n");
 +
-+	for(i=0; i<NR_IRQS; i++) {
-+		struct irqaction * action;
-+		spin_lock_irqsave(&irq_controller_lock, flags);
-+		for (action=irq_desc[i].action; action; action = action->next)
-+			trace_statedump_enumerate_interrupts(
-+							"", action->name, i);
-+		spin_unlock_irqrestore(&irq_controller_lock, flags);
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL(ltt_enumerate_interrupts);
-+
- int show_interrupts(struct seq_file *p, void *v)
- {
- 	int i = *(loff_t *) v, cpu;
-@@ -542,6 +562,8 @@ asmlinkage void asm_do_IRQ(unsigned int 
- {
- 	struct irqdesc *desc = irq_desc + irq;
- 
-+	trace_kernel_irq_entry(irq, !(user_mode(regs)));
-+
- 	/*
- 	 * Some hardware gives randomly wrong interrupts.  Rather
- 	 * than crashing, do something sensible.
-@@ -563,6 +585,8 @@ asmlinkage void asm_do_IRQ(unsigned int 
- 
- 	spin_unlock(&irq_controller_lock);
- 	irq_exit();
-+
-+	trace_kernel_irq_exit();
- }
- 
- void __set_irq_handler(unsigned int irq, irq_handler_t handle, int is_chained)
-diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-index 7df6e1a..2c21dec 100644
---- a/arch/arm/kernel/process.c
-+++ b/arch/arm/kernel/process.c
-@@ -28,6 +28,7 @@ #include <linux/kallsyms.h>
- #include <linux/init.h>
- #include <linux/cpu.h>
- #include <linux/elfcore.h>
-+#include <linux/ltt/ltt-facility-process.h>
- 
- #include <asm/leds.h>
- #include <asm/processor.h>
-@@ -452,6 +453,7 @@ asm(	".section .text\n"
- pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
- {
- 	struct pt_regs regs;
-+	long pid;
- 
- 	memset(&regs, 0, sizeof(regs));
- 
-@@ -461,7 +463,12 @@ pid_t kernel_thread(int (*fn)(void *), v
- 	regs.ARM_pc = (unsigned long)kernel_thread_helper;
- 	regs.ARM_cpsr = SVC_MODE;
- 
--	return do_fork(flags|CLONE_VM|CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
-+	pid = do_fork(flags|CLONE_VM|CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
-+#ifdef CONFIG_LTT
-+	if(pid >= 0)
-+		trace_process_kernel_thread(pid, fn);
-+#endif
-+	return pid;
- }
- EXPORT_SYMBOL(kernel_thread);
- 
-diff --git a/arch/arm/kernel/sys_arm.c b/arch/arm/kernel/sys_arm.c
-index 8170af4..bfa24f4 100644
---- a/arch/arm/kernel/sys_arm.c
-+++ b/arch/arm/kernel/sys_arm.c
-@@ -26,6 +26,7 @@ #include <linux/mman.h>
- #include <linux/fs.h>
- #include <linux/file.h>
- #include <linux/utsname.h>
-+#include <linux/ltt/ltt-facility-ipc.h>
- 
- #include <asm/uaccess.h>
- #include <asm/ipc.h>
-@@ -161,6 +162,8 @@ asmlinkage int sys_ipc(uint call, int fi
- 	version = call >> 16; /* hack for backward compatibility */
- 	call &= 0xffff;
- 
-+	trace_ipc_call(call, first);
-+
- 	switch (call) {
- 	case SEMOP:
- 		return sys_semtimedop (first, (struct sembuf __user *)ptr, second, NULL);
-diff --git a/arch/arm/kernel/time.c b/arch/arm/kernel/time.c
-index d6bd435..c0a9e16 100644
---- a/arch/arm/kernel/time.c
-+++ b/arch/arm/kernel/time.c
-@@ -32,6 +32,7 @@ #include <linux/timer.h>
- #include <asm/leds.h>
- #include <asm/thread_info.h>
- #include <asm/mach/time.h>
-+#include <asm/ltt.h>
- 
- /*
-  * Our system timer.
-@@ -335,6 +336,9 @@ void timer_tick(struct pt_regs *regs)
- 	do_leds();
- 	do_set_rtc();
- 	do_timer(regs);
-+#ifdef CONFIG_LTT
-+	ltt_reset_timestamp();
-+#endif
- #ifndef CONFIG_SMP
- 	update_process_times(user_mode(regs));
- #endif
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index 35230a0..c045394 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -21,6 +21,8 @@ #include <linux/ptrace.h>
- #include <linux/kallsyms.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
-+#include <linux/ltt-core.h>
- 
- #include <asm/atomic.h>
- #include <asm/cacheflush.h>
-@@ -28,6 +30,7 @@ #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
- #include <asm/traps.h>
-+#include <asm/ltt/ltt-facility-kernel_arch_arm.h>
- 
- #include "ptrace.h"
- #include "signal.h"
-@@ -198,6 +201,20 @@ void show_stack(struct task_struct *tsk,
- 	barrier();
- }
- 
-+#ifdef CONFIG_LTT
-+asmlinkage void trace_real_syscall_entry(int scno, struct pt_regs * regs)
-+{
-+	void *address = (void *) instruction_pointer(regs);
-+
-+	trace_kernel_arch_syscall_entry((enum lttng_syscall_name)scno, address);
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
 +}
 +
-+asmlinkage void trace_real_syscall_exit(void)
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
 +{
-+	trace_kernel_arch_syscall_exit();
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
 +}
-+#endif /* CONFIG_LTT */
++module_exit(facility_exit)
 +
- static void __die(const char *str, int err, struct thread_info *thread, struct pt_regs *regs)
- {
- 	struct task_struct *tsk = thread->task;
-@@ -249,7 +266,12 @@ void notify_die(const char *str, struct 
- 		current->thread.error_code = err;
- 		current->thread.trap_no = trap;
- 
-+		trace_kernel_trap_entry(current->thread.trap_no, (void*)info->si_addr);		
-+		
- 		force_sig_info(info->si_signo, info, current);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
 +
-+		trace_kernel_trap_exit();
-+		
- 	} else {
- 		die(str, regs, err);
- 	}
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 8dfa305..4297838 100644
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-core.h b/ltt/ltt-facility-loader-core.h
+new file mode 100644
+index 0000000..2ad06c6
+--- /dev/null
++++ b/ltt/ltt-facility-loader-core.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_CORE_H_
++#define _LTT_FACILITY_LOADER_CORE_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-core.h>
++
++ltt_facility_t	ltt_facility_core;
++ltt_facility_t	ltt_facility_core_1A8DE486;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_core
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_core_1A8DE486
++#define LTT_FACILITY_CHECKSUM		0x1A8DE486
++#define LTT_FACILITY_NAME		"core"
++#define LTT_FACILITY_NUM_EVENTS	facility_core_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_CORE_H_
+diff --git a/ltt/ltt-facility-loader-fs.c b/ltt/ltt-facility-loader-fs.c
+new file mode 100644
+index 0000000..c902610
+--- /dev/null
++++ b/ltt/ltt-facility-loader-fs.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-fs.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-fs.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-fs init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-fs.h b/ltt/ltt-facility-loader-fs.h
+new file mode 100644
+index 0000000..dabf1d5
+--- /dev/null
++++ b/ltt/ltt-facility-loader-fs.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_FS_H_
++#define _LTT_FACILITY_LOADER_FS_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-fs.h>
++
++ltt_facility_t	ltt_facility_fs;
++ltt_facility_t	ltt_facility_fs_40A645EC;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_fs
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_fs_40A645EC
++#define LTT_FACILITY_CHECKSUM		0x40A645EC
++#define LTT_FACILITY_NAME		"fs"
++#define LTT_FACILITY_NUM_EVENTS	facility_fs_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_FS_H_
+diff --git a/ltt/ltt-facility-loader-fs_data.c b/ltt/ltt-facility-loader-fs_data.c
+new file mode 100644
+index 0000000..6b73612
+--- /dev/null
++++ b/ltt/ltt-facility-loader-fs_data.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-fs_data.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-fs_data.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-fs_data init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-fs_data.h b/ltt/ltt-facility-loader-fs_data.h
+new file mode 100644
+index 0000000..c08d1ce
+--- /dev/null
++++ b/ltt/ltt-facility-loader-fs_data.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_FS_DATA_H_
++#define _LTT_FACILITY_LOADER_FS_DATA_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-fs_data.h>
++
++ltt_facility_t	ltt_facility_fs_data;
++ltt_facility_t	ltt_facility_fs_data_155CEE69;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_fs_data
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_fs_data_155CEE69
++#define LTT_FACILITY_CHECKSUM		0x155CEE69
++#define LTT_FACILITY_NAME		"fs_data"
++#define LTT_FACILITY_NUM_EVENTS	facility_fs_data_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_FS_DATA_H_
+diff --git a/ltt/ltt-facility-loader-ipc.c b/ltt/ltt-facility-loader-ipc.c
+new file mode 100644
+index 0000000..d3dbb39
+--- /dev/null
++++ b/ltt/ltt-facility-loader-ipc.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-ipc.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-ipc.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-ipc init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-ipc.h b/ltt/ltt-facility-loader-ipc.h
+new file mode 100644
+index 0000000..cf9dee1
+--- /dev/null
++++ b/ltt/ltt-facility-loader-ipc.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_IPC_H_
++#define _LTT_FACILITY_LOADER_IPC_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-ipc.h>
++
++ltt_facility_t	ltt_facility_ipc;
++ltt_facility_t	ltt_facility_ipc_14120A9A;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_ipc
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_ipc_14120A9A
++#define LTT_FACILITY_CHECKSUM		0x14120A9A
++#define LTT_FACILITY_NAME		"ipc"
++#define LTT_FACILITY_NUM_EVENTS	facility_ipc_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_IPC_H_
+diff --git a/ltt/ltt-facility-loader-kernel.c b/ltt/ltt-facility-loader-kernel.c
+new file mode 100644
+index 0000000..1197627
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel.h b/ltt/ltt-facility-loader-kernel.h
+new file mode 100644
+index 0000000..07dd826
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_H_
++#define _LTT_FACILITY_LOADER_KERNEL_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-kernel.h>
++
++ltt_facility_t	ltt_facility_kernel;
++ltt_facility_t	ltt_facility_kernel_6D8B2404;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_6D8B2404
++#define LTT_FACILITY_CHECKSUM		0x6D8B2404
++#define LTT_FACILITY_NAME		"kernel"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_arm.c b/ltt/ltt-facility-loader-kernel_arch_arm.c
+new file mode 100644
+index 0000000..54391db
+--- /dev/null
++++ b/ltt/ltt-facility-loader-locking.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-locking.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-locking.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-locking init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-locking.h b/ltt/ltt-facility-loader-locking.h
+new file mode 100644
+index 0000000..d1b6909
+--- /dev/null
++++ b/ltt/ltt-facility-loader-locking.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_LOCKING_H_
++#define _LTT_FACILITY_LOADER_LOCKING_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-locking.h>
++
++ltt_facility_t	ltt_facility_locking;
++ltt_facility_t	ltt_facility_locking_51595CB2;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_locking
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_locking_51595CB2
++#define LTT_FACILITY_CHECKSUM		0x51595CB2
++#define LTT_FACILITY_NAME		"locking"
++#define LTT_FACILITY_NUM_EVENTS	facility_locking_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_LOCKING_H_
+diff --git a/ltt/ltt-facility-loader-memory.c b/ltt/ltt-facility-loader-memory.c
+new file mode 100644
+index 0000000..444ca35
+--- /dev/null
++++ b/ltt/ltt-facility-loader-memory.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-memory.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-memory.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-memory init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-memory.h b/ltt/ltt-facility-loader-memory.h
+new file mode 100644
+index 0000000..0928374
+--- /dev/null
++++ b/ltt/ltt-facility-loader-memory.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_MEMORY_H_
++#define _LTT_FACILITY_LOADER_MEMORY_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-memory.h>
++
++ltt_facility_t	ltt_facility_memory;
++ltt_facility_t	ltt_facility_memory_D63D41C7;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_memory
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_memory_D63D41C7
++#define LTT_FACILITY_CHECKSUM		0xD63D41C7
++#define LTT_FACILITY_NAME		"memory"
++#define LTT_FACILITY_NUM_EVENTS	facility_memory_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_MEMORY_H_
+diff --git a/ltt/ltt-facility-loader-network.c b/ltt/ltt-facility-loader-network.c
+new file mode 100644
+index 0000000..1b5ff75
+--- /dev/null
++++ b/ltt/ltt-facility-loader-network.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-network.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-network.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-network init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-network.h b/ltt/ltt-facility-loader-network.h
+new file mode 100644
+index 0000000..2ae98b7
+--- /dev/null
++++ b/ltt/ltt-facility-loader-network.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_NETWORK_H_
++#define _LTT_FACILITY_LOADER_NETWORK_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-network.h>
++
++ltt_facility_t	ltt_facility_network;
++ltt_facility_t	ltt_facility_network_51F19296;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_network
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_network_51F19296
++#define LTT_FACILITY_CHECKSUM		0x51F19296
++#define LTT_FACILITY_NAME		"network"
++#define LTT_FACILITY_NUM_EVENTS	facility_network_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_NETWORK_H_
+diff --git a/ltt/ltt-facility-loader-network_ip_interface.c b/ltt/ltt-facility-loader-network_ip_interface.c
+new file mode 100644
+index 0000000..ca5ea65
+--- /dev/null
++++ b/ltt/ltt-facility-loader-network_ip_interface.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-network_ip_interface.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-network_ip_interface.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-network_ip_interface init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-network_ip_interface.h b/ltt/ltt-facility-loader-network_ip_interface.h
+new file mode 100644
+index 0000000..3dd59c6
+--- /dev/null
++++ b/ltt/ltt-facility-loader-network_ip_interface.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_NETWORK_IP_INTERFACE_H_
++#define _LTT_FACILITY_LOADER_NETWORK_IP_INTERFACE_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-network_ip_interface.h>
++
++ltt_facility_t	ltt_facility_network_ip_interface;
++ltt_facility_t	ltt_facility_network_ip_interface_7A3120EF;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_network_ip_interface
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_network_ip_interface_7A3120EF
++#define LTT_FACILITY_CHECKSUM		0x7A3120EF
++#define LTT_FACILITY_NAME		"network_ip_interface"
++#define LTT_FACILITY_NUM_EVENTS	facility_network_ip_interface_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_NETWORK_IP_INTERFACE_H_
+diff --git a/ltt/ltt-facility-loader-process.c b/ltt/ltt-facility-loader-process.c
+new file mode 100644
+index 0000000..cc0c9c9
+--- /dev/null
++++ b/ltt/ltt-facility-loader-process.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-process.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-process.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-process init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-process.h b/ltt/ltt-facility-loader-process.h
+new file mode 100644
+index 0000000..2ef98ba
+--- /dev/null
++++ b/ltt/ltt-facility-loader-process.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_PROCESS_H_
++#define _LTT_FACILITY_LOADER_PROCESS_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-process.h>
++
++ltt_facility_t	ltt_facility_process;
++ltt_facility_t	ltt_facility_process_2905B6EB;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_process
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_process_2905B6EB
++#define LTT_FACILITY_CHECKSUM		0x2905B6EB
++#define LTT_FACILITY_NAME		"process"
++#define LTT_FACILITY_NUM_EVENTS	facility_process_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_PROCESS_H_
+diff --git a/ltt/ltt-facility-loader-socket.c b/ltt/ltt-facility-loader-socket.c
+new file mode 100644
+index 0000000..0c69f61
+--- /dev/null
++++ b/ltt/ltt-facility-loader-socket.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-socket.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-socket.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-socket init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-socket.h b/ltt/ltt-facility-loader-socket.h
+new file mode 100644
+index 0000000..508e456
+--- /dev/null
++++ b/ltt/ltt-facility-loader-socket.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_SOCKET_H_
++#define _LTT_FACILITY_LOADER_SOCKET_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-socket.h>
++
++ltt_facility_t	ltt_facility_socket;
++ltt_facility_t	ltt_facility_socket_5E76ED18;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_socket
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_socket_5E76ED18
++#define LTT_FACILITY_CHECKSUM		0x5E76ED18
++#define LTT_FACILITY_NAME		"socket"
++#define LTT_FACILITY_NUM_EVENTS	facility_socket_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_SOCKET_H_
+diff --git a/ltt/ltt-facility-loader-stack.c b/ltt/ltt-facility-loader-stack.c
+new file mode 100644
+index 0000000..0d32858
+--- /dev/null
++++ b/ltt/ltt-facility-loader-stack.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-stack.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-stack.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-stack init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-stack.h b/ltt/ltt-facility-loader-stack.h
+new file mode 100644
+index 0000000..904ca32
+--- /dev/null
++++ b/ltt/ltt-facility-loader-stack.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_STACK_H_
++#define _LTT_FACILITY_LOADER_STACK_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-stack.h>
++
++ltt_facility_t	ltt_facility_stack;
++ltt_facility_t	ltt_facility_stack_C90868B5;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_stack
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_stack_C90868B5
++#define LTT_FACILITY_CHECKSUM		0xC90868B5
++#define LTT_FACILITY_NAME		"stack"
++#define LTT_FACILITY_NUM_EVENTS	facility_stack_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_STACK_H_
+diff --git a/ltt/ltt-facility-loader-statedump.c b/ltt/ltt-facility-loader-statedump.c
+new file mode 100644
+index 0000000..d08b195
+--- /dev/null
++++ b/ltt/ltt-facility-loader-statedump.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-statedump.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-statedump.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-statedump init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-statedump.h b/ltt/ltt-facility-loader-statedump.h
+new file mode 100644
+index 0000000..128a3eb
+--- /dev/null
++++ b/ltt/ltt-facility-loader-statedump.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_STATEDUMP_H_
++#define _LTT_FACILITY_LOADER_STATEDUMP_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-statedump.h>
++
++ltt_facility_t	ltt_facility_statedump;
++ltt_facility_t	ltt_facility_statedump_5E184DBD;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_statedump
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_statedump_5E184DBD
++#define LTT_FACILITY_CHECKSUM		0x5E184DBD
++#define LTT_FACILITY_NAME		"statedump"
++#define LTT_FACILITY_NUM_EVENTS	facility_statedump_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_STATEDUMP_H_
+diff --git a/ltt/ltt-facility-loader-timer.c b/ltt/ltt-facility-loader-timer.c
+new file mode 100644
+index 0000000..5410123
+--- /dev/null
++++ b/ltt/ltt-facility-loader-timer.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-timer.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-timer.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-timer init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-timer.h b/ltt/ltt-facility-loader-timer.h
+new file mode 100644
+index 0000000..ab46936
+--- /dev/null
++++ b/ltt/ltt-facility-loader-timer.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_TIMER_H_
++#define _LTT_FACILITY_LOADER_TIMER_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-timer.h>
++
++ltt_facility_t	ltt_facility_timer;
++ltt_facility_t	ltt_facility_timer_68AB77C3;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_timer
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_timer_68AB77C3
++#define LTT_FACILITY_CHECKSUM		0x68AB77C3
++#define LTT_FACILITY_NAME		"timer"
++#define LTT_FACILITY_NUM_EVENTS	facility_timer_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_TIMER_H_
+diff --git a/ltt/ltt-relay.c b/ltt/ltt-relay.c
+new file mode 100644
+index 0000000..5061839
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_i386.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_i386.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_i386.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_i386.h b/ltt/ltt-facility-loader-kernel_arch_i386.h
+new file mode 100644
+index 0000000..57cfa21
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_i386.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_i386.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_BDE45AD9;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_BDE45AD9
++#define LTT_FACILITY_CHECKSUM		0xBDE45AD9
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_mips.c b/ltt/ltt-facility-loader-kernel_arch_mips.c
+new file mode 100644
+index 0000000..8f3eb06
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_arm.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_arm.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_arm.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_arm.h b/ltt/ltt-facility-loader-kernel_arch_arm.h
+new file mode 100644
+index 0000000..4943ad8
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_arm.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_arm.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_8E8193AC;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_8E8193AC
++#define LTT_FACILITY_CHECKSUM		0x8E8193AC
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_i386.c b/ltt/ltt-facility-loader-kernel_arch_i386.c
+new file mode 100644
+index 0000000..29cfda9
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_mips.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_mips.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_mips.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_mips.h b/ltt/ltt-facility-loader-kernel_arch_mips.h
+new file mode 100644
+index 0000000..6ef9474
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_mips.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_mips.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_8597B65C;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_8597B65C
++#define LTT_FACILITY_CHECKSUM		0x8597B65C
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_powerpc.c b/ltt/ltt-facility-loader-kernel_arch_powerpc.c
+new file mode 100644
+index 0000000..0f8e689
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_powerpc.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_powerpc.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_powerpc.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_powerpc.h b/ltt/ltt-facility-loader-kernel_arch_powerpc.h
+new file mode 100644
+index 0000000..f9bdd6e
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_powerpc.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_powerpc.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_E944278C;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_E944278C
++#define LTT_FACILITY_CHECKSUM		0xE944278C
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_ppc.c b/ltt/ltt-facility-loader-kernel_arch_ppc.c
+new file mode 100644
+index 0000000..74017e1
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_ppc.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_ppc.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_ppc.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_ppc.h b/ltt/ltt-facility-loader-kernel_arch_ppc.h
+new file mode 100644
+index 0000000..40d84aa
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_ppc.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_ppc.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_E944278C;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_E944278C
++#define LTT_FACILITY_CHECKSUM		0xE944278C
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-kernel_arch_x86_64.c b/ltt/ltt-facility-loader-kernel_arch_x86_64.c
+new file mode 100644
+index 0000000..3adb236
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_x86_64.c
+@@ -0,0 +1,66 @@
++/*
++ * ltt-facility-loader-kernel_arch_x86_64.c
++ *
++ * (C) Copyright  2005 - 
++ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Contains the LTT facility loader.
++ *
++ */
++
++
++#include <linux/ltt-facilities.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/config.h>
++#include "ltt-facility-loader-kernel_arch_x86_64.h"
++
++
++#ifdef CONFIG_LTT
++
++EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
++EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
++
++static const char ltt_facility_name[] = LTT_FACILITY_NAME;
++
++#define SYMBOL_STRING(sym) #sym
++
++static struct ltt_facility facility = {
++	.name = ltt_facility_name,
++	.num_events = LTT_FACILITY_NUM_EVENTS,
++	.checksum = LTT_FACILITY_CHECKSUM,
++	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
++};
++
++static int __init facility_init(void)
++{
++	printk(KERN_INFO "LTT : ltt-facility-kernel_arch init in kernel\n");
++
++	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
++	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
++	
++	return LTT_FACILITY_SYMBOL;
++}
++
++#ifndef MODULE
++__initcall(facility_init);
++#else
++module_init(facility_init);
++static void __exit facility_exit(void)
++{
++	int err;
++
++	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
++	if(err != 0)
++		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++
++}
++module_exit(facility_exit)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++
++#endif //MODULE
++
++#endif //CONFIG_LTT
+diff --git a/ltt/ltt-facility-loader-kernel_arch_x86_64.h b/ltt/ltt-facility-loader-kernel_arch_x86_64.h
+new file mode 100644
+index 0000000..732e9f8
+--- /dev/null
++++ b/ltt/ltt-facility-loader-kernel_arch_x86_64.h
+@@ -0,0 +1,20 @@
++#ifndef _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++#define _LTT_FACILITY_LOADER_KERNEL_ARCH_H_
++
++#ifdef CONFIG_LTT
++
++#include <linux/ltt-facilities.h>
++#include <asm/ltt/ltt-facility-id-kernel_arch_x86_64.h>
++
++ltt_facility_t	ltt_facility_kernel_arch;
++ltt_facility_t	ltt_facility_kernel_arch_18A18187;
++
++#define LTT_FACILITY_SYMBOL		ltt_facility_kernel_arch
++#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_kernel_arch_18A18187
++#define LTT_FACILITY_CHECKSUM		0x18A18187
++#define LTT_FACILITY_NAME		"kernel_arch"
++#define LTT_FACILITY_NUM_EVENTS	facility_kernel_arch_num_events
++
++#endif //CONFIG_LTT
++
++#endif //_LTT_FACILITY_LOADER_KERNEL_ARCH_H_
+diff --git a/ltt/ltt-facility-loader-locking.c b/ltt/ltt-facility-loader-locking.c
+new file mode 100644
+index 0000000..963266f
 
---=_Krystal-15661-1156980134-0001-2--
+--=_Krystal-6818-1156979809-0001-2--

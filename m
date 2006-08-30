@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWH3VqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWH3Vsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWH3VqX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 17:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWH3VqX
+	id S932147AbWH3Vsx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 17:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWH3Vsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 17:46:23 -0400
-Received: from mailhub1.otago.ac.nz ([139.80.64.218]:9632 "EHLO
-	mailhub1.otago.ac.nz") by vger.kernel.org with ESMTP
-	id S932117AbWH3VqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 17:46:22 -0400
-In-Reply-To: <17653.20935.117426.731854@alkaid.it.uu.se>
-References: <A2A6BFA6-28FA-4525-8705-31555B5327D2@cs.otago.ac.nz> <17653.20935.117426.731854@alkaid.it.uu.se>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0B111904-6CD0-40D4-85D7-F13CCCA06FAB@cs.otago.ac.nz>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 30 Aug 2006 17:48:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19666 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932134AbWH3Vsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 17:48:52 -0400
+Date: Wed, 30 Aug 2006 14:48:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: piet@bluelane.com
+Cc: vgoyal@in.ibm.com, George Anzinger <george@wildturkeyranch.net>,
+       Discussion
+	 "list for crash utility usage, maintenance and development" 
+	<crash-utility@redhat.com>,
+       kgdb-bugreport@lists.sourceforge.net,
+       Subhachandra Chandra <schandra@bluelane.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [Crash-utility] Patch to use gdb's bt in crash - works
+ great with kgdb! - KGDB in Linus Kernel.
+Message-Id: <20060830144822.3b8ffb9a.akpm@osdl.org>
+In-Reply-To: <1156974093.29300.103.camel@piet2.bluelane.com>
+References: <44EC8CA5.789286A@redhat.com>
+	<20060824111259.GB22145@in.ibm.com>
+	<44EDA676.37F12263@redhat.com>
+	<1156966522.29300.67.camel@piet2.bluelane.com>
+	<20060830204032.GD30392@in.ibm.com>
+	<1156974093.29300.103.camel@piet2.bluelane.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: zhiyi huang <hzy@cs.otago.ac.nz>
-Subject: Re: Ultra Sparc T1 port
-Date: Thu, 31 Aug 2006 09:46:00 +1200
-To: Mikael Pettersson <mikpe@it.uu.se>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> zhiyi huang writes:
->> Hello,
->> I am using a Ubuntu port on Ultra Sparc T1.
->> Linux version 2.6.15-21-sparc64-smp (buildd@artigas) (gcc version
->> 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #1 SMP Fri Apr 21 17:04:05 UTC 2006
->> I have installed a module in the kernel. It is a RAM device driver.
->> When my application calls ioctl on the device (/dev/dsm), I got the
->> following log message:
->>
->> Aug 29 11:13:20 info-sf-03 kernel: [    3.603348] ioctl32(manager:
->> 18821): Unknown cmd fd(3) cmd(80047f00){00} arg(fffc3934) on /dev/dsm
->>
->> I check my module and found the control has not reached my module
->> yet. I haven't got much clue why it happened and how to fix the
->> problem. It works fine on Linux 2.6.8/i386, by the way.
->> Thanks for help:)
->
-> There's a separate mailing list for SPARC Linux.
+On Wed, 30 Aug 2006 14:41:32 -0700
+Piet Delaney <piet@bluelane.com> wrote:
 
-Thanks. Can anyone direct me to the list address?
+> My preference is for kgdb, like kexec, to become part of the 
+> mainstream kernel as a configurable component.
 
->
-> In this case, you probably just forgot to set up a ->compat_ioctl()
-> method in your device's file ops.
->
+Me too.  And I expect I could talk Linus into it if a) it works well on a
+transport other-than-rs232 and b) the patches are nice and clean.
 
-Yes, indeed. I don't have that method. Now the control is in my ioctl  
-function. My new problem is that I don't know much about  
-compat_ioctl. Is there any document about it? The only doc I use is  
-Linux Device Driver (online version).
-Thanks a lot, Mikael:)
+> Perhaps Andrew 
+> could enumerate his issues.
+
+a) and b) above.  Plus: I'd want to see a maintainance person or team who
+respond promptly to email and who remain reasonably engaged with what's
+going on in the mainline kernel.  Because if problems crop up (and they
+will), I don't want to have to be the bunny who has to worry about them...
 

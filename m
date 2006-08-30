@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWH3TAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWH3TDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWH3TAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWH3TAY
+	id S1751326AbWH3TDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWH3TDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:00:24 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:28298 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751171AbWH3TAX
+	Wed, 30 Aug 2006 15:03:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:63405 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751318AbWH3TDO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:00:23 -0400
-Message-ID: <44F5E01C.3010807@zytor.com>
-Date: Wed, 30 Aug 2006 11:59:40 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 30 Aug 2006 15:03:14 -0400
+Message-ID: <44F5E0EC.8070602@us.ibm.com>
+Date: Wed, 30 Aug 2006 12:03:08 -0700
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: Andi Kleen <ak@suse.de>, Matt Domsch <Matt_Domsch@dell.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <44F1F356.5030105@zytor.com>	<200608301856.11125.ak@suse.de>	<20060830200638.504602e2@localhost>	<200608301931.14434.ak@suse.de> <20060830205136.4f9bfd33@localhost>
-In-Reply-To: <20060830205136.4f9bfd33@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>,
+       Konrad Rzeszutek <konrad@darnok.org>
+Subject: Re: [PATCH] aic94xx: Increase can_queue and cmds_per_lun
+References: <44F3CF6E.1070000@us.ibm.com> <1156958383.7701.2.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <1156958383.7701.2.camel@mulgrave.il.steeleye.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
-> 
-> This is not entirely true...
-> All architectures sets saved_command_line variable...
-> So I can add __init to the saved_command_line and
-> copy its contents into kmalloced persistence_command_line at
-> main.c.
-> 
+James Bottomley wrote:
 
-My opinion is that you should change saved_command_line (which already 
-implies a copy) to be the kmalloc'd version and call the fixed-sized 
-buffer something else.
+> This is unnecessary unless you alter it before host alloc (which is
+> where it takes the shost values from the template).
+> 
+> Also, I think if you look at the rest of the driver, it's careful to
+> account for the need for required scbs in its internal queueing
+> algorithms, so the ASD_FREE_SCBS should be unnecessary.
+> 
+>> +	shost->can_queue = aic94xx_sht.can_queue;
 
-	-hpa
+Ok then, I think it collapses to this short patch:
+
+--D
+
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+
+diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
+index 3e25e31..861d67b 100644
+--- a/drivers/scsi/aic94xx/aic94xx_init.c
++++ b/drivers/scsi/aic94xx/aic94xx_init.c
+@@ -623,6 +623,8 @@ static int __devinit asd_pci_probe(struc
+                   asd_ha->hw_prof.bios.present ? "build " : "not present",
+                   asd_ha->hw_prof.bios.bld);
+
++       shost->can_queue = asd_ha->hw_prof.max_scbs;
++
+        if (use_msi)
+                pci_enable_msi(asd_ha->pcidev);

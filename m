@@ -1,372 +1,301 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWH3WQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWH3WQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWH3WQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWH3WQJ
+	id S932178AbWH3WQh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWH3WQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:16:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:9188 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932172AbWH3WQH (ORCPT
+	Wed, 30 Aug 2006 18:16:17 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:35265 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932178AbWH3WQL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:16:07 -0400
-Subject: [RFC][PATCH 1/9] put alignment macros in align.h
+	Wed, 30 Aug 2006 18:16:11 -0400
+Subject: [RFC][PATCH 4/9] ia64 generic PAGE_SIZE
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 30 Aug 2006 15:16:05 -0700
+Date: Wed, 30 Aug 2006 15:16:07 -0700
 References: <20060830221604.E7320C0F@localhost.localdomain>
 In-Reply-To: <20060830221604.E7320C0F@localhost.localdomain>
-Message-Id: <20060830221605.9B506326@localhost.localdomain>
+Message-Id: <20060830221607.1DB81421@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There are several definitions of alignment macros.  We'll take some
-of the definitions from the powerpc code (since they are the most
-prolific users), and make the generic version not evaluate its
-argument twice.  (Thanks Nikita)
+This is the ia64 portion to convert it over to the generic PAGE_SIZE
+framework.
 
-We need a new header instead of kernel.h because it has many other
-definitions, and we'll get circular dependencies.
+* Change all references to CONFIG_IA64_PAGE_SIZE_*KB to
+  CONFIG_PAGE_SIZE_* and update the defconfigs.  
+* remove ia64-specific Kconfig menu
+* add ia64 default of 16k pages to mm/Kconfig
+* add support for 8k and 16k pages, plus 64k if !ITANIUM
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- threadalloc-dave/include/linux/kernel.h                       |    2 -
- threadalloc-dave/include/linux/align.h                        |   20 ++++++++++
- threadalloc-dave/include/asm-ppc/page.h                       |   10 +----
- threadalloc-dave/include/asm-ppc/bootinfo.h                   |    2 -
- threadalloc-dave/include/asm-powerpc/page.h                   |   10 +----
- threadalloc-dave/arch/powerpc/kernel/prom.c                   |   20 +++++-----
- threadalloc-dave/arch/powerpc/kernel/prom_init.c              |    9 ++--
- threadalloc-dave/arch/powerpc/mm/44x_mmu.c                    |    2 -
- threadalloc-dave/arch/powerpc/platforms/iseries/setup.c       |    2 -
- threadalloc-dave/arch/powerpc/platforms/powermac/bootx_init.c |    4 +-
- threadalloc-dave/arch/ppc/kernel/setup.c                      |    4 +-
- threadalloc-dave/arch/ppc/mm/44x_mmu.c                        |    2 -
- 12 files changed, 48 insertions(+), 39 deletions(-)
+ threadalloc-dave/include/asm-ia64/ptrace.h             |    6 +--
+ threadalloc-dave/include/asm-ia64/page.h               |   21 ----------
+ threadalloc-dave/arch/ia64/Kconfig                     |   34 +----------------
+ threadalloc-dave/arch/ia64/configs/bigsur_defconfig    |    8 ++--
+ threadalloc-dave/arch/ia64/configs/gensparse_defconfig |    8 ++--
+ threadalloc-dave/arch/ia64/configs/sim_defconfig       |    8 ++--
+ threadalloc-dave/arch/ia64/configs/sn2_defconfig       |    8 ++--
+ threadalloc-dave/arch/ia64/configs/tiger_defconfig     |    8 ++--
+ threadalloc-dave/arch/ia64/configs/zx1_defconfig       |    8 ++--
+ threadalloc-dave/arch/ia64/defconfig                   |    8 ++--
+ threadalloc-dave/mm/Kconfig                            |    4 ++
+ 11 files changed, 38 insertions(+), 83 deletions(-)
 
-diff -puN include/linux/kernel.h~align-h include/linux/kernel.h
---- threadalloc/include/linux/kernel.h~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/include/linux/kernel.h	2006-08-30 15:14:59.000000000 -0700
-@@ -13,6 +13,7 @@
- #include <linux/types.h>
- #include <linux/compiler.h>
- #include <linux/bitops.h>
-+#include <linux/align.h>
- #include <asm/byteorder.h>
- #include <asm/bug.h>
- 
-@@ -31,7 +32,6 @@ extern const char linux_banner[];
- #define STACK_MAGIC	0xdeadbeef
- 
- #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
--#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
- #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
- #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
- 
-diff -puN /dev/null include/linux/align.h
---- /dev/null	2005-03-30 22:36:15.000000000 -0800
-+++ threadalloc-dave/include/linux/align.h	2006-08-30 15:14:59.000000000 -0700
-@@ -0,0 +1,20 @@
-+#ifndef _LINUX_ALIGN_H
-+#define _LINUX_ALIGN_H
-+
-+/*
-+ * This file should only contain macros which have no outside
-+ * dependencies, and can be used safely from any other header.
-+ */
-+
-+#define _ALIGN_UP(x,a) ({ typeof(a) __a = (a); (((x) + __a - 1) & ~(__a - 1)); })
-+#define _ALIGN_DOWN(x,a)  ((x)&(~((a)-1)))
-+
-+/*
-+ * ALIGN is special.  There's a linkage.h as well that
-+ * has a quite different meaning.
-+ */
-+#ifndef __ASSEMBLY__
-+#define ALIGN(addr,size) _ALIGN_UP(addr,size)
-+#endif
-+
-+#endif /* _LINUX_ALIGN_H */
-diff -puN include/asm-ppc/page.h~align-h include/asm-ppc/page.h
---- threadalloc/include/asm-ppc/page.h~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/include/asm-ppc/page.h	2006-08-30 15:14:59.000000000 -0700
-@@ -1,6 +1,7 @@
- #ifndef _PPC_PAGE_H
- #define _PPC_PAGE_H
- 
-+#include <linux/align.h>
- #include <asm/asm-compat.h>
- 
- /* PAGE_SHIFT determines the page size */
-@@ -36,15 +37,8 @@ typedef unsigned long pte_basic_t;
- #define PTE_FMT		"%.8lx"
- #endif
- 
--/* align addr on a size boundary - adjust address up/down if needed */
--#define _ALIGN_UP(addr,size)	(((addr)+((size)-1))&(~((size)-1)))
--#define _ALIGN_DOWN(addr,size)	((addr)&(~((size)-1)))
--
--/* align addr on a size boundary - adjust address up if needed */
--#define _ALIGN(addr,size)     _ALIGN_UP(addr,size)
--
- /* to align the pointer to the (next) page boundary */
--#define PAGE_ALIGN(addr)	_ALIGN(addr, PAGE_SIZE)
-+#define PAGE_ALIGN(addr)	ALIGN(addr, PAGE_SIZE)
- 
- 
- #undef STRICT_MM_TYPECHECKS
-diff -puN include/asm-ppc/bootinfo.h~align-h include/asm-ppc/bootinfo.h
---- threadalloc/include/asm-ppc/bootinfo.h~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/include/asm-ppc/bootinfo.h	2006-08-30 15:14:59.000000000 -0700
-@@ -41,7 +41,7 @@ static inline struct bi_record *
- bootinfo_addr(unsigned long offset)
- {
- 
--	return (struct bi_record *)_ALIGN((offset) + (1 << 20) - 1,
-+	return (struct bi_record *)ALIGN((offset) + (1 << 20) - 1,
- 					  (1 << 20));
- }
- #endif /* CONFIG_APUS */
-diff -puN include/asm-powerpc/page.h~align-h include/asm-powerpc/page.h
---- threadalloc/include/asm-powerpc/page.h~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/include/asm-powerpc/page.h	2006-08-30 15:14:59.000000000 -0700
-@@ -11,6 +11,7 @@
+diff -puN include/asm-ia64/ptrace.h~ia64 include/asm-ia64/ptrace.h
+--- threadalloc/include/asm-ia64/ptrace.h~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/include/asm-ia64/ptrace.h	2006-08-30 15:15:02.000000000 -0700
+@@ -64,11 +64,11 @@
+  * Base-2 logarithm of number of pages to allocate per task structure
+  * (including register backing store and memory stack):
+  */
+-#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
++#if defined(CONFIG_PAGE_SIZE_4KB)
+ # define KERNEL_STACK_SIZE_ORDER		3
+-#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
++#elif defined(CONFIG_PAGE_SIZE_8KB)
+ # define KERNEL_STACK_SIZE_ORDER		2
+-#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
++#elif defined(CONFIG_PAGE_SIZE_16KB)
+ # define KERNEL_STACK_SIZE_ORDER		1
+ #else
+ # define KERNEL_STACK_SIZE_ORDER		0
+diff -puN include/asm-ia64/page.h~ia64 include/asm-ia64/page.h
+--- threadalloc/include/asm-ia64/page.h~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/include/asm-ia64/page.h	2006-08-30 15:15:02.000000000 -0700
+@@ -7,7 +7,7 @@
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
   */
  
- #ifdef __KERNEL__
-+#include <linux/align.h>
- #include <asm/asm-compat.h>
- #include <asm/kdump.h>
- 
-@@ -89,15 +90,8 @@
- #include <asm/page_32.h>
- #endif
- 
--/* align addr on a size boundary - adjust address up/down if needed */
--#define _ALIGN_UP(addr,size)	(((addr)+((size)-1))&(~((size)-1)))
--#define _ALIGN_DOWN(addr,size)	((addr)&(~((size)-1)))
 -
--/* align addr on a size boundary - adjust address up if needed */
--#define _ALIGN(addr,size)     _ALIGN_UP(addr,size)
++#include <asm-generic/page.h>
+ #include <asm/intrinsics.h>
+ #include <asm/types.h>
+ 
+@@ -24,25 +24,6 @@
+ #define RGN_GATE	5	/* Gate page, Kernel text, etc */
+ #define RGN_HPAGE	4	/* For Huge TLB pages */
+ 
+-/*
+- * PAGE_SHIFT determines the actual kernel page size.
+- */
+-#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
+-# define PAGE_SHIFT	12
+-#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
+-# define PAGE_SHIFT	13
+-#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
+-# define PAGE_SHIFT	14
+-#elif defined(CONFIG_IA64_PAGE_SIZE_64KB)
+-# define PAGE_SHIFT	16
+-#else
+-# error Unsupported page size!
+-#endif
 -
- /* to align the pointer to the (next) page boundary */
--#define PAGE_ALIGN(addr)	_ALIGN(addr, PAGE_SIZE)
-+#define PAGE_ALIGN(addr)	ALIGN(addr, PAGE_SIZE)
+-#define PAGE_SIZE		(__IA64_UL_CONST(1) << PAGE_SHIFT)
+-#define PAGE_MASK		(~(PAGE_SIZE - 1))
+-#define PAGE_ALIGN(addr)	(((addr) + PAGE_SIZE - 1) & PAGE_MASK)
+-
+ #define PERCPU_PAGE_SHIFT	16	/* log2() of max. size of per-CPU area */
+ #define PERCPU_PAGE_SIZE	(__IA64_UL_CONST(1) << PERCPU_PAGE_SHIFT)
  
- /*
-  * Don't compare things with KERNELBASE or PAGE_OFFSET to test for
-diff -puN arch/powerpc/kernel/prom.c~align-h arch/powerpc/kernel/prom.c
---- threadalloc/arch/powerpc/kernel/prom.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/powerpc/kernel/prom.c	2006-08-30 15:14:59.000000000 -0700
-@@ -125,9 +125,9 @@ int __init of_scan_flat_dt(int (*it)(uns
- 			u32 sz = *((u32 *)p);
- 			p += 8;
- 			if (initial_boot_params->version < 0x10)
--				p = _ALIGN(p, sz >= 8 ? 8 : 4);
-+				p = ALIGN(p, sz >= 8 ? 8 : 4);
- 			p += sz;
--			p = _ALIGN(p, 4);
-+			p = ALIGN(p, 4);
- 			continue;
- 		}
- 		if (tag != OF_DT_BEGIN_NODE) {
-@@ -137,7 +137,7 @@ int __init of_scan_flat_dt(int (*it)(uns
- 		}
- 		depth++;
- 		pathp = (char *)p;
--		p = _ALIGN(p + strlen(pathp) + 1, 4);
-+		p = ALIGN(p + strlen(pathp) + 1, 4);
- 		if ((*pathp) == '/') {
- 			char *lp, *np;
- 			for (lp = NULL, np = pathp; *np; np++)
-@@ -163,7 +163,7 @@ unsigned long __init of_get_flat_dt_root
- 		p += 4;
- 	BUG_ON (*((u32 *)p) != OF_DT_BEGIN_NODE);
- 	p += 4;
--	return _ALIGN(p + strlen((char *)p) + 1, 4);
-+	return ALIGN(p + strlen((char *)p) + 1, 4);
- }
+diff -puN arch/ia64/Kconfig~ia64 arch/ia64/Kconfig
+--- threadalloc/arch/ia64/Kconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/Kconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -149,38 +149,8 @@ config MCKINLEY
  
- /**
-@@ -190,7 +190,7 @@ void* __init of_get_flat_dt_prop(unsigne
- 		noff = *((u32 *)(p + 4));
- 		p += 8;
- 		if (initial_boot_params->version < 0x10)
--			p = _ALIGN(p, sz >= 8 ? 8 : 4);
-+			p = ALIGN(p, sz >= 8 ? 8 : 4);
+ endchoice
  
- 		nstr = find_flat_dt_string(noff);
- 		if (nstr == NULL) {
-@@ -204,7 +204,7 @@ void* __init of_get_flat_dt_prop(unsigne
- 			return (void *)p;
- 		}
- 		p += sz;
--		p = _ALIGN(p, 4);
-+		p = ALIGN(p, 4);
- 	} while(1);
- }
+-choice
+-	prompt "Kernel page size"
+-	default IA64_PAGE_SIZE_16KB
+-
+-config IA64_PAGE_SIZE_4KB
+-	bool "4KB"
+-	help
+-	  This lets you select the page size of the kernel.  For best IA-64
+-	  performance, a page size of 8KB or 16KB is recommended.  For best
+-	  IA-32 compatibility, a page size of 4KB should be selected (the vast
+-	  majority of IA-32 binaries work perfectly fine with a larger page
+-	  size).  For Itanium 2 or newer systems, a page size of 64KB can also
+-	  be selected.
+-
+-	  4KB                For best IA-32 compatibility
+-	  8KB                For best IA-64 performance
+-	  16KB               For best IA-64 performance
+-	  64KB               Requires Itanium 2 or newer processor.
+-
+-	  If you don't know what to do, choose 16KB.
+-
+-config IA64_PAGE_SIZE_8KB
+-	bool "8KB"
+-
+-config IA64_PAGE_SIZE_16KB
+-	bool "16KB"
+-
+-config IA64_PAGE_SIZE_64KB
+-	depends on !ITANIUM
+-	bool "64KB"
+-
+-endchoice
++config ARCH_GENERIC_PAGE_SIZE
++	def_bool y
  
-@@ -232,7 +232,7 @@ static void *__init unflatten_dt_alloc(u
- {
- 	void *res;
- 
--	*mem = _ALIGN(*mem, align);
-+	*mem = ALIGN(*mem, align);
- 	res = (void *)*mem;
- 	*mem += size;
- 
-@@ -261,7 +261,7 @@ static unsigned long __init unflatten_dt
- 	*p += 4;
- 	pathp = (char *)*p;
- 	l = allocl = strlen(pathp) + 1;
--	*p = _ALIGN(*p + l, 4);
-+	*p = ALIGN(*p + l, 4);
- 
- 	/* version 0x10 has a more compact unit name here instead of the full
- 	 * path. we accumulate the full path size using "fpsize", we'll rebuild
-@@ -340,7 +340,7 @@ static unsigned long __init unflatten_dt
- 		noff = *((u32 *)((*p) + 4));
- 		*p += 8;
- 		if (initial_boot_params->version < 0x10)
--			*p = _ALIGN(*p, sz >= 8 ? 8 : 4);
-+			*p = ALIGN(*p, sz >= 8 ? 8 : 4);
- 
- 		pname = find_flat_dt_string(noff);
- 		if (pname == NULL) {
-@@ -366,7 +366,7 @@ static unsigned long __init unflatten_dt
- 			*prev_pp = pp;
- 			prev_pp = &pp->next;
- 		}
--		*p = _ALIGN((*p) + sz, 4);
-+		*p = ALIGN((*p) + sz, 4);
- 	}
- 	/* with version 0x10 we may not have the name property, recreate
- 	 * it here from the unit name if absent
-diff -puN arch/powerpc/kernel/prom_init.c~align-h arch/powerpc/kernel/prom_init.c
---- threadalloc/arch/powerpc/kernel/prom_init.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/powerpc/kernel/prom_init.c	2006-08-30 15:14:59.000000000 -0700
-@@ -16,6 +16,7 @@
- #undef DEBUG_PROM
- 
- #include <stdarg.h>
-+#include <linux/align.h>
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/init.h>
-@@ -1679,7 +1680,7 @@ static void __init *make_room(unsigned l
- {
- 	void *ret;
- 
--	*mem_start = _ALIGN(*mem_start, align);
-+	*mem_start = ALIGN(*mem_start, align);
- 	while ((*mem_start + needed) > *mem_end) {
- 		unsigned long room, chunk;
- 
-@@ -1811,7 +1812,7 @@ static void __init scan_dt_build_struct(
- 				*lp++ = *p;
- 		}
- 		*lp = 0;
--		*mem_start = _ALIGN((unsigned long)lp + 1, 4);
-+		*mem_start = ALIGN((unsigned long)lp + 1, 4);
- 	}
- 
- 	/* get it again for debugging */
-@@ -1864,7 +1865,7 @@ static void __init scan_dt_build_struct(
- 		/* push property content */
- 		valp = make_room(mem_start, mem_end, l, 4);
- 		call_prom("getprop", 4, 1, node, RELOC(pname), valp, l);
--		*mem_start = _ALIGN(*mem_start, 4);
-+		*mem_start = ALIGN(*mem_start, 4);
- 	}
- 
- 	/* Add a "linux,phandle" property. */
-@@ -1920,7 +1921,7 @@ static void __init flatten_device_tree(v
- 		prom_panic ("couldn't get device tree root\n");
- 
- 	/* Build header and make room for mem rsv map */ 
--	mem_start = _ALIGN(mem_start, 4);
-+	mem_start = ALIGN(mem_start, 4);
- 	hdr = make_room(&mem_start, &mem_end,
- 			sizeof(struct boot_param_header), 4);
- 	RELOC(dt_header_start) = (unsigned long)hdr;
-diff -puN arch/powerpc/mm/44x_mmu.c~align-h arch/powerpc/mm/44x_mmu.c
---- threadalloc/arch/powerpc/mm/44x_mmu.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/powerpc/mm/44x_mmu.c	2006-08-30 15:14:59.000000000 -0700
-@@ -103,7 +103,7 @@ unsigned long __init mmu_mapin_ram(void)
- 
- 	/* Determine number of entries necessary to cover lowmem */
- 	pinned_tlbs = (unsigned int)
--		(_ALIGN(total_lowmem, PPC44x_PIN_SIZE) >> PPC44x_PIN_SHIFT);
-+		(ALIGN(total_lowmem, PPC44x_PIN_SIZE) >> PPC44x_PIN_SHIFT);
- 
- 	/* Write upper watermark to save location */
- 	tlb_44x_hwater = PPC44x_LOW_SLOT - pinned_tlbs;
-diff -puN arch/powerpc/platforms/iseries/setup.c~align-h arch/powerpc/platforms/iseries/setup.c
---- threadalloc/arch/powerpc/platforms/iseries/setup.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/powerpc/platforms/iseries/setup.c	2006-08-30 15:14:59.000000000 -0700
-@@ -354,7 +354,7 @@ EXPORT_SYMBOL(mschunks_map);
- 
- void mschunks_alloc(unsigned long num_chunks)
- {
--	klimit = _ALIGN(klimit, sizeof(u32));
-+	klimit = ALIGN(klimit, sizeof(u32));
- 	mschunks_map.mapping = (u32 *)klimit;
- 	klimit += num_chunks * sizeof(u32);
- 	mschunks_map.num_chunks = num_chunks;
-diff -puN arch/powerpc/platforms/powermac/bootx_init.c~align-h arch/powerpc/platforms/powermac/bootx_init.c
---- threadalloc/arch/powerpc/platforms/powermac/bootx_init.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/powerpc/platforms/powermac/bootx_init.c	2006-08-30 15:14:59.000000000 -0700
-@@ -389,7 +389,7 @@ static unsigned long __init bootx_flatte
- 	hdr->dt_strings_size = bootx_dt_strend - bootx_dt_strbase;
- 
- 	/* Build structure */
--	mem_end = _ALIGN(mem_end, 16);
-+	mem_end = ALIGN(mem_end, 16);
- 	DBG("Building device tree structure at: %x\n", mem_end);
- 	hdr->off_dt_struct = mem_end - mem_start;
- 	bootx_scan_dt_build_struct(base, 4, &mem_end);
-@@ -407,7 +407,7 @@ static unsigned long __init bootx_flatte
- 	 * also bump mem_reserve_cnt to cause further reservations to
- 	 * fail since it's too late.
- 	 */
--	mem_end = _ALIGN(mem_end, PAGE_SIZE);
-+	mem_end = ALIGN(mem_end, PAGE_SIZE);
- 	DBG("End of boot params: %x\n", mem_end);
- 	rsvmap[0] = mem_start;
- 	rsvmap[1] = mem_end;
-diff -puN arch/ppc/kernel/setup.c~align-h arch/ppc/kernel/setup.c
---- threadalloc/arch/ppc/kernel/setup.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/ppc/kernel/setup.c	2006-08-30 15:14:59.000000000 -0700
-@@ -341,14 +341,14 @@ struct bi_record *find_bootinfo(void)
- {
- 	struct bi_record *rec;
- 
--	rec = (struct bi_record *)_ALIGN((ulong)__bss_start+(1<<20)-1,(1<<20));
-+	rec = (struct bi_record *)ALIGN((ulong)__bss_start+(1<<20)-1,(1<<20));
- 	if ( rec->tag != BI_FIRST ) {
- 		/*
- 		 * This 0x10000 offset is a terrible hack but it will go away when
- 		 * we have the bootloader handle all the relocation and
- 		 * prom calls -- Cort
- 		 */
--		rec = (struct bi_record *)_ALIGN((ulong)__bss_start+0x10000+(1<<20)-1,(1<<20));
-+		rec = (struct bi_record *)ALIGN((ulong)__bss_start+0x10000+(1<<20)-1,(1<<20));
- 		if ( rec->tag != BI_FIRST )
- 			return NULL;
- 	}
-diff -puN arch/ppc/mm/44x_mmu.c~align-h arch/ppc/mm/44x_mmu.c
---- threadalloc/arch/ppc/mm/44x_mmu.c~align-h	2006-08-30 15:14:57.000000000 -0700
-+++ threadalloc-dave/arch/ppc/mm/44x_mmu.c	2006-08-30 15:14:59.000000000 -0700
-@@ -103,7 +103,7 @@ unsigned long __init mmu_mapin_ram(void)
- 
- 	/* Determine number of entries necessary to cover lowmem */
- 	pinned_tlbs = (unsigned int)
--		(_ALIGN(total_lowmem, PPC_PIN_SIZE) >> PPC44x_PIN_SHIFT);
-+		(ALIGN(total_lowmem, PPC_PIN_SIZE) >> PPC44x_PIN_SHIFT);
- 
- 	/* Write upper watermark to save location */
- 	tlb_44x_hwater = PPC44x_LOW_SLOT - pinned_tlbs;
+ choice
+ 	prompt "Page Table Levels"
+diff -puN arch/ia64/configs/bigsur_defconfig~ia64 arch/ia64/configs/bigsur_defconfig
+--- threadalloc/arch/ia64/configs/bigsur_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/bigsur_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -98,10 +98,10 @@ CONFIG_IA64_DIG=y
+ # CONFIG_IA64_HP_SIM is not set
+ CONFIG_ITANIUM=y
+ # CONFIG_MCKINLEY is not set
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/configs/gensparse_defconfig~ia64 arch/ia64/configs/gensparse_defconfig
+--- threadalloc/arch/ia64/configs/gensparse_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/gensparse_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -99,10 +99,10 @@ CONFIG_IA64_GENERIC=y
+ # CONFIG_IA64_HP_SIM is not set
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/configs/sim_defconfig~ia64 arch/ia64/configs/sim_defconfig
+--- threadalloc/arch/ia64/configs/sim_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/sim_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -99,10 +99,10 @@ CONFIG_DMA_IS_DMA32=y
+ CONFIG_IA64_HP_SIM=y
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-# CONFIG_IA64_PAGE_SIZE_16KB is not set
+-CONFIG_IA64_PAGE_SIZE_64KB=y
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++# CONFIG_PAGE_SIZE_16KB is not set
++CONFIG_PAGE_SIZE_64KB=y
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/configs/sn2_defconfig~ia64 arch/ia64/configs/sn2_defconfig
+--- threadalloc/arch/ia64/configs/sn2_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/sn2_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -98,10 +98,10 @@ CONFIG_IA64_SGI_SN2=y
+ # CONFIG_IA64_HP_SIM is not set
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ # CONFIG_PGTABLE_3 is not set
+ CONFIG_PGTABLE_4=y
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/configs/tiger_defconfig~ia64 arch/ia64/configs/tiger_defconfig
+--- threadalloc/arch/ia64/configs/tiger_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/tiger_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -99,10 +99,10 @@ CONFIG_IA64_DIG=y
+ # CONFIG_IA64_HP_SIM is not set
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/configs/zx1_defconfig~ia64 arch/ia64/configs/zx1_defconfig
+--- threadalloc/arch/ia64/configs/zx1_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/configs/zx1_defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -97,10 +97,10 @@ CONFIG_IA64_HP_ZX1=y
+ # CONFIG_IA64_HP_SIM is not set
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN arch/ia64/defconfig~ia64 arch/ia64/defconfig
+--- threadalloc/arch/ia64/defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/ia64/defconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -99,10 +99,10 @@ CONFIG_IA64_GENERIC=y
+ # CONFIG_IA64_HP_SIM is not set
+ # CONFIG_ITANIUM is not set
+ CONFIG_MCKINLEY=y
+-# CONFIG_IA64_PAGE_SIZE_4KB is not set
+-# CONFIG_IA64_PAGE_SIZE_8KB is not set
+-CONFIG_IA64_PAGE_SIZE_16KB=y
+-# CONFIG_IA64_PAGE_SIZE_64KB is not set
++# CONFIG_PAGE_SIZE_4KB is not set
++# CONFIG_PAGE_SIZE_8KB is not set
++CONFIG_PAGE_SIZE_16KB=y
++# CONFIG_PAGE_SIZE_64KB is not set
+ CONFIG_PGTABLE_3=y
+ # CONFIG_PGTABLE_4 is not set
+ # CONFIG_HZ_100 is not set
+diff -puN mm/Kconfig~ia64 mm/Kconfig
+--- threadalloc/mm/Kconfig~ia64	2006-08-30 15:15:01.000000000 -0700
++++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:02.000000000 -0700
+@@ -5,6 +5,7 @@ config ARCH_HAVE_GET_ORDER
+ choice
+ 	prompt "Kernel Page Size"
+ 	depends on ARCH_GENERIC_PAGE_SIZE
++	default PAGE_SIZE_16KB if IA64
+ config PAGE_SIZE_4KB
+ 	bool "4KB"
+ 	help
+@@ -25,10 +26,13 @@ config PAGE_SIZE_4KB
+ 	  architecture.
+ config PAGE_SIZE_8KB
+ 	bool "8KB"
++	depends on IA64
+ config PAGE_SIZE_16KB
+ 	bool "16KB"
++	depends on IA64
+ config PAGE_SIZE_64KB
+ 	bool "64KB"
++	depends on (IA64 && !ITANIUM)
+ config PAGE_SIZE_512KB
+ 	bool "512KB"
+ config PAGE_SIZE_4MB
 _

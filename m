@@ -1,50 +1,65 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965355AbWH2Uuv (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 29 Aug 2006 16:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965357AbWH2Uuu
+	id S1751116AbWH3IWl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 30 Aug 2006 04:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWH3IWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 16:50:50 -0400
-Received: from 189.Red-81-37-230.dynamicIP.rima-tde.net ([81.37.230.189]:47113
-	"EHLO EQUIPO1") by vger.kernel.org with ESMTP id S965356AbWH2Uun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 16:50:43 -0400
-Message-ID: <21490623857708.5E8BB600C1@MR41>
-From: "clockwatcher" <clockwatcher.confederate@royalsuites-hotel.com>
+	Wed, 30 Aug 2006 04:22:41 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:39601 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP
+	id S1751116AbWH3IWk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 04:22:40 -0400
+Error-To: <kschmidt6@web.de>
+Message-ID: <086686443453403304636640@mobile>
+From: "Klaus Schmidt" <kschmidt6@web.de>
 To: <linux-kernel@vger.kernel.org>
-Subject: Buy new home fast
-Date: Tue, 29 Aug 2006 22:50:42 +0200
-MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: 3M5uWSlzGau8JueJTyyf9hS4vXiPkMGsHlwC
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Reply-To: <kschmidt6@web.de>
+Subject: FW: Lustig
+Date: Wed, 30 Aug 2006 10:22:42 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965355AbWH2Uuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751116AbWH3IWl@vger.kernel.org>
 
-How are you Sir, 
+Respekt! Die Aktion ist ja der Hammer!
 
-Your credit doesn't matter to us!
-If you OWN real estate and want IMMEDIATE cash to spend ANY way you 
-like, or simply wish to LOWER your monthly payments by a third or more, here are the deals we have TODAY:
+Die sieht gut uns und setzt es f=FCr ne gute Sache ein ;-)
 
-$488,000.00 at a 3.67% fixed-rate
-$372,000.00 at a 3.90% variable-rate
-$492,000.00 at a 3.21% interest-only
-$248,000.00 at a 3.36% fixed-rate
-$198,000.00 at a 3.55% variable-rate
-
-Hurry, we have requests limits, so when these deals are gone, they are 
-gone!
-
-We have one-mimute form to apply the request,
-please CLICK HERE
-
-http://6FNRM.bulkercreditprocess.com/?ncache=103104
-
-Don't worry about approval, your credit will not disqualify you!
-
-Approval Manager.
+--- Weitergeleitete Nachricht ---
+Von: "Klaus Becker" <klausbecker@gmx.net>
+An: frank.hollemann@gmx.de;
+Betreff: Fwd:FW: Echte Tierliebe :-)
+Datum: Wed, 18 Aug 2006 17:49:02 +0100 (MET)
 
 
+
+ > > >
+ > > > Hallo zusammen!
+ > > >
+ > > > Schaut Euch mal den Link hier an:
+ > > >
+ > > > http://www.animal-fans.comFW: Lustig, lustig
+ > > >
+ > > > S=FC=DFes M=E4del gibt ihr letztes Hamd f=FCr den Tierschutz. :-=
+)))
+ > > >
+ > > > Ziemlich verr=FCckt die Aktion, aber sie traut sich was!!
+ > > >
+ > > > Bin mal gespannt, wie weit sie am Ende wirklich geht... ;-)
+ > > >
+ > > > Viel Spa=DF damit,
+ > > >
+ > > > Andy
+ > > >
+ > > >
+ > > >
+ > > >
+ > > >
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

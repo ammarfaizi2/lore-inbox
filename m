@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWH3WvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWH3Ww3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWH3WvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWH3WvJ
+	id S932217AbWH3Ww3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWH3Ww3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:51:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:34509 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751424AbWH3WvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:51:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=s7CDWvxq5CS5Y6z1ym8LPUqt8Bf3KWyH6kT6eDrkg29tW3B4rIRxDccAoqWJMRT2nkJ2jc/C++nJ+MEHg/cnL11ZkWANaTa8exYhcEV1gB4wopYtlGE5K0D/ncjOUKWZPqLOx/Ci1ny9EhxN8Ni03u09ZQtlcSt3Pt9EUL/l2B4=
-Message-ID: <44F6164F.6000709@gmail.com>
-Date: Thu, 31 Aug 2006 02:50:55 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 30 Aug 2006 18:52:29 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56501 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751166AbWH3Ww2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:52:28 -0400
+Date: Wed, 30 Aug 2006 15:51:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH -mm] PM: add /sys/power documentation to Documentation/ABI
+Message-ID: <20060830225107.GA14946@kroah.com>
+References: <200608302338.06882.rjw@sisk.pl> <20060830144350.3b9bb273.akpm@osdl.org> <20060830150358.55233204.rdunlap@xenotime.net> <20060830153242.c5081692.akpm@osdl.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: Re: [RFC] Simple userspace interface for PCI drivers
-References: <20060830062338.GA10285@kroah.com> <44F5C5E0.4050201@gmail.com> <20060830175250.GA6258@kroah.com>
-In-Reply-To: <20060830175250.GA6258@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060830153242.c5081692.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Aug 30, 2006 at 09:07:44PM +0400, Manu Abraham wrote:
->> Being a bit excited and it is really interesting to have such a
->> proposal, it would simplify the matters that held us up even more,
->> probably. The name sounds fine though. All i was wondering whether there
->> would be any high latencies for the same using in such a context. But
->> since the transfers would occur in any way, even with a kernel mode
->> driver, i think it should be pretty much fine.
+On Wed, Aug 30, 2006 at 03:32:42PM -0700, Andrew Morton wrote:
 > 
-> As mentioned, this framework is being used in industrial settings right
-> now, where latencies are a huge issue.  It works just fine, so I do not
-> think there are any problems in this area.
+> This ABI/ thing rather snuck under my radar (I saw it go past, but a lot of
+> things go past).
 
-Cool.
+It had a lot of review the first time around.  The second and third had
+relatively little.
 
-Is there some way we can avoid the poll ? It would be a real gain
-indeed, if a POLL can be avoided.
+> It'll be good if it works, but it is going to take quite a lot of thought,
+> effort and maintainer vigilance to be successful and to avoid becoming
+> rotware.
 
-Regards,
-Manu
+I agree.
 
+> I wonder how hard it would be to write a script which parses a diff, works
+> out if it touches ABI things, complain if it doesn't alter
+> Documentation/ABI/*?  Not very - it's just a matter of defining a suitable
+> regexp.
 
+That would be good to have.
+
+> What _should_ be documented in there, anyway?
+> 
+> - syscalls, obviously.
+> 
+> - /proc?  If so, everything, or are there exceptions?
+> 
+> - /sys?  If so, everything, or are there exceptions?
+> 
+> - ioctl numbers and payloads?
+> 
+> - netlink messages?
+> 
+> - ethtool thingies?  netdev interface names?  /proc/iomem identifiers? 
+>   module names?  kernel-thread comm[] contents?  The ABI is pretty fat.
+> 
+> scary.
+
+Yes, our ABI is scary.  And yes, all of the above is needed to be
+documented if we want to have a handle on this thing.
+
+It is probably something that we can throw at the janitors list for the
+existing stuff to get some help.
+
+thanks,
+
+greg k-h

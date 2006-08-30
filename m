@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWH3Rwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWH3Rw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWH3Rwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWH3Rwg
+	id S1751262AbWH3Rw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 13:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWH3Rw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:52:36 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:8034 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751263AbWH3Rwf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:52:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YB7cKLIQgCYSN/rzkakuuEMX6oP/Yo1f147eEvnsBSSLFaXPJChfrCJlacVSgj+1zEIkCCtTT9mhSocvuGLeLUZtjGLJgKQAvrB/+Y0h0SZFJRp36s3vxApVA15hbRyTrMTTgbq4oMXQTA3eQcEhUohAgC8Ctie2F44ebuS3tUg=
-Message-ID: <18d709710608301052u1307139dpf6e3b2da6e7bfcbe@mail.gmail.com>
-Date: Wed, 30 Aug 2006 14:52:33 -0300
-From: "Julio Auto" <mindvortex@gmail.com>
-To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>,
-       schwidefsky@de.ibm.com
-Subject: Re: [S390] cio: kernel stack overflow.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ed4gno$d29$1@taverner.cs.berkeley.edu>
+	Wed, 30 Aug 2006 13:52:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:60048 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751262AbWH3Rw5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 13:52:57 -0400
+From: Andi Kleen <ak@suse.de>
+To: pageexec@freemail.hu
+Subject: Re: [PATCH][RFC] exception processing in early boot
+Date: Wed, 30 Aug 2006 19:52:54 +0200
+User-Agent: KMail/1.9.3
+Cc: Willy Tarreau <w@1wt.eu>, Riley@williams.name, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+References: <20060830063932.GB289@1wt.eu> <200608301830.40994.ak@suse.de> <44F5E818.20898.5C230A79@pageexec.freemail.hu>
+In-Reply-To: <44F5E818.20898.5C230A79@pageexec.freemail.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060830124047.GA22276@skybase>
-	 <ed4gno$d29$1@taverner.cs.berkeley.edu>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608301952.54180.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/06, David Wagner <daw@cs.berkeley.edu> wrote:
-> Have you checked that in all cases all fields of the struct have
-> been overwritten?  For instance, look at this:
->
-> Martin Schwidefsky  wrote:
-> >-      chp->dev = (struct device) {
-> >-              .parent  = &css[0]->device,
-> >-              .release = chp_release,
-> >-      };
-> >+      chp->dev.parent = &css[0]->device;
-> >+      chp->dev.release = chp_release;
->
-> Doesn't this leave chp->dev.bus still holding whatever old value it
-> had laying around before?
+On Wednesday 30 August 2006 19:33, pageexec@freemail.hu wrote:
 
-You're correct. While this eliminates the possibility of getting
-random values from the stack, it still leaves space for letting
-previous unwanted values unchanged.
-Unless, of course, the structure in question is kcalloc()'d (which is
-not the case of gdev in the beginning of the patch - I haven't had the
-time to check the other cases). But we surely can't rely on that.
+> 
+> > But I went with the simpler patch with some changes now 
+> > (added PANIC to the message etc.) 
+> 
+> can you post it please?
 
->Unless I'm missing something, it looks to
-> me like this diff causes a change in the semantics of the code.
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/i386-early-exception
 
-I can't see the semantic change.
+-Andi
 
->
-> Perhaps it would be better to memset() the entire struct (chp->dev, in
-> this case) to zero, before assigning to individual fields, so there is
-> no possibility of old remnant data still being left laying around?
-
-Yes. Since the code can't be depend on the caller passing a zeroed
-structure, it's definitely more safe to memset to 0 (or use kcalloc(),
-instead of kmalloc(), when the allocation is the routine's own
-responsability).
-
-Changing subjects a little bit: where's the stack overflow in the
-code? Either I'm too stupid to find it myself by looking at the patch
-or the e-mail is mistitled.
-
-Cheers,
-
-    Julio Auto
+P.S.: If you provide patches in the future again also please provide
+a real name and a Signed-off-by line

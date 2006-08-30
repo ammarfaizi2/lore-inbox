@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWHaDTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWHaDqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWHaDTa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 23:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWHaDTa
+	id S1750709AbWHaDqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 23:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWHaDqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 23:19:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49614 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751352AbWHaDT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 23:19:29 -0400
-Date: Thu, 31 Aug 2006 13:19:02 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Fix i_state of inode is changed after the inode is freed [try #2]
-Message-ID: <20060831131902.H3208450@wobbly.melbourne.sgi.com>
-References: <20060824171653.C3003989@wobbly.melbourne.sgi.com> <20060831114423m-saito@mail.aom.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060831114423m-saito@mail.aom.tnes.nec.co.jp>; from m-saito@tnes.nec.co.jp on Thu, Aug 31, 2006 at 11:44:23AM +0900
+	Wed, 30 Aug 2006 23:46:19 -0400
+Received: from alnrmhc14.comcast.net ([206.18.177.54]:14073 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750709AbWHaDqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 23:46:19 -0400
+Message-ID: <44F5B933.2010608@gentoo.org>
+Date: Wed, 30 Aug 2006 12:13:39 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+MIME-Version: 1.0
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+CC: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
+       harmon@ksu.edu
+Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
+References: <1154091662.7200.9.camel@localhost.localdomain>	 <44DE5A6F.50500@gentoo.org> <1156906638.3022.18.camel@localhost.portugal>	 <44F50A0A.2040800@gentoo.org> <1156937128.2624.6.camel@localhost.localdomain>
+In-Reply-To: <1156937128.2624.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 11:44:23AM +0900, Masayuki Saito wrote:
-> Hi, Nathan
+Sergio Monteiro Basto wrote:
+>> It does look like this patch was under discussion of being reverted 
+>> before. See http://lkml.org/lkml/2005/9/26/183
 > 
-> Are the patches going to be merged?
+> To be honest, I prefer put again this :
+> 
+>  +#ifdef CONFIG_X86_IO_APIC
+>  +      if (nr_ioapics && !skip_ioapic_setup)
+>  +              return;
+>  +#endif
+>  +#ifdef CONFIG_ACPI
+>  +      if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
+>  +              return;
+>  +#endif
 
-Yep, they're queued up for 2.6.19.  Since it was a race found
-only on testing with a ramdisk (iirc) it didn't really seem to
-me like they needed to be rushed through for a 2.6.18-rc.  The
-race has also been there for the entire lifetime of the Linux
-XFS port... so, not urgent (and not risk free either).
+Isn't this exactly the same as what was being suggested?
 
-cheers.
+> about Linus suggestion : 
+> -	new_irq = dev->irq & 0xf;
+> +	new_irq = dev->irq;
+> +	if (!new_irq || new_irq >= 15)
+> +		return;
+> 
+> no, we have problem with VIA SATA controllers which have irq lower than
+> 15 
 
--- 
-Nathan
+Any chance you can provide a link to this example so that we can 
+document the decision in the commit message?
+
+Thanks,
+Daniel
+

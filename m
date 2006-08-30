@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWH3QBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWH3QNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWH3QBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWH3QBy
+	id S1750832AbWH3QNt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWH3QNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:01:54 -0400
-Received: from external.redrocketcomputing.com ([69.16.195.231]:17305 "EHLO
-	external.redrocketcomputing.com") by vger.kernel.org with ESMTP
-	id S1750999AbWH3QBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:01:53 -0400
-Subject: Re: [spi-devel-general] [Patch] Add spi full duplex mode transfer
-	support
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: Manish Jaggi <manish.jaggi@gmail.com>
-Cc: David Brownell <david-b@pacbell.net>,
-       spi-devel-general@lists.sourceforge.net, Luke Yang <luke.adi@gmail.com>,
-       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <2e2add590608300337h3e7e806bs69b63b24d73a104c@mail.gmail.com>
-References: <489ecd0c0608292140m483bba2fqa300b55c5f4acf26@mail.gmail.com>
-	 <200608292152.58616.david-b@pacbell.net>
-	 <2e2add590608300337h3e7e806bs69b63b24d73a104c@mail.gmail.com>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Wed, 30 Aug 2006 08:56:58 -0700
-Message-Id: <1156953418.6555.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 30 Aug 2006 12:13:48 -0400
+Received: from sperry-01.control.lth.se ([130.235.83.188]:59575 "EHLO
+	sperry-01.control.lth.se") by vger.kernel.org with ESMTP
+	id S1750832AbWH3QNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 12:13:48 -0400
+Message-ID: <44F5B91C.1060209@control.lth.se>
+Date: Wed, 30 Aug 2006 18:13:16 +0200
+From: Martin Ohlin <martin.ohlin@control.lth.se>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A nice CPU resource controller
+References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+In-Reply-To: <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - external.redrocketcomputing.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 16:07 +0530, Manish Jaggi wrote:
-> On the same lines can we have a member in spi_transfer structure
-> like bUseDMA.
-> 
-> In spi PIO mode for short writes of 2 to 8 words is better.
-> And we use DMA for larger writes/reads
-> 
-This capability is built into the pxa2xx_spi driver.  
+Balbir Singh wrote:
 
-Excerpt from linux/Documentation/spi/pxa2xx:
+> The CKRM e-series is a PID based CPU Controller. It did a good job of
+> controlling and smoothing out the load (and variations) and even
+> worked with groups. But it achieved all this through some amount of
+> complexity. How do you plan to extend the idea to groups? Do you have
+> any code that we can look at?
 
-The pxa2xx_spi driver support both DMA and interrupt driven PIO message
-transfers.  The driver defaults to PIO mode and DMA transfers must
-enabled by setting the "enable_dma" flag in the "pxa2xx_spi_master"
-structure and and ensuring that the "pxa2xx_spi_chip.dma_burst_size"
-field is non-zero.  The DMA mode support both coherent and stream based
-DMA mappings.
+I would say that my controller so far is very simple, probably too 
+simple. I have no detailed plan yet about how to incorporate groups of 
+tasks, only small ideas that I would like to think a little more on 
+before I say something embarrasing. The important code-parts are in the 
+thesis, and I must say that the code is in no way finished, but most of 
+it can be found at:
+http://www.control.lth.se/user/martin.ohlin/linux/sampler.c
 
-The following logic is used to determine the type of I/O to be used on
-a per "spi_transfer" basis:
+> I do not understand controlling the nice value? Most cpu control the
+> bandwidth/time - are there any advantages to controlling the nice
+> value? How does this interplay with dynamic priorities that the
+> scheduler currently maintains?
 
-if !enable_dma or dma_burst_size == 0 then
-        always use PIO transfers
+There is a relationship between the nice value and the achieved 
+bandwidth/time. Therefore it was possible that the nice value could be 
+used to control the bandwidth/time. I wanted to know if it was possible 
+to use it, and it was. As to the dynamic priorities, I do not change 
+them, but as I do change the nice value and the dynamic priorities are 
+relative to that, then you may say that I do change them... Anyway, it 
+seems to work.
 
-if spi_message.is_dma_mapped 
-   and rx_dma_buf != 0 and tx_dma_buf != 0 then
-        use coherent DMA mode
-
-if rx_buf and tx_buf are aligned on 8 byte boundary then
-        use streaming DMA mode
-
-otherwise
-        use PIO transfer
-
-By enabling DMA tranfers, clearing the spi_message.is_dma_mapped and
-providing transfer buffer NOT aligned on 8 byte boundary forced PIO mode
-will transfer buffers aligned on 8 byte boundary forces a DMA mode.
-
-My experiance has shown the most stack allocated transfer buffers are
-not 8 byte aligned and thus use PIO mode.
-
-Stephen
-
+/Martin

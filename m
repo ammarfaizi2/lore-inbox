@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWH3WDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWH3WFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWH3WDh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWH3WDh
+	id S932169AbWH3WFB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWH3WFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:03:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7080
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932157AbWH3WDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:03:36 -0400
-Date: Wed, 30 Aug 2006 15:03:37 -0700 (PDT)
-Message-Id: <20060830.150337.115914733.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [-mm patch] net/sched/act_simple.c: make struct simp_hash_info
- static
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060830203507.GL18276@stusta.de>
-References: <20060826160922.3324a707.akpm@osdl.org>
-	<20060830203507.GL18276@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 18:05:01 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37572 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932169AbWH3WFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:05:00 -0400
+Date: Thu, 31 Aug 2006 00:04:34 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH -mm] PM: add /sys/power documentation to Documentation/ABI
+Message-ID: <20060830220421.GC3923@elf.ucw.cz>
+References: <20060830144350.3b9bb273.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060830144350.3b9bb273.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Wed, 30 Aug 2006 22:35:07 +0200
 
-> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc4-mm2:
-> >...
-> >  git-net.patch
-> >...
-> >  git trees
-> >...
+On Wed 2006-08-30 14:43:50, Andrew Morton wrote:
+> On Wed, 30 Aug 2006 23:38:06 +0200
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> This patch makes the needlessly global struct simp_hash_info static.
+> > Documentation/ABI/testing
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> psst, Greg, they're still sending too much stuff: need more paperwork!
 
-Applied, thanks Adrian.
+Pavel's secret plan for world domination:
+
+a) pick one of those google job offers, and reply to them
+
+b) get employed by google
+
+c) sneak into akpm's office
+
+d) install backdoor allowing patches to be installed
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

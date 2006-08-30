@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWH3TYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWH3TZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWH3TYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWH3TYc
+	id S1751367AbWH3TZH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWH3TZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:24:32 -0400
-Received: from 1wt.eu ([62.212.114.60]:44049 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751364AbWH3TYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:24:31 -0400
-Date: Wed, 30 Aug 2006 21:01:25 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Andi Kleen <ak@suse.de>
-Cc: pageexec@freemail.hu, davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] exception processing in early boot
-Message-ID: <20060830190125.GA21041@1wt.eu>
-References: <20060830063932.GB289@1wt.eu> <200608301952.54180.ak@suse.de> <44F5F348.1251.5C4EBCCB@pageexec.freemail.hu> <200608302026.05968.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Aug 2006 15:25:07 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:44582 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751366AbWH3TZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 15:25:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NNkEd8UfOawFYjO1AmUlLbE/mzYDkMLuoB0zNc1Zo7x/0yLDSRNQJf3RAdisKc9acgppz4lcQrKw7BClJm5D/PXmlLYf58NskZ3BiTYWSa+phperbILQQknlFSymK8Cv5Hk3oMDm2/5MFM13sWSqJQsjAbBmz7gPGpB5bBMKWQ8=
+Message-ID: <18d709710608301225x7407b216o74420d0b4034a484@mail.gmail.com>
+Date: Wed, 30 Aug 2006 16:25:03 -0300
+From: "Julio Auto" <mindvortex@gmail.com>
+To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>
+Subject: Re: [S390] cio: kernel stack overflow.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <ed4nih$gb0$2@taverner.cs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608302026.05968.ak@suse.de>
-User-Agent: Mutt/1.5.11
+References: <20060830124047.GA22276@skybase>
+	 <ed4nih$gb0$2@taverner.cs.berkeley.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 08:26:05PM +0200, Andi Kleen wrote:
-> On Wednesday 30 August 2006 20:21, pageexec@freemail.hu wrote:
-> > On 30 Aug 2006 at 19:52, Andi Kleen wrote:
-> > > On Wednesday 30 August 2006 19:33, pageexec@freemail.hu wrote:
-> > 
-> > > > > But I went with the simpler patch with some changes now 
-> > > > > (added PANIC to the message etc.) 
-> > > > 
-> > > > can you post it please?
-> > > 
-> > > ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/i386-early-exception
-> > 
-> > thanks, although i suggest you put back the hlt as Dick Johnson explained it.
-> 
-> Unless someone can confirm there were not other problems on those 386s/486s
-> in HLT no.
+First of all, about your previous e-mail: you're correct, the members
+not explicitly initialized behave like when  a _static_ object is not
+explicitly initialized (ie., zero'ing it), instead of behaving like an
+_automatic_ object not being explicitly initialized (which was the
+kind of behavior I was expecting). This is part of the C99
+specification, indeed.
 
-Andi, if you remove the HLT here, some CPUs will spin at full speed. This
-is nasty during boot because some of them might not have enabled their
-fans yet for instance and could fry if nobody's looking (eg: live reset
-caused by hardware problem). Even if HLT does not work on some CPUs,
-the JMP after it will spin around it and the initial goal will be achieved.
+See section 6.7.8, constraints no. 10 and 19, for more info.
 
-Regards,
-Willy
+On 8/30/06, David Wagner <daw@cs.berkeley.edu> wrote:
+> I don't see any obvious place that zeroes out cdev->id.
+> In particular, it looks like cdev->id.match_flags and .driver_info
+> are never cleared (i.e., they retain whatever old garbage they had
+> before).  More importantly, if anyone ever adds any more fields to
+> struct ccw_device_id, then they will also be retain old garbage values,
+> which is a maintenance pitfall.  Is this right, or did I miss something
+> again?
 
+Nicely pointed out, I hadn't thought about this possible maintenance
+issue. Looks like a nice place for a memset() to reside.
+
+Cheers,
+
+    Julio Auto

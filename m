@@ -1,75 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWH3Aga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWH3AkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbWH3Aga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 20:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWH3Aga
+	id S1751309AbWH3AkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 20:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWH3AkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 20:36:30 -0400
-Received: from pat.uio.no ([129.240.10.4]:28613 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965176AbWH3Ag3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 20:36:29 -0400
-Subject: Re: [PATCH] Allow file systems to manually d_move() inside of
-	->rename()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, viro@ftp.linux.org.uk
-In-Reply-To: <20060829215448.GO2874@ca-server1.us.oracle.com>
-References: <20060829215448.GO2874@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Date: Tue, 29 Aug 2006 20:35:52 -0400
-Message-Id: <1156898152.5610.32.camel@localhost>
+	Tue, 29 Aug 2006 20:40:15 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:32932 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751309AbWH3AkN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 20:40:13 -0400
+Date: Tue, 29 Aug 2006 17:40:55 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dipankar@in.ibm.com, Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       josht@us.ibm.com
+Subject: Re: [PATCH 0/4] RCU: various merge candidates
+Message-ID: <20060830004055.GA2845@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060828160845.GB3325@in.ibm.com> <20060828120611.afad8b0f.akpm@osdl.org> <20060828191642.GA32697@in.ibm.com> <20060828124058.cca5f5ab.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.031, required 12,
-	autolearn=disabled, AWL 1.97, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060828124058.cca5f5ab.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-29 at 14:54 -0700, Mark Fasheh wrote:
-> diff --git a/fs/namei.c b/fs/namei.c
-> index c784e8b..e5a8478 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -2353,7 +2353,8 @@ static int vfs_rename_dir(struct inode *
->  		dput(new_dentry);
->  	}
->  	if (!error)
-> -		d_move(old_dentry,new_dentry);
-> +		if (!(old_dir->i_sb->s_type->fs_flags & FS_RENAME_DOES_D_MOVE))
-> +			d_move(old_dentry,new_dentry);
->  	return error;
->  }
+On Mon, Aug 28, 2006 at 12:40:58PM -0700, Andrew Morton wrote:
+> On Tue, 29 Aug 2006 00:46:42 +0530
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> 
+> > srcu (sleepable rcu) patches independent of the core RCU implementation
+> > changes in the patchset. You can queue these up either before
+> > or after srcu.
+> > 
+> > ...
+> >
+> > rcutorture fix patches independent of rcu implementation changes
+> > in this patchset.
+> 
+> So this patchset is largely orthogonal to the presently-queued stuff?
 >  
-> @@ -2377,7 +2378,7 @@ static int vfs_rename_other(struct inode
->  		error = old_dir->i_op->rename(old_dir, old_dentry, new_dir, new_dentry);
->  	if (!error) {
->  		/* The following d_move() should become unconditional */
-> -		if (!(old_dir->i_sb->s_type->fs_flags & FS_ODD_RENAME))
-> +		if (!(old_dir->i_sb->s_type->fs_flags & (FS_ODD_RENAME|FS_RENAME_DOES_D_MOVE)))
->  			d_move(old_dentry, new_dentry);
->  	}
->  	if (target)
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index e04a5cf..8e9a7ca 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -87,6 +87,7 @@ #define SEL_EX		4
->  /* public flags for file_system_type */
->  #define FS_REQUIRES_DEV 1 
->  #define FS_BINARY_MOUNTDATA 2
-> +#define FS_RENAME_DOES_D_MOVE 4
->  #define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
->  #define FS_ODD_RENAME	32768	/* Temporary stuff; will go away as soon
->  				  * as nfs_rename() will be cleaned up
-> -
+> > > 
+> > > Now what?
+> > 
+> > Heh. I can always re-submit against -mm after I wait for a day or two
+> > for comments :)
+> 
+> That would be good, thanks.  We were seriously considering merging all the
+> SRCU stuff for 2.6.18, because
+> cpufreq-make-the-transition_notifier-chain-use-srcu.patch fixes a cpufreq
+> down()-in-irq-disabled warning at suspend time.
+> 
+> But that's a lot of new stuff just to fix a warning about something which
+> won't actually cause any misbehaviour.  We could just as well do
+> 
+> 	if (irqs_disabled())
+> 		down_read_trylock(...);	/* suspend */
+> 	else
+> 		down_read(...);
+> 
+> in cpufreq to temporarily shut the thing up.
 
-Why have 2 synonyms for the FS_ODD_RENAME stuff? Just fix up the NFS
-client to do the d_move() unconditionally, and add a check for
-FS_ODD_RENAME to vfs_rename_dir().
+I re-reviewed SRCU and found no issues.  So I am OK with it going upstream
+if it is useful.
 
-Cheers,
-  Trond
+I do have a comment patch below to flag an "attractive nuisance".
+Several people have asked about moving the final synchronize_sched()
+out of the critical section, but this turns out to be not just scary,
+but actually unsafe.  ;-)
 
+Again, this patch just adds verbiage to an existing comment.
+
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+---
+
+diff -urpNa -X dontdiff linux-2.6.18-rc2-mm1/kernel/srcu.c linux-2.6.18-rc2-mm1-srcu-comment/kernel/srcu.c
+--- linux-2.6.18-rc2-mm1/kernel/srcu.c	2006-08-05 16:30:19.000000000 -0700
++++ linux-2.6.18-rc2-mm1-srcu-comment/kernel/srcu.c	2006-08-29 17:29:30.000000000 -0700
+@@ -212,6 +212,25 @@ void synchronize_srcu(struct srcu_struct
+ 	 * More importantly, it also forces the corresponding SRCU read-side
+ 	 * critical sections to have also completed, and the corresponding
+ 	 * references to SRCU-protected data items to be dropped.
++	 *
++	 * Note:
++	 *
++	 *	Despite what you might think at first glance, the
++	 *	preceding synchronize_sched() -must- be within the
++	 *	critical section ended by the following mutex_unlock().
++	 *	Otherwise, a task taking the early exit can race
++	 *	with a srcu_read_unlock(), which might have executed
++	 *	just before the preceding srcu_readers_active() check,
++	 *	and whose CPU might have reordered the srcu_read_unlock()
++	 *	with the preceding critical section.  In this case, there
++	 *	is nothing preventing the synchronize_sched() task that is
++	 *	taking the early exit from freeing a data structure that
++	 *	is still being referenced (out of order) by the task
++	 *	doing the srcu_read_unlock().
++	 *
++	 *	Alternatively, the comparison with "2" on the early exit
++	 *	could be changed to "3", but this increases synchronize_srcu()
++	 *	latency for bulk loads.  So the current code is preferred.
+ 	 */
+ 
+ 	mutex_unlock(&sp->mutex);

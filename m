@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWH3Vn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWH3Vom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWH3Vn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 17:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWH3Vn7
+	id S932131AbWH3Vom (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 17:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWH3Vom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 17:43:59 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58884 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932137AbWH3Vn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 17:43:58 -0400
-Date: Wed, 30 Aug 2006 23:43:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060830214356.GO18276@stusta.de>
-References: <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de> <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Aug 2006 17:44:42 -0400
+Received: from adsl-230-146.dsl.uva.nl ([146.50.230.146]:59609 "EHLO
+	pan.var.cx") by vger.kernel.org with ESMTP id S932131AbWH3Vol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 17:44:41 -0400
+Date: Wed, 30 Aug 2006 23:44:41 +0200
+From: Frank v Waveren <fvw@var.cx>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
+Message-ID: <20060830214441.GA21353@var.cx>
+References: <1156927468.29250.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-In-Reply-To: <44F5DA00.8050909@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1156927468.29250.113.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 08:33:36PM +0200, Stefan Richter wrote:
-> Roman Zippel wrote:
-> >On Tue, 29 Aug 2006, Stefan Richter wrote:
-> >>An easy but crude fix would be to add an according hint at the help text 
-> >>of
-> >>the immediately superordinate config option.
-> [...]
-> >You can also add a simple comment which is only visible if !SCSI.
-> 
-> Thanks, I will do so.
 
-Please don't do this.
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-USB_STORAGE switched from a depending on SCSI to select'ing SCSI three 
-years ago, and ATA in 2.6.19 will also select SCSI for a good reason:
+On Wed, Aug 30, 2006 at 10:44:28AM +0200, Thomas Gleixner wrote:
+> Frank v. Waveren pointed out that on 64bit machines the timespec to
+> ktime_t conversion might overflow. This is also true for timeval to
+> ktime_t conversions. This breaks a "sleep inf" on 64bit machines.
+=2E..
+> Check the seconds argument to the conversion and limit it to the maximum
+> time which can be represented by ktime_t.
 
-When doing anything kconfig related, you must always remember that the 
-vast majority of kconfig users are not kernel hackers.
+It's a solution, and it more or less fixes things without any changes
+to userspace, which is nice. I still prefer my patch in
+<20060827083438.GA6931@var.cx> though, possibly with modifications so
+it doesn't affect all timespec users but only nanosleep (we'd have to
+check if the other timespec users aren't converting to ktime_t).=20
 
-> Stefan Richter
+With this patch, we sleep shorter than specified, and don't signal
+this in any way. Returning EINVAL for anything except negative tv_sec
+or invalid tv_nsec breaks the spec too, but I prefer errors to
+silently sleeping too short.
 
-cu
-Adrian
+I'll grant this is more of an aesthetic point than something that'll
+cause real-world problems (300 years is a long time for any sleep),
+but if things break I like them to do so as loudly as possible, as a
+general rule.
 
--- 
+--=20
+Frank v Waveren                                  Key fingerprint: BDD7 D61E
+fvw@var.cx                                              5D39 CF05 4BFC F57A
+Public key: hkp://wwwkeys.pgp.net/468D62C8              FA00 7D51 468D 62C8
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFE9gbJ+gB9UUaNYsgRAu90AJ9+Ub8u5q2TCk15hlzlS18YDND7MgCeIzEY
+xIbEWWhuAqF9dRD6miqpfqw=
+=IKSW
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--

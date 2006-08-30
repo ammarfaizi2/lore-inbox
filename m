@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWH3APW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWH3Aga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbWH3APW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 20:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWH3APW
+	id S965199AbWH3Aga (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 20:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWH3Aga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 20:15:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965188AbWH3APV (ORCPT
+	Tue, 29 Aug 2006 20:36:30 -0400
+Received: from pat.uio.no ([129.240.10.4]:28613 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965176AbWH3Ag3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 20:15:21 -0400
-Date: Tue, 29 Aug 2006 17:14:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: kmannth@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       efalk@google.com
-Subject: Re: [BUG] 2.6.18-rc4-mm3 x86_64-mm-spin-irqs-enabled causes
- problems
-Message-Id: <20060829171453.3921337e.akpm@osdl.org>
-In-Reply-To: <1156895977.5654.17.camel@keithlap>
-References: <1156895977.5654.17.camel@keithlap>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 29 Aug 2006 20:36:29 -0400
+Subject: Re: [PATCH] Allow file systems to manually d_move() inside of
+	->rename()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, viro@ftp.linux.org.uk
+In-Reply-To: <20060829215448.GO2874@ca-server1.us.oracle.com>
+References: <20060829215448.GO2874@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Date: Tue, 29 Aug 2006 20:35:52 -0400
+Message-Id: <1156898152.5610.32.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.031, required 12,
+	autolearn=disabled, AWL 1.97, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Aug 2006 16:59:36 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
+On Tue, 2006-08-29 at 14:54 -0700, Mark Fasheh wrote:
+> diff --git a/fs/namei.c b/fs/namei.c
+> index c784e8b..e5a8478 100644
+> --- a/fs/namei.c
+> +++ b/fs/namei.c
+> @@ -2353,7 +2353,8 @@ static int vfs_rename_dir(struct inode *
+>  		dput(new_dentry);
+>  	}
+>  	if (!error)
+> -		d_move(old_dentry,new_dentry);
+> +		if (!(old_dir->i_sb->s_type->fs_flags & FS_RENAME_DOES_D_MOVE))
+> +			d_move(old_dentry,new_dentry);
+>  	return error;
+>  }
+>  
+> @@ -2377,7 +2378,7 @@ static int vfs_rename_other(struct inode
+>  		error = old_dir->i_op->rename(old_dir, old_dentry, new_dir, new_dentry);
+>  	if (!error) {
+>  		/* The following d_move() should become unconditional */
+> -		if (!(old_dir->i_sb->s_type->fs_flags & FS_ODD_RENAME))
+> +		if (!(old_dir->i_sb->s_type->fs_flags & (FS_ODD_RENAME|FS_RENAME_DOES_D_MOVE)))
+>  			d_move(old_dentry, new_dentry);
+>  	}
+>  	if (target)
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index e04a5cf..8e9a7ca 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -87,6 +87,7 @@ #define SEL_EX		4
+>  /* public flags for file_system_type */
+>  #define FS_REQUIRES_DEV 1 
+>  #define FS_BINARY_MOUNTDATA 2
+> +#define FS_RENAME_DOES_D_MOVE 4
+>  #define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
+>  #define FS_ODD_RENAME	32768	/* Temporary stuff; will go away as soon
+>  				  * as nfs_rename() will be cleaned up
+> -
 
->   I moved to mm2 to mm3 and had trouble booting again with my hardware.
-> In -mm3 the kernel boots but about the time init starts the whole box
-> just stops doing anything.  Sysrq works and I dumped the tasks but
-> nothing look too far out of place.  
-> 
-> I did a bisection of -mm3 and found x86_64-mm-spin-irqs-enabled.patch to
-> be the cause. 
+Why have 2 synonyms for the FS_ODD_RENAME stuff? Just fix up the NFS
+client to do the d_move() unconditionally, and add a check for
+FS_ODD_RENAME to vfs_rename_dir().
 
-Yes, Hugh was hitting that today and the following has emerged...
-
-From: Andrew Morton <akpm@osdl.org>
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- include/asm-x86_64/spinlock.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN include/asm-x86_64/spinlock.h~x86_64-mm-spin-irqs-enabled-fix include/asm-x86_64/spinlock.h
---- a/include/asm-x86_64/spinlock.h~x86_64-mm-spin-irqs-enabled-fix
-+++ a/include/asm-x86_64/spinlock.h
-@@ -51,7 +51,7 @@ static inline void __raw_spin_lock_flags
- {
- 	asm volatile(
- 		"\n1:\t"
--		LOCK_PREFIX "; decb %0\n\t"
-+		LOCK_PREFIX "; decl %0\n\t"
- 		"js 2f\n\t"
- 		LOCK_SECTION_START("")
- 		"2:\t"
-@@ -60,7 +60,7 @@ static inline void __raw_spin_lock_flags
- 		"sti\n\t"
- 		"3:\t"
- 		"rep;nop\n\t"
--		"cmpb $0, %0\n\t"
-+		"cmpl $0, %0\n\t"
- 		"jle 3b\n\t"
- 		"cli\n\t"
- 		"jmp 1b\n"
-_
+Cheers,
+  Trond
 

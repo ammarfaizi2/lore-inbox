@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWH3WBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWH3WDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWH3WBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWH3WBU
+	id S932157AbWH3WDh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWH3WDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:01:20 -0400
-Received: from www.osadl.org ([213.239.205.134]:16312 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932151AbWH3WBT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:01:19 -0400
-Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Frank v Waveren <fvw@var.cx>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060830214441.GA21353@var.cx>
-References: <1156927468.29250.113.camel@localhost.localdomain>
-	 <20060830214441.GA21353@var.cx>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 00:05:02 +0200
-Message-Id: <1156975503.29250.220.camel@localhost.localdomain>
+	Wed, 30 Aug 2006 18:03:37 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7080
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932157AbWH3WDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:03:36 -0400
+Date: Wed, 30 Aug 2006 15:03:37 -0700 (PDT)
+Message-Id: <20060830.150337.115914733.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [-mm patch] net/sched/act_simple.c: make struct simp_hash_info
+ static
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060830203507.GL18276@stusta.de>
+References: <20060826160922.3324a707.akpm@osdl.org>
+	<20060830203507.GL18276@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 23:44 +0200, Frank v Waveren wrote:
-> On Wed, Aug 30, 2006 at 10:44:28AM +0200, Thomas Gleixner wrote:
-> > Frank v. Waveren pointed out that on 64bit machines the timespec to
-> > ktime_t conversion might overflow. This is also true for timeval to
-> > ktime_t conversions. This breaks a "sleep inf" on 64bit machines.
-> ...
-> > Check the seconds argument to the conversion and limit it to the maximum
-> > time which can be represented by ktime_t.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Wed, 30 Aug 2006 22:35:07 +0200
+
+> On Sat, Aug 26, 2006 at 04:09:22PM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.18-rc4-mm2:
+> >...
+> >  git-net.patch
+> >...
+> >  git trees
+> >...
 > 
-> It's a solution, and it more or less fixes things without any changes
-> to userspace, which is nice. I still prefer my patch in
-> <20060827083438.GA6931@var.cx> though, possibly with modifications so
-> it doesn't affect all timespec users but only nanosleep (we'd have to
-> check if the other timespec users aren't converting to ktime_t). 
+> This patch makes the needlessly global struct simp_hash_info static.
 > 
-> With this patch, we sleep shorter than specified, and don't signal
-> this in any way. Returning EINVAL for anything except negative tv_sec
-> or invalid tv_nsec breaks the spec too, but I prefer errors to
-> silently sleeping too short.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I really don't care whether we sleep 100 or 5000 years in the case of
-"sleep MAX_LONG"
-
-> I'll grant this is more of an aesthetic point than something that'll
-> cause real-world problems (300 years is a long time for any sleep),
-> but if things break I like them to do so as loudly as possible, as a
-> general rule.
-
-One thing you ignore is that your patch does not cure the introduced
-user space breakage, it just replaces the overflow caused very short
-sleep by a return -EINVAL, which is breaking existing userspace in a
-different way. We have to preserve user space interfaces even when they
-violate your aesthetic well-being.
-
-	tglx
-
-
+Applied, thanks Adrian.

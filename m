@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWH3Rfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWH3RhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWH3Rfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWH3Rfu
+	id S1751211AbWH3RhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 13:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWH3RhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:35:50 -0400
-Received: from mx1.bluearc.com ([63.110.244.100]:57608 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S1751207AbWH3Rfu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:35:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 0x7f in SectorIdNotFound errors
-Date: Wed, 30 Aug 2006 10:35:50 -0700
-Message-ID: <CECD6E8A589E8447BC6E836C8369AFF50AD2EC59@us-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 0x7f in SectorIdNotFound errors
-Thread-Index: AcbLnG3iUmSw5c1bTVqSNM8YA+fPPwAvi7Hg
-From: "Martin Dorey" <mdorey@bluearc.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
+	Wed, 30 Aug 2006 13:37:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38316 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751218AbWH3RhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 13:37:15 -0400
+Subject: Re: [PATCH] kthread: saa7134-tvaudio.c
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Cedric Le Goater <clg@fr.ibm.com>,
+       Sukadev Bhattiprolu <sukadev@us.ibm.com>, video4linux-list@redhat.com,
+       kraxel@bytesex.org, haveblue@us.ibm.com, serue@us.ibm.com,
+       Containers@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060830094943.bad0d618.akpm@osdl.org>
+References: <20060829211555.GB1945@us.ibm.com>
+	 <20060829143902.a6aa2712.akpm@osdl.org> <44F5BD23.3000209@fr.ibm.com>
+	 <20060830094943.bad0d618.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 30 Aug 2006 14:36:41 -0300
+Message-Id: <1156959402.3852.82.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you force an fsck do you see any errors ?
+Em Qua, 2006-08-30 às 09:49 -0700, Andrew Morton escreveu:
+> On Wed, 30 Aug 2006 18:30:27 +0200
+> Cedric Le Goater <clg@fr.ibm.com> wrote:
+> 
 
-Some leaks but that's all?
+> > The thread of this driver allows SIGTERM for some obscure reason. Not sure
+> > why, I didn't find anything relying on it.
+> > 
+> > could we just remove the allow_signal() ?
+> > 
+> 
+> I hope so.  However I have a bad feeling that the driver wants to accept
+> signals from userspace.  Hopefully Mauro & co will be able to clue us in.
 
-martind@ithaki:~$ sudo e2fsck -f -n /dev/hdb1
-e2fsck 1.37 (21-Mar-2005)
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-Block bitmap differences:  -(27960582--27961605) -(27961607--27962101)
-Fix? no
+The history we have on our development tree goes only until Feb, 2004.
+This line were added before it.
 
-Free blocks count wrong for group #1126 (17197, counted=17216).
-Fix? no
+I've looked briefly the driver. The same allow_signal is also present on
+tvaudio (part of bttv driver). BTTV were written to kernel 2.1, so, this
+piece seems to be an inheritance from 2.1 time.
 
-Free blocks count wrong for group #1293 (17902, counted=18046).
-Fix? no
+No other V4L drivers have this one, although cx88-tvaudio (written on
+2.6 series) have a similar kthread to check if audio status changed. 
 
-Free blocks count wrong (40205032, counted=40205195).
-Fix? no
+On cx88-tvaudio, it does:
+                if (kthread_should_stop())
+                        break;
+instead of:
 
-Free inodes count wrong for group #852 (16301, counted=16302).
-Fix? no
+                if (dev->thread.shutdown || signal_pending(current))
+                        goto done;
 
-Free inodes count wrong for group #1126 (15834, counted=15837).
-Fix? no
+It is likely to work if we remove allow_signal and replacing the
+signal_pending() by kthread_should_stop() as above.
 
-Free inodes count wrong for group #1292 (15671, counted=15677).
-Fix? no
+The better is to check the real patch on a saa7134 hardware before
+submiting to mainstream. You may submit the final patch for us to test
+at the proper hardware.
 
-Free inodes count wrong (35235302, counted=35235312).
-Fix? no
+Cheers, 
+Mauro.
 
-
-u89: ********** WARNING: Filesystem still has errors **********
-
-u89: 1399322/36634624 files (1.7% non-contiguous), 33053368/73258400
-blocks
-martind@ithaki:~$
--------------------------------------
-Martin's Outlook, BlueArc Engineering

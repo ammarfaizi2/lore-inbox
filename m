@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWH3XZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWH3X0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWH3XZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWH3XZ2
+	id S1751136AbWH3X0L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWH3X0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:25:28 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:35221 "EHLO
+	Wed, 30 Aug 2006 19:26:10 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:919 "EHLO
 	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751055AbWH3XZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:25:27 -0400
-Date: Wed, 30 Aug 2006 19:25:24 -0400
+	id S1751136AbWH3X0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:26:08 -0400
+Date: Wed, 30 Aug 2006 19:26:06 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 13/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
-Message-ID: <20060830232524.GN17079@Krystal>
+Subject: [PATCH 14/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
+Message-ID: <20060830232606.GO17079@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-13566-1156980324-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-24151-1156980366-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:24:41 up 7 days, 20:33,  9 users,  load average: 1.21, 0.75, 0.48
+X-Uptime: 19:25:25 up 7 days, 20:34,  9 users,  load average: 0.97, 0.74, 0.48
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,297 +32,220 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-13566-1156980324-0001-2
+--=_Krystal-24151-1156980366-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-13- LTTng architecture dependant instrumentation : PPC
-patch-2.6.17-lttng-0.5.95-instrumentation-ppc.diff
+14- LTTng architecture dependant instrumentation --- s390 (incomplete)
+patch-2.6.17-lttng-0.5.95-instrumentation-s390.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-13566-1156980324-0001-2
+--=_Krystal-24151-1156980366-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-ppc.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-s390.diff"
 
---- a/arch/ppc/kernel/entry.S
-+++ b/arch/ppc/kernel/entry.S
-@@ -160,6 +160,33 @@ #ifdef CONFIG_6xx
- 	b	power_save_6xx_restore
- #endif
- 
-+#ifdef CONFIG_LTT
-+#define TRACE_REAL_ASM_SYSCALL_ENTRY	\
-+	SAVE_NVGPRS(r1);	\
-+	addi	r3,r1,STACK_FRAME_OVERHEAD;  	/* Put pointer to registers into r3 */	\
-+	mflr	r29;				/* Save LR */ \
-+	bl	trace_real_syscall_entry;	/* Call real trace function */ \
-+	mtlr	r29;				/* Restore LR */ \
-+	lwz	r0,GPR0(r1);			/* Restore original registers */ \
-+	lwz	r3,GPR3(r1);	\
-+	lwz	r4,GPR4(r1);	\
-+	lwz	r5,GPR5(r1);	\
-+	lwz	r6,GPR6(r1);	\
-+	lwz	r7,GPR7(r1);	\
-+	lwz	r8,GPR8(r1);	\
-+	REST_NVGPRS(r1);
-+#define TRACE_REAL_ASM_SYSCALL_EXIT \
-+	bl	trace_real_syscall_exit;	/* Call real trace function */ \
-+	lwz	r0,GPR0(r1);			/* Restore original registers */ \
-+	lwz	r3,RESULT(r1); \
-+	lwz	r4,GPR4(r1); \
-+	lwz	r5,GPR5(r1); \
-+	lwz	r6,GPR6(r1); \
-+	lwz	r7,GPR7(r1); \
-+	lwz	r8,GPR8(r1); \
-+	addi	r9,r1,STACK_FRAME_OVERHEAD;
-+#endif
-+
- /*
-  * On kernel stack overflow, load up an initial stack pointer
-  * and call StackOverflow(regs), which should not return.
-@@ -214,9 +241,16 @@ syscall_dotrace_cont:
- 	bge-	66f
- 	lwzx	r10,r10,r0	/* Fetch system call handler [ptr] */
- 	mtlr	r10
-+#ifdef CONFIG_LTT
-+ 	TRACE_REAL_ASM_SYSCALL_ENTRY ;
-+#endif
- 	addi	r9,r1,STACK_FRAME_OVERHEAD
- 	PPC440EP_ERR42
- 	blrl			/* Call handler */
-+#ifdef CONFIG_LTT
-+	stw	r3,RESULT(r1)	/* Save result */
-+ 	TRACE_REAL_ASM_SYSCALL_EXIT ;
-+#endif
- 	.globl	ret_from_syscall
- ret_from_syscall:
- #ifdef SHOW_SYSCALLS
-@@ -269,6 +303,10 @@ ret_from_fork:
- 	REST_NVGPRS(r1)
- 	bl	schedule_tail
- 	li	r3,0
-+#ifdef CONFIG_LTT
-+	stw	r3,RESULT(r1)	/* Save result */
-+ 	TRACE_REAL_ASM_SYSCALL_EXIT ;
-+#endif
- 	b	ret_from_syscall
- 
- /* Traced system call support */
-diff --git a/arch/ppc/kernel/misc.S b/arch/ppc/kernel/misc.S
-index 5a93656..a4054c1 100644
---- a/arch/ppc/kernel/misc.S
-+++ b/arch/ppc/kernel/misc.S
-@@ -1004,7 +1004,11 @@ _GLOBAL(_get_SP)
-  * Create a kernel thread
-  *   kernel_thread(fn, arg, flags)
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -7,6 +7,8 @@
+  *               Hartmut Penner (hp@de.ibm.com),
+  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
+  *		 Heiko Carstens <heiko.carstens@de.ibm.com>
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie,
++ *	IBM Corporation
   */
-+#ifdef CONFIG_LTT
-+_GLOBAL(original_kernel_thread)
-+#else
- _GLOBAL(kernel_thread)
-+#endif /* CONFIG_LTT */
- 	stwu	r1,-16(r1)
- 	stw	r30,8(r1)
- 	stw	r31,12(r1)
-diff --git a/arch/ppc/kernel/time.c b/arch/ppc/kernel/time.c
-index 53ea723..747c209 100644
---- a/arch/ppc/kernel/time.c
-+++ b/arch/ppc/kernel/time.c
-@@ -57,12 +57,14 @@ #include <linux/mc146818rtc.h>
- #include <linux/time.h>
- #include <linux/init.h>
- #include <linux/profile.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
  
- #include <asm/io.h>
- #include <asm/nvram.h>
- #include <asm/cache.h>
- #include <asm/8xx_immap.h>
- #include <asm/machdep.h>
-+#include <asm/ltt.h>
+ #include <linux/sys.h>
+@@ -229,6 +231,13 @@ sysc_do_restart:
+                                   # ATTENTION: check sys_execve_glue before
+                                   # changing anything here !!
  
- #include <asm/time.h>
++#ifdef CONFIG_LTT /* tjh - ltt port */
++        /* add call to trace_real_syscall_exit */
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
++        l       %r1,BASED(.Ltracesysext)
++        basr    %r14,%r1
++        lm      %r0,%r6,SP_R0(%r15) /* restore call clobbered regs */
++#endif
+ sysc_return:
+ 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
+ 	bno	BASED(sysc_leave)
+diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
+index e351780..0e2c701 100644
+--- a/arch/s390/kernel/sys_s390.c
++++ b/arch/s390/kernel/sys_s390.c
+@@ -149,6 +149,8 @@ asmlinkage long sys_ipc(uint call, int f
+         struct ipc_kludge tmp;
+ 	int ret;
  
-@@ -140,6 +142,8 @@ void timer_interrupt(struct pt_regs * re
- 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
- 		do_IRQ(regs);
- 
-+	trace_kernel_trap_entry(regs->trap, (void *)instruction_pointer(regs));
++        ltt_ev_ipc(LTT_EV_IPC_CALL, call, first);
 +
- 	irq_enter();
- 
- 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) <= 0) {
-@@ -154,6 +158,9 @@ void timer_interrupt(struct pt_regs * re
- 		/* We are in an interrupt, no need to save/restore flags */
- 		write_seqlock(&xtime_lock);
- 		tb_last_stamp = jiffy_stamp;
-+#ifdef CONFIG_LTT
-+		ltt_reset_timestamp();
-+#endif //CONFIG_LTT
- 		do_timer(regs);
- 
- 		/*
-@@ -192,6 +199,8 @@ void timer_interrupt(struct pt_regs * re
- 		ppc_md.heartbeat();
- 
- 	irq_exit();
-+
-+ 	trace_kernel_trap_exit();
- }
- 
- /*
-diff --git a/arch/ppc/kernel/traps.c b/arch/ppc/kernel/traps.c
-index 1c0d680..9d78487 100644
---- a/arch/ppc/kernel/traps.c
-+++ b/arch/ppc/kernel/traps.c
-@@ -29,6 +29,8 @@ #include <linux/config.h>
- #include <linux/init.h>
+         switch (call) {
+         case SEMOP:
+ 		return sys_semtimedop(first, (struct sembuf __user *)ptr,
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index a46793b..d0a9e75 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -5,6 +5,7 @@
+  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
+  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  *
+  *  Derived from "arch/i386/kernel/traps.c"
+  *    Copyright (C) 1991, 1992 Linus Torvalds
+@@ -30,6 +31,7 @@ #include <linux/delay.h>
  #include <linux/module.h>
- #include <linux/prctl.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
-+#include <linux/ltt-core.h>
+ #include <linux/kallsyms.h>
+ #include <linux/reboot.h>
++#include <linux/ltt-events.h>
  
- #include <asm/pgtable.h>
+ #include <asm/system.h>
  #include <asm/uaccess.h>
-@@ -37,6 +39,7 @@ #include <asm/io.h>
- #include <asm/reg.h>
- #include <asm/xmon.h>
- #include <asm/pmc.h>
-+#include <asm/ltt/ltt-facility-kernel_arch_ppc.h>
- 
- #ifdef CONFIG_XMON
- extern int xmon_bpt(struct pt_regs *regs);
-@@ -107,11 +110,13 @@ void _exception(int signr, struct pt_reg
- 		debugger(regs);
- 		die("Exception in kernel mode", regs, signr);
- 	}
-+	trace_kernel_trap_entry(regs->trap, (void *)instruction_pointer(regs));
- 	info.si_signo = signr;
- 	info.si_errno = 0;
- 	info.si_code = code;
- 	info.si_addr = (void __user *) addr;
- 	force_sig_info(signr, &info, current);
-+	trace_kernel_trap_exit();
- 
+@@ -311,6 +313,9 @@ #endif
+ static void inline do_trap(long interruption_code, int signr, char *str,
+                            struct pt_regs *regs, siginfo_t *info)
+ {
++         trapid_t ltt_interruption_code;
++         char * ic_ptr = (char *) &ltt_interruption_code;
++
  	/*
- 	 * Init gets no signals that it doesn't have a handler for.
-@@ -737,6 +742,23 @@ void StackOverflow(struct pt_regs *regs)
- 	panic("kernel stack overflow");
+ 	 * We got all needed information from the lowcore and can
+ 	 * now safely switch on interrupts.
+@@ -318,6 +323,10 @@ static void inline do_trap(long interrup
+         if (regs->psw.mask & PSW_MASK_PSTATE)
+ 		local_irq_enable();
+ 
++	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++	memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++	ltt_ev_trap_entry(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_INSN));
++
+         if (regs->psw.mask & PSW_MASK_PSTATE) {
+                 struct task_struct *tsk = current;
+ 
+@@ -332,6 +341,7 @@ static void inline do_trap(long interrup
+                 else
+                         die(str, regs, interruption_code);
+         }
++	ltt_ev_trap_exit();
  }
  
-+/* Trace related code */
-+#ifdef CONFIG_LTT
-+
-+/* Simple syscall tracing : only keep the caller's address. */
-+asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
-+{
-+	trace_kernel_arch_syscall_entry(
-+			(enum lttng_syscall_name)regs->gpr[0],
-+			(void*)instruction_pointer(regs));
-+}
-+
-+asmlinkage void trace_real_syscall_exit(void)
-+{
-+	trace_kernel_arch_syscall_exit();
-+}
-+#endif				/* CONFIG_LTT */
-+
- void nonrecoverable_exception(struct pt_regs *regs)
+ static inline void *get_check_address(struct pt_regs *regs)
+@@ -428,6 +438,8 @@ asmlinkage void illegal_op(struct pt_reg
+ 	siginfo_t info;
+         __u8 opcode[6];
+ 	__u16 *location;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
+ 
+ 	location = (__u16 *) get_check_address(regs);
+@@ -490,6 +502,7 @@ #endif
+ 		do_trap(interruption_code, signal,
+ 			"illegal operation", regs, &info);
+ 	}
++	ltt_ev_trap_exit();
+ }
+ 
+ 
+@@ -499,6 +512,8 @@ specification_exception(struct pt_regs *
  {
- 	printk(KERN_ERR "Non-recoverable exception at PC=%lx MSR=%lx\n",
-diff --git a/arch/ppc/mm/fault.c b/arch/ppc/mm/fault.c
-index 8e08ca3..10850a7 100644
---- a/arch/ppc/mm/fault.c
-+++ b/arch/ppc/mm/fault.c
-@@ -26,6 +26,7 @@ #include <linux/mm.h>
- #include <linux/interrupt.h>
- #include <linux/highmem.h>
- #include <linux/module.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
+         __u8 opcode[6];
+ 	__u16 *location = NULL;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
  
- #include <asm/page.h>
- #include <asm/pgtable.h>
-@@ -114,22 +115,29 @@ #else
- 		is_write = error_code & 0x02000000;
- #endif /* CONFIG_4xx || CONFIG_BOOKE */
+ 	location = (__u16 *) get_check_address(regs);
+@@ -554,6 +569,7 @@ specification_exception(struct pt_regs *
+ 		do_trap(interruption_code, signal, 
+ 			"specification exception", regs, &info);
+ 	}
++	ltt_ev_trap_exit();
+ }
+ #else
+ DO_ERROR_INFO(SIGILL, "specification exception", specification_exception,
+@@ -563,6 +579,8 @@ #endif
+ asmlinkage void data_exception(struct pt_regs * regs, long interruption_code)
+ {
+ 	__u16 *location;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
  
-+	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
+ 	location = (__u16 *) get_check_address(regs);
+@@ -574,6 +592,10 @@ asmlinkage void data_exception(struct pt
+ 	if (regs->psw.mask & PSW_MASK_PSTATE)
+ 		local_irq_enable();
+ 
++	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++	memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++	ltt_ev_trap_entry(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_INSN));
 +
- #if defined(CONFIG_XMON) || defined(CONFIG_KGDB)
- 	if (debugger_fault_handler && TRAP(regs) == 0x300) {
- 		debugger_fault_handler(regs);
-+		trace_kernel_trap_exit();
- 		return 0;
+ 	if (MACHINE_HAS_IEEE)
+ 		__asm__ volatile ("stfpc %0\n\t" 
+ 				  : "=m" (current->thread.fp_regs.fpc));
+@@ -649,6 +671,7 @@ #endif 
+ 		do_trap(interruption_code, signal, 
+ 			"data exception", regs, &info);
  	}
- #if !(defined(CONFIG_4xx) || defined(CONFIG_BOOKE))
- 	if (error_code & 0x00400000) {
- 		/* DABR match */
--		if (debugger_dabr_match(regs))
-+		if (debugger_dabr_match(regs)) {
-+			trace_kernel_trap_exit();;
- 			return 0;
-+		}
- 	}
- #endif /* !(CONFIG_4xx || CONFIG_BOOKE)*/
- #endif /* CONFIG_XMON || CONFIG_KGDB */
++	ltt_ev_trap_exit();
+ }
  
--	if (in_atomic() || mm == NULL)
-+	if (in_atomic() || mm == NULL) {
-+		trace_kernel_trap_exit();
- 		return SIGSEGV;
-+	}
+ asmlinkage void space_switch_exception(struct pt_regs * regs, long int_code)
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 81ade40..f0a50c0 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -5,6 +5,7 @@
+  *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Hartmut Penner (hp@de.ibm.com)
+  *               Ulrich Weigand (uweigand@de.ibm.com)
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  *
+  *  Derived from "arch/i386/mm/fault.c"
+  *    Copyright (C) 1995  Linus Torvalds
+@@ -170,6 +171,8 @@ do_exception(struct pt_regs *regs, unsig
+ 	int user_address;
+ 	const struct exception_table_entry *fixup;
+ 	int si_code = SEGV_MAPERR;
++	trapid_t ltt_interruption_code;
++	char * ic_ptr = (char *) &ltt_interruption_code;
  
- 	down_read(&mm->mmap_sem);
- 	vma = find_vma(mm, address);
-@@ -230,6 +238,7 @@ #endif
- 				_tlbie(address);
- 				pte_unmap_unlock(ptep, ptl);
- 				up_read(&mm->mmap_sem);
-+				trace_kernel_trap_exit();
- 				return 0;
- 			}
- 			pte_unmap_unlock(ptep, ptl);
-@@ -272,6 +281,7 @@ #endif
- 	 * -- Cort
+         tsk = current;
+         mm = tsk->mm;
+@@ -217,6 +220,9 @@ do_exception(struct pt_regs *regs, unsig
  	 */
- 	pte_misses++;
-+	trace_kernel_trap_exit();
- 	return 0;
+ 	local_irq_enable();
  
- bad_area:
-@@ -281,9 +291,10 @@ bad_area:
- 	/* User mode accesses cause a SIGSEGV */
- 	if (user_mode(regs)) {
- 		_exception(SIGSEGV, regs, code, address);
-+		trace_kernel_trap_exit();
- 		return 0;
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+4,&error_code,sizeof(error_code));
++        ltt_ev_trap_entry(ltt_interruption_code,(regs->psw.addr & PSW_ADDR_INSN));
+         down_read(&mm->mmap_sem);
+ 
+         vma = find_vma(mm, address);
+@@ -284,6 +290,7 @@ bad_area:
+                 tsk->thread.prot_addr = address;
+                 tsk->thread.trap_no = error_code;
+ 		do_sigsegv(regs, error_code, si_code, address);
++                ltt_ev_trap_exit();
+                 return;
  	}
--
-+	trace_kernel_trap_exit();
- 	return SIGSEGV;
  
- /*
-@@ -300,6 +311,7 @@ out_of_memory:
- 	printk("VM: killing process %s\n", current->comm);
- 	if (user_mode(regs))
- 		do_exit(SIGKILL);
-+	trace_kernel_trap_exit();
- 	return SIGKILL;
+@@ -339,6 +346,8 @@ do_sigbus:
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!(regs->psw.mask & PSW_MASK_PSTATE))
+ 		goto no_context;
++
++	ltt_ev_trap_exit();
+ }
  
- do_sigbus:
-@@ -309,6 +321,7 @@ do_sigbus:
- 	info.si_code = BUS_ADRERR;
- 	info.si_addr = (void __user *)address;
- 	force_sig_info (SIGBUS, &info, current);
-+	trace_kernel_trap_exit();
- 	if (!user_mode(regs))
- 		return SIGBUS;
- 	return 0;
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index b244848..50dd365 100644
+ void do_protection_exception(struct pt_regs *regs, unsigned long error_code)
+diff --git a/arch/sh/kernel/irq.c b/arch/sh/kernel/irq.c
+index b56e796..c5b56f1 100644
 
---=_Krystal-13566-1156980324-0001-2--
+--=_Krystal-24151-1156980366-0001-2--

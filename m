@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWH3MDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWH3MTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWH3MDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWH3MDy
+	id S1750820AbWH3MTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWH3MTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:03:54 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:11431 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S1750866AbWH3MDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:03:54 -0400
-Message-ID: <44F57EA8.4010905@surriel.com>
-Date: Wed, 30 Aug 2006 08:03:52 -0400
-From: Rik van Riel <riel@surriel.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Rajat Jain <rajat.noida.india@gmail.com>
-CC: Rick Brown <rick.brown.3@gmail.com>, kernelnewbies@nl.linux.org,
+	Wed, 30 Aug 2006 08:19:09 -0400
+Received: from 1wt.eu ([62.212.114.60]:40209 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750820AbWH3MTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:19:08 -0400
+Date: Wed, 30 Aug 2006 14:18:45 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Andi Kleen <ak@suse.de>
+Cc: Riley@Williams.Name, davej@redhat.com, pageexec@freemail.hu,
        linux-kernel@vger.kernel.org
-Subject: Re: Spinlock query
-References: <7783925d0608291912i3f04d460kc9edebf9d358dbc3@mail.gmail.com>	 <44F501B3.9070200@surriel.com> <b115cb5f0608292231r1a3c47c8r8980b32e838ff964@mail.gmail.com>
-In-Reply-To: <b115cb5f0608292231r1a3c47c8r8980b32e838ff964@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH][RFC] exception processing in early boot
+Message-ID: <20060830121845.GA351@1wt.eu>
+References: <20060830063932.GB289@1wt.eu> <p73y7t65z6c.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73y7t65z6c.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajat Jain wrote:
-> On 8/30/06, Rik van Riel <riel@surriel.com> wrote:
->> Rick Brown wrote:
->> > Hi,
->> >
->> > In my driver (Process context), I have written the following code:
->> >
->> > --------------------------------------------
->> > spin_lock(lock)
->> > ...
->> > //Critical section to manipulate driver data
->>
->> ... interrupt hits here
->>     interrupt handler tries to grab the spinlock, which is already taken
->>     *BOOM*
->>
->> > spin_u lock(lock)
->> > ---------------------------------------------
->> >
+On Wed, Aug 30, 2006 at 11:51:39AM +0200, Andi Kleen wrote:
+> Willy Tarreau <w@1wt.eu> writes:
 > 
-> The interrupt handler TRIES to grab the spinlock, which is already
-> taken. Why will it "BOOM"? Wouldn't the interrupt handler busy wait,
-> waiting for the lock?
+> > Hi,
+> > 
+> > PaX Team has sent me this patch for inclusion. Basically, during early
+> > boot on x86, the exception handler does not make a special case for
+> > exceptions which push an error code onto the stack, leading to a return
+> > to a wrong address. Two patches were proposed, one which would add a
+> > special case for all exceptions using the return code, and this one. The
+> > former was of no use in its form because the return from the exception
+> > handler would get back to the faulting exception, causing it to loop.
+> > 
+> > This one should be better as it effectively hangs the system using HLT
+> > to prevent CPU from burning.
 > 
-> Am I missing something here?
+> Looks good.
+> 
+> [I'm glad this particular ward in x86 was fixed in x86-64 ...]
 
-Yes, it will busy wait.  Forever.
+good.
 
+> > If nobody has any objections, I will merge it. In this case, I would also
+> > like someone to check if 2.6 needs it and to port it in this case.
+> 
+> I don't think you should merge anything like this before 2.6 does. Otherwise
+> we just end up with the mad situation again that an old release has 
+> more bugs fixed or more features than the new release.
 
--- 
-What is important?  What you want to be true, or what is true?
+Unfortunately, this situation is even more difficult for me, because it's
+getting very hard to track patches that get applied, rejected, modified or
+obsoleted, which is even more true when people don't always think about
+sending an ACK after the patch finally gets in. I already have a few pending
+patches in my queue waiting for an ACK that will have to be tracked if the
+persons do not respond, say, within one week. Otherwise I might simply lose
+them.
+
+I think that the good method would be to :
+  - announce the patch
+  - find a volunteer to port it
+  - apply it once the volunteer agrees to handle it
+
+This way, no code gets lost because there's always someone to track it.
+
+> -Andi
+
+Regards,
+Willy
+

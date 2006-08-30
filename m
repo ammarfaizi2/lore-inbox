@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWH3IF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWH3IDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWH3IF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 04:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWH3IF7
+	id S1750846AbWH3IDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 04:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWH3IDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 04:05:59 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:41866 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S1751117AbWH3IF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 04:05:58 -0400
-Date: Wed, 30 Aug 2006 10:05:35 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Nathan Lynch <ntl@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org
-Subject: Re: Linux v2.6.18-rc5
-Message-ID: <20060830080535.GA32408@aepfle.de>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060829115537.GA24256@aepfle.de> <20060829130629.GW11309@localdomain> <20060829155216.GA25861@aepfle.de> <17653.11388.637189.113422@cargo.ozlabs.ibm.com>
+	Wed, 30 Aug 2006 04:03:06 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:31127 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750846AbWH3IDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 04:03:03 -0400
+Date: Wed, 30 Aug 2006 10:02:41 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: zhiyi huang <hzy@cs.otago.ac.nz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Ultra Sparc T1 port
+In-Reply-To: <A2A6BFA6-28FA-4525-8705-31555B5327D2@cs.otago.ac.nz>
+Message-ID: <Pine.LNX.4.61.0608300956190.26677@yvahk01.tjqt.qr>
+References: <A2A6BFA6-28FA-4525-8705-31555B5327D2@cs.otago.ac.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <17653.11388.637189.113422@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, Paul Mackerras wrote:
+> I am using a Ubuntu port on Ultra Sparc T1.
+> Linux version 2.6.15-21-sparc64-smp (buildd@artigas) (gcc version 4.0.3 (Ubuntu
+> 4.0.3-1ubuntu5)) #1 SMP Fri Apr 21 17:04:05 UTC 2006
+> I have installed a module in the kernel. It is a RAM device driver. When my
+> application calls ioctl on the device (/dev/dsm), I got the following log
+> message:
+>
+> Aug 29 11:13:20 info-sf-03 kernel: [    3.603348] ioctl32(manager:18821):
+> Unknown cmd fd(3) cmd(80047f00){00} arg(fffc3934) on /dev/dsm
+>
+> I check my module and found the control has not reached my module yet. I
+> haven't got much clue why it happened and how to fix the problem. It works fine
+> on Linux 2.6.8/i386, by the way.
+> Thanks for help:)
 
-> This works fine on my G4 tibook.  Let me know how it goes on your
-> machines.
+I think you forgot to provide the source.
 
-Works ok on an iBook1.
+
+Jan Engelhardt
+-- 

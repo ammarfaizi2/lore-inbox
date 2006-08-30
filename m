@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWH3Qad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWH3QdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWH3Qad (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWH3Qac
+	id S1751131AbWH3QdB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWH3QdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:30:32 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:13202 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750980AbWH3Qab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:30:31 -0400
-Message-ID: <44F5BD23.3000209@fr.ibm.com>
-Date: Wed, 30 Aug 2006 18:30:27 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 30 Aug 2006 12:33:01 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:14493 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751131AbWH3QdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 12:33:00 -0400
+Message-ID: <44F5BE55.2010904@sw.ru>
+Date: Wed, 30 Aug 2006 20:35:33 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Sukadev Bhattiprolu <sukadev@us.ibm.com>, video4linux-list@redhat.com,
-       Mauro Carvalho Chehab <mchehab@infradead.org>, kraxel@bytesex.org,
-       haveblue@us.ibm.com, serue@us.ibm.com, Containers@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread: saa7134-tvaudio.c
-References: <20060829211555.GB1945@us.ibm.com> <20060829143902.a6aa2712.akpm@osdl.org>
-In-Reply-To: <20060829143902.a6aa2712.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: devel@openvz.org
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, Containers@lists.osdl.org,
+       video4linux-list@redhat.com, kraxel@bytesex.org,
+       linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [Devel] Re: [PATCH] kthread: saa7134-tvaudio.c
+References: <20060829211555.GB1945@us.ibm.com>	<20060829143902.a6aa2712.akpm@osdl.org>	<m1k64rf9om.fsf@ebiederm.dsl.xmission.com>	<m164gafld6.fsf@ebiederm.dsl.xmission.com>	<44F59B84.3090906@fr.ibm.com>	<m1lkp6cjq2.fsf@ebiederm.dsl.xmission.com> <44F5BA6F.2070900@fr.ibm.com>
+In-Reply-To: <44F5BA6F.2070900@fr.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 29 Aug 2006 14:15:55 -0700
-> Sukadev Bhattiprolu <sukadev@us.ibm.com> wrote:
+Cedric Le Goater wrote:
+> Eric W. Biederman wrote:
 > 
->> Replace kernel_thread() with kthread_run() since kernel_thread()
->> is deprecated in drivers/modules. 
+> [ ... ]
+> 
+> 
+>>>>That plus the obvious bit.  For the pid namespace we have to declare
+>>>>war on people storing a pid_t values.  Either converting them to
+>>>>struct pid * or removing them entirely.  Doing the kernel_thread to
+>>>>kthread conversion removes them entirely.
+>>>
+>>>we've started that war, won a few battles but some drivers need more work
+>>>that a simple replace. If we could give some priorities, it would help to
+>>>focus on the most important ones. check out the list bellow.
 >>
->> Note that this driver, like a few others, allows SIGTERM. Not
->> sure if that is affected by conversion to kthread. Appreciate
->> any comments on that.
+>>Sure, I think I can help.
 >>
-> 
-> hm, I think this driver needs more help.
-> 
-> - It shouldn't be using signals at all, really.  Signals are for
->   userspace IPC.  The kernel internally has better/richer/faster/tighter
->   ways of inter-thread communication.
-> 
-> - saa7134_tvaudio_fini()-versus-tvaudio_sleep() looks racy:
-> 
-> 	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
-> 		if (timeout < 0) {
-> 			set_current_state(TASK_INTERRUPTIBLE);
-> 			schedule();
-> 
->   If the wakeup happens after the test of dev->thread.shutdown, that sleep will
->   be permanent.
+>>There are a couple of test I can think of that should help.
+>>1) Is the pid value stored.  If not a pid namespace won't affect
+>>   it's normal operation.
 > 
 > 
-> So in general, yes, the driver should be converted to the kthread API -
-> this is a requirement for virtualisation, but I forget why, and that's the
-> "standard" way of doing it.
-> 
-> - The signal stuff should go away if at all possible.
+> I've extracted this list from a table which includes a pid cache column.
+> this pid cache column is not complete yet. I'd be nice if we could use a
+> wiki to maintain this table, the existing openvz or vserver wiki ?
+feel free to use http://wiki.openvz.org
+we will create a 'Developement' category then for such pages.
+I think we can help with the patches soon as well.
 
-The thread of this driver allows SIGTERM for some obscure reason. Not sure
-why, I didn't find anything relying on it.
+[...]
+>>I do agree from what I have seen, that changing idioms to the kthread way of
+>>doing things isn't simply a matter of substitute and replace which is
+>>unfortunate.  Although the biggest hurdle seems to be to teach kernel threads
+>>to communicate with something besides signals.  Which is a general help anyway.
+>>
+>>Unfortunately I'm distracted at the moment so I haven't gone through the entire
+>>list but I hope this helps.
+If we have some list on the wiki, people could assign the issues to themself and
+prepare the patches. Thus work could be paralleled a bit.
 
-could we just remove the allow_signal() ?
-
-C.
+Thanks,
+Kirill

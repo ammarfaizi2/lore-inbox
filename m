@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWH3Q6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWH3Q6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWH3Q6I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWH3Q6I
+	id S1751153AbWH3Q6t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWH3Q6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:58:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60809 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751158AbWH3Q6F (ORCPT
+	Wed, 30 Aug 2006 12:58:48 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:11143 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751153AbWH3Q6r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:58:05 -0400
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: arch/x86_64/kernel/traps.c:show_trace should use __kernel_text_address
-References: <20060830160214.GA5557@Krystal>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Aug 2006 18:58:04 +0200
-In-Reply-To: <20060830160214.GA5557@Krystal>
-Message-ID: <p73u03u5ffn.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 30 Aug 2006 12:58:47 -0400
+Date: Wed, 30 Aug 2006 22:28:51 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Kirill Korotaev <dev@sw.ru>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH 1/7] introduce atomic_dec_and_lock_irqsave()
+Message-ID: <20060830165851.GA8481@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <44F45045.70402@sw.ru> <44F4540C.8050205@sw.ru> <Pine.LNX.4.64.0608301156010.6762@scrub.home> <20060830145759.GA163@oleg> <Pine.LNX.4.64.0608301248420.6761@scrub.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0608301248420.6761@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
-
+On Wed, Aug 30, 2006 at 12:51:28PM +0200, Roman Zippel wrote:
 > Hi,
 > 
-> I noticed arch/x86_64/kernel/traps.c:show_trace uses kernel_text_address to
-> verify that an address can potentially belong to kernel code. However, this
-> version takes a spinlock and should not be called from oops. I think
-> __kernel_text_address would be more appropriate there.
+> On Wed, 30 Aug 2006, Oleg Nesterov wrote:
+> 
+> > > Why does this need protection against interrupts?
+> > 
+> > uidhash_lock can be taken from irq context. For example, delayed_put_task_struct()
+> > does __put_task_struct()->free_uid().
+> 
+> AFAICT it's called via rcu, does that mean anything released via rcu has 
+> to be protected against interrupts?
 
-Ok I changed it. Thanks
+No. You need protection only if you have are using some 
+data that can also be used by the RCU callback. For example,
+if your RCU callback just calls kfree(), you don't have to 
+do a spin_lock_bh().
 
--Andi
+Thanks
+Dipankar

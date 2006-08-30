@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWH3Vnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWH3Vn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWH3Vnk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 17:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWH3Vnk
+	id S932122AbWH3Vn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 17:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWH3Vn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 17:43:40 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:37060 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932118AbWH3Vnj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 17:43:39 -0400
-Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: petkov@math.uni-muenster.de, "J. Bruce Fields" <bfields@fieldses.org>,
-       akpm@osdl.org, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <44F43C67.76E4.0078.0@novell.com>
-References: <20060820013121.GA18401@fieldses.org>
-	 <44E97353.76E4.0078.0@novell.com> <20060829085338.GA8225@gollum.tnic>
-	 <44F42BB1.76E4.0078.0@novell.com> <20060829110109.GA10944@gollum.tnic>
-	 <44F43C67.76E4.0078.0@novell.com>
-Content-Type: text/plain
-Date: Wed, 30 Aug 2006 14:46:50 -0700
-Message-Id: <1156974410.16136.1.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 17:43:59 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58884 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932137AbWH3Vn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 17:43:58 -0400
+Date: Wed, 30 Aug 2006 23:43:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+Message-ID: <20060830214356.GO18276@stusta.de>
+References: <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de> <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44F5DA00.8050909@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran into another (small) issue with the trace - it looks like 
-for some reason trace repeats twice. Do you know, why ?
+On Wed, Aug 30, 2006 at 08:33:36PM +0200, Stefan Richter wrote:
+> Roman Zippel wrote:
+> >On Tue, 29 Aug 2006, Stefan Richter wrote:
+> >>An easy but crude fix would be to add an according hint at the help text 
+> >>of
+> >>the immediately superordinate config option.
+> [...]
+> >You can also add a simple comment which is only visible if !SCSI.
+> 
+> Thanks, I will do so.
 
-Thanks,
-Badari
+Please don't do this.
 
-Call Trace:
- [<ffffffff8020b395>] show_trace+0xb5/0x370
- [<ffffffff8020b665>] dump_stack+0x15/0x20
- [<ffffffff8030d3b9>] journal_invalidatepage+0x309/0x3b0
- [<ffffffff802fe898>] ext3_invalidatepage+0x38/0x40
- [<ffffffff80282750>] do_invalidatepage+0x20/0x30
- [<ffffffff80260820>] truncate_inode_pages_range+0x1e0/0x300
- [<ffffffff80260950>] truncate_inode_pages+0x10/0x20
- [<ffffffff802686ff>] vmtruncate+0x5f/0x100
- [<ffffffff8029d7d0>] inode_setattr+0x30/0x140
- [<ffffffff802ff81b>] ext3_setattr+0x1bb/0x230
- [<ffffffff8029da3e>] notify_change+0x15e/0x320
- [<ffffffff8027f973>] do_truncate+0x53/0x80
- [<ffffffff802800f8>] sys_ftruncate+0xf8/0x130
- [<ffffffff80209d5a>] system_call+0x7e/0x83
- [<00002b40b67e1c47>]
- [<ffffffff8030d3b9>] journal_invalidatepage+0x309/0x3b0
- [<ffffffff802fe898>] ext3_invalidatepage+0x38/0x40
- [<ffffffff80282750>] do_invalidatepage+0x20/0x30
- [<ffffffff80260820>] truncate_inode_pages_range+0x1e0/0x300
- [<ffffffff802fc203>] __ext3_get_inode_loc+0x163/0x350
- [<ffffffff80260950>] truncate_inode_pages+0x10/0x20
- [<ffffffff802686ff>] vmtruncate+0x5f/0x100
- [<ffffffff8029d7d0>] inode_setattr+0x30/0x140
- [<ffffffff802ff81b>] ext3_setattr+0x1bb/0x230
- [<ffffffff8029da3e>] notify_change+0x15e/0x320
- [<ffffffff8027f973>] do_truncate+0x53/0x80
- [<ffffffff80281af1>] generic_file_llseek+0x91/0xb0
- [<ffffffff802800f8>] sys_ftruncate+0xf8/0x130
- [<ffffffff80209d5a>] system_call+0x7e/0x83
+USB_STORAGE switched from a depending on SCSI to select'ing SCSI three 
+years ago, and ATA in 2.6.19 will also select SCSI for a good reason:
 
+When doing anything kconfig related, you must always remember that the 
+vast majority of kconfig users are not kernel hackers.
 
+> Stefan Richter
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

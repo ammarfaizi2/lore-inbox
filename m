@@ -1,496 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWH3XPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWH3XPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWH3XPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWH3XPP
+	id S1751621AbWH3XPw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWH3XPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:15:15 -0400
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:48525 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751619AbWH3XPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:15:11 -0400
-Date: Wed, 30 Aug 2006 19:15:09 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
-Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 4/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
-Message-ID: <20060830231509.GE17079@Krystal>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-19337-1156979709-0001-2"
+	Wed, 30 Aug 2006 19:15:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8387 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751621AbWH3XPv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:15:51 -0400
+Date: Thu, 31 Aug 2006 01:15:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Crispin Cowan <crispin@novell.com>
+Cc: David Safford <safford@watson.ibm.com>, Serge E Hallyn <sergeh@us.ibm.com>,
+       Mimi Zohar <zohar@us.ibm.com>, David Safford <safford@us.ibm.com>,
+       kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       linux-security-module-owner@vger.kernel.org
+Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
+Message-ID: <20060830231537.GL3923@elf.ucw.cz>
+References: <20060817230213.GA18786@elf.ucw.cz> <OFA16BD859.1B593DA2-ON852571CE.005FA4FF-852571CE.004BD083@us.ibm.com> <20060824054933.GA1952@elf.ucw.cz> <20060824130340.GB15680@sergelap.austin.ibm.com> <20060824131127.GB7052@elf.ucw.cz> <1156442454.2476.46.camel@localhost.localdomain> <20060826101140.GE10257@elf.ucw.cz> <44F4DF11.20205@novell.com> <20060830225950.GI3923@elf.ucw.cz> <44F61B2E.5090603@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:14:25 up 7 days, 20:23,  9 users,  load average: 0.42, 0.33, 0.23
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44F61B2E.5090603@novell.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Wed 2006-08-30 16:11:42, Crispin Cowan wrote:
+> Pavel Machek wrote:
+> >> The Windows problem is foolish users who download something shiny, such
+> >> as enhanced emoticons or a keen password caching mechanism (e.g. Gator)
+> >> or games (as in David's example) which turns out to be spyware. Under
+> >> David's demo, you can download and run the spyware, but it doesn't get
+> >> access to the critical system files that make spyware so difficult to
+> >> remove.
+> >>     
+> > Well, it gets access to my browser, which contains most of the stuff
+> > spyware is interested in, anyway.
+> >   
+> It gets access to the data, but doesn't get to insert itself into
+> important system files. An important attribute of spyware is that it is
+> hard to remove, and this makes the "hard to remove" property much harder
+> to achieve.
 
---=_Krystal-19337-1156979709-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+As I wrote in my previous email, yes, it makes it easier to remove.
 
-4- LTTng facility infrastructure : A facility contains the metainformation
-on a group of events. It is dynamically loadable.
-patch-2.6.17-lttng-0.5.95-facilities.diff
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
-
---=_Krystal-19337-1156979709-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-facilities.diff"
-
---- /dev/null
-+++ b/include/linux/ltt-facilities.h
-@@ -0,0 +1,113 @@
-+/*
-+ * linux/include/linux/ltt-facilities.h
-+ *
-+ * Copyright (C) 2005 Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ *
-+ * This contains the definitions for the Linux Trace Toolkit facilities.
-+ *
-+ * Each facility must store its facility index number (returned by the register)
-+ * in an exported symbol named :
-+ *
-+ * ltt_facility_name_checksum
-+ *
-+ * Where name is the name of the facility, and checksum is the text that
-+ * corresponds to the checksum of the facility in hexadecimal notation.
-+ */
-+
-+#ifndef _LTT_FACILITIES_H
-+#define _LTT_FACILITIES_H
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <asm/atomic.h>
-+#include <linux/types.h>
-+
-+#define FACNAME_LEN 32
-+
-+struct user_facility_info {
-+	char name[FACNAME_LEN];
-+	unsigned int num_events;
-+	size_t alignment;
-+	u32 checksum;
-+	size_t int_size;
-+	size_t long_size;
-+	size_t pointer_size;
-+	size_t size_t_size;
-+};
-+
-+#ifdef __KERNEL__
-+
-+/* Is kernel tracing enabled */
-+#if defined(CONFIG_LTT)
-+
-+#define LTT_FAC_PER_PROCESS 16
-+
-+#define LTT_MAX_NUM_FACILITIES	256
-+#define LTT_RESERVED_FACILITIES	1
-+
-+typedef unsigned long ltt_facility_t;
-+
-+enum ltt_facility_type {
-+	LTT_FACILITY_TYPE_KERNEL,
-+	LTT_FACILITY_TYPE_USER
-+};
-+
-+struct ltt_facility {
-+	const char *name;
-+	const unsigned int num_events;
-+	const u32 checksum;
-+	const char *symbol;
-+};
-+
-+struct ltt_facility_info {
-+	char name[FACNAME_LEN];
-+	enum ltt_facility_type type;
-+	unsigned int num_events;
-+	size_t alignment;
-+	u32 checksum;
-+	size_t int_size;
-+	size_t long_size;
-+	size_t pointer_size;
-+	size_t size_t_size;
-+	atomic_t ref;
-+};
-+
-+struct ltt_trace_struct;
-+
-+void ltt_facility_ref(ltt_facility_t facility_id);
-+
-+int ltt_facility_unregister(ltt_facility_t facility_id);
-+
-+
-+int ltt_facility_register(enum ltt_facility_type type,
-+		const char *name,
-+		const unsigned int num_events,
-+		u32 checksum,
-+		size_t int_size,
-+		size_t long_size,
-+		size_t pointer_size,
-+		size_t size_t_size,
-+		size_t alignment);
-+
-+int ltt_facility_verify(enum ltt_facility_type type,
-+		const char *name,
-+		const unsigned int num_events,
-+		const u32 checksum,
-+		size_t int_size,
-+		size_t long_size,
-+		size_t pointer_size,
-+		size_t size_t_size,
-+		size_t alignment);
-+
-+unsigned int ltt_facility_kernel_register(struct ltt_facility *facility);
-+
-+int ltt_facility_user_access_ok(ltt_facility_t fac_id);
-+
-+void ltt_facility_free_unused(void);
-+
-+void ltt_facility_state_dump(struct ltt_trace_struct *trace);
-+
-+#endif //__KERNEL__
-+
-+#endif /* defined(CONFIG_LTT) */
-+#endif /* _LTT_FACILITIES_H */
-diff --git a/include/linux/ltt-relayfs.h b/include/linux/ltt-relayfs.h
-new file mode 100644
-index 0000000..804ad19
---- /dev/null
-+++ b/kernel/ltt-facilities.c
-@@ -0,0 +1,318 @@
-+/*
-+ * ltt-facilities.c
-+ *
-+ * (C) Copyright	2005 -
-+ *		Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ *
-+ * Contains the kernel core code for Linux Trace Toolkit facilities.
-+ *
-+ * Facilities are a group of events that can be recorded by instrumentation
-+ * points to a trace. We keep track of the active facilities to know which type
-+ * of information can be present in a trace.
-+ *
-+ * We never reuse a facility id.
-+ * 
-+ * Author:
-+ *	Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ *
-+ */
-+
-+#include <linux/ltt/ltt-facility-core.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/ltt-facilities.h>
-+#include <linux/spinlock.h>
-+#include <linux/string.h>
-+
-+static struct ltt_facility_info facilities[LTT_MAX_NUM_FACILITIES];
-+static spinlock_t	facilities_lock;
-+
-+/* Facility registration :
-+ * hash based on the checksum, except for the core facility, which is 0.
-+ * This function assumes that the facility has never been registered before.
-+ * User ltt_facility_verify for this. */
-+int ltt_facility_register(enum ltt_facility_type type,
-+		const char *name,
-+		const unsigned int num_events,
-+		const u32 checksum,
-+		size_t int_size,
-+		size_t long_size,
-+		size_t pointer_size,
-+		size_t size_t_size,
-+		size_t alignment)
-+{
-+	int fac_id;
-+	int chk_fac_id;
-+	int found=0;
-+  
-+	spin_lock(&facilities_lock);
-+	if(type == LTT_FACILITY_TYPE_KERNEL &&
-+			strncmp(name, "core", sizeof("core")) == 0) {
-+		fac_id = 0;
-+	} else {
-+		/* fac_id based on checksum%LTT_MAX_NUM_FACILITIES
-+		 * find an empty slot */
-+		chk_fac_id = fac_id = checksum % LTT_MAX_NUM_FACILITIES;
-+		do {
-+			if(atomic_read(&facilities[fac_id].ref) == 0) {
-+				found = 1;
-+				break;
-+			}
-+			fac_id = (fac_id+1) % LTT_MAX_NUM_FACILITIES;
-+		} while(fac_id != chk_fac_id);
-+
-+		if(!found) {
-+			fac_id = -EPERM;
-+			goto unlock;
-+		}
-+	}
-+	switch(type) {
-+		case LTT_FACILITY_TYPE_USER:
-+			if(strncmp(name, "user_", sizeof("user_")-1) != 0) {
-+				fac_id = -EPERM;
-+				goto unlock;
-+			}
-+			break;
-+		case LTT_FACILITY_TYPE_KERNEL:
-+			break;
-+	}
-+	strncpy(facilities[fac_id].name, name, FACNAME_LEN-1);
-+	facilities[fac_id].name[FACNAME_LEN-1] = '\0';
-+	facilities[fac_id].type = type;
-+	facilities[fac_id].num_events = num_events;
-+	facilities[fac_id].alignment = alignment;
-+	facilities[fac_id].checksum = checksum;
-+	facilities[fac_id].int_size = int_size;
-+	facilities[fac_id].long_size = long_size;
-+	facilities[fac_id].pointer_size = pointer_size;
-+	facilities[fac_id].size_t_size = size_t_size;
-+
-+	if(atomic_read(&facilities[fac_id].ref) == 0) {
-+		atomic_add(2, &facilities[fac_id].ref);
-+		trace_core_facility_load(
-+				facilities[fac_id].name,
-+				checksum,
-+				fac_id,
-+				int_size,
-+				long_size,
-+				pointer_size,
-+				size_t_size,
-+				alignment);
-+	} else {
-+		atomic_inc(&facilities[fac_id].ref);
-+	}
-+unlock:
-+	spin_unlock(&facilities_lock);
-+	return fac_id;
-+}
-+
-+/* Verifies if a facility is already registered. If it is,
-+ * it returns the facility id. If it is not registered, it returns 0. (0 is the
-+ * core facility which must never use ltt_facility_verify).
-+ * If the facility is already registered, increment its refcount. */
-+int ltt_facility_verify(enum ltt_facility_type type,
-+		const char *name,
-+		const unsigned int num_events,
-+		const u32 checksum,
-+		size_t int_size,
-+		size_t long_size,
-+		size_t pointer_size,
-+		size_t size_t_size,
-+		size_t alignment)
-+{
-+	int fac_id;
-+	int chk_fac_id;
-+	int found=0;
-+	
-+	spin_lock(&facilities_lock);
-+	if(type == LTT_FACILITY_TYPE_KERNEL && 
-+			strncmp(name, "core", sizeof("core")) == 0) {
-+		fac_id = 0; /* Core facility */
-+		goto unlock;
-+	} else {
-+		switch(type) {
-+			case LTT_FACILITY_TYPE_USER:
-+				if(strncmp(name,
-+					"user_", sizeof("user_")-1) != 0) {
-+					fac_id = 0;
-+					goto unlock;
-+				}
-+				break;
-+			case LTT_FACILITY_TYPE_KERNEL:
-+				break;
-+		}
-+		/* fac_id based on checksum%LTT_MAX_NUM_FACILITIES */
-+		chk_fac_id = fac_id = checksum % LTT_MAX_NUM_FACILITIES;
-+		do {
-+			if(facilities[fac_id].checksum == checksum) {
-+				/* Possibly found : check carefully */
-+				if((atomic_read(&facilities[fac_id].ref) > 0) &&
-+					strncmp(facilities[fac_id].name,
-+						name, FACNAME_LEN-1) == 0 &&
-+				facilities[fac_id].type == type &&
-+				facilities[fac_id].num_events == num_events &&
-+				facilities[fac_id].alignment == alignment &&
-+				facilities[fac_id].checksum == checksum &&
-+				facilities[fac_id].int_size == int_size &&
-+				facilities[fac_id].long_size == long_size &&
-+				facilities[fac_id].pointer_size
-+					== pointer_size &&
-+				facilities[fac_id].size_t_size == size_t_size) {
-+					found = 1;
-+					break;
-+				}
-+			}
-+			fac_id = (fac_id+1) % LTT_MAX_NUM_FACILITIES;
-+		} while(fac_id != chk_fac_id);
-+		
-+		if(!found) {
-+			fac_id = 0;
-+			goto unlock;
-+		}
-+		atomic_inc(&facilities[fac_id].ref);
-+	}
-+unlock:
-+	spin_unlock(&facilities_lock);
-+	return fac_id;
-+}
-+
-+
-+unsigned int ltt_facility_kernel_register(struct ltt_facility *facility)
-+{
-+	size_t alignment;
-+#ifdef CONFIG_LTT_ALIGNMENT
-+	alignment = sizeof(void*);
-+#else
-+	alignment = 0;
-+#endif
-+	return ltt_facility_register(LTT_FACILITY_TYPE_KERNEL,
-+			facility->name, facility->num_events,
-+			facility->checksum,
-+			sizeof(int), sizeof(long), sizeof(void*),
-+			sizeof(size_t), alignment);
-+}
-+
-+void ltt_facility_ref(ltt_facility_t facility_id)
-+{
-+	atomic_inc(&facilities[facility_id].ref);
-+}
-+
-+int ltt_facility_unregister(ltt_facility_t facility_id)
-+{
-+	int ret;
-+	int freed = 0;
-+
-+	if(facility_id >= LTT_MAX_NUM_FACILITIES) return -EPERM;
-+	
-+	spin_lock(&facilities_lock);
-+	if(atomic_read(&facilities[facility_id].ref) == 0) {
-+		ret = -EPERM;
-+		goto unlock;
-+	}
-+	printk(KERN_DEBUG "LTT unregister facility %lu\n", facility_id);
-+	atomic_dec(&facilities[facility_id].ref);
-+
-+	/* Disable preemption because we read the traces list, and want it to be
-+	 * RCU coherent. */
-+	preempt_disable();
-+	ltt_nesting[smp_processor_id()]++;
-+	barrier();
-+
-+	/* If no more trace in the list, we can free the unused facility,
-+	 * otherwise it will be freed later when the last trace is destroyed (by
-+	 * ltt_facility_free_unused()). */
-+	if(list_empty(&ltt_traces.head))
-+		if(atomic_read(&facilities[facility_id].ref) == 1) {
-+			atomic_dec(&facilities[facility_id].ref);
-+			freed = 1;
-+		}
-+
-+	barrier();
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable();
-+
-+	/* Ok, if we think about it, it's never going to be traced as there are
-+	 * no traces in the list. In fact, we never really want to free a
-+	 * facility id when there is tracing active.
-+	 * FIXME : this unload could go away. */
-+	if(freed)
-+		trace_core_facility_unload(facility_id);
-+	ret = 0;
-+unlock:
-+	spin_unlock(&facilities_lock);
-+	return ret;
-+}
-+
-+int ltt_facility_user_access_ok(ltt_facility_t fac_id)
-+{
-+	if(atomic_read(&facilities[fac_id].ref) == 0) return 0;
-+	if(facilities[fac_id].type == LTT_FACILITY_TYPE_KERNEL) return 0;
-+
-+	return 1;
-+}
-+
-+/* Cleanup all the unregistered facilities. This must be done when all the
-+ * traces are destroyed.
-+ */
-+void ltt_facility_free_unused(void)
-+{
-+	int fac_id;
-+	
-+	spin_lock(&facilities_lock);
-+	for(fac_id=0;fac_id<LTT_MAX_NUM_FACILITIES;fac_id++)
-+		if(atomic_read(&facilities[fac_id].ref) == 1)
-+			atomic_dec(&facilities[fac_id].ref);
-+	spin_unlock(&facilities_lock);
-+}
-+
-+void ltt_facility_state_dump(struct ltt_trace_struct *trace)
-+{
-+	int fac_id;
-+	struct ltt_facility_info *facility;
-+	u32 int_size, long_size, pointer_size, size_t_size;
-+
-+	int_size = sizeof(int);
-+	long_size = sizeof(long);
-+	pointer_size = sizeof(void*);
-+	size_t_size = sizeof(size_t);
-+
-+	spin_lock(&facilities_lock);
-+	for(fac_id=0;fac_id<LTT_MAX_NUM_FACILITIES;fac_id++) {
-+		if(atomic_read(&facilities[fac_id].ref) > 1) {
-+			facility = &facilities[fac_id];
-+			printk(KERN_DEBUG "Dumping facility %s\n",
-+					facility->name);
-+			trace_core_state_dump_facility_load(trace,
-+					facility->name,
-+					facility->checksum,
-+					fac_id,
-+					facility->int_size,
-+					facility->long_size,
-+					facility->pointer_size,
-+					facility->size_t_size,
-+					facility->alignment);
-+		}
-+	}
-+	spin_unlock(&facilities_lock);
-+}
-+
-+EXPORT_SYMBOL(ltt_facility_kernel_register);
-+EXPORT_SYMBOL(ltt_facility_ref);
-+EXPORT_SYMBOL(ltt_facility_unregister);
-+EXPORT_SYMBOL(ltt_facility_free_unused);
-+EXPORT_SYMBOL(ltt_facility_state_dump);
-+
-+static int __init ltt_facilities_init(void)
-+{
-+	int i;
-+	printk(KERN_INFO "LTT : ltt-facilities init\n");
-+
-+	spin_lock_init(&facilities_lock);
-+	for(i=0; i<LTT_MAX_NUM_FACILITIES; i++) {
-+		atomic_set(&facilities[i].ref, 0);
-+	}
-+	
-+	return 0;
-+}
-+__initcall(ltt_facilities_init);
-+
-diff --git a/kernel/ltt-heartbeat.c b/kernel/ltt-heartbeat.c
-new file mode 100644
-index 0000000..a88f1b2
-
---=_Krystal-19337-1156979709-0001-2--
+Thinking about it, it may also make it hard to survive login/logout;
+which is actually good point.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

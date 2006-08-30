@@ -1,97 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWHaAML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWHaAMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWHaAML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 20:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751594AbWHaAML
+	id S1751448AbWHaAMM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 20:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWHaAMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 20:12:11 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:9118 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1751421AbWHaAMJ
+	Wed, 30 Aug 2006 20:12:12 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:10654 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1751448AbWHaAMK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 20:12:09 -0400
-Message-Id: <20060830235201.106319215@goop.org>
+	Wed, 30 Aug 2006 20:12:10 -0400
+Message-Id: <20060831000514.384348726@goop.org>
+References: <20060830235201.106319215@goop.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 30 Aug 2006 16:52:01 -0700
+Date: Wed, 30 Aug 2006 16:52:03 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/8] Implement per-processor data areas for i386.
+Subject: [PATCH 2/8] Basic definitions for i386-pda
+Content-Disposition: inline; filename=i386-pda-definitions.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Changes since previous post:
- - now works
- - fixed sys_vm86
- - performance measurements)
+This patch has the basic definitions of struct i386_pda, and the
+segment selector in the GDT.
 
-Implement per-processor data areas for i386.
+asm-i386/pda.h is more or less a direct copy of asm-x86_64/pda.h.  The
+most interesting difference is the use of _proxy_pda, which is used to
+give gcc a model for the actual memory operations on the real pda
+structure.  No actual reference is ever made to _proxy_pda, so it is
+never defined.
 
-This patch implements per-processor data areas by using %gs as the
-base segment of the per-processor memory.  This has two principle
-advantages:
-
-- It allows very simple direct access to per-processor data by
-  effectively using an effective address of the form %gs:offset, where
-  offset is the offset into struct i386_pda.  These sequences are faster
-  and smaller than the current mechanism using current_thread_info().
-
-- It also allows per-CPU data to be allocated as each CPU is brought
-  up, rather than statically allocating it based on the maximum number
-  of CPUs which could be brought up. (Though the existing per-cpu
-  mechanism could be changed to do this.)
-
-Performance:
-
-I've done some simple performance tests on an Intel Core Duo running
-at 1GHz (to emphisize any performance delta).  The results for the
-lmbench null syscall latency test, which should show the most negative
-effect from this change, show a ~8-9ns decline (.237uS -> .245uS).
-This corresponds to around 9 CPU cycles, and correlates well with
-the addition of the push/load/pop %gs into the hot path.
-
-I have not yet measured the effect on other typees of processor or
-more complex syscalls (though I would expect the push/pop overhead
-would be drowned by longer times spent in the kernel, and mitigated by
-actual use of the PDA).
-
-The size improvements on the kernel text are nice as well: 
-    2889361 -> 2883936 = 5425 bytes saved
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>
 
 
-Some background for people unfamiliar with x86 segmentation:
-
-This uses the x86 segmentation stuff in a way similar to NPTL's way of
-implementing Thread-Local Storage.  It relies on the fact that each CPU
-has its own Global Descriptor Table (GDT), which is basically an array
-of base-length pairs (with some extra stuff).  When a segment register
-is loaded with a descriptor (approximately, an index in the GDT), and
-you use that segment register for memory access, the address has the
-base added to it, and the resulting address is used.
-
-In other words, if you imagine the GDT containing an entry:
-	Index	Offset
-	123:	0xc0211000 (allocated PDA)
-and you load %gs with this selector:
-	mov $123, %gs
-and then use GS later on:
-	mov %gs:4, %eax
-This has the effect of
-	mov 0xc0211004, %eax
-and because the GDT is per-CPU, the offset (= 0xc0211000 = memory
-allocated for this CPU's PDA) can be a CPU-specific value while leaving
-everything else constant.
-
-This means that something like "current" or "smp_processor_id()" can
-collapse to a single instruction:
-	mov %gs:PDA_current, %reg
 
 
-TODO: 
-- Modify more things to use the PDA.  The more that uses it, the more
-  the cost of the %gs save/restore is amortized.  smp_processor_id and
-  current are the obvious first choices, which are implemented in this
-  series.
+---
+ arch/i386/kernel/asm-offsets.c |    4 ++
+ arch/i386/kernel/head.S        |    2 -
+ include/asm-i386/pda.h         |   67 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/segment.h     |    5 ++
+ 4 files changed, 76 insertions(+), 2 deletions(-)
+
+
+===================================================================
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -15,6 +15,7 @@
+ #include <asm/processor.h>
+ #include <asm/thread_info.h>
+ #include <asm/elf.h>
++#include <asm/pda.h>
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -91,4 +92,7 @@ void foo(void)
+ 	DEFINE(VDSO_PRELINK, VDSO_PRELINK);
+ 
+ 	OFFSET(crypto_tfm_ctx_offset, crypto_tfm, __crt_ctx);
++
++	BLANK();
++	OFFSET(PDA_pcurrent, i386_pda, pcurrent);
+ }
+===================================================================
+--- a/arch/i386/kernel/head.S
++++ b/arch/i386/kernel/head.S
+@@ -591,7 +591,7 @@ ENTRY(cpu_gdt_table)
+ 	.quad 0x004092000000ffff	/* 0xc8 APM DS    data */
+ 
+ 	.quad 0x0000920000000000	/* 0xd0 - ESPFIX 16-bit SS */
+-	.quad 0x0000000000000000	/* 0xd8 - unused */
++	.quad 0x0000000000000000	/* 0xd8 - PDA */
+ 	.quad 0x0000000000000000	/* 0xe0 - unused */
+ 	.quad 0x0000000000000000	/* 0xe8 - unused */
+ 	.quad 0x0000000000000000	/* 0xf0 - unused */
+===================================================================
+--- a/include/asm-i386/segment.h
++++ b/include/asm-i386/segment.h
+@@ -39,7 +39,7 @@
+  *  25 - APM BIOS support 
+  *
+  *  26 - ESPFIX small SS
+- *  27 - unused
++ *  27 - PDA				[ per-cpu private data area ]
+  *  28 - unused
+  *  29 - unused
+  *  30 - unused
+@@ -73,6 +73,9 @@
+ 
+ #define GDT_ENTRY_ESPFIX_SS		(GDT_ENTRY_KERNEL_BASE + 14)
+ #define __ESPFIX_SS (GDT_ENTRY_ESPFIX_SS * 8)
++
++#define GDT_ENTRY_PDA			(GDT_ENTRY_KERNEL_BASE + 15)
++#define __KERNEL_PDA (GDT_ENTRY_PDA * 8)
+ 
+ #define GDT_ENTRY_DOUBLEFAULT_TSS	31
+ 
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/pda.h
+@@ -0,0 +1,67 @@
++#ifndef _I386_PDA_H
++#define _I386_PDA_H
++
++struct i386_pda
++{
++	struct task_struct *pcurrent;	/* current process */
++	int cpu_number;
++};
++
++extern struct i386_pda *_cpu_pda[];
++
++#define cpu_pda(i)	(_cpu_pda[i])
++
++#define pda_offset(field) offsetof(struct i386_pda, field)
++
++extern void __bad_pda_field(void);
++
++extern struct i386_pda _proxy_pda;
++
++#define pda_to_op(op,field,val)						\
++	do {								\
++		typedef typeof(_proxy_pda.field) T__;			\
++		switch (sizeof(_proxy_pda.field)) {			\
++		case 2:							\
++			asm(op "w %1,%%gs:%P2"				\
++			    : "+m" (_proxy_pda.field)			\
++			    :"ri" ((T__)val),				\
++			     "i"(pda_offset(field)));			\
++			break;						\
++		case 4:							\
++			asm(op "l %1,%%gs:%P2"				\
++			    : "+m" (_proxy_pda.field)			\
++			    :"ri" ((T__)val),				\
++			     "i"(pda_offset(field)));			\
++			break;						\
++		default: __bad_pda_field();				\
++		}							\
++	} while (0)
++
++#define pda_from_op(op,field)						\
++	({								\
++		typeof(_proxy_pda.field) ret__;				\
++		switch (sizeof(_proxy_pda.field)) {			\
++		case 2:							\
++			asm(op "w %%gs:%P1,%0"				\
++			    : "=r" (ret__)				\
++			    : "i" (pda_offset(field)),			\
++			      "m" (_proxy_pda.field));			\
++			break;						\
++		case 4:							\
++			asm(op "l %%gs:%P1,%0"				\
++			    : "=r" (ret__)				\
++			    : "i" (pda_offset(field)),			\
++			      "m" (_proxy_pda.field));			\
++			break;						\
++		default: __bad_pda_field();				\
++		}							\
++		ret__; })
++
++
++#define read_pda(field) pda_from_op("mov",field)
++#define write_pda(field,val) pda_to_op("mov",field,val)
++#define add_pda(field,val) pda_to_op("add",field,val)
++#define sub_pda(field,val) pda_to_op("sub",field,val)
++#define or_pda(field,val) pda_to_op("or",field,val)
++
++#endif	/* _I386_PDA_H */
+
 --
 

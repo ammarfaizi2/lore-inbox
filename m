@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWH3ExF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWH3FGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWH3ExF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 00:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWH3ExE
+	id S965011AbWH3FGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 01:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWH3FGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 00:53:04 -0400
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:37786 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964969AbWH3ExC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 00:53:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=twpUuI0KnI1nB3xQMLJ+WnFrc5BXpvT0ateIy3Qc3qWXoMMtZrFhjxjIhXr6l7SjyHQ9W/slFk9HOmLXMjzDfbpb5RDOpdWwY9fR6Vn5p3WlsFFZYIZziPEB64MRAUyNtkp9lgrwt8+pEG0RYyHOdOoSfOZc8PQyYMMHOL3X46U=  ;
-From: David Brownell <david-b@pacbell.net>
-To: spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] [Patch] Add spi full duplex mode transfer support
-Date: Tue, 29 Aug 2006 21:52:57 -0700
-User-Agent: KMail/1.7.1
-Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
-       dbrownell@users.sourceforge.net
-References: <489ecd0c0608292140m483bba2fqa300b55c5f4acf26@mail.gmail.com>
-In-Reply-To: <489ecd0c0608292140m483bba2fqa300b55c5f4acf26@mail.gmail.com>
+	Wed, 30 Aug 2006 01:06:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:54426 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965011AbWH3FGG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 01:06:06 -0400
+Message-ID: <44F51CB7.4010504@cn.ibm.com>
+Date: Wed, 30 Aug 2006 13:05:59 +0800
+From: Yao Fei Zhu <walkinair@cn.ibm.com>
+Reply-To: walkinair@cn.ibm.com
+Organization: IBM
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: walkinair@cn.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, havelblue@us.ibm.com
+Subject: Re: Swap file or device can't be recognized by kernel built with
+ 64K pages.
+References: <44F50940.1010204@cn.ibm.com>
+In-Reply-To: <44F50940.1010204@cn.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608292152.58616.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 9:40 pm, Luke Yang wrote:
-> Hi all,
-> 
->    To enable full duplex mode spi transfer in Blackfin spi master
-> driver, I need an extra field in spi_transfer structure. Attached the
-> right format patch.
+Yao Fei Zhu wrote:
 
-I don't understand.  ** ALL ** SPI transfers are full duplex.
-If you want half duplex, just don't provide the buffer for the
-transfer going in that direction (RX or TX).
+> Problem description:
+> swap file or device can't be recognized by kernel built with 64K pages.
+>
+> Hardware Environment:
+>    Machine type (p650, x235, SF2, etc.): B70+
+>    Cpu type (Power4, Power5, IA-64, etc.): POWER5+
+> Software Environment:
+>    OS : SLES10 GMC
+>    Kernel: 2.6.18-rc5
+> Additional info:
+>
+> tc1:~ # uname -r
+> 2.6.18-rc5-ppc64
+>
+> tc1:~ # zcat /proc/config.gz | grep 64K
+> CONFIG_PPC_64K_PAGES=y
+>
+> tc1:~ # mkswap ./swap.file
+> Assuming pages of size 65536 (not 4096)
+> Setting up swapspace version 0, size = 4294901 kB
 
-Rejected ...
+Should use mkswap -v1 to create a new style swap area.
+
+>
+> tc1:~ # swapon ./swap.file
+> swapon: ./swap.file: Invalid argument
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 
-> Signed-off-by: Luke Yang <luke.adi@gmail.com>
-> 
->  spi.h |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-> index c8bb680..99816eb 100644
-> --- a/include/linux/spi/spi.h
-> +++ b/include/linux/spi/spi.h
-> @@ -331,6 +331,7 @@ struct spi_transfer {
->         dma_addr_t      rx_dma;
-> 
->         unsigned        cs_change:1;
-> +       unsigned        is_duplex:1;
->         u8              bits_per_word;
->         u16             delay_usecs;
->         u32             speed_hz;
-> 
-> -- 
-> Best regards,
-> Luke Yang
-> luke.adi@gmail.com
-> 

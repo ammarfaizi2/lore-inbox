@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWH3SPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWH3SPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWH3SPT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 14:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750700AbWH3SPT
+	id S1750763AbWH3SPA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 14:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWH3SPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 14:15:19 -0400
-Received: from smtp10.orange.fr ([193.252.22.21]:56160 "EHLO
-	smtp-msa-out10.orange.fr") by vger.kernel.org with ESMTP
-	id S1751264AbWH3SPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 14:15:17 -0400
-X-ME-UUID: 20060830181516374.5B7802400145@mwinf1004.orange.fr
-Date: Wed, 30 Aug 2006 20:13:10 +0200
-To: David Lang <dlang@digitalinsight.com>
-Cc: Olaf Hering <olaf@aepfle.de>, Michael Buesch <mb@bu3sch.de>,
-       Greg KH <greg@kroah.com>, Oleg Verych <olecom@flower.upol.cz>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Message-ID: <20060830181310.GA11213@powerlinux.fr>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz> <20060829183208.GA11468@kroah.com> <200608292104.24645.mb@bu3sch.de> <20060829201314.GA28680@aepfle.de> <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz> <20060830054433.GA31375@aepfle.de> <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz>
+	Wed, 30 Aug 2006 14:15:00 -0400
+Received: from mx2.suse.de ([195.135.220.15]:11667 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750763AbWH3SO7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 14:14:59 -0400
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] re-add -ffreestanding
+Date: Wed, 30 Aug 2006 20:13:58 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+References: <20060830175727.GI18276@stusta.de>
+In-Reply-To: <20060830175727.GI18276@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Sven Luther <sven.luther@wanadoo.fr>
+Message-Id: <200608302013.58122.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 10:52:02AM -0700, David Lang wrote:
-> On Wed, 30 Aug 2006, Olaf Hering wrote:
-> 
-> >>you are assuming that
-> >>
-> >>1. modules are enabled and ipw2200 is compiled as a module
-> >
-> >No, why?
-> 
-> becouse if the ipw isn't compiled as a module then it's initialized 
-> (without firmware) before the initramfs or initrd is run. if it could be 
-> initialized later without being a module then it could be initialized as 
-> part of the normal system
+On Wednesday 30 August 2006 19:57, Adrian Bunk wrote:
+> I got the following compile error with gcc 4.1.1 when trying to compile 
+> kernel 2.6.18-rc4-mm2 for m68k:
 
-Euh, ...
+If anything then -ffreestanding needs to be added to arch/m68k/Makefile
+(assuming it doesn't compile at all right now)
 
-I wonder why you need to initialize the ipw2200 module so early ? It was my
-understanding that the initramfs thingy was run very early in the process, and
-i had even thought of moving fbdev modules into it.
-
-Do you really need to bring up ipw2200 so early ? It is some kind of wireless
-device, right ? 
-
-As for initramfs, you can just cat it behind the kernel, and it should work
-just fine, or at least this is how it was supposed to work.
-
-Friendly,
-
-Sven Luther
+-Andi

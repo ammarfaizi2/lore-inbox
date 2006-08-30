@@ -1,96 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWH3Qan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWH3QbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWH3Qan (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWH3Qan
+	id S1751139AbWH3QbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWH3QbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:30:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:18054 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751129AbWH3Qam (ORCPT
+	Wed, 30 Aug 2006 12:31:16 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:46852 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1751131AbWH3QbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:30:42 -0400
-From: Andi Kleen <ak@suse.de>
-To: pageexec@freemail.hu
-Subject: Re: [PATCH][RFC] exception processing in early boot
-Date: Wed, 30 Aug 2006 18:30:40 +0200
-User-Agent: KMail/1.9.3
-Cc: Willy Tarreau <w@1wt.eu>, Riley@williams.name, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-References: <20060830063932.GB289@1wt.eu> <200608301459.15008.ak@suse.de> <44F5D81A.9650.5BE48F99@pageexec.freemail.hu>
-In-Reply-To: <44F5D81A.9650.5BE48F99@pageexec.freemail.hu>
+	Wed, 30 Aug 2006 12:31:14 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Drop cache has no effect?
+References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
+	<20060829110048.20e23e75.akpm@osdl.org>
+	<87k64rxc6g.fsf@duaron.myhome.or.jp>
+	<20060829183902.be1356b6.akpm@osdl.org>
+	<Pine.LNX.4.61.0608300751330.9263@yvahk01.tjqt.qr>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 31 Aug 2006 01:31:04 +0900
+In-Reply-To: <Pine.LNX.4.61.0608300751330.9263@yvahk01.tjqt.qr> (Jan Engelhardt's message of "Wed, 30 Aug 2006 07:54:04 +0200 (MEST)")
+Message-ID: <87ac5mtcc7.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608301830.40994.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 August 2006 18:25, pageexec@freemail.hu wrote:
-> On 30 Aug 2006 at 14:59, Andi Kleen wrote:
-> > > I think that the good method would be to :
-> > >   - announce the patch
-> > >   - find a volunteer to port it
-> > >   - apply it once the volunteer agrees to handle it
-> > > This way, no code gets lost because there's always someone to track it.
-> > 
-> > I can put that one into my tree for .19
-> 
-> here's my quick attempt:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
+>>> 
+>>> That's dirty area, vfat has one read-only bit only. Yes, I also think
+>>> this is strange behaviour. But, I worry app is depending on the
+>>> current behaviour, because this is pretty old behaviour.
+>>> 
+>>> Umm.., do someone have any strong reason? I'll make patch at this
+>>> weekend, and please test it in -mm tree for a bit long time...?
+>>
+>>It is pretty weird that permission bits on vfat can magically change in
+>>response to memory pressure.
+>
+> Well, the same happened for procfs in the past (when one was able to chmod it,
+> in current kernels it is forbidden.)
 
-It would be better to separate exceptions from interrupts here.
-A spurious interrupt is not necessarily fatal, just an exception is.
+IIRC, at least 2.4 doesn't allow it, it's rather new.
 
-But I went with the simpler patch with some changes now 
-(added PANIC to the message etc.) 
+> It seems the best thing ATM, no?
 
-> 
-> --- linux-2.6.18-rc5/arch/i386/kernel/head.S	2006-08-28 11:37:31.000000000 
-> +0200
-> +++ linux-2.6.18-rc5-fix/arch/i386/kernel/head.S	2006-08-30 
-> 18:22:15.000000000 +0200
-> @@ -382,34 +382,25 @@ rp_sidt:
->  /* This is the default interrupt "handler" :-) */
->  	ALIGN
->  ignore_int:
-> -	cld
->  #ifdef CONFIG_PRINTK
-> -	pushl %eax
-> -	pushl %ecx
-> -	pushl %edx
-> -	pushl %es
-> -	pushl %ds
-> +	cld
->  	movl $(__KERNEL_DS),%eax
->  	movl %eax,%ds
->  	movl %eax,%es
-> -	pushl 16(%esp)
-> -	pushl 24(%esp)
-> -	pushl 32(%esp)
-> -	pushl 40(%esp)
-> +	pushl 12(%esp)
-> +	pushl 12(%esp)
-> +	pushl 12(%esp)
-> +	pushl 12(%esp)
->  	pushl $int_msg
->  #ifdef CONFIG_EARLY_PRINTK
->  	call early_printk
->  #else
->  	call printk
->  #endif
-> -	addl $(5*4),%esp
-> -	popl %ds
-> -	popl %es
-> -	popl %edx
-> -	popl %ecx
-> -	popl %eax
->  #endif
-> -	iret
-> +1:	hlt
-
-This is wrong because i386 still supports some CPUs that don't support
-HLT.
-
--Andi
+I also think it's good. But it wouldn't be good reason for breaking app...
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

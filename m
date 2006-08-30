@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWH3RPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWH3RTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWH3RPS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWH3RPR
+	id S1751185AbWH3RTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 13:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWH3RTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:15:17 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:58123 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751175AbWH3RPQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:15:16 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-x-originalarrivaltime: 30 Aug 2006 17:15:12.0482 (UTC) FILETIME=[DA639C20:01C6CC57]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH][RFC] exception processing in early boot
-Date: Wed, 30 Aug 2006 13:15:07 -0400
-Message-ID: <Pine.LNX.4.61.0608301304230.13331@chaos.analogic.com>
-In-Reply-To: <200608301902.20728.ak@suse.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][RFC] exception processing in early boot
-Thread-Index: AcbMV9ptSkbAIFmkQSeUIVL7+UMr8w==
-References: <20060830063932.GB289@1wt.eu> <200608301830.40994.ak@suse.de> <Pine.LNX.4.61.0608301251570.13282@chaos.analogic.com> <200608301902.20728.ak@suse.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <pageexec@freemail.hu>, "Willy Tarreau" <w@1wt.eu>, <Riley@williams.name>,
-       <davej@redhat.com>, "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 30 Aug 2006 13:19:46 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:2242 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751172AbWH3RTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 13:19:45 -0400
+Subject: Re: [PATCH] aic94xx: Increase can_queue and cmds_per_lun
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>,
+       Konrad Rzeszutek <konrad@darnok.org>
+In-Reply-To: <44F3CF6E.1070000@us.ibm.com>
+References: <44F3CF6E.1070000@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 30 Aug 2006 13:19:43 -0400
+Message-Id: <1156958383.7701.2.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-08-28 at 22:23 -0700, Darrick J. Wong wrote:
+> -	.cmd_per_lun		= 1,
+> +	.cmd_per_lun		= 2,
 
-On Wed, 30 Aug 2006, Andi Kleen wrote:
+This is an old piece of code.  Today we use 1 for the cmd_per_lun of
+non-TCQ devices.
 
->
->> Even the i286 and the 8086 support hlt. Is there some Cyrix chip that
->> you are trying to preserve? I think even those all implimented
->> hlt as well.
->
->
-> According to the kernel code it's
->
-> char    hlt_works_ok;   /* Problems on some 486Dx4's and old 386's */
->
-> I don't know more details about what these problems were.
->
-> -Andi
->
+> +	aic94xx_sht.can_queue = asd_ha->hw_prof.max_scbs - ASD_FREE_SCBS;
 
-Oh yes. There were some buggy chips that would not let an interrupt
-take the CPU out of hlt! However, what's wanted here is a hard-stop
-which you get even with buggy chips because an interrupt won't
-awaken them.
+This is unnecessary unless you alter it before host alloc (which is
+where it takes the shost values from the template).
+
+Also, I think if you look at the rest of the driver, it's careful to
+account for the need for required scbs in its internal queueing
+algorithms, so the ASD_FREE_SCBS should be unnecessary.
+
+> +	shost->can_queue = aic94xx_sht.can_queue;
+
+James
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

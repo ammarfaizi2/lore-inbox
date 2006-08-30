@@ -1,290 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWHaAMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWHaAML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWHaAMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 20:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWHaAMe
+	id S1751421AbWHaAML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 20:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751594AbWHaAML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 20:12:34 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:11678 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1751460AbWHaAMb
+	Wed, 30 Aug 2006 20:12:11 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:9118 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1751421AbWHaAMJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 20:12:31 -0400
-Message-Id: <20060831000514.597409684@goop.org>
-References: <20060830235201.106319215@goop.org>
+	Wed, 30 Aug 2006 20:12:09 -0400
+Message-Id: <20060830235201.106319215@goop.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 30 Aug 2006 16:52:04 -0700
+Date: Wed, 30 Aug 2006 16:52:01 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 3/8] Initialize the per-CPU data area.
-Content-Disposition: inline; filename=i386-pda-init.patch
+Subject: [PATCH 0/8] Implement per-processor data areas for i386.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a CPU is brought up, a PDA and GDT are allocated for it.  The
-GDT's __KERNEL_PDA entry is pointed to the allocated PDA memory, so
-that all references using this segment descriptor will refer to the PDA.
+(Changes since previous post:
+ - now works
+ - fixed sys_vm86
+ - performance measurements)
 
-This patch rearranges CPU initialization a bit, so that the GDT/PDA
-are set up as early as possible in cpu_init().  Also for secondary
-CPUs, GDT+PDA are preallocated so the secondary CPU doesn't need to do
-any memory allocation while setting up the PDA.  This will be
-important once smp_processor_id() and current use the PDA.
+Implement per-processor data areas for i386.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Jan Beulich <jbeulich@novell.com>
-Cc: Andi Kleen <ak@suse.de>
+This patch implements per-processor data areas by using %gs as the
+base segment of the per-processor memory.  This has two principle
+advantages:
 
----
- arch/i386/kernel/cpu/common.c |  159 +++++++++++++++++++++++++++++------------
- arch/i386/kernel/smpboot.c    |   10 ++
- include/asm-i386/processor.h  |    1 
- 3 files changed, 125 insertions(+), 45 deletions(-)
+- It allows very simple direct access to per-processor data by
+  effectively using an effective address of the form %gs:offset, where
+  offset is the offset into struct i386_pda.  These sequences are faster
+  and smaller than the current mechanism using current_thread_info().
+
+- It also allows per-CPU data to be allocated as each CPU is brought
+  up, rather than statically allocating it based on the maximum number
+  of CPUs which could be brought up. (Though the existing per-cpu
+  mechanism could be changed to do this.)
+
+Performance:
+
+I've done some simple performance tests on an Intel Core Duo running
+at 1GHz (to emphisize any performance delta).  The results for the
+lmbench null syscall latency test, which should show the most negative
+effect from this change, show a ~8-9ns decline (.237uS -> .245uS).
+This corresponds to around 9 CPU cycles, and correlates well with
+the addition of the push/load/pop %gs into the hot path.
+
+I have not yet measured the effect on other typees of processor or
+more complex syscalls (though I would expect the push/pop overhead
+would be drowned by longer times spent in the kernel, and mitigated by
+actual use of the PDA).
+
+The size improvements on the kernel text are nice as well: 
+    2889361 -> 2883936 = 5425 bytes saved
 
 
-===================================================================
---- a/arch/i386/kernel/cpu/common.c
-+++ b/arch/i386/kernel/cpu/common.c
-@@ -18,6 +18,7 @@
- #include <asm/apic.h>
- #include <mach_apic.h>
- #endif
-+#include <asm/pda.h>
- 
- #include "cpu.h"
- 
-@@ -26,6 +27,9 @@ EXPORT_PER_CPU_SYMBOL(cpu_gdt_descr);
- 
- DEFINE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
- EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
-+
-+struct i386_pda *_cpu_pda[NR_CPUS] __read_mostly;
-+EXPORT_SYMBOL(_cpu_pda);
- 
- static int cachesize_override __cpuinitdata = -1;
- static int disable_x86_fxsr __cpuinitdata;
-@@ -582,6 +586,112 @@ void __init early_cpu_init(void)
- 	disable_pse = 1;
- #endif
- }
-+
-+__cpuinit int alloc_gdt(int cpu)
-+{
-+	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
-+	struct desc_struct *gdt;
-+	struct i386_pda *pda;
-+
-+	gdt = (struct desc_struct *)cpu_gdt_descr->address;
-+	pda = cpu_pda(cpu);
-+
-+	/*
-+	 * This is a horrible hack to allocate the GDT.  The problem
-+	 * is that cpu_init() is called really early for the boot CPU
-+	 * (and hence needs bootmem) but much later for the secondary
-+	 * CPUs, when bootmem will have gone away
-+	 */
-+	if (NODE_DATA(0)->bdata->node_bootmem_map) {
-+		BUG_ON(gdt != NULL || pda != NULL);
-+
-+		gdt = alloc_bootmem_pages(PAGE_SIZE);
-+		pda = alloc_bootmem(sizeof(*pda));
-+		/* alloc_bootmem(_pages) panics on failure, so no check */
-+
-+		memset(gdt, 0, PAGE_SIZE);
-+		memset(pda, 0, sizeof(*pda));
-+	} else {
-+		/* GDT and PDA might already have been allocated if
-+		   this is a CPU hotplug re-insertion. */
-+		if (gdt == NULL)
-+			gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
-+
-+		if (pda == NULL)
-+			pda = kmalloc_node(sizeof(*pda), GFP_KERNEL, cpu_to_node(cpu));
-+
-+		if (unlikely(!gdt || !pda)) {
-+			free_pages((unsigned long)gdt, 0);
-+			kfree(pda);
-+			return 0;
-+		}
-+	}
-+	
-+ 	cpu_gdt_descr->address = (unsigned long)gdt;
-+	cpu_pda(cpu) = pda;
-+
-+	return 1;
-+}
-+
-+static __cpuinit void pda_init(int cpu, struct task_struct *curr)
-+{
-+	struct i386_pda *pda = cpu_pda(cpu);
-+
-+	memset(pda, 0, sizeof(*pda));
-+
-+	pda->cpu_number = cpu;
-+	pda->pcurrent = curr;
-+
-+	printk("cpu %d current %p\n", cpu, curr);
-+}
-+
-+/* Initialize the CPU's GDT and PDA */
-+static __cpuinit void init_gdt(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct task_struct *curr = current;
-+	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
-+	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
-+	struct desc_struct *gdt;
-+	struct i386_pda *pda;
-+
-+	/* For non-boot CPUs, the GDT and PDA should already have been
-+	   allocated. */
-+	if (!alloc_gdt(cpu)) {
-+		printk(KERN_CRIT "CPU%d failed to allocate GDT or PDA\n", cpu);
-+		for (;;)
-+			local_irq_enable();
-+	}
-+
-+	gdt = (struct desc_struct *)cpu_gdt_descr->address;
-+	pda = cpu_pda(cpu);
-+
-+	BUG_ON(gdt == NULL || pda == NULL);
-+
-+	/*
-+	 * Initialize the per-CPU GDT with the boot GDT,
-+	 * and set up the GDT descriptor:
-+	 */
-+ 	memcpy(gdt, cpu_gdt_table, GDT_SIZE);
-+	cpu_gdt_descr->size = GDT_SIZE - 1;
-+
-+	/* Set up GDT entry for 16bit stack */
-+ 	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
-+		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
-+		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
-+		(CPU_16BIT_STACK_SIZE - 1);
-+
-+	pack_descriptor((u32 *)&gdt[GDT_ENTRY_PDA].a,
-+			(u32 *)&gdt[GDT_ENTRY_PDA].b,
-+			(unsigned long)pda, sizeof(*pda) - 1,
-+			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
-+
-+	load_gdt(cpu_gdt_descr);
-+
-+	/* Do this once everything GDT-related has been set up. */
-+	pda_init(cpu, curr);
-+}
-+
- /*
-  * cpu_init() initializes state that is per-CPU. Some data is already
-  * initialized (naturally) in the bootstrap process, such as the GDT
-@@ -593,14 +703,16 @@ void __cpuinit cpu_init(void)
- 	int cpu = smp_processor_id();
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
- 	struct thread_struct *thread = &current->thread;
--	struct desc_struct *gdt;
--	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
--	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
- 
- 	if (cpu_test_and_set(cpu, cpu_initialized)) {
- 		printk(KERN_WARNING "CPU#%d already initialized!\n", cpu);
- 		for (;;) local_irq_enable();
- 	}
-+
-+	/* Init the GDT and PDA early, before calling printk(),
-+	   since it may end up using the PDA indirectly. */
-+	init_gdt();
-+
- 	printk(KERN_INFO "Initializing CPU#%d\n", cpu);
- 
- 	if (cpu_has_vme || cpu_has_tsc || cpu_has_de)
-@@ -612,47 +724,6 @@ void __cpuinit cpu_init(void)
- 		set_in_cr4(X86_CR4_TSD);
- 	}
- 
--	/* The CPU hotplug case */
--	if (cpu_gdt_descr->address) {
--		gdt = (struct desc_struct *)cpu_gdt_descr->address;
--		memset(gdt, 0, PAGE_SIZE);
--		goto old_gdt;
--	}
--	/*
--	 * This is a horrible hack to allocate the GDT.  The problem
--	 * is that cpu_init() is called really early for the boot CPU
--	 * (and hence needs bootmem) but much later for the secondary
--	 * CPUs, when bootmem will have gone away
--	 */
--	if (NODE_DATA(0)->bdata->node_bootmem_map) {
--		gdt = (struct desc_struct *)alloc_bootmem_pages(PAGE_SIZE);
--		/* alloc_bootmem_pages panics on failure, so no check */
--		memset(gdt, 0, PAGE_SIZE);
--	} else {
--		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
--		if (unlikely(!gdt)) {
--			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
--			for (;;)
--				local_irq_enable();
--		}
--	}
--old_gdt:
--	/*
--	 * Initialize the per-CPU GDT with the boot GDT,
--	 * and set up the GDT descriptor:
--	 */
-- 	memcpy(gdt, cpu_gdt_table, GDT_SIZE);
--
--	/* Set up GDT entry for 16bit stack */
-- 	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
--		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
--		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
--		(CPU_16BIT_STACK_SIZE - 1);
--
--	cpu_gdt_descr->size = GDT_SIZE - 1;
-- 	cpu_gdt_descr->address = (unsigned long)gdt;
--
--	load_gdt(cpu_gdt_descr);
- 	load_idt(&idt_descr);
- 
- 	/*
-===================================================================
---- a/arch/i386/kernel/smpboot.c
-+++ b/arch/i386/kernel/smpboot.c
-@@ -536,7 +536,7 @@ static void __devinit start_secondary(vo
- static void __devinit start_secondary(void *unused)
- {
- 	/*
--	 * Dont put anything before smp_callin(), SMP
-+	 * Don't put *anything* before cpu_init(), SMP
- 	 * booting is too fragile that we want to limit the
- 	 * things done here to the most necessary things.
- 	 */
-@@ -931,6 +931,14 @@ static int __devinit do_boot_cpu(int api
- 	int timeout;
- 	unsigned long start_eip;
- 	unsigned short nmi_high = 0, nmi_low = 0;
-+
-+	/* Pre-allocate the CPU's GDT and PDA so it doesn't have to do
-+	   any memory allocation during the delicate CPU-bringup
-+	   phase. */
-+	if (!alloc_gdt(cpu)) {
-+		printk(KERN_INFO "Couldn't allocate GDT/PDA for CPU %d\n", cpu);
-+		return -1;	/* ? */
-+	}
- 
- 	++cpucount;
- 	alternatives_smp_switch(1);
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -726,5 +726,6 @@ extern unsigned long boot_option_idle_ov
- extern unsigned long boot_option_idle_override;
- extern void enable_sep_cpu(void);
- extern int sysenter_setup(void);
-+extern int alloc_gdt(int cpu);
- 
- #endif /* __ASM_I386_PROCESSOR_H */
+Some background for people unfamiliar with x86 segmentation:
 
+This uses the x86 segmentation stuff in a way similar to NPTL's way of
+implementing Thread-Local Storage.  It relies on the fact that each CPU
+has its own Global Descriptor Table (GDT), which is basically an array
+of base-length pairs (with some extra stuff).  When a segment register
+is loaded with a descriptor (approximately, an index in the GDT), and
+you use that segment register for memory access, the address has the
+base added to it, and the resulting address is used.
+
+In other words, if you imagine the GDT containing an entry:
+	Index	Offset
+	123:	0xc0211000 (allocated PDA)
+and you load %gs with this selector:
+	mov $123, %gs
+and then use GS later on:
+	mov %gs:4, %eax
+This has the effect of
+	mov 0xc0211004, %eax
+and because the GDT is per-CPU, the offset (= 0xc0211000 = memory
+allocated for this CPU's PDA) can be a CPU-specific value while leaving
+everything else constant.
+
+This means that something like "current" or "smp_processor_id()" can
+collapse to a single instruction:
+	mov %gs:PDA_current, %reg
+
+
+TODO: 
+- Modify more things to use the PDA.  The more that uses it, the more
+  the cost of the %gs save/restore is amortized.  smp_processor_id and
+  current are the obvious first choices, which are implemented in this
+  series.
 --
 

@@ -1,80 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWH3UTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWH3UVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWH3UTB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 16:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWH3UTB
+	id S1751495AbWH3UVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 16:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWH3UVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 16:19:01 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:36039 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751482AbWH3UTA (ORCPT
+	Wed, 30 Aug 2006 16:21:52 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:20743 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751495AbWH3UVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 16:19:00 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH -mm] PM: Add pm_trace switch
-Date: Wed, 30 Aug 2006 22:22:36 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200608291309.57404.rjw@sisk.pl> <200608301202.59300.rjw@sisk.pl> <20060830172246.GD4534@kroah.com>
-In-Reply-To: <20060830172246.GD4534@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 16:21:51 -0400
+Date: Wed, 30 Aug 2006 22:24:41 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 19/19] BLOCK: Make it possible to disable the block  layer [try #6]
+Message-ID: <20060830202440.GN7331@kernel.dk>
+References: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com> <20060829180634.32596.4507.stgit@warthog.cambridge.redhat.com> <20060830124400.23ca9b38.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608302222.36535.rjw@sisk.pl>
+In-Reply-To: <20060830124400.23ca9b38.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 August 2006 19:22, Greg KH wrote:
-> On Wed, Aug 30, 2006 at 12:02:59PM +0200, Rafael J. Wysocki wrote:
-> > On Tuesday 29 August 2006 22:46, Andrew Morton wrote:
-> > > On Tue, 29 Aug 2006 13:09:57 +0200
-> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > 
-> > > > +int pm_trace_enabled;
-> > > > +
-> > > > +static ssize_t pm_trace_show(struct subsystem * subsys, char * buf)
-> > > > +{
-> > > > +	return sprintf(buf, "%d\n", pm_trace_enabled);
-> > > > +}
-> > > > +
-> > > > +static ssize_t
-> > > > +pm_trace_store(struct subsystem * subsys, const char * buf, size_t n)
-> > > > +{
-> > > > +	int val;
-> > > > +
-> > > > +	if (sscanf(buf, "%d", &val) == 1) {
-> > > > +		pm_trace_enabled = !!val;
-> > > > +		return n;
-> > > > +	}
-> > > > +	return -EINVAL;
-> > > > +}
-> > > > +
-> > > > +power_attr(pm_trace);
-> > > 
-> > > <grumbles about documentation>
-> > 
-> > Well, this is the most difficult part. ;-)
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > ---
-> >  Documentation/power/interface.txt |   15 +++++++++++++++
+On Wed, Aug 30 2006, Andrew Morton wrote:
 > 
-> Please update Documentation/ABI/ too.
+> I think I'll just slam all this in at the first opportunity.  Stuff will
+> break, but it will be easy to fix.
 
-I could, but there's nothing related to /sys/power/ in Documentation/ABI/
-right now.
-
-Do you mean I should create a file for /sys/power/ in there?  If so, what
-should I put in there?  I guess pretty much the same as in
-Documentation/power/interface.txt ...
-
-Greetings,
-Rafael
-
+I think so too, hence I added it to the for-akpm branch that you pull so
+it should happen automagically for you.
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Jens Axboe
+

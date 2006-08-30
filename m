@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWH3JZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWH3J3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWH3JZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 05:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWH3JZS
+	id S1750787AbWH3J3p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 05:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWH3J3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 05:25:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28383 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750779AbWH3JZQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 05:25:16 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060829112030.a2a8c763.akpm@osdl.org> 
-References: <20060829112030.a2a8c763.akpm@osdl.org>  <20060829175949.32281.21374.stgit@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: [PATCH 1/2] NOMMU: Set BDI capabilities for /dev/mem and /dev/kmem 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 30 Aug 2006 10:24:55 +0100
-Message-ID: <22155.1156929895@warthog.cambridge.redhat.com>
+	Wed, 30 Aug 2006 05:29:45 -0400
+Received: from 67.111.72.3.ptr.us.xo.net ([67.111.72.3]:58559 "EHLO
+	nonameb.ptu.promise.com") by vger.kernel.org with ESMTP
+	id S1750736AbWH3J3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 05:29:44 -0400
+Date: Wed, 30 Aug 2006 17:29:00 +0800
+From: "Ed Lin" <ed.lin@promise.com>
+To: "linux-scsi" <linux-scsi@vger.kernel.org>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, "akpm" <akpm@osdl.org>,
+       "promise_linux" <promise_linux@promise.com>,
+       "james.Bottomley" <james.Bottomley@SteelEye.com>,
+       "jeff" <jeff@garzik.org>
+Subject: [PATCH 1/3] stex: adjust command timeout in slave_config routine
+X-mailer: Foxmail 5.0 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+Message-ID: <NONAMEBDVRXGsNLqY5400000e3c@nonameb.ptu.promise.com>
+X-OriginalArrivalTime: 30 Aug 2006 09:28:52.0546 (UTC) FILETIME=[B50C3220:01C6CC16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Ed Lin" <ed.lin@promise.com>
 
-Andrew Morton <akpm@osdl.org> wrote:
+- remove unsuitable waiting code and unnecessary handling code
+  from reset routine
 
-> Perhaps one could make mem_bdi==NULL if !CONFIG_MMU, for a minor space
-> saving.
+- adjust command timeout in slave_config routine to achieve intended
+  effect of removed waiting code
 
-The problem is that takes the #ifdef-avoidance scheme a step too far.  If we
-do that, the kernel will crash.  Observe the following:
+Signed-off-by: Ed Lin <ed.lin@promise.com>
+---
+diff --git a/drivers/scsi/stex.c b/drivers/scsi/stex.c
+index fceae17..cb17415 100644
+--- a/drivers/scsi/stex.c
++++ b/drivers/scsi/stex.c
+@@ -519,6 +519,7 @@ stex_slave_config(struct scsi_device *sd
+ {
+ 	sdev->use_10_for_rw = 1;
+ 	sdev->use_10_for_ms = 1;
++	sdev->timeout = 60 * HZ;
+ 	return 0;
+ }
+ 
+@@ -938,37 +939,11 @@ static void stex_hard_reset(struct st_hb
+ static int stex_reset(struct scsi_cmnd *cmd)
+ {
+ 	struct st_hba *hba;
+-	int tag;
+-	int i = 0;
+ 	unsigned long flags;
+ 	hba = (struct st_hba *) &cmd->device->host->hostdata[0];
+ 
+-wait_cmds:
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-	for (tag = 0; tag < MU_MAX_REQUEST; tag++)
+-		if ((hba->tag & (1 << tag)) && hba->ccb[tag].req != NULL)
+-			break;
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-	if (tag < MU_MAX_REQUEST) {
+-		ssleep(1);
+-		if (++i < 10)
+-			goto wait_cmds;
+-	}
+-
+ 	hba->mu_status = MU_STATE_RESETTING;
+ 
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-
+-	for (tag = 0; tag < MU_MAX_REQUEST; tag++)
+-		if ((hba->tag & (1 << tag)) && hba->ccb[tag].req != NULL) {
+-			stex_free_tag((unsigned long *)&hba->tag, tag);
+-			stex_unmap_sg(hba, hba->ccb[tag].cmd);
+-			hba->ccb[tag].cmd->result = DID_RESET << 16;
+-			hba->ccb[tag].cmd->scsi_done(hba->ccb[tag].cmd);
+-		}
+-
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-
+ 	if (hba->cardtype == st_shasta)
+ 		stex_hard_reset(hba);
+ 
 
-  Breakpoint 1, memory_open (inode=0xc0f7da04, filp=0xc09d8ba0) at fs.h:635
-  635		return MINOR(inode->i_rdev);
-  (gdb) n
-  634	{
-  (gdb) 
-  904				filp->f_mapping->backing_dev_info = &mem_bdi;
-  (gdb) i sym filp->f_mapping->backing_dev_info
-  default_backing_dev_info in section .data
-
-Note how the BDI pointer is already set to the default which we then override.
-We either need to fill in mem_bdi correctly for MMU or only override the BDI
-pointer if !MMU.
-
-Of course, that doesn't touch on the matter of the compiler not letting you do
-&NULL, though I assume you meant make &mem_bdi == NULL.
-
-Also, the default BDI is incorrect for /dev/mem and /dev/kmem since it does
-not permit shared mappings, so I think we need mem_bdi anyway, though I should
-perhaps make it more general, so that it can apply to all mappable chardevs.
-
-David

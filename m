@@ -1,145 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWH3GNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWH3GQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751556AbWH3GNW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 02:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbWH3GNW
+	id S1751144AbWH3GQL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 02:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWH3GQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 02:13:22 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:62162 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751548AbWH3GNV (ORCPT
+	Wed, 30 Aug 2006 02:16:10 -0400
+Received: from 1wt.eu ([62.212.114.60]:36881 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751144AbWH3GQJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 02:13:21 -0400
-MIME-Version: 1.0
+	Wed, 30 Aug 2006 02:16:09 -0400
+Date: Wed, 30 Aug 2006 08:15:17 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Solar Designer <solar@openwall.com>, Ernie Petrides <petrides@redhat.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: printk()s of user-supplied strings
+Message-ID: <20060830061517.GA282@1wt.eu>
+References: <200608222023.k7MKNHpH018036@pasta.boston.redhat.com> <20060824164425.GA17692@openwall.com> <20060824164633.GA21807@1wt.eu> <20060826022955.GB21620@openwall.com> <20060826082236.GA29736@1wt.eu> <20060826231314.GA24109@openwall.com> <20060827200440.GA229@1wt.eu> <20060828015224.GA27199@openwall.com> <20060828080246.GB9078@1wt.eu> <m3sljhp0rs.fsf@defiant.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17653.11388.637189.113422@cargo.ozlabs.ibm.com>
-Date: Wed, 30 Aug 2006 16:13:16 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Nathan Lynch <ntl@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org
-Subject: Re: Linux v2.6.18-rc5
-In-Reply-To: <20060829155216.GA25861@aepfle.de>
-References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
-	<20060829115537.GA24256@aepfle.de>
-	<20060829130629.GW11309@localdomain>
-	<20060829155216.GA25861@aepfle.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <m3sljhp0rs.fsf@defiant.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf,
+On Mon, Aug 28, 2006 at 01:17:43PM +0200, Krzysztof Halasa wrote:
+> Willy Tarreau <w@1wt.eu> writes:
+> 
+> > Well, I'm not sure about this. Nearly all patches which get merged pass
+> > through a public review first, and when you see how many replies you get
+> > for and 'else' and and 'if' on two different lines, I expect lots of
+> > spontaneous replies such as "use %S for user-supplied strings".
+> 
+> I wouldn't rely on that.
+> 
+> >> A solution would be to normally use "%S" and only use
+> >> "%s" where "%S" wouldn't work.  In that case, we could as well swap "%s"
+> >> and "%S", though - hardening the existing "%s" and introducing "%S" for
+> >> those callers that depend on the old behavior.
+> 
+> I think it's the way to go.
+> 
+> > I'd rather not change "%s" semantics if we introduce another specifier
+> > which does exactly what we would expect "%s" to do.
+> 
+> Both would be equivalent in most cases. It's better to use "%s" for
+> most cases (either secured or not) and leave "%S" for the bunch of
+> special cases whose authors better know what are they doing.
+> 
+> > I will try your proposal to retain the trailing '\n' unescaped.
+> 
+> I think with "%s" and "%S" this is no longer needed.
 
-This patch should fix it.  The problem was that I was comparing a
-32-bit quantity with a 64-bit quantity, and consequently time wasn't
-advancing.  This makes us use a 64-bit quantity on all platforms,
-which ends up simplifying the code since we can now get rid of the
-tb_last_stamp variable (which actually fixes another bug that Ben H
-and I noticed while going carefully through the code).
+Yes it will be for compatibility reasons : we for sure will not fix all
+users of "%s" quickly, so we will have to do our best not to break them.
+If it was easy to find them all, we could replace "%s" with "%S" everywhere
+and make "%S" the escaped one.
 
-This works fine on my G4 tibook.  Let me know how it goes on your
-machines.
+But well, I believe that you convinced me that escaping the "%s" and providing
+a new "%S" for secure or special usages might be the way to go.
 
-Paul.
+I will propose a patch soon.
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 18e59e4..a124499 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -125,15 +125,8 @@ static long timezone_offset;
- unsigned long ppc_proc_freq;
- unsigned long ppc_tb_freq;
- 
--u64 tb_last_jiffy __cacheline_aligned_in_smp;
--unsigned long tb_last_stamp;
--
--/*
-- * Note that on ppc32 this only stores the bottom 32 bits of
-- * the timebase value, but that's enough to tell when a jiffy
-- * has passed.
-- */
--DEFINE_PER_CPU(unsigned long, last_jiffy);
-+static u64 tb_last_jiffy __cacheline_aligned_in_smp;
-+static DEFINE_PER_CPU(u64, last_jiffy);
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- /*
-@@ -458,7 +451,7 @@ void do_gettimeofday(struct timeval *tv)
- 		do {
- 			seq = read_seqbegin_irqsave(&xtime_lock, flags);
- 			sec = xtime.tv_sec;
--			nsec = xtime.tv_nsec + tb_ticks_since(tb_last_stamp);
-+			nsec = xtime.tv_nsec + tb_ticks_since(tb_last_jiffy);
- 		} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
- 		usec = nsec / 1000;
- 		while (usec >= 1000000) {
-@@ -700,7 +693,6 @@ #endif
- 		tb_next_jiffy = tb_last_jiffy + tb_ticks_per_jiffy;
- 		if (per_cpu(last_jiffy, cpu) >= tb_next_jiffy) {
- 			tb_last_jiffy = tb_next_jiffy;
--			tb_last_stamp = per_cpu(last_jiffy, cpu);
- 			do_timer(regs);
- 			timer_recalc_offset(tb_last_jiffy);
- 			timer_check_rtc();
-@@ -749,7 +741,7 @@ void __init smp_space_timers(unsigned in
- 	int i;
- 	unsigned long half = tb_ticks_per_jiffy / 2;
- 	unsigned long offset = tb_ticks_per_jiffy / max_cpus;
--	unsigned long previous_tb = per_cpu(last_jiffy, boot_cpuid);
-+	u64 previous_tb = per_cpu(last_jiffy, boot_cpuid);
- 
- 	/* make sure tb > per_cpu(last_jiffy, cpu) for all cpus always */
- 	previous_tb -= tb_ticks_per_jiffy;
-@@ -830,7 +822,7 @@ #endif
- 	 * and therefore the (jiffies - wall_jiffies) computation
- 	 * has been removed.
- 	 */
--	tb_delta = tb_ticks_since(tb_last_stamp);
-+	tb_delta = tb_ticks_since(tb_last_jiffy);
- 	tb_delta = mulhdu(tb_delta, do_gtod.varp->tb_to_xs); /* in xsec */
- 	new_nsec -= SCALE_XSEC(tb_delta, 1000000000);
- 
-@@ -950,8 +942,7 @@ void __init time_init(void)
- 	if (__USE_RTC()) {
- 		/* 601 processor: dec counts down by 128 every 128ns */
- 		ppc_tb_freq = 1000000000;
--		tb_last_stamp = get_rtcl();
--		tb_last_jiffy = tb_last_stamp;
-+		tb_last_jiffy = get_rtcl();
- 	} else {
- 		/* Normal PowerPC with timebase register */
- 		ppc_md.calibrate_decr();
-@@ -959,7 +950,7 @@ void __init time_init(void)
- 		       ppc_tb_freq / 1000000, ppc_tb_freq % 1000000);
- 		printk(KERN_DEBUG "time_init: processor frequency   = %lu.%.6lu MHz\n",
- 		       ppc_proc_freq / 1000000, ppc_proc_freq % 1000000);
--		tb_last_stamp = tb_last_jiffy = get_tb();
-+		tb_last_jiffy = get_tb();
- 	}
- 
- 	tb_ticks_per_jiffy = ppc_tb_freq / HZ;
-@@ -1036,7 +1027,7 @@ void __init time_init(void)
- 	do_gtod.varp = &do_gtod.vars[0];
- 	do_gtod.var_idx = 0;
- 	do_gtod.varp->tb_orig_stamp = tb_last_jiffy;
--	__get_cpu_var(last_jiffy) = tb_last_stamp;
-+	__get_cpu_var(last_jiffy) = tb_last_jiffy;
- 	do_gtod.varp->stamp_xsec = (u64) xtime.tv_sec * XSEC_PER_SEC;
- 	do_gtod.tb_ticks_per_sec = tb_ticks_per_sec;
- 	do_gtod.varp->tb_to_xs = tb_to_xs;
-diff --git a/include/asm-powerpc/time.h b/include/asm-powerpc/time.h
-index dcde441..5785ac4 100644
---- a/include/asm-powerpc/time.h
-+++ b/include/asm-powerpc/time.h
-@@ -30,10 +30,6 @@ extern unsigned long tb_ticks_per_usec;
- extern unsigned long tb_ticks_per_sec;
- extern u64 tb_to_xs;
- extern unsigned      tb_to_us;
--extern unsigned long tb_last_stamp;
--extern u64 tb_last_jiffy;
--
--DECLARE_PER_CPU(unsigned long, last_jiffy);
- 
- struct rtc_time;
- extern void to_tm(int tim, struct rtc_time * tm);
+> Krzysztof Halasa
+
+thanks,
+willy
+

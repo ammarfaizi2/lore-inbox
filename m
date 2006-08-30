@@ -1,41 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWHaA2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWHaA2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWHaA2b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 20:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHaA2M
+	id S932259AbWHaA2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 20:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWHaA2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 20:28:12 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:37542 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S932256AbWHaA2F
+	Wed, 30 Aug 2006 20:28:09 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:38310 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S932259AbWHaA2F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Aug 2006 20:28:05 -0400
-Message-Id: <20060831000515.338336117@goop.org>
+Message-Id: <20060831000514.954578791@goop.org>
 References: <20060830235201.106319215@goop.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 30 Aug 2006 16:52:08 -0700
+Date: Wed, 30 Aug 2006 16:52:06 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 7/8] Implement smp_processor_id() with the PDA.
-Content-Disposition: inline; filename=i386-pda-smp_processor_id.patch
+Subject: [PATCH 5/8] Fix places where using %gs changes the usermode ABI.
+Content-Disposition: inline; filename=i386-pda-fix-abi.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the cpu_number in the PDA to implement raw_smp_processor_id.  This
-is a little simpler than using thread_info, though the cpu field in
-thread_info cannot be removed since it is used for things other than
-getting the current CPU in common code.
-
-The slightly subtle part of this patch is dealing with very early uses
-of smp_processor_id().  This is handled on the boot CPU by setting up
-a very early PDA, which is later replaced when cpu_init() is called on
-the boot CPU.  For other CPUs, it uses the thread_info cpu field until
-the PDA has been set up.
-
-This is more or less an example of using the PDA, and to give it a
-proper exercising.
+There are a few places where the change in struct pt_regs and the use
+of %gs affect the userspace ABI.  These are primarily debugging
+interfaces where thread state can be inspected or extracted.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: Chuck Ebbert <76306.1226@compuserve.com>
@@ -44,114 +34,110 @@ Cc: Jan Beulich <jbeulich@novell.com>
 Cc: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/asm-offsets.c |    2 +-
- arch/i386/kernel/cpu/common.c  |   18 ++++++++++++++++--
- include/asm-i386/smp.h         |    6 +++++-
- init/main.c                    |    9 +++++++--
- 4 files changed, 29 insertions(+), 6 deletions(-)
+ arch/i386/kernel/process.c |    6 +++---
+ arch/i386/kernel/ptrace.c  |   18 ++++++------------
+ include/asm-i386/elf.h     |    2 +-
+ include/asm-i386/unwind.h  |    1 +
+ 4 files changed, 11 insertions(+), 16 deletions(-)
 
 
 ===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
-@@ -52,7 +52,6 @@ void foo(void)
- 	OFFSET(TI_exec_domain, thread_info, exec_domain);
- 	OFFSET(TI_flags, thread_info, flags);
- 	OFFSET(TI_status, thread_info, status);
--	OFFSET(TI_cpu, thread_info, cpu);
- 	OFFSET(TI_preempt_count, thread_info, preempt_count);
- 	OFFSET(TI_addr_limit, thread_info, addr_limit);
- 	OFFSET(TI_restart_block, thread_info, restart_block);
-@@ -96,4 +95,5 @@ void foo(void)
+--- a/arch/i386/kernel/process.c
++++ b/arch/i386/kernel/process.c
+@@ -309,8 +309,8 @@ void show_regs(struct pt_regs * regs)
+ 		regs->eax,regs->ebx,regs->ecx,regs->edx);
+ 	printk("ESI: %08lx EDI: %08lx EBP: %08lx",
+ 		regs->esi, regs->edi, regs->ebp);
+-	printk(" DS: %04x ES: %04x\n",
+-		0xffff & regs->xds,0xffff & regs->xes);
++	printk(" DS: %04x ES: %04x GS: %04x\n",
++	       0xffff & regs->xds,0xffff & regs->xes, 0xffff & regs->xgs);
  
- 	BLANK();
- 	OFFSET(PDA_pcurrent, i386_pda, pcurrent);
-+	OFFSET(PDA_cpu, i386_pda, cpu_number);
- }
+ 	cr0 = read_cr0();
+ 	cr2 = read_cr2();
+@@ -504,7 +504,7 @@ void dump_thread(struct pt_regs * regs, 
+ 	dump->regs.ds = regs->xds;
+ 	dump->regs.es = regs->xes;
+ 	savesegment(fs,dump->regs.fs);
+-	savesegment(gs,dump->regs.gs);
++	dump->regs.gs = regs->xgs;
+ 	dump->regs.orig_eax = regs->orig_eax;
+ 	dump->regs.eip = regs->eip;
+ 	dump->regs.cs = regs->xcs;
 ===================================================================
---- a/arch/i386/kernel/cpu/common.c
-+++ b/arch/i386/kernel/cpu/common.c
-@@ -664,7 +664,7 @@ static inline void set_kernel_gs(void)
- /* Initialize the CPU's GDT and PDA */
- static __cpuinit void init_gdt(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = early_smp_processor_id();
- 	struct task_struct *curr = current;
- 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
- 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
-@@ -707,6 +707,20 @@ static __cpuinit void init_gdt(void)
- 
- 	/* Do this once everything GDT-related has been set up. */
- 	pda_init(cpu, curr);
-+}
-+
-+/* Set up a very early PDA for the boot CPU so that smp_processor_id will work */
-+void __init smp_setup_processor_id(void)
-+{
-+	static const __initdata struct i386_pda boot_pda;
-+
-+	pack_descriptor((u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].a,
-+			(u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].b,
-+			(unsigned long)&boot_pda, sizeof(struct i386_pda) - 1,
-+			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
-+
-+	/* Set %gs for this CPU's PDA */
-+	set_kernel_gs();
+--- a/arch/i386/kernel/ptrace.c
++++ b/arch/i386/kernel/ptrace.c
+@@ -94,13 +94,9 @@ static int putreg(struct task_struct *ch
+ 				return -EIO;
+ 			child->thread.fs = value;
+ 			return 0;
+-		case GS:
+-			if (value && (value & 3) != 3)
+-				return -EIO;
+-			child->thread.gs = value;
+-			return 0;
+ 		case DS:
+ 		case ES:
++		case GS:
+ 			if (value && (value & 3) != 3)
+ 				return -EIO;
+ 			value &= 0xffff;
+@@ -116,8 +112,8 @@ static int putreg(struct task_struct *ch
+ 			value |= get_stack_long(child, EFL_OFFSET) & ~FLAG_MASK;
+ 			break;
+ 	}
+-	if (regno > GS*4)
+-		regno -= 2*4;
++	if (regno > ES*4)
++		regno -= 1*4;
+ 	put_stack_long(child, regno - sizeof(struct pt_regs), value);
+ 	return 0;
  }
- 
- /*
-@@ -717,7 +731,7 @@ static __cpuinit void init_gdt(void)
-  */
- void __cpuinit cpu_init(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = early_smp_processor_id();
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
- 	struct thread_struct *thread = &current->thread;
- 
+@@ -131,18 +127,16 @@ static unsigned long getreg(struct task_
+ 		case FS:
+ 			retval = child->thread.fs;
+ 			break;
+-		case GS:
+-			retval = child->thread.gs;
+-			break;
+ 		case DS:
+ 		case ES:
++		case GS:
+ 		case SS:
+ 		case CS:
+ 			retval = 0xffff;
+ 			/* fall through */
+ 		default:
+-			if (regno > GS*4)
+-				regno -= 2*4;
++			if (regno > ES*4)
++				regno -= 1*4;
+ 			regno = regno - sizeof(struct pt_regs);
+ 			retval &= get_stack_long(child, regno);
+ 	}
 ===================================================================
---- a/include/asm-i386/smp.h
-+++ b/include/asm-i386/smp.h
-@@ -8,6 +8,7 @@
- #include <linux/kernel.h>
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/pda.h>
- #endif
- 
- #ifdef CONFIG_X86_LOCAL_APIC
-@@ -58,7 +59,10 @@ extern void cpu_uninit(void);
-  * from the initial startup. We map APIC_BASE very early in page_setup(),
-  * so this is correct in the x86 case.
-  */
--#define raw_smp_processor_id() (current_thread_info()->cpu)
-+#define raw_smp_processor_id() (read_pda(cpu_number))
-+/* This is valid from the very earliest point in boot that we care
-+   about. */
-+#define early_smp_processor_id() (current_thread_info()->cpu)
- 
- extern cpumask_t cpu_callout_map;
- extern cpumask_t cpu_callin_map;
+--- a/include/asm-i386/elf.h
++++ b/include/asm-i386/elf.h
+@@ -88,7 +88,7 @@ typedef struct user_fxsr_struct elf_fpxr
+ 	pr_reg[7] = regs->xds;				\
+ 	pr_reg[8] = regs->xes;				\
+ 	savesegment(fs,pr_reg[9]);			\
+-	savesegment(gs,pr_reg[10]);			\
++	pr_reg[10] = regs->xgs;				\
+ 	pr_reg[11] = regs->orig_eax;			\
+ 	pr_reg[12] = regs->eip;				\
+ 	pr_reg[13] = regs->xcs;				\
 ===================================================================
---- a/init/main.c
-+++ b/init/main.c
-@@ -473,8 +473,13 @@ static void __init boot_cpu_init(void)
- 	cpu_set(cpu, cpu_possible_map);
+--- a/include/asm-i386/unwind.h
++++ b/include/asm-i386/unwind.h
+@@ -64,6 +64,7 @@ static inline void arch_unw_init_blocked
+ 	info->regs.xss = __KERNEL_DS;
+ 	info->regs.xds = __USER_DS;
+ 	info->regs.xes = __USER_DS;
++	info->regs.xgs = __KERNEL_PDA;
  }
  
--void __init __attribute__((weak)) smp_setup_processor_id(void)
--{
-+/* Some versions of gcc seem to want to inline/eliminate the call to
-+   this function, even though it is weak and could therefore be
-+   replaced at link time.  Mark it noinline, and add an asm() to make
-+   it harder to digest. */
-+noinline void __init __attribute__((weak)) smp_setup_processor_id(void)
-+{
-+	asm volatile("" : : : "memory");
- }
- 
- asmlinkage void __init start_kernel(void)
+ extern asmlinkage int arch_unwind_init_running(struct unwind_frame_info *,
 
 --
 

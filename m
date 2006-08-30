@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWH3X7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWHaABd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWH3X7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWH3X73
+	id S1751419AbWHaABd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 20:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWHaABd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:59:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23719 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751441AbWH3X72 (ORCPT
+	Wed, 30 Aug 2006 20:01:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:62435 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751419AbWHaABc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:59:28 -0400
-Date: Wed, 30 Aug 2006 16:59:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Gorka Guardiola" <paurealkml@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Buffer head async write
-Message-Id: <20060830165924.2955d8d1.akpm@osdl.org>
-In-Reply-To: <dc081bb90608300935h1d5346fbj742920754f4b4680@mail.gmail.com>
-References: <dc081bb90608300935h1d5346fbj742920754f4b4680@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 20:01:32 -0400
+Date: Thu, 31 Aug 2006 01:58:11 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer
+ [try #2]
+In-Reply-To: <20060830233835.GT18276@stusta.de>
+Message-ID: <Pine.LNX.4.64.0608310154580.6761@scrub.home>
+References: <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
+ <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com>
+ <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de>
+ <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home>
+ <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de>
+ <Pine.LNX.4.64.0608310039440.6761@scrub.home> <20060830233835.GT18276@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 11:35:44 -0500
-"Gorka Guardiola" <paurealkml@gmail.com> wrote:
+Hi,
 
-> I am trying to 	mark a buffer for async write, but I am  having a race condition
-> to unlock the buffer. I am doing.
+On Thu, 31 Aug 2006, Adrian Bunk wrote:
+
+> > > When doing anything kconfig related, you must always remember that the 
+> > > vast majority of kconfig users are not kernel hackers.
+> > 
+> > What does that mean, that only kernel hackers can read?
 > 
->         bh = getbmapst(bdev, nsect); //this function calls bread
-> 	if (!bh) {
-> 		printk(KERN_ALERT "I/O error, bitmap cannot be trusted\n");
-> 		return -1;
-> 	}
-> 	
-> 	lock_buffer(bh);	
-> 
-> 	byte = bh->b_data + byteoffset;
-> 	*byte |= 1 << bitoffset;
-> 	lock_page(bh->b_page);
-> 	mark_page_accessed(bh->b_page);
-> 	__set_page_dirty_nobuffers(bh->b_page);
-> 	unlock_page(bh->b_page);
-> 	set_buffer_uptodate(bh);
-> 	mark_buffer_dirty(bh);
-> 	mark_buffer_async_write(bh);
-> 	unlock_buffer(bh);
-> 	brelse(bh);
+> no. But sending users from one menu to another for first manually 
+> selecting this or that option is less easy for the user than the usage 
+> of select.
 
-There are rather a lot of mistakes in there.
+How often does he have to do that? Is it really worth it fucking with the 
+kconfig system? 
 
-More like this:
-
-	lock_page(bh->b_page);
-	lock_buffer(bh);
-	byte = bh->b_data + byteoffset;
-	*byte |= 1 << bitoffset;
-	mark_buffer_dirty(bh);
-	unlock_buffer(bh);
-	flush_dcache_page(page);
-	unlock_page(page);
-	put_bh(bh);
-
-now, the buffer is dirty and will be written back by pdflush, sync, etc.
-
-If you really want to start async IO against that buffer now, do
-
-	ll_rw_block(WRITE, 1, &bh);
-
-just before the final put_bh().
-
-	
+bye, Roman

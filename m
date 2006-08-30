@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWH3Wop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWH3WoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWH3Wop (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWH3Wop
+	id S1751178AbWH3WoW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWH3WoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:44:45 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:25827 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751132AbWH3Woo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:44:44 -0400
-Date: Thu, 31 Aug 2006 00:41:02 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer
- [try #2]
-In-Reply-To: <20060830214356.GO18276@stusta.de>
-Message-ID: <Pine.LNX.4.64.0608310039440.6761@scrub.home>
-References: <20060825142753.GK10659@infradead.org>
- <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
- <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
- <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com>
- <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de>
- <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home>
- <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Aug 2006 18:44:22 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:23432 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751166AbWH3WoV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:44:21 -0400
+Date: Thu, 31 Aug 2006 00:43:40 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net, dominik.schulz@gauner.org
+Subject: Re: [PATCH] IP1000A: IC Plus update 2006-08-22
+Message-ID: <20060830224340.GA6248@electric-eye.fr.zoreil.com>
+References: <1156268234.3622.1.camel@localhost.localdomain> <20060822232730.GA30977@electric-eye.fr.zoreil.com> <20060823113822.GA17103@electric-eye.fr.zoreil.com> <20060823223032.GA25111@electric-eye.fr.zoreil.com> <026c01c6c71d$0fde1730$4964a8c0@icplus.com.tw> <20060824220758.GA19637@electric-eye.fr.zoreil.com> <20060827220816.GA21788@electric-eye.fr.zoreil.com> <002a01c6ca43$ae73ebd0$4964a8c0@icplus.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <002a01c6ca43$ae73ebd0$4964a8c0@icplus.com.tw>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Francois Romieu <romieu@fr.zoreil.com> :
+[...]
+> Added:
+> 0043-ip1000-use-the-new-IRQF_-constants-and-the-dma_-alloc-free-_coherent-AP
+> I.txt
+> 0044-ip1000-mixed-case-and-upper-case-removal.txt
+> 0045-ip1000-add-ipg_-r-w-8-16-32-macros.txt
 
-On Wed, 30 Aug 2006, Adrian Bunk wrote:
+Added:
+0046-ip1000-kiss-TxBuffDMAhandle-goodbye.txt
+0047-ip1000-kiss-RxBuffDMAhandle-goodbye.txt
+0048-ip1000-turn-StationAddr-0-1-2-into-an-array.txt
+0049-ip1000-switch-to-classical-tx_current-tx_dirty-ring-management.txt
 
-> USB_STORAGE switched from a depending on SCSI to select'ing SCSI three 
-> years ago, and ATA in 2.6.19 will also select SCSI for a good reason:
+The previous branch for the driver at
+git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git has been stored
+as 'netdev-ipg-20060831.old'. The current one is based on dc709bd and
+named 'ipg'.
 
-It was already silly three years ago.
+Nothing will be pushed tomorrow as I have some bugs to review in different
+drivers.
 
-> When doing anything kconfig related, you must always remember that the 
-> vast majority of kconfig users are not kernel hackers.
-
-What does that mean, that only kernel hackers can read?
-
-bye, Roman
+-- 
+Ueimor

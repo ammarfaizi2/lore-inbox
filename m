@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWH3Iwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWH3IzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWH3Iwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 04:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWH3Iwf
+	id S1750738AbWH3IzT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 04:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWH3IzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 04:52:35 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:22959 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1750706AbWH3Iwe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 04:52:34 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17653.20935.117426.731854@alkaid.it.uu.se>
-Date: Wed, 30 Aug 2006 10:52:23 +0200
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: zhiyi huang <hzy@cs.otago.ac.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ultra Sparc T1 port
-In-Reply-To: <A2A6BFA6-28FA-4525-8705-31555B5327D2@cs.otago.ac.nz>
-References: <A2A6BFA6-28FA-4525-8705-31555B5327D2@cs.otago.ac.nz>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Wed, 30 Aug 2006 04:55:18 -0400
+Received: from mta6.srv.hcvlny.cv.net ([167.206.4.201]:55907 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S1750725AbWH3IzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 04:55:16 -0400
+Date: Wed, 30 Aug 2006 04:55:17 -0400
+From: Lee Trager <Lee@PicturesInMotion.net>
+Subject: Re: [PATCH] HPA resume fix
+In-reply-to: <20060829123223.GM12257@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       bzolnier@gmail.com
+Message-id: <44F55275.2000400@PicturesInMotion.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+References: <44F40F06.4010408@PicturesInMotion.net>
+ <1156849911.6271.101.camel@localhost.localdomain>
+ <20060829114210.GI12257@kernel.dk>
+ <1156855828.6271.106.camel@localhost.localdomain>
+ <20060829123223.GM12257@kernel.dk>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zhiyi huang writes:
- > Hello,
- > I am using a Ubuntu port on Ultra Sparc T1.
- > Linux version 2.6.15-21-sparc64-smp (buildd@artigas) (gcc version  
- > 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #1 SMP Fri Apr 21 17:04:05 UTC 2006
- > I have installed a module in the kernel. It is a RAM device driver.  
- > When my application calls ioctl on the device (/dev/dsm), I got the  
- > following log message:
- > 
- > Aug 29 11:13:20 info-sf-03 kernel: [    3.603348] ioctl32(manager: 
- > 18821): Unknown cmd fd(3) cmd(80047f00){00} arg(fffc3934) on /dev/dsm
- > 
- > I check my module and found the control has not reached my module  
- > yet. I haven't got much clue why it happened and how to fix the  
- > problem. It works fine on Linux 2.6.8/i386, by the way.
- > Thanks for help:)
-
-There's a separate mailing list for SPARC Linux.
-
-In this case, you probably just forgot to set up a ->compat_ioctl()
-method in your device's file ops.
-
-/Mikael
+Jens Axboe wrote:
+> On Tue, Aug 29 2006, Alan Cox wrote:
+>   
+>> Ar Maw, 2006-08-29 am 13:42 +0200, ysgrifennodd Jens Axboe:
+>>     
+>>> On Tue, Aug 29 2006, Alan Cox wrote:
+>>>       
+>>>> For -mm only to get more testing
+>>>>
+>>>> Acked-by: Alan Cox <alan@redhat.com>
+>>>>         
+>>> It should go into the state machine as described imho. Bart?
+>>>       
+>> If it works then yes it can become an explicit state. Firstly we need to
+>> find out if it works.
+>>     
+>
+> I think Lee tested and verified both this variant and the first one he
+> had, so I hope that it works :-)
+>
+>   
+It looks like we cross mailed. Anyway my patch is going into the mm
+sources for testing. For the record I've been using this for the past
+few weeks and its working great. I'll try to figure out how to create
+it's own resume step next and submit that.

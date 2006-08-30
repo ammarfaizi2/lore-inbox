@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWH3X1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWH3X3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWH3X1i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWH3X1h
+	id S932233AbWH3X3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWH3X3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:27:37 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:45975 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932234AbWH3X1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:27:35 -0400
-Date: Wed, 30 Aug 2006 19:27:30 -0400
+	Wed, 30 Aug 2006 19:29:54 -0400
+Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:34755 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932233AbWH3X3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:29:52 -0400
+Date: Wed, 30 Aug 2006 19:24:39 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 16/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
-Message-ID: <20060830232730.GQ17079@Krystal>
+Subject: [PATCH 12/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
+Message-ID: <20060830232439.GM17079@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-569-1156980450-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-3735-1156980279-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:26:52 up 7 days, 20:35,  9 users,  load average: 1.01, 0.88, 0.56
+X-Uptime: 19:23:33 up 7 days, 20:32,  9 users,  load average: 1.23, 0.71, 0.45
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,429 +32,311 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-569-1156980450-0001-2
+--=_Krystal-3735-1156980279-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-16- LTTng architecture dependant instrumentation : x86_64
-patch-2.6.17-lttng-0.5.95-instrumentation-x86_64.diff
+12- LTTng architecture dependant instrumentation : PowerPC (32-bit/64-bit)
+patch-2.6.17-lttng-0.5.95-instrumentation-powerpc.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-569-1156980450-0001-2
+--=_Krystal-3735-1156980279-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-x86_64.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-powerpc.diff"
 
---- a/arch/x86_64/ia32/ia32entry.S
-+++ b/arch/x86_64/ia32/ia32entry.S
-@@ -113,9 +113,34 @@ ENTRY(ia32_sysenter_target)
- sysenter_do_call:	
- 	cmpl	$(IA32_NR_syscalls-1),%eax
- 	ja	ia32_badsys
-+
-+#if (CONFIG_LTT)
-+	/* trace_real_syscall32_entry expects a pointer to a pt_regs
-+	   structure so that it can get %eax (%rax) and %eip (%rip).
-+	   These are the only two members of the structure that are used,
-+	   so we must be sure that their value will be at the proper
-+	   offset from the pointer we give to trace_real_syscall32_entry. */
-+	leaq	-ARGOFFSET(%rsp),%rdi	      # compensate for 6 regs that
-+					      # we haven't saved on entry
-+	movq	%r9,R9(%rdi)
-+	call	trace_real_syscall32_entry
-+	movq	ORIG_RAX-ARGOFFSET(%rsp),%rax # get the syscall # back into rax
-+	movq	RCX-ARGOFFSET(%rsp),%rcx      # restore the argument registers
-+	movq	RDX-ARGOFFSET(%rsp),%rdx
-+	movq	RSI-ARGOFFSET(%rsp),%rsi
-+	movq	RDI-ARGOFFSET(%rsp),%rdi
-+	movq	R9-ARGOFFSET(%rsp),%r9
-+#endif
-+
- 	IA32_ARG_FIXUP 1
- 	call	*ia32_sys_call_table(,%rax,8)
- 	movq	%rax,RAX-ARGOFFSET(%rsp)
-+
-+#if (CONFIG_LTT)
-+	call trace_real_syscall_exit
-+	movq RAX-ARGOFFSET(%rsp),%rax
-+#endif
-+
- 	GET_THREAD_INFO(%r10)
- 	cli
- 	testl	$_TIF_ALLWORK_MASK,threadinfo_flags(%r10)
-@@ -214,9 +239,34 @@ ENTRY(ia32_cstar_target)
- cstar_do_call:	
- 	cmpl $IA32_NR_syscalls-1,%eax
- 	ja  ia32_badsys
-+
-+#if (CONFIG_LTT)
-+	/* trace_real_syscall32_entry expects a pointer to a pt_regs
-+	   structure so that it can get %eax (%rax) and %eip (%rip).
-+	   These are the only two members of the structure that are used,
-+	   so we must be sure that their value will be at the proper
-+	   offset from the pointer we give to trace_real_syscall32_entry. */
-+	leaq -ARGOFFSET(%rsp),%rdi	   # compensate for 6 regs that
-+					   # we haven't saved on entry
-+	movq %r9,R9(%rdi)
-+	call trace_real_syscall32_entry
-+	movq ORIG_RAX-ARGOFFSET(%rsp),%rax # get the syscall # back into rax
-+	movl %ebp,%ecx			   # restore the argument registers
-+	movq RDX-ARGOFFSET(%rsp),%rdx
-+	movq RSI-ARGOFFSET(%rsp),%rsi
-+	movq RDI-ARGOFFSET(%rsp),%rdi
-+	movq R9-ARGOFFSET(%rsp),%r9
-+#endif
-+
- 	IA32_ARG_FIXUP 1
- 	call *ia32_sys_call_table(,%rax,8)
- 	movq %rax,RAX-ARGOFFSET(%rsp)
-+
-+#if (CONFIG_LTT)
-+	call trace_real_syscall_exit
-+	movq RAX-ARGOFFSET(%rsp),%rax
-+#endif
-+
- 	GET_THREAD_INFO(%r10)
- 	cli
- 	testl $_TIF_ALLWORK_MASK,threadinfo_flags(%r10)
-@@ -252,7 +302,7 @@ cstar_tracesys:	
- 				
- ia32_badarg:
- 	movq $-EFAULT,%rax
--	jmp ia32_sysret
-+	jmp ia32_sysret_notrace
- 	CFI_ENDPROC
+--- a/arch/powerpc/kernel/entry_32.S
++++ b/arch/powerpc/kernel/entry_32.S
+@@ -191,6 +191,7 @@ stack_ovf:
+ 	.stabs	"entry_32.S",N_SO,0,0,0f
+ 0:
  
- /* 
-@@ -300,9 +350,32 @@ ENTRY(ia32_syscall)
- ia32_do_syscall:	
- 	cmpl $(IA32_NR_syscalls-1),%eax
- 	ja  ia32_badsys
++
+ _GLOBAL(DoSyscall)
+ 	stw	r0,THREAD+LAST_SYSCALL(r2)
+ 	stw	r3,ORIG_GPR3(r1)
+@@ -213,10 +214,24 @@ syscall_dotrace_cont:
+ 	slwi	r0,r0,2
+ 	bge-	66f
+ 	lwzx	r10,r10,r0	/* Fetch system call handler [ptr] */
 +#ifdef CONFIG_LTT
-+	/* trace_real_syscall32_entry expects a pointer to a pt_regs
-+	   structure so that it can get %eax (%rax) and %eip (%rip).
-+	   These are the only two members of the structure that are used,
-+	   so we must be sure that their value will be at the proper
-+	   offset from the pointer we give to trace_real_syscall32_entry. */
-+	leaq -ARGOFFSET(%rsp),%rdi	   # compensate for 6 regs that
-+					   # we haven't saved on entry
-+	call trace_real_syscall32_entry
-+	movq ORIG_RAX-ARGOFFSET(%rsp),%rax # get the syscall back into rax
-+	movq RCX-ARGOFFSET(%rsp),%rcx	   # restore the argument registers
-+	movq RDX-ARGOFFSET(%rsp),%rdx
-+	movq RSI-ARGOFFSET(%rsp),%rsi
-+	movq RDI-ARGOFFSET(%rsp),%rdi
-+#endif
- 	IA32_ARG_FIXUP
- 	call *ia32_sys_call_table(,%rax,8) # xxx: rip relative
- ia32_sysret:
-+
-+#if (CONFIG_LTT)
-+	movq %rax,RAX-ARGOFFSET(%rsp)
-+	call trace_real_syscall_exit
-+	movq RAX-ARGOFFSET(%rsp),%rax
-+#endif
-+
-+ia32_sysret_notrace:
- 	movq %rax,RAX-ARGOFFSET(%rsp)
- 	jmp int_ret_from_sys_call 
++	stw	r10,GPR10(r1)
++	addi	r3,r1,STACK_FRAME_OVERHEAD
++	bl	trace_real_syscall_entry
++	REST_GPR(0,r1)
++	REST_4GPRS(3,r1)
++	REST_2GPRS(7,r1)
++	lwz	r10,GPR10(r1)
++#endif //CONFIG_LTT
+ 	mtlr	r10
+ 	addi	r9,r1,STACK_FRAME_OVERHEAD
+ 	PPC440EP_ERR42
+ 	blrl			/* Call handler */
++#ifdef CONFIG_LTT
++	stw	r3,RESULT(r1)
++	bl	trace_real_syscall_exit
++	lwz	r3,RESULT(r1)
++#endif //CONFIG_LTT
+ 	.globl	ret_from_syscall
+ ret_from_syscall:
+ #ifdef SHOW_SYSCALLS
+@@ -269,6 +284,11 @@ ret_from_fork:
+ 	REST_NVGPRS(r1)
+ 	bl	schedule_tail
+ 	li	r3,0
++#ifdef CONFIG_LTT
++	stw	r3,RESULT(r1)
++	bl	trace_real_syscall_exit
++	lwz	r3,RESULT(r1)
++#endif //CONFIG_LTT
+ 	b	ret_from_syscall
  
-@@ -696,4 +769,6 @@ #endif
- 	.quad sys_sync_file_range
- 	.quad sys_tee
- 	.quad compat_sys_vmsplice
-+	.quad sys_ltt_trace_generic	/* 317 */
-+	.quad sys_ltt_register_generic	/* 318 */
- ia32_syscall_end:		
-diff --git a/arch/x86_64/ia32/ipc32.c b/arch/x86_64/ia32/ipc32.c
-index 369151d..88d42aa 100644
---- a/arch/x86_64/ia32/ipc32.c
-+++ b/arch/x86_64/ia32/ipc32.c
-@@ -8,6 +8,7 @@ #include <linux/msg.h>
- #include <linux/shm.h>
- #include <linux/ipc.h>
- #include <linux/compat.h>
-+#include <linux/ltt/ltt-facility-ipc.h>
+ /* Traced system call support */
+diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
+index 19ad5c6..96ca778 100644
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -118,6 +118,16 @@ #endif
+ syscall_dotrace_cont:
+ 	cmpldi	0,r0,NR_syscalls
+ 	bge-	syscall_enosys
++#ifdef CONFIG_LTT
++	std	r10,GPR10(r1)
++	addi	r3,r1,STACK_FRAME_OVERHEAD
++	bl	.trace_real_syscall_entry
++	REST_GPR(0,r1)
++	REST_4GPRS(3,r1)
++	REST_2GPRS(7,r1)
++	addi	r9,r1,STACK_FRAME_OVERHEAD
++	ld	r10,GPR10(r1)
++#endif //CONFIG_LTT
  
- #include <asm-i386/ipc.h>
- 
-@@ -20,6 +21,8 @@ sys32_ipc(u32 call, int first, int secon
- 	version = call >> 16; /* hack for backward compatibility */
- 	call &= 0xffff;
- 
-+	trace_ipc_call(call, first);
-+
- 	switch (call) {
- 	      case SEMOP:
- 		/* struct sembuf is the same on 32 and 64bit :)) */
-diff --git a/arch/x86_64/kernel/Makefile b/arch/x86_64/kernel/Makefile
-index 059c883..0e159fc 100644
---- a/arch/x86_64/kernel/entry.S
-+++ b/arch/x86_64/kernel/entry.S
-@@ -142,6 +142,12 @@ ENTRY(ret_from_fork)
- 	jnz rff_trace
- rff_action:	
- 	RESTORE_REST
-+
-+#if (CONFIG_LTT)
-+	call trace_real_syscall_exit
-+	GET_THREAD_INFO(%rcx)
-+#endif
-+
- 	testl $3,CS-ARGOFFSET(%rsp)	# from kernel_thread?
- 	je   int_ret_from_sys_call
- 	testl $_TIF_IA32,threadinfo_flags(%rcx)
-@@ -205,9 +211,24 @@ ENTRY(system_call)
- 	jnz tracesys
- 	cmpq $__NR_syscall_max,%rax
- 	ja badsys
-+#if (CONFIG_LTT)
-+	SAVE_REST
-+	FIXUP_TOP_OF_STACK %rdi
-+	movq %rsp, %rdi                 # pass the stack pointer
-+	call trace_real_syscall_entry
-+	LOAD_ARGS ARGOFFSET             # reload args from stack in case
-+	                                # trace_real_syscall_entry changed it
-+	RESTORE_TOP_OF_STACK %rbx
-+	RESTORE_REST
-+	movq ORIG_RAX-ARGOFFSET(%rsp),%rax # restore rax to it's original content
-+#endif
- 	movq %r10,%rcx
- 	call *sys_call_table(,%rax,8)  # XXX:	 rip relative
- 	movq %rax,RAX-ARGOFFSET(%rsp)
-+#if (CONFIG_LTT)
-+	call trace_real_syscall_exit
-+#endif
-+
+ system_call:			/* label this so stack traces look sane */
  /*
-  * Syscall return path ending with SYSRET (fast path)
-  * Has incomplete stack frame and undefined top of stack. 
-@@ -279,8 +300,25 @@ tracesys:			 
- 	RESTORE_REST
- 	cmpq $__NR_syscall_max,%rax
- 	ja  1f
-+
-+#if (CONFIG_LTT)
-+	SAVE_REST
-+	movq %rsp, %rdi                 # pass the stack pointer
-+	call trace_real_syscall_entry
-+	LOAD_ARGS ARGOFFSET             # reload args from stack in case
-+	                                # trace_real_syscall_entry changed it
-+	RESTORE_REST
-+#endif
-+
- 	movq %r10,%rcx	/* fixup for C */
- 	call *sys_call_table(,%rax,8)
-+
-+#if (CONFIG_LTT)
-+	movq %rax,RAX-ARGOFFSET(%rsp)
-+	call trace_real_syscall_exit
-+	movq RAX-ARGOFFSET(%rsp),%rax
-+#endif
-+
- 1:	movq %rax,RAX-ARGOFFSET(%rsp)
- 	/* Use IRET because user could have changed frame */
- 	jmp int_ret_from_sys_call
-@@ -413,6 +451,13 @@ ENTRY(stub_execve)
- 	SAVE_REST
- 	FIXUP_TOP_OF_STACK %r11
- 	call sys_execve
-+
-+#if (CONFIG_LTT)
-+	pushq %rax
-+	call trace_real_syscall_exit
-+	popq %rax
-+#endif
-+
- 	RESTORE_TOP_OF_STACK %r11
- 	movq %rax,RAX(%rsp)
- 	RESTORE_REST
-@@ -432,6 +477,11 @@ ENTRY(stub_rt_sigreturn)
- 	FIXUP_TOP_OF_STACK %r11
- 	call sys_rt_sigreturn
- 	movq %rax,RAX(%rsp) # fixme, this could be done at the higher layer
-+
-+#if (CONFIG_LTT)
-+	call trace_real_syscall_exit
-+#endif
-+
- 	RESTORE_REST
- 	jmp int_ret_from_sys_call
- 	CFI_ENDPROC
-@@ -834,6 +884,15 @@ ENTRY(kernel_thread)
- 	# clone now
- 	call do_fork
- 	movq %rax,RAX(%rsp)
-+
-+#if (CONFIG_LTT)
-+	cmp  $0, %rax	#if pid >=0 call trace_process_kernel_thread
-+	jl   no_trace_thread
-+	movq %rdi, %rsi	#fn (%rdi) as second function argument
-+	movq %rax, %rdi	#pid (%rax) as first function argument
-+	call trace_process_kernel_thread__
-+no_trace_thread:
-+#endif
- 	xorl %edi,%edi
+@@ -139,6 +149,11 @@ system_call:			/* label this so stack tr
+ 	ldx	r10,r11,r0	/* Fetch system call handler [ptr] */
+ 	mtctr   r10
+ 	bctrl			/* Call handler */
++#ifdef CONFIG_LTT
++	std	r3,GPR3(r1)
++	bl	.trace_real_syscall_exit
++	ld	r3,RESULT(r1)
++#endif //CONFIG_LTT
  
- 	/*
-@@ -884,10 +943,19 @@ ENTRY(execve)
- 	movq %rax, RAX(%rsp)	
- 	RESTORE_REST
- 	testq %rax,%rax
-+#if (CONFIG_LTT)
-+	je ltt_exit_trace_label
+ syscall_exit:
+ 	std	r3,RESULT(r1)
+@@ -304,6 +319,10 @@ _GLOBAL(ret_from_fork)
+ 	bl	.schedule_tail
+ 	REST_NVGPRS(r1)
+ 	li	r3,0
++#ifdef CONFIG_LTT
++	bl	.trace_real_syscall_exit
++	ld	r3,RESULT(r1)
++#endif //CONFIG_LTT
+ 	b	syscall_exit
+ 
+ /*
+diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
+index 57d560c..0b9a6a2 100644
+--- a/arch/powerpc/kernel/misc_32.S
++++ b/arch/powerpc/kernel/misc_32.S
+@@ -973,7 +973,11 @@ _GLOBAL(_get_SP)
+  * Create a kernel thread
+  *   kernel_thread(fn, arg, flags)
+  */
++#ifdef CONFIG_LTT
++_GLOBAL(original_kernel_thread)
 +#else
- 	je int_ret_from_sys_call
-+#endif
- 	RESTORE_ARGS
- 	UNFAKE_STACK_FRAME
- 	ret
-+#if (CONFIG_LTT)
-+ltt_exit_trace_label:
-+	call trace_real_syscall_exit
-+	jmp int_ret_from_sys_call
-+#endif
- 	CFI_ENDPROC
+ _GLOBAL(kernel_thread)
++#endif //CONFIG_LTT
+ 	stwu	r1,-16(r1)
+ 	stw	r30,8(r1)
+ 	stw	r31,12(r1)
+diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
+index 2778cce..a19cd6e 100644
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -677,7 +677,11 @@ _GLOBAL(scom970_write)
+  * Create a kernel thread
+  *   kernel_thread(fn, arg, flags)
+  */
++#ifdef CONFIG_LTT
++_GLOBAL(original_kernel_thread)
++#else
+ _GLOBAL(kernel_thread)
++#endif //CONFIG_LTT
+ 	std	r29,-24(r1)
+ 	std	r30,-16(r1)
+ 	stdu	r1,-STACK_FRAME_OVERHEAD(r1)
+diff --git a/arch/powerpc/kernel/ppc_ksyms.c b/arch/powerpc/kernel/ppc_ksyms.c
+index 4b052ae..dc6d6fb 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -35,6 +35,8 @@ #include <linux/kallsyms.h>
+ #include <linux/mqueue.h>
+ #include <linux/hardirq.h>
+ #include <linux/utsname.h>
++#include <linux/kprobes.h>
++#include <linux/ltt/ltt-facility-process.h>
  
- KPROBE_ENTRY(page_fault)
-diff --git a/arch/x86_64/kernel/ltt.c b/arch/x86_64/kernel/ltt.c
-new file mode 100644
-index 0000000..b06dfe5
---- /dev/null
-+++ b/arch/x86_64/kernel/ltt.c
-@@ -0,0 +1,39 @@
-+/*
-+ * ltt.c
-+ *
-+ * We need to fallback on calling functions instead of inlining only because of
-+ * headers re-inclusion in critical kernel headers. This is necessary for irq,
-+ * spinlock, ...
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/ltt/ltt-facility-locking.h>
-+#include <asm/ltt/ltt-facility-custom-locking.h>
-+
-+void _trace_locking_irq_save(const void * lttng_param_RIP,
-+			     unsigned long lttng_param_flags)
-+{
-+	trace_locking_irq_save(lttng_param_RIP, lttng_param_flags);
-+}
-+
-+void _trace_locking_irq_restore(const void * lttng_param_RIP,
-+				unsigned long lttng_param_flags)
-+{
-+	trace_locking_irq_restore(lttng_param_RIP, lttng_param_flags);
-+}
-+
-+void _trace_locking_irq_disable(const void * lttng_param_RIP)
-+{
-+	trace_locking_irq_disable(lttng_param_RIP);
-+}
-+
-+void _trace_locking_irq_enable(const void * lttng_param_RIP)
-+{
-+	trace_locking_irq_enable(lttng_param_RIP);
-+}
-+
-+
-+EXPORT_SYMBOL(_trace_locking_irq_save);
-+EXPORT_SYMBOL(_trace_locking_irq_restore);
-+EXPORT_SYMBOL(_trace_locking_irq_disable);
-+EXPORT_SYMBOL(_trace_locking_irq_enable);
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 7392570..8d53184 100644
---- a/arch/x86_64/kernel/Makefile
-+++ b/arch/x86_64/kernel/Makefile
-@@ -33,6 +33,7 @@ obj-$(CONFIG_SWIOTLB)		+= pci-swiotlb.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
- obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
- obj-$(CONFIG_X86_VSMP)		+= vsmp.o
-+obj-$(CONFIG_LTT)		+= ltt.o
- 
- obj-$(CONFIG_MODULES)		+= module.o
- 
-diff --git a/arch/x86_64/kernel/entry.S b/arch/x86_64/kernel/entry.S
-index 586b34c..35dbe74 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -36,6 +36,7 @@ #include <asm/timex.h>
- #include <asm/proto.h>
- #include <asm/hpet.h>
- #include <asm/sections.h>
-+#include <asm/ltt.h>
- #include <linux/cpufreq.h>
- #include <linux/hpet.h>
- #ifdef CONFIG_X86_LOCAL_APIC
-@@ -355,6 +356,10 @@ void main_timer_handler(struct pt_regs *
- 
- 	write_seqlock(&xtime_lock);
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -462,6 +464,20 @@ #endif
+ 		show_instructions(regs);
+ }
  
 +#ifdef CONFIG_LTT
-+	ltt_reset_timestamp();
++long original_kernel_thread(int (*fn) (void*), void* arg, unsigned long flags);
++
++long kernel_thread(int (fn) (void *), void* arg, unsigned long flags)
++{
++	long retval;
++
++	retval = original_kernel_thread(fn, arg, flags);
++	if (retval > 0)
++		trace_process_kernel_thread(retval, fn);
++	return retval;
++}
 +#endif //CONFIG_LTT
 +
- 	if (vxtime.hpet_address)
- 		offset = hpet_readl(HPET_COUNTER);
- 
-diff --git a/arch/x86_64/kernel/traps.c b/arch/x86_64/kernel/traps.c
-index cea335e..bf2a741 100644
---- a/arch/x86_64/kernel/traps.c
-+++ b/arch/x86_64/kernel/traps.c
-@@ -14,6 +14,8 @@
-  * 'Traps.c' handles hardware traps and faults after we have saved some
-  * state in 'entry.S'.
+ void exit_thread(void)
+ {
+ 	discard_lazy_cpu_state();
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index 9b69d99..b8bbfd0 100644
+--- a/arch/powerpc/kernel/systbl.S
++++ b/arch/powerpc/kernel/systbl.S
+@@ -345,3 +345,5 @@ COMPAT_SYS(set_robust_list)
+  * please add new calls to arch/powerpc/platforms/cell/spu_callbacks.c
+  * as well when appropriate.
   */
++SYSCALL(ltt_trace_generic)
++SYSCALL(ltt_register_generic)
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 24e3ad7..3bbaf5e 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -52,6 +52,7 @@ #include <linux/percpu.h>
+ #include <linux/rtc.h>
+ #include <linux/jiffies.h>
+ #include <linux/posix-timers.h>
 +#include <linux/ltt/ltt-facility-kernel.h>
-+#include <linux/ltt-core.h>
- #include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -31,6 +33,8 @@ #include <linux/moduleparam.h>
- #include <linux/nmi.h>
- #include <linux/kprobes.h>
- #include <linux/kexec.h>
-+#include <linux/ltt/ltt-facility-process.h>
-+
  
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -41,6 +45,8 @@ #include <asm/desc.h>
- #include <asm/i387.h>
- #include <asm/kdebug.h>
+ #include <asm/io.h>
  #include <asm/processor.h>
-+#include <asm/ltt/ltt-facility-kernel_arch_x86_64.h>
-+#include <linux/ltt/ltt-facility-custom-stack.h>
+@@ -652,6 +653,8 @@ void timer_interrupt(struct pt_regs * re
+ 	int next_dec;
+ 	int cpu = smp_processor_id();
+ 	unsigned long ticks;
++	
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
  
- #include <asm/smp.h>
- #include <asm/pgalloc.h>
-@@ -385,6 +391,42 @@ void out_of_line_bug(void)
- } 
+ #ifdef CONFIG_PPC32
+ 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
+@@ -718,6 +721,8 @@ #ifdef CONFIG_PPC64
  #endif
  
-+/* Trace related code.  These functions are defined as simple wrappers
-+   around the macros so that tracing code can be called from
-+   assembly. */
+ 	irq_exit();
++
++	trace_kernel_trap_exit();
+ }
+ 
+ void wakeup_decrementer(void)
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 064a525..c86dec5 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -32,6 +32,8 @@ #include <linux/prctl.h>
+ #include <linux/delay.h>
+ #include <linux/kprobes.h>
+ #include <linux/kexec.h>
++#include <linux/ltt/ltt-facility-kernel.h>
++#include <linux/ltt-core.h>
+ 
+ #include <asm/kdebug.h>
+ #include <asm/pgtable.h>
+@@ -41,6 +43,7 @@ #include <asm/io.h>
+ #include <asm/machdep.h>
+ #include <asm/rtas.h>
+ #include <asm/pmc.h>
++#include <asm/ltt/ltt-facility-kernel_arch_powerpc.h>
+ #ifdef CONFIG_PPC32
+ #include <asm/reg.h>
+ #endif
+@@ -126,6 +129,11 @@ #endif
+ 	printk("%s\n", ppc_md.name ? "" : ppc_md.name);
+ 
+ 	print_modules();
++#ifdef CONFIG_LTT
++	printk("LTT NESTING LEVEL : %u ",
++			ltt_nesting[smp_processor_id()]);
++	printk("\n");
++#endif
+ 	show_regs(regs);
+ 	bust_spinlocks(0);
+ 
+@@ -168,6 +176,8 @@ void _exception(int signr, struct pt_reg
+ 			return;
+ 	}
+ 
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
++
+ 	memset(&info, 0, sizeof(info));
+ 	info.si_signo = signr;
+ 	info.si_code = code;
+@@ -195,6 +205,8 @@ void _exception(int signr, struct pt_reg
+ 			do_exit(signr);
+ 		}
+ 	}
++
++	trace_kernel_trap_exit();
+ }
+ 
+ #ifdef CONFIG_PPC64
+@@ -875,7 +887,9 @@ #endif
+ 
+ void performance_monitor_exception(struct pt_regs *regs)
+ {
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
+ 	perf_irq(regs);
++	trace_kernel_trap_exit();
+ }
+ 
+ #ifdef CONFIG_8xx
+@@ -958,6 +972,8 @@ void altivec_assist_exception(struct pt_
+ 		return;
+ 	}
+ 
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
++
+ 	if (err == -EFAULT) {
+ 		/* got an error reading the instruction */
+ 		_exception(SIGSEGV, regs, SEGV_ACCERR, regs->nip);
+@@ -969,6 +985,7 @@ void altivec_assist_exception(struct pt_
+ 			       "in %s at %lx\n", current->comm, regs->nip);
+ 		current->thread.vscr.u[3] |= 0x10000;
+ 	}
++	trace_kernel_trap_exit();
+ }
+ #endif /* CONFIG_ALTIVEC */
+ 
+@@ -1068,3 +1085,22 @@ void kernel_bad_stack(struct pt_regs *re
+ void __init trap_init(void)
+ {
+ }
++
++/* Trace related code */
 +#ifdef CONFIG_LTT
 +
 +/* Simple syscall tracing : only keep the caller's address. */
 +asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
 +{
 +	trace_kernel_arch_syscall_entry(
-+			(enum lttng_syscall_name)regs->orig_rax,
-+			(void*)regs->rip);
-+}
-+asmlinkage void trace_real_syscall32_entry(struct pt_regs *regs)
-+{
-+	// 32-bits system calls doesn't have the same number as 64-bits,
-+	// so we add a constant (5000) not to mix the two system call
-+	// tables.  See asm/ltt/ltt-facility-kernel_arch_x86_64.h
-+	trace_kernel_arch_syscall_entry(
-+			(enum lttng_syscall_name)regs->orig_rax + 5000,
-+			(void*)regs->rip);
++			(enum lttng_syscall_name)regs->gpr[0],
++			(void*)instruction_pointer(regs));
 +}
 +
 +
@@ -462,370 +344,187 @@ index cea335e..bf2a741 100644
 +{
 +	trace_kernel_arch_syscall_exit();
 +}
-+
-+
-+asmlinkage void trace_process_kernel_thread__(uint32_t pid, void * function)
-+{
-+	trace_process_kernel_thread(pid, function);
-+}
 +#endif	/* CONFIG_LTT */
 +
-+
- static DEFINE_SPINLOCK(die_lock);
- static int die_owner = -1;
- static unsigned int die_nest_count;
-@@ -488,6 +530,8 @@ static void __kprobes do_trap(int trapnr
- 	tsk->thread.error_code = error_code;
- 	tsk->thread.trap_no = trapnr;
- 
-+	trace_kernel_trap_entry(trapnr, (void*)regs->rip);
-+
- 	if (user_mode(regs)) {
- 		if (exception_trace && unhandled_signal(tsk, signr))
- 			printk(KERN_INFO
-@@ -499,6 +543,7 @@ static void __kprobes do_trap(int trapnr
- 			force_sig_info(signr, info, tsk);
- 		else
- 			force_sig(signr, tsk);
-+		trace_kernel_trap_exit();
- 		return;
- 	}
- 
-@@ -511,8 +556,10 @@ static void __kprobes do_trap(int trapnr
- 			regs->rip = fixup->fixup;
- 		else	
- 			die(str, regs, error_code);
-+		trace_kernel_trap_exit();
- 		return;
- 	}
-+	trace_kernel_trap_exit();
- }
- 
- #define DO_ERROR(trapnr, signr, str, name) \
-@@ -596,7 +643,9 @@ asmlinkage void __kprobes do_general_pro
- 			       tsk->comm, tsk->pid,
- 			       regs->rip, regs->rsp, error_code); 
- 
-+		trace_kernel_trap_entry(13, (void*)regs->rip);
- 		force_sig(SIGSEGV, tsk);
-+		trace_kernel_trap_exit();
- 		return;
- 	} 
- 
-@@ -654,6 +703,13 @@ asmlinkage __kprobes void default_do_nmi
- 	unsigned char reason = 0;
- 	int cpu;
- 
-+	/* On machines with APIC enabled, NMIs are used to implement a watchdog
-+	   and will hang the machine if traced. */
-+	trace_kernel_trap_entry(2, (void*)regs->rip);
-+#ifdef CONFIG_LTT_STACK_NMI
-+	trace_stack_dump(regs);
-+#endif /* CONFIG_LTT_STACK_NMI */
-+
- 	cpu = smp_processor_id();
- 
- 	/* Only the BSP gets external NMIs from the system.  */
-@@ -662,8 +718,10 @@ asmlinkage __kprobes void default_do_nmi
- 
- 	if (!(reason & 0xc0)) {
- 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 2, SIGINT)
--								== NOTIFY_STOP)
-+								== NOTIFY_STOP) {
-+			trace_kernel_trap_exit();
- 			return;
-+		}
- #ifdef CONFIG_X86_LOCAL_APIC
- 		/*
- 		 * Ok, so this is none of the documented NMI sources,
-@@ -671,14 +729,18 @@ #ifdef CONFIG_X86_LOCAL_APIC
- 		 */
- 		if (nmi_watchdog > 0) {
- 			nmi_watchdog_tick(regs,reason);
-+			trace_kernel_trap_exit();
- 			return;
- 		}
- #endif
- 		unknown_nmi_error(reason, regs);
-+		trace_kernel_trap_exit();
- 		return;
- 	}
--	if (notify_die(DIE_NMI, "nmi", regs, reason, 2, SIGINT) == NOTIFY_STOP)
-+	if (notify_die(DIE_NMI, "nmi", regs, reason, 2, SIGINT) == NOTIFY_STOP) {
-+		trace_kernel_trap_exit();
- 		return; 
-+	}
- 
- 	/* AK: following checks seem to be broken on modern chipsets. FIXME */
- 
-@@ -686,6 +748,8 @@ #endif
- 		mem_parity_error(reason, regs);
- 	if (reason & 0x40)
- 		io_check_error(reason, regs);
-+
-+	trace_kernel_trap_exit();
- }
- 
- /* runs on IST stack. */
-@@ -775,7 +839,9 @@ asmlinkage void __kprobes do_debug(struc
- 	info.si_errno = 0;
- 	info.si_code = TRAP_BRKPT;
- 	info.si_addr = user_mode(regs) ? (void __user *)regs->rip : NULL;
-+	trace_kernel_trap_entry(1, (void*)regs->rip);
- 	force_sig_info(SIGTRAP, &info, tsk);
-+	trace_kernel_trap_exit();
- 
- clear_dr7:
- 	set_debugreg(0UL, 7);
-@@ -933,6 +999,9 @@ asmlinkage void do_simd_coprocessor_erro
- 
- asmlinkage void do_spurious_interrupt_bug(struct pt_regs * regs)
- {
-+	trace_kernel_trap_entry(16, (void*)regs->rip);
-+
-+	trace_kernel_trap_exit();
- }
- 
- asmlinkage void __attribute__((weak)) smp_thermal_interrupt(void)
-diff --git a/arch/x86_64/mm/fault.c b/arch/x86_64/mm/fault.c
-index 5525059..b1a4ce8 100644
---- a/arch/x86_64/mm/fault.c
-+++ b/arch/x86_64/mm/fault.c
-@@ -24,6 +24,7 @@ #include <linux/vt_kern.h>		/* For unbla
- #include <linux/compiler.h>
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index fdbba42..8909bdf 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -29,6 +29,7 @@ #include <linux/interrupt.h>
+ #include <linux/highmem.h>
  #include <linux/module.h>
  #include <linux/kprobes.h>
 +#include <linux/ltt/ltt-facility-kernel.h>
  
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -345,8 +346,11 @@ asmlinkage void __kprobes do_page_fault(
- 		 */
- 		if (!(error_code & (PF_RSVD|PF_USER|PF_PROT)) &&
- 		      ((address >= VMALLOC_START && address < VMALLOC_END))) {
--			if (vmalloc_fault(address) >= 0)
-+			if (vmalloc_fault(address) >= 0) {
-+				trace_kernel_trap_entry(14, (void*)regs->rip);
-+				trace_kernel_trap_exit();
- 				return;
-+			}
- 		}
- 		if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
- 						SIGSEGV) == NOTIFY_STOP)
-@@ -379,6 +383,7 @@ asmlinkage void __kprobes do_page_fault(
- 	if (unlikely(in_atomic() || !mm))
- 		goto bad_area_nosemaphore;
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -126,6 +127,8 @@ int __kprobes do_page_fault(struct pt_re
+ 	int is_write = 0;
+ 	int trap = TRAP(regs);
+  	int is_exec = trap == 0x400;
++	
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
  
-+	trace_kernel_trap_entry(14, (void*)regs->rip);
-  again:
- 	/* When running in the kernel we expect faults to occur only to
- 	 * addresses in user space.  All other faults represent errors in the
-@@ -403,19 +408,22 @@ asmlinkage void __kprobes do_page_fault(
- 	}
- 
- 	vma = find_vma(mm, address);
--	if (!vma)
-+	if (!vma) {
- 		goto bad_area;
-+	}
- 	if (likely(vma->vm_start <= address))
- 		goto good_area;
--	if (!(vma->vm_flags & VM_GROWSDOWN))
-+	if (!(vma->vm_flags & VM_GROWSDOWN)) {
- 		goto bad_area;
-+	}
- 	if (error_code & 4) {
- 		// XXX: align red zone size with ABI 
- 		if (address + 128 < regs->rsp)
- 			goto bad_area;
- 	}
--	if (expand_stack(vma, address))
-+	if (expand_stack(vma, address)) {
- 		goto bad_area;
-+	}
- /*
-  * Ok, we have a good vm_area for this memory access, so
-  * we can handle it..
-@@ -427,15 +435,17 @@ good_area:
- 		default:	/* 3: write, present */
- 			/* fall through */
- 		case PF_WRITE:		/* write, not present */
--			if (!(vma->vm_flags & VM_WRITE))
-+			if (!(vma->vm_flags & VM_WRITE)) {
- 				goto bad_area;
-+			}
- 			write++;
- 			break;
- 		case PF_PROT:		/* read, present */
- 			goto bad_area;
- 		case 0:			/* read, not present */
--			if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
-+			if (!(vma->vm_flags & (VM_READ | VM_EXEC))) {
- 				goto bad_area;
-+			}
- 	}
- 
+ #if !(defined(CONFIG_4xx) || defined(CONFIG_BOOKE))
  	/*
-@@ -457,6 +467,7 @@ good_area:
+@@ -143,29 +146,38 @@ #else
+ #endif /* CONFIG_4xx || CONFIG_BOOKE */
+ 
+ 	if (notify_die(DIE_PAGE_FAULT, "page_fault", regs, error_code,
+-				11, SIGSEGV) == NOTIFY_STOP)
++				11, SIGSEGV) == NOTIFY_STOP) {
++		trace_kernel_trap_exit();
+ 		return 0;
++	}
+ 
+ 	if (trap == 0x300) {
+-		if (debugger_fault_handler(regs))
++		if (debugger_fault_handler(regs)) {
++			trace_kernel_trap_exit();
+ 			return 0;
++		}
+ 	}
+ 
+ 	/* On a kernel SLB miss we can only check for a valid exception entry */
+-	if (!user_mode(regs) && (address >= TASK_SIZE))
++	if (!user_mode(regs) && (address >= TASK_SIZE)) {
++		trace_kernel_trap_exit();
+ 		return SIGSEGV;
++	}
+ 
+ #if !(defined(CONFIG_4xx) || defined(CONFIG_BOOKE))
+   	if (error_code & DSISR_DABRMATCH) {
+ 		/* DABR match */
+ 		do_dabr(regs, address, error_code);
++		trace_kernel_trap_exit();
+ 		return 0;
+ 	}
+ #endif /* !(CONFIG_4xx || CONFIG_BOOKE)*/
+ 
+ 	if (in_atomic() || mm == NULL) {
+-		if (!user_mode(regs))
++		if (!user_mode(regs)) {
++			trace_kernel_trap_exit();
+ 			return SIGSEGV;
++		}
+ 		/* in_atomic() in user mode is really bad,
+ 		   as is current->mm == NULL. */
+ 		printk(KERN_EMERG "Page fault in user mode with"
+@@ -286,6 +298,7 @@ #if defined(CONFIG_4xx) || defined(CONFI
+ 				_tlbie(address);
+ 				pte_unmap_unlock(ptep, ptl);
+ 				up_read(&mm->mmap_sem);
++				trace_kernel_trap_exit();
+ 				return 0;
+ 			}
+ 			pte_unmap_unlock(ptep, ptl);
+@@ -327,6 +340,7 @@ #endif
  	}
  
  	up_read(&mm->mmap_sem);
 +	trace_kernel_trap_exit();
- 	return;
+ 	return 0;
  
- /*
-@@ -469,6 +480,7 @@ bad_area:
- bad_area_nosemaphore:
- 	/* User mode accesses just cause a SIGSEGV */
- 	if (error_code & PF_USER) {
+ bad_area:
+@@ -336,6 +350,7 @@ bad_area_nosemaphore:
+ 	/* User mode accesses cause a SIGSEGV */
+ 	if (user_mode(regs)) {
+ 		_exception(SIGSEGV, regs, code, address);
 +		trace_kernel_trap_exit();
- 		if (is_prefetch(regs, address, error_code))
- 			return;
- 
-@@ -556,16 +568,19 @@ out_of_memory:
- 		goto again;
+ 		return 0;
  	}
- 	printk("VM: killing process %s\n", tsk->comm);
--	if (error_code & 4)
-+	if (error_code & 4) {
-+		trace_kernel_trap_exit();
+ 
+@@ -344,6 +359,7 @@ bad_area_nosemaphore:
+ 		printk(KERN_CRIT "kernel tried to execute NX-protected"
+ 		       " page (%lx) - exploit attempt? (uid: %d)\n",
+ 		       address, current->uid);
++	trace_kernel_trap_exit();
+ 
+ 	return SIGSEGV;
+ 
+@@ -361,6 +377,7 @@ out_of_memory:
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (user_mode(regs))
  		do_exit(SIGKILL);
-+	}
- 	goto no_context;
++	trace_kernel_trap_exit();
+ 	return SIGKILL;
  
  do_sigbus:
- 	up_read(&mm->mmap_sem);
- 
- 	/* Kernel mode? Handle exceptions or die */
--	if (!(error_code & PF_USER))
-+	if (!(error_code & PF_USER)) {
- 		goto no_context;
-+	}
- 
- 	tsk->thread.cr2 = address;
- 	tsk->thread.error_code = error_code;
-@@ -575,6 +590,9 @@ do_sigbus:
- 	info.si_code = BUS_ADRERR;
- 	info.si_addr = (void __user *)address;
- 	force_sig_info(SIGBUS, &info, tsk);
-+	/* No need to test for kernel page fault, we know we are not
-+	   in one or else we would have jumped to no_context */
+@@ -371,8 +388,10 @@ do_sigbus:
+ 		info.si_code = BUS_ADRERR;
+ 		info.si_addr = (void __user *)address;
+ 		force_sig_info(SIGBUS, &info, current);
++		trace_kernel_trap_exit();
+ 		return 0;
+ 	}
 +	trace_kernel_trap_exit();
- 	return;
+ 	return SIGBUS;
  }
  
-diff --git a/block/blktrace.c b/block/blktrace.c
-index 36f3a17..6c0690c 100644
---- a/include/asm-x86_64/ia32_unistd.h
-+++ b/include/asm-x86_64/ia32_unistd.h
-@@ -317,4 +317,9 @@ #define __NR_ia32_pselect6		308
- #define __NR_ia32_ppoll			309
- #define __NR_ia32_unshare		310
+diff --git a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+index e9a8f5d..360597f 100644
+--- a/arch/powerpc/kernel/irq.c
++++ b/arch/powerpc/kernel/irq.c
+@@ -86,8 +86,6 @@ #endif
+ #endif /* CONFIG_PPC32 */
  
-+/* A few defines seem to have been forgotten by kernel developers.
-+   See arch/x86_64/ia32/ia32entry.S and include/asm-i386/unistd.h */
-+#define __NR_ia32_ltt_trace_generic	317
-+#define __NR_ia32_ltt_register_generic	318
+ #ifdef CONFIG_PPC64
+-EXPORT_SYMBOL(irq_desc);
+-
+ int distribute_irqs = 1;
+ u64 ppc64_interrupt_controller;
+ #endif /* CONFIG_PPC64 */
+diff --git a/arch/powerpc/kernel/misc_32.S b/arch/powerpc/kernel/misc_32.S
+index be98202..9f7f92f 100644
+--- a/arch/powerpc/kernel/ppc_ksyms.c
++++ b/arch/powerpc/kernel/ppc_ksyms.c
+@@ -194,7 +194,6 @@ #endif
+ 
+ #ifdef CONFIG_PPC32
+ EXPORT_SYMBOL(timer_interrupt);
+-EXPORT_SYMBOL(irq_desc);
+ EXPORT_SYMBOL(tb_ticks_per_jiffy);
+ EXPORT_SYMBOL(console_drivers);
+ EXPORT_SYMBOL(cacheable_memcpy);
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 2dd47d2..c7ae3ae 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -36,6 +36,7 @@ #include <linux/utsname.h>
+ #include <linux/file.h>
+ #include <linux/init.h>
+ #include <linux/personality.h>
++#include <linux/ltt/ltt-facility-ipc.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
+@@ -57,6 +58,8 @@ int sys_ipc(uint call, int first, unsign
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
++	trace_ipc_call(call, first);
 +
- #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
-diff --git a/include/asm-x86_64/ltt.h b/include/asm-x86_64/ltt.h
+ 	ret = -ENOSYS;
+ 	switch (call) {
+ 	case SEMOP:
+diff --git a/arch/powerpc/kernel/systbl.S b/arch/powerpc/kernel/systbl.S
+index 26ed1f5..ef059d1 100644
+--- a/include/asm-powerpc/unistd.h
++++ b/include/asm-powerpc/unistd.h
+@@ -323,8 +323,10 @@ #define __NR_fchmodat		297
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
++#define __NR_ltt_trace_generic	301
++#define __NR_ltt_register_generic	302
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		303
+ 
+ #ifdef __KERNEL__
+ #define __NR__exit __NR_exit
+diff --git a/include/asm-ppc/ltt.h b/include/asm-ppc/ltt.h
 new file mode 100644
-index 0000000..aa93db7
---- a/include/asm-x86_64/unistd.h
-+++ b/include/asm-x86_64/unistd.h
-@@ -617,8 +617,12 @@ #define __NR_sync_file_range	277
- __SYSCALL(__NR_sync_file_range, sys_sync_file_range)
- #define __NR_vmsplice		278
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
-+#define __NR_ltt_trace_generic		279
-+__SYSCALL(__NR_ltt_trace_generic,	sys_ltt_trace_generic)
-+#define __NR_ltt_register_generic		280
-+__SYSCALL(__NR_ltt_register_generic,	sys_ltt_register_generic)
- 
--#define __NR_syscall_max __NR_vmsplice
-+#define __NR_syscall_max __NR_ltt_register_generic
- 
- #ifndef __NO_STUBS
- 
-diff --git a/include/linux/ltt-core.h b/include/linux/ltt-core.h
-new file mode 100644
-index 0000000..fc83774
---- a/include/asm-x86_64/system.h
-+++ b/include/asm-x86_64/system.h
-@@ -328,12 +328,12 @@ #define warn_if_not_ulong(x) do { unsign
- 
- /* interrupt control.. */
- #define local_save_flags(x)	do { warn_if_not_ulong(x); __asm__ __volatile__("# save_flags \n\t pushfq ; popq %q0":"=g" (x): /* no input */ :"memory"); } while (0)
--#define local_irq_restore(x) 	__asm__ __volatile__("# restore_flags \n\t pushq %0 ; popfq": /* no output */ :"g" (x):"memory", "cc")
-+#define _local_irq_restore(x) 	__asm__ __volatile__("# restore_flags \n\t pushq %0 ; popfq": /* no output */ :"g" (x):"memory", "cc")
- 
- #ifdef CONFIG_X86_VSMP
- /* Interrupt control for VSMP  architecture */
--#define local_irq_disable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags & ~(1 << 9)) | (1 << 18)); } while (0)
--#define local_irq_enable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags | (1 << 9)) & ~(1 << 18)); } while (0)
-+#define _local_irq_disable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags & ~(1 << 9)) | (1 << 18)); } while (0)
-+#define _local_irq_enable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags | (1 << 9)) & ~(1 << 18)); } while (0)
- 
- #define irqs_disabled()					\
- ({							\
-@@ -343,10 +343,10 @@ ({							\
- })
- 
- /* For spinlocks etc */
--#define local_irq_save(x)	do { local_save_flags(x); local_irq_restore((x & ~(1 << 9)) | (1 << 18)); } while (0)
-+#define _local_irq_save(x)	do { local_save_flags(x); local_irq_restore((x & ~(1 << 9)) | (1 << 18)); } while (0)
- #else  /* CONFIG_X86_VSMP */
--#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
--#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
-+#define _local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
-+#define _local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
- 
- #define irqs_disabled()			\
- ({					\
-@@ -356,9 +356,41 @@ ({					\
- })
- 
- /* For spinlocks etc */
--#define local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
-+#define _local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
- #endif
- 
-+#ifdef CONFIG_LTT_FACILITY_LOCKING
-+#define local_irq_restore(x) do { \
-+	__label__ address;\
-+address: \
-+	_trace_locking_irq_restore(&&address,x); \
-+	_local_irq_restore(x); \
-+} while(0)
-+#define local_irq_disable() do { \
-+	__label__ address;\
-+address: \
-+	_local_irq_disable(); \
-+	_trace_locking_irq_disable(&&address); \
-+} while(0)
-+#define local_irq_enable() do { \
-+	__label__ address;\
-+address: \
-+	_trace_locking_irq_enable(&&address); \
-+	_local_irq_enable(); \
-+} while(0)
-+#define local_irq_save(x) do { \
-+	__label__ address;\
-+address: \
-+	_local_irq_save(x); \
-+	_trace_locking_irq_save(&&address,x); \
-+} while(0)
-+#else
-+#define local_irq_restore _local_irq_restore
-+#define local_irq_disable _local_irq_disable
-+#define local_irq_enable _local_irq_enable
-+#define local_irq_save _local_irq_save
-+#endif //CONFIG_LTT_FACILITY_LOCKING
-+
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
- /* used when interrupts are already enabled or to shutdown the processor */
-diff --git a/include/asm-x86_64/unistd.h b/include/asm-x86_64/unistd.h
-index feb77cb..97eee2c 100644
+index 0000000..ada3824
 
---=_Krystal-569-1156980450-0001-2--
+--=_Krystal-3735-1156980279-0001-2--

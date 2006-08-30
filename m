@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWH3FnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWH3FpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751519AbWH3FnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 01:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWH3FnA
+	id S1751517AbWH3FpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 01:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWH3FpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 01:43:00 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:33947 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750823AbWH3Fm7
+	Wed, 30 Aug 2006 01:45:23 -0400
+Received: from natlemon.rzone.de ([81.169.145.170]:64965 "EHLO
+	natlemon.rzone.de") by vger.kernel.org with ESMTP id S1751516AbWH3FpW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 01:42:59 -0400
-Message-ID: <44F524EE.90304@zytor.com>
-Date: Tue, 29 Aug 2006 22:41:02 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 30 Aug 2006 01:45:22 -0400
+Date: Wed, 30 Aug 2006 07:44:33 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Michael Buesch <mb@bu3sch.de>, Greg KH <greg@kroah.com>,
+       Oleg Verych <olecom@flower.upol.cz>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Message-ID: <20060830054433.GA31375@aepfle.de>
+References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz> <20060829183208.GA11468@kroah.com> <200608292104.24645.mb@bu3sch.de> <20060829201314.GA28680@aepfle.de> <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Jeff Dike <jdike@addtoit.com>, Bjoern Steinbrink <B.Steinbrink@gmx.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH 4/7] Remove the use of _syscallX macros in UML
-References: <20060827214734.252316000@klappe.arndb.de> <20060827215636.797086000@klappe.arndb.de>
-In-Reply-To: <20060827215636.797086000@klappe.arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> User mode linux uses _syscallX() to call into the host kernel.
-> The recommended way to do this is to use the syscall() function
-> from libc.
+On Tue, Aug 29, David Lang wrote:
 
-Not really.
+> you are assuming that
+> 
+> 1. modules are enabled and ipw2200 is compiled as a module
 
-syscall() is a horrible botch; it is in fact unimplementable (without 
-enormous switch statements) on a number of architectures.
+No, why?
 
-	-hpa
+> 2. initrd or initramfs are in use
+
+initramfs is always in use.

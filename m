@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWH3Mxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWH3Mxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWH3Mxh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWH3Mxh
+	id S1750925AbWH3Mxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWH3Mxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:53:37 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:43468 "EHLO
+	Wed, 30 Aug 2006 08:53:34 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:40930 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750928AbWH3Mxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:53:35 -0400
-Message-Id: <20060830125037.876668000@klappe.arndb.de>
+	id S1750920AbWH3Mxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:53:33 -0400
+Message-Id: <20060830125037.395633000@klappe.arndb.de>
 References: <20060830124356.567568000@klappe.arndb.de>
-Date: Wed, 30 Aug 2006 14:43:59 +0200
+Date: Wed, 30 Aug 2006 14:43:57 +0200
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
 Cc: linux-arch@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
@@ -20,430 +20,157 @@ Cc: linux-arch@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
        Chase Venters <chase.venters@clientec.com>,
        Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
        Andi Kleen <ak@suse.de>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH 3/6] provide kernel_execve on all architectures
-Content-Disposition: inline; filename=kerne-execve2.diff
+Subject: [PATCH 1/6] introduce kernel_execve
+Content-Disposition: inline; filename=kernel-execve-0.5.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds the new kernel_execve function on all architectures
-that were using _syscall3() to implement execve.
 
-The implementation uses code from the _syscall3 macros provided
-in the unistd.h header file. I don't have cross-compilers for
-any of these architectures, so the patch is untested with the
-exception of i386.
+The use of execve() in the kernel is dubious, since it relies
+on the __KERNEL_SYSCALLS__ mechanism that stores the result in
+a global errno variable. As a first step of getting rid of
+this, change all users to a global kernel_execve function that
+returns a proper error code.
 
-Most architectures can probably implement this in a nicer way
-in assembly or by combining it with the sys_execve implementation
-itself, but this should do it for now.
+This function is a terrible hack, and a later patch removes
+it again after the kernel syscalls are gone.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Index: linux-cg/arch/h8300/kernel/sys_h8300.c
+Index: linux-cg/init/do_mounts_initrd.c
 ===================================================================
---- linux-cg.orig/arch/h8300/kernel/sys_h8300.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/h8300/kernel/sys_h8300.c	2006-08-29 19:49:33.000000000 +0200
-@@ -280,3 +280,26 @@
-                ((regs->pc)&0xffffff)-2,regs->orig_er0,regs->er1,regs->er2,regs->er3,regs->er0);
- }
- #endif
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register long res __asm__("er0");
-+	register const char * _a __asm__("er1") = filename;
-+	register void *_b __asm__("er2") = argv;
-+	register void *_c __asm__("er3") = envp;
-+	__asm__ __volatile__ ("mov.l %1,er0\n\t"
-+			"trapa	#0\n\t"
-+			: "=r" (res)
-+			: "g" (__NR_execve),
-+			  "g" (_a),
-+			  "g" (_b),
-+			  "g" (_c)
-+			: "cc", "memory");
-+	return res;
-+}
-+
-+
-Index: linux-cg/arch/i386/kernel/sys_i386.c
-===================================================================
---- linux-cg.orig/arch/i386/kernel/sys_i386.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/i386/kernel/sys_i386.c	2006-08-29 19:49:33.000000000 +0200
-@@ -243,3 +243,17 @@
- 
- 	return error;
- }
-+
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	long __res;
-+	asm volatile ("push %%ebx ; movl %2,%%ebx ; int $0x80 ; pop %%ebx"
-+	: "=a" (__res)
-+	: "0" (__NR_execve),"ri" (filename),"c" (argv), "d" (envp) : "memory");
-+	return __res;
-+}
-Index: linux-cg/arch/m32r/kernel/sys_m32r.c
-===================================================================
---- linux-cg.orig/arch/m32r/kernel/sys_m32r.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/m32r/kernel/sys_m32r.c	2006-08-29 19:49:33.000000000 +0200
-@@ -25,6 +25,8 @@
- #include <asm/cachectl.h>
- #include <asm/cacheflush.h>
- #include <asm/ipc.h>
-+#include <asm/syscall.h>
-+#include <asm/unistd.h>
- 
- /*
-  * sys_tas() - test-and-set
-@@ -223,3 +225,21 @@
- 	return -ENOSYS;
+--- linux-cg.orig/init/do_mounts_initrd.c	2006-08-27 23:17:58.000000000 +0200
++++ linux-cg/init/do_mounts_initrd.c	2006-08-27 23:18:58.000000000 +0200
+@@ -1,4 +1,3 @@
+-#define __KERNEL_SYSCALLS__
+ #include <linux/unistd.h>
+ #include <linux/kernel.h>
+ #include <linux/fs.h>
+@@ -35,7 +34,7 @@
+ 	(void) sys_open("/dev/console",O_RDWR,0);
+ 	(void) sys_dup(0);
+ 	(void) sys_dup(0);
+-	return execve(shell, argv, envp_init);
++	return kernel_execve(shell, argv, envp_init);
  }
  
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register long __scno __asm__ ("r7") = __NR_execve;
-+	register long __arg3 __asm__ ("r2") = (long)(envp);
-+	register long __arg2 __asm__ ("r1") = (long)(argv);
-+	register long __res __asm__ ("r0") = (long)(filename);
-+	__asm__ __volatile__ (
-+		"trap #" SYSCALL_VECTOR "|| nop"
-+		: "=r" (__res)
-+		: "r" (__scno), "0" (__res), "r" (__arg2),
-+			"r" (__arg3)
-+		: "memory");
-+	return __res;
-+}
-Index: linux-cg/arch/m68k/kernel/sys_m68k.c
+ static void __init handle_initrd(void)
+Index: linux-cg/kernel/kmod.c
 ===================================================================
---- linux-cg.orig/arch/m68k/kernel/sys_m68k.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/m68k/kernel/sys_m68k.c	2006-08-29 19:49:33.000000000 +0200
-@@ -663,3 +663,18 @@
- {
- 	return PAGE_SIZE;
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register long __res asm ("%d0") = __NR_execve;
-+	register long __a asm ("%d1") = (long)(filename);
-+	register long __b asm ("%d2") = (long)(argv);
-+	register long __c asm ("%d3") = (long)(envp);
-+	asm volatile ("trap  #0" : "+d" (__res)
-+			: "d" (__a), "d" (__b), "d" (__c));
-+	return __res;
-+}
-Index: linux-cg/arch/m68knommu/kernel/sys_m68k.c
-===================================================================
---- linux-cg.orig/arch/m68knommu/kernel/sys_m68k.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/m68knommu/kernel/sys_m68k.c	2006-08-29 19:49:33.000000000 +0200
-@@ -206,3 +206,17 @@
- 	return PAGE_SIZE;
- }
+--- linux-cg.orig/kernel/kmod.c	2006-08-27 23:17:58.000000000 +0200
++++ linux-cg/kernel/kmod.c	2006-08-27 23:18:58.000000000 +0200
+@@ -18,8 +18,6 @@
+ 	call_usermodehelper wait flag, and remove exec_usermodehelper.
+ 	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
+ */
+-#define __KERNEL_SYSCALLS__
+-
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/syscalls.h>
+@@ -150,7 +148,8 @@
  
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register long __res asm ("%d0") = __NR_execve;
-+	register long __a asm ("%d1") = (long)(filename);
-+	register long __b asm ("%d2") = (long)(argv);
-+	register long __c asm ("%d3") = (long)(envp);
-+	asm volatile ("trap  #0" : "+d" (__res)
-+			: "d" (__a), "d" (__b), "d" (__c));
-+	return __res;
-+}
-Index: linux-cg/arch/mips/kernel/syscall.c
-===================================================================
---- linux-cg.orig/arch/mips/kernel/syscall.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/mips/kernel/syscall.c	2006-08-29 19:49:33.000000000 +0200
-@@ -399,3 +399,27 @@
- {
- 	do_exit(SIGSEGV);
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register unsigned long __a0 asm("$4") = (unsigned long) filename;
-+	register unsigned long __a1 asm("$5") = (unsigned long) argv;
-+	register unsigned long __a2 asm("$6") = (unsigned long) envp;
-+	register unsigned long __a3 asm("$7");
-+	unsigned long __v0;
-+	__asm__ volatile (
-+	".set\tnoreorder\n\t"
-+	"li\t$2, %5\t\t\t# " #name "\n\t"
-+	"syscall\n\t"
-+	"move\t%0, $2\n\t"
-+	".set\treorder"
-+	: "=&r" (__v0), "=r" (__a3)
-+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (__NR_execve)
-+	: "$2", "$8", "$9", "$10", "$11", "$12", "$13", "$14", "$15", "$24",
-+	  "memory");
-+	return __v0;
-+}
-Index: linux-cg/arch/s390/kernel/sys_s390.c
-===================================================================
---- linux-cg.orig/arch/s390/kernel/sys_s390.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/s390/kernel/sys_s390.c	2006-08-29 19:49:33.000000000 +0200
-@@ -266,3 +266,21 @@
- 	return sys_fadvise64_64(a.fd, a.offset, a.len, a.advice);
- }
+ 	retval = -EPERM;
+ 	if (current->fs->root)
+-		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
++		retval = kernel_execve(sub_info->path,
++				sub_info->argv, sub_info->envp);
  
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register const char *__arg1 asm("2") = filename;
-+	register void *__arg2 asm("3") = argv;
-+	register void *__arg3 asm("4") = envp;
-+	register long __svcres asm("2");
-+	asm volatile ("svc %b1"
-+		: "=d" (__svcres)
-+		: "i" (__NR_execve),
-+		  "0" (__arg1),
-+		  "d" (__arg2),
-+		  "d" (__arg3) : "1", "cc", "memory");
-+	return __svcres;
-+}
-Index: linux-cg/arch/sh/kernel/sys_sh.c
+ 	/* Exec failed? */
+ 	sub_info->retval = retval;
+Index: linux-cg/lib/Makefile
 ===================================================================
---- linux-cg.orig/arch/sh/kernel/sys_sh.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/sh/kernel/sys_sh.c	2006-08-29 19:49:33.000000000 +0200
-@@ -295,3 +295,19 @@
- 				(u64)len0 << 32 | len1,	advice);
- #endif
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register long __sc0 __asm__ ("r3") = __NR_execve;
-+	register long __sc4 __asm__ ("r4") = (long) filename;
-+	register long __sc5 __asm__ ("r5") = (long) argv;
-+	register long __sc6 __asm__ ("r6") = (long) envp;
-+	__asm__ __volatile__ ("trapa	#0x13" : "=z" (__sc0)
-+			: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6)
-+			: "memory");
-+	return __sc0;
-+}
-Index: linux-cg/arch/sh64/kernel/sys_sh64.c
-===================================================================
---- linux-cg.orig/arch/sh64/kernel/sys_sh64.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/sh64/kernel/sys_sh64.c	2006-08-29 19:49:33.000000000 +0200
-@@ -283,3 +283,21 @@
- 	up_read(&uts_sem);
- 	return err?-EFAULT:0;
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register unsigned long __sc0 __asm__ ("r9") = ((0x13 << 16) | __NR_execve);
-+	register unsigned long __sc2 __asm__ ("r2") = (unsigned long) filename;
-+	register unsigned long __sc3 __asm__ ("r3") = (unsigned long) argv;
-+	register unsigned long __sc4 __asm__ ("r4") = (unsigned long) envp;
-+	__asm__ __volatile__ ("trapa	%1 !\t\t\t execve(%2,%3,%4)"
-+	: "=r" (__sc0)
-+	: "r" (__sc0), "r" (__sc2), "r" (__sc3), "r" (__sc4) );
-+	__asm__ __volatile__ ("!dummy	%0 %1 %2 %3"
-+	: : "r" (__sc0), "r" (__sc2), "r" (__sc3), "r" (__sc4) : "memory");
-+	return __sc0;
-+}
-Index: linux-cg/arch/sparc/kernel/sys_sparc.c
-===================================================================
---- linux-cg.orig/arch/sparc/kernel/sys_sparc.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/sparc/kernel/sys_sparc.c	2006-08-29 19:49:33.000000000 +0200
-@@ -483,3 +483,25 @@
- 	up_read(&uts_sem);
- 	return err;
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	long __res;
-+	register long __g1 __asm__ ("g1") = __NR_execve;
-+	register long __o0 __asm__ ("o0") = (long)(filename);
-+	register long __o1 __asm__ ("o1") = (long)(argv);
-+	register long __o2 __asm__ ("o2") = (long)(envp);
-+	asm volatile ("t 0x10\n\t"
-+		      "bcc 1f\n\t"
-+		      "mov %%o0, %0\n\t"
-+		      "sub %%g0, %%o0, %0\n\t"
-+		      "1:\n\t"
-+		      : "=r" (__res), "=&r" (__o0)
-+		      : "1" (__o0), "r" (__o1), "r" (__o2), "r" (__g1)
-+		      : "cc");
-+	return __res;
-+}
-Index: linux-cg/arch/sparc64/kernel/sys_sparc.c
-===================================================================
---- linux-cg.orig/arch/sparc64/kernel/sys_sparc.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/sparc64/kernel/sys_sparc.c	2006-08-29 19:49:33.000000000 +0200
-@@ -957,3 +957,23 @@
- 	};
- 	return err;
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	long __res;
-+	register long __g1 __asm__ ("g1") = __NR_execve;
-+	register long __o0 __asm__ ("o0") = (long)(filename);
-+	register long __o1 __asm__ ("o1") = (long)(argv);
-+	register long __o2 __asm__ ("o2") = (long)(envp);
-+	asm volatile ("t 0x6d\n\t"
-+		      "sub %%g0, %%o0, %0\n\t"
-+		      "movcc %%xcc, %%o0, %0\n\t"
-+		      : "=r" (__res), "=&r" (__o0)
-+		      : "1" (__o0), "r" (__o1), "r" (__o2), "r" (__g1)
-+		      : "cc");
-+	return __res;
-+}
-Index: linux-cg/arch/v850/kernel/syscalls.c
-===================================================================
---- linux-cg.orig/arch/v850/kernel/syscalls.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/v850/kernel/syscalls.c	2006-08-29 19:49:33.000000000 +0200
-@@ -194,3 +194,22 @@
- out:
- 	return err;
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	register char *__a __asm__ ("r6") = filename;
-+	register void *__b __asm__ ("r7") = argv;
-+	register void *__c __asm__ ("r8") = envp;
-+	register unsigned long __syscall __asm__ ("r12") = __NR_execve;
-+	register unsigned long __ret __asm__ ("r10");
-+	__asm__ __volatile__ ("trap 0"
-+			: "=r" (__ret), "=r" (__syscall)
-+			: "1" (__syscall), "r" (__a), "r" (__b), "r" (__c)
-+			: "r1", "r5", "r11", "r13", "r14",
-+			  "r15", "r16", "r17", "r18", "r19");
-+	return __ret;
-+}
-Index: linux-cg/arch/xtensa/kernel/syscalls.c
-===================================================================
---- linux-cg.orig/arch/xtensa/kernel/syscalls.c	2006-08-29 19:49:13.000000000 +0200
-+++ linux-cg/arch/xtensa/kernel/syscalls.c	2006-08-29 19:49:33.000000000 +0200
-@@ -266,3 +266,23 @@
- 	regs->areg[2] = res;
- 	do_syscall_trace();
- }
-+
-+/*
-+ * Do a system call from kernel instead of calling sys_execve so we
-+ * end up with proper pt_regs.
-+ */
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+{
-+	long __res;
-+	asm volatile (
-+		"  mov   a5, %2 \n"
-+		"  mov   a4, %4 \n"
-+		"  mov   a3, %3 \n"
-+		"  movi  a2, %1 \n"
-+		"  syscall      \n"
-+		"  mov   %0, a2 \n"
-+		: "=a" (__res)
-+		: "i" (__NR_execve), "a" (filename), "a" (argv), "a" (envp)
-+		: "a2", "a3", "a4", "a5");
-+	return __res;
-+}
-Index: linux-cg/arch/frv/kernel/Makefile
-===================================================================
---- linux-cg.orig/arch/frv/kernel/Makefile	2006-04-02 23:16:53.000000000 +0200
-+++ linux-cg/arch/frv/kernel/Makefile	2006-08-29 20:02:13.000000000 +0200
-@@ -8,7 +8,7 @@
- extra-y:= head.o init_task.o vmlinux.lds
+--- linux-cg.orig/lib/Makefile	2006-08-27 23:17:58.000000000 +0200
++++ linux-cg/lib/Makefile	2006-08-27 23:18:58.000000000 +0200
+@@ -33,6 +33,8 @@
+   lib-y += dec_and_lock.o
+ endif
  
- obj-y := $(heads-y) entry.o entry-table.o break.o switch_to.o kernel_thread.o \
--	 process.o traps.o ptrace.o signal.o dma.o \
-+	 kernel_execve.o process.o traps.o ptrace.o signal.o dma.o \
- 	 sys_frv.o time.o semaphore.o setup.o frv_ksyms.o \
- 	 debug-stub.o irq.o irq-routing.o sleep.o uaccess.o
- 
-Index: linux-cg/arch/frv/kernel/kernel_execve.S
++lib-y += execve.o
++
+ obj-$(CONFIG_CRC_CCITT)	+= crc-ccitt.o
+ obj-$(CONFIG_CRC16)	+= crc16.o
+ obj-$(CONFIG_CRC32)	+= crc32.o
+Index: linux-cg/lib/execve.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-cg/arch/frv/kernel/kernel_execve.S	2006-08-29 20:02:13.000000000 +0200
-@@ -0,0 +1,33 @@
-+/* in-kernel program execution
-+ *
-+ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
++++ linux-cg/lib/execve.c	2006-08-27 23:18:58.000000000 +0200
+@@ -0,0 +1,23 @@
++#include <asm/bug.h>
++#include <asm/uaccess.h>
 +
-+#include <linux/linkage.h>
++#define __KERNEL_SYSCALLS__
++static int errno __attribute__((unused));
 +#include <asm/unistd.h>
 +
-+###############################################################################
-+#
-+# Do a system call from kernel instead of calling sys_execve so we end up with
-+# proper pt_regs.
-+#
-+# int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-+#
-+# On entry: GR8/GR9/GR10: arguments to function
-+# On return: GR8: syscall return.
-+#
-+###############################################################################
-+	.globl		kernel_execve
-+	.type		kernel_execve,@function
-+kernel_execve:
-+	setlos		__NR_execve,gr7
-+	tira		gr0,#0
-+	bralr
++#ifdef _syscall3
++int kernel_execve (const char *filename, char *const argv[], char *const envp[])
++								__attribute__((__weak__));
++int kernel_execve (const char *filename, char *const argv[], char *const envp[])
++{
++	mm_segment_t fs = get_fs();
++	int ret;
 +
-+	.size		kernel_execve,.-kernel_execve
++	WARN_ON(segment_eq(fs, USER_DS));
++	ret = execve(filename, (char **)argv, (char **)envp);
++	if (ret)
++		ret = -errno;
++
++	return ret;
++}
++#endif
+Index: linux-cg/init/main.c
+===================================================================
+--- linux-cg.orig/init/main.c	2006-08-27 23:17:58.000000000 +0200
++++ linux-cg/init/main.c	2006-08-27 23:18:58.000000000 +0200
+@@ -9,8 +9,6 @@
+  *  Simplified starting of init:  Michael A. Griffith <grif@acm.org> 
+  */
+ 
+-#define __KERNEL_SYSCALLS__
+-
+ #include <linux/types.h>
+ #include <linux/module.h>
+ #include <linux/proc_fs.h>
+@@ -679,7 +677,7 @@
+ static void run_init_process(char *init_filename)
+ {
+ 	argv_init[0] = init_filename;
+-	execve(init_filename, argv_init, envp_init);
++	kernel_execve(init_filename, argv_init, envp_init);
+ }
+ 
+ static int init(void * unused)
+Index: linux-cg/arch/sparc64/kernel/power.c
+===================================================================
+--- linux-cg.orig/arch/sparc64/kernel/power.c	2006-08-27 23:18:53.000000000 +0200
++++ linux-cg/arch/sparc64/kernel/power.c	2006-08-27 23:19:04.000000000 +0200
+@@ -4,8 +4,6 @@
+  * Copyright (C) 1999 David S. Miller (davem@redhat.com)
+  */
+ 
+-#define __KERNEL_SYSCALLS__
+-
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -14,6 +12,7 @@
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/pm.h>
++#include <linux/syscalls.h>
+ 
+ #include <asm/system.h>
+ #include <asm/auxio.h>
+@@ -98,7 +97,7 @@
+ 
+ 	/* Ok, down we go... */
+ 	button_pressed = 0;
+-	if (execve("/sbin/shutdown", argv, envp) < 0) {
++	if (kernel_execve("/sbin/shutdown", argv, envp) < 0) {
+ 		printk("powerd: shutdown execution failed\n");
+ 		add_wait_queue(&powerd_wait, &wait);
+ 		goto again;
 
 --
 

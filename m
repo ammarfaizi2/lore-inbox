@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWH3M7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWH3NCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWH3M7O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWH3M7O
+	id S1750956AbWH3NCb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 09:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWH3NCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:59:14 -0400
-Received: from ns.suse.de ([195.135.220.2]:4305 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750945AbWH3M7N (ORCPT
+	Wed, 30 Aug 2006 09:02:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28050 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750956AbWH3NCa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:59:13 -0400
-From: Andi Kleen <ak@suse.de>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: [PATCH][RFC] exception processing in early boot
-Date: Wed, 30 Aug 2006 14:59:14 +0200
-User-Agent: KMail/1.9.3
-Cc: Riley@williams.name, davej@redhat.com, pageexec@freemail.hu,
-       linux-kernel@vger.kernel.org
-References: <20060830063932.GB289@1wt.eu> <p73y7t65z6c.fsf@verdi.suse.de> <20060830121845.GA351@1wt.eu>
-In-Reply-To: <20060830121845.GA351@1wt.eu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608301459.15008.ak@suse.de>
+	Wed, 30 Aug 2006 09:02:30 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1156942162.11819.1.camel@kleikamp.austin.ibm.com> 
+References: <1156942162.11819.1.camel@kleikamp.austin.ibm.com>  <44F4ADD7.4020604@s5r6.in-berlin.de> <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com> <20060829180631.32596.69574.stgit@warthog.cambridge.redhat.com> <18771.1156926354@warthog.cambridge.redhat.com> <44F54FB0.7080203@s5r6.in-berlin.de> 
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       David Howells <dhowells@redhat.com>, axboe@kernel.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 18/19] BLOCK: Make USB storage depend on SCSI rather than selecting it [try #6] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 30 Aug 2006 14:02:01 +0100
+Message-ID: <18044.1156942921@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Kleikamp <shaggy@austin.ibm.com> wrote:
 
-> Unfortunately, this situation is even more difficult for me, because it's
-> getting very hard to track patches that get applied, rejected, modified or
-> obsoleted, which is even more true when people don't always think about
-> sending an ACK after the patch finally gets in. I already have a few pending
-> patches in my queue waiting for an ACK that will have to be tracked if the
-> persons do not respond, say, within one week. Otherwise I might simply lose
-> them.
+> Would this make more sense?
+> 
+> 	depends on USB && BLOCK
+> 	select SCSI
 
-It shouldn't be that hard to check gitweb or git output occasionally
-for the patches. You can probably even automate that.
- 
-> I think that the good method would be to :
->   - announce the patch
->   - find a volunteer to port it
->   - apply it once the volunteer agrees to handle it
-> This way, no code gets lost because there's always someone to track it.
+That, though, is redundant, since SCSI depends on BLOCK.
 
-I can put that one into my tree for .19
-
--Andi
-
+David

@@ -1,127 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWH3TkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWH3Tk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWH3TkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWH3TkI
+	id S1751392AbWH3Tk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWH3TkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:40:08 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:29175 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751395AbWH3TkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:40:06 -0400
-Date: Wed, 30 Aug 2006 12:34:16 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Sven Luther <sven.luther@wanadoo.fr>
-cc: Olaf Hering <olaf@aepfle.de>, Michael Buesch <mb@bu3sch.de>,
-       Greg KH <greg@kroah.com>, Oleg Verych <olecom@flower.upol.cz>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-In-Reply-To: <20060830191544.GA17203@powerlinux.fr>
-Message-ID: <Pine.LNX.4.63.0608301219520.31356@qynat.qvtvafvgr.pbz>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> 
- <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz>  <20060829183208.GA11468@kroah.com>
- <200608292104.24645.mb@bu3sch.de>  <20060829201314.GA28680@aepfle.de> 
- <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz>  <20060830054433.GA31375@aepfle.de>
-  <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz> 
- <20060830181310.GA11213@powerlinux.fr>  <Pine.LNX.4.63.0608301119170.31356@qynat.qvtvafvgr.pbz>
- <20060830191544.GA17203@powerlinux.fr>
+	Wed, 30 Aug 2006 15:40:25 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:57940 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751392AbWH3TkW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 15:40:22 -0400
+Message-ID: <44F5E99D.2050902@tls.msk.ru>
+Date: Wed, 30 Aug 2006 23:40:13 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Matthew Wilcox <matthew@wil.cx>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Random scsi disk disappearing
+References: <44E44B3E.10708@tls.msk.ru> <20060817113537.GK4340@parisc-linux.org> <44E4567B.4080104@tls.msk.ru>
+In-Reply-To: <44E4567B.4080104@tls.msk.ru>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006, Sven Luther wrote:
-
->>>
->>> Do you really need to bring up ipw2200 so early ? It is some kind of
->>> wireless
->>> device, right ?
+Michael Tokarev wrote:
+> Matthew Wilcox wrote:
+>> On Thu, Aug 17, 2006 at 02:55:58PM +0400, Michael Tokarev wrote:
+> [sporadic disk disappearing, no logging]
+>> I'd recommend turning on scsi logging; it might give you a clue about
+>> which bit of scanning is failing to work properly.
 >>
->> if modules are not in use the device is initialized when the kernel starts
->> up. this is before any userspace starts.
->
-> Well. but you could do the initialization at open time too, like the other
-> case that was mentioned here, no ?
+>> Try booting with scsi_mod.scsi_logging_level = 448 (I think I have that
+>> number right; 7 shifted left by 6) and then you can compare failing and
+>> non-failing runs and see if there's any difference.
 
-no, at least not in the current kernel. as was mentioned earlier in this thread 
-the ipw2200 needs the firmware at initialization, but some others don't need it 
-until open. I don't know if it's even possible to re-write the driver to do 
-this.
+Ok, yesterday it happened again.  This machine is running 2.6.11 still
+(leftover - I'm updating it to current 2.6.17 now).
 
->>> As for initramfs, you can just cat it behind the kernel, and it should work
->>> just fine, or at least this is how it was supposed to work.
->>
->> yes, if I want to set one up.
->>
->> other then this new requirement to have the ipw2200 driver as a module I
->> have no reason to use one. normal userspace is good enough for me.
->
-> Well, ok.
->
-> The real question seems to be if we want to keep the firmware inside the
-> driver or not.
->
-> If we want to remove it, then we put, not the module, but the firmware itself
-> with some basic userspace to load it on demand in the initramfs, and this is
-> reason enough to create an initramfs. The fact that the builtin device is
-> initialized before the initramfs is loaded seems like a bug to me, since the
-> idea of the initramfs (well, one of them at least), was to initialize it early
-> enough for this kind of things.
+The controller is, according to lspci:
 
-this isn't my understanding.
+0000:04:04.0 SCSI storage controller: Adaptec AIC-7902 U320 (rev 03)
 
-my understanding is that the kernel fully initializes all built-in drivers, then 
-loads userspace and starts running it.
+Here's the logging.  Too bad I don't understand most of this stuff ;)
 
-that userspace can be on a device that it knows how to read, or it can be 
-userspace on initramfs so that you can load additional modules to give you 
-access to the hardware that you want to run on.
+Is it possible to say something from this or should I try different
+log level or kernel version?
 
-this is needed if your root drive is a SCSI drive and you have it's driver 
-compiled as a module for example.
+Thanks.
 
-this is needed if your root drive uses dm and you need to initialize the array 
-(one advantage of md, from the user standpoint, is that it doesn't require this 
-additional layer before use)
+/mjt
 
-however this is not soon enough to supply the firmware for devices like this.
+16:25:35 SCSI error : <0 0 0 0> return code = 0x10000
+16:25:36 end_request: I/O error, dev sda, sector 3003999
+16:25:36 md: write_disk_sb failed for device sda2
+16:25:36 SCSI error : <0 0 0 0> return code = 0x10000
+16:25:36 end_request: I/O error, dev sda, sector 6263238
+16:25:36 raid5: Disk failure on sda5, disabling device. Operation continuing on 3 devices
+16:25:36 md: errors occurred during superblock update, repeating
+16:25:36 SCSI error : <0 0 0 0> return code = 0x10000
+16:25:36 end_request: I/O error, dev sda, sector 3003999
+16:25:36 md: write_disk_sb failed for device sda2
 
-> If on the other side, it is more important to not have an initramfs (because
-> of security issues, or bootloader constraints or what not), then sure, there
-> is not much choice than putting the firmware in the driver or in the kernel
-> directly.
->
-> But again, the initramfs is just a memory space available at the end of the
-> kernel, and there is no hardware-related constraint to access it which are in
-> any way different from having the firmware linked in together with the kernel,
-> so it is only a matter of organisation of code, as well as taking a decision
-> on the above, and to act accordyingly.
+.....repeated sequence of the above lines, with different sectors...
 
-if the firmware needed for any drivers compiled in was appended to the kernel 
-the same way that initramfs is, without requireing the other things needed to 
-make initrmfs useable I think that would be reasonable (bundling them togeather 
-as opposed to embedding the firmware in the kernel). it may even be possible to 
-have the firmware as files in a initramfs that contains nothing else, and the 
-kernel knows how to read the data directly (without the hotplug firmware request 
-userspace stuff)
+16:26:04 end_request: I/O error, dev sda, sector 3003999
+16:26:04 scsi0:0:0:0: Attempting to abort cmd dbc10680: 0x2a 0x0 0x4 0x0 0x29 0x49md: write_disk_sb failed for device sda2
+16:26:04  0x0 0x0 0x8 0x0
 
-> Does using an initramfs really have some negative side, security related ?
-> Would some kind of signed or encrypted initramfs be preferable there ?
+BTW, this should go in one line.  The machine is SMP... ;)
 
-adding an initramfs to a system that doesn't need it otherwise adds 
-complications to the configure and boot process.
+16:26:04 scsi0: At time of recovery, card was not paused
+16:26:04 >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+16:26:04 scsi0: Dumping Card State at program address 0x0 Mode 0x22
+16:26:04 Card was paused
+16:26:04 HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)
+16:26:04 SEQINTSTAT[0x10]:(SEQ_SWTMRTO) SAVED_MODE[0x11] DFFSTAT[0x31]:(CURRFIFO_1|FIFO0FREE|FIFO1FREE)
+16:26:04 SCSISIGI[0x0]:(P_DATAOUT) SCSIPHASE[0x0] SCSIBUS[0x0]
+16:26:04 LASTPHASE[0x1]:(P_DATAOUT|P_BUSFREE) SCSISEQ0[0x0]
+16:26:04 SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI) SEQCTL0[0x10]:(FASTMODE)
+16:26:04 SEQINTCTL[0x0] SEQ_FLAGS[0xc0]:(NO_CDB_SENT|NOT_IDENTIFIED)
+16:26:04 SEQ_FLAGS2[0x0] SSTAT0[0x0] SSTAT1[0x8]:(BUSFREE)
+16:26:04 SSTAT2[0x0] SSTAT3[0x0] PERRDIAG[0x8]:(AIPERR) SIMODE1[0xa4]:(ENSCSIPERR|ENSCSIRST|ENSELTIMO)
+16:26:04 LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x0] LQOSTAT0[0x0]
+16:26:04 LQOSTAT1[0x0] LQOSTAT2[0x1]:(LQOSTOP0)
+16:26:04
+16:26:04 SCB Count = 128 CMDS_PENDING = 1 LASTSCB 0x4f CURRSCB 0x4f NEXTSCB 0xff40
+16:26:04 qinstart = 34129 qinfifonext = 34129
+16:26:04 QINFIFO:
+16:26:04 WAITING_TID_QUEUES:
+16:26:04 Pending list:
+16:26:04  41 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x7]
+16:26:04 Total 1
+16:26:04 Kernel Free SCB list: 126 78 79 12 127 10 93 113 30 96 49 37 73 33 52 95 103 27 72 106 71 18 61 85 83 110 20 87 94 75 115 8 51 99 45 22 3 92 50 86 125 28 48 15 122 63 107 80 114 70 36 23 104 26 2 16 68 42 21 64 118 7 81 67 59 88 117 34 24 82 105 25 31 84 4 76 58 91 66 11 121 102 14 1 97 57 44 120 29 65 39 100 89 74 6 124 32 35 54 17 69 19 111 55 47 46 5 53 77 0 112 109 9 119 60 101 108 13 38 40 98 62 56 116 43 123 90
+16:26:04 Sequencer Complete DMA-inprog list:
+16:26:04 Sequencer Complete list:
+16:26:04 Sequencer DMA-Up and Complete list:
+16:26:04
+16:26:04 scsi0: FIFO0 Free, LONGJMP == 0x80ff, SCB 0x49
+16:26:04 SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|ENSAVEPTRS)
+16:26:04 SEQINTSRC[0x0] DFCNTRL[0x0] DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL)
+16:26:04 SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]
+16:26:04 SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR = 0x00, SHCNT = 0x0
+16:26:04 HADDR = 0x00, HCNT = 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)
+16:26:04 scsi0: FIFO1 Free, LONGJMP == 0x8277, SCB 0x7e
+16:26:04 SEQIMODE[0x3f]:(ENCFG4TCMD|ENCFG4ICMD|ENCFG4TSTAT|ENCFG4ISTAT|ENCFG4DATA|ENSAVEPTRS)
+16:26:04 SEQINTSRC[0x0] DFCNTRL[0x4]:(DIRECTION) DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL)
+16:26:04 SG_CACHE_SHADOW[0x2]:(LAST_SEG) SG_STATE[0x0] DFFSXFRCTL[0x0]
+16:26:04 SOFFCNT[0x0] MDFFSTAT[0x5]:(FIFOFREE|DLZERO) SHADDR = 0x00, SHCNT = 0x0
+16:26:04 HADDR = 0x00, HCNT = 0x0 CCSGCTL[0x10]:(SG_CACHE_AVAIL)
+16:26:04 LQIN: 0x55 0x0 0x0 0x7e 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+16:26:04 scsi0: LQISTATE = 0x0, LQOSTATE = 0x0, OPTIONMODE = 0x42
+16:26:04 scsi0: OS_SPACE_CNT = 0x20 MAXCMDCNT = 0x1
+16:26:04
+16:26:04 SIMODE0[0xc]:(ENOVERRUN|ENIOERR)
+16:26:04 CCSCBCTL[0x0]
+16:26:04 scsi0: REG0 == 0x4f, SINDEX = 0x122, DINDEX = 0xe1
+16:26:04 scsi0: SCBPTR == 0x7e, SCB_NEXT == 0xff80, SCB_NEXT2 == 0xff62
+16:26:04 CDB 2a 0 0 80 8 c8
+16:26:04 STACK: 0x125 0x125 0x125 0x25e 0x240 0x25e 0x29 0x15
+16:26:04 <<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+16:26:04 DevQ(0:0:0): 0 waiting
+16:26:04 DevQ(0:1:0): 0 waiting
+16:26:04 DevQ(0:2:0): 0 waiting
+16:26:04 DevQ(0:4:0): 0 waiting
+16:26:04 (scsi0:A:0:0): Device is disconnected, re-queuing SCB
+16:26:04 Recovery code sleeping
+16:26:04 md: errors occurred during superblock update, repeating
+16:26:04 Recovery SCB completes
+16:26:04 Recovery code awake
+16:26:14 scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+16:26:14 SCSI error : <0 0 0 0> return code = 0x8000002
+16:26:14 sda: Current: sense key: Aborted Command
+16:26:14     Additional sense: No additional sense information
+16:26:14 Info fld=0x0
+16:26:14 end_request: I/O error, dev sda, sector 67119433
+16:26:14 scsi0 (0:0): rejecting I/O to offline device
+16:26:14 md: write_disk_sb failed for device sda6
+16:26:14 md: write_disk_sb failed for device sda1
+16:26:14 (scsi0:A:0): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
+16:26:14 md: errors occurred during superblock update, repeating
+16:26:14 scsi0 (0:0): rejecting I/O to offline device
+16:26:14 md: write_disk_sb failed for device sda6
+.....
 
-requireing modules when they weren't required before adds complication, and 
-if/when the patch that's floating around to eliminate access to /dev/kmem is 
-ever accepted, there are security advantages of running a kernel that doesn't 
-have any support for run-time modifications (i.e. module loading).
-
-I realize that many people want to make initramfs mandatory (with things like 
-partition detection moved to userspace), but unless there is a standard 
-initramfs that is shipped and maintained with the kernel to implement things 
-like this (see the klibc discussion a few weeks ago) you are adding 
-complications without much of a benifit to the user.
-
-David Lang

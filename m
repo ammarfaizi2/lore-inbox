@@ -1,113 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWH3Nzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWH3OAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWH3Nzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 09:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWH3Nzw
+	id S1750762AbWH3OAV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 10:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWH3OAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 09:55:52 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:65126 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751056AbWH3Nzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 09:55:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=bVSuxzYaPpbhjCI4n/sRx3mimxnjoUIkou31YqfX2/Q0bgL6Z2XXBN8pnqIY0kYmXqcRss2N/bc1+9779rda1z/ETMUPVY/Z5h38HQWC+BnEQfm3NoZJB87aZOqtRd7vupzk1ymcTw6batZ6l9IJCnmJHpZWj+FUHH+WNFtqXls=
-Message-ID: <44F598EA.3010700@gmail.com>
-Date: Wed, 30 Aug 2006 21:55:54 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: zab@zabbo.net
-CC: linux-kernel@vger.kernel.org, linux-aio@kvack.org, akpm@osdl.org
-Subject: Re: [2.6.18-rc* PATCH RFC]: Correct ambiguous errno of aio
-Content-Type: text/plain; charset=GB2312
+	Wed, 30 Aug 2006 10:00:20 -0400
+Received: from bayc1-pasmtp01.bayc1.hotmail.com ([65.54.191.161]:51491 "EHLO
+	bayc1-pasmtp01.bayc1.hotmail.com") by vger.kernel.org with ESMTP
+	id S1750762AbWH3OAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 10:00:19 -0400
+Message-ID: <BAYC1-PASMTP01E922231EF198D3EF563EAE3E0@CEZ.ICE>
+X-Originating-IP: [65.94.249.130]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Date: Wed, 30 Aug 2006 10:00:15 -0400
+From: Sean <seanlkml@sympatico.ca>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Andi Kleen <ak@suse.de>, davej@redhat.com, pageexec@freemail.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] exception processing in early boot
+Message-Id: <20060830100015.6b967c32.seanlkml@sympatico.ca>
+In-Reply-To: <20060830131612.GB351@1wt.eu>
+References: <20060830063932.GB289@1wt.eu>
+	<p73y7t65z6c.fsf@verdi.suse.de>
+	<20060830121845.GA351@1wt.eu>
+	<200608301459.15008.ak@suse.de>
+	<20060830131612.GB351@1wt.eu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.1; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Aug 2006 14:00:18.0686 (UTC) FILETIME=[A057F1E0:01C6CC3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/06, *Zach Brown* <zab@zabbo.net <mailto:zab@zabbo.net>> wrote:
+On Wed, 30 Aug 2006 15:16:12 +0200
+Willy Tarreau <w@1wt.eu> wrote:
 
+> That's already what I'm doing, and yes, it is *that* hard. We're literally
+> speaking about *thousands* of patches. It's as difficult to find one patch
+> within 2.6 git changes as it is to find a useful mail in the middle of 99%
+> spam. This is not because of GIT but because of the number of changes.
 
-    Sorry, we shouldn't merge this patch in its current form.
+Willy,
 
-    > In the current implementation of AIO, for the operation IOCB_CMD_FDSYNC
-    > and IOCB_CMD_FSYNC, the returned errno is -EINVAL although the kernel
-    > does know them, I think the correct errno should be -EOPNOTSUPP which
-    > means they aren't be implemented or supported.
+The git-cherry command might be useful for you in this situation.  It will
+show you all the patches in one branch that have been merged in an upstream
+branch, and those that haven't.  Not sure if it's perfect for your situation,
+but may be worth a look.
 
-    Like it or not, the sys_io_submit() interface returns -EINVAL when the
-    file descriptor doesn't support the requested command. Changing the
-    binary interface is a big deal and should not be done lightly. What is
-    the motivation for making this change?
-
-
-When I run ltp aio test case, for the operation OCB_CMD_FDSYNC and
-IOCB_CMD_FSYNC, io_submit returns -1 and errno is EINVAL, perror's
-output is "Invalid arguments", from the user's perspective, the
-arguments are valid
-and the kernel also know it and progress the process to file operation
-of the
-filesystem actually, so I think ENOTSUP is more appropriate. Note
-ENOTSUP in
-the user space corresponds to EOPNOTSUPP in the kernel mode. For ENOTSUP,
-perror's output is "Function isn't implemented", obviously, it is a
-reasonable explanation
-about the execution error and not ambiguous.
-
-    Even if we decided to, we'd want to do it for all the commands. This
-    patch only addresses F{D,}SYNC. All the other commands would still
-    return -EINVAL if the descriptor doesn't have the corresponding ->aio_
-    method, leaving userspace do deal with more complexity.
-
-
-What you said is true, but I want to know if my idea is right.
-- Show quoted text -
-
-    > -static ssize_t aio_fdsync(struct kiocb *iocb)
-    > -{
-    > - struct file *file = iocb->ki_filp;
-    > - ssize_t ret = -EINVAL;
-    > -
-    > - if (file->f_op->aio_fsync)
-    > - ret = file->f_op->aio_fsync(iocb, 1);
-    > - return ret;
-    > -}
-    > -
-    > static ssize_t aio_fsync(struct kiocb *iocb)
-    > {
-    > struct file *file = iocb->ki_filp;
-    > - ssize_t ret = -EINVAL;
-    > + ssize_t ret = -EOPNOTSUPP;
-    >
-    > if (file->f_op->aio_fsync)
-    > ret = file->f_op->aio_fsync(iocb, 0);
-
-    > case IOCB_CMD_FDSYNC:
-    > - ret = -EINVAL;
-    > + ret = -EOPNOTSUPP;
-    > if (file->f_op->aio_fsync)
-    > - kiocb->ki_retry = aio_fdsync;
-    > + kiocb->ki_retry = aio_fsync;
-
-    Hmm, your most recent patch didn't mention this aio_f{d,}sync() change
-    though the earlier one did. Please make sure all patch submissions have
-    complete descriptions.
-
-    These calls are not the same, notice that they differ in the second
-    argument to their ->aio_fsync() calls. Cleaning up the ->aio_fsync()
-    interface might well be reasonable. Missing that subtle difference
-    suggests that it should be more clear and there are precisely zero
-    merged ->aio_fsync() users. But that kind of cleanup belongs in a
-    separate patch with its own justification.
-
-
-Thank your care, it is my mistake and I'm so sorry for this, Your suggest
-is good, I'll send a small claenup patch for this.
-
-    Are you working with an ->aio_fsync() user that might be merged? 
-
-
-No, It just is noticed by me while I trace io_submit for FSYNC/FDSYNC.
-
-- z
+Sean

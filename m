@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWH3TZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWH3TZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWH3TZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWH3TZH
+	id S1751373AbWH3TZn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWH3TZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:25:07 -0400
-Received: from wx-out-0506.google.com ([66.249.82.227]:44582 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751366AbWH3TZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:25:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NNkEd8UfOawFYjO1AmUlLbE/mzYDkMLuoB0zNc1Zo7x/0yLDSRNQJf3RAdisKc9acgppz4lcQrKw7BClJm5D/PXmlLYf58NskZ3BiTYWSa+phperbILQQknlFSymK8Cv5Hk3oMDm2/5MFM13sWSqJQsjAbBmz7gPGpB5bBMKWQ8=
-Message-ID: <18d709710608301225x7407b216o74420d0b4034a484@mail.gmail.com>
-Date: Wed, 30 Aug 2006 16:25:03 -0300
-From: "Julio Auto" <mindvortex@gmail.com>
-To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>
-Subject: Re: [S390] cio: kernel stack overflow.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ed4nih$gb0$2@taverner.cs.berkeley.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 30 Aug 2006 15:25:42 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:3525 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751365AbWH3TZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 15:25:33 -0400
+Subject: Re: [PATCH] aic94xx: Increase can_queue and cmds_per_lun
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: ltuikov@yahoo.com
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>,
+       Konrad Rzeszutek <konrad@darnok.org>
+In-Reply-To: <20060830190454.28371.qmail@web31807.mail.mud.yahoo.com>
+References: <20060830190454.28371.qmail@web31807.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 30 Aug 2006 15:25:20 -0400
+Message-Id: <1156965920.7701.13.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060830124047.GA22276@skybase>
-	 <ed4nih$gb0$2@taverner.cs.berkeley.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, about your previous e-mail: you're correct, the members
-not explicitly initialized behave like when  a _static_ object is not
-explicitly initialized (ie., zero'ing it), instead of behaving like an
-_automatic_ object not being explicitly initialized (which was the
-kind of behavior I was expecting). This is part of the C99
-specification, indeed.
+On Wed, 2006-08-30 at 12:04 -0700, Luben Tuikov wrote:
+> > --- a/drivers/scsi/aic94xx/aic94xx_init.c
+> > +++ b/drivers/scsi/aic94xx/aic94xx_init.c
+> > @@ -71,7 +72,7 @@ static struct scsi_host_template aic94xx
+> >       .change_queue_type      = sas_change_queue_type,
+> >       .bios_param             = sas_bios_param,
+> >       .can_queue              = 1,
+> > -     .cmd_per_lun            = 1,
+> > +     .cmd_per_lun            = 2,
+> 
+> Why 2?  Why not 3?  If you can set this to 3, then why not 4?
+> But if you can set it to 4, why not 5?
+> 
+> This value should also be dynamically set, it should depend on
+> the type of LU and it shouldn't be present in the host template.
+> (But that's an architectural argument which leads nowhere on lsml.)
 
-See section 6.7.8, constraints no. 10 and 19, for more info.
+actually, cmd_per_lun is pretty much a vestigial variable.  It's used
+for the initial queue depth before the driver decides to turn on TCQ.
+Thus, since the non-tagged depth should always only be 1, the only
+useful value to set it to is 1.
 
-On 8/30/06, David Wagner <daw@cs.berkeley.edu> wrote:
-> I don't see any obvious place that zeroes out cdev->id.
-> In particular, it looks like cdev->id.match_flags and .driver_info
-> are never cleared (i.e., they retain whatever old garbage they had
-> before).  More importantly, if anyone ever adds any more fields to
-> struct ccw_device_id, then they will also be retain old garbage values,
-> which is a maintenance pitfall.  Is this right, or did I miss something
-> again?
+James
 
-Nicely pointed out, I hadn't thought about this possible maintenance
-issue. Looks like a nice place for a memset() to reside.
 
-Cheers,
-
-    Julio Auto

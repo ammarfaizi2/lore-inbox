@@ -1,40 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWH3QCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWH3QBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWH3QCU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWH3QCU
+	id S1750999AbWH3QBy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWH3QBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:02:20 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:61868 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751098AbWH3QCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:02:19 -0400
-Date: Wed, 30 Aug 2006 12:02:14 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: linux-kernel@vger.kernel.org, ak@muc.de, vojtech@suse.cz
-Subject: arch/x86_64/kernel/traps.c:show_trace should use __kernel_text_address
-Message-ID: <20060830160214.GA5557@Krystal>
+	Wed, 30 Aug 2006 12:01:54 -0400
+Received: from external.redrocketcomputing.com ([69.16.195.231]:17305 "EHLO
+	external.redrocketcomputing.com") by vger.kernel.org with ESMTP
+	id S1750999AbWH3QBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 12:01:53 -0400
+Subject: Re: [spi-devel-general] [Patch] Add spi full duplex mode transfer
+	support
+From: Stephen Street <stephen@streetfiresound.com>
+Reply-To: stephen@streetfiresound.com
+To: Manish Jaggi <manish.jaggi@gmail.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       spi-devel-general@lists.sourceforge.net, Luke Yang <luke.adi@gmail.com>,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <2e2add590608300337h3e7e806bs69b63b24d73a104c@mail.gmail.com>
+References: <489ecd0c0608292140m483bba2fqa300b55c5f4acf26@mail.gmail.com>
+	 <200608292152.58616.david-b@pacbell.net>
+	 <2e2add590608300337h3e7e806bs69b63b24d73a104c@mail.gmail.com>
+Content-Type: text/plain
+Organization: StreetFire Sound Labs
+Date: Wed, 30 Aug 2006 08:56:58 -0700
+Message-Id: <1156953418.6555.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 11:58:28 up 7 days, 13:07,  5 users,  load average: 0.99, 0.38, 0.18
-User-Agent: Mutt/1.5.12-2006-07-14
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - external.redrocketcomputing.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - streetfiresound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-08-30 at 16:07 +0530, Manish Jaggi wrote:
+> On the same lines can we have a member in spi_transfer structure
+> like bUseDMA.
+> 
+> In spi PIO mode for short writes of 2 to 8 words is better.
+> And we use DMA for larger writes/reads
+> 
+This capability is built into the pxa2xx_spi driver.  
 
-I noticed arch/x86_64/kernel/traps.c:show_trace uses kernel_text_address to
-verify that an address can potentially belong to kernel code. However, this
-version takes a spinlock and should not be called from oops. I think
-__kernel_text_address would be more appropriate there.
+Excerpt from linux/Documentation/spi/pxa2xx:
 
-Mathieu Desnoyers
+The pxa2xx_spi driver support both DMA and interrupt driven PIO message
+transfers.  The driver defaults to PIO mode and DMA transfers must
+enabled by setting the "enable_dma" flag in the "pxa2xx_spi_master"
+structure and and ensuring that the "pxa2xx_spi_chip.dma_burst_size"
+field is non-zero.  The DMA mode support both coherent and stream based
+DMA mappings.
 
+The following logic is used to determine the type of I/O to be used on
+a per "spi_transfer" basis:
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+if !enable_dma or dma_burst_size == 0 then
+        always use PIO transfers
+
+if spi_message.is_dma_mapped 
+   and rx_dma_buf != 0 and tx_dma_buf != 0 then
+        use coherent DMA mode
+
+if rx_buf and tx_buf are aligned on 8 byte boundary then
+        use streaming DMA mode
+
+otherwise
+        use PIO transfer
+
+By enabling DMA tranfers, clearing the spi_message.is_dma_mapped and
+providing transfer buffer NOT aligned on 8 byte boundary forced PIO mode
+will transfer buffers aligned on 8 byte boundary forces a DMA mode.
+
+My experiance has shown the most stack allocated transfer buffers are
+not 8 byte aligned and thus use PIO mode.
+
+Stephen
+

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWH3NQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWH3N1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWH3NQW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 09:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWH3NQW
+	id S1751031AbWH3N1g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 09:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWH3N1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 09:16:22 -0400
-Received: from 1wt.eu ([62.212.114.60]:41489 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751004AbWH3NQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 09:16:22 -0400
-Date: Wed, 30 Aug 2006 15:16:12 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Andi Kleen <ak@suse.de>
-Cc: davej@redhat.com, pageexec@freemail.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] exception processing in early boot
-Message-ID: <20060830131612.GB351@1wt.eu>
-References: <20060830063932.GB289@1wt.eu> <p73y7t65z6c.fsf@verdi.suse.de> <20060830121845.GA351@1wt.eu> <200608301459.15008.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608301459.15008.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Wed, 30 Aug 2006 09:27:35 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:52453 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750824AbWH3N1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 09:27:34 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer  [try #2]
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 30 Aug 2006 15:23:17 +0200
+References: <6Paqj-6iH-23@gated-at.bofh.it> <6NKRa-8sj-9@gated-at.bofh.it> <6Nv5K-8dh-9@gated-at.bofh.it> <6Nvfu-8t8-17@gated-at.bofh.it> <6NMJp-4wS-25@gated-at.bofh.it> <6PaTj-7vF-17@gated-at.bofh.it> <6PaTj-7vF-15@gated-at.bofh.it> <6Pciq-362-13@gated-at.bofh.it> <6PmUm-1Y7-9@gated-at.bofh.it> <6PwAr-6jv-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1GIQ2c-0000h3-T8@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 02:59:14PM +0200, Andi Kleen wrote:
+Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+
+> "select" would not be needed if the configurator wouldn't make an option
+> _invisible_ if it depends on another disabled option. It would be nice
+> if the option would stay visible (or better yet, would be optionally
+> visible) and had pointers to unfulfilled dependencies.
 > 
-> > Unfortunately, this situation is even more difficult for me, because it's
-> > getting very hard to track patches that get applied, rejected, modified or
-> > obsoleted, which is even more true when people don't always think about
-> > sending an ACK after the patch finally gets in. I already have a few pending
-> > patches in my queue waiting for an ACK that will have to be tracked if the
-> > persons do not respond, say, within one week. Otherwise I might simply lose
-> > them.
-> 
-> It shouldn't be that hard to check gitweb or git output occasionally
-> for the patches. You can probably even automate that.
+> Or more generally spoken, "select" would not be needed if there were
+> other means to switch the configurator's UI to a layout that exposes
+> more details about dependencies. There is already such a UI mode which
+> fully exposes _fulfilled_ dependencies.
 
-That's already what I'm doing, and yes, it is *that* hard. We're literally
-speaking about *thousands* of patches. It's as difficult to find one patch
-within 2.6 git changes as it is to find a useful mail in the middle of 99%
-spam. This is not because of GIT but because of the number of changes.
+The "options with pointers to (unfullfilled) dependencies" that should be
+visible are (or should be) exactly the options now using select. In other
+words, only make fooconfig needs to be enheanced.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-> > I think that the good method would be to :
-> >   - announce the patch
-> >   - find a volunteer to port it
-> >   - apply it once the volunteer agrees to handle it
-> > This way, no code gets lost because there's always someone to track it.
-> 
-> I can put that one into my tree for .19
-
-Thanks for this andi,
-Willy
-
+http://david.woodhou.se/why-not-spf.html

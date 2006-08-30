@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWH3TTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWH3TYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWH3TTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWH3TTx
+	id S1751364AbWH3TYc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWH3TYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:19:53 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:50484 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751358AbWH3TTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:19:52 -0400
-Date: Wed, 30 Aug 2006 21:19:27 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [S390] cio: kernel stack overflow.
-Message-ID: <20060830191927.GA8408@osiris.ibm.com>
-References: <20060830124047.GA22276@skybase> <ed4nih$gb0$2@taverner.cs.berkeley.edu>
-MIME-Version: 1.0
+	Wed, 30 Aug 2006 15:24:32 -0400
+Received: from 1wt.eu ([62.212.114.60]:44049 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751364AbWH3TYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 15:24:31 -0400
+Date: Wed, 30 Aug 2006 21:01:25 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Andi Kleen <ak@suse.de>
+Cc: pageexec@freemail.hu, davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] exception processing in early boot
+Message-ID: <20060830190125.GA21041@1wt.eu>
+References: <20060830063932.GB289@1wt.eu> <200608301952.54180.ak@suse.de> <44F5F348.1251.5C4EBCCB@pageexec.freemail.hu> <200608302026.05968.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ed4nih$gb0$2@taverner.cs.berkeley.edu>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <200608302026.05968.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 07:05:54PM +0000, David Wagner wrote:
-> Thanks for pointing out that in most cases there was immediately
-> preceding code that zeroes out the whole struct using kzalloc() or
-> memset(.., 0, ..).  Sorry that I overlooked that; my mistake.  That
-> takes care of all but one of these.  But in the interests of caution,
-> let me ask about the following one:
+On Wed, Aug 30, 2006 at 08:26:05PM +0200, Andi Kleen wrote:
+> On Wednesday 30 August 2006 20:21, pageexec@freemail.hu wrote:
+> > On 30 Aug 2006 at 19:52, Andi Kleen wrote:
+> > > On Wednesday 30 August 2006 19:33, pageexec@freemail.hu wrote:
+> > 
+> > > > > But I went with the simpler patch with some changes now 
+> > > > > (added PANIC to the message etc.) 
+> > > > 
+> > > > can you post it please?
+> > > 
+> > > ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/i386-early-exception
+> > 
+> > thanks, although i suggest you put back the hlt as Dick Johnson explained it.
 > 
-> Martin Schwidefsky  wrote:
-> >-		cdev->id = (struct ccw_device_id) {
-> >-			.cu_type   = cdev->private->senseid.cu_type,
-> >-			.cu_model  = cdev->private->senseid.cu_model,
-> >-			.dev_type  = cdev->private->senseid.dev_type,
-> >-			.dev_model = cdev->private->senseid.dev_model,
-> >-		};
-> >+		cdev->id.cu_type   = cdev->private->senseid.cu_type;
-> >+		cdev->id.cu_model  = cdev->private->senseid.cu_model;
-> >+		cdev->id.dev_type  = cdev->private->senseid.dev_type;
-> >+		cdev->id.dev_model = cdev->private->senseid.dev_model;
-> 
-> I don't see any obvious place that zeroes out cdev->id.
-> In particular, it looks like cdev->id.match_flags and .driver_info
-> are never cleared (i.e., they retain whatever old garbage they had
-> before).  More importantly, if anyone ever adds any more fields to
-> struct ccw_device_id, then they will also be retain old garbage values,
-> which is a maintenance pitfall.  Is this right, or did I miss something
-> again?
+> Unless someone can confirm there were not other problems on those 386s/486s
+> in HLT no.
 
-You're right. Thanks for pointing this out! I will take care of it.
+Andi, if you remove the HLT here, some CPUs will spin at full speed. This
+is nasty during boot because some of them might not have enabled their
+fans yet for instance and could fry if nobody's looking (eg: live reset
+caused by hardware problem). Even if HLT does not work on some CPUs,
+the JMP after it will spin around it and the initial goal will be achieved.
+
+Regards,
+Willy
+

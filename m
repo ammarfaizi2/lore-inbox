@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWH3Fa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWH3Fbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWH3Fa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 01:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWH3Fa6
+	id S964984AbWH3Fbp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 01:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWH3Fbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 01:30:58 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:11403 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S964955AbWH3Fa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 01:30:58 -0400
-Message-Id: <1156915857.17214.269732888@webmail.messagingengine.com>
-X-Sasl-Enc: CQyJWLCQdJOLDos68vyxgfA4Cwo2Z0kZqQj7eoMgPPPL 1156915857
-From: "Komal Shah" <komal_shah802003@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Content-Transfer-Encoding: 7bit
-Content-Type: multipart/mixed; boundary="_----------=_1156915857172140"; charset="ISO-8859-1"
+	Wed, 30 Aug 2006 01:31:45 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:693 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964984AbWH3Fbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 01:31:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G/nFFHxoujPAY31Nts/6+LxEZNM7f5uymNXzUYsd6vFhLOPGSSBSygiZFpsW8mSlg+u+8llkagWiYwSoHNz/a5dgP2P+MHXLIG+dPnK42sK+/wWlBdBKskXi8tHeVIj4yK9er6dIFHDB1CckmtFuJy08UK2fV1oTZ68v13yHqX4=
+Message-ID: <b115cb5f0608292231r1a3c47c8r8980b32e838ff964@mail.gmail.com>
+Date: Wed, 30 Aug 2006 11:01:43 +0530
+From: "Rajat Jain" <rajat.noida.india@gmail.com>
+To: "Rik van Riel" <riel@surriel.com>
+Subject: Re: Spinlock query
+Cc: "Rick Brown" <rick.brown.3@gmail.com>, kernelnewbies@nl.linux.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44F501B3.9070200@surriel.com>
 MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Subject: [PATCH] debugfs: spelling fix
-Date: Wed, 30 Aug 2006 11:00:57 +0530
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <7783925d0608291912i3f04d460kc9edebf9d358dbc3@mail.gmail.com>
+	 <44F501B3.9070200@surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 8/30/06, Rik van Riel <riel@surriel.com> wrote:
+> Rick Brown wrote:
+> > Hi,
+> >
+> > In my driver (Process context), I have written the following code:
+> >
+> > --------------------------------------------
+> > spin_lock(lock)
+> > ...
+> > //Critical section to manipulate driver data
+>
+> ... interrupt hits here
+>     interrupt handler tries to grab the spinlock, which is already taken
+>     *BOOM*
+>
+> > spin_u lock(lock)
+> > ---------------------------------------------
+> >
 
---_----------=_1156915857172140
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Wed, 30 Aug 2006 05:30:57 UT
+The interrupt handler TRIES to grab the spinlock, which is already
+taken. Why will it "BOOM"? Wouldn't the interrupt handler busy wait,
+waiting for the lock?
 
-Greg,
+Am I missing something here?
 
-Just a single line spell-fix for debugfs.
+Rajat
 
----Komal Shah
-http://komalshah.blogspot.com
-
--- 
-http://www.fastmail.fm - Or how I learned to stop worrying and
-                          love email again
-
-
---_----------=_1156915857172140
-Content-Disposition: attachment; filename="0001-debugfs-spelling-fix.patch"
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-debugfs-spelling-fix.patch"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Wed, 30 Aug 2006 05:30:57 UT
-
-RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
-bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBU
-dWUsIDI5IEF1ZyAyMDA2IDIwOjU0OjUzICswNTMwClN1YmplY3Q6IFtQQVRD
-SF0gZGVidWdmczogc3BlbGxpbmcgZml4CgpDaGFuZ2UgZGVidWZzX2NyZWF0
-ZV9maWxlKCkgdG8gZGVidWdmc19jcmVhdGVfZmlsZSgpLgoKU2lnbmVkLW9m
-Zi1ieTogS29tYWwgU2hhaCA8a29tYWxfc2hhaDgwMjAwM0B5YWhvby5jb20+
-CgotLS0KCiBmcy9kZWJ1Z2ZzL2lub2RlLmMgfCAgICAyICstCiAxIGZpbGVz
-IGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmZi
-NTdmNGY2M2ZkZGYzMzQxNjZmNmE4MTMwYjQxZWFlNDdiMGRhMmUKZGlmZiAt
-LWdpdCBhL2ZzL2RlYnVnZnMvaW5vZGUuYyBiL2ZzL2RlYnVnZnMvaW5vZGUu
-YwppbmRleCBlOGFlMzA0Li5jZThiZjdjIDEwMDY0NAotLS0gYS9mcy9kZWJ1
-Z2ZzL2lub2RlLmMKKysrIGIvZnMvZGVidWdmcy9pbm9kZS5jCkBAIC0yNTYs
-NyArMjU2LDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZGVidWdmc19jcmVhdGVf
-ZGlyKTsKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIHJlbW92ZXMgYSBmaWxlIG9y
-IGRpcmVjdG9yeSBpbiBkZWJ1Z2ZzIHRoYXQgd2FzIHByZXZpb3VzbHkKICAq
-IGNyZWF0ZWQgd2l0aCBhIGNhbGwgdG8gYW5vdGhlciBkZWJ1Z2ZzIGZ1bmN0
-aW9uIChsaWtlCi0gKiBkZWJ1ZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJpYW50
-cyB0aGVyZW9mLikKKyAqIGRlYnVnZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJp
-YW50cyB0aGVyZW9mLikKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIGlzIHJlcXVp
-cmVkIHRvIGJlIGNhbGxlZCBpbiBvcmRlciBmb3IgdGhlIGZpbGUgdG8gYmUK
-ICAqIHJlbW92ZWQsIG5vIGF1dG9tYXRpYyBjbGVhbnVwIG9mIGZpbGVzIHdp
-bGwgaGFwcGVuIHdoZW4gYSBtb2R1bGUgaXMKLS0gCjEuMy4zCgo=
-
---_----------=_1156915857172140--
-
+> > I have written similar code in my interrupt handler (Interrupt
+> > context). The driver data is not accessed from anywhere else. Is my
+> > code safe from any potential concurrency issues? Is there a need to
+> > use spin_lock_irqsave()? In both the places?
+>
+> You need to use spin_lock_irqsave() from process context.
+>  From the interrupt handler itself it doesn't hurt, but it
+> shouldn't matter much since interrupt handlers should not
+> get preempted.

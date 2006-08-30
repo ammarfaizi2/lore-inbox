@@ -1,301 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWH3WQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWH3WRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWH3WQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWH3WQR
+	id S932185AbWH3WRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWH3WQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:16:17 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:35265 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932178AbWH3WQL (ORCPT
+	Wed, 30 Aug 2006 18:16:42 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:16027 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932185AbWH3WQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:16:11 -0400
-Subject: [RFC][PATCH 4/9] ia64 generic PAGE_SIZE
+	Wed, 30 Aug 2006 18:16:15 -0400
+Subject: [RFC][PATCH 7/9] parisc generic PAGE_SIZE
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 30 Aug 2006 15:16:07 -0700
+Date: Wed, 30 Aug 2006 15:16:09 -0700
 References: <20060830221604.E7320C0F@localhost.localdomain>
 In-Reply-To: <20060830221604.E7320C0F@localhost.localdomain>
-Message-Id: <20060830221607.1DB81421@localhost.localdomain>
+Message-Id: <20060830221609.DA8E9016@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is the ia64 portion to convert it over to the generic PAGE_SIZE
+This is the parisc portion to convert it over to the generic PAGE_SIZE
 framework.
 
-* Change all references to CONFIG_IA64_PAGE_SIZE_*KB to
-  CONFIG_PAGE_SIZE_* and update the defconfigs.  
-* remove ia64-specific Kconfig menu
-* add ia64 default of 16k pages to mm/Kconfig
-* add support for 8k and 16k pages, plus 64k if !ITANIUM
+* remove parisc-specific Kconfig menu
+* add parisc default of 4k pages to mm/Kconfig
+* replace parisc Kconfig menu with plain bool Kconfig option to
+  cover both 16KB and 64KB pages: PARISC_LARGER_PAGE_SIZES.
+  This preserves the dependencies on PA8X00.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- threadalloc-dave/include/asm-ia64/ptrace.h             |    6 +--
- threadalloc-dave/include/asm-ia64/page.h               |   21 ----------
- threadalloc-dave/arch/ia64/Kconfig                     |   34 +----------------
- threadalloc-dave/arch/ia64/configs/bigsur_defconfig    |    8 ++--
- threadalloc-dave/arch/ia64/configs/gensparse_defconfig |    8 ++--
- threadalloc-dave/arch/ia64/configs/sim_defconfig       |    8 ++--
- threadalloc-dave/arch/ia64/configs/sn2_defconfig       |    8 ++--
- threadalloc-dave/arch/ia64/configs/tiger_defconfig     |    8 ++--
- threadalloc-dave/arch/ia64/configs/zx1_defconfig       |    8 ++--
- threadalloc-dave/arch/ia64/defconfig                   |    8 ++--
- threadalloc-dave/mm/Kconfig                            |    4 ++
- 11 files changed, 38 insertions(+), 83 deletions(-)
+ threadalloc-dave/include/asm-parisc/pgtable.h |    8 +++---
+ threadalloc-dave/include/asm-parisc/page.h    |   25 ---------------------
+ threadalloc-dave/arch/parisc/Kconfig          |   30 +++-----------------------
+ threadalloc-dave/arch/parisc/defconfig        |    6 ++---
+ threadalloc-dave/arch/parisc/mm/init.c        |    2 -
+ threadalloc-dave/mm/Kconfig                   |    7 +++---
+ 6 files changed, 17 insertions(+), 61 deletions(-)
 
-diff -puN include/asm-ia64/ptrace.h~ia64 include/asm-ia64/ptrace.h
---- threadalloc/include/asm-ia64/ptrace.h~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/include/asm-ia64/ptrace.h	2006-08-30 15:15:02.000000000 -0700
-@@ -64,11 +64,11 @@
-  * Base-2 logarithm of number of pages to allocate per task structure
-  * (including register backing store and memory stack):
-  */
--#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
+diff -puN include/asm-parisc/pgtable.h~parisc include/asm-parisc/pgtable.h
+--- threadalloc/include/asm-parisc/pgtable.h~parisc	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/include/asm-parisc/pgtable.h	2006-08-30 15:15:04.000000000 -0700
+@@ -66,7 +66,7 @@
+ #endif
+ #define KERNEL_INITIAL_SIZE	(1 << KERNEL_INITIAL_ORDER)
+ 
+-#if defined(CONFIG_64BIT) && defined(CONFIG_PARISC_PAGE_SIZE_4KB)
++#if defined(CONFIG_64BIT) && defined(CONFIG_PAGE_SIZE_4KB)
+ #define PT_NLEVELS	3
+ #define PGD_ORDER	1 /* Number of pages per pgd */
+ #define PMD_ORDER	1 /* Number of pages per pmd */
+@@ -514,11 +514,11 @@ static inline void ptep_set_wrprotect(st
+ #define _PAGE_SIZE_ENCODING_16M		6
+ #define _PAGE_SIZE_ENCODING_64M		7
+ 
+-#if defined(CONFIG_PARISC_PAGE_SIZE_4KB)
 +#if defined(CONFIG_PAGE_SIZE_4KB)
- # define KERNEL_STACK_SIZE_ORDER		3
--#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
-+#elif defined(CONFIG_PAGE_SIZE_8KB)
- # define KERNEL_STACK_SIZE_ORDER		2
--#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
+ # define _PAGE_SIZE_ENCODING_DEFAULT _PAGE_SIZE_ENCODING_4K
+-#elif defined(CONFIG_PARISC_PAGE_SIZE_16KB)
 +#elif defined(CONFIG_PAGE_SIZE_16KB)
- # define KERNEL_STACK_SIZE_ORDER		1
- #else
- # define KERNEL_STACK_SIZE_ORDER		0
-diff -puN include/asm-ia64/page.h~ia64 include/asm-ia64/page.h
---- threadalloc/include/asm-ia64/page.h~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/include/asm-ia64/page.h	2006-08-30 15:15:02.000000000 -0700
-@@ -7,7 +7,7 @@
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-  */
+ # define _PAGE_SIZE_ENCODING_DEFAULT _PAGE_SIZE_ENCODING_16K
+-#elif defined(CONFIG_PARISC_PAGE_SIZE_64KB)
++#elif defined(CONFIG_PAGE_SIZE_64KB)
+ # define _PAGE_SIZE_ENCODING_DEFAULT _PAGE_SIZE_ENCODING_64K
+ #endif
  
--
-+#include <asm-generic/page.h>
- #include <asm/intrinsics.h>
- #include <asm/types.h>
+diff -puN include/asm-parisc/page.h~parisc include/asm-parisc/page.h
+--- threadalloc/include/asm-parisc/page.h~parisc	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/include/asm-parisc/page.h	2006-08-30 15:15:04.000000000 -0700
+@@ -1,29 +1,10 @@
+ #ifndef _PARISC_PAGE_H
+ #define _PARISC_PAGE_H
  
-@@ -24,25 +24,6 @@
- #define RGN_GATE	5	/* Gate page, Kernel text, etc */
- #define RGN_HPAGE	4	/* For Huge TLB pages */
- 
--/*
-- * PAGE_SHIFT determines the actual kernel page size.
-- */
--#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
--# define PAGE_SHIFT	12
--#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
--# define PAGE_SHIFT	13
--#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
--# define PAGE_SHIFT	14
--#elif defined(CONFIG_IA64_PAGE_SIZE_64KB)
--# define PAGE_SHIFT	16
--#else
--# error Unsupported page size!
+-#if !defined(__KERNEL__)
+-/* this is for userspace applications (4k page size) */
+-# define PAGE_SHIFT	12	/* 4k */
+-# define PAGE_SIZE	(1UL << PAGE_SHIFT)
+-# define PAGE_MASK	(~(PAGE_SIZE-1))
 -#endif
 -
--#define PAGE_SIZE		(__IA64_UL_CONST(1) << PAGE_SHIFT)
--#define PAGE_MASK		(~(PAGE_SIZE - 1))
--#define PAGE_ALIGN(addr)	(((addr) + PAGE_SIZE - 1) & PAGE_MASK)
++#include <asm-generic/page.h>
+ 
+ #ifdef __KERNEL__
+ 
+-#if defined(CONFIG_PARISC_PAGE_SIZE_4KB)
+-# define PAGE_SHIFT	12	/* 4k */
+-#elif defined(CONFIG_PARISC_PAGE_SIZE_16KB)
+-# define PAGE_SHIFT	14	/* 16k */
+-#elif defined(CONFIG_PARISC_PAGE_SIZE_64KB)
+-# define PAGE_SHIFT	16	/* 64k */
+-#else
+-# error "unknown default kernel page size"
+-#endif
+-#define PAGE_SIZE	(1UL << PAGE_SHIFT)
+-#define PAGE_MASK	(~(PAGE_SIZE-1))
 -
- #define PERCPU_PAGE_SHIFT	16	/* log2() of max. size of per-CPU area */
- #define PERCPU_PAGE_SIZE	(__IA64_UL_CONST(1) << PERCPU_PAGE_SHIFT)
+-
+ #ifndef __ASSEMBLY__
  
-diff -puN arch/ia64/Kconfig~ia64 arch/ia64/Kconfig
---- threadalloc/arch/ia64/Kconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/Kconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -149,38 +149,8 @@ config MCKINLEY
+ #include <asm/types.h>
+@@ -140,10 +121,6 @@ extern int npmem_ranges;
+ #define PMD_ENTRY_SIZE	(1UL << BITS_PER_PMD_ENTRY)
+ #define PTE_ENTRY_SIZE	(1UL << BITS_PER_PTE_ENTRY)
  
- endchoice
+-/* to align the pointer to the (next) page boundary */
+-#define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+-
+-
+ #define LINUX_GATEWAY_SPACE     0
+ 
+ /* This governs the relationship between virtual and physical addresses.
+diff -puN arch/parisc/Kconfig~parisc arch/parisc/Kconfig
+--- threadalloc/arch/parisc/Kconfig~parisc	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/parisc/Kconfig	2006-08-30 15:15:04.000000000 -0700
+@@ -142,34 +142,12 @@ config 64BIT
+ 	  enable this option otherwise. The 64bit kernel is significantly bigger
+ 	  and slower than the 32bit one.
  
 -choice
 -	prompt "Kernel page size"
--	default IA64_PAGE_SIZE_16KB
+-	default PARISC_PAGE_SIZE_4KB  if !64BIT
+-	default PARISC_PAGE_SIZE_4KB  if 64BIT
+-#	default PARISC_PAGE_SIZE_16KB if 64BIT
 -
--config IA64_PAGE_SIZE_4KB
+-config PARISC_PAGE_SIZE_4KB
 -	bool "4KB"
 -	help
--	  This lets you select the page size of the kernel.  For best IA-64
--	  performance, a page size of 8KB or 16KB is recommended.  For best
--	  IA-32 compatibility, a page size of 4KB should be selected (the vast
--	  majority of IA-32 binaries work perfectly fine with a larger page
--	  size).  For Itanium 2 or newer systems, a page size of 64KB can also
--	  be selected.
+-	  This lets you select the page size of the kernel.  For best
+-	  performance, a page size of 16KB is recommended.  For best
+-	  compatibility with 32bit applications, a page size of 4KB should be
+-	  selected (the vast majority of 32bit binaries work perfectly fine
+-	  with a larger page size).
 -
--	  4KB                For best IA-32 compatibility
--	  8KB                For best IA-64 performance
--	  16KB               For best IA-64 performance
--	  64KB               Requires Itanium 2 or newer processor.
+-	  4KB                For best 32bit compatibility
+-	  16KB               For best performance
+-	  64KB               For best performance, might give more overhead.
 -
--	  If you don't know what to do, choose 16KB.
+-	  If you don't know what to do, choose 4KB.
 -
--config IA64_PAGE_SIZE_8KB
--	bool "8KB"
--
--config IA64_PAGE_SIZE_16KB
--	bool "16KB"
--
--config IA64_PAGE_SIZE_64KB
--	depends on !ITANIUM
--	bool "64KB"
--
--endchoice
+-config PARISC_PAGE_SIZE_16KB
+-	bool "16KB (EXPERIMENTAL)"
++config PARISC_LARGER_PAGE_SIZES
++	def_bool y
+ 	depends on PA8X00 && EXPERIMENTAL
+ 
+-config PARISC_PAGE_SIZE_64KB
+-	bool "64KB (EXPERIMENTAL)"
+-	depends on PA8X00 && EXPERIMENTAL
 +config ARCH_GENERIC_PAGE_SIZE
 +	def_bool y
  
- choice
- 	prompt "Page Table Levels"
-diff -puN arch/ia64/configs/bigsur_defconfig~ia64 arch/ia64/configs/bigsur_defconfig
---- threadalloc/arch/ia64/configs/bigsur_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/bigsur_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -98,10 +98,10 @@ CONFIG_IA64_DIG=y
- # CONFIG_IA64_HP_SIM is not set
- CONFIG_ITANIUM=y
- # CONFIG_MCKINLEY is not set
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
-+# CONFIG_PAGE_SIZE_64KB is not set
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/configs/gensparse_defconfig~ia64 arch/ia64/configs/gensparse_defconfig
---- threadalloc/arch/ia64/configs/gensparse_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/gensparse_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -99,10 +99,10 @@ CONFIG_IA64_GENERIC=y
- # CONFIG_IA64_HP_SIM is not set
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
-+# CONFIG_PAGE_SIZE_64KB is not set
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/configs/sim_defconfig~ia64 arch/ia64/configs/sim_defconfig
---- threadalloc/arch/ia64/configs/sim_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/sim_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -99,10 +99,10 @@ CONFIG_DMA_IS_DMA32=y
- CONFIG_IA64_HP_SIM=y
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--# CONFIG_IA64_PAGE_SIZE_16KB is not set
--CONFIG_IA64_PAGE_SIZE_64KB=y
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
+ endchoice
+ 
+diff -puN arch/parisc/defconfig~parisc arch/parisc/defconfig
+--- threadalloc/arch/parisc/defconfig~parisc	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/parisc/defconfig	2006-08-30 15:15:04.000000000 -0700
+@@ -91,9 +91,9 @@ CONFIG_PA7100LC=y
+ # CONFIG_PA7300LC is not set
+ # CONFIG_PA8X00 is not set
+ CONFIG_PA11=y
+-CONFIG_PARISC_PAGE_SIZE_4KB=y
+-# CONFIG_PARISC_PAGE_SIZE_16KB is not set
+-# CONFIG_PARISC_PAGE_SIZE_64KB is not set
++CONFIG_PAGE_SIZE_4KB=y
 +# CONFIG_PAGE_SIZE_16KB is not set
-+CONFIG_PAGE_SIZE_64KB=y
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/configs/sn2_defconfig~ia64 arch/ia64/configs/sn2_defconfig
---- threadalloc/arch/ia64/configs/sn2_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/sn2_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -98,10 +98,10 @@ CONFIG_IA64_SGI_SN2=y
- # CONFIG_IA64_HP_SIM is not set
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
 +# CONFIG_PAGE_SIZE_64KB is not set
- # CONFIG_PGTABLE_3 is not set
- CONFIG_PGTABLE_4=y
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/configs/tiger_defconfig~ia64 arch/ia64/configs/tiger_defconfig
---- threadalloc/arch/ia64/configs/tiger_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/tiger_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -99,10 +99,10 @@ CONFIG_IA64_DIG=y
- # CONFIG_IA64_HP_SIM is not set
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
-+# CONFIG_PAGE_SIZE_64KB is not set
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/configs/zx1_defconfig~ia64 arch/ia64/configs/zx1_defconfig
---- threadalloc/arch/ia64/configs/zx1_defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/configs/zx1_defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -97,10 +97,10 @@ CONFIG_IA64_HP_ZX1=y
- # CONFIG_IA64_HP_SIM is not set
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
-+# CONFIG_PAGE_SIZE_64KB is not set
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN arch/ia64/defconfig~ia64 arch/ia64/defconfig
---- threadalloc/arch/ia64/defconfig~ia64	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/arch/ia64/defconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -99,10 +99,10 @@ CONFIG_IA64_GENERIC=y
- # CONFIG_IA64_HP_SIM is not set
- # CONFIG_ITANIUM is not set
- CONFIG_MCKINLEY=y
--# CONFIG_IA64_PAGE_SIZE_4KB is not set
--# CONFIG_IA64_PAGE_SIZE_8KB is not set
--CONFIG_IA64_PAGE_SIZE_16KB=y
--# CONFIG_IA64_PAGE_SIZE_64KB is not set
-+# CONFIG_PAGE_SIZE_4KB is not set
-+# CONFIG_PAGE_SIZE_8KB is not set
-+CONFIG_PAGE_SIZE_16KB=y
-+# CONFIG_PAGE_SIZE_64KB is not set
- CONFIG_PGTABLE_3=y
- # CONFIG_PGTABLE_4 is not set
- # CONFIG_HZ_100 is not set
-diff -puN mm/Kconfig~ia64 mm/Kconfig
---- threadalloc/mm/Kconfig~ia64	2006-08-30 15:15:01.000000000 -0700
-+++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:02.000000000 -0700
-@@ -5,6 +5,7 @@ config ARCH_HAVE_GET_ORDER
+ # CONFIG_SMP is not set
+ CONFIG_ARCH_FLATMEM_ENABLE=y
+ # CONFIG_PREEMPT_NONE is not set
+diff -puN arch/parisc/mm/init.c~parisc arch/parisc/mm/init.c
+--- threadalloc/arch/parisc/mm/init.c~parisc	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/arch/parisc/mm/init.c	2006-08-30 15:15:04.000000000 -0700
+@@ -642,7 +642,7 @@ static void __init map_pages(unsigned lo
+ 				 * Map the fault vector writable so we can
+ 				 * write the HPMC checksum.
+ 				 */
+-#if defined(CONFIG_PARISC_PAGE_SIZE_4KB)
++#if defined(CONFIG_PAGE_SIZE_4KB)
+ 				if (address >= ro_start && address < ro_end
+ 							&& address != fv_addr
+ 							&& address != gw_addr)
+diff -puN mm/Kconfig~parisc mm/Kconfig
+--- threadalloc/mm/Kconfig~parisc	2006-08-30 15:15:03.000000000 -0700
++++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:04.000000000 -0700
+@@ -5,7 +5,7 @@ config ARCH_HAVE_GET_ORDER
  choice
  	prompt "Kernel Page Size"
  	depends on ARCH_GENERIC_PAGE_SIZE
-+	default PAGE_SIZE_16KB if IA64
+-	default PAGE_SIZE_4KB if MIPS
++	default PAGE_SIZE_4KB if MIPS || PARISC
+ 	default PAGE_SIZE_8KB if SPARC64
+ 	default PAGE_SIZE_16KB if IA64
  config PAGE_SIZE_4KB
- 	bool "4KB"
- 	help
-@@ -25,10 +26,13 @@ config PAGE_SIZE_4KB
- 	  architecture.
- config PAGE_SIZE_8KB
- 	bool "8KB"
-+	depends on IA64
+@@ -32,10 +32,11 @@ config PAGE_SIZE_8KB
+ 	depends on IA64 || SPARC64 || MIPS_PAGE_SIZE_8KB
  config PAGE_SIZE_16KB
  	bool "16KB"
-+	depends on IA64
+-	depends on IA64 || MIPS_PAGE_SIZE_16KB
++	depends on IA64 || MIPS_PAGE_SIZE_16KB || PARISC_LARGER_PAGE_SIZES
  config PAGE_SIZE_64KB
  	bool "64KB"
-+	depends on (IA64 && !ITANIUM)
+-	depends on (IA64 && !ITANIUM) || SPARC64 || MIPS_PAGE_SIZE_64KB
++	depends on (IA64 && !ITANIUM) || SPARC64 || MIPS_PAGE_SIZE_64KB || \
++		   PARISC_LARGER_PAGE_SIZES
  config PAGE_SIZE_512KB
  	bool "512KB"
- config PAGE_SIZE_4MB
+ 	depends on SPARC64
 _

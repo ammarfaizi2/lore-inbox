@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWH3X5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWH3X7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWH3X5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWH3X5X
+	id S1751441AbWH3X7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWH3X73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:57:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10165 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751190AbWH3X5W (ORCPT
+	Wed, 30 Aug 2006 19:59:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23719 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751441AbWH3X72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:57:22 -0400
-Date: Wed, 30 Aug 2006 16:57:16 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC][PATCH 4/9] ia64 generic PAGE_SIZE
-In-Reply-To: <20060830221607.1DB81421@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0608301652270.5789@schroedinger.engr.sgi.com>
-References: <20060830221604.E7320C0F@localhost.localdomain>
- <20060830221607.1DB81421@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Aug 2006 19:59:28 -0400
+Date: Wed, 30 Aug 2006 16:59:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Gorka Guardiola" <paurealkml@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buffer head async write
+Message-Id: <20060830165924.2955d8d1.akpm@osdl.org>
+In-Reply-To: <dc081bb90608300935h1d5346fbj742920754f4b4680@mail.gmail.com>
+References: <dc081bb90608300935h1d5346fbj742920754f4b4680@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006, Dave Hansen wrote:
+On Wed, 30 Aug 2006 11:35:44 -0500
+"Gorka Guardiola" <paurealkml@gmail.com> wrote:
 
-> @@ -64,11 +64,11 @@
->   * Base-2 logarithm of number of pages to allocate per task structure
->   * (including register backing store and memory stack):
->   */
-> -#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
-> +#if defined(CONFIG_PAGE_SIZE_4KB)
->  # define KERNEL_STACK_SIZE_ORDER		3
-> -#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
-> +#elif defined(CONFIG_PAGE_SIZE_8KB)
->  # define KERNEL_STACK_SIZE_ORDER		2
-> -#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
-> +#elif defined(CONFIG_PAGE_SIZE_16KB)
->  # define KERNEL_STACK_SIZE_ORDER		1
->  #else
->  # define KERNEL_STACK_SIZE_ORDER		0
+> I am trying to 	mark a buffer for async write, but I am  having a race condition
+> to unlock the buffer. I am doing.
+> 
+>         bh = getbmapst(bdev, nsect); //this function calls bread
+> 	if (!bh) {
+> 		printk(KERN_ALERT "I/O error, bitmap cannot be trusted\n");
+> 		return -1;
+> 	}
+> 	
+> 	lock_buffer(bh);	
+> 
+> 	byte = bh->b_data + byteoffset;
+> 	*byte |= 1 << bitoffset;
+> 	lock_page(bh->b_page);
+> 	mark_page_accessed(bh->b_page);
+> 	__set_page_dirty_nobuffers(bh->b_page);
+> 	unlock_page(bh->b_page);
+> 	set_buffer_uptodate(bh);
+> 	mark_buffer_dirty(bh);
+> 	mark_buffer_async_write(bh);
+> 	unlock_buffer(bh);
+> 	brelse(bh);
 
-Could we replace these lines with
+There are rather a lot of mistakes in there.
 
-#define KERNEL_STACK_SIZE_ORDER (max(0, 15 - PAGE_SHIFT)) 
+More like this:
 
-?
+	lock_page(bh->b_page);
+	lock_buffer(bh);
+	byte = bh->b_data + byteoffset;
+	*byte |= 1 << bitoffset;
+	mark_buffer_dirty(bh);
+	unlock_buffer(bh);
+	flush_dcache_page(page);
+	unlock_page(page);
+	put_bh(bh);
+
+now, the buffer is dirty and will be written back by pdflush, sync, etc.
+
+If you really want to start async IO against that buffer now, do
+
+	ll_rw_block(WRITE, 1, &bh);
+
+just before the final put_bh().
+
+	

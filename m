@@ -1,142 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWH3Mhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWH3Mjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWH3Mhl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWH3Mhl
+	id S1750890AbWH3Mjx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWH3Mjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:37:41 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:46864 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750707AbWH3Mhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:37:40 -0400
-Date: Wed, 30 Aug 2006 14:37:38 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [S390] broken copy_in_user function.
-Message-ID: <20060830123738.GA21193@skybase>
+	Wed, 30 Aug 2006 08:39:53 -0400
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:28857 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750886AbWH3Mjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:39:52 -0400
+Date: Wed, 30 Aug 2006 08:33:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for
+  i386.
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+Message-ID: <200608300838_MC3-1-C9C6-CA79@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+In-Reply-To: <44F557A8.1030605@goop.org>
 
-[S390] broken copy_in_user function.
+On Wed, 30 Aug 2006 02:17:28 -0700, Jeremy Fitzhardinge wrote:
 
-The copy_in_user primitive does not work as advertised. If the source
-and target area are available copy_in_user copies one byte too much.
-If one of the memory areas is not available it does not copy as much
-data as it can, but up to 257 bytes less.
+> > This changes the ABI for signals and ptrace() and that seems like
+> > a bad idea to me.
+> >   
+> 
+> I don't believe it does; it certainly shouldn't change the usermode 
+> ABI.  How do you see it changing?
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Nevermind.  I thought because you changed struct pt_regs in ptrace_abi.h
+it meant a user ABI change.
 
- arch/s390/lib/uaccess.S   |   33 +++++++++++++++++----------------
- arch/s390/lib/uaccess64.S |   35 ++++++++++++++++++-----------------
- 2 files changed, 35 insertions(+), 33 deletions(-)
+> > And the way things are done now is so ingrained into the i386
+> > kernel that I'm not sure it can be done.  E.g. I found two
+> > open-coded implementations of current, one in kernel_fpu_begin()
+> > and one in math_state_restore().
+> >   
+> 
+> That's OK.  The current task will still be available in thread_info; 
 
-diff -urpN linux-2.6/arch/s390/lib/uaccess64.S linux-2.6-patched/arch/s390/lib/uaccess64.S
---- linux-2.6/arch/s390/lib/uaccess64.S	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/uaccess64.S	2006-08-30 14:24:31.000000000 +0200
-@@ -88,30 +88,31 @@ __copy_to_user_asm:
-         .globl __copy_in_user_asm
- 	# %r2 = from, %r3 = n, %r4 = to
- __copy_in_user_asm:
-+	aghi	%r3,-1
-+	jo	6f
- 	sacf	256
--	bras	1,1f
--	mvc	0(1,%r4),0(%r2)
--0:	mvc	0(256,%r4),0(%r2)
--	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--1:	aghi	%r3,-256
--	jnm	0b
--2:	ex	%r3,0(%r1)
--	sacf	0
--	slgr	%r2,%r2
--	br	14
--3:	mvc	0(1,%r4),0(%r2)
-+	bras	%r1,4f
-+0:	aghi	%r3,257
-+1:	mvc	0(1,%r4),0(%r2)
- 	la	%r2,1(%r2)
- 	la	%r4,1(%r4)
- 	aghi	%r3,-1
-+	jnz	1b
-+2:	lgr	%r2,%r3
-+	br	%r14
-+3:	mvc	0(256,%r4),0(%r2)
-+	la	%r2,256(%r2)
-+	la	%r4,256(%r4)
-+4:	aghi	%r3,-256
- 	jnm	3b
--4:	lgr	%r2,%r3
-+5:	ex	%r3,4(%r1)
- 	sacf	0
--	br	%r14
-+6:	slgr	%r2,%r2
-+	br	14
-         .section __ex_table,"a"
--	.quad	0b,3b
--	.quad	2b,3b
--	.quad	3b,4b
-+	.quad	1b,2b
-+	.quad	3b,0b
-+	.quad	5b,0b
-         .previous
- 
-         .align 4
-diff -urpN linux-2.6/arch/s390/lib/uaccess.S linux-2.6-patched/arch/s390/lib/uaccess.S
---- linux-2.6/arch/s390/lib/uaccess.S	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/uaccess.S	2006-08-30 14:24:31.000000000 +0200
-@@ -88,30 +88,31 @@ __copy_to_user_asm:
-         .globl __copy_in_user_asm
- 	# %r2 = from, %r3 = n, %r4 = to
- __copy_in_user_asm:
-+	ahi	%r3,-1
-+	jo	6f
- 	sacf	256
--	bras	1,1f
--	mvc	0(1,%r4),0(%r2)
--0:	mvc	0(256,%r4),0(%r2)
--	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--1:	ahi	%r3,-256
--	jnm	0b
--2:	ex	%r3,0(%r1)
--	sacf	0
--	slr	%r2,%r2
--	br	14
--3:	mvc	0(1,%r4),0(%r2)
-+	bras	%r1,4f
-+0:	ahi	%r3,257
-+1:	mvc	0(1,%r4),0(%r2)
- 	la	%r2,1(%r2)
- 	la	%r4,1(%r4)
- 	ahi	%r3,-1
-+	jnz	1b
-+2:	lr	%r2,%r3
-+	br	%r14
-+3:	mvc	0(256,%r4),0(%r2)
-+	la	%r2,256(%r2)
-+	la	%r4,256(%r4)
-+4:	ahi	%r3,-256
- 	jnm	3b
--4:	lr	%r2,%r3
-+5:	ex	%r3,4(%r1)
- 	sacf	0
-+6:	slr	%r2,%r2
- 	br	%r14
-         .section __ex_table,"a"
--	.long	0b,3b
--	.long	2b,3b
--	.long	3b,4b
-+	.long	1b,2b
-+	.long	3b,0b
-+	.long	5b,0b
-         .previous
- 
-         .align 4
+But they can get out of sync, e.g. when switch_to() restores the new
+task's esp, the PDA still contains the old pcurrent and they don't get
+synchronized until the write_pda() in __switch_to().
+
+> To be honest, I haven't looked at percpu.h in great detail.  I was 
+> making assumptions about how it works, but it looks like they were wrong.
+
+Would it make any sense to replace the 'cpu' field in thread_info with
+a pointer to a PDA-like structure?  We could even embed the static per_cpu
+data directly into that struct instead of chasing pointers...
+
+-- 
+Chuck
+

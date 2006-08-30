@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbWH3XM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWH3XMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751607AbWH3XM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWH3XM1
+	id S1751614AbWH3XMp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWH3XMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:12:27 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40197 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751609AbWH3XM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:12:26 -0400
-Date: Thu, 31 Aug 2006 01:12:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060830231225.GR18276@stusta.de>
-References: <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de> <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de> <44F6161B.40508@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Aug 2006 19:12:44 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:28299 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751614AbWH3XMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:12:43 -0400
+Date: Wed, 30 Aug 2006 19:12:42 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
+Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: [PATCH 1/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
+Message-ID: <20060830231242.GB17079@Krystal>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_Krystal-29580-1156979562-0001-2"
 Content-Disposition: inline
-In-Reply-To: <44F6161B.40508@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 19:10:48 up 7 days, 20:19,  9 users,  load average: 0.69, 0.26, 0.20
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 12:50:03AM +0200, Stefan Richter wrote:
-> Adrian Bunk wrote:
-> >USB_STORAGE switched from a depending on SCSI to select'ing SCSI three 
-> >years ago, and ATA in 2.6.19 will also select SCSI for a good reason:
-> >
-> >When doing anything kconfig related, you must always remember that the 
-> >vast majority of kconfig users are not kernel hackers.
-> 
-> I agree with that.
-> But multi-level dependencies are a show-stopper at the moment.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-config IEEE1394_SBP2
-        tristate "SBP-2 support (Harddisks etc.)"
-        depends on IEEE1394 && BLOCK && (PCI || BROKEN)
-        select SCSI
+--=_Krystal-29580-1156979562-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-should work fine.
+The "Core" patches (1-6) must all be applied to have a compilable kernel.
 
-> Stefan Richter
+Applying those patches will install the core tracing infrastructure to the
+Linux kernel.
 
-cu
-Adrian
+1- Minor Makefile modification :
+patch-2.6.17-lttng-0.5.95-build.diff
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
+--=_Krystal-29580-1156979562-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-build.diff"
+
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,9 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 17
+-EXTRAVERSION =
++EXTRAVERSION =-lttng-0.5.95
+ NAME=Crazed Snow-Weasel
++NAME=Sliding Snow Leopard
+ 
+ # *DOCUMENTATION*
+ # To see a list of typical targets execute "make help"
+@@ -518,7 +519,7 @@ export MODLIB
+ 
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+-core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
++core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/ ltt/
+ 
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 08b7cc9..feac13c 100644
+
+--=_Krystal-29580-1156979562-0001-2--

@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWH3Cam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWH3Ci5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWH3Cam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 22:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWH3Cam
+	id S1751003AbWH3Ci5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 22:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWH3Ci5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 22:30:42 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:39608 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932407AbWH3Cal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 22:30:41 -0400
-Subject: Re: megaraid_sas suspend ok, resume oops
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Sreenivas.Bagalkote@lsil.com,
-       Sumant.Patro@lsil.com, jeff@garzik.org,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <b6a2187b0608291845l17532458hf0aaf22e247b5b37@mail.gmail.com>
-References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com>
-	 <20060829081518.GD12257@kernel.dk>
-	 <b6a2187b0608290522vea22930y54ac39bfce3127f2@mail.gmail.com>
-	 <1156895131.3232.25.camel@nigel.suspend2.net>
-	 <b6a2187b0608291845l17532458hf0aaf22e247b5b37@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 30 Aug 2006 12:30:14 +1000
-Message-Id: <1156905015.3243.1.camel@nigel.suspend2.net>
+	Tue, 29 Aug 2006 22:38:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47073 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751003AbWH3Ci4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 22:38:56 -0400
+Date: Tue, 29 Aug 2006 19:38:28 -0700
+From: Paul Jackson <pj@sgi.com>
+To: paulmck@us.ibm.com
+Cc: ego@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, rusty@rustcorp.com.au, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@intel.linux.com,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+Message-Id: <20060829193828.d38395fe.pj@sgi.com>
+In-Reply-To: <20060829200304.GF1290@us.ibm.com>
+References: <20060824103417.GE2395@in.ibm.com>
+	<1156417200.3014.54.camel@laptopd505.fenrus.org>
+	<20060824140342.GI2395@in.ibm.com>
+	<1156429015.3014.68.camel@laptopd505.fenrus.org>
+	<44EDBDDE.7070203@yahoo.com.au>
+	<20060824150026.GA14853@elte.hu>
+	<20060825035328.GA6322@in.ibm.com>
+	<20060827005944.67f51e92.pj@sgi.com>
+	<20060829180511.GA1495@us.ibm.com>
+	<20060829123102.88de61fa.pj@sgi.com>
+	<20060829200304.GF1290@us.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Paul E. McKenney wrote:
+> Let me throw something together...
 
-On Wed, 2006-08-30 at 09:45 +0800, Jeff Chua wrote:
-> On 8/30/06, Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> >
-> > Neither swsusp (as far as I know) or suspend2 support CONFIG_HIGHMEM64G
-> > at the moment, I'm afraid.
-> >
-> > It's not impossible, we just haven't seen it as a priority worth putting
-> > time into. Do you really have more than 4GB of RAM and want to suspend
-> > to disk?
-> 
-> It'll be really "nice" to have. Currently all the production systems
-> simply shutdown all databases and applications and put systems to a
-> halt. But, I'm thinking of implementing suspend_to_disk instead of
-> shutdown the database and applications, so when power resumes, the
-> system can carry on where it was left off. Nice, very nice feature to
-> have.
-> It's "nice" because nobody has tried, and if this works, I don't see
-> why not use it for all machines in a data center.
-> 
-> The DELL 2950 has 16GB of RAM, and will be running oracle database.
+I think it's the hotplug folks that were most interested
+in this "unfair rwsem" lock, for lock_cpu_hotplug().
 
-Ok. I'll give it a go then, but I'll tell you now that it will probably
-take a while as I have a lot on my plate. Feel free to poke me :)
+I wouldn't spend any effort on throwing this together
+just for cpusets.  I'm not looking to change cpuset
+locking anytime soon.
 
-Nigel
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

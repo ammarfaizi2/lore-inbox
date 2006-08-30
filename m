@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWH3Mpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWH3Mt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWH3Mpw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWH3Mpv
+	id S1750921AbWH3Mt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWH3Mt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:45:51 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:62446 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750912AbWH3Mpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:45:46 -0400
-Date: Wed, 30 Aug 2006 14:45:44 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] __exit cleanup.
-Message-ID: <20060830124544.GI22276@skybase>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 30 Aug 2006 08:49:28 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:57296 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750823AbWH3Mt1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:49:27 -0400
+Subject: Re: [PATCH 18/19] BLOCK: Make USB storage depend on SCSI rather
+	than selecting it [try #6]
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: David Howells <dhowells@redhat.com>, axboe@kernel.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <44F54FB0.7080203@s5r6.in-berlin.de>
+References: <44F4ADD7.4020604@s5r6.in-berlin.de>
+	 <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
+	 <20060829180631.32596.69574.stgit@warthog.cambridge.redhat.com>
+	 <18771.1156926354@warthog.cambridge.redhat.com>
+	 <44F54FB0.7080203@s5r6.in-berlin.de>
+Content-Type: text/plain
+Date: Wed, 30 Aug 2006 07:49:22 -0500
+Message-Id: <1156942162.11819.1.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Wed, 2006-08-30 at 10:43 +0200, Stefan Richter wrote:
+> David Howells wrote:
+> > Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> >> What about this?
+> >> 
+> >>  	depends on USB
+> >> +	select BLOCK
+> >>  	select SCSI
+> > 
+> > That means you can't disable BLOCK either unless you can figure out that you
+> > need to turn off USB_STORAGE.  The config client won't tell you, you have to
+> > go trawling the Kconfig files.
+> 
+> Not true. Both xconfig and menuconfig tell you about _both_ "depends on"
+> and "select" dependencies.
 
-[S390] __exit cleanup.
+Would this make more sense?
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+	depends on USB && BLOCK
+	select SCSI
 
- arch/s390/hypfs/hypfs_diag.c   |    2 +-
- arch/s390/kernel/vmlinux.lds.S |    2 +-
- drivers/s390/block/dasd_eer.c  |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-diff -urpN linux-2.6/arch/s390/hypfs/hypfs_diag.c linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c
---- linux-2.6/arch/s390/hypfs/hypfs_diag.c	2006-08-30 14:24:50.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c	2006-08-30 14:25:01.000000000 +0200
-@@ -535,7 +535,7 @@ __init int hypfs_diag_init(void)
- 	return rc;
- }
- 
--__exit void hypfs_diag_exit(void)
-+void hypfs_diag_exit(void)
- {
- 	diag224_delete_name_table();
- 	diag204_free_buffer();
-diff -urpN linux-2.6/arch/s390/kernel/vmlinux.lds.S linux-2.6-patched/arch/s390/kernel/vmlinux.lds.S
---- linux-2.6/arch/s390/kernel/vmlinux.lds.S	2006-08-30 14:24:47.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/vmlinux.lds.S	2006-08-30 14:25:01.000000000 +0200
-@@ -118,7 +118,7 @@ SECTIONS
- 
-   /* Sections to be discarded */
-   /DISCARD/ : {
--	*(.exitcall.exit)
-+	*(.exit.text) *(.exit.data) *(.exitcall.exit)
- 	}
- 
-   /* Stabs debugging sections.  */
-diff -urpN linux-2.6/drivers/s390/block/dasd_eer.c linux-2.6-patched/drivers/s390/block/dasd_eer.c
---- linux-2.6/drivers/s390/block/dasd_eer.c	2006-08-30 14:24:12.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_eer.c	2006-08-30 14:25:01.000000000 +0200
-@@ -678,7 +678,7 @@ int __init dasd_eer_init(void)
- 	return 0;
- }
- 
--void __exit dasd_eer_exit(void)
-+void dasd_eer_exit(void)
- {
- 	WARN_ON(misc_deregister(&dasd_eer_dev) != 0);
- }

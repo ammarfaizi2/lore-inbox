@@ -1,58 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHaATD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWHaA2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWHaATD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 20:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWHaATC
+	id S932258AbWHaA2I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 20:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWHaA2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 20:19:02 -0400
-Received: from mx2.suse.de ([195.135.220.15]:27840 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932255AbWHaATA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 20:19:00 -0400
-Date: Wed, 30 Aug 2006 17:17:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: Re: [RFC] Simple userspace interface for PCI drivers
-Message-ID: <20060831001742.GB26265@kroah.com>
-References: <20060830062338.GA10285@kroah.com> <44F5C5E0.4050201@gmail.com> <20060830175250.GA6258@kroah.com> <44F6164F.6000709@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F6164F.6000709@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 30 Aug 2006 20:28:08 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:38054 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S932258AbWHaA2F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 20:28:05 -0400
+Message-Id: <20060831000515.548517380@goop.org>
+References: <20060830235201.106319215@goop.org>
+User-Agent: quilt/0.45-1
+Date: Wed, 30 Aug 2006 16:52:09 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: linux-kernel@vger.kernel.org
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
+       Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 8/8] Implement "current" with the PDA.
+Content-Disposition: inline; filename=i386-pda-current.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 02:50:55AM +0400, Manu Abraham wrote:
-> Greg KH wrote:
-> > On Wed, Aug 30, 2006 at 09:07:44PM +0400, Manu Abraham wrote:
-> >> Being a bit excited and it is really interesting to have such a
-> >> proposal, it would simplify the matters that held us up even more,
-> >> probably. The name sounds fine though. All i was wondering whether there
-> >> would be any high latencies for the same using in such a context. But
-> >> since the transfers would occur in any way, even with a kernel mode
-> >> driver, i think it should be pretty much fine.
-> > 
-> > As mentioned, this framework is being used in industrial settings right
-> > now, where latencies are a huge issue.  It works just fine, so I do not
-> > think there are any problems in this area.
-> 
-> Cool.
-> 
-> Is there some way we can avoid the poll ? It would be a real gain
-> indeed, if a POLL can be avoided.
+Use the pcurrent field in the PDA to implement the "current" macro.
+This ends up compiling down to a single instruction to get the current
+task.
 
-Use the signal that will be sent to your userspace program when an
-interrupt happens.
+This keeps the original definition of "get_current()" with the name
+"early_current()", for use before the PDA has been set up.  On the
+boot CPU, "current" will always work, but on secondary CPUs, it needs
+the PDA to be explicitly set up first.
 
-If you can handle the small latency that causes it should be fine, but
-if you can't, then you should be using poll :)
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>
 
-It all depends on the hardware you are using, your processor, and what
-your tolerances are on your interrupt handling latency.
+---
+ arch/i386/kernel/cpu/common.c |   19 ++++++++++++-------
+ arch/i386/kernel/smpboot.c    |    4 +++-
+ include/asm-i386/current.h    |   10 ++++++++--
+ 3 files changed, 23 insertions(+), 10 deletions(-)
 
-thanks,
 
-greg k-h
+===================================================================
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -665,7 +665,7 @@ static __cpuinit void init_gdt(void)
+ static __cpuinit void init_gdt(void)
+ {
+ 	int cpu = early_smp_processor_id();
+-	struct task_struct *curr = current;
++	struct task_struct *curr = early_current();
+ 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+ 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
+ 	struct desc_struct *gdt;
+@@ -709,15 +709,18 @@ static __cpuinit void init_gdt(void)
+ 	pda_init(cpu, curr);
+ }
+ 
+-/* Set up a very early PDA for the boot CPU so that smp_processor_id will work */
++/* Set up a very early PDA for the boot CPU so that smp_processor_id()
++   and current will work. */
+ void __init smp_setup_processor_id(void)
+ {
+-	static const __initdata struct i386_pda boot_pda;
++	static __initdata struct i386_pda boot_pda;
+ 
+ 	pack_descriptor((u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].a,
+ 			(u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].b,
+ 			(unsigned long)&boot_pda, sizeof(struct i386_pda) - 1,
+ 			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
++
++	boot_pda.pcurrent = early_current();
+ 
+ 	/* Set %gs for this CPU's PDA */
+ 	set_kernel_gs();
+@@ -732,8 +735,10 @@ void __cpuinit cpu_init(void)
+ void __cpuinit cpu_init(void)
+ {
+ 	int cpu = early_smp_processor_id();
++	struct task_struct *curr = early_current();
++
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+-	struct thread_struct *thread = &current->thread;
++	struct thread_struct *thread = &curr->thread;
+ 
+ 	if (cpu_test_and_set(cpu, cpu_initialized)) {
+ 		printk(KERN_WARNING "CPU#%d already initialized!\n", cpu);
+@@ -761,10 +766,10 @@ void __cpuinit cpu_init(void)
+ 	 * Set up and load the per-CPU TSS and LDT
+ 	 */
+ 	atomic_inc(&init_mm.mm_count);
+-	current->active_mm = &init_mm;
+-	if (current->mm)
++	curr->active_mm = &init_mm;
++	if (curr->mm)
+ 		BUG();
+-	enter_lazy_tlb(&init_mm, current);
++	enter_lazy_tlb(&init_mm, curr);
+ 
+ 	load_esp0(t, thread);
+ 	set_tss_desc(cpu,t);
+===================================================================
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -590,6 +590,8 @@ static void __devinit start_secondary(vo
+  */
+ void __devinit initialize_secondary(void)
+ {
++	struct task_struct *curr = early_current();
++
+ 	/*
+ 	 * We don't actually need to load the full TSS,
+ 	 * basically just the stack pointer and the eip.
+@@ -599,7 +601,7 @@ void __devinit initialize_secondary(void
+ 		"movl %0,%%esp\n\t"
+ 		"jmp *%1"
+ 		:
+-		:"r" (current->thread.esp),"r" (current->thread.eip));
++		:"r" (curr->thread.esp),"r" (curr->thread.eip));
+ }
+ 
+ extern struct {
+===================================================================
+--- a/include/asm-i386/current.h
++++ b/include/asm-i386/current.h
+@@ -2,14 +2,20 @@
+ #define _I386_CURRENT_H
+ 
+ #include <linux/thread_info.h>
++#include <asm/pda.h>
+ 
+ struct task_struct;
+ 
+-static __always_inline struct task_struct * get_current(void)
++static __always_inline struct task_struct *early_current(void)
+ {
+ 	return current_thread_info()->task;
+ }
+- 
++
++static __always_inline struct task_struct *get_current(void)
++{
++	return read_pda(pcurrent);
++}
++
+ #define current get_current()
+ 
+ #endif /* !(_I386_CURRENT_H) */
+
+--
+

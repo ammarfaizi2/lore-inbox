@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWH3Vsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWH3Vse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWH3Vsx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 17:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWH3Vsx
+	id S932133AbWH3Vse (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 17:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWH3Vse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 17:48:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932134AbWH3Vsw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 17:48:52 -0400
-Date: Wed, 30 Aug 2006 14:48:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: piet@bluelane.com
-Cc: vgoyal@in.ibm.com, George Anzinger <george@wildturkeyranch.net>,
-       Discussion
-	 "list for crash utility usage, maintenance and development" 
-	<crash-utility@redhat.com>,
-       kgdb-bugreport@lists.sourceforge.net,
-       Subhachandra Chandra <schandra@bluelane.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [Crash-utility] Patch to use gdb's bt in crash - works
- great with kgdb! - KGDB in Linus Kernel.
-Message-Id: <20060830144822.3b8ffb9a.akpm@osdl.org>
-In-Reply-To: <1156974093.29300.103.camel@piet2.bluelane.com>
-References: <44EC8CA5.789286A@redhat.com>
-	<20060824111259.GB22145@in.ibm.com>
-	<44EDA676.37F12263@redhat.com>
-	<1156966522.29300.67.camel@piet2.bluelane.com>
-	<20060830204032.GD30392@in.ibm.com>
-	<1156974093.29300.103.camel@piet2.bluelane.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 30 Aug 2006 17:48:34 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:13218 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932134AbWH3Vsc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 17:48:32 -0400
+Subject: Re: [PATCH 1/2] acpi hotplug cleanups, move install notifier to
+	add function
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: mail@renninger.de
+Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, trenn@suse.de,
+       andrew <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       naveen.b.s@intel.com
+In-Reply-To: <1156699188.1852.13.camel@linux-1vxn.site>
+References: <20060810142329.EB03.Y-GOTO@jp.fujitsu.com>
+	 <1155643418.4302.1154.camel@queen.suse.de>
+	 <20060825205423.0778.Y-GOTO@jp.fujitsu.com>
+	 <1156699188.1852.13.camel@linux-1vxn.site>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Wed, 30 Aug 2006 14:48:26 -0700
+Message-Id: <1156974506.5663.26.camel@keithlap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 14:41:32 -0700
-Piet Delaney <piet@bluelane.com> wrote:
+On Sun, 2006-08-27 at 19:19 +0200, Thomas Renninger wrote:
+> On Fri, 2006-08-25 at 20:59 +0900, Yasunori Goto wrote:
+> > > I sent a patch a while ago that gets rid of the whole namespace walking
+> > > by making acpi_memoryhotplug an acpi device and making use of the .add
+> > > callback function and the acpi_bus_register_driver call.
+> > > 
+> > > I am not sure whether this is possible if you have multiple memory
+> > > devices, though (if not maybe it should be made possible?)...
+> > > 
+> > > Yasunori even tested the patch and sent an Ok:
+> > > http://marc.theaimsgroup.com/?t=114065312400001&r=1&w=2
+> > > 
+> > > If this is acceptable I can rebase the patch on a current kernel.
+> > 
+> > Hi. Thomas-san.
+> > Did you rebase your patch?
+> > 
+> > I'm trying to do it now too. 
+> > But, current code (2.6.18-rc4) seems to register handler for
+> > only enable status devices at boot time.
+> > So, notification is -discarded- due to no handler for new memory
+> > device when hot-add event occurs. Hmmm. :-(
+> 
+> Trying again with a real mailer, sorry about the previous junk ...
+> The email address of the module author (naveen.b.s@intel.com) seems to
+> be invalid?
+> 
+>     Thomas
 
-> My preference is for kgdb, like kexec, to become part of the 
-> mainstream kernel as a configurable component.
+Sorry for taking so long to test this out.  I just hooked it up with
+2.6.18-rc4-mm3 (I built with CONFIG_ACPI_HOTPLUG_MEMORY=y) and I get
 
-Me too.  And I expect I could talk Linus into it if a) it works well on a
-transport other-than-rs232 and b) the patches are nice and clean.
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object
+[ffff81107357a5d0] [20060707]
 
-> Perhaps Andrew 
-> could enumerate his issues.
+when I do a hot-add. It might be a day or two before I can sort out what
+is going on but I think Yasunori's mail may be getting at the issue. (My
+device is only presented to the OS at add time.)
 
-a) and b) above.  Plus: I'd want to see a maintainance person or team who
-respond promptly to email and who remain reasonably engaged with what's
-going on in the mainline kernel.  Because if problems crop up (and they
-will), I don't want to have to be the bunny who has to worry about them...
+Thanks,
+  Keith 
+
+
 

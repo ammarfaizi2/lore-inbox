@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWH3Xii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWH3Xqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWH3Xii (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWH3Xii
+	id S1751225AbWH3Xqy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWH3Xqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:38:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53253 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751183AbWH3Xig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:38:36 -0400
-Date: Thu, 31 Aug 2006 01:38:35 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060830233835.GT18276@stusta.de>
-References: <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de> <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de> <Pine.LNX.4.64.0608310039440.6761@scrub.home>
+	Wed, 30 Aug 2006 19:46:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63657 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750777AbWH3Xqx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:46:53 -0400
+Date: Thu, 31 Aug 2006 01:46:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mimi Zohar <zohar@us.ibm.com>
+Cc: Crispin Cowan <crispin@novell.com>, David Safford <safford@us.ibm.com>,
+       kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       linux-security-module-owner@vger.kernel.org,
+       David Safford <safford@watson.ibm.com>,
+       Serge E Hallyn <sergeh@us.ibm.com>
+Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
+Message-ID: <20060830234627.GM3923@elf.ucw.cz>
+References: <20060830225950.GI3923@elf.ucw.cz> <OF47A7AF49.EC4403C3-ON852571DA.00818B73-852571DA.006C6E56@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608310039440.6761@scrub.home>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <OF47A7AF49.EC4403C3-ON852571DA.00818B73-852571DA.006C6E56@us.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 12:41:02AM +0200, Roman Zippel wrote:
+Hi!
 
-> Hi,
-
-Hi Roman,
-
-> On Wed, 30 Aug 2006, Adrian Bunk wrote:
->...
-> > When doing anything kconfig related, you must always remember that the 
-> > vast majority of kconfig users are not kernel hackers.
+> > But my ssh data can't be classified higher, because ssh interacts with
+> > network. Ouch.
+> >
+> > You are right that this will make recovery from spyware attack easier,
+> > but...
 > 
-> What does that mean, that only kernel hackers can read?
+> Here you are raising concerns over secrecy, which is a totally separate
+> issue from integrity.  In order to protect the secrecy of files, you
+> would distinguish PUBLIC files from USER-SENSITIVE/SYSTEM-SENSITIVE
+> files.
 
-no. But sending users from one menu to another for first manually 
-selecting this or that option is less easy for the user than the usage 
-of select.
+So... will I be able to set ~/.ssh/private_key to USER-SENSITIVE and
+still use ssh to log in to remove machines? Will trojans coming from
+network be able to read that file?
 
-> bye, Roman
-
-cu
-Adrian
-
+I do not think see how that can work... because ssh accesses network,
+and needs to know my private_key.
+								Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

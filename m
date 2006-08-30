@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWH3Iri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWH3IvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWH3Iri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 04:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWH3Iri
+	id S1750702AbWH3IvT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 04:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWH3IvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 04:47:38 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:34959 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1750708AbWH3Irh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 04:47:37 -0400
-Message-ID: <44F54FB0.7080203@s5r6.in-berlin.de>
-Date: Wed, 30 Aug 2006 10:43:28 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Wed, 30 Aug 2006 04:51:19 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:38847 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750702AbWH3IvT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 04:51:19 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: megaraid_sas suspend ok, resume oops
+Date: Wed, 30 Aug 2006 10:54:56 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+       Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
+       lkml <linux-kernel@vger.kernel.org>
+References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com> <b6a2187b0608290522vea22930y54ac39bfce3127f2@mail.gmail.com> <1156895131.3232.25.camel@nigel.suspend2.net>
+In-Reply-To: <1156895131.3232.25.camel@nigel.suspend2.net>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: axboe@kernel.dk, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 18/19] BLOCK: Make USB storage depend on SCSI rather than
- selecting it [try #6]
-References: <44F4ADD7.4020604@s5r6.in-berlin.de>  <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com> <20060829180631.32596.69574.stgit@warthog.cambridge.redhat.com> <18771.1156926354@warthog.cambridge.redhat.com>
-In-Reply-To: <18771.1156926354@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608301054.56375.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
->> What about this?
->> 
->>  	depends on USB
->> +	select BLOCK
->>  	select SCSI
-> 
-> That means you can't disable BLOCK either unless you can figure out that you
-> need to turn off USB_STORAGE.  The config client won't tell you, you have to
-> go trawling the Kconfig files.
+Hi,
 
-Not true. Both xconfig and menuconfig tell you about _both_ "depends on"
-and "select" dependencies.
+On Wednesday 30 August 2006 01:45, Nigel Cunningham wrote:
+> On Tue, 2006-08-29 at 20:22 +0800, Jeff Chua wrote:
+> > On 8/29/06, Jens Axboe <axboe@kernel.dk> wrote:
+> > > On Tue, Aug 29 2006, Jeff Chua wrote:
+> > > > Anyone working on suspend/resume for the Megaraid SAS RAID card?
+> > > >
+> > > > This is on a DELL 2950.
+> > > >
+> > > > Suspend/resume (to disk) has been running great on my IBM x60s, but
+> > > > when I tried the same kernel (2.6.18-rc4) on the DELL 2950, it
+> > > > suspended ok, but when resuming, the megaraid driver crashed.
+> > >
+> > > And what exactly is your intention with this email? It can't be getting
+> > > the bug fixed, since there's exactly 0% information to help people doing
+> > > so :-)
+> > >
+> > > IOW, provide the oops from the resume crash at least.
+> > 
+> > The intend is to see if there's already someone working on, and if so,
+> > then it'll not be good to post oops that has already been taken care
+> > of. I'm trying not to send unnecessary info.
+> > 
+> > I'll try to get oops in the next few days when I get a chance.
+> > Currently traveling.
+> > 
+> > 
+> > Another point ... on IBM x60s notebook, setting ...
+> > 
+> >        High Memory Support (64GB)
+> >                CONFIG_HIGHMEM64G=y
+> >                CONFIG_RESOURCES_64BIT=y
+> >                CONFIG_X86_PAE=y
+> > 
+> > will cause resume to "REBOOT" sometimes (may be 6 out of 10).
+> > 
+> > I was trying to compile a kernel that would run both on the DELL with
+> > 16GB RAM, and on my IBM notebook with 2GB RAM.
+> > 
+> > But without 64 bit support, my notebook will suspend/resume many times
+> > without failing (with the 5 ahci patches from Pavel Machek)....
+> 
+> Neither swsusp (as far as I know) or suspend2 support CONFIG_HIGHMEM64G
+> at the moment, I'm afraid.
+> 
+> It's not impossible, we just haven't seen it as a priority worth putting
+> time into.
+
+It looks like the Fedora default config has HIGHMEM64G set, so I'll be looking
+at it shortly.
+
+Greetings,
+Rafael
+
+
 -- 
-Stefan Richter
--=====-=-==- =--- ====-
-http://arcgraph.de/sr/
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

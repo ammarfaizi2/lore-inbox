@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWH3Ekh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWH3ErK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbWH3Ekh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 00:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWH3Ekh
+	id S964968AbWH3ErK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 00:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWH3ErK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 00:40:37 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:56562 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751389AbWH3Ekh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 00:40:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=eGIL+5hmQd8b/PI97XsEkqV/zAghGlipy5bIPibAvoNvkzOnesheq5zUSgvQNwgFONTtXJSmWPPpSdPB6FOY5m7Wjf1BPLHZGVFguq+T8jIPKt1H0q1+3FwftfcpMQfM1B7HXFno9Zii9ae3Gm23HWtcLjDGQXaCpvDNX1QshMg=
-Message-ID: <489ecd0c0608292140m483bba2fqa300b55c5f4acf26@mail.gmail.com>
-Date: Wed, 30 Aug 2006 12:40:35 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net,
-       spi-devel-general@lists.sourceforge.net
-Subject: [Patch] Add spi full duplex mode transfer support
+	Wed, 30 Aug 2006 00:47:10 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:53151 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964968AbWH3ErI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 00:47:08 -0400
+Date: Tue, 29 Aug 2006 21:45:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Arjan van de Ven <arjan@infradead.org>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [RPC] OLPC tablet input driver.
+Message-ID: <20060830044543.GA14738@kroah.com>
+References: <20060829073339.GA4181@aehallh.com> <1156839019.2722.39.camel@laptopd505.fenrus.org> <20060829084443.GA4187@aehallh.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_36961_15509105.1156912835626"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060829084443.GA4187@aehallh.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_36961_15509105.1156912835626
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Aug 29, 2006 at 04:44:43AM -0400, Zephaniah E. Hull wrote:
+> On Tue, Aug 29, 2006 at 10:10:19AM +0200, Arjan van de Ven wrote:
+> > > +#undef DEBUG
+> > > +#ifdef DEBUG
+> > > +#define dbg(format, arg...) printk(KERN_INFO "olpc.c(%d): " format "\n", __LINE__, ## arg)
+> > > +#else
+> > > +#define dbg(format, arg...) do {} while (0)
+> > > +#endif
+> > 
+> > why not use pr_debug or even dev_debug() ?
+> > Those already have this ifdef included
+> 
+> I was not thinking of them at the time, however dev_dbg is not an option
+> because we do not have a struct device at hand when we want to print
+> some debugging lines.
 
-Hi all,
+Then use it for the majority of the places where you do have it, and do
+pr_debug() when you do not.
 
-   To enable full duplex mode spi transfer in Blackfin spi master
-driver, I need an extra field in spi_transfer structure. Attached the
-right format patch.
+> pr_debug might work, but I would rather have file and line already
+> there.
+> 
+> Though, admittedly, that would be a better argument if it used __FILE__
+> there instead of hard coding it.
 
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
+__FILE__ will return you a full path, which is what I do not think you
+want...
 
- spi.h |    1 +
- 1 files changed, 1 insertion(+)
+thanks,
 
-diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-index c8bb680..99816eb 100644
---- a/include/linux/spi/spi.h
-+++ b/include/linux/spi/spi.h
-@@ -331,6 +331,7 @@ struct spi_transfer {
-        dma_addr_t      rx_dma;
-
-        unsigned        cs_change:1;
-+       unsigned        is_duplex:1;
-        u8              bits_per_word;
-        u16             delay_usecs;
-        u32             speed_hz;
-
--- 
-Best regards,
-Luke Yang
-luke.adi@gmail.com
-
-------=_Part_36961_15509105.1156912835626
-Content-Type: text/x-patch; name=spi_full_duplex.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_erh7vbpd
-Content-Disposition: attachment; filename="spi_full_duplex.patch"
-
-ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvc3BpL3NwaS5oIGIvaW5jbHVkZS9saW51eC9zcGkv
-c3BpLmgKaW5kZXggYzhiYjY4MC4uOTk4MTZlYiAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9z
-cGkvc3BpLmgKKysrIGIvaW5jbHVkZS9saW51eC9zcGkvc3BpLmgKQEAgLTMzMSw2ICszMzEsNyBA
-QCBzdHJ1Y3Qgc3BpX3RyYW5zZmVyIHsKIAlkbWFfYWRkcl90CXJ4X2RtYTsKIAogCXVuc2lnbmVk
-CWNzX2NoYW5nZToxOworCXVuc2lnbmVkICAgICAgICBpc19kdXBsZXg6MTsKIAl1OAkJYml0c19w
-ZXJfd29yZDsKIAl1MTYJCWRlbGF5X3VzZWNzOwogCXUzMgkJc3BlZWRfaHo7Cg==
-------=_Part_36961_15509105.1156912835626--
+greg k-h

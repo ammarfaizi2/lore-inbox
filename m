@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWH3TZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWH3TZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWH3TZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWH3TZS
+	id S1751362AbWH3TZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWH3TZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:25:18 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:24389 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751362AbWH3TZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:25:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=OgBnngh1Jho2CdxQ0OboD7hbNOGhuE+CsprRCLUJ3PHfZqtr8LLd3g6MZEAfBUPvux+FsOGN2Q1OWMtqTjEzYzZzy1+xTcdPShKUOWh5nr9HATG4//+NK71kbrMGGmRzBTTizM0f8AIbn4E3nvmG0cdAbNfblbk5c27fKrfT+0Y=
-Date: Wed, 30 Aug 2006 22:23:03 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, Matt Domsch <Matt_Domsch@dell.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-Message-ID: <20060830222303.11b35276@localhost>
-In-Reply-To: <44F5E01C.3010807@zytor.com>
-References: <44F1F356.5030105@zytor.com>
-	<200608301856.11125.ak@suse.de>
-	<20060830200638.504602e2@localhost>
-	<200608301931.14434.ak@suse.de>
-	<20060830205136.4f9bfd33@localhost>
-	<44F5E01C.3010807@zytor.com>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
+	Wed, 30 Aug 2006 15:25:45 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:28342 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751362AbWH3TZa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 15:25:30 -0400
+Subject: Re: [ckrm-tech] [PATCH 6/7] BC: kernel memory (core)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matt Helsley <matthltc@us.ibm.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <44F45601.9060807@sw.ru>
+References: <44F45045.70402@sw.ru>  <44F45601.9060807@sw.ru>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 30 Aug 2006 12:25:26 -0700
+Message-Id: <1156965926.12403.51.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 11:59:40 -0700
-"H. Peter Anvin" <hpa@zytor.com> wrote:
+On Tue, 2006-08-29 at 18:58 +0400, Kirill Korotaev wrote:
+> --- ./include/bc/beancounter.h.bckmem	2006-08-28 12:47:52.000000000 +0400
+> +++ ./include/bc/beancounter.h	2006-08-28 12:59:28.000000000 +0400
+> @@ -12,7 +12,9 @@
+>   *	Resource list.
+>   */
+>  
+> -#define BC_RESOURCES	0
+> +#define BC_KMEMSIZE	0
+> +
+> +#define BC_RESOURCES	1
 
-> Alon Bar-Lev wrote:
-> > 
-> > This is not entirely true...
-> > All architectures sets saved_command_line variable...
-> > So I can add __init to the saved_command_line and
-> > copy its contents into kmalloced persistence_command_line at
-> > main.c.
-> > 
-> 
-> My opinion is that you should change saved_command_line (which
-> already implies a copy) to be the kmalloc'd version and call the
-> fixed-sized buffer something else.
-> 
-> 	-hpa
+<snip>
 
-Changing saved_command_line is a modification to all
-architectures... They all modify this variable...
-So, should I submit a patch to all architectures? How can I test this?
+> --- ./kernel/bc/beancounter.c.bckmem	2006-08-28 12:52:11.000000000 +0400
+> +++ ./kernel/bc/beancounter.c	2006-08-28 12:59:28.000000000 +0400
+> @@ -20,6 +20,7 @@ static void init_beancounter_struct(stru
+>  struct beancounter init_bc;
+>  
+>  const char *bc_rnames[] = {
+> +	"kmemsize",	/* 0 */
+>  };
+>  
+>  static struct hlist_head bc_hash[BC_HASH_SIZE];
+> @@ -221,6 +222,8 @@ static void init_beancounter_syslimits(s
+>  {
+>  	int k;
+>  
+> +	bc->bc_parms[BC_KMEMSIZE].limit = 32 * 1024 * 1024;
+> +
+>  	for (k = 0; k < BC_RESOURCES; k++)
+>  		bc->bc_parms[k].barrier = bc->bc_parms[k].limit;
+>  }
 
-Also for i386 the code is assembly... So I can modify the code to write
-into a __init buffer and then kmalloc in setup.c.
+As I mentioned in one of my earlier email
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=115619384500289&w=2),
+IMHO, this way of defining an interface is not clean/clear (for
+controller writers).
 
-Please instruct me how to proceed...
+<snip>
+-- 
 
-Best Regards,
-Alon Bar-Lev.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

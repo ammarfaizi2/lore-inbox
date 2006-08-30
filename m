@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWH3BjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWH3BqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWH3BjP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 21:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWH3BjO
+	id S1751505AbWH3BqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 21:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWH3BqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 21:39:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44721 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751487AbWH3BjO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 21:39:14 -0400
-Date: Tue, 29 Aug 2006 18:39:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Drop cache has no effect?
-Message-Id: <20060829183902.be1356b6.akpm@osdl.org>
-In-Reply-To: <87k64rxc6g.fsf@duaron.myhome.or.jp>
-References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
-	<20060829110048.20e23e75.akpm@osdl.org>
-	<87k64rxc6g.fsf@duaron.myhome.or.jp>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Aug 2006 21:46:06 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6329 "EHLO
+	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751505AbWH3BqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 21:46:04 -0400
+Date: Tue, 29 Aug 2006 19:45:15 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Multithreading and signals on linux
+In-reply-to: <1156901077.044202.142840@h48g2000cwc.googlegroups.com>
+To: Shrikrishna Khare <shri.khare@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <44F4EDAB.3000903@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <1156901077.044202.142840@h48g2000cwc.googlegroups.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 10:08:39 +0900
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-
-> Andrew Morton <akpm@osdl.org> writes:
+Shrikrishna Khare wrote:
+> Hi,
 > 
-> > That would be a vfat problem - the changed permission bits weren't written
-> > back to disk, so when you re-read them from disk (or, more likely, from
-> > blockdev pagecache) they came back with the original values.
-> >
-> > Does vfat even have the ability to store the seven bits?  Don't think so? 
-> > If not, permitting the user to change them in icache but not being to write
-> > them out to permanent store seems rather bad behaviour.
-> 
-> That's dirty area, vfat has one read-only bit only. Yes, I also think
-> this is strange behaviour. But, I worry app is depending on the
-> current behaviour, because this is pretty old behaviour.
-> 
-> Umm.., do someone have any strong reason? I'll make patch at this
-> weekend, and please test it in -mm tree for a bit long time...?
+>     Am using pthread_kill to send SIGUSR1 from thread t1 to thread t2.
+> However, I am unable to have "different" signal handlers for threads t1
+> and t2 for same signal SIGUSR1.
+>     I have ensured that I set the signal handler for t1 and t2
+> separately in different functions. Could anyone please tell me if I am
+> missing on something?
 
-It is pretty weird that permission bits on vfat can magically change in
-response to memory pressure.
+The signal will be handled in the thread specified, however signal 
+handlers are global to the process. You cannot have different signal 
+handlers for different threads in the same process. This is the way 
+POSIX pthreads are specified to work.
 
-But no, I'm not really advocating any changes in this area - I don't recall
-any complaints (surprised) and the chances are that if we changed it
-(ie: not permit the inode to accept changes which cannot be stored on disk)
-then someone's app would break.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-otoh, it is pretty bad behaviour...

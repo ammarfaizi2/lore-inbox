@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWH3J7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWH3KAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWH3J7d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 05:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWH3J7d
+	id S1750799AbWH3KAh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 06:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWH3KAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 05:59:33 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:14273 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750794AbWH3J7c (ORCPT
+	Wed, 30 Aug 2006 06:00:37 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:27101 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750799AbWH3KAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 05:59:32 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] PM: Add pm_trace switch
-Date: Wed, 30 Aug 2006 12:02:59 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>
-References: <200608291309.57404.rjw@sisk.pl> <20060829134648.451971a1.akpm@osdl.org>
-In-Reply-To: <20060829134648.451971a1.akpm@osdl.org>
+	Wed, 30 Aug 2006 06:00:36 -0400
+Date: Wed, 30 Aug 2006 11:59:48 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Kirill Korotaev <dev@sw.ru>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH 1/7] introduce atomic_dec_and_lock_irqsave()
+In-Reply-To: <44F4540C.8050205@sw.ru>
+Message-ID: <Pine.LNX.4.64.0608301156010.6762@scrub.home>
+References: <44F45045.70402@sw.ru> <44F4540C.8050205@sw.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608301202.59300.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 22:46, Andrew Morton wrote:
-> On Tue, 29 Aug 2006 13:09:57 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Hi,
+
+On Tue, 29 Aug 2006, Kirill Korotaev wrote:
+
+> --- ./kernel/user.c.dlirq	2006-07-10 12:39:20.000000000 +0400
+> +++ ./kernel/user.c	2006-08-28 11:08:56.000000000 +0400
+> @@ -108,15 +108,12 @@ void free_uid(struct user_struct *up)
+> 	if (!up)
+> 		return;
 > 
-> > +int pm_trace_enabled;
-> > +
-> > +static ssize_t pm_trace_show(struct subsystem * subsys, char * buf)
-> > +{
-> > +	return sprintf(buf, "%d\n", pm_trace_enabled);
-> > +}
-> > +
-> > +static ssize_t
-> > +pm_trace_store(struct subsystem * subsys, const char * buf, size_t n)
-> > +{
-> > +	int val;
-> > +
-> > +	if (sscanf(buf, "%d", &val) == 1) {
-> > +		pm_trace_enabled = !!val;
-> > +		return n;
-> > +	}
-> > +	return -EINVAL;
-> > +}
-> > +
-> > +power_attr(pm_trace);
-> 
-> <grumbles about documentation>
+> -	local_irq_save(flags);
+> -	if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
+> +	if (atomic_dec_and_lock_irqsave(&up->__count, &uidhash_lock, flags)) {
+> 		uid_hash_remove(up);
+> 		spin_unlock_irqrestore(&uidhash_lock, flags);
+> 		key_put(up->uid_keyring);
+> 		key_put(up->session_keyring);
+> 		kmem_cache_free(uid_cachep, up);
+> -	} else {
+> -		local_irq_restore(flags);
+> 	}
+> }
 
-Well, this is the most difficult part. ;-)
+Why does this need protection against interrupts?
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- Documentation/power/interface.txt |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
-
-Index: linux-2.6.18-rc4-mm3/Documentation/power/interface.txt
-===================================================================
---- linux-2.6.18-rc4-mm3.orig/Documentation/power/interface.txt	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6.18-rc4-mm3/Documentation/power/interface.txt	2006-08-30 11:59:31.000000000 +0200
-@@ -52,3 +52,18 @@ suspend image will be as small as possib
- 
- Reading from this file will display the current image size limit, which
- is set to 500 MB by default.
-+
-+/sys/power/pm_trace controls the code which saves the last PM event point in
-+the RTC across reboots, so that you can debug a machine that just hangs
-+during suspend (or more commonly, during resume).  Namely, the RTC is only
-+used to save the last PM event point if this file contains '1'.  Initially it
-+contains '0' which may be changed to '1' by writing a string representing a
-+nonzero integer into it.
-+
-+To use this debugging feature you should attempt to suspend the machine, then
-+reboot it and run
-+
-+	dmesg -s 1000000 | grep 'hash matches'
-+
-+CAUTION: Using it will cause your machine's real-time (CMOS) clock to be
-+set to a random invalid time after a resume.
+bye, Roman

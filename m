@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWH3R6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWH3SNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWH3R6j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWH3R6j
+	id S1751200AbWH3SNF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 14:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWH3SNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:58:39 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:7893 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751277AbWH3R6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:58:38 -0400
-Date: Wed, 30 Aug 2006 10:52:02 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Olaf Hering <olaf@aepfle.de>
-cc: Michael Buesch <mb@bu3sch.de>, Greg KH <greg@kroah.com>,
-       Oleg Verych <olecom@flower.upol.cz>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-In-Reply-To: <20060830054433.GA31375@aepfle.de>
-Message-ID: <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> 
- <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz>  <20060829183208.GA11468@kroah.com>
- <200608292104.24645.mb@bu3sch.de>  <20060829201314.GA28680@aepfle.de> 
- <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz> <20060830054433.GA31375@aepfle.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 30 Aug 2006 14:13:05 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:48054 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751200AbWH3SNE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 14:13:04 -0400
+Date: Wed, 30 Aug 2006 11:13:47 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: ego@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, rusty@rustcorp.com.au, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@intel.linux.com,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       ashok.raj@intel.com, josht@us.ibm.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+Message-ID: <20060830181347.GF1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <44EDBDDE.7070203@yahoo.com.au> <20060824150026.GA14853@elte.hu> <20060825035328.GA6322@in.ibm.com> <20060827005944.67f51e92.pj@sgi.com> <20060829180511.GA1495@us.ibm.com> <20060829123102.88de61fa.pj@sgi.com> <20060829200304.GF1290@us.ibm.com> <20060829193828.d38395fe.pj@sgi.com> <20060830151405.GD1296@us.ibm.com> <20060830105434.d00ae4dc.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060830105434.d00ae4dc.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006, Olaf Hering wrote:
+On Wed, Aug 30, 2006 at 10:54:34AM -0700, Paul Jackson wrote:
+> Paul E. McKenney wrote:
+> > Well, my next question was going to be whether cpuset readers really
+> > need to exclude the writers, or whether there can be a transition
+> > period while the mastodon makes the change as long as it avoids stomping
+> > the locusts.  ;-)
+> 
+> The mastodon's (aka mammoths ;) may make a batch of several related
+> changes to the cpuset configuration.  What's important is that the
+> locusts see either none or all of the changes in a given batch, not
+> some intermediate inconsistent state, and that the locusts see the
+> change batches in the same order they were applied.
+> 
+> Off the top of my head, I doubt I care when the locusts see the
+> changes.  Some delay is ok, if that's your question.
+> 
+> But don't try too hard to fit any work you do to cpusets.  For now,
+> I don't plan to mess with cpuset locking anytime soon.  And when I
+> do next, it might be that all I need to do is to change the quick
+> lock held by the locusts from a mutex to an ordinary rwsem, so that
+> multiple readers (locusts) can access the cpuset configuration in
+> parallel.
 
->> you are assuming that
->>
->> 1. modules are enabled and ipw2200 is compiled as a module
->
-> No, why?
+Sounds like a job for RCU (if locusts never sleep in critical sections)
+or SRCU (if locusts do block).  ;-)  Seriously, this would get you
+deterministic read-side acquisition overhead.  And very low overhead
+at that -- no memory barriers, cache misses, or atomic instructions
+in the common case of no mammoths/mastodons.
 
-becouse if the ipw isn't compiled as a module then it's initialized (without 
-firmware) before the initramfs or initrd is run. if it could be initialized 
-later without being a module then it could be initialized as part of the normal 
-system
+That said, I am not familiar enough with cpusets to know if there are
+any gotchas in making the change appear atomic.  The usual approach
+is to link updates in, so that readers either see the new state or
+do not, but don't see any intermediate states.  I would guess that
+updates sometimes involve moving resources from one set to another,
+and that such moves must be atomic in the "mv" command sense.  There
+are some reasonably straightforward ways of making this happen.
 
->> 2. initrd or initramfs are in use
->
-> initramfs is always in use.
-
-not on my machines.
-
-what does it use for the initramfs?
-
-I don't enable the options in the kernel for initrd, and I don't give it any 
-source for an initramfs.
-
-David Lang
-
-P.S. there was a suggestion yesterday in this thread that I haven't tested yet. 
-I plan to test that tonight. if it works then the card can be reinitialized 
-after the system boots, still no initrd or initramfs needed.
+							Thanx, Paul

@@ -1,52 +1,356 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWH3TI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWH3TLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWH3TI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 15:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWH3TI3
+	id S1751337AbWH3TLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 15:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWH3TLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 15:08:29 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:47281 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751344AbWH3TI2
+	Wed, 30 Aug 2006 15:11:43 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10651 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751337AbWH3TLm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 15:08:28 -0400
-Message-ID: <44F5E20A.8070504@zytor.com>
-Date: Wed, 30 Aug 2006 12:07:54 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Alon Bar-Lev <alon.barlev@gmail.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <44F1F356.5030105@zytor.com> <20060830205136.4f9bfd33@localhost> <44F5E01C.3010807@zytor.com> <200608302106.18080.ak@suse.de>
-In-Reply-To: <200608302106.18080.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 30 Aug 2006 15:11:42 -0400
+Subject: Re: [ckrm-tech] [PATCH 4/7] BC: context inheriting and changing
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matt Helsley <matthltc@us.ibm.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <44F4552B.8010503@sw.ru>
+References: <44F45045.70402@sw.ru>  <44F4552B.8010503@sw.ru>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 30 Aug 2006 12:11:32 -0700
+Message-Id: <1156965092.12403.41.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wednesday 30 August 2006 20:59, H. Peter Anvin wrote:
->> Alon Bar-Lev wrote:
->>> This is not entirely true...
->>> All architectures sets saved_command_line variable...
->>> So I can add __init to the saved_command_line and
->>> copy its contents into kmalloced persistence_command_line at
->>> main.c.
->>>
->> My opinion is that you should change saved_command_line (which already 
->> implies a copy) to be the kmalloc'd version and call the fixed-sized 
->> buffer something else.
+On Tue, 2006-08-29 at 18:54 +0400, Kirill Korotaev wrote:
+> Contains code responsible for setting BC on task,
+> it's inheriting and setting host context in interrupts.
 > 
-> It might be safer to rename everything. Then all users could be caught
-> and audited. This would ensure saved_command_line is not accessed
-> before the kmalloc'ed copy exists.
+> Task references 2 beancounters:
+> 1. exec_bc: current context. all resources are
+>             charged to this beancounter.
+> 3. fork_bc: beancounter which is inherited by
+>             task's children on fork
 > 
-> Disadvantage: more architectures to change.
+> Signed-off-by: Pavel Emelianov <xemul@sw.ru>
+> Signed-off-by: Kirill Korotaev <dev@sw.ru>
 > 
+> ---
+> 
+>  include/bc/task.h       |   59 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/sched.h   |    5 ++++
+>  kernel/bc/Makefile      |    1 
+>  kernel/bc/beancounter.c |    3 ++
+>  kernel/bc/misc.c        |   32 ++++++++++++++++++++++++++
+>  kernel/fork.c           |   17 ++++++++++++-
+>  kernel/irq/handle.c     |    9 +++++++
+>  kernel/softirq.c        |    8 ++++++
+>  8 files changed, 132 insertions(+), 2 deletions(-)
+> 
+> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
+> +++ ./include/bc/task.h	2006-08-28 12:54:48.000000000 +0400
+> @@ -0,0 +1,59 @@
+> +/*
+> + *  include/bc/task.h
+> + *
+> + *  Copyright (C) 2006 OpenVZ. SWsoft Inc
+> + *
+> + */
+> +
+> +#ifndef __BC_TASK_H_
+> +#define __BC_TASK_H_
+> +
+> +struct beancounter;
 
-That would definitely be the safest option, and probably is the way to go.
+we can as well include beancounter.h here and avoid including it in
+different files below.
 
-	-hpa
+> +
+> +struct task_beancounter {
+> +	struct beancounter *exec_bc;
+> +	struct beancounter *fork_bc;
+> +};
+> +
+> +#ifdef CONFIG_BEANCOUNTERS
+> +
+> +#define get_exec_bc()		(current->task_bc.exec_bc)
+> +#define set_exec_bc(new)			\
+> +	({					\
+> +		 struct beancounter *old;	\
+> +		 struct task_beancounter *tbc;	\
+> +		 tbc = &current->task_bc;	\
+> +		 old = tbc->exec_bc;		\
+> +		 tbc->exec_bc = new;		\
+> +		 old;				\
+> +	 })
+> +#define reset_exec_bc(old, exp)			\
+> +	do {					\
+> +		struct task_beancounter *tbc;	\
+> +		tbc = &current->task_bc;	\
+> +		BUG_ON(tbc->exec_bc != exp);	\
+> +		tbc->exec_bc = old;		\
+> +	} while (0)
+> +
+
+Didn't follow why the above two macros can't be functions.
+
+> +int __must_check bc_task_charge(struct task_struct *parent,
+> +		struct task_struct *new);
+> +void bc_task_uncharge(struct task_struct *tsk);
+> +
+> +#else
+> +
+> +#define get_exec_bc()		(NULL)
+> +#define set_exec_bc(new)	(NULL)
+> +#define reset_exec_bc(new, exp)	do { } while (0)
+> +
+> +static inline __must_check int bc_task_charge(struct task_struct *parent,
+> +		struct task_struct *new)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void bc_task_uncharge(struct task_struct *tsk)
+> +{
+> +}
+> +
+> +#endif
+> +#endif
+> --- ./include/linux/sched.h.bctask	2006-08-28 12:20:13.000000000 +0400
+> +++ ./include/linux/sched.h	2006-08-28 12:52:11.000000000 +0400
+> @@ -83,6 +83,8 @@ struct sched_param {
+>  #include <linux/timer.h>
+>  #include <linux/hrtimer.h>
+>  
+> +#include <bc/task.h>
+> +
+>  #include <asm/processor.h>
+>  
+>  struct exec_domain;
+> @@ -1048,6 +1050,9 @@ struct task_struct {
+>  	spinlock_t delays_lock;
+>  	struct task_delay_info *delays;
+>  #endif
+> +#ifdef CONFIG_BEANCOUNTERS
+> +	struct task_beancounter	task_bc;
+> +#endif
+>  };
+>  
+>  static inline pid_t process_group(struct task_struct *tsk)
+> --- ./kernel/bc/Makefile.bctask	2006-08-28 12:43:34.000000000 +0400
+> +++ ./kernel/bc/Makefile	2006-08-28 12:52:11.000000000 +0400
+> @@ -5,3 +5,4 @@
+>  #
+>  
+>  obj-$(CONFIG_BEANCOUNTERS) += beancounter.o
+> +obj-$(CONFIG_BEANCOUNTERS) += misc.o
+> --- ./kernel/bc/beancounter.c.bctask	2006-08-28 12:49:07.000000000 +0400
+> +++ ./kernel/bc/beancounter.c	2006-08-28 12:52:11.000000000 +0400
+> @@ -238,6 +238,9 @@ void __init bc_init_early(void)
+>  	spin_lock_init(&bc_hash_lock);
+>  	slot = &bc_hash[bc_hash_fn(bc->bc_id)];
+>  	hlist_add_head(&bc->hash, slot);
+> +
+> +	current->task_bc.exec_bc = get_beancounter(bc);
+> +	current->task_bc.fork_bc = get_beancounter(bc);
+>  }
+>  
+>  void __init bc_init_late(void)
+> --- /dev/null	2006-07-18 14:52:43.075228448 +0400
+> +++ ./kernel/bc/misc.c	2006-08-28 12:52:11.000000000 +0400
+> @@ -0,0 +1,32 @@
+> +/*
+> + * kernel/bc/misc.c
+> + *
+> + * Copyright (C) 2006 OpenVZ. SWsoft Inc.
+> + *
+> + */
+> +
+> +#include <linux/sched.h>
+> +
+> +#include <bc/beancounter.h>
+> +#include <bc/task.h>
+
+task.h is included via sched.h, not needed here.
+> +
+> +int bc_task_charge(struct task_struct *parent, struct task_struct *new)
+> +{
+> +	struct task_beancounter *old_bc;
+> +	struct task_beancounter *new_bc;
+> +	struct beancounter *bc;
+> +
+> +	old_bc = &parent->task_bc;
+> +	new_bc = &new->task_bc;
+> +
+> +	bc = old_bc->fork_bc;
+> +	new_bc->exec_bc = get_beancounter(bc);
+> +	new_bc->fork_bc = get_beancounter(bc);
+> +	return 0;
+> +}
+
+There is no failures, why not return void ?
+
+> +
+> +void bc_task_uncharge(struct task_struct *tsk)
+> +{
+> +	put_beancounter(tsk->task_bc.exec_bc);
+> +	put_beancounter(tsk->task_bc.fork_bc);
+> +}
+> --- ./kernel/fork.c.bctask	2006-08-28 12:20:13.000000000 +0400
+> +++ ./kernel/fork.c	2006-08-28 12:52:11.000000000 +0400
+> @@ -49,6 +49,8 @@
+>  #include <linux/taskstats_kern.h>
+>  #include <linux/random.h>
+>  
+> +#include <bc/task.h>
+> +
+
+not needed as already included in sched.h
+
+>  #include <asm/pgtable.h>
+>  #include <asm/pgalloc.h>
+>  #include <asm/uaccess.h>
+> @@ -103,12 +105,18 @@ kmem_cache_t *vm_area_cachep;
+>  /* SLAB cache for mm_struct structures (tsk->mm) */
+>  static kmem_cache_t *mm_cachep;
+>  
+> -void free_task(struct task_struct *tsk)
+> +static void __free_task(struct task_struct *tsk)
+>  {
+>  	free_thread_info(tsk->thread_info);
+>  	rt_mutex_debug_task_free(tsk);
+>  	free_task_struct(tsk);
+>  }
+> +
+> +void free_task(struct task_struct *tsk)
+> +{
+> +	bc_task_uncharge(tsk);
+> +	__free_task(tsk);
+> +}
+>  EXPORT_SYMBOL(free_task);
+>  
+>  void __put_task_struct(struct task_struct *tsk)
+> @@ -983,6 +991,9 @@ static struct task_struct *copy_process(
+>  	if (!p)
+>  		goto fork_out;
+>  
+> +	if (bc_task_charge(current, p))
+> +		goto bad_charge;
+> +
+>  #ifdef CONFIG_TRACE_IRQFLAGS
+>  	DEBUG_LOCKS_WARN_ON(!p->hardirqs_enabled);
+>  	DEBUG_LOCKS_WARN_ON(!p->softirqs_enabled);
+> @@ -1293,7 +1304,9 @@ bad_fork_cleanup_count:
+>  	atomic_dec(&p->user->processes);
+>  	free_uid(p->user);
+>  bad_fork_free:
+> -	free_task(p);
+> +	bc_task_uncharge(p);
+> +bad_charge:
+> +	__free_task(p);
+>  fork_out:
+>  	return ERR_PTR(retval);
+>  }
+> --- ./kernel/irq/handle.c.bctask	2006-07-10 12:39:20.000000000 +0400
+> +++ ./kernel/irq/handle.c	2006-08-28 12:52:11.000000000 +0400
+> @@ -16,6 +16,9 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/kernel_stat.h>
+>  
+> +#include <bc/beancounter.h>
+> +#include <bc/task.h>
+
+same here
+> +
+>  #include "internals.h"
+>  
+>  /**
+> @@ -166,6 +169,9 @@ fastcall unsigned int __do_IRQ(unsigned 
+>  	struct irq_desc *desc = irq_desc + irq;
+>  	struct irqaction *action;
+>  	unsigned int status;
+> +	struct beancounter *bc;
+> +
+> +	bc = set_exec_bc(&init_bc);
+>  
+>  	kstat_this_cpu.irqs[irq]++;
+>  	if (CHECK_IRQ_PER_CPU(desc->status)) {
+> @@ -178,6 +184,8 @@ fastcall unsigned int __do_IRQ(unsigned 
+>  			desc->chip->ack(irq);
+>  		action_ret = handle_IRQ_event(irq, regs, desc->action);
+>  		desc->chip->end(irq);
+> +
+> +		reset_exec_bc(bc, &init_bc);
+>  		return 1;
+>  	}
+>  
+> @@ -246,6 +254,7 @@ out:
+>  	desc->chip->end(irq);
+>  	spin_unlock(&desc->lock);
+>  
+> +	reset_exec_bc(bc, &init_bc);
+>  	return 1;
+>  }
+>  
+> --- ./kernel/softirq.c.bctask	2006-08-28 12:20:13.000000000 +0400
+> +++ ./kernel/softirq.c	2006-08-28 12:52:11.000000000 +0400
+> @@ -18,6 +18,9 @@
+>  #include <linux/rcupdate.h>
+>  #include <linux/smp.h>
+>  
+> +#include <bc/beancounter.h>
+> +#include <bc/task.h>
+
+same here
+
+> +
+>  #include <asm/irq.h>
+>  /*
+>     - No shared variables, all the data are CPU local.
+> @@ -209,6 +212,9 @@ asmlinkage void __do_softirq(void)
+>  	__u32 pending;
+>  	int max_restart = MAX_SOFTIRQ_RESTART;
+>  	int cpu;
+> +	struct beancounter *bc;
+> +
+> +	bc = set_exec_bc(&init_bc);
+>  
+>  	pending = local_softirq_pending();
+>  	account_system_vtime(current);
+> @@ -247,6 +253,8 @@ restart:
+>  
+>  	account_system_vtime(current);
+>  	_local_bh_enable();
+> +
+> +	reset_exec_bc(bc, &init_bc);
+>  }
+>  
+>  #ifndef __ARCH_HAS_DO_SOFTIRQ
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

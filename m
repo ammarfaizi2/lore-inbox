@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWH3WmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWH3WmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWH3WmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWH3WmL
+	id S932177AbWH3WmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWH3WmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:42:11 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:36004 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id S932222AbWH3WmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:42:09 -0400
-Date: Wed, 30 Aug 2006 18:40:54 -0400
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC][PATCH 7/9] parisc generic PAGE_SIZE
-Message-ID: <20060830224054.GG3926@athena.road.mcmartin.ca>
-References: <20060830221604.E7320C0F@localhost.localdomain> <20060830221609.DA8E9016@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060830221609.DA8E9016@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 30 Aug 2006 18:42:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56462 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932177AbWH3WmC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:42:02 -0400
+Date: Wed, 30 Aug 2006 15:41:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [FOR 2.6.18 FIX][PATCH]  drm: radeon flush TCL VAP for vertex
+ program enable/disable
+Message-Id: <20060830154152.9ac71753.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0608302314360.21600@skynet.skynet.ie>
+References: <Pine.LNX.4.64.0608302314360.21600@skynet.skynet.ie>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 03:16:09PM -0700, Dave Hansen wrote:
-> This is the parisc portion to convert it over to the generic PAGE_SIZE
-> framework.
+On Wed, 30 Aug 2006 23:17:55 +0100 (IST)
+Dave Airlie <airlied@linux.ie> wrote:
+
 > 
-<snip>
-> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+> Can we get this into 2.6.18? it fixes a lockup condition in r200 vertex 
+> programs.
+> 
+> From: Roland Scheidegger <rscheidegger_lists@hispeed.ch>
+> 
+> The radeon requires a VAP state flush when enabling/disabling
+> vertex programs on the r200 cards.
+> 
+> Signed-off-by: Dave Airlie <airlied@linux.ie>
+> ---
+>   drivers/char/drm/radeon_state.c |    9 ++++++++-
+>   1 files changed, 8 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/char/drm/radeon_state.c b/drivers/char/drm/radeon_state.c
+> index 5bb2234..5a08a23 100644
+> --- a/drivers/char/drm/radeon_state.c
+> +++ b/drivers/char/drm/radeon_state.c
+> @@ -175,6 +175,14 @@ static __inline__ int radeon_check_and_f
+>   		}
+>   		break;
+> 
+> +	case R200_EMIT_VAP_CTL:{
+> +			RING_LOCALS;
+> +			BEGIN_RING(2);
+> +			OUT_RING_REG(RADEON_SE_TCL_STATE_FLUSH, 0);
+> +			ADVANCE_RING();
+> +		}
+> +		break;
+> +
+>   	case RADEON_EMIT_RB3D_COLORPITCH:
+>   	case RADEON_EMIT_RE_LINE_PATTERN:
+>   	case RADEON_EMIT_SE_LINE_WIDTH:
+> @@ -202,7 +210,6 @@ static __inline__ int radeon_check_and_f
+>   	case R200_EMIT_TCL_LIGHT_MODEL_CTL_0:
+>   	case R200_EMIT_TFACTOR_0:
+>   	case R200_EMIT_VTX_FMT_0:
+> -	case R200_EMIT_VAP_CTL:
+>   	case R200_EMIT_MATRIX_SELECT_0:
+>   	case R200_EMIT_TEX_PROC_CTL_2:
+>   	case R200_EMIT_TCL_UCP_VERT_BLEND_CTL:
 
-This looks pretty ok by me. I'll give it a test-build tonight.
+That's a somewhat weird-looking patch.  It adds code which is quite
+dissimilar from all the other cases in that switch statement.
 
-Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
-
-> +config PARISC_LARGER_PAGE_SIZES
-> +	def_bool y
->  	depends on PA8X00 && EXPERIMENTAL
->  
-
-This should default to 'n' as I do not believe we yet have working >4K
-pages yet.
-
-Cheers! (Nice to see diffs with more '-' than '+' :)
-	Kyle M.
+Are you sure??

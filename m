@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWH3PMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWH3PNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWH3PMU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 11:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWH3PMU
+	id S1750995AbWH3PNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 11:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWH3PNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 11:12:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:35434 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750993AbWH3PMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 11:12:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Znh2mBtPjzsu0sO3vnW6qlVYdsqF0xj4PXEPU5cPSnGqMPrCChZtACBoUFIKF+fUksgPuvr5Hb5bHsDVTupD8rv9ujdBvDlBGmkJcyOrF3BhUDQ1U8LdNNqjZ3ll3dt3PXM1G+kusjxpVV6z7nCoMgVgtJpc8JxeZB594OSO/jE=
-Message-ID: <7783925d0608300812j2175164dja401b4e763a5ac43@mail.gmail.com>
-Date: Wed, 30 Aug 2006 20:42:14 +0530
-From: "Rick Brown" <rick.brown.3@gmail.com>
-To: linux-newbie@vger.kernel.org, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Interrupt handler registration for multiple devices
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 11:13:23 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:52174 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750995AbWH3PNX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 11:13:23 -0400
+Date: Wed, 30 Aug 2006 08:14:05 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: ego@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, rusty@rustcorp.com.au, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@intel.linux.com,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com,
+       ashok.raj@intel.com
+Subject: Re: [RFC][PATCH 4/4] Rename lock_cpu_hotplug/unlock_cpu_hotplug
+Message-ID: <20060830151405.GD1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060824140342.GI2395@in.ibm.com> <1156429015.3014.68.camel@laptopd505.fenrus.org> <44EDBDDE.7070203@yahoo.com.au> <20060824150026.GA14853@elte.hu> <20060825035328.GA6322@in.ibm.com> <20060827005944.67f51e92.pj@sgi.com> <20060829180511.GA1495@us.ibm.com> <20060829123102.88de61fa.pj@sgi.com> <20060829200304.GF1290@us.ibm.com> <20060829193828.d38395fe.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060829193828.d38395fe.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 29, 2006 at 07:38:28PM -0700, Paul Jackson wrote:
+> Paul E. McKenney wrote:
+> > Let me throw something together...
+> 
+> I think it's the hotplug folks that were most interested
+> in this "unfair rwsem" lock, for lock_cpu_hotplug().
 
-I want to write a driver that will handle multiple devices. These
-devices will share the IRQ line. Do I need to register my (same)
-interrupt handler as many times as the number of devices(by calling
-request_irq())?
+Yep, been chatting with them separately.
 
-Also an unrelated query. Can I sleep after a call to preempt_kernel()??
+> I wouldn't spend any effort on throwing this together
+> just for cpusets.  I'm not looking to change cpuset
+> locking anytime soon.
 
-TIA,
+Well, my next question was going to be whether cpuset readers really
+need to exclude the writers, or whether there can be a transition
+period while the mastodon makes the change as long as it avoids stomping
+the locusts.  ;-)
 
-Rick
+							Thanx, Paul

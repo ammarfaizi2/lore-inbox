@@ -1,98 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWH3WRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWH3WRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWH3WRL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWH3WQM
+	id S932184AbWH3WRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWH3WRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 30 Aug 2006 18:17:52 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:29156 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932183AbWH3WQM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Aug 2006 18:16:12 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:50631 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932173AbWH3WQJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:16:09 -0400
-Subject: [RFC][PATCH 2/9] conditionally define generic get_order() (ARCH_HAS_GET_ORDER)
+Subject: [RFC][PATCH 8/9] powerpc generic PAGE_SIZE
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 30 Aug 2006 15:16:05 -0700
+Date: Wed, 30 Aug 2006 15:16:10 -0700
 References: <20060830221604.E7320C0F@localhost.localdomain>
 In-Reply-To: <20060830221604.E7320C0F@localhost.localdomain>
-Message-Id: <20060830221605.CFC342D7@localhost.localdomain>
+Message-Id: <20060830221610.0A84399E@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch makes asm-generic/page.h safe to include in lots of code.  This
-prepares it for the introduction shortly of the generic PAGE_SIZE code.
+This is the powerpc portion to convert it over to the generic PAGE_SIZE
+framework.
 
-There was some discussion that ARCH_HAS_FOO is a disgusting mechanism and
-should be wiped off the face of the earth.  It was argued that these things
-introduce unnecessary complexity, reduce greppability, and obscure the
-conditions under which FOO was defined.  I agree with *ALL* of this.  I
-think this patch is different. ;)
-
-This is very greppable.  If you grep and see foo() showing up in
-asm-generic/foo.h, it is *obvious* that it is a generic version.  If you
-see another version in asm-i386/foo.h, it is also obvious that i386 has
-(or can) override the generic one.
-
-As for obscuring the conditions under which it is defined, you do this when
-you are either missing a symbol, or have duplicate symbols.  So, you want to
-know:
-
-1. *IS* the generic one being defined?
-2. When is this generic defined (and how do I turn it off)?
-3. How to I get the damn thing defined (if the symbol is missing)?
-
-With Kconfig, this is all easy, especially for arch-specific stuff.
-
-If you requiring that the non-generic symbol be defined first:
-
-	http://article.gmane.org/gmane.linux.kernel/422942/match=very+complex+xyzzy+don+t+want
-
-it gets awfully messy because you end up having to fix up all of the
-architectures' headers that define the thing to get rid of any circular
-dependencies.
-
-So, is _this_ patch disgusting?
+* add powerpc default of 64k pages to mm/Kconfig, when the 64k
+  option is enabled.  Defaults to 4k otherwise.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- threadalloc-dave/include/asm-generic/page.h |    4 +++-
- threadalloc-dave/mm/Kconfig                 |    4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ threadalloc-dave/include/asm-ppc/page.h     |   15 +--------------
+ threadalloc-dave/include/asm-powerpc/page.h |   24 +-----------------------
+ threadalloc-dave/arch/powerpc/Kconfig       |    5 ++++-
+ threadalloc-dave/arch/powerpc/boot/page.h   |    3 ---
+ threadalloc-dave/mm/Kconfig                 |    2 +-
+ 5 files changed, 7 insertions(+), 42 deletions(-)
 
-diff -puN include/asm-generic/page.h~generic-get_order include/asm-generic/page.h
---- threadalloc/include/asm-generic/page.h~generic-get_order	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/include/asm-generic/page.h	2006-08-30 15:15:00.000000000 -0700
-@@ -6,6 +6,7 @@
+diff -puN include/asm-ppc/page.h~powerpc include/asm-ppc/page.h
+--- threadalloc/include/asm-ppc/page.h~powerpc	2006-08-30 15:14:59.000000000 -0700
++++ threadalloc-dave/include/asm-ppc/page.h	2006-08-30 15:15:05.000000000 -0700
+@@ -3,16 +3,7 @@
  
- #include <linux/compiler.h>
+ #include <linux/align.h>
+ #include <asm/asm-compat.h>
+-
+-/* PAGE_SHIFT determines the page size */
+-#define PAGE_SHIFT	12
+-#define PAGE_SIZE	(ASM_CONST(1) << PAGE_SHIFT)
+-
+-/*
+- * Subtle: this is an int (not an unsigned long) and so it
+- * gets extended to 64 bits the way want (i.e. with 1s).  -- paulus
+- */
+-#define PAGE_MASK	(~((1 << PAGE_SHIFT) - 1))
++#include <asm-generic/page.h>
  
-+#ifndef CONFIG_ARCH_HAVE_GET_ORDER
- /* Pure 2^n version of get_order */
- static __inline__ __attribute_const__ int get_order(unsigned long size)
- {
-@@ -20,7 +21,8 @@ static __inline__ __attribute_const__ in
- 	return order;
- }
+ #ifdef __KERNEL__
  
--#endif	/* __ASSEMBLY__ */
-+#endif	/* CONFIG_ARCH_HAVE_GET_ORDER */
-+#endif /*  __ASSEMBLY__ */
- #endif	/* __KERNEL__ */
+@@ -37,10 +28,6 @@ typedef unsigned long pte_basic_t;
+ #define PTE_FMT		"%.8lx"
+ #endif
  
- #endif	/* _ASM_GENERIC_PAGE_H */
-diff -puN mm/Kconfig~generic-get_order mm/Kconfig
---- threadalloc/mm/Kconfig~generic-get_order	2006-08-30 15:14:56.000000000 -0700
-+++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:00.000000000 -0700
-@@ -1,3 +1,7 @@
-+config ARCH_HAVE_GET_ORDER
-+	def_bool y
-+	depends on IA64 || PPC32 || XTENSA
-+
- config SELECT_MEMORY_MODEL
+-/* to align the pointer to the (next) page boundary */
+-#define PAGE_ALIGN(addr)	ALIGN(addr, PAGE_SIZE)
+-
+-
+ #undef STRICT_MM_TYPECHECKS
+ 
+ #ifdef STRICT_MM_TYPECHECKS
+diff -puN include/asm-powerpc/page.h~powerpc include/asm-powerpc/page.h
+--- threadalloc/include/asm-powerpc/page.h~powerpc	2006-08-30 15:14:59.000000000 -0700
++++ threadalloc-dave/include/asm-powerpc/page.h	2006-08-30 15:15:05.000000000 -0700
+@@ -12,33 +12,14 @@
+ 
+ #ifdef __KERNEL__
+ #include <linux/align.h>
++#include <asm-generic/page.h>
+ #include <asm/asm-compat.h>
+ #include <asm/kdump.h>
+ 
+-/*
+- * On PPC32 page size is 4K. For PPC64 we support either 4K or 64K software
+- * page size. When using 64K pages however, whether we are really supporting
+- * 64K pages in HW or not is irrelevant to those definitions.
+- */
+-#ifdef CONFIG_PPC_64K_PAGES
+-#define PAGE_SHIFT		16
+-#else
+-#define PAGE_SHIFT		12
+-#endif
+-
+-#define PAGE_SIZE		(ASM_CONST(1) << PAGE_SHIFT)
+-
+ /* We do define AT_SYSINFO_EHDR but don't use the gate mechanism */
+ #define __HAVE_ARCH_GATE_AREA		1
+ 
+ /*
+- * Subtle: (1 << PAGE_SHIFT) is an int, not an unsigned long. So if we
+- * assign PAGE_MASK to a larger type it gets extended the way we want
+- * (i.e. with 1s in the high bits)
+- */
+-#define PAGE_MASK      (~((1 << PAGE_SHIFT) - 1))
+-
+-/*
+  * KERNELBASE is the virtual address of the start of the kernel, it's often
+  * the same as PAGE_OFFSET, but _might not be_.
+  *
+@@ -90,9 +71,6 @@
+ #include <asm/page_32.h>
+ #endif
+ 
+-/* to align the pointer to the (next) page boundary */
+-#define PAGE_ALIGN(addr)	ALIGN(addr, PAGE_SIZE)
+-
+ /*
+  * Don't compare things with KERNELBASE or PAGE_OFFSET to test for
+  * "kernelness", use is_kernel_addr() - it should do what you want.
+diff -puN arch/powerpc/Kconfig~powerpc arch/powerpc/Kconfig
+--- threadalloc/arch/powerpc/Kconfig~powerpc	2006-08-30 15:14:55.000000000 -0700
++++ threadalloc-dave/arch/powerpc/Kconfig	2006-08-30 15:15:05.000000000 -0700
+@@ -725,8 +725,11 @@ config ARCH_MEMORY_PROBE
  	def_bool y
- 	depends on EXPERIMENTAL || ARCH_SELECT_MEMORY_MODEL
+ 	depends on MEMORY_HOTPLUG
+ 
++config ARCH_GENERIC_PAGE_SIZE
++	def_bool y
++
+ config PPC_64K_PAGES
+-	bool "64k page size"
++	bool "enable 64k page size"
+ 	depends on PPC64
+ 	help
+ 	  This option changes the kernel logical page size to 64k. On machines
+diff -puN arch/powerpc/boot/page.h~powerpc arch/powerpc/boot/page.h
+--- threadalloc/arch/powerpc/boot/page.h~powerpc	2006-08-30 15:14:55.000000000 -0700
++++ threadalloc-dave/arch/powerpc/boot/page.h	2006-08-30 15:15:05.000000000 -0700
+@@ -28,7 +28,4 @@
+ /* align addr on a size boundary - adjust address up if needed */
+ #define _ALIGN(addr,size)     _ALIGN_UP(addr,size)
+ 
+-/* to align the pointer to the (next) page boundary */
+-#define PAGE_ALIGN(addr)	_ALIGN(addr, PAGE_SIZE)
+-
+ #endif				/* _PPC_BOOT_PAGE_H */
+diff -puN mm/Kconfig~powerpc mm/Kconfig
+--- threadalloc/mm/Kconfig~powerpc	2006-08-30 15:15:04.000000000 -0700
++++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:05.000000000 -0700
+@@ -50,7 +50,7 @@ config PAGE_SHIFT
+ 	depends on ARCH_GENERIC_PAGE_SIZE
+ 	default "13" if PAGE_SIZE_8KB
+ 	default "14" if PAGE_SIZE_16KB
+-	default "16" if PAGE_SIZE_64KB
++	default "16" if PAGE_SIZE_64KB || PPC_64K_PAGES
+ 	default "19" if PAGE_SIZE_512KB
+ 	default "22" if PAGE_SIZE_4MB
+ 	default "12"
 _

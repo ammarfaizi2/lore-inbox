@@ -1,37 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWH3QiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWH3QjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWH3QiF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWH3QiE
+	id S1751146AbWH3QjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWH3QjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:38:04 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:18113 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S1751138AbWH3QiC (ORCPT
+	Wed, 30 Aug 2006 12:39:15 -0400
+Received: from gw.goop.org ([64.81.55.164]:36516 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751146AbWH3QjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:38:02 -0400
-Message-ID: <44F5BF18.4060705@openvz.org>
-Date: Wed, 30 Aug 2006 20:38:48 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060802)
+	Wed, 30 Aug 2006 12:39:15 -0400
+Message-ID: <44F5BF29.7080004@goop.org>
+Date: Wed, 30 Aug 2006 09:39:05 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-To: devel@openvz.org
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, Containers@lists.osdl.org,
-       video4linux-list@redhat.com, kraxel@bytesex.org,
-       linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [Devel] Re: [PATCH] kthread: saa7134-tvaudio.c
-References: <20060829211555.GB1945@us.ibm.com>	<20060829143902.a6aa2712.akpm@osdl.org>	<m1k64rf9om.fsf@ebiederm.dsl.xmission.com>	<m164gafld6.fsf@ebiederm.dsl.xmission.com>	<44F59B84.3090906@fr.ibm.com>	<m1lkp6cjq2.fsf@ebiederm.dsl.xmission.com> <44F5BA6F.2070900@fr.ibm.com>
-In-Reply-To: <44F5BA6F.2070900@fr.ibm.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for  i386.
+References: <200608300838_MC3-1-C9C6-CA79@compuserve.com>
+In-Reply-To: <200608300838_MC3-1-C9C6-CA79@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Wed, 30 Aug 2006 20:37:13 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater wrote:
-> I've extracted this list from a table which includes a pid cache column.
-> this pid cache column is not complete yet. I'd be nice if we could use a
-> wiki to maintain this table, the existing openvz or vserver wiki ?
+Chuck Ebbert wrote:
+> Nevermind.  I thought because you changed struct pt_regs in ptrace_abi.h
+> it meant a user ABI change.
 >   
-Feel free to use http://wiki.openvz.org/ for that. I can also 
-create/host a separate one in case you want it that way.
+
+Yes, that header seems pretty badly misnamed.  The user-visible 
+structure is user_pt_regs.
+
+> But they can get out of sync, e.g. when switch_to() restores the new
+> task's esp, the PDA still contains the old pcurrent and they don't get
+> synchronized until the write_pda() in __switch_to().
+>   
+
+Yes, that's true, but the window is fairly small.  More importantly, the 
+question of "what task is currently running" is fundamentally 
+ill-defined while you're in the middle of a context switch, so I don't 
+think this is a big issue.  __switch_to runs on the new task's stack, so 
+that's effectively where current_thread_info()->task changes value 
+(aside from the few instructions in switch_to() between the %esp update 
+and the jmp to __switch_to).  I could put the write_pda() earlier in 
+__switch_to so the window is smaller.  But again, for it to make a 
+difference, someone would want to be using current *within* __switch_to, 
+which is just silly.
+
+>> To be honest, I haven't looked at percpu.h in great detail.  I was 
+>> making assumptions about how it works, but it looks like they were wrong.
+>>     
+>
+> Would it make any sense to replace the 'cpu' field in thread_info with
+> a pointer to a PDA-like structure?  We could even embed the static per_cpu
+> data directly into that struct instead of chasing pointers...
+>   
+
+I don't think so.  The whole point is to make the pda easily accessible 
+with simple addressing modes based on %gs:.   I have been wondering if 
+we can modify the percpu mechanism to get the linker to construct the 
+layout of the pda, so that all the existing percpu stuff can be 
+transparently moved into the pda and accessed efficiently.  I think it 
+would be pretty tricky to get it all working though...
+
+But the PDA isn't really intended for *all* per-cpu data; its mostly for 
+stuff which is accessed often, or needs to be quickly and easily 
+accessibly.  My specific motivation is to use the PDA for easy access to 
+Xen per-cpu data, which needs to be accessible with short instructions 
+which can be inlined.
+
+    J

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWH3DnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWH3DrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWH3DnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 23:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWH3DnJ
+	id S1751347AbWH3DrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 23:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWH3DrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 23:43:09 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:16565 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751297AbWH3DnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 23:43:08 -0400
-Message-ID: <44F50940.1010204@cn.ibm.com>
-Date: Wed, 30 Aug 2006 11:42:56 +0800
-From: Yao Fei Zhu <walkinair@cn.ibm.com>
-Reply-To: walkinair@cn.ibm.com
-Organization: IBM
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 29 Aug 2006 23:47:09 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:53699 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751347AbWH3DrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 23:47:05 -0400
+Message-ID: <44F50A0A.2040800@gentoo.org>
+Date: Tue, 29 Aug 2006 23:46:18 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-mm@kvack.org, havelblue@us.ibm.com
-Subject: Swap file or device can't be recognized by kernel built with 64K
- pages.
+To: sergio@sergiomb.no-ip.org
+CC: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
+       harmon@ksu.edu
+Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
+References: <1154091662.7200.9.camel@localhost.localdomain>	 <44DE5A6F.50500@gentoo.org> <1156906638.3022.18.camel@localhost.portugal>
+In-Reply-To: <1156906638.3022.18.camel@localhost.portugal>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem description:
-swap file or device can't be recognized by kernel built with 64K pages.
+Sergio Monteiro Basto wrote:
+> I remember check my emails that I send to Len Brown about this subject.
+> And I found, what I want, is just revert one patch of Bjorn Helgaas :)
+> between kernel 2.6.12-rc5 and 6.13.
 
-Hardware Environment:
-    Machine type (p650, x235, SF2, etc.): B70+
-    Cpu type (Power4, Power5, IA-64, etc.): POWER5+
-Software Environment:
-    OS : SLES10 GMC
-    Kernel: 2.6.18-rc5
-Additional info:
+It does look like this patch was under discussion of being reverted 
+before. See http://lkml.org/lkml/2005/9/26/183
 
-tc1:~ # uname -r
-2.6.18-rc5-ppc64
+The following comment still stands when we just revert Bjorn's change:
 
-tc1:~ # zcat /proc/config.gz | grep 64K
-CONFIG_PPC_64K_PAGES=y
+>> I'm reasonably certain that this patch will apply the quirks on the 
+>> affected systems again, so I'm happy for it to be applied, people will 
+>> be able to use their hardware again. However I'm not sure how good a 
+>> solution it is, because in some circumstances it will apply the quirks 
+>> to VIA PCI cards on non-VIA boards, which was the reason we messed with 
+>> this code in the first place. We could possibly merge it with the 
+>> southbridge detection hack, but it gets a bit silly at that point...
 
-tc1:~ # mkswap ./swap.file
-Assuming pages of size 65536 (not 4096)
-Setting up swapspace version 0, size = 4294901 kB
+So perhaps the best solution is a combination of reverting Bjorn's 
+patch, adding Linus' suggested change, and adding my southbridge hack.
 
-tc1:~ # swapon ./swap.file
-swapon: ./swap.file: Invalid argument
-
-
+Daniel

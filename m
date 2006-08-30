@@ -1,56 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWH3Q6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWH3Q7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWH3Q6t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 12:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWH3Q6s
+	id S1751163AbWH3Q7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 12:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWH3Q7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 12:58:48 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:11143 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751153AbWH3Q6r (ORCPT
+	Wed, 30 Aug 2006 12:59:36 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:7439 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751159AbWH3Q7f convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 12:58:47 -0400
-Date: Wed, 30 Aug 2006 22:28:51 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Kirill Korotaev <dev@sw.ru>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH 1/7] introduce atomic_dec_and_lock_irqsave()
-Message-ID: <20060830165851.GA8481@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <44F45045.70402@sw.ru> <44F4540C.8050205@sw.ru> <Pine.LNX.4.64.0608301156010.6762@scrub.home> <20060830145759.GA163@oleg> <Pine.LNX.4.64.0608301248420.6761@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608301248420.6761@scrub.home>
-User-Agent: Mutt/1.5.11
+	Wed, 30 Aug 2006 12:59:35 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 30 Aug 2006 16:59:31.0955 (UTC) FILETIME=[A9CA9430:01C6CC55]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH][RFC] exception processing in early boot
+Date: Wed, 30 Aug 2006 12:59:31 -0400
+Message-ID: <Pine.LNX.4.61.0608301251570.13282@chaos.analogic.com>
+In-Reply-To: <200608301830.40994.ak@suse.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][RFC] exception processing in early boot
+Thread-Index: AcbMVanWMFfg/ZQdS+KPddUfM0Z9YA==
+References: <20060830063932.GB289@1wt.eu> <200608301459.15008.ak@suse.de> <44F5D81A.9650.5BE48F99@pageexec.freemail.hu> <200608301830.40994.ak@suse.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <pageexec@freemail.hu>, "Willy Tarreau" <w@1wt.eu>, <Riley@williams.name>,
+       <davej@redhat.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 12:51:28PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 30 Aug 2006, Oleg Nesterov wrote:
-> 
-> > > Why does this need protection against interrupts?
-> > 
-> > uidhash_lock can be taken from irq context. For example, delayed_put_task_struct()
-> > does __put_task_struct()->free_uid().
-> 
-> AFAICT it's called via rcu, does that mean anything released via rcu has 
-> to be protected against interrupts?
 
-No. You need protection only if you have are using some 
-data that can also be used by the RCU callback. For example,
-if your RCU callback just calls kfree(), you don't have to 
-do a spin_lock_bh().
+On Wed, 30 Aug 2006, Andi Kleen wrote:
 
-Thanks
-Dipankar
+> On Wednesday 30 August 2006 18:25, pageexec@freemail.hu wrote:
+>> On 30 Aug 2006 at 14:59, Andi Kleen wrote:
+>>>> I think that the good method would be to :
+>>>>   - announce the patch
+>>>>   - find a volunteer to port it
+>>>>   - apply it once the volunteer agrees to handle it
+>>>> This way, no code gets lost because there's always someone to track it.
+>>>
+>>> I can put that one into my tree for .19
+>>
+>> here's my quick attempt:
+>
+>
+> It would be better to separate exceptions from interrupts here.
+> A spurious interrupt is not necessarily fatal, just an exception is.
+>
+> But I went with the simpler patch with some changes now
+> (added PANIC to the message etc.)
+>
+>>
+>> --- linux-2.6.18-rc5/arch/i386/kernel/head.S	2006-08-28 11:37:31.000000000
+>> +0200
+>> +++ linux-2.6.18-rc5-fix/arch/i386/kernel/head.S	2006-08-30
+>> 18:22:15.000000000 +0200
+>> @@ -382,34 +382,25 @@ rp_sidt:
+>>  /* This is the default interrupt "handler" :-) */
+>>  	ALIGN
+>>  ignore_int:
+>> -	cld
+>>  #ifdef CONFIG_PRINTK
+>> -	pushl %eax
+>> -	pushl %ecx
+>> -	pushl %edx
+>> -	pushl %es
+>> -	pushl %ds
+>> +	cld
+>>  	movl $(__KERNEL_DS),%eax
+>>  	movl %eax,%ds
+>>  	movl %eax,%es
+>> -	pushl 16(%esp)
+>> -	pushl 24(%esp)
+>> -	pushl 32(%esp)
+>> -	pushl 40(%esp)
+>> +	pushl 12(%esp)
+>> +	pushl 12(%esp)
+>> +	pushl 12(%esp)
+>> +	pushl 12(%esp)
+>>  	pushl $int_msg
+>>  #ifdef CONFIG_EARLY_PRINTK
+>>  	call early_printk
+>>  #else
+>>  	call printk
+>>  #endif
+>> -	addl $(5*4),%esp
+>> -	popl %ds
+>> -	popl %es
+>> -	popl %edx
+>> -	popl %ecx
+>> -	popl %eax
+>>  #endif
+>> -	iret
+>> +1:	hlt
+>
+> This is wrong because i386 still supports some CPUs that don't support
+> HLT.
+>
+> -Andi
+
+Even the i286 and the 8086 support hlt. Is there some Cyrix chip that
+you are trying to preserve? I think even those all implimented
+hlt as well.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

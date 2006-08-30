@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWH3XXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWH3XZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWH3XXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 19:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWH3XXh
+	id S1751055AbWH3XZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 19:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWH3XZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 19:23:37 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:38343 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751168AbWH3XXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 19:23:36 -0400
-Date: Wed, 30 Aug 2006 19:23:32 -0400
+	Wed, 30 Aug 2006 19:25:28 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:35221 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751055AbWH3XZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 19:25:27 -0400
+Date: Wed, 30 Aug 2006 19:25:24 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 11/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
-Message-ID: <20060830232332.GL17079@Krystal>
+Subject: [PATCH 13/16] LTTng : Linux Trace Toolkit Next Generation 0.5.95, kernel 2.6.17
+Message-ID: <20060830232524.GN17079@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-26297-1156980212-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-13566-1156980324-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 19:22:51 up 7 days, 20:31,  9 users,  load average: 0.24, 0.47, 0.36
+X-Uptime: 19:24:41 up 7 days, 20:33,  9 users,  load average: 1.21, 0.75, 0.48
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,556 +32,297 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-26297-1156980212-0001-2
+--=_Krystal-13566-1156980324-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-11- LTTng architecture dependant instrumentation : MIPS
-patch-2.6.17-lttng-0.5.95-instrumentation-mips.diff
+13- LTTng architecture dependant instrumentation : PPC
+patch-2.6.17-lttng-0.5.95-instrumentation-ppc.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-26297-1156980212-0001-2
+--=_Krystal-13566-1156980324-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-mips.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-0.5.95-instrumentation-ppc.diff"
 
---- a/arch/mips/kernel/irq.c
-+++ b/arch/mips/kernel/irq.c
-@@ -22,6 +22,7 @@ #include <linux/random.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
- #include <linux/kallsyms.h>
-+#include <linux/ltt/ltt-facility-kernel.h>
- 
- #include <asm/atomic.h>
- #include <asm/system.h>
-@@ -59,8 +60,12 @@ asmlinkage unsigned int do_IRQ(unsigned 
- 	irq_enter();
- 
- 	__DO_IRQ_SMTC_HOOK();
-+	trace_kernel_irq_entry(irq, !(user_mode(regs)));
-+
- 	__do_IRQ(irq, regs);
- 
-+	trace_kernel_irq_exit();
-+
- 	irq_exit();
- 
- 	return 1;
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index 199a06e..58bddec 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -26,6 +26,7 @@ #include <linux/a.out.h>
- #include <linux/init.h>
- #include <linux/completion.h>
- #include <linux/kallsyms.h>
-+#include <linux/ltt/ltt-facility-process.h>
- 
- #include <asm/abi.h>
- #include <asm/bootinfo.h>
-@@ -256,6 +257,7 @@ ATTRIB_NORET void kernel_thread_helper(v
- long kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
- {
- 	struct pt_regs regs;
-+	long pid;
- 
- 	memset(&regs, 0, sizeof(regs));
- 
-@@ -271,7 +273,13 @@ #else
+--- a/arch/ppc/kernel/entry.S
++++ b/arch/ppc/kernel/entry.S
+@@ -160,6 +160,33 @@ #ifdef CONFIG_6xx
+ 	b	power_save_6xx_restore
  #endif
  
- 	/* Ok, create the new process.. */
--	return do_fork(flags | CLONE_VM | CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
-+	pid = do_fork(flags | CLONE_VM | CLONE_UNTRACED,
-+			0, &regs, 0, NULL, NULL);
 +#ifdef CONFIG_LTT
-+	if(pid >= 0)
-+		trace_process_kernel_thread(pid, fn);
-+#endif //CONFIG_LTT
-+	return pid;
- }
++#define TRACE_REAL_ASM_SYSCALL_ENTRY	\
++	SAVE_NVGPRS(r1);	\
++	addi	r3,r1,STACK_FRAME_OVERHEAD;  	/* Put pointer to registers into r3 */	\
++	mflr	r29;				/* Save LR */ \
++	bl	trace_real_syscall_entry;	/* Call real trace function */ \
++	mtlr	r29;				/* Restore LR */ \
++	lwz	r0,GPR0(r1);			/* Restore original registers */ \
++	lwz	r3,GPR3(r1);	\
++	lwz	r4,GPR4(r1);	\
++	lwz	r5,GPR5(r1);	\
++	lwz	r6,GPR6(r1);	\
++	lwz	r7,GPR7(r1);	\
++	lwz	r8,GPR8(r1);	\
++	REST_NVGPRS(r1);
++#define TRACE_REAL_ASM_SYSCALL_EXIT \
++	bl	trace_real_syscall_exit;	/* Call real trace function */ \
++	lwz	r0,GPR0(r1);			/* Restore original registers */ \
++	lwz	r3,RESULT(r1); \
++	lwz	r4,GPR4(r1); \
++	lwz	r5,GPR5(r1); \
++	lwz	r6,GPR6(r1); \
++	lwz	r7,GPR7(r1); \
++	lwz	r8,GPR8(r1); \
++	addi	r9,r1,STACK_FRAME_OVERHEAD;
++#endif
++
+ /*
+  * On kernel stack overflow, load up an initial stack pointer
+  * and call StackOverflow(regs), which should not return.
+@@ -214,9 +241,16 @@ syscall_dotrace_cont:
+ 	bge-	66f
+ 	lwzx	r10,r10,r0	/* Fetch system call handler [ptr] */
+ 	mtlr	r10
++#ifdef CONFIG_LTT
++ 	TRACE_REAL_ASM_SYSCALL_ENTRY ;
++#endif
+ 	addi	r9,r1,STACK_FRAME_OVERHEAD
+ 	PPC440EP_ERR42
+ 	blrl			/* Call handler */
++#ifdef CONFIG_LTT
++	stw	r3,RESULT(r1)	/* Save result */
++ 	TRACE_REAL_ASM_SYSCALL_EXIT ;
++#endif
+ 	.globl	ret_from_syscall
+ ret_from_syscall:
+ #ifdef SHOW_SYSCALLS
+@@ -269,6 +303,10 @@ ret_from_fork:
+ 	REST_NVGPRS(r1)
+ 	bl	schedule_tail
+ 	li	r3,0
++#ifdef CONFIG_LTT
++	stw	r3,RESULT(r1)	/* Save result */
++ 	TRACE_REAL_ASM_SYSCALL_EXIT ;
++#endif
+ 	b	ret_from_syscall
  
- static struct mips_frame_info {
-diff --git a/arch/mips/kernel/scall32-o32.S b/arch/mips/kernel/scall32-o32.S
-index a0ac0e5..e32d298 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -11,6 +11,8 @@
-  * Copyright (C) 2000, 01 MIPS Technologies, Inc.
-  * Copyright (C) 2002, 2003, 2004, 2005  Maciej W. Rozycki
+ /* Traced system call support */
+diff --git a/arch/ppc/kernel/misc.S b/arch/ppc/kernel/misc.S
+index 5a93656..a4054c1 100644
+--- a/arch/ppc/kernel/misc.S
++++ b/arch/ppc/kernel/misc.S
+@@ -1004,7 +1004,11 @@ _GLOBAL(_get_SP)
+  * Create a kernel thread
+  *   kernel_thread(fn, arg, flags)
   */
-+#include <linux/ltt/ltt-facility-kernel.h>
-+#include <asm/ltt/ltt-facility-kernel_arch_mips.h>
- #include <linux/config.h>
++#ifdef CONFIG_LTT
++_GLOBAL(original_kernel_thread)
++#else
+ _GLOBAL(kernel_thread)
++#endif /* CONFIG_LTT */
+ 	stwu	r1,-16(r1)
+ 	stw	r30,8(r1)
+ 	stw	r31,12(r1)
+diff --git a/arch/ppc/kernel/time.c b/arch/ppc/kernel/time.c
+index 53ea723..747c209 100644
+--- a/arch/ppc/kernel/time.c
++++ b/arch/ppc/kernel/time.c
+@@ -57,12 +57,14 @@ #include <linux/mc146818rtc.h>
+ #include <linux/time.h>
  #include <linux/init.h>
- #include <linux/mm.h>
-@@ -19,6 +21,7 @@ #include <linux/sched.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/spinlock.h>
-+#include <linux/unistd.h>
- #include <linux/kallsyms.h>
- #include <linux/bootmem.h>
+ #include <linux/profile.h>
++#include <linux/ltt/ltt-facility-kernel.h>
  
-@@ -256,7 +259,7 @@ void show_regs(struct pt_regs *regs)
+ #include <asm/io.h>
+ #include <asm/nvram.h>
+ #include <asm/cache.h>
+ #include <asm/8xx_immap.h>
+ #include <asm/machdep.h>
++#include <asm/ltt.h>
  
- 	printk("Cause : %08x\n", cause);
+ #include <asm/time.h>
  
--	cause = (cause & CAUSEF_EXCCODE) >> CAUSEB_EXCCODE;
-+	cause = CAUSE_EXCCODE(cause);
- 	if (1 <= cause && cause <= 5)
- 		printk("BadVA : %0*lx\n", field, regs->cp0_badvaddr);
+@@ -140,6 +142,8 @@ void timer_interrupt(struct pt_regs * re
+ 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
+ 		do_IRQ(regs);
  
-@@ -570,6 +573,7 @@ asmlinkage void do_ov(struct pt_regs *re
-  */
- asmlinkage void do_fpe(struct pt_regs *regs, unsigned long fcr31)
- {
-+	trace_kernel_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), (void*)regs->cp0_epc);
- 	if (fcr31 & FPU_CSR_UNI_X) {
- 		int sig;
- 
-@@ -727,16 +731,22 @@ asmlinkage void do_cpu(struct pt_regs *r
- 
- 	die_if_kernel("do_cpu invoked from kernel context!", regs);
- 
-+	trace_kernel_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), (void*)regs->cp0_epc);
++	trace_kernel_trap_entry(regs->trap, (void *)instruction_pointer(regs));
 +
- 	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
+ 	irq_enter();
  
- 	switch (cpid) {
- 	case 0:
- 		if (!cpu_has_llsc)
--			if (!simulate_llsc(regs))
-+			if (!simulate_llsc(regs)) {
-+				trace_kernel_trap_exit();
- 				return;
-+			}
- 
--		if (!simulate_rdhwr(regs))
-+		if (!simulate_rdhwr(regs)) {
-+			trace_kernel_trap_exit();
- 			return;
-+		}
- 
- 		break;
- 
-@@ -789,7 +799,7 @@ #ifdef CONFIG_MIPS_MT_FPAFF
- 			}
- #endif /* CONFIG_MIPS_MT_FPAFF */
- 		}
--
-+		trace_kernel_trap_exit();
- 		return;
- 
- 	case 2:
-@@ -799,6 +809,7 @@ #endif /* CONFIG_MIPS_MT_FPAFF */
- 	}
- 
- 	force_sig(SIGILL, current);
-+	trace_kernel_trap_exit();
- }
- 
- asmlinkage void do_mdmx(struct pt_regs *regs)
-@@ -1512,3 +1523,90 @@ #endif
- 	flush_icache_range(ebase, ebase + 0x400);
- 	flush_tlb_handlers();
- }
-+
-+
-+
+ 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) <= 0) {
+@@ -154,6 +158,9 @@ void timer_interrupt(struct pt_regs * re
+ 		/* We are in an interrupt, no need to save/restore flags */
+ 		write_seqlock(&xtime_lock);
+ 		tb_last_stamp = jiffy_stamp;
 +#ifdef CONFIG_LTT
++		ltt_reset_timestamp();
++#endif //CONFIG_LTT
+ 		do_timer(regs);
+ 
+ 		/*
+@@ -192,6 +199,8 @@ void timer_interrupt(struct pt_regs * re
+ 		ppc_md.heartbeat();
+ 
+ 	irq_exit();
++
++ 	trace_kernel_trap_exit();
+ }
+ 
+ /*
+diff --git a/arch/ppc/kernel/traps.c b/arch/ppc/kernel/traps.c
+index 1c0d680..9d78487 100644
+--- a/arch/ppc/kernel/traps.c
++++ b/arch/ppc/kernel/traps.c
+@@ -29,6 +29,8 @@ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/prctl.h>
++#include <linux/ltt/ltt-facility-kernel.h>
++#include <linux/ltt-core.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -37,6 +39,7 @@ #include <asm/io.h>
+ #include <asm/reg.h>
+ #include <asm/xmon.h>
+ #include <asm/pmc.h>
++#include <asm/ltt/ltt-facility-kernel_arch_ppc.h>
+ 
+ #ifdef CONFIG_XMON
+ extern int xmon_bpt(struct pt_regs *regs);
+@@ -107,11 +110,13 @@ void _exception(int signr, struct pt_reg
+ 		debugger(regs);
+ 		die("Exception in kernel mode", regs, signr);
+ 	}
++	trace_kernel_trap_entry(regs->trap, (void *)instruction_pointer(regs));
+ 	info.si_signo = signr;
+ 	info.si_errno = 0;
+ 	info.si_code = code;
+ 	info.si_addr = (void __user *) addr;
+ 	force_sig_info(signr, &info, current);
++	trace_kernel_trap_exit();
+ 
+ 	/*
+ 	 * Init gets no signals that it doesn't have a handler for.
+@@ -737,6 +742,23 @@ void StackOverflow(struct pt_regs *regs)
+ 	panic("kernel stack overflow");
+ }
+ 
++/* Trace related code */
++#ifdef CONFIG_LTT
++
++/* Simple syscall tracing : only keep the caller's address. */
 +asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
 +{
 +	trace_kernel_arch_syscall_entry(
-+			(enum lttng_syscall_name)regs->regs[2],
-+			(void*)regs->cp0_epc);
++			(enum lttng_syscall_name)regs->gpr[0],
++			(void*)instruction_pointer(regs));
 +}
 +
 +asmlinkage void trace_real_syscall_exit(void)
 +{
 +	trace_kernel_arch_syscall_exit();
 +}
++#endif				/* CONFIG_LTT */
 +
-+#endif //CONFIG_LTT
-+
-+
-+#if 0
-+asmlinkage void trace_real_syscall_entry(struct pt_regs * regs)
-+{
-+	unsigned long       addr;
-+	int                 depth = 0;
-+	unsigned long       end_code;
-+	unsigned long       lower_bound;
-+	int                 seek_depth;
-+	unsigned long       *stack;
-+	unsigned long       start_code;
-+	unsigned long       *start_stack;
-+	ltt_syscall_entry trace_syscall_event;
-+	unsigned long       upper_bound;
-+	int                 use_bounds;
-+	int                 use_depth;
-+
-+	/* syscall_id will be negative for SVR4, IRIX5, BSD43, and POSIX
-+	 * syscalls -- these are not supported at this point by LTT
-+	 */
-+	trace_syscall_event.syscall_id = (uint8_t) (regs->regs[2] - __NR_Linux);
-+
-+	trace_syscall_event.address  = regs->cp0_epc;
-+
-+	if (!user_mode(regs))
-+		goto trace_syscall_end;
-+
-+	if (ltt_get_trace_config(&use_depth, &use_bounds, &seek_depth,
-+				 (void*)&lower_bound, (void*)&upper_bound) < 0)
-+		goto trace_syscall_end;
-+
-+	/* Heuristic that might work:
-+	 * (BUT DOESN'T WORK for any of the cases I tested...) zzz
-+	 * Search through stack until a value is found that is within the
-+	 * range start_code .. end_code.  (This is looking for a return
-+	 * pointer to where a shared library was called from.)  If a stack
-+	 * variable contains a valid code address then an incorrect
-+	 * result will be generated.
-+	 */
-+	if ((use_depth == 1) || (use_bounds == 1)) {
-+		stack       = (unsigned long*) regs->regs[29];
-+		end_code    = current->mm->end_code;
-+		start_code  = current->mm->start_code;
-+		start_stack = (unsigned long *)current->mm->start_stack;
-+
-+		while ((stack <= start_stack) && (!__get_user(addr, stack))) {
-+			if ((addr > start_code) && (addr < end_code)) {
-+				if (((use_depth  == 1) && (depth == seek_depth)) ||
-+				    ((use_bounds == 1) && (addr > lower_bound) && (addr < upper_bound))) {
-+					trace_syscall_event.address = addr;
-+					goto trace_syscall_end;
-+				} else {
-+					depth++;
-+				}
-+			}
-+		stack++;
-+		}
-+	}
-+
-+trace_syscall_end:
-+	ltt_log_event(LTT_EV_SYSCALL_ENTRY, &trace_syscall_event);
-+}
-+
-+asmlinkage void trace_real_syscall_exit(void)
-+{
-+	ltt_log_event(LTT_EV_SYSCALL_EXIT, NULL);
-+}
-+
-+#endif /* 0 */
-diff --git a/arch/mips/kernel/unaligned.c b/arch/mips/kernel/unaligned.c
-index 5b5a373..857d793 100644
---- a/arch/mips/kernel/unaligned.c
-+++ b/arch/mips/kernel/unaligned.c
-@@ -72,6 +72,7 @@
-  *       A store crossing a page boundary might be executed only partially.
-  *       Undo the partial store in this case.
-  */
-+#include <linux/ltt/ltt-facility-kernel.h>
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/module.h>
-@@ -497,14 +498,18 @@ asmlinkage void do_ade(struct pt_regs *r
- 	unsigned int __user *pc;
- 	mm_segment_t seg;
- 
-+	trace_kernel_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), (void*)regs->cp0_epc);
-+
- 	/*
- 	 * Address errors may be deliberately induced by the FPU emulator to
- 	 * retake control of the CPU after executing the instruction in the
- 	 * delay slot of an emulated branch.
- 	 */
- 	/* Terminate if exception was recognized as a delay slot return */
--	if (do_dsemulret(regs))
-+	if (do_dsemulret(regs)) {
-+		trace_kernel_trap_exit();
- 		return;
-+	}
- 
- 	/* Otherwise handle as normal */
- 
-@@ -538,6 +543,8 @@ asmlinkage void do_ade(struct pt_regs *r
- 	}
- 	set_fs(seg);
- 
-+	trace_kernel_trap_exit();
-+
- 	return;
- 
- sigbus:
-@@ -547,4 +554,6 @@ sigbus:
- 	/*
- 	 * XXX On return from the signal handler we should advance the epc
- 	 */
-+
-+	trace_kernel_trap_exit();
- }
-diff --git a/arch/mips/mm/fault.c b/arch/mips/mm/fault.c
-index e3a6172..24f4333 100644
---- a/arch/mips/kernel/syscall.c
-+++ b/arch/mips/kernel/syscall.c
-@@ -7,6 +7,7 @@
-  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
-  * Copyright (C) 2001 MIPS Technologies, Inc.
-  */
-+#include <linux/ltt/ltt-facility-ipc.h>
- #include <linux/config.h>
- #include <linux/a.out.h>
- #include <linux/capability.h>
-@@ -308,6 +309,8 @@ asmlinkage int sys_ipc (uint call, int f
- 
- 	version = call >> 16; /* hack for backward compatibility */
- 	call &= 0xffff;
-+	
-+	trace_ipc_call(call, first);
- 
- 	switch (call) {
- 	case SEMOP:
-diff --git a/arch/mips/kernel/time.c b/arch/mips/kernel/time.c
-index 13ff4da..f3f20bb 100644
---- a/arch/mips/kernel/scall32-o32.S
-+++ b/arch/mips/kernel/scall32-o32.S
-@@ -54,6 +54,17 @@ #endif
- 	bgez	t3, stackargs
- 
- stack_done:
-+#ifdef CONFIG_LTT
-+	sw  t2, PT_R1(sp)
-+	move  a0, sp
-+	jal     trace_real_syscall_entry
-+	lw  t2, PT_R1(sp)
-+
-+	lw  a0, PT_R4(sp)		# Restore argument registers
-+	lw  a1, PT_R5(sp)
-+	lw  a2, PT_R6(sp)
-+	lw  a3, PT_R7(sp)
-+#endif // CONFIG_LTT
- 	lw	t0, TI_FLAGS($28)	# syscall tracing enabled?
- 	li	t1, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	and	t0, t1
-@@ -71,6 +82,10 @@ stack_done:
- 					# restarting
- 1:	sw	v0, PT_R2(sp)		# result
- 
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif // CONFIG_LTT
-+
- o32_syscall_exit:
- 	local_irq_disable		# make sure need_resched and
- 					# signals dont change between
-@@ -112,6 +127,10 @@ syscall_trace_entry:
- 					# restarting
- 1:	sw	v0, PT_R2(sp)		# result
- 
-+#ifdef CONFIG_LTT
-+ jal trace_real_syscall_exit
-+#endif //CONFIG_LTT)
-+
- 	j	syscall_exit
- 
- /* ------------------------------------------------------------------------ */
-diff --git a/arch/mips/kernel/scall64-64.S b/arch/mips/kernel/scall64-64.S
-index 9ba7508..10c2a7e 100644
---- a/arch/mips/kernel/scall64-64.S
-+++ b/arch/mips/kernel/scall64-64.S
-@@ -52,6 +52,18 @@ #endif
- 					# syscall routine
- 
- 	sd	a3, PT_R26(sp)		# save a3 for syscall restarting
-+#ifdef CONFIG_LTT
-+	sd  t2, PT_R1(sp)
-+	move  a0, sp
-+	jal trace_real_syscall_entry
-+	ld  t2, PT_R1(sp)
-+	ld  a0, PT_R4(sp)		# Restore argument registers
-+	ld  a1, PT_R5(sp)
-+	ld  a2, PT_R6(sp)
-+	ld  a3, PT_R7(sp)
-+	ld  a4, PT_R8(sp)
-+	ld  a5, PT_R9(sp)
-+#endif
- 
- 	li	t1, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	LONG_L	t0, TI_FLAGS($28)	# syscall tracing enabled?
-@@ -69,6 +81,9 @@ #endif
- 	sd	v0, PT_R0(sp)		# set flag for syscall
- 					# restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- n64_syscall_exit:
- 	local_irq_disable		# make sure need_resched and
-@@ -111,6 +126,9 @@ syscall_trace_entry:
- 	dnegu	v0			# error
- 	sd	v0, PT_R0(sp)		# set flag for syscall restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- 	j	syscall_exit
- 
-diff --git a/arch/mips/kernel/scall64-n32.S b/arch/mips/kernel/scall64-n32.S
-index 942aca2..41a82ab 100644
---- a/arch/mips/kernel/scall64-n32.S
-+++ b/arch/mips/kernel/scall64-n32.S
-@@ -52,6 +52,18 @@ #endif
- 
- 	sd	a3, PT_R26(sp)		# save a3 for syscall restarting
- 
-+#ifdef CONFIG_LTT
-+	sd  t2, PT_R1(sp)
-+	move  a0, sp
-+	jal trace_real_syscall_entry
-+	ld  t2, PT_R1(sp)
-+	ld  a0, PT_R4(sp)		# Restore argument registers
-+	ld  a1, PT_R5(sp)
-+	ld  a2, PT_R6(sp)
-+	ld  a3, PT_R7(sp)
-+	ld  a4, PT_R8(sp)
-+	ld  a5, PT_R9(sp)
-+#endif
- 	li	t1, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	LONG_L	t0, TI_FLAGS($28)	# syscall tracing enabled?
- 	and	t0, t1, t0
-@@ -67,6 +79,9 @@ #endif
- 	dnegu	v0			# error
- 	sd	v0, PT_R0(sp)		# set flag for syscall restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- 	local_irq_disable		# make sure need_resched and
- 					# signals dont change between
-@@ -108,6 +123,9 @@ n32_syscall_trace_entry:
- 	dnegu	v0			# error
- 	sd	v0, PT_R0(sp)		# set flag for syscall restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- 	j	syscall_exit
- 
-diff --git a/arch/mips/kernel/scall64-o32.S b/arch/mips/kernel/scall64-o32.S
-index 8efb23a..2dc7b72 100644
---- a/arch/mips/kernel/scall64-o32.S
-+++ b/arch/mips/kernel/scall64-o32.S
-@@ -80,6 +80,25 @@ #endif
- 	PTR	4b, bad_stack
- 	.previous
- 
-+#ifdef CONFIG_LTT
-+	sd	a4, PT_R8(sp)					 # Save argument registers
-+	sd	a5, PT_R9(sp)
-+	sd	a6, PT_R10(sp)
-+	sd	a7, PT_R11(sp)					# For indirect syscalls
-+	sd	t2, PT_R1(sp)
-+	move	a0, sp
-+	jal trace_real_syscall_entry
-+	ld	t2, PT_R1(sp)
-+	ld	a0, PT_R4(sp)					 # Restore argument registers
-+	ld	a1, PT_R5(sp)
-+	ld	a2, PT_R6(sp)
-+	ld	a3, PT_R7(sp)
-+	ld	a4, PT_R8(sp)
-+	ld	a5, PT_R9(sp)
-+	ld	a6, PT_R10(sp)
-+	ld	a7, PT_R11(sp)					# For indirect syscalls
-+#endif
-+
- 	li	t1, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	LONG_L	t0, TI_FLAGS($28)	# syscall tracing enabled?
- 	and	t0, t1, t0
-@@ -95,6 +114,9 @@ #endif
- 	dnegu	v0			# error
- 	sd	v0, PT_R0(sp)		# flag for syscall restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- o32_syscall_exit:
- 	local_irq_disable		# make need_resched and
-@@ -144,6 +166,9 @@ trace_a_syscall:
- 	dnegu	v0			# error
- 	sd	v0, PT_R0(sp)		# set flag for syscall restarting
- 1:	sd	v0, PT_R2(sp)		# result
-+#ifdef CONFIG_LTT
-+	jal trace_real_syscall_exit
-+#endif
- 
- 	j	syscall_exit
- 
-diff --git a/arch/mips/kernel/syscall.c b/arch/mips/kernel/syscall.c
-index 5e8a18a..476f7ff 100644
---- a/arch/mips/mm/fault.c
-+++ b/arch/mips/mm/fault.c
-@@ -5,6 +5,7 @@
-  *
-  * Copyright (C) 1995 - 2000 by Ralf Baechle
-  */
-+#include <linux/ltt/ltt-facility-kernel.h>
- #include <linux/signal.h>
- #include <linux/sched.h>
+ void nonrecoverable_exception(struct pt_regs *regs)
+ {
+ 	printk(KERN_ERR "Non-recoverable exception at PC=%lx MSR=%lx\n",
+diff --git a/arch/ppc/mm/fault.c b/arch/ppc/mm/fault.c
+index 8e08ca3..10850a7 100644
+--- a/arch/ppc/mm/fault.c
++++ b/arch/ppc/mm/fault.c
+@@ -26,6 +26,7 @@ #include <linux/mm.h>
  #include <linux/interrupt.h>
-@@ -61,6 +62,8 @@ #endif
- 	if (unlikely(address >= VMALLOC_START && address <= VMALLOC_END))
- 		goto vmalloc_fault;
+ #include <linux/highmem.h>
+ #include <linux/module.h>
++#include <linux/ltt/ltt-facility-kernel.h>
  
-+	trace_kernel_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), (void*)regs->cp0_epc);
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -114,22 +115,29 @@ #else
+ 		is_write = error_code & 0x02000000;
+ #endif /* CONFIG_4xx || CONFIG_BOOKE */
+ 
++	trace_kernel_trap_entry(regs->trap, (void*)instruction_pointer(regs));
 +
- 	/*
- 	 * If we're in an interrupt or have no user
- 	 * context, we must not take the fault..
-@@ -115,6 +118,7 @@ survive:
+ #if defined(CONFIG_XMON) || defined(CONFIG_KGDB)
+ 	if (debugger_fault_handler && TRAP(regs) == 0x300) {
+ 		debugger_fault_handler(regs);
++		trace_kernel_trap_exit();
+ 		return 0;
  	}
+ #if !(defined(CONFIG_4xx) || defined(CONFIG_BOOKE))
+ 	if (error_code & 0x00400000) {
+ 		/* DABR match */
+-		if (debugger_dabr_match(regs))
++		if (debugger_dabr_match(regs)) {
++			trace_kernel_trap_exit();;
+ 			return 0;
++		}
+ 	}
+ #endif /* !(CONFIG_4xx || CONFIG_BOOKE)*/
+ #endif /* CONFIG_XMON || CONFIG_KGDB */
  
- 	up_read(&mm->mmap_sem);
+-	if (in_atomic() || mm == NULL)
++	if (in_atomic() || mm == NULL) {
++		trace_kernel_trap_exit();
+ 		return SIGSEGV;
++	}
+ 
+ 	down_read(&mm->mmap_sem);
+ 	vma = find_vma(mm, address);
+@@ -230,6 +238,7 @@ #endif
+ 				_tlbie(address);
+ 				pte_unmap_unlock(ptep, ptl);
+ 				up_read(&mm->mmap_sem);
++				trace_kernel_trap_exit();
+ 				return 0;
+ 			}
+ 			pte_unmap_unlock(ptep, ptl);
+@@ -272,6 +281,7 @@ #endif
+ 	 * -- Cort
+ 	 */
+ 	pte_misses++;
 +	trace_kernel_trap_exit();
- 	return;
+ 	return 0;
+ 
+ bad_area:
+@@ -281,9 +291,10 @@ bad_area:
+ 	/* User mode accesses cause a SIGSEGV */
+ 	if (user_mode(regs)) {
+ 		_exception(SIGSEGV, regs, code, address);
++		trace_kernel_trap_exit();
+ 		return 0;
+ 	}
+-
++	trace_kernel_trap_exit();
+ 	return SIGSEGV;
  
  /*
-@@ -143,6 +147,7 @@ #endif
- 		/* info.si_code has been set above */
- 		info.si_addr = (void __user *) address;
- 		force_sig_info(SIGSEGV, &info, tsk);
-+		trace_kernel_trap_exit();
- 		return;
- 	}
- 
-@@ -208,6 +213,7 @@ #endif
- 	info.si_addr = (void __user *) address;
- 	force_sig_info(SIGBUS, &info, tsk);
- 
+@@ -300,6 +311,7 @@ out_of_memory:
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
 +	trace_kernel_trap_exit();
- 	return;
- vmalloc_fault:
- 	{
-@@ -245,6 +251,9 @@ vmalloc_fault:
- 		pte_k = pte_offset_kernel(pmd_k, address);
- 		if (!pte_present(*pte_k))
- 			goto no_context;
-+		trace_kernel_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), (void*)regs->cp0_epc);
-+		trace_kernel_trap_exit();
- 		return;
- 	}
+ 	return SIGKILL;
+ 
+ do_sigbus:
+@@ -309,6 +321,7 @@ do_sigbus:
+ 	info.si_code = BUS_ADRERR;
+ 	info.si_addr = (void __user *)address;
+ 	force_sig_info (SIGBUS, &info, current);
 +	trace_kernel_trap_exit();
- }
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 6729c98..1c770b3 100644
+ 	if (!user_mode(regs))
+ 		return SIGBUS;
+ 	return 0;
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index b244848..50dd365 100644
 
---=_Krystal-26297-1156980212-0001-2--
+--=_Krystal-13566-1156980324-0001-2--

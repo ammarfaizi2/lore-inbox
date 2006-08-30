@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWH3MEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWH3MDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWH3MEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWH3MEN
+	id S1750869AbWH3MDy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWH3MDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:04:13 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:60529 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1750876AbWH3MEL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:04:11 -0400
-Date: Wed, 30 Aug 2006 14:06:59 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/19] BLOCK: Permit block layer to be disabled [try #6]
-Message-ID: <20060830120659.GA7331@kernel.dk>
-References: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060829180552.32596.15290.stgit@warthog.cambridge.redhat.com>
+	Wed, 30 Aug 2006 08:03:54 -0400
+Received: from imladris.surriel.com ([66.92.77.98]:11431 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S1750866AbWH3MDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:03:54 -0400
+Message-ID: <44F57EA8.4010905@surriel.com>
+Date: Wed, 30 Aug 2006 08:03:52 -0400
+From: Rik van Riel <riel@surriel.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Rajat Jain <rajat.noida.india@gmail.com>
+CC: Rick Brown <rick.brown.3@gmail.com>, kernelnewbies@nl.linux.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Spinlock query
+References: <7783925d0608291912i3f04d460kc9edebf9d358dbc3@mail.gmail.com>	 <44F501B3.9070200@surriel.com> <b115cb5f0608292231r1a3c47c8r8980b32e838ff964@mail.gmail.com>
+In-Reply-To: <b115cb5f0608292231r1a3c47c8r8980b32e838ff964@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 29 2006, David Howells wrote:
+Rajat Jain wrote:
+> On 8/30/06, Rik van Riel <riel@surriel.com> wrote:
+>> Rick Brown wrote:
+>> > Hi,
+>> >
+>> > In my driver (Process context), I have written the following code:
+>> >
+>> > --------------------------------------------
+>> > spin_lock(lock)
+>> > ...
+>> > //Critical section to manipulate driver data
+>>
+>> ... interrupt hits here
+>>     interrupt handler tries to grab the spinlock, which is already taken
+>>     *BOOM*
+>>
+>> > spin_u lock(lock)
+>> > ---------------------------------------------
+>> >
 > 
-> This set of patches permits the block layer to be disabled and removed from
-> the compilation such that it doesn't take up any resources on systems that
-> don't need it.
+> The interrupt handler TRIES to grab the spinlock, which is already
+> taken. Why will it "BOOM"? Wouldn't the interrupt handler busy wait,
+> waiting for the lock?
 > 
-> This set of patches is against the block git tree.
-> 
-> Changes in [try #6]:
-> 
->  (*) Remove all traces of block_sync_page() from AFS.
-> 
-> Changes in [try #5]:
-> 
->  (*) Update to block GIT tree for 2.6.18-rc5.
-> 
->  (*) Make USB_STORAGE depend on SCSI rather than selecting it.
-> 
->  (*) Remove dependencies on BLOCK where there are also dependencies on SCSI.
+> Am I missing something here?
 
-Looks fine to me know, committed.
+Yes, it will busy wait.  Forever.
+
 
 -- 
-Jens Axboe
-
+What is important?  What you want to be true, or what is true?

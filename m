@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWH3Rxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWH3RyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWH3Rxn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWH3Rxn
+	id S1751246AbWH3RyM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 13:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWH3RyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:53:43 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:49008 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751265AbWH3Rxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:53:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=f0f/pnVyOoBBTgTn6htqQu/YMxHr8F5cJmTTyBGzVme0j0gYsnqW1KHnBLDIdnEv1psQ2jVRk1YVgblXgC/188WWbqBrr7JVMEW2zoJM8qo9199amkUQgCRe5Ip8AJyKI9TF7s4+GiXgE4x+xkLpAHbjxpfhDkiuVP3upYvHNcs=
-Date: Wed, 30 Aug 2006 20:51:36 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-Message-ID: <20060830205136.4f9bfd33@localhost>
-In-Reply-To: <200608301931.14434.ak@suse.de>
-References: <44F1F356.5030105@zytor.com>
-	<200608301856.11125.ak@suse.de>
-	<20060830200638.504602e2@localhost>
-	<200608301931.14434.ak@suse.de>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 13:54:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:5265 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751254AbWH3RyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 13:54:11 -0400
+Date: Wed, 30 Aug 2006 10:52:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Manu Abraham <abraham.manu@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>
+Subject: Re: [RFC] Simple userspace interface for PCI drivers
+Message-ID: <20060830175250.GA6258@kroah.com>
+References: <20060830062338.GA10285@kroah.com> <44F5C5E0.4050201@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44F5C5E0.4050201@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 19:31:14 +0200
-Andi Kleen <ak@suse.de> wrote:
-
-> On Wednesday 30 August 2006 19:06, Alon Bar-Lev wrote:
+On Wed, Aug 30, 2006 at 09:07:44PM +0400, Manu Abraham wrote:
 > 
-> > > 
-> > > And the other thing is that this will cost memory. Either make
-> > > it dependend on !CONFIG_SMALL or fix the boot code to save the 
-> > > command line into a kmalloc'ed buffer of the right size and
-> > > __init the original one
-> > 
-> > I don't mind doing either... Any preference for one of them? The
-> > kmalloc approach seems nicer..
-> 
-> kmalloc is better yes. You just have to do it after kmalloc is up
-> and running and make sure the users before reference the __init'ed
-> version. I suspect only /proc/cmdline will need the kmalloc version
-> after booting, nobody else should look at the command line.
-> 
-> -Andi
+> Being a bit excited and it is really interesting to have such a
+> proposal, it would simplify the matters that held us up even more,
+> probably. The name sounds fine though. All i was wondering whether there
+> would be any high latencies for the same using in such a context. But
+> since the transfers would occur in any way, even with a kernel mode
+> driver, i think it should be pretty much fine.
 
-This is not entirely true...
-All architectures sets saved_command_line variable...
-So I can add __init to the saved_command_line and
-copy its contents into kmalloced persistence_command_line at
-main.c.
+As mentioned, this framework is being used in industrial settings right
+now, where latencies are a huge issue.  It works just fine, so I do not
+think there are any problems in this area.
 
-Then the following files should be modified to use the new kmalloced variable:
+thanks,
 
-./drivers/sbus/char/openprom.c: char *buf = saved_command_line;
-./fs/proc/kcore.c:      strncpy(prpsinfo.pr_psargs, saved_command_line, ELF_PRARGSZ);
-./fs/proc/proc_misc.c:  len = sprintf(page, "%s\n", saved_command_line);
-
-Have I got it right?
-
-Best Regards,
-Alon Bar-Lev.
+greg k-h

@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWH3Rpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWH3Rvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWH3Rpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 13:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWH3Rpu
+	id S1751250AbWH3Rvl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 13:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWH3Rvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 13:45:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8466 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751245AbWH3Rpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 13:45:49 -0400
-Date: Wed, 30 Aug 2006 19:45:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, David Woodhouse <dwmw2@infradead.org>,
-       David Miller <davem@davemloft.net>, linux-arch@vger.kernel.org,
-       jdike@addtoit.com, B.Steinbrink@gmx.de, arjan@infradead.org,
-       chase.venters@clientec.com, akpm@osdl.org, rmk+lkml@arm.linux.org.uk,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-Message-ID: <20060830174547.GH18276@stusta.de>
-References: <200608281003.02757.ak@suse.de> <200608281642.21737.ak@suse.de> <20060828154634.GA3450@stusta.de> <200608281900.10191.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608281900.10191.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 30 Aug 2006 13:51:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38829 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751250AbWH3Rvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 13:51:41 -0400
+Subject: Re: [PATCH] SELinux: work around filesystems which call
+	d_instantiate before setting inode mode
+From: Eric Paris <eparis@parisplace.org>
+To: Steve French <smfrench@austin.rr.com>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, shaggy@austin.ibm.com,
+       shirishp@us.ibm.com, akpm@osdl.org
+In-Reply-To: <44F50D86.8050706@austin.rr.com>
+References: <OF333D0451.97EE96CD-ON872571DA.001579E9-862571DA.001591D1@us.ibm.com>
+	 <44F50D86.8050706@austin.rr.com>
+Content-Type: text/plain
+Date: Wed, 30 Aug 2006 13:52:32 -0400
+Message-Id: <1156960352.3195.56.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 28, 2006 at 07:00:09PM +0200, Andi Kleen wrote:
+On Tue, 2006-08-29 at 23:01 -0500, Steve French wrote:
+> Eric,
+> Does this patch do what you need?
 > 
-> > This would only be required if you'd upgrade the userspace kernel
-> > headers on this system to a version not matching the ones glibc was
-> > built against - and this has never been considered a good idea
-> > (it should work in theory, but not with our current header mess).
-> 
-> Sorry, but that's just utterly wrong. It has always worked. The kernel ABI
-> is stable on this level.
+> It rearranges the cifs call to d_instantiate until after the inode is 
+> filled in in fs/cifs/readdir.c
+> which IIRC was the only place which did the reverse order from what you 
+> expected (at
+> least the only place in cifs).   I will try it tomorrow but I don't know 
+> SE Linux
+> scenarios to try that would prove whether it works.
 
-In this area, the ABI is much more stable than the API.
+This patch does seem to solve the issue with CIFS that we were
+experiencing and I would love to see it submitted.
 
-Try compiling glibc-2.0.1 with 2.6.17 kernel headers...
+I would also like to have my original patch included as it will help to
+flush out any other cases of this ordering in the future.
 
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Eric
 

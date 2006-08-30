@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWH3GKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWH3GMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751546AbWH3GKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 02:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751548AbWH3GKF
+	id S1751549AbWH3GMm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 02:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751548AbWH3GMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 02:10:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:43491 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751546AbWH3GKD (ORCPT
+	Wed, 30 Aug 2006 02:12:42 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:59044 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751089AbWH3GMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 02:10:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: rockeychu <rockeychu@gmail.com>
-Subject: =?utf-8?b?W1BBVENIXW5hbmRfYmFzZTo=?= misused =?utf-8?b?bWFmX2lk?=   ( for Linux 2.6.18-RC4 & RC5 )
-Date: Wed, 30 Aug 2006 05:43:08 +0000 (UTC)
-Message-ID: <loom.20060830T073313-489@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 220.114.96.50 (Opera/9.01 (Windows NT 5.1; U; zh-cn))
+	Wed, 30 Aug 2006 02:12:41 -0400
+Date: Wed, 30 Aug 2006 08:11:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+cc: Peter Grandi <pg_lkm@lkm.for.sabi.co.UK>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The 3G (or nG) Kernel Memory Space Offset
+In-Reply-To: <44F4AE80.4010607@goop.org>
+Message-ID: <Pine.LNX.4.61.0608300759200.9263@yvahk01.tjqt.qr>
+References: <a2ebde260608290715o627c631uca67e5b84b8c0777@mail.gmail.com>
+ <Pine.LNX.4.61.0608291634380.16371@yvahk01.tjqt.qr>
+ <a2ebde260608290901w73575e18hffd8a9d6c989f523@mail.gmail.com>
+ <44F46E8C.1000308@goop.org> <17652.35152.661745.96581@base.ty.sabi.co.UK>
+ <44F4AE80.4010607@goop.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When finding manufacturer, changed maf_id not maf_idx, so result is not correct.
+>
+> The load address for ET_EXEC executables is defined as 0x08048000;
+> you can use ET_DYN if you want to load them elsewhere.  Using lower
+> addresses allows the use of instructions with smaller pointers and
+> offsets (though this might be less important on x86).
+
+Less on x86. HTE tells me there are only two ways (EB and E9):
+
+      EB ??                 jmp OFFSET8     for 16/32/64
+      E9 ?? ??              jmp OFFSET16    for 16-bit mode
+      E9 ?? ?? ?? ??        jmp OFFSET32    for 32/64-bit mode
 
 
---- linux-2.6.17_org/drivers/mtd/nand/nand_base.c     2006-08-28 
-12:29:32.000000000 +0800
-+++ linux-2.6.17/drivers/mtd/nand/nand_base.c 2006-08-30 13:09:55.320000000 
-+0800
-@@ -1093,9 +1093,10 @@
 
-        ret = nand_do_read_ops(mtd, from, &chip->ops);
-
-+       *retlen = chip->ops.retlen;
-+
-        nand_release_device(mtd);
-
--       *retlen = chip->ops.retlen;
-        return ret;
- }
-
-@@ -1691,9 +1692,10 @@
-
-        ret = nand_do_write_ops(mtd, to, &chip->ops);
-
-+       *retlen = chip->ops.retlen;
-+
-        nand_release_device(mtd);
-
--       *retlen = chip->ops.retlen;
-        return ret;
- }
-
-@@ -2222,7 +2224,7 @@
-        }
-
-        /* Try to identify manufacturer */
--       for (maf_idx = 0; nand_manuf_ids[maf_idx].id != 0x0; maf_id++) {
-+       for (maf_idx = 0; nand_manuf_ids[maf_idx].id != 0x0; maf_idx++) {
-                if (nand_manuf_ids[maf_idx].id == *maf_id)
-                        break;
-        }
-
-
+Jan Engelhardt
+-- 

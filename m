@@ -1,63 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWH3WQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWH3WRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWH3WQL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 18:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWH3WQK
+	id S932186AbWH3WRL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 18:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWH3WQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 18:16:10 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:14021 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932170AbWH3WQG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 18:16:06 -0400
-Subject: [RFC][PATCH 0/9] generic PAGE_SIZE infrastructure (v4)
+	Wed, 30 Aug 2006 18:16:12 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:50631 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932173AbWH3WQJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 18:16:09 -0400
+Subject: [RFC][PATCH 2/9] conditionally define generic get_order() (ARCH_HAS_GET_ORDER)
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 30 Aug 2006 15:16:04 -0700
-Message-Id: <20060830221604.E7320C0F@localhost.localdomain>
+Date: Wed, 30 Aug 2006 15:16:05 -0700
+References: <20060830221604.E7320C0F@localhost.localdomain>
+In-Reply-To: <20060830221604.E7320C0F@localhost.localdomain>
+Message-Id: <20060830221605.CFC342D7@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes from v3:
-- fixed spurious delete of PTE_MASK in sh arch
-- replaced ALIGN() macro with one which only evaluates the
-  address a single time.  (Thanks Nikita)
-- replaced ppc _ALIGN* definitions with include of align.h
 
-Changes from v2:
-- included get_order() code to make it safe to include
-  generic/page.h everywhere (using ARCH_HAS_GET_ORDER)
-- updated mm/Kconfig text to make it more fitting for ia64
-- added patch to consolidate _ALIGN with kernel.h's ALIGN()
-  The assembly one has been left alone, but I guess we could
-  put it here.  However, the meaning of the two is quite different.
+This patch makes asm-generic/page.h safe to include in lots of code.  This
+prepares it for the introduction shortly of the generic PAGE_SIZE code.
 
+There was some discussion that ARCH_HAS_FOO is a disgusting mechanism and
+should be wiped off the face of the earth.  It was argued that these things
+introduce unnecessary complexity, reduce greppability, and obscure the
+conditions under which FOO was defined.  I agree with *ALL* of this.  I
+think this patch is different. ;)
+
+This is very greppable.  If you grep and see foo() showing up in
+asm-generic/foo.h, it is *obvious* that it is a generic version.  If you
+see another version in asm-i386/foo.h, it is also obvious that i386 has
+(or can) override the generic one.
+
+As for obscuring the conditions under which it is defined, you do this when
+you are either missing a symbol, or have duplicate symbols.  So, you want to
+know:
+
+1. *IS* the generic one being defined?
+2. When is this generic defined (and how do I turn it off)?
+3. How to I get the damn thing defined (if the symbol is missing)?
+
+With Kconfig, this is all easy, especially for arch-specific stuff.
+
+If you requiring that the non-generic symbol be defined first:
+
+	http://article.gmane.org/gmane.linux.kernel/422942/match=very+complex+xyzzy+don+t+want
+
+it gets awfully messy because you end up having to fix up all of the
+architectures' headers that define the thing to get rid of any circular
+dependencies.
+
+So, is _this_ patch disgusting?
+
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
-All architectures currently explicitly define their page size.  In some
-cases (ppc, parisc, ia64, sparc64, mips) this size is somewhat
-configurable.
+ threadalloc-dave/include/asm-generic/page.h |    4 +++-
+ threadalloc-dave/mm/Kconfig                 |    4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-There several reimplementations of ways to make sure that PAGE_SIZE
-is usable in assembly code, yet still somewhat type safe for use in
-C code (as a UL type).  These are all very similar.  There are also a
-number of macros based off of PAGE_SIZE/SHIFT which are duplicated
-across architectures.
-
-This patch unifies all of those definitions.  It defines PAGE_SIZE in
-a single header which gets its definitions from Kconfig.  The new
-Kconfig options mirror what used to be done with #ifdefs and
-arch-specific Kconfig options.  The new Kconfig menu eliminates
-the need for parisc, ia64, and sparc64 to have their own "choice"
-menus for selecting page size.  The help text has been adapted from
-these three architectures, but is now more generic.
-
-Why am I doing this?  The OpenVZ beancounter patch hooks into the
-alloc_thread_info() path, but only in two architectures.  It is silly
-to patch each and every architecture when they all just do the same
-thing.  This is the first step to have a single place in which to
-do alloc_thread_info().  Oh, and this series removes about 300 lines
-of code.
-
-  59 files changed, 217 insertions(+), 502 deletions(-)
+diff -puN include/asm-generic/page.h~generic-get_order include/asm-generic/page.h
+--- threadalloc/include/asm-generic/page.h~generic-get_order	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/include/asm-generic/page.h	2006-08-30 15:15:00.000000000 -0700
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/compiler.h>
+ 
++#ifndef CONFIG_ARCH_HAVE_GET_ORDER
+ /* Pure 2^n version of get_order */
+ static __inline__ __attribute_const__ int get_order(unsigned long size)
+ {
+@@ -20,7 +21,8 @@ static __inline__ __attribute_const__ in
+ 	return order;
+ }
+ 
+-#endif	/* __ASSEMBLY__ */
++#endif	/* CONFIG_ARCH_HAVE_GET_ORDER */
++#endif /*  __ASSEMBLY__ */
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _ASM_GENERIC_PAGE_H */
+diff -puN mm/Kconfig~generic-get_order mm/Kconfig
+--- threadalloc/mm/Kconfig~generic-get_order	2006-08-30 15:14:56.000000000 -0700
++++ threadalloc-dave/mm/Kconfig	2006-08-30 15:15:00.000000000 -0700
+@@ -1,3 +1,7 @@
++config ARCH_HAVE_GET_ORDER
++	def_bool y
++	depends on IA64 || PPC32 || XTENSA
++
+ config SELECT_MEMORY_MODEL
+ 	def_bool y
+ 	depends on EXPERIMENTAL || ARCH_SELECT_MEMORY_MODEL
+_

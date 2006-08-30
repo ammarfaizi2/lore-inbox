@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWH3KHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWH3KeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWH3KHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 06:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWH3KHW
+	id S1750701AbWH3KeF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 06:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWH3KeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 06:07:22 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:19243 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750767AbWH3KHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 06:07:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PzRt2AqvAwxj/HdQWFLJXeHeCmgca9C6JPOZeBwR5Hfc1tnJd/pZp7dtWE/KvfM/ioeqix4N6oloPqa6MRJsoEdgYpTwMEWNp6bopp+AxBZvnpqlq3sYyb0I6cKnQhyITEtc6xeOrs7Jdfjbz954If2xKs4W3fJs8t4LGF5Av1A=
-Message-ID: <742b1fb30608300307q750c45f8t9c81435d5bd98adb@mail.gmail.com>
-Date: Wed, 30 Aug 2006 12:07:18 +0200
-From: "Patrizio Bassi" <patrizio.bassi@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [BUG?] 2.6.17.x suspend problems
-Cc: linux-kernel@vger.kernel.org, "Pavel Machek" <pavel@ucw.cz>
-In-Reply-To: <742b1fb30608300208g487ab973yb2b326a01820e94c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 06:34:05 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:51084 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1750701AbWH3KeC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 06:34:02 -0400
+Date: Wed, 30 Aug 2006 18:57:59 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH 1/7] introduce atomic_dec_and_lock_irqsave()
+Message-ID: <20060830145759.GA163@oleg>
+References: <44F45045.70402@sw.ru> <44F4540C.8050205@sw.ru> <Pine.LNX.4.64.0608301156010.6762@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <742b1fb30608280446x2b0cf2d4p5aae2bb66ba41555@mail.gmail.com>
-	 <742b1fb30608290414w5d7efc2et349f5ca32f241834@mail.gmail.com>
-	 <742b1fb30608292358y6cebdf4eg654d7a1973a91c3@mail.gmail.com>
-	 <200608301101.01816.rjw@sisk.pl>
-	 <742b1fb30608300208g487ab973yb2b326a01820e94c@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0608301156010.6762@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/8/30, Patrizio Bassi <patrizio.bassi@gmail.com>:
-> 2006/8/30, Rafael J. Wysocki <rjw@sisk.pl>:
-> > On Wednesday 30 August 2006 08:58, Patrizio Bassi wrote:
-> > > 2006/8/29, Patrizio Bassi <patrizio.bassi@gmail.com>:
-> > > > 2006/8/29, Rafael J. Wysocki <rjw@sisk.pl>:
-> > > > > On Monday 28 August 2006 13:46, Patrizio Bassi wrote:
-> > > > > > when i try to suspend my notebook i have problems with ide controller.
-> > > > > > the copy lasts a lot and i get oops.
-> > > > >
-> > > > > I haven't seen any patches related to SIS chipsets recently.
-> > > > >
-> > > > > There is a chance the latest -mm will work, so you can try it (no warranty,
-> > > > > though).  If not, please file a bug report at http://bugzilla.kernel.org
-> > > > > (with a Cc to rjwysocki@sisk.pl).
-> > > >
-> > > >
-> > > > do you mean the .18-mm sources i guess, not the .17 ones.
-> > > >
-> > > > Ok, i'll try as soon as possibile.
-> >
-> > ]--snip--[
-> > > i just tested 2.6.18-rc4-mm3.
-> > >
-> > > as soon as i ask for suspending i get a black screen.
-> > > waiting for lots of time...something like 1 min i see:
-> > >
-> > > Disabling Interrupt #14
-> > > and after, even waiting some means...nothing more.
-> >
-> > Please file a report at http://bugzilla.kernel.org like I said previously.
-> >
-> > I'm afraid there's no quick fix for you right now.
-> >
-> > Greetings,
-> > Rafael
-> >
-> >
->
-> i'll fill a bug, but i feel that synaptics bug may be the blocking problem.
-> Maybe fixing that (same problem in .17 sources too) may "unlock" the
-> suspending procedure too.
->
-> Some work for input team so. ihmo.
->
-> Thanks
->
->
+On 08/30, Roman Zippel wrote:
+> Hi,
+> 
+> On Tue, 29 Aug 2006, Kirill Korotaev wrote:
+> 
+> > --- ./kernel/user.c.dlirq	2006-07-10 12:39:20.000000000 +0400
+> > +++ ./kernel/user.c	2006-08-28 11:08:56.000000000 +0400
+> > @@ -108,15 +108,12 @@ void free_uid(struct user_struct *up)
+> > 	if (!up)
+> > 		return;
+> > 
+> > -	local_irq_save(flags);
+> > -	if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
+> > +	if (atomic_dec_and_lock_irqsave(&up->__count, &uidhash_lock, flags)) {
+> > 		uid_hash_remove(up);
+> > 		spin_unlock_irqrestore(&uidhash_lock, flags);
+> > 		key_put(up->uid_keyring);
+> > 		key_put(up->session_keyring);
+> > 		kmem_cache_free(uid_cachep, up);
+> > -	} else {
+> > -		local_irq_restore(flags);
+> > 	}
+> > }
+> 
+> Why does this need protection against interrupts?
 
-just opened
+uidhash_lock can be taken from irq context. For example, delayed_put_task_struct()
+does __put_task_struct()->free_uid().
 
-http://bugzilla.kernel.org/show_bug.cgi?id=7077
+Oleg.
 
-Bye
-
-
--- 
-
-Patrizio Bassi
-www.patriziobassi.it

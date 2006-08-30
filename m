@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWH3Mjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWH3MjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWH3Mjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 08:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWH3Mjx
+	id S1750805AbWH3MjV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 08:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWH3MjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 08:39:53 -0400
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:28857 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750886AbWH3Mjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 08:39:52 -0400
-Date: Wed, 30 Aug 2006 08:33:40 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH RFC 0/6] Implement per-processor data areas for
-  i386.
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Message-ID: <200608300838_MC3-1-C9C6-CA79@compuserve.com>
+	Wed, 30 Aug 2006 08:39:21 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:30689 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750805AbWH3MjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 08:39:20 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 4/7] Remove the use of _syscallX macros in UML
+Date: Wed, 30 Aug 2006 14:38:41 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Jeff Dike <jdike@addtoit.com>, Bjoern Steinbrink <B.Steinbrink@gmx.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       rusty@rustcorp.com.au
+References: <20060827214734.252316000@klappe.arndb.de> <20060827215636.797086000@klappe.arndb.de> <44F524EE.90304@zytor.com>
+In-Reply-To: <44F524EE.90304@zytor.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200608301438.42079.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <44F557A8.1030605@goop.org>
-
-On Wed, 30 Aug 2006 02:17:28 -0700, Jeremy Fitzhardinge wrote:
-
-> > This changes the ABI for signals and ptrace() and that seems like
-> > a bad idea to me.
-> >   
+On Wednesday 30 August 2006 07:41, H. Peter Anvin wrote:
+> syscall() is a horrible botch; it is in fact unimplementable (without 
+> enormous switch statements) on a number of architectures.
 > 
-> I don't believe it does; it certainly shouldn't change the usermode 
-> ABI.  How do you see it changing?
+Ok, good point. I'll leave the _syscallX() macros in for now and only
+remove the kernel syscalls in my next submission, so we get at least
+the non-controversial part done.
 
-Nevermind.  I thought because you changed struct pt_regs in ptrace_abi.h
-it meant a user ABI change.
-
-> > And the way things are done now is so ingrained into the i386
-> > kernel that I'm not sure it can be done.  E.g. I found two
-> > open-coded implementations of current, one in kernel_fpu_begin()
-> > and one in math_state_restore().
-> >   
-> 
-> That's OK.  The current task will still be available in thread_info; 
-
-But they can get out of sync, e.g. when switch_to() restores the new
-task's esp, the PDA still contains the old pcurrent and they don't get
-synchronized until the write_pda() in __switch_to().
-
-> To be honest, I haven't looked at percpu.h in great detail.  I was 
-> making assumptions about how it works, but it looks like they were wrong.
-
-Would it make any sense to replace the 'cpu' field in thread_info with
-a pointer to a PDA-like structure?  We could even embed the static per_cpu
-data directly into that struct instead of chasing pointers...
-
--- 
-Chuck
-
+	Arnd <><

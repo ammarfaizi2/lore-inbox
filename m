@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWH3FGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWH3Fa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbWH3FGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 01:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWH3FGJ
+	id S964955AbWH3Fa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 01:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWH3Fa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 01:06:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54426 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965011AbWH3FGG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 01:06:06 -0400
-Message-ID: <44F51CB7.4010504@cn.ibm.com>
-Date: Wed, 30 Aug 2006 13:05:59 +0800
-From: Yao Fei Zhu <walkinair@cn.ibm.com>
-Reply-To: walkinair@cn.ibm.com
-Organization: IBM
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: walkinair@cn.ibm.com
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, havelblue@us.ibm.com
-Subject: Re: Swap file or device can't be recognized by kernel built with
- 64K pages.
-References: <44F50940.1010204@cn.ibm.com>
-In-Reply-To: <44F50940.1010204@cn.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 30 Aug 2006 01:30:58 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:11403 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S964955AbWH3Fa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 01:30:58 -0400
+Message-Id: <1156915857.17214.269732888@webmail.messagingengine.com>
+X-Sasl-Enc: CQyJWLCQdJOLDos68vyxgfA4Cwo2Z0kZqQj7eoMgPPPL 1156915857
+From: "Komal Shah" <komal_shah802003@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
 Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="_----------=_1156915857172140"; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Subject: [PATCH] debugfs: spelling fix
+Date: Wed, 30 Aug 2006 11:00:57 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yao Fei Zhu wrote:
+This is a multi-part message in MIME format.
 
-> Problem description:
-> swap file or device can't be recognized by kernel built with 64K pages.
->
-> Hardware Environment:
->    Machine type (p650, x235, SF2, etc.): B70+
->    Cpu type (Power4, Power5, IA-64, etc.): POWER5+
-> Software Environment:
->    OS : SLES10 GMC
->    Kernel: 2.6.18-rc5
-> Additional info:
->
-> tc1:~ # uname -r
-> 2.6.18-rc5-ppc64
->
-> tc1:~ # zcat /proc/config.gz | grep 64K
-> CONFIG_PPC_64K_PAGES=y
->
-> tc1:~ # mkswap ./swap.file
-> Assuming pages of size 65536 (not 4096)
-> Setting up swapspace version 0, size = 4294901 kB
+--_----------=_1156915857172140
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Wed, 30 Aug 2006 05:30:57 UT
 
-Should use mkswap -v1 to create a new style swap area.
+Greg,
 
->
-> tc1:~ # swapon ./swap.file
-> swapon: ./swap.file: Invalid argument
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Just a single line spell-fix for debugfs.
 
+---Komal Shah
+http://komalshah.blogspot.com
+
+-- 
+http://www.fastmail.fm - Or how I learned to stop worrying and
+                          love email again
+
+
+--_----------=_1156915857172140
+Content-Disposition: attachment; filename="0001-debugfs-spelling-fix.patch"
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-debugfs-spelling-fix.patch"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Wed, 30 Aug 2006 05:30:57 UT
+
+RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
+bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBU
+dWUsIDI5IEF1ZyAyMDA2IDIwOjU0OjUzICswNTMwClN1YmplY3Q6IFtQQVRD
+SF0gZGVidWdmczogc3BlbGxpbmcgZml4CgpDaGFuZ2UgZGVidWZzX2NyZWF0
+ZV9maWxlKCkgdG8gZGVidWdmc19jcmVhdGVfZmlsZSgpLgoKU2lnbmVkLW9m
+Zi1ieTogS29tYWwgU2hhaCA8a29tYWxfc2hhaDgwMjAwM0B5YWhvby5jb20+
+CgotLS0KCiBmcy9kZWJ1Z2ZzL2lub2RlLmMgfCAgICAyICstCiAxIGZpbGVz
+IGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmZi
+NTdmNGY2M2ZkZGYzMzQxNjZmNmE4MTMwYjQxZWFlNDdiMGRhMmUKZGlmZiAt
+LWdpdCBhL2ZzL2RlYnVnZnMvaW5vZGUuYyBiL2ZzL2RlYnVnZnMvaW5vZGUu
+YwppbmRleCBlOGFlMzA0Li5jZThiZjdjIDEwMDY0NAotLS0gYS9mcy9kZWJ1
+Z2ZzL2lub2RlLmMKKysrIGIvZnMvZGVidWdmcy9pbm9kZS5jCkBAIC0yNTYs
+NyArMjU2LDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZGVidWdmc19jcmVhdGVf
+ZGlyKTsKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIHJlbW92ZXMgYSBmaWxlIG9y
+IGRpcmVjdG9yeSBpbiBkZWJ1Z2ZzIHRoYXQgd2FzIHByZXZpb3VzbHkKICAq
+IGNyZWF0ZWQgd2l0aCBhIGNhbGwgdG8gYW5vdGhlciBkZWJ1Z2ZzIGZ1bmN0
+aW9uIChsaWtlCi0gKiBkZWJ1ZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJpYW50
+cyB0aGVyZW9mLikKKyAqIGRlYnVnZnNfY3JlYXRlX2ZpbGUoKSBvciB2YXJp
+YW50cyB0aGVyZW9mLikKICAqCiAgKiBUaGlzIGZ1bmN0aW9uIGlzIHJlcXVp
+cmVkIHRvIGJlIGNhbGxlZCBpbiBvcmRlciBmb3IgdGhlIGZpbGUgdG8gYmUK
+ICAqIHJlbW92ZWQsIG5vIGF1dG9tYXRpYyBjbGVhbnVwIG9mIGZpbGVzIHdp
+bGwgaGFwcGVuIHdoZW4gYSBtb2R1bGUgaXMKLS0gCjEuMy4zCgo=
+
+--_----------=_1156915857172140--
 

@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWH3BSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWH3BjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWH3BSE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 21:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWH3BSE
+	id S932304AbWH3BjP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 21:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWH3BjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 21:18:04 -0400
-Received: from mx1.bluearc.com ([63.110.244.100]:46599 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S932301AbWH3BSC convert rfc822-to-8bit (ORCPT
+	Tue, 29 Aug 2006 21:39:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751487AbWH3BjO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 21:18:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 0x7f in SectorIdNotFound errors
-Date: Tue, 29 Aug 2006 18:18:02 -0700
-Message-ID: <CECD6E8A589E8447BC6E836C8369AFF50AD2EB77@us-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 0x7f in SectorIdNotFound errors
-Thread-Index: AcbLnG3iUmSw5c1bTVqSNM8YA+fPPwAJtHXw
-From: "Martin Dorey" <mdorey@bluearc.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
+	Tue, 29 Aug 2006 21:39:14 -0400
+Date: Tue, 29 Aug 2006 18:39:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Drop cache has no effect?
+Message-Id: <20060829183902.be1356b6.akpm@osdl.org>
+In-Reply-To: <87k64rxc6g.fsf@duaron.myhome.or.jp>
+References: <Pine.LNX.4.61.0608291449060.10486@yvahk01.tjqt.qr>
+	<20060829110048.20e23e75.akpm@osdl.org>
+	<87k64rxc6g.fsf@duaron.myhome.or.jp>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it would be very strange drive geometry to
-> start a partition on an odd sector boundary
+On Wed, 30 Aug 2006 10:08:39 +0900
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 
-In which case, perhaps I should have mentioned this before:
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > That would be a vfat problem - the changed permission bits weren't written
+> > back to disk, so when you re-read them from disk (or, more likely, from
+> > blockdev pagecache) they came back with the original values.
+> >
+> > Does vfat even have the ability to store the seven bits?  Don't think so? 
+> > If not, permitting the user to change them in icache but not being to write
+> > them out to permanent store seems rather bad behaviour.
+> 
+> That's dirty area, vfat has one read-only bit only. Yes, I also think
+> this is strange behaviour. But, I worry app is depending on the
+> current behaviour, because this is pretty old behaviour.
+> 
+> Umm.., do someone have any strong reason? I'll make patch at this
+> weekend, and please test it in -mm tree for a bit long time...?
 
-martind@ithaki:~$ sudo fdisk -lu /dev/hdb
+It is pretty weird that permission bits on vfat can magically change in
+response to memory pressure.
 
-Disk /dev/hdb: 300.0 GB, 300069052416 bytes
-255 heads, 63 sectors/track, 36481 cylinders, total 586072368 sectors
-Units = sectors of 1 * 512 = 512 bytes
+But no, I'm not really advocating any changes in this area - I don't recall
+any complaints (surprised) and the chances are that if we changed it
+(ie: not permit the inode to accept changes which cannot be stored on disk)
+then someone's app would break.
 
-   Device Boot      Start         End      Blocks   Id  System
-/dev/hdb1              63   586067264   293033601   83  Linux
-martind@ithaki:~$
-
-> If you force an fsck
-
-I'll schedule some downtime but I thought the above might be worth
-mentioning immediately.
--------------------------------------
-Martin's Outlook, BlueArc Engineering
-
+otoh, it is pretty bad behaviour...

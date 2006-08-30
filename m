@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWH3BOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWH3BSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWH3BOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Aug 2006 21:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWH3BOL
+	id S932301AbWH3BSE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Aug 2006 21:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWH3BSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Aug 2006 21:14:11 -0400
-Received: from c-68-40-227-167.hsd1.mi.comcast.net ([68.40.227.167]:45834 "HELO
-	c-68-40-227-167.hsd1.mi.comcast.net") by vger.kernel.org with SMTP
-	id S932228AbWH3BOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Aug 2006 21:14:10 -0400
-Message-ID: <04f901c1dec8$6b558e63$59c3732f@sesmail.com>
-From: gael lynette <244bernie@sesmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: I fuond the rihgt porgram for you
-Date: Mon, 08 Apr 2002 09:45:29 +0300
+	Tue, 29 Aug 2006 21:18:04 -0400
+Received: from mx1.bluearc.com ([63.110.244.100]:46599 "EHLO
+	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S932301AbWH3BSC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Aug 2006 21:18:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-    format=flowed;
-    charset="iso-8859-1";
-    reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express V6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 0x7f in SectorIdNotFound errors
+Date: Tue, 29 Aug 2006 18:18:02 -0700
+Message-ID: <CECD6E8A589E8447BC6E836C8369AFF50AD2EB77@us-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 0x7f in SectorIdNotFound errors
+Thread-Index: AcbLnG3iUmSw5c1bTVqSNM8YA+fPPwAJtHXw
+From: "Martin Dorey" <mdorey@bluearc.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi pal,
-how are you?
-I think I found a great opportunity to make money online, would like to share it with you.
-Just check out this site, http://www.incotrust.com - they're paying 5% daily on your investment, can you imagine?
-First i was a  bit sceptical, but it works! I more than tripled my investment now. They accept e-gold or e-bullion.
-Just use my referral link http://incotrust.com?ref=2513451
-Best,
-stay in touch
+> it would be very strange drive geometry to
+> start a partition on an odd sector boundary
 
-Tom
+In which case, perhaps I should have mentioned this before:
 
+martind@ithaki:~$ sudo fdisk -lu /dev/hdb
 
+Disk /dev/hdb: 300.0 GB, 300069052416 bytes
+255 heads, 63 sectors/track, 36481 cylinders, total 586072368 sectors
+Units = sectors of 1 * 512 = 512 bytes
 
-obuy
+   Device Boot      Start         End      Blocks   Id  System
+/dev/hdb1              63   586067264   293033601   83  Linux
+martind@ithaki:~$
+
+> If you force an fsck
+
+I'll schedule some downtime but I thought the above might be worth
+mentioning immediately.
+-------------------------------------
+Martin's Outlook, BlueArc Engineering
+

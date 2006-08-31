@@ -1,57 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWHaWoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWHaWsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWHaWoy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWHaWoy
+	id S932467AbWHaWsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 18:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWHaWsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:44:54 -0400
-Received: from xenotime.net ([66.160.160.81]:23209 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932469AbWHaWox (ORCPT
+	Thu, 31 Aug 2006 18:48:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16257 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932467AbWHaWsi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:44:53 -0400
-Date: Thu, 31 Aug 2006 15:48:19 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
+	Thu, 31 Aug 2006 18:48:38 -0400
+Date: Thu, 31 Aug 2006 15:48:28 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
        kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: prevent swsusp with PAE
-Message-Id: <20060831154819.259c9ce2.rdunlap@xenotime.net>
+Message-Id: <20060831154828.4313327c.akpm@osdl.org>
 In-Reply-To: <20060831223521.GB31125@elf.ucw.cz>
 References: <20060831135336.GL3923@elf.ucw.cz>
 	<20060831104304.e3514401.akpm@osdl.org>
 	<20060831223521.GB31125@elf.ucw.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Sep 2006 00:35:21 +0200 Pavel Machek wrote:
+On Fri, 1 Sep 2006 00:35:21 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-> Hi!
-> 
-> > Pavel Machek <pavel@suse.cz> wrote:
-> > 
-> > > If HIGHMEM64G and swsusp are used at the same time, nasty random
-> > > crashes happen during resume. Cause is known; prevent that
-> > > combination.
-> > > 
-> > > I guess I'd like to see this one in 2.6.18...
-> > > 
-> > > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > > 
-> > > ---
-> > > commit acb3b411ec93f827b25b8481d53670c5c9195d89
-> > > tree f52cd5518e34af16fe5ae28064717bcc95929f28
-> > > parent cd03e183c58e6e7073e054a7fe335cf50c61fe2f
-> > > author <pavel@amd.ucw.cz> Thu, 31 Aug 2006 15:52:34 +0200
-> > > committer <pavel@amd.ucw.cz> Thu, 31 Aug 2006 15:52:34 +0200
-> > > 
-> > >  include/asm-i386/suspend.h |    8 ++++++++
-> > >  1 files changed, 8 insertions(+), 0 deletions(-)
-> > > 
 > > > diff --git a/include/asm-i386/suspend.h b/include/asm-i386/suspend.h
 > > > index 08be1e5..01cd812 100644
 > > > --- a/include/asm-i386/suspend.h
@@ -78,10 +56,8 @@ On Fri, 1 Sep 2006 00:35:21 +0200 Pavel Machek wrote:
 > disappearing config option is sure to confuse people. But of course I
 > can do it.
 
-Documentation/kbuild/kconfig-language.txt includes a "comment" keyword.
+It would be more conventional.
 
-USB-storage uses it to suggest that SCSI + SCSI disk support need
-to be enabled for usb-storage.
-
----
-~Randy
+I think what this really points at is a weakness in the menuconfig/xconfig/etc
+user interfaces.  It should be possible to navigate to the presently-disabled
+config option and ask it "why can't I turn you on?".

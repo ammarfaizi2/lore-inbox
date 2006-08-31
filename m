@@ -1,134 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWHaW4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWHaW5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWHaW4r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHaW4q
+	id S932471AbWHaW5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 18:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWHaW5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:56:46 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:40589 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932400AbWHaW4q
+	Thu, 31 Aug 2006 18:57:12 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:24970 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932477AbWHaW4v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:56:46 -0400
-Subject: [PATCH 1/4] rcu: Refactor srcu_torture_deferred_free to work for
-	any implementation
+	Thu, 31 Aug 2006 18:56:51 -0400
+Subject: [PATCH 4/4] rcu: Add sched torture type to rcutorture
 From: Josh Triplett <josht@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Paul McKenney <paulmck@us.ibm.com>,
        Dipankar Sarma <dipankar@in.ibm.com>
 Content-Type: text/plain
-Date: Thu, 31 Aug 2006 15:56:52 -0700
-Message-Id: <1157065012.25808.5.camel@josh-work.beaverton.ibm.com>
+Date: Thu, 31 Aug 2006 15:56:58 -0700
+Message-Id: <1157065018.25808.9.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make srcu_torture_deferred_free use cur_ops->sync() so it will work for any
-implementation.  Move and rename it in preparation for use in the ops of other
-implementations.
+Implement torture testing for the "sched" variant of RCU, which uses
+preempt_disable, preempt_enable, and synchronize_sched.
 
 Signed-off-by: Josh Triplett <josh@freedesktop.org>
 ---
- kernel/rcutorture.c |   53 ++++++++++++++++++++++++++++-----------------------
- 1 files changed, 29 insertions(+), 24 deletions(-)
+ Documentation/RCU/torture.txt |    5 +++--
+ kernel/rcutorture.c           |   40 +++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 42 insertions(+), 3 deletions(-)
 
+diff --git a/Documentation/RCU/torture.txt b/Documentation/RCU/torture.txt
+index cc4b1ef..25a3c3f 100644
+--- a/Documentation/RCU/torture.txt
++++ b/Documentation/RCU/torture.txt
+@@ -56,8 +56,9 @@ test_no_idle_hz	Whether or not to test t
+ torture_type	The type of RCU to test: "rcu" for the rcu_read_lock() API,
+ 		"rcu_sync" for rcu_read_lock() with synchronous reclamation,
+ 		"rcu_bh" for the rcu_read_lock_bh() API, "rcu_bh_sync" for
+-		rcu_read_lock_bh() with synchronous reclamation, and "srcu"
+-		for the "srcu_read_lock()" API.
++		rcu_read_lock_bh() with synchronous reclamation, "srcu" for
++		the "srcu_read_lock()" API, and "sched" for the use of
++		preempt_disable() together with synchronize_sched().
+ 
+ verbose		Enable debug printk()s.  Default is disabled.
+ 
 diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
-index e045021..6e2f0a8 100644
+index 0f0ff15..e2bda18 100644
 --- a/kernel/rcutorture.c
 +++ b/kernel/rcutorture.c
-@@ -117,6 +117,7 @@ static atomic_t n_rcu_torture_alloc_fail
- static atomic_t n_rcu_torture_free;
- static atomic_t n_rcu_torture_mberror;
- static atomic_t n_rcu_torture_error;
-+static struct list_head rcu_torture_removed;
- 
- /*
-  * Allocate an element from the rcu_tortures pool.
-@@ -270,6 +271,32 @@ static struct rcu_torture_ops rcu_ops = 
- 	.name = "rcu"
+@@ -464,9 +464,47 @@ static struct rcu_torture_ops srcu_ops =
+ 	.name = "srcu"
  };
  
-+static void rcu_sync_torture_deferred_free(struct rcu_torture *p)
-+{
-+	int i;
-+	struct rcu_torture *rp;
-+	struct rcu_torture *rp1;
++/*
++ * Definitions for sched torture testing.
++ */
 +
-+	cur_ops->sync();
-+	list_add(&p->rtort_free, &rcu_torture_removed);
-+	list_for_each_entry_safe(rp, rp1, &rcu_torture_removed, rtort_free) {
-+		i = rp->rtort_pipe_count;
-+		if (i > RCU_TORTURE_PIPE_LEN)
-+			i = RCU_TORTURE_PIPE_LEN;
-+		atomic_inc(&rcu_torture_wcount[i]);
-+		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
-+			rp->rtort_mbtest = 0;
-+			list_del(&rp->rtort_free);
-+			rcu_torture_free(rp);
-+		}
-+	}
++static int sched_torture_read_lock(void)
++{
++	preempt_disable();
++	return 0;
 +}
 +
-+static void rcu_sync_torture_init(void)
++static void sched_torture_read_unlock(int idx)
 +{
-+	INIT_LIST_HEAD(&rcu_torture_removed);
++	preempt_enable();
 +}
 +
- /*
-  * Definitions for rcu_bh torture testing.
-  */
-@@ -335,12 +362,11 @@ static struct rcu_torture_ops rcu_bh_ops
-  */
- 
- static struct srcu_struct srcu_ctl;
--static struct list_head srcu_removed;
- 
- static void srcu_torture_init(void)
- {
- 	init_srcu_struct(&srcu_ctl);
--	INIT_LIST_HEAD(&srcu_removed);
-+	rcu_sync_torture_init();
- }
- 
- static void srcu_torture_cleanup(void)
-@@ -377,27 +403,6 @@ static int srcu_torture_completed(void)
- 	return srcu_batches_completed(&srcu_ctl);
- }
- 
--static void srcu_torture_deferred_free(struct rcu_torture *p)
--{
--	int i;
--	struct rcu_torture *rp;
--	struct rcu_torture *rp1;
--
--	synchronize_srcu(&srcu_ctl);
--	list_add(&p->rtort_free, &srcu_removed);
--	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
--		i = rp->rtort_pipe_count;
--		if (i > RCU_TORTURE_PIPE_LEN)
--			i = RCU_TORTURE_PIPE_LEN;
--		atomic_inc(&rcu_torture_wcount[i]);
--		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
--			rp->rtort_mbtest = 0;
--			list_del(&rp->rtort_free);
--			rcu_torture_free(rp);
--		}
--	}
--}
--
- static void srcu_torture_synchronize(void)
- {
- 	synchronize_srcu(&srcu_ctl);
-@@ -427,7 +432,7 @@ static struct rcu_torture_ops srcu_ops =
- 	.readdelay = srcu_read_delay,
- 	.readunlock = srcu_torture_read_unlock,
- 	.completed = srcu_torture_completed,
--	.deferredfree = srcu_torture_deferred_free,
++static int sched_torture_completed(void)
++{
++	return 0;
++}
++
++static void sched_torture_synchronize(void)
++{
++	synchronize_sched();
++}
++
++static struct rcu_torture_ops sched_ops = {
++	.init = rcu_sync_torture_init,
++	.cleanup = NULL,
++	.readlock = sched_torture_read_lock,
++	.readdelay = rcu_read_delay,  /* just reuse rcu's version. */
++	.readunlock = sched_torture_read_unlock,
++	.completed = sched_torture_completed,
 +	.deferredfree = rcu_sync_torture_deferred_free,
- 	.sync = srcu_torture_synchronize,
- 	.stats = srcu_torture_stats,
- 	.name = "srcu"
++	.sync = sched_torture_synchronize,
++	.stats = NULL,
++	.name = "sched"
++};
++
+ static struct rcu_torture_ops *torture_ops[] =
+ 	{ &rcu_ops, &rcu_sync_ops, &rcu_bh_ops, &rcu_bh_sync_ops, &srcu_ops,
+-	  NULL };
++	  &sched_ops, NULL };
+ 
+ /*
+  * RCU torture writer kthread.  Repeatedly substitutes a new structure
 -- 
 1.4.1.1
 

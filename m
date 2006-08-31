@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWHaQeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWHaQkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWHaQeg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWHaQeg
+	id S932229AbWHaQkf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHaQkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:34:36 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:6885 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932246AbWHaQef
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:34:35 -0400
-Date: Thu, 31 Aug 2006 17:35:01 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, pageexec@freemail.hu
-Subject: Re: [PATCH][RFC] fix long long cast in pte macro
-Message-ID: <20060831163501.GA3433@linux-mips.org>
-References: <20060830062718.GA289@1wt.eu>
+	Thu, 31 Aug 2006 12:40:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18664 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932229AbWHaQkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 12:40:35 -0400
+Date: Thu, 31 Aug 2006 09:40:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: mingo@elte.hu, ak@muc.de, pageexec <pageexec@freemail.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Willy Tarreau <w@1wt.eu>
+Subject: Re: - i386-early-fault-handler.patch removed from -mm tree
+Message-Id: <20060831094014.e2bbe610.akpm@osdl.org>
+In-Reply-To: <200608311221_MC3-1-C9EE-3549@compuserve.com>
+References: <200608311221_MC3-1-C9EE-3549@compuserve.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060830062718.GA289@1wt.eu>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 08:27:18AM +0200, Willy Tarreau wrote:
+On Thu, 31 Aug 2006 12:17:15 -0400
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-> PaX Team sent me this patch, which I think is valid. It fixes a long long
-> cast in the pte macro for i386 and mips. If nobody has any objections, I
-> will apply it to 2.4. I'd also like someone to check whether it's needed
-> for 2.6 and to forward port it if needed.
+> In-Reply-To: <200608310422.k7V4M8Xu023875@shell0.pdx.osdl.net>
+> 
+> On Wed, 30 Aug 2006 21:22:08 -0700, Andrew Morton wrote:
+> 
+> > The patch titled
+> > 
+> >      i386: early fault handler
+> > 
+> > has been removed from the -mm tree.  Its filename is
+> > 
+> >      i386-early-fault-handler.patch
+> > 
+> > This patch was dropped because a different version got merged by andi
+> 
+> <*sigh*>
+> 
+> Didn't anyone even notice the fix that was already in -mm?
 
-Yes, a similar 2.6 patch is needed as well, I'll care of that.  For the
-MIPS segment of your 2.4 patch:
+I sure did ;)
 
-Acked-by: Ralf Baechle <ralf@linux-mips.org>
+>  Now we're back
+> to "guess which fault it was" when an early fault occurs.
 
-  Ralf
+please send fix.

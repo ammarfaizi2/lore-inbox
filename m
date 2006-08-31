@@ -1,51 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWHaTKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHaTO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWHaTKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 15:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWHaTKi
+	id S932315AbWHaTO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 15:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHaTO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 15:10:38 -0400
-Received: from gw.goop.org ([64.81.55.164]:1704 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932308AbWHaTKh (ORCPT
+	Thu, 31 Aug 2006 15:14:26 -0400
+Received: from hera.kernel.org ([140.211.167.34]:35756 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932315AbWHaTOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 15:10:37 -0400
-Message-ID: <44F73429.9060101@goop.org>
-Date: Thu, 31 Aug 2006 12:10:33 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Thu, 31 Aug 2006 15:14:25 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: ibm-acpi documentation: delete irrelevant "how to compile external module"
+Date: Thu, 31 Aug 2006 15:16:00 -0400
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
+       borislav@users.sourceforge.net
+References: <20060831121554.GV3923@elf.ucw.cz>
+In-Reply-To: <20060831121554.GV3923@elf.ucw.cz>
 MIME-Version: 1.0
-To: Ian Campbell <Ian.Campbell@XenSource.com>
-CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 7/8] Implement smp_processor_id() with the PDA.
-References: <20060830235201.106319215@goop.org>	 <20060831000515.338336117@goop.org> <1157027758.12949.327.camel@localhost.localdomain>
-In-Reply-To: <1157027758.12949.327.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608311516.00435.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Campbell wrote:
-> smp_processor_id() is defined for !SMP in include/linux/smp.h, I don't
-> know if it would be appropriate to add early_smp_processor_id() there
-> since it seems i386 specific. asm/smp.h isn't included by linux/smp.h
-> when !SMP but you could add an explicit include to common.c I suppose.
->   
-The simple solution is to just define a !SMP version of 
-early_smp_processor_id().  It's i386 specific, but that's the only arch 
-that uses it:
+Applied.
+thanks,
+-Len
 
-diff -r 8a89489b3734 include/asm-i386/smp.h
---- a/include/asm-i386/smp.h    Thu Aug 31 12:06:44 2006 -0700
-+++ b/include/asm-i386/smp.h    Thu Aug 31 12:07:48 2006 -0700
-@@ -98,6 +98,7 @@ extern unsigned int num_processors;
- #else /* CONFIG_SMP */
- 
- #define safe_smp_processor_id()                0
-+#define early_smp_processor_id()       0
- #define cpu_physical_id(cpu)           boot_cpu_physical_apicid
- 
- #define NO_PROC_ID             0xFF            /* No processor magic marker */
-
-    J
+On Thursday 31 August 2006 08:15, Pavel Machek wrote:
+> 
+> ibm-acpi documentation contains parts that are no longer relevant
+> because ibm-acpi was merged.
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> diff --git a/Documentation/ibm-acpi.txt b/Documentation/ibm-acpi.txt
+> index 8b3fd82..8d57efa 100644
+> --- a/Documentation/ibm-acpi.txt
+> +++ b/Documentation/ibm-acpi.txt
+> @@ -52,40 +52,7 @@ Installation
+>  
+>  If you are compiling this driver as included in the Linux kernel
+>  sources, simply enable the CONFIG_ACPI_IBM option (Power Management /
+> -ACPI / IBM ThinkPad Laptop Extras). The rest of this section describes
+> -how to install this driver when downloaded from the web site.
+> -
+> -First, you need to get a kernel with ACPI support up and running.
+> -Please refer to http://acpi.sourceforge.net/ for help with this
+> -step. How successful you will be depends a lot on you ThinkPad model,
+> -the kernel you are using and any additional patches applied. The
+> -kernel provided with your distribution may not be good enough. I
+> -needed to compile a 2.6.7 kernel with the 20040715 ACPI patch to get
+> -ACPI working reliably on my ThinkPad X40. Old ThinkPad models may not
+> -be supported at all.
+> -
+> -Assuming you have the basic ACPI support working (e.g. you can see the
+> -/proc/acpi directory), follow the following steps to install this
+> -driver:
+> -
+> -	- unpack the archive:
+> -
+> -		tar xzvf ibm-acpi-x.y.tar.gz; cd ibm-acpi-x.y
+> -
+> -	- compile the driver:
+> -
+> -		make
+> -
+> -	- install the module in your kernel modules directory:
+> -
+> -		make install
+> -
+> -	- load the module:
+> -
+> -		modprobe ibm_acpi
+> -
+> -After loading the module, check the "dmesg" output for any error messages.
+> -
+> +ACPI / IBM ThinkPad Laptop Extras).
+>  
+>  Features
+>  --------
+> 
+> -- 
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

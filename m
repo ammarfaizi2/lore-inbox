@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWHaIPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWHaIPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWHaIPj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWHaIPi
+	id S1751299AbWHaIPm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 04:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWHaIPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 31 Aug 2006 04:15:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50157 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751299AbWHaIPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 31 Aug 2006 04:15:38 -0400
-Received: from wx-out-0506.google.com ([66.249.82.227]:57377 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751276AbWHaIPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:15:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=H2CGwiVPQptBA9WSki92RFZ/nCLyCDEP00ly/P0XbEXqSx+xCy7vBMkqjyCddrCu3D5GbsBPoFNeo9oPm0vq8FtnUtWGWbSQi7Xu5YTRXY9JUyuTs/g5DTZMxRl2LmDKXqt0WidvnAMitjvNkU+sFMj1ruC5WruqeXiSehj5soE=
-Message-ID: <9a8748490608310115o288fe080pdac53e8d2b8d3f84@mail.gmail.com>
-Date: Thu, 31 Aug 2006 10:15:37 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc5-git3 build error on i386 - include/asm/spinlock.h
-Cc: "Benjamin LaHaise" <bcrl@kvack.org>, "Linus Torvalds" <torvalds@osdl.org>
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 5/8] Fix places where using %gs changes the usermode ABI.
+Date: Thu, 31 Aug 2006 10:13:03 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060830235201.106319215@goop.org> <200608310936.36772.ak@suse.de> <44F69815.4070105@goop.org>
+In-Reply-To: <44F69815.4070105@goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200608311013.03164.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-rc5-git2 builds just fine, but with -git3 I get the following :
+On Thursday 31 August 2006 10:04, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> > On Thursday 31 August 2006 09:22, Jeremy Fitzhardinge wrote:
+> >   
+> >> Andi Kleen wrote:
+> >>     
+> >>> [...] So did you check that ESP, EIP, EFLAGS now come out correctly again? 
+> >>> (e.g. do gdb and strace still work?)
+> >>>   
+> >>>       
+> >> Yep.
+> >>     
+> >
+> > Ok it looks good then. I would apply it, but it seems to require the paravirt
+> > patchkit first?
+> 
+> No, it's against -rc4-mm3.  How much does it conflict with your tree?
 
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CC      arch/i386/kernel/asm-offsets.s
-In file included from include/linux/spinlock.h:86,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:44,
-                 from include/linux/module.h:9,
-                 from include/linux/crypto.h:20,
-                 from arch/i386/kernel/asm-offsets.c:7:
-include/asm/spinlock.h: In function `__raw_read_lock':
-include/asm/spinlock.h:164: error: syntax error before ')' token
-include/asm/spinlock.h: In function `__raw_write_lock':
-include/asm/spinlock.h:169: error: called object is not a function
-include/asm/spinlock.h:169: warning: left-hand operand of comma
-expression has no effect
-include/asm/spinlock.h:169: warning: left-hand operand of comma
-expression has no effect
-include/asm/spinlock.h:169: error: syntax error before ')' token
-make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-make: *** [prepare0] Error 2
+The first entry.S patch already threw 4 rejects or so.  I didn't try
+further. I guess I'll take it together with the rest of the paravirt
+stuff after the .19 merge.
 
-Let me know if there's any additional info you need or patches you
-want me to test.
+-Andi
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

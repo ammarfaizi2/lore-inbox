@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWHaVfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWHaVfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWHaVfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 17:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWHaVfv
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 17:35:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:188 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932338AbWHaVfu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932199AbWHaVfu (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 31 Aug 2006 17:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWHaVft
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 31 Aug 2006 17:35:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64699 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932199AbWHaVft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 17:35:49 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/4] NOMMU: Implement /proc/pid/maps for NOMMU
-Date: Thu, 31 Aug 2006 22:35:30 +0100
+Subject: [PATCH 3/4] NOMMU: Make mremap() partially work for NOMMU kernels
+Date: Thu, 31 Aug 2006 22:35:37 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com
-Message-Id: <20060831213530.29363.6372.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060831213537.29363.83544.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060831213530.29363.6372.stgit@warthog.cambridge.redhat.com>
+References: <20060831213530.29363.6372.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -23,210 +25,162 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Implement /proc/pid/maps for NOMMU by reading the vm_area_list attached to
-current->mm->context.vmlist.
+Make mremap() partially work for NOMMU kernels.  It may resize a VMA provided
+that it doesn't exceed the size of the slab object in which the storage is
+allocated that the VMA refers to.  Shareable VMAs may not be resized.
+
+Moving VMAs (as permitted by MREMAP_MAYMOVE) is not currently supported.
+
+This patch also makes use of the fact that the VMA list is now ordered to cut
+it short when possible.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- Documentation/nommu-mmap.txt |    3 ++
- fs/proc/internal.h           |    1 +
- fs/proc/nommu.c              |   20 ++++++++---
- fs/proc/task_nommu.c         |   74 ++++++++++++++++++++++++++++++++++--------
- include/linux/proc_fs.h      |    2 +
- 5 files changed, 80 insertions(+), 20 deletions(-)
+ Documentation/nommu-mmap.txt |   24 ++++++++++++++++
+ mm/nommu.c                   |   63 +++++++++++++++++++++++++++++++-----------
+ 2 files changed, 70 insertions(+), 17 deletions(-)
 
 diff --git a/Documentation/nommu-mmap.txt b/Documentation/nommu-mmap.txt
-index b88ebe4..83f4b08 100644
+index 83f4b08..3ce8906 100644
 --- a/Documentation/nommu-mmap.txt
 +++ b/Documentation/nommu-mmap.txt
-@@ -116,6 +116,9 @@ FURTHER NOTES ON NO-MMU MMAP
-  (*) A list of all the mappings on the system is visible through /proc/maps in
-      no-MMU mode.
+@@ -128,6 +128,30 @@ FURTHER NOTES ON NO-MMU MMAP
+      error will result if they don't. This is most likely to be encountered
+      with character device files, pipes, fifos and sockets.
  
-+ (*) A list of all the mappings in use by a process is visible through
-+     /proc/<pid>/maps in no-MMU mode.
 +
-  (*) Supplying MAP_FIXED or a requesting a particular mapping address will
-      result in an error.
- 
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 146a434..987c773 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -28,6 +28,7 @@ do {						\
- 	(vmi)->largest_chunk = 0;		\
- } while(0)
- 
-+extern int nommu_vma_show(struct seq_file *, struct vm_area_struct *);
- #endif
- 
- extern void create_seq_entry(char *name, mode_t mode, const struct file_operations *f);
-diff --git a/fs/proc/nommu.c b/fs/proc/nommu.c
-index cff10ab..d7dbdf9 100644
---- a/fs/proc/nommu.c
-+++ b/fs/proc/nommu.c
-@@ -33,19 +33,15 @@ #include <asm/div64.h>
- #include "internal.h"
++=============
++NO-MMU MREMAP
++=============
++
++The mremap() function is partially supported.  It may change the size of a
++mapping, and may move it[*] if MREMAP_MAYMOVE is specified and if the new size
++of the mapping exceeds the size of the slab object currently occupied by the
++memory to which the mapping refers, or if a smaller slab object could be used.
++
++MREMAP_FIXED is not supported, though it is ignored if there's no change of
++address and the object does not need to be moved.
++
++Shared mappings may not be moved.  Shareable mappings may not be moved either,
++even if they are not currently shared.
++
++The mremap() function must be given an exact match for base address and size of
++a previously mapped object.  It may not be used to create holes in existing
++mappings, move parts of existing mappings or resize parts of mappings.  It must
++act on a complete mapping.
++
++[*] Not currently supported.
++
++
+ ============================================
+ PROVIDING SHAREABLE CHARACTER DEVICE SUPPORT
+ ============================================
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 20da741..a0ba6ac 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -327,6 +327,26 @@ struct vm_area_struct *find_vma(struct m
+ EXPORT_SYMBOL(find_vma);
  
  /*
-- * display a list of all the VMAs the kernel knows about
-- * - nommu kernals have a single flat list
-+ * display a single VMA to a sequenced file
-  */
--static int nommu_vma_list_show(struct seq_file *m, void *v)
-+int nommu_vma_show(struct seq_file *m, struct vm_area_struct *vma)
- {
--	struct vm_area_struct *vma;
- 	unsigned long ino = 0;
- 	struct file *file;
- 	dev_t dev = 0;
- 	int flags, len;
- 
--	vma = rb_entry((struct rb_node *) v, struct vm_area_struct, vm_rb);
--
- 	flags = vma->vm_flags;
- 	file = vma->vm_file;
- 
-@@ -78,6 +74,18 @@ static int nommu_vma_list_show(struct se
- 	return 0;
- }
- 
-+/*
-+ * display a list of all the VMAs the kernel knows about
-+ * - nommu kernals have a single flat list
++ * look up the first VMA exactly that exactly matches addr
++ * - should be called with mm->mmap_sem at least held readlocked
 + */
-+static int nommu_vma_list_show(struct seq_file *m, void *v)
++static inline struct vm_area_struct *find_vma_exact(struct mm_struct *mm,
++						    unsigned long addr)
 +{
-+	struct vm_area_struct *vma;
++	struct vm_list_struct *vml;
 +
-+	vma = rb_entry((struct rb_node *) v, struct vm_area_struct, vm_rb);
-+	return nommu_vma_show(m, vma);
++	/* search the vm_start ordered list */
++	for (vml = mm->context.vmlist; vml; vml = vml->next) {
++		if (vml->vma->vm_start == addr)
++			return vml->vma;
++		if (vml->vma->vm_start > addr)
++			break;
++	}
++
++	return NULL;
 +}
 +
- static void *nommu_vma_list_start(struct seq_file *m, loff_t *_pos)
- {
- 	struct rb_node *_rb;
-diff --git a/fs/proc/task_nommu.c b/fs/proc/task_nommu.c
-index 4616ed5..091aa8e 100644
---- a/fs/proc/task_nommu.c
-+++ b/fs/proc/task_nommu.c
-@@ -138,25 +138,63 @@ out:
++/*
+  * find a VMA in the global tree
+  */
+ static inline struct vm_area_struct *find_nommu_vma(unsigned long start)
+@@ -1048,20 +1068,20 @@ unsigned long do_brk(unsigned long addr,
  }
  
  /*
-- * Albert D. Cahalan suggested to fake entries for the traditional
-- * sections here.  This might be worth investigating.
-+ * display mapping lines for a particular process's /proc/pid/maps
+- * Expand (or shrink) an existing mapping, potentially moving it at the
+- * same time (controlled by the MREMAP_MAYMOVE flag and available VM space)
++ * expand (or shrink) an existing mapping, potentially moving it at the same
++ * time (controlled by the MREMAP_MAYMOVE flag and available VM space)
+  *
+- * MREMAP_FIXED option added 5-Dec-1999 by Benjamin LaHaise
+- * This option implies MREMAP_MAYMOVE.
++ * under NOMMU conditions, we only permit changing a mapping's size, and only
++ * as long as it stays within the hole allocated by the kmalloc() call in
++ * do_mmap_pgoff() and the block is not shareable
+  *
+- * on uClinux, we only permit changing a mapping's size, and only as long as it stays within the
+- * hole allocated by the kmalloc() call in do_mmap_pgoff() and the block is not shareable
++ * MREMAP_FIXED is not supported under NOMMU conditions
   */
--static int show_map(struct seq_file *m, void *v)
-+static int show_map(struct seq_file *m, void *_vml)
+ unsigned long do_mremap(unsigned long addr,
+ 			unsigned long old_len, unsigned long new_len,
+ 			unsigned long flags, unsigned long new_addr)
  {
--	return 0;
-+	struct vm_list_struct *vml = _vml;
-+	return nommu_vma_show(m, vml->vma);
- }
-+
- static void *m_start(struct seq_file *m, loff_t *pos)
- {
-+	struct proc_maps_private *priv = m->private;
-+	struct vm_list_struct *vml;
-+	struct mm_struct *mm;
-+	loff_t n = *pos;
-+
-+	/* pin the task and mm whilst we play with them */
-+	priv->task = get_pid_task(priv->pid, PIDTYPE_PID);
-+	if (!priv->task)
-+		return NULL;
-+
-+	mm = get_task_mm(priv->task);
-+	if (!mm) {
-+		put_task_struct(priv->task);
-+		priv->task = NULL;
-+		return NULL;
-+	}
-+
-+	down_read(&mm->mmap_sem);
-+
-+	/* start from the Nth VMA */
-+	for (vml = mm->context.vmlist; vml; vml = vml->next)
-+		if (n-- == 0)
-+			return vml;
- 	return NULL;
- }
--static void m_stop(struct seq_file *m, void *v)
-+
-+static void m_stop(struct seq_file *m, void *_vml)
- {
-+	struct proc_maps_private *priv = m->private;
-+
-+	if (priv->task) {
-+		struct mm_struct *mm = priv->task->mm;
-+		up_read(&mm->mmap_sem);
-+		mmput(mm);
-+		put_task_struct(priv->task);
-+	}
- }
--static void *m_next(struct seq_file *m, void *v, loff_t *pos)
-+
-+static void *m_next(struct seq_file *m, void *_vml, loff_t *pos)
- {
--	return NULL;
-+	struct vm_list_struct *vml = _vml;
-+
-+	(*pos)++;
-+	return vml ? vml->next : NULL;
- }
--static struct seq_operations proc_pid_maps_op = {
-+
-+static struct seq_operations proc_pid_maps_ops = {
- 	.start	= m_start,
- 	.next	= m_next,
- 	.stop	= m_stop,
-@@ -165,11 +203,19 @@ static struct seq_operations proc_pid_ma
+-	struct vm_list_struct *vml = NULL;
++	struct vm_area_struct *vma;
  
- static int maps_open(struct inode *inode, struct file *file)
- {
--	int ret;
--	ret = seq_open(file, &proc_pid_maps_op);
--	if (!ret) {
--		struct seq_file *m = file->private_data;
--		m->private = NULL;
-+	struct proc_maps_private *priv;
-+	int ret = -ENOMEM;
+ 	/* insanity checks first */
+ 	if (new_len == 0)
+@@ -1070,29 +1090,38 @@ unsigned long do_mremap(unsigned long ad
+ 	if (flags & MREMAP_FIXED && new_addr != addr)
+ 		return (unsigned long) -EINVAL;
+ 
+-	for (vml = current->mm->context.vmlist; vml; vml = vml->next)
+-		if (vml->vma->vm_start == addr)
+-			goto found;
+-
+-	return (unsigned long) -EINVAL;
++	vma = find_vma_exact(current->mm, addr);
++	if (!vma)
++		return (unsigned long) -EINVAL;
+ 
+- found:
+-	if (vml->vma->vm_end != vml->vma->vm_start + old_len)
++	if (vma->vm_end != vma->vm_start + old_len)
+ 		return (unsigned long) -EFAULT;
+ 
+-	if (vml->vma->vm_flags & VM_MAYSHARE)
++	if (vma->vm_flags & VM_MAYSHARE)
+ 		return (unsigned long) -EPERM;
+ 
+ 	if (new_len > kobjsize((void *) addr))
+ 		return (unsigned long) -ENOMEM;
+ 
+ 	/* all checks complete - do it */
+-	vml->vma->vm_end = vml->vma->vm_start + new_len;
++	vma->vm_end = vma->vm_start + new_len;
+ 
+ 	askedalloc -= old_len;
+ 	askedalloc += new_len;
+ 
+-	return vml->vma->vm_start;
++	return vma->vm_start;
++}
 +
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (priv) {
-+		priv->pid = proc_pid(inode);
-+		ret = seq_open(file, &proc_pid_maps_ops);
-+		if (!ret) {
-+			struct seq_file *m = file->private_data;
-+			m->private = priv;
-+		} else {
-+			kfree(priv);
-+		}
- 	}
- 	return ret;
++asmlinkage unsigned long sys_mremap(unsigned long addr,
++	unsigned long old_len, unsigned long new_len,
++	unsigned long flags, unsigned long new_addr)
++{
++	unsigned long ret;
++
++	down_write(&current->mm->mmap_sem);
++	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
++	up_write(&current->mm->mmap_sem);
++	return ret;
  }
-@@ -178,6 +224,6 @@ struct file_operations proc_maps_operati
- 	.open		= maps_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
--	.release	= seq_release,
-+	.release	= seq_release_private,
- };
  
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 17e7578..73beb46 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -269,7 +269,9 @@ static inline struct proc_dir_entry *PDE
- struct proc_maps_private {
- 	struct pid *pid;
- 	struct task_struct *task;
-+#ifdef CONFIG_MMU
- 	struct vm_area_struct *tail_vma;
-+#endif
- };
- 
- #endif /* _LINUX_PROC_FS_H */
+ struct page *follow_page(struct vm_area_struct *vma, unsigned long address,

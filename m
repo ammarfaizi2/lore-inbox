@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWHaIad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWHaIfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWHaIad (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWHaIad
+	id S1751403AbWHaIfb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 04:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWHaIfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 04:30:33 -0400
-Received: from smtp19.orange.fr ([80.12.242.17]:17914 "EHLO
-	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
-	id S1751305AbWHaIad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:30:33 -0400
-X-ME-UUID: 20060831083031917.E01261C000ED@mwinf1909.orange.fr
-Subject: Re: [RFC] Simple userspace interface for PCI drivers
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060830062338.GA10285@kroah.com>
-References: <20060830062338.GA10285@kroah.com>
+	Thu, 31 Aug 2006 04:35:31 -0400
+Received: from mail.gmx.de ([213.165.64.20]:52952 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751403AbWHaIfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 04:35:30 -0400
+X-Authenticated: #14349625
+Subject: Re: A nice CPU resource controller
+From: Mike Galbraith <efault@gmx.de>
+To: balbir@in.ibm.com
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Martin Ohlin <martin.ohlin@control.lth.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44F67EE2.5060605@in.ibm.com>
+References: <44F5AB45.8030109@control.lth.se>
+	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+	 <44F6365A.8010201@bigpond.net.au>  <44F67EE2.5060605@in.ibm.com>
 Content-Type: text/plain
-Message-Id: <1157013027.7566.515.camel@capoeira>
+Date: Thu, 31 Aug 2006 10:44:40 +0000
+Message-Id: <1157021080.5770.88.camel@Homer.simpson.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 31 Aug 2006 10:30:27 +0200
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Thu, 2006-08-31 at 11:47 +0530, Balbir Singh wrote:
 
-On Wed, 2006-08-30 at 08:23, Greg KH wrote:
-[...]
-> Thomas and I lamented that we were getting tired of seeing stuff like
-> this, and it was about time that we added the proper code to the kernel
-> to provide everything that would be needed in order to write PCI drivers
-> in userspace in a sane manner.  Really all that is needed is a way to
-> handle the interrupt, everything else can already be done in userspace
-> (look at X for an example of this...)
-[...]
-> So, here's the code. 
+> It's my belief that time and priorities are orthogonal. Nice does a good job
+> of trying to mix the two,  but in the case of resource management it might not
+> be such a good idea.
 
-I know I look like I'm trolling here, but as this is the perfect
-stable-binary-driver-ABI some people have been looking for, it would be
-wise to make it taint the kernel with its own flag.
+I don't think they're orthogonal.  If two tasks of identical priority
+are contending for cpu, and you choose the one with more time on it's
+group ticket, you have effectively modified priorities.
 
-	Xav
+Regardless, nice sounded attractive to me at first, but it's flat wrong
+to use a per task variable to store group scope information, so I have
+to agree that nice isn't a good choice for group resource management.
+
+	-Mike
 

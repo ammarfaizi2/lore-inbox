@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWHaDGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWHaDFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWHaDGG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 23:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWHaDGF
+	id S932068AbWHaDFn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 23:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWHaDFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 23:06:05 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:3581 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id S932076AbWHaDGC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 23:06:02 -0400
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block
-	layer [try #2]
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: John Stoffel <john@stoffel.org>, Greg KH <greg@kroah.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-In-Reply-To: <20060831030134.GA4919@parisc-linux.org>
-References: <20060829115138.GA32714@infradead.org>
-	 <20060825142753.GK10659@infradead.org>
-	 <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
-	 <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
-	 <10117.1156522985@warthog.cambridge.redhat.com>
-	 <15945.1156854198@warthog.cambridge.redhat.com>
-	 <20060829122501.GA7814@infradead.org> <20060829195845.GA13357@kroah.com>
-	 <17652.44254.620358.974993@stoffel.org>
-	 <20060831030134.GA4919@parisc-linux.org>
-Content-Type: text/plain
-Date: Wed, 30 Aug 2006 23:04:56 -0400
-Message-Id: <1156993496.4381.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
+	Wed, 30 Aug 2006 23:05:43 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:7 "EHLO
+	asav08.insightbb.com") by vger.kernel.org with ESMTP
+	id S932068AbWHaDFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 23:05:42 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aa4HALvu9USBT4lYLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Ivo van Doorn <ivdoorn@gmail.com>
+Subject: Re: [PATCH] RFKILL - Add support for input key to control wireless radio
+Date: Wed, 30 Aug 2006 23:05:40 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
+       Jiri Benc <jbenc@suse.cz>
+References: <200608271534.58503.IvDoorn@gmail.com> <d120d5000608280847n221b6d89y93c8cba747d84890@mail.gmail.com> <200608282215.14480.IvDoorn@gmail.com>
+In-Reply-To: <200608282215.14480.IvDoorn@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter1.cs.columbia.edu
+Content-Disposition: inline
+Message-Id: <200608302305.41075.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 21:01 -0600, Matthew Wilcox wrote:
-> On Tue, Aug 29, 2006 at 05:08:46PM -0400, John Stoffel wrote:
-> > Maybe the better solution is to remove SCSI as an option, and to just
-> > offer SCSI drivers and USB-STORAGE and other SCSI core using drivers
-> > instead.  Then the SCSI core gets pulled in automatically.  It's not
-> > like people care about the SCSI core, just the drivers which depend on
-> > it.
+On Monday 28 August 2006 16:15, Ivo van Doorn wrote:
+> > 
+> > I am not sure if this is a correct approach, kernel should not assume
+> > that the reason why input device was opened is to control the state of
+> > the transmitter. For example one could be happy with hardware toggling
+> > the state but still want to have for example a GKrellm showing state
+> > of the transmitter.
 > 
-> People don't want to have to say "no" to umpteen scsi drivers.  They
-> just want to say "no" to SCSI, because they know they don't have scsi.
+> Valid point, but when the radio is disabled a wireless interface should
+> report a txpower of 0. I don't know if this is also the case for bluetooth or irda..
+> 
 
-so then that's shows a problem with the kconfig syntax.
+Exactly...
 
-CONFIG_SCSI should perhaps be hidden, and what's visible to the user is
-CONFIG_SCSI_DRIVER
+> > Also please explain how userspace would control the state of
+> > transmitter once KEY_RFKILL is received - there seems to be only
+> > kernel->userspace link, but not userspace->kernel.
+> 
+> Plain ifconfig actually, the rfkill is intentionally a simple kernel->userspace
+> notification. There are already various ways a interface can be disabled and
+> adding more would in my opinion not be a good thing.
+> The reason for a hardware key event is to do something additionally besides
+> simply turning down the radio of the (registered interfaces) because he might
+> have additional interfaces to be shutdown, or there has to be done something
+> with the interface before the radio is switched off.
+> 
 
-USB-STORAGE would automatically pull in CONFIG_SCSI as would
-CONFIG_SCSI_DRIVER.
+Well, this assumes that you have a network interface which may not be the
+case. For example I could have a bluetooth keyboard or mouse instead of
+network card. And you are proposing a generic solution...
 
-or perhaps I'm just talking out of my ass.
+> > I would rather see you implemented a transmitter control framework
+> > that would export couple of sysfs attributes. One attribute would
+> > enable/disable controlling transmitter state automatically by the
+> > driver and another  would allow controlling transmitter from
+> > userspace. Then input device would always deliver events to userspace
+> > (btw, it probably shoudl be switch, not a key event) and it would be
+> > up to userspace program to explicitely take control over.
+> 
+> This can indeed be done, would it not also make the input device redundant?
+> Since userspace could also just poll a sysfs entry, and I on the netdev list the
+> input device seemed to be prefered over sysfs polling.
+>
 
+Input device is good since then userspace connects to all of them and
+waits for that specific event. The key (or switch) may even be generated
+by another device (for example reassigning a key on my AT keyboard).
+But I would probably keep RF control and input device separate instead of
+mixing into one abstraction layer.
+
+-- 
+Dmitry

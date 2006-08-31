@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWHaSGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWHaSII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWHaSGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 14:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWHaSGj
+	id S932428AbWHaSII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 14:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWHaSII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 14:06:39 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34981 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932432AbWHaSGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 14:06:38 -0400
-Date: Thu, 31 Aug 2006 11:06:31 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC][PATCH 3/9] actual generic PAGE_SIZE infrastructure
-In-Reply-To: <1157047058.31295.28.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0608311104010.12835@schroedinger.engr.sgi.com>
-References: <20060830221604.E7320C0F@localhost.localdomain> 
- <20060830221606.40937644@localhost.localdomain> 
- <Pine.LNX.4.64.0608301658130.5789@schroedinger.engr.sgi.com>
- <1157047058.31295.28.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Aug 2006 14:08:08 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:16578 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932428AbWHaSIE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 14:08:04 -0400
+Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <jbeulich@novell.com>, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200608311716.08786.ak@suse.de>
+References: <20060820013121.GA18401@fieldses.org>
+	 <200608310941.40076.ak@suse.de>
+	 <1157036578.22667.6.camel@dyn9047017100.beaverton.ibm.com>
+	 <200608311716.08786.ak@suse.de>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 11:11:17 -0700
+Message-Id: <1157047877.22667.11.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006, Dave Hansen wrote:
+One more case ..
 
-> > Note that the default pagesize on IA64 is 16K and some important things 
-> > would change if a lesser size is selected. I have never run a 4K kernel. 
-> > I do not think we can just say that 4KB is okay. There may be other 
-> > platforms that have other default page sizes.
-> 
-> If we can't just say that it is OK, then we should probably disable it
-> in Kconfig.  Should we do that?
+Thanks,
+Badari
 
-Well, we cannot disable 4K support for all platforms, so I guess this 
-refers only to IA64.
+BUG: soft lockup detected on CPU#2!
 
-IA64 can certainly be build with 4K support. I am not sure how well user 
-space tools play with it. Better leave it selectable unless others on 
-linux-ia64 have something to say on the issue.
+Call Trace:
+ [<ffffffff8020b395>] show_trace+0xb5/0x370
+ [<ffffffff8020b665>] dump_stack+0x15/0x20
+ [<ffffffff802555b9>] softlockup_tick+0xe9/0x110
+ [<ffffffff8023a2c3>] run_local_timers+0x13/0x20
+ [<ffffffff8023a5b7>] update_process_times+0x57/0x90
+ [<ffffffff802164fb>] smp_local_timer_interrupt+0x2b/0x60
+ [<ffffffff80216aa9>] smp_apic_timer_interrupt+0x49/0x60
+ [<ffffffff8020a8ce>] apic_timer_interrupt+0x66/0x6c
+ [<ffffffff804cd64e>] .text.lock.spinlock+0x0/0x92
+DWARF2 unwinder stuck at .text.lock.spinlock+0x0/0x92
+Leftover inexact backtrace:
+ [<ffffffff80265be9>] unmap_vmas+0x799/0x7e0
+ [<ffffffff8026981b>] exit_mmap+0x7b/0x100
+ [<ffffffff8022d807>] mmput+0x37/0xb0
+ [<ffffffff80231d04>] exit_mm+0x104/0x120
+ [<ffffffff80233676>] do_exit+0x246/0x960
+ [<ffffffff804cd4ec>] _spin_unlock_irqrestore+0xc/0x10
+ [<ffffffff8020b9b4>] die+0x54/0x60
+ [<ffffffff8020bb4e>] do_trap+0xee/0x110
+ [<ffffffff8020c397>] do_invalid_op+0xa7/0xc0
+ [<ffffffff802850fe>] __set_page_dirty_buffers+0x3e/0xe0
+ [<ffffffff8025f7b6>] activate_page+0x26/0xc0
+ [<ffffffff8025fec3>] mark_page_accessed+0x23/0x50
+ [<ffffffff8025addc>] filemap_nopage+0x19c/0x350
+ [<ffffffff8020aa29>] error_exit+0x0/0x84
+ [<ffffffff802850fe>] __set_page_dirty_buffers+0x3e/0xe0
+ [<ffffffff802850d8>] __set_page_dirty_buffers+0x18/0xe0
+ [<ffffffff8025de8b>] set_page_dirty+0x3b/0x60
+ [<ffffffff8026d34b>] msync_interval+0x2cb/0x420
+ [<ffffffff8026d5ab>] sys_msync+0x10b/0x2b0
+ [<ffffffff80209d5a>] system_call+0x7e/0x83
+
+
 

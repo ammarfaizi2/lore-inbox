@@ -1,78 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWHaR5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWHaSBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWHaR5x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWHaR5x
+	id S932425AbWHaSBT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 14:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWHaSBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:57:53 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44950 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932421AbWHaR5w (ORCPT
+	Thu, 31 Aug 2006 14:01:18 -0400
+Received: from xenotime.net ([66.160.160.81]:50126 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932425AbWHaSBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:57:52 -0400
-Subject: Re: [RFC][PATCH 3/9] actual generic PAGE_SIZE infrastructure
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0608301658130.5789@schroedinger.engr.sgi.com>
-References: <20060830221604.E7320C0F@localhost.localdomain>
-	 <20060830221606.40937644@localhost.localdomain>
-	 <Pine.LNX.4.64.0608301658130.5789@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 10:57:38 -0700
-Message-Id: <1157047058.31295.28.camel@localhost.localdomain>
+	Thu, 31 Aug 2006 14:01:18 -0400
+Date: Thu, 31 Aug 2006 11:04:36 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org, pshou@realtek.com.tw
+Subject: CodingStyle (was: Re: sound/pci/hda/intel_hda: small cleanups)
+Message-Id: <20060831110436.995bdf93.rdunlap@xenotime.net>
+In-Reply-To: <s5h8xl52h52.wl%tiwai@suse.de>
+References: <20060831123706.GC3923@elf.ucw.cz>
+	<s5h8xl52h52.wl%tiwai@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 17:08 -0700, Christoph Lameter wrote:
-> On Wed, 30 Aug 2006, Dave Hansen wrote:
+On Thu, 31 Aug 2006 15:01:45 +0200 Takashi Iwai wrote:
+
+> At Thu, 31 Aug 2006 14:37:06 +0200,
+> Pavel Machek wrote:
+> > 
+> > @@ -271,8 +272,8 @@ struct azx_dev {
+> >  	/* for sanity check of position buffer */
+> >  	unsigned int period_intr;
+> >  
+> > -	unsigned int opened: 1;
+> > -	unsigned int running: 1;
+> > +	unsigned int opened :1;
+> > +	unsigned int running :1;
+> >  };
+> >  
+> >  /* CORB/RIRB */
+> > @@ -330,8 +331,8 @@ struct azx {
+> >  
+> >  	/* flags */
+> >  	int position_fix;
+> > -	unsigned int initialized: 1;
+> > -	unsigned int single_cmd: 1;
+> > +	unsigned int initialized :1;
+> > +	unsigned int single_cmd :1;
+> >  };
 > 
-> >  #endif	/* CONFIG_ARCH_HAVE_GET_ORDER */
-> > -#endif /*  __ASSEMBLY__ */
-> > +#endif  /* __ASSEMBLY__ */
->          ^^^ Extra blank.
+> Any official standard reference for bit-field expressions?
 
-OK.  I'll fix that.
+Pavel knows how to submit patches to CodingStyle too.  :)
 
-> > +	prompt "Kernel Page Size"
-> 	               page size?
-
-Sure.
-
-> > +	  This lets you select the page size of the kernel.  For best
-> > +	  32-bit compatibility on 64-bit architectures, a page size of 4KB
-> > +	  should be selected (although most binaries work perfectly fine with
-> > +	  a larger page size).  For best performance, a page size of larger
-> > +	  than 4KB is recommended.  However, there are a number of
-> > +	  side-effects of larger page sizes, like small files fitting poorly
-> > +	  into the page cache.
+> >  /* driver types */
+> > @@ -642,14 +643,14 @@ static int azx_reset(struct azx *chip)
+> >  	azx_writeb(chip, GCTL, azx_readb(chip, GCTL) | ICH6_GCTL_RESET);
+> >  
+> >  	count = 50;
+> > -	while (! azx_readb(chip, GCTL) && --count)
+> > +	while (!azx_readb(chip, GCTL) && --count)
+> >  		msleep(1);
 > 
-> Could we change this somewhat? Avoid the direct address and maybe say:
-> 
->  The kernel page size determines the basic chunk of memory handled
->  by the Linux VM. The bigger the page size the less page objects
->  have to be managed by the kernel which reduces the VM overhead in
->  handling large amounts of data. However, larger pages also lead
->  to memory being wasted by the kernel since small files will
->  at mininum require one page of memory. A 4K pagesize is fairly standard 
->  and may be required for 32 bit compatibility on many platforms.
-> 
->  It is usually not wise to select another page size than the default
->  unless one knows what one is doing or has some time to spend on
->  getting to know the kernel.
+> Hm, it looks rather like a personal preference.
+> IMHO, it's harder to read without space...
 
-This is very nice.  I'll incorporate it.  
+We have been tending toward not using space in cases like this
+(in my unscientific memory-based survey).
 
-> Note that the default pagesize on IA64 is 16K and some important things 
-> would change if a lesser size is selected. I have never run a 4K kernel. 
-> I do not think we can just say that 4KB is okay. There may be other 
-> platforms that have other default page sizes.
+So, just this morning I have seen questions and opinions about
+the following that could (or could not) use more documentation
+or codification and I'm sure that we could easily find more,
+but do we want to codify Everything??
 
-If we can't just say that it is OK, then we should probably disable it
-in Kconfig.  Should we do that?
 
--- Dave
+1.  Kconfig help text should be indented (it's not indented in the
+	GFS2 patches)
 
+2.  if (!condition1)	/* no space between ! and condition1 */
+
+3.  don't use C99-style // comments
+
+4.  unsigned int bitfield :<nr_bits>;
+
+
+---
+~Randy

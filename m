@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWHaRha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWHaRiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWHaRha (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWHaRh3
+	id S932392AbWHaRiu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWHaRiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:37:29 -0400
-Received: from mms1.broadcom.com ([216.31.210.17]:4613 "EHLO mms1.broadcom.com")
-	by vger.kernel.org with ESMTP id S932327AbWHaRh2 (ORCPT
+	Thu, 31 Aug 2006 13:38:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50821 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932392AbWHaRir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:37:28 -0400
-X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
-Subject: Re: PROBLEM: HT1000 drops network packets during disk writes
-From: "Michael Chan" <mchan@broadcom.com>
-To: aizvorski@gmail.com
-cc: linux-kernel@vger.kernel.org
-Date: Thu, 31 Aug 2006 10:36:08 -0700
-Message-ID: <1157045768.7548.5.camel@rh4>
-MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006083107; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413031303230322E34344637314430332E303030342D412D;
- ENG=IBF; TS=20060831173724; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006083107_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 68E9C1DA3CC3535303-01-01
+	Thu, 31 Aug 2006 13:38:47 -0400
+Subject: Re: [RFC][PATCH 4/9] ia64 generic PAGE_SIZE
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0608301652270.5789@schroedinger.engr.sgi.com>
+References: <20060830221604.E7320C0F@localhost.localdomain>
+	 <20060830221607.1DB81421@localhost.localdomain>
+	 <Pine.LNX.4.64.0608301652270.5789@schroedinger.engr.sgi.com>
 Content-Type: text/plain
+Date: Thu, 31 Aug 2006 10:38:30 -0700
+Message-Id: <1157045910.31295.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Izvorski wrote:
+On Wed, 2006-08-30 at 16:57 -0700, Christoph Lameter wrote:
+> On Wed, 30 Aug 2006, Dave Hansen wrote:
+> 
+> > @@ -64,11 +64,11 @@
+> >   * Base-2 logarithm of number of pages to allocate per task structure
+> >   * (including register backing store and memory stack):
+> >   */
+> > -#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
+> > +#if defined(CONFIG_PAGE_SIZE_4KB)
+> >  # define KERNEL_STACK_SIZE_ORDER		3
+> > -#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
+> > +#elif defined(CONFIG_PAGE_SIZE_8KB)
+> >  # define KERNEL_STACK_SIZE_ORDER		2
+> > -#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
+> > +#elif defined(CONFIG_PAGE_SIZE_16KB)
+> >  # define KERNEL_STACK_SIZE_ORDER		1
+> >  #else
+> >  # define KERNEL_STACK_SIZE_ORDER		0
+> 
+> Could we replace these lines with
+> 
+> #define KERNEL_STACK_SIZE_ORDER (max(0, 15 - PAGE_SHIFT)) 
 
-> [1.] One line summary of the problem:
-> HT1000 drops network packets during disk writes
+My next series will be to clean up stack size handling.  Do you mind if
+it waits until then?
 
-ServerWorks is able to reproduce the problem, and so we'll be looking
-into it.
-
-Thanks.
+-- Dave
 

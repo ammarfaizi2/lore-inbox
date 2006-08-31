@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWHaKOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWHaKVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWHaKOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 06:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHaKOa
+	id S1750838AbWHaKVK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 06:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWHaKVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 06:14:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34767 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750817AbWHaKO3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 06:14:29 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <17652.44254.620358.974993@stoffel.org> 
-References: <17652.44254.620358.974993@stoffel.org>  <20060829115138.GA32714@infradead.org> <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <20060829195845.GA13357@kroah.com> 
-To: "John Stoffel" <john@stoffel.org>
-Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 31 Aug 2006 11:13:51 +0100
-Message-ID: <10385.1157019231@warthog.cambridge.redhat.com>
+	Thu, 31 Aug 2006 06:21:10 -0400
+Received: from sperry-01.control.lth.se ([130.235.83.188]:60632 "EHLO
+	sperry-01.control.lth.se") by vger.kernel.org with ESMTP
+	id S1750838AbWHaKVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 06:21:09 -0400
+Message-ID: <44F6B80D.2020409@control.lth.se>
+Date: Thu, 31 Aug 2006 12:21:01 +0200
+From: Martin Ohlin <martin.ohlin@control.lth.se>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A nice CPU resource controller
+References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+In-Reply-To: <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Stoffel <john@stoffel.org> wrote:
+Balbir Singh wrote:
 
-> Maybe the better solution is to remove SCSI as an option, and to just
-> offer SCSI drivers and USB-STORAGE and other SCSI core using drivers
-> instead.  Then the SCSI core gets pulled in automatically.  It's not
-> like people care about the SCSI core, just the drivers which depend on
-> it.
+> The CKRM e-series is a PID based CPU Controller. It did a good job of
+> controlling and smoothing out the load (and variations) and even
+> worked with groups. But it achieved all this through some amount of
+> complexity.
 
-How do you modularise it then?
+I have now downloaded and looked at the code you refer to. But as far as 
+I can see, the PID controller is only used for load balancing between 
+CPUs, not for controlling the bandwidth/time of individual tasks. Is 
+this correct or did I miss something?
 
-David
+/Martin

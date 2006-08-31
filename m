@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWHaFGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWHaFM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWHaFGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 01:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWHaFGj
+	id S1750800AbWHaFM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 01:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWHaFM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 01:06:39 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:34801 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1750753AbWHaFGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 01:06:38 -0400
-To: Nathan Scott <nathans@sgi.com>
-Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Fix i_state of inode is changed after the inode is freed [try #2]
-In-reply-to: <20060831131902.H3208450@wobbly.melbourne.sgi.com>
-Message-Id: <20060831140643m-saito@mail.aom.tnes.nec.co.jp>
-References: <20060831131902.H3208450@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Date: Thu, 31 Aug 2006 14:06:43 +0900
-Content-Type: text/plain; charset=us-ascii
+	Thu, 31 Aug 2006 01:12:56 -0400
+Received: from hera.kernel.org ([140.211.167.34]:62896 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750800AbWHaFMz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 01:12:55 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux v2.6.18-rc5
+Date: Thu, 31 Aug 2006 01:14:52 -0400
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org> <20060827231421.f0fc9db1.akpm@osdl.org>
+In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608310114.52887.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Are the patches going to be merged?
->
->Yep, they're queued up for 2.6.19.  Since it was a race found
->only on testing with a ramdisk (iirc) it didn't really seem to
->me like they needed to be rushed through for a 2.6.18-rc.  The
->race has also been there for the entire lifetime of the Linux
->XFS port... so, not urgent (and not risk free either).
+On Monday 28 August 2006 02:14, Andrew Morton wrote:
 
-Thanks, I agree it.  I'm looking forward to receiving the TAKE.
-So far thank you, Nathan.  I wish to be glorious in your future.
+> From: Johan Rutgeerts <johan.rutgeerts@mech.kuleuven.be>
+> Subject: Acpi oops 2.6.17.7 vanilla
 
-cheers.
+It turns out that this one has been with us since at least 2.6.15.
+So far, seen only on Johan's machine.
 
---
-Masayuki
+http://bugzilla.kernel.org/show_bug.cgi?id=6980
+
+So this one probably is not worthy of a 2.6.18 stopper list.
+
+cheers,
+-Len

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbWHaLd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWHaLpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751563AbWHaLd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 07:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbWHaLd3
+	id S932093AbWHaLpN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 07:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWHaLpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 07:33:29 -0400
-Received: from relay4.ptmail.sapo.pt ([212.55.154.24]:43746 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S1751560AbWHaLd2 (ORCPT
+	Thu, 31 Aug 2006 07:45:13 -0400
+Received: from main.gmane.org ([80.91.229.2]:15251 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932095AbWHaLpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 07:33:28 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
-       harmon@ksu.edu
-In-Reply-To: <44F5B933.2010608@gentoo.org>
-References: <1154091662.7200.9.camel@localhost.localdomain>
-	 <44DE5A6F.50500@gentoo.org> <1156906638.3022.18.camel@localhost.portugal>
-	 <44F50A0A.2040800@gentoo.org>
-	 <1156937128.2624.6.camel@localhost.localdomain>
-	 <44F5B933.2010608@gentoo.org>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 31 Aug 2006 12:33:22 +0100
-Message-Id: <1157024002.2724.4.camel@localhost.localdomain>
+	Thu, 31 Aug 2006 07:45:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: BHANUPRAKASH ADHIKARI <bhanua@aztecsoft.com>
+Subject: to build ramdisk for IXP4xx 
+Date: Thu, 31 Aug 2006 11:26:29 +0000 (UTC)
+Message-ID: <loom.20060831T131253-964@post.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 164.164.151.25 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 12:13 -0400, Daniel Drake wrote:
+Hi,
 
-> > about Linus suggestion : 
-> > -	new_irq = dev->irq & 0xf;
-> > +	new_irq = dev->irq;
-> > +	if (!new_irq || new_irq >= 15)
-> > +		return;
-> > 
-> > no, we have problem with VIA SATA controllers which have irq lower than
-> > 15 
-> 
-> Any chance you can provide a link to this example so that we can 
-> document the decision in the commit message?
+I wish to build ramdisk image for Intel IXP4xx architecture/processor for 
+linux kernel rls 2.6.16 with Debian Sarge 3.1. Can some body help me in giving 
+instructions to create ramdisk image successfully?
 
-http://lkml.org/lkml/2006/7/30/59
+I attempted to build ramdisk as said in /usr/src/redhat/SOURCES/linux-
+2.6.16/Documentation/ramdisk.txt but failed to get the compact size. 
+
+Thanks in advance,
+Bhanu Prakash A
 
 
 
-Thanks,
---
-Sérgio M. B.
+
 

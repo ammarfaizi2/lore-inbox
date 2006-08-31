@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWHaHe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWHaHkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWHaHe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 03:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWHaHe3
+	id S932085AbWHaHkz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 03:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWHaHkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 03:34:29 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:48561 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1751177AbWHaHe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 03:34:28 -0400
-Message-Id: <44F6AD47.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 31 Aug 2006 09:35:03 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Badari Pulavarty" <pbadari@gmail.com>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, <petkov@math.uni-muenster.de>,
-       <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>,
-       "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-References: <20060820013121.GA18401@fieldses.org>
- <44E97353.76E4.0078.0@novell.com> <20060829085338.GA8225@gollum.tnic>
- <44F42BB1.76E4.0078.0@novell.com> <20060829110109.GA10944@gollum.tnic>
- <44F43C67.76E4.0078.0@novell.com>
- <1156974410.16136.1.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1156974410.16136.1.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 31 Aug 2006 03:40:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1190 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751212AbWHaHky (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 03:40:54 -0400
+Date: Thu, 31 Aug 2006 00:40:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC] Simple userspace interface for PCI drivers
+Message-Id: <20060831004049.65924fe3.akpm@osdl.org>
+In-Reply-To: <20060830062338.GA10285@kroah.com>
+References: <20060830062338.GA10285@kroah.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi submitted a fix for this to Linus, but that's post-rc5. Jan
+On Tue, 29 Aug 2006 23:23:38 -0700
+Greg KH <greg@kroah.com> wrote:
 
->>> Badari Pulavarty <pbadari@gmail.com> 30.08.06 23:46 >>>
-I ran into another (small) issue with the trace - it looks like 
-for some reason trace repeats twice. Do you know, why ?
+> +static ssize_t store_sig_pid(struct device *dev, struct device_attribute *attr,
+> +			     const char *buf, size_t count)
+> +{
+> +	iio_dummy_signal.pid = simple_strtol(buf, NULL, 10);
+> +	if (iio_dummy_signal.pid == 0) {
+> +		if (iio_dummy_signal.it_process) {
+> +			put_task_struct(iio_dummy_signal.it_process);
+> +			iio_dummy_signal.it_process = NULL;
+> +		}
+> +
+> +		iio_dummy_signal.pid = 0;
+> +		return count;
+> +	}
+> +
+> +	if (iio_dummy_signal.pid == 1)
+> +		goto out;
+> +
+> +	iio_dummy_signal.it_process = find_task_by_pid(iio_dummy_signal.pid);
+> +	if (iio_dummy_signal.it_process) {
+> +		get_task_struct(iio_dummy_signal.it_process);
+> +		iio_dummy_signal.it_sigev_notify = SIGEV_SIGNAL;
+> +		iio_dummy_signal.it_sigev_signo = SIGALRM;
+> +		iio_dummy_signal.it_sigev_value.sival_int = 0;
+> +
+> +		return count;
+> +	}
+> +out:
+> +	iio_dummy_signal.pid = 0;
+> +	return -EINVAL;
+> +}
 
-Thanks,
-Badari
+This is racy: find_task_by_pid() needs tasklist_lock or rcu_read_lock().
 
-Call Trace:
- [<ffffffff8020b395>] show_trace+0xb5/0x370
- [<ffffffff8020b665>] dump_stack+0x15/0x20
- [<ffffffff8030d3b9>] journal_invalidatepage+0x309/0x3b0
- [<ffffffff802fe898>] ext3_invalidatepage+0x38/0x40
- [<ffffffff80282750>] do_invalidatepage+0x20/0x30
- [<ffffffff80260820>] truncate_inode_pages_range+0x1e0/0x300
- [<ffffffff80260950>] truncate_inode_pages+0x10/0x20
- [<ffffffff802686ff>] vmtruncate+0x5f/0x100
- [<ffffffff8029d7d0>] inode_setattr+0x30/0x140
- [<ffffffff802ff81b>] ext3_setattr+0x1bb/0x230
- [<ffffffff8029da3e>] notify_change+0x15e/0x320
- [<ffffffff8027f973>] do_truncate+0x53/0x80
- [<ffffffff802800f8>] sys_ftruncate+0xf8/0x130
- [<ffffffff80209d5a>] system_call+0x7e/0x83
- [<00002b40b67e1c47>]
- [<ffffffff8030d3b9>] journal_invalidatepage+0x309/0x3b0
- [<ffffffff802fe898>] ext3_invalidatepage+0x38/0x40
- [<ffffffff80282750>] do_invalidatepage+0x20/0x30
- [<ffffffff80260820>] truncate_inode_pages_range+0x1e0/0x300
- [<ffffffff802fc203>] __ext3_get_inode_loc+0x163/0x350
- [<ffffffff80260950>] truncate_inode_pages+0x10/0x20
- [<ffffffff802686ff>] vmtruncate+0x5f/0x100
- [<ffffffff8029d7d0>] inode_setattr+0x30/0x140
- [<ffffffff802ff81b>] ext3_setattr+0x1bb/0x230
- [<ffffffff8029da3e>] notify_change+0x15e/0x320
- [<ffffffff8027f973>] do_truncate+0x53/0x80
- [<ffffffff80281af1>] generic_file_llseek+0x91/0xb0
- [<ffffffff802800f8>] sys_ftruncate+0xf8/0x130
- [<ffffffff80209d5a>] system_call+0x7e/0x83
+It doesn't work as a module due to missing __put_task_struct.
 
 
+It is also rather nasty.  Why go shoving some random pid into a sysfs file,
+then hang onto a ref on a task_struct for some process which exitted last
+week?  It would be cleaner and more idiomatic to require that the
+controlling process hold an fd open against the instance so that resources
+can be managed correctly.  Maybe use SIGIO too, so the driver doesn't need
+to know about pids and task_structs and things.  Which all maps better onto
+ioctls than sysfs (ties self to stake)
 
+<looks>
 
+iio_dev.c seems to already be doing this.  Why does iio_dummy.c exist?

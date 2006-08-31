@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWHaReG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWHaRha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWHaReG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWHaReG
+	id S932396AbWHaRha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWHaRh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:34:06 -0400
-Received: from pat.uio.no ([129.240.10.4]:18565 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932279AbWHaReD (ORCPT
+	Thu, 31 Aug 2006 13:37:29 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:4613 "EHLO mms1.broadcom.com")
+	by vger.kernel.org with ESMTP id S932327AbWHaRh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:34:03 -0400
-Subject: Re: bug in nfs in 2.6.18-rc5?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Shaya Potter <spotter@cs.columbia.edu>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, unionfs@fsl.cs.sunysb.edu
-In-Reply-To: <20060831162628.GA23925@infradead.org>
-References: <44F6F80F.1000202@cs.columbia.edu>
-	 <1157040230.11347.31.camel@localhost>
-	 <20060831162628.GA23925@infradead.org>
+	Thu, 31 Aug 2006 13:37:28 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
+Subject: Re: PROBLEM: HT1000 drops network packets during disk writes
+From: "Michael Chan" <mchan@broadcom.com>
+To: aizvorski@gmail.com
+cc: linux-kernel@vger.kernel.org
+Date: Thu, 31 Aug 2006 10:36:08 -0700
+Message-ID: <1157045768.7548.5.camel@rh4>
+MIME-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006083107; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413031303230322E34344637314430332E303030342D412D;
+ ENG=IBF; TS=20060831173724; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006083107_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 68E9C1DA3CC3535303-01-01
 Content-Type: text/plain
-Date: Thu, 31 Aug 2006 13:33:46 -0400
-Message-Id: <1157045626.11347.97.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.197, required 12,
-	autolearn=disabled, AWL 1.80, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 17:26 +0100, Christoph Hellwig wrote:
-> On Thu, Aug 31, 2006 at 12:03:50PM -0400, Trond Myklebust wrote:
-> > If we're to provide the ability for unionfs to use lookup_one_len() on
-> > NFS, then we will have to error out whenever we hit a case where we
-> > should be creating a new mountpoint. Is that acceptable?
-> 
-> Not at all.  unionfs will have to pass down proper lookup intents.
-> The ecryptfs developers have started looking into making that work
-> with stackable filesystems, and the unionfs developers should follow
-> that effort.
+Alex Izvorski wrote:
 
-Good. I fully agree that this is preferable.
+> [1.] One line summary of the problem:
+> HT1000 drops network packets during disk writes
 
-Cheers,
-  Trond
+ServerWorks is able to reproduce the problem, and so we'll be looking
+into it.
+
+Thanks.
 

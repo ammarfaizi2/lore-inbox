@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWHaQZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWHaQ0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWHaQZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWHaQZY
+	id S932362AbWHaQ0K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWHaQ0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:25:24 -0400
-Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:55463 "EHLO
-	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932364AbWHaQZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:25:23 -0400
-Date: Thu, 31 Aug 2006 12:17:14 -0400
+	Thu, 31 Aug 2006 12:26:10 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:33992 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932369AbWHaQ0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 12:26:08 -0400
+Date: Thu, 31 Aug 2006 12:17:15 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] i386: rwlock.h fix smp alternatives fix
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200608311221_MC3-1-C9EE-3548@compuserve.com>
+Subject: Re: - i386-early-fault-handler.patch removed from -mm tree
+To: "akpm@osdl.org" <akpm@osdl.org>, mingo@elte.hu, ak@muc.de
+Cc: pageexec <pageexec@freemail.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Willy Tarreau <w@1wt.eu>
+Message-ID: <200608311221_MC3-1-C9EE-3549@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -25,18 +24,24 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200608311011.45844.ak@suse.de>
+In-Reply-To: <200608310422.k7V4M8Xu023875@shell0.pdx.osdl.net>
 
-On Thu, 31 Aug 2006 10:11:45 +0200, Andi Kleen wrote:
+On Wed, 30 Aug 2006 21:22:08 -0700, Andrew Morton wrote:
 
-> Here's the patch as intended for reference :/ Or Chris' incremental
-> is fine.
+> The patch titled
 > 
-> i386: Remove alternative_smp
+>      i386: early fault handler
 > 
-> The .fill causes miscompilations with some binutils version.
+> has been removed from the -mm tree.  Its filename is
+> 
+>      i386-early-fault-handler.patch
+> 
+> This patch was dropped because a different version got merged by andi
 
-Has the dust settled enough to prepare a patch for -stable now?
+<*sigh*>
+
+Didn't anyone even notice the fix that was already in -mm?  Now we're back
+to "guess which fault it was" when an early fault occurs.
 
 -- 
 Chuck

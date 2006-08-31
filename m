@@ -1,89 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWHaW5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHaXCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWHaW5v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWHaW5v
+	id S1750874AbWHaXCV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 19:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWHaXCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:57:51 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:54985 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964805AbWHaW5t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:57:49 -0400
-Date: Thu, 31 Aug 2006 15:58:28 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH 1/7] introduce atomic_dec_and_lock_irqsave()
-Message-ID: <20060831225828.GB4927@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <44F45045.70402@sw.ru> <44F4540C.8050205@sw.ru> <Pine.LNX.4.64.0608301156010.6762@scrub.home> <20060830145759.GA163@oleg> <Pine.LNX.4.64.0608301248420.6761@scrub.home> <20060830165851.GA8481@in.ibm.com> <Pine.LNX.4.64.0608301918260.6761@scrub.home>
+	Thu, 31 Aug 2006 19:02:21 -0400
+Received: from xenotime.net ([66.160.160.81]:46770 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750802AbWHaXCU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 19:02:20 -0400
+Date: Thu, 31 Aug 2006 16:05:46 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: prevent swsusp with PAE
+Message-Id: <20060831160546.3309d745.rdunlap@xenotime.net>
+In-Reply-To: <20060831225232.GE31125@elf.ucw.cz>
+References: <20060831135336.GL3923@elf.ucw.cz>
+	<20060831104304.e3514401.akpm@osdl.org>
+	<20060831223521.GB31125@elf.ucw.cz>
+	<20060831154828.4313327c.akpm@osdl.org>
+	<20060831225232.GE31125@elf.ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608301918260.6761@scrub.home>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 07:25:07PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 30 Aug 2006, Dipankar Sarma wrote:
-> 
-> > > > uidhash_lock can be taken from irq context. For example, delayed_put_task_struct()
-> > > > does __put_task_struct()->free_uid().
-> > > 
-> > > AFAICT it's called via rcu, does that mean anything released via rcu has 
-> > > to be protected against interrupts?
+On Fri, 1 Sep 2006 00:52:34 +0200 Pavel Machek wrote:
+
+> On Thu 2006-08-31 15:48:28, Andrew Morton wrote:
+> > On Fri, 1 Sep 2006 00:35:21 +0200
+> > Pavel Machek <pavel@ucw.cz> wrote:
 > > 
-> > No. You need protection only if you have are using some 
-> > data that can also be used by the RCU callback. For example,
-> > if your RCU callback just calls kfree(), you don't have to 
-> > do a spin_lock_bh().
+> > > > > diff --git a/include/asm-i386/suspend.h b/include/asm-i386/suspend.h
+> > > > > index 08be1e5..01cd812 100644
+> > > > > --- a/include/asm-i386/suspend.h
+> > > > > +++ b/include/asm-i386/suspend.h
+> > > > > @@ -16,6 +16,15 @@ arch_prepare_suspend(void)
+> > > > >  		printk(KERN_ERR "PSE is required for swsusp.\n");
+> > > > >  		return -EPERM;
+> > > > >  	}
+> > > > > +
+> > > > > +#ifdef CONFIG_X86_PAE
+> > > > > +	printk(KERN_ERR "swsusp is incompatible with PAE.\n");
+> > > > > +	/* This is actually instance of the same problem. We need
+> > > > > +	   identity mapping self-contained in swsusp_pg_dir, and PAE
+> > > > > +	   prevents that. Solution could be copied from x86_64. */
+> > > > > +	return -EPERM;
+> > > > > +#endif
+> > > > > +
+> > > > >  	return 0;
+> > > > >  }
+> > > > 
+> > > > Why not do this in Kconfig??
+> > > 
+> > > Well, Kconfig does not provide natural place for comments, and
+> > > disappearing config option is sure to confuse people. But of course I
+> > > can do it.
+> > 
+> > It would be more conventional.
 > 
-> In this case kfree() does its own interrupt synchronization. I didn't 
-> realize before that rcu had this (IMO serious) limitation. I think there 
-> should be two call_rcu() variants, one that queues the callback in a soft 
-> irq and a second which queues it in a thread context.
+> Well, I have very similar check few lines above, and this is both i386
+> specific, so I slightly prefer to do it in the code, but...
 
-How about just using synchronize_rcu() in the second situation?
-This primitive blocks until the grace period completes, allowing you to
-do the remaining processing in thread context.  As a bonus, RCU code
-that uses synchronize_rcu() is usually quite a bit simpler than code
-using call_rcu().
+If we can prevent a non-working build in Kconfig, that's what
+we should do.
 
-Using synchronize_rcu():
+> > I think what this really points at is a weakness in the menuconfig/xconfig/etc
+> > user interfaces.  It should be possible to navigate to the presently-disabled
+> > config option and ask it "why can't I turn you on?".
+> 
+> Yes, but I'll still have users asking me "why I can't turn it on" ;-).
 
-	list_del_rcu(p);
-	synchronize_rcu();
-	kfree(p);
+menuconfig and xconfig both have Help and Search that can aid
+with that, but I would still use the "comment" keyword also.
 
-Using call_rcu():
-
-	static void rcu_callback_func(struct rcu_head *rcu)
-	{
-		struct foo *p = container_of(rcu, struct foo, rcu);
-
-		kfree(p);
-	}
-
-	list_del_rcu(p);
-	call_rcu(&p->rcu, rcu_callback_func);
-
-Furthermore, the call_rcu() approach requires a struct rcu_head somewhere
-in the data structure, so use of synchronize_rcu() saves a bit of memory,
-as well.
-
-But if you have a situation where neither synchronize_srcu() nor
-call_rcu() is working out for you, let's hear it!
-
-						Thanx, Paul
+---
+~Randy

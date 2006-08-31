@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWHaDqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWHaDuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWHaDqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 23:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWHaDqT
+	id S1751719AbWHaDuU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 23:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWHaDuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 23:46:19 -0400
-Received: from alnrmhc14.comcast.net ([206.18.177.54]:14073 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750709AbWHaDqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 23:46:19 -0400
-Message-ID: <44F5B933.2010608@gentoo.org>
-Date: Wed, 30 Aug 2006 12:13:39 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+	Wed, 30 Aug 2006 23:50:20 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:46231 "EHLO
+	asav10.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751051AbWHaDuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 23:50:18 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aa4HAAv59USBT4lZLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Conversion to generic boolean
+Date: Wed, 30 Aug 2006 23:50:16 -0400
+User-Agent: KMail/1.9.3
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Richard Knutsson <ricknu-0@student.ltu.se>,
+       James.Bottomley@steeleye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <44EFBEFA.2010707@student.ltu.se> <44F3952B.5000500@yahoo.com.au> <Pine.LNX.4.61.0608290754550.952@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608290754550.952@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-CC: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
-       harmon@ksu.edu
-Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
-References: <1154091662.7200.9.camel@localhost.localdomain>	 <44DE5A6F.50500@gentoo.org> <1156906638.3022.18.camel@localhost.portugal>	 <44F50A0A.2040800@gentoo.org> <1156937128.2624.6.camel@localhost.localdomain>
-In-Reply-To: <1156937128.2624.6.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608302350.17150.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
->> It does look like this patch was under discussion of being reverted 
->> before. See http://lkml.org/lkml/2005/9/26/183
+On Tuesday 29 August 2006 01:58, Jan Engelhardt wrote:
 > 
-> To be honest, I prefer put again this :
+> >> I was kinda planning on merging it ;)
+> >> 
+> >> I can't say that I'm in love with the patches, but they do improve the
+> >> situation.
+> >> 
+> >> At present we have >50 different definitions of TRUE and gawd knows how
+> >> many private implementations of various flavours of bool.
+> >> 
+> >> In that context, Richard's approach of giving the kernel a single
+> >> implementation of bool/true/false and then converting things over to use
+> >> it
+> >> makes sense.  The other approach would be to go through and nuke the lot,
+> >> convert them to open-coded 0/1.
+> >
+> > Well... we are programming in C here, aren't we ;)
 > 
->  +#ifdef CONFIG_X86_IO_APIC
->  +      if (nr_ioapics && !skip_ioapic_setup)
->  +              return;
->  +#endif
->  +#ifdef CONFIG_ACPI
->  +      if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
->  +              return;
->  +#endif
-
-Isn't this exactly the same as what was being suggested?
-
-> about Linus suggestion : 
-> -	new_irq = dev->irq & 0xf;
-> +	new_irq = dev->irq;
-> +	if (!new_irq || new_irq >= 15)
-> +		return;
+> I like it for the annotation we get.
 > 
-> no, we have problem with VIA SATA controllers which have irq lower than
-> 15 
+> 	int fluff;
+> 	if(fluff == 0)
+> 
+> This does not tell if fluff is an integer or a boolean (that is, what the
+> programmer intended to do -- not the 'int' the compiler sees).
+> If it had been if(!fluff), it would give a hint, but a lot of places also have
+> !x where x really is intended to be an integer (and should have been x==0 or
+> y==NULL resp.)
+>
 
-Any chance you can provide a link to this example so that we can 
-document the decision in the commit message?
-
-Thanks,
-Daniel
-
+Bool would not help much either unless declaration is immediately follows
+use. I like Alan Sterns proposal ofencode return value in function name
+better - actions should always return < 0/0 and predicates should always
+be boolean equivalent.
+ 
+-- 
+Dmitry

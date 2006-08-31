@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWHaQkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWHaQnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWHaQkf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHaQkf
+	id S932376AbWHaQnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWHaQnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:40:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18664 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932229AbWHaQkf (ORCPT
+	Thu, 31 Aug 2006 12:43:24 -0400
+Received: from pat.uio.no ([129.240.10.4]:43449 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932195AbWHaQnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:40:35 -0400
-Date: Thu, 31 Aug 2006 09:40:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: mingo@elte.hu, ak@muc.de, pageexec <pageexec@freemail.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Willy Tarreau <w@1wt.eu>
-Subject: Re: - i386-early-fault-handler.patch removed from -mm tree
-Message-Id: <20060831094014.e2bbe610.akpm@osdl.org>
-In-Reply-To: <200608311221_MC3-1-C9EE-3549@compuserve.com>
-References: <200608311221_MC3-1-C9EE-3549@compuserve.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 31 Aug 2006 12:43:24 -0400
+Subject: Re: bug in nfs in 2.6.18-rc5?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       unionfs@fsl.cs.sunysb.edu
+In-Reply-To: <44F70D22.2030703@cs.columbia.edu>
+References: <44F6F80F.1000202@cs.columbia.edu>
+	 <1157040230.11347.31.camel@localhost>  <44F70D22.2030703@cs.columbia.edu>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 12:43:12 -0400
+Message-Id: <1157042592.11347.70.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.188, required 12,
+	autolearn=disabled, AWL 1.81, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006 12:17:15 -0400
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+On Thu, 2006-08-31 at 12:24 -0400, Shaya Potter wrote:
+> why does the client care about server mounted file systems?
 
-> In-Reply-To: <200608310422.k7V4M8Xu023875@shell0.pdx.osdl.net>
-> 
-> On Wed, 30 Aug 2006 21:22:08 -0700, Andrew Morton wrote:
-> 
-> > The patch titled
-> > 
-> >      i386: early fault handler
-> > 
-> > has been removed from the -mm tree.  Its filename is
-> > 
-> >      i386-early-fault-handler.patch
-> > 
-> > This patch was dropped because a different version got merged by andi
-> 
-> <*sigh*>
-> 
-> Didn't anyone even notice the fix that was already in -mm?
+It wants to allow POSIX applications to work correctly even in the case
+where the nfsd administrator is using 'nohide'. It wants those same
+applications to work correctly in the case where the nfsd administrator
+is exporting more than one filesystem over NFSv4.
 
-I sure did ;)
+>   The 
+> server's nfsd has to tell them apart, otherwise shouldn't give them to 
+> the client.  Otherwise it seems like the nfsd and the nfs client have to 
+> have innate knowledge of each other.
 
->  Now we're back
-> to "guess which fault it was" when an early fault occurs.
+Of course the server knows that it is crossing a mountpoint. The client
+figures it out by looking at the 'fsid' attribute (which uniquely labels
+the filesystem on that server) in order to figure out which filesystem
+that the file/directory it just looked up belongs to. Whenever the
+fileid changes between parent directory and child, that means that a
+mountpoint was crossed on the server.
 
-please send fix.
+  Trond
+

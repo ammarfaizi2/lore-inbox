@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWHaHqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWHaHsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWHaHqF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 03:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWHaHqF
+	id S1751028AbWHaHsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 03:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWHaHsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 03:46:05 -0400
-Received: from ns.suse.de ([195.135.220.2]:3470 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751013AbWHaHqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 03:46:02 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199" II
-Date: Thu, 31 Aug 2006 09:45:58 +0200
-User-Agent: KMail/1.9.3
-Cc: "Badari Pulavarty" <pbadari@gmail.com>,
-       "J. Bruce Fields" <bfields@fieldses.org>, petkov@math.uni-muenster.de,
-       akpm@osdl.org, "lkml" <linux-kernel@vger.kernel.org>
-References: <20060820013121.GA18401@fieldses.org> <44F6AD47.76E4.0078.0@novell.com> <200608310941.40076.ak@suse.de>
+	Thu, 31 Aug 2006 03:48:14 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:10425 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1751028AbWHaHsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 03:48:14 -0400
+Message-Id: <44F6B082.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Thu, 31 Aug 2006 09:48:50 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>,
+       "Badari Pulavarty" <pbadari@gmail.com>, <petkov@math.uni-muenster.de>,
+       <akpm@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+References: <20060820013121.GA18401@fieldses.org>
+ <1156974410.16136.1.camel@dyn9047017100.beaverton.ibm.com>
+ <44F6AD47.76E4.0078.0@novell.com> <200608310941.40076.ak@suse.de>
 In-Reply-To: <200608310941.40076.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608310945.58728.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 August 2006 09:41, Andi Kleen wrote:
-> On Thursday 31 August 2006 09:35, Jan Beulich wrote:
-> > Andi submitted a fix for this to Linus, but that's post-rc5. Jan
-> 
-> I assume you mean the fallback validation fix. Linus unfortunately
-> didn't merge any of my new patches yet :/
+>>> Andi Kleen <ak@suse.de> 31.08.06 09:41 >>>
+>On Thursday 31 August 2006 09:35, Jan Beulich wrote:
+>> Andi submitted a fix for this to Linus, but that's post-rc5. Jan
+>
+>I assume you mean the fallback validation fix. Linus unfortunately
+>didn't merge any of my new patches yet :/
 
-To follow myself up. I should have checked HEAD before writing this :/
-Linus merged it all last night and I blamed him wrongly, sorry. 
-So that problem will be hopefully gone.
+Actually, the same patch, but other pieces of it ...
 
-For completeness the unwind fixes that went in were:
+>But did you ever work out why the stack backtrace completely restarted? 
+>I never got this. In theory the RSP gotten out of the unwind
+>context and used for the fallback should have been already near the end
+>and the old unwinder shouldn't have found much.
 
-Jan Beulich 	[PATCH] x86: Make backtracer fallback logic more bullet-proof
-Andi Kleen 	[PATCH] i386: Add kernel thread stack frame termination 
-Andi Kleen 	[PATCH] x86_64: Add kernel thread stack frame termination 
+In the old (up to -rc5) code, we had
 
-and this one fixed an additional bug in the old x86-64 unwinder:
+		if (unw_ret > 0 && !arch_unw_user_mode(&info)) {
+			< all the fallback handling>
+		}
 
-Keith Owens 	[PATCH] x86_64: Save original IST values for checking
+with no else, thus just falling through (without even changing the
+stack pointer, which was wrong when unw_ret > 0 but we reached
+a user mode address (i.e. as in the example here, after unwinding
+out of a syscall frame).
 
--Andi
-
+Jan

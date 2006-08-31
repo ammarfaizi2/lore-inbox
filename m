@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWHaKVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWHaKWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWHaKVK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 06:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWHaKVK
+	id S1751009AbWHaKWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 06:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWHaKWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 06:21:10 -0400
-Received: from sperry-01.control.lth.se ([130.235.83.188]:60632 "EHLO
-	sperry-01.control.lth.se") by vger.kernel.org with ESMTP
-	id S1750838AbWHaKVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 06:21:09 -0400
-Message-ID: <44F6B80D.2020409@control.lth.se>
-Date: Thu, 31 Aug 2006 12:21:01 +0200
-From: Martin Ohlin <martin.ohlin@control.lth.se>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 31 Aug 2006 06:22:16 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:7754 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751009AbWHaKWP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 06:22:15 -0400
+Message-ID: <44F6B846.9090405@openvz.org>
+Date: Thu, 31 Aug 2006 14:21:58 +0400
+From: Pavel <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A nice CPU resource controller
-References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
-In-Reply-To: <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Serge Hallyn <serue@us.ibm.com>, ebiederm@xmission.com, clg@fr.ibm.com
+CC: Kirill Korotaev <dev@openvz.org>
+Subject: [PATCH] nsproxy cloning error path fix
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
+This patch fixes copy_namespaces()'s error path.
 
-> The CKRM e-series is a PID based CPU Controller. It did a good job of
-> controlling and smoothing out the load (and variations) and even
-> worked with groups. But it achieved all this through some amount of
-> complexity.
+when new nsproxy (new_ns) is created pointers to namespaces (ipc, uts)
+are copied from the old nsproxy. Later in copy_utsname, copy_ipcs, etc.
+according namespaces are get-ed. On error path needed namespaces are
+put-ed, so there's no need to put new nsproxy itelf as it woud cause
+putting namespaces for the second time.
 
-I have now downloaded and looked at the code you refer to. But as far as 
-I can see, the PID controller is only used for load balancing between 
-CPUs, not for controlling the bandwidth/time of individual tasks. Is 
-this correct or did I miss something?
+Found when incorporating namespaces into OpenVZ kernel.
 
-/Martin
+Signed-off-by: Pavel Emelianov <xemul@openvz.org>
+---
+
+ nsproxy.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- ./kernel/nsproxy.c.veboot	2006-08-30 17:48:59.000000000 +0400
++++ ./kernel/nsproxy.c	2006-08-31 10:54:56.000000000 +0400
+@@ -115,7 +115,7 @@ out_uts:
+ 		put_namespace(new_ns->namespace);
+ out_ns:
+ 	tsk->nsproxy = old_ns;
+-	put_nsproxy(new_ns);
++	kfree(new_ns);
+ 	goto out;
+ }
+ 
+
+

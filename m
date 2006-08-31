@@ -1,83 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHaXCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWHaXEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWHaXCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 19:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWHaXCV
+	id S1750715AbWHaXEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 19:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWHaXEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 19:02:21 -0400
-Received: from xenotime.net ([66.160.160.81]:46770 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750802AbWHaXCU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 19:02:20 -0400
-Date: Thu, 31 Aug 2006 16:05:46 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: prevent swsusp with PAE
-Message-Id: <20060831160546.3309d745.rdunlap@xenotime.net>
-In-Reply-To: <20060831225232.GE31125@elf.ucw.cz>
-References: <20060831135336.GL3923@elf.ucw.cz>
-	<20060831104304.e3514401.akpm@osdl.org>
-	<20060831223521.GB31125@elf.ucw.cz>
-	<20060831154828.4313327c.akpm@osdl.org>
-	<20060831225232.GE31125@elf.ucw.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 31 Aug 2006 19:04:41 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:26468 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750715AbWHaXEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 19:04:41 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:date:from:to:cc:subject:message-id:mime-version:
+	content-type:content-disposition:user-agent;
+	b=UH1mzQ/5GxVOAagRhsp/FivibUwKHbpuQF9oKqyK2zPjL8sTlea+kAZZd9L82wFmN
+	MGp+BWkZJb8oaBetLFjRA==
+Date: Thu, 31 Aug 2006 16:04:30 -0700
+From: adurbin@google.com
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de
+Subject: [PATCH] x86_64: put GART into resource map
+Message-ID: <20060831230430.GA21338@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Sep 2006 00:52:34 +0200 Pavel Machek wrote:
 
-> On Thu 2006-08-31 15:48:28, Andrew Morton wrote:
-> > On Fri, 1 Sep 2006 00:35:21 +0200
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > 
-> > > > > diff --git a/include/asm-i386/suspend.h b/include/asm-i386/suspend.h
-> > > > > index 08be1e5..01cd812 100644
-> > > > > --- a/include/asm-i386/suspend.h
-> > > > > +++ b/include/asm-i386/suspend.h
-> > > > > @@ -16,6 +16,15 @@ arch_prepare_suspend(void)
-> > > > >  		printk(KERN_ERR "PSE is required for swsusp.\n");
-> > > > >  		return -EPERM;
-> > > > >  	}
-> > > > > +
-> > > > > +#ifdef CONFIG_X86_PAE
-> > > > > +	printk(KERN_ERR "swsusp is incompatible with PAE.\n");
-> > > > > +	/* This is actually instance of the same problem. We need
-> > > > > +	   identity mapping self-contained in swsusp_pg_dir, and PAE
-> > > > > +	   prevents that. Solution could be copied from x86_64. */
-> > > > > +	return -EPERM;
-> > > > > +#endif
-> > > > > +
-> > > > >  	return 0;
-> > > > >  }
-> > > > 
-> > > > Why not do this in Kconfig??
-> > > 
-> > > Well, Kconfig does not provide natural place for comments, and
-> > > disappearing config option is sure to confuse people. But of course I
-> > > can do it.
-> > 
-> > It would be more conventional.
-> 
-> Well, I have very similar check few lines above, and this is both i386
-> specific, so I slightly prefer to do it in the code, but...
+This patch places the GART into the resource map. This will allow for
+the visibility of the GART region in /proc/iomem.
 
-If we can prevent a non-working build in Kconfig, that's what
-we should do.
-
-> > I think what this really points at is a weakness in the menuconfig/xconfig/etc
-> > user interfaces.  It should be possible to navigate to the presently-disabled
-> > config option and ask it "why can't I turn you on?".
-> 
-> Yes, but I'll still have users asking me "why I can't turn it on" ;-).
-
-menuconfig and xconfig both have Help and Search that can aid
-with that, but I would still use the "comment" keyword also.
+Signed-off-by: Aaron Durbin <adurbin@gmail.com>
 
 ---
-~Randy
+
+diff --git a/arch/x86_64/kernel/aperture.c b/arch/x86_64/kernel/aperture.c
+index 58af8e7..616cfac 100644
+--- a/arch/x86_64/kernel/aperture.c
++++ b/arch/x86_64/kernel/aperture.c
+@@ -17,6 +17,7 @@ #include <linux/mmzone.h>
+ #include <linux/pci_ids.h>
+ #include <linux/pci.h>
+ #include <linux/bitops.h>
++#include <linux/ioport.h>
+ #include <asm/e820.h>
+ #include <asm/io.h>
+ #include <asm/proto.h>
+@@ -33,6 +34,18 @@ int fallback_aper_force __initdata = 0; 
+ 
+ int fix_aperture __initdata = 1;
+ 
++static struct resource gart_resource = {
++	.name	= "GART",
++	.flags	= IORESOURCE_MEM,
++};
++
++static void __init insert_aperture_resource(u32 aper_base, u32 aper_size)
++{
++	gart_resource.start = aper_base;
++	gart_resource.end = aper_base + aper_size - 1;
++	insert_resource(&iomem_resource, &gart_resource);
++}
++
+ /* This code runs before the PCI subsystem is initialized, so just
+    access the northbridge directly. */
+ 
+@@ -62,6 +75,7 @@ static u32 __init allocate_aperture(void
+ 	}
+ 	printk("Mapping aperture over %d KB of RAM @ %lx\n",
+ 	       aper_size >> 10, __pa(p)); 
++	insert_aperture_resource((u32)__pa(p), aper_size);
+ 	return (u32)__pa(p); 
+ }
+ 
+@@ -233,8 +247,13 @@ void __init iommu_hole_init(void) 
+ 		last_aper_base = aper_base;
+ 	} 
+ 
+-	if (!fix && !fallback_aper_force) 
++	if (!fix && !fallback_aper_force) {
++		if (last_aper_base) {
++			unsigned long n = (32 * 1024 * 1024) << last_aper_order;
++			insert_aperture_resource((u32)last_aper_base, n);
++		}
+ 		return; 
++	}
+ 
+ 	if (!fallback_aper_force)
+ 		aper_alloc = search_agp_bridge(&aper_order, &valid_agp); 

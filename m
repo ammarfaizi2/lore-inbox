@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWHaNFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWHaNKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWHaNFq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 09:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHaNFq
+	id S932198AbWHaNKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 09:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWHaNKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 09:05:46 -0400
-Received: from clem.clem-digital.net ([68.16.168.10]:42768 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S932193AbWHaNFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 09:05:45 -0400
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200608311305.k7VD5iFW018562@clem.clem-digital.net>
-Subject: 2.6.18-rc5-git3 SMP fails compile
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Thu, 31 Aug 2006 09:05:44 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL7]
+	Thu, 31 Aug 2006 09:10:05 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:48059 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932198AbWHaNKE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 09:10:04 -0400
+Date: Thu, 31 Aug 2006 15:05:45 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Pavel Machek <pavel@suse.cz>
+cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
+       yi.zhu@intel.com, jketreno@linux.intel.com,
+       ipw2100-devel@lists.sourceforge.net
+Subject: Re: ipw2200: small cleanups
+In-Reply-To: <20060831123004.GA3923@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0608311504480.16609@yvahk01.tjqt.qr>
+References: <20060831123004.GA3923@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fyi:
-2.6.18-rc5-git3 fails compile with SMP.
+>
+>Remove dead, commented-out code, and switch to C-style commments.
 
-  CC      arch/i386/kernel/asm-offsets.s
-In file included from include/linux/spinlock.h:86,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:44,
-                 from include/linux/module.h:9,
-                 from include/linux/crypto.h:20,
-                 from arch/i386/kernel/asm-offsets.c:7:
-include/asm/spinlock.h: In function '__raw_read_lock':
-include/asm/spinlock.h:164: error: expected '(' before ')' token
-include/asm/spinlock.h:164: error: output operand constraint lacks '='
-include/asm/spinlock.h:164: error: output operand constraint lacks '='
-include/asm/spinlock.h:164: error: invalid lvalue in asm output 0
-make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-make: *** [prepare0] Error 2
+Why can't we use C99 comments? We're already depending on so many GCC 
+features that C-C99 is really nitpicky.
 
+>-	//set the Stop and Abort bit
+>+	/* set the Stop and Abort bit */
+
+Jan Engelhardt
 -- 
-Pete Clements 

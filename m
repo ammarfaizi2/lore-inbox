@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWHaPQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWHaPRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWHaPQV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 11:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWHaPQV
+	id S1751578AbWHaPRX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 11:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWHaPRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 11:16:21 -0400
-Received: from ns.suse.de ([195.135.220.2]:3026 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932350AbWHaPQV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 11:16:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: Was: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Date: Thu, 31 Aug 2006 17:16:08 +0200
-User-Agent: KMail/1.9.3
-Cc: Jan Beulich <jbeulich@novell.com>,
-       "J. Bruce Fields" <bfields@fieldses.org>, petkov@math.uni-muenster.de,
-       akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
-References: <20060820013121.GA18401@fieldses.org> <200608310941.40076.ak@suse.de> <1157036578.22667.6.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1157036578.22667.6.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 31 Aug 2006 11:17:23 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:6151 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751313AbWHaPRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 11:17:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fBFfUS6CjZNV8eo4M2zPz4GeQnoK6iEseoWPThpIS1e/bGWaDBgu/AG12SB/B7L7tw+UfCmUl7ci9dCt7VILJOlzRRg5bWGlBmpeTkRzC0yRnqyqE5+7YLpKA1mwDCJ26T5DUXnsN2XFwo09T19DOf4CIJpgDtbhBSWucjAPvKc=
+Message-ID: <9a8748490608310817v7d722f88u167b5a84d0ff67e8@mail.gmail.com>
+Date: Thu, 31 Aug 2006 17:17:20 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Unable to halt or reboot due to - unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
+Cc: "Mark Evans" <evansmp@uhura.aston.ac.uk>,
+       "Fred N. van Kempen" <waltje@uWalt.NL.Mugnet.ORG>,
+       "Ross Biro" <ross.biro@gmail.com>, davem@davemloft.net,
+       yoshfuji@linux-ipv6.org, "Ben Greear" <greearb@candelatech.com>,
+       netdev@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608311716.08786.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 August 2006 17:02, Badari Pulavarty wrote:
+Hi,
 
-> I will verify them when I get a chance to move to latest kernel.
+I've got a small problem with 2.6.18-rc5-git2.
 
-Sorry I just meant the problem has been analyzed, but not fixed
-yet (it is a bit tricky). Most of the fixes won't make 2.6.18
-anyways because it's too late for that.
+I've got a vlan setup on eth0.20, eth0 does not have an IP.
 
-> Unfortunately, so called testcases are the *real* problems I am
-> trying to track down in 2.6.18-rc4 and I have a setup/config/testcase
-> which can reproduce them consistently. I don't want to change
-> any kernel/config till I debug these issues. Once I figure out whats
-> happening - I will move to latest and verify one more time.
+When I attempt to reboot or halt the machine I get the following
+message from the loop in net/core/dev.c::netdev_wait_allrefs() where
+it waits for the ref-count to drop to zero.
+Unfortunately the ref-count stays at 1 forever and the server never
+gets any further.
 
-Not needed right now.
+  unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
 
-> 
-> Code: 0f 0b 68 d3 e0 50 80 c2 e7 0a 48 83 7b 38 00 75 0a 0f 0b 68
-> RIP  [<ffffffff80282d39>] submit_bh+0x29/0x130
->  RSP <ffff8101bde8dd08>
->  <1>Unable to handle kernel paging request at 0000000146f4eac0 RIP:
->  [<ffffffff802277b8>] task_rq_lock+0x38/0x90
-> PGD 1ddc2e067 PUD 0
-> Oops: 0000 [2] SMP
+I googled a bit and found that people have had similar problems in the
+past and could work around them by shutting down the vlan interface
+before the 'lo' interface. I tried that and indeed, it works.
 
-Don't know why sorry, but it seems to be indeed before the unwinder. 
-Maybe some state got messed up completely.
-
--Andi
+Any idea how we can get this fixed?
 
 
-> 
-> 
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

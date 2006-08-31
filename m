@@ -1,253 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWHaKJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWHaKKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWHaKJS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 06:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWHaKI4
+	id S1751425AbWHaKKM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 06:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWHaKIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 06:08:56 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:10004 "EHLO
+	Thu, 31 Aug 2006 06:08:50 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:2836 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751428AbWHaKIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 06:08:46 -0400
-Message-Id: <20060831100821.436531918@localhost.localdomain>
+	id S1751420AbWHaKIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 06:08:45 -0400
+Message-Id: <20060831100821.807784048@localhost.localdomain>
 References: <20060831100756.866727476@localhost.localdomain>
-Date: Thu, 31 Aug 2006 19:08:01 +0900
+Date: Thu, 31 Aug 2006 19:08:02 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, okuji@enbug.org,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 5/6] debugfs entries for configuration
-Content-Disposition: inline; filename=knobs.patch
+Cc: ak@suse.de, akpm@osdl.org, okuji@enbug.org
+Subject: [patch 6/6] process filtering for fault-injection capabilities
+Content-Disposition: inline; filename=process-filter.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This kernel module provides debugfs entries for fault-injection
-capabilities configuation.
+This patch provides process filtering feature.
 
-/debug/
-|-- fail_make_request
-|   |-- interval
-|   |-- probability
-|   |-- space
-|   `-- times
-|-- fail_page_alloc
-|   |-- interval
-|   |-- probability
-|   |-- space
-|   `-- times
-`-- failslab
-    |-- interval
-    |-- probability
-    |-- space
-    `-- times
+Example:
+
+# modprobe should_fail_knobs
+# echo 1 > /debug/failslab/process-filter
+# echo 30 > /debug/failslab/probability
+# find /lib/modules/`uname -r` -name '*.ko' -exec basename {} .ko \; > list
+# for i in `cat list`;do failmodprobe $i;done
+
+failmodprobe:
+-------------
+#!/bin/bash
+echo 1 > /proc/self/make-it-fail
+exec modprobe $*
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- lib/Kconfig.debug       |    8 ++
- lib/Makefile            |    1 
- lib/should_fail_knobs.c |  168 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 177 insertions(+)
+ fs/proc/base.c              |   77 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/sched.h       |    3 +
+ include/linux/should_fail.h |    3 +
+ lib/should_fail.c           |   11 ++++--
+ lib/should_fail_knobs.c     |   10 +++++
+ 5 files changed, 101 insertions(+), 3 deletions(-)
 
+Index: work-shouldfail/fs/proc/base.c
+===================================================================
+--- work-shouldfail.orig/fs/proc/base.c
++++ work-shouldfail/fs/proc/base.c
+@@ -138,6 +138,9 @@ enum pid_directory_inos {
+ #endif
+ 	PROC_TGID_OOM_SCORE,
+ 	PROC_TGID_OOM_ADJUST,
++#ifdef CONFIG_SHOULD_FAIL
++	PROC_TGID_SHOULD_FAIL,
++#endif
+ 	PROC_TID_INO,
+ 	PROC_TID_STATUS,
+ 	PROC_TID_MEM,
+@@ -181,6 +184,9 @@ enum pid_directory_inos {
+ #endif
+ 	PROC_TID_OOM_SCORE,
+ 	PROC_TID_OOM_ADJUST,
++#ifdef CONFIG_SHOULD_FAIL
++	PROC_TID_SHOULD_FAIL,
++#endif
+ 
+ 	/* Add new entries before this */
+ 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+@@ -240,6 +246,9 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_SHOULD_FAIL
++	E(PROC_TGID_SHOULD_FAIL, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ static struct pid_entry tid_base_stuff[] = {
+@@ -282,6 +291,9 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_SHOULD_FAIL
++	E(PROC_TID_SHOULD_FAIL, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ 
+@@ -992,6 +1004,65 @@ static struct file_operations proc_login
+ };
+ #endif
+ 
++#ifdef CONFIG_SHOULD_FAIL
++static ssize_t proc_should_fail_read(struct file * file, char __user * buf,
++				     size_t count, loff_t *ppos)
++{
++	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
++	char buffer[PROC_NUMBUF];
++	size_t len;
++	int make_it_fail;
++	loff_t __ppos = *ppos;
++
++	if (!task)
++		return -ESRCH;
++	make_it_fail = task->make_it_fail;
++	put_task_struct(task);
++
++	len = snprintf(buffer, sizeof(buffer), "%i\n", make_it_fail);
++	if (__ppos >= len)
++		return 0;
++	if (count > len-__ppos)
++		count = len-__ppos;
++	if (copy_to_user(buf, buffer + __ppos, count))
++		return -EFAULT;
++	*ppos = __ppos + count;
++	return count;
++}
++
++static ssize_t proc_should_fail_write(struct file * file,
++			const char __user * buf, size_t count, loff_t *ppos)
++{
++	struct task_struct *task;
++	char buffer[PROC_NUMBUF], *end;
++	int make_it_fail;
++
++	if (!capable(CAP_SYS_RESOURCE))
++		return -EPERM;
++	memset(buffer, 0, sizeof(buffer));
++	if (count > sizeof(buffer) - 1)
++		count = sizeof(buffer) - 1;
++	if (copy_from_user(buffer, buf, count))
++		return -EFAULT;
++	make_it_fail = simple_strtol(buffer, &end, 0);
++	if (*end == '\n')
++		end++;
++	task = get_proc_task(file->f_dentry->d_inode);
++	if (!task)
++		return -ESRCH;
++	task->make_it_fail = make_it_fail;
++	put_task_struct(task);
++	if (end - buffer == 0)
++		return -EIO;
++	return end - buffer;
++}
++
++static struct file_operations proc_should_fail_operations = {
++	.read		= proc_should_fail_read,
++	.write		= proc_should_fail_write,
++};
++#endif
++
+ #ifdef CONFIG_SECCOMP
+ static ssize_t seccomp_read(struct file *file, char __user *buf,
+ 			    size_t count, loff_t *ppos)
+@@ -1834,6 +1905,12 @@ static struct dentry *proc_pident_lookup
+ 			inode->i_fop = &proc_loginuid_operations;
+ 			break;
+ #endif
++#ifdef CONFIG_SHOULD_FAIL
++		case PROC_TID_SHOULD_FAIL:
++		case PROC_TGID_SHOULD_FAIL:
++			inode->i_fop = &proc_should_fail_operations;
++			break;
++#endif
+ 		default:
+ 			printk("procfs: impossible type (%d)",p->type);
+ 			iput(inode);
+Index: work-shouldfail/include/linux/sched.h
+===================================================================
+--- work-shouldfail.orig/include/linux/sched.h
++++ work-shouldfail/include/linux/sched.h
+@@ -997,6 +997,9 @@ struct task_struct {
+ 	spinlock_t delays_lock;
+ 	struct task_delay_info *delays;
+ #endif
++#ifdef CONFIG_SHOULD_FAIL
++	int make_it_fail;
++#endif
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+Index: work-shouldfail/include/linux/should_fail.h
+===================================================================
+--- work-shouldfail.orig/include/linux/should_fail.h
++++ work-shouldfail/include/linux/should_fail.h
+@@ -27,6 +27,9 @@ struct should_fail_data {
+ 	atomic_t space;
+ 
+ 	unsigned long count;
++
++	/* process filter */
++	unsigned long process_filter;
+ };
+ 
+ #define DEFINE_SHOULD_FAIL(name) \
+Index: work-shouldfail/lib/should_fail.c
+===================================================================
+--- work-shouldfail.orig/lib/should_fail.c
++++ work-shouldfail/lib/should_fail.c
+@@ -13,16 +13,18 @@ int setup_should_fail(struct should_fail
+ 	unsigned long interval;
+ 	int times;
+ 	int space;
++	unsigned long filter;
+ 
+-	/* "<probability>,<interval>,<times>,<space>" */
+-	if (sscanf(str, "%lu,%lu,%d,%d", &probability, &interval, &times,
+-		   &space) < 4)
++	/* "<probability>,<interval>,<times>,<space>,<process-filter>" */
++	if (sscanf(str, "%lu,%lu,%d,%d,%d", &probability, &interval, &times,
++		   &space, &filter) < 5)
+ 		return 0;
+ 
+ 	data->probability = probability;
+ 	data->interval = interval;
+ 	atomic_set(&data->times, times);
+ 	atomic_set(&data->space, space);
++	data->process_filter = filter;
+ 
+ 	return 1;
+ }
+@@ -54,6 +56,9 @@ void should_fail_srandom(unsigned long e
+ 
+ int should_fail(struct should_fail_data *data, ssize_t size)
+ {
++	if (data->process_filter && !current->make_it_fail)
++		return 0;
++
+ 	if (atomic_read(&max_failures(data)) == 0)
+ 		return 0;
+ 
 Index: work-shouldfail/lib/should_fail_knobs.c
 ===================================================================
---- /dev/null
+--- work-shouldfail.orig/lib/should_fail_knobs.c
 +++ work-shouldfail/lib/should_fail_knobs.c
-@@ -0,0 +1,168 @@
-+#include <linux/module.h>
-+#include <linux/should_fail.h>
-+#include <linux/debugfs.h>
-+
-+struct should_fail_knobs {
-+	struct dentry *dir;
-+	struct dentry *probability_file;
-+	struct dentry *interval_file;
-+	struct dentry *times_file;
-+	struct dentry *space_file;
-+};
-+
-+static void debugfs_ul_set(void *data, u64 val)
-+{
-+	*(unsigned long *)data = val;
-+}
-+
-+static u64 debugfs_ul_get(void *data)
-+{
-+	return *(unsigned long *)data;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_ul, debugfs_ul_get, debugfs_ul_set, "%llu\n");
-+
-+static struct dentry *debugfs_create_ul(const char *name, mode_t mode,
-+				struct dentry *parent, unsigned long *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_ul);
-+}
-+
-+static void debugfs_atomic_t_set(void *data, u64 val)
-+{
-+	atomic_set((atomic_t *)data, val);
-+}
-+
-+static u64 debugfs_atomic_t_get(void *data)
-+{
-+	return atomic_read((atomic_t *)data);
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+			debugfs_atomic_t_set, "%lld\n");
-+
-+static struct dentry *debugfs_create_atomic_t(const char *name, mode_t mode,
-+				struct dentry *parent, atomic_t *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_atomic_t);
-+}
-+
-+static void cleanup_should_fail_knobs(struct should_fail_knobs *knobs)
-+{
-+	if (knobs->dir) {
-+		if (knobs->probability_file) {
-+			debugfs_remove(knobs->probability_file);
-+			knobs->probability_file = NULL;
-+		}
-+		if (knobs->interval_file) {
-+			debugfs_remove(knobs->interval_file);
-+			knobs->interval_file = NULL;
-+		}
-+		if (knobs->times_file) {
-+			debugfs_remove(knobs->times_file);
-+			knobs->times_file = NULL;
-+		}
-+		if (knobs->space_file) {
-+			debugfs_remove(knobs->space_file);
-+			knobs->space_file = NULL;
-+		}
-+		debugfs_remove(knobs->dir);
-+		knobs->dir = NULL;
-+	}
-+}
-+
-+static int init_should_fail_knobs(struct should_fail_knobs *knobs,
-+			   struct should_fail_data *data, const char *name)
-+{
-+	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
-+	struct dentry *dir;
-+	struct dentry *file;
-+
-+	memset(knobs, 0, sizeof(*knobs));
-+
-+	dir = debugfs_create_dir(name, NULL);
-+	if (!dir)
-+		goto fail;
-+	knobs->dir = dir;
-+
-+	file = debugfs_create_ul("probability", mode, dir, &data->probability);
-+	if (!file)
-+		goto fail;
-+	knobs->probability_file = file;
-+
-+	file = debugfs_create_ul("interval", mode, dir, &data->interval);
-+	if (!file)
-+		goto fail;
-+	knobs->interval_file = file;
-+
-+	file = debugfs_create_atomic_t("times", mode, dir, &data->times);
-+	if (!file)
-+		goto fail;
-+	knobs->times_file = file;
-+
-+	file = debugfs_create_atomic_t("space", mode, dir, &data->space);
-+	if (!file)
-+		goto fail;
-+	knobs->space_file = file;
-+
-+	return 0;
-+fail:
-+	cleanup_should_fail_knobs(knobs);
-+	return -ENOMEM;
-+}
-+
-+#ifdef CONFIG_FAILSLAB
-+static struct should_fail_knobs failslab_knobs;
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+static struct should_fail_knobs fail_page_alloc_knobs;
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+static struct should_fail_knobs fail_make_request_knobs;
-+#endif
-+
-+static void cleanup_knobs(void)
-+{
-+#ifdef CONFIG_FAILSLAB
-+	cleanup_should_fail_knobs(&fail_make_request_knobs);
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+	cleanup_should_fail_knobs(&fail_page_alloc_knobs);
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	cleanup_should_fail_knobs(&failslab_knobs);
-+#endif
-+}
-+
-+static int init_knobs(void)
-+{
-+	int err;
-+
-+#ifdef CONFIG_FAILSLAB
-+	err = init_should_fail_knobs(&failslab_knobs, failslab, "failslab");
-+	if (err)
-+		goto fail;
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+	err = init_should_fail_knobs(&fail_page_alloc_knobs, fail_page_alloc,
-+				     "fail_page_alloc");
-+	if (err)
-+		goto fail;
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	err = init_should_fail_knobs(&fail_make_request_knobs,
-+				     fail_make_request, "fail_make_request");
-+	if (err)
-+		goto fail;
-+#endif
-+
-+	return 0;
-+fail:
-+	cleanup_knobs();
-+
-+	return err;
-+}
-+
-+module_init(init_knobs);
-+module_exit(cleanup_knobs);
-+MODULE_LICENSE("GPL");
-Index: work-shouldfail/lib/Kconfig.debug
-===================================================================
---- work-shouldfail.orig/lib/Kconfig.debug
-+++ work-shouldfail/lib/Kconfig.debug
-@@ -393,3 +393,11 @@ config FAIL_MAKE_REQUEST
- 	help
- 	  This option provides fault-injection capabilitiy to disk IO.
+@@ -8,6 +8,7 @@ struct should_fail_knobs {
+ 	struct dentry *interval_file;
+ 	struct dentry *times_file;
+ 	struct dentry *space_file;
++	struct dentry *filter_file;
+ };
  
-+config SHOULD_FAIL_KNOBS
-+	tristate "runtime configuration for fault-injection capabilities"
-+	depends on DEBUG_KERNEL && SYSFS && SHOULD_FAIL
-+	select DEBUG_FS
-+	help
-+	  This option provides kernel module that provides runtime
-+	  configuration interface by debugfs.
+ static void debugfs_ul_set(void *data, u64 val)
+@@ -66,6 +67,10 @@ static void cleanup_should_fail_knobs(st
+ 			debugfs_remove(knobs->space_file);
+ 			knobs->space_file = NULL;
+ 		}
++		if (knobs->filter_file) {
++			debugfs_remove(knobs->filter_file);
++			knobs->filter_file = NULL;
++		}
+ 		debugfs_remove(knobs->dir);
+ 		knobs->dir = NULL;
+ 	}
+@@ -105,6 +110,11 @@ static int init_should_fail_knobs(struct
+ 		goto fail;
+ 	knobs->space_file = file;
+ 
++	file = debugfs_create_ul("process-filter", mode, dir, &data->process_filter);
++	if (!file)
++		goto fail;
++	knobs->filter_file = file;
 +
-Index: work-shouldfail/lib/Makefile
-===================================================================
---- work-shouldfail.orig/lib/Makefile
-+++ work-shouldfail/lib/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_SMP) += percpu_counter.o
- 
- obj-$(CONFIG_SWIOTLB) += swiotlb.o
- obj-$(CONFIG_SHOULD_FAIL) += should_fail.o
-+obj-$(CONFIG_SHOULD_FAIL_KNOBS) += should_fail_knobs.o
- 
- hostprogs-y	:= gen_crc32table
- clean-files	:= crc32table.h
+ 	return 0;
+ fail:
+ 	cleanup_should_fail_knobs(knobs);
 
 --

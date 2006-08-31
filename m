@@ -1,73 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWHaJGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWHaJnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWHaJGM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 05:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWHaJGM
+	id S1751050AbWHaJnx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 05:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWHaJnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 05:06:12 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:41440 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751018AbWHaJGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 05:06:11 -0400
-Subject: Re: [S390] cio: kernel stack overflow.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060830191927.GA8408@osiris.ibm.com>
-References: <20060830124047.GA22276@skybase>
-	 <ed4nih$gb0$2@taverner.cs.berkeley.edu>
-	 <20060830191927.GA8408@osiris.ibm.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 31 Aug 2006 11:06:07 +0200
-Message-Id: <1157015167.23755.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Thu, 31 Aug 2006 05:43:53 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:23472 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751050AbWHaJnx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 05:43:53 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: 2.6.18-rc5-git3 build error on i386 - include/asm/spinlock.h
+Date: Thu, 31 Aug 2006 11:43:38 +0200
+User-Agent: KMail/1.9.4
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Benjamin LaHaise" <bcrl@kvack.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+References: <9a8748490608310115o288fe080pdac53e8d2b8d3f84@mail.gmail.com>
+In-Reply-To: <9a8748490608310115o288fe080pdac53e8d2b8d3f84@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1537574.1zB6vWqRiN";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608311143.43837.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-30 at 21:19 +0200, Heiko Carstens wrote:
-> > >-            cdev->id = (struct ccw_device_id) {
-> > >-                    .cu_type   = cdev->private->senseid.cu_type,
-> > >-                    .cu_model  = cdev->private->senseid.cu_model,
-> > >-                    .dev_type  = cdev->private->senseid.dev_type,
-> > >-                    .dev_model = cdev->private->senseid.dev_model,
-> > >-            };
-> > >+            cdev->id.cu_type   = cdev->private->senseid.cu_type;
-> > >+            cdev->id.cu_model  = cdev->private->senseid.cu_model;
-> > >+            cdev->id.dev_type  = cdev->private->senseid.dev_type;
-> > >+            cdev->id.dev_model = cdev->private->senseid.dev_model;
-> > 
-> > I don't see any obvious place that zeroes out cdev->id.
-> > In particular, it looks like cdev->id.match_flags and .driver_info
-> > are never cleared (i.e., they retain whatever old garbage they had
-> > before).  More importantly, if anyone ever adds any more fields to
-> > struct ccw_device_id, then they will also be retain old garbage values,
-> > which is a maintenance pitfall.  Is this right, or did I miss something
-> > again?
-> 
-> You're right. Thanks for pointing this out! I will take care of it.
+--nextPart1537574.1zB6vWqRiN
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The ccw_device_id structure contains two more fields in addition to the
-field that are set up in ccw_device_recog_done, namely match_flags and
-driver_info. driver_info is set later in ccw_bus_match, so that is fine.
-match_flags of the device is never used, only the match_flags of the
-drivers version of the ccw_device_id is used. So the code is correct
-even without the memset. But your point about the maintenance pitfall is
-valid, we will add a memset after 2.6.18. I don't want to push yet
-another patch.
+Jesper Juhl wrote:
+> 2.6.18-rc5-git2 builds just fine, but with -git3 I get the following :
+>
+>   CHK     include/linux/version.h
+>   CHK     include/linux/utsrelease.h
+>   CC      arch/i386/kernel/asm-offsets.s
+> In file included from include/linux/spinlock.h:86,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:44,
+>                  from include/linux/module.h:9,
+>                  from include/linux/crypto.h:20,
+>                  from arch/i386/kernel/asm-offsets.c:7:
+> include/asm/spinlock.h: In function `__raw_read_lock':
+> include/asm/spinlock.h:164: error: syntax error before ')' token
+> include/asm/spinlock.h: In function `__raw_write_lock':
+> include/asm/spinlock.h:169: error: called object is not a function
+> include/asm/spinlock.h:169: warning: left-hand operand of comma
+> expression has no effect
+> include/asm/spinlock.h:169: warning: left-hand operand of comma
+> expression has no effect
+> include/asm/spinlock.h:169: error: syntax error before ')' token
+> make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+> make: *** [prepare0] Error 2
+>
+> Let me know if there's any additional info you need or patches you
+> want me to test.
 
--- 
-blue skies,
-  Martin.
+revert commit 8c74932779fc6f61b4c30145863a17125c1a296c
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+Author: Andi Kleen <ak@suse.de> Wed, 30 Aug 2006 19:37:14 +0200
 
-"Reality continues to ruin my life." - Calvin.
+    [PATCH] i386: Remove alternative_smp
 
+Eike
 
+--nextPart1537574.1zB6vWqRiN
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBE9q9PXKSJPmm5/E4RAkcpAJ9Njjyh/5+BY/TI8Z0YRMLKEEcV+ACglHvi
+mX0l8Ew/a+k5KI6NNgards0=
+=3BNq
+-----END PGP SIGNATURE-----
+
+--nextPart1537574.1zB6vWqRiN--

@@ -1,106 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHaRBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWHaRCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWHaRBf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWHaRBf
+	id S932386AbWHaRCY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWHaRCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:01:35 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:35233 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932204AbWHaRBe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:01:34 -0400
-Date: Thu, 31 Aug 2006 18:01:32 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-Cc: Keith Mannthey <kmannth@gmail.com>, akpm@osdl.org, tony.luck@intel.com,
-       Linux Memory Management List <linux-mm@kvack.org>, ak@suse.de,
-       bob.picco@hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
-In-Reply-To: <44F70D74.30807@kolumbus.fi>
-Message-ID: <Pine.LNX.4.64.0608311749030.13392@skynet.skynet.ie>
-References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
- <20060821134638.22179.44471.sendpatchset@skynet.skynet.ie>
- <a762e240608301357n3915250bk8546dd340d5d4d77@mail.gmail.com>
- <20060831154903.GA7011@skynet.ie> <44F70D74.30807@kolumbus.fi>
+	Thu, 31 Aug 2006 13:02:24 -0400
+Received: from mga03.intel.com ([143.182.124.21]:12315 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932387AbWHaRCW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 13:02:22 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,195,1154934000"; 
+   d="scan'208"; a="110433475:sNHT21400771"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="29444707-2029305836-1157043692=:13392"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: one more ACPI Error (utglobal-0125): Unknown exception code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+Date: Thu, 31 Aug 2006 10:02:19 -0700
+Message-ID: <B28E9812BAF6E2498B7EC5C427F293A4DB67EC@orsmsx415.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: one more ACPI Error (utglobal-0125): Unknown exception code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+Thread-Index: AcbNHZljZzqGhn9DSUW8ZyeqLSAswQAAQISg
+From: "Moore, Robert" <robert.moore@intel.com>
+To: <kmannth@us.ibm.com>, "Len Brown" <lenb@kernel.org>
+Cc: "Li, Shaohua" <shaohua.li@intel.com>, "Mattia Dongili" <malattia@linux.it>,
+       "Andrew Morton" <akpm@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>,
+       "linux acpi" <linux-acpi@vger.kernel.org>,
+       "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>
+X-OriginalArrivalTime: 31 Aug 2006 17:02:20.0567 (UTC) FILETIME=[38B47A70:01C6CD1F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Return AE_OK to continue the walk. AE_CTRL_DEPTH will cause the walk to
+continue, but go no further down the current branch of the namespace.
 
---29444707-2029305836-1157043692=:13392
-Content-Type: TEXT/PLAIN; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Anything other than these two exceptions will completely abort the walk.
 
-On Thu, 31 Aug 2006, Mika Penttil=E4 wrote:
+Bob
 
->
->>>> static __init inline int srat_disabled(void)
->>>> @@ -166,7 +167,7 @@ static int hotadd_enough_memory(struct b
->>>>
->>>>        if (mem < 0)
->>>>                return 0;
->>>> -       allowed =3D (end_pfn - e820_hole_size(0, end_pfn)) * PAGE_SIZE=
-;
->>>> +       allowed =3D (end_pfn - absent_pages_in_range(0, end_pfn)) *=20
->>>> PAGE_SIZE;
->>>>        allowed =3D (allowed / 100) * hotadd_percent;
->>>>        if (allocated + mem > allowed) {
->>>>                unsigned long range;
->>>> @@ -238,7 +239,7 @@ static int reserve_hotadd(int node, unsi
->>>>        }
->>>>
->>>>        /* This check might be a bit too strict, but I'm keeping it for=
-=20
->>>> now. */
->>>> -       if (e820_hole_size(s_pfn, e_pfn) !=3D e_pfn - s_pfn) {
->>>> +       if (absent_pages_in_range(s_pfn, e_pfn) !=3D e_pfn - s_pfn) {
->>>>                printk(KERN_ERR "SRAT: Hotplug area has existing=20
->>>> memory\n");
->>>>                return -1;
->>>>        }
->>>>=20
->>> We really do want to to compare against the e820 map at it contains
->>> the memory that is really present (this info was blown away before
->>> acpi_numa)=20
->>=20
->> The information used by absent_pages_in_range() should match what was
->> available to e820_hole_size().
->>
->>=20
-> But it doesn't : all active ranges are removed before parsing srat. I thi=
-nk=20
-> we really need to check against e820 here.
->
 
-What I see happening is this;
-
-1. setup_arch calls e820_register_active_regions(0, 0, -1UL) so that all
-    regions are registered as if they were on node 0 so e820_end_of_ram()
-    gets the right value
-2. remove_all_active_regions() is called to clear what was registered so
-    that rediscovery with NUMA awareness happens
-3. acpi_numa_init() is called. It parses the table and a little later
-    calls acpi_numa_memory_affinity_init() for each range in the table so
-    now we're into x86_64 code
-4. acpi_numa_memory_affinity_init() basically deals an address range.
-    Assuming the SRAT table is not broken, it calls
-    e820_register_active_ranges() for that range. At this point, for the
-    range of addresses, the active ranges are now registered
-5. reserve_hotadd is called if the range is hotpluggable. It will fail if
-    it finds that memory already exists there
-
-So, when absent_pages_in_range() is being called by reserve_hotadd(), it=20
-should be using the same information that was available in e820. What am I=
-=20
-missing?
-
---=20
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
---29444707-2029305836-1157043692=:13392--
+> -----Original Message-----
+> From: keith mannthey [mailto:kmannth@us.ibm.com]
+> Sent: Thursday, August 31, 2006 9:49 AM
+> To: Len Brown
+> Cc: Moore, Robert; Li, Shaohua; Mattia Dongili; Andrew Morton; lkml;
+linux
+> acpi; KAMEZAWA Hiroyuki
+> Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception
+> code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+> 
+> On Thu, 2006-08-31 at 02:48 -0400, Len Brown wrote:
+> > On Tuesday 29 August 2006 16:04, Moore, Robert wrote:
+> > > As far as the unknown exception,
+> > >
+> > > >[    9.392729]  [<c0246fb6>] acpi_ut_status_exit+0x31/0x5e
+> > > >[    9.393453]  [<c0243352>] acpi_walk_resources+0x10e/0x11b
+> > > >[    9.394174]  [<c025697e>] acpi_motherboard_add+0x22/0x31
+> > >
+> > > I would guess that the callback routine for walk_resources is
+> returning
+> > > a non-zero status value which is causing an immediate abort of the
+> walk
+> > > with that value -- and the value is bogus.
+> 
+>   Before I put this check in acpi_motherboard_add always attached
+itself
+> to any resource type. I simply changed it so if the type is not
+> ACPI_RESOURCE_TYPE_IO or ACPI_RESOURCE_TYPE_FIXED_IO it doesn't attach
+> and can continue to find the correct device to attach to.
+> 
+>   Perhaps the motherboard device needs to attach to more device types?
+> 
+>   It was suggest by acpi folks to return -EINVAL.  Should something
+else
+> be returned?
+> 
+> 
+> Thanks,
+>   Keith
+> 
+> > Yep, see -EINVAL below.
+> >
+> > -Len
+> >
+> >
+http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-
+> rc4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-
+> fix.patch
+> >
+> >
+> >
+> > From: Keith Mannthey <kmannth@us.ibm.com>
+> >
+> > This patch set allow SPARSEMEM and RESERVE based hot-add to work.  I
+> have
+> > test both options and they work as expected.  I am adding memory to
+the
+> > 2nd node of a numa system (x86_64).
+> >
+> > Major changes from last set is the config change and RESERVE
+enablment.
+> >
+> >
+> > This patch:
+> >
+> >
+> > Make ACPI motherboard driver not attach to devices/handles it
+dosen't
+> expect.
+> > Fix a bug where the motherboard driver attached to hot-add memory
+event
+> and
+> > caused the add memory call to fail.
+> >
+> > Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
+> > Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> > Cc: Andi Kleen <ak@muc.de>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > ---
+> >
+> >
+> > diff -puN drivers/acpi/motherboard.c~hot-add-mem-x86_64-acpi-
+> motherboard-fix drivers/acpi/motherboard.c
+> > ---
+a/drivers/acpi/motherboard.c~hot-add-mem-x86_64-acpi-motherboard-fix
+> > +++ a/drivers/acpi/motherboard.c
+> > @@ -87,6 +87,7 @@ static acpi_status acpi_reserve_io_range
+> >  		}
+> >  	} else {
+> >  		/* Memory mapped IO? */
+> > +		 return -EINVAL;
+> >  	}
+> >
+> >  	if (requested_res)
+> > @@ -96,11 +97,16 @@ static acpi_status acpi_reserve_io_range
+> >
+> >  static int acpi_motherboard_add(struct acpi_device *device)
+> >  {
+> > +	acpi_status status;
+> >  	if (!device)
+> >  		return -EINVAL;
+> > -	acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+> > +
+> > +	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+> >  			    acpi_reserve_io_ranges, NULL);
+> >
+> > +	if (ACPI_FAILURE(status))
+> > +		return -ENODEV;
+> > +
+> >  	return 0;
+> >  }
+> >
+> > _

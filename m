@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWHaIME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWHaIPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWHaIME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHaIME
+	id S1751276AbWHaIPj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 04:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWHaIPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 04:12:04 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:4491 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751275AbWHaIMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:12:02 -0400
-Message-ID: <44F699CE.8050803@drzeus.cx>
-Date: Thu, 31 Aug 2006 10:11:58 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Thu, 31 Aug 2006 04:15:38 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:57377 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751276AbWHaIPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 04:15:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H2CGwiVPQptBA9WSki92RFZ/nCLyCDEP00ly/P0XbEXqSx+xCy7vBMkqjyCddrCu3D5GbsBPoFNeo9oPm0vq8FtnUtWGWbSQi7Xu5YTRXY9JUyuTs/g5DTZMxRl2LmDKXqt0WidvnAMitjvNkU+sFMj1ruC5WruqeXiSehj5soE=
+Message-ID: <9a8748490608310115o288fe080pdac53e8d2b8d3f84@mail.gmail.com>
+Date: Thu, 31 Aug 2006 10:15:37 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: 2.6.18-rc5-git3 build error on i386 - include/asm/spinlock.h
+Cc: "Benjamin LaHaise" <bcrl@kvack.org>, "Linus Torvalds" <torvalds@osdl.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: When to use mmiowb()?
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm been trying to wrap my head around all this memory barrier business,
-and I'm slowly grasping the inter-CPU behaviours. Barriers with regard
-to devices still has me a bit confused though.
+2.6.18-rc5-git2 builds just fine, but with -git3 I get the following :
 
-The deviceiobook document and memory-barriers.txt both make it clear
-that memory operations to devices are strictly ordered from a single
-CPU. When more CPUs are involved, things get a bit fuzzier.
-memory-barriers.txt seems to suggest that mmiowb() is only needed before
-an unlock under special circumstances, but deviceiobook states that
-mmiowb() should be used before all unlocks where the writeX():s aren't
-followed by a readX() (which would flush the writes anyway).
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CC      arch/i386/kernel/asm-offsets.s
+In file included from include/linux/spinlock.h:86,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:44,
+                 from include/linux/module.h:9,
+                 from include/linux/crypto.h:20,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/asm/spinlock.h: In function `__raw_read_lock':
+include/asm/spinlock.h:164: error: syntax error before ')' token
+include/asm/spinlock.h: In function `__raw_write_lock':
+include/asm/spinlock.h:169: error: called object is not a function
+include/asm/spinlock.h:169: warning: left-hand operand of comma
+expression has no effect
+include/asm/spinlock.h:169: warning: left-hand operand of comma
+expression has no effect
+include/asm/spinlock.h:169: error: syntax error before ')' token
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+make: *** [prepare0] Error 2
 
-Grepping the tree indicates that mmiowb() isn't used that often, but
-according to deviceiobook, they should be plentiful. This leads me to
-believe that memory-barriers.txt is closer to the truth, but then the
-question is what those special cirumstances that require mmiowb() are.
+Let me know if there's any additional info you need or patches you
+want me to test.
 
-Any clarifications you can provide are very welcome. :)
-
-Rgds
-Pierre
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

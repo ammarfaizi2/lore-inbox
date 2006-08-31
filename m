@@ -1,88 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWHaWVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWHaW3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWHaWVp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWHaWVo
+	id S932214AbWHaW3g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 18:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHaW3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:21:44 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:48769 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932375AbWHaWVn (ORCPT
+	Thu, 31 Aug 2006 18:29:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56468 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932214AbWHaW3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:21:43 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
-Date: Thu, 31 Aug 2006 16:22:09 -0600
-User-Agent: KMail/1.9.1
-Cc: Thomas Renninger <trenn@suse.de>, akpm@osdl.org,
-       "Brown, Len" <len.brown@intel.com>, keith mannthey <kmannth@us.ibm.com>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       naveen.b.s@intel.com
-References: <20060825205423.0778.Y-GOTO@jp.fujitsu.com> <223978.1156683050640.SLOX.WebMail.wwwrun@imap-dhs.suse.de> <20060828223538.F622.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20060828223538.F622.Y-GOTO@jp.fujitsu.com>
+	Thu, 31 Aug 2006 18:29:36 -0400
+Date: Fri, 1 Sep 2006 00:29:20 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
+       perex@suse.cz, alsa-devel@alsa-project.org, pshou@realtek.com.tw
+Subject: Re: sound/pci/hda/intel_hda: small cleanups
+Message-ID: <20060831222920.GF12847@elf.ucw.cz>
+References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de> <20060831133929.GH3923@elf.ucw.cz> <s5hveo90xdu.wl%tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608311622.10761.bjorn.helgaas@hp.com>
+In-Reply-To: <s5hveo90xdu.wl%tiwai@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 August 2006 08:12, Yasunori Goto wrote:
-> > Am Fr 25.08.2006 13:59 schrieb Yasunori Goto <y-goto@jp.fujitsu.com>:
-> Ok. Followings are current my understanding of sequence
-> with your patch.
-> 
-> At boot time, acpi_memory_device_init() is called.
-> 
-> acpi_memory_device_init()
->    |
->    +---> acpi_bus_register_driver()
->            |
->            +---> acpi_driver_attach()
->                    |
->                    +---> acpi_bus_driver_init()
->                            |
->                            +---> acpi_memory_device_add()
->                                     |
->                                     +---> acpi_install_notify_handler().
-> 
-> 
-> The problem is in acpi_driver_attach(). This function is using
-> "acpi_device_list" to call acpi_bus_driver_init().
-> 
-> This list is registered by acpi_device_register() which is called by
-> acpi_add_single_object().
-> However, acpi_add_single_object() skips calling it if _STA is not on.
-> 
-> 1015         switch (type) {
-> 1016         case ACPI_BUS_TYPE_PROCESSOR:
-> 1017         case ACPI_BUS_TYPE_DEVICE:
-> 1018                 result = acpi_bus_get_status(device);
-> 1019                 if (ACPI_FAILURE(result) || !device->status.present) {
-> 1020                         result = -ENOENT;
-> 1021                         goto end;
-> 1022                 }
-> 1023                 break;
-> 
-> So, notify handler is registered just for memory device which is enable
-> at boot time.
-> If notify event occurs for new memory device, there is no notify handler
-> for it....
+Hi!
 
-I looked at this over a year ago, and my feeble recollection is
-that if _STA says "not present", we don't do the device_add.  Later,
-when _STA changes to "present", we get an ACPI notification.  I
-expected that we would just do the device_add() at that time, and
-there are even comments in acpi_bus_check_device() that suggest that,
-but it just looks unfinished.
+> > > > @@ -271,8 +272,8 @@ struct azx_dev {
+> > > >  	/* for sanity check of position buffer */
+> > > >  	unsigned int period_intr;
+> > > >  
+> > > > -	unsigned int opened: 1;
+> > > > -	unsigned int running: 1;
+> > > > +	unsigned int opened :1;
+> > > > +	unsigned int running :1;
+> > > >  };
+> > > >  
+> > > >  /* CORB/RIRB */
+> > > > @@ -330,8 +331,8 @@ struct azx {
+> > > >  
+> > > >  	/* flags */
+> > > >  	int position_fix;
+> > > > -	unsigned int initialized: 1;
+> > > > -	unsigned int single_cmd: 1;
+> > > > +	unsigned int initialized :1;
+> > > > +	unsigned int single_cmd :1;
+> > > >  };
+> > > 
+> > > Any official standard reference for bit-field expressions?
+> > 
+> > Well, logically : belongs to the 1, and include/linux understands it
+> > like that...
+> 
+> OK, "xxx :1;" looks major, too :)
+> 
+> > > >  /* driver types */
+> > > > @@ -642,14 +643,14 @@ static int azx_reset(struct azx *chip)
+> > > >  	azx_writeb(chip, GCTL, azx_readb(chip, GCTL) | ICH6_GCTL_RESET);
+> > > >  
+> > > >  	count = 50;
+> > > > -	while (! azx_readb(chip, GCTL) && --count)
+> > > > +	while (!azx_readb(chip, GCTL) && --count)
+> > > >  		msleep(1);
+> > > 
+> > > Hm, it looks rather like a personal preference.
+> > > IMHO, it's harder to read without space...
+> > 
+> > Well, core parts (sched.c?) use it without the space, and I'd say (!
+> > expression) is unusual in kernel, but no, could not find it codified.
+> 
+> I don't mind much to change it now, but hopefully people won't be too
+> strict about this rule...
 
-It seemed like it would be much cleaner to finish that up, and then
-the driver's .add method would automatically get called, and the
-memory driver wouldn't have to bother with all the notification stuff.
+Thanks.
 
-Bjorn
+> > > I'll fix the volatile things separately.
+> 
+> The access is really over RAM, not MMIO.  So it should be OK to access
+> in that way.  But volatile seems superfluous.  I'll get rid of it.
+
+Sorry, I understood the code well enough to sense something is wrong,
+but not enough to know how to fix it.
+
+> Also, msleep() in the removal should be synchronize_irq().
+
+Good.
+
+> I'll fix these changes and commit with your space fixes to ALSA tree.
+
+Thanks!
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,90 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWHaDAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWHaDBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWHaDAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 23:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWHaDAz
+	id S1750722AbWHaDBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 23:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWHaDBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 23:00:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8922 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751399AbWHaDAy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 23:00:54 -0400
-Date: Wed, 30 Aug 2006 20:00:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: piet@bluelane.com
-Cc: vgoyal@in.ibm.com, George Anzinger <george@wildturkeyranch.net>,
-       Discussion
-	 "list for crash utility usage, maintenance and development" 
-	<crash-utility@redhat.com>,
-       kgdb-bugreport@lists.sourceforge.net,
-       Subhachandra Chandra <schandra@bluelane.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How about an enumerated list of issues with the existing kgdb
- patches?
-Message-Id: <20060830200020.cd5bb3d7.akpm@osdl.org>
-In-Reply-To: <1156992153.24314.24.camel@piet2.bluelane.com>
-References: <44EC8CA5.789286A@redhat.com>
-	<20060824111259.GB22145@in.ibm.com>
-	<44EDA676.37F12263@redhat.com>
-	<1156966522.29300.67.camel@piet2.bluelane.com>
-	<20060830204032.GD30392@in.ibm.com>
-	<1156974093.29300.103.camel@piet2.bluelane.com>
-	<20060830144822.3b8ffb9a.akpm@osdl.org>
-	<20060830155710.5865faa0.akpm@osdl.org>
-	<1156992153.24314.24.camel@piet2.bluelane.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Aug 2006 23:01:37 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:41399 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1750722AbWHaDBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 23:01:36 -0400
+Date: Wed, 30 Aug 2006 21:01:34 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: John Stoffel <john@stoffel.org>
+Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+Message-ID: <20060831030134.GA4919@parisc-linux.org>
+References: <20060829115138.GA32714@infradead.org> <20060825142753.GK10659@infradead.org> <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com> <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com> <10117.1156522985@warthog.cambridge.redhat.com> <15945.1156854198@warthog.cambridge.redhat.com> <20060829122501.GA7814@infradead.org> <20060829195845.GA13357@kroah.com> <17652.44254.620358.974993@stoffel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17652.44254.620358.974993@stoffel.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 19:42:32 -0700
-Piet Delaney <piet@bluelane.com> wrote:
+On Tue, Aug 29, 2006 at 05:08:46PM -0400, John Stoffel wrote:
+> Maybe the better solution is to remove SCSI as an option, and to just
+> offer SCSI drivers and USB-STORAGE and other SCSI core using drivers
+> instead.  Then the SCSI core gets pulled in automatically.  It's not
+> like people care about the SCSI core, just the drivers which depend on
+> it.
 
-> On Wed, 2006-08-30 at 15:57 -0700, Andrew Morton wrote:
-> > On Wed, 30 Aug 2006 14:48:22 -0700
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > >  Plus: I'd want to see a maintainance person or team who
-> > > respond promptly to email and who remain reasonably engaged with what's
-> > > going on in the mainline kernel.  Because if problems crop up (and they
-> > > will), I don't want to have to be the bunny who has to worry about them...
-> > 
-> > umm, clarification needed here.
-> > 
-> > No criticism of the present maintainers intended!  Last time I grabbed the
-> > kgdb patches from sf.net they applied nicely, worked quite reliably (much
-> > better than the old ones I'd been trying to sustain) and had been
-> > tremendously cleaned up.
-> 
-> So why did you stop including them in the mm patch?
-
-Some change in 2.6.17-pre caused it to all stop working.
-
-> I recall your quality issue and Tom was all in favor
-> of resolving them. Was it too much work cleaning up the 
-> patches to meet your needs that lead to the patch being
-> dropped from the mm series?
-
-It all seems reasonably clean now, but I haven't looked closely (nor have I
-had to)
-
-> kgdb over ethernet is working great, and it looks like there
-> is plenty of support on the SF mailing list.  
-
-good.
-
-> > 
-> > It's a big step.
-> 
-> How about a concrete list of patch quality issues that the group
-> can address to allow your weekly addition to the mm patch as a 
-> set toward eventually integration.
-
->From whom?  me?
-
-> Wouldn't getting kgdb back into the mm patch series be a reasonable
-> first step eventual maintenance in kernel.org?
-
-Is on my todo list somewhere.
+People don't want to have to say "no" to umpteen scsi drivers.  They
+just want to say "no" to SCSI, because they know they don't have scsi.

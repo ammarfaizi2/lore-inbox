@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWHaKgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWHaKka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWHaKgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 06:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHaKgN
+	id S1751434AbWHaKka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 06:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWHaKka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 06:36:13 -0400
-Received: from sperry-01.control.lth.se ([130.235.83.188]:55193 "EHLO
-	sperry-01.control.lth.se") by vger.kernel.org with ESMTP
-	id S1751428AbWHaKgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 06:36:12 -0400
-Message-ID: <44F6BB8A.7090001@control.lth.se>
-Date: Thu, 31 Aug 2006 12:35:54 +0200
-From: Martin Ohlin <martin.ohlin@control.lth.se>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 31 Aug 2006 06:40:30 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:60952 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751434AbWHaKka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 06:40:30 -0400
+Date: Thu, 31 Aug 2006 19:35:28 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, okuji@enbug.org
+Subject: Re: [patch 3/6] fault-injection capability for alloc_pages()
+Message-ID: <20060831103528.GA14783@miraclelinux.com>
+References: <20060831100756.866727476@localhost.localdomain> <20060831100820.697247381@localhost.localdomain> <200608311225.02101.ak@suse.de>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Peter Williams <pwil3058@bigpond.net.au>, balbir@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: A nice CPU resource controller
-References: <44F5AB45.8030109@control.lth.se>	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>	 <44F6365A.8010201@bigpond.net.au>	 <1157007190.6035.14.camel@Homer.simpson.net> <1157010140.18561.23.camel@Homer.simpson.net>
-In-Reply-To: <1157010140.18561.23.camel@Homer.simpson.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608311225.02101.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Thu, 2006-08-31 at 06:53 +0000, Mike Galbraith wrote:
->> On Thu, 2006-08-31 at 11:07 +1000, Peter Williams wrote:
->>
->>> But your implication here is valid.  It is better to fiddle with the 
->>> dynamic priorities than with nice as this leaves nice for its primary 
->>> purpose of enabling the sysadmin to effect the allocation of CPU 
->>> resources based on external considerations.
->> I don't understand.  It _is_ the administrator fiddling with nice based
->> on external considerations.  It just steadies the administrator's hand.
+On Thu, Aug 31, 2006 at 12:25:02PM +0200, Andi Kleen wrote:
+
+> I still think this will need some better filters to be useful. At least
+> a optional uid filter perhaps (make sure to handle the interrupt case
+> correctly, interrupts don't belong to the uid) , and perhaps an option to only 
+> fail GFP_ATOMIC.
+
+I wrote process filter. Please patch 6/6. But I forgot to ignore
+in_interrupt() case.
+
+> With arbitary failing the system will just be unusable, right? Or would
+> you run some system you use this way? @)
 > 
-> When extended to groups, I see your point.  The admin would lose his
-> ability to apportion bandwidth _within_ the group because he's already
-> turned his only knob.  That is going to be just as much of a problem for
-> other methods though, and is just a question of how much complexity you
-> want to pay to achieve fine grained control.
+> Another possibility would be to look up __builtin_return_address(0) in 
+> the module table and allow failing only for a specific module.
 
-I do not see the problem. Let's say I create a group of three tasks and 
-give it 50% of the CPU bandwidth (perhaps by using the same nice value 
-for all the tasks in this group). If I then want to apportion the 
-bandwidth within the group as you say, then the same thing can be done 
-by treating them as individual tasks.
+That will be useful. Thanks.
 
-Maybe I am wrong, but as I see it, if one wants to control on a group 
-level, then the individual shares within the group are not that 
-important. If the individual share is important, then it should be 
-controlled on a per-task level. Please tell me if I am wrong.
-
-/Martin

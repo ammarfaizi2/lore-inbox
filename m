@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWHaPRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWHaPVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWHaPRX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 11:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWHaPRX
+	id S1751655AbWHaPVA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 11:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbWHaPVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 11:17:23 -0400
-Received: from wr-out-0506.google.com ([64.233.184.226]:6151 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751313AbWHaPRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 11:17:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fBFfUS6CjZNV8eo4M2zPz4GeQnoK6iEseoWPThpIS1e/bGWaDBgu/AG12SB/B7L7tw+UfCmUl7ci9dCt7VILJOlzRRg5bWGlBmpeTkRzC0yRnqyqE5+7YLpKA1mwDCJ26T5DUXnsN2XFwo09T19DOf4CIJpgDtbhBSWucjAPvKc=
-Message-ID: <9a8748490608310817v7d722f88u167b5a84d0ff67e8@mail.gmail.com>
-Date: Thu, 31 Aug 2006 17:17:20 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Unable to halt or reboot due to - unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
-Cc: "Mark Evans" <evansmp@uhura.aston.ac.uk>,
-       "Fred N. van Kempen" <waltje@uWalt.NL.Mugnet.ORG>,
-       "Ross Biro" <ross.biro@gmail.com>, davem@davemloft.net,
-       yoshfuji@linux-ipv6.org, "Ben Greear" <greearb@candelatech.com>,
-       netdev@vger.kernel.org
+	Thu, 31 Aug 2006 11:21:00 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47831 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751652AbWHaPU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 11:20:59 -0400
+Message-ID: <44F6FE58.9020701@cs.columbia.edu>
+Date: Thu, 31 Aug 2006 11:20:56 -0400
+From: Shaya Potter <spotter@cs.columbia.edu>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
+To: linux-fsdevel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, unionfs@fsl.cs.sunysb.edu
+Subject: Re: bug in nfs in 2.6.18-rc5?
+References: <44F6F80F.1000202@cs.columbia.edu>
+In-Reply-To: <44F6F80F.1000202@cs.columbia.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Shaya Potter wrote:
+> so I'm trying to use unionfs, cachefs and nfs, as cachefs is 2.6.18-rc5 
+> right now, thats what I'm testing, but I hit an oops.
+> 
+> basically unionfs's lookup does a "lookup_one_len()" on the underlying fs.
+> 
+> lookup_one_len() calls __lookup_hash()
+> 
+> __lookup_hash() is called as "__lookup_hash(&this, base, NULL)"
+> 
+> now that NULL is important.  that's the nameidata entry of __lookup_hash()
+> 
+> __lookup_hash() ends up calling the underlying fs's lookup op, i.e. 
+> nfs_lookup()
+> 
+> nfs_lookup() calls nfs_reval_fsid(nd->mnt, dir, &fhandle, &fattr);
+> 
+> see the bug? :)
+> 
+> This doesn't seem like a unionfs bug, as one should be able to call 
+> lookup_one_len() on an NFS fs.
 
-I've got a small problem with 2.6.18-rc5-git2.
+ok my "fix" is basically that nfs_reval_fsid() uses the nd->mnt to get 
+to mnt->mnt_root.
 
-I've got a vlan setup on eth0.20, eth0 does not have an IP.
+I basically switched it to take a dentry and I call it as
 
-When I attempt to reboot or halt the machine I get the following
-message from the loop in net/core/dev.c::netdev_wait_allrefs() where
-it waits for the ref-count to drop to zero.
-Unfortunately the ref-count stays at 1 forever and the server never
-gets any further.
+nfs_reval_fsid(dentry->d_sb->s_root, dir.....)
 
-  unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
-
-I googled a bit and found that people have had similar problems in the
-past and could work around them by shutting down the vlan interface
-before the 'lo' interface. I tried that and indeed, it works.
-
-Any idea how we can get this fixed?
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+have no clue if this is correct, but it doesn't oops anymore and seems 
+to "work".

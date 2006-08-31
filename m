@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWHaI6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWHaJGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWHaI6X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWHaI6X
+	id S1751051AbWHaJGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 05:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWHaJGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 04:58:23 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:19691 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751051AbWHaI6W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:58:22 -0400
-Date: Thu, 31 Aug 2006 11:55:46 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc4-mm3
-Message-ID: <20060831095546.GA13170@ens-lyon.fr>
-References: <39A055DD9BDD564FAF89ABDA9EB5F58512A76FE4@scsmsx413.amr.corp.intel.com> <20060830111507.B30823@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060830111507.B30823@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 31 Aug 2006 05:06:12 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:41440 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751018AbWHaJGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 05:06:11 -0400
+Subject: Re: [S390] cio: kernel stack overflow.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060830191927.GA8408@osiris.ibm.com>
+References: <20060830124047.GA22276@skybase>
+	 <ed4nih$gb0$2@taverner.cs.berkeley.edu>
+	 <20060830191927.GA8408@osiris.ibm.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Thu, 31 Aug 2006 11:06:07 +0200
+Message-Id: <1157015167.23755.7.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 11:15:08AM -0700, Venkatesh Pallipadi wrote:
-> On Mon, Aug 28, 2006 at 07:00:33PM -0700, Pallipadi, Venkatesh wrote:
-> >  
+On Wed, 2006-08-30 at 21:19 +0200, Heiko Carstens wrote:
+> > >-            cdev->id = (struct ccw_device_id) {
+> > >-                    .cu_type   = cdev->private->senseid.cu_type,
+> > >-                    .cu_model  = cdev->private->senseid.cu_model,
+> > >-                    .dev_type  = cdev->private->senseid.dev_type,
+> > >-                    .dev_model = cdev->private->senseid.dev_model,
+> > >-            };
+> > >+            cdev->id.cu_type   = cdev->private->senseid.cu_type;
+> > >+            cdev->id.cu_model  = cdev->private->senseid.cu_model;
+> > >+            cdev->id.dev_type  = cdev->private->senseid.dev_type;
+> > >+            cdev->id.dev_model = cdev->private->senseid.dev_model;
 > > 
-> > >-----Original Message-----
-> > >From: Benoit Boissinot [mailto:bboissin@gmail.com] 
-> > >Sent: Sunday, August 27, 2006 9:00 AM
-> > >To: Andrew Morton
-> > >Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Brown, Len
-> > >Subject: Re: 2.6.18-rc4-mm3
-> > >
-> > >On 8/27/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >>
-> > >> 
-> > >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
-> > >.6.18-rc4/2.6.18-rc4-mm3/
-> > >>
-> > >>  git-acpi.patch
-> > >
-> > >commit f62d31ee2f2f453b07107465fea54540cab418eb broke my laptop
-> > >(pentium M, dell D600).
-> > >I can reliably get a hard lockup (no sysrq) when modprobing ehci_hcd
-> > >and uhci_hci. It works when reverting the changeset.
-> > >
-> > >I can provide cpuinfo or dmesg if necessary.
-> > >
+> > I don't see any obvious place that zeroes out cdev->id.
+> > In particular, it looks like cdev->id.match_flags and .driver_info
+> > are never cleared (i.e., they retain whatever old garbage they had
+> > before).  More importantly, if anyone ever adds any more fields to
+> > struct ccw_device_id, then they will also be retain old garbage values,
+> > which is a maintenance pitfall.  Is this right, or did I miss something
+> > again?
 > 
-> Attached is the updated patch. Please test it on your system whenever you get
-> a chance. ACPI C-states and /proc/acpi/processor/*/power should show similar
-> numbers with or without this patch. It should not hang as before.
-> 
+> You're right. Thanks for pointing this out! I will take care of it.
 
-It looks like it's running fine! So far I didn't have any hang whereas
-it was completely reproducable before.
+The ccw_device_id structure contains two more fields in addition to the
+field that are set up in ccw_device_recog_done, namely match_flags and
+driver_info. driver_info is set later in ccw_bus_match, so that is fine.
+match_flags of the device is never used, only the match_flags of the
+drivers version of the ccw_device_id is used. So the code is correct
+even without the memset. But your point about the maintenance pitfall is
+valid, we will add a memset after 2.6.18. I don't want to push yet
+another patch.
 
-thanks,
-
-Benoit
 -- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

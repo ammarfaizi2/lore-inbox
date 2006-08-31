@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWHaOVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWHaOUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWHaOVS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 10:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWHaOVS
+	id S932324AbWHaOUq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 10:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWHaOUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 10:21:18 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:48804 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932329AbWHaOVR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 10:21:17 -0400
-Date: Thu, 31 Aug 2006 16:16:46 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 01/16] GFS2: Core header files
-In-Reply-To: <1157030918.3384.785.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0608311607441.5900@yvahk01.tjqt.qr>
-References: <1157030918.3384.785.camel@quoit.chygwyn.com>
+	Thu, 31 Aug 2006 10:20:46 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:35745 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S932324AbWHaOUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 10:20:46 -0400
+Date: Thu, 31 Aug 2006 07:20:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: piet@bluelane.com, Andrew Morton <akpm@osdl.org>,
+       kgdb-bugreport@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       George Anzinger <george@wildturkeyranch.net>, vgoyal@in.ibm.com,
+       Subhachandra Chandra <schandra@bluelane.com>,
+       "Discussion list for crash utility usage, maintenance and development" 
+	<crash-utility@redhat.com>
+Subject: Re: [Kgdb-bugreport] [RFC] [Crash-utility] Patch to use gdb's bt in crash - works	great with kgdb! - KGDB in Linus Kernel.
+Message-ID: <20060831142036.GF23227@smtp.west.cox.net>
+References: <44EC8CA5.789286A@redhat.com> <20060824111259.GB22145@in.ibm.com> <44EDA676.37F12263@redhat.com> <1156966522.29300.67.camel@piet2.bluelane.com> <20060830204032.GD30392@in.ibm.com> <1156974093.29300.103.camel@piet2.bluelane.com> <20060830145300.7d728f6c.rdunlap@xenotime.net> <1156976522.24314.1.camel@piet2.bluelane.com> <p73lkp5578s.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73lkp5578s.fsf@verdi.suse.de>
+Organization: Embedded Alley Solutions, Inc
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->+ *
->+ * This copyrighted material is made available to anyone wishing to use,
->+ * modify, copy, or redistribute it subject to the terms and conditions
->+ * of the GNU General Public License v.2.
->+ */
+On Thu, Aug 31, 2006 at 04:07:15PM +0200, Andi Kleen wrote:
+> Piet Delaney <piet@bluelane.com> writes:
+> > > 
+> > > ENOPATCH
+> > 
+> > Opps. 
+> 
+> What an ugly patch!
+> 
+> But it should be totally obsolete with the unwinder work Jan and me have been
+> doing recently which does this all properly. .18 isn't quite there
+> yet in all cases, but .19 will be hopefully.
 
-"v2" perhaps? From a math pov, the extra dot implies v0.2.
+Indeed.  But quite functional.  Have you guys been doing i386 as well?
+This kind of thing was needed to convince gdb when it really was time to
+stop trying unwind in a few cases, but looks quite bad on x86_64/i386.
+Thankfully getting it to stop on ARM was pretty easy (but it wasn't
+full/true annotations).
 
->+struct gfs2_log_operations;
-
-I would suggest listing only struct lines that are actually required, i.e. the
-compiler would barf without them.
-
->+enum {
->+	/* Actions */
->+	HIF_MUTEX		= 0,
->+	HIF_PROMOTE		= 1,
->+	HIF_DEMOTE		= 2,
->+	HIF_GREEDY		= 3,
-
-I leave it to you whether going with the above or
-
-enum {
-   HIF_MUTEX = 0,
-   HIF_PROMOTE,
-   HIF_DEMOTE,
-   HIF_GREEDY,
-   ...
-};
-
-If these values need to stay the same, for example to maintain on-disk
-compatibility, I prefer the former, though.
-
->+	/* Quota stuff */
->+
->+	struct gfs2_quota_data *al_qd[4];
-
-What four quotas can there be? Use the MAXQUOTAS macro if feasible.
-
->+struct gfs2_quota_lvb {
->+        uint32_t qb_magic;
->+        uint32_t __pad;
->+        uint64_t qb_limit;      /* Hard limit of # blocks to alloc */
->+        uint64_t qb_warn;       /* Warn user when alloc is above this # */
->+        int64_t qb_value;       /* Current # blocks allocated */
->+};
-
-Is this an on-disk structure or why is there a __pad field?
-
-
-
-Jan Engelhardt
 -- 
+Tom Rini

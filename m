@@ -1,121 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWHaPD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWHaPEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWHaPD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 11:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWHaPD1
+	id S932343AbWHaPEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 11:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWHaPEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 11:03:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15315 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932341AbWHaPD0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 11:03:26 -0400
-Subject: Re: [PATCH 01/16] GFS2: Core header files
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0608311607441.5900@yvahk01.tjqt.qr>
-References: <1157030918.3384.785.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0608311607441.5900@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Thu, 31 Aug 2006 16:07:20 +0100
-Message-Id: <1157036840.3384.827.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 31 Aug 2006 11:04:13 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:42191 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932343AbWHaPEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 11:04:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iYXee6oA3eFF4+ZZ4C6+SIdyjBq72ljh72TZkSvz7qrbVkb3UBIaL2skT9io1FzPzw50WJ5wunDj26zabbJf1bxll4JcuTxOQRm9gN8Y3AvMR0VlIego8gPXbVZss2BYMw9yFcyqdDAFQ7Gu9tViPQnYjhKl79q4knaH4c8v/kM=
+Message-ID: <f71aedf40608310804w75728559ma5fd317e16e94b56@mail.gmail.com>
+Date: Thu, 31 Aug 2006 10:04:11 -0500
+From: "madhu chikkature" <crmadhu210@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SDIO card support in Linux
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Thanks for the comments...
+This is regarding the discussion going on in the list about the
+support of SDIO cards in Linux. I read some discussion happening to
+support SDIO cards using the existing Linux MMC core but I could not
+figure out what would be the direction the community to support the
+SDIO cards.
 
-On Thu, 2006-08-31 at 16:16 +0200, Jan Engelhardt wrote:
-> >+ *
-> >+ * This copyrighted material is made available to anyone wishing to use,
-> >+ * modify, copy, or redistribute it subject to the terms and conditions
-> >+ * of the GNU General Public License v.2.
-> >+ */
-> 
-> "v2" perhaps? From a math pov, the extra dot implies v0.2.
-> 
-or you could argue that the addition of a space (i.e. v. 2) would be
-correct since its an abbreviation, but point taken and I'll clean it up
-shortly.
+I have done some work using our own hardware platform runing ARM
+Linux. My hardware platform can support MMC/SD/SDIO cards.
 
-> >+struct gfs2_log_operations;
-> 
-> I would suggest listing only struct lines that are actually required, i.e. the
-> compiler would barf without them.
-> 
-Ok. I'll take a look and see which of them are not required.
+>From the SDIO specification, i understand that we need to add support
+for the following commonds in the MMC core to support SDIO cards.
 
-> >+enum {
-> >+	/* Actions */
-> >+	HIF_MUTEX		= 0,
-> >+	HIF_PROMOTE		= 1,
-> >+	HIF_DEMOTE		= 2,
-> >+	HIF_GREEDY		= 3,
-> 
-> I leave it to you whether going with the above or
-> 
-> enum {
->    HIF_MUTEX = 0,
->    HIF_PROMOTE,
->    HIF_DEMOTE,
->    HIF_GREEDY,
->    ...
-> };
-> 
-> If these values need to stay the same, for example to maintain on-disk
-> compatibility, I prefer the former, though.
-> 
-They are not on-disk visible (they'd in in gfs2_ondisk.h otherwise) but
-we may well want to change them as I think it should be possible to
-merge the gh_flags and gh_iflags fields in the struct gfs2_holder to
-save a bit of space.
+IO_SEND_OP_COND -- CMD5 --- This command is very much simillar to CMD1 of MMC.
 
-> >+	/* Quota stuff */
-> >+
-> >+	struct gfs2_quota_data *al_qd[4];
-> 
-> What four quotas can there be? Use the MAXQUOTAS macro if feasible.
-> 
-Its related to the way the GFS2's fuzzy quota system works. In order to
-avoid contention on a global quota structure, each node has its own
-which is synced back to the master one from time to time. This is done
-according to user specified constants and more frequently in the case of
-users nearing their quota. In the default case this means that no user
-can exceed their quota by more than twice, in practice a user would have
-to work very hard to manage even that.
+CMD3 of MMC can be reused during the discover cards phase, except that
+the card will respond back with the RCA.
 
-As a result there are the overall user/group limits and the local
-differences which are saved to by synced back to the master quota
-information, hence four of them.
+IO_RW_DIRECT -- CMD52
+IO_RW_EXTENDED -- CMD53
+The above two are data transfer commands. CMD52 does not use data
+lines. This command can be used to read/write 1 byte of data on the
+CMD line.
 
-> >+struct gfs2_quota_lvb {
-> >+        uint32_t qb_magic;
-> >+        uint32_t __pad;
-> >+        uint64_t qb_limit;      /* Hard limit of # blocks to alloc */
-> >+        uint64_t qb_warn;       /* Warn user when alloc is above this # */
-> >+        int64_t qb_value;       /* Current # blocks allocated */
-> >+};
-> 
-> Is this an on-disk structure or why is there a __pad field?
-> 
-> 
-> 
-> Jan Engelhardt
+CMD53 is equavalent to CMD17/CMD18/CMD24/CMD25 of MMC to read/write
+data on data lines.
 
-It isn't an on-disk structure, on the other hand  we treat it as one. It
-probably ought to be changed to use __be types. Its the structure which
-the quota code keeps in the lock value block of DLM locks, so it is
-directly shared between nodes, hence the need to treat it the same as
-the on-disk structures in terms of making any changes to it, and keeping
-it aligned, and of defined byte order etc,
+The SDIO spec only exposes a few set of registers called CARD COMMON
+CONTROL REGISTERS which are common to all types of SDIO cards.
 
-Steve.
+Functionality specific SDIO card registers are left to the vendor to describe.
 
+With this, is it a fissible solution to have the MMC core do the
+initialization part of the card by having the CMD sequence for SDIO
+card (CMD5 and CMD3) in the mmc_setup sequence and maintain the SDIO
+card list along with MMC/SD?
 
+The CMD52 and CMD53 can be implemented with a simple pointer to
+mmc_data structure(An instance of it for SDIO) to send and receive
+data. Exporting the functions that implement CMD52 and CMD53 need to
+be done, so that any card specific driver sitting on the top of the
+MMC core can call these functions to read/write data from the card and
+configure the card.
+
+Couple of issues i faced are, how do we maintain the list of SDIO
+cards? Right now, i am not adding it to the list of MMC cards. SDIO
+combo cards need more work.
+
+Second issue is related to how well the data transfer commands can be
+supported in such a way that the middleware, which does not exist as
+of today to hook the SDIO cards to specific Linux subsystems based on
+the type of the SDIO cards detected, for exaple WLAN SDIO card may
+need to talk to the networking subsystem etc.
+
+I am leaving the SDIO generic interrupts to the card specific driver.
+With this setup and few additions to the MMC controller driver, i
+could get the SDIO cards to be detected and i am able to read and
+write data from the SDIO card CCCR registers.In fact the MMC/SD and
+SDIO cards can co-exist.
+
+Does this provide a basic support on which SDIO support can be worked
+on? or does community have any other idea?
+
+SD support came in at 2.6.14 times and many people still does not have
+access to SD specification easily. Is there any such issues related to
+SDIO as well which might prevent the community from supporting SDIO
+cards?
+
+Please let me know views on this.
+
+Regards,
+Madhu

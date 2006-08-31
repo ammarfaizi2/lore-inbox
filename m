@@ -1,163 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWHaBFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHaBHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWHaBFB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 21:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWHaBFB
+	id S932283AbWHaBHm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 21:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWHaBHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 21:05:01 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:53456 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932279AbWHaBFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 21:05:00 -0400
-Date: Wed, 30 Aug 2006 18:05:04 -0700
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>,
-       video4linux-list@redhat.com, kraxel@bytesex.org, haveblue@us.ibm.com,
-       serue@us.ibm.com, Containers@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] kthread: tvaudio.c
-Message-ID: <20060831010504.GB2198@us.ibm.com>
-References: <20060829211555.GB1945@us.ibm.com> <20060829143902.a6aa2712.akpm@osdl.org> <44F5BD23.3000209@fr.ibm.com> <20060830094943.bad0d618.akpm@osdl.org> <1156959402.3852.82.camel@praia>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156959402.3852.82.camel@praia>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.0.32 on an i486
+	Wed, 30 Aug 2006 21:07:42 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:28267 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932283AbWHaBHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Aug 2006 21:07:41 -0400
+Message-ID: <44F6365A.8010201@bigpond.net.au>
+Date: Thu, 31 Aug 2006 11:07:38 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Martin Ohlin <martin.ohlin@control.lth.se>, linux-kernel@vger.kernel.org
+Subject: Re: A nice CPU resource controller
+References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+In-Reply-To: <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.128.202] using ID pwil3058@bigpond.net.au at Thu, 31 Aug 2006 01:07:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Balbir Singh wrote:
+> On 8/30/06, Martin Ohlin <martin.ohlin@control.lth.se> wrote:
+>> To those interested
+>>
+>> I have been working on a CPU resource controller using the nice value as
+>> a control signal. At the moment, the control is done on a
+>> per-task-level, but I have plans to extend it to groups of tasks. The
+>> control is based on a PI-controller (Proportional, Integral), using an
+>> execution time measurement as input to the controller, and the output
+>> from the controller as nice value.
+>>
+> 
+> The CKRM e-series is a PID based CPU Controller. It did a good job of
+> controlling and smoothing out the load (and variations) and even
+> worked with groups. But it achieved all this through some amount of
+> complexity. How do you plan to extend the idea to groups? Do you have
+> any code that we can look at?
+> 
+> I do not understand controlling the nice value? Most cpu control the
+> bandwidth/time - are there any advantages to controlling the nice
+> value?
 
-Replaced kernel_thread() with kthread_run() since kernel_thread() is
-deprecated in drivers/modules.
+Trying to control CPU allocations purely using time allocations will 
+only work well for CPU bound processes.  Furthermore, the faster CPUs 
+become the more this will be the case.
 
-Removed the completion and the wait queue which are now useless with
-kthread. Also removed the allow_signal() call as signals don't apply
-to kernel threads.
+> How does this interplay with dynamic priorities that the
+> scheduler currently maintains?
 
-Fixed a small race condition when thread is stopped.
+But your implication here is valid.  It is better to fiddle with the 
+dynamic priorities than with nice as this leaves nice for its primary 
+purpose of enabling the sysadmin to effect the allocation of CPU 
+resources based on external considerations.  Having said that I would 
+also opine that the basic mechanism this author uses to fiddle the nice 
+values could be applied to the dynamic priorities instead with the key 
+difference being that nice can be fiddled from outside the scheduler but 
+you really need to be inside the scheduler to fiddle with dynamic 
+priorities.
 
-Please check if the timer vs. thread still works fine without the wait
-queue.
+> 
+>> Using the controller, it is possible to make CPU reservations that in a
+>> soft way guarante that tasks achieve as much resources as the
+>> corresponding reference indicates.
+>>
+>> For those interested, the concept is described in more detail along with
+>> experiments in the first part of my thesis available at:
+>> http://www.control.lth.se/database/publications/article.pike?artkey=ohlin06lic 
+>>
+> 
+> Read one more paper - time
+> 
+> Balbir
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>
-Cc: Serge Hallyn <serue@us.ibm.com>
-Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Containers@lists.osdl.org
-Cc: video4linux-list@redhat.com
-Cc: v4l-dvb-maintainer@linuxtv.org
 
- drivers/media/video/tvaudio.c |   42 ++++++++++++++++--------------------------
- 1 files changed, 16 insertions(+), 26 deletions(-)
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Index: lx26-18-rc5/drivers/media/video/tvaudio.c
-===================================================================
---- lx26-18-rc5.orig/drivers/media/video/tvaudio.c	2006-08-29 14:02:44.000000000 -0700
-+++ lx26-18-rc5/drivers/media/video/tvaudio.c	2006-08-30 17:52:17.000000000 -0700
-@@ -28,6 +28,7 @@
- #include <linux/i2c-algo-bit.h>
- #include <linux/init.h>
- #include <linux/smp_lock.h>
-+#include <linux/kthread.h>
-
- #include <media/tvaudio.h>
- #include <media/v4l2-common.h>
-@@ -124,11 +125,8 @@ struct CHIPSTATE {
- 	int input;
-
- 	/* thread */
--	pid_t                tpid;
--	struct completion    texit;
--	wait_queue_head_t    wq;
-+	struct task_struct   *thread;
- 	struct timer_list    wt;
--	int                  done;
- 	int                  watch_stereo;
- 	int 		     audmode;
- };
-@@ -264,28 +262,23 @@ static int chip_cmd(struct CHIPSTATE *ch
- static void chip_thread_wake(unsigned long data)
- {
- 	struct CHIPSTATE *chip = (struct CHIPSTATE*)data;
--	wake_up_interruptible(&chip->wq);
-+	wake_up_process(chip->thread);
- }
-
- static int chip_thread(void *data)
- {
--	DECLARE_WAITQUEUE(wait, current);
- 	struct CHIPSTATE *chip = data;
- 	struct CHIPDESC  *desc = chiplist + chip->type;
-
--	daemonize("%s", chip->c.name);
--	allow_signal(SIGTERM);
- 	v4l_dbg(1, debug, &chip->c, "%s: thread started\n", chip->c.name);
-
- 	for (;;) {
--		add_wait_queue(&chip->wq, &wait);
--		if (!chip->done) {
--			set_current_state(TASK_INTERRUPTIBLE);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		if (!kthread_should_stop())
- 			schedule();
--		}
--		remove_wait_queue(&chip->wq, &wait);
-+		set_current_state(TASK_RUNNING);
- 		try_to_freeze();
--		if (chip->done || signal_pending(current))
-+		if (kthread_should_stop())
- 			break;
- 		v4l_dbg(1, debug, &chip->c, "%s: thread wakeup\n", chip->c.name);
-
-@@ -301,7 +294,6 @@ static int chip_thread(void *data)
- 	}
-
- 	v4l_dbg(1, debug, &chip->c, "%s: thread exiting\n", chip->c.name);
--	complete_and_exit(&chip->texit, 0);
- 	return 0;
- }
-
-@@ -1536,19 +1528,18 @@ static int chip_attach(struct i2c_adapte
- 		chip_write(chip,desc->treblereg,desc->treblefunc(chip->treble));
- 	}
-
--	chip->tpid = -1;
-+	chip->thread = NULL;
- 	if (desc->checkmode) {
- 		/* start async thread */
- 		init_timer(&chip->wt);
- 		chip->wt.function = chip_thread_wake;
- 		chip->wt.data     = (unsigned long)chip;
--		init_waitqueue_head(&chip->wq);
--		init_completion(&chip->texit);
--		chip->tpid = kernel_thread(chip_thread,(void *)chip,0);
--		if (chip->tpid < 0)
--			v4l_warn(&chip->c, "%s: kernel_thread() failed\n",
-+		chip->thread = kthread_run(chip_thread, chip, chip->c.name);
-+		if (IS_ERR(chip->thread)) {
-+			v4l_warn(&chip->c, "%s: failed to create kthread\n",
- 			       chip->c.name);
--		wake_up_interruptible(&chip->wq);
-+			chip->thread = NULL;
-+		}
- 	}
- 	return 0;
- }
-@@ -1569,11 +1560,10 @@ static int chip_detach(struct i2c_client
- 	struct CHIPSTATE *chip = i2c_get_clientdata(client);
-
- 	del_timer_sync(&chip->wt);
--	if (chip->tpid >= 0) {
-+	if (chip->thread) {
- 		/* shutdown async thread */
--		chip->done = 1;
--		wake_up_interruptible(&chip->wq);
--		wait_for_completion(&chip->texit);
-+		kthread_stop(chip->thread);
-+		chip->thread = NULL;
- 	}
-
- 	i2c_detach_client(&chip->c);
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

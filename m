@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWHaKap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWHaKgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWHaKap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 06:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWHaKap
+	id S1751428AbWHaKgN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 06:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWHaKgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 06:30:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59863 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751087AbWHaKao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 06:30:44 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060830211203.GA12953@us.ibm.com> 
-References: <20060830211203.GA12953@us.ibm.com>  <20060825221615.GA11613@us.ibm.com> <20060824182044.GE17658@us.ibm.com> <20060824181722.GA17658@us.ibm.com> <22796.1156542677@warthog.cambridge.redhat.com> <27154.1156546746@warthog.cambridge.redhat.com> 
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+	Thu, 31 Aug 2006 06:36:13 -0400
+Received: from sperry-01.control.lth.se ([130.235.83.188]:55193 "EHLO
+	sperry-01.control.lth.se") by vger.kernel.org with ESMTP
+	id S1751428AbWHaKgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 06:36:12 -0400
+Message-ID: <44F6BB8A.7090001@control.lth.se>
+Date: Thu, 31 Aug 2006 12:35:54 +0200
+From: Martin Ohlin <martin.ohlin@control.lth.se>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Peter Williams <pwil3058@bigpond.net.au>, balbir@in.ibm.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 31 Aug 2006 11:30:31 +0100
-Message-ID: <10689.1157020231@warthog.cambridge.redhat.com>
+Subject: Re: A nice CPU resource controller
+References: <44F5AB45.8030109@control.lth.se>	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>	 <44F6365A.8010201@bigpond.net.au>	 <1157007190.6035.14.camel@Homer.simpson.net> <1157010140.18561.23.camel@Homer.simpson.net>
+In-Reply-To: <1157010140.18561.23.camel@Homer.simpson.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Mike Galbraith wrote:
+> On Thu, 2006-08-31 at 06:53 +0000, Mike Galbraith wrote:
+>> On Thu, 2006-08-31 at 11:07 +1000, Peter Williams wrote:
+>>
+>>> But your implication here is valid.  It is better to fiddle with the 
+>>> dynamic priorities than with nice as this leaves nice for its primary 
+>>> purpose of enabling the sysadmin to effect the allocation of CPU 
+>>> resources based on external considerations.
+>> I don't understand.  It _is_ the administrator fiddling with nice based
+>> on external considerations.  It just steadies the administrator's hand.
+> 
+> When extended to groups, I see your point.  The admin would lose his
+> ability to apportion bandwidth _within_ the group because he's already
+> turned his only knob.  That is going to be just as much of a problem for
+> other methods though, and is just a question of how much complexity you
+> want to pay to achieve fine grained control.
 
-> Note that I used to depend on iget() to wind up calling
-> ecryptfs_read_inode(); it looks like iget5_locked() does not make that
-> call,
+I do not see the problem. Let's say I create a group of three tasks and 
+give it 50% of the CPU bandwidth (perhaps by using the same nice value 
+for all the tasks in this group). If I then want to apportion the 
+bandwidth within the group as you say, then the same thing can be done 
+by treating them as individual tasks.
 
-Exactly so.  iget5_locked() returns with a new inode in a partially
-constructed state, thus obviating the need for read_inode().  If you look at
-the implementation of iget():
+Maybe I am wrong, but as I see it, if one wants to control on a group 
+level, then the individual shares within the group are not that 
+important. If the individual share is important, then it should be 
+controlled on a per-task level. Please tell me if I am wrong.
 
-	static inline struct inode *iget(struct super_block *sb,
-					 unsigned long ino)
-	{
-		struct inode *inode = iget_locked(sb, ino);
-
-		if (inode && (inode->i_state & I_NEW)) {
-			sb->s_op->read_inode(inode);
-			unlock_new_inode(inode);
-		}
-
-		return inode;
-	}
-
-You can see that read_inode() is _only_ used there and can be dispensed with
-if you're using iget_locked() or iget5_locked() directly.  This gives you more
-control over what data you have available when initialising an inode.
-
-> +	inode = iget5_locked(sb, lower_inode->i_ino, ecryptfs_inode_test,
-> +			     ecryptfs_inode_set, lower_inode);
-
-The second argument of iget5_locked() is a hash value.  I would use
-lower_inode not lower_inode->i_ino as the former is fundamental to your search
-and the latter irrelevant.
-
-> +	inode->i_ino = lower_inode->i_ino;
-> +	if (inode->i_state & I_NEW) {
-> +		ecryptfs_init_inode(inode);
-> +		unlock_new_inode(inode);
-> +	}
-
-Shouldn't the setting of i_ino be inside the if-statement?
-
-You should set the lower inode pointer in ecryptfs_inode_set() so that the
-ecryptfs inode is linked to the lower inode whilst inode_lock is held (see
-get_new_inode()).  You could also set i_ino there too.  Consider this bit of
-pseudocode:
-
-	int ecryptfs_inode_set(struct inode *inode, void *lower_inode)
-	{
-		ecryptfs_set_lower_inode(inode, lower_inode);
-		inode->i_ino = lower_inode->i_ino;
-		return 0;
-	}
-
-David
+/Martin

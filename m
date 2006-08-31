@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWHaOUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWHaOav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWHaOUq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 10:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWHaOUq
+	id S932334AbWHaOav (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 10:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWHaOav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 10:20:46 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:35745 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S932324AbWHaOUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 10:20:46 -0400
-Date: Thu, 31 Aug 2006 07:20:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: piet@bluelane.com, Andrew Morton <akpm@osdl.org>,
-       kgdb-bugreport@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       George Anzinger <george@wildturkeyranch.net>, vgoyal@in.ibm.com,
-       Subhachandra Chandra <schandra@bluelane.com>,
-       "Discussion list for crash utility usage, maintenance and development" 
-	<crash-utility@redhat.com>
-Subject: Re: [Kgdb-bugreport] [RFC] [Crash-utility] Patch to use gdb's bt in crash - works	great with kgdb! - KGDB in Linus Kernel.
-Message-ID: <20060831142036.GF23227@smtp.west.cox.net>
-References: <44EC8CA5.789286A@redhat.com> <20060824111259.GB22145@in.ibm.com> <44EDA676.37F12263@redhat.com> <1156966522.29300.67.camel@piet2.bluelane.com> <20060830204032.GD30392@in.ibm.com> <1156974093.29300.103.camel@piet2.bluelane.com> <20060830145300.7d728f6c.rdunlap@xenotime.net> <1156976522.24314.1.camel@piet2.bluelane.com> <p73lkp5578s.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73lkp5578s.fsf@verdi.suse.de>
-Organization: Embedded Alley Solutions, Inc
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 31 Aug 2006 10:30:51 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:61831 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S932331AbWHaOat
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 10:30:49 -0400
+Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
+From: David Safford <safford@watson.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Mimi Zohar <zohar@us.ibm.com>, Crispin Cowan <crispin@novell.com>,
+       David Safford <safford@us.ibm.com>, kjhall@us.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       linux-security-module-owner@vger.kernel.org,
+       Serge E Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060830234627.GM3923@elf.ucw.cz>
+References: <20060830225950.GI3923@elf.ucw.cz>
+	 <OF47A7AF49.EC4403C3-ON852571DA.00818B73-852571DA.006C6E56@us.ibm.com>
+	 <20060830234627.GM3923@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 10:30:45 -0400
+Message-Id: <1157034645.2724.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 04:07:15PM +0200, Andi Kleen wrote:
-> Piet Delaney <piet@bluelane.com> writes:
-> > > 
-> > > ENOPATCH
-> > 
-> > Opps. 
+On Thu, 2006-08-31 at 01:46 +0200, Pavel Machek wrote:
+> So... will I be able to set ~/.ssh/private_key to USER-SENSITIVE and
+> still use ssh to log in to remove machines? Will trojans coming from
+> network be able to read that file?
 > 
-> What an ugly patch!
-> 
-> But it should be totally obsolete with the unwinder work Jan and me have been
-> doing recently which does this all properly. .18 isn't quite there
-> yet in all cases, but .19 will be hopefully.
+> I do not think see how that can work... because ssh accesses network,
+> and needs to know my private_key.
+> 								Pavel
 
-Indeed.  But quite functional.  Have you guys been doing i386 as well?
-This kind of thing was needed to convince gdb when it really was time to
-stop trying unwind in a few cases, but looks quite bad on x86_64/i386.
-Thankfully getting it to stop on ARM was pretty easy (but it wasn't
-full/true annotations).
+In an earlier post, I briefly mentioned using restructuring or a TPM 
+for the ssh case, but I didn't explain it well at all. I'll try to 
+do better:
 
--- 
-Tom Rini
+You are absolutely correct that with the existing ssh implementation,
+simply labeling an ssh private key as USER-SENSITIVE would be safe,
+but would prevent ssh from writing to the PUBLIC network, which would 
+cause it to fail. 
+
+You could then make the ssh executable a secrecy guard, so that it
+could read the private keys, and still write to the PUBLIC network,
+but then, if the ssh process is compromised, the keys could be
+leaked. This is still much better than discretionary access control, 
+as it prevents all other programs which are not explicitly labeled 
+as a secrecy guard from giving the keys away, but by making ssh a guard, 
+you are explicitly allowing it to access sensitive data and still
+talk on a public connection. This is the inherent behavior of any 
+mandatory access control system; you label things and then either 
+allow access, or not.
+
+One approach is then to minimize the amount of code you have to trust,
+by restructuring the application. In the case of ssh, you could 
+separate out the code that uses the private key to do the actual
+public key decryption into a small separate program, which has
+to be trusted, and keep the rest of ssh, which handles the bulk
+of the untrusted data, in a large untrusted program. Postfix 
+(www.postfix.org) is an excellent example of restructuring a large 
+monolithic program like sendmail, into small isolated components, 
+for better security and robustness, and this application structuring
+complements MAC systems by reducing the trust granularities.
+
+A better approach is to not let _any_ software see the private key, 
+by using a hardware device, such as a TPM, to create the private key
+in the first place, and to do the actual public key operation. 
+(http://sourceforge.net/projects/trousers/ has open source applications
+and libraries for TPM based openssl and pkcs11 crypto.) Then, even if ssh 
+is compromised, it can't give the private key away. 
+
+The bottom line is that mandatory access control helps significantly by
+preventing any other application from leaking the ssh keys, and by 
+forcing you to designate ssh as trusted not to leak the keys. But
+once you designate ssh as trusted, then it is up to other security 
+techniques, such as structuring, and hardware to protect the keys
+further.
+
+dave
+
+
+
+
+
+

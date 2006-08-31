@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWHaQEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWHaQL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWHaQEd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHaQEd
+	id S932351AbWHaQL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHaQL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:04:33 -0400
-Received: from gw.goop.org ([64.81.55.164]:30855 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932353AbWHaQEc (ORCPT
+	Thu, 31 Aug 2006 12:11:59 -0400
+Received: from gw.goop.org ([64.81.55.164]:2221 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932351AbWHaQL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:04:32 -0400
-Message-ID: <44F7088D.7010700@goop.org>
-Date: Thu, 31 Aug 2006 09:04:29 -0700
+	Thu, 31 Aug 2006 12:11:58 -0400
+Message-ID: <44F70A4B.4090803@goop.org>
+Date: Thu, 31 Aug 2006 09:11:55 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-To: Ian Campbell <Ian.Campbell@XenSource.com>
-CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 7/8] Implement smp_processor_id() with the PDA.
-References: <20060830235201.106319215@goop.org>	 <20060831000515.338336117@goop.org> <1157027758.12949.327.camel@localhost.localdomain>
-In-Reply-To: <1157027758.12949.327.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Pavel Machek <pavel@suse.cz>
+CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: cpu_init is called during resume
+References: <20060831135545.GM3923@elf.ucw.cz>
+In-Reply-To: <20060831135545.GM3923@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Campbell wrote:
-> This doesn't compile for me if CONFIG_SMP=n
+Pavel Machek wrote:
+> cpu_init() is called during resume, at time when GFP_KERNEL is not
+> available. This silences warning, and adds few small cleanups.
 >   
 
-Ah, good point.
+I presume this is resume from disk.  If you're doing resume from RAM, 
+all the CPU-related stuff should already be allocated, unless you're 
+bringing up a new CPU which wasn't previously there, right?
 
->           LD      .tmp_vmlinux1
->         arch/i386/kernel/built-in.o: In function `cpu_init':
->         (.init.text+0x1eda): undefined reference to `early_smp_processor_id'
->         arch/i386/kernel/built-in.o: In function `cpu_init':
->         (.init.text+0x1f11): undefined reference to `early_smp_processor_id'
->         
-> smp_processor_id() is defined for !SMP in include/linux/smp.h, I don't
-> know if it would be appropriate to add early_smp_processor_id() there
-> since it seems i386 specific. asm/smp.h isn't included by linux/smp.h
-> when !SMP but you could add an explicit include to common.c I suppose.
->   
+What's the call path for this on resume?  In my i386-pda patches, I've 
+rearranged this so that the secondary CPU's GDT (and PDA) are 
+pre-allocated on the boot CPU.  Does this help this case, or would they 
+still need to be atomic allocations?
 
-I'll have a look.
-
-I think my preferred solution would be to get rid of all the early* 
-stuff, and try to arrange to have the PDA set up before C code gets 
-run.  For the boot CPU, it really could be done statically (I'm not 
-quite sure why the boot CPU's GDT is allocated, given that it already 
-has a static one; I think this might have been a Xen-related change?).  
-The secondary CPUs could have their GDT+PDA completely allocated and 
-initialized in advance, making secondary CPU PDA setup just a matter of 
-doing lgdt and setting %gs in head.S, even before hitting C code.
+And wouldn't making these allocations atomic make real CPU hotplug (ie, 
+on an active, running system) more likely to fail?  This code doesn't 
+deal with allocation failure very elegantly.
 
     J

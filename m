@@ -1,133 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWHaL5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHaL7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWHaL5G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 07:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWHaL5G
+	id S1751413AbWHaL7N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 07:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWHaL7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 07:57:06 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:42161 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S932100AbWHaL5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 07:57:04 -0400
-Message-ID: <44F6CE76.8080307@uni-hd.de>
-Date: Thu, 31 Aug 2006 13:56:38 +0200
-From: Martin Braun <mbraun@uni-hd.de>
-Reply-To: mbraun@uni-hd.de
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: unable to handle kernel paging request at virtual address 00100104
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Aug 2006 07:59:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:8892 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750727AbWHaL7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 07:59:12 -0400
+Date: Thu, 31 Aug 2006 06:59:07 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Pavel <xemul@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Serge Hallyn <serue@us.ibm.com>, ebiederm@xmission.com, clg@fr.ibm.com,
+       Kirill Korotaev <dev@openvz.org>
+Subject: Re: [PATCH] nsproxy cloning error path fix
+Message-ID: <20060831115906.GA26365@sergelap.austin.ibm.com>
+References: <44F6B846.9090405@openvz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44F6B846.9090405@openvz.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-since our kernel-update from 2.6.16 (which was runnig 100d w/o any
-probs) to 2.6.17.11
+Quoting Pavel (xemul@openvz.org):
+> This patch fixes copy_namespaces()'s error path.
+> 
+> when new nsproxy (new_ns) is created pointers to namespaces (ipc, uts)
+> are copied from the old nsproxy. Later in copy_utsname, copy_ipcs, etc.
+> according namespaces are get-ed. On error path needed namespaces are
+> put-ed, so there's no need to put new nsproxy itelf as it woud cause
+> putting namespaces for the second time.
+> 
+> Found when incorporating namespaces into OpenVZ kernel.
+> 
+> Signed-off-by: Pavel Emelianov <xemul@openvz.org>
 
-we had last week two crashes on our squid and samba server.
-the kernel gets only to this output than freezes totally ...
+Acked-by: Serge Hallyn <serue@us.ibm.com>
 
-Aug 31 13:05:08 serv4 kernel: BUG: unable to handle kernel paging
-request at virtual address 00100104
-Aug 31 13:05:08 serv4 kernel:  printing eip:
-Aug 31 13:05:08 serv4 kernel: c0127b19
+> ---
+> 
+>  nsproxy.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- ./kernel/nsproxy.c.veboot	2006-08-30 17:48:59.000000000 +0400
+> +++ ./kernel/nsproxy.c	2006-08-31 10:54:56.000000000 +0400
+> @@ -115,7 +115,7 @@ out_uts:
+>  		put_namespace(new_ns->namespace);
+>  out_ns:
+>  	tsk->nsproxy = old_ns;
+> -	put_nsproxy(new_ns);
+> +	kfree(new_ns);
+>  	goto out;
+>  }
 
+Yes, thanks.
 
-in System.map I have these corresponding addresses
+The logic has subtly changed since the last version I'd sent out.  I
+have tests which should have caught this, and need to start firing off
+jobs to periodically test them against -mm.
 
-c0127a50 T find_user
-c0127ad0 T free_uid
-c0127b60 T alloc_uid
-c0127ca0 T switch_uid
-c0127cd0 t sig_ignored
+In fact I notice that it is currently no longer putting old_ns on the
+error path.  Seems to me the following patch should be needed on top
+of yours.
 
-can anyone help?
-System-data:
+Meanwhile I'll start firing off a test against v2.6.18-rc4-mm3.
 
-uname -a
-Linux serv4 2.6.17.11 #1 SMP Sun Aug 27 13:39:34 CEST 2006 i686 i686
-i386 GNU/Linux
-####
-lspci
-0000:00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory
-Controller Hub (rev 02)
-0000:00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP
-Controller (rev 02)
-0000:00:03.0 PCI bridge: Intel Corporation 82875P/E7210 Processor to PCI
-to CSA Bridge (rev 02)
-0000:00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
-Interface Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-IDE Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus
-Controller (rev 02)
-0000:00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER
-(ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon
-RV100 QY [Radeon 7000/VE]
-0000:02:01.0 Ethernet controller: Intel Corporation 82547EI Gigabit
-Ethernet Controller (LOM)
-0000:03:03.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A
-IEEE-1394a-2000 Controller (PHY/Link)
-0000:03:04.0 RAID bus controller: Promise Technology, Inc. PDC20378
-(FastTrak 378/SATA 378) (rev 02)
-0000:03:0a.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
-###
-cat /proc/cpuinfo
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 5
-cpu MHz         : 2806.922
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5613.24
+thanks,
+-serge
 
-###
-cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: Arena EX Model:                  Rev:
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: FUJITSU  Model: MAP3735NP        Rev: 0108
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 08 Lun: 00
-  Vendor: FUJITSU  Model: MAP3735NP        Rev: 0108
-  Type:   Direct-Access                    ANSI SCSI revision: 03
+>From c4d187c3c1534c22e7879d52eeceed55412c9559 Mon Sep 17 00:00:00 2001
+From: Serge E. Hallyn <serue@us.ibm.com>
+Date: Thu, 31 Aug 2006 06:54:15 -0500
+Subject: [PATCH 1/1] nsproxy: free the old_ns on copy_namespaces error
 
-###
-Filesystem: ext3
+copy_namespaces increments the usage count on old_ns at top.
+On successful exit it properly decrements that usage count.
+On error path it failed to do so.
 
-tia,
-martin
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ kernel/nsproxy.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
+index e25d97c..575155a 100644
+--- a/kernel/nsproxy.c
++++ b/kernel/nsproxy.c
+@@ -121,6 +121,7 @@ out_uts:
+ out_ns:
+ 	tsk->nsproxy = old_ns;
+ 	kfree(new_ns);
++	put_nsproxy(old_ns);
+ 	goto out;
+ }
+ 
+-- 
+1.4.2
 

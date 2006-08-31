@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWHaEoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWHaEpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWHaEoG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 00:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWHaEoG
+	id S1751172AbWHaEpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 00:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWHaEpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 00:44:06 -0400
-Received: from mail.gmx.net ([213.165.64.20]:48076 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751132AbWHaEoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 00:44:03 -0400
-X-Authenticated: #14349625
-Subject: Re: A nice CPU resource controller
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: balbir@in.ibm.com, Martin Ohlin <martin.ohlin@control.lth.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44F6365A.8010201@bigpond.net.au>
-References: <44F5AB45.8030109@control.lth.se>
-	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
-	 <44F6365A.8010201@bigpond.net.au>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 06:53:10 +0000
-Message-Id: <1157007190.6035.14.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 31 Aug 2006 00:45:51 -0400
+Received: from web60520.mail.yahoo.com ([209.73.178.168]:7051 "HELO
+	web60520.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751172AbWHaEpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 00:45:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Lz2osA3QAz57gdi9oF5OeROz7EmxFYe9CBj8FJXOQvCLS/+IpX/daUgTa73qoMVPgcMBl/tSPr5lUiNAhOO5f9pIRM8KzrpjC/a7tKEK0y21dcXwh1pspyppkfdqOM/X6hxI3zo/BcSO3f2QjDQKvC4fV041lGXmngwT75lUvNE=  ;
+Message-ID: <20060831044549.96701.qmail@web60520.mail.yahoo.com>
+Date: Wed, 30 Aug 2006 21:45:49 -0700 (PDT)
+From: mhb <badrpayam@yahoo.com>
+Subject: question about  2.4.32
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 11:07 +1000, Peter Williams wrote:
+hello to all list members
 
-> But your implication here is valid.  It is better to fiddle with the 
-> dynamic priorities than with nice as this leaves nice for its primary 
-> purpose of enabling the sysadmin to effect the allocation of CPU 
-> resources based on external considerations.
+I use 2.4.32 kernel.
 
-I don't understand.  It _is_ the administrator fiddling with nice based
-on external considerations.  It just steadies the administrator's hand.
+when the system is running in the network, after some
+days It's hard disk will be crashed.
+this is where, I convert It's filesystem from ext2 to
+ext3 by "tune2fs" command.
 
-	-Mike
+by the way during the bootup, I see the following
+message  on the console :
 
+  host/uhci.c : d800 : host controller halted. very bad
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

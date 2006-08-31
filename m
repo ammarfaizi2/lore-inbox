@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWHaIz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWHaI5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWHaIz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWHaIz3
+	id S1751378AbWHaI5b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 04:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWHaI5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 04:55:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32184 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750801AbWHaIz2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:55:28 -0400
-Date: Thu, 31 Aug 2006 01:54:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>
-Cc: Yao Fei Zhu <walkinair@cn.ibm.com>, linux-kernel@vger.kernel.org,
-       haveblue@us.ibm.com, xfs@oss.sgi.com
-Subject: Re: kernel BUG in __xfs_get_blocks at
- fs/xfs/linux-2.6/xfs_aops.c:1293!
-Message-Id: <20060831015430.6df0d8ba.akpm@osdl.org>
-In-Reply-To: <20060831081726.GV5737019@melbourne.sgi.com>
-References: <44F67847.6030307@cn.ibm.com>
-	<20060831074742.GD807830@melbourne.sgi.com>
-	<44F6979C.4070309@cn.ibm.com>
-	<20060831081726.GV5737019@melbourne.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 31 Aug 2006 04:57:31 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:25758 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1750823AbWHaI5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 04:57:30 -0400
+Message-ID: <44F6A385.9090508@s5r6.in-berlin.de>
+Date: Thu, 31 Aug 2006 10:53:25 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Shaya Potter <spotter@cs.columbia.edu>
+CC: Matthew Wilcox <matthew@wil.cx>, John Stoffel <john@stoffel.org>,
+       Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block	layer
+ [try #2]
+References: <20060829115138.GA32714@infradead.org>	 <20060825142753.GK10659@infradead.org>	 <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>	 <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>	 <10117.1156522985@warthog.cambridge.redhat.com>	 <15945.1156854198@warthog.cambridge.redhat.com>	 <20060829122501.GA7814@infradead.org> <20060829195845.GA13357@kroah.com>	 <17652.44254.620358.974993@stoffel.org>	 <20060831030134.GA4919@parisc-linux.org> <1156993496.4381.3.camel@localhost.localdomain>
+In-Reply-To: <1156993496.4381.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006 18:17:26 +1000
-David Chinner <dgc@sgi.com> wrote:
-
-> > BTW, I have CONFIG_PPC_64K_PAGES enabled.
+Shaya Potter wrote:
+> On Wed, 2006-08-30 at 21:01 -0600, Matthew Wilcox wrote:
+>> On Tue, Aug 29, 2006 at 05:08:46PM -0400, John Stoffel wrote:
+>> > Maybe the better solution is to remove SCSI as an option, and to just
+>> > offer SCSI drivers and USB-STORAGE and other SCSI core using drivers
+[...]
+>> People don't want to have to say "no" to umpteen scsi drivers.  They
+>> just want to say "no" to SCSI, because they know they don't have scsi.
 > 
-> But that might be a good place to start. Can you see if you can
-> reproduce the problem without this config option set?
+> so then that's shows a problem with the kconfig syntax.
+> 
+> CONFIG_SCSI should perhaps be hidden, and what's visible to the user is
+> CONFIG_SCSI_DRIVER
+[...]
 
-It would be useful to compare the compiler warning output for 64k pages
-versus that for smaller-pages.  
+But drivers like usb-storage and sbp2 are SCSI drivers too. What you
+mean is CONFIG_SCSI_DRIVERS_WHICH_APPEAR_IN_THE_SCSI_MENU.
 
-Several quite worrisome-looking warnings are emitted from various parts of
-the kernel with 64k pages.  Related to arithmetic on short types.
+It all just revolves around the fact that the menu layout does not match
+the dependency graph. We currently sacrifice clarity and integrity of
+the Kconfigs in order to solve presentational issues.
+-- 
+Stefan Richter
+-=====-=-==- =--- =====
+http://arcgraph.de/sr/

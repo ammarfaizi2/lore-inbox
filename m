@@ -1,61 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWHaRBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHaRBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWHaRBy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWHaRBx
+	id S932204AbWHaRBf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWHaRBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:01:53 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:5842 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932385AbWHaRBw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:01:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Fedora vs. swsusp (was Re: megaraid_sas suspend ok, resume oops)
-Date: Thu, 31 Aug 2006 19:05:30 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
-       Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
-       lkml <linux-kernel@vger.kernel.org>
-References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com> <b6a2187b0608290522vea22930y54ac39bfce3127f2@mail.gmail.com> <20060829203951.GA5065@ucw.cz>
-In-Reply-To: <20060829203951.GA5065@ucw.cz>
+	Thu, 31 Aug 2006 13:01:35 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:35233 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932204AbWHaRBe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 13:01:34 -0400
+Date: Thu, 31 Aug 2006 18:01:32 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Keith Mannthey <kmannth@gmail.com>, akpm@osdl.org, tony.luck@intel.com,
+       Linux Memory Management List <linux-mm@kvack.org>, ak@suse.de,
+       bob.picco@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
+In-Reply-To: <44F70D74.30807@kolumbus.fi>
+Message-ID: <Pine.LNX.4.64.0608311749030.13392@skynet.skynet.ie>
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
+ <20060821134638.22179.44471.sendpatchset@skynet.skynet.ie>
+ <a762e240608301357n3915250bk8546dd340d5d4d77@mail.gmail.com>
+ <20060831154903.GA7011@skynet.ie> <44F70D74.30807@kolumbus.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608311905.30462.rjw@sisk.pl>
+Content-Type: MULTIPART/MIXED; BOUNDARY="29444707-2029305836-1157043692=:13392"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 22:39, Pavel Machek wrote:
-> Hi!
-> 
-> > Another point ... on IBM x60s notebook, setting ...
-> > 
-> >       High Memory Support (64GB)
-> >               CONFIG_HIGHMEM64G=y
-> >               CONFIG_RESOURCES_64BIT=y
-> >               CONFIG_X86_PAE=y
-> 
-> > 
-> > will cause resume to "REBOOT" sometimes (may be 6 out of 
-> > 10).
-> 
-> Okay, I guess that explains 'swsusp br0ken on Fedora' reports I was
-> seening.
-> 
-> I wonder if swsusp *ever* worked reliably with highmem64...
-> 
-> ...wait a moment, higmem64 implies PAE implies we can no longer use
-> swsusp's trick with copying initial pgdir, and we'll need to use
-> x86-64-like code, no?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I think so.
+--29444707-2029305836-1157043692=:13392
+Content-Type: TEXT/PLAIN; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Rafael
+On Thu, 31 Aug 2006, Mika Penttil=E4 wrote:
 
+>
+>>>> static __init inline int srat_disabled(void)
+>>>> @@ -166,7 +167,7 @@ static int hotadd_enough_memory(struct b
+>>>>
+>>>>        if (mem < 0)
+>>>>                return 0;
+>>>> -       allowed =3D (end_pfn - e820_hole_size(0, end_pfn)) * PAGE_SIZE=
+;
+>>>> +       allowed =3D (end_pfn - absent_pages_in_range(0, end_pfn)) *=20
+>>>> PAGE_SIZE;
+>>>>        allowed =3D (allowed / 100) * hotadd_percent;
+>>>>        if (allocated + mem > allowed) {
+>>>>                unsigned long range;
+>>>> @@ -238,7 +239,7 @@ static int reserve_hotadd(int node, unsi
+>>>>        }
+>>>>
+>>>>        /* This check might be a bit too strict, but I'm keeping it for=
+=20
+>>>> now. */
+>>>> -       if (e820_hole_size(s_pfn, e_pfn) !=3D e_pfn - s_pfn) {
+>>>> +       if (absent_pages_in_range(s_pfn, e_pfn) !=3D e_pfn - s_pfn) {
+>>>>                printk(KERN_ERR "SRAT: Hotplug area has existing=20
+>>>> memory\n");
+>>>>                return -1;
+>>>>        }
+>>>>=20
+>>> We really do want to to compare against the e820 map at it contains
+>>> the memory that is really present (this info was blown away before
+>>> acpi_numa)=20
+>>=20
+>> The information used by absent_pages_in_range() should match what was
+>> available to e820_hole_size().
+>>
+>>=20
+> But it doesn't : all active ranges are removed before parsing srat. I thi=
+nk=20
+> we really need to check against e820 here.
+>
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+What I see happening is this;
+
+1. setup_arch calls e820_register_active_regions(0, 0, -1UL) so that all
+    regions are registered as if they were on node 0 so e820_end_of_ram()
+    gets the right value
+2. remove_all_active_regions() is called to clear what was registered so
+    that rediscovery with NUMA awareness happens
+3. acpi_numa_init() is called. It parses the table and a little later
+    calls acpi_numa_memory_affinity_init() for each range in the table so
+    now we're into x86_64 code
+4. acpi_numa_memory_affinity_init() basically deals an address range.
+    Assuming the SRAT table is not broken, it calls
+    e820_register_active_ranges() for that range. At this point, for the
+    range of addresses, the active ranges are now registered
+5. reserve_hotadd is called if the range is hotpluggable. It will fail if
+    it finds that memory already exists there
+
+So, when absent_pages_in_range() is being called by reserve_hotadd(), it=20
+should be using the same information that was available in e820. What am I=
+=20
+missing?
+
+--=20
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab
+--29444707-2029305836-1157043692=:13392--

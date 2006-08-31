@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHaQEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWHaQCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWHaQEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWHaQEL
+	id S932172AbWHaQCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHaQCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:04:11 -0400
-Received: from pat.uio.no ([129.240.10.4]:54776 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932331AbWHaQEJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:04:09 -0400
-Subject: Re: bug in nfs in 2.6.18-rc5?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Shaya Potter <spotter@cs.columbia.edu>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       unionfs@fsl.cs.sunysb.edu
-In-Reply-To: <44F6F80F.1000202@cs.columbia.edu>
-References: <44F6F80F.1000202@cs.columbia.edu>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 12:03:50 -0400
-Message-Id: <1157040230.11347.31.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 31 Aug 2006 12:02:09 -0400
+Received: from zcars04e.nortel.com ([47.129.242.56]:36582 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932172AbWHaQCG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 12:02:06 -0400
+Message-ID: <44F707F5.4090008@nortel.com>
+Date: Thu, 31 Aug 2006 10:01:57 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Ohlin <martin.ohlin@control.lth.se>
+CC: Mike Galbraith <efault@gmx.de>, Peter Williams <pwil3058@bigpond.net.au>,
+       balbir@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: A nice CPU resource controller
+References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com> <44F6365A.8010201@bigpond.net.au> <1157007190.6035.14.camel@Homer.simpson.net> <1157010140.18561.23.camel@Homer.simpson.net> <44F6BB8A.7090001@control.lth.se>
+In-Reply-To: <44F6BB8A.7090001@control.lth.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.18, required 12,
-	autolearn=disabled, AWL 1.82, UIO_MAIL_IS_INTERNAL -5.00)
+X-OriginalArrivalTime: 31 Aug 2006 16:02:01.0354 (UTC) FILETIME=[CB7C66A0:01C6CD16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 10:54 -0400, Shaya Potter wrote:
+Martin Ohlin wrote:
 
-> __lookup_hash() ends up calling the underlying fs's lookup op, i.e. 
-> nfs_lookup()
-> 
-> nfs_lookup() calls nfs_reval_fsid(nd->mnt, dir, &fhandle, &fattr);
-> 
-> see the bug? :)
-> 
-> This doesn't seem like a unionfs bug, as one should be able to call 
-> lookup_one_len() on an NFS fs.
+> Maybe I am wrong, but as I see it, if one wants to control on a group 
+> level, then the individual shares within the group are not that 
+> important. If the individual share is important, then it should be 
+> controlled on a per-task level. Please tell me if I am wrong.
 
-Did someone start handing out these promises when I wasn't looking?
+The individual share within the group may not be important, but the 
+relative priority might be.
 
-AFAICS, lookup_one_len() should only be used by the filesystem itself,
-or by services like nfsd that have intimate knowledge of the
-filesystem's inner workings.
 
-The reason why NFS would like to insist on that nameidata is that we
-need to be able to create mountpoints on the fly when we cross from one
-filesystem on the server to another. Otherwise, we cannot offer the type
-of guarantees that POSIX applications expect, such as the ability to
-provide unique permanent inode numbers.
-If we're to provide the ability for unionfs to use lookup_one_len() on
-NFS, then we will have to error out whenever we hit a case where we
-should be creating a new mountpoint. Is that acceptable?
+We have instances were we would like to express something like:
 
-Cheers,
-  Trond
+--these tasks are all grouped together as "maintenance" tasks, and 
+should be guaranteed 3% of the system together
+	--within the maintenance tasks, my network heartbeat application is the 
+most latency sensitive, so I want it to be higher-priority than the 
+other maintenance tasks
 
+
+ From my point of view, task group cpu allocation and relative task 
+priority should be orthogonal.
+
+First you pick a task group (based on cpu share, priority, etc.) then 
+within the group you pick the task with highest priority.
+
+This was something that CKRM did right (IMHO).
+
+Chris

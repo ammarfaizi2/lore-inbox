@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWHaRlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWHaRmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWHaRlv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWHaRlv
+	id S932405AbWHaRmc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWHaRmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:41:51 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:20657 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932397AbWHaRlu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:41:50 -0400
-Message-ID: <44F71F28.9040108@zytor.com>
-Date: Thu, 31 Aug 2006 10:40:56 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: Andi Kleen <ak@suse.de>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
- (ping)
-References: <6OyEf-3Zm-5@gated-at.bofh.it> <6PCwg-3mz-43@gated-at.bofh.it> <6PDBU-5Qb-25@gated-at.bofh.it> <6PDBU-5Qb-23@gated-at.bofh.it> <E1GIqPE-00010E-P2@be1.lrz>
-In-Reply-To: <E1GIqPE-00010E-P2@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Aug 2006 13:42:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31719 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932405AbWHaRmb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 13:42:31 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060831102127.8fb9a24b.akpm@osdl.org> 
+References: <20060831102127.8fb9a24b.akpm@osdl.org>  <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
+       hch@infradead.org
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 31 Aug 2006 18:42:08 +0100
+Message-ID: <11507.1157046128@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> Andi Kleen <ak@suse.de> wrote:
->> On Wednesday 30 August 2006 20:59, H. Peter Anvin wrote:
->>> Alon Bar-Lev wrote:
+Andrew Morton <akpm@osdl.org> wrote:
+
+> Trond merged the large nfs-affecting ones; I don't know if he intends to
+> handle the non-nfs bulk of the work though.
+
+There is one large NFS affecting patch left: namely the one that makes NFS use
+FS-Cache.  I presume that requires Trond's agreement to merge.
+
+> Your CONFIG_BLOCK patches did a decent job of trashing your
+> fs-cache-make-kafs-* patches, btw.  What's up with that?  OK, it's sensible
+> for people to work against mainline but the net effect of doing that is to
+> create a mess for other people to clean up.
+
+Hmmm...  Jens wanted my block patches against his tree; you wanted my NFS
+patches against Trond's NFS tree.  I guess I should try stacking the whole
+lot, but against what?  And who carries the fixes?  A patch to fix this
+problem may well only apply to a tree that's the conjunction of both:-/
+
+> If Christoph acks them then I can send them to Trond or Linus, at Trond's
+> option.
 > 
->>>> This is not entirely true...
->>>> All architectures sets saved_command_line variable...
->>>> So I can add __init to the saved_command_line and
->>>> copy its contents into kmalloced persistence_command_line at
->>>> main.c.
->>>>
->>> My opinion is that you should change saved_command_line (which already
->>> implies a copy) to be the kmalloc'd version and call the fixed-sized
->>> buffer something else.
->> It might be safer to rename everything. Then all users could be caught
->> and audited. This would ensure saved_command_line is not accessed
->> before the kmalloc'ed copy exists.
-> 
-> If you set the new *saved_cmdline=saved_cmdline_init, the users don't need
-> to be adjusted at all, and you won't have trouble with code that may be
-> run before or after kmallocking (if it exists).
+> Or I can butt out, drop the patches, wait for them to turn up in Trond's
+> tree, at your option.
 
-True for C code, but not for assembly.
+Trond, Christoph?  Any thoughts?
 
-	-hpa
 
+David

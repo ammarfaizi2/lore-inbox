@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWHaMYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWHaM2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWHaMYw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 08:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWHaMYw
+	id S1751371AbWHaM2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 08:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWHaM2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 08:24:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48772 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751195AbWHaMYw (ORCPT
+	Thu, 31 Aug 2006 08:28:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49540 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751371AbWHaM17 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 08:24:52 -0400
-Date: Thu, 31 Aug 2006 14:24:40 +0200
+	Thu, 31 Aug 2006 08:27:59 -0400
+Date: Thu, 31 Aug 2006 14:27:46 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       marcel@holtmann.org, bluez-devel@lists.sourceforge.net
-Subject: bluetooth: small cleanups
-Message-ID: <20060831122440.GY3923@elf.ucw.cz>
+       john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, auke-jan.h.kok@intel.com
+Subject: e1000: small cleanups
+Message-ID: <20060831122746.GZ3923@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,62 +24,45 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This cleans up bluetooth a bit, no code changes.
+
+Kill unneccessary macros and fix whitespace... e1000_osdep should just
+die, but it is a bit soon for that :-(.
 
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-index 93ba25b..72a59fd 100644
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -241,15 +236,11 @@ static int hci_uart_send_frame(struct sk
+diff --git a/drivers/net/e1000/e1000_osdep.h b/drivers/net/e1000/e1000_osdep.h
+index 2d3e8b0..503870c 100644
+--- a/drivers/net/e1000/e1000_osdep.h
++++ b/drivers/net/e1000/e1000_osdep.h
+@@ -43,7 +43,7 @@
+ #include <linux/sched.h>
  
- static void hci_uart_destruct(struct hci_dev *hdev)
- {
--	struct hci_uart *hu;
+ #ifndef msec_delay
+-#define msec_delay(x)	do { if(in_interrupt()) { \
++#define msec_delay(x)	do { if (in_interrupt()) { \
+ 				/* Don't mdelay in interrupt context! */ \
+ 	                	BUG(); \
+ 			} else { \
+@@ -68,8 +68,6 @@ typedef enum {
+     TRUE = 1
+ } boolean_t;
+ 
+-#define MSGOUT(S, A, B)	printk(KERN_DEBUG S "\n", A, B)
 -
- 	if (!hdev)
- 		return;
+ #ifdef DBG
+ #define DEBUGOUT(S)		printk(KERN_DEBUG S "\n")
+ #define DEBUGOUT1(S, A...)	printk(KERN_DEBUG S "\n", A)
+@@ -79,9 +77,7 @@ typedef enum {
+ #endif
  
- 	BT_DBG("%s", hdev->name);
--
--	hu = (struct hci_uart *) hdev->driver_data;
--	kfree(hu);
-+	kfree(hdev->driver_data);
- }
+ #define DEBUGFUNC(F) DEBUGOUT(F)
+-#define DEBUGOUT2 DEBUGOUT1
+-#define DEBUGOUT3 DEBUGOUT2
+-#define DEBUGOUT7 DEBUGOUT3
++#define DEBUGOUT7 DEBUGOUT1
  
- /* ------ LDISC part ------ */
-@@ -272,7 +263,7 @@ static int hci_uart_tty_open(struct tty_
- 		return -EEXIST;
  
- 	if (!(hu = kzalloc(sizeof(struct hci_uart), GFP_KERNEL))) {
--		BT_ERR("Can't allocate controll structure");
-+		BT_ERR("Can't allocate control structure");
- 		return -ENFILE;
- 	}
- 
-@@ -360,7 +351,7 @@ static void hci_uart_tty_wakeup(struct t
-  *     
-  * Return Value:    None
-  */
--static void hci_uart_tty_receive(struct tty_struct *tty, const __u8 *data, char *flags, int count)
-+static void hci_uart_tty_receive(struct tty_struct *tty, const u8 *data, char *flags, int count)
- {
- 	struct hci_uart *hu = (void *)tty->disc_data;
- 
-@@ -371,11 +362,11 @@ static void hci_uart_tty_receive(struct 
- 		return;
- 
- 	spin_lock(&hu->rx_lock);
- 	hu->proto->recv(hu, (void *) data, count);
- 	hu->hdev->stat.byte_rx += count;
- 	spin_unlock(&hu->rx_lock);
- 
--	if (test_and_clear_bit(TTY_THROTTLED,&tty->flags) && tty->driver->unthrottle)
-+	if (test_and_clear_bit(TTY_THROTTLED, &tty->flags) && tty->driver->unthrottle)
- 		tty->driver->unthrottle(tty);
- }
- 
+ #define E1000_WRITE_REG(a, reg, value) ( \
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

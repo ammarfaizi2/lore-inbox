@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWHaRCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWHaRFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWHaRCd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWHaRCd
+	id S932389AbWHaRFN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWHaRFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:02:33 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:65433 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932211AbWHaRCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:02:32 -0400
-Date: Thu, 31 Aug 2006 10:01:56 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, haveblue@us.ibm.com,
-       apw@shadowen.org, ak@muc.de, benh@kernel.crashing.org, paulus@samba.org,
-       kmannth@gmail.com, tony.luck@intel.com, kamezawa.hiroyu@jp.fujitsu.com,
-       y-goto@jp.fujitsu.com
-Subject: Re: x86_64 account-for-memmap patch in 2.6.18-rc4-mm3 doesn't boot.
-Message-Id: <20060831100156.24fc0521.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608311650410.13392@skynet.skynet.ie>
-References: <20060831034638.4bfa7b46.pj@sgi.com>
-	<Pine.LNX.4.64.0608311650410.13392@skynet.skynet.ie>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 31 Aug 2006 13:05:13 -0400
+Received: from mail.gmx.de ([213.165.64.20]:18093 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932389AbWHaRFL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 13:05:11 -0400
+X-Authenticated: #14349625
+Subject: Re: A nice CPU resource controller
+From: Mike Galbraith <efault@gmx.de>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Martin Ohlin <martin.ohlin@control.lth.se>,
+       Peter Williams <pwil3058@bigpond.net.au>, balbir@in.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44F707F5.4090008@nortel.com>
+References: <44F5AB45.8030109@control.lth.se>
+	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+	 <44F6365A.8010201@bigpond.net.au>
+	 <1157007190.6035.14.camel@Homer.simpson.net>
+	 <1157010140.18561.23.camel@Homer.simpson.net>
+	 <44F6BB8A.7090001@control.lth.se>  <44F707F5.4090008@nortel.com>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 19:14:19 +0000
+Message-Id: <1157051660.6288.12.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel wrote:
-> Have you any idea why the console garbling is happening?
+On Thu, 2006-08-31 at 10:01 -0600, Chris Friesen wrote:
+> Martin Ohlin wrote:
+> 
+> > Maybe I am wrong, but as I see it, if one wants to control on a group 
+> > level, then the individual shares within the group are not that 
+> > important. If the individual share is important, then it should be 
+> > controlled on a per-task level. Please tell me if I am wrong.
+> 
+> The individual share within the group may not be important, but the 
+> relative priority might be.
+> 
+> 
+> We have instances were we would like to express something like:
+> 
+> --these tasks are all grouped together as "maintenance" tasks, and 
+> should be guaranteed 3% of the system together
+> 	--within the maintenance tasks, my network heartbeat application is the 
+> most latency sensitive, so I want it to be higher-priority than the 
+> other maintenance tasks
 
-Yeah - you're right - it's garbled.  Looks like its dropping chars.
+The latency issue is hard.
 
-I don't know why, but I'm not surprised.  It's a lab system with a
-new (for us) way of rigging the console output.  I just got this
-particular x86_64's console connection to work at all yesterday.
+>  From my point of view, task group cpu allocation and relative task 
+> priority should be orthogonal.
+> 
+> First you pick a task group (based on cpu share, priority, etc.) then 
+> within the group you pick the task with highest priority.
+> 
+> This was something that CKRM did right (IMHO).
 
-I've been working indirectly through my good lab tech.  I should
-drive in to the lab that has this rig (an hour away) and check it
-out in person, and see what can be done to get clean console output.
+I'd really like to see what Kiril's suggestion looks like.
 
-This may take a day or three to yield results, unless I get lucky.
+	-Mike
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

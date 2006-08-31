@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWHaReB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWHaReG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWHaReB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 13:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWHaReB
+	id S932395AbWHaReG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 13:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWHaReG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 13:34:01 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:3505 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932394AbWHaReA (ORCPT
+	Thu, 31 Aug 2006 13:34:06 -0400
+Received: from pat.uio.no ([129.240.10.4]:18565 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932279AbWHaReD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 13:34:00 -0400
-Date: Thu, 31 Aug 2006 19:30:00 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 01/16] GFS2: Core header files
-In-Reply-To: <1157036840.3384.827.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0608311929100.19403@yvahk01.tjqt.qr>
-References: <1157030918.3384.785.camel@quoit.chygwyn.com> 
- <Pine.LNX.4.61.0608311607441.5900@yvahk01.tjqt.qr> <1157036840.3384.827.camel@quoit.chygwyn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 31 Aug 2006 13:34:03 -0400
+Subject: Re: bug in nfs in 2.6.18-rc5?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Shaya Potter <spotter@cs.columbia.edu>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, unionfs@fsl.cs.sunysb.edu
+In-Reply-To: <20060831162628.GA23925@infradead.org>
+References: <44F6F80F.1000202@cs.columbia.edu>
+	 <1157040230.11347.31.camel@localhost>
+	 <20060831162628.GA23925@infradead.org>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 13:33:46 -0400
+Message-Id: <1157045626.11347.97.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.197, required 12,
+	autolearn=disabled, AWL 1.80, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->or you could argue that the addition of a space (i.e. v. 2) would be
->correct since its an abbreviation, but point taken and I'll clean it up
->shortly.
+On Thu, 2006-08-31 at 17:26 +0100, Christoph Hellwig wrote:
+> On Thu, Aug 31, 2006 at 12:03:50PM -0400, Trond Myklebust wrote:
+> > If we're to provide the ability for unionfs to use lookup_one_len() on
+> > NFS, then we will have to error out whenever we hit a case where we
+> > should be creating a new mountpoint. Is that acceptable?
+> 
+> Not at all.  unionfs will have to pass down proper lookup intents.
+> The ecryptfs developers have started looking into making that work
+> with stackable filesystems, and the unionfs developers should follow
+> that effort.
 
-Or spell it out, as in many GPL headers.
+Good. I fully agree that this is preferable.
 
->> >+	/* Quota stuff */
->> >+
->> >+	struct gfs2_quota_data *al_qd[4];
->> 
->> What four quotas can there be? Use the MAXQUOTAS macro if feasible.
->> 
->[...]
->As a result there are the overall user/group limits and the local
->differences which are saved to by synced back to the master quota
->information, hence four of them.
+Cheers,
+  Trond
 
-Well, al_qd[2*MAXQUOTAS] then.
-
-
-Jan Engelhardt
--- 

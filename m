@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWHaQCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWHaQEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWHaQCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 12:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHaQCJ
+	id S932353AbWHaQEd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 12:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHaQEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 12:02:09 -0400
-Received: from zcars04e.nortel.com ([47.129.242.56]:36582 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932172AbWHaQCG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 12:02:06 -0400
-Message-ID: <44F707F5.4090008@nortel.com>
-Date: Thu, 31 Aug 2006 10:01:57 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Thu, 31 Aug 2006 12:04:33 -0400
+Received: from gw.goop.org ([64.81.55.164]:30855 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932353AbWHaQEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 12:04:32 -0400
+Message-ID: <44F7088D.7010700@goop.org>
+Date: Thu, 31 Aug 2006 09:04:29 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-To: Martin Ohlin <martin.ohlin@control.lth.se>
-CC: Mike Galbraith <efault@gmx.de>, Peter Williams <pwil3058@bigpond.net.au>,
-       balbir@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: A nice CPU resource controller
-References: <44F5AB45.8030109@control.lth.se> <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com> <44F6365A.8010201@bigpond.net.au> <1157007190.6035.14.camel@Homer.simpson.net> <1157010140.18561.23.camel@Homer.simpson.net> <44F6BB8A.7090001@control.lth.se>
-In-Reply-To: <44F6BB8A.7090001@control.lth.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ian Campbell <Ian.Campbell@XenSource.com>
+CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH 7/8] Implement smp_processor_id() with the PDA.
+References: <20060830235201.106319215@goop.org>	 <20060831000515.338336117@goop.org> <1157027758.12949.327.camel@localhost.localdomain>
+In-Reply-To: <1157027758.12949.327.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Aug 2006 16:02:01.0354 (UTC) FILETIME=[CB7C66A0:01C6CD16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Ohlin wrote:
+Ian Campbell wrote:
+> This doesn't compile for me if CONFIG_SMP=n
+>   
 
-> Maybe I am wrong, but as I see it, if one wants to control on a group 
-> level, then the individual shares within the group are not that 
-> important. If the individual share is important, then it should be 
-> controlled on a per-task level. Please tell me if I am wrong.
+Ah, good point.
 
-The individual share within the group may not be important, but the 
-relative priority might be.
+>           LD      .tmp_vmlinux1
+>         arch/i386/kernel/built-in.o: In function `cpu_init':
+>         (.init.text+0x1eda): undefined reference to `early_smp_processor_id'
+>         arch/i386/kernel/built-in.o: In function `cpu_init':
+>         (.init.text+0x1f11): undefined reference to `early_smp_processor_id'
+>         
+> smp_processor_id() is defined for !SMP in include/linux/smp.h, I don't
+> know if it would be appropriate to add early_smp_processor_id() there
+> since it seems i386 specific. asm/smp.h isn't included by linux/smp.h
+> when !SMP but you could add an explicit include to common.c I suppose.
+>   
 
+I'll have a look.
 
-We have instances were we would like to express something like:
+I think my preferred solution would be to get rid of all the early* 
+stuff, and try to arrange to have the PDA set up before C code gets 
+run.  For the boot CPU, it really could be done statically (I'm not 
+quite sure why the boot CPU's GDT is allocated, given that it already 
+has a static one; I think this might have been a Xen-related change?).  
+The secondary CPUs could have their GDT+PDA completely allocated and 
+initialized in advance, making secondary CPU PDA setup just a matter of 
+doing lgdt and setting %gs in head.S, even before hitting C code.
 
---these tasks are all grouped together as "maintenance" tasks, and 
-should be guaranteed 3% of the system together
-	--within the maintenance tasks, my network heartbeat application is the 
-most latency sensitive, so I want it to be higher-priority than the 
-other maintenance tasks
-
-
- From my point of view, task group cpu allocation and relative task 
-priority should be orthogonal.
-
-First you pick a task group (based on cpu share, priority, etc.) then 
-within the group you pick the task with highest priority.
-
-This was something that CKRM did right (IMHO).
-
-Chris
+    J

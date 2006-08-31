@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWHaMIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWHaMOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbWHaMIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 08:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbWHaMIf
+	id S932078AbWHaMOK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 08:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWHaMOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 08:08:35 -0400
-Received: from mail.gmx.de ([213.165.64.20]:200 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751584AbWHaMIe (ORCPT
+	Thu, 31 Aug 2006 08:14:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41873 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751439AbWHaMOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 08:08:34 -0400
-X-Authenticated: #14349625
-Subject: Re: A nice CPU resource controller
-From: Mike Galbraith <efault@gmx.de>
-To: Martin Ohlin <martin.ohlin@control.lth.se>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, balbir@in.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44F6BB8A.7090001@control.lth.se>
-References: <44F5AB45.8030109@control.lth.se>
-	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
-	 <44F6365A.8010201@bigpond.net.au>
-	 <1157007190.6035.14.camel@Homer.simpson.net>
-	 <1157010140.18561.23.camel@Homer.simpson.net>
-	 <44F6BB8A.7090001@control.lth.se>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 14:17:43 +0000
-Message-Id: <1157033863.5789.42.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 31 Aug 2006 08:14:07 -0400
+Date: Thu, 31 Aug 2006 14:13:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: SubmittingPatches cleanups
+Message-ID: <20060831121356.GU3923@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 12:35 +0200, Martin Ohlin wrote:
-> Mike Galbraith wrote:
-> > On Thu, 2006-08-31 at 06:53 +0000, Mike Galbraith wrote:
-> >> On Thu, 2006-08-31 at 11:07 +1000, Peter Williams wrote:
-> >>
-> >>> But your implication here is valid.  It is better to fiddle with the 
-> >>> dynamic priorities than with nice as this leaves nice for its primary 
-> >>> purpose of enabling the sysadmin to effect the allocation of CPU 
-> >>> resources based on external considerations.
-> >> I don't understand.  It _is_ the administrator fiddling with nice based
-> >> on external considerations.  It just steadies the administrator's hand.
-> > 
-> > When extended to groups, I see your point.  The admin would lose his
-> > ability to apportion bandwidth _within_ the group because he's already
-> > turned his only knob.  That is going to be just as much of a problem for
-> > other methods though, and is just a question of how much complexity you
-> > want to pay to achieve fine grained control.
-> 
-> I do not see the problem. Let's say I create a group of three tasks and 
-> give it 50% of the CPU bandwidth (perhaps by using the same nice value 
-> for all the tasks in this group). If I then want to apportion the 
-> bandwidth within the group as you say, then the same thing can be done 
-> by treating them as individual tasks.
+This cleans up SubmittingPatches a bit.
 
-Multiplex nice?  (oh my, dig foxhole)
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> Maybe I am wrong, but as I see it, if one wants to control on a group 
-> level, then the individual shares within the group are not that 
-> important. If the individual share is important, then it should be 
-> controlled on a per-task level. Please tell me if I am wrong.
+diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
+index 2cd7f02..9398fc2 100644
+--- a/Documentation/SubmittingPatches
++++ b/Documentation/SubmittingPatches
+@@ -173,15 +173,15 @@ For small patches you may want to CC the
+ trivial@kernel.org managed by Adrian Bunk; which collects "trivial"
+ patches. Trivial patches must qualify for one of the following rules:
+  Spelling fixes in documentation
+- Spelling fixes which could break grep(1).
++ Spelling fixes which could break grep(1)
+  Warning fixes (cluttering with useless warnings is bad)
+  Compilation fixes (only if they are actually correct)
+  Runtime fixes (only if they actually fix things)
+- Removing use of deprecated functions/macros (eg. check_region).
++ Removing use of deprecated functions/macros (eg. check_region)
+  Contact detail and documentation fixes
+  Non-portable code replaced by portable code (even in arch-specific,
+  since people copy, as long as it's trivial)
+- Any fix by the author/maintainer of the file. (ie. patch monkey
++ Any fix by the author/maintainer of the file (ie. patch monkey
+  in re-transmission mode)
+ URL: <http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/>
+ 
+@@ -245,13 +245,13 @@ updated change.
+ It is quite common for Linus to "drop" your patch without comment.
+ That's the nature of the system.  If he drops your patch, it could be
+ due to
+-* Your patch did not apply cleanly to the latest kernel version
++* Your patch did not apply cleanly to the latest kernel version.
+ * Your patch was not sufficiently discussed on linux-kernel.
+-* A style issue (see section 2),
+-* An e-mail formatting issue (re-read this section)
+-* A technical problem with your change
+-* He gets tons of e-mail, and yours got lost in the shuffle
+-* You are being annoying (See Figure 1)
++* A style issue (see section 2).
++* An e-mail formatting issue (re-read this section).
++* A technical problem with your change.
++* He gets tons of e-mail, and yours got lost in the shuffle.
++* You are being annoying.
+ 
+ When in doubt, solicit comments on linux-kernel mailing list.
+ 
+@@ -474,10 +474,10 @@ SECTION 3 - REFERENCES
+ Andrew Morton, "The perfect patch" (tpp).
+   <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
+ 
+-Jeff Garzik, "Linux kernel patch submission format."
++Jeff Garzik, "Linux kernel patch submission format".
+   <http://linux.yyz.us/patch-format.html>
+ 
+-Greg Kroah-Hartman "How to piss off a kernel subsystem maintainer".
++Greg Kroah-Hartman, "How to piss off a kernel subsystem maintainer".
+   <http://www.kroah.com/log/2005/03/31/>
+   <http://www.kroah.com/log/2005/07/08/>
+   <http://www.kroah.com/log/2005/10/19/>
+@@ -486,9 +486,9 @@ Greg Kroah-Hartman "How to piss off a ke
+ NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!
+   <http://marc.theaimsgroup.com/?l=linux-kernel&m=112112749912944&w=2>
+ 
+-Kernel Documentation/CodingStyle
++Kernel Documentation/CodingStyle:
+   <http://sosdg.org/~coywolf/lxr/source/Documentation/CodingStyle>
+ 
+-Linus Torvald's mail on the canonical patch format:
++Linus Torvalds's mail on the canonical patch format:
+   <http://lkml.org/lkml/2005/4/7/183>
+ --
 
-That's probably right 99% of the time.
-
-	-Mike
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

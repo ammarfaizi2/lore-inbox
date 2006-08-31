@@ -1,317 +1,223 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWHaA4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWHaBCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWHaA4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Aug 2006 20:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHaA4z
+	id S932286AbWHaBCt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Aug 2006 21:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWHaBCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Aug 2006 20:56:55 -0400
-Received: from 189.sub-70-198-165.myvzw.com ([70.198.165.189]:23505 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S932263AbWHaA4y
+	Wed, 30 Aug 2006 21:02:49 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:10436 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932286AbWHaBCs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Aug 2006 20:56:54 -0400
-Message-Id: <20060831000514.189505302@goop.org>
-References: <20060830235201.106319215@goop.org>
-User-Agent: quilt/0.45-1
-Date: Wed, 30 Aug 2006 16:52:02 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: linux-kernel@vger.kernel.org
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
-       Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@ocs.com.au>
-Subject: [PATCH 1/8] Use asm-offsets for the offsets of registers into the pt_regs struct, rather than having hard-coded constants.
-Content-Disposition: inline; filename=pt_regs-asm-offsets.patch
+	Wed, 30 Aug 2006 21:02:48 -0400
+Date: Wed, 30 Aug 2006 18:02:49 -0700
+From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>,
+       video4linux-list@redhat.com, kraxel@bytesex.org, haveblue@us.ibm.com,
+       serue@us.ibm.com, Containers@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kthread: saa7134-tvaudio.c
+Message-ID: <20060831010249.GA2198@us.ibm.com>
+References: <20060829211555.GB1945@us.ibm.com> <20060829143902.a6aa2712.akpm@osdl.org> <44F5BD23.3000209@fr.ibm.com> <20060830094943.bad0d618.akpm@osdl.org> <1156959402.3852.82.camel@praia>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <1156959402.3852.82.camel@praia>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I left the constants in the comments of entry.S because they're useful
-for reference; the code in entry.S is very dependent on the layout of
-pt_regs, even when using asm-offsets.
+Mauro Carvalho Chehab [mchehab@infradead.org] wrote:
+| Em Qua, 2006-08-30 às 09:49 -0700, Andrew Morton escreveu:
+| > On Wed, 30 Aug 2006 18:30:27 +0200
+| > Cedric Le Goater <clg@fr.ibm.com> wrote:
+| > 
+| 
+| It is likely to work if we remove allow_signal and replacing the
+| signal_pending() by kthread_should_stop() as above.
+| 
+| The better is to check the real patch on a saa7134 hardware before
+| submiting to mainstream. You may submit the final patch for us to test
+| at the proper hardware.
+| 
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Keith Owens <kaos@ocs.com.au>
-
-[ This is identical to the previously posted version of the patch. ]
+Thanks for all the input. Mauro, thanks for help with testing.
+Here is an updated patch that removes the signal code and the race.
 
 ---
- arch/i386/kernel/asm-offsets.c |   17 +++++
- arch/i386/kernel/entry.S       |  118 +++++++++++++++++-----------------------
- 2 files changed, 68 insertions(+), 67 deletions(-)
 
+Replace kernel_thread() with kthread_run() since kernel_thread()
+is deprecated in drivers/modules. Also remove signalling code
+as it is not needed in the driver.
 
+Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>
+Cc: Serge Hallyn <serue@us.ibm.com>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Containers@lists.osdl.org
+Cc: video4linux-list@redhat.com
+Cc: v4l-dvb-maintainer@linuxtv.org
+
+ drivers/media/video/saa7134/saa7134-tvaudio.c |   45 +++++++++++++-------------
+ drivers/media/video/saa7134/saa7134.h         |    4 --
+ 2 files changed, 24 insertions(+), 25 deletions(-)
+
+Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134.h
 ===================================================================
---- a/arch/i386/kernel/asm-offsets.c
-+++ b/arch/i386/kernel/asm-offsets.c
-@@ -58,6 +58,23 @@ void foo(void)
- 	OFFSET(TI_sysenter_return, thread_info, sysenter_return);
- 	BLANK();
+--- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134.h	2006-08-29 18:35:53.000000000 -0700
++++ lx26-18-rc5/drivers/media/video/saa7134/saa7134.h	2006-08-29 18:35:56.000000000 -0700
+@@ -311,10 +311,8 @@ struct saa7134_pgtable {
  
-+	OFFSET(PT_EBX, pt_regs, ebx);
-+	OFFSET(PT_ECX, pt_regs, ecx);
-+	OFFSET(PT_EDX, pt_regs, edx);
-+	OFFSET(PT_ESI, pt_regs, esi);
-+	OFFSET(PT_EDI, pt_regs, edi);
-+	OFFSET(PT_EBP, pt_regs, ebp);
-+	OFFSET(PT_EAX, pt_regs, eax);
-+	OFFSET(PT_DS,  pt_regs, xds);
-+	OFFSET(PT_ES,  pt_regs, xes);
-+	OFFSET(PT_ORIG_EAX, pt_regs, orig_eax);
-+	OFFSET(PT_EIP, pt_regs, eip);
-+	OFFSET(PT_CS,  pt_regs, xcs);
-+	OFFSET(PT_EFLAGS, pt_regs, eflags);
-+	OFFSET(PT_OLDESP, pt_regs, esp);
-+	OFFSET(PT_OLDSS,  pt_regs, xss);
-+	BLANK();
+ /* tvaudio thread status */
+ struct saa7134_thread {
+-	pid_t                      pid;
+-	struct completion          exit;
++	struct task_struct *       task;
+ 	wait_queue_head_t          wq;
+-	unsigned int               shutdown;
+ 	unsigned int               scan1;
+ 	unsigned int               scan2;
+ 	unsigned int               mode;
+Index: lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c
+===================================================================
+--- lx26-18-rc5.orig/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-29 18:35:53.000000000 -0700
++++ lx26-18-rc5/drivers/media/video/saa7134/saa7134-tvaudio.c	2006-08-30 14:09:00.000000000 -0700
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/smp_lock.h>
++#include <linux/kthread.h>
+ #include <asm/div64.h>
+ 
+ #include "saa7134-reg.h"
+@@ -357,16 +358,22 @@ static int tvaudio_sleep(struct saa7134_
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+ 	add_wait_queue(&dev->thread.wq, &wait);
+-	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
 +
- 	OFFSET(EXEC_DOMAIN_handler, exec_domain, handler);
- 	OFFSET(RT_SIGFRAME_sigcontext, rt_sigframe, uc.uc_mcontext);
- 	BLANK();
-===================================================================
---- a/arch/i386/kernel/entry.S
-+++ b/arch/i386/kernel/entry.S
-@@ -53,22 +53,6 @@
++	set_current_state(TASK_INTERRUPTIBLE);
++
++	if (dev->thread.scan1 == dev->thread.scan2 && !kthread_should_stop()) {
+ 		if (timeout < 0) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule();
+ 		} else {
+ 			schedule_timeout_interruptible
+ 						(msecs_to_jiffies(timeout));
+ 		}
+ 	}
++
++	set_current_state(TASK_RUNNING);
++
+ 	remove_wait_queue(&dev->thread.wq, &wait);
++
+ 	return dev->thread.scan1 != dev->thread.scan2;
+ }
  
- #define nr_syscalls ((syscall_table_size)/4)
+@@ -521,11 +528,9 @@ static int tvaudio_thread(void *data)
+ 	unsigned int i, audio, nscan;
+ 	int max1,max2,carrier,rx,mode,lastmode,default_carrier;
  
--EBX		= 0x00
--ECX		= 0x04
--EDX		= 0x08
--ESI		= 0x0C
--EDI		= 0x10
--EBP		= 0x14
--EAX		= 0x18
--DS		= 0x1C
--ES		= 0x20
--ORIG_EAX	= 0x24
--EIP		= 0x28
--CS		= 0x2C
--EFLAGS		= 0x30
--OLDESP		= 0x34
--OLDSS		= 0x38
+-	daemonize("%s", dev->name);
+-	allow_signal(SIGTERM);
+ 	for (;;) {
+ 		tvaudio_sleep(dev,-1);
+-		if (dev->thread.shutdown || signal_pending(current))
++		if (kthread_should_stop())
+ 			goto done;
+ 
+ 	restart:
+@@ -633,7 +638,7 @@ static int tvaudio_thread(void *data)
+ 		for (;;) {
+ 			if (tvaudio_sleep(dev,5000))
+ 				goto restart;
+-			if (dev->thread.shutdown || signal_pending(current))
++			if (kthread_should_stop())
+ 				break;
+ 			if (UNSET == dev->thread.mode) {
+ 				rx = tvaudio_getstereo(dev,&tvaudio[i]);
+@@ -649,7 +654,6 @@ static int tvaudio_thread(void *data)
+ 	}
+ 
+  done:
+-	complete_and_exit(&dev->thread.exit, 0);
+ 	return 0;
+ }
+ 
+@@ -798,9 +802,6 @@ static int tvaudio_thread_ddep(void *dat
+ 	struct saa7134_dev *dev = data;
+ 	u32 value, norms, clock;
+ 
+-	daemonize("%s", dev->name);
+-	allow_signal(SIGTERM);
 -
- CF_MASK		= 0x00000001
- TF_MASK		= 0x00000100
- IF_MASK		= 0x00000200
-@@ -92,7 +76,7 @@ VM_MASK		= 0x00020000
+ 	clock = saa7134_boards[dev->board].audio_clock;
+ 	if (UNSET != audio_clock_override)
+ 		clock = audio_clock_override;
+@@ -812,7 +813,7 @@ static int tvaudio_thread_ddep(void *dat
  
- .macro TRACE_IRQS_IRET
- #ifdef CONFIG_TRACE_IRQFLAGS
--	testl $IF_MASK,EFLAGS(%esp)     # interrupts off?
-+	testl $IF_MASK,PT_EFLAGS(%esp)     # interrupts off?
- 	jz 1f
- 	TRACE_IRQS_ON
- 1:
-@@ -195,18 +179,18 @@ 4:	movl $0,(%esp);	\
+ 	for (;;) {
+ 		tvaudio_sleep(dev,-1);
+-		if (dev->thread.shutdown || signal_pending(current))
++		if (kthread_should_stop())
+ 			goto done;
  
- #define RING0_PTREGS_FRAME \
- 	CFI_STARTPROC simple;\
--	CFI_DEF_CFA esp, OLDESP-EBX;\
--	/*CFI_OFFSET cs, CS-OLDESP;*/\
--	CFI_OFFSET eip, EIP-OLDESP;\
--	/*CFI_OFFSET es, ES-OLDESP;*/\
--	/*CFI_OFFSET ds, DS-OLDESP;*/\
--	CFI_OFFSET eax, EAX-OLDESP;\
--	CFI_OFFSET ebp, EBP-OLDESP;\
--	CFI_OFFSET edi, EDI-OLDESP;\
--	CFI_OFFSET esi, ESI-OLDESP;\
--	CFI_OFFSET edx, EDX-OLDESP;\
--	CFI_OFFSET ecx, ECX-OLDESP;\
--	CFI_OFFSET ebx, EBX-OLDESP
-+	CFI_DEF_CFA esp, PT_OLDESP-PT_EBX;\
-+	/*CFI_OFFSET cs, PT_CS-PT_OLDESP;*/\
-+	CFI_OFFSET eip, PT_EIP-PT_OLDESP;\
-+	/*CFI_OFFSET es, PT_ES-PT_OLDESP;*/\
-+	/*CFI_OFFSET ds, PT_DS-PT_OLDESP;*/\
-+	CFI_OFFSET eax, PT_EAX-PT_OLDESP;\
-+	CFI_OFFSET ebp, PT_EBP-PT_OLDESP;\
-+	CFI_OFFSET edi, PT_EDI-PT_OLDESP;\
-+	CFI_OFFSET esi, PT_ESI-PT_OLDESP;\
-+	CFI_OFFSET edx, PT_EDX-PT_OLDESP;\
-+	CFI_OFFSET ecx, PT_ECX-PT_OLDESP;\
-+	CFI_OFFSET ebx, PT_EBX-PT_OLDESP
+ 	restart:
+@@ -894,7 +895,6 @@ static int tvaudio_thread_ddep(void *dat
+ 	}
  
- ENTRY(ret_from_fork)
- 	CFI_STARTPROC
-@@ -234,8 +218,8 @@ ret_from_intr:
- ret_from_intr:
- 	GET_THREAD_INFO(%ebp)
- check_userspace:
--	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
--	movb CS(%esp), %al
-+	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS and CS
-+	movb PT_CS(%esp), %al
- 	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
- 	cmpl $USER_RPL, %eax
- 	jb resume_kernel		# not returning to v8086 or userspace
-@@ -258,7 +242,7 @@ need_resched:
- 	movl TI_flags(%ebp), %ecx	# need_resched set ?
- 	testb $_TIF_NEED_RESCHED, %cl
- 	jz restore_all
--	testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
-+	testl $IF_MASK,PT_EFLAGS(%esp)	# interrupts off (exception path) ?
- 	jz restore_all
- 	call preempt_schedule_irq
- 	jmp need_resched
-@@ -323,15 +307,15 @@ 1:	movl (%ebp),%ebp
- 	cmpl $(nr_syscalls), %eax
- 	jae syscall_badsys
- 	call *sys_call_table(,%eax,4)
--	movl %eax,EAX(%esp)
-+	movl %eax,PT_EAX(%esp)
- 	DISABLE_INTERRUPTS
- 	TRACE_IRQS_OFF
- 	movl TI_flags(%ebp), %ecx
- 	testw $_TIF_ALLWORK_MASK, %cx
- 	jne syscall_exit_work
- /* if something modifies registers it must also disable sysexit */
--	movl EIP(%esp), %edx
--	movl OLDESP(%esp), %ecx
-+	movl PT_EIP(%esp), %edx
-+	movl PT_OLDESP(%esp), %ecx
- 	xorl %ebp,%ebp
- 	TRACE_IRQS_ON
- 	ENABLE_INTERRUPTS_SYSEXIT
-@@ -345,7 +329,7 @@ ENTRY(system_call)
- 	CFI_ADJUST_CFA_OFFSET 4
- 	SAVE_ALL
- 	GET_THREAD_INFO(%ebp)
--	testl $TF_MASK,EFLAGS(%esp)
-+	testl $TF_MASK,PT_EFLAGS(%esp)
- 	jz no_singlestep
- 	orl $_TIF_SINGLESTEP,TI_flags(%ebp)
- no_singlestep:
-@@ -357,7 +341,7 @@ no_singlestep:
- 	jae syscall_badsys
- syscall_call:
- 	call *sys_call_table(,%eax,4)
--	movl %eax,EAX(%esp)		# store the return value
-+	movl %eax,PT_EAX(%esp)		# store the return value
- syscall_exit:
- 	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
-@@ -368,12 +352,12 @@ syscall_exit:
- 	jne syscall_exit_work
+  done:
+-	complete_and_exit(&dev->thread.exit, 0);
+ 	return 0;
+ }
  
- restore_all:
--	movl EFLAGS(%esp), %eax		# mix EFLAGS, SS and CS
--	# Warning: OLDSS(%esp) contains the wrong/random values if we
-+	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS, SS and CS
-+	# Warning: PT_OLDSS(%esp) contains the wrong/random values if we
- 	# are returning to the kernel.
- 	# See comments in process.c:copy_thread() for details.
--	movb OLDSS(%esp), %ah
--	movb CS(%esp), %al
-+	movb PT_OLDSS(%esp), %ah
-+	movb PT_CS(%esp), %al
- 	andl $(VM_MASK | (SEGMENT_TI_MASK << 8) | SEGMENT_RPL_MASK), %eax
- 	cmpl $((SEGMENT_LDT << 8) | USER_RPL), %eax
- 	CFI_REMEMBER_STATE
-@@ -400,7 +384,7 @@ iret_exc:
+@@ -1004,15 +1004,16 @@ int saa7134_tvaudio_init2(struct saa7134
+ 		break;
+ 	}
  
- 	CFI_RESTORE_STATE
- ldt_ss:
--	larl OLDSS(%esp), %eax
-+	larl PT_OLDSS(%esp), %eax
- 	jnz restore_nocheck
- 	testl $0x00400000, %eax		# returning to 32bit stack?
- 	jnz restore_nocheck		# allright, normal return
-@@ -450,7 +434,7 @@ work_resched:
+-	dev->thread.pid = -1;
++	dev->thread.task = NULL;
+ 	if (my_thread) {
+ 		/* start tvaudio thread */
+ 		init_waitqueue_head(&dev->thread.wq);
+-		init_completion(&dev->thread.exit);
+-		dev->thread.pid = kernel_thread(my_thread,dev,0);
+-		if (dev->thread.pid < 0)
+-			printk(KERN_WARNING "%s: kernel_thread() failed\n",
++		dev->thread.task = kthread_run(my_thread, dev, dev->name);
++		if (IS_ERR(dev->thread.task)) {
++			printk(KERN_WARNING "%s: failed to create kthread\n",
+ 			       dev->name);
++			dev->thread.task = NULL;
++		}
+ 		saa7134_tvaudio_do_scan(dev);
+ 	}
  
- work_notifysig:				# deal with pending signals and
- 					# notify-resume requests
--	testl $VM_MASK, EFLAGS(%esp)
-+	testl $VM_MASK, PT_EFLAGS(%esp)
- 	movl %esp, %eax
- 	jne work_notifysig_v86		# returning to kernel-space or
- 					# vm86-space
-@@ -475,14 +459,14 @@ work_notifysig_v86:
- 	# perform syscall exit tracing
- 	ALIGN
- syscall_trace_entry:
--	movl $-ENOSYS,EAX(%esp)
-+	movl $-ENOSYS,PT_EAX(%esp)
- 	movl %esp, %eax
- 	xorl %edx,%edx
- 	call do_syscall_trace
- 	cmpl $0, %eax
- 	jne resume_userspace		# ret != 0 -> running under PTRACE_SYSEMU,
- 					# so must skip actual syscall
--	movl ORIG_EAX(%esp), %eax
-+	movl PT_ORIG_EAX(%esp), %eax
- 	cmpl $(nr_syscalls), %eax
- 	jnae syscall_call
- 	jmp syscall_exit
-@@ -507,11 +491,11 @@ syscall_fault:
- 	CFI_ADJUST_CFA_OFFSET 4
- 	SAVE_ALL
- 	GET_THREAD_INFO(%ebp)
--	movl $-EFAULT,EAX(%esp)
-+	movl $-EFAULT,PT_EAX(%esp)
- 	jmp resume_userspace
+@@ -1023,10 +1024,10 @@ int saa7134_tvaudio_init2(struct saa7134
+ int saa7134_tvaudio_fini(struct saa7134_dev *dev)
+ {
+ 	/* shutdown tvaudio thread */
+-	if (dev->thread.pid >= 0) {
+-		dev->thread.shutdown = 1;
+-		wake_up_interruptible(&dev->thread.wq);
+-		wait_for_completion(&dev->thread.exit);
++	if (dev->thread.task) {
++		/* kthread_stop() wakes up the thread */
++		kthread_stop(dev->thread.task);
++		dev->thread.task = NULL;
+ 	}
+ 	saa_andorb(SAA7134_ANALOG_IO_SELECT, 0x07, 0x00); /* LINE1 */
+ 	return 0;
+@@ -1034,7 +1035,7 @@ int saa7134_tvaudio_fini(struct saa7134_
  
- syscall_badsys:
--	movl $-ENOSYS,EAX(%esp)
-+	movl $-ENOSYS,PT_EAX(%esp)
- 	jmp resume_userspace
- 	CFI_ENDPROC
- 
-@@ -634,10 +618,10 @@ error_code:
- 	popl %ecx
- 	CFI_ADJUST_CFA_OFFSET -4
- 	/*CFI_REGISTER es, ecx*/
--	movl ES(%esp), %edi		# get the function address
--	movl ORIG_EAX(%esp), %edx	# get the error code
--	movl %eax, ORIG_EAX(%esp)
--	movl %ecx, ES(%esp)
-+	movl PT_ES(%esp), %edi		# get the function address
-+	movl PT_ORIG_EAX(%esp), %edx	# get the error code
-+	movl %eax, PT_ORIG_EAX(%esp)
-+	movl %ecx, PT_ES(%esp)
- 	/*CFI_REL_OFFSET es, ES*/
- 	movl $(__USER_DS), %ecx
- 	movl %ecx, %ds
-@@ -928,26 +912,26 @@ ENTRY(arch_unwind_init_running)
- 	movl	4(%esp), %edx
- 	movl	(%esp), %ecx
- 	leal	4(%esp), %eax
--	movl	%ebx, EBX(%edx)
-+	movl	%ebx, PT_EBX(%edx)
- 	xorl	%ebx, %ebx
--	movl	%ebx, ECX(%edx)
--	movl	%ebx, EDX(%edx)
--	movl	%esi, ESI(%edx)
--	movl	%edi, EDI(%edx)
--	movl	%ebp, EBP(%edx)
--	movl	%ebx, EAX(%edx)
--	movl	$__USER_DS, DS(%edx)
--	movl	$__USER_DS, ES(%edx)
--	movl	%ebx, ORIG_EAX(%edx)
--	movl	%ecx, EIP(%edx)
-+	movl	%ebx, PT_ECX(%edx)
-+	movl	%ebx, PT_EDX(%edx)
-+	movl	%esi, PT_ESI(%edx)
-+	movl	%edi, PT_EDI(%edx)
-+	movl	%ebp, PT_EBP(%edx)
-+	movl	%ebx, PT_EAX(%edx)
-+	movl	$__USER_DS, PT_DS(%edx)
-+	movl	$__USER_DS, PT_ES(%edx)
-+	movl	%ebx, PT_ORIG_EAX(%edx)
-+	movl	%ecx, PT_EIP(%edx)
- 	movl	12(%esp), %ecx
--	movl	$__KERNEL_CS, CS(%edx)
--	movl	%ebx, EFLAGS(%edx)
--	movl	%eax, OLDESP(%edx)
-+	movl	$__KERNEL_CS, PT_CS(%edx)
-+	movl	%ebx, PT_EFLAGS(%edx)
-+	movl	%eax, PT_OLDESP(%edx)
- 	movl	8(%esp), %eax
- 	movl	%ecx, 8(%esp)
--	movl	EBX(%edx), %ebx
--	movl	$__KERNEL_DS, OLDSS(%edx)
-+	movl	PT_EBX(%edx), %ebx
-+	movl	$__KERNEL_DS, PT_OLDSS(%edx)
- 	jmpl	*%eax
- 	CFI_ENDPROC
- ENDPROC(arch_unwind_init_running)
-
---
-
+ int saa7134_tvaudio_do_scan(struct saa7134_dev *dev)
+ {
+-	if (dev->thread.pid >= 0) {
++	if (dev->thread.task) {
+ 		dev->thread.mode = UNSET;
+ 		dev->thread.scan2++;
+ 		wake_up_interruptible(&dev->thread.wq);

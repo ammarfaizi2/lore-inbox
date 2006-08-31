@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWHaXIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWHaXMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWHaXIn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 19:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWHaXIn
+	id S932481AbWHaXMu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 19:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWHaXMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 19:08:43 -0400
-Received: from averell.tiscali.it ([213.205.33.55]:31903 "EHLO
-	averell.tiscali.it") by vger.kernel.org with ESMTP id S932107AbWHaXIm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 19:08:42 -0400
-Date: Fri, 1 Sep 2006 01:08:38 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops while reading netdev stats from /proc/
-Message-ID: <20060831230838.GA15089@pp>
-References: <20060831200048.GA13051@pp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 31 Aug 2006 19:12:50 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:34238 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1750864AbWHaXMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 19:12:49 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
+Date: Thu, 31 Aug 2006 17:13:20 -0600
+User-Agent: KMail/1.9.1
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Adam Belay <abelay@novell.com>, "Brown, Len" <len.brown@intel.com>,
+       ACPI ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <20060830194317.GA9116@srcf.ucam.org>
+In-Reply-To: <20060830194317.GA9116@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060831200048.GA13051@pp>
-User-Agent: Mutt/1.3.28i
-From: Paolo <oopla@users.sourceforge.net>
+Message-Id: <200608311713.21618.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 10:00:49PM +0200, oopla wrote:
-> ksymoops 2.4.11 on i686 2.4.33.2-i+isdn-k7.  Options used
-...
-> Aug 28 14:10:29 estero1 kernel: Unable to handle kernel paging request at virtual address 022d9222
-> Aug 28 14:10:29 estero1 kernel: c01fb0c7
-> Aug 28 14:10:29 estero1 kernel: *pde = 00000000
-> Aug 28 14:10:29 estero1 kernel: Oops: 0002
-> Aug 28 14:10:29 estero1 kernel: CPU:    0
-> Aug 28 14:10:29 estero1 kernel: EIP:    0010:[sprintf_stats+103/176]    Not tainted
-...
+On Wednesday 30 August 2006 13:43, Matthew Garrett wrote:
+> That would be helpful. For the One Laptop Per Child project (or whatever 
+> it's called today), it would be advantageous to run without acpi.
 
-
-please keep it aside for a while, till I check the pc - just seen another
-oops in the logs with latest 2.4.x kernel:
-
-
-ksymoops 2.4.11 on i686 2.4.33.2-i+isdn-k7.  Options used
-...
-Aug 31 15:35:16 estero1 kernel: Unable to handle kernel paging request at virtua
-l address 69772f91
-Aug 31 15:35:16 estero1 kernel: c0117c71
-Aug 31 15:35:16 estero1 kernel: *pde = 00000000
-Aug 31 15:35:16 estero1 kernel: Oops: 0002
-Aug 31 15:35:16 estero1 kernel: CPU:    0
-Aug 31 15:35:16 estero1 kernel: EIP:    0010:[copy_mm+657/704]    Not tainted
-Aug 31 15:35:16 estero1 kernel: EFLAGS: 00010202
-Aug 31 15:35:16 estero1 kernel: eax: 00004111   ebx: daa20000   ecx: f7e34440   
-edx: f748a000
-...
-
-
-and at this point I suspect RAM problems.
-
-thanks
-
-8-- paolo
-
+Out of curiosity, what is the motivation for running without acpi?
+It costs a lot to diverge from the mainstream in areas like that,
+so there must be a big payoff.  But maybe if OLPC depends on acpi
+being smarter about power or code size or whatever, those improvements
+could be made and everybody would benefit.

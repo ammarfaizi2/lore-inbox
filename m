@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWHaE3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWHaEoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWHaE3s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 00:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWHaE3s
+	id S1751132AbWHaEoG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 00:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWHaEoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 00:29:48 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:18888 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751119AbWHaE3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 00:29:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZQe+ihXTqhNRlUoAjaoTa0UqUHz/KMHWI/Fgo8h5ZWX9g4y2oMuZiHTEGQYLnkE1Rf/o1AzLM3Hw3MDx9Lr3Pr8qfS8kB/NSonCbQyQfKlpH/aZEeGK9sUSrkGNriHkkOJL9U/fH3p9im8mDf0r1WjGTI9nu8y6Qy4ryCrFVuY8=
-Message-ID: <309a667c0608302129o55cdc88bt9e57683a9e5fa253@mail.gmail.com>
-Date: Thu, 31 Aug 2006 09:59:47 +0530
-From: "Devesh Sharma" <devesh28@gmail.com>
-To: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Question about Atomic operations
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 31 Aug 2006 00:44:06 -0400
+Received: from mail.gmx.net ([213.165.64.20]:48076 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751132AbWHaEoD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 00:44:03 -0400
+X-Authenticated: #14349625
+Subject: Re: A nice CPU resource controller
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: balbir@in.ibm.com, Martin Ohlin <martin.ohlin@control.lth.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44F6365A.8010201@bigpond.net.au>
+References: <44F5AB45.8030109@control.lth.se>
+	 <661de9470608300841o757a8704te4402a7015b230c5@mail.gmail.com>
+	 <44F6365A.8010201@bigpond.net.au>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 06:53:10 +0000
+Message-Id: <1157007190.6035.14.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Arjan and list,
+On Thu, 2006-08-31 at 11:07 +1000, Peter Williams wrote:
 
-The documentation related to atomic operations says that the following
-functions should be called in SMP safe maner
+> But your implication here is valid.  It is better to fiddle with the 
+> dynamic priorities than with nice as this leaves nice for its primary 
+> purpose of enabling the sysadmin to effect the allocation of CPU 
+> resources based on external considerations.
 
- void atomic_add(int i, atomic_t *v);
- void atomic_sub(int i, atomic_t *v);
- void atomic_inc(atomic_t *v);
- void atomic_dec(atomic_t *v);
+I don't understand.  It _is_ the administrator fiddling with nice based
+on external considerations.  It just steadies the administrator's hand.
 
-since the implementation of these functions are prefixed with LOCK
-prefix (On i386 arch.) which either asserts LOCK# signal or performs
-cache locking which gauarentees coherency.
+	-Mike
 
-Then why these functions should be called in SMP safe manner?

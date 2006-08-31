@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWHaWnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWHaWoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWHaWnG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWHaWnG
+	id S932469AbWHaWoy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 18:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWHaWoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:43:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56966 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932279AbWHaWnD (ORCPT
+	Thu, 31 Aug 2006 18:44:54 -0400
+Received: from xenotime.net ([66.160.160.81]:23209 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932469AbWHaWox (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:43:03 -0400
-Date: Thu, 31 Aug 2006 15:42:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: Re: [RFC] Simple userspace interface for PCI drivers
-Message-ID: <20060831224248.GA13990@kroah.com>
-References: <20060830062338.GA10285@kroah.com> <44F5C5E0.4050201@gmail.com> <20060830175250.GA6258@kroah.com> <44F6164F.6000709@gmail.com> <20060831001742.GB26265@kroah.com> <44F6E30E.7010501@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F6E30E.7010501@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 31 Aug 2006 18:44:53 -0400
+Date: Thu, 31 Aug 2006 15:48:19 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: prevent swsusp with PAE
+Message-Id: <20060831154819.259c9ce2.rdunlap@xenotime.net>
+In-Reply-To: <20060831223521.GB31125@elf.ucw.cz>
+References: <20060831135336.GL3923@elf.ucw.cz>
+	<20060831104304.e3514401.akpm@osdl.org>
+	<20060831223521.GB31125@elf.ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 05:24:30PM +0400, Manu Abraham wrote:
-> Usually in the typical application we have (where latency is an issue),
-> most probably many of the people have a saturated PCI bus. In most
-> cases, the IPTV guys have such a scenario. Say > 6 or 7 DVB adapters and
-> the latency goes very high.
+On Fri, 1 Sep 2006 00:35:21 +0200 Pavel Machek wrote:
 
-Sure, when you are pushing your hardware to the maximum, you should
-expect issues like this.  I agree we should do as best as we can for
-things like this, but when you over-subscribe your PCI bus by doing
-something like this, I really recommend just buying some hardware that
-will work better for you (separate PCI busses, etc.  The hardware is out
-there to do this properly.)
+> Hi!
+> 
+> > Pavel Machek <pavel@suse.cz> wrote:
+> > 
+> > > If HIGHMEM64G and swsusp are used at the same time, nasty random
+> > > crashes happen during resume. Cause is known; prevent that
+> > > combination.
+> > > 
+> > > I guess I'd like to see this one in 2.6.18...
+> > > 
+> > > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > > 
+> > > ---
+> > > commit acb3b411ec93f827b25b8481d53670c5c9195d89
+> > > tree f52cd5518e34af16fe5ae28064717bcc95929f28
+> > > parent cd03e183c58e6e7073e054a7fe335cf50c61fe2f
+> > > author <pavel@amd.ucw.cz> Thu, 31 Aug 2006 15:52:34 +0200
+> > > committer <pavel@amd.ucw.cz> Thu, 31 Aug 2006 15:52:34 +0200
+> > > 
+> > >  include/asm-i386/suspend.h |    8 ++++++++
+> > >  1 files changed, 8 insertions(+), 0 deletions(-)
+> > > 
+> > > diff --git a/include/asm-i386/suspend.h b/include/asm-i386/suspend.h
+> > > index 08be1e5..01cd812 100644
+> > > --- a/include/asm-i386/suspend.h
+> > > +++ b/include/asm-i386/suspend.h
+> > > @@ -16,6 +16,15 @@ arch_prepare_suspend(void)
+> > >  		printk(KERN_ERR "PSE is required for swsusp.\n");
+> > >  		return -EPERM;
+> > >  	}
+> > > +
+> > > +#ifdef CONFIG_X86_PAE
+> > > +	printk(KERN_ERR "swsusp is incompatible with PAE.\n");
+> > > +	/* This is actually instance of the same problem. We need
+> > > +	   identity mapping self-contained in swsusp_pg_dir, and PAE
+> > > +	   prevents that. Solution could be copied from x86_64. */
+> > > +	return -EPERM;
+> > > +#endif
+> > > +
+> > >  	return 0;
+> > >  }
+> > 
+> > Why not do this in Kconfig??
+> 
+> Well, Kconfig does not provide natural place for comments, and
+> disappearing config option is sure to confuse people. But of course I
+> can do it.
 
-> What i have seen is that when the bus gets saturated, the CPU usage
-> shoots of rather abnormally.
+Documentation/kbuild/kconfig-language.txt includes a "comment" keyword.
 
-As is to be expected.
+USB-storage uses it to suggest that SCSI + SCSI disk support need
+to be enabled for usb-storage.
 
-> When the latency goes higher, the resultant stream is useless and
-> packets needs to be dropped, eventually that results in Transport
-> Stream discontinuities.
-
-Sure, that's understandable.
-
-> Currently we already have a latency issue, based on the loud cries
-> from some people.
-
-Trying to do things the hardware is not ment to do, should not result in
-cries from users :)
-
-thanks,
-
-greg k-h
+---
+~Randy

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWHaSlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWHaTFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWHaSlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 14:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWHaSlJ
+	id S932109AbWHaTFm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 15:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWHaTFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 14:41:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:36450 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932313AbWHaSlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 14:41:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D3sqvqHrH33s3V+wgLfXdpyl7sTX7hxr776A//KZtLWDIvxu8IUVcNz8DJ9sbRjNy9PkSrsZhAchA8r12LM1M4uFJ3WcLFtumr6xkkz5mxTgbkoyvMLH/4MCkcEXfJ58cZt3TSyoSx9e0aUilxiB57uX4K4+fJ2VIxmajZqvpAE=
-Message-ID: <1defaf580608311141j39aa87e5ldf80db1db54b2edf@mail.gmail.com>
-Date: Thu, 31 Aug 2006 20:41:04 +0200
-From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Subject: Re: [RFC][PATCH 2/9] conditionally define generic get_order() (ARCH_HAS_GET_ORDER)
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <20060830221605.CFC342D7@localhost.localdomain>
+	Thu, 31 Aug 2006 15:05:42 -0400
+Received: from gw.goop.org ([64.81.55.164]:18865 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932109AbWHaTFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 15:05:41 -0400
+Message-ID: <44F73302.9000800@goop.org>
+Date: Thu, 31 Aug 2006 12:05:38 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>,
+       Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: SMP GDT setup
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060830221604.E7320C0F@localhost.localdomain>
-	 <20060830221605.CFC342D7@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/31/06, Dave Hansen <haveblue@us.ibm.com> wrote:
-> diff -puN mm/Kconfig~generic-get_order mm/Kconfig
-> --- threadalloc/mm/Kconfig~generic-get_order    2006-08-30 15:14:56.000000000 -0700
-> +++ threadalloc-dave/mm/Kconfig 2006-08-30 15:15:00.000000000 -0700
-> @@ -1,3 +1,7 @@
-> +config ARCH_HAVE_GET_ORDER
-> +       def_bool y
-> +       depends on IA64 || PPC32 || XTENSA
-> +
+Hi,
 
-I have a feeling this has been discussed before, but wouldn't it be
-better to let each architecture define this in its own Kconfig?
+I've been working on a set of patches to implement per-processor data 
+areas for i386, and changes to current and smp_processor_id() to take 
+advantage of the PDA.  The implementation relies on the per-CPU GDT to 
+set up a descriptor to the PDA memory, and then point %gs at that memory 
+within the kernel.  In other words, very similar to the x86-64 PDA 
+implementation.  (Posted to lkml yesterday, "Implement per-processor 
+data areas for i386." and followups.)
 
-At some point, I have to add AVR32 to that list, and if one or more
-other architectures need to do the same, there will be rejects.
+This works well, but there is a window early in CPU bringup where the 
+PDA has not been set up, and so smp_processor_id() and current are not 
+usable.  For now, I'm defining early_* versions of these operations, 
+which fall back to using the thread_info structure.  For the boot CPU, 
+I'm currently setting up an early boot-time PDA corresponding to the 
+boot-time GDT, which is replaced in cpu_init().
 
-Haavard
+For secondary CPUs, I'm currently allocating the GDT and PDA on the boot 
+CPU before bringing up the secondary, so I can avoid doing allocation 
+before setting up the PDA (since the allocation code uses current). It 
+would be nice to have the PDA set up much earlier so that this is not an 
+issue.  Almost all the work can be done in advance before bringing up 
+the secondary, and then head.S can simply lgdt its GDT and set %gs 
+before even hitting C code, so that smp_processor_id and current will 
+always work in C code.
+
+I was thinking about how to go about doing this, and from looking over 
+the history of common/cpu.c, it seems that my contemplated changes (use 
+a static GDT and PDA for the boot CPU; use a simple cpu-id indexed array 
+for other CPU GDT descrpitors and PDAs rather than using percpu()) would 
+substantially revert your changes from 25 Feb 2006: "x86: fix broken SMP 
+boot sequence", change 2b932f6cf052920fb3a6281499e08209b08f5086.
+
+So, I'm wondering if you have any thoughts or suggestions for how I 
+might go about doing this?
+
+Thanks,
+    J

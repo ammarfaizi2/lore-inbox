@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWHaW3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWHaWbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWHaW3g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 18:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHaW3g
+	id S932460AbWHaWbe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 18:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWHaWbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 18:29:36 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56468 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932214AbWHaW3g (ORCPT
+	Thu, 31 Aug 2006 18:31:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57236 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932460AbWHaWbd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 18:29:36 -0400
-Date: Fri, 1 Sep 2006 00:29:20 +0200
+	Thu, 31 Aug 2006 18:31:33 -0400
+Date: Fri, 1 Sep 2006 00:31:21 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       perex@suse.cz, alsa-devel@alsa-project.org, pshou@realtek.com.tw
-Subject: Re: sound/pci/hda/intel_hda: small cleanups
-Message-ID: <20060831222920.GF12847@elf.ucw.cz>
-References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de> <20060831133929.GH3923@elf.ucw.cz> <s5hveo90xdu.wl%tiwai@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: cpu_init is called during resume
+Message-ID: <20060831223121.GG12847@elf.ucw.cz>
+References: <20060831135545.GM3923@elf.ucw.cz> <44F70A4B.4090803@goop.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hveo90xdu.wl%tiwai@suse.de>
+In-Reply-To: <44F70A4B.4090803@goop.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,70 +27,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > @@ -271,8 +272,8 @@ struct azx_dev {
-> > > >  	/* for sanity check of position buffer */
-> > > >  	unsigned int period_intr;
-> > > >  
-> > > > -	unsigned int opened: 1;
-> > > > -	unsigned int running: 1;
-> > > > +	unsigned int opened :1;
-> > > > +	unsigned int running :1;
-> > > >  };
-> > > >  
-> > > >  /* CORB/RIRB */
-> > > > @@ -330,8 +331,8 @@ struct azx {
-> > > >  
-> > > >  	/* flags */
-> > > >  	int position_fix;
-> > > > -	unsigned int initialized: 1;
-> > > > -	unsigned int single_cmd: 1;
-> > > > +	unsigned int initialized :1;
-> > > > +	unsigned int single_cmd :1;
-> > > >  };
-> > > 
-> > > Any official standard reference for bit-field expressions?
-> > 
-> > Well, logically : belongs to the 1, and include/linux understands it
-> > like that...
+> >cpu_init() is called during resume, at time when GFP_KERNEL is not
+> >available. This silences warning, and adds few small cleanups.
+> >  
 > 
-> OK, "xxx :1;" looks major, too :)
-> 
-> > > >  /* driver types */
-> > > > @@ -642,14 +643,14 @@ static int azx_reset(struct azx *chip)
-> > > >  	azx_writeb(chip, GCTL, azx_readb(chip, GCTL) | ICH6_GCTL_RESET);
-> > > >  
-> > > >  	count = 50;
-> > > > -	while (! azx_readb(chip, GCTL) && --count)
-> > > > +	while (!azx_readb(chip, GCTL) && --count)
-> > > >  		msleep(1);
-> > > 
-> > > Hm, it looks rather like a personal preference.
-> > > IMHO, it's harder to read without space...
-> > 
-> > Well, core parts (sched.c?) use it without the space, and I'd say (!
-> > expression) is unusual in kernel, but no, could not find it codified.
-> 
-> I don't mind much to change it now, but hopefully people won't be too
-> strict about this rule...
+> I presume this is resume from disk.  If you're doing resume from RAM, 
+> all the CPU-related stuff should already be allocated, unless you're 
+> bringing up a new CPU which wasn't previously there, right?
 
-Thanks.
+We are doing virtual cpu hotplug/unplug... actually suspend to RAM
+*and* disk. Just try it :-).
 
-> > > I'll fix the volatile things separately.
-> 
-> The access is really over RAM, not MMIO.  So it should be OK to access
-> in that way.  But volatile seems superfluous.  I'll get rid of it.
+> And wouldn't making these allocations atomic make real CPU hotplug (ie, 
+> on an active, running system) more likely to fail?  This code doesn't 
+> deal with allocation failure very elegantly.
 
-Sorry, I understood the code well enough to sense something is wrong,
-but not enough to know how to fix it.
-
-> Also, msleep() in the removal should be synchronize_irq().
-
-Good.
-
-> I'll fix these changes and commit with your space fixes to ALSA tree.
-
-Thanks!
-									Pavel
+Hmm... well hopefully free_pages_min will cover this case.
+								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

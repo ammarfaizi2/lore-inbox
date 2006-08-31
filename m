@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWHaUZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWHaU0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWHaUZH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 16:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWHaUZH
+	id S1750810AbWHaU0h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 16:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWHaU0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 16:25:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57480 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750788AbWHaUZE (ORCPT
+	Thu, 31 Aug 2006 16:26:37 -0400
+Received: from hera.kernel.org ([140.211.167.34]:59059 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750810AbWHaU0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 16:25:04 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] NOMMU: Permit ptrace to ignore non-PROT_WRITE VMAs in NOMMU mode
-Date: Thu, 31 Aug 2006 21:24:29 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com
-Message-Id: <20060831202429.24083.96888.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 31 Aug 2006 16:26:37 -0400
+Date: Thu, 31 Aug 2006 20:26:36 +0000
+From: Willy Tarreau <wtarreau@hera.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.33.3
+Message-ID: <20060831202636.GA26765@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+Hi !
 
-Permit ptrace to modify a section that's non-shared but is marked unwritable,
-such as is obtained by mapping the text segment of an ELF-FDPIC executable
-binary with into a binary that's being ptraced[*].
+This is the third version of 2.4.33-stable. The fix for the UDF deadlock
+mentionned in previous announce has been merged, as well as the second
+part of the SCTP fix. Other patches fix rather minor but annoying bugs.
 
-[*] Under NOMMU conditions ptrace causes read-only MAP_PRIVATE mmaps to become
-    totally private copies because if a private mapping was actually shared
-    then the debugging setting breakpoints in it would potentially crash
-    other processes.
+Regards,
+Willy
 
-This is done by using the VM_MAYWRITE flag rather than the VM_WRITE flag when
-deciding whether to permit a write.
+Summary of changes from v2.4.33.2 to v2.4.33.3
+============================================
 
-Without this patch a debugger can't set breakpoints in the mapped text sections
-of executables that are mapped read-only private, even if the mmap() syscall
-has taken a private copy because PT_PTRACED is set.
+dann frazier:
+      [SCTP] Fix sctp_primitive_ABORT() call in sctp_close()
+      Fix possible UDF deadlock and memory corruption (CVE-2006-4145)
 
-In addition, VM_MAYREAD is used instead of VM_READ for similar reasons.
+Jeff Mahoney:
+      [DISKLABEL] SUN: Fix signed int usage for sector count
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+PaX Team:
+      cciss: do not mark cciss_scsi_detect __init
 
- mm/nommu.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Solar Designer:
+      crypto : prevent cryptoloop from oopsing on stupid ciphers
+      loop.c: kernel_thread() retval check
 
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 51e17b9..9d57c2a 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -1234,9 +1234,9 @@ int access_process_vm(struct task_struct
- 			len = vma->vm_end - addr;
- 
- 		/* only read or write mappings where it is permitted */
--		if (write && vma->vm_flags & VM_WRITE)
-+		if (write && vma->vm_flags & VM_MAYWRITE)
- 			len -= copy_to_user((void *) addr, buf, len);
--		else if (!write && vma->vm_flags & VM_READ)
-+		else if (!write && vma->vm_flags & VM_MAYREAD)
- 			len -= copy_from_user(buf, (void *) addr, len);
- 		else
- 			len = 0;
+Willy Tarreau:
+      Change VERSION to 2.4.33.3
+

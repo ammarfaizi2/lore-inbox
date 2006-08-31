@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWHaIGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWHaIJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWHaIGW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 04:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWHaIGW
+	id S1751261AbWHaIJc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 04:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWHaIJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 04:06:22 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:20183 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751279AbWHaIGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 04:06:20 -0400
-Subject: Re: end_swap_bio_write error handling
-From: Richard Purdie <rpurdie@rpsys.net>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060831105826.b45ea424.kamezawa.hiroyu@jp.fujitsu.com>
-References: <1156884514.5600.70.camel@localhost.localdomain>
-	 <20060831105826.b45ea424.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 09:05:31 +0100
-Message-Id: <1157011532.5530.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 31 Aug 2006 04:09:31 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:19933 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751261AbWHaIJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 04:09:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LrpJ0ADsqxORoA2NLUKjliWtBR6aSQWbFOlZHrZvLyMevYQ6aB7lNSm15JwiY4XY0qa+9L2VwgjC0KWUWqZ6B+FcLG3a7lpm/ou7iyk5bXduJUqtCsfXIyR0p2slyLIzjofc50mlf3mB6Vf7s75blwrlg0sGAFXPmyaNBDTJudQ=
+Message-ID: <4e5ebad50608310109l489f39c0te466cfc3dbe3dc13@mail.gmail.com>
+Date: Thu, 31 Aug 2006 16:09:30 +0800
+From: "Sonic Zhang" <sonic.adi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Check if start address is in vma region in NOMMU function get_user_pages().
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 10:58 +0900, KAMEZAWA Hiroyuki wrote:
-> Now, swap-write-failure-fixup.patch is merged in -mm kernel.
-> ==
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/mm-swap-write-failure-fixup.patch
-> ==
-> error message comes and a page turns to be dirty again.
+Hi,
 
-+	if (!uptodate) {
- 		SetPageError(page);
-+		/*
-+		 * We failed to write the page out to swap-space.
-+		 * Re-dirty the page in order to avoid it being reclaimed.
-+		 * Also print a dire warning that things will go BAD (tm)
-+		 * very quickly.
-+		 *
-+		 * Also clear PG_reclaim to avoid rotate_reclaimable_page()
-+		 */
-+		set_page_dirty(page);
-+		printk(KERN_ALERT "Write-error on swap-device (%d:%d)\n",
-+				imajor(bio->bi_bdev->bd_inode),
-+				iminor(bio->bi_bdev->bd_inode));
-+		ClearPageReclaim(page);
+In NOMMU arch, if run "cat /proc/self/mem", data from physical address
+0 are read. This behavior is different from MMU arch.  In IA32,
+message "cat: /proc/self/mem: Input/output error" is reported.
 
-I'm not 100% convinced this will help as if you SetPageError, it will
-still end up killing off the processes involved. Removing the
-SetPageError gives much more stable results in my testing. I was
-wondering how to stop it repeatedly trying to write to the particular
-swap file sector. ClearPageReclaim() doesn't appear to help much as
-rotate_reclaimable_page() does check if a page is dirty.
+This issue is rootcaused by not validate the start address in NOMMU
+function get_user_pages(). Following patch solves this issue.
 
-Ideally, we should remap the page to a new swap sector so we can mark
-the existing one as bad. The easiest way to do that might be to have the
-page move out of the PageSwapCache although I've not worked out how to
-do that yet.
+Thanks
 
-Richard
+Sonic Zhang
 
 
+Signed-off-by: Sonic Zhang <sonic.adi@gmail.com>
 
+--- linux-2.6.x/mm/nommu.c	2006-08-31 15:53:09.269952304 +0800
++++ linux-2.6.x/mm/nommu.c	2006-08-31 15:49:58.634933232 +0800
+@@ -138,16 +138,20 @@
+ 	struct page **pages, struct vm_area_struct **vmas)
+ {
+ 	int i;
+-	static struct vm_area_struct dummy_vma;
++	struct vm_area_struct *vma;
+
+ 	for (i = 0; i < len; i++) {
++		vma = find_vma(mm, start);
++		if(!vma)
++			return i ? : -EFAULT;
++		
+ 		if (pages) {
+ 			pages[i] = virt_to_page(start);
+ 			if (pages[i])
+ 				page_cache_get(pages[i]);
+ 		}
+ 		if (vmas)
+-			vmas[i] = &dummy_vma;
++			vmas[i] = vma;
+ 		start += PAGE_SIZE;
+ 	}
+ 	return(i);

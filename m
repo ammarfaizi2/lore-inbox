@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWHaGqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWHaGy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWHaGqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 02:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWHaGqr
+	id S1750835AbWHaGy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 02:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWHaGy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 02:46:47 -0400
-Received: from hera.kernel.org ([140.211.167.34]:50861 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750731AbWHaGqq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 02:46:46 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: "Moore, Robert" <robert.moore@intel.com>
-Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-Date: Thu, 31 Aug 2006 02:48:29 -0400
-User-Agent: KMail/1.8.2
-Cc: "Li, Shaohua" <shaohua.li@intel.com>, "Mattia Dongili" <malattia@linux.it>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, Keith Mannthey <kmannth@us.ibm.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-References: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
-In-Reply-To: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
+	Thu, 31 Aug 2006 02:54:27 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:8587 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750835AbWHaGy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 02:54:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SvjHP3+IQTCKU4XPL/dg04wt5f2O9YLYwB3I17bc1nQUN41/dCf4GQBMR9iyk5PMsgPSIwaWGtYiXW1RrjogyQeZYuNOIhNjzF0ZsyVuBsU8ZKPSmQ0IYomEWn0FDRG15/yx+Zis6etuTDJAXO9p2zaFhw9cklG/FdGrGCX8kts=
+Message-ID: <ccbc91640608302354x66f802bdi34fd61b12603d5db@mail.gmail.com>
+Date: Thu, 31 Aug 2006 06:54:26 +0000
+From: "=?GB2312?B?tq22rdmp?=" <doublefacer007@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM:
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608310248.29861.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 August 2006 16:04, Moore, Robert wrote:
-> As far as the unknown exception,
-> 
-> >[    9.392729]  [<c0246fb6>] acpi_ut_status_exit+0x31/0x5e
-> >[    9.393453]  [<c0243352>] acpi_walk_resources+0x10e/0x11b
-> >[    9.394174]  [<c025697e>] acpi_motherboard_add+0x22/0x31
-> 
-> I would guess that the callback routine for walk_resources is returning
-> a non-zero status value which is causing an immediate abort of the walk
-> with that value -- and the value is bogus.
+Hi,
+   I has found a bug that is caused by dead lock on ip_nat_ftp module
+in linux kernel 2.4.27 on SMP machine.
+   My workaround of testing is as following:
+   I create a router by iptables ,FTP client and FTP server for testing.
+     client machine ip: 192.168.1.3/32 ,gateway 192.168.1.10/32
+     server machine ip: 192.168.2.3/32,gateway 192.168.2.10/32
+     router machine with tow NICs,
+       eth0:192.168.1.10/32
+       eth1:192.168.2.10/32
+  Testing flow:
+    on router:
+      echo 1 > /proc/sys/net/ipv4/ip_forward
+      modprobe ip_nat_ftp
+      iptables -t nat -A POSTROUTING -s 192.168.1.3 -p tcp --dport 21
+-o eth1 -j SNAT --to-source 192.168.2.10
+    on client:
+       I use a benchmark tool to create ftp sessions with the  remote
+FTP server.In the session,includes ftp control connections and data
+connections.The sending rate is about 500 sessions/10s.
+    When the num of conntrack is up to 15000,I rmmod the ip_nat_ftp
+and ip_conntrack _ftp modules by typing "modprobe -r ip_nat_ftp"
+command and then the kernel is dead locked.
 
-Yep, see -EINVAL below.
-
--Len
-
-http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-fix.patch
-
-
-
-From: Keith Mannthey <kmannth@us.ibm.com>
-
-This patch set allow SPARSEMEM and RESERVE based hot-add to work.  I have
-test both options and they work as expected.  I am adding memory to the
-2nd node of a numa system (x86_64).
-
-Major changes from last set is the config change and RESERVE enablment.
-
-
-This patch:
-
-
-Make ACPI motherboard driver not attach to devices/handles it dosen't expect.
-Fix a bug where the motherboard driver attached to hot-add memory event and
-caused the add memory call to fail.
-
-Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andi Kleen <ak@muc.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
-
-diff -puN drivers/acpi/motherboard.c~hot-add-mem-x86_64-acpi-motherboard-fix drivers/acpi/motherboard.c
---- a/drivers/acpi/motherboard.c~hot-add-mem-x86_64-acpi-motherboard-fix
-+++ a/drivers/acpi/motherboard.c
-@@ -87,6 +87,7 @@ static acpi_status acpi_reserve_io_range
- 		}
- 	} else {
- 		/* Memory mapped IO? */
-+		 return -EINVAL;
- 	}
- 
- 	if (requested_res)
-@@ -96,11 +97,16 @@ static acpi_status acpi_reserve_io_range
- 
- static int acpi_motherboard_add(struct acpi_device *device)
- {
-+	acpi_status status;
- 	if (!device)
- 		return -EINVAL;
--	acpi_walk_resources(device->handle, METHOD_NAME__CRS,
-+
-+	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
- 			    acpi_reserve_io_ranges, NULL);
- 
-+	if (ACPI_FAILURE(status))
-+		return -ENODEV;
-+
- 	return 0;
- }
- 
-_
+I think that the dead lock is caused by ip_conntrack_lock and
+ip_nat_lock.When I rmmod the ip_nat_ftp module, the function flow is
+as following:
+ip_nat_helper_unregister->ip_ct_selective_cleanup->get_next_corpse(ip_conntrack_lock)
+ ->kill_helper(ip_nat_lock)
+But the kernel there is another flow is as following:
+ip_nat_fn(ip_nat_lock)->ip_nat_setup_info->ip_conntrack_alter_reply(ip_conntrack_lock)

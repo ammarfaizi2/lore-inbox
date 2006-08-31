@@ -1,98 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHaTO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWHaTRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWHaTO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 15:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHaTO0
+	id S932150AbWHaTRD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 15:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWHaTRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 15:14:26 -0400
-Received: from hera.kernel.org ([140.211.167.34]:35756 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932315AbWHaTOZ (ORCPT
+	Thu, 31 Aug 2006 15:17:03 -0400
+Received: from THUNK.ORG ([69.25.196.29]:34011 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932150AbWHaTRB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 15:14:25 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: ibm-acpi documentation: delete irrelevant "how to compile external module"
-Date: Thu, 31 Aug 2006 15:16:00 -0400
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       borislav@users.sourceforge.net
-References: <20060831121554.GV3923@elf.ucw.cz>
-In-Reply-To: <20060831121554.GV3923@elf.ucw.cz>
+	Thu, 31 Aug 2006 15:17:01 -0400
+Date: Thu, 31 Aug 2006 15:16:49 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Richard Amick <richa03@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXT3-fs error
+Message-ID: <20060831191649.GC5708@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Richard Amick <richa03@gmail.com>, linux-kernel@vger.kernel.org
+References: <26279fb90608311102w2d74ed03w1ca5d1ea359a8b1b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608311516.00435.len.brown@intel.com>
+In-Reply-To: <26279fb90608311102w2d74ed03w1ca5d1ea359a8b1b@mail.gmail.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
-thanks,
--Len
+On Thu, Aug 31, 2006 at 11:02:35AM -0700, Richard Amick wrote:
+> 
+> My question:
+> How do I determine what is/was contained in "directory #14058742"?
 
-On Thursday 31 August 2006 08:15, Pavel Machek wrote:
-> 
-> ibm-acpi documentation contains parts that are no longer relevant
-> because ibm-acpi was merged.
-> 
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
-> diff --git a/Documentation/ibm-acpi.txt b/Documentation/ibm-acpi.txt
-> index 8b3fd82..8d57efa 100644
-> --- a/Documentation/ibm-acpi.txt
-> +++ b/Documentation/ibm-acpi.txt
-> @@ -52,40 +52,7 @@ Installation
->  
->  If you are compiling this driver as included in the Linux kernel
->  sources, simply enable the CONFIG_ACPI_IBM option (Power Management /
-> -ACPI / IBM ThinkPad Laptop Extras). The rest of this section describes
-> -how to install this driver when downloaded from the web site.
-> -
-> -First, you need to get a kernel with ACPI support up and running.
-> -Please refer to http://acpi.sourceforge.net/ for help with this
-> -step. How successful you will be depends a lot on you ThinkPad model,
-> -the kernel you are using and any additional patches applied. The
-> -kernel provided with your distribution may not be good enough. I
-> -needed to compile a 2.6.7 kernel with the 20040715 ACPI patch to get
-> -ACPI working reliably on my ThinkPad X40. Old ThinkPad models may not
-> -be supported at all.
-> -
-> -Assuming you have the basic ACPI support working (e.g. you can see the
-> -/proc/acpi directory), follow the following steps to install this
-> -driver:
-> -
-> -	- unpack the archive:
-> -
-> -		tar xzvf ibm-acpi-x.y.tar.gz; cd ibm-acpi-x.y
-> -
-> -	- compile the driver:
-> -
-> -		make
-> -
-> -	- install the module in your kernel modules directory:
-> -
-> -		make install
-> -
-> -	- load the module:
-> -
-> -		modprobe ibm_acpi
-> -
-> -After loading the module, check the "dmesg" output for any error messages.
-> -
-> +ACPI / IBM ThinkPad Laptop Extras).
->  
->  Features
->  --------
-> 
-> -- 
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+You can run debugfs on the mounted filesystem and give the command:
+
+debugfs: ls <14058742>
+
+You can figure out its pathname by doing a:
+
+debugfs: cd <14058742>
+debugfs: pwd
+
+> Running e2fsck is really not an option right now as this is a
+> production server and a very large volume (300GB with 150GB used).
+
+Note though that your filesystem *is* corrupted, and running with
+errors (as you are currently doing) can risk further filesystem
+corruption leading to data loss --- in the worst case, significant
+data loss.  
+
+In this particular case, if the reported corrupted directory entry is
+the *only* filesystem corruption, it's not likely that it will cause
+any problems, but....  This is the point where sky divers are asked to
+sign a liability release waiver that essentially says, "I am about to
+do this really silly, dangerous thing of my own free will, and it
+could lead to significant injury or DEATH."  It might be safe to sky
+dive --- although I've never seen the point of jumping out of a
+perfectly good airplane --- but there is risk involved.  Some people
+seem to get off on risk, though.  :-)
+
+At the very least, I would recommend doing a full backup of your
+system....
+
+					- Ted

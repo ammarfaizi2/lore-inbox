@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWIARBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWIARCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWIARBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 13:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWIARBL
+	id S932457AbWIARCd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 13:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWIARCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 13:01:11 -0400
-Received: from pat.uio.no ([129.240.10.4]:6282 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932205AbWIARBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 13:01:09 -0400
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060901093451.87aa486d.akpm@osdl.org>
-References: <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
+	Fri, 1 Sep 2006 13:02:33 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:50422 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S932457AbWIARCc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 13:02:32 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157128157.28577.129.camel@localhost.localdomain>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157128157.28577.129.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 13:00:44 -0400
-Message-Id: <1157130044.5632.87.camel@localhost>
+Organization: IBM Corporation
+Date: Fri, 01 Sep 2006 19:02:30 +0200
+Message-Id: <1157130150.21733.70.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.121, required 12,
-	autolearn=disabled, AWL 1.88, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 09:34 -0700, Andrew Morton wrote:
+On Fri, 2006-09-01 at 09:29 -0700, Dave Hansen wrote:
+> > 3) The page-has-a-writable-mapping (PG_writable) bit is set when the
+> > first writable pte for a page is established. The page needs to have a
+> > different state if a writable pte exists compared to a read-only page.
+> > The alternative without the page bit would be to do the state change
+> > every time a writable pte is established or to search all ptes of a
+> > given page. Both have performance implications.  
+> 
+> What are the performance implications?  Do they completely erase any
+> performance gains that these patches might have given in the first
+> place?  Has there been any evaluation of these other two alternatives?
+> As I understand it, carrying out this performance analysis would be very
+> difficult for most of the kernel community to perform.
 
-> nfs automounter submounts are still broken in Trond's tree, btw.  Are we stuck?
+It seemed obvious to me that anything else than checking a bit is way to
+expensive. I never implemented nor measured any of the alternatives. The
+alternative to do the state change every time a writable pte is
+established can be implemented without too much trouble. Perhaps I will
+give it a try next week.
 
-You mean autofs indirect maps?
+> Keeping a nice count of the number of writable PTEs sounds like
+> something that might be generally useful.  Could we split
+> page->_mapcount to keep track of r/o and r/w ptes separately?  Or,
+> perhaps a single bit in it can be utilized to replace PG_writable,
+> instead.
 
-I'll see if I can't get my hands on an selinux setup like yours in order
-to do some debugging. AFAICS, the non-selinux case works fine, though.
+Yes, that would be really useful for the writable ptes. But I have the
+feeling that the actual implementation of it will be tricky.
 
-Cheers,
-  Trond
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWIAVQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWIAVKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWIAVQv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWIAVQv
+	id S1750896AbWIAVKA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWIAVKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:16:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:8395 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750897AbWIAVQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:16:50 -0400
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ian Stirling <ian.stirling@mauve.plus.com>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Rob Landley <rob@landley.net>,
-       linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
-In-Reply-To: <44F88B98.3020805@mauve.plus.com>
-References: <1156429585.3012.58.camel@pmac.infradead.org>
-	 <1156433068.3012.115.camel@pmac.infradead.org>
-	 <200608251611.50616.rob@landley.net>
-	 <1156538115.3038.6.camel@pmac.infradead.org>
-	 <44F2CB09.2010809@aitel.hist.no>
-	 <1156764076.5340.75.camel@pmac.infradead.org>
-	 <44F88B98.3020805@mauve.plus.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 14:15:28 -0700
-Message-Id: <1157145328.2473.3.camel@shinybook.infradead.org>
+	Fri, 1 Sep 2006 17:10:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33756 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750896AbWIAVJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 17:09:59 -0400
+Date: Fri, 1 Sep 2006 14:03:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Tom Tucker <tom@opengridcomputing.com>,
+       Steve Wise <swise@opengridcomputing.com>,
+       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile
+ error
+Message-Id: <20060901140313.51cf077b.akpm@osdl.org>
+In-Reply-To: <ada4pvria3v.fsf@cisco.com>
+References: <20060901015818.42767813.akpm@osdl.org>
+	<20060901160023.GB18276@stusta.de>
+	<20060901101340.962150cb.akpm@osdl.org>
+	<adak64nij8f.fsf@cisco.com>
+	<20060901112312.5ff0dd8d.akpm@osdl.org>
+	<ada8xl3ics4.fsf@cisco.com>
+	<20060901130444.48f19457.akpm@osdl.org>
+	<ada4pvria3v.fsf@cisco.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 20:35 +0100, Ian Stirling wrote:
-> I thought that it used rather a lot more RAM. I still often(ish)
-> compile a kernel on my PII/300/128M. It'd be moderately annoying if it
-> got slower, and there was no way to turn it off.
+On Fri, 01 Sep 2006 13:51:32 -0700
+Roland Dreier <rdreier@cisco.com> wrote:
 
-There will definitely be a way to turn it off. Compilers with all the
-relevant bugs fixed are not common yet -- in fact I think I may have the
-_only_ existing builds with all the patches collected together.
+>     Andrew> No, driver-specific workarounds are not legitimate, sorry.
+> 
+>     Andrew> The driver should simply fail to compile on architectures
+>     Andrew> which do not implement __raw_writeq().
+> 
+> But how should i386 (say) implement __raw_writeq()?  As two
+> __raw_writel()s protected by a spinlock (that serializes all IO
+> transactions)?  That seems rather ugly.
+> 
 
--- 
-dwmw2
-
+If it's a choice between "ugly" and "doesn't work on x86", we'll take
+"ugly" ;)
 
 -- 
 VGER BF report: H 0

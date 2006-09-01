@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWIAUyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWIAU7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWIAUyK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 16:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWIAUyJ
+	id S1750833AbWIAU7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 16:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWIAU7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 16:54:09 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:3260 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1750803AbWIAUyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 16:54:07 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Tom Tucker <tom@opengridcomputing.com>,
-       Steve Wise <swise@opengridcomputing.com>,
-       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile error
+	Fri, 1 Sep 2006 16:59:32 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:17725 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750833AbWIAU7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 16:59:31 -0400
+X-IronPort-AV: i="4.08,201,1154934000"; 
+   d="scan'208"; a="316994029:sNHT33342476"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, Adrian Bunk <bunk@stusta.de>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [openib-general] 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile error
 X-Message-Flag: Warning: May contain useful information
 References: <20060901015818.42767813.akpm@osdl.org>
 	<20060901160023.GB18276@stusta.de>
 	<20060901101340.962150cb.akpm@osdl.org> <adak64nij8f.fsf@cisco.com>
 	<20060901112312.5ff0dd8d.akpm@osdl.org> <ada8xl3ics4.fsf@cisco.com>
-	<20060901130444.48f19457.akpm@osdl.org>
-	<20060901204343.GA4979@flint.arm.linux.org.uk>
+	<1157143527.20958.8.camel@chalcedony.pathscale.com>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 01 Sep 2006 13:54:04 -0700
-In-Reply-To: <20060901204343.GA4979@flint.arm.linux.org.uk> (Russell King's message of "Fri, 1 Sep 2006 21:43:43 +0100")
-Message-ID: <adazmdjgvf7.fsf@cisco.com>
+Date: Fri, 01 Sep 2006 13:59:26 -0700
+In-Reply-To: <1157143527.20958.8.camel@chalcedony.pathscale.com> (Bryan O'Sullivan's message of "Fri, 01 Sep 2006 13:45:27 -0700")
+Message-ID: <adaveo7gv69.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Sep 2006 20:54:05.0988 (UTC) FILETIME=[C3651640:01C6CE08]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+X-OriginalArrivalTime: 01 Sep 2006 20:59:29.0928 (UTC) FILETIME=[847A6880:01C6CE09]
+Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
 	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Russell> Sure, if you want a _non-atomic_ 64-bit write then that's
-    Russell> possible, but many 32-bit architectures can't do a 64-bit
-    Russell> atomic IO write and that isn't something they can "fix".
+    Roland> Yes, I agree that's a good plan, especially the
+    Roland> documentation part.  However I would argue that what's in
+    Roland> drivers/infiniband/hw/mthca/mthca_doorbell.h is
+    Roland> legitimate: the driver uses __raw_writeq() when it exists
+    Roland> and uses two __raw_writel()s properly serialized with a
+    Roland> device-specific lock to get exactly the atomicity it needs
+    Roland> on 32-bit archs.
 
-I agree completely.  And going one step further: if an architecture
-cannot implement a 64-bit write atomically, then the precise
-serialization that is required is device-specific knowledge that
-belongs in the device driver.
+    Bryan> On the off chance that you might be arguing that
+    Bryan> mthca_write64 could be a candidate drop-in for writeq on
+    Bryan> 32-bit arches:
 
-(For example, in the mthca case, the only serialization required is
-that no writes go to the same page of MMIO space between the two
-32-bit halves of the 64-bit write)
+No, quite the opposite.  I'm arguing that the wrappers in mthca do
+legitimately belong in a device driver, since they encapsulate
+device-specific knowledge about what serialization suffices when an
+atomic __raw_writeq() is not available.
+
+    Bryan> That approach might work on mthca hardware, but it's not
+    Bryan> safe in general.  The ipath driver requires a proper
+    Bryan> writeq(), for example, because the hardware will quite
+    Bryan> legitimately treat 32-bit writes to some registers as
+    Bryan> separate accesses, and screw things up royally.
+
+Yes, that's an unfortunate feature of the ipath hardware that
+apparently makes it impossible to drive on a generic 32-bit architecture.
+
+So perhaps writeq()/__raw_writeq() need to be defined to generate a
+single bus cycle to the extent that makes sense.  Which would mean
+that it's not possible to implement on all architectures.
 
  - R.
 

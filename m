@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWIAB7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWIAB77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWIAB7J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWIAB7I
+	id S1750905AbWIAB77 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWIAB77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:59:08 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:24968 "EHLO
+	Thu, 31 Aug 2006 21:59:59 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:31368 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1750754AbWIAB7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:59:04 -0400
-Date: Thu, 31 Aug 2006 21:58:51 -0400
+	id S1750859AbWIAB75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:59:57 -0400
+Date: Thu, 31 Aug 2006 21:59:46 -0400
 From: Josef Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@ftp.linux.org.uk
-Subject: [PATCH 18/22][RFC] Unionfs: Superblock operations
-Message-ID: <20060901015851.GS5788@fsl.cs.sunysb.edu>
+Subject: [PATCH 19/22][RFC] Unionfs: Helper macros/inlines
+Message-ID: <20060901015945.GT5788@fsl.cs.sunysb.edu>
 References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains the superblock operations for Unionfs.
+This patch contains many macros and inline functions used thoughout Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -35,18 +35,17 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
- fs/unionfs/super.c |  352 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 352 insertions(+)
+ fs/unionfs/fanout.h |  188 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 188 insertions(+)
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/super.c linux-2.6-git-unionfs/fs/unionfs/super.c
---- linux-2.6-git/fs/unionfs/super.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/super.c	2006-08-31 19:04:01.000000000 -0400
-@@ -0,0 +1,352 @@
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/fanout.h linux-2.6-git-unionfs/fs/unionfs/fanout.h
+--- linux-2.6-git/fs/unionfs/fanout.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/fanout.h	2006-08-31 19:04:00.000000000 -0400
+@@ -0,0 +1,188 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005-2006 Josef Sipek
 + * Copyright (c) 2005      Arun M. Krishnakumar
 + * Copyright (c) 2004-2006 David P. Quigley
 + * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
@@ -61,336 +60,173 @@ diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/super
 + * This Copyright notice must be kept intact and distributed with all sources.
 + */
 +
-+#include "union.h"
++#ifndef _FANOUT_H_
++#define _FANOUT_H_
 +
-+/* The inode cache is used with alloc_inode for both our inode info and the
-+ * vfs inode.  */
-+static kmem_cache_t *unionfs_inode_cachep;
-+
-+static void unionfs_read_inode(struct inode *inode)
++/* Inode to private data */
++static inline struct unionfs_inode_info *itopd(const struct inode *inode)
 +{
-+	static struct address_space_operations unionfs_empty_aops;
-+	int size;
-+
-+	if (!itopd(inode)) {
-+		printk(KERN_ERR "No kernel memory when allocating inode "
-+				"private data!\n");
-+		BUG();
-+	}
-+
-+	memset(itopd(inode), 0, sizeof(struct unionfs_inode_info));
-+	itopd(inode)->b_start = -1;
-+	itopd(inode)->b_end = -1;
-+	atomic_set(&itopd(inode)->uii_generation,
-+		   atomic_read(&stopd(inode->i_sb)->usi_generation));
-+	itopd(inode)->uii_rdlock = SPIN_LOCK_UNLOCKED;
-+	itopd(inode)->uii_rdcount = 1;
-+	itopd(inode)->uii_hashsize = -1;
-+	INIT_LIST_HEAD(&itopd(inode)->uii_readdircache);
-+
-+	size = sbmax(inode->i_sb) * sizeof(struct inode *);
-+	itohi_ptr(inode) = kzalloc(size, GFP_KERNEL);
-+	if (!itohi_ptr(inode)) {
-+		printk(KERN_ERR "No kernel memory when allocating lower-"
-+				"pointer array!\n");
-+		BUG();
-+	}
-+
-+	inode->i_version++;
-+	inode->i_op = &unionfs_main_iops;
-+	inode->i_fop = &unionfs_main_fops;
-+
-+	/* I don't think ->a_ops is ever allowed to be NULL */
-+	inode->i_mapping->a_ops = &unionfs_empty_aops;
++	return
++	    &(container_of(inode, struct unionfs_inode_container, vfs_inode)->
++	      info);
 +}
 +
-+static void unionfs_put_inode(struct inode *inode)
-+{
-+	/*
-+	 * This is really funky stuff:
-+	 * Basically, if i_count == 1, iput will then decrement it and this
-+	 * inode will be destroyed.  It is currently holding a reference to the
-+	 * hidden inode.  Therefore, it needs to release that reference by
-+	 * calling iput on the hidden inode.  iput() _will_ do it for us (by
-+	 * calling our clear_inode), but _only_ if i_nlink == 0.  The problem
-+	 * is, NFS keeps i_nlink == 1 for silly_rename'd files.  So we must for
-+	 * our i_nlink to 0 here to trick iput() into calling our clear_inode.
-+	 */
++#define itohi_ptr(ino) (itopd(ino)->uii_inode)
++#define ibstart(ino) (itopd(ino)->b_start)
++#define ibend(ino) (itopd(ino)->b_end)
 +
-+	if (atomic_read(&inode->i_count) == 1)
-+		inode->i_nlink = 0;
++/* Superblock to private data */
++#define stopd(super) ((struct unionfs_sb_info *)(super)->s_fs_info)
++#define stopd_lhs(super) ((super)->s_fs_info)
++#define sbstart(sb) 0
++#define sbend(sb) stopd(sb)->b_end
++#define sbmax(sb) (stopd(sb)->b_end + 1)
++
++/* File to private Data */
++#define ftopd(file) ((struct unionfs_file_info *)((file)->private_data))
++#define ftopd_lhs(file) ((file)->private_data)
++#define ftohf_ptr(file)  (ftopd(file)->ufi_file)
++#define fbstart(file) (ftopd(file)->b_start)
++#define fbend(file) (ftopd(file)->b_end)
++
++/* File to hidden file. */
++static inline struct file *ftohf(struct file *f)
++{
++	return ftopd(f)->ufi_file[fbstart(f)];
 +}
 +
-+/*
-+ * we now define delete_inode, because there are two VFS paths that may
-+ * destroy an inode: one of them calls clear inode before doing everything
-+ * else that's needed, and the other is fine.  This way we truncate the inode
-+ * size (and its pages) and then clear our own inode, which will do an iput
-+ * on our and the lower inode.
-+ */
-+static void unionfs_delete_inode(struct inode *inode)
++static inline struct file *ftohf_index(const struct file *f, int index)
 +{
-+	inode->i_size = 0;	/* every f/s seems to do that */
-+
-+	clear_inode(inode);
++	return ftopd(f)->ufi_file[index];
 +}
 +
-+/* final actions when unmounting a file system */
-+static void unionfs_put_super(struct super_block *sb)
++static inline void set_ftohf_index(struct file *f, int index, struct file *val)
 +{
-+	int bindex, bstart, bend;
-+	struct unionfs_sb_info *spd;
-+
-+	if ((spd = stopd(sb))) {
-+		bstart = sbstart(sb);
-+		bend = sbend(sb);
-+		for (bindex = bstart; bindex <= bend; bindex++)
-+			mntput(stohiddenmnt_index(sb, bindex));
-+
-+		/* Make sure we have no leaks of branchget/branchput. */
-+		for (bindex = bstart; bindex <= bend; bindex++)
-+			BUG_ON(branch_count(sb, bindex) != 0);
-+
-+		kfree(spd->usi_data);
-+		kfree(spd);
-+		stopd_lhs(sb) = NULL;
-+	}
++	ftopd(f)->ufi_file[index] = val;
 +}
 +
-+/* Since people use this to answer the "How big of a file can I write?"
-+ * question, we report the size of the highest priority branch as the size of
-+ * the union. */
-+static int unionfs_statfs(struct dentry *dentry, struct kstatfs *buf)
++static inline void set_ftohf(struct file *f, struct file *val)
 +{
-+	int err	= 0;
-+	struct super_block *sb, *hidden_sb;
-+
-+	sb = dentry->d_sb;
-+
-+	hidden_sb = stohs_index(sb, sbstart(sb));
-+	err = vfs_statfs(hidden_sb->s_root, buf);
-+
-+	buf->f_type = UNIONFS_SUPER_MAGIC;
-+	buf->f_namelen -= UNIONFS_WHLEN;
-+
-+	memset(&buf->f_fsid, 0, sizeof(__kernel_fsid_t));
-+	memset(&buf->f_spare, 0, sizeof(buf->f_spare));
-+
-+	return err;
++	ftopd(f)->ufi_file[fbstart(f)] = val;
 +}
 +
-+/* We don't support a standard text remount. Eventually it would be nice to
-+ * support a full-on remount, so that you can have all of the directories
-+ * change at once, but that would require some pretty complicated matching
-+ * code. */
-+static int unionfs_remount_fs(struct super_block *sb, int *flags, char *data)
++/* Inode to hidden inode. */
++static inline struct inode *itohi(const struct inode *i)
 +{
-+	return -ENOSYS;
++	return itopd(i)->uii_inode[ibstart(i)];
 +}
 +
-+/*
-+ * Called by iput() when the inode reference count reached zero
-+ * and the inode is not hashed anywhere.  Used to clear anything
-+ * that needs to be, before the inode is completely destroyed and put
-+ * on the inode free list.
-+ */
-+static void unionfs_clear_inode(struct inode *inode)
++static inline struct inode *itohi_index(const struct inode *i, int index)
 +{
-+	int bindex, bstart, bend;
-+	struct inode *hidden_inode;
-+	struct list_head *pos, *n;
-+	struct unionfs_dir_state *rdstate;
-+
-+	list_for_each_safe(pos, n, &itopd(inode)->uii_readdircache) {
-+		rdstate = list_entry(pos, struct unionfs_dir_state, uds_cache);
-+		list_del(&rdstate->uds_cache);
-+		free_rdstate(rdstate);
-+	}
-+
-+	/* Decrement a reference to a hidden_inode, which was incremented
-+	 * by our read_inode when it was created initially.  */
-+	bstart = ibstart(inode);
-+	bend = ibend(inode);
-+	if (bstart >= 0) {
-+		for (bindex = bstart; bindex <= bend; bindex++) {
-+			hidden_inode = itohi_index(inode, bindex);
-+			if (!hidden_inode)
-+				continue;
-+			iput(hidden_inode);
-+		}
-+	}
-+
-+	kfree(itohi_ptr(inode));
-+	itohi_ptr(inode) = NULL;
++	return itopd(i)->uii_inode[index];
 +}
 +
-+static struct inode *unionfs_alloc_inode(struct super_block *sb)
++static inline void set_itohi_index(struct inode *i, int index,
++				   struct inode *val)
 +{
-+	struct unionfs_inode_container *c;
-+
-+	c = (struct unionfs_inode_container *)
-+	    kmem_cache_alloc(unionfs_inode_cachep, SLAB_KERNEL);
-+	if (!c) {
-+		return NULL;
-+	}
-+
-+	memset(&c->info, 0, sizeof(c->info));
-+
-+	c->vfs_inode.i_version = 1;
-+	return &c->vfs_inode;
++	itopd(i)->uii_inode[index] = val;
 +}
 +
-+static void unionfs_destroy_inode(struct inode *inode)
++static inline void set_itohi(struct inode *i, struct inode *val)
 +{
-+	kmem_cache_free(unionfs_inode_cachep, itopd(inode));
++	itopd(i)->uii_inode[ibstart(i)] = val;
 +}
 +
-+static void init_once(void *v, kmem_cache_t * cachep, unsigned long flags)
++/* Superblock to hidden superblock. */
++static inline struct super_block *stohs(const struct super_block *o)
 +{
-+	struct unionfs_inode_container *c = (struct unionfs_inode_container *)v;
-+
-+	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
-+	    SLAB_CTOR_CONSTRUCTOR)
-+		inode_init_once(&c->vfs_inode);
++	return stopd(o)->usi_data[sbstart(o)].sb;
 +}
 +
-+int init_inode_cache(void)
++static inline struct super_block *stohs_index(const struct super_block *o, int index)
 +{
-+	int err = 0;
-+
-+	unionfs_inode_cachep =
-+	    kmem_cache_create("unionfs_inode_cache",
-+			      sizeof(struct unionfs_inode_container), 0,
-+			      SLAB_RECLAIM_ACCOUNT, init_once, NULL);
-+	if (!unionfs_inode_cachep)
-+		err = -ENOMEM;
-+	return err;
++	return stopd(o)->usi_data[index].sb;
 +}
 +
-+void destroy_inode_cache(void)
++static inline void set_stohs_index(struct super_block *o, int index,
++				   struct super_block *val)
 +{
-+	if (!unionfs_inode_cachep)
-+		goto out;
-+	if (kmem_cache_destroy(unionfs_inode_cachep))
-+		printk(KERN_ERR
-+		       "unionfs_inode_cache: not all structures were freed\n");
-+out:
-+	return;
++	stopd(o)->usi_data[index].sb = val;
 +}
 +
-+/* Called when we have a dirty inode, right here we only throw out
-+ * parts of our readdir list that are too old.
-+ */
-+static int unionfs_write_inode(struct inode *inode, int sync)
++static inline void set_stohs(struct super_block *o, struct super_block *val)
 +{
-+	struct list_head *pos, *n;
-+	struct unionfs_dir_state *rdstate;
-+
-+	spin_lock(&itopd(inode)->uii_rdlock);
-+	list_for_each_safe(pos, n, &itopd(inode)->uii_readdircache) {
-+		rdstate = list_entry(pos, struct unionfs_dir_state, uds_cache);
-+		/* We keep this list in LRU order. */
-+		if ((rdstate->uds_access + RDCACHE_JIFFIES) > jiffies)
-+			break;
-+		itopd(inode)->uii_rdcount--;
-+		list_del(&rdstate->uds_cache);
-+		free_rdstate(rdstate);
-+	}
-+	spin_unlock(&itopd(inode)->uii_rdlock);
-+
-+	return 0;
++	stopd(o)->usi_data[sbstart(o)].sb = val;
 +}
 +
-+/*
-+ * Used only in nfs, to kill any pending RPC tasks, so that subsequent
-+ * code can actually succeed and won't leave tasks that need handling.
-+ *
-+ * PS. I wonder if this is somehow useful to undo damage that was
-+ * left in the kernel after a user level file server (such as amd)
-+ * dies.
-+ */
-+static void unionfs_umount_begin(struct vfsmount *mnt, int flags)
++/* Super to hidden mount. */
++static inline struct vfsmount *stohiddenmnt_index(struct super_block *o,
++						  int index)
 +{
-+	struct super_block *sb, *hidden_sb;
-+	struct vfsmount *hidden_mnt;
-+	int bindex, bstart, bend;
-+
-+	if (!(flags & MNT_FORCE))
-+		/* we are not being MNT_FORCEd, therefore we should emulate old
-+		 * behaviour
-+		 */
-+		return;
-+
-+	sb = mnt->mnt_sb;
-+
-+	bstart = sbstart(sb);
-+	bend = sbend(sb);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_mnt = stohiddenmnt_index(sb, bindex);
-+		hidden_sb = stohs_index(sb, bindex);
-+
-+		if (hidden_mnt && hidden_sb && hidden_sb->s_op &&
-+		    hidden_sb->s_op->umount_begin)
-+			hidden_sb->s_op->umount_begin(hidden_mnt, flags);
-+	}
++	return stopd(o)->usi_data[index].hidden_mnt;
 +}
 +
-+static int unionfs_show_options(struct seq_file *m, struct vfsmount *mnt)
++static inline void set_stohiddenmnt_index(struct super_block *o, int index,
++					  struct vfsmount *val)
 +{
-+	struct super_block *sb = mnt->mnt_sb;
-+	int ret = 0;
-+	char *tmp_page;
-+	char *path;
-+	int bindex, bstart, bend;
-+	int perms;
-+
-+	lock_dentry(sb->s_root);
-+
-+	tmp_page = (char*) __get_free_page(GFP_KERNEL);
-+	if (!tmp_page) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	bindex = bstart = sbstart(sb);
-+	bend = sbend(sb);
-+
-+	seq_printf(m, ",dirs=");
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		path = d_path(dtohd_index(sb->s_root, bindex),
-+			   stohiddenmnt_index(sb, bindex), tmp_page,
-+			   PAGE_SIZE);
-+		perms = branchperms(sb, bindex);
-+
-+		seq_printf(m, "%s=%s", path,
-+			   perms & MAY_WRITE ? "rw" :
-+			   perms & MAY_NFSRO ? "nfsro" : "ro");
-+		if (bindex != bend) {
-+			seq_printf(m, ":");
-+		}
-+	}
-+
-+out:
-+	if (tmp_page)
-+		free_page((unsigned long) tmp_page);
-+
-+	unlock_dentry(sb->s_root);
-+
-+	return ret;
++	stopd(o)->usi_data[index].hidden_mnt = val;
 +}
 +
-+struct super_operations unionfs_sops = {
-+	.read_inode = unionfs_read_inode,
-+	.put_inode = unionfs_put_inode,
-+	.delete_inode = unionfs_delete_inode,
-+	.put_super = unionfs_put_super,
-+	.statfs = unionfs_statfs,
-+	.remount_fs = unionfs_remount_fs,
-+	.clear_inode = unionfs_clear_inode,
-+	.umount_begin = unionfs_umount_begin,
-+	.show_options = unionfs_show_options,
-+	.write_inode = unionfs_write_inode,
-+	.alloc_inode = unionfs_alloc_inode,
-+	.destroy_inode = unionfs_destroy_inode,
-+};
++/* Branch count macros. */
++static inline int branch_count(struct super_block *o, int index)
++{
++	return atomic_read(&stopd(o)->usi_data[index].sbcount);
++}
 +
++static inline void set_branch_count(struct super_block *o, int index, int val)
++{
++	atomic_set(&stopd(o)->usi_data[index].sbcount, val);
++}
++
++static inline void branchget(struct super_block *o, int index)
++{
++	atomic_inc(&stopd(o)->usi_data[index].sbcount);
++}
++
++static inline void branchput(struct super_block *o, int index)
++{
++	atomic_dec(&stopd(o)->usi_data[index].sbcount);
++}
++
++/* Dentry macros */
++static inline struct unionfs_dentry_info *dtopd(const struct dentry *dent)
++{
++	return (struct unionfs_dentry_info *)dent->d_fsdata;
++}
++
++#define dtopd_lhs(dent) ((dent)->d_fsdata)
++#define dtopd_nocheck(dent) dtopd(dent)
++#define dbstart(dent) (dtopd(dent)->udi_bstart)
++#define set_dbstart(dent, val) do { dtopd(dent)->udi_bstart = val; } while(0)
++#define dbend(dent) (dtopd(dent)->udi_bend)
++#define set_dbend(dent, val) do { dtopd(dent)->udi_bend = val; } while(0)
++#define dbopaque(dent) (dtopd(dent)->udi_bopaque)
++#define set_dbopaque(dent, val) do { dtopd(dent)->udi_bopaque = val; } while (0)
++
++static inline void set_dtohd_index(struct dentry *dent, int index,
++				   struct dentry *val)
++{
++	dtopd(dent)->udi_dentry[index] = val;
++}
++
++static inline struct dentry *dtohd_index(const struct dentry *dent, int index)
++{
++	return dtopd(dent)->udi_dentry[index];
++}
++
++static inline struct dentry *dtohd(const struct dentry *dent)
++{
++	return dtopd(dent)->udi_dentry[dbstart(dent)];
++}
++
++#define set_dtohd_index_nocheck(dent, index, val) set_dtohd_index(dent, index, val)
++#define dtohd_index_nocheck(dent, index) dtohd_index(dent, index)
++
++#define dtohd_ptr(dent) (dtopd_nocheck(dent)->udi_dentry)
++
++/* Macros for locking a dentry. */
++#define lock_dentry(d) down(&dtopd(d)->udi_sem)
++#define unlock_dentry(d) up(&dtopd(d)->udi_sem)
++#define verify_locked(d)
++
++#endif	/* _FANOUT_H */

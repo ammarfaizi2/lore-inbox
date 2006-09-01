@@ -1,99 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWIAMm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWIAMoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWIAMm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 08:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIAMm3
+	id S1751165AbWIAMoG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 08:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWIAMoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 08:42:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35994 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751191AbWIAMm2 (ORCPT
+	Fri, 1 Sep 2006 08:44:06 -0400
+Received: from netprotector.fi ([81.209.6.194]:39577 "EHLO mail.osp.fi")
+	by vger.kernel.org with ESMTP id S1751165AbWIAMoB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 08:42:28 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 2/2] NOMMU: Check VMA protections
-Date: Fri, 01 Sep 2006 13:42:10 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com
-Message-Id: <20060901124210.26038.95789.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060901124207.26038.24367.stgit@warthog.cambridge.redhat.com>
-References: <20060901124207.26038.24367.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 1 Sep 2006 08:44:01 -0400
+Message-ID: <44F82B0F.4060901@osp.fi>
+Date: Fri, 01 Sep 2006 15:43:59 +0300
+From: Johnny Strom <johnny.strom@osp.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060803 Debian/1.7.8-1sarge7.2.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch to make VIA sata board bootable again.
+References: <44F7EC15.8040800@osp.fi> <1157111352.3491.1.camel@localhost.localdomain>
+In-Reply-To: <1157111352.3491.1.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+Sergio Monteiro Basto wrote:
+> Hi, Can you give me the information of interrupts 
+> cat /proc/interrupts 
+> 
+> XT_PIC or IO-APIC-edge/level ?
+> 
+> 
 
-Check the VMA protections in get_user_pages() against what's being asked.
+Here it is.
 
-This checks to see that we don't accidentally write on a non-writable VMA or
-permit an I/O mapping VMA to be accessed (which may lack page structs).
+cat /proc/interrupts
+            CPU0
+   0:    1692278          XT-PIC  timer
+   1:         40          XT-PIC  i8042
+   2:          0          XT-PIC  cascade
+   7:     414568          XT-PIC  libata, ohci1394, uhci_hcd:usb2, 
+uhci_hcd:usb3, radeon@pci:0000:01:00.0
+   8:          4          XT-PIC  rtc
+   9:          0          XT-PIC  acpi
+  10:     534456          XT-PIC  sk98lin, ehci_hcd:usb1, VIA8237, eth0
+  11:          0          XT-PIC  uhci_hcd:usb4, uhci_hcd:usb5
+  12:        130          XT-PIC  i8042
+  14:         53          XT-PIC  ide0
+  15:        101          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
-This should be applied on top of Sonic Zhang's patch to the same function.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Johnny
 
- mm/nommu.c |   32 ++++++++++++++++++++++++++------
- 1 files changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 2fe3fe4..fa6850e 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -122,20 +122,36 @@ unsigned int kobjsize(const void *objp)
- }
- 
- /*
-- * The nommu dodgy version :-)
-+ * get a list of pages in an address range belonging to the specified process
-+ * and indicate the VMA that covers each page
-+ * - this is potentially dodgy as we may end incrementing the page count of a
-+ *   slab page or a secondary page from a compound page
-+ * - don't permit access to VMAs that don't support it, such as I/O mappings
-  */
- int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
- 	unsigned long start, int len, int write, int force,
- 	struct page **pages, struct vm_area_struct **vmas)
- {
--	int i;
- 	struct vm_area_struct *vma;
-+	unsigned long vm_flags;
-+	int i;
-+
-+	/* calculate required read or write permissions.
-+	 * - if 'force' is set, we only require the "MAY" flags.
-+	 */
-+	vm_flags  = write ? (VM_WRITE | VM_MAYWRITE) : (VM_READ | VM_MAYREAD);
-+	vm_flags &= force ? (VM_MAYREAD | VM_MAYWRITE) : (VM_READ | VM_WRITE);
- 
- 	for (i = 0; i < len; i++) {
- 		vma = find_vma(mm, start);
--		if(!vma)
--			return i ? : -EFAULT;
--		
-+		if (!vma)
-+			goto finish_or_fault;
-+
-+		/* protect what we can, including chardevs */
-+		if (vma->vm_flags & (VM_IO | VM_PFNMAP) ||
-+		    !(vm_flags & vma->vm_flags))
-+			goto finish_or_fault;
-+
- 		if (pages) {
- 			pages[i] = virt_to_page(start);
- 			if (pages[i])
-@@ -145,7 +161,11 @@ int get_user_pages(struct task_struct *t
- 			vmas[i] = vma;
- 		start += PAGE_SIZE;
- 	}
--	return(i);
-+
-+	return i;
-+
-+finish_or_fault:
-+	return i ? : -EFAULT;
- }
- 
- EXPORT_SYMBOL(get_user_pages);
+> On Fri, 2006-09-01 at 11:15 +0300, Johnny Strom wrote:
+> 
+>>Hello
+>>
+>>The quirks.c update that went into 2.6.16.17 made an VIA machine here 
+>>non bootable from an sata drive (via_sata), the error is:
+>>
+>>"ATA1 qc timout"
+>>"Failed to set xfermode".
+>>
+>>And later kernel panic becouse no sata disk was found.
+>>I tracked it down to the quirk update in 2.6.16.17. Below is a patch 
+>>against 2.6.17.11 that reverses the uppdate and makse the system 
+>>bootable again.
+>>
+>>Another option is to find out the PCI_DEVICE_ID_VIA for the motherboard 
+>>in question but I could not get that info. Dose someone have an idea how 
+>>to find that info? then I can provide an patch that adds the right 
+>>PCI_DEVICE_ID_VIA for my motherboard.
+>>
+>>
+>>
+>>diff -ur linux-2.6.17.11-org/drivers/pci/quirks.c 
+>>linux-2.6.17.11/drivers/pci/quirks.c
+>>--- linux-2.6.17.11-org/drivers/pci/quirks.c	2006-09-01 
+>>10:38:31.135747500 +0300
+>>+++ linux-2.6.17.11/drivers/pci/quirks.c	2006-09-01 10:42:28.870605000 +0300
+>>@@ -652,13 +652,7 @@
+>>  		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+>>  	}
+>>  }
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, 
+>>quirk_via_irq);
+>>-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, 
+>>quirk_via_irq);
+>>+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+>>
+>>  /*
+>>   * VIA VT82C598 has its device ID settable and many BIOSes
+>>
+>>
+>>
+>>Signed-off-by: johnny.strom@osp.fi
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
+

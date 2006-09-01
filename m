@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWIAMyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWIANIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWIAMyH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 08:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWIAMyH
+	id S1751180AbWIANIr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 09:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWIANIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 08:54:07 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:39592 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751494AbWIAMyD (ORCPT
+	Fri, 1 Sep 2006 09:08:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48302 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750967AbWIANIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 08:54:03 -0400
-Date: Fri, 1 Sep 2006 14:50:10 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Josef Sipek <jsipek@cs.sunysb.edu>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH 04/22][RFC] Unionfs: Common file operations
-In-Reply-To: <20060901014138.GE5788@fsl.cs.sunysb.edu>
-Message-ID: <Pine.LNX.4.61.0609011445580.15283@yvahk01.tjqt.qr>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901014138.GE5788@fsl.cs.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 1 Sep 2006 09:08:46 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060831102127.8fb9a24b.akpm@osdl.org> 
+References: <20060831102127.8fb9a24b.akpm@osdl.org>  <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 01 Sep 2006 14:08:34 +0100
+Message-ID: <9534.1157116114@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> wrote:
 
->+	if (!d_deleted(dentry) &&
->+	    ((sbgen > fgen) || (dbstart(dentry) != fbstart(file)))) {
+> Your CONFIG_BLOCK patches did a decent job of trashing your
+> fs-cache-make-kafs-* patches, btw.  What's up with that?  OK, it's sensible
+> for people to work against mainline but the net effect of doing that is to
+> create a mess for other people to clean up.
 
-(sbgen > fgen || dbstart(dentry) != fbstart(file)) should suffice. (Read:
-reduce the amount of "()" depth.)
+It seems the only problem in my patches is that the file address space
+operations have had the sync_pages op removed in a patch in the
+disable-block-layer patchset as it's no longer necessary.
 
->+int unionfs_file_release(struct inode *inode, struct file *file)
->+{
->+	int err = 0;
->+	struct file *hidden_file = NULL;
->+	int bindex, bstart, bend;
->+	int fgen;
->+
->+	/* fput all the hidden files */
->+	fgen = atomic_read(&ftopd(file)->ufi_generation);
->+	bstart = fbstart(file);
->+	bend = fbend(file);
->+
->+	for (bindex = bstart; bindex <= bend; bindex++) {
->+		hidden_file = ftohf_index(file, bindex);
->+
->+		if (hidden_file) {
->+			fput(hidden_file);
->+			unionfs_read_lock(inode->i_sb);
->+			branchput(inode->i_sb, bindex);
->+			unionfs_read_unlock(inode->i_sb);
->+		}
->+	}
->+	kfree(ftohf_ptr(file));
->+
->+	if (ftopd(file)->rdstate) {
->+		ftopd(file)->rdstate->uds_access = jiffies;
->+		printk(KERN_DEBUG "Saving rdstate with cookie %u [%d.%lld]\n",
->+		       ftopd(file)->rdstate->uds_cookie,
->+		       ftopd(file)->rdstate->uds_bindex,
->+		       (long long)ftopd(file)->rdstate->uds_dirpos);
->+		spin_lock(&itopd(inode)->uii_rdlock);
->+		itopd(inode)->uii_rdcount++;
->+		list_add_tail(&ftopd(file)->rdstate->uds_cache,
->+			      &itopd(inode)->uii_readdircache);
->+		mark_inode_dirty(inode);
->+		spin_unlock(&itopd(inode)->uii_rdlock);
->+		ftopd(file)->rdstate = NULL;
->+	}
->+	kfree(ftopd(file));
->+	return err;
->+}
+However, as I suspect you're applying the block patches *before* the FS-Cache
+patches, I can't give you an incremental patch that you can apply after the
+other fs-cache-make-kafs-* patches, since you need to modify the first patch
+(fs-cache-make-kafs-use-fs-cache.patch) to get it to apply at all now.
 
-"err" is unused in this function. Rid it.
+So, I could issue a revised AFS+FS-Cache patch, would that do?  Or would you
+rather have a patch that you can apply to the one you already have directly
+and modify it in place?
 
->+			}
->+		}
->+
->+	}
-
-
-
-Jan Engelhardt
--- 
+David

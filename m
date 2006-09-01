@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWIASPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIASJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWIASPj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 14:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWIASPj
+	id S1750706AbWIASJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 14:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWIASJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 14:15:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750721AbWIASPi (ORCPT
+	Fri, 1 Sep 2006 14:09:50 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:27624 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750706AbWIASJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 14:15:38 -0400
-Date: Fri, 1 Sep 2006 11:09:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: eranian@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/18] 2.6.17.9 perfmon2 patch for review: sampling
- format support
-Message-Id: <20060901110912.e27099e8.akpm@osdl.org>
-In-Reply-To: <20060901160925.GF27854@frankl.hpl.hp.com>
-References: <200608230805.k7N85v1s000408@frankl.hpl.hp.com>
-	<20060823153537.cb36b9ac.akpm@osdl.org>
-	<20060901160925.GF27854@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 1 Sep 2006 14:09:49 -0400
+Date: Fri, 1 Sep 2006 20:14:35 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Adrian Bunk <bunk@stusta.de>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
+Message-ID: <20060901181435.GA21187@uranus.ravnborg.org>
+References: <20060830214356.GO18276@stusta.de> <Pine.LNX.4.64.0608310039440.6761@scrub.home> <1157069717.2347.13.camel@shinybook.infradead.org> <20060831174852.18efec7e.rdunlap@xenotime.net> <1157074048.2347.24.camel@shinybook.infradead.org> <20060901134425.GA32440@wohnheim.fh-wedel.de> <44F85267.1000607@s5r6.in-berlin.de> <20060901161920.GB32440@wohnheim.fh-wedel.de> <20060901163403.GC18276@stusta.de> <44F8732B.8080102@s5r6.in-berlin.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44F8732B.8080102@s5r6.in-berlin.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Sep 2006 09:09:25 -0700
-Stephane Eranian <eranian@hpl.hp.com> wrote:
-
-> > Why identify a format with a UUID rather than via a nice human-readable name?
-> > 
+On Fri, Sep 01, 2006 at 07:51:39PM +0200, Stefan Richter wrote:
 > 
-> Although a UUID is slightly more difficult to manipulate than a clear text string, it
-> offers several advantages:
-> 	- is guaranteed unique
-> 	- generation is fully distributed
-> 	- easy generation with uuidgen
-> 	- fixed size
-> 	- very easy to pass to the kernel, there is not char * in a struct pass to kernel
-> 	- not to worry about '\0'
+> It will get difficult to entirely please users who don't use these 
+> interfaces to .config.
 
-The kernel has got along OK using ascii strings for this sort of thing in
-thousands of places for many years.  Is there something special or unique
-about perfmon's requirements which make UUIDs a clearly superior
-implementation?
+We have a number of more or less friendly interfaces to configure
+the kernel. Yet some people prefer to directly modify the .config.
+That is fine let them do so.
+But to get an overview over the sometimes complex logic thay have
+to turn to move powerfull tools such as menuconfig.
 
-> We use UUID to idenitfy a format + a version number. The version number can be useful
-> to identify backward compatible versions of a format.
+Editing .config is a second class citizen way of configuring the
+kernel, and menuconfig is first class IMHO.
 
-Interfaces use major and minor version numbering for that.
+So enhancing the .config file to express the dependencies
+is not the way forward. We should do this in menuconfig (and friends)
+and let users use the dedicated interface to edit their kernel
+configuration using the dedicated tools and not by editing .config.
+
+Much of the discussion are centered about "select" which is indeed
+ugly are in some cases ill-used.
+But prime issue is that using select makes it hard to
+un-select certain configuration items. And avoiding select makes it
+un-intuitive to enable some configuration items.
+So we simple needs to:
+1) Make is easy to un-select selected configuration items by unselecting
+   the relevant items
+2) Make it possible to select 'non-visible' options by providing a way
+   to satisfy the dependencies.
+
+And maybe 2) makes select almost obsolete..
+
+	Sam

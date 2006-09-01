@@ -1,142 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWIAQwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWIAQ4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWIAQwx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWIAQwx
+	id S932120AbWIAQ4H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWIAQ4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:52:53 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:34316 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1750972AbWIAQwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:52:53 -0400
-From: Ondrej Zary <linux@rainbow-software.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oops after 30 days of uptime
-Date: Fri, 1 Sep 2006 18:52:39 +0200
-User-Agent: KMail/1.9.4
-MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 874
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 1 Sep 2006 12:56:07 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:39143 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932120AbWIAQ4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:56:04 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157128634.28577.139.camel@localhost.localdomain>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157127483.28577.117.camel@localhost.localdomain>
+	 <1157127943.21733.52.camel@localhost>
+	 <1157128634.28577.139.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 01 Sep 2006 18:56:01 +0200
+Message-Id: <1157129762.21733.63.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609011852.39572.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-my home router crashed after about a month. It does this sometimes but this 
-time I was able to capture the oops. Here is the result of running ksymoops 
-on it (took a photo of the screen and then manually converted to plain-text). 
-Does it look like a bug or something other?
+On Fri, 2006-09-01 at 09:37 -0700, Dave Hansen wrote:
+> Can you give me the sequence of events that occur so that we need to
+> set, then check PG_discarded?  I'm not getting it.
+> 
+> 1. there is good data in a page
+> ...
+> 50.  ... and PG_discarded gets set
+> ...
+> 99.  We check PG_discarded and ...
 
-ksymoops 2.4.11 on i486 2.4.31.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.31/ (default)
-     -m System.map (specified)
+Ok, here we go:
+0) there is good data in a page
+1) the host scans for pages to reclaim and selects a page of a
+particular guest
+2) the host checks the page state and decides to either swap the page or
+discard it
+3) nothing happens for a long time
+4) the guest comes around and tries to access the long gone page
+5) the host gets a fault because the page is gone from the hosts page
+table for the guest system
+6) the host delivers a discard fault to the guest
+7) the architecture dependent fault handler gets a page reference for
+the discarded page (tricky for s390)
+8) page_discard is called which locks the page and does a
+TestSetPageDiscarded. If the bit has not been set yet the page is
+removed from the page cache. There can still be page references around.
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address c2000000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01eeb9e>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010a96
-eax: db1cec0a   ebx: 7af4a90b   ecx: fff113e8   edx: 00000008
-esi: c1ffffe8   edi: c17835a4   ebp: c0b4b8b4   esp: c0227cd0
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c0227000)
-Stack: fd00a8c0 c17835a4 c01e6587 c0227ce8 00000008 0000a0c5 0000dff0 0000200f
-       c01e8757 0000dff0 0000200f 00005f3a 00000000 00000028 c1783590 c0b4b8b4
-       c01e7162 c1783590 00000028 c0b4b8b4 00000000 00000006 c0b4b810 00000000
-Call Trace:    [<c01e6587>] [<c01e8757>] [<c01e7162>] [<c01e72ea>] [<c017fda8>]
-  [<c01baca0>] [<c01e5ed4>] [<c01baca0>] [<c01e5fba>] [<c01baca0>] [<c01afe00>]
-  [<c01baca0>] [<c01baca0>] [<c01b00d0>] [<c01baca0>] [<c01b8270>] [<c01b9652>]
-  [<c01baca0>] [<c01b8270>] [<c01b82ba>] [<c01b0110>] [<c01b05dc>] [<c01b8214>]
-  [<c01b8270>] [<c01b7220>] [<c01b739b>] [<c01b7220>] [<c01b0110>] [<c01b70a6>]
-  [<c01b7220>] [<c01a87bb>] [<c01a885d>] [<c01a8970>] [<c011427a>] [<c01081cd>]
-  [<c0105250>] [<c010a3b8>] [<c0105250>] [<c0105273>] [<c01052d8>] [<c0105000>]
-  [<c0105027>]
-Code: 8b 5e 18 11 d8 8b 5e 1c 11 d8 8d 76 20 49 75 d3 83 d0 00 89
+Concurrent to 5-8 another cpu could be just be removing the page from
+page cache as well. Without the check for the discarded bit the page
+would get removed twice. This does nasty things to reference counting,
+mapping->nrpages, ...
 
+> > NUMA node is not granular enough, mem_section is probably doable. I do
+> > not understand the part about the bit in the mem_map[] area, a bit in
+> > the page->flags is exactly that, isn't it?
+> 
+> No, I'm being tricky.  There are struct pages for all memory, including
+> kernel memory.  mem_map[] is in kernel memory.  So, the memory for the
+> mem_map[] has struct pages, which themselves are in the mem_map[].
+> 
+> void lock_page_for_state_change(struct page *page)
+> {
+>         struct pages_backing_page = virt_to_page(page);
+>         lock_page(pages_backing_page)
+> }
+> 
+> We did this for a bit with sparsemem, I think.  That is, until Andy came
+> up with something even more clever.
 
->>EIP; c01eeb9e <init_or_cleanup+15e/160>   <=====
-
->>esp; c0227cd0 <bdf_prm+30/40>
-
-Trace; c01e6587 <icmp_timestamp+47/f0>
-Trace; c01e8757 <inet_sock_release+57/80>
-Trace; c01e7162 <inet_rtm_newaddr+42/190>
-Trace; c01e72ea <devinet_ioctl+3a/680>
-Trace; c017fda8 <ei_start_xmit+248/260>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01e5ed4 <icmp_send+84/350>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01e5fba <icmp_send+16a/350>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01afe00 <nf_iterate+0/80>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01b00d0 <nf_hook_slow+80/150>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01b8270 <htb_timer+30/50>
-Trace; c01b9652 <htb_dump_class+22/260>
-Trace; c01baca0 <sfq_dequeue+e0/1c0>
-Trace; c01b8270 <htb_timer+30/50>
-Trace; c01b82ba <htb_rate_timer+2a/120>
-Trace; c01b0110 <nf_hook_slow+c0/150>
-Trace; c01b05dc <eth_header+2c/120>
-Trace; c01b8214 <htb_requeue+114/140>
-Trace; c01b8270 <htb_timer+30/50>
-Trace; c01b7220 <htb_classify+f0/110>
-Trace; c01b739b <htb_debug_dump+15b/300>
-Trace; c01b7220 <htb_classify+f0/110>
-Trace; c01b0110 <nf_hook_slow+c0/150>
-Trace; c01b70a6 <L2T+26/30>
-Trace; c01b7220 <htb_classify+f0/110>
-Trace; c01a87bb <netif_receive_skb+db/140>
-Trace; c01a885d <process_backlog+3d/110>
-Trace; c01a8970 <net_rx_action+40/110>
-Trace; c011427a <do_softirq+5a/b0>
-Trace; c01081cd <do_IRQ+9d/b0>
-Trace; c0105250 <default_idle+0/30>
-Trace; c010a3b8 <call_do_IRQ+5/d>
-Trace; c0105250 <default_idle+0/30>
-Trace; c0105273 <default_idle+23/30>
-Trace; c01052d8 <cpu_idle+38/50>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105027 <rest_init+27/30>
-
-Code;  c01eeb9e <init_or_cleanup+15e/160>
-00000000 <_EIP>:
-Code;  c01eeb9e <init_or_cleanup+15e/160>   <=====
-   0:   8b 5e 18                  mov    0x18(%esi),%ebx   <=====
-Code;  c01eeba1 <ip_conntrack_protocol_register+1/70>
-   3:   11 d8                     adc    %ebx,%eax
-Code;  c01eeba3 <ip_conntrack_protocol_register+3/70>
-   5:   8b 5e 1c                  mov    0x1c(%esi),%ebx
-Code;  c01eeba6 <ip_conntrack_protocol_register+6/70>
-   8:   11 d8                     adc    %ebx,%eax
-Code;  c01eeba8 <ip_conntrack_protocol_register+8/70>
-   a:   8d 76 20                  lea    0x20(%esi),%esi
-Code;  c01eebab <ip_conntrack_protocol_register+b/70>
-   d:   49                        dec    %ecx
-Code;  c01eebac <ip_conntrack_protocol_register+c/70>
-   e:   75 d3                     jne    ffffffe3 <_EIP+0xffffffe3>
-Code;  c01eebae <ip_conntrack_protocol_register+e/70>
-  10:   83 d0 00                  adc    $0x0,%eax
-Code;  c01eebb1 <ip_conntrack_protocol_register+11/70>
-  13:   89 00                     mov    %eax,(%eax)
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-1 error issued.  Results may not be reliable.
-
+Ouch, I understand what you are trying to tell me. The struct page
+entries that cover the mem_map array itself has free bits we could try
+to cannibalize.
 
 -- 
-Ondrej Zary
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

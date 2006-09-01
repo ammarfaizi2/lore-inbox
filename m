@@ -1,109 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWIAQCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWIAQEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWIAQCP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWIAQCO
+	id S932387AbWIAQEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWIAQEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:02:14 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12953 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932327AbWIAQCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:02:11 -0400
-Date: Fri, 1 Sep 2006 11:02:08 -0500 (CDT)
-From: John Keller <jpk@sgi.com>
-To: linux-ia64@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, ayoung@sgi.com, linux-kernel@vger.kernel.org,
-       John Keller <jpk@sgi.com>, pcihpd-discuss@lists.sourceforge.net
-Message-Id: <20060901160208.31826.69050.77712@attica.americas.sgi.com>
-Subject: [PATCH 2/3] - Altix: Add initial ACPI IO support
+	Fri, 1 Sep 2006 12:04:08 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:50622 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932391AbWIAQED
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:04:03 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <44F8563B.3050505@shadowen.org>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 01 Sep 2006 18:04:00 +0200
+Message-Id: <1157126640.21733.43.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SN ACPI hotplug support.
+On Fri, 2006-09-01 at 16:48 +0100, Andy Whitcroft wrote:
+> >> I know that there are 32-bit s390 kernels, but would this be a
+> >> reasonable feature to restrict to only 64-bit kernels?  That might be a
+> >> decent compromise.
+> > 
+> > Yes, it is definitly an option to make this a 64-bit only features. In
+> > particular because the ESSA instruction that is used on s390 is only
+> > available in zarch mode (=64 bit).
+> 
+> Wow.  Well there are only 7 extra bits available in 64 bit mode (the
+> FIELDS area is larger on 64bit machines).  Do we really, really need
+> three new bits.  What are they being used for here.
 
-A few minor changes to the way slot/device fixup is done.
+I have though about alternatives for the page bits hard and long and I
+could not find a way how to do it without the bits. Their use is:
+1) The page-is-discarded (PG_discarded) bit is set for pages that have
+been recognized as removed by the host. The page needs to be removed
+from the page cache while there are still page references floating
+around. To prevent multiple removals from the page cache the discarded
+bit is needed.
+2) The page-state-change (PG_state_change) bit is required to prevent
+that an make_stable "overtakes" a make_volatile. In order to make a page
+volatile a number of conditions are check. After this is done the state
+change will be done. The critical section is the code that performs the
+checks up to the instruction that does the state change. No make_stable
+may be done in between. The granularity is per page, to use a global
+lock like a spinlock would severly limit the scalability for large smp
+systems.
+3) The page-has-a-writable-mapping (PG_writable) bit is set when the
+first writable pte for a page is established. The page needs to have a
+different state if a writable pte exists compared to a read-only page.
+The alternative without the page bit would be to do the state change
+every time a writable pte is established or to search all ptes of a
+given page. Both have performance implications. 
 
-No need to be calling sn_pci_controller_fixup(), as
-a root bus cannot be hotplugged.
+Overall I fear that the code really needs three additional bits.
 
-Signed-off-by: John Keller <jpk@sgi.com>
+-- 
+blue skies,
+  Martin.
 
- sgi_hotplug.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
 
 
-Index: linux-2.6/drivers/pci/hotplug/sgi_hotplug.c
-===================================================================
---- linux-2.6.orig/drivers/pci/hotplug/sgi_hotplug.c	2006-08-31 13:48:37.041468566 -0500
-+++ linux-2.6/drivers/pci/hotplug/sgi_hotplug.c	2006-08-31 14:27:13.326389685 -0500
-@@ -205,21 +205,6 @@ static struct hotplug_slot * sn_hp_destr
- 	return bss_hotplug_slot;
- }
- 
--static void sn_bus_alloc_data(struct pci_dev *dev)
--{
--	struct pci_bus *subordinate_bus;
--	struct pci_dev *child;
--
--	sn_pci_fixup_slot(dev);
--
--	/* Recursively sets up the sn_irq_info structs */
--	if (dev->subordinate) {
--		subordinate_bus = dev->subordinate;
--		list_for_each_entry(child, &subordinate_bus->devices, bus_list)
--			sn_bus_alloc_data(child);
--	}
--}
--
- static void sn_bus_free_data(struct pci_dev *dev)
- {
- 	struct pci_bus *subordinate_bus;
-@@ -337,6 +322,11 @@ static int sn_slot_disable(struct hotplu
- 	return rc;
- }
- 
-+/*
-+ * Power up and configure the slot via a SAL call to PROM.
-+ * Scan slot (and any children), do any platform specific fixup,
-+ * and find device driver.
-+ */
- static int enable_slot(struct hotplug_slot *bss_hotplug_slot)
- {
- 	struct slot *slot = bss_hotplug_slot->private;
-@@ -367,9 +357,6 @@ static int enable_slot(struct hotplug_sl
- 		return -ENODEV;
- 	}
- 
--	sn_pci_controller_fixup(pci_domain_nr(slot->pci_bus),
--				slot->pci_bus->number,
--				slot->pci_bus);
- 	/*
- 	 * Map SN resources for all functions on the card
- 	 * to the Linux PCI interface and tell the drivers
-@@ -380,6 +367,13 @@ static int enable_slot(struct hotplug_sl
- 				   PCI_DEVFN(slot->device_num + 1,
- 					     PCI_FUNC(func)));
- 		if (dev) {
-+			/* Need to do slot fixup on PPB before fixup of children
-+			 * (PPB's pcidev_info needs to be in pcidev_info list
-+			 * before child's SN_PCIDEV_INFO() call to setup
-+			 * pdi_host_pcidev_info).
-+			 */
-+			pcibios_fixup_device_resources(dev);
-+			sn_pci_fixup_slot(dev);
- 			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
- 				unsigned char sec_bus;
- 				pci_read_config_byte(dev, PCI_SECONDARY_BUS,
-@@ -387,12 +381,8 @@ static int enable_slot(struct hotplug_sl
- 				new_bus = pci_add_new_bus(dev->bus, dev,
- 							  sec_bus);
- 				pci_scan_child_bus(new_bus);
--				sn_pci_controller_fixup(pci_domain_nr(new_bus),
--							new_bus->number,
--							new_bus);
- 				new_ppb = 1;
- 			}
--			sn_bus_alloc_data(dev);
- 			pci_dev_put(dev);
- 		}
- 	}

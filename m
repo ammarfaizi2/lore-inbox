@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWIADiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWIADbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWIADiL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 23:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWIADiL
+	id S1750966AbWIADbY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWIADbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 23:38:11 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:10625 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750982AbWIADiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 23:38:09 -0400
-Message-ID: <44F7AB16.30405@myri.com>
-Date: Thu, 31 Aug 2006 23:37:58 -0400
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Matt Porter <mporter@embeddedalley.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC] Simple userspace interface for PCI drivers
-References: <20060830062338.GA10285@kroah.com> <20060830143410.GB19477@gate.crashing.org> <20060830175529.GB6258@kroah.com> <44F78E88.8050602@myri.com> <20060901032236.GB336@kroah.com>
-In-Reply-To: <20060901032236.GB336@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 31 Aug 2006 23:31:24 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:58765 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750940AbWIADbX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 23:31:23 -0400
+Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception
+	code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <lenb@kernel.org>,
+       "Moore, Robert" <robert.moore@intel.com>,
+       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux acpi <linux-acpi@vger.kernel.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1157078346.2782.24.camel@sli10-desk.sh.intel.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
+	 <200608310248.29861.len.brown@intel.com>
+	 <1157042913.7859.31.camel@keithlap>
+	 <200608311707.00817.bjorn.helgaas@hp.com>
+	 <1157073592.5649.29.camel@keithlap>
+	 <1157078346.2782.24.camel@sli10-desk.sh.intel.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 31 Aug 2006 20:31:19 -0700
+Message-Id: <1157081479.5649.40.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
->> Additionally, the current code might not be flexible enough regarding
->> acknowledging of interrupts. It might be good to use the bit that PCI
->> 2.2 defines in the config space to mask/unmask interrupt in a generic
->> way. Something like : when an interrupt comes, the driver mask the
->> interrupts using this bit, and then passes the event to user-space. The
->> user-space interrupt handler acknowledges the interrupt with the device
->> specific code, and then unmask with the PCI 2.2 bit.
->>     
->
-> You can do that today with this code.  Remember, you have to have a
-> tiny kernelspace portion of your driver to handle the interrupt.  You
-> can do whatever you want in that interrupt handler.
->   
 
-The whole point of masking interrupt with this config-space bit is that
-we might not need any tiny kernelspace portion for our driver anymore.
-It won't work for devices that are not PCI 2.2 compliant. But, it might
-be good for the ones that are?
+> > Also see   
+> > http://sourceforge.net/mailarchive/forum.php? 
+> > thread_id=15282420&forum_id=223
+> > 
+> > I don't claim this is the ACPI correct solution and am welcome to any 
+> > input that fixes my issue: acpi_bus_find_driver returning the
+> > incorrect 
+> > driver for a given handle.    
+> Then the issue is your device _CID returned PNP0C01 or PNP0C02. Is this
+> intended? Can we change the BIOS?
 
-Brice
+  The spec talks about _HID for the memory device and that is ok but I
+don't see any reference to required _CID. My _CID is listed as hex.  Can
+I just convert it?
+
+ Changing the bios is a little bit of a long shot at this point. 
+
+Thanks,
+  Keith 
 

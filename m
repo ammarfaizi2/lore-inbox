@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWIAIiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWIAIpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWIAIiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 04:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWIAIiS
+	id S932339AbWIAIpX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 04:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWIAIpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 04:38:18 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:65490 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932065AbWIAIiS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 04:38:18 -0400
-Date: Fri, 1 Sep 2006 09:38:15 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, haveblue@us.ibm.com,
-       apw@shadowen.org, ak@muc.de, benh@kernel.crashing.org, paulus@samba.org,
-       kmannth@gmail.com, tony.luck@intel.com, kamezawa.hiroyu@jp.fujitsu.com,
-       y-goto@jp.fujitsu.com
-Subject: Re: x86_64 account-for-memmap patch in 2.6.18-rc4-mm3 doesn't boot.
-In-Reply-To: <20060831100156.24fc0521.pj@sgi.com>
-Message-ID: <Pine.LNX.4.64.0609010933220.25057@skynet.skynet.ie>
-References: <20060831034638.4bfa7b46.pj@sgi.com> <Pine.LNX.4.64.0608311650410.13392@skynet.skynet.ie>
- <20060831100156.24fc0521.pj@sgi.com>
+	Fri, 1 Sep 2006 04:45:22 -0400
+Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:40374 "EHLO
+	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S932339AbWIAIpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 04:45:21 -0400
+Message-ID: <44F7F376.4030203@kolumbus.fi>
+Date: Fri, 01 Sep 2006 11:46:46 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Keith Mannthey <kmannth@gmail.com>, akpm@osdl.org, tony.luck@intel.com,
+       Linux Memory Management List <linux-mm@kvack.org>, ak@suse.de,
+       bob.picco@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>  <20060821134638.22179.44471.sendpatchset@skynet.skynet.ie>  <a762e240608301357n3915250bk8546dd340d5d4d77@mail.gmail.com>  <20060831154903.GA7011@skynet.ie>  <a762e240608311052h28843b2ege651e9fa82c49f2a@mail.gmail.com>  <Pine.LNX.4.64.0608311906300.13392@skynet.skynet.ie> <a762e240608312008v3e35b63ay46c95fbb6c3f15ec@mail.gmail.com> <Pine.LNX.4.64.0609010928010.25057@skynet.skynet.ie>
+In-Reply-To: <Pine.LNX.4.64.0609010928010.25057@skynet.skynet.ie>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
+ 6.5.4FP2 HF462|May 23, 2006) at 01.09.2006 11:45:07,
+	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.09.2006 11:45:07,
+	Serialize complete at 01.09.2006 11:45:07,
+	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.09.2006 11:45:07,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.09.2006 11:45:19,
+	Serialize complete at 01.09.2006 11:45:19
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006, Paul Jackson wrote:
 
-> Mel wrote:
->> Have you any idea why the console garbling is happening?
 >
-> Yeah - you're right - it's garbled.  Looks like its dropping chars.
+> Right, it's all very clear now. At some point in the future, I'd like 
+> to visit why SPARSEMEM-based hot-add is not always used but it's a 
+> separate issue.
 >
-
-Or writing some chars twice but at a different time. The system might be 
-one of those that fakes serial console output on the assumption the 
-operating system isn't doing the same thing. I've seen one or two blade 
-systems that did something like this with mixed results.
-
-> I don't know why, but I'm not surprised.  It's a lab system with a
-> new (for us) way of rigging the console output.  I just got this
-> particular x86_64's console connection to work at all yesterday.
+>> The add areas
+>> are marked as RESERVED during boot and then later onlined during add.
 >
-> I've been working indirectly through my good lab tech.  I should
-> drive in to the lab that has this rig (an hour away) and check it
-> out in person, and see what can be done to get clean console output.
+> That explains the reserve_bootmem_node()
 >
+But pages are marked reserved by default. You still have to alloc the 
+bootmem map for the the whole node range, including reserve hot add 
+areas and areas beyond e820-end-of-ram. So all the areas are already 
+reserved, until freed.
 
-That is a bit of a sickener. It may be worth getting your good lab tech 
-to check if there is a configuration setting in the hardware for 
-simulating console output before you make the trip.
+--Mika
 
-> This may take a day or three to yield results, unless I get lucky.
->
-
-I have Keith's problem with reserve-based-hot-add to keep me occupied in 
-the meantime. Whenever you get the chance will be fine. Thanks a lot
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab

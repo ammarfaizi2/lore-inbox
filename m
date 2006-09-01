@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWIAVKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWIAVcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbWIAVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWIAVKA
+	id S1750918AbWIAVcw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWIAVcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:10:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33756 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750896AbWIAVJ7 (ORCPT
+	Fri, 1 Sep 2006 17:32:52 -0400
+Received: from mx2.suse.de ([195.135.220.15]:23217 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750918AbWIAVcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:09:59 -0400
-Date: Fri, 1 Sep 2006 14:03:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Tom Tucker <tom@opengridcomputing.com>,
-       Steve Wise <swise@opengridcomputing.com>,
-       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile
- error
-Message-Id: <20060901140313.51cf077b.akpm@osdl.org>
-In-Reply-To: <ada4pvria3v.fsf@cisco.com>
-References: <20060901015818.42767813.akpm@osdl.org>
-	<20060901160023.GB18276@stusta.de>
-	<20060901101340.962150cb.akpm@osdl.org>
-	<adak64nij8f.fsf@cisco.com>
-	<20060901112312.5ff0dd8d.akpm@osdl.org>
-	<ada8xl3ics4.fsf@cisco.com>
-	<20060901130444.48f19457.akpm@osdl.org>
-	<ada4pvria3v.fsf@cisco.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 17:32:51 -0400
+Message-Id: <20060901221421.968954146@winden.suse.de>
+User-Agent: quilt/0.44-16.4
+Date: Sat, 02 Sep 2006 00:14:21 +0200
+From: Andreas Gruenbacher <agruen@suse.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: [patch 0/2] Tmpfs acls
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Sep 2006 13:51:32 -0700
-Roland Dreier <rdreier@cisco.com> wrote:
+This is a refresh of the patches we have to support POSIX ACLs on tmpfs,
+with the request for inclusion.
 
->     Andrew> No, driver-specific workarounds are not legitimate, sorry.
-> 
->     Andrew> The driver should simply fail to compile on architectures
->     Andrew> which do not implement __raw_writeq().
-> 
-> But how should i386 (say) implement __raw_writeq()?  As two
-> __raw_writel()s protected by a spinlock (that serializes all IO
-> transactions)?  That seems rather ugly.
-> 
+The patches solve the following problem: We want to grant access to
+devices based on who is logged in from where, etc. This includes
+switching back and forth between multiple user sessions, etc.
 
-If it's a choice between "ugly" and "doesn't work on x86", we'll take
-"ugly" ;)
+Using ACLs to define device access for logged-in users gives us all the
+flexibility we need in order to fully solve the problem.
+
+Device special files nowadays usually live on tmpfs, hence tmpfs ACLs.
+
+Different distros have come up with solutions that solve the problem to
+different degrees: SUSE uses a resource manager which tracks login
+sessions and sets ACLs on device inodes as appropriate. RedHat uses
+pam_console, which changes the primary file ownership to the logged-in
+user. Others use a set of groups that users must be in in order to be
+granted the appropriate accesses.
+
+The freedesktop.org project plans to implement a combination of a
+console-tracker and a HAL-device-list based solution to grant access to
+devices to users, and more distros will likely follow this approach.
+
+-
+
+These patches have first been posted here on 2 February 2005, and again
+on 8 January 2006. We have been shipping them in SLES9 and SLES10 with
+no problems reported.  The previous submission is archived here:
+
+   http://lkml.org/lkml/2006/1/8/229
+   http://lkml.org/lkml/2006/1/8/230
+   http://lkml.org/lkml/2006/1/8/231
+
+Could the patches please get included this time?
+
+Andrew, is putting them in -mm for a while fine with you?
+
+Thanks,
+Andreas
+
+--
+Andreas Gruenbacher <agruen@suse.de>
+Novell / SUSE Labs
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.5

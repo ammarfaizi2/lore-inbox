@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWIAEq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWIAFqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWIAEq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 00:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWIAEq7
+	id S932316AbWIAFqu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 01:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWIAFqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 00:46:59 -0400
-Received: from xenotime.net ([66.160.160.81]:17796 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932129AbWIAEq6 (ORCPT
+	Fri, 1 Sep 2006 01:46:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32997 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932316AbWIAFqt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 00:46:58 -0400
-Date: Thu, 31 Aug 2006 21:50:22 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Query: DMA Engine support in make oldconfig
-Message-Id: <20060831215022.4f2cb9c7.rdunlap@xenotime.net>
-In-Reply-To: <7vcff2l2q7s1mqjlb3g35dodgrcmlba57q@4ax.com>
-References: <7vcff2l2q7s1mqjlb3g35dodgrcmlba57q@4ax.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 1 Sep 2006 01:46:49 -0400
+Date: Thu, 31 Aug 2006 22:46:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] fs/bio.c: tweaks
+Message-Id: <20060831224643.da0c1fe7.akpm@osdl.org>
+In-Reply-To: <20060831212023.GA13918@rhlx01.fht-esslingen.de>
+References: <20060831212023.GA13918@rhlx01.fht-esslingen.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Sep 2006 14:18:23 +1000 Grant Coady wrote:
+On Thu, 31 Aug 2006 23:20:23 +0200
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
 
-> Hi there,
-> 
-> make oldconfig from 2.6.17.11 to 2.6.18-rc5: This help text doesn't say 
-> what the right choice should be?  Unclear to me anyway, so I take the 
-> default, is that bad for an x86 32-bit box?
-> "
-> * DMA Engine support
-> *
-> Support for DMA engines (DMA_ENGINE) [N/y/?] (NEW) ?
-> 
-> DMA engines offload copy operations from the CPU to dedicated
-> hardware, allowing the copies to happen asynchronously.
-> "
+> Calculate a variable in bvec_alloc_bs() only once needed, not earlier
+> (bio.o down from 18408 to 18376 Bytes, 32 Bytes saved, probably due to
+> data locality improvements).
 
-I would guess that you don't have any hardware that is
-supported, so enabling it will just use a little memory
-(or at least that's all it should do -- not hurt anything
-else).
+OK, I spose.
 
----
-~Randy
+> Init variable idx to silence a gcc warning which already existed in the
+> unmodified original base file (bvec_alloc_bs() handles idx
+> correctly, so there's no need for the warning):
+> fs/bio.c: In function `bio_alloc_bioset':
+> fs/bio.c:169: warning: `idx' may be used uninitialized in this function
+
+I'm heartily sick of that one too.
+
+> Inline bio_set_map_data() since it's only called once.
+
+Is OK, gcc will take care of that.
+
+

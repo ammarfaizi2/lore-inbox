@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWIAES0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWIAEWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWIAES0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 00:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWIAES0
+	id S932076AbWIAEWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 00:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWIAEWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 00:18:26 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:10955 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750751AbWIAES0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 00:18:26 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Query: DMA Engine support in make oldconfig
-Date: Fri, 01 Sep 2006 14:18:23 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <7vcff2l2q7s1mqjlb3g35dodgrcmlba57q@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Fri, 1 Sep 2006 00:22:12 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:12805 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S932076AbWIAEWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 00:22:10 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=YNwXE+SDHgX0am3G1Eaei2dj8TjGtuLICu7sZdHDbOeUEMabgolanN6cbWbl0cKx+lCx0LbXOu/prWoEaWHXfYxHVuF0d41/C0twnVZLafwrO02de8kXuSI4HsFCC0gw;
+X-IronPort-AV: i="4.08,196,1154926800"; 
+   d="scan'208"; a="72630561:sNHT28164024"
+Date: Thu, 31 Aug 2006 23:22:13 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Dapid Candra <dapidc@cbn.net.id>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help in kernel error
+Message-ID: <20060901042213.GC6884@lists.us.dell.com>
+References: <1816.202.171.0.72.1157083717.CBNWebMail@webmail2.cbn.net.id>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1816.202.171.0.72.1157083717.CBNWebMail@webmail2.cbn.net.id>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Fri, Sep 01, 2006 at 11:08:37AM +0700, Dapid Candra wrote:
+> Hi,
+> 
+> I got the following messages just before my server freeze.
+> 
+> The server is now served as Oracle database server. It is also using
+> external storage connected by SCSI. It runs Red Hat EL AS 4.0. And it has
+> 4GB RAM.
 
-make oldconfig from 2.6.17.11 to 2.6.18-rc5: This help text doesn't say 
-what the right choice should be?  Unclear to me anyway, so I take the 
-default, is that bad for an x86 32-bit box?
-"
-* DMA Engine support
-*
-Support for DMA engines (DMA_ENGINE) [N/y/?] (NEW) ?
+> Aug 31 23:02:27 hqdmsdb01 kernel: EFLAGS: 00010246   (2.6.9-5.ELsmp)
 
-DMA engines offload copy operations from the CPU to dedicated
-hardware, allowing the copies to happen asynchronously.
-"
+You need to take this up with either your system hardware vendor's
+support department, or with Red Hat support directly.  Upgrading to a
+more recent kernel from RHN may well alleviate this too.
+
 Thanks,
-Grant.
+Matt
+
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

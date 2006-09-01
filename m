@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWIABuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWIABvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWIABuf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWIABuf
+	id S964910AbWIABvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWIABvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:50:35 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:30599 "EHLO
+	Thu, 31 Aug 2006 21:51:55 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:41863 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964902AbWIABud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:50:33 -0400
-Date: Thu, 31 Aug 2006 21:50:16 -0400
+	id S964882AbWIABvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:51:53 -0400
+Date: Thu, 31 Aug 2006 21:51:36 -0400
 From: Josef Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@ftp.linux.org.uk
-Subject: [PATCH 11/22][RFC] Unionfs: Lookup helper functions
-Message-ID: <20060901015016.GL5788@fsl.cs.sunysb.edu>
+Subject: [PATCH 12/22][RFC] Unionfs: Main module functions
+Message-ID: <20060901015136.GM5788@fsl.cs.sunysb.edu>
 References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch provides helper functions for the lookup operations in Unionfs.
+Module init & cleanup code, as well as interposition functions.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -35,13 +35,13 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
- fs/unionfs/lookup.c |  477 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 477 insertions(+)
+ fs/unionfs/main.c |  685 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 685 insertions(+)
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/lookup.c linux-2.6-git-unionfs/fs/unionfs/lookup.c
---- linux-2.6-git/fs/unionfs/lookup.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/lookup.c	2006-08-31 19:04:00.000000000 -0400
-@@ -0,0 +1,477 @@
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/main.c linux-2.6-git-unionfs/fs/unionfs/main.c
+--- linux-2.6-git/fs/unionfs/main.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/main.c	2006-08-31 19:04:00.000000000 -0400
+@@ -0,0 +1,685 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -62,460 +62,668 @@ diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/looku
 + */
 +
 +#include "union.h"
++#include <linux/module.h>
++#include <linux/moduleparam.h>
 +
-+static int is_opaque_dir(struct dentry *dentry, int bindex);
-+static int is_validname(const char *name);
++/* declarations added for "sparse" */
++extern void unionfs_kill_block_super(struct super_block *sb);
 +
-+struct dentry *unionfs_lookup_backend(struct dentry *dentry, int lookupmode)
++/* declarations added for malloc_debugging */
++
++/* sb we pass is unionfs's super_block */
++int unionfs_interpose(struct dentry *dentry, struct super_block *sb, int flag)
 +{
++	struct inode *hidden_inode;
++	struct dentry *hidden_dentry;
 +	int err = 0;
-+	struct dentry *hidden_dentry = NULL;
-+	struct dentry *wh_hidden_dentry = NULL;
-+	struct dentry *hidden_dir_dentry = NULL;
-+	struct dentry *parent_dentry = NULL;
-+	int bindex, bstart, bend, bopaque;
-+	int dentry_count = 0;	/* Number of positive dentries. */
-+	int first_dentry_offset = -1;
-+	struct dentry *first_hidden_dentry = NULL;
-+	int locked_parent = 0;
-+	int locked_child = 0;
++	struct inode *inode;
++	int is_negative_dentry = 1;
++	int bindex, bstart, bend;
 +
-+	int opaque;
-+	char *whname = NULL;
-+	const char *name;
-+	int namelen;
++	verify_locked(dentry);
 +
-+	/* We should already have a lock on this dentry in the case of a
-+	 * partial lookup, or a revalidation. Otherwise it is returned from
-+	 * new_dentry_private_data already locked.  */
-+	if (lookupmode == INTERPOSE_PARTIAL || lookupmode == INTERPOSE_REVAL
-+	    || lookupmode == INTERPOSE_REVAL_NEG) {
-+		verify_locked(dentry);
-+	} else {
-+		BUG_ON(dtopd_nocheck(dentry) != NULL);
-+		locked_child = 1;
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
++
++	/* Make sure that we didn't get a negative dentry. */
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		if (dtohd_index(dentry, bindex) &&
++		    dtohd_index(dentry, bindex)->d_inode) {
++			is_negative_dentry = 0;
++			break;
++		}
 +	}
-+	if (lookupmode != INTERPOSE_PARTIAL)
-+		if ((err = new_dentry_private_data(dentry)))
++	BUG_ON(is_negative_dentry);
++
++	/* We allocate our new inode below, by calling iget.
++	 * iget will call our read_inode which will initialize some
++	 * of the new inode's fields
++	 */
++
++	/* On revalidate we've already got our own inode and just need
++	 * to fix it up. */
++	if (flag == INTERPOSE_REVAL) {
++		inode = dentry->d_inode;
++		itopd(inode)->b_start = -1;
++		itopd(inode)->b_end = -1;
++		atomic_set(&itopd(inode)->uii_generation,
++			   atomic_read(&stopd(sb)->usi_generation));
++
++		itohi_ptr(inode) =
++		    kzalloc(sbmax(sb) * sizeof(struct inode *), GFP_KERNEL);
++		if (!itohi_ptr(inode)) {
++			err = -ENOMEM;
 +			goto out;
-+	/* must initialize dentry operations */
-+	dentry->d_op = &unionfs_dops;
-+
-+	parent_dentry = dget_parent(dentry);
-+	/* We never partial lookup the root directory. */
-+	if (parent_dentry != dentry) {
-+		lock_dentry(parent_dentry);
-+		locked_parent = 1;
++		}
++		mutex_lock(&inode->i_mutex);
 +	} else {
-+		dput(parent_dentry);
-+		parent_dentry = NULL;
-+		goto out;
-+	}
++		ino_t ino;
++		/* get unique inode number for unionfs */
++		ino = iunique(sb, UNIONFS_ROOT_INO);
 +
-+	name = dentry->d_name.name;
-+	namelen = dentry->d_name.len;
++		inode = iget(sb, ino);
++		if (!inode) {
++			err = -EACCES;	/* should be impossible??? */
++			goto out;
++		}
 +
-+	/* No dentries should get created for possible whiteout names. */
-+	if (!is_validname(name)) {
-+		err = -EPERM;
-+		goto out_free;
-+	}
-+
-+	/* Now start the actual lookup procedure. */
-+	bstart = dbstart(parent_dentry);
-+	bend = dbend(parent_dentry);
-+	bopaque = dbopaque(parent_dentry);
-+	BUG_ON(bstart < 0);
-+
-+	/* It would be ideal if we could convert partial lookups to only have
-+	 * to do this work when they really need to.  It could probably improve
-+	 * performance quite a bit, and maybe simplify the rest of the code. */
-+	if (lookupmode == INTERPOSE_PARTIAL) {
-+		bstart++;
-+		if ((bopaque != -1) && (bopaque < bend))
-+			bend = bopaque;
++		mutex_lock(&inode->i_mutex);
++		if (atomic_read(&inode->i_count) > 1)
++			goto skip;
 +	}
 +
 +	for (bindex = bstart; bindex <= bend; bindex++) {
 +		hidden_dentry = dtohd_index(dentry, bindex);
-+		if (lookupmode == INTERPOSE_PARTIAL && hidden_dentry)
-+			continue;
-+		BUG_ON(hidden_dentry != NULL);
-+
-+		hidden_dir_dentry = dtohd_index(parent_dentry, bindex);
-+
-+		/* if the parent hidden dentry does not exist skip this */
-+		if (!(hidden_dir_dentry && hidden_dir_dentry->d_inode))
-+			continue;
-+
-+		/* also skip it if the parent isn't a directory. */
-+		if (!S_ISDIR(hidden_dir_dentry->d_inode->i_mode))
-+			continue;
-+
-+		/* Reuse the whiteout name because its value doesn't change. */
-+		if (!whname) {
-+			whname = alloc_whname(name, namelen);
-+			if (IS_ERR(whname)) {
-+				err = PTR_ERR(whname);
-+				goto out_free;
-+			}
-+		}
-+
-+		/* check if whiteout exists in this branch: lookup .wh.foo */
-+		wh_hidden_dentry = lookup_one_len(whname, hidden_dir_dentry,
-+						  namelen + UNIONFS_WHLEN);
-+		if (IS_ERR(wh_hidden_dentry)) {
-+			dput(first_hidden_dentry);
-+			err = PTR_ERR(wh_hidden_dentry);
-+			goto out_free;
-+		}
-+
-+		if (wh_hidden_dentry->d_inode) {
-+			/* We found a whiteout so lets give up. */
-+			if (S_ISREG(wh_hidden_dentry->d_inode->i_mode)) {
-+				set_dbend(dentry, bindex);
-+				set_dbopaque(dentry, bindex);
-+				dput(wh_hidden_dentry);
-+				break;
-+			}
-+			err = -EIO;
-+			printk(KERN_NOTICE "EIO: Invalid whiteout entry type"
-+			       " %d.\n", wh_hidden_dentry->d_inode->i_mode);
-+			dput(wh_hidden_dentry);
-+			dput(first_hidden_dentry);
-+			goto out_free;
-+		}
-+
-+		dput(wh_hidden_dentry);
-+		wh_hidden_dentry = NULL;
-+
-+		/* Now do regular lookup; lookup foo */
-+		hidden_dentry = lookup_one_len(name, hidden_dir_dentry,
-+					       namelen);
-+		if (IS_ERR(hidden_dentry)) {
-+			dput(first_hidden_dentry);
-+			err = PTR_ERR(hidden_dentry);
-+			goto out_free;
-+		}
-+
-+		/* Store the first negative dentry specially, because if they
-+		 * are all negative we need this for future creates. */
-+		if (!hidden_dentry->d_inode) {
-+			if (!first_hidden_dentry && (dbstart(dentry) == -1)) {
-+				first_hidden_dentry = hidden_dentry;
-+				first_dentry_offset = bindex;
-+			} else {
-+				dput(hidden_dentry);
-+			}
++		if (!hidden_dentry) {
++			set_itohi_index(inode, bindex, NULL);
 +			continue;
 +		}
 +
-+		/* number of positive dentries */
-+		dentry_count++;
-+
-+		/* store underlying dentry */
-+		if (dbstart(dentry) == -1)
-+			set_dbstart(dentry, bindex);
-+		set_dtohd_index(dentry, bindex, hidden_dentry);
-+		set_dbend(dentry, bindex);
-+
-+		/* update parent directory's atime with the bindex */
-+		fist_copy_attr_atime(parent_dentry->d_inode,
-+				     hidden_dir_dentry->d_inode);
-+
-+		/* We terminate file lookups here. */
-+		if (!S_ISDIR(hidden_dentry->d_inode->i_mode)) {
-+			if (lookupmode == INTERPOSE_PARTIAL)
-+				continue;
-+			if (dentry_count == 1)
-+				goto out_positive;
-+			/* This can only happen with mixed D-*-F-* */
-+			BUG_ON(!S_ISDIR(dtohd(dentry)->d_inode->i_mode));
++		/* Initialize the hidden inode to the new hidden inode. */
++		if (!hidden_dentry->d_inode)
 +			continue;
-+		}
 +
-+		opaque = is_opaque_dir(dentry, bindex);
-+		if (opaque < 0) {
-+			dput(first_hidden_dentry);
-+			err = opaque;
-+			goto out_free;
-+		}
-+		if (opaque) {
-+			set_dbend(dentry, bindex);
-+			set_dbopaque(dentry, bindex);
++		set_itohi_index(inode, bindex, igrab(hidden_dentry->d_inode));
++	}
++
++	ibstart(inode) = dbstart(dentry);
++	ibend(inode) = dbend(dentry);
++
++	/* Use attributes from the first branch. */
++	hidden_inode = itohi(inode);
++
++	/* Use different set of inode ops for symlinks & directories */
++	if (S_ISLNK(hidden_inode->i_mode))
++		inode->i_op = &unionfs_symlink_iops;
++	else if (S_ISDIR(hidden_inode->i_mode))
++		inode->i_op = &unionfs_dir_iops;
++
++	/* Use different set of file ops for directories */
++	if (S_ISDIR(hidden_inode->i_mode))
++		inode->i_fop = &unionfs_dir_fops;
++
++	/* properly initialize special inodes */
++	if (S_ISBLK(hidden_inode->i_mode) || S_ISCHR(hidden_inode->i_mode) ||
++	    S_ISFIFO(hidden_inode->i_mode) || S_ISSOCK(hidden_inode->i_mode))
++		init_special_inode(inode, hidden_inode->i_mode,
++				   hidden_inode->i_rdev);
++	/* Fix our inode's address operations to that of the lower inode (Unionfs is FiST-Lite) */
++	if (inode->i_mapping->a_ops != hidden_inode->i_mapping->a_ops)
++		inode->i_mapping->a_ops = hidden_inode->i_mapping->a_ops;
++
++	/* all well, copy inode attributes */
++	fist_copy_attr_all(inode, hidden_inode);
++
++skip:
++	/* only (our) lookup wants to do a d_add */
++	switch (flag) {
++		case INTERPOSE_DEFAULT:
++		case INTERPOSE_REVAL_NEG:
++			d_instantiate(dentry, inode);
 +			break;
-+		}
++		case INTERPOSE_LOOKUP:
++			err = PTR_ERR(d_splice_alias(inode, dentry));
++			break;
++		case INTERPOSE_REVAL:
++			/* Do nothing. */
++			break;
++		default:
++			printk(KERN_ERR "Invalid interpose flag passed!");
++			BUG();
 +	}
 +
-+	if (dentry_count)
-+		goto out_positive;
-+	else
-+		goto out_negative;
++	mutex_unlock(&inode->i_mutex);
 +
-+out_negative:
-+	if (lookupmode == INTERPOSE_PARTIAL)
-+		goto out;
-+
-+	/* If we've only got negative dentries, then use the leftmost one. */
-+	if (lookupmode == INTERPOSE_REVAL) {
-+		if (dentry->d_inode) {
-+			itopd(dentry->d_inode)->uii_stale = 1;
-+		}
-+		goto out;
-+	}
-+	/* This should only happen if we found a whiteout. */
-+	if (first_dentry_offset == -1) {
-+		first_hidden_dentry = lookup_one_len(name, hidden_dir_dentry,
-+						     namelen);
-+		first_dentry_offset = bindex;
-+		if (IS_ERR(first_hidden_dentry)) {
-+			err = PTR_ERR(first_hidden_dentry);
-+			goto out;
-+		}
-+	}
-+	set_dtohd_index(dentry, first_dentry_offset, first_hidden_dentry);
-+	set_dbstart(dentry, first_dentry_offset);
-+	set_dbend(dentry, first_dentry_offset);
-+
-+	if (lookupmode == INTERPOSE_REVAL_NEG)
-+		BUG_ON(dentry->d_inode != NULL);
-+	else
-+		d_add(dentry, NULL);
-+	goto out;
-+
-+/* This part of the code is for positive dentries. */
-+out_positive:
-+	BUG_ON(dentry_count <= 0);
-+
-+	/* If we're holding onto the first negative dentry throw it out. */
-+	dput(first_hidden_dentry);
-+
-+	/* Partial lookups need to reinterpose, or throw away older negs. */
-+	if (lookupmode == INTERPOSE_PARTIAL) {
-+		if (dentry->d_inode) {
-+			unionfs_reinterpose(dentry);
-+			goto out;
-+		}
-+
-+		/* This somehow turned positive, so it is as if we had a
-+		 * negative revalidation.  */
-+		lookupmode = INTERPOSE_REVAL_NEG;
-+
-+		update_bstart(dentry);
-+		bstart = dbstart(dentry);
-+		bend = dbend(dentry);
-+	}
-+
-+	err = unionfs_interpose(dentry, dentry->d_sb, lookupmode);
-+	if (err)
-+		goto out_drop;
-+
-+	goto out;
-+
-+out_drop:
-+	d_drop(dentry);
-+
-+out_free:
-+	/* should dput all the underlying dentries on error condition */
-+	bstart = dbstart(dentry);
-+	if (bstart >= 0) {
-+		bend = dbend(dentry);
-+		for (bindex = bstart; bindex <= bend; bindex++)
-+			dput(dtohd_index(dentry, bindex));
-+	}
-+	kfree(dtohd_ptr(dentry));
-+	dtohd_ptr(dentry) = NULL;
-+	set_dbstart(dentry, -1);
-+	set_dbend(dentry, -1);
-+
-+out:
-+	if (!err && dtopd(dentry)) {
-+		BUG_ON(dbend(dentry) > dtopd(dentry)->udi_bcount);
-+		BUG_ON(dbend(dentry) > sbmax(dentry->d_sb));
-+		BUG_ON(dbstart(dentry) < 0);
-+	}
-+	kfree(whname);
-+	if (locked_parent)
-+		unlock_dentry(parent_dentry);
-+	dput(parent_dentry);
-+	if (locked_child)
-+		unlock_dentry(dentry);
-+	return ERR_PTR(err);
-+}
-+
-+/* This is a utility function that fills in a unionfs dentry.*/
-+int unionfs_partial_lookup(struct dentry *dentry)
-+{
-+	struct dentry *tmp;
-+
-+	tmp = unionfs_lookup_backend(dentry, INTERPOSE_PARTIAL);
-+	if (!tmp)
-+		return 0;
-+	if (IS_ERR(tmp))
-+		return PTR_ERR(tmp);
-+	/* need to change the interface */
-+	BUG_ON(tmp != dentry);
-+	return -ENOSYS;
-+}
-+
-+/* The rest of these are utility functions for lookup. */
-+static int is_opaque_dir(struct dentry *dentry, int bindex)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry;
-+	struct dentry *wh_hidden_dentry;
-+	struct inode *hidden_inode;
-+	struct sioq_args args;
-+
-+	hidden_dentry = dtohd_index(dentry, bindex);
-+	hidden_inode = hidden_dentry->d_inode;
-+
-+	BUG_ON(!S_ISDIR(hidden_inode->i_mode));
-+
-+	mutex_lock(&hidden_inode->i_mutex);
-+
-+	if (!permission(hidden_inode, MAY_EXEC, NULL))
-+		wh_hidden_dentry = lookup_one_len(UNIONFS_DIR_OPAQUE, hidden_dentry,
-+					sizeof(UNIONFS_DIR_OPAQUE) - 1);
-+	else {
-+		args.u.isopaque.dentry = hidden_dentry;
-+		run_sioq(__is_opaque_dir, &args);
-+		wh_hidden_dentry = args.ret;
-+	}
-+
-+	mutex_unlock(&hidden_inode->i_mutex);
-+
-+	if (IS_ERR(wh_hidden_dentry)) {
-+		err = PTR_ERR(wh_hidden_dentry);
-+		goto out;
-+	}
-+
-+	/* This is an opaque dir iff wh_hidden_dentry is positive */
-+	err = !!wh_hidden_dentry->d_inode;
-+
-+	dput(wh_hidden_dentry);
 +out:
 +	return err;
 +}
 +
-+static int is_validname(const char *name)
++void unionfs_reinterpose(struct dentry *dentry)
 +{
-+	if (!strncmp(name, UNIONFS_WHPFX, UNIONFS_WHLEN))
-+		return 0;
-+	if (!strncmp(name, UNIONFS_DIR_OPAQUE_NAME,
-+		     sizeof(UNIONFS_DIR_OPAQUE_NAME) - 1))
-+		return 0;
-+	return 1;
-+}
-+
-+/* The dentry cache is just so we have properly sized dentries. */
-+static kmem_cache_t *unionfs_dentry_cachep;
-+int init_dentry_cache(void)
-+{
-+	unionfs_dentry_cachep =
-+	    kmem_cache_create("unionfs_dentry",
-+			      sizeof(struct unionfs_dentry_info), 0,
-+			      SLAB_RECLAIM_ACCOUNT, NULL, NULL);
-+
-+	if (!unionfs_dentry_cachep)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+void destroy_dentry_cache(void)
-+{
-+	if (!unionfs_dentry_cachep)
-+		return;
-+	if (kmem_cache_destroy(unionfs_dentry_cachep))
-+		printk(KERN_ERR
-+		       "unionfs_dentry_cache: not all structures were freed\n");
-+	return;
-+}
-+
-+void free_dentry_private_data(struct unionfs_dentry_info *udi)
-+{
-+	if (!udi)
-+		return;
-+	kmem_cache_free(unionfs_dentry_cachep, udi);
-+}
-+
-+int new_dentry_private_data(struct dentry *dentry)
-+{
-+	int newsize;
-+	int oldsize = 0;
-+
-+	spin_lock(&dentry->d_lock);
-+	if (!dtopd_nocheck(dentry)) {
-+		dtopd_lhs(dentry) = (struct unionfs_dentry_info *)
-+		    kmem_cache_alloc(unionfs_dentry_cachep, SLAB_ATOMIC);
-+		if (!dtopd_nocheck(dentry))
-+			goto out;
-+		init_MUTEX_LOCKED(&dtopd_nocheck(dentry)->udi_sem);
-+
-+		dtohd_ptr(dentry) = NULL;
-+	} else {
-+		oldsize = sizeof(struct dentry *) * dtopd(dentry)->udi_bcount;
-+	}
-+
-+	dtopd_nocheck(dentry)->udi_bstart = -1;
-+	dtopd_nocheck(dentry)->udi_bend = -1;
-+	dtopd_nocheck(dentry)->udi_bopaque = -1;
-+	dtopd_nocheck(dentry)->udi_bcount = sbmax(dentry->d_sb);
-+	atomic_set(&dtopd_nocheck(dentry)->udi_generation,
-+		   atomic_read(&stopd(dentry->d_sb)->usi_generation));
-+	newsize = sizeof(struct dentry *) * sbmax(dentry->d_sb);
-+
-+	/* Don't reallocate when we already have enough space. */
-+	/* It would be ideal if we could actually use the slab macros to
-+	 * determine what our object sizes is, but those are not exported.
-+	 */
-+	if (oldsize) {
-+		int minsize = malloc_sizes[0].cs_size;
-+
-+		if (!newsize || ((oldsize < newsize) && (newsize > minsize))) {
-+			kfree(dtohd_ptr(dentry));
-+			dtohd_ptr(dentry) = NULL;
-+		}
-+	}
-+
-+	if (!dtohd_ptr(dentry) && newsize) {
-+		dtohd_ptr(dentry) = kmalloc(newsize, GFP_ATOMIC);
-+		if (!dtohd_ptr(dentry))
-+			goto out;
-+	}
-+
-+	if (oldsize > newsize)
-+		memset(dtohd_ptr(dentry), 0, oldsize);
-+	else
-+		memset(dtohd_ptr(dentry), 0, newsize);
-+
-+	spin_unlock(&dentry->d_lock);
-+	return 0;
-+
-+out:
-+	free_dentry_private_data(dtopd_nocheck(dentry));
-+	dtopd_lhs(dentry) = NULL;
-+	spin_unlock(&dentry->d_lock);
-+	return -ENOMEM;
-+}
-+
-+void update_bstart(struct dentry *dentry)
-+{
-+	int bindex;
-+	int bstart = dbstart(dentry);
-+	int bend = dbend(dentry);
 +	struct dentry *hidden_dentry;
++	struct inode *inode;
++	int bindex, bstart, bend;
 +
++	verify_locked(dentry);
++
++	/* This is pre-allocated inode */
++	inode = dentry->d_inode;
++
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
 +	for (bindex = bstart; bindex <= bend; bindex++) {
 +		hidden_dentry = dtohd_index(dentry, bindex);
 +		if (!hidden_dentry)
 +			continue;
-+		if (hidden_dentry->d_inode) {
-+			set_dbstart(dentry, bindex);
-+			break;
-+		}
-+		dput(hidden_dentry);
-+		set_dtohd_index(dentry, bindex, NULL);
++
++		if (!hidden_dentry->d_inode)
++			continue;
++		if (itohi_index(inode, bindex))
++			continue;
++		set_itohi_index(inode, bindex, igrab(hidden_dentry->d_inode));
 +	}
++	ibstart(inode) = dbstart(dentry);
++	ibend(inode) = dbend(dentry);
 +}
++
++int check_branch(struct nameidata *nd)
++{
++	if (!strcmp(nd->dentry->d_sb->s_type->name, "unionfs"))
++		return -EINVAL;
++	if (!nd->dentry->d_inode)
++		return -ENOENT;
++	if (!S_ISDIR(nd->dentry->d_inode->i_mode))
++		return -ENOTDIR;
++	return 0;
++}
++
++/* checks if two hidden_dentries have overlapping branches */
++int is_branch_overlap(struct dentry *dent1, struct dentry *dent2)
++{
++	struct dentry *dent = NULL;
++
++	dent = dent1;
++	while ((dent != dent2) && (dent->d_parent != dent)) {
++		dent = dent->d_parent;
++	}
++	if (dent == dent2) {
++		return 1;
++	}
++
++	dent = dent2;
++	while ((dent != dent1) && (dent->d_parent != dent)) {
++		dent = dent->d_parent;
++	}
++	if (dent == dent1) {
++		return 1;
++	}
++
++	return 0;
++}
++static int parse_branch_mode(char *name)
++{
++	int perms;
++	int l = strlen(name);
++	if (!strcmp(name + l - 3, "=ro")) {
++		perms = MAY_READ;
++		name[l - 3] = '\0';
++	} else if (!strcmp(name + l - 6, "=nfsro")) {
++		perms = MAY_READ | MAY_NFSRO;
++		name[l - 6] = '\0';
++	} else if (!strcmp(name + l - 3, "=rw")) {
++		perms = MAY_READ | MAY_WRITE;
++		name[l - 3] = '\0';
++	} else {
++		perms = MAY_READ | MAY_WRITE;
++	}
++
++	return perms;
++}
++
++static int parse_dirs_option(struct super_block *sb, struct unionfs_dentry_info
++			     *hidden_root_info, char *options)
++{
++	struct nameidata nd;
++	char *name;
++	int err = 0;
++	int branches = 1;
++	int bindex = 0;
++	int i = 0;
++	int j = 0;
++
++	struct dentry *dent1 = NULL;
++	struct dentry *dent2 = NULL;
++
++	if (options[0] == '\0') {
++		printk(KERN_WARNING "unionfs: no branches specified\n");
++		err = -EINVAL;
++		goto out;
++	}
++
++	/* Each colon means we have a separator, this is really just a rough
++	 * guess, since strsep will handle empty fields for us. */
++	for (i = 0; options[i]; i++) {
++		if (options[i] == ':')
++			branches++;
++	}
++
++	/* allocate space for underlying pointers to hidden dentry */
++	if (!(stopd(sb)->usi_data = alloc_new_data(branches))) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	if (!(hidden_root_info->udi_dentry = alloc_new_dentries(branches))) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	/* now parsing the string b1:b2=rw:b3=ro:b4 */
++	branches = 0;
++	while ((name = strsep(&options, ":")) != NULL) {
++		int perms;
++
++		if (!*name)
++			continue;
++
++		branches++;
++
++		/* strip off =rw or =ro if it is specified. */
++		perms = parse_branch_mode(name);
++		if (!bindex && !(perms & MAY_WRITE)) {
++			err = -EINVAL;
++			goto out;
++		}
++
++		err = path_lookup(name, LOOKUP_FOLLOW, &nd);
++		if (err) {
++			printk(KERN_WARNING "unionfs: error accessing "
++			       "hidden directory '%s' (error %d)\n", name, err);
++			goto out;
++		}
++
++		if ((err = check_branch(&nd))) {
++			printk(KERN_WARNING "unionfs: hidden directory "
++			       "'%s' is not a valid branch\n", name);
++			path_release(&nd);
++			goto out;
++		}
++
++		hidden_root_info->udi_dentry[bindex] = nd.dentry;
++
++		set_stohiddenmnt_index(sb, bindex, nd.mnt);
++		set_branchperms(sb, bindex, perms);
++		set_branch_count(sb, bindex, 0);
++
++		if (hidden_root_info->udi_bstart < 0)
++			hidden_root_info->udi_bstart = bindex;
++		hidden_root_info->udi_bend = bindex;
++		bindex++;
++	}
++
++	if (branches == 0) {
++		printk(KERN_WARNING "unionfs: no branches specified\n");
++		err = -EINVAL;
++		goto out;
++	}
++
++	BUG_ON(branches != (hidden_root_info->udi_bend + 1));
++
++	/* ensure that no overlaps exist in the branches */
++	for (i = 0; i < branches; i++) {
++		for (j = i + 1; j < branches; j++) {
++			dent1 = hidden_root_info->udi_dentry[i];
++			dent2 = hidden_root_info->udi_dentry[j];
++
++			if (is_branch_overlap(dent1, dent2)) {
++				printk(KERN_WARNING "unionfs: branches %d and %d overlap\n", i, j);
++				err = -EINVAL;
++				goto out;
++			}
++		}
++	}
++
++out:
++	if (err) {
++		for (i = 0; i < branches; i++) {
++			if (hidden_root_info->udi_dentry[i])
++				dput(hidden_root_info->udi_dentry[i]);
++		}
++
++		kfree(hidden_root_info->udi_dentry);
++		kfree(stopd(sb)->usi_data);
++
++		/* MUST clear the pointers to prevent potential double free if
++		 * the caller dies later on
++		 */
++		hidden_root_info->udi_dentry = NULL;
++		stopd(sb)->usi_data = NULL;
++	}
++	return err;
++}
++
++/*
++ * Parse mount options.  See the manual page for usage instructions.
++ *
++ * Returns the dentry object of the lower-level (hidden) directory;
++ * We want to mount our stackable file system on top of that hidden directory.
++ *
++ * Sets default debugging level to N, if any.
++ */
++static struct unionfs_dentry_info *unionfs_parse_options(struct super_block *sb,
++							 char *options)
++{
++	struct unionfs_dentry_info *hidden_root_info;
++	char *optname;
++	int err = 0;
++	int bindex;
++	int dirsfound = 0;
++
++	/* allocate private data area */
++	err = -ENOMEM;
++	hidden_root_info =
++	    kzalloc(sizeof(struct unionfs_dentry_info), GFP_KERNEL);
++	if (!hidden_root_info)
++		goto out_error;
++	hidden_root_info->udi_bstart = -1;
++	hidden_root_info->udi_bend = -1;
++	hidden_root_info->udi_bopaque = -1;
++
++	while ((optname = strsep(&options, ",")) != NULL) {
++		char *optarg;
++		char *endptr;
++		int intval;
++
++		if (!*optname) {
++			continue;
++		}
++
++		optarg = strchr(optname, '=');
++		if (optarg) {
++			*optarg++ = '\0';
++		}
++
++		/* All of our options take an argument now. Insert ones that
++		 * don't, above this check.  */
++		if (!optarg) {
++			printk("unionfs: %s requires an argument.\n", optname);
++			err = -EINVAL;
++			goto out_error;
++		}
++
++		if (!strcmp("dirs", optname)) {
++			if (++dirsfound > 1) {
++				printk(KERN_WARNING
++				       "unionfs: multiple dirs specified\n");
++				err = -EINVAL;
++				goto out_error;
++			}
++			err = parse_dirs_option(sb, hidden_root_info, optarg);
++			if (err)
++				goto out_error;
++			continue;
++		}
++
++		/* All of these options require an integer argument. */
++		intval = simple_strtoul(optarg, &endptr, 0);
++		if (*endptr) {
++			printk(KERN_WARNING
++			       "unionfs: invalid %s option '%s'\n",
++			       optname, optarg);
++			err = -EINVAL;
++			goto out_error;
++		}
++
++		err = -EINVAL;
++		printk(KERN_WARNING
++		       "unionfs: unrecognized option '%s'\n", optname);
++		goto out_error;
++	}
++	if (dirsfound != 1) {
++		printk(KERN_WARNING "unionfs: dirs option required\n");
++		err = -EINVAL;
++		goto out_error;
++	}
++	goto out;
++
++out_error:
++	if (hidden_root_info && hidden_root_info->udi_dentry) {
++		for (bindex = hidden_root_info->udi_bstart;
++		     bindex >= 0 && bindex <= hidden_root_info->udi_bend;
++		     bindex++) {
++			struct dentry *d;
++			d = hidden_root_info->udi_dentry[bindex];
++			dput(d);
++			if (stohiddenmnt_index(sb, bindex))
++				mntput(stohiddenmnt_index(sb, bindex));
++		}
++	}
++
++	kfree(hidden_root_info->udi_dentry);
++	kfree(hidden_root_info);
++
++	kfree(stopd(sb)->usi_data);
++	stopd(sb)->usi_data = NULL;
++
++	hidden_root_info = ERR_PTR(err);
++out:
++	return hidden_root_info;
++}
++
++static struct dentry *unionfs_d_alloc_root(struct super_block *sb)
++{
++	struct dentry *ret = NULL;
++
++	if (sb) {
++		static const struct qstr name = {.name = "/",.len = 1 };
++
++		ret = d_alloc(NULL, &name);
++		if (ret) {
++			ret->d_op = &unionfs_dops;
++			ret->d_sb = sb;
++			ret->d_parent = ret;
++		}
++	}
++	return ret;
++}
++
++static int unionfs_read_super(struct super_block *sb, void *raw_data,
++			      int silent)
++{
++	int err = 0;
++
++	struct unionfs_dentry_info *hidden_root_info = NULL;
++	int bindex, bstart, bend;
++
++	if (!raw_data) {
++		printk(KERN_WARNING
++		       "unionfs_read_super: missing data argument\n");
++		err = -EINVAL;
++		goto out;
++	}
++
++	/*
++	 * Allocate superblock private data
++	 */
++	stopd_lhs(sb) = kzalloc(sizeof(struct unionfs_sb_info), GFP_KERNEL);
++	if (!stopd(sb)) {
++		printk(KERN_WARNING "%s: out of memory\n", __FUNCTION__);
++		err = -ENOMEM;
++		goto out;
++	}
++	stopd(sb)->b_end = -1;
++	atomic_set(&stopd(sb)->usi_generation, 1);
++	init_rwsem(&stopd(sb)->usi_rwsem);
++
++	hidden_root_info = unionfs_parse_options(sb, raw_data);
++	if (IS_ERR(hidden_root_info)) {
++		printk(KERN_WARNING
++		       "unionfs_read_super: error while parsing options (err = %ld)\n",
++		       PTR_ERR(hidden_root_info));
++		err = PTR_ERR(hidden_root_info);
++		hidden_root_info = NULL;
++		goto out_free;
++	}
++	if (hidden_root_info->udi_bstart == -1) {
++		err = -ENOENT;
++		goto out_free;
++	}
++
++	/* set the hidden superblock field of upper superblock */
++	bstart = hidden_root_info->udi_bstart;
++	BUG_ON(bstart != 0);
++	sbend(sb) = bend = hidden_root_info->udi_bend;
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		struct dentry *d;
++
++		d = hidden_root_info->udi_dentry[bindex];
++
++		set_stohs_index(sb, bindex, d->d_sb);
++	}
++
++	/* Unionfs: Max Bytes is the maximum bytes from highest priority branch */
++	sb->s_maxbytes = stohs_index(sb, 0)->s_maxbytes;
++
++	sb->s_op = &unionfs_sops;
++
++	/*
++	 * we can't use d_alloc_root if we want to use
++	 * our own interpose function unchanged,
++	 * so we simply call our own "fake" d_alloc_root
++	 */
++	sb->s_root = unionfs_d_alloc_root(sb);
++	if (!sb->s_root) {
++		err = -ENOMEM;
++		goto out_dput;
++	}
++
++	/* link the upper and lower dentries */
++	dtopd_lhs(sb->s_root) = NULL;
++	if ((err = new_dentry_private_data(sb->s_root)))
++		goto out_freedpd;
++
++	/* Set the hidden dentries for s_root */
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		struct dentry *d;
++
++		d = hidden_root_info->udi_dentry[bindex];
++
++		set_dtohd_index(sb->s_root, bindex, d);
++	}
++	set_dbstart(sb->s_root, bstart);
++	set_dbend(sb->s_root, bend);
++
++	/* Set the generation number to one, since this is for the mount. */
++	atomic_set(&dtopd(sb->s_root)->udi_generation, 1);
++
++	/* call interpose to create the upper level inode */
++	if ((err = unionfs_interpose(sb->s_root, sb, 0)))
++		goto out_freedpd;
++	unlock_dentry(sb->s_root);
++	goto out;
++
++out_freedpd:
++	if (dtopd(sb->s_root)) {
++		kfree(dtohd_ptr(sb->s_root));
++		free_dentry_private_data(dtopd(sb->s_root));
++	}
++	dput(sb->s_root);
++
++out_dput:
++	if (hidden_root_info && !IS_ERR(hidden_root_info)) {
++		for (bindex = hidden_root_info->udi_bstart;
++		     bindex <= hidden_root_info->udi_bend; bindex++) {
++			struct dentry *d;
++
++			d = hidden_root_info->udi_dentry[bindex];
++
++			if (d)
++				dput(d);
++
++			if (stopd(sb) && stohiddenmnt_index(sb, bindex))
++				mntput(stohiddenmnt_index(sb, bindex));
++		}
++		kfree(hidden_root_info->udi_dentry);
++		kfree(hidden_root_info);
++		hidden_root_info = NULL;
++	}
++
++out_free:
++	kfree(stopd(sb)->usi_data);
++	kfree(stopd(sb));
++	stopd_lhs(sb) = NULL;
++
++out:
++	if (hidden_root_info && !IS_ERR(hidden_root_info)) {
++		kfree(hidden_root_info->udi_dentry);
++		kfree(hidden_root_info);
++	}
++	return err;
++}
++
++static int unionfs_get_sb(struct file_system_type *fs_type,
++			  int flags, const char *dev_name,
++			  void *raw_data, struct vfsmount *mnt)
++{
++	return get_sb_nodev(fs_type, flags, raw_data, unionfs_read_super, mnt);
++}
++
++void unionfs_kill_block_super(struct super_block *sb)
++{
++	generic_shutdown_super(sb);
++}
++
++static struct file_system_type unionfs_fs_type = {
++	.owner = THIS_MODULE,
++	.name = "unionfs",
++	.get_sb = unionfs_get_sb,
++	.kill_sb = unionfs_kill_block_super,
++	.fs_flags = FS_REVAL_DOT,
++};
++
++static int init_debug = 0;
++module_param_named(debug, init_debug, int, S_IRUGO);
++MODULE_PARM_DESC(debug, "Initial Unionfs debug value.");
++
++static int __init init_unionfs_fs(void)
++{
++	int err;
++	printk("Registering unionfs " UNIONFS_VERSION "\n");
++
++	if ((err = init_filldir_cache()))
++		goto out;
++	if ((err = init_inode_cache()))
++		goto out;
++	if ((err = init_dentry_cache()))
++		goto out;
++	if ((err = init_sioq()))
++		goto out;
++	err = register_filesystem(&unionfs_fs_type);
++out:
++	if (err) {
++		fin_sioq();
++		destroy_filldir_cache();
++		destroy_inode_cache();
++		destroy_dentry_cache();
++	}
++	return err;
++}
++static void __exit exit_unionfs_fs(void)
++{
++	fin_sioq();
++	destroy_filldir_cache();
++	destroy_inode_cache();
++	destroy_dentry_cache();
++	unregister_filesystem(&unionfs_fs_type);
++	printk("Completed unionfs module unload.\n");
++}
++
++MODULE_AUTHOR("Filesystems and Storage Lab, Stony Brook University"
++		" (http://www.fsl.cs.sunysb.edu/)");
++MODULE_DESCRIPTION("Unionfs " UNIONFS_VERSION
++		" (http://unionfs.filesystems.org/)");
++MODULE_LICENSE("GPL");
++
++module_init(init_unionfs_fs);
++module_exit(exit_unionfs_fs);
 +

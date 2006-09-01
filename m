@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWIAJpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWIAJxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWIAJpv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 05:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWIAJpv
+	id S1751380AbWIAJxf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 05:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWIAJxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 05:45:51 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:5838 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751368AbWIAJpu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 05:45:50 -0400
-Date: Fri, 1 Sep 2006 11:45:07 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       mtosatti@redhat.com
-Subject: Re: Linux 2.4.34-pre2
-In-Reply-To: <20060831201952.GA25445@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0609011142490.20760@pademelon.sonytel.be>
-References: <20060831201952.GA25445@hera.kernel.org>
+	Fri, 1 Sep 2006 05:53:35 -0400
+Received: from fnoeppeil48.netpark.at ([217.175.205.176]:47377 "EHLO
+	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
+	id S1751380AbWIAJxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 05:53:35 -0400
+Message-ID: <44F80314.7030200@roarinelk.homelinux.net>
+Date: Fri, 01 Sep 2006 11:53:24 +0200
+From: Manuel Lauss <mano@roarinelk.homelinux.net>
+User-Agent: Thunderbird/1.0 Mnenhy/0.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc5-mm1
+References: <20060901015818.42767813.akpm@osdl.org>
+In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006, Willy Tarreau wrote:
-> This is Linux 2.4.34-pre2. It fixes several security issues which are
+I need the following patch to make it build.
 
-Apparently the patch is now relative to 2.4.34-pre1, not 2.4.33, while previous
-2.4.*-pre* patches were relative to the previous full release?
+__NR_execve is undeclared.
 
-This definitely breaks some scripts (incl. mine ;-(
 
-Gr{oetje,eeting}s,
+--- a/arch/i386/kernel/sys_i386.c~      2006-09-01 11:48:45.000000000 +0200
++++ b/arch/i386/kernel/sys_i386.c       2006-09-01 11:48:45.000000000 +0200
+@@ -22,6 +22,7 @@
 
-						Geert
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
++#include <asm/unistd.h>
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ /*
+  * sys_pipe() is the normal C calling standard for creating

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWIAEjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWIAEjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWIAEjd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 00:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWIAEjc
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S932161AbWIAEjc (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Sep 2006 00:39:32 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26027 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932154AbWIAEja (ORCPT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWIAEjB
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 1 Sep 2006 00:39:01 -0400
+Received: from mx1.suse.de ([195.135.220.2]:64729 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932112AbWIAEiv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 00:39:30 -0400
+	Fri, 1 Sep 2006 00:38:51 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 1 Sep 2006 14:39:22 +1000
-Message-Id: <1060901043922.27606@suse.de>
+Date: Fri, 1 Sep 2006 14:38:43 +1000
+Message-Id: <1060901043843.27500@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Cc: Olaf Kirch <okir@suse.de>
-Subject: [PATCH 014 of 19] knfsd: lockd: optionally use hostnames for identifying peers
+Subject: [PATCH 007 of 19] knfsd: lockd: make the nsm upcalls use the nsm_handle
 References: <20060901141639.27206.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -26,133 +26,103 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Olaf Kirch <okir@suse.de>
 
-  This patch adds the nsm_use_hostnames sysctl and module param. If
-  set, lockd will use the client's name (as given in the NLM
-  arguments) to find the NSM handle. This makes recovery work when the
-  NFS peer is multi-homed, and the reboot notification arrives from a
-  different IP than the original lock calls.
+  This converts the statd upcalls to use the nsm_handle
+
+  This means that we only register each host once with
+  statd, rather than registering each host/vers/protocol triple.
 
 Signed-off-by: Olaf Kirch <okir@suse.de>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/lockd/host.c                |    6 +++++-
- ./fs/lockd/mon.c                 |   12 +++++++++---
- ./fs/lockd/svc.c                 |   10 ++++++++++
- ./include/linux/lockd/lockd.h    |    1 +
- ./include/linux/lockd/sm_inter.h |    2 ++
- 5 files changed, 27 insertions(+), 4 deletions(-)
-
-diff .prev/fs/lockd/host.c ./fs/lockd/host.c
---- .prev/fs/lockd/host.c	2006-09-01 12:11:07.000000000 +1000
-+++ ./fs/lockd/host.c	2006-09-01 12:11:16.000000000 +1000
-@@ -462,7 +462,11 @@ __nsm_find(const struct sockaddr_in *sin
- 	list_for_each(pos, &nsm_handles) {
- 		nsm = list_entry(pos, struct nsm_handle, sm_link);
- 
--		if (!nlm_cmp_addr(&nsm->sm_addr, sin))
-+		if (hostname && nsm_use_hostnames) {
-+			if (strlen(nsm->sm_name) != hostname_len
-+			 || memcmp(nsm->sm_name, hostname, hostname_len))
-+				continue;
-+		} else if (!nlm_cmp_addr(&nsm->sm_addr, sin))
- 			continue;
- 		atomic_inc(&nsm->sm_count);
- 		goto out;
+ ./fs/lockd/mon.c                 |   30 ++++++++++++++++++------------
+ ./include/linux/lockd/sm_inter.h |    1 -
+ 2 files changed, 18 insertions(+), 13 deletions(-)
 
 diff .prev/fs/lockd/mon.c ./fs/lockd/mon.c
---- .prev/fs/lockd/mon.c	2006-09-01 12:11:07.000000000 +1000
-+++ ./fs/lockd/mon.c	2006-09-01 12:11:16.000000000 +1000
-@@ -47,6 +47,7 @@ nsm_mon_unmon(struct nsm_handle *nsm, u3
+--- .prev/fs/lockd/mon.c	2006-08-31 17:00:03.000000000 +1000
++++ ./fs/lockd/mon.c	2006-08-31 17:21:30.000000000 +1000
+@@ -30,7 +30,7 @@ u32				nsm_local_state;
+  * Common procedure for SM_MON/SM_UNMON calls
+  */
+ static int
+-nsm_mon_unmon(struct nlm_host *host, u32 proc, struct nsm_res *res)
++nsm_mon_unmon(struct nsm_handle *nsm, u32 proc, struct nsm_res *res)
+ {
+ 	struct rpc_clnt	*clnt;
+ 	int		status;
+@@ -46,10 +46,10 @@ nsm_mon_unmon(struct nlm_host *host, u32
+ 		goto out;
  	}
  
- 	memset(&args, 0, sizeof(args));
-+	args.mon_name = nsm->sm_name;
- 	args.addr = nsm->sm_addr.sin_addr.s_addr;
+-	args.addr = host->h_addr.sin_addr.s_addr;
+-	args.proto= (host->h_proto<<1) | host->h_server;
++	memset(&args, 0, sizeof(args));
++	args.addr = nsm->sm_addr.sin_addr.s_addr;
  	args.prog = NLM_PROGRAM;
- 	args.vers = 3;
-@@ -150,7 +151,7 @@ nsm_create(void)
- static u32 *
- xdr_encode_common(struct rpc_rqst *rqstp, u32 *p, struct nsm_args *argp)
- {
--	char	buffer[20];
-+	char	buffer[20], *name;
+-	args.vers = host->h_version;
++	args.vers = 3;
+ 	args.proc = NLMPROC_NSM_NOTIFY;
+ 	memset(res, 0, sizeof(*res));
  
- 	/*
- 	 * Use the dotted-quad IP address of the remote host as
-@@ -158,8 +159,13 @@ xdr_encode_common(struct rpc_rqst *rqstp
- 	 * hostname first for whatever remote hostname it receives,
- 	 * so this works alright.
- 	 */
--	sprintf(buffer, "%u.%u.%u.%u", NIPQUAD(argp->addr));
--	if (!(p = xdr_encode_string(p, buffer))
-+	if (nsm_use_hostnames) {
-+		name = argp->mon_name;
-+	} else {
-+		sprintf(buffer, "%u.%u.%u.%u", NIPQUAD(argp->addr));
-+		name = buffer;
-+	}
-+	if (!(p = xdr_encode_string(p, name))
- 	 || !(p = xdr_encode_string(p, utsname()->nodename)))
- 		return ERR_PTR(-EIO);
- 	*p++ = htonl(argp->prog);
-
-diff .prev/fs/lockd/svc.c ./fs/lockd/svc.c
---- .prev/fs/lockd/svc.c	2006-09-01 12:11:07.000000000 +1000
-+++ ./fs/lockd/svc.c	2006-09-01 12:15:24.000000000 +1000
-@@ -61,6 +61,7 @@ static DECLARE_WAIT_QUEUE_HEAD(lockd_exi
- static unsigned long		nlm_grace_period;
- static unsigned long		nlm_timeout = LOCKD_DFLT_TIMEO;
- static int			nlm_udpport, nlm_tcpport;
-+int				nsm_use_hostnames = 0;
+@@ -80,7 +80,7 @@ nsm_monitor(struct nlm_host *host)
+ 	if (nsm->sm_monitored)
+ 		return 0;
  
- /*
-  * Constants needed for the sysctl interface.
-@@ -395,6 +396,14 @@ static ctl_table nlm_sysctls[] = {
- 		.extra1		= (int *) &nlm_port_min,
- 		.extra2		= (int *) &nlm_port_max,
- 	},
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "nsm_use_hostnames",
-+		.data		= &nsm_use_hostnames,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
- 	{ .ctl_name = 0 }
- };
+-	status = nsm_mon_unmon(host, SM_MON, &res);
++	status = nsm_mon_unmon(nsm, SM_MON, &res);
  
-@@ -483,6 +492,7 @@ module_param_call(nlm_udpport, param_set
- 		  &nlm_udpport, 0644);
- module_param_call(nlm_tcpport, param_set_port, param_get_int,
- 		  &nlm_tcpport, 0644);
-+module_param(nsm_use_hostnames, bool, 0644);
+ 	if (status < 0 || res.status != 0)
+ 		printk(KERN_NOTICE "lockd: cannot monitor %s\n", host->h_name);
+@@ -99,16 +99,20 @@ nsm_unmonitor(struct nlm_host *host)
+ 	struct nsm_res	res;
+ 	int		status = 0;
  
- /*
-  * Initialising and terminating the module.
-
-diff .prev/include/linux/lockd/lockd.h ./include/linux/lockd/lockd.h
---- .prev/include/linux/lockd/lockd.h	2006-09-01 12:11:05.000000000 +1000
-+++ ./include/linux/lockd/lockd.h	2006-09-01 12:16:06.000000000 +1000
-@@ -142,6 +142,7 @@ extern struct svc_procedure	nlmsvc_proce
- #endif
- extern int			nlmsvc_grace_period;
- extern unsigned long		nlmsvc_timeout;
-+extern int			nsm_use_hostnames;
+-	dprintk("lockd: nsm_unmonitor(%s)\n", host->h_name);
+ 	if (nsm == NULL)
+ 		return 0;
+ 	host->h_nsmhandle = NULL;
  
- /*
-  * Lockd client functions
+-	if (!host->h_killed) {
+-		status = nsm_mon_unmon(host, SM_UNMON, &res);
++	if (atomic_read(&nsm->sm_count) == 1
++	 && nsm->sm_monitored && !nsm->sm_sticky) {
++		dprintk("lockd: nsm_unmonitor(%s)\n", host->h_name);
++
++		status = nsm_mon_unmon(nsm, SM_UNMON, &res);
+ 		if (status < 0)
+-			printk(KERN_NOTICE "lockd: cannot unmonitor %s\n", host->h_name);
+-		nsm->sm_monitored = 0;
++			printk(KERN_NOTICE "lockd: cannot unmonitor %s\n",
++					host->h_name);
++		else
++			nsm->sm_monitored = 0;
+ 	}
+ 	nsm_release(nsm);
+ 	return status;
+@@ -171,9 +175,11 @@ xdr_encode_mon(struct rpc_rqst *rqstp, u
+ 	p = xdr_encode_common(rqstp, p, argp);
+ 	if (IS_ERR(p))
+ 		return PTR_ERR(p);
++
++	/* Surprise - there may even be room for an IPv6 address now */
+ 	*p++ = argp->addr;
+-	*p++ = argp->vers;
+-	*p++ = argp->proto;
++	*p++ = 0;
++	*p++ = 0;
+ 	*p++ = 0;
+ 	rqstp->rq_slen = xdr_adjust_iovec(rqstp->rq_svec, p);
+ 	return 0;
 
 diff .prev/include/linux/lockd/sm_inter.h ./include/linux/lockd/sm_inter.h
---- .prev/include/linux/lockd/sm_inter.h	2006-09-01 12:11:07.000000000 +1000
-+++ ./include/linux/lockd/sm_inter.h	2006-09-01 12:11:16.000000000 +1000
-@@ -28,6 +28,8 @@ struct nsm_args {
+--- .prev/include/linux/lockd/sm_inter.h	2006-08-31 17:21:30.000000000 +1000
++++ ./include/linux/lockd/sm_inter.h	2006-08-31 17:28:45.000000000 +1000
+@@ -28,7 +28,6 @@ struct nsm_args {
  	u32		prog;		/* RPC callback info */
  	u32		vers;
  	u32		proc;
-+
-+	char *		mon_name;
+-	u32		proto;		/* protocol (udp/tcp) plus server/client flag */
  };
  
  /*

@@ -1,52 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbWIAPqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWIAPrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751664AbWIAPqF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 11:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWIAPqF
+	id S932110AbWIAPrS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 11:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWIAPrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 11:46:05 -0400
-Received: from mail.gmx.de ([213.165.64.20]:35772 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751664AbWIAPqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 11:46:03 -0400
-X-Authenticated: #704063
-Subject: Re: [Patch] Uninitialized variable in drivers/scsi/ncr53c8xx.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, matthew@wil.cx
-In-Reply-To: <20060831230049.db26d0e6.akpm@osdl.org>
-References: <1157066952.13948.3.camel@alice>
-	 <20060831230049.db26d0e6.akpm@osdl.org>
+	Fri, 1 Sep 2006 11:47:18 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:25519 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751667AbWIAPrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 11:47:16 -0400
+Subject: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: sct@redhat.com, akpm@osdl.org
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 17:45:56 +0200
-Message-Id: <1157125556.3951.2.camel@alice>
+Date: Fri, 01 Sep 2006 08:50:29 -0700
+Message-Id: <1157125829.30578.6.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 23:00 -0700, Andrew Morton wrote:
-> On Fri, 01 Sep 2006 01:29:12 +0200
-> Eric Sesterhenn <snakebyte@gmx.de> wrote:
-> 
-> > hi,
-> > 
-> > this was spotted by coverity (id #880).
-> > We use simple_strtoul() earlier to initialize pe,
-> > if the function fails, it also does not initialize it.
-> > Therefore we should initialize it ourselves, so the check
-> > in the OPT_TAGS case "if (pe && *pe == '/')" makes sense, and
-> > actually makes the command line parsing more robust.
-> > 
-> > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> 
-> simple_strtoul() always initialises `pe'.
+Hi Andrew,
 
-D'oh. But i think we should apply the patch nevertheless,
-to make the parsing code more robust, in case the command line is
-screwed up (and simple_strtoul() is never called).
+I have been running into following bug while running fsx
+tests on 1k (ext3) filesystem all the time. 
 
-Eric
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at fs/buffer.c:2791
+invalid opcode: 0000 [1] SMP
+
+Its complaining about BUG_ON(!buffer_mapped(bh)).
+
+It was hard to track it down, needed lots of debug - but here 
+is the problem & fix.  Since the fix is in __set_page_buffer_dirty()
+code - I am wondering how it would effect others :(
+
+With this fix fsx tests ran for more than 16 hours (and still
+running).
+
+Please let me know, what you think.
+
+Thanks,
+Badari 
+
+Patch to fix: Kernel BUG at fs/buffer.c:2791
+on 1k (2k) filesystems while running fsx.
+
+journal_commit_transaction collects lots of dirty buffer from
+and does a single ll_rw_block() to write them out. ll_rw_block()
+locks the buffer and checks to see if they are dirty and submits
+them for IO.
+
+In the mean while, journal_unmap_buffers() as part of
+truncate can unmap the buffer and throw it away. Since its
+a 1k (2k) filesystem - each page (4k) will have more than
+one buffer_head attached to the page and and we can't free 
+up buffer_heads attached to the page (if we are not
+invalidating the whole page).
+
+Now, any call to set_page_dirty() (like msync_interval)
+could end up setting all the buffer heads attached to
+this page again dirty, including the ones those got
+cleaned up :(
+
+If ll_rw_block() runs now and sees the dirty bit it does
+submit_bh() on those buffer_heads and triggers the assert.
+
+Fix is to check if the buffer is mapped before setting its
+dirty bit in __set_page_dirty_buffers().
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+---
+ fs/buffer.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.18-rc5/fs/buffer.c
+===================================================================
+--- linux-2.6.18-rc5.orig/fs/buffer.c	2006-09-01 08:20:51.000000000 -0700
++++ linux-2.6.18-rc5/fs/buffer.c	2006-09-01 08:41:01.000000000 -0700
+@@ -846,7 +846,13 @@ int __set_page_dirty_buffers(struct page
+ 		struct buffer_head *bh = head;
+ 
+ 		do {
+-			set_buffer_dirty(bh);
++			/*
++			 * Its possible that, not all buffers attached to
++			 * this page are mapped (cleaned up by truncate).
++			 * If so, skip them.
++			 */
++			if (buffer_mapped(bh))
++				set_buffer_dirty(bh);
+ 			bh = bh->b_this_page;
+ 		} while (bh != head);
+ 	}
+
 

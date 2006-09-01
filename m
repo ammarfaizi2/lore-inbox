@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWIAVoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWIAVQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbWIAVoc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWIAVob
+	id S1750897AbWIAVQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWIAVQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:44:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7912 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750998AbWIAVob (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:44:31 -0400
-Date: Fri, 1 Sep 2006 14:44:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: Generic infrastructure for acls
-Message-Id: <20060901144423.aa306d36.akpm@osdl.org>
-In-Reply-To: <20060901221457.803728153@winden.suse.de>
-References: <20060901221421.968954146@winden.suse.de>
-	<20060901221457.803728153@winden.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 1 Sep 2006 17:16:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8395 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750897AbWIAVQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 17:16:50 -0400
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ian Stirling <ian.stirling@mauve.plus.com>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Rob Landley <rob@landley.net>,
+       linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
+In-Reply-To: <44F88B98.3020805@mauve.plus.com>
+References: <1156429585.3012.58.camel@pmac.infradead.org>
+	 <1156433068.3012.115.camel@pmac.infradead.org>
+	 <200608251611.50616.rob@landley.net>
+	 <1156538115.3038.6.camel@pmac.infradead.org>
+	 <44F2CB09.2010809@aitel.hist.no>
+	 <1156764076.5340.75.camel@pmac.infradead.org>
+	 <44F88B98.3020805@mauve.plus.com>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 14:15:28 -0700
+Message-Id: <1157145328.2473.3.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Sep 2006 00:14:22 +0200
-Andreas Gruenbacher <agruen@suse.de> wrote:
+On Fri, 2006-09-01 at 20:35 +0100, Ian Stirling wrote:
+> I thought that it used rather a lot more RAM. I still often(ish)
+> compile a kernel on my PII/300/128M. It'd be moderately annoying if it
+> got slower, and there was no way to turn it off.
 
-> +generic_acl_list(struct inode *inode, struct generic_acl_operations *ops,
-> +		 int type, char *list, size_t list_size)
-> +{
-> +	struct posix_acl *acl;
-> +	const char *name;
-> +	size_t size;
-> +
-> +	acl = ops->getacl(inode, type);
-> +	if (!acl)
-> +		return 0;
-> +	posix_acl_release(acl);
-> +
-> +	switch(type) {
-> +		case ACL_TYPE_ACCESS:
-> +			name = POSIX_ACL_XATTR_ACCESS;
-> +			break;
-> +
-> +		case ACL_TYPE_DEFAULT:
-> +			name = POSIX_ACL_XATTR_DEFAULT;
-> +			break;
-> +
-> +		default:
-> +			return 0;
-> +	}
-> +	size = strlen(name) + 1;
-> +	if (list && size <= list_size)
-> +		memcpy(list, name, size);
-> +	return size;
-> +}
-
-That's a clumsy-looking interface.  How is the caller to know that *list
-got filled in?  By checking the generic_acl_list() return value against
-`list_size'?
-
-If so, shouldn't this be covered in the API description (when you write
-it ;))?
-
-Or should it be returning some error code in this case?
-
-Or should we just strdup() the thing?
-
-Or return `name' and let the caller worry about it?
+There will definitely be a way to turn it off. Compilers with all the
+relevant bugs fixed are not common yet -- in fact I think I may have the
+_only_ existing builds with all the patches collected together.
 
 -- 
-VGER BF report: H 1.83187e-15
+dwmw2
+
+
+-- 
+VGER BF report: H 0

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWIANM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWIANOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWIANM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 09:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWIANM0
+	id S1751022AbWIANOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 09:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWIANOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 09:12:26 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:47502 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1750736AbWIANMZ
+	Fri, 1 Sep 2006 09:14:39 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:63118 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751022AbWIANOi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 09:12:25 -0400
-Message-ID: <44F83356.20207@student.ltu.se>
-Date: Fri, 01 Sep 2006 15:19:18 +0200
+	Fri, 1 Sep 2006 09:14:38 -0400
+Message-ID: <44F833C9.1000208@student.ltu.se>
+Date: Fri, 01 Sep 2006 15:21:13 +0200
 From: Richard Knutsson <ricknu-0@student.ltu.se>
 User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: akpm@osdl.org, sfrench@samba.org
-CC: linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.18-rc4-mm3 1/2] fs/cifs: Converting into generic boolean
+To: akpm@osdl.org, xfs-masters@oss.sgi.com, nathans@sgi.com
+CC: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Converting into generic boolean
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,882 +26,672 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Richard Knutsson <ricknu-0@student.ltu.se>
 
 Converting:
-'FALSE' into 'false'
-'TRUE'  into 'true'
+'B_FALSE' into 'false'
+'B_TRUE'  into 'true'
+'boolean_t' into 'bool'
 
 Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
 ---
 
-Depends on "[PATCH 2.6.18-rc4-mm3 1/2] fs/cifs: Correcting error-prone boolean-statement"
+Depends on "[PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement"
 Compile-tested
 
 
- asn1.c       |    4 +--
- cifsfs.c     |    4 +--
- cifsfs.h     |    8 -------
- cifsglob.h   |    8 -------
- cifssmb.c    |   20 +++++++++---------
- connect.c    |   22 ++++++++++----------
- dir.c        |   14 ++++++------
- fcntl.c      |    2 -
- file.c       |   64 +++++++++++++++++++++++++++++------------------------------
- inode.c      |   32 ++++++++++++++---------------
- link.c       |    2 -
- misc.c       |   30 +++++++++++++--------------
- netmisc.c    |    2 -
- readdir.c    |   10 ++++-----
- smbencrypt.c |    7 ------
- xattr.c      |    2 -
- 16 files changed, 104 insertions(+), 127 deletions(-)
+ quota/xfs_dquot.c       |   14 +++++++-------
+ quota/xfs_qm.c          |   12 ++++++------
+ quota/xfs_qm.h          |    2 +-
+ quota/xfs_qm_bhv.c      |    4 ++--
+ quota/xfs_qm_syscalls.c |   26 +++++++++++++-------------
+ quota/xfs_trans_dquot.c |   10 +++++-----
+ xfs_ialloc.c            |    6 +++---
+ xfs_ialloc.h            |    4 ++--
+ xfs_inode.c             |    2 +-
+ xfs_inode.h             |    2 +-
+ xfs_log.c               |    6 +++---
+ xfs_qmops.c             |    2 +-
+ xfs_types.h             |    1 -
+ xfs_utils.c             |    2 +-
+ xfs_vfsops.c            |   28 ++++++++++++++--------------
+ xfs_vnodeops.c          |   22 +++++++++++-----------
+ 16 files changed, 71 insertions(+), 72 deletions(-)
 
 
-diff -Narup a/fs/cifs/asn1.c b/fs/cifs/asn1.c
---- a/fs/cifs/asn1.c	2006-09-01 01:24:45.000000000 +0200
-+++ b/fs/cifs/asn1.c	2006-09-01 02:43:09.000000000 +0200
-@@ -457,7 +457,7 @@ decode_negTokenInit(unsigned char *secur
- 	unsigned char *sequence_end;
- 	unsigned long *oid = NULL;
- 	unsigned int cls, con, tag, oidlen, rc;
--	int use_ntlmssp = FALSE;
-+	int use_ntlmssp = false;
- 
- 	*secType = NTLM; /* BB eventually make Kerberos or NLTMSSP the default */
- 
-@@ -554,7 +554,7 @@ decode_negTokenInit(unsigned char *secur
- 						 NTLMSSP_OID_LEN);
- 					kfree(oid);
- 					if (rc)
--						use_ntlmssp = TRUE;
-+						use_ntlmssp = true;
- 				}
- 			} else {
- 				cFYI(1,("This should be an oid what is going on? "));
-diff -Narup a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
---- a/fs/cifs/cifsfs.c	2006-09-01 01:24:45.000000000 +0200
-+++ b/fs/cifs/cifsfs.c	2006-09-01 02:15:17.000000000 +0200
-@@ -253,8 +253,8 @@ cifs_alloc_inode(struct super_block *sb)
- 	/* Until the file is open and we have gotten oplock
- 	info back from the server, can not assume caching of
- 	file data or metadata */
--	cifs_inode->clientCanCacheRead = FALSE;
--	cifs_inode->clientCanCacheAll = FALSE;
-+	cifs_inode->clientCanCacheRead = false;
-+	cifs_inode->clientCanCacheAll = false;
- 	cifs_inode->vfs_inode.i_blkbits = 14;  /* 2**14 = CIFS_MAX_MSGSIZE */
- 	cifs_inode->vfs_inode.i_flags = S_NOATIME | S_NOCMTIME;
- 	INIT_LIST_HEAD(&cifs_inode->openFileList);
-diff -Narup a/fs/cifs/cifsfs.h b/fs/cifs/cifsfs.h
---- a/fs/cifs/cifsfs.h	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/cifsfs.h	2006-09-01 02:26:05.000000000 +0200
-@@ -24,14 +24,6 @@
- 
- #define ROOT_I 2
- 
--#ifndef FALSE
--#define FALSE 0
--#endif
--
--#ifndef TRUE
--#define TRUE 1
--#endif
--
- extern const struct address_space_operations cifs_addr_ops;
- extern const struct address_space_operations cifs_addr_ops_smallbuf;
- 
-diff -Narup a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
---- a/fs/cifs/cifsglob.h	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/cifsglob.h	2006-09-01 02:22:32.000000000 +0200
-@@ -56,14 +56,6 @@
- 
- #include "cifspdu.h"
- 
--#ifndef FALSE
--#define FALSE 0
--#endif
--
--#ifndef TRUE
--#define TRUE 1
--#endif
--
- #ifndef XATTR_DOS_ATTRIB
- #define XATTR_DOS_ATTRIB "user.DOSATTRIB"
- #endif
-diff -Narup a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
---- a/fs/cifs/cifssmb.c	2006-09-01 01:25:42.000000000 +0200
-+++ b/fs/cifs/cifssmb.c	2006-09-01 02:42:14.000000000 +0200
-@@ -93,7 +93,7 @@ static void mark_open_files_invalid(stru
- 	list_for_each_safe(tmp, tmp1, &pTcon->openFileList) {
- 		open_file = list_entry(tmp,struct cifsFileInfo, tlist);
- 		if(open_file) {
--			open_file->invalidHandle = TRUE;
-+			open_file->invalidHandle = true;
- 		}
- 	}
- 	write_unlock(&GlobalSMBSeslock);
-@@ -3268,9 +3268,9 @@ findFirstRetry:
- 		rc = validate_t2((struct smb_t2_rsp *)pSMBr);
- 		if(rc == 0) {
- 			if (pSMBr->hdr.Flags2 & SMBFLG2_UNICODE)
--				psrch_inf->unicode = TRUE;
-+				psrch_inf->unicode = true;
- 			else
--				psrch_inf->unicode = FALSE;
-+				psrch_inf->unicode = false;
- 
- 			psrch_inf->ntwrk_buf_start = (char *)pSMBr;
- 			psrch_inf->smallBuf = 0;
-@@ -3281,9 +3281,9 @@ findFirstRetry:
- 			       le16_to_cpu(pSMBr->t2.ParameterOffset));
- 
- 			if(parms->EndofSearch)
--				psrch_inf->endOfSearch = TRUE;
-+				psrch_inf->endOfSearch = true;
- 			else
--				psrch_inf->endOfSearch = FALSE;
-+				psrch_inf->endOfSearch = false;
- 
- 			psrch_inf->entries_in_buffer  = le16_to_cpu(parms->SearchCount);
- 			psrch_inf->index_of_last_entry = 2 /* skip . and .. */ +
-@@ -3376,7 +3376,7 @@ int CIFSFindNext(const int xid, struct c
- 	cifs_stats_inc(&tcon->num_fnext);
- 	if (rc) {
- 		if (rc == -EBADF) {
--			psrch_inf->endOfSearch = TRUE;
-+			psrch_inf->endOfSearch = true;
- 			rc = 0; /* search probably was closed at end of search above */
- 		} else
- 			cFYI(1, ("FindNext returned = %d", rc));
-@@ -3386,9 +3386,9 @@ int CIFSFindNext(const int xid, struct c
- 		if(rc == 0) {
- 			/* BB fixme add lock for file (srch_info) struct here */
- 			if (pSMBr->hdr.Flags2 & SMBFLG2_UNICODE)
--				psrch_inf->unicode = TRUE;
-+				psrch_inf->unicode = true;
- 			else
--				psrch_inf->unicode = FALSE;
-+				psrch_inf->unicode = false;
- 			response_data = (char *) &pSMBr->hdr.Protocol +
- 			       le16_to_cpu(pSMBr->t2.ParameterOffset);
- 			parms = (T2_FNEXT_RSP_PARMS *)response_data;
-@@ -3403,9 +3403,9 @@ int CIFSFindNext(const int xid, struct c
- 			psrch_inf->ntwrk_buf_start = (char *)pSMB;
- 			psrch_inf->smallBuf = 0;
- 			if(parms->EndofSearch)
--				psrch_inf->endOfSearch = TRUE;
-+				psrch_inf->endOfSearch = true;
- 			else
--				psrch_inf->endOfSearch = FALSE;
-+				psrch_inf->endOfSearch = false;
-                                                                                               
- 			psrch_inf->entries_in_buffer  = le16_to_cpu(parms->SearchCount);
- 			psrch_inf->index_of_last_entry +=
-diff -Narup a/fs/cifs/connect.c b/fs/cifs/connect.c
---- a/fs/cifs/connect.c	2006-09-01 01:25:42.000000000 +0200
-+++ b/fs/cifs/connect.c	2006-09-01 02:42:11.000000000 +0200
-@@ -339,7 +339,7 @@ cifs_demultiplex_thread(struct TCP_Serve
- 	struct task_struct *task_to_wake = NULL;
- 	struct mid_q_entry *mid_entry;
- 	char temp;
--	int isLargeBuf = FALSE;
-+	int isLargeBuf = false;
- 	int isMultiRsp;
- 	int reconnect;
- 
-@@ -387,8 +387,8 @@ cifs_demultiplex_thread(struct TCP_Serve
- 		} else /* if existing small buf clear beginning */
- 			memset(smallbuf, 0, sizeof (struct smb_hdr));
- 
--		isLargeBuf = FALSE;
--		isMultiRsp = FALSE;
-+		isLargeBuf = false;
-+		isMultiRsp = false;
- 		smb_buffer = smallbuf;
- 		iov.iov_base = smb_buffer;
- 		iov.iov_len = 4;
-@@ -511,7 +511,7 @@ cifs_demultiplex_thread(struct TCP_Serve
- 		reconnect = 0;
- 
- 		if(pdu_length > MAX_CIFS_SMALL_BUFFER_SIZE - 4) {
--			isLargeBuf = TRUE;
-+			isLargeBuf = true;
- 			memcpy(bigbuf, smallbuf, 4);
- 			smb_buffer = bigbuf;
- 		}
-@@ -575,7 +575,7 @@ cifs_demultiplex_thread(struct TCP_Serve
- 			    (mid_entry->command == smb_buffer->Command)) {
- 				if(check2ndT2(smb_buffer,server->maxBuf) > 0) {
- 					/* We have a multipart transact2 resp */
--					isMultiRsp = TRUE;
-+					isMultiRsp = true;
- 					if(mid_entry->resp_buf) {
- 						/* merge response - fix up 1st*/
- 						if(coalesce_t2(smb_buffer, 
-@@ -789,7 +789,7 @@ cifs_parse_mount_options(char *options, 
- 	vol->file_mode = S_IALLUGO & ~(S_ISUID | S_IXGRP);
- 
- 	/* vol->retry default is 0 (i.e. "soft" limited retry not hard retry) */
--	vol->rw = TRUE;
-+	vol->rw = true;
- 	/* default is always to request posix paths. */
- 	vol->posix_paths = 1;
- 
-@@ -1104,7 +1104,7 @@ cifs_parse_mount_options(char *options, 
- 		} else if (strnicmp(data, "guest",5) == 0) {
- 			/* ignore */
- 		} else if (strnicmp(data, "rw", 2) == 0) {
--			vol->rw = TRUE;
-+			vol->rw = true;
- 		} else if ((strnicmp(data, "suid", 4) == 0) ||
- 				   (strnicmp(data, "nosuid", 6) == 0) ||
- 				   (strnicmp(data, "exec", 4) == 0) ||
-@@ -1120,7 +1120,7 @@ cifs_parse_mount_options(char *options, 
- 				is ok to just ignore them */
- 			continue;
- 		} else if (strnicmp(data, "ro", 2) == 0) {
--			vol->rw = FALSE;
-+			vol->rw = false;
- 		} else if (strnicmp(data, "hard", 4) == 0) {
- 			vol->retry = 1;
- 		} else if (strnicmp(data, "soft", 4) == 0) {
-@@ -2327,7 +2327,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 	if(ses == NULL)
- 		return -EINVAL;
- 	domain = ses->domainName;
--	*pNTLMv2_flag = FALSE;
-+	*pNTLMv2_flag = false;
- 	smb_buffer = cifs_buf_get();
- 	if (smb_buffer == NULL) {
- 		return -ENOMEM;
-@@ -2480,7 +2480,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
- 				       CIFS_CRYPTO_KEY_SIZE);
- 				if(SecurityBlob2->NegotiateFlags & 
- 					cpu_to_le32(NTLMSSP_NEGOTIATE_NTLMV2))
--					*pNTLMv2_flag = TRUE;
-+					*pNTLMv2_flag = true;
- 
- 				if((SecurityBlob2->NegotiateFlags & 
- 					cpu_to_le32(NTLMSSP_NEGOTIATE_ALWAYS_SIGN)) 
-@@ -3242,7 +3242,7 @@ int cifs_setup_session(unsigned int xid,
+diff -Narup a/fs/xfs/quota/xfs_dquot.c b/fs/xfs/quota/xfs_dquot.c
+--- a/fs/xfs/quota/xfs_dquot.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_dquot.c	2006-09-01 04:15:52.000000000 +0200
+@@ -90,7 +90,7 @@ xfs_qm_dqinit(
+ 	uint	     type)
  {
- 	int rc = 0;
- 	char ntlm_session_key[CIFS_SESS_KEY_SIZE];
--	int ntlmv2_flag = FALSE;
-+	int ntlmv2_flag = false;
- 	int first_time = 0;
+ 	xfs_dquot_t	*dqp;
+-	boolean_t	brandnewdquot;
++	bool		brandnewdquot;
  
- 	/* what if server changes its buffer size after dropping the session? */
-diff -Narup a/fs/cifs/dir.c b/fs/cifs/dir.c
---- a/fs/cifs/dir.c	2006-09-01 01:25:42.000000000 +0200
-+++ b/fs/cifs/dir.c	2006-09-01 02:40:17.000000000 +0200
-@@ -132,7 +132,7 @@ cifs_create(struct inode *inode, struct 
- 	struct cifsFileInfo * pCifsFile = NULL;
- 	struct cifsInodeInfo * pCifsInode;
- 	int disposition = FILE_OVERWRITE_IF;
--	int write_only = FALSE;
-+	int write_only = false;
+ 	brandnewdquot = xfs_qm_dqalloc_incore(&dqp);
+ 	dqp->dq_flags = type;
+@@ -526,13 +526,13 @@ xfs_qm_dqtobp(
+ 	xfs_mount_t	*mp;
+ 	xfs_disk_dquot_t *ddq;
+ 	xfs_dqid_t	id;
+-	boolean_t	newdquot;
++	bool		newdquot;
+ 	xfs_trans_t	*tp = (tpp ? *tpp : NULL);
  
- 	xid = GetXid();
+ 	mp = dqp->q_mount;
+ 	id = be32_to_cpu(dqp->q_core.d_id);
+ 	nmaps = 1;
+-	newdquot = B_FALSE;
++	newdquot = false;
  
-@@ -154,7 +154,7 @@ cifs_create(struct inode *inode, struct 
- 		if (oflags & FMODE_WRITE) {
- 			desiredAccess |= GENERIC_WRITE;
- 			if (!(oflags & FMODE_READ))
--				write_only = TRUE;
-+				write_only = true;
- 		}
+ 	/*
+ 	 * If we don't know where the dquot lives, find out.
+@@ -582,7 +582,7 @@ xfs_qm_dqtobp(
+ 						dqp->q_fileoffset, &bp)))
+ 				return (error);
+ 			tp = *tpp;
+-			newdquot = B_TRUE;
++			newdquot = true;
+ 		} else {
+ 			/*
+ 			 * store the blkno etc so that we don't have to do the
+@@ -793,7 +793,7 @@ xfs_qm_dqlookup(
  
- 		if((oflags & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
-@@ -264,8 +264,8 @@ cifs_create(struct inode *inode, struct 
- 			pCifsFile->netfid = fileHandle;
- 			pCifsFile->pid = current->tgid;
- 			pCifsFile->pInode = newinode;
--			pCifsFile->invalidHandle = FALSE;
--			pCifsFile->closePend     = FALSE;
-+			pCifsFile->invalidHandle = false;
-+			pCifsFile->closePend     = false;
- 			init_MUTEX(&pCifsFile->fh_sem);
- 			init_MUTEX(&pCifsFile->lock_sem);
- 			INIT_LIST_HEAD(&pCifsFile->llist);
-@@ -286,12 +286,12 @@ cifs_create(struct inode *inode, struct 
- 						&pCifsInode->openFileList);
+ 	ASSERT(XFS_DQ_IS_HASH_LOCKED(qh));
+ 
+-	flist_locked = B_FALSE;
++	flist_locked = false;
+ 
+ 	/*
+ 	 * Traverse the hashchain looking for a match
+@@ -828,7 +828,7 @@ xfs_qm_dqlookup(
+ 					xfs_dqlock(dqp);
+ 					dqp->dq_flags &= ~(XFS_DQ_WANT);
  				}
- 				if((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
--					pCifsInode->clientCanCacheAll = TRUE;
--					pCifsInode->clientCanCacheRead = TRUE;
-+					pCifsInode->clientCanCacheAll = true;
-+					pCifsInode->clientCanCacheRead = true;
- 					cFYI(1,("Exclusive Oplock for inode %p",
- 						newinode));
- 				} else if((oplock & 0xF) == OPLOCK_READ)
--					pCifsInode->clientCanCacheRead = TRUE;
-+					pCifsInode->clientCanCacheRead = true;
+-				flist_locked = B_TRUE;
++				flist_locked = true;
  			}
- 			write_unlock(&GlobalSMBSeslock);
- 		}
-diff -Narup a/fs/cifs/fcntl.c b/fs/cifs/fcntl.c
---- a/fs/cifs/fcntl.c	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/fcntl.c	2006-09-01 02:23:07.000000000 +0200
-@@ -71,7 +71,7 @@ int cifs_dir_notify(struct file * file, 
- {
- 	int xid;
- 	int rc = -EINVAL;
--	int oplock = FALSE;
-+	int oplock = false;
- 	struct cifs_sb_info *cifs_sb;
- 	struct cifsTconInfo *pTcon;
- 	char *full_path = NULL;
-diff -Narup a/fs/cifs/file.c b/fs/cifs/file.c
---- a/fs/cifs/file.c	2006-09-01 01:25:42.000000000 +0200
-+++ b/fs/cifs/file.c	2006-09-01 02:47:22.000000000 +0200
-@@ -52,8 +52,8 @@ static inline struct cifsFileInfo *cifs_
- 	INIT_LIST_HEAD(&private_data->llist);
- 	private_data->pfile = file; /* needed for writepage */
- 	private_data->pInode = inode;
--	private_data->invalidHandle = FALSE;
--	private_data->closePend = FALSE;
-+	private_data->invalidHandle = false;
-+	private_data->closePend = false;
- 	/* we have to track num writers to the inode, since writepages
- 	does not tell us which handle the write is for so there can
- 	be a close (overlapping with write) of the filehandle that
-@@ -147,12 +147,12 @@ client_can_cache:
- 			full_path, buf, inode->i_sb, xid);
  
- 	if ((*oplock & 0xF) == OPLOCK_EXCLUSIVE) {
--		pCifsInode->clientCanCacheAll = TRUE;
--		pCifsInode->clientCanCacheRead = TRUE;
-+		pCifsInode->clientCanCacheAll = true;
-+		pCifsInode->clientCanCacheRead = true;
- 		cFYI(1, ("Exclusive Oplock granted on inode %p",
- 			 file->f_dentry->d_inode));
- 	} else if ((*oplock & 0xF) == OPLOCK_READ)
--		pCifsInode->clientCanCacheRead = TRUE;
-+		pCifsInode->clientCanCacheRead = true;
- 
- 	return rc;
- }
-@@ -246,7 +246,7 @@ int cifs_open(struct inode *inode, struc
- 	if (oplockEnabled)
- 		oplock = REQ_OPLOCK;
- 	else
--		oplock = FALSE;
-+		oplock = false;
- 
- 	/* BB pass O_SYNC flag through on file attributes .. BB */
- 
-@@ -393,7 +393,7 @@ static int cifs_reopen_file(struct inode
- 	if (oplockEnabled)
- 		oplock = REQ_OPLOCK;
- 	else
--		oplock = FALSE;
-+		oplock = false;
- 
- 	/* Can not refresh inode by passing in file_info buf to be returned
- 	   by SMBOpen and then calling get_inode_info with returned buf 
-@@ -418,7 +418,7 @@ static int cifs_reopen_file(struct inode
- 		cFYI(1, ("oplock: %d", oplock));
- 	} else {
- 		pCifsFile->netfid = netfid;
--		pCifsFile->invalidHandle = FALSE;
-+		pCifsFile->invalidHandle = false;
- 		up(&pCifsFile->fh_sem);
- 		pCifsInode = CIFS_I(inode);
- 		if (pCifsInode) {
-@@ -426,8 +426,8 @@ static int cifs_reopen_file(struct inode
- 				filemap_write_and_wait(inode->i_mapping);
- 			/* temporarily disable caching while we
- 			   go to server to get inode info */
--				pCifsInode->clientCanCacheAll = FALSE;
--				pCifsInode->clientCanCacheRead = FALSE;
-+				pCifsInode->clientCanCacheAll = false;
-+				pCifsInode->clientCanCacheRead = false;
- 				if (pTcon->ses->capabilities & CAP_UNIX)
- 					rc = cifs_get_inode_info_unix(&inode,
- 						full_path, inode->i_sb, xid);
-@@ -442,16 +442,16 @@ static int cifs_reopen_file(struct inode
- 			     we can not go to the server to get the new inod
- 			     info */
- 			if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
--				pCifsInode->clientCanCacheAll = TRUE;
--				pCifsInode->clientCanCacheRead = TRUE;
-+				pCifsInode->clientCanCacheAll = true;
-+				pCifsInode->clientCanCacheRead = true;
- 				cFYI(1, ("Exclusive Oplock granted on inode %p",
- 					 file->f_dentry->d_inode));
- 			} else if ((oplock & 0xF) == OPLOCK_READ) {
--				pCifsInode->clientCanCacheRead = TRUE;
--				pCifsInode->clientCanCacheAll = FALSE;
-+				pCifsInode->clientCanCacheRead = true;
-+				pCifsInode->clientCanCacheAll = false;
- 			} else {
--				pCifsInode->clientCanCacheRead = FALSE;
--				pCifsInode->clientCanCacheAll = FALSE;
-+				pCifsInode->clientCanCacheRead = false;
-+				pCifsInode->clientCanCacheAll = false;
- 			}
- 			cifs_relock_file(pCifsFile);
- 		}
-@@ -478,7 +478,7 @@ int cifs_close(struct inode *inode, stru
- 	if (pSMBFile) {
- 		struct cifsLockInfo *li, *tmp;
- 
--		pSMBFile->closePend = TRUE;
-+		pSMBFile->closePend = true;
- 		if (pTcon) {
- 			/* no sense reconnecting to close a file that is
- 			   already closed */
-@@ -525,8 +525,8 @@ int cifs_close(struct inode *inode, stru
- 		cFYI(1, ("closing last open instance for inode %p", inode));
- 		/* if the file is not open we do not know if we can cache info
- 		   on this inode, much less write behind and read ahead */
--		CIFS_I(inode)->clientCanCacheRead = FALSE;
--		CIFS_I(inode)->clientCanCacheAll  = FALSE;
-+		CIFS_I(inode)->clientCanCacheRead = false;
-+		CIFS_I(inode)->clientCanCacheAll  = false;
- 	}
- 	if ((rc ==0) && CIFS_I(inode)->write_behind_rc)
- 		rc = CIFS_I(inode)->write_behind_rc;
-@@ -555,7 +555,7 @@ int cifs_closedir(struct inode *inode, s
- 		cFYI(1, ("Freeing private data in close dir"));
- 		if (!(pCFileStruct->srch_inf.endOfSearch) &&
- 		    !(pCFileStruct->invalidHandle)) {
--			pCFileStruct->invalidHandle = TRUE;
-+			pCFileStruct->invalidHandle = true;
- 			rc = CIFSFindClose(xid, pTcon, pCFileStruct->netfid);
- 			cFYI(1, ("Closing uncompleted readdir with rc %d",
- 				 rc));
-@@ -606,7 +606,7 @@ int cifs_lock(struct file *file, int cmd
- 	__u32 numLock = 0;
- 	__u32 numUnlock = 0;
- 	__u64 length;
--	int wait_flag = FALSE;
-+	int wait_flag = false;
- 	struct cifs_sb_info *cifs_sb;
- 	struct cifsTconInfo *pTcon;
- 	__u16 netfid;
-@@ -628,7 +628,7 @@ int cifs_lock(struct file *file, int cmd
- 		cFYI(1, ("Flock"));
- 	if (pfLock->fl_flags & FL_SLEEP) {
- 		cFYI(1, ("Blocking lock"));
--		wait_flag = TRUE;
-+		wait_flag = true;
- 	}
- 	if (pfLock->fl_flags & FL_ACCESS)
- 		cFYI(1, ("Process suspended by mandatory locking - "
-@@ -758,7 +758,7 @@ int cifs_lock(struct file *file, int cmd
- 						length >= li->length) {
- 					stored_rc = CIFSSMBLock(xid, pTcon, netfid,
- 							li->length, li->offset,
--							1, 0, li->type, FALSE);
-+							1, 0, li->type, false);
- 					if (stored_rc)
- 						rc = stored_rc;
- 
-@@ -846,7 +846,7 @@ ssize_t cifs_user_write(struct file *fil
- 				   reopen_file not to flush data to server
- 				   now */
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
--					file, FALSE);
-+					file, false);
- 				if (rc != 0)
- 					break;
- 			}
-@@ -867,7 +867,7 @@ ssize_t cifs_user_write(struct file *fil
- 			}
- 		} else
- 			*poffset += bytes_written;
--		long_op = FALSE; /* subsequent writes fast -
-+		long_op = false; /* subsequent writes fast -
- 				    15 seconds is plenty */
- 	}
- 
-@@ -961,7 +961,7 @@ static ssize_t cifs_write(struct file *f
- 				   reopen_file not to flush data to 
- 				   server now */
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
--					file, FALSE);
-+					file, false);
- 				if (rc != 0)
- 					break;
- 			}
-@@ -1000,7 +1000,7 @@ static ssize_t cifs_write(struct file *f
- 			}
- 		} else
- 			*poffset += bytes_written;
--		long_op = FALSE; /* subsequent writes fast - 
-+		long_op = false; /* subsequent writes fast - 
- 				    15 seconds is plenty */
- 	}
- 
-@@ -1050,7 +1050,7 @@ struct cifsFileInfo *find_writable_file(
- 			if((open_file->invalidHandle) && 
- 			   (!open_file->closePend) /* BB fixme -since the second clause can not be true remove it BB */) {
- 				rc = cifs_reopen_file(&cifs_inode->vfs_inode, 
--						      open_file->pfile, FALSE);
-+						      open_file->pfile, false);
- 				/* if it fails, try another handle - might be */
- 				/* dangerous to hold up writepages with retry */
- 				if(rc) {
-@@ -1388,7 +1388,7 @@ static int cifs_commit_write(struct file
- 					rc = CIFSSMBSetFileSize(xid,
- 						cifs_sb->tcon, position,
- 						open_file->netfid,
--						open_file->pid, FALSE);
-+						open_file->pid, false);
+ 			/*
+@@ -840,7 +840,7 @@ xfs_qm_dqlookup(
+ 			if (flist_locked) {
+ 				if (dqp->q_nrefs != 0) {
+ 					xfs_qm_freelist_unlock(xfs_Gqm);
+-					flist_locked = B_FALSE;
++					flist_locked = false;
  				} else {
- 					rc = -EBADF;
- 					break;
-@@ -1539,7 +1539,7 @@ ssize_t cifs_user_read(struct file *file
- 			if ((open_file->invalidHandle) && 
- 			    (!open_file->closePend)) {
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
--					file, TRUE);
-+					file, true);
- 				if (rc != 0)
- 					break;
- 			}
-@@ -1626,7 +1626,7 @@ static ssize_t cifs_read(struct file *fi
- 			if ((open_file->invalidHandle) && 
- 			    (!open_file->closePend)) {
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
--					file, TRUE);
-+					file, true);
- 				if (rc != 0)
- 					break;
- 			}
-@@ -1783,7 +1783,7 @@ static int cifs_readpages(struct file *f
- 			if ((open_file->invalidHandle) && 
- 			    (!open_file->closePend)) {
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
--					file, TRUE);
-+					file, true);
- 				if (rc != 0)
- 					break;
- 			}
-diff -Narup a/fs/cifs/inode.c b/fs/cifs/inode.c
---- a/fs/cifs/inode.c	2006-09-01 01:24:45.000000000 +0200
-+++ b/fs/cifs/inode.c	2006-09-01 02:42:07.000000000 +0200
-@@ -208,7 +208,7 @@ static int decode_sfu_inode(struct inode
- 			    struct cifs_sb_info *cifs_sb, int xid)
+ 					/*
+ 					 * take it off the freelist
+diff -Narup a/fs/xfs/quota/xfs_qm_bhv.c b/fs/xfs/quota/xfs_qm_bhv.c
+--- a/fs/xfs/quota/xfs_qm_bhv.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_qm_bhv.c	2006-09-01 02:49:49.000000000 +0200
+@@ -279,7 +279,7 @@ xfs_qm_newmount(
+ 	uint		uquotaondisk = 0, gquotaondisk = 0, pquotaondisk = 0;
+ 
+ 	*quotaflags = 0;
+-	*needquotamount = B_FALSE;
++	*needquotamount = false;
+ 
+ 	quotaondisk = XFS_SB_VERSION_HASQUOTA(&mp->m_sb) &&
+ 				(mp->m_sb.sb_qflags & XFS_ALL_QUOTA_ACCT);
+@@ -334,7 +334,7 @@ xfs_qm_newmount(
+ 			 * inode goes inactive and wants to free blocks,
+ 			 * or via xfs_log_mount_finish.
+ 			 */
+-			*needquotamount = B_TRUE;
++			*needquotamount = true;
+ 			*quotaflags = mp->m_qflags;
+ 			mp->m_qflags = 0;
+ 		}
+diff -Narup a/fs/xfs/quota/xfs_qm.c b/fs/xfs/quota/xfs_qm.c
+--- a/fs/xfs/quota/xfs_qm.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_qm.c	2006-09-01 04:15:06.000000000 +0200
+@@ -1031,14 +1031,14 @@ xfs_qm_sync(
+ 	int		recl, restarts;
+ 	xfs_dquot_t	*dqp;
+ 	uint		flush_flags;
+-	boolean_t	nowait;
++	bool		nowait;
+ 	int		error;
+ 
+ 	restarts = 0;
+ 	/*
+ 	 * We won't block unless we are asked to.
+ 	 */
+-	nowait = (boolean_t)(flags & SYNC_BDFLUSH || (flags & SYNC_WAIT) == 0);
++	nowait = (flags & SYNC_BDFLUSH || (flags & SYNC_WAIT) == 0);
+ 
+   again:
+ 	xfs_qm_mplist_lock(mp);
+@@ -2339,10 +2339,10 @@ xfs_qm_dqreclaim_one(void)
+  * Return a new incore dquot. Depending on the number of
+  * dquots in the system, we either allocate a new one on the kernel heap,
+  * or reclaim a free one.
+- * Return value is B_TRUE if we allocated a new dquot, B_FALSE if we managed
++ * Return value is 'true' if we allocated a new dquot, 'false' if we managed
+  * to reclaim an existing one from the freelist.
+  */
+-boolean_t
++bool
+ xfs_qm_dqalloc_incore(
+ 	xfs_dquot_t **O_dqpp)
  {
- 	int rc;
--	int oplock = FALSE;
-+	int oplock = false;
- 	__u16 netfid;
- 	struct cifsTconInfo *pTcon = cifs_sb->tcon;
- 	char buf[24];
-@@ -595,7 +595,7 @@ int cifs_unlink(struct inode *inode, str
- 	} else if (rc == -ENOENT) {
- 		d_drop(direntry);
- 	} else if (rc == -ETXTBSY) {
--		int oplock = FALSE;
-+		int oplock = false;
- 		__u16 netfid;
- 
- 		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE,
-@@ -628,7 +628,7 @@ int cifs_unlink(struct inode *inode, str
- 				rc = -EOPNOTSUPP;
- 
- 			if (rc == -EOPNOTSUPP) {
--				int oplock = FALSE;
-+				int oplock = false;
- 				__u16 netfid;
- 			/*	rc = CIFSSMBSetAttrLegacy(xid, pTcon,
- 							  full_path,
-@@ -666,7 +666,7 @@ int cifs_unlink(struct inode *inode, str
- 				if (direntry->d_inode)
- 					drop_nlink(direntry->d_inode);
- 			} else if (rc == -ETXTBSY) {
--				int oplock = FALSE;
-+				int oplock = false;
- 				__u16 netfid;
- 
- 				rc = CIFSSMBOpen(xid, pTcon, full_path,
-@@ -919,7 +919,7 @@ int cifs_rename(struct inode *source_ino
- 	}
- 
- 	if ((rc == -EIO) || (rc == -EEXIST)) {
--		int oplock = FALSE;
-+		int oplock = false;
- 		__u16 netfid;
- 
- 		/* BB FIXME Is Generic Read correct for rename? */
-@@ -956,7 +956,7 @@ int cifs_revalidate(struct dentry *diren
- 	struct cifsInodeInfo *cifsInode;
- 	loff_t local_size;
- 	struct timespec local_mtime;
--	int invalidate_inode = FALSE;
-+	int invalidate_inode = false;
- 
- 	if (direntry->d_inode == NULL)
- 		return -ENOENT;
-@@ -1038,7 +1038,7 @@ int cifs_revalidate(struct dentry *diren
- 			   only ones who could have modified the file and the
- 			   server copy is staler than ours */
- 		} else {
--			invalidate_inode = TRUE;
-+			invalidate_inode = true;
+@@ -2365,7 +2365,7 @@ xfs_qm_dqalloc_incore(
+ 			 */
+ 			memset(&dqp->q_core, 0, sizeof(dqp->q_core));
+ 			*O_dqpp = dqp;
+-			return B_FALSE;
++			return false;
  		}
+ 		XQM_STATS_INC(xqmstats.xs_qm_dqreclaim_misses);
  	}
+@@ -2378,7 +2378,7 @@ xfs_qm_dqalloc_incore(
+ 	*O_dqpp = kmem_zone_zalloc(xfs_Gqm->qm_dqzone, KM_SLEEP);
+ 	atomic_inc(&xfs_Gqm->qm_totaldquots);
  
-@@ -1115,7 +1115,7 @@ int cifs_setattr(struct dentry *direntry
- 	int rc = -EACCES;
- 	struct cifsFileInfo *open_file = NULL;
- 	FILE_BASIC_INFO time_buf;
--	int set_time = FALSE;
-+	int set_time = false;
- 	__u64 mode = 0xFFFFFFFFFFFFFFFFULL;
- 	__u64 uid = 0xFFFFFFFFFFFFFFFFULL;
- 	__u64 gid = 0xFFFFFFFFFFFFFFFFULL;
-@@ -1165,7 +1165,7 @@ int cifs_setattr(struct dentry *direntry
- 			__u16 nfid = open_file->netfid;
- 			__u32 npid = open_file->pid;
- 			rc = CIFSSMBSetFileSize(xid, pTcon, attrs->ia_size,
--						nfid, npid, FALSE);
-+						nfid, npid, false);
- 			atomic_dec(&open_file->wrtPending);
- 			cFYI(1,("SetFSize for attrs rc = %d", rc));
- 			if((rc == -EINVAL) || (rc == -EOPNOTSUPP)) {
-@@ -1185,14 +1185,14 @@ int cifs_setattr(struct dentry *direntry
- 			   it was found or because there was an error setting
- 			   it by handle */
- 			rc = CIFSSMBSetEOF(xid, pTcon, full_path,
--					   attrs->ia_size, FALSE,
-+					   attrs->ia_size, false,
- 					   cifs_sb->local_nls, 
- 					   cifs_sb->mnt_cifs_flags &
- 						CIFS_MOUNT_MAP_SPECIAL_CHR);
- 			cFYI(1, ("SetEOF by path (setattrs) rc = %d", rc));
- 			if((rc == -EINVAL) || (rc == -EOPNOTSUPP)) {
- 				__u16 netfid;
--				int oplock = FALSE;
-+				int oplock = false;
- 
- 				rc = SMBLegacyOpen(xid, pTcon, full_path,
- 					FILE_OPEN,
-@@ -1217,7 +1217,7 @@ int cifs_setattr(struct dentry *direntry
- 
- 		/* Server is ok setting allocation size implicitly - no need
- 		   to call:
--		CIFSSMBSetEOF(xid, pTcon, full_path, attrs->ia_size, TRUE,
-+		CIFSSMBSetEOF(xid, pTcon, full_path, attrs->ia_size, true,
- 			 cifs_sb->local_nls);
- 		   */
- 
-@@ -1269,14 +1269,14 @@ int cifs_setattr(struct dentry *direntry
- 	}
- 
- 	if (attrs->ia_valid & ATTR_ATIME) {
--		set_time = TRUE;
-+		set_time = true;
- 		time_buf.LastAccessTime =
- 		    cpu_to_le64(cifs_UnixTimeToNT(attrs->ia_atime));
- 	} else
- 		time_buf.LastAccessTime = 0;
- 
- 	if (attrs->ia_valid & ATTR_MTIME) {
--		set_time = TRUE;
-+		set_time = true;
- 		time_buf.LastWriteTime =
- 		    cpu_to_le64(cifs_UnixTimeToNT(attrs->ia_mtime));
- 	} else
-@@ -1287,7 +1287,7 @@ int cifs_setattr(struct dentry *direntry
- 	   server times */
- 	   
- 	if (set_time && (attrs->ia_valid & ATTR_CTIME)) {
--		set_time = TRUE;
-+		set_time = true;
- 		/* Although Samba throws this field away
- 		it may be useful to Windows - but we do
- 		not want to set ctime unless some other
-@@ -1311,7 +1311,7 @@ int cifs_setattr(struct dentry *direntry
- 			rc = -EOPNOTSUPP;
- 
- 		if (rc == -EOPNOTSUPP) {
--			int oplock = FALSE;
-+			int oplock = false;
- 			__u16 netfid;
- 
- 			cFYI(1, ("calling SetFileInfo since SetPathInfo for "
-diff -Narup a/fs/cifs/link.c b/fs/cifs/link.c
---- a/fs/cifs/link.c	2006-09-01 01:24:45.000000000 +0200
-+++ b/fs/cifs/link.c	2006-09-01 02:18:22.000000000 +0200
-@@ -208,7 +208,7 @@ cifs_readlink(struct dentry *direntry, c
- 	struct inode *inode = direntry->d_inode;
- 	int rc = -EACCES;
- 	int xid;
--	int oplock = FALSE;
-+	int oplock = false;
- 	struct cifs_sb_info *cifs_sb;
- 	struct cifsTconInfo *pTcon;
- 	char *full_path = NULL;
-diff -Narup a/fs/cifs/misc.c b/fs/cifs/misc.c
---- a/fs/cifs/misc.c	2006-09-01 01:24:45.000000000 +0200
-+++ b/fs/cifs/misc.c	2006-09-01 02:42:00.000000000 +0200
-@@ -506,16 +506,16 @@ is_valid_oplock_break(struct smb_hdr *bu
- 				pnotify->Action));  /* BB removeme BB */
- 	             /*   cifs_dump_mem("Rcvd notify Data: ",buf,
- 				sizeof(struct smb_hdr)+60); */
--			return TRUE;
-+			return true;
- 		}
- 		if(pSMBr->hdr.Status.CifsError) {
- 			cFYI(1,("notify err 0x%d",pSMBr->hdr.Status.CifsError));
--			return TRUE;
-+			return true;
- 		}
--		return FALSE;
-+		return false;
- 	}  
- 	if(pSMB->hdr.Command != SMB_COM_LOCKING_ANDX)
--		return FALSE;
-+		return false;
- 	if(pSMB->hdr.Flags & SMBFLG_RESPONSE) {
- 		/* no sense logging error on invalid handle on oplock
- 		   break - harmless race between close request and oplock
-@@ -524,20 +524,20 @@ is_valid_oplock_break(struct smb_hdr *bu
- 		if ((NT_STATUS_INVALID_HANDLE) == 
- 		   le32_to_cpu(pSMB->hdr.Status.CifsError)) { 
- 			cFYI(1,("invalid handle on oplock break"));
--			return TRUE;
-+			return true;
- 		} else if (ERRbadfid == 
- 		   le16_to_cpu(pSMB->hdr.Status.DosError.Error)) {
--			return TRUE;	  
-+			return true;	  
- 		} else {
--			return FALSE; /* on valid oplock brk we get "request" */
-+			return false; /* on valid oplock brk we get "request" */
- 		}
- 	}
- 	if(pSMB->hdr.WordCount != 8)
--		return FALSE;
-+		return false;
- 
- 	cFYI(1,(" oplock type 0x%d level 0x%d",pSMB->LockType,pSMB->OplockLevel));
- 	if(!(pSMB->LockType & LOCKING_ANDX_OPLOCK_RELEASE))
--		return FALSE;    
-+		return false;
- 
- 	/* look up tcon based on tid & uid */
- 	read_lock(&GlobalSMBSeslock);
-@@ -554,28 +554,28 @@ is_valid_oplock_break(struct smb_hdr *bu
- 					cFYI(1,("file id match, oplock break"));
- 					pCifsInode = 
- 						CIFS_I(netfile->pInode);
--					pCifsInode->clientCanCacheAll = FALSE;
-+					pCifsInode->clientCanCacheAll = false;
- 					if(pSMB->OplockLevel == 0)
- 						pCifsInode->clientCanCacheRead
--							= FALSE;
--					pCifsInode->oplockPending = TRUE;
-+							= false;
-+					pCifsInode->oplockPending = true;
- 					AllocOplockQEntry(netfile->pInode,
- 							  netfile->netfid,
- 							  tcon);
- 					cFYI(1,("about to wake up oplock thd"));
- 					if(oplockThread)
- 					    wake_up_process(oplockThread);
--					return TRUE;
-+					return true;
- 				}
- 			}
- 			read_unlock(&GlobalSMBSeslock);
- 			cFYI(1,("No matching file for oplock break"));
--			return TRUE;
-+			return true;
- 		}
- 	}
- 	read_unlock(&GlobalSMBSeslock);
- 	cFYI(1,("Can not process oplock break for non-existent connection"));
--	return TRUE;
+-	return B_TRUE;
 +	return true;
  }
  
- void
-diff -Narup a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
---- a/fs/cifs/netmisc.c	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/netmisc.c	2006-09-01 02:43:05.000000000 +0200
-@@ -152,7 +152,7 @@ cifs_inet_pton(int address_family, char 
  
- 	temp = *cp;
+diff -Narup a/fs/xfs/quota/xfs_qm.h b/fs/xfs/quota/xfs_qm.h
+--- a/fs/xfs/quota/xfs_qm.h	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_qm.h	2006-09-01 04:15:17.000000000 +0200
+@@ -180,7 +180,7 @@ extern int		xfs_qm_write_sb_changes(xfs_
+ extern int		xfs_qm_sync(xfs_mount_t *, short);
  
--	while (TRUE) {
-+	while (true) {
- 		if (!isdigit(temp))
- 			return 0;
+ /* dquot stuff */
+-extern boolean_t	xfs_qm_dqalloc_incore(xfs_dquot_t **);
++extern bool		xfs_qm_dqalloc_incore(xfs_dquot_t **);
+ extern int		xfs_qm_dqattach(xfs_inode_t *, uint);
+ extern void		xfs_qm_dqdetach(xfs_inode_t *);
+ extern int		xfs_qm_dqpurge_all(xfs_mount_t *, uint);
+diff -Narup a/fs/xfs/quota/xfs_qm_syscalls.c b/fs/xfs/quota/xfs_qm_syscalls.c
+--- a/fs/xfs/quota/xfs_qm_syscalls.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_qm_syscalls.c	2006-09-01 03:07:01.000000000 +0200
+@@ -66,7 +66,7 @@ STATIC int	xfs_qm_scall_getqstat(xfs_mou
+ STATIC int	xfs_qm_scall_setqlim(xfs_mount_t *, xfs_dqid_t, uint,
+ 					fs_disk_quota_t *);
+ STATIC int	xfs_qm_scall_quotaon(xfs_mount_t *, uint);
+-STATIC int	xfs_qm_scall_quotaoff(xfs_mount_t *, uint, boolean_t);
++STATIC int	xfs_qm_scall_quotaoff(xfs_mount_t *, uint, bool);
+ STATIC int	xfs_qm_log_quotaoff(xfs_mount_t *, xfs_qoff_logitem_t **, uint);
+ STATIC int	xfs_qm_log_quotaoff_end(xfs_mount_t *, xfs_qoff_logitem_t *,
+ 					uint);
+@@ -149,7 +149,7 @@ xfs_qm_quotactl(
+ 			return XFS_ERROR(EROFS);
+ 		error = xfs_qm_scall_quotaoff(mp,
+ 					    xfs_qm_import_flags(*(uint *)addr),
+-					    B_FALSE);
++					    false);
+ 		break;
  
-diff -Narup a/fs/cifs/readdir.c b/fs/cifs/readdir.c
---- a/fs/cifs/readdir.c	2006-09-01 01:25:42.000000000 +0200
-+++ b/fs/cifs/readdir.c	2006-09-01 02:40:03.000000000 +0200
-@@ -414,8 +414,8 @@ static int initiate_cifs_search(const in
- 		memset(file->private_data,0,sizeof(struct cifsFileInfo));
+ 	case Q_XGETQUOTA:
+@@ -204,7 +204,7 @@ STATIC int
+ xfs_qm_scall_quotaoff(
+ 	xfs_mount_t		*mp,
+ 	uint			flags,
+-	boolean_t		force)
++	bool			force)
+ {
+ 	uint			dqtype;
+ 	unsigned long	s;
+@@ -526,10 +526,10 @@ xfs_qm_scall_getqstat(
+ 	fs_quota_stat_t *out)
+ {
+ 	xfs_inode_t	*uip, *gip;
+-	boolean_t	tempuqip, tempgqip;
++	bool		tempuqip, tempgqip;
+ 
+ 	uip = gip = NULL;
+-	tempuqip = tempgqip = B_FALSE;
++	tempuqip = tempgqip = false;
+ 	memset(out, 0, sizeof(fs_quota_stat_t));
+ 
+ 	out->qs_version = FS_QSTAT_VERSION;
+@@ -552,12 +552,12 @@ xfs_qm_scall_getqstat(
+ 	if (!uip && mp->m_sb.sb_uquotino != NULLFSINO) {
+ 		if (xfs_iget(mp, NULL, mp->m_sb.sb_uquotino,
+ 					0, 0, &uip, 0) == 0)
+-			tempuqip = B_TRUE;
++			tempuqip = true;
  	}
- 	cifsFile = file->private_data;
--	cifsFile->invalidHandle = TRUE;
--	cifsFile->srch_inf.endOfSearch = FALSE;
-+	cifsFile->invalidHandle = true;
-+	cifsFile->srch_inf.endOfSearch = false;
+ 	if (!gip && mp->m_sb.sb_gquotino != NULLFSINO) {
+ 		if (xfs_iget(mp, NULL, mp->m_sb.sb_gquotino,
+ 					0, 0, &gip, 0) == 0)
+-			tempgqip = B_TRUE;
++			tempgqip = true;
+ 	}
+ 	if (uip) {
+ 		out->qs_uquota.qfs_nblks = uip->i_d.di_nblocks;
+@@ -1034,7 +1034,7 @@ xfs_qm_dqrele_all_inodes(
+ 	xfs_inode_t	*ip, *topino;
+ 	uint		ireclaims;
+ 	bhv_vnode_t	*vp;
+-	boolean_t	vnode_refd;
++	bool		vnode_refd;
  
- 	if(file->f_dentry == NULL)
- 		return -ENOENT;
-@@ -454,7 +454,7 @@ ffirst_retry:
- 		cifs_sb->mnt_cifs_flags & 
- 			CIFS_MOUNT_MAP_SPECIAL_CHR, CIFS_DIR_SEP(cifs_sb));
- 	if(rc == 0)
--		cifsFile->invalidHandle = FALSE;
-+		cifsFile->invalidHandle = false;
- 	if((rc == -EOPNOTSUPP) && 
- 		(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM)) {
- 		cifs_sb->mnt_cifs_flags &= ~CIFS_MOUNT_SERVER_INUM;
-@@ -650,7 +650,7 @@ static int find_cifs_entry(const int xid
- 	   (index_to_find < first_entry_in_buffer)) {
- 		/* close and restart search */
- 		cFYI(1,("search backing up - close and restart search"));
--		cifsFile->invalidHandle = TRUE;
-+		cifsFile->invalidHandle = true;
- 		CIFSFindClose(xid, pTcon, cifsFile->netfid);
- 		kfree(cifsFile->search_resume_name);
- 		cifsFile->search_resume_name = NULL;
-@@ -1013,7 +1013,7 @@ int cifs_readdir(struct file *file, void
- 				break;
+ 	ASSERT(mp->m_quotainfo);
+ 
+@@ -1065,7 +1065,7 @@ again:
+ 			ip = ip->i_mnext;
+ 			continue;
+ 		}
+-		vnode_refd = B_FALSE;
++		vnode_refd = false;
+ 		if (xfs_ilock_nowait(ip, XFS_ILOCK_EXCL) == 0) {
+ 			ireclaims = mp->m_ireclaims;
+ 			topino = mp->m_inodes;
+@@ -1076,7 +1076,7 @@ again:
+ 			XFS_MOUNT_IUNLOCK(mp);
+ 			/* XXX restart limit ? */
+ 			xfs_ilock(ip, XFS_ILOCK_EXCL);
+-			vnode_refd = B_TRUE;
++			vnode_refd = true;
+ 		} else {
+ 			ireclaims = mp->m_ireclaims;
+ 			topino = mp->m_inodes;
+@@ -1344,7 +1344,7 @@ xfs_qm_internalqcheck_adjust(
+ 	xfs_inode_t		*ip;
+ 	xfs_dqtest_t		*ud, *gd;
+ 	uint			lock_flags;
+-	boolean_t		ipreleased;
++	bool			ipreleased;
+ 	int			error;
+ 
+ 	ASSERT(XFS_IS_QUOTA_RUNNING(mp));
+@@ -1357,7 +1357,7 @@ xfs_qm_internalqcheck_adjust(
+ 			(unsigned long long) mp->m_sb.sb_gquotino);
+ 		return XFS_ERROR(EINVAL);
+ 	}
+-	ipreleased = B_FALSE;
++	ipreleased = false;
+  again:
+ 	lock_flags = XFS_ILOCK_SHARED;
+ 	if ((error = xfs_iget(mp, NULL, ino, 0, lock_flags, &ip, bno))) {
+@@ -1379,7 +1379,7 @@ xfs_qm_internalqcheck_adjust(
+ 	 */
+ 	if (! ipreleased) {
+ 		xfs_iput(ip, lock_flags);
+-		ipreleased = B_TRUE;
++		ipreleased = true;
+ 		goto again;
+ 	}
+ 	xfs_qm_internalqcheck_get_dquots(mp,
+diff -Narup a/fs/xfs/quota/xfs_trans_dquot.c b/fs/xfs/quota/xfs_trans_dquot.c
+--- a/fs/xfs/quota/xfs_trans_dquot.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/quota/xfs_trans_dquot.c	2006-09-01 02:56:02.000000000 +0200
+@@ -540,7 +540,7 @@ xfs_trans_unreserve_and_mod_dquots(
+ 	int			i, j;
+ 	xfs_dquot_t		*dqp;
+ 	xfs_dqtrx_t		*qtrx, *qa;
+-	boolean_t		locked;
++	bool			locked;
+ 
+ 	if (!tp->t_dqinfo || !(tp->t_flags & XFS_TRANS_DQ_DIRTY))
+ 		return;
+@@ -561,17 +561,17 @@ xfs_trans_unreserve_and_mod_dquots(
+ 			 * about the number of blocks used field, or deltas.
+ 			 * Also we don't bother to zero the fields.
+ 			 */
+-			locked = B_FALSE;
++			locked = false;
+ 			if (qtrx->qt_blk_res) {
+ 				xfs_dqlock(dqp);
+-				locked = B_TRUE;
++				locked = true;
+ 				dqp->q_res_bcount -=
+ 					(xfs_qcnt_t)qtrx->qt_blk_res;
  			}
- 		} /* else {
--			cifsFile->invalidHandle = TRUE;
-+			cifsFile->invalidHandle = true;
- 			CIFSFindClose(xid, pTcon, cifsFile->netfid);
- 		} 
- 		kfree(cifsFile->search_resume_name);
-diff -Narup a/fs/cifs/smbencrypt.c b/fs/cifs/smbencrypt.c
---- a/fs/cifs/smbencrypt.c	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/smbencrypt.c	2006-09-01 02:25:57.000000000 +0200
-@@ -35,13 +35,6 @@
- #include "cifs_debug.h"
- #include "cifsencrypt.h"
+ 			if (qtrx->qt_ino_res) {
+ 				if (!locked) {
+ 					xfs_dqlock(dqp);
+-					locked = B_TRUE;
++					locked = true;
+ 				}
+ 				dqp->q_res_icount -=
+ 					(xfs_qcnt_t)qtrx->qt_ino_res;
+@@ -580,7 +580,7 @@ xfs_trans_unreserve_and_mod_dquots(
+ 			if (qtrx->qt_rtblk_res) {
+ 				if (!locked) {
+ 					xfs_dqlock(dqp);
+-					locked = B_TRUE;
++					locked = true;
+ 				}
+ 				dqp->q_res_rtbcount -=
+ 					(xfs_qcnt_t)qtrx->qt_rtblk_res;
+diff -Narup a/fs/xfs/xfs_ialloc.c b/fs/xfs/xfs_ialloc.c
+--- a/fs/xfs/xfs_ialloc.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/xfs_ialloc.c	2006-09-01 03:02:53.000000000 +0200
+@@ -509,7 +509,7 @@ xfs_dialloc(
+ 	mode_t		mode,		/* mode bits for new inode */
+ 	int		okalloc,	/* ok to allocate more space */
+ 	xfs_buf_t	**IO_agbp,	/* in/out ag header's buffer */
+-	boolean_t	*alloc_done,	/* true if we needed to replenish
++	bool		*alloc_done,	/* true if we needed to replenish
+ 					   inode freelist */
+ 	xfs_ino_t	*inop)		/* inode number allocated */
+ {
+@@ -585,7 +585,7 @@ xfs_dialloc(
+ 	 * or in which we can allocate some inodes.  Iterate through the
+ 	 * allocation groups upward, wrapping at the end.
+ 	 */
+-	*alloc_done = B_FALSE;
++	*alloc_done = false;
+ 	while (!agi->agi_freecount) {
+ 		/*
+ 		 * Don't do anything if we're not supposed to allocate
+@@ -612,7 +612,7 @@ xfs_dialloc(
+ 				 * us again where we left off.
+ 				 */
+ 				ASSERT(be32_to_cpu(agi->agi_freecount) > 0);
+-				*alloc_done = B_TRUE;
++				*alloc_done = true;
+ 				*IO_agbp = agbp;
+ 				*inop = NULLFSINO;
+ 				return 0;
+diff -Narup a/fs/xfs/xfs_ialloc.h b/fs/xfs/xfs_ialloc.h
+--- a/fs/xfs/xfs_ialloc.h	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/xfs_ialloc.h	2006-09-01 04:17:17.000000000 +0200
+@@ -82,7 +82,7 @@ static inline int xfs_ialloc_find_free(x
+  * on-disk data structures are updated.  The inode itself is not read
+  * in, since doing so would break ordering constraints with xfs_reclaim.
+  *
+- * *agbp should be set to NULL on the first call, *alloc_done set to FALSE.
++ * *agbp should be set to NULL on the first call, *alloc_done set to 'false'.
+  */
+ int					/* error */
+ xfs_dialloc(
+@@ -91,7 +91,7 @@ xfs_dialloc(
+ 	mode_t		mode,		/* mode bits for new inode */
+ 	int		okalloc,	/* ok to allocate more space */
+ 	struct xfs_buf	**agbp,		/* buf for a.g. inode header */
+-	boolean_t	*alloc_done,	/* an allocation was done to replenish
++	bool		*alloc_done,	/* an allocation was done to replenish
+ 					   the free inodes */
+ 	xfs_ino_t	*inop);		/* inode number allocated */
  
--#ifndef FALSE
--#define FALSE 0
--#endif
--#ifndef TRUE
--#define TRUE 1
--#endif
--
- /* following came from the other byteorder.h to avoid include conflicts */
- #define CVAL(buf,pos) (((unsigned char *)(buf))[pos])
- #define SSVALX(buf,pos,val) (CVAL(buf,pos)=(val)&0xFF,CVAL(buf,pos+1)=(val)>>8)
-diff -Narup a/fs/cifs/xattr.c b/fs/cifs/xattr.c
---- a/fs/cifs/xattr.c	2006-09-01 01:24:46.000000000 +0200
-+++ b/fs/cifs/xattr.c	2006-09-01 02:26:02.000000000 +0200
-@@ -259,7 +259,7 @@ ssize_t cifs_getxattr(struct dentry * di
- 					CIFS_MOUNT_MAP_SPECIAL_CHR);
- /*		else if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_ACL) {
- 			__u16 fid;
--			int oplock = FALSE;
-+			int oplock = false;
- 			rc = CIFSSMBOpen(xid, pTcon, full_path,
- 					 FILE_OPEN, GENERIC_READ, 0, &fid,
- 					 &oplock, NULL, cifs_sb->local_nls,
+diff -Narup a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
+--- a/fs/xfs/xfs_inode.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/xfs_inode.c	2006-09-01 03:05:41.000000000 +0200
+@@ -1083,7 +1083,7 @@ xfs_ialloc(
+ 	xfs_prid_t	prid,
+ 	int		okalloc,
+ 	xfs_buf_t	**ialloc_context,
+-	boolean_t	*call_again,
++	bool		*call_again,
+ 	xfs_inode_t	**ipp)
+ {
+ 	xfs_ino_t	ino;
+diff -Narup a/fs/xfs/xfs_inode.h b/fs/xfs/xfs_inode.h
+--- a/fs/xfs/xfs_inode.h	2006-09-01 01:24:52.000000000 +0200
++++ b/fs/xfs/xfs_inode.h	2006-09-01 03:05:17.000000000 +0200
+@@ -429,7 +429,7 @@ int		xfs_iread(struct xfs_mount *, struc
+ int		xfs_iread_extents(struct xfs_trans *, xfs_inode_t *, int);
+ int		xfs_ialloc(struct xfs_trans *, xfs_inode_t *, mode_t,
+ 			   xfs_nlink_t, xfs_dev_t, struct cred *, xfs_prid_t,
+-			   int, struct xfs_buf **, boolean_t *, xfs_inode_t **);
++			   int, struct xfs_buf **, bool *, xfs_inode_t **);
+ void		xfs_xlate_dinode_core(xfs_caddr_t, struct xfs_dinode_core *,
+ 					int);
+ uint		xfs_ip2xflags(struct xfs_inode *);
+diff -Narup a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
+--- a/fs/xfs/xfs_log.c	2006-09-01 01:25:48.000000000 +0200
++++ b/fs/xfs/xfs_log.c	2006-09-01 04:18:20.000000000 +0200
+@@ -113,7 +113,7 @@ STATIC void		xlog_ticket_put(xlog_t *log
+ STATIC void	xlog_verify_dest_ptr(xlog_t *log, __psint_t ptr);
+ STATIC void	xlog_verify_grant_head(xlog_t *log, int equals);
+ STATIC void	xlog_verify_iclog(xlog_t *log, xlog_in_core_t *iclog,
+-				  int count, boolean_t syncing);
++				  int count, bool syncing);
+ STATIC void	xlog_verify_tail_lsn(xlog_t *log, xlog_in_core_t *iclog,
+ 				     xfs_lsn_t tail_lsn);
+ #else
+@@ -1443,7 +1443,7 @@ xlog_sync(xlog_t		*log,
+ 	ASSERT(XFS_BUF_ADDR(bp) <= log->l_logBBsize-1);
+ 	ASSERT(XFS_BUF_ADDR(bp) + BTOBB(count) <= log->l_logBBsize);
+ 
+-	xlog_verify_iclog(log, iclog, count, B_TRUE);
++	xlog_verify_iclog(log, iclog, count, true);
+ 
+ 	/* account for log which doesn't start at block #0 */
+ 	XFS_BUF_SET_ADDR(bp, XFS_BUF_ADDR(bp) + log->l_logBBstart);
+@@ -3436,7 +3436,7 @@ STATIC void
+ xlog_verify_iclog(xlog_t	 *log,
+ 		  xlog_in_core_t *iclog,
+ 		  int		 count,
+-		  boolean_t	 syncing)
++		  bool		 syncing)
+ {
+ 	xlog_op_header_t	*ophead;
+ 	xlog_in_core_t		*icptr;
+diff -Narup a/fs/xfs/xfs_qmops.c b/fs/xfs/xfs_qmops.c
+--- a/fs/xfs/xfs_qmops.c	2006-09-01 01:24:49.000000000 +0200
++++ b/fs/xfs/xfs_qmops.c	2006-09-01 02:28:36.000000000 +0200
+@@ -91,7 +91,7 @@ xfs_noquota_init(
+ 	int		error = 0;
+ 
+ 	*quotaflags = 0;
+-	*needquotamount = B_FALSE;
++	*needquotamount = false;
+ 
+ 	ASSERT(!XFS_IS_QUOTA_ON(mp));
+ 
+diff -Narup a/fs/xfs/xfs_types.h b/fs/xfs/xfs_types.h
+--- a/fs/xfs/xfs_types.h	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/xfs_types.h	2006-09-01 02:29:10.000000000 +0200
+@@ -40,7 +40,6 @@ typedef unsigned int		__uint32_t;
+ typedef signed long long int	__int64_t;
+ typedef unsigned long long int	__uint64_t;
+ 
+-typedef enum { B_FALSE,B_TRUE }	boolean_t;
+ typedef __uint32_t		prid_t;		/* project ID */
+ typedef __uint32_t		inst_t;		/* an instruction */
+ 
+diff -Narup a/fs/xfs/xfs_utils.c b/fs/xfs/xfs_utils.c
+--- a/fs/xfs/xfs_utils.c	2006-09-01 01:24:51.000000000 +0200
++++ b/fs/xfs/xfs_utils.c	2006-09-01 04:43:34.000000000 +0200
+@@ -142,7 +142,7 @@ xfs_dir_ialloc(
+ 	xfs_trans_t	*ntp;
+ 	xfs_inode_t	*ip;
+ 	xfs_buf_t	*ialloc_context = NULL;
+-	boolean_t	call_again = B_FALSE;
++	bool		call_again = false;
+ 	int		code;
+ 	uint		log_res;
+ 	uint		log_count;
+diff -Narup a/fs/xfs/xfs_vfsops.c b/fs/xfs/xfs_vfsops.c
+--- a/fs/xfs/xfs_vfsops.c	2006-09-01 01:25:48.000000000 +0200
++++ b/fs/xfs/xfs_vfsops.c	2006-09-01 02:57:06.000000000 +0200
+@@ -914,16 +914,16 @@ xfs_sync_inodes(
+ 	uint64_t	fflag;
+ 	uint		lock_flags;
+ 	uint		base_lock_flags;
+-	boolean_t	mount_locked;
+-	boolean_t	vnode_refed;
++	bool		mount_locked;
++	bool		vnode_refed;
+ 	int		preempt;
+ 	xfs_dinode_t	*dip;
+ 	xfs_iptr_t	*ipointer;
+ #ifdef DEBUG
+-	boolean_t	ipointer_in = B_FALSE;
++	bool		ipointer_in = false;
+ 
+-#define IPOINTER_SET	ipointer_in = B_TRUE
+-#define IPOINTER_CLR	ipointer_in = B_FALSE
++#define IPOINTER_SET	ipointer_in = true
++#define IPOINTER_CLR	ipointer_in = false
+ #else
+ #define IPOINTER_SET
+ #define IPOINTER_CLR
+@@ -942,7 +942,7 @@ xfs_sync_inodes(
+ 		ipointer->ip_mnext->i_mprev = (xfs_inode_t *)ipointer; \
+ 		preempt = 0; \
+ 		XFS_MOUNT_IUNLOCK(mp); \
+-		mount_locked = B_FALSE; \
++		mount_locked = false; \
+ 		IPOINTER_SET; \
+ 	}
+ 
+@@ -1000,8 +1000,8 @@ xfs_sync_inodes(
+ 
+ 	ip = mp->m_inodes;
+ 
+-	mount_locked = B_TRUE;
+-	vnode_refed  = B_FALSE;
++	mount_locked = true;
++	vnode_refed  = false;
+ 
+ 	IPOINTER_CLR;
+ 
+@@ -1051,7 +1051,7 @@ xfs_sync_inodes(
+ 						XFS_IFLUSH_DELWRI_ELSE_ASYNC);
+ 
+ 				XFS_MOUNT_ILOCK(mp);
+-				mount_locked = B_TRUE;
++				mount_locked = true;
+ 				IPOINTER_REMOVE(ip, mp);
+ 			} else {
+ 				xfs_iunlock(ip, XFS_ILOCK_EXCL);
+@@ -1123,7 +1123,7 @@ xfs_sync_inodes(
+ 			ASSERT(vp == XFS_ITOV(ip));
+ 			ASSERT(ip->i_mount == mp);
+ 
+-			vnode_refed = B_TRUE;
++			vnode_refed = true;
+ 		}
+ 
+ 		/* From here on in the loop we may have a marker record
+@@ -1246,7 +1246,7 @@ xfs_sync_inodes(
+ 					 * and continue.
+ 					 */
+ 					XFS_MOUNT_ILOCK(mp);
+-					mount_locked = B_TRUE;
++					mount_locked = true;
+ 
+ 					if (ip != ipointer->ip_mprev) {
+ 						IPOINTER_REMOVE(ip, mp);
+@@ -1289,7 +1289,7 @@ xfs_sync_inodes(
+ 						 * a marker in the list here.
+ 						 */
+ 						XFS_MOUNT_IUNLOCK(mp);
+-						mount_locked = B_FALSE;
++						mount_locked = false;
+ 						error = xfs_iflush(ip,
+ 							   XFS_IFLUSH_DELWRI);
+ 					} else {
+@@ -1356,7 +1356,7 @@ xfs_sync_inodes(
+ 
+ 			VN_RELE(vp);
+ 
+-			vnode_refed = B_FALSE;
++			vnode_refed = false;
+ 		}
+ 
+ 		if (error) {
+@@ -1389,7 +1389,7 @@ xfs_sync_inodes(
+ 
+ 		if (!mount_locked) {
+ 			XFS_MOUNT_ILOCK(mp);
+-			mount_locked = B_TRUE;
++			mount_locked = true;
+ 			IPOINTER_REMOVE(ip, mp);
+ 			continue;
+ 		}
+diff -Narup a/fs/xfs/xfs_vnodeops.c b/fs/xfs/xfs_vnodeops.c
+--- a/fs/xfs/xfs_vnodeops.c	2006-09-01 01:24:52.000000000 +0200
++++ b/fs/xfs/xfs_vnodeops.c	2006-09-01 02:59:37.000000000 +0200
+@@ -1864,7 +1864,7 @@ xfs_create(
+ 	int                     error;
+ 	xfs_bmap_free_t		free_list;
+ 	xfs_fsblock_t		first_block;
+-	boolean_t		dp_joined_to_trans;
++	bool			dp_joined_to_trans;
+ 	int			dm_event_sent = 0;
+ 	uint			cancel_flags;
+ 	int			committed;
+@@ -1918,7 +1918,7 @@ xfs_create(
+ 		goto std_return;
+ 
+ 	ip = NULL;
+-	dp_joined_to_trans = B_FALSE;
++	dp_joined_to_trans = false;
+ 
+ 	tp = xfs_trans_alloc(mp, XFS_TRANS_CREATE);
+ 	cancel_flags = XFS_TRANS_RELEASE_LOG_RES;
+@@ -1984,7 +1984,7 @@ xfs_create(
+ 
+ 	VN_HOLD(dir_vp);
+ 	xfs_trans_ijoin(tp, dp, XFS_ILOCK_EXCL);
+-	dp_joined_to_trans = B_TRUE;
++	dp_joined_to_trans = true;
+ 
+ 	error = xfs_dir_createname(tp, dp, name, namelen, ip->i_ino,
+ 					&first_block, &free_list, resblks ?
+@@ -2765,8 +2765,8 @@ xfs_mkdir(
+ 	xfs_bmap_free_t         free_list;
+ 	xfs_fsblock_t           first_block;
+ 	bhv_vnode_t		*dir_vp;
+-	boolean_t		dp_joined_to_trans;
+-	boolean_t		created = B_FALSE;
++	bool			dp_joined_to_trans;
++	bool			created = false;
+ 	int			dm_event_sent = 0;
+ 	xfs_prid_t		prid;
+ 	struct xfs_dquot	*udqp, *gdqp;
+@@ -2784,7 +2784,7 @@ xfs_mkdir(
+ 	dir_namelen = VNAMELEN(dentry);
+ 
+ 	tp = NULL;
+-	dp_joined_to_trans = B_FALSE;
++	dp_joined_to_trans = false;
+ 	dm_di_mode = vap->va_mode;
+ 
+ 	if (DM_EVENT_ENABLED(dir_vp->v_vfsp, dp, DM_EVENT_CREATE)) {
+@@ -2877,7 +2877,7 @@ xfs_mkdir(
+ 	 */
+ 	VN_HOLD(dir_vp);
+ 	xfs_trans_ijoin(tp, dp, XFS_ILOCK_EXCL);
+-	dp_joined_to_trans = B_TRUE;
++	dp_joined_to_trans = true;
+ 
+ 	XFS_BMAP_INIT(&free_list, &first_block);
+ 
+@@ -2908,7 +2908,7 @@ xfs_mkdir(
+ 
+ 	cvp = XFS_ITOV(cdp);
+ 
+-	created = B_TRUE;
++	created = true;
+ 
+ 	*vpp = cvp;
+ 	IHOLD(cdp);
+@@ -3266,7 +3266,7 @@ xfs_symlink(
+ 	int			pathlen;
+ 	xfs_bmap_free_t		free_list;
+ 	xfs_fsblock_t		first_block;
+-	boolean_t		dp_joined_to_trans;
++	bool			dp_joined_to_trans;
+ 	bhv_vnode_t		*dir_vp;
+ 	uint			cancel_flags;
+ 	int			committed;
+@@ -3288,7 +3288,7 @@ xfs_symlink(
+ 	*vpp = NULL;
+ 	dir_vp = BHV_TO_VNODE(dir_bdp);
+ 	dp = XFS_BHVTOI(dir_bdp);
+-	dp_joined_to_trans = B_FALSE;
++	dp_joined_to_trans = false;
+ 	error = 0;
+ 	ip = NULL;
+ 	tp = NULL;
+@@ -3428,7 +3428,7 @@ xfs_symlink(
+ 
+ 	VN_HOLD(dir_vp);
+ 	xfs_trans_ijoin(tp, dp, XFS_ILOCK_EXCL);
+-	dp_joined_to_trans = B_TRUE;
++	dp_joined_to_trans = true;
+ 
+ 	/*
+ 	 * Also attach the dquot(s) to it, if applicable.
 
 

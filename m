@@ -1,281 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWIAVcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWIAVZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWIAVcq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWIAVcq
+	id S1750909AbWIAVZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWIAVZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:32:46 -0400
-Received: from cantor.suse.de ([195.135.220.2]:28808 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750913AbWIAVcp (ORCPT
+	Fri, 1 Sep 2006 17:25:51 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:7627 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750909AbWIAVZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:32:45 -0400
-Message-Id: <20060901221457.803728153@winden.suse.de>
-References: <20060901221421.968954146@winden.suse.de>
-User-Agent: quilt/0.44-16.4
-Date: Sat, 02 Sep 2006 00:14:22 +0200
-From: Andreas Gruenbacher <agruen@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Generic infrastructure for acls
-Content-Disposition: inline; filename=generic-acl.diff
+	Fri, 1 Sep 2006 17:25:50 -0400
+Date: Fri, 1 Sep 2006 16:25:48 -0500
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: Rajesh Shah <rajesh.shah@intel.com>, Yanmin Zhang <yanmin.zhang@intel.com>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: pci error recovery procedure
+Message-ID: <20060901212548.GS8704@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com> <20060831175001.GE8704@austin.ibm.com> <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add some infrastructure for access control lists on in-memory
-filesystems such as tmpfs.
+On Fri, Sep 01, 2006 at 11:33:49AM +0800, Zhang, Yanmin wrote:
+> On Fri, 2006-09-01 at 01:50, Linas Vepstas wrote:
+> > On Thu, Aug 31, 2006 at 03:10:12PM +0800, Zhang, Yanmin wrote:
+> > > Linas,
+> > > 
+> > > I am reviewing the error handlers of e1000 driver and got some ideas. My
+> > > startpoint is to simplify the err handler implementations for drivers, or
+> > > driver developers are *not willing* to add it if it's too complicated.
+> > 
+> > I don't see that its to complicated ... 
+> Originally, I didn't think so, but after I try to add err_handlers to some
+> drivers, I feel it's too complicated.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Which drivers are you working on?
 
----
- fs/Kconfig                  |    4 +
- fs/Makefile                 |    1 
- fs/generic_acl.c            |  172 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/generic_acl.h |   30 +++++++
- 4 files changed, 207 insertions(+)
+> > > 1) Callback mmio_enabled looks useless. Documentation/pci-error-recovery.txt
+> > > says the current powerpc implementation does not implement this callback.
+> > 
+> > I don't know if its useless or not. I have not needed it yet for the
+> > symbios, ipr and e1000 drivers, but its possible that some more
+> > sophisticated device may want it. I'm tempted to keep it a while 
+> > longer befoe discarding it.
+> > 
+> > The scenario is this: the device driver decides that, rather than asking
+> > for a full electical reset of the card, instead, it wants to perform 
+> > its own recovery. It can do this as follows:
+> > 
+> > a) enable MMIO
+> > b) issue reset command to adapter
+> > c) enable DMA.
+> > 
+> > If we enabled both DMA and MMIO at the same time, there are mnay cases
+> > where the card will immediately trap again -- for example, if its
+> > DMA'ing to some crazy address. Thus, typically, one wants DMA disabled 
+> > until after the card reset.  Withouth the mmio_enabled() reset, there
+> > is no way of doing this.
+> The new error_resume, or the old slot_reset could take care of it. The specific
+> device driver knows all the details about how to initiate the devices. The 
+> error_resume could call the step a) b) c) sequencially while doing checking among
+> steps.
 
-Index: linux-2.6.18-rc5/fs/Kconfig
-===================================================================
---- linux-2.6.18-rc5.orig/fs/Kconfig
-+++ linux-2.6.18-rc5/fs/Kconfig
-@@ -1921,6 +1921,10 @@ config 9P_FS
- 
- 	  If unsure, say N.
- 
-+config GENERIC_ACL
-+	bool
-+	select FS_POSIX_ACL
-+
- endmenu
- 
- menu "Partition Types"
-Index: linux-2.6.18-rc5/fs/Makefile
-===================================================================
---- linux-2.6.18-rc5.orig/fs/Makefile
-+++ linux-2.6.18-rc5/fs/Makefile
-@@ -35,6 +35,7 @@ obj-$(CONFIG_BINFMT_FLAT)	+= binfmt_flat
- obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
- obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
- obj-$(CONFIG_NFS_COMMON)	+= nfs_common/
-+obj-$(CONFIG_GENERIC_ACL)	+= generic_acl.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-Index: linux-2.6.18-rc5/include/linux/generic_acl.h
-===================================================================
---- /dev/null
-+++ linux-2.6.18-rc5/include/linux/generic_acl.h
-@@ -0,0 +1,30 @@
-+/*
-+ * fs/generic_acl.c
-+ *
-+ * (C) 2005 Andreas Gruenbacher <agruen@suse.de>
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#ifndef GENERIC_ACL_H
-+#define GENERIC_ACL_H
-+
-+#include <linux/posix_acl.h>
-+#include <linux/posix_acl_xattr.h>
-+
-+struct generic_acl_operations {
-+	struct posix_acl *(*getacl)(struct inode *, int);
-+	void (*setacl)(struct inode *, int, struct posix_acl *);
-+};
-+
-+size_t generic_acl_list(struct inode *, struct generic_acl_operations *, int,
-+			char *, size_t);
-+int generic_acl_get(struct inode *, struct generic_acl_operations *, int,
-+		    void *, size_t);
-+int generic_acl_set(struct inode *, struct generic_acl_operations *, int,
-+		    const void *, size_t);
-+int generic_acl_init(struct inode *, struct inode *,
-+		     struct generic_acl_operations *);
-+int generic_acl_chmod(struct inode *, struct generic_acl_operations *);
-+
-+#endif
-Index: linux-2.6.18-rc5/fs/generic_acl.c
-===================================================================
---- /dev/null
-+++ linux-2.6.18-rc5/fs/generic_acl.c
-@@ -0,0 +1,172 @@
-+/*
-+ * fs/generic_acl.c
-+ *
-+ * (C) 2005 Andreas Gruenbacher <agruen@suse.de>
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/fs.h>
-+#include <linux/generic_acl.h>
-+
-+size_t
-+generic_acl_list(struct inode *inode, struct generic_acl_operations *ops,
-+		 int type, char *list, size_t list_size)
-+{
-+	struct posix_acl *acl;
-+	const char *name;
-+	size_t size;
-+
-+	acl = ops->getacl(inode, type);
-+	if (!acl)
-+		return 0;
-+	posix_acl_release(acl);
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name = POSIX_ACL_XATTR_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name = POSIX_ACL_XATTR_DEFAULT;
-+			break;
-+
-+		default:
-+			return 0;
-+	}
-+	size = strlen(name) + 1;
-+	if (list && size <= list_size)
-+		memcpy(list, name, size);
-+	return size;
-+}
-+
-+int
-+generic_acl_get(struct inode *inode, struct generic_acl_operations *ops,
-+		int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	acl = ops->getacl(inode, type);
-+	if (!acl)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+int
-+generic_acl_set(struct inode *inode, struct generic_acl_operations *ops,
-+		int type, const void *value, size_t size)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		return -EPERM;
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+	}
-+	if (acl) {
-+		mode_t mode;
-+
-+		error = posix_acl_valid(acl);
-+		if (error)
-+			goto failed;
-+		switch(type) {
-+			case ACL_TYPE_ACCESS:
-+				mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					goto failed;
-+				inode->i_mode = mode;
-+				if (error == 0) {
-+					posix_acl_release(acl);
-+					acl = NULL;
-+				}
-+				break;
-+
-+			case ACL_TYPE_DEFAULT:
-+				if (!S_ISDIR(inode->i_mode)) {
-+					error = -EINVAL;
-+					goto failed;
-+				}
-+				break;
-+		}
-+	}
-+	ops->setacl(inode, type, acl);
-+	error = 0;
-+failed:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+int
-+generic_acl_init(struct inode *inode, struct inode *dir,
-+		 struct generic_acl_operations *ops)
-+{
-+	struct posix_acl *acl = NULL;
-+	mode_t mode = inode->i_mode;
-+	int error;
-+
-+	inode->i_mode = mode & ~current->fs->umask;
-+	if (!S_ISLNK(inode->i_mode))
-+		acl = ops->getacl(dir, ACL_TYPE_DEFAULT);
-+	if (acl) {
-+		struct posix_acl *clone;
-+
-+		if (S_ISDIR(inode->i_mode)) {
-+			clone = posix_acl_clone(acl, GFP_KERNEL);
-+			error = -ENOMEM;
-+			if (!clone)
-+				goto cleanup;
-+			ops->setacl(inode, ACL_TYPE_DEFAULT, clone);
-+			posix_acl_release(clone);
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			if (error > 0) {
-+				ops->setacl(inode, ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
-+	}
-+	error = 0;
-+
-+cleanup:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+int
-+generic_acl_chmod(struct inode *inode, struct generic_acl_operations *ops)
-+{
-+	struct posix_acl *acl, *clone;
-+	int error = 0;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	acl = ops->getacl(inode, ACL_TYPE_ACCESS);
-+	if (acl) {
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		posix_acl_release(acl);
-+		if (!clone)
-+			return -ENOMEM;
-+		error = posix_acl_chmod_masq(clone, inode->i_mode);
-+		if (!error)
-+			ops->setacl(inode, ACL_TYPE_ACCESS, clone);
-+		posix_acl_release(clone);
-+	}
-+	return error;
-+}
+Again, consider the multi-function cards. On pSeries, I can  only enable 
+DMA on a er-slot basis, not a per-function basis. So if one driver
+enables DMA before some other driver has reset appropriately, everything
+breaks.
 
---
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX Products GmbH / Novell Inc.
+> If there is really a device having specific requirement to reinitiate it (very rarely),
+> it could use walkaround, such like schedule a WORKER. No need to provide a generic
+> mmio_enabled.
+
+I don't understand. Enabling MMIO and enabling DMA both require specific
+commands to be sent to the PCI-host bridge. These commands are not a
+part of the PCI spec. 
+
+> > > 2) Callback slot_reset could be merged with resume. The new resume could be:
+> > > int (*error_resume)(struct pci_dev *dev); I checked e1000 and e100 drivers and
+> > > think there is no actual reason to have both slot_reset and resume.
+> > 
+> > The idea here was to handle multi-function cards.  On a multi-function card, 
+> > *all* devices need to indicate that they were able to reset. Once all devices 
+> > have been successfuly reset, then operation can be resumed. If the reset 
+> > of one function fails, then operation is not resumed for any f the
+> > functions.
+> I don't think we need slot_reset to coordinate multi-function devices. The new
+> error_resume could take care of multi-function card. 
+
+How? 
+
+> 'reset' here means driver
+> need do I/O to detect if the device (function) still works well. If a function
+> of a multi-function device couldn't reset while other functions could reset,
+> other functions could just go on to reinitiate. In the end, the error recovery
+> procedure (handle_eeh_events in PowerPC implementation) could check all the
+> returning values of error_resume. If there is a failure value, then removes
+> all the functions' pci_dev of the device from the bus.
+
+I can only enable or disable an entire PCI slot, and not individual PCI
+functions. If there are some pins that are shorted, or parity errors or
+whatever, I can only turn off the whole card. 
+
+> > > During
+> > > our last discussion on LKML, you said PowerPC will block further I/O if the platform captures
+> > > a pci error, so the all I/O in e1000_down will be blocked. Later on, e1000_io_slot_reset
+> > > will reenable pci device and initiate NIC. I guess late initiate might fail because prior
+> > > e1000_down I/O don't reach NIC.
+> > 
+> > Why would it fail? The e1000_down serves primarily to get the Linux
+> > kernel into a known state. It doesn't matter what happens to the card,
+> > since the next step will be to perform an electrical reset of the card.
+> Who will perform the electrical reset of the card? Function e1000_reset or the platform?
+
+The platform. By "electrical reset", I mean "dropping the #RST pin low
+for 200mS". Only the platform can do this.
+ 
+> If it's the platform, I agree with you, but if it's e1000_reset, it might not work because
+> e1000_reset uses a e1000-specific approach to reset the card.
+
+The driver has to choices: it can ask for the electrical reset, by 
+returning PCI_ERS_RESULT_NEED_RESET. But if the driver doesn't need
+the electrical reset, then it can return PCI_ERS_RESULT_CAN_RECOVER,
+and issue whatever device-specific commands it needs to reset.
+
+> I'm not sure if the e1000_reset
+> will restore the NIC to fresh system power-on state. At least, from the source codes, e1000_reset
+> couldn't.
+
+I have no idea. That's why this driver issues PCI_ERS_RESULT_NEED_RESET,
+which will get it into a fresh system power-on state. Its easy, its
+brute-force, it works.
+
+--linas
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.5

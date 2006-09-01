@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWIABI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWIABLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWIABI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWIABI3
+	id S932502AbWIABLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWIABLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:08:29 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52929 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932123AbWIABI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:08:28 -0400
-Date: Thu, 31 Aug 2006 18:08:19 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB fixes for 2.6.18-rc5
-Message-ID: <20060901010819.GA29859@kroah.com>
+	Thu, 31 Aug 2006 21:11:46 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:52693 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932502AbWIABLp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:11:45 -0400
+Message-ID: <44F78A67.1060007@student.ltu.se>
+Date: Fri, 01 Sep 2006 03:18:31 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Nathan Scott <nathans@sgi.com>
+CC: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement
+References: <44F77653.6000606@student.ltu.se> <20060901100745.P3186664@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060901100745.P3186664@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a some fixes for USB against 2.6.18-rc5.  They do the
-following:
-	- 2 uhci bugfixes
-	- quirks fixed and added for storage and HID devices
-	- bugfix in rtl8150 driver
-	- via EHCI quirk bugfix
-	- gadget driver spinlock fix.
+Nathan Scott wrote:
 
-Most of these changes have been in the -mm tree for a while.
+>On Fri, Sep 01, 2006 at 01:52:51AM +0200, Richard Knutsson wrote:
+>  
+>
+>>From: Richard Knutsson <ricknu-0@student.ltu.se>
+>>
+>>Converting error-prone statement:
+>>"if (var == B_FALSE)" into "if (!var)"
+>>"if (var == B_TRUE)"  into "if (var)"
+>>    
+>>
+>
+>This is my preference too, rather than the local boolean usage which
+>isn't used with any consistency... but:
+>
+>  
+>
+>>Compile-tested
+>>    
+>>
+>
+>Are you using XFS on your systems?  What is your strategy for getting this
+>runtime tested going to be?  Or are you delegating that responsibility? :)
+>  
+>
+Sorry, can't say that I do. So pretty please... ;)
+Seriously, I can not find a state when this may fail (if not "if (var == 
+TRUE)" happend to be correct for 'var' != 0 != 1, but that is just a bug 
+waiting to happend).
+But please correct me if I am wrong.
 
-Please pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
-
-thanks,
-
-greg k-h
-
-
- drivers/pci/quirks.c               |    1 
- drivers/usb/gadget/ether.c         |   45 +++++++----
- drivers/usb/host/uhci-q.c          |    4 -
- drivers/usb/input/hid-core.c       |  149 +++++++++++++++++++++++-------------
- drivers/usb/net/pegasus.h          |    3 +
- drivers/usb/net/rtl8150.c          |    1 
- drivers/usb/storage/unusual_devs.h |   24 +++---
- include/linux/pci_ids.h            |    1 
- 8 files changed, 149 insertions(+), 79 deletions(-)
-
----------------
-
-Alan Stern:
-      UHCI: don't stop at an Iso error
-      uhci-hcd: fix list access bug
-
-Andrew Morton:
-      USB: rtl8150_disconnect() needs tasklet_kill()
-
-David Brownell:
-      usb gadget: g_ether spinlock recursion fix
-
-Jeremy Roberson:
-      hid-core.c: Adds all GTCO CalComp Digitizers and InterWrite School Products to blacklist
-
-juergen.mell@t-online.de:
-      USB floppy drive SAMSUNG SFD-321U/EP detected 8 times
-
-Mark Hindley:
-      USB: Add VIA quirk fixup for VT8235 usb2
-
-Nobuhiro Iwamatsu:
-      USB: Support for ELECOM LD-USB20 in pegasus
-
-Phil Dibowitz:
-      USB Storage: Remove the finecam3 unusual_devs entry
-      USB Storage: unusual_devs.h for Sony Ericsson M600i
-
-Ping Cheng:
-      USB: add all wacom device to hid-core.c blacklist
+>cheers.
+>  
+>
+cu
 

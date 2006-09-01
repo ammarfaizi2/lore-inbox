@@ -1,75 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWIAR4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWIASBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWIAR4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 13:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWIAR4V
+	id S1750705AbWIASBL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 14:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750696AbWIASBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 13:56:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:1676 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750701AbWIAR4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 13:56:20 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44F8732B.8080102@s5r6.in-berlin.de>
-Date: Fri, 01 Sep 2006 19:51:39 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+	Fri, 1 Sep 2006 14:01:11 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:60174 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1750705AbWIASBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 14:01:10 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: Oops after 30 days of uptime
+Date: Fri, 1 Sep 2006 20:00:58 +0200
+User-Agent: KMail/1.9.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200609011852.39572.linux@rainbow-software.org> <44F86732.5060501@trash.net>
+In-Reply-To: <44F86732.5060501@trash.net>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       David Woodhouse <dwmw2@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer
- [try #2]
-References: <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de> <Pine.LNX.4.64.0608310039440.6761@scrub.home> <1157069717.2347.13.camel@shinybook.infradead.org> <20060831174852.18efec7e.rdunlap@xenotime.net> <1157074048.2347.24.camel@shinybook.infradead.org> <20060901134425.GA32440@wohnheim.fh-wedel.de> <44F85267.1000607@s5r6.in-berlin.de> <20060901161920.GB32440@wohnheim.fh-wedel.de> <20060901163403.GC18276@stusta.de>
-In-Reply-To: <20060901163403.GC18276@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609012000.58873.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Fri, Sep 01, 2006 at 06:19:20PM +0200, Jörn Engel wrote:
-[...]
->> Assuming that select gets removed in the process, and
->> concentrating on oldconfig, would it be enough to have something like
->> this in the .config?
->> 
->> # CONFIG_USB_STORAGE has unmet dependencies: CONFIG_SCSI, CONFIG_BLOCK
->> 
->> Now people looking for usb mass storage can find the option without
->> grepping through Kconfig files, but also every single driver for every
->> single disabled subsystem shows up.  Might be a bit too much.
+On Friday 01 September 2006 19:00, Patrick McHardy wrote:
+> Ondrej Zary wrote:
+> > Hello,
+> > my home router crashed after about a month. It does this sometimes but
+> > this time I was able to capture the oops. Here is the result of running
+> > ksymoops on it (took a photo of the screen and then manually converted to
+> > plain-text). Does it look like a bug or something other?
+> >
+> >
+> > Code;  c01eeb9e <init_or_cleanup+15e/160>
+> > 00000000 <_EIP>:
+> > Code;  c01eeb9e <init_or_cleanup+15e/160>   <=====
+> >    0:   8b 5e 18                  mov    0x18(%esi),%ebx   <=====
+> > Code;  c01eeba1 <ip_conntrack_protocol_register+1/70>
+> >    3:   11 d8                     adc    %ebx,%eax
+>
+> This looks like a bug in some out of tree protocol module (2.4 only
+> contains the built-in protocols). Did you apply any netfilter patches?
 
-This comment or similar things are apparently not necessary _within 
-subsystems_, just across subsystems, i.e. where the hierarchy of 
-subdirectories and files does not match the hierarchy of dependencies.
 
-> Common use case:
-> A driver was changed to use FW_LOADER.
-> The .config for the old kernel contains CONFIG_FW_LOADER=n.
-> The user runs "make oldconfig" with the old .config in the new kernel.
-> 
-> How do you plan to handle this reasonably without select?
+No patches, it's clean 2.4.31.
+Hopefully I typed all the numbers correctly...
 
-"make oldconfig" could ask questions when it sees need to disable 
-formerly enabled options.
+These network-related things are enabled:
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
 
-In general I think:
-As long as we talk about the various prefab UIs to manipulate .config 
-(i.e. "make {allyes, allmod, allno, def, g, menu, old, rand, silentold, 
-update-po-, x, ''}config"), there may be ways to implement modes of 
-operation which do what people expect from 'select' but with 'depends 
-on' alone. To ensure that no user group is discriminated in the process, 
-committees could be formed. (<- attempt on irony)
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_LOG=y
 
-It will get difficult to entirely please users who don't use these 
-interfaces to .config. But it seems these users are better off without 
-'select'.
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_NET_CLS_POLICE=y
+
+
 -- 
-Stefan Richter
--=====-=-==- =--= ----=
-http://arcgraph.de/sr/
+Ondrej Zary

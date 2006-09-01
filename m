@@ -1,55 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWIAGj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWIAGtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWIAGj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 02:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWIAGj7
+	id S932451AbWIAGtM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 02:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIAGtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 02:39:59 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:28595 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1750750AbWIAGj6 (ORCPT
+	Fri, 1 Sep 2006 02:49:12 -0400
+Received: from gw.goop.org ([64.81.55.164]:5062 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932447AbWIAGsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 02:39:58 -0400
-Date: Fri, 1 Sep 2006 08:43:19 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
+	Fri, 1 Sep 2006 02:48:51 -0400
+Message-Id: <20060901064825.813636915@goop.org>
+References: <20060901064718.918494029@goop.org>
+User-Agent: quilt/0.45-1
+Date: Thu, 31 Aug 2006 23:47:25 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] [ BUG: bad unlock balance detected! ] in 2.6.18-rc5
-Message-ID: <20060901064319.GA2065@ff.dom.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
+       Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 7/8] Implement smp_processor_id() with the PDA.
+Content-Disposition: inline; filename=i386-pda-smp_processor_id.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Use the cpu_number in the PDA to implement raw_smp_processor_id.  This
+is a little simpler than using thread_info, though the cpu field in
+thread_info cannot be removed since it is used for things other than
+getting the current CPU in common code.
 
-Some time ago I wrote about this bug in rc3.
-I see it's still in 2.6.18-rc5 so here is what
-I've found: with config like this:
+The slightly subtle part of this patch is dealing with very early uses
+of smp_processor_id().  This is handled on the boot CPU by setting up
+a very early PDA, which is later replaced when cpu_init() is called on
+the boot CPU.  For other CPUs, it uses the thread_info cpu field until
+the PDA has been set up.
 
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_LOCKDEP=y
-CONFIG_DEBUG_LOCK_ALLOC=y
-# CONFIG_PROVE_LOCKING is not set
+This is more or less an example of using the PDA, and to give it a
+proper exercising.
 
-spin_unlock_irqrestore() goes through lockdep
-but spin_lock_irqrestore() doesn't.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>
 
-I attach my proposal how to fix this.
+---
+ arch/i386/kernel/asm-offsets.c |    2 +-
+ arch/i386/kernel/cpu/common.c  |   19 +++++++++++++++++--
+ include/asm-i386/smp.h         |    7 ++++++-
+ init/main.c                    |    9 +++++++--
+ 4 files changed, 31 insertions(+), 6 deletions(-)
 
-Jarek P.
 
-diff -Nru linux-2.6.18-rc5-/kernel/spinlock.c linux-2.6.18-rc5/kernel/spinlock.c
---- linux-2.6.18-rc5-/kernel/spinlock.c	2006-08-30 02:20:46.000000000 +0200
-+++ linux-2.6.18-rc5/kernel/spinlock.c	2006-09-01 00:27:35.000000000 +0200
-@@ -72,7 +72,7 @@
-  * not re-enabled during lock-acquire (which the preempt-spin-ops do):
-  */
- #if !defined(CONFIG_PREEMPT) || !defined(CONFIG_SMP) || \
--	defined(CONFIG_PROVE_LOCKING)
-+	defined(CONFIG_DEBUG_LOCK_ALLOC)
+===================================================================
+--- a/arch/i386/kernel/asm-offsets.c
++++ b/arch/i386/kernel/asm-offsets.c
+@@ -52,7 +52,6 @@ void foo(void)
+ 	OFFSET(TI_exec_domain, thread_info, exec_domain);
+ 	OFFSET(TI_flags, thread_info, flags);
+ 	OFFSET(TI_status, thread_info, status);
+-	OFFSET(TI_cpu, thread_info, cpu);
+ 	OFFSET(TI_preempt_count, thread_info, preempt_count);
+ 	OFFSET(TI_addr_limit, thread_info, addr_limit);
+ 	OFFSET(TI_restart_block, thread_info, restart_block);
+@@ -96,4 +95,5 @@ void foo(void)
  
- void __lockfunc _read_lock(rwlock_t *lock)
+ 	BLANK();
+ 	OFFSET(PDA_pcurrent, i386_pda, pcurrent);
++	OFFSET(PDA_cpu, i386_pda, cpu_number);
+ }
+===================================================================
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -19,6 +19,7 @@
+ #include <mach_apic.h>
+ #endif
+ #include <asm/pda.h>
++#include <asm/smp.h>
+ 
+ #include "cpu.h"
+ 
+@@ -666,7 +667,7 @@ static inline void set_kernel_gs(void)
+ /* Initialize the CPU's GDT and PDA */
+ static __cpuinit void init_gdt(void)
  {
+-	int cpu = smp_processor_id();
++	int cpu = early_smp_processor_id();
+ 	struct task_struct *curr = current;
+ 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+ 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
+@@ -709,6 +710,20 @@ static __cpuinit void init_gdt(void)
+ 
+ 	/* Do this once everything GDT-related has been set up. */
+ 	pda_init(cpu, curr);
++}
++
++/* Set up a very early PDA for the boot CPU so that smp_processor_id will work */
++void __init smp_setup_processor_id(void)
++{
++	static const __initdata struct i386_pda boot_pda;
++
++	pack_descriptor((u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].a,
++			(u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].b,
++			(unsigned long)&boot_pda, sizeof(struct i386_pda) - 1,
++			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
++
++	/* Set %gs for this CPU's PDA */
++	set_kernel_gs();
+ }
+ 
+ /*
+@@ -719,7 +734,7 @@ static __cpuinit void init_gdt(void)
+  */
+ void __cpuinit cpu_init(void)
+ {
+-	int cpu = smp_processor_id();
++	int cpu = early_smp_processor_id();
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
+ 
+===================================================================
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -8,6 +8,7 @@
+ #include <linux/kernel.h>
+ #include <linux/threads.h>
+ #include <linux/cpumask.h>
++#include <asm/pda.h>
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -58,7 +59,10 @@ extern void cpu_uninit(void);
+  * from the initial startup. We map APIC_BASE very early in page_setup(),
+  * so this is correct in the x86 case.
+  */
+-#define raw_smp_processor_id() (current_thread_info()->cpu)
++#define raw_smp_processor_id() (read_pda(cpu_number))
++/* This is valid from the very earliest point in boot that we care
++   about. */
++#define early_smp_processor_id() (current_thread_info()->cpu)
+ 
+ extern cpumask_t cpu_callout_map;
+ extern cpumask_t cpu_callin_map;
+@@ -94,6 +98,7 @@ extern unsigned int num_processors;
+ #else /* CONFIG_SMP */
+ 
+ #define safe_smp_processor_id()		0
++#define early_smp_processor_id()	0
+ #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+ 
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+===================================================================
+--- a/init/main.c
++++ b/init/main.c
+@@ -473,8 +473,13 @@ static void __init boot_cpu_init(void)
+ 	cpu_set(cpu, cpu_possible_map);
+ }
+ 
+-void __init __attribute__((weak)) smp_setup_processor_id(void)
+-{
++/* Some versions of gcc seem to want to inline/eliminate the call to
++   this function, even though it is weak and could therefore be
++   replaced at link time.  Mark it noinline, and add an asm() to make
++   it harder to digest. */
++noinline void __init __attribute__((weak)) smp_setup_processor_id(void)
++{
++	asm volatile("" : : : "memory");
+ }
+ 
+ asmlinkage void __init start_kernel(void)
+
+--
+

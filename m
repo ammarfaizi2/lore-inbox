@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWIANZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWIAN3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWIANZe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 09:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWIANZe
+	id S1750782AbWIAN3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 09:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWIAN3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 09:25:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18362 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751096AbWIANZd (ORCPT
+	Fri, 1 Sep 2006 09:29:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61116 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750782AbWIAN3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 09:25:33 -0400
-Message-ID: <44F834B6.9060507@redhat.com>
-Date: Fri, 01 Sep 2006 09:25:10 -0400
+	Fri, 1 Sep 2006 09:29:23 -0400
+Message-ID: <44F8359D.40303@redhat.com>
+Date: Fri, 01 Sep 2006 09:29:01 -0400
 From: Peter Staubach <staubach@redhat.com>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060801)
 MIME-Version: 1.0
@@ -134,8 +134,8 @@ NeilBrown wrote:
 >  		}
 >  	}
 
-Just out of curiosity, why does the dprintk say "svc_register", but the
-code calls rpc_register?
+While I'm thinking about it a little more, why not register NFS_ACL with
+portmap/rpcbind?  That would make it pingable via rpcinfo.
 
     Thanx...
 

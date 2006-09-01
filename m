@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWIAWhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWIAWgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWIAWhT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 18:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIAWhS
+	id S1750740AbWIAWgm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 18:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWIAWgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 18:37:18 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:8651 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id S1751144AbWIAWhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 18:37:15 -0400
-Subject: Re: [PATCH 04/22][RFC] Unionfs: Common file operations
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <1157149200.5628.38.camel@localhost>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-	 <20060901014138.GE5788@fsl.cs.sunysb.edu>
-	 <1157149200.5628.38.camel@localhost>
+	Fri, 1 Sep 2006 18:36:42 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39071 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750740AbWIAWg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 18:36:28 -0400
+Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM
+	Improvements
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Len Brown <lenb@kernel.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
+In-Reply-To: <p73d5af5k6p.fsf@verdi.suse.de>
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com>
+	 <200608311713.21618.bjorn.helgaas@hp.com>
+	 <1157070616.7974.232.camel@localhost.localdomain>
+	 <200608312353.05337.len.brown@intel.com>  <p73d5af5k6p.fsf@verdi.suse.de>
 Content-Type: text/plain
-Date: Fri, 01 Sep 2006 18:36:01 -0400
-Message-Id: <1157150161.4398.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
 Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter1.cs.columbia.edu
+Date: Fri, 01 Sep 2006 23:57:25 +0100
+Message-Id: <1157151445.6271.336.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 18:20 -0400, Trond Myklebust wrote:
+Ar Gwe, 2006-09-01 am 23:52 +0200, ysgrifennodd Andi Kleen:
+> What are these gaping holes? SATA seems to work at least on many
+> drivers with an out of tree patch (that will hopefully be merged soon)
 
-> Race! You cannot open an underlying NFS file by name after it has been
-> looked up: you have no guarantee that it hasn't been renamed.
+SATA ought to be pretty good now. 
 
-In a unionfs case that's not an issue.  Nothing else is allowed to use
-the backing store (i.e. the nfs fs) while unionfs is using it, so there
-shouldn't be a renaming issue.
+> And IDE mostly works too except for HPA on thinkpads (which can be
+> disabled in the BIOS). While certainly not perfect it doesn't seem
+> that bad to me.
+
+IDE also fails for various chipsets where PLLs need a recalibration or
+setup needs redoing, and some users report things like floating IRQ 14
+hangs on suspend or resume.
+
+HPA now has a -mm proposed patch.
+
+Alan
 
 
 -- 

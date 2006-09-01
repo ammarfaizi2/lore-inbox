@@ -1,81 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWIAJ7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWIAKKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWIAJ7q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 05:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIAJ7q
+	id S1751379AbWIAKKR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 06:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIAKKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 05:59:46 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:21615 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751359AbWIAJ7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 05:59:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UdAx1HAHGQ5GsY+USJD1A3B7LJw7Mp5jWhk2UgTP1YMLrjNZLbZUC+jb5iejv3sp+U132NAZSInxkPG9ZIVkaaH6EiH6/GWC7vEBLk0JrA09YUVzPww9UkSIzgUT9W7TTzcFiHpGoUtyZgIVIg2XccXra4cVEn4B+JYxLae/9Co=
-Message-ID: <9a8748490609010259l7c42ca88tbcc87410a770b48c@mail.gmail.com>
-Date: Fri, 1 Sep 2006 11:59:44 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Ben Greear" <greearb@candelatech.com>
-Subject: Re: Unable to halt or reboot due to - unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Fred N. van Kempen" <waltje@uwalt.nl.mugnet.org>,
-       "Ross Biro" <ross.biro@gmail.com>, davem@davemloft.net,
-       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org
-In-Reply-To: <9a8748490608310833x22b0ca30s2130cc388e2bb392@mail.gmail.com>
+	Fri, 1 Sep 2006 06:10:16 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:42701 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751379AbWIAKKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 06:10:15 -0400
+Date: Fri, 1 Sep 2006 03:10:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC - sysctl or module parameters.
+Message-ID: <20060901101001.GA13912@kroah.com>
+References: <17655.38092.888976.846697@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490608310817v7d722f88u167b5a84d0ff67e8@mail.gmail.com>
-	 <44F70092.3030300@candelatech.com>
-	 <9a8748490608310833x22b0ca30s2130cc388e2bb392@mail.gmail.com>
+In-Reply-To: <17655.38092.888976.846697@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31/08/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 31/08/06, Ben Greear <greearb@candelatech.com> wrote:
-> > Jesper Juhl wrote:
-> > > Hi,
-> > >
-> > > I've got a small problem with 2.6.18-rc5-git2.
-> > >
-> > > I've got a vlan setup on eth0.20, eth0 does not have an IP.
-> > >
-> > > When I attempt to reboot or halt the machine I get the following
-> > > message from the loop in net/core/dev.c::netdev_wait_allrefs() where
-> > > it waits for the ref-count to drop to zero.
-> > > Unfortunately the ref-count stays at 1 forever and the server never
-> > > gets any further.
-> > >
-> > >  unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
-> > >
-> > > I googled a bit and found that people have had similar problems in the
-> > > past and could work around them by shutting down the vlan interface
-> > > before the 'lo' interface. I tried that and indeed, it works.
-> > >
-> > > Any idea how we can get this fixed?
-> >
-> > This is usually a ref-count leak somewhere.  Used to be IPv6 had
-> > issues..then there were some neighbor leaks...but these were fixed as
-> > far as I know.
-> >
-> Using IPv4 here.
->
->
-> > Can you reproduce this on older kernels?
-> >
-> I've not actively tried, but I do have several servers running various
-> older kernel releases with similar vlan setups and I'm not aware of
-> any problems with those. Only this new box that I'm using for testing
-> new kernels (currently) shows the problem, and I've only tried 2.6.8
-> and 2.6.18-rc5-git2 on the box so far (2.6.8 doesn't have the
-> problem).
->
-I've just encountered the problem on a different server with an
-identical vlan setup. That server is running 2.6.13.4
+On Fri, Sep 01, 2006 at 12:02:52PM +1000, Neil Brown wrote:
+> 
+> There are so many ways to feed configuration parameters into the
+> kernel these days.  
+> There is sysctl.  There is sysfs. And there are module paramters.
+> (procfs? who said procfs? I certainly didn't).
+> 
+> I have a module - let's call it 'lockd'.
+> I want to make it configurable - say to be able to identify
+>  peers by IP address (as it currently does) or host name
+>  (good for multi homed peers, if you trust them).
+> 
+> And I want Jo Sysadmin to be able to set some simple configuration
+> setting somewhere and have it 'just work'.
+> 
+> Options:
+>  - I could make it a module parameter: use_hostnames, and tell
+>    Jo to put
+>      options lockd use_hostnames=yes
+>    in /etc/modprobe.d/lockd  if that is what (s)he wants.
+>    But that won't work if the module is compiled in (will it?).
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yes it will.  See Documentation/kernel-parameters.txt for how it works.
+
+>  - I could make a sysctl /proc/sys/fs/nfs/nsm_use_hostnames
+>    at tell Jo to put
+>       fs.nfs.nsm_use_hostnames=1
+>    if /etc/sysctl.conf if desired.
+>    But that wouldn't work if lockd is a module that is loaded
+>    after "/usr/sbin/sysctl -p" has been run.
+> 
+>  - I could do both and tell Jo to make both changes, just in case,
+>    but that is rather ugly, though that is what we currently do
+>    for nlm_udpport, nlm_tcpport, nlm_timeout, nlm_grace_period.
+> 
+> It occurs to me that since we have /sys/module/X/parameters,
+> it wouldn't be too hard to have some functionality, possibly
+> in modprobe, that looked for all the 'options' lines in
+> modprobe config files, checked to see if the modules was loaded,
+> and then imposed those options that could be imposed.
+
+those options _are_ module parameters, and as such work just fine with
+the modprobe config files.
+
+> Thus we could just have a module option, just add module config
+> information to /etc/modprobe.d and run
+>   modprobe --apply-option-to-active-modules
+> at the same time as "sysctl -p" and it would all 'just work'
+> whether the module were compiled in to not.
+
+Ah, you want it after the code is loaded.  That's different.
+
+Would probably work just fine, no objection from me.  Except you would
+have to hack up the module-init-tools package :)
+
+thanks,
+
+greg k-h

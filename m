@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWIABbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWIABfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWIABbb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWIABbb
+	id S964859AbWIABfd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWIABfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:31:31 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:40150 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964845AbWIABba
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:31:30 -0400
-Message-ID: <44F78F0D.2030907@student.ltu.se>
-Date: Fri, 01 Sep 2006 03:38:21 +0200
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement
-References: <44F77653.6000606@student.ltu.se> <20060901100745.P3186664@wobbly.melbourne.sgi.com> <44F78A67.1060007@student.ltu.se> <20060901111601.R3186664@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060901111601.R3186664@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Aug 2006 21:35:33 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:13190 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S964848AbWIABfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:35:32 -0400
+Date: Thu, 31 Aug 2006 21:35:13 -0400
+From: Josef Sipek <jsipek@cs.sunysb.edu>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@ftp.linux.org.uk
+Subject: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
+Message-ID: <20060901013512.GA5788@fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
+This set of patches constitutes Unionfs version 2.0. We are presenting it to
+be reviewed and considered for inclusion into the kernel.
 
->On Fri, Sep 01, 2006 at 03:18:31AM +0200, Richard Knutsson wrote:
->  
->
->>Nathan Scott wrote:
->>    
->>
->>>Are you using XFS on your systems?  What is your strategy for getting this
->>>runtime tested going to be?  Or are you delegating that responsibility? :)
->>> 
->>>      
->>>
->>Sorry, can't say that I do. So pretty please... ;)
->>Seriously, I can not find a state when this may fail (if not "if (var == 
->>TRUE)" happend to be correct for 'var' != 0 != 1, but that is just a bug 
->>waiting to happend).
->>But please correct me if I am wrong.
->>    
->>
->
->OK, I'll run with it in my own testing for awhile.
->
-Thanks!
+Unionfs is a stackable filesystem that is based off of the FiST stackable
+filesystem framework written by Erez Zadok: see <http://filesystems.org/>.
 
->                                                    I was also curious to
->why you didn't remove the other few B_TRUE/B_FALSE occurences?  (and the
->typedef)?
->  
->
-Working on it. Should be out tomorrow(or in about 20 hours).
- From the "Re: Conversion to generic boolean"-thread (started on 
-06-08-28), there were those who did not seem to like the conversion. But 
-since no-one complained about removing "== B_FALSE/B_TRUE", I thought it 
-best to remove them first and then take the rest from there.
+Josef Sipek presented Unionfs at the 2006 Ottawa Linux Symposiums; the
+high-level overview from this year's symposium starts on page 349 of the
+second half of the symposium proceedings:  see
 
->cheers.
->
->  
->
-cu
+  <http://www.linuxsymposium.org/2006/linuxsymposium_procv2.pdf>
 
+Note that this set of patches contains a considerably trimmed-down version
+of Unionfs.  That way it'd be possible to evaluate Unionfs's most basic
+functionality, gradually adding features in future patches.
+
+To download tarballs of the full source, along with userspace utilities,
+read various documents and other info about Unionfs, see the home page at
+
+  <http://www.unionfs.org>
+
+Josef "Jeff" Sipek, on behalf of the Unionfs team.
+
+Index:
+=======
+[PATCH 01/22][RFC] Unionfs: Documentation
+[PATCH 02/22][RFC] Unionfs: Kconfig and Makefile
+[PATCH 03/22][RFC] Unionfs: Branch management functionality
+[PATCH 04/22][RFC] Unionfs: Common file operations
+[PATCH 05/22][RFC] Unionfs: Copyup Functionality
+[PATCH 06/22][RFC] Unionfs: Dentry operations
+[PATCH 07/22][RFC] Unionfs: Directory file operations
+[PATCH 08/22][RFC] Unionfs: Directory manipulation helper functions
+[PATCH 09/22][RFC] Unionfs: File operations
+[PATCH 10/22][RFC] Unionfs: Inode operations
+[PATCH 11/22][RFC] Unionfs: Lookup helper functions
+[PATCH 12/22][RFC] Unionfs: Main module functions
+[PATCH 13/22][RFC] Unionfs: Readdir state
+[PATCH 14/22][RFC] Unionfs: Rename
+[PATCH 15/22][RFC] Unionfs: Privileged operations workqueue
+[PATCH 16/22][RFC] Unionfs: Handling of stale inodes
+[PATCH 17/22][RFC] Unionfs: Miscellaneous helper functions
+[PATCH 18/22][RFC] Unionfs: Superblock operations
+[PATCH 19/22][RFC] Unionfs: Helper macros/inlines
+[PATCH 20/22][RFC] Unionfs: Internal include file
+[PATCH 21/22][RFC] Unionfs: Unlink
+[PATCH 22/22][RFC] Unionfs: Include file
+
+Known Issues and Limitations:
+
+- The NFS server returns -EACCES for read-only exports, instead of -EROFS.
+  This means we can't reliably detect a read-only NFS export.
+
+- Modifying a Unionfs branch directly, while the union is mounted, is
+  currently unsupported.  Any such change may cause Unionfs to oops and it
+  can even result in data loss!
+
+- The PPC module loading algorithm has an O(N^2) loop, so it takes a while
+  to load the Unionfs module, because we have lots of symbols.
+
+- Unionfs shouldn't use lookup_one_len on the underlying fs as it confuses
+  NFS.
+
+For the initial release we removed support for xattrs, persistent inode
+mappings, and mmap operations.
+
+Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>

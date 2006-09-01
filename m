@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWIAPzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWIAP4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbWIAPzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 11:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWIAPzP
+	id S932111AbWIAP4R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 11:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWIAP4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 11:55:15 -0400
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:9837 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751691AbWIAPzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 11:55:14 -0400
-Date: Fri, 1 Sep 2006 08:55:10 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Johnny Strom <johnny.strom@osp.fi>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Patch to make VIA sata board bootable again.
-Message-ID: <20060901155510.GA28345@tuatara.stupidest.org>
-References: <44F7EC15.8040800@osp.fi> <20060901014745.750e69d1.akpm@osdl.org> <44F81013.4030904@osp.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F81013.4030904@osp.fi>
+	Fri, 1 Sep 2006 11:56:17 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35036 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932111AbWIAP4P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 11:56:15 -0400
+Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
+In-Reply-To: <1157125420.21733.28.camel@localhost>
+References: <20060901110908.GB15684@skybase>
+	 <1157124821.28577.88.camel@localhost.localdomain>
+	 <1157125420.21733.28.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 08:56:02 -0700
+Message-Id: <1157126162.28577.104.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 01:48:51PM +0300, Johnny Strom wrote:
+On Fri, 2006-09-01 at 17:43 +0200, Martin Schwidefsky wrote:
+> This question did come up already. arch_free_page() is done before the
+> PageReserved() check so it isn't suitable for stable/unused state
+> transitions. You can argue that arch_free_page() should be moved but who
+> knows what the architecture defined function is supposed to do?
+> page_set_stable/page_set_unused on the other hand have a clearly defined
+> meaning. 
 
-> No it is the same problem with 2.6.18-rc5.
+With a patch set this large, I think it would at least be a nice thing
+to go through and review the other architectures' uses.
 
-Did either the patches from Daniel Drake or Sergio Monteiro Basto
-help?
+-- Dave
 
-> Attached an new diff.
-
-Which breaks other a different class of machines.  A can you try -mm,
-there is a patch in that and tell us if that works?

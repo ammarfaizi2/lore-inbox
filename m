@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWIABQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWIABYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWIABQd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWIABQc
+	id S1751313AbWIABYi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWIABYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:16:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17050 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964777AbWIABQc (ORCPT
+	Thu, 31 Aug 2006 21:24:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:6296 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751313AbWIABYh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:16:32 -0400
-Date: Fri, 1 Sep 2006 11:16:01 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement
-Message-ID: <20060901111601.R3186664@wobbly.melbourne.sgi.com>
-References: <44F77653.6000606@student.ltu.se> <20060901100745.P3186664@wobbly.melbourne.sgi.com> <44F78A67.1060007@student.ltu.se>
-Mime-Version: 1.0
+	Thu, 31 Aug 2006 21:24:37 -0400
+Date: Thu, 31 Aug 2006 18:24:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Irfan Habib <irfan.habib@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: using Linux Device Drivers 3rd edition to learn developing modules for linux 2.4
+Message-ID: <20060901012429.GA30846@kroah.com>
+References: <3420082f0608311300i7fa711d2yeec43284e8c6a91d@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <44F78A67.1060007@student.ltu.se>; from ricknu-0@student.ltu.se on Fri, Sep 01, 2006 at 03:18:31AM +0200
+In-Reply-To: <3420082f0608311300i7fa711d2yeec43284e8c6a91d@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 03:18:31AM +0200, Richard Knutsson wrote:
-> Nathan Scott wrote:
-> >Are you using XFS on your systems?  What is your strategy for getting this
-> >runtime tested going to be?  Or are you delegating that responsibility? :)
-> >  
-> Sorry, can't say that I do. So pretty please... ;)
-> Seriously, I can not find a state when this may fail (if not "if (var == 
-> TRUE)" happend to be correct for 'var' != 0 != 1, but that is just a bug 
-> waiting to happend).
-> But please correct me if I am wrong.
+On Fri, Sep 01, 2006 at 01:00:37AM +0500, Irfan Habib wrote:
+> Hi,
+> 
+> I have a copy of "Linux Device Drivers" 3rd Edition, I think it is
+> made for linux 2.6, but I have to make a module for linux 2.4, is it
+> suitable or should I get 2nd edition?
 
-OK, I'll run with it in my own testing for awhile.  I was also curious to
-why you didn't remove the other few B_TRUE/B_FALSE occurences?  (and the
-typedef)?
+The second edition is for the 2.4 kernel, it will be very confusing to
+use the third edition.
 
-cheers.
+good luck,
 
--- 
-Nathan
+greg k-h

@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWIAGex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWIAGj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWIAGex (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 02:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWIAGex
+	id S1750750AbWIAGj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 02:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWIAGj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 02:34:53 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:12980 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751197AbWIAGex (ORCPT
+	Fri, 1 Sep 2006 02:39:59 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:28595 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1750750AbWIAGj6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 02:34:53 -0400
-Message-ID: <44F7D47E.7020906@cn.ibm.com>
-Date: Fri, 01 Sep 2006 14:34:38 +0800
-From: Yao Fei Zhu <walkinair@cn.ibm.com>
-Reply-To: walkinair@cn.ibm.com
-Organization: IBM
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: kernel BUG in __xfs_get_blocks at fs/xfs/linux-2.6/xfs_aops.c:1293!
-References: <44F67847.6030307@cn.ibm.com> <20060831074742.GD807830@melbourne.sgi.com> <44F6979C.4070309@cn.ibm.com> <20060831081726.GV5737019@melbourne.sgi.com>
-In-Reply-To: <20060831081726.GV5737019@melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 02:39:58 -0400
+Date: Fri, 1 Sep 2006 08:43:19 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] [ BUG: bad unlock balance detected! ] in 2.6.18-rc5
+Message-ID: <20060901064319.GA2065@ff.dom.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner wrote:
+Hi,
 
->But that might be a good place to start. Can you see if you can
->reproduce the problem without this config option set?
->  
->
-No, I can't reproduce this prlblem without the CONFIG_PPC_64K_PAGES
-config option set, the fsstress testcase works fine.
+Some time ago I wrote about this bug in rc3.
+I see it's still in 2.6.18-rc5 so here is what
+I've found: with config like this:
 
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_LOCKDEP=y
+CONFIG_DEBUG_LOCK_ALLOC=y
+# CONFIG_PROVE_LOCKING is not set
 
+spin_unlock_irqrestore() goes through lockdep
+but spin_lock_irqrestore() doesn't.
+
+I attach my proposal how to fix this.
+
+Jarek P.
+
+diff -Nru linux-2.6.18-rc5-/kernel/spinlock.c linux-2.6.18-rc5/kernel/spinlock.c
+--- linux-2.6.18-rc5-/kernel/spinlock.c	2006-08-30 02:20:46.000000000 +0200
++++ linux-2.6.18-rc5/kernel/spinlock.c	2006-09-01 00:27:35.000000000 +0200
+@@ -72,7 +72,7 @@
+  * not re-enabled during lock-acquire (which the preempt-spin-ops do):
+  */
+ #if !defined(CONFIG_PREEMPT) || !defined(CONFIG_SMP) || \
+-	defined(CONFIG_PROVE_LOCKING)
++	defined(CONFIG_DEBUG_LOCK_ALLOC)
+ 
+ void __lockfunc _read_lock(rwlock_t *lock)
+ {

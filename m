@@ -1,39 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWIADCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWIADIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWIADCs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 23:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWIADCs
+	id S1750883AbWIADIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWIADIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 23:02:48 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:26781 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750819AbWIADCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 23:02:47 -0400
-X-Sasl-enc: FirVqrsVQwv2d5a8YzEwlG0i3miptMMw7jHngZt5hr4b 1157079765
-Date: Fri, 1 Sep 2006 11:02:34 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Josef Sipek <jsipek@cs.sunysb.edu>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH 09/22][RFC] Unionfs: File operations
-In-Reply-To: <20060901014818.GJ5788@fsl.cs.sunysb.edu>
-Message-ID: <Pine.LNX.4.64.0609011101020.3811@raven.themaw.net>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901014818.GJ5788@fsl.cs.sunysb.edu>
+	Thu, 31 Aug 2006 23:08:15 -0400
+Received: from flpvm09.prodigy.net ([207.115.20.39]:8407 "EHLO
+	flpvm09.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750868AbWIADIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 23:08:15 -0400
+X-ORBL: [68.95.116.149]
+Message-ID: <44F7A404.1070502@ksu.edu>
+Date: Thu, 31 Aug 2006 22:07:48 -0500
+From: "Scott J. Harmon" <harmon@ksu.edu>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060727)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Chris Wedgwood <cw@f00f.org>, vsu@altlinux.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: acpi gets wrong interrupt for via sata in 2.6.16.17
+References: <449DE6BA.2050206@ksu.edu>	<20060625132457.4b0922b4.vsu@altlinux.ru>	<44A1C78C.4090401@ksu.edu>	<44ADAB1F.6040208@ksu.edu>	<20060706181453.3ce5a1c5.akpm@osdl.org>	<20060707034735.GA12908@tuatara.stupidest.org> <20060706205509.4e4ae2ee.akpm@osdl.org>
+In-Reply-To: <20060706205509.4e4ae2ee.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Aug 2006, Josef Sipek wrote:
+This is _still_ a problem with 2.6.17.11
 
-> +	if (err < 0)
-> +		goto out;
-> +	if (err != file->f_pos) {
-> +		file->f_pos = err;
-> +		// ION maybe this?
-> +		//      file->f_pos = hidden_file->f_pos;
+Thanks,
 
-Do you really want to keep this comment, perhaps it's time to decide?
+Scott.
 
-Ian
+Andrew Morton wrote:
+> On Thu, 6 Jul 2006 20:47:35 -0700
+> Chris Wedgwood <cw@f00f.org> wrote:
+> 
+>> On Thu, Jul 06, 2006 at 06:14:53PM -0700, Andrew Morton wrote:
+>>
+>>> I have both reversion patches queued up but haven't heard from
+>>> anyone about anything.
+>> i saw that --- i don't think it's right, but it's not more wrong than
+>> having that merged as-is in the first place which i'll argue is wrong
+>> by virtue of the fact we run the quirk everywhere and apparently break
+>> things
+>>
+>>> I don't know if anyone's working on this bug.
+>> it's not forgotten, i'm waiting to hear back from people still.
+>> enabling ACPI *should* suffice, but for some people clearly it doesn't
+>> (there are claims VIA got their ACPI wrong so this might explain why
+>> it works for some people and not others)
+>>
+>>> Thursday is my subsystem-maintainer-spamming day, so the reverts
+>>> will be heading Gregwards today.
+>> like i said, i really don't think reverting the patches is technically
+>> correct, but given that i don't have adequate hardware to test against
+>> it might be the least painful option right now
+> 
+> Yes, it's a question of whose machines we choose to break.
+> 
+> It'd be great to get this thing nailed.  Do the people who are out testing
+> things need re-asking?  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+"Computer Science is no more about computers than astronomy is about
+telescopes." - Edsger Dijkstra

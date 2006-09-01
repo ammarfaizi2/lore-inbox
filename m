@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIAEMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWIAENJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWIAEMg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 00:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWIAEMg
+	id S932079AbWIAENJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 00:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWIAENJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 00:12:36 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:2986 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932070AbWIAEMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 00:12:35 -0400
-Date: Fri, 1 Sep 2006 05:12:21 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Len Brown <lenb@kernel.org>
-Cc: jg@laptop.org, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
-Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
-Message-ID: <20060901041221.GA15330@srcf.ucam.org>
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain> <200608312353.05337.len.brown@intel.com>
+	Fri, 1 Sep 2006 00:13:09 -0400
+Received: from 1wt.eu ([62.212.114.60]:52241 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932079AbWIAENH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 00:13:07 -0400
+Date: Fri, 1 Sep 2006 05:48:34 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Chris Snook <csnook@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.33.2] enforce RLIMIT_NOFILE in poll()
+Message-ID: <20060901034834.GB28317@1wt.eu>
+References: <20060901.PbR.07536400@egw.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608312353.05337.len.brown@intel.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+In-Reply-To: <20060901.PbR.07536400@egw.corp.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 31, 2006 at 11:53:04PM -0400, Len Brown wrote:
+Hi Chris,
 
-> The Geode doesn't suport any C-states -- so ACPI wouldn't help them there anyway.
+On Thu, Aug 31, 2006 at 09:06:55PM -0400, Chris Snook wrote:
+> From: Chris Snook <csnook@redhat.com>
+> 
+> POSIX states that poll() shall fail with EINVAL if nfds > OPEN_MAX.  In this
+> context, POSIX is referring to sysconf(OPEN_MAX), which is the value of
+> current->rlim[RLIMIT_NOFILE].rlim_cur, not the compile-time constant which
+> happens to be named OPEN_MAX.  The current code will permit polling up to 1024
+> file descriptors even if RLIMIT_NOFILE is less than 1024, which POSIX forbids.
+>  The current code also breaks polling greater than 1024 file descriptors if
+> the process has less than 1024 valid descriptors, even if RLIMIT_NOFILE >
+> 1024.  While it is silly to poll duplicate or invalid file descriptors, POSIX
+> permits this, and it worked circa 2.4.18, and currently works up to 1024.
+> This patch directly checks the RLIMIT_NOFILE value, and permits exactly what
+> POSIX suggests, no more, no less.
 
-Are you sure of that? The docs I have here suggest C1 and C2, but it's 
-possible that that's just the companion chip and they aren't implemented 
-in the CPU.
+While I understand that it was a bug before, I fear that it could break
+existing apps. Are you aware of some apps which do not work as expected
+because of this bug ? If not, I'd prefer to wait for some feedback from
+2.6 with this fix before applying it (or maybe you're already using it
+in RHEL with success ?).
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Thanks,
+Willy
+
+> Signed-off-by: Chris Snook <csnook@redhat.com>
+> ---
+> 
+> diff -urNp linux-2.4.33.2-orig/fs/select.c linux-2.4.33.2-patch/fs/select.c
+> --- linux-2.4.33.2-orig/fs/select.c	2006-08-22 16:13:54.000000000 -0400
+> +++ linux-2.4.33.2-patch/fs/select.c	2006-08-31 13:43:39.000000000 -0400
+> @@ -417,7 +417,7 @@ asmlinkage long sys_poll(struct pollfd *
+>  	int nchunks, nleft;
+> 
+>  	/* Do a sanity check on nfds ... */
+> -	if (nfds > current->files->max_fdset && nfds > OPEN_MAX)
+> +	if (nfds > current->rlim[RLIMIT_NOFILE].rlim_cur)
+>  		return -EINVAL;
+> 
+>  	if (timeout) {

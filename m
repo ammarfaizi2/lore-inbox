@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWIAQBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWIAQCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWIAQBb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWIAQBa
+	id S932418AbWIAQCN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWIAQCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:01:30 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7321 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932261AbWIAQB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:01:29 -0400
-Date: Fri, 1 Sep 2006 11:01:20 -0500 (CDT)
-From: John Keller <jpk@sgi.com>
-To: linux-ia64@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, ayoung@sgi.com, linux-kernel@vger.kernel.org,
-       John Keller <jpk@sgi.com>, pcihpd-discuss@lists.sourceforge.net
-Message-Id: <20060901160120.30625.14877.92881@attica.americas.sgi.com>
-Subject: [PATCH 0/3] - Altix: Add initial ACPI IO support
+	Fri, 1 Sep 2006 12:02:12 -0400
+Received: from mail.gmx.net ([213.165.64.20]:6799 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932278AbWIAQCK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:02:10 -0400
+X-Authenticated: #24096462
+Date: Fri, 1 Sep 2006 18:02:30 +0200
+From: Jan-Hendrik Zab <xaero@gmx.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [linux-usb-devel] Problem with USB storage devices, error -110
+Message-ID: <20060901180230.100f5783@localhost>
+In-Reply-To: <Pine.LNX.4.44L0.0609011006190.6444-100000@iolanthe.rowland.org>
+References: <20060831202621.1ae04865@localhost>
+	<Pine.LNX.4.44L0.0609011006190.6444-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed-Claws 2.4.0cvs113 (GTK+ 2.10.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch set to add initial ACPI IO support to Altix.
+On Fri, 1 Sep 2006 10:12:35 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-1/3 acpi-base-support.patch
-      When booting with an ACPI capable PROM, the
-      DSDT will now define the system nodes and root
-      PCI busses. An Altix specific ACPI driver will be
-      registered for the node devices, while the
-      standard acpi_pci_root_driver can now scan
-      the PCI busses, eliminating the need for the current
-      fixup code to manually initiate the scan. Multiple SAL
-      calls are no longer needed, as platform specific info
-      is now passed via the ACPI vendor resource descriptor
-      (though all the old fixup code still remains due
-      to backward compatability requirements).
+> It seems pretty clear that the UHCI controller hardware on your PCI
+> card isn't working.  The "len=-8/64" messages are a dead giveaway;
+> you can't get a negative length with a timeout failure if the
+> controller is working right.  At least, not unless you have some
+> other USB devices already attached to the same controller and using
+> up all the bandwidth.
+> 
+> The fact that it fails in the same way with all the USB devices you
+> attach is another indicator that the controller is bad.
 
-      A new platform vector for bus_fixup is created.
-      The size of io_space[] is increased to support large
-      IO configurations.
+Thanks for the answers. :)
 
-2/3 acpi-hotplug.patch
-      Make necessary changes to hotplug code now that
-      bus fixup is done via platform vector.
+There is also a HP Deskjet 5652 attached to the card which is
+recognized correctly and works just fine, as long as I do not insert
+any USB storage device. Of course the printer is just a USB 1.1 device.
+So I've tried without the ehci_hcd module loaded and everything seemed
+to work as it should. (Well, sorry for not trying this earlier.) So, at
+least the UHCI part seems to work as long as there are no EHCI
+'functions' involved.
+I'll try to get a new adaptor card then. 
 
-3/3 acpi-rom-shadow.patch
-      Provide support for PROM shadowing of a ROM image.
+Greets,
+    Jan-Hendrik Zab
+

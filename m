@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWIAMed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWIAMmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWIAMed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 08:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIAMed
+	id S1750730AbWIAMmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 08:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIAMmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 08:34:33 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:52637 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751133AbWIAMec (ORCPT
+	Fri, 1 Sep 2006 08:42:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30618 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750730AbWIAMmW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 08:34:32 -0400
-Date: Fri, 1 Sep 2006 14:30:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 01/16] GFS2: Core header files
-In-Reply-To: <1157109170.3384.831.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609011425280.15283@yvahk01.tjqt.qr>
-References: <1157030918.3384.785.camel@quoit.chygwyn.com> 
- <Pine.LNX.4.61.0608311607441.5900@yvahk01.tjqt.qr> 
- <1157036840.3384.827.camel@quoit.chygwyn.com>  <Pine.LNX.4.61.0608311929100.19403@yvahk01.tjqt.qr>
- <1157109170.3384.831.camel@quoit.chygwyn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 1 Sep 2006 08:42:22 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 1/2] Check if start address is in vma region in NOMMU function get_user_pages().
+Date: Fri, 01 Sep 2006 13:42:07 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com
+Message-Id: <20060901124207.26038.24367.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Sonic Zhang <sonic.adi@gmail.com>
 
->http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=e9fc2aa091ab8fa46e60d4c9d06a89305c441652
->
->addresses the issues you raised in your first email. I'm working on a
->patch to deal with the second set of issues you raised at the moment,
+Hi,
 
-Yes that looks good. The 'uint32_t __pad' -> 'u32 __pad' change I will 
-address in the next mail I am currently composing.
+In NOMMU arch, if run "cat /proc/self/mem", data from physical address
+0 are read. This behavior is different from MMU arch.  In IA32,
+message "cat: /proc/self/mem: Input/output error" is reported.
 
-(And if I may add: I would have split that commit into three commits - one 
-for each paragraph you wrote in the changelog :-)
+This issue is rootcaused by not validate the start address in NOMMU
+function get_user_pages(). Following patch solves this issue.
 
-Hm copy and paste from Firefox to xterm removes all the indenting.
-opening the url with w3m already has all indent removed too. What's wrong with
-the gitweb today? :-(
+Thanks
 
+Sonic Zhang
 
 
-Jan Engelhardt
--- 
+Signed-off-by: Sonic Zhang <sonic.adi@gmail.com>
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ mm/nommu.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 3215f46..2fe3fe4 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -129,16 +129,20 @@ int get_user_pages(struct task_struct *t
+ 	struct page **pages, struct vm_area_struct **vmas)
+ {
+ 	int i;
+-	static struct vm_area_struct dummy_vma;
++	struct vm_area_struct *vma;
+ 
+ 	for (i = 0; i < len; i++) {
++		vma = find_vma(mm, start);
++		if(!vma)
++			return i ? : -EFAULT;
++		
+ 		if (pages) {
+ 			pages[i] = virt_to_page(start);
+ 			if (pages[i])
+ 				page_cache_get(pages[i]);
+ 		}
+ 		if (vmas)
+-			vmas[i] = &dummy_vma;
++			vmas[i] = vma;
+ 		start += PAGE_SIZE;
+ 	}
+ 	return(i);

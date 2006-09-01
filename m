@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWIAAEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWIAAIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWIAAEs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 20:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWIAAEs
+	id S964825AbWIAAIP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 20:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIAAIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 20:04:48 -0400
-Received: from wx-out-0506.google.com ([66.249.82.238]:50163 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932410AbWIAAEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 20:04:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LFKbW6peqaaeXTKrNDdfQOm8c9ti8ViN0C/Q6i5eDDuPGPsVqohqM5HoaewBdtnSww+FH9mfHq+oFFx9NIGLST1YZRM9bjMAsXZoZpMVbG+8/zeNf6eutzmKlOkdUNQHMSvK0tIzSYb3euJsEXYo1jMTxNaHdcW7pEbqfCX4yDA=
-Message-ID: <728201270608311704n6c505bdcy3abfd7be483be950@mail.gmail.com>
-Date: Thu, 31 Aug 2006 19:04:46 -0500
-From: "Ram Gupta" <ram.gupta5@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: [PATCH]mm:Updating comments to reflect current code
-Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>, trivial@kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Aug 2006 20:08:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5522 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964825AbWIAAIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 20:08:14 -0400
+Date: Fri, 1 Sep 2006 10:07:45 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement
+Message-ID: <20060901100745.P3186664@wobbly.melbourne.sgi.com>
+References: <44F77653.6000606@student.ltu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <44F77653.6000606@student.ltu.se>; from ricknu-0@student.ltu.se on Fri, Sep 01, 2006 at 01:52:51AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the comments for __oom_kill_task function to
-reflect the code changes. Please apply
+On Fri, Sep 01, 2006 at 01:52:51AM +0200, Richard Knutsson wrote:
+> From: Richard Knutsson <ricknu-0@student.ltu.se>
+> 
+> Converting error-prone statement:
+> "if (var == B_FALSE)" into "if (!var)"
+> "if (var == B_TRUE)"  into "if (var)"
 
-Signed-off-by: Ram Gupta<r.gupta@astronautics.com>
------
+This is my preference too, rather than the local boolean usage which
+isn't used with any consistency... but:
 
---- linux-2.6.18-rc5-rg/mm/oom_kill.c.orig      2006-08-31
-18:03:29.000000000 -0500
-+++ linux-2.6.18-rc5-rg/mm/oom_kill.c   2006-08-31 18:17:50.000000000 -0500
-@@ -221,9 +221,9 @@ static struct task_struct *select_bad_pr
- }
+> Compile-tested
 
- /**
-- * We must be careful though to never send SIGKILL a process with
-- * CAP_SYS_RAW_IO set, send SIGTERM instead (but it's unlikely that
-- * we select a process with CAP_SYS_RAW_IO set).
-+ * Send SIGKILL to the selected  process irrespective of  CAP_SYS_RAW_IO
-+ * flag though it's unlikely that  we select a process with CAP_SYS_RAW_IO
-+ * set.
-  */
- static void __oom_kill_task(struct task_struct *p, const char *message)
- {
+Are you using XFS on your systems?  What is your strategy for getting this
+runtime tested going to be?  Or are you delegating that responsibility? :)
 
-Thanks
-Ram Gupta
+cheers.
+
+-- 
+Nathan

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWIAHyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWIAH7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWIAHyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 03:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWIAHyZ
+	id S1750859AbWIAH7J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 03:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWIAH7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 03:54:25 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:56034 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP
-	id S1750712AbWIAHyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 03:54:25 -0400
-Message-ID: <44F7E74E.2060705@nachtwindheim.de>
-Date: Fri, 01 Sep 2006 09:54:54 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: mingo@redhead.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [KERNELDOC] documentation for lock_key in struct hrtimer_base
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Sep 2006 03:59:09 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:23784 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S1750859AbWIAH7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 03:59:08 -0400
+Subject: Processor Serial Numbers (PSN) - can it be enabled on Pentium 4
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: linux-kernel@vger.kernel.org
+Cc: Piet Delaney <piet@bluelane.com>
+Content-Type: text/plain
+Organization: BlueLane Tech,
+Date: Fri, 01 Sep 2006 00:59:03 -0700
+Message-Id: <1157097544.24314.136.camel@piet2.bluelane.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4-3mdk 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Sep 2006 07:59:07.0308 (UTC) FILETIME=[800596C0:01C6CD9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Can the Processor Serial Numbers (PSN) - can it be enabled on Pentium 4.
+cpuid seems to always come up the same and I only
+found references to it being enabled for Pentium 3.
 
-Fixes an errormessage on make xmldocs.
-If somebody has a better description for lock_key, then please post it before
-2.6.18.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+-piet
 
----
-
---- linux-2.6.18-rc5/include/linux/hrtimer.h	2006-08-28 10:02:06.000000000 +0200
-+++ linux-2.6.18-rc5/include/linux/hrtimer.h_new	2006-09-01 09:22:20.000000000 +0200
-@@ -80,6 +80,7 @@
-  * @get_softirq_time:	function to retrieve the current time from the softirq
-  * @curr_timer:		the timer which is executing a callback right now
-  * @softirq_time:	the time when running the hrtimer queue in the softirq
-+ * @lock_key:		the lock_class_key for use with lockdep
-  */
- struct hrtimer_base {
- 	clockid_t		index;
+-- 
+Piet Delaney
+BlueLane Teck
+W: (408) 200-5256; piet@bluelane.com
+H: (408) 243-8872; piet@piet.net
 
 

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWIAUp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWIAVBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWIAUp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 16:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWIAUp3
+	id S1750857AbWIAVBl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWIAVBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 16:45:29 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:41858 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750763AbWIAUp2 (ORCPT
+	Fri, 1 Sep 2006 17:01:41 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:35981 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750834AbWIAVBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 16:45:28 -0400
-Subject: Re: [openib-general] 2.6.18-rc5-mm1:
-	drivers/infiniband/hw/amso1100/c2.c compile error
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, Adrian Bunk <bunk@stusta.de>,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <ada8xl3ics4.fsf@cisco.com>
-References: <20060901015818.42767813.akpm@osdl.org>
-	 <20060901160023.GB18276@stusta.de> <20060901101340.962150cb.akpm@osdl.org>
-	 <adak64nij8f.fsf@cisco.com> <20060901112312.5ff0dd8d.akpm@osdl.org>
-	 <ada8xl3ics4.fsf@cisco.com>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 13:45:27 -0700
-Message-Id: <1157143527.20958.8.camel@chalcedony.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 1 Sep 2006 17:01:39 -0400
+Message-ID: <44F89FAF.2050601@us.ibm.com>
+Date: Fri, 01 Sep 2006 14:01:35 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, sct@redhat.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+References: <1157125829.30578.6.camel@dyn9047017100.beaverton.ibm.com>	<Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk>	<1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com> <20060901101801.7845bca2.akpm@osdl.org>
+In-Reply-To: <20060901101801.7845bca2.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 12:53 -0700, Roland Dreier wrote:
+Andrew Morton wrote:
+> On Fri, 01 Sep 2006 09:32:22 -0700
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>   
+>>>> Kernel BUG at fs/buffer.c:2791
+>>>> invalid opcode: 0000 [1] SMP
+>>>>
+>>>> Its complaining about BUG_ON(!buffer_mapped(bh)).
+>>>>         
+>
+> I need to have a little think about this, remember what _should_ be
+> happening in this situation.
+>
+> We (mainly I) used to do a huge amount of fsx-linux testing on 1k blocksize
+> filesystems.  We've done something to make this start happening.  Part of
+> resolving this bug will be working out what that was.
+>   
 
-> Yes, I agree that's a good plan, especially the documentation part.
-> However I would argue that what's in drivers/infiniband/hw/mthca/mthca_doorbell.h 
-> is legitimate: the driver uses __raw_writeq() when it exists and uses
-> two __raw_writel()s properly serialized with a device-specific lock to
-> get exactly the atomicity it needs on 32-bit archs.
+Here is the progress in tracking this down so far.
 
-On the off chance that you might be arguing that mthca_write64 could be
-a candidate drop-in for writeq on 32-bit arches:
+I am able to reproduce the problem on following kernel versions.
 
-That approach might work on mthca hardware, but it's not safe in
-general.  The ipath driver requires a proper writeq(), for example,
-because the hardware will quite legitimately treat 32-bit writes to some
-registers as separate accesses, and screw things up royally.
+2.6.18-rc5
+2.6.18-rc4
+2.6.17.11
+2.6.16.28
+2.6.15.7
+2.6.14.7
 
-You get atomicity from the perspective of software with this approach,
-but you can do exciting and bad things to hardware.
+I am yet to find a latest kernel version - where this works :(
+I am going to try older versions of the kernel.
 
-	<b
+Thanks,
+Badari
 
 
 -- 
-VGER BF report: H 3.23386e-12
+VGER BF report: H 3.60822e-15

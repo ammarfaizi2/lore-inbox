@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWIADwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWIADyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWIADwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 23:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWIADwI
+	id S1751097AbWIADyc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWIADyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 23:52:08 -0400
-Received: from hera.kernel.org ([140.211.167.34]:10689 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750967AbWIADwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 23:52:05 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: jg@laptop.org
-Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
-Date: Thu, 31 Aug 2006 23:53:04 -0400
-User-Agent: KMail/1.8.2
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain>
-In-Reply-To: <1157070616.7974.232.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 31 Aug 2006 23:54:32 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:31161 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751097AbWIADyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 23:54:31 -0400
+Date: Fri, 1 Sep 2006 12:56:48 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
+Cc: kmannth@us.ibm.com, bjorn.helgaas@hp.com, lenb@kernel.org,
+       robert.moore@intel.com, shaohua.li@intel.com, malattia@linux.it,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception code: 
+ 0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+Message-Id: <20060901125648.11883533.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <49303.24.9.204.52.1157080555.squirrel@mail.cce.hp.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
+	<200608310248.29861.len.brown@intel.com>
+	<1157042913.7859.31.camel@keithlap>
+	<200608311707.00817.bjorn.helgaas@hp.com>
+	<1157073592.5649.29.camel@keithlap>
+	<49303.24.9.204.52.1157080555.squirrel@mail.cce.hp.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608312353.05337.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 August 2006 20:30, Jim Gettys wrote:
-> On Thu, 2006-08-31 at 17:13 -0600, Bjorn Helgaas wrote:
-> > On Wednesday 30 August 2006 13:43, Matthew Garrett wrote:
-> > > That would be helpful. For the One Laptop Per Child project (or whatever 
-> > > it's called today), it would be advantageous to run without acpi.
-> > 
-> > Out of curiosity, what is the motivation for running without acpi?
-> > It costs a lot to diverge from the mainstream in areas like that,
-> > so there must be a big payoff.  But maybe if OLPC depends on acpi
-> > being smarter about power or code size or whatever, those improvements
-> > could be made and everybody would benefit.
+On Thu, 31 Aug 2006 21:15:55 -0600 (MDT)
+"Bjorn Helgaas" <bjorn.helgaas@hp.com> wrote:
+
+> Ok, this is starting to make sense.  It sounds like your memory
+> device has _HID of PNP0C80 and _CID of PNP0C01 (or PNP0C02).
 > 
-> Good question; I see Matthew beat me to part of the explanation, but
-> here is more detail:
+> The current ACPI driver binding algorithm in acpi_bus_find_driver()
+> looks at each driver, checking whether it can match either the _HID
+> or the _CID of a device.  Since we try the motherboard driver first,
+> it matches the memory device _CID.
+> 
+> I couldn't find a specific reference in the spec, but this seems
+> intuitively sub-optimal.  It seems like it'd be better to look
+> first for a driver that can claim the _HID (which is more specific),
+> and only fall back to checking the _CIDs if no _HID-specific driver
+> is found.
+> 
+I like it :)
 
-I recommended that the OLPC guys not use ACPI.
+-Kame
 
-I do not think it would benefit their system.  Although it is an i386
-instruction set, their system is more like an embedded device than
-like a traditional laptop.
-
-The Geode doesn't suport any C-states -- so ACPI wouldn't help them there anyway.
-
-As Jim wrote, OLPC plans to suspend-to-ram from idle, and to keep video running,
-so ACPI wouldn't help them on that either.
-
-Re: optimizing suspend/resume speed
-I expect suspend/resume speed has more to do with devices than with ACPI.
-But frankly, with gaping functionality holes in Linux suspend/resume support such as
-IDE and SATA, I think that optimizing for suspend/resume speed on a mainstream laptop
-is somewhat "forward looking".
-
--Len

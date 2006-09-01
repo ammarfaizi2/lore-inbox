@@ -1,89 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWIASmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWIATg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWIASmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 14:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIASmF
+	id S1751223AbWIATg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 15:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWIATg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 14:42:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:61358 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750749AbWIASmC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 14:42:02 -0400
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: schwidefsky@de.ibm.com
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       frankeh@watson.ibm.com
-In-Reply-To: <1157135504.21733.83.camel@localhost>
-References: <20060901110948.GD15684@skybase>
-	 <1157122667.28577.69.camel@localhost.localdomain>
-	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
-	 <1157126640.21733.43.camel@localhost>
-	 <1157127483.28577.117.camel@localhost.localdomain>
-	 <1157127943.21733.52.camel@localhost>
-	 <1157128634.28577.139.camel@localhost.localdomain>
-	 <1157129762.21733.63.camel@localhost>
-	 <1157130970.28577.150.camel@localhost.localdomain>
-	 <1157132520.21733.78.camel@localhost>
-	 <1157133780.18728.6.camel@localhost.localdomain>
-	 <1157133841.21733.79.camel@localhost>
-	 <1157135024.18728.19.camel@localhost.localdomain>
-	 <1157135504.21733.83.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 11:41:46 -0700
-Message-Id: <1157136106.18728.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 1 Sep 2006 15:36:26 -0400
+Received: from pih-relay05.plus.net ([212.159.14.132]:43449 "EHLO
+	pih-relay05.plus.net") by vger.kernel.org with ESMTP
+	id S1751223AbWIATgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 15:36:25 -0400
+Message-ID: <44F88B98.3020805@mauve.plus.com>
+Date: Fri, 01 Sep 2006 20:35:52 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Helge Hafting <helge.hafting@aitel.hist.no>, Rob Landley <rob@landley.net>,
+       linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
+Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
+References: <1156429585.3012.58.camel@pmac.infradead.org>	 <1156433068.3012.115.camel@pmac.infradead.org>	 <200608251611.50616.rob@landley.net>	 <1156538115.3038.6.camel@pmac.infradead.org>	 <44F2CB09.2010809@aitel.hist.no> <1156764076.5340.75.camel@pmac.infradead.org>
+In-Reply-To: <1156764076.5340.75.camel@pmac.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 20:31 +0200, Martin Schwidefsky wrote:
-> On Fri, 2006-09-01 at 11:23 -0700, Dave Hansen wrote:
-> > OK, and there's no other workable solution to exclude each other from
-> > running at the same time than a bit in page->flags?
-> > 
-> > It seems like that hashed lock (or lock in mem_map[]) we were talking
-> > about earlier might be applicable here, too.
-> 
-> The indication which page has already been removed from the page cache
-> by a discard fault is by definition per-page.
+David Woodhouse wrote:
+> On Mon, 2006-08-28 at 12:52 +0200, Helge Hafting wrote:
+>> And a "make optImage" (optimized image) when building a
+>> kernel for production use, when you believe compiling every file
+>> and spending lots of extra time is worth it. 
+<snip>
+> But if, as I suggest, we're doing the simple option which combines only
+> the files which tend to get most benefit from it -- those which are in
+> the same directory -- then there's not a lot of point in the separate
+> target. It really doesn't take that much extra time.
 
-Right.  So having a single bit that was set and cleared wouldn't work
-because it could get interpreted incorrectly for multiple pages.  But,
-what about a lock?
-
-> The situation is different
-> compared to the one with PG_state_change which is used to protect
-> critical sections. After the cpu left the critical section the bit can
-> be clear again. The discard bit cannot be cleared until the page really
-> has been freed.
-
-While something like the following wouldn't be scalable, it would
-functionally work, right?
-
-+static void __page_discard(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
-
-+void __delete_from_swap_cache(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
-
-+void __remove_from_page_cache(struct page *page)
-+{
-+	spin_lock(discard_lock);
-...
-+	spin_unlock(discard_lock);
-+}
-
-
--- Dave
-
+I thought that it used rather a lot more RAM. I still often(ish) compile 
+a kernel on my PII/300/128M. It'd be moderately annoying if it got 
+slower, and there was no way to turn it off.

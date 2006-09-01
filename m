@@ -1,141 +1,281 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWIAVdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWIAVcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWIAVdt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWIAVd2
+	id S1750913AbWIAVcq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 17:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWIAVcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:33:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36836 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750933AbWIAVdR (ORCPT
+	Fri, 1 Sep 2006 17:32:46 -0400
+Received: from cantor.suse.de ([195.135.220.2]:28808 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750913AbWIAVcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:33:17 -0400
-Date: Fri, 1 Sep 2006 14:26:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Adrian Bunk <bunk@stusta.de>,
-       Tom Tucker <tom@opengridcomputing.com>,
-       Steve Wise <swise@opengridcomputing.com>,
-       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile
- error
-Message-Id: <20060901142606.4f5c1152.akpm@osdl.org>
-In-Reply-To: <adar6yvguvz.fsf@cisco.com>
-References: <20060901015818.42767813.akpm@osdl.org>
-	<20060901160023.GB18276@stusta.de>
-	<20060901101340.962150cb.akpm@osdl.org>
-	<adak64nij8f.fsf@cisco.com>
-	<20060901112312.5ff0dd8d.akpm@osdl.org>
-	<ada8xl3ics4.fsf@cisco.com>
-	<20060901130444.48f19457.akpm@osdl.org>
-	<20060901204343.GA4979@flint.arm.linux.org.uk>
-	<20060901135911.bc53d89a.akpm@osdl.org>
-	<adar6yvguvz.fsf@cisco.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 17:32:45 -0400
+Message-Id: <20060901221457.803728153@winden.suse.de>
+References: <20060901221421.968954146@winden.suse.de>
+User-Agent: quilt/0.44-16.4
+Date: Sat, 02 Sep 2006 00:14:22 +0200
+From: Andreas Gruenbacher <agruen@suse.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Generic infrastructure for acls
+Content-Disposition: inline; filename=generic-acl.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Sep 2006 14:05:36 -0700
-Roland Dreier <rdreier@cisco.com> wrote:
+Add some infrastructure for access control lists on in-memory
+filesystems such as tmpfs.
 
->     Andrew> If the hardware/driver absolutely requires that the 64-bit
->     Andrew> write be atomic on-the-bus then sure, the fix is to
->     Andrew> disable that driver on that architecture in Kconfig.
-> 
->     Andrew> If, however, the atomicity requirement is a software thing
->     Andrew> (we need to be atomic against other CPU reads and writes)
->     Andrew> then that can be solved with locking, and we can design
->     Andrew> APIs for this which can be implemented efficiently on all
->     Andrew> architectures.
-> 
-> It seems that there are cases of both.  ipath needs actual 64-bit bus
-> transactions to work properly.
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-If we define __raw_writeq() to be 64-bit-atomic-on-the-bus then an
-appropriate solution for ipath would be to call __raw_writeq() directly. 
-If the arch cannot implement __raw_write() then build error -> Kconfig fix.
+---
+ fs/Kconfig                  |    4 +
+ fs/Makefile                 |    1 
+ fs/generic_acl.c            |  172 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/generic_acl.h |   30 +++++++
+ 4 files changed, 207 insertions(+)
 
->  mthca needs to make sure that if
-> doorbell writes are split into two 32-bit halves, then no other writes
-> go to the same MMIO page in between the halves.
-> 
-> What do you think the API would look like?  Something along the lines
-> of mthca_doorbell.h, where we have macros for
-> 
-> DECLARE_WRITEQ_LOCK()
-> INIT_WRITEQ_LOCK()
-> GET_WRITEQ_LOCK()
-> 
-> which get stubbed out on architectures where writeq is already atomic,
-> and then pass the lock into writeq()?
-> 
-> But then you probably need some Kconfig symbol to say if writeq() is
-> really atomic or just software atomic (for ipath et al to depend on).
-> 
+Index: linux-2.6.18-rc5/fs/Kconfig
+===================================================================
+--- linux-2.6.18-rc5.orig/fs/Kconfig
++++ linux-2.6.18-rc5/fs/Kconfig
+@@ -1921,6 +1921,10 @@ config 9P_FS
+ 
+ 	  If unsure, say N.
+ 
++config GENERIC_ACL
++	bool
++	select FS_POSIX_ACL
++
+ endmenu
+ 
+ menu "Partition Types"
+Index: linux-2.6.18-rc5/fs/Makefile
+===================================================================
+--- linux-2.6.18-rc5.orig/fs/Makefile
++++ linux-2.6.18-rc5/fs/Makefile
+@@ -35,6 +35,7 @@ obj-$(CONFIG_BINFMT_FLAT)	+= binfmt_flat
+ obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
+ obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
+ obj-$(CONFIG_NFS_COMMON)	+= nfs_common/
++obj-$(CONFIG_GENERIC_ACL)	+= generic_acl.o
+ 
+ obj-$(CONFIG_QUOTA)		+= dquot.o
+ obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
+Index: linux-2.6.18-rc5/include/linux/generic_acl.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc5/include/linux/generic_acl.h
+@@ -0,0 +1,30 @@
++/*
++ * fs/generic_acl.c
++ *
++ * (C) 2005 Andreas Gruenbacher <agruen@suse.de>
++ *
++ * This file is released under the GPL.
++ */
++
++#ifndef GENERIC_ACL_H
++#define GENERIC_ACL_H
++
++#include <linux/posix_acl.h>
++#include <linux/posix_acl_xattr.h>
++
++struct generic_acl_operations {
++	struct posix_acl *(*getacl)(struct inode *, int);
++	void (*setacl)(struct inode *, int, struct posix_acl *);
++};
++
++size_t generic_acl_list(struct inode *, struct generic_acl_operations *, int,
++			char *, size_t);
++int generic_acl_get(struct inode *, struct generic_acl_operations *, int,
++		    void *, size_t);
++int generic_acl_set(struct inode *, struct generic_acl_operations *, int,
++		    const void *, size_t);
++int generic_acl_init(struct inode *, struct inode *,
++		     struct generic_acl_operations *);
++int generic_acl_chmod(struct inode *, struct generic_acl_operations *);
++
++#endif
+Index: linux-2.6.18-rc5/fs/generic_acl.c
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc5/fs/generic_acl.c
+@@ -0,0 +1,172 @@
++/*
++ * fs/generic_acl.c
++ *
++ * (C) 2005 Andreas Gruenbacher <agruen@suse.de>
++ *
++ * This file is released under the GPL.
++ */
++
++#include <linux/sched.h>
++#include <linux/fs.h>
++#include <linux/generic_acl.h>
++
++size_t
++generic_acl_list(struct inode *inode, struct generic_acl_operations *ops,
++		 int type, char *list, size_t list_size)
++{
++	struct posix_acl *acl;
++	const char *name;
++	size_t size;
++
++	acl = ops->getacl(inode, type);
++	if (!acl)
++		return 0;
++	posix_acl_release(acl);
++
++	switch(type) {
++		case ACL_TYPE_ACCESS:
++			name = POSIX_ACL_XATTR_ACCESS;
++			break;
++
++		case ACL_TYPE_DEFAULT:
++			name = POSIX_ACL_XATTR_DEFAULT;
++			break;
++
++		default:
++			return 0;
++	}
++	size = strlen(name) + 1;
++	if (list && size <= list_size)
++		memcpy(list, name, size);
++	return size;
++}
++
++int
++generic_acl_get(struct inode *inode, struct generic_acl_operations *ops,
++		int type, void *buffer, size_t size)
++{
++	struct posix_acl *acl;
++	int error;
++
++	acl = ops->getacl(inode, type);
++	if (!acl)
++		return -ENODATA;
++	error = posix_acl_to_xattr(acl, buffer, size);
++	posix_acl_release(acl);
++
++	return error;
++}
++
++int
++generic_acl_set(struct inode *inode, struct generic_acl_operations *ops,
++		int type, const void *value, size_t size)
++{
++	struct posix_acl *acl = NULL;
++	int error;
++
++	if (S_ISLNK(inode->i_mode))
++		return -EOPNOTSUPP;
++	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
++		return -EPERM;
++	if (value) {
++		acl = posix_acl_from_xattr(value, size);
++		if (IS_ERR(acl))
++			return PTR_ERR(acl);
++	}
++	if (acl) {
++		mode_t mode;
++
++		error = posix_acl_valid(acl);
++		if (error)
++			goto failed;
++		switch(type) {
++			case ACL_TYPE_ACCESS:
++				mode = inode->i_mode;
++				error = posix_acl_equiv_mode(acl, &mode);
++				if (error < 0)
++					goto failed;
++				inode->i_mode = mode;
++				if (error == 0) {
++					posix_acl_release(acl);
++					acl = NULL;
++				}
++				break;
++
++			case ACL_TYPE_DEFAULT:
++				if (!S_ISDIR(inode->i_mode)) {
++					error = -EINVAL;
++					goto failed;
++				}
++				break;
++		}
++	}
++	ops->setacl(inode, type, acl);
++	error = 0;
++failed:
++	posix_acl_release(acl);
++	return error;
++}
++
++int
++generic_acl_init(struct inode *inode, struct inode *dir,
++		 struct generic_acl_operations *ops)
++{
++	struct posix_acl *acl = NULL;
++	mode_t mode = inode->i_mode;
++	int error;
++
++	inode->i_mode = mode & ~current->fs->umask;
++	if (!S_ISLNK(inode->i_mode))
++		acl = ops->getacl(dir, ACL_TYPE_DEFAULT);
++	if (acl) {
++		struct posix_acl *clone;
++
++		if (S_ISDIR(inode->i_mode)) {
++			clone = posix_acl_clone(acl, GFP_KERNEL);
++			error = -ENOMEM;
++			if (!clone)
++				goto cleanup;
++			ops->setacl(inode, ACL_TYPE_DEFAULT, clone);
++			posix_acl_release(clone);
++		}
++		clone = posix_acl_clone(acl, GFP_KERNEL);
++		error = -ENOMEM;
++		if (!clone)
++			goto cleanup;
++		error = posix_acl_create_masq(clone, &mode);
++		if (error >= 0) {
++			inode->i_mode = mode;
++			if (error > 0) {
++				ops->setacl(inode, ACL_TYPE_ACCESS, clone);
++			}
++		}
++		posix_acl_release(clone);
++	}
++	error = 0;
++
++cleanup:
++	posix_acl_release(acl);
++	return error;
++}
++
++int
++generic_acl_chmod(struct inode *inode, struct generic_acl_operations *ops)
++{
++	struct posix_acl *acl, *clone;
++	int error = 0;
++
++	if (S_ISLNK(inode->i_mode))
++		return -EOPNOTSUPP;
++	acl = ops->getacl(inode, ACL_TYPE_ACCESS);
++	if (acl) {
++		clone = posix_acl_clone(acl, GFP_KERNEL);
++		posix_acl_release(acl);
++		if (!clone)
++			return -ENOMEM;
++		error = posix_acl_chmod_masq(clone, inode->i_mode);
++		if (!error)
++			ops->setacl(inode, ACL_TYPE_ACCESS, clone);
++		posix_acl_release(clone);
++	}
++	return error;
++}
 
-It depends on how many other devices have (or are expected to have)
-mthca-like requirements.  If the answer is "very few, maybe none" then
-perhaps we don't need to go designing generic interfaces to support such
-things.
-
-As for interfaces, umm, something like
-
-#ifdef CONFIG_ARCH_HAS_64BIT_ATOMIC_MMIO_WRITES
-
-struct be64_port {
-	void __iomem *addr;
-};
-
-static inline void atomic_be64_mmio_write(u64 v, struct be64_port *port)
-{
-	__raw_writeq(v, port->addr);
-}
-
-#define be64_port_init(port, addr)
-	port->addr = addr;
-
-#define be64_port_init_external_locking(port, addr, lockp)
-	be64_port_init(port, addr)
-
-
-#else
-
-
-struct be64_port {
-	void __iomem *addr;
-	spinlock_t lock;
-	spinlock_t *lockp;
-};
-
-static inline void atomic_be64_mmio_write(u64 v, struct be64_port *port)
-{
-	unsigned long flags;
-	
-	spin_lock_irqsave(port->lockp, flags);
-	__raw_writel(...);
-	__raw_writel(...);
-	spin_unlock_irqrestore(port->lockp, flags);
-}
-
-#define be64_port_init(port, addr)
-	spin_lock_init(&port->lock);
-	port->lockp = &port->lock;
-	port->addr = addr;
-
-#define be64_port_init_external_locking(port, addr, lockp)
-	port->lockp = lockp;
-	port->addr = addr;
-
-#endif
-
-perhaps?
-
-btw, 32-bit mthca_write64() is downright scary from an endianness POV.  I
-guess it's right, but I wouldn't label it "obviously correct" ;)
-
+--
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX Products GmbH / Novell Inc.
 
 -- 
 VGER BF report: H 0

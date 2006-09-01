@@ -1,104 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWIAT6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751865AbWIAULQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWIAT6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 15:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIAT6Z
+	id S1751865AbWIAULQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 16:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752058AbWIAULQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 15:58:25 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31495 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751470AbWIAT6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 15:58:24 -0400
-Date: Fri, 1 Sep 2006 21:58:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fs/reiser4/: possible cleanups
-Message-ID: <20060901195818.GF18276@stusta.de>
+	Fri, 1 Sep 2006 16:11:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35016 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751873AbWIAULP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 16:11:15 -0400
+Date: Fri, 1 Sep 2006 13:04:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Tom Tucker <tom@opengridcomputing.com>,
+       Steve Wise <swise@opengridcomputing.com>,
+       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile
+ error
+Message-Id: <20060901130444.48f19457.akpm@osdl.org>
+In-Reply-To: <ada8xl3ics4.fsf@cisco.com>
 References: <20060901015818.42767813.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	<20060901160023.GB18276@stusta.de>
+	<20060901101340.962150cb.akpm@osdl.org>
+	<adak64nij8f.fsf@cisco.com>
+	<20060901112312.5ff0dd8d.akpm@osdl.org>
+	<ada8xl3ics4.fsf@cisco.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the following needlessly global function static:
-  - plugin/file/file.c: hint_validate()
-- #if 0 the following unused global function:
-  - jnode.c: page_detach_jnode()
+On Fri, 01 Sep 2006 12:53:47 -0700
+Roland Dreier <rdreier@cisco.com> wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>     Roland> My understanding is that __raw_writeq() is like writeq()
+>     Roland> except not strongly ordered and without the byte-swap on
+>     Roland> big-endian architectures.  The __raw_writeX() variants are
+>     Roland> convenient to avoid having to write inefficient code like
+>     Roland> writel(swab32(foo), ...) when talking to a PCI device that
+>     Roland> wants big-endian data.  Without the raw variant, you end
+>     Roland> up with a double swap on big-endian architectures.
+> 
+> Oh, I left one other thing out: writeq() and __raw_writeq() shold be
+> atomic in the sense that no other transactions should be able to get
+> onto the IO bus in the middle -- so implementing writeq() as two
+> writel()s in a row is not allowed
+> 
+>     Andrew> OK.  Can we please stop hacking around this in drivers and
+> 
+>     Andrew> a) work out what it's supposed to do
+> 
+>     Andrew> b) document that (Documentation/DocBook/deviceiobook.tmpl
+>     Andrew> or code comment or whatever)
+> 
+>     Andrew> c) tell arch maintainers?
+> 
+> Yes, I agree that's a good plan, especially the documentation part.
+> However I would argue that what's in drivers/infiniband/hw/mthca/mthca_doorbell.h 
+> is legitimate: the driver uses __raw_writeq() when it exists and uses
+> two __raw_writel()s properly serialized with a device-specific lock to
+> get exactly the atomicity it needs on 32-bit archs.
 
----
+No, driver-specific workarounds are not legitimate, sorry.
 
- fs/reiser4/jnode.c            |    2 ++
- fs/reiser4/jnode.h            |    3 ---
- fs/reiser4/plugin/file/file.c |    4 +++-
- fs/reiser4/plugin/file/file.h |    2 --
- 4 files changed, 5 insertions(+), 6 deletions(-)
+The driver should simply fail to compile on architectures which do not
+implement __raw_writeq().
 
---- linux-2.6.18-rc5-mm1/fs/reiser4/plugin/file/file.h.old	2006-09-01 20:54:04.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/fs/reiser4/plugin/file/file.h	2006-09-01 20:54:09.000000000 +0200
-@@ -157,8 +157,6 @@
- void reiser4_set_hint(hint_t *, const reiser4_key *, znode_lock_mode);
- int hint_is_set(const hint_t *);
- void reiser4_unset_hint(hint_t *);
--int hint_validate(hint_t *, const reiser4_key *, int check_key,
--		  znode_lock_mode);
- void hint_init_zero(hint_t *);
- 
- int reiser4_update_file_size(struct inode *, reiser4_key *, int update_sd);
---- linux-2.6.18-rc5-mm1/fs/reiser4/plugin/file/file.c.old	2006-09-01 20:54:17.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/fs/reiser4/plugin/file/file.c	2006-09-01 20:55:08.000000000 +0200
-@@ -26,6 +26,8 @@
- 
- static int unpack(struct file *file, struct inode *inode, int forever);
- static void drop_access(unix_file_info_t *);
-+static int hint_validate(hint_t * hint, const reiser4_key * key, int check_key,
-+			 znode_lock_mode lock_mode);
- 
- /* get unix file plugin specific portion of inode */
- unix_file_info_t *unix_file_inode_data(const struct inode *inode)
-@@ -747,7 +749,7 @@
- }
- #endif
- 
--int
-+static int
- hint_validate(hint_t * hint, const reiser4_key * key, int check_key,
- 	      znode_lock_mode lock_mode)
- {
---- linux-2.6.18-rc5-mm1/fs/reiser4/jnode.h.old	2006-09-01 20:55:19.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/fs/reiser4/jnode.h	2006-09-01 20:55:27.000000000 +0200
-@@ -486,9 +486,6 @@
- 	return atomic_read(&node->d_count) > 0;
- }
- 
--extern void page_detach_jnode(struct page *page,
--			      struct address_space *mapping,
--			      unsigned long index) NONNULL;
- extern void page_clear_jnode(struct page *page, jnode * node) NONNULL;
- 
- static inline void jnode_set_reloc(jnode * node)
---- linux-2.6.18-rc5-mm1/fs/reiser4/jnode.c.old	2006-09-01 20:55:33.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/fs/reiser4/jnode.c	2006-09-01 20:55:47.000000000 +0200
-@@ -697,6 +697,7 @@
- 	page_cache_release(page);
- }
- 
-+#if 0
- /* it is only used in one place to handle error */
- void
- page_detach_jnode(struct page *page, struct address_space *mapping,
-@@ -716,6 +717,7 @@
- 	}
- 	unlock_page(page);
- }
-+#endif  /*  0  */
- 
- /* return @node page locked.
- 
+We can speed up the process by sending helpful emails to architecture
+maintainers, but they'll notice either way.
+
+Let's fix it once, and in the correct place.
+
+> It's an open question what drivers that don't actually need atomicity
+> but just want a convenient way to write 64 bits at time should do.
+
+Well yeah.  We should sort out the design issues before implementing
+things ;)
 

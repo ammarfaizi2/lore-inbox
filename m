@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWIABzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWIABzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWIABzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWIABzG
+	id S1030191AbWIABzw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWIABzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:55:06 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:64135 "EHLO
+	Thu, 31 Aug 2006 21:55:51 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:4744 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964917AbWIABzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:55:01 -0400
-Date: Thu, 31 Aug 2006 21:54:45 -0400
+	id S1030188AbWIABzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:55:50 -0400
+Date: Thu, 31 Aug 2006 21:55:39 -0400
 From: Josef Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@ftp.linux.org.uk
-Subject: [PATCH 14/22][RFC] Unionfs: Rename
-Message-ID: <20060901015445.GO5788@fsl.cs.sunysb.edu>
+Subject: [PATCH 15/22][RFC] Unionfs: Privileged operations workqueue
+Message-ID: <20060901015539.GP5788@fsl.cs.sunysb.edu>
 References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,7 +27,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch provides rename functionality for Unionfs.
+Workqueue & helper functions used to perform privileged operations on
+behalf of the user process.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -35,13 +36,14 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
- fs/unionfs/rename.c |  480 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 480 insertions(+)
+ fs/unionfs/sioq.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/unionfs/sioq.h |   79 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 193 insertions(+)
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/rename.c linux-2.6-git-unionfs/fs/unionfs/rename.c
---- linux-2.6-git/fs/unionfs/rename.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/rename.c	2006-08-31 19:04:00.000000000 -0400
-@@ -0,0 +1,480 @@
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/sioq.c linux-2.6-git-unionfs/fs/unionfs/sioq.c
+--- linux-2.6-git/fs/unionfs/sioq.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/sioq.c	2006-08-31 19:04:00.000000000 -0400
+@@ -0,0 +1,114 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -63,462 +65,179 @@ diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/renam
 +
 +#include "union.h"
 +
-+static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
-+		     struct inode *new_dir, struct dentry *new_dentry,
-+		     int bindex, struct dentry **wh_old)
++struct workqueue_struct *sioq;
++
++int __init init_sioq(void)
 +{
-+	int err = 0;
-+	struct dentry *hidden_old_dentry;
-+	struct dentry *hidden_new_dentry;
-+	struct dentry *hidden_old_dir_dentry;
-+	struct dentry *hidden_new_dir_dentry;
-+	struct dentry *hidden_wh_dentry;
-+	struct dentry *hidden_wh_dir_dentry;
-+	char *wh_name = NULL;
++	int err;
 +
-+	hidden_new_dentry = dtohd_index(new_dentry, bindex);
-+	hidden_old_dentry = dtohd_index(old_dentry, bindex);
-+
-+	if (!hidden_new_dentry) {
-+		hidden_new_dentry =
-+		    create_parents(new_dentry->d_parent->d_inode, new_dentry, bindex);
-+		if (IS_ERR(hidden_new_dentry)) {
-+			printk(KERN_DEBUG "error creating directory tree for"
-+					  " rename, bindex = %d, err = %ld\n",
-+				          bindex, PTR_ERR(hidden_new_dentry));
-+			err = PTR_ERR(hidden_new_dentry);
-+			goto out;
-+		}
-+	}
-+
-+	wh_name = alloc_whname(new_dentry->d_name.name, new_dentry->d_name.len);
-+	if (IS_ERR(wh_name)) {
-+		err = PTR_ERR(wh_name);
-+		goto out;
-+	}
-+
-+	hidden_wh_dentry =
-+	    lookup_one_len(wh_name, hidden_new_dentry->d_parent,
-+			   new_dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(hidden_wh_dentry)) {
-+		err = PTR_ERR(hidden_wh_dentry);
-+		goto out;
-+	}
-+
-+	if (hidden_wh_dentry->d_inode) {
-+		/* get rid of the whiteout that is existing */
-+		if (hidden_new_dentry->d_inode) {
-+			printk(KERN_WARNING "Both a whiteout and a dentry"
-+					" exist when doing a rename!\n");
-+			err = -EIO;
-+
-+			dput(hidden_wh_dentry);
-+			goto out;
-+		}
-+
-+		hidden_wh_dir_dentry = lock_parent(hidden_wh_dentry);
-+		if (!(err = is_robranch_super(old_dentry->d_sb, bindex))) {
-+			err = vfs_unlink(hidden_wh_dir_dentry->d_inode,
-+					       hidden_wh_dentry);
-+		}
-+		dput(hidden_wh_dentry);
-+		unlock_dir(hidden_wh_dir_dentry);
-+		if (err)
-+			goto out;
-+	} else
-+		dput(hidden_wh_dentry);
-+
-+	dget(hidden_old_dentry);
-+	hidden_old_dir_dentry = dget_parent(hidden_old_dentry);
-+	hidden_new_dir_dentry = dget_parent(hidden_new_dentry);
-+
-+	lock_rename(hidden_old_dir_dentry, hidden_new_dir_dentry);
-+
-+	err = is_robranch_super(old_dentry->d_sb, bindex);
-+	if (err)
-+		goto out_unlock;
-+
-+	/* ready to whiteout for old_dentry.
-+	   caller will create the actual whiteout,
-+	   and must dput(*wh_old) */
-+	if (wh_old) {
-+		char *whname;
-+		whname = alloc_whname(old_dentry->d_name.name,
-+				      old_dentry->d_name.len);
-+		err = PTR_ERR(whname);
-+		if (IS_ERR(whname))
-+			goto out_unlock;
-+		*wh_old = lookup_one_len(whname, hidden_old_dir_dentry,
-+					 old_dentry->d_name.len + UNIONFS_WHLEN);
-+		kfree(whname);
-+		err = PTR_ERR(*wh_old);
-+		if (IS_ERR(*wh_old)) {
-+			*wh_old = NULL;
-+			goto out_unlock;
-+		}
-+	}
-+
-+	err = vfs_rename(hidden_old_dir_dentry->d_inode, hidden_old_dentry,
-+			 hidden_new_dir_dentry->d_inode, hidden_new_dentry);
-+
-+out_unlock:
-+	unlock_rename(hidden_old_dir_dentry, hidden_new_dir_dentry);
-+
-+	dput(hidden_old_dir_dentry);
-+	dput(hidden_new_dir_dentry);
-+	dput(hidden_old_dentry);
-+
-+out:
-+	if (!err) {
-+		/* Fixup the newdentry. */
-+		if (bindex < dbstart(new_dentry))
-+			set_dbstart(new_dentry, bindex);
-+		else if (bindex > dbend(new_dentry))
-+			set_dbend(new_dentry, bindex);
-+	}
-+
-+	kfree(wh_name);
-+
-+	return err;
-+}
-+
-+static int do_unionfs_rename(struct inode *old_dir,
-+				   struct dentry *old_dentry,
-+				   struct inode *new_dir,
-+				   struct dentry *new_dentry)
-+{
-+	int err = 0;
-+	int bindex, bwh_old;
-+	int old_bstart, old_bend;
-+	int new_bstart, new_bend;
-+	int do_copyup = -1;
-+	struct dentry *parent_dentry;
-+	int local_err = 0;
-+	int eio = 0;
-+	int revert = 0;
-+	struct dentry *wh_old = NULL;
-+
-+	old_bstart = dbstart(old_dentry);
-+	bwh_old = old_bstart;
-+	old_bend = dbend(old_dentry);
-+	parent_dentry = old_dentry->d_parent;
-+
-+	new_bstart = dbstart(new_dentry);
-+	new_bend = dbend(new_dentry);
-+
-+	/* Rename source to destination. */
-+	err = do_rename(old_dir, old_dentry, new_dir, new_dentry, old_bstart,
-+			&wh_old);
-+	if (err) {
-+		if (!IS_COPYUP_ERR(err)) {
-+			goto out;
-+		}
-+		do_copyup = old_bstart - 1;
-+	} else {
-+		revert = 1;
-+	}
-+
-+	/* Unlink all instances of destination that exist to the left of
-+	 * bstart of source. On error, revert back, goto out.
-+	 */
-+	for (bindex = old_bstart - 1; bindex >= new_bstart; bindex--) {
-+		struct dentry *unlink_dentry;
-+		struct dentry *unlink_dir_dentry;
-+
-+		unlink_dentry = dtohd_index(new_dentry, bindex);
-+		if (!unlink_dentry) {
-+			continue;
-+		}
-+
-+		unlink_dir_dentry = lock_parent(unlink_dentry);
-+		if (!(err = is_robranch_super(old_dir->i_sb, bindex))) {
-+			err =
-+			    vfs_unlink(unlink_dir_dentry->d_inode,
-+				       unlink_dentry);
-+		}
-+
-+		fist_copy_attr_times(new_dentry->d_parent->d_inode,
-+				     unlink_dir_dentry->d_inode);
-+		/* propagate number of hard-links */
-+		new_dentry->d_parent->d_inode->i_nlink =
-+		    get_nlinks(new_dentry->d_parent->d_inode);
-+
-+		unlock_dir(unlink_dir_dentry);
-+		if (!err) {
-+			if (bindex != new_bstart) {
-+				dput(unlink_dentry);
-+				set_dtohd_index(new_dentry, bindex, NULL);
-+			}
-+		} else if (IS_COPYUP_ERR(err)) {
-+			do_copyup = bindex - 1;
-+		} else if (revert) {
-+			dput(wh_old);
-+			goto revert;
-+		}
-+	}
-+
-+	if (do_copyup != -1) {
-+		for (bindex = do_copyup; bindex >= 0; bindex--) {
-+			/* copyup the file into some left directory, so that you can rename it */
-+			err =
-+			    copyup_dentry(old_dentry->d_parent->d_inode,
-+					  old_dentry, old_bstart, bindex, NULL,
-+					  old_dentry->d_inode->i_size);
-+			if (!err) {
-+				dput(wh_old);
-+				bwh_old = bindex;
-+				err =
-+				    do_rename(old_dir, old_dentry, new_dir,
-+					      new_dentry, bindex, &wh_old);
-+				break;
-+			}
-+		}
-+	}
-+
-+	/* make it opaque */
-+	if (S_ISDIR(old_dentry->d_inode->i_mode)) {
-+		err = make_dir_opaque(old_dentry, dbstart(old_dentry));
-+		if (err)
-+			goto revert;
-+	}
-+
-+	/* Create whiteout for source, only if:
-+	 * (1) There is more than one underlying instance of source.
-+	 * (2) We did a copy_up
-+	 */
-+	if ((old_bstart != old_bend) || (do_copyup != -1)) {
-+		struct dentry *hidden_parent;
-+		BUG_ON(!wh_old || IS_ERR(wh_old) || wh_old->d_inode
-+		       || bwh_old < 0);
-+		hidden_parent = lock_parent(wh_old);
-+		local_err = vfs_create(hidden_parent->d_inode, wh_old, S_IRUGO,
-+				       NULL);
-+		unlock_dir(hidden_parent);
-+		if (!local_err)
-+			set_dbopaque(old_dentry, bwh_old);
-+		else {
-+			/* We can't fix anything now, so we cop-out and use -EIO. */
-+			printk("<0>We can't create a whiteout for the source in rename!\n");
-+			err = -EIO;
-+		}
-+	}
-+
-+out:
-+	dput(wh_old);
-+	return err;
-+
-+revert:
-+	/* Do revert here. */
-+	local_err = unionfs_refresh_hidden_dentry(new_dentry, old_bstart);
-+	if (local_err) {
-+		printk(KERN_WARNING
-+		       "Revert failed in rename: the new refresh failed.\n");
-+		eio = -EIO;
-+	}
-+
-+	local_err = unionfs_refresh_hidden_dentry(old_dentry, old_bstart);
-+	if (local_err) {
-+		printk(KERN_WARNING
-+		       "Revert failed in rename: the old refresh failed.\n");
-+		eio = -EIO;
-+		goto revert_out;
-+	}
-+
-+	if (!dtohd_index(new_dentry, bindex)
-+	    || !dtohd_index(new_dentry, bindex)->d_inode) {
-+		printk(KERN_WARNING
-+		       "Revert failed in rename: the object disappeared from under us!\n");
-+		eio = -EIO;
-+		goto revert_out;
-+	}
-+
-+	if (dtohd_index(old_dentry, bindex)
-+	    && dtohd_index(old_dentry, bindex)->d_inode) {
-+		printk(KERN_WARNING
-+		       "Revert failed in rename: the object was created underneath us!\n");
-+		eio = -EIO;
-+		goto revert_out;
-+	}
-+
-+	local_err =
-+	    do_rename(new_dir, new_dentry, old_dir, old_dentry, old_bstart,
-+		      NULL);
-+
-+	/* If we can't fix it, then we cop-out with -EIO. */
-+	if (local_err) {
-+		printk(KERN_WARNING "Revert failed in rename!\n");
-+		eio = -EIO;
-+	}
-+
-+	local_err = unionfs_refresh_hidden_dentry(new_dentry, bindex);
-+	if (local_err)
-+		eio = -EIO;
-+	local_err = unionfs_refresh_hidden_dentry(old_dentry, bindex);
-+	if (local_err)
-+		eio = -EIO;
-+
-+revert_out:
-+	if (eio)
-+		err = eio;
-+	return err;
-+}
-+
-+/*
-+ * Unfortunately, we cannot simply call things like dbstart() in different
-+ * places of the rename code because we move things around. So, we use this
-+ * structure to pass the necessary information around to all the places that
-+ * need it.
-+ */
-+struct rename_info {
-+	int do_copyup;
-+	int do_whiteout;
-+	int rename_ok;
-+
-+	int old_bstart;
-+	int old_bend;
-+	int new_bstart;
-+	int new_bend;
-+
-+	int isdir;		/* Is the source a directory? */
-+	int clobber;		/* Are we clobbering the destination? */
-+
-+	int bwh_old;		/* where we create the whiteout */
-+	struct dentry *wh_old;	/* lookup and set by do_rename() */
-+};
-+
-+static struct dentry *lookup_whiteout(struct dentry *dentry)
-+{
-+	char *whname;
-+	int bindex = -1, bstart = -1, bend = -1;
-+	struct dentry *parent, *hidden_parent, *wh_dentry;
-+
-+	whname = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(whname))
-+		return (void *)whname;
-+
-+	parent = dget_parent(dentry);
-+	lock_dentry(parent);
-+	bstart = dbstart(parent);
-+	bend = dbend(parent);
-+	wh_dentry = ERR_PTR(-ENOENT);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_parent = dtohd_index(parent, bindex);
-+		if (!hidden_parent)
-+			continue;
-+		wh_dentry =
-+		    lookup_one_len(whname, hidden_parent,
-+				   dentry->d_name.len + UNIONFS_WHLEN);
-+		if (IS_ERR(wh_dentry))
-+			continue;
-+		if (wh_dentry->d_inode)
-+			break;
-+		dput(wh_dentry);
-+		wh_dentry = ERR_PTR(-ENOENT);
-+	}
-+	unlock_dentry(parent);
-+	dput(parent);
-+	kfree(whname);
-+	return wh_dentry;
-+}
-+
-+/* We can't copyup a directory, because it may involve huge
-+ * numbers of children, etc.  Doing that in the kernel would
-+ * be bad, so instead we let the userspace recurse and ask us
-+ * to copy up each file separately
-+ */
-+static int may_rename_dir(struct dentry *dentry)
-+{
-+	int err, bstart;
-+
-+	err = check_empty(dentry, NULL);
-+	if (err == -ENOTEMPTY) {
-+		if (is_robranch(dentry))
-+			return -EXDEV;
-+	} else if (err)
-+		return err;
-+
-+	bstart = dbstart(dentry);
-+	if (dbend(dentry) == bstart || dbopaque(dentry) == bstart)
++	sioq = create_workqueue("unionfs_siod");
++	if (!IS_ERR(sioq))
 +		return 0;
 +
-+	set_dbstart(dentry, bstart + 1);
-+	err = check_empty(dentry, NULL);
-+	set_dbstart(dentry, bstart);
-+	if (err == -ENOTEMPTY)
-+		err = -EXDEV;
++	err = PTR_ERR(sioq);
++	printk(KERN_ERR "create_workqueue failed %d\n", err);
++	sioq = NULL;
 +	return err;
 +}
 +
-+int unionfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-+		   struct inode *new_dir, struct dentry *new_dentry)
++void fin_sioq(void)
 +{
-+	int err = 0;
-+	struct dentry *wh_dentry;
-+
-+	double_lock_dentry(old_dentry, new_dentry);
-+
-+	if (!S_ISDIR(old_dentry->d_inode->i_mode))
-+		err = unionfs_partial_lookup(old_dentry);
-+	else
-+		err = may_rename_dir(old_dentry);
-+
-+	if (err)
-+		goto out;
-+
-+	err = unionfs_partial_lookup(new_dentry);
-+	if (err)
-+		goto out;
-+
-+	/*
-+	 * if new_dentry is already hidden because of whiteout,
-+	 * simply override it even if the whiteouted dir is not empty.
-+	 */
-+	wh_dentry = lookup_whiteout(new_dentry);
-+	if (!IS_ERR(wh_dentry))
-+		dput(wh_dentry);
-+	else if (new_dentry->d_inode) {
-+		if (S_ISDIR(old_dentry->d_inode->i_mode) !=
-+		    S_ISDIR(new_dentry->d_inode->i_mode)) {
-+			err =
-+			    S_ISDIR(old_dentry->d_inode->
-+				    i_mode) ? -ENOTDIR : -EISDIR;
-+			goto out;
-+		}
-+
-+		if (S_ISDIR(new_dentry->d_inode->i_mode)) {
-+			struct unionfs_dir_state *namelist;
-+			/* check if this unionfs directory is empty or not */
-+			err = check_empty(new_dentry, &namelist);
-+			if (err)
-+				goto out;
-+
-+			if (!is_robranch(new_dentry))
-+				err = delete_whiteouts(new_dentry,
-+						       dbstart(new_dentry),
-+						       namelist);
-+
-+			free_rdstate(namelist);
-+
-+			if (err)
-+				goto out;
-+		}
-+	}
-+	err = do_unionfs_rename(old_dir, old_dentry, new_dir, new_dentry);
-+
-+out:
-+
-+	if (err) {
-+		/* clear the new_dentry stuff created */
-+		d_drop(new_dentry);
-+	} else {
-+		/* force re-lookup since the dir on ro branch is not renamed,
-+		   and hidden dentries still indicate the un-renamed ones. */
-+		if (S_ISDIR(old_dentry->d_inode->i_mode))
-+			atomic_dec(&dtopd(old_dentry)->udi_generation);
-+	}
-+
-+	unlock_dentry(new_dentry);
-+	unlock_dentry(old_dentry);
-+	return err;
++	if (sioq)
++		destroy_workqueue(sioq);
 +}
++
++void run_sioq(void (*func)(void *arg), struct sioq_args *args)
++{
++	DECLARE_WORK(wk, func, &args->comp);
++
++	init_completion(&args->comp);
++	while (!queue_work(sioq, &wk)) {
++		// TODO: do accounting if needed
++		schedule();
++	}
++	wait_for_completion(&args->comp);
++}
++
++void __unionfs_create(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->err = vfs_create(args->u.create.parent, args->u.create.dentry,
++				args->u.create.mode, args->u.create.nd);
++	complete(&args->comp);
++}
++
++void __unionfs_mkdir(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->err = vfs_mkdir(args->u.mkdir.parent, args->u.mkdir.dentry,
++				args->u.mkdir.mode);
++	complete(&args->comp);
++}
++
++void __unionfs_mknod(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->err = vfs_mknod(args->u.mknod.parent, args->u.mknod.dentry,
++				args->u.mknod.mode, args->u.mknod.dev);
++	complete(&args->comp);
++}
++void __unionfs_symlink(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->err = vfs_symlink(args->u.symlink.parent, args->u.symlink.dentry,
++				args->u.symlink.symbuf, args->u.symlink.mode);
++}
++
++void __unionfs_unlink(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->err = vfs_unlink(args->u.unlink.parent, args->u.unlink.dentry);
++	complete(&args->comp);
++}
++
++void __delete_whiteouts(void *data) {
++	struct sioq_args *args = data;
++
++	args->err = do_delete_whiteouts(args->u.deletewh.dentry, args->u.deletewh.bindex,
++					args->u.deletewh.namelist);
++
++	complete(&args->comp);
++}
++
++void __is_opaque_dir(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->ret = lookup_one_len(UNIONFS_DIR_OPAQUE, args->u.isopaque.dentry,
++				sizeof(UNIONFS_DIR_OPAQUE) - 1);
++	complete(&args->comp);
++}
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/sioq.h linux-2.6-git-unionfs/fs/unionfs/sioq.h
+--- linux-2.6-git/fs/unionfs/sioq.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/sioq.h	2006-08-31 19:04:01.000000000 -0400
+@@ -0,0 +1,79 @@
++#ifndef _SIOQ_H
++#define _SIOQ_H
++
++struct deletewh_args {
++	struct unionfs_dir_state *namelist;
++	struct dentry *dentry;
++	int bindex;
++};
++
++struct isopaque_args {
++	struct dentry *dentry;
++};
++
++struct create_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++	struct nameidata *nd;
++};
++
++struct mkdir_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++};
++
++struct mknod_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++	dev_t dev;
++};
++
++struct symlink_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	char *symbuf;
++	umode_t mode;
++};
++
++struct unlink_args {
++	struct inode *parent;
++	struct dentry *dentry;
++};
++
++
++struct sioq_args {
++
++	struct completion comp;
++	int err;
++	void *ret;
++
++	union {
++		struct deletewh_args deletewh;
++		struct isopaque_args isopaque;
++		struct create_args create;
++		struct mkdir_args mkdir;
++		struct mknod_args mknod;
++		struct symlink_args symlink;
++		struct unlink_args unlink;
++	} u;
++};
++
++extern struct workqueue_struct *sioq;
++int __init init_sioq(void);
++extern void fin_sioq(void);
++extern void run_sioq(void (*func)(void *arg), struct sioq_args *args);
++
++/* Extern definitions for our privledge escalation helpers */
++extern void __unionfs_create(void *data);
++extern void __unionfs_mkdir(void *data);
++extern void __unionfs_mknod(void *data);
++extern void __unionfs_symlink(void *data);
++extern void __unionfs_unlink(void *data);
++extern void __delete_whiteouts(void *data);
++extern void __is_opaque_dir(void *data);
++
++#endif /* _SIOQ_H */
 +

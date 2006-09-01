@@ -1,134 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWIAQCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWIAQCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWIAQCv (ORCPT <rfc822;willy@w.ods.org>);
+	id S932277AbWIAQCv (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Sep 2006 12:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWIAQCk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWIAQCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:02:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20679 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932327AbWIAQCe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:02:34 -0400
-Message-ID: <44F859CC.6060404@redhat.com>
-Date: Fri, 01 Sep 2006 12:03:24 -0400
-From: Chris Snook <csnook@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-CC: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.33.2] enforce RLIMIT_NOFILE in poll()
-References: <20060901.PbR.07536400@egw.corp.redhat.com> <20060901034834.GB28317@1wt.eu> <200608312125.14564.vlobanov@speakeasy.net>
-In-Reply-To: <200608312125.14564.vlobanov@speakeasy.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 12:02:43 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23193 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932277AbWIAQCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:02:32 -0400
+Date: Fri, 1 Sep 2006 11:02:22 -0500 (CDT)
+From: John Keller <jpk@sgi.com>
+To: linux-ia64@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, ayoung@sgi.com, linux-kernel@vger.kernel.org,
+       John Keller <jpk@sgi.com>, pcihpd-discuss@lists.sourceforge.net
+Message-Id: <20060901160222.32120.99445.48436@attica.americas.sgi.com>
+Subject: [PATCH 3/3] - Altix: Initial ACPI support - ROM shadowing.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about the blank post last night.  Looks like my non-patch-mangling 
-webmailer has a UTF-8/ASCII conversion bug that eats messages.  If 
-anyone can recommend completely reliable mail clients for posting here, 
-they'd be a good addition to the lkml.org FAQ
+Support a shadowed ROM when running with an ACPI capable PROM.
 
-Comments inline...
+Define a new dev.resource flag IORESOURCE_ROM_BIOS_COPY to
+describe the case of a BIOS shadowed ROM, which can then
+be used to avoid pci_map_rom() making an unneeded call to
+pci_enable_rom().
 
-Vadim Lobanov wrote:
-> On Thursday 31 August 2006 20:48, Willy Tarreau wrote:
-> 
->>Hi Chris,
->>
->>On Thu, Aug 31, 2006 at 09:06:55PM -0400, Chris Snook wrote:
->>
->>>From: Chris Snook <csnook@redhat.com>
->>>
->>>POSIX states that poll() shall fail with EINVAL if nfds > OPEN_MAX.  In
->>>this context, POSIX is referring to sysconf(OPEN_MAX), which is the value
->>>of current->rlim[RLIMIT_NOFILE].rlim_cur, not the compile-time constant
->>>which happens to be named OPEN_MAX.  The current code will permit polling
->>>up to 1024 file descriptors even if RLIMIT_NOFILE is less than 1024,
->>>which POSIX forbids. The current code also breaks polling greater than
->>>1024 file descriptors if the process has less than 1024 valid
->>>descriptors, even if RLIMIT_NOFILE > 1024.  While it is silly to poll
->>>duplicate or invalid file descriptors, POSIX permits this, and it worked
->>>circa 2.4.18, and currently works up to 1024. This patch directly checks
->>>the RLIMIT_NOFILE value, and permits exactly what POSIX suggests, no
->>>more, no less.
->>
->>While I understand that it was a bug before, I fear that it could break
->>existing apps. Are you aware of some apps which do not work as expected
->>because of this bug ? If not, I'd prefer to wait for some feedback from
->>2.6 with this fix before applying it (or maybe you're already using it
->>in RHEL with success ?).
-> 
-> 
-> I submitted a similar but different patch for this very same issue against the 
-> 2.6 kernel. It's currently residing in the -mm tree. Andrew Morton is 
-> somewhat reticent (and understandably so) to push it quickly into the vanilla 
-> tree; but, for what it's worth, I've yet to hear -- either directly or 
-> indirectly -- of any application breakages caused by this fix.
 
-Willy and Vadim --
+Signed-off-by: John Keller <jpk@sgi.com>
 
-	We have received reports of apps which poll a large set of 
-not-necessarily-valid file descriptors which worked fine under 2.4.18, 
-when the check was only against NR_OPEN, which is 1024*1024, that fail 
-under newer kernels.  So there is a real motivation to change the 
-current code.  As for the patch breaking existing apps, there are really 
-3 scenarios:
+ arch/ia64/sn/kernel/io_acpi_init.c |   33 +++++++++++++++++++++++++++++++++
+ arch/ia64/sn/kernel/io_common.c    |    5 +++--
+ arch/ia64/sn/kernel/io_init.c      |    3 +++
+ drivers/pci/rom.c                  |    9 ++++++---
+ include/linux/ioport.h             |    1 +
+ 5 files changed, 46 insertions(+), 5 deletions(-)
 
-1)	RLIMIT_NOFILE is at the default value of 1024
 
-	In this (default) case, the patch changes nothing.  Calls with nfds > 
-1024 fail with EINVAL both before and after the patch, and calls with 
-nfds <= 1024 pass the check both before and after the patch, since 1024 
-is the initial value of max_fdset.
-
-2)	RLIMIT_NOFILE has been raised above the default
-
-	In this case, poll() becomes more permissive, allowing polling up to 
-RLIMIT_NOFILE file descriptors even if less than 1024 have been opened. 
-  The patch won't introduce new errors here.  If an application somehow 
-depends on poll() failing when it polls with duplicate or invalid file 
-descriptors, it's already broken, since this is already allowed below 
-1024, and will also work above 1024 if enough file descriptors have been 
-open at some point to cause max_fdset to have been increased above nfds.
-
-3)	RLIMIT_NOFILE has been lowered below the default
-
-	In this case, the system administrator or the user has gone out of 
-their way to protect the system from inefficient (or malicious) 
-applications wasting kernel memory.  The current code allows polling up 
-to 1024 file descriptors even if RLIMIT_NOFILE is much lower, which is 
-not what the user or administrator intended.  Well-written applications 
-which only poll valid, unique file descriptors will never notice the 
-difference, because they'll hit the limit on open() first.  If an 
-application gets broken because of the patch in this case, then it was 
-already poorly/maliciously designed, and allowing it to work in the past 
-was a violation of POSIX and a DoS risk on low-resource systems.
-
-	-- Chris
-
->>Thanks,
->>Willy
->>
->>
->>>Signed-off-by: Chris Snook <csnook@redhat.com>
->>>---
->>>
->>>diff -urNp linux-2.4.33.2-orig/fs/select.c
->>>linux-2.4.33.2-patch/fs/select.c ---
->>>linux-2.4.33.2-orig/fs/select.c	2006-08-22 16:13:54.000000000 -0400 +++
->>>linux-2.4.33.2-patch/fs/select.c	2006-08-31 13:43:39.000000000 -0400 @@
->>>-417,7 +417,7 @@ asmlinkage long sys_poll(struct pollfd *
->>> 	int nchunks, nleft;
->>>
->>> 	/* Do a sanity check on nfds ... */
->>>-	if (nfds > current->files->max_fdset && nfds > OPEN_MAX)
->>>+	if (nfds > current->rlim[RLIMIT_NOFILE].rlim_cur)
->>> 		return -EINVAL;
->>>
->>> 	if (timeout) {
->>
-> 
-> -- Vadim Lobanov
-
+Index: linux-2.6/arch/ia64/sn/kernel/io_common.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/sn/kernel/io_common.c	2006-08-31 16:07:39.070573026 -0500
++++ linux-2.6/arch/ia64/sn/kernel/io_common.c	2006-08-31 16:09:00.764554984 -0500
+@@ -286,9 +286,10 @@ void sn_pci_fixup_slot(struct pci_dev *d
+ 	list_add_tail(&pcidev_info->pdi_list,
+ 		      &(SN_PLATFORM_DATA(dev->bus)->pcidev_info));
+ 
+-	if (!SN_ACPI_BASE_SUPPORT())
++	if (SN_ACPI_BASE_SUPPORT())
++		sn_acpi_slot_fixup(dev, pcidev_info);
++	else
+ 		sn_more_slot_fixup(dev, pcidev_info);
+-
+ 	/*
+ 	 * Using the PROMs values for the PCI host bus, get the Linux
+  	 * PCI host_pci_dev struct and set up host bus linkages
+Index: linux-2.6/drivers/pci/rom.c
+===================================================================
+--- linux-2.6.orig/drivers/pci/rom.c	2006-08-31 16:07:39.074573515 -0500
++++ linux-2.6/drivers/pci/rom.c	2006-08-31 16:09:00.764554984 -0500
+@@ -77,7 +77,8 @@ void __iomem *pci_map_rom(struct pci_dev
+ 		start = (loff_t)0xC0000;
+ 		*size = 0x20000; /* cover C000:0 through E000:0 */
+ 	} else {
+-		if (res->flags & IORESOURCE_ROM_COPY) {
++		if (res->flags &
++			(IORESOURCE_ROM_COPY | IORESOURCE_ROM_BIOS_COPY)) {
+ 			*size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
+ 			return (void __iomem *)(unsigned long)
+ 				pci_resource_start(pdev, PCI_ROM_RESOURCE);
+@@ -161,7 +162,8 @@ void __iomem *pci_map_rom_copy(struct pc
+ 	if (!rom)
+ 		return NULL;
+ 
+-	if (res->flags & (IORESOURCE_ROM_COPY | IORESOURCE_ROM_SHADOW))
++	if (res->flags & (IORESOURCE_ROM_COPY | IORESOURCE_ROM_SHADOW |
++			  IORESOURCE_ROM_BIOS_COPY))
+ 		return rom;
+ 
+ 	res->start = (unsigned long)kmalloc(*size, GFP_KERNEL);
+@@ -187,7 +189,7 @@ void pci_unmap_rom(struct pci_dev *pdev,
+ {
+ 	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
+ 
+-	if (res->flags & IORESOURCE_ROM_COPY)
++	if (res->flags & (IORESOURCE_ROM_COPY | IORESOURCE_ROM_BIOS_COPY))
+ 		return;
+ 
+ 	iounmap(rom);
+@@ -211,6 +213,7 @@ void pci_remove_rom(struct pci_dev *pdev
+ 		sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_attr);
+ 	if (!(res->flags & (IORESOURCE_ROM_ENABLE |
+ 			    IORESOURCE_ROM_SHADOW |
++			    IORESOURCE_ROM_BIOS_COPY |
+ 			    IORESOURCE_ROM_COPY)))
+ 		pci_disable_rom(pdev);
+ }
+Index: linux-2.6/include/linux/ioport.h
+===================================================================
+--- linux-2.6.orig/include/linux/ioport.h	2006-08-31 16:07:39.074573515 -0500
++++ linux-2.6/include/linux/ioport.h	2006-08-31 16:09:00.768555473 -0500
+@@ -89,6 +89,7 @@ struct resource_list {
+ #define IORESOURCE_ROM_ENABLE		(1<<0)	/* ROM is enabled, same as PCI_ROM_ADDRESS_ENABLE */
+ #define IORESOURCE_ROM_SHADOW		(1<<1)	/* ROM is copy at C000:0 */
+ #define IORESOURCE_ROM_COPY		(1<<2)	/* ROM is alloc'd copy, resource field overlaid */
++#define IORESOURCE_ROM_BIOS_COPY	(1<<3)	/* ROM is BIOS copy, resource field overlaid */
+ 
+ /* PC/ISA/whatever - the normal PC address spaces: IO and memory */
+ extern struct resource ioport_resource;
+Index: linux-2.6/arch/ia64/sn/kernel/io_acpi_init.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/sn/kernel/io_acpi_init.c	2006-08-31 16:07:39.074573515 -0500
++++ linux-2.6/arch/ia64/sn/kernel/io_acpi_init.c	2006-08-31 16:09:00.768555473 -0500
+@@ -169,6 +169,39 @@ sn_acpi_bus_fixup(struct pci_bus *bus)
+ 	}
+ }
+ 
++/*
++ * sn_acpi_slot_fixup - Perform any SN specific slot fixup.
++ *			At present there does not appear to be
++ *			any generic way to handle a ROM image
++ *			that has been shadowed by the PROM, so
++ *			we pass a pointer to it	within the
++ *			pcidev_info structure.
++ */
++
++void
++sn_acpi_slot_fixup(struct pci_dev *dev, struct pcidev_info *pcidev_info)
++{
++	void __iomem *addr;
++	size_t size;
++
++	if (pcidev_info->pdi_pio_mapped_addr[PCI_ROM_RESOURCE]) {
++		/*
++		 * A valid ROM image exists and has been shadowed by the
++		 * PROM. Setup the pci_dev ROM resource to point to
++		 * the shadowed copy.
++		 */
++		size = dev->resource[PCI_ROM_RESOURCE].end -
++				dev->resource[PCI_ROM_RESOURCE].start;
++		addr =
++		     ioremap(pcidev_info->pdi_pio_mapped_addr[PCI_ROM_RESOURCE],
++			     size);
++		dev->resource[PCI_ROM_RESOURCE].start = (unsigned long) addr;
++		dev->resource[PCI_ROM_RESOURCE].end =
++						(unsigned long) addr + size;
++		dev->resource[PCI_ROM_RESOURCE].flags |= IORESOURCE_ROM_BIOS_COPY;
++	}
++}
++
+ static struct acpi_driver acpi_sn_hubdev_driver = {
+ 	.name = "SGI HUBDEV Driver",
+ 	.ids = "SGIHUB,SGITIO",
+Index: linux-2.6/arch/ia64/sn/kernel/io_init.c
+===================================================================
+--- linux-2.6.orig/arch/ia64/sn/kernel/io_init.c	2006-08-30 13:01:01.000000000 -0500
++++ linux-2.6/arch/ia64/sn/kernel/io_init.c	2006-08-31 16:27:50.643626522 -0500
+@@ -210,6 +210,9 @@ sn_more_slot_fixup(struct pci_dev *dev, 
+ 			dev->resource[idx].parent = &ioport_resource;
+ 		else
+ 			dev->resource[idx].parent = &iomem_resource;
++		/* If ROM, mark as shadowed in PROM */
++		if (idx == PCI_ROM_RESOURCE)
++			dev->resource[idx].flags |= IORESOURCE_ROM_BIOS_COPY;
+ 	}
+ 	/* Create a pci_window in the pci_controller struct for
+ 	 * each device resource.

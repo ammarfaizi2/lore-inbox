@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWIAOXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWIAOXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWIAOXp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 10:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWIAOXp
+	id S1751120AbWIAOXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 10:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWIAOXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 10:23:45 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7052 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932089AbWIAOXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 10:23:44 -0400
-Date: Fri, 01 Sep 2006 08:23:51 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Processor Serial Numbers (PSN) - can it be enabled on Pentium 4
-In-reply-to: <fa.mzPTDY7g9S1OYvT6rETqkW+d4CU@ifi.uio.no>
-To: piet@bluelane.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <44F84277.9070004@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.mzPTDY7g9S1OYvT6rETqkW+d4CU@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Fri, 1 Sep 2006 10:23:25 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:24644 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1750812AbWIAOXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 10:23:25 -0400
+Date: Fri, 1 Sep 2006 16:26:23 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: David Howells <dhowells@redhat.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Grant Wilson <grant.wilson@zen.co.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: Re: [-mm patch] drivers/md/Kconfig: fix BLOCK dependency
+Message-ID: <20060901142622.GE25434@kernel.dk>
+References: <20060901135055.GA18276@stusta.de> <20060901015818.42767813.akpm@osdl.org> <44F80F0D.70100@zen.co.uk> <11281.1157120111@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11281.1157120111@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piet Delaney wrote:
-> Can the Processor Serial Numbers (PSN) - can it be enabled on Pentium 4.
-> cpuid seems to always come up the same and I only
-> found references to it being enabled for Pentium 3.
+On Fri, Sep 01 2006, David Howells wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > -if CONFIG_BLOCK
+> > +if BLOCK
+> 
+> Oops.
+> 
+> Acked-By: David Howells <dhowells@redhat.com>
 
-I believe the serial number was removed after the Pentium III because of 
-privacy concerns.
+Merged.
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Jens Axboe
 

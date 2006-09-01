@@ -1,31 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWIAGtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWIAGtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWIAGtX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 02:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWIAGtU
+	id S1751226AbWIAGtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 02:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIAGtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 02:49:20 -0400
-Received: from gw.goop.org ([64.81.55.164]:5574 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932449AbWIAGsx (ORCPT
+	Fri, 1 Sep 2006 02:49:25 -0400
+Received: from gw.goop.org ([64.81.55.164]:2454 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932450AbWIAGsz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 02:48:53 -0400
-Message-Id: <20060901064824.866074502@goop.org>
+	Fri, 1 Sep 2006 02:48:55 -0400
+Message-Id: <20060901064826.569268356@goop.org>
 References: <20060901064718.918494029@goop.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 31 Aug 2006 23:47:23 -0700
+Date: Thu, 31 Aug 2006 23:47:26 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 5/8] Fix places where using %gs changes the usermode ABI.
-Content-Disposition: inline; filename=i386-pda-fix-abi.patch
+Subject: [PATCH 8/8] Implement "current" with the PDA.
+Content-Disposition: inline; filename=i386-pda-current.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are a few places where the change in struct pt_regs and the use
-of %gs affect the userspace ABI.  These are primarily debugging
-interfaces where thread state can be inspected or extracted.
+Use the pcurrent field in the PDA to implement the "current" macro.
+This ends up compiling down to a single instruction to get the current
+task.
+
+This keeps the original definition of "get_current()" with the name
+"early_current()", for use before the PDA has been set up.  On the
+boot CPU, "current" will always work, but on secondary CPUs, it needs
+the PDA to be explicitly set up first.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 Cc: Chuck Ebbert <76306.1226@compuserve.com>
@@ -34,109 +39,118 @@ Cc: Jan Beulich <jbeulich@novell.com>
 Cc: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/process.c |    6 +++---
- arch/i386/kernel/ptrace.c  |   18 ++++++------------
- include/asm-i386/elf.h     |    2 +-
- include/asm-i386/unwind.h  |    1 +
- 4 files changed, 11 insertions(+), 16 deletions(-)
+ arch/i386/kernel/cpu/common.c |   19 ++++++++++++-------
+ arch/i386/kernel/smpboot.c    |    4 +++-
+ include/asm-i386/current.h    |   10 ++++++++--
+ 3 files changed, 23 insertions(+), 10 deletions(-)
+
 
 ===================================================================
---- a/arch/i386/kernel/process.c
-+++ b/arch/i386/kernel/process.c
-@@ -309,8 +309,8 @@ void show_regs(struct pt_regs * regs)
- 		regs->eax,regs->ebx,regs->ecx,regs->edx);
- 	printk("ESI: %08lx EDI: %08lx EBP: %08lx",
- 		regs->esi, regs->edi, regs->ebp);
--	printk(" DS: %04x ES: %04x\n",
--		0xffff & regs->xds,0xffff & regs->xes);
-+	printk(" DS: %04x ES: %04x GS: %04x\n",
-+	       0xffff & regs->xds,0xffff & regs->xes, 0xffff & regs->xgs);
- 
- 	cr0 = read_cr0();
- 	cr2 = read_cr2();
-@@ -504,7 +504,7 @@ void dump_thread(struct pt_regs * regs, 
- 	dump->regs.ds = regs->xds;
- 	dump->regs.es = regs->xes;
- 	savesegment(fs,dump->regs.fs);
--	savesegment(gs,dump->regs.gs);
-+	dump->regs.gs = regs->xgs;
- 	dump->regs.orig_eax = regs->orig_eax;
- 	dump->regs.eip = regs->eip;
- 	dump->regs.cs = regs->xcs;
-===================================================================
---- a/arch/i386/kernel/ptrace.c
-+++ b/arch/i386/kernel/ptrace.c
-@@ -94,13 +94,9 @@ static int putreg(struct task_struct *ch
- 				return -EIO;
- 			child->thread.fs = value;
- 			return 0;
--		case GS:
--			if (value && (value & 3) != 3)
--				return -EIO;
--			child->thread.gs = value;
--			return 0;
- 		case DS:
- 		case ES:
-+		case GS:
- 			if (value && (value & 3) != 3)
- 				return -EIO;
- 			value &= 0xffff;
-@@ -116,8 +112,8 @@ static int putreg(struct task_struct *ch
- 			value |= get_stack_long(child, EFL_OFFSET) & ~FLAG_MASK;
- 			break;
- 	}
--	if (regno > GS*4)
--		regno -= 2*4;
-+	if (regno > ES*4)
-+		regno -= 1*4;
- 	put_stack_long(child, regno - sizeof(struct pt_regs), value);
- 	return 0;
- }
-@@ -131,18 +127,16 @@ static unsigned long getreg(struct task_
- 		case FS:
- 			retval = child->thread.fs;
- 			break;
--		case GS:
--			retval = child->thread.gs;
--			break;
- 		case DS:
- 		case ES:
-+		case GS:
- 		case SS:
- 		case CS:
- 			retval = 0xffff;
- 			/* fall through */
- 		default:
--			if (regno > GS*4)
--				regno -= 2*4;
-+			if (regno > ES*4)
-+				regno -= 1*4;
- 			regno = regno - sizeof(struct pt_regs);
- 			retval &= get_stack_long(child, regno);
- 	}
-===================================================================
---- a/include/asm-i386/elf.h
-+++ b/include/asm-i386/elf.h
-@@ -88,7 +88,7 @@ typedef struct user_fxsr_struct elf_fpxr
- 	pr_reg[7] = regs->xds;				\
- 	pr_reg[8] = regs->xes;				\
- 	savesegment(fs,pr_reg[9]);			\
--	savesegment(gs,pr_reg[10]);			\
-+	pr_reg[10] = regs->xgs;				\
- 	pr_reg[11] = regs->orig_eax;			\
- 	pr_reg[12] = regs->eip;				\
- 	pr_reg[13] = regs->xcs;				\
-===================================================================
---- a/include/asm-i386/unwind.h
-+++ b/include/asm-i386/unwind.h
-@@ -64,6 +64,7 @@ static inline void arch_unw_init_blocked
- 	info->regs.xss = __KERNEL_DS;
- 	info->regs.xds = __USER_DS;
- 	info->regs.xes = __USER_DS;
-+	info->regs.xgs = __KERNEL_PDA;
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -665,7 +665,7 @@ static __cpuinit void init_gdt(void)
+ static __cpuinit void init_gdt(void)
+ {
+ 	int cpu = early_smp_processor_id();
+-	struct task_struct *curr = current;
++	struct task_struct *curr = early_current();
+ 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+ 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
+ 	struct desc_struct *gdt;
+@@ -709,15 +709,18 @@ static __cpuinit void init_gdt(void)
+ 	pda_init(cpu, curr);
  }
  
- extern asmlinkage int arch_unwind_init_running(struct unwind_frame_info *,
+-/* Set up a very early PDA for the boot CPU so that smp_processor_id will work */
++/* Set up a very early PDA for the boot CPU so that smp_processor_id()
++   and current will work. */
+ void __init smp_setup_processor_id(void)
+ {
+-	static const __initdata struct i386_pda boot_pda;
++	static __initdata struct i386_pda boot_pda;
+ 
+ 	pack_descriptor((u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].a,
+ 			(u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].b,
+ 			(unsigned long)&boot_pda, sizeof(struct i386_pda) - 1,
+ 			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
++
++	boot_pda.pcurrent = early_current();
+ 
+ 	/* Set %gs for this CPU's PDA */
+ 	set_kernel_gs();
+@@ -732,8 +735,10 @@ void __cpuinit cpu_init(void)
+ void __cpuinit cpu_init(void)
+ {
+ 	int cpu = early_smp_processor_id();
++	struct task_struct *curr = early_current();
++
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+-	struct thread_struct *thread = &current->thread;
++	struct thread_struct *thread = &curr->thread;
+ 
+ 	if (cpu_test_and_set(cpu, cpu_initialized)) {
+ 		printk(KERN_WARNING "CPU#%d already initialized!\n", cpu);
+@@ -761,10 +766,10 @@ void __cpuinit cpu_init(void)
+ 	 * Set up and load the per-CPU TSS and LDT
+ 	 */
+ 	atomic_inc(&init_mm.mm_count);
+-	current->active_mm = &init_mm;
+-	if (current->mm)
++	curr->active_mm = &init_mm;
++	if (curr->mm)
+ 		BUG();
+-	enter_lazy_tlb(&init_mm, current);
++	enter_lazy_tlb(&init_mm, curr);
+ 
+ 	load_esp0(t, thread);
+ 	set_tss_desc(cpu,t);
+===================================================================
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -590,6 +590,8 @@ static void __devinit start_secondary(vo
+  */
+ void __devinit initialize_secondary(void)
+ {
++	struct task_struct *curr = early_current();
++
+ 	/*
+ 	 * We don't actually need to load the full TSS,
+ 	 * basically just the stack pointer and the eip.
+@@ -599,7 +601,7 @@ void __devinit initialize_secondary(void
+ 		"movl %0,%%esp\n\t"
+ 		"jmp *%1"
+ 		:
+-		:"r" (current->thread.esp),"r" (current->thread.eip));
++		:"r" (curr->thread.esp),"r" (curr->thread.eip));
+ }
+ 
+ extern struct {
+===================================================================
+--- a/include/asm-i386/current.h
++++ b/include/asm-i386/current.h
+@@ -2,14 +2,20 @@
+ #define _I386_CURRENT_H
+ 
+ #include <linux/thread_info.h>
++#include <asm/pda.h>
+ 
+ struct task_struct;
+ 
+-static __always_inline struct task_struct * get_current(void)
++static __always_inline struct task_struct *early_current(void)
+ {
+ 	return current_thread_info()->task;
+ }
+- 
++
++static __always_inline struct task_struct *get_current(void)
++{
++	return read_pda(pcurrent);
++}
++
+ #define current get_current()
+ 
+ #endif /* !(_I386_CURRENT_H) */
 
 --
 

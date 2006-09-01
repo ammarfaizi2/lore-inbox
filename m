@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWIANrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWIANvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWIANrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 09:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWIANrM
+	id S1751499AbWIANvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 09:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWIANvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 09:47:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:27830 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751405AbWIANrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 09:47:12 -0400
-Date: Fri, 1 Sep 2006 15:47:10 +0200
-From: Olaf Kirch <okir@suse.de>
-To: Peter Staubach <staubach@redhat.com>
-Cc: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: [NFS] [PATCH 019 of 19] knfsd: Register all RPC programs with portmapper by default
-Message-ID: <20060901134710.GB29574@suse.de>
-References: <20060901141639.27206.patches@notabene> <1060901043948.27677@suse.de> <44F8359D.40303@redhat.com>
-Mime-Version: 1.0
+	Fri, 1 Sep 2006 09:51:03 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2821 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751499AbWIANvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 09:51:01 -0400
+Date: Fri, 1 Sep 2006 15:50:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Grant Wilson <grant.wilson@zen.co.uk>, David Howells <dhowells@redhat.com>,
+       Jens Axboe <axboe@kernel.dk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: [-mm patch] drivers/md/Kconfig: fix BLOCK dependency
+Message-ID: <20060901135055.GA18276@stusta.de>
+References: <20060901015818.42767813.akpm@osdl.org> <44F80F0D.70100@zen.co.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44F8359D.40303@redhat.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <44F80F0D.70100@zen.co.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 09:29:01AM -0400, Peter Staubach wrote:
-> While I'm thinking about it a little more, why not register NFS_ACL with
-> portmap/rpcbind?  That would make it pingable via rpcinfo.
+On Fri, Sep 01, 2006 at 11:44:29AM +0100, Grant Wilson wrote:
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+> [snip]
+> >  The CONFIG_BLOCK changes wrecked these.
+> 
+> The CONFIG_BLOCK changes also seem to prevent the selection of any RAID
+> or LVM drivers...
 
-I can't say, but I dimly recall that this was intentional, and I
-did not want to change this behavior. Andreas Gruenbacher should
-know.
+Thanks for the bug report, patch below.
 
-Olaf
--- 
-Olaf Kirch   |  --- o --- Nous sommes du soleil we love when we play
-okir@suse.de |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax
+> Cheers,
+> Grant
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc5-mm1/drivers/md/Kconfig.old	2006-09-01 15:47:10.000000000 +0200
++++ linux-2.6.18-rc5-mm1/drivers/md/Kconfig	2006-09-01 15:47:16.000000000 +0200
+@@ -2,7 +2,7 @@
+ # Block device driver configuration
+ #
+ 
+-if CONFIG_BLOCK
++if BLOCK
+ 
+ menu "Multi-device support (RAID and LVM)"
+ 
+

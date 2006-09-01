@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWIAQfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWIAQlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWIAQfI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWIAQfI
+	id S932227AbWIAQlu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWIAQlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:35:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56540 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030196AbWIAQfG (ORCPT
+	Fri, 1 Sep 2006 12:41:50 -0400
+Received: from pat.uio.no ([129.240.10.4]:58866 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932114AbWIAQlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:35:06 -0400
-Message-ID: <44F8612C.10101@redhat.com>
-Date: Fri, 01 Sep 2006 12:34:52 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060801)
-MIME-Version: 1.0
-To: Chuck Lever <chucklever@gmail.com>
-CC: Olaf Kirch <okir@suse.de>, NeilBrown <neilb@suse.de>,
-       Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 019 of 19] knfsd: Register all RPC programs with
- portmapper by default
-References: <20060901141639.27206.patches@notabene>	<1060901043948.27677@suse.de>	<76bd70e30609010831m9e80cfav514d60718d35e7d5@mail.gmail.com>	<20060901155407.GC29574@suse.de> <76bd70e30609010908n47eb356ob121109961f8221c@mail.gmail.com>
-In-Reply-To: <76bd70e30609010908n47eb356ob121109961f8221c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Sep 2006 12:41:49 -0400
+Subject: Re: [NFS] [PATCH 004 of 19] knfsd: lockd: introduce nsm_handle
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Olaf Kirch <okir@suse.de>
+Cc: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20060901161110.GD29574@suse.de>
+References: <20060901141639.27206.patches@notabene>
+	 <1060901043825.27464@suse.de> <1157125820.5632.44.camel@localhost>
+	 <20060901161110.GD29574@suse.de>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 12:41:33 -0400
+Message-Id: <1157128893.5632.74.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.105, required 12,
+	autolearn=disabled, AWL 1.90, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever wrote:
-> On 9/1/06, Olaf Kirch <okir@suse.de> wrote:
->   
->> On Fri, Sep 01, 2006 at 11:31:25AM -0400, Chuck Lever wrote:
->>     
->>> I don't like this.  The idea that multiple RPC services are listening
->>> on the same port is a total hack.  What other service might use this
->>> besides NFSACL?
->>>       
->> Why do you consider this a hack? I have always felt that librpc requiring
->> you to open separate ports for every program you register was a poor
->> design. The RPC header contains the program number, and the RPC code
->> is fully capable of demuxing incoming requests. So I do not think it is
->> a hack at all.
->>
->> And yes, Solaris NFSACL resides on 2049 too.
->>     
->
-> I meant "Does Solaris advertise NFSACL on 2049 via the portmapper?"
+On Fri, 2006-09-01 at 18:11 +0200, Olaf Kirch wrote:
+> This is all related to the reasons for introducing NSM notification
+> by name in the first place.
+> 
+> On the client side, we may have mounted several volumes from a multi-homed
+> server, using different addresses, and you have several NLM client
+> handles, each with one of these addresses - and each in a different
+> nlm_host object.
+> 
+> Or you have an NFS server in a HA configuration, listening on a virtual
+> address. As the server fails over, the alias moves to the backup
+> machine.
+> 
+> Or (once we have IPv6) you may have a mix of v4 and v6 mounts.
+> 
+> Now when the server reboots, it will send you one or more SM_NOTIFY
+> messages. You do not know which addresses it will use. In the multihomed
+> case, you will get one SM_NOTIFY for each server address if the server
+> is a Linux box. Other server OSs will send you just one SM_NOTIFY,
+> and the sender address will be more or less random. In the HA case
+> described above, the sender address will not match the address
+> you used at all (since the UDP packet will have the interface's
+> primary IP address, not the alias).
+> 
+> This is the main motivation for introducing the nsm_handle, and this is
+> also the reason why there is potentially a 1-to-many relationship between
+> nsm_handles (representing a "host") and nlm_host, representing a tuple of
+> (NLM version, transport protocol, address).
+> 
+> Maybe we should rename nlm_host to something less confusing.
 
-Yes, the Solaris server registers the NFS_ACL service with the rpcbind
-daemon.  And, the NFS_ACL protocol is defined to use port 2049.  Please
-see nfs_acl.x (/usr/include/rpcsvc/nfs_acl.x) for details.
+The local statd process is supposed to decode the notification from the
+remote client/server, and then notify the kernel. It already sends that
+notification on a per-nlm_host basis (i.e. it the call down to the
+kernel contains the <address,version,transport protocol>.
 
-       ps
+If we need to mark more than one <address,version,transport protocol>
+tuple as rebooting when we get a notification from the remote
+client/server, then why not fix statd so that it does so. Why perform
+these extra mappings in the kernel, which doesn't have the benefit of
+reverse DNS lookups etc to help it out?
+
+Cheers,
+  Trond
+

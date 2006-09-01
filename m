@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWIADqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWIADwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWIADqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 23:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWIADqu
+	id S1751099AbWIADwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWIADwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 23:46:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18373 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750967AbWIADqt (ORCPT
+	Thu, 31 Aug 2006 23:52:08 -0400
+Received: from hera.kernel.org ([140.211.167.34]:10689 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750967AbWIADwF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 23:46:49 -0400
-Date: Thu, 31 Aug 2006 20:46:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Frank v Waveren <fvw@var.cx>
-Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
-Message-Id: <20060831204612.73ed7f33.akpm@osdl.org>
-In-Reply-To: <1156927468.29250.113.camel@localhost.localdomain>
-References: <1156927468.29250.113.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 31 Aug 2006 23:52:05 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: jg@laptop.org
+Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
+Date: Thu, 31 Aug 2006 23:53:04 -0400
+User-Agent: KMail/1.8.2
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain>
+In-Reply-To: <1157070616.7974.232.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608312353.05337.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Aug 2006 10:44:28 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
+On Thursday 31 August 2006 20:30, Jim Gettys wrote:
+> On Thu, 2006-08-31 at 17:13 -0600, Bjorn Helgaas wrote:
+> > On Wednesday 30 August 2006 13:43, Matthew Garrett wrote:
+> > > That would be helpful. For the One Laptop Per Child project (or whatever 
+> > > it's called today), it would be advantageous to run without acpi.
+> > 
+> > Out of curiosity, what is the motivation for running without acpi?
+> > It costs a lot to diverge from the mainstream in areas like that,
+> > so there must be a big payoff.  But maybe if OLPC depends on acpi
+> > being smarter about power or code size or whatever, those improvements
+> > could be made and everybody would benefit.
+> 
+> Good question; I see Matthew beat me to part of the explanation, but
+> here is more detail:
 
-> Frank v. Waveren pointed out that on 64bit machines the timespec to
-> ktime_t conversion might overflow. This is also true for timeval to
-> ktime_t conversions. This breaks a "sleep inf" on 64bit machines.
-> 
-> While a timespec/timeval with tx.sec = MAX_LONG is valid by
-> specification the internal representation of ktime_t is based on
-> nanoseconds. The conversion of seconds to nanoseconds overflows for
-> seconds values >= (MAX_LONG / NSEC_PER_SEC).
-> 
-> Check the seconds argument to the conversion and limit it to the maximum
-> time which can be represented by ktime_t.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> 
-> diff --git a/include/linux/ktime.h b/include/linux/ktime.h
-> index ed3396d..1beafb3 100644
-> --- a/include/linux/ktime.h
-> +++ b/include/linux/ktime.h
-> @@ -57,6 +57,7 @@ typedef union {
->  } ktime_t;
->  
->  #define KTIME_MAX			(~((u64)1 << 63))
-> +#define KTIME_SEC_MAX			(KTIME_MAX / NSEC_PER_SEC)
->  
->  /*
->   * ktime_t definitions when using the 64-bit scalar representation:
-> @@ -73,6 +74,10 @@ typedef union {
->   */
->  static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)
->  {
-> +#if (BITS_PER_LONG == 64)
-> +	if (unlikely(secs >= KTIME_SEC_MAX))
-> +		return (ktime_t){ .tv64 = KTIME_MAX };
-> +#endif
->  	return (ktime_t) { .tv64 = (s64)secs * NSEC_PER_SEC + (s64)nsecs };
->  }
->  
+I recommended that the OLPC guys not use ACPI.
 
-This makes my FC3 x86_64 testbox hang during udev startup.  sysrq-T trace at
-http://www.zip.com.au/~akpm/linux/patches/stuff/log-x.
+I do not think it would benefit their system.  Although it is an i386
+instruction set, their system is more like an embedded device than
+like a traditional laptop.
 
-I had a quick look at the args to hrtimer_nanosleep and all seems to be in
-order.
+The Geode doesn't suport any C-states -- so ACPI wouldn't help them there anyway.
+
+As Jim wrote, OLPC plans to suspend-to-ram from idle, and to keep video running,
+so ACPI wouldn't help them on that either.
+
+Re: optimizing suspend/resume speed
+I expect suspend/resume speed has more to do with devices than with ACPI.
+But frankly, with gaping functionality holes in Linux suspend/resume support such as
+IDE and SATA, I think that optimizing for suspend/resume speed on a mainstream laptop
+is somewhat "forward looking".
+
+-Len

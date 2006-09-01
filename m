@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWIAQAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWIAQBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWIAQAa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWIAQA3
+	id S932319AbWIAQBb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWIAQBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:00:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3846 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932152AbWIAQA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:00:29 -0400
-Date: Fri, 1 Sep 2006 18:00:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Tom Tucker <tom@opengridcomputing.com>,
-       Steve Wise <swise@opengridcomputing.com>,
-       Roland Dreier <rolandd@cisco.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile error
-Message-ID: <20060901160023.GB18276@stusta.de>
-References: <20060901015818.42767813.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 1 Sep 2006 12:01:30 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7321 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932261AbWIAQB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:01:29 -0400
+Date: Fri, 1 Sep 2006 11:01:20 -0500 (CDT)
+From: John Keller <jpk@sgi.com>
+To: linux-ia64@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, ayoung@sgi.com, linux-kernel@vger.kernel.org,
+       John Keller <jpk@sgi.com>, pcihpd-discuss@lists.sourceforge.net
+Message-Id: <20060901160120.30625.14877.92881@attica.americas.sgi.com>
+Subject: [PATCH 0/3] - Altix: Add initial ACPI IO support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 01:58:18AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc4-mm3:
->...
-> +amso1100-build-fix.patch
-> 
->  Fix git-infiniband.patch
->...
+Patch set to add initial ACPI IO support to Altix.
 
-This causes the following compile error on i386:
+1/3 acpi-base-support.patch
+      When booting with an ACPI capable PROM, the
+      DSDT will now define the system nodes and root
+      PCI busses. An Altix specific ACPI driver will be
+      registered for the node devices, while the
+      standard acpi_pci_root_driver can now scan
+      the PCI busses, eliminating the need for the current
+      fixup code to manually initiate the scan. Multiple SAL
+      calls are no longer needed, as platform specific info
+      is now passed via the ACPI vendor resource descriptor
+      (though all the old fixup code still remains due
+      to backward compatability requirements).
 
-<--  snip  -->
+      A new platform vector for bus_fixup is created.
+      The size of io_space[] is increased to support large
+      IO configurations.
 
-...
-  CC      drivers/infiniband/hw/amso1100/c2.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/infiniband/hw/amso1100/c2.c: In function ‘c2_tx_ring_alloc’:
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/infiniband/hw/amso1100/c2.c:133: error: implicit declaration of function ‘__raw_writeq’
-make[4]: *** [drivers/infiniband/hw/amso1100/c2.o] Error 1
+2/3 acpi-hotplug.patch
+      Make necessary changes to hotplug code now that
+      bus fixup is done via platform vector.
 
-<--  snip  -->
-
-There seems to be some confusion regarding whether __raw_writeq() is 
-considered a platform independent API.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+3/3 acpi-rom-shadow.patch
+      Provide support for PROM shadowing of a ROM image.

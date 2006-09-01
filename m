@@ -1,33 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWIASlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWIASmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWIASlK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 14:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWIASlK
+	id S1750749AbWIASmF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 14:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIASmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 14:41:10 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:41963 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1750748AbWIASlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 14:41:08 -0400
-Date: Fri, 1 Sep 2006 20:41:06 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Stephen Hemminger <shemminger@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not easily reproducable
-Message-ID: <20060901184106.GI1959@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11-2006-07-11
+	Fri, 1 Sep 2006 14:42:05 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61358 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750749AbWIASmC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 14:42:02 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157135504.21733.83.camel@localhost>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157127483.28577.117.camel@localhost.localdomain>
+	 <1157127943.21733.52.camel@localhost>
+	 <1157128634.28577.139.camel@localhost.localdomain>
+	 <1157129762.21733.63.camel@localhost>
+	 <1157130970.28577.150.camel@localhost.localdomain>
+	 <1157132520.21733.78.camel@localhost>
+	 <1157133780.18728.6.camel@localhost.localdomain>
+	 <1157133841.21733.79.camel@localhost>
+	 <1157135024.18728.19.camel@localhost.localdomain>
+	 <1157135504.21733.83.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 11:41:46 -0700
+Message-Id: <1157136106.18728.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-my sky2 network card in my intel mac mini just stopped working again on
-me. After a reboot it worked again. This time there is no dmesg output
-related to the problem. :-( Am I the only one who sees that?
+On Fri, 2006-09-01 at 20:31 +0200, Martin Schwidefsky wrote:
+> On Fri, 2006-09-01 at 11:23 -0700, Dave Hansen wrote:
+> > OK, and there's no other workable solution to exclude each other from
+> > running at the same time than a bit in page->flags?
+> > 
+> > It seems like that hashed lock (or lock in mem_map[]) we were talking
+> > about earlier might be applicable here, too.
+> 
+> The indication which page has already been removed from the page cache
+> by a discard fault is by definition per-page.
 
-        Thomas
+Right.  So having a single bit that was set and cleared wouldn't work
+because it could get interpreted incorrectly for multiple pages.  But,
+what about a lock?
+
+> The situation is different
+> compared to the one with PG_state_change which is used to protect
+> critical sections. After the cpu left the critical section the bit can
+> be clear again. The discard bit cannot be cleared until the page really
+> has been freed.
+
+While something like the following wouldn't be scalable, it would
+functionally work, right?
+
++static void __page_discard(struct page *page)
++{
++	spin_lock(discard_lock);
+...
++	spin_unlock(discard_lock);
++}
+
++void __delete_from_swap_cache(struct page *page)
++{
++	spin_lock(discard_lock);
+...
++	spin_unlock(discard_lock);
++}
+
++void __remove_from_page_cache(struct page *page)
++{
++	spin_lock(discard_lock);
+...
++	spin_unlock(discard_lock);
++}
+
+
+-- Dave
+

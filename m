@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWIAAIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWIAAPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWIAAIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 20:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIAAIP
+	id S964829AbWIAAPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 20:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWIAAPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 20:08:15 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5522 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964825AbWIAAIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 20:08:14 -0400
-Date: Fri, 1 Sep 2006 10:07:45 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Correcting error-prone boolean-statement
-Message-ID: <20060901100745.P3186664@wobbly.melbourne.sgi.com>
-References: <44F77653.6000606@student.ltu.se>
+	Thu, 31 Aug 2006 20:15:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27866 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964826AbWIAAPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 20:15:45 -0400
+Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block
+	layer [try #2]
+From: David Woodhouse <dwmw2@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0608310039440.6761@scrub.home>
+References: <20060825142753.GK10659@infradead.org>
+	 <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
+	 <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
+	 <10117.1156522985@warthog.cambridge.redhat.com>
+	 <15945.1156854198@warthog.cambridge.redhat.com>
+	 <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de>
+	 <44F44B8D.4010700@s5r6.in-berlin.de>
+	 <Pine.LNX.4.64.0608300311430.6761@scrub.home>
+	 <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de>
+	 <Pine.LNX.4.64.0608310039440.6761@scrub.home>
+Content-Type: text/plain
+Date: Thu, 31 Aug 2006 17:15:17 -0700
+Message-Id: <1157069717.2347.13.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <44F77653.6000606@student.ltu.se>; from ricknu-0@student.ltu.se on Fri, Sep 01, 2006 at 01:52:51AM +0200
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 01:52:51AM +0200, Richard Knutsson wrote:
-> From: Richard Knutsson <ricknu-0@student.ltu.se>
+On Thu, 2006-08-31 at 00:41 +0200, Roman Zippel wrote:
+> > USB_STORAGE switched from a depending on SCSI to select'ing SCSI three 
+> > years ago, and ATA in 2.6.19 will also select SCSI for a good reason:
 > 
-> Converting error-prone statement:
-> "if (var == B_FALSE)" into "if (!var)"
-> "if (var == B_TRUE)"  into "if (var)"
+> It was already silly three years ago.
 
-This is my preference too, rather than the local boolean usage which
-isn't used with any consistency... but:
+I agree.
 
-> Compile-tested
+> > When doing anything kconfig related, you must always remember that the 
+> > vast majority of kconfig users are not kernel hackers.
+> 
+> What does that mean, that only kernel hackers can read? 
 
-Are you using XFS on your systems?  What is your strategy for getting this
-runtime tested going to be?  Or are you delegating that responsibility? :)
-
-cheers.
+No, it means that we're pandering to Aunt Tillie.
 
 -- 
-Nathan
+dwmw2
+

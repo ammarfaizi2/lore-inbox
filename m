@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWIALRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWIALf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWIALRy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 07:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWIALRy
+	id S1751488AbWIALf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 07:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWIALf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 07:17:54 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:39875 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751481AbWIALRx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 07:17:53 -0400
-Date: Fri, 1 Sep 2006 13:10:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Steven Whitehouse <swhiteho@redhat.com>, linux-kernel@vger.kernel.org,
-       Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, hch@infradead.org
-Subject: Re: [PATCH 02/16] GFS2: Core locking interface
-Message-ID: <20060901111004.GA8517@elte.hu>
-References: <1157030977.3384.786.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609010852470.25521@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Sep 2006 07:35:28 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:1330 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751488AbWIALf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 07:35:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pNh/dlGF9ZOcDS+vXdeYt3Qf658ViZUfIF+PTGEF9GY+OjlBmkDA93nd8Yej5wzx0fUvi1fmT2R1V5zaXqPYy/up0gbuF6hblkvVG94sGGCa3ECQoJvHC2S+W5AgnUurIi4IvaF72RMkvBp0HN4L3Xcmz7JaSjfwgPjBUmHfdKc=
+Message-ID: <9a8748490609010435k6b327237ve6a23ddcaa0f4065@mail.gmail.com>
+Date: Fri, 1 Sep 2006 13:35:20 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Herbert Xu" <herbert@gondor.apana.org.au>
+Subject: Re: Unable to halt or reboot due to - unregister_netdevice: waiting for eth0.20 to become free. Usage count = 1
+Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org,
+       waltje@uwalt.nl.mugnet.org, ross.biro@gmail.com, davem@davemloft.net,
+       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org
+In-Reply-To: <9a8748490609010351kd8f0d40ud3509e2f3eaa89ac@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0609010852470.25521@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <9a8748490609010259l7c42ca88tbcc87410a770b48c@mail.gmail.com>
+	 <E1GJ6St-0004Te-00@gondolin.me.apana.org.au>
+	 <9a8748490609010351kd8f0d40ud3509e2f3eaa89ac@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 01/09/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 01/09/06, Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> > Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > >
+> > > I've just encountered the problem on a different server with an
+> > > identical vlan setup. That server is running 2.6.13.4
+> >
+> > Do you have a simple recipe to reproduce this? Ideally it'd be a
+> > script that anyone can execute in a freshly booted system that
+> > exhibits the problem.
+> >
+> Well, the first server I saw this on only had a base install of debian
+> stable on it, then I replaced the kernel, configured the vlan
+> interface in /etc/network/interfaces typed 'reboot' and it failed -
+> and it seems to fail reliably on reboot every time.
+>
+Ok, I've done some more testing and it seems, unfortunately, that I
+can't trigger the problem reliably. I guess I was just "lucky" with my
+first few reboots.
+It now seems that uptime and/or amount of data that has flowed over
+the vlan interface impacts the probability of hitting the problem.
 
-* Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-
-> I suppose so. If they were initialized statically, this function could 
-> possibly be dropped.
-> 
-> >+typedef void lm_lockspace_t;
-> >+typedef void lm_lock_t;
-> >+typedef void lm_fsdata_t;
-> 
-> Try to avoid typedefs for
-> - simple types like these (int/void/etc.)
-> - structures
-
-yeah. If we dont want to expose a type externally, we forward declare 
-the structure, and pointers to it can then be used and passed around. 
-That's also more type-safe (and obviously more readable) than a typedef 
-to void.
-
-> >+		error = glock_wait_internal(gh);
-> >+		if (error == GLR_CANCELED) {
-> >+			msleep(100);
-> 
-> msleep is a busy-waiter IIRC. Really want to do that - what about some 
-> schedulling?
-
-no. mdelay() is the busy-waiter - msleep() is scheduling based.
-
-> >+			borked = 1;
-> >+			serious = error;
-> 
-> This got me a laugh :)
-
-me too - the hidden joys of code review :-)
-
-	Ingo
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

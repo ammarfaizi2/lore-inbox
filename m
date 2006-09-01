@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWIACzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWIADCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWIACzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 22:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWIACzF
+	id S1750875AbWIADCs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWIADCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 22:55:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:13448 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750809AbWIACzD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 22:55:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sam Handler <sam_5_5_5_0@yahoo.com>
-Subject: Re: using Linux Device Drivers 3rd edition to learn developing modules for linux 2.4
-Date: Thu, 31 Aug 2006 21:42:40 -0500
-Message-ID: <sam_5_5_5_0-970272.21424031082006@sea.gmane.org>
-References: <3420082f0608311300i7fa711d2yeec43284e8c6a91d@mail.gmail.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 199.86.19.174
-User-Agent: MT-NewsWatcher/3.5.2b1 (PPC Mac OS X)
+	Thu, 31 Aug 2006 23:02:48 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:26781 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750819AbWIADCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 23:02:47 -0400
+X-Sasl-enc: FirVqrsVQwv2d5a8YzEwlG0i3miptMMw7jHngZt5hr4b 1157079765
+Date: Fri, 1 Sep 2006 11:02:34 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Josef Sipek <jsipek@cs.sunysb.edu>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH 09/22][RFC] Unionfs: File operations
+In-Reply-To: <20060901014818.GJ5788@fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.64.0609011101020.3811@raven.themaw.net>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901014818.GJ5788@fsl.cs.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article 
-<3420082f0608311300i7fa711d2yeec43284e8c6a91d@mail.gmail.com>,
- "Irfan Habib" <irfan.habib@gmail.com> wrote:
+On Thu, 31 Aug 2006, Josef Sipek wrote:
 
-> Hi,
-> 
-> I have a copy of "Linux Device Drivers" 3rd Edition, I think it is
-> made for linux 2.6, but I have to make a module for linux 2.4, is it
-> suitable or should I get 2nd edition?
-> 
-> Regards
+> +	if (err < 0)
+> +		goto out;
+> +	if (err != file->f_pos) {
+> +		file->f_pos = err;
+> +		// ION maybe this?
+> +		//      file->f_pos = hidden_file->f_pos;
 
-The second edition is available online:
+Do you really want to keep this comment, perhaps it's time to decide?
 
-http://www.xml.com/ldd/chapter/book/bookindexpdf.html
-
-It covers the 2.4 kernel.
-
---Sam
+Ian
 

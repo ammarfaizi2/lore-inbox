@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWIAQeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWIAQfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWIAQeM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWIAQeM
+	id S1030199AbWIAQfM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWIAQfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:34:12 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20742 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030193AbWIAQeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:34:09 -0400
-Date: Fri, 1 Sep 2006 18:34:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       David Woodhouse <dwmw2@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060901163403.GC18276@stusta.de>
-References: <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de> <Pine.LNX.4.64.0608310039440.6761@scrub.home> <1157069717.2347.13.camel@shinybook.infradead.org> <20060831174852.18efec7e.rdunlap@xenotime.net> <1157074048.2347.24.camel@shinybook.infradead.org> <20060901134425.GA32440@wohnheim.fh-wedel.de> <44F85267.1000607@s5r6.in-berlin.de> <20060901161920.GB32440@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060901161920.GB32440@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 1 Sep 2006 12:35:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49895 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030197AbWIAQfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:35:09 -0400
+Date: Fri, 1 Sep 2006 09:34:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+ sharing [try #13]
+Message-Id: <20060901093451.87aa486d.akpm@osdl.org>
+In-Reply-To: <9534.1157116114@warthog.cambridge.redhat.com>
+References: <20060831102127.8fb9a24b.akpm@osdl.org>
+	<20060830135503.98f57ff3.akpm@osdl.org>
+	<20060830125239.6504d71a.akpm@osdl.org>
+	<20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	<27414.1156970238@warthog.cambridge.redhat.com>
+	<9849.1157018310@warthog.cambridge.redhat.com>
+	<9534.1157116114@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 06:19:20PM +0200, Jörn Engel wrote:
-> On Fri, 1 September 2006 17:31:51 +0200, Stefan Richter wrote:
-> > 
-> > Yes and no. In the latter case, they have to magically know that at
-> > least menuconfig and xconfig can be tricked to list depending options.
+On Fri, 01 Sep 2006 14:08:34 +0100
+David Howells <dhowells@redhat.com> wrote:
+
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> True.  Marginally better than horrible then. :)
+> > Your CONFIG_BLOCK patches did a decent job of trashing your
+> > fs-cache-make-kafs-* patches, btw.  What's up with that?  OK, it's sensible
+> > for people to work against mainline but the net effect of doing that is to
+> > create a mess for other people to clean up.
 > 
-> > Could be a fun project [...]
+> It seems the only problem in my patches is that the file address space
+> operations have had the sync_pages op removed in a patch in the
+> disable-block-layer patchset as it's no longer necessary.
 > 
-> Absolutely.  Assuming that select gets removed in the process, and
-> concentrating on oldconfig, would it be enough to have something like
-> this in the .config?
+> However, as I suspect you're applying the block patches *before* the FS-Cache
+> patches,
+
+Yes, I stage the subsystem trees ahead of everything else.  So a) things
+which get merged into a subsystem tree effectively do a queue-jump and b) I
+spend much of the merge window twiddling thumbs until the git trees have
+merged.
+
+> I can't give you an incremental patch that you can apply after the
+> other fs-cache-make-kafs-* patches, since you need to modify the first patch
+> (fs-cache-make-kafs-use-fs-cache.patch) to get it to apply at all now.
 > 
-> # CONFIG_USB_STORAGE has unmet dependencies: CONFIG_SCSI, CONFIG_BLOCK
-> 
-> Now people looking for usb mass storage can find the option without
-> grepping through Kconfig files, but also every single driver for every
-> single disabled subsystem shows up.  Might be a bit too much.
+> So, I could issue a revised AFS+FS-Cache patch, would that do?  Or would you
+> rather have a patch that you can apply to the one you already have directly
+> and modify it in place?
 
-Common use case:
-A driver was changed to use FW_LOADER.
-The .config for the old kernel contains CONFIG_FW_LOADER=n.
-The user runs "make oldconfig" with the old .config in the new kernel.
+I fixed it all up, I think.  Please review-and-test rc5-mm1 (including
+hot-fixes/ contents, which grows apace).
 
-How do you plan to handle this reasonably without select?
-
-> Jörn
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+nfs automounter submounts are still broken in Trond's tree, btw.  Are we stuck?

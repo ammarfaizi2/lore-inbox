@@ -1,94 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWIABfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWIABge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWIABfd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWIABfd
+	id S964849AbWIABge (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWIABge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:35:33 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:13190 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964848AbWIABfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:35:32 -0400
-Date: Thu, 31 Aug 2006 21:35:13 -0400
-From: Josef Sipek <jsipek@cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-Subject: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
-Message-ID: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 31 Aug 2006 21:36:34 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:35062 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S964849AbWIABgd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:36:33 -0400
+Message-ID: <44F78E88.8050602@myri.com>
+Date: Thu, 31 Aug 2006 21:36:08 -0400
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Matt Porter <mporter@embeddedalley.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC] Simple userspace interface for PCI drivers
+References: <20060830062338.GA10285@kroah.com> <20060830143410.GB19477@gate.crashing.org> <20060830175529.GB6258@kroah.com>
+In-Reply-To: <20060830175529.GB6258@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This set of patches constitutes Unionfs version 2.0. We are presenting it to
-be reviewed and considered for inclusion into the kernel.
+Greg KH wrote:
+> On Wed, Aug 30, 2006 at 09:34:10AM -0500, Matt Porter wrote:
+>   
+>> On Tue, Aug 29, 2006 at 11:23:38PM -0700, Greg KH wrote:
+>>     
+>>> A while ago, Thomas and I were sitting in the back of a conference
+>>> presentation where the presenter was trying to describe what they did in
+>>> order to add the ability to write a userspace PCI driver.  As was usual
+>>> in a presentation like this, the presenter totaly ignored the real-world
+>>> needs for such a framework, and only got it up and working on a single
+>>> type of embedded system.  But the charts and graphs were quite pretty :)
+>>>
+>>> Thomas and I lamented that we were getting tired of seeing stuff like
+>>> this, and it was about time that we added the proper code to the kernel
+>>> to provide everything that would be needed in order to write PCI drivers
+>>> in userspace in a sane manner.  Really all that is needed is a way to
+>>> handle the interrupt, everything else can already be done in userspace
+>>> (look at X for an example of this...)
+>>>       
+>> What about portable access to the PCI DMA API from userspace?
+>>     
+>
+> It currently does not provide this, but if you know how your card works,
+> I'm pretty sure you can get this working without such an interface.
+>
+> If you wish to add this functionality, to make it easier, that would be
+> great.
+>   
 
-Unionfs is a stackable filesystem that is based off of the FiST stackable
-filesystem framework written by Erez Zadok: see <http://filesystems.org/>.
+I might be nice to have something like a copy-block where the
+application writes/reads data, while the device does DMA only from/to
+there. We would need an easy way to mmap some anonymous DMA-ready memory
+in user-space, and something to give the corresponding DMA addresses to
+the application.
 
-Josef Sipek presented Unionfs at the 2006 Ottawa Linux Symposiums; the
-high-level overview from this year's symposium starts on page 349 of the
-second half of the symposium proceedings:  see
 
-  <http://www.linuxsymposium.org/2006/linuxsymposium_procv2.pdf>
+Additionally, the current code might not be flexible enough regarding
+acknowledging of interrupts. It might be good to use the bit that PCI
+2.2 defines in the config space to mask/unmask interrupt in a generic
+way. Something like : when an interrupt comes, the driver mask the
+interrupts using this bit, and then passes the event to user-space. The
+user-space interrupt handler acknowledges the interrupt with the device
+specific code, and then unmask with the PCI 2.2 bit.
 
-Note that this set of patches contains a considerably trimmed-down version
-of Unionfs.  That way it'd be possible to evaluate Unionfs's most basic
-functionality, gradually adding features in future patches.
+Brice
 
-To download tarballs of the full source, along with userspace utilities,
-read various documents and other info about Unionfs, see the home page at
-
-  <http://www.unionfs.org>
-
-Josef "Jeff" Sipek, on behalf of the Unionfs team.
-
-Index:
-=======
-[PATCH 01/22][RFC] Unionfs: Documentation
-[PATCH 02/22][RFC] Unionfs: Kconfig and Makefile
-[PATCH 03/22][RFC] Unionfs: Branch management functionality
-[PATCH 04/22][RFC] Unionfs: Common file operations
-[PATCH 05/22][RFC] Unionfs: Copyup Functionality
-[PATCH 06/22][RFC] Unionfs: Dentry operations
-[PATCH 07/22][RFC] Unionfs: Directory file operations
-[PATCH 08/22][RFC] Unionfs: Directory manipulation helper functions
-[PATCH 09/22][RFC] Unionfs: File operations
-[PATCH 10/22][RFC] Unionfs: Inode operations
-[PATCH 11/22][RFC] Unionfs: Lookup helper functions
-[PATCH 12/22][RFC] Unionfs: Main module functions
-[PATCH 13/22][RFC] Unionfs: Readdir state
-[PATCH 14/22][RFC] Unionfs: Rename
-[PATCH 15/22][RFC] Unionfs: Privileged operations workqueue
-[PATCH 16/22][RFC] Unionfs: Handling of stale inodes
-[PATCH 17/22][RFC] Unionfs: Miscellaneous helper functions
-[PATCH 18/22][RFC] Unionfs: Superblock operations
-[PATCH 19/22][RFC] Unionfs: Helper macros/inlines
-[PATCH 20/22][RFC] Unionfs: Internal include file
-[PATCH 21/22][RFC] Unionfs: Unlink
-[PATCH 22/22][RFC] Unionfs: Include file
-
-Known Issues and Limitations:
-
-- The NFS server returns -EACCES for read-only exports, instead of -EROFS.
-  This means we can't reliably detect a read-only NFS export.
-
-- Modifying a Unionfs branch directly, while the union is mounted, is
-  currently unsupported.  Any such change may cause Unionfs to oops and it
-  can even result in data loss!
-
-- The PPC module loading algorithm has an O(N^2) loop, so it takes a while
-  to load the Unionfs module, because we have lots of symbols.
-
-- Unionfs shouldn't use lookup_one_len on the underlying fs as it confuses
-  NFS.
-
-For the initial release we removed support for xattrs, persistent inode
-mappings, and mmap operations.
-
-Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>

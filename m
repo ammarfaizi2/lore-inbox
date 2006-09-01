@@ -1,55 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWIAXlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWIAXsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWIAXlc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 19:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWIAXlc
+	id S1750703AbWIAXsw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 19:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWIAXsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 19:41:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:28070 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750701AbWIAXlb (ORCPT
+	Fri, 1 Sep 2006 19:48:52 -0400
+Received: from ns2.suse.de ([195.135.220.15]:48318 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750703AbWIAXsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 19:41:31 -0400
-Message-ID: <44F8C528.6020501@garzik.org>
-Date: Fri, 01 Sep 2006 19:41:28 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Fri, 1 Sep 2006 19:48:51 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Sat, 2 Sep 2006 09:48:40 +1000
 MIME-Version: 1.0
-To: Andrew Barr <andrew.james.barr@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Marvell PATA Controller
-References: <1157147438.21291.14.camel@r51.oakcourt.dyndns.org>
-In-Reply-To: <1157147438.21291.14.camel@r51.oakcourt.dyndns.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-ID: <17656.50904.790639.414466@cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Olaf Kirch <okir@suse.de>
+Subject: Re: [PATCH 004 of 19] knfsd: lockd: introduce nsm_handle
+In-Reply-To: message from Andrew Morton on Thursday August 31
+References: <20060901141639.27206.patches@notabene>
+	<1060901043825.27464@suse.de>
+	<20060831231703.78c99b60.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Barr wrote:
-> I have one of these too, which are unsupported so far:
+On Thursday August 31, akpm@osdl.org wrote:
+> On Fri, 1 Sep 2006 14:38:25 +1000
+> NeilBrown <neilb@suse.de> wrote:
 > 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.1/0693.html
+> > +static DECLARE_MUTEX(nsm_sema);
+> > ...
+> > +	down(&nsm_sema);
 > 
-> The PCI IDs on my Intel DG965RY desktop board are exactly the
-> same--11ab:6101. Is there anything anyone can do to help get the docs to
-> the right people? Has anyone asked Marvell about Linux support for this
-> hardware? I was bummed to find that Linux doesn't currently support this
-> rather pedestrian piece of hardware.
-> 
-> I really don't want to buy SATA optical drives as the two PATA drives I
-> have now are perfectly good and I've already spent a lot on upgrading my
-> box.
+> Next you'll all be wearing bell-bottomed jeans?
+
+You've been peeking in my wardrobe, haven't you :-)
+
+NeilBrown
 
 
-I've asked my Marvell contacts for hardware documentation, and perhaps a 
-sample board, but have only received a "hello" reply back so far.  We'll 
-see...
+---
+Subject: Convert lockd to use the newer mutex instead of the older semaphore
 
-	Jeff
+Both the (recently introduces) nsm_sema and the older f_sema are
+converted over.
 
+Cc: Olaf Kirch <okir@suse.de>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./fs/lockd/host.c             |   11 ++++++-----
+ ./fs/lockd/svclock.c          |   22 +++++++++++-----------
+ ./fs/lockd/svcsubs.c          |    2 +-
+ ./include/linux/lockd/lockd.h |    2 +-
+ 4 files changed, 19 insertions(+), 18 deletions(-)
+
+diff .prev/fs/lockd/host.c ./fs/lockd/host.c
+--- .prev/fs/lockd/host.c	2006-09-01 12:26:45.000000000 +1000
++++ ./fs/lockd/host.c	2006-09-01 18:56:39.000000000 +1000
+@@ -436,7 +436,7 @@ nlm_gc_hosts(void)
+  * Manage NSM handles
+  */
+ static LIST_HEAD(nsm_handles);
+-static DECLARE_MUTEX(nsm_sema);
++static DEFINE_MUTEX(nsm_mutex);
+ 
+ static struct nsm_handle *
+ __nsm_find(const struct sockaddr_in *sin,
+@@ -458,7 +458,7 @@ __nsm_find(const struct sockaddr_in *sin
+ 		return NULL;
+ 	}
+ 
+-	down(&nsm_sema);
++	mutex_lock(&nsm_mutex);
+ 	list_for_each(pos, &nsm_handles) {
+ 		nsm = list_entry(pos, struct nsm_handle, sm_link);
+ 
+@@ -488,7 +488,8 @@ __nsm_find(const struct sockaddr_in *sin
+ 		list_add(&nsm->sm_link, &nsm_handles);
+ 	}
+ 
+-out:	up(&nsm_sema);
++out:
++	mutex_unlock(&nsm_mutex);
+ 	return nsm;
+ }
+ 
+@@ -507,11 +508,11 @@ nsm_release(struct nsm_handle *nsm)
+ 	if (!nsm)
+ 		return;
+ 	if (atomic_read(&nsm->sm_count) == 1) {
+-		down(&nsm_sema);
++		mutex_lock(&nsm_mutex);
+ 		if (atomic_dec_and_test(&nsm->sm_count)) {
+ 			list_del(&nsm->sm_link);
+ 			kfree(nsm);
+ 		}
+-		up(&nsm_sema);
++		mutex_unlock(&nsm_mutex);
+ 	}
+ }
+
+diff .prev/fs/lockd/svclock.c ./fs/lockd/svclock.c
+--- .prev/fs/lockd/svclock.c	2006-09-01 12:17:21.000000000 +1000
++++ ./fs/lockd/svclock.c	2006-09-01 18:54:53.000000000 +1000
+@@ -254,9 +254,9 @@ static void nlmsvc_free_block(struct kre
+ 	dprintk("lockd: freeing block %p...\n", block);
+ 
+ 	/* Remove block from file's list of blocks */
+-	down(&file->f_sema);
++	mutex_lock(&file->f_mutex);
+ 	list_del_init(&block->b_flist);
+-	up(&file->f_sema);
++	mutex_unlock(&file->f_mutex);
+ 
+ 	nlmsvc_freegrantargs(block->b_call);
+ 	nlm_release_call(block->b_call);
+@@ -281,7 +281,7 @@ void nlmsvc_traverse_blocks(struct nlm_h
+ 	struct nlm_block *block, *next;
+ 
+ restart:
+-	down(&file->f_sema);
++	mutex_lock(&file->f_mutex);
+ 	list_for_each_entry_safe(block, next, &file->f_blocks, b_flist) {
+ 		if (!match(block->b_host, host))
+ 			continue;
+@@ -290,12 +290,12 @@ restart:
+ 		if (list_empty(&block->b_list))
+ 			continue;
+ 		kref_get(&block->b_count);
+-		up(&file->f_sema);
++		mutex_unlock(&file->f_mutex);
+ 		nlmsvc_unlink_block(block);
+ 		nlmsvc_release_block(block);
+ 		goto restart;
+ 	}
+-	up(&file->f_sema);
++	mutex_unlock(&file->f_mutex);
+ }
+ 
+ /*
+@@ -354,7 +354,7 @@ nlmsvc_lock(struct svc_rqst *rqstp, stru
+ 	lock->fl.fl_flags &= ~FL_SLEEP;
+ again:
+ 	/* Lock file against concurrent access */
+-	down(&file->f_sema);
++	mutex_lock(&file->f_mutex);
+ 	/* Get existing block (in case client is busy-waiting) */
+ 	block = nlmsvc_lookup_block(file, lock);
+ 	if (block == NULL) {
+@@ -392,10 +392,10 @@ again:
+ 
+ 	/* If we don't have a block, create and initialize it. Then
+ 	 * retry because we may have slept in kmalloc. */
+-	/* We have to release f_sema as nlmsvc_create_block may try to
++	/* We have to release f_mutex as nlmsvc_create_block may try to
+ 	 * to claim it while doing host garbage collection */
+ 	if (newblock == NULL) {
+-		up(&file->f_sema);
++		mutex_unlock(&file->f_mutex);
+ 		dprintk("lockd: blocking on this lock (allocating).\n");
+ 		if (!(newblock = nlmsvc_create_block(rqstp, file, lock, cookie)))
+ 			return nlm_lck_denied_nolocks;
+@@ -405,7 +405,7 @@ again:
+ 	/* Append to list of blocked */
+ 	nlmsvc_insert_block(newblock, NLM_NEVER);
+ out:
+-	up(&file->f_sema);
++	mutex_unlock(&file->f_mutex);
+ 	nlmsvc_release_block(newblock);
+ 	nlmsvc_release_block(block);
+ 	dprintk("lockd: nlmsvc_lock returned %u\n", ret);
+@@ -489,9 +489,9 @@ nlmsvc_cancel_blocked(struct nlm_file *f
+ 				(long long)lock->fl.fl_start,
+ 				(long long)lock->fl.fl_end);
+ 
+-	down(&file->f_sema);
++	mutex_lock(&file->f_mutex);
+ 	block = nlmsvc_lookup_block(file, lock);
+-	up(&file->f_sema);
++	mutex_unlock(&file->f_mutex);
+ 	if (block != NULL) {
+ 		status = nlmsvc_unlink_block(block);
+ 		nlmsvc_release_block(block);
+
+diff .prev/fs/lockd/svcsubs.c ./fs/lockd/svcsubs.c
+--- .prev/fs/lockd/svcsubs.c	2006-09-01 11:38:14.000000000 +1000
++++ ./fs/lockd/svcsubs.c	2006-09-01 18:55:56.000000000 +1000
+@@ -106,7 +106,7 @@ nlm_lookup_file(struct svc_rqst *rqstp, 
+ 		goto out_unlock;
+ 
+ 	memcpy(&file->f_handle, f, sizeof(struct nfs_fh));
+-	init_MUTEX(&file->f_sema);
++	mutex_init(&file->f_mutex);
+ 	INIT_HLIST_NODE(&file->f_list);
+ 	INIT_LIST_HEAD(&file->f_blocks);
+ 
+
+diff .prev/include/linux/lockd/lockd.h ./include/linux/lockd/lockd.h
+--- .prev/include/linux/lockd/lockd.h	2006-09-01 12:26:43.000000000 +1000
++++ ./include/linux/lockd/lockd.h	2006-09-01 18:50:32.000000000 +1000
+@@ -111,7 +111,7 @@ struct nlm_file {
+ 	struct list_head	f_blocks;	/* blocked locks */
+ 	unsigned int		f_locks;	/* guesstimate # of locks */
+ 	unsigned int		f_count;	/* reference count */
+-	struct semaphore	f_sema;		/* avoid concurrent access */
++	struct mutex		f_mutex;	/* avoid concurrent access */
+ };
+ 
+ /*
 
 -- 
-VGER BF report: H 5.92856e-05
+VGER BF report: H 2.88825e-13

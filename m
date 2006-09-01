@@ -1,47 +1,54 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWIAEIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWHaV4W (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 31 Aug 2006 17:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHaV4W
+	id S1751092AbWIAEIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 00:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWIAEIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 17:56:22 -0400
-Received: from vsmtp2.tin.it ([212.216.176.222]:8922 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S932382AbWHaV4V (ORCPT
+	Fri, 1 Sep 2006 00:08:36 -0400
+Received: from 1wt.eu ([62.212.114.60]:51729 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751092AbWIAEIg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 17:56:21 -0400
-Message-ID: <10d66359e7a.denismoussa1@virgilio.it>
-Date: Thu, 31 Aug 2006 22:49:52 +0100 (GMT+01:00)
-From: "vicent_personal@myway.com" <denismoussa1@virgilio.it>
-Reply-To: vicent_personal@myway.com
-Subject: From  Mr.Denis Muossa Compensation For Your Past Efforts
+	Fri, 1 Sep 2006 00:08:36 -0400
+Date: Fri, 1 Sep 2006 05:44:02 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.33.3
+Message-ID: <20060901034402.GA28317@1wt.eu>
+References: <20060831202636.GA26765@hera.kernel.org> <dh3ff2lapcu7267j23cjvn9p5v1pvusr6u@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 196.46.153.9
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dh3ff2lapcu7267j23cjvn9p5v1pvusr6u@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932382AbWHaV4W@vger.kernel.org>
 
-Dearest.Friend,
-This is to inform you about my success in getting the 
-money moved under the cooperation of a new partner from South Korea. 
-Presently i'm in South Korea for investing my own part of the money 
-Meanwhile,i didn't forget your past efforts and attempts to assist me 
-in moved the cash despite that both of us could not make it.
-Now 
-contact my secretary,his name is Vincent Mike and his email address is 
-(vicent_personal@myway.com) ask him to send you US$800,000.00 in a 
-Certified Draft which i kept for your compensation for all the past 
-efforts and attempts to assist me in this matter. I appreciated your 
-efforts at that time very much.
-So feel free and get in touched with my 
-secretary Vincent Mike and instruct him where to send the money to you.
-Please do let me know immediately you receive it so that we can share 
-the joy after all the sufferness at that time. in the moment, i am very 
-busy here investing with my new partner . finally, I have forwarded 
-instruction to my secretary to send the Confirmable Draft to you, so 
-feel free to get in touch with Vincent Mike and he will send the Draft 
-to you without any delay.
-Best Regards
-Mr.Denis Muossa
+On Fri, Sep 01, 2006 at 11:37:01AM +1000, Grant Coady wrote:
+> On Thu, 31 Aug 2006 20:26:36 +0000, Willy Tarreau <wtarreau@hera.kernel.org> wrote:
+> 
+> >Hi !
+> >
+> >This is the third version of 2.4.33-stable. The fix for the UDF deadlock
+> >mentionned in previous announce has been merged, as well as the second
+> >part of the SCTP fix. Other patches fix rather minor but annoying bugs.
+> 
+> stable
+> + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+> | kernel version  |deltree|hal    |niner  |peetoo |pooh   |sempro |silly  |tosh   |
+> + - - - - - - - - + - - - + - - - + - - - + - - - + - - - + - - - + - - - + - - - +
+> | 2.4.33.3 [2,3]  |   Y   |   Y   |   Y   |   Y   |       |   Y   |   Y   |   Y   |
+> ...
+> [1] unofficial rename of 2.4.33.1 for testing under slackware, to be resolved...
+> [2] requires upgrade to glibc-solibs-2.3.5-i486-6_slack10.2.tgz for slack-10.2
+> [3] deltree still uses rename hack [1] until upgrade to slackware-11.0
+> 
+>   -- <http://bugsplatter.mine.nu/test/linux-2.4/>
+> 
+> Works for me :o)
+> 
+> Grant.
+
+Cool, thanks for your tests, Grant !
+Willy
 

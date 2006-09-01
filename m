@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWIATg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751755AbWIATl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWIATg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 15:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWIATg0
+	id S1751755AbWIATl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 15:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbWIATl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 15:36:26 -0400
-Received: from pih-relay05.plus.net ([212.159.14.132]:43449 "EHLO
-	pih-relay05.plus.net") by vger.kernel.org with ESMTP
-	id S1751223AbWIATgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 15:36:25 -0400
-Message-ID: <44F88B98.3020805@mauve.plus.com>
-Date: Fri, 01 Sep 2006 20:35:52 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Fri, 1 Sep 2006 15:41:58 -0400
+Received: from gw.goop.org ([64.81.55.164]:31371 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751297AbWIATl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 15:41:57 -0400
+Message-ID: <44F88510.1070603@goop.org>
+Date: Fri, 01 Sep 2006 12:08:00 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Helge Hafting <helge.hafting@aitel.hist.no>, Rob Landley <rob@landley.net>,
-       linux-kernel@vger.kernel.org, linux-tiny@selenic.com, devel@laptop.org
-Subject: Re: [PATCH 0/4] Compile kernel with -fwhole-program --combine
-References: <1156429585.3012.58.camel@pmac.infradead.org>	 <1156433068.3012.115.camel@pmac.infradead.org>	 <200608251611.50616.rob@landley.net>	 <1156538115.3038.6.camel@pmac.infradead.org>	 <44F2CB09.2010809@aitel.hist.no> <1156764076.5340.75.camel@pmac.infradead.org>
-In-Reply-To: <1156764076.5340.75.camel@pmac.infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 0/8] Implement per-processor data areas for i386.
+References: <20060901064718.918494029@goop.org> <200609011016.45600.ak@suse.de> <44F7EEA2.3090600@goop.org> <200609011030.06859.ak@suse.de>
+In-Reply-To: <200609011030.06859.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> On Mon, 2006-08-28 at 12:52 +0200, Helge Hafting wrote:
->> And a "make optImage" (optimized image) when building a
->> kernel for production use, when you believe compiling every file
->> and spending lots of extra time is worth it. 
-<snip>
-> But if, as I suggest, we're doing the simple option which combines only
-> the files which tend to get most benefit from it -- those which are in
-> the same directory -- then there's not a lot of point in the separate
-> target. It really doesn't take that much extra time.
+Andi Kleen wrote:
+>>> There unfortunately were still quite a lot of rejects because -mm* 
+>>> is too different from mainline, but I fixed them all.
+>>>   
+>>>       
+>> Thanks.  Were there more conflicts than entry.S?
+>>     
+>
+> Yes ptrace-abi.h doesn't exist 
 
-I thought that it used rather a lot more RAM. I still often(ish) compile 
-a kernel on my PII/300/128M. It'd be moderately annoying if it got 
-slower, and there was no way to turn it off.
+That's a bit of a surprise.  I've been working against -mm, so I hadn't 
+noticed that it wasn't in mainline.  I had assumed the name was old and 
+historical given how inaccurate it is.  I wonder what patch it's part of...
+
+> and the ""s in the Subject of your last patch caused 
+> quilt to freak out. I think there was one other too.
+>
+> I hope everything still works. At least one of my test machines 
+> is currently completely unhappy on i386 with random hangs (even before 
+> your patches), still bisecting it.
+>   
+
+Good luck.  The PDA/CPU startup stuff is all very touchy (I took your 
+advice and had good success debugging it with simnow), but once you're 
+past that it either works or it doesn't.
+
+    J
+

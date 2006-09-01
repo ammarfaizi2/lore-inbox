@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWIACCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWIACDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWIACCe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 22:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIACCe
+	id S1750776AbWIACDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 22:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIACDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 22:02:34 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:52616 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751128AbWIACCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 22:02:32 -0400
-Date: Thu, 31 Aug 2006 22:02:22 -0400
-From: Josef Sipek <jsipek@cs.sunysb.edu>
+	Thu, 31 Aug 2006 22:03:13 -0400
+Received: from ns.suse.de ([195.135.220.2]:26057 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750776AbWIACDL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 22:03:11 -0400
+From: Neil Brown <neilb@suse.de>
 To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-Subject: [PATCH 22/22][RFC] Unionfs: Include file
-Message-ID: <20060901020222.GW5788@fsl.cs.sunysb.edu>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-Mime-Version: 1.0
+Date: Fri, 1 Sep 2006 12:02:52 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17655.38092.888976.846697@cse.unsw.edu.au>
+Subject: RFC - sysctl or module parameters.
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Global include file - can be included from userspace by utilities.
+There are so many ways to feed configuration parameters into the
+kernel these days.  
+There is sysctl.  There is sysfs. And there are module paramters.
+(procfs? who said procfs? I certainly didn't).
 
-Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
+I have a module - let's call it 'lockd'.
+I want to make it configurable - say to be able to identify
+ peers by IP address (as it currently does) or host name
+ (good for multi homed peers, if you trust them).
 
----
+And I want Jo Sysadmin to be able to set some simple configuration
+setting somewhere and have it 'just work'.
 
- include/linux/union_fs.h |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+Options:
+ - I could make it a module parameter: use_hostnames, and tell
+   Jo to put
+     options lockd use_hostnames=yes
+   in /etc/modprobe.d/lockd  if that is what (s)he wants.
+   But that won't work if the module is compiled in (will it?).
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/include/linux/union_fs.h linux-2.6-git-unionfs/include/linux/union_fs.h
---- linux-2.6-git/include/linux/union_fs.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/include/linux/union_fs.h	2006-08-31 19:04:04.000000000 -0400
-@@ -0,0 +1,20 @@
-+#ifndef _LINUX_UNION_FS_H
-+#define _LINUX_UNION_FS_H
-+
-+#define UNIONFS_VERSION  "2.0"
-+/*
-+ * DEFINITIONS FOR USER AND KERNEL CODE:
-+ * (Note: ioctl numbers 1--9 are reserved for fistgen, the rest
-+ *  are auto-generated automatically based on the user's .fist file.)
-+ */
-+# define UNIONFS_IOCTL_INCGEN		_IOR(0x15, 11, int)
-+# define UNIONFS_IOCTL_QUERYFILE	_IOR(0x15, 15, int)
-+
-+/* We don't support normal remount, but unionctl uses it. */
-+# define UNIONFS_REMOUNT_MAGIC		0x4a5a4380
-+
-+/* should be at least LAST_USED_UNIONFS_PERMISSION<<1 */
-+#define MAY_NFSRO			16
-+
-+#endif /* _LINUX_UNIONFS_H */
-+
+ - I could make a sysctl /proc/sys/fs/nfs/nsm_use_hostnames
+   at tell Jo to put
+      fs.nfs.nsm_use_hostnames=1
+   if /etc/sysctl.conf if desired.
+   But that wouldn't work if lockd is a module that is loaded
+   after "/usr/sbin/sysctl -p" has been run.
+
+ - I could do both and tell Jo to make both changes, just in case,
+   but that is rather ugly, though that is what we currently do
+   for nlm_udpport, nlm_tcpport, nlm_timeout, nlm_grace_period.
+
+It occurs to me that since we have /sys/module/X/parameters,
+it wouldn't be too hard to have some functionality, possibly
+in modprobe, that looked for all the 'options' lines in
+modprobe config files, checked to see if the modules was loaded,
+and then imposed those options that could be imposed.
+
+Thus we could just have a module option, just add module config
+information to /etc/modprobe.d and run
+  modprobe --apply-option-to-active-modules
+at the same time as "sysctl -p" and it would all 'just work'
+whether the module were compiled in to not.
+
+Is that a reasonable idea?
+
+(I'll probably add both a sysctl and a mod param for my current
+problem, but I'd love it if there were a better approach
+possible in the future).
+
+Thanks,
+NeilBrown

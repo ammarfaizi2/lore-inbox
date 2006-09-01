@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWIABzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWIAB45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWIABzw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWIABzv
+	id S1030190AbWIAB45 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWIAB45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:55:51 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:4744 "EHLO
+	Thu, 31 Aug 2006 21:56:57 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:11400 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1030188AbWIABzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:55:50 -0400
-Date: Thu, 31 Aug 2006 21:55:39 -0400
+	id S1030183AbWIAB44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:56:56 -0400
+Date: Thu, 31 Aug 2006 21:56:45 -0400
 From: Josef Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@ftp.linux.org.uk
-Subject: [PATCH 15/22][RFC] Unionfs: Privileged operations workqueue
-Message-ID: <20060901015539.GP5788@fsl.cs.sunysb.edu>
+Subject: [PATCH 16/22][RFC] Unionfs: Handling of stale inodes
+Message-ID: <20060901015645.GQ5788@fsl.cs.sunysb.edu>
 References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,8 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Workqueue & helper functions used to perform privileged operations on
-behalf of the user process.
+Provides nicer handling of stale inodes.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -36,208 +35,126 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
- fs/unionfs/sioq.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/unionfs/sioq.h |   79 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 193 insertions(+)
+ fs/unionfs/stale_inode.c |  116 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 116 insertions(+)
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/sioq.c linux-2.6-git-unionfs/fs/unionfs/sioq.c
---- linux-2.6-git/fs/unionfs/sioq.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/sioq.c	2006-08-31 19:04:00.000000000 -0400
-@@ -0,0 +1,114 @@
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/stale_inode.c linux-2.6-git-unionfs/fs/unionfs/stale_inode.c
+--- linux-2.6-git/fs/unionfs/stale_inode.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/stale_inode.c	2006-08-31 19:04:01.000000000 -0400
+@@ -0,0 +1,116 @@
 +/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ *  Adpated from linux/fs/bad_inode.c
 + *
-+ * For specific licensing information, see the COPYING file distributed with
-+ * this package.
++ *  Copyright (C) 1997, Stephen Tweedie
 + *
-+ * This Copyright notice must be kept intact and distributed with all sources.
++ *  Provide stub functions for "stale" inodes, a bit friendlier than the
++ *  -EIO that bad_inode.c does.
 + */
 +
-+#include "union.h"
++#include <linux/config.h>
++#include <linux/version.h>
 +
-+struct workqueue_struct *sioq;
++#include <linux/fs.h>
++#include <linux/stat.h>
++#include <linux/sched.h>
 +
-+int __init init_sioq(void)
++static struct address_space_operations unionfs_stale_aops;
++
++/* declarations for "sparse */
++extern struct inode_operations stale_inode_ops;
++
++/*
++ * The follow_link operation is special: it must behave as a no-op
++ * so that a stale root inode can at least be unmounted. To do this
++ * we must dput() the base and return the dentry with a dget().
++ */
++static void *stale_follow_link(struct dentry *dent, struct nameidata *nd)
 +{
-+	int err;
-+
-+	sioq = create_workqueue("unionfs_siod");
-+	if (!IS_ERR(sioq))
-+		return 0;
-+
-+	err = PTR_ERR(sioq);
-+	printk(KERN_ERR "create_workqueue failed %d\n", err);
-+	sioq = NULL;
-+	return err;
++	int err = vfs_follow_link(nd, ERR_PTR(-ESTALE));
++	return ERR_PTR(err);
 +}
 +
-+void fin_sioq(void)
++static int return_ESTALE(void)
 +{
-+	if (sioq)
-+		destroy_workqueue(sioq);
++	return -ESTALE;
 +}
 +
-+void run_sioq(void (*func)(void *arg), struct sioq_args *args)
-+{
-+	DECLARE_WORK(wk, func, &args->comp);
++#define ESTALE_ERROR ((void *) (return_ESTALE))
 +
-+	init_completion(&args->comp);
-+	while (!queue_work(sioq, &wk)) {
-+		// TODO: do accounting if needed
-+		schedule();
-+	}
-+	wait_for_completion(&args->comp);
-+}
-+
-+void __unionfs_create(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->err = vfs_create(args->u.create.parent, args->u.create.dentry,
-+				args->u.create.mode, args->u.create.nd);
-+	complete(&args->comp);
-+}
-+
-+void __unionfs_mkdir(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->err = vfs_mkdir(args->u.mkdir.parent, args->u.mkdir.dentry,
-+				args->u.mkdir.mode);
-+	complete(&args->comp);
-+}
-+
-+void __unionfs_mknod(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->err = vfs_mknod(args->u.mknod.parent, args->u.mknod.dentry,
-+				args->u.mknod.mode, args->u.mknod.dev);
-+	complete(&args->comp);
-+}
-+void __unionfs_symlink(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->err = vfs_symlink(args->u.symlink.parent, args->u.symlink.dentry,
-+				args->u.symlink.symbuf, args->u.symlink.mode);
-+}
-+
-+void __unionfs_unlink(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->err = vfs_unlink(args->u.unlink.parent, args->u.unlink.dentry);
-+	complete(&args->comp);
-+}
-+
-+void __delete_whiteouts(void *data) {
-+	struct sioq_args *args = data;
-+
-+	args->err = do_delete_whiteouts(args->u.deletewh.dentry, args->u.deletewh.bindex,
-+					args->u.deletewh.namelist);
-+
-+	complete(&args->comp);
-+}
-+
-+void __is_opaque_dir(void *data)
-+{
-+	struct sioq_args *args = data;
-+
-+	args->ret = lookup_one_len(UNIONFS_DIR_OPAQUE, args->u.isopaque.dentry,
-+				sizeof(UNIONFS_DIR_OPAQUE) - 1);
-+	complete(&args->comp);
-+}
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/sioq.h linux-2.6-git-unionfs/fs/unionfs/sioq.h
---- linux-2.6-git/fs/unionfs/sioq.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/sioq.h	2006-08-31 19:04:01.000000000 -0400
-@@ -0,0 +1,79 @@
-+#ifndef _SIOQ_H
-+#define _SIOQ_H
-+
-+struct deletewh_args {
-+	struct unionfs_dir_state *namelist;
-+	struct dentry *dentry;
-+	int bindex;
++static struct file_operations stale_file_ops = {
++	.llseek = ESTALE_ERROR,
++	.read = ESTALE_ERROR,
++	.write = ESTALE_ERROR,
++	.readdir = ESTALE_ERROR,
++	.poll = ESTALE_ERROR,
++	.ioctl = ESTALE_ERROR,
++	.mmap = ESTALE_ERROR,
++	.open = ESTALE_ERROR,
++	.flush = ESTALE_ERROR,
++	.release = ESTALE_ERROR,
++	.fsync = ESTALE_ERROR,
++	.fasync = ESTALE_ERROR,
++	.lock = ESTALE_ERROR,
 +};
 +
-+struct isopaque_args {
-+	struct dentry *dentry;
++struct inode_operations stale_inode_ops = {
++	.create = ESTALE_ERROR,
++	.lookup = ESTALE_ERROR,
++	.link = ESTALE_ERROR,
++	.unlink = ESTALE_ERROR,
++	.symlink = ESTALE_ERROR,
++	.mkdir = ESTALE_ERROR,
++	.rmdir = ESTALE_ERROR,
++	.mknod = ESTALE_ERROR,
++	.rename = ESTALE_ERROR,
++	.readlink = ESTALE_ERROR,
++	.follow_link = stale_follow_link,
++	.truncate = ESTALE_ERROR,
++	.permission = ESTALE_ERROR,
 +};
 +
-+struct create_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+	struct nameidata *nd;
-+};
++/*
++ * When a filesystem is unable to read an inode due to an I/O error in
++ * its read_inode() function, it can call make_stale_inode() to return a
++ * set of stubs which will return ESTALE errors as required.
++ *
++ * We only need to do limited initialisation: all other fields are
++ * preinitialised to zero automatically.
++ */
 +
-+struct mkdir_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+};
++/**
++ *	make_stale_inode - mark an inode stale due to an I/O error
++ *	@inode: Inode to mark stale
++ *
++ *	When an inode cannot be read due to a media or remote network
++ *	failure this function makes the inode "stale" and causes I/O operations
++ *	on it to fail from this point on.
++ */
 +
-+struct mknod_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+	dev_t dev;
-+};
++void make_stale_inode(struct inode *inode)
++{
++	inode->i_mode = S_IFREG;
++	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++	inode->i_op = &stale_inode_ops;
++	inode->i_fop = &stale_file_ops;
++	inode->i_mapping->a_ops = &unionfs_stale_aops;
++}
 +
-+struct symlink_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	char *symbuf;
-+	umode_t mode;
-+};
++/*
++ * This tests whether an inode has been flagged as stale. The test uses
++ * &stale_inode_ops to cover the case of invalidated inodes as well as
++ * those created by make_stale_inode() above.
++ */
 +
-+struct unlink_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+};
++/**
++ *	is_stale_inode - is an inode errored
++ *	@inode: inode to test
++ *
++ *	Returns true if the inode in question has been marked as stale.
++ */
 +
-+
-+struct sioq_args {
-+
-+	struct completion comp;
-+	int err;
-+	void *ret;
-+
-+	union {
-+		struct deletewh_args deletewh;
-+		struct isopaque_args isopaque;
-+		struct create_args create;
-+		struct mkdir_args mkdir;
-+		struct mknod_args mknod;
-+		struct symlink_args symlink;
-+		struct unlink_args unlink;
-+	} u;
-+};
-+
-+extern struct workqueue_struct *sioq;
-+int __init init_sioq(void);
-+extern void fin_sioq(void);
-+extern void run_sioq(void (*func)(void *arg), struct sioq_args *args);
-+
-+/* Extern definitions for our privledge escalation helpers */
-+extern void __unionfs_create(void *data);
-+extern void __unionfs_mkdir(void *data);
-+extern void __unionfs_mknod(void *data);
-+extern void __unionfs_symlink(void *data);
-+extern void __unionfs_unlink(void *data);
-+extern void __delete_whiteouts(void *data);
-+extern void __is_opaque_dir(void *data);
-+
-+#endif /* _SIOQ_H */
++int is_stale_inode(struct inode *inode)
++{
++	return (inode->i_op == &stale_inode_ops);
++}
 +

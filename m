@@ -1,60 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWIAB1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWIAB2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWIAB1d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWIAB1d
+	id S1751248AbWIAB2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWIAB2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:27:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2759 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750818AbWIAB1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:27:31 -0400
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block
-	layer [try #2]
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Adrian Bunk <bunk@stusta.de>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060831174852.18efec7e.rdunlap@xenotime.net>
-References: <20060825142753.GK10659@infradead.org>
-	 <20060824213252.21323.18226.stgit@warthog.cambridge.redhat.com>
-	 <20060824213334.21323.76323.stgit@warthog.cambridge.redhat.com>
-	 <10117.1156522985@warthog.cambridge.redhat.com>
-	 <15945.1156854198@warthog.cambridge.redhat.com>
-	 <20060829122501.GA7814@infradead.org> <44F44639.90103@s5r6.in-berlin.de>
-	 <44F44B8D.4010700@s5r6.in-berlin.de>
-	 <Pine.LNX.4.64.0608300311430.6761@scrub.home>
-	 <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de>
-	 <Pine.LNX.4.64.0608310039440.6761@scrub.home>
-	 <1157069717.2347.13.camel@shinybook.infradead.org>
-	 <20060831174852.18efec7e.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Thu, 31 Aug 2006 18:27:27 -0700
-Message-Id: <1157074048.2347.24.camel@shinybook.infradead.org>
+	Thu, 31 Aug 2006 21:28:47 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:25310 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751248AbWIAB2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:28:46 -0400
+Date: Thu, 31 Aug 2006 18:29:27 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 1/4] rcu: Refactor srcu_torture_deferred_free to work for any implementation
+Message-ID: <20060901012926.GD4927@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1157065012.25808.5.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157065012.25808.5.camel@josh-work.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 17:48 -0700, Randy.Dunlap wrote:
-> But David, you edit .config anyway, so who is "make *config" for?
-> Not that I want enable Tillie very much.. 
+On Thu, Aug 31, 2006 at 03:56:52PM -0700, Josh Triplett wrote:
+> Make srcu_torture_deferred_free use cur_ops->sync() so it will work for any
+> implementation.  Move and rename it in preparation for use in the ops of other
+> implementations.
 
-I edit .config but still have to use 'make oldconfig' afterwards. And it
-screws me over because of all this 'select' nonsense. This used to
-work...
-	sed -i /^CONFIG_SCSI=/d .config 
-	yes n | make oldconfig
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
 
-So "make *config" certainly isn't optimised for me, although of course I
-do have to use it. It seems to be increasingly optimised for Aunt
-Tillie.
-
--- 
-dwmw2
-
+> Signed-off-by: Josh Triplett <josh@freedesktop.org>
+> ---
+>  kernel/rcutorture.c |   53 ++++++++++++++++++++++++++++-----------------------
+>  1 files changed, 29 insertions(+), 24 deletions(-)
+> 
+> diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+> index e045021..6e2f0a8 100644
+> --- a/kernel/rcutorture.c
+> +++ b/kernel/rcutorture.c
+> @@ -117,6 +117,7 @@ static atomic_t n_rcu_torture_alloc_fail
+>  static atomic_t n_rcu_torture_free;
+>  static atomic_t n_rcu_torture_mberror;
+>  static atomic_t n_rcu_torture_error;
+> +static struct list_head rcu_torture_removed;
+>  
+>  /*
+>   * Allocate an element from the rcu_tortures pool.
+> @@ -270,6 +271,32 @@ static struct rcu_torture_ops rcu_ops = 
+>  	.name = "rcu"
+>  };
+>  
+> +static void rcu_sync_torture_deferred_free(struct rcu_torture *p)
+> +{
+> +	int i;
+> +	struct rcu_torture *rp;
+> +	struct rcu_torture *rp1;
+> +
+> +	cur_ops->sync();
+> +	list_add(&p->rtort_free, &rcu_torture_removed);
+> +	list_for_each_entry_safe(rp, rp1, &rcu_torture_removed, rtort_free) {
+> +		i = rp->rtort_pipe_count;
+> +		if (i > RCU_TORTURE_PIPE_LEN)
+> +			i = RCU_TORTURE_PIPE_LEN;
+> +		atomic_inc(&rcu_torture_wcount[i]);
+> +		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
+> +			rp->rtort_mbtest = 0;
+> +			list_del(&rp->rtort_free);
+> +			rcu_torture_free(rp);
+> +		}
+> +	}
+> +}
+> +
+> +static void rcu_sync_torture_init(void)
+> +{
+> +	INIT_LIST_HEAD(&rcu_torture_removed);
+> +}
+> +
+>  /*
+>   * Definitions for rcu_bh torture testing.
+>   */
+> @@ -335,12 +362,11 @@ static struct rcu_torture_ops rcu_bh_ops
+>   */
+>  
+>  static struct srcu_struct srcu_ctl;
+> -static struct list_head srcu_removed;
+>  
+>  static void srcu_torture_init(void)
+>  {
+>  	init_srcu_struct(&srcu_ctl);
+> -	INIT_LIST_HEAD(&srcu_removed);
+> +	rcu_sync_torture_init();
+>  }
+>  
+>  static void srcu_torture_cleanup(void)
+> @@ -377,27 +403,6 @@ static int srcu_torture_completed(void)
+>  	return srcu_batches_completed(&srcu_ctl);
+>  }
+>  
+> -static void srcu_torture_deferred_free(struct rcu_torture *p)
+> -{
+> -	int i;
+> -	struct rcu_torture *rp;
+> -	struct rcu_torture *rp1;
+> -
+> -	synchronize_srcu(&srcu_ctl);
+> -	list_add(&p->rtort_free, &srcu_removed);
+> -	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
+> -		i = rp->rtort_pipe_count;
+> -		if (i > RCU_TORTURE_PIPE_LEN)
+> -			i = RCU_TORTURE_PIPE_LEN;
+> -		atomic_inc(&rcu_torture_wcount[i]);
+> -		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
+> -			rp->rtort_mbtest = 0;
+> -			list_del(&rp->rtort_free);
+> -			rcu_torture_free(rp);
+> -		}
+> -	}
+> -}
+> -
+>  static void srcu_torture_synchronize(void)
+>  {
+>  	synchronize_srcu(&srcu_ctl);
+> @@ -427,7 +432,7 @@ static struct rcu_torture_ops srcu_ops =
+>  	.readdelay = srcu_read_delay,
+>  	.readunlock = srcu_torture_read_unlock,
+>  	.completed = srcu_torture_completed,
+> -	.deferredfree = srcu_torture_deferred_free,
+> +	.deferredfree = rcu_sync_torture_deferred_free,
+>  	.sync = srcu_torture_synchronize,
+>  	.stats = srcu_torture_stats,
+>  	.name = "srcu"
+> -- 
+> 1.4.1.1
+> 
+> 

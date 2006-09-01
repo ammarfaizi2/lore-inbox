@@ -1,173 +1,317 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWIAGtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWIAGsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWIAGtM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 02:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIAGtM
+	id S1751213AbWIAGsq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 02:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWIAGsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 02:49:12 -0400
-Received: from gw.goop.org ([64.81.55.164]:5062 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932447AbWIAGsv (ORCPT
+	Fri, 1 Sep 2006 02:48:46 -0400
+Received: from gw.goop.org ([64.81.55.164]:63429 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751213AbWIAGsp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 02:48:51 -0400
-Message-Id: <20060901064825.813636915@goop.org>
+	Fri, 1 Sep 2006 02:48:45 -0400
+Message-Id: <20060901064822.240326224@goop.org>
 References: <20060901064718.918494029@goop.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 31 Aug 2006 23:47:25 -0700
+Date: Thu, 31 Aug 2006 23:47:19 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 7/8] Implement smp_processor_id() with the PDA.
-Content-Disposition: inline; filename=i386-pda-smp_processor_id.patch
+       Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@ocs.com.au>
+Subject: [PATCH 1/8] Use asm-offsets for the offsets of registers into the pt_regs struct, rather than having hard-coded constants.
+Content-Disposition: inline; filename=pt_regs-asm-offsets.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the cpu_number in the PDA to implement raw_smp_processor_id.  This
-is a little simpler than using thread_info, though the cpu field in
-thread_info cannot be removed since it is used for things other than
-getting the current CPU in common code.
-
-The slightly subtle part of this patch is dealing with very early uses
-of smp_processor_id().  This is handled on the boot CPU by setting up
-a very early PDA, which is later replaced when cpu_init() is called on
-the boot CPU.  For other CPUs, it uses the thread_info cpu field until
-the PDA has been set up.
-
-This is more or less an example of using the PDA, and to give it a
-proper exercising.
+I left the constants in the comments of entry.S because they're useful
+for reference; the code in entry.S is very dependent on the layout of
+pt_regs, even when using asm-offsets.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Jan Beulich <jbeulich@novell.com>
-Cc: Andi Kleen <ak@suse.de>
+Cc: Keith Owens <kaos@ocs.com.au>
+
+[ This is identical to the previously posted version of the patch. ]
 
 ---
- arch/i386/kernel/asm-offsets.c |    2 +-
- arch/i386/kernel/cpu/common.c  |   19 +++++++++++++++++--
- include/asm-i386/smp.h         |    7 ++++++-
- init/main.c                    |    9 +++++++--
- 4 files changed, 31 insertions(+), 6 deletions(-)
+ arch/i386/kernel/asm-offsets.c |   17 +++++
+ arch/i386/kernel/entry.S       |  118 +++++++++++++++++-----------------------
+ 2 files changed, 68 insertions(+), 67 deletions(-)
 
 
 ===================================================================
 --- a/arch/i386/kernel/asm-offsets.c
 +++ b/arch/i386/kernel/asm-offsets.c
-@@ -52,7 +52,6 @@ void foo(void)
- 	OFFSET(TI_exec_domain, thread_info, exec_domain);
- 	OFFSET(TI_flags, thread_info, flags);
- 	OFFSET(TI_status, thread_info, status);
--	OFFSET(TI_cpu, thread_info, cpu);
- 	OFFSET(TI_preempt_count, thread_info, preempt_count);
- 	OFFSET(TI_addr_limit, thread_info, addr_limit);
- 	OFFSET(TI_restart_block, thread_info, restart_block);
-@@ -96,4 +95,5 @@ void foo(void)
- 
+@@ -58,6 +58,23 @@ void foo(void)
+ 	OFFSET(TI_sysenter_return, thread_info, sysenter_return);
  	BLANK();
- 	OFFSET(PDA_pcurrent, i386_pda, pcurrent);
-+	OFFSET(PDA_cpu, i386_pda, cpu_number);
- }
-===================================================================
---- a/arch/i386/kernel/cpu/common.c
-+++ b/arch/i386/kernel/cpu/common.c
-@@ -19,6 +19,7 @@
- #include <mach_apic.h>
- #endif
- #include <asm/pda.h>
-+#include <asm/smp.h>
  
- #include "cpu.h"
- 
-@@ -666,7 +667,7 @@ static inline void set_kernel_gs(void)
- /* Initialize the CPU's GDT and PDA */
- static __cpuinit void init_gdt(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = early_smp_processor_id();
- 	struct task_struct *curr = current;
- 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
- 	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
-@@ -709,6 +710,20 @@ static __cpuinit void init_gdt(void)
- 
- 	/* Do this once everything GDT-related has been set up. */
- 	pda_init(cpu, curr);
-+}
++	OFFSET(PT_EBX, pt_regs, ebx);
++	OFFSET(PT_ECX, pt_regs, ecx);
++	OFFSET(PT_EDX, pt_regs, edx);
++	OFFSET(PT_ESI, pt_regs, esi);
++	OFFSET(PT_EDI, pt_regs, edi);
++	OFFSET(PT_EBP, pt_regs, ebp);
++	OFFSET(PT_EAX, pt_regs, eax);
++	OFFSET(PT_DS,  pt_regs, xds);
++	OFFSET(PT_ES,  pt_regs, xes);
++	OFFSET(PT_ORIG_EAX, pt_regs, orig_eax);
++	OFFSET(PT_EIP, pt_regs, eip);
++	OFFSET(PT_CS,  pt_regs, xcs);
++	OFFSET(PT_EFLAGS, pt_regs, eflags);
++	OFFSET(PT_OLDESP, pt_regs, esp);
++	OFFSET(PT_OLDSS,  pt_regs, xss);
++	BLANK();
 +
-+/* Set up a very early PDA for the boot CPU so that smp_processor_id will work */
-+void __init smp_setup_processor_id(void)
-+{
-+	static const __initdata struct i386_pda boot_pda;
-+
-+	pack_descriptor((u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].a,
-+			(u32 *)&cpu_gdt_table[GDT_ENTRY_PDA].b,
-+			(unsigned long)&boot_pda, sizeof(struct i386_pda) - 1,
-+			0x80 | DESCTYPE_S | 0x2, 0); /* present read-write data segment */
-+
-+	/* Set %gs for this CPU's PDA */
-+	set_kernel_gs();
- }
- 
- /*
-@@ -719,7 +734,7 @@ static __cpuinit void init_gdt(void)
-  */
- void __cpuinit cpu_init(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = early_smp_processor_id();
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
- 	struct thread_struct *thread = &current->thread;
- 
+ 	OFFSET(EXEC_DOMAIN_handler, exec_domain, handler);
+ 	OFFSET(RT_SIGFRAME_sigcontext, rt_sigframe, uc.uc_mcontext);
+ 	BLANK();
 ===================================================================
---- a/include/asm-i386/smp.h
-+++ b/include/asm-i386/smp.h
-@@ -8,6 +8,7 @@
- #include <linux/kernel.h>
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/pda.h>
- #endif
+--- a/arch/i386/kernel/entry.S
++++ b/arch/i386/kernel/entry.S
+@@ -53,22 +53,6 @@
  
- #ifdef CONFIG_X86_LOCAL_APIC
-@@ -58,7 +59,10 @@ extern void cpu_uninit(void);
-  * from the initial startup. We map APIC_BASE very early in page_setup(),
-  * so this is correct in the x86 case.
-  */
--#define raw_smp_processor_id() (current_thread_info()->cpu)
-+#define raw_smp_processor_id() (read_pda(cpu_number))
-+/* This is valid from the very earliest point in boot that we care
-+   about. */
-+#define early_smp_processor_id() (current_thread_info()->cpu)
+ #define nr_syscalls ((syscall_table_size)/4)
  
- extern cpumask_t cpu_callout_map;
- extern cpumask_t cpu_callin_map;
-@@ -94,6 +98,7 @@ extern unsigned int num_processors;
- #else /* CONFIG_SMP */
+-EBX		= 0x00
+-ECX		= 0x04
+-EDX		= 0x08
+-ESI		= 0x0C
+-EDI		= 0x10
+-EBP		= 0x14
+-EAX		= 0x18
+-DS		= 0x1C
+-ES		= 0x20
+-ORIG_EAX	= 0x24
+-EIP		= 0x28
+-CS		= 0x2C
+-EFLAGS		= 0x30
+-OLDESP		= 0x34
+-OLDSS		= 0x38
+-
+ CF_MASK		= 0x00000001
+ TF_MASK		= 0x00000100
+ IF_MASK		= 0x00000200
+@@ -92,7 +76,7 @@ VM_MASK		= 0x00020000
  
- #define safe_smp_processor_id()		0
-+#define early_smp_processor_id()	0
- #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+ .macro TRACE_IRQS_IRET
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	testl $IF_MASK,EFLAGS(%esp)     # interrupts off?
++	testl $IF_MASK,PT_EFLAGS(%esp)     # interrupts off?
+ 	jz 1f
+ 	TRACE_IRQS_ON
+ 1:
+@@ -195,18 +179,18 @@ 4:	movl $0,(%esp);	\
  
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
-===================================================================
---- a/init/main.c
-+++ b/init/main.c
-@@ -473,8 +473,13 @@ static void __init boot_cpu_init(void)
- 	cpu_set(cpu, cpu_possible_map);
- }
+ #define RING0_PTREGS_FRAME \
+ 	CFI_STARTPROC simple;\
+-	CFI_DEF_CFA esp, OLDESP-EBX;\
+-	/*CFI_OFFSET cs, CS-OLDESP;*/\
+-	CFI_OFFSET eip, EIP-OLDESP;\
+-	/*CFI_OFFSET es, ES-OLDESP;*/\
+-	/*CFI_OFFSET ds, DS-OLDESP;*/\
+-	CFI_OFFSET eax, EAX-OLDESP;\
+-	CFI_OFFSET ebp, EBP-OLDESP;\
+-	CFI_OFFSET edi, EDI-OLDESP;\
+-	CFI_OFFSET esi, ESI-OLDESP;\
+-	CFI_OFFSET edx, EDX-OLDESP;\
+-	CFI_OFFSET ecx, ECX-OLDESP;\
+-	CFI_OFFSET ebx, EBX-OLDESP
++	CFI_DEF_CFA esp, PT_OLDESP-PT_EBX;\
++	/*CFI_OFFSET cs, PT_CS-PT_OLDESP;*/\
++	CFI_OFFSET eip, PT_EIP-PT_OLDESP;\
++	/*CFI_OFFSET es, PT_ES-PT_OLDESP;*/\
++	/*CFI_OFFSET ds, PT_DS-PT_OLDESP;*/\
++	CFI_OFFSET eax, PT_EAX-PT_OLDESP;\
++	CFI_OFFSET ebp, PT_EBP-PT_OLDESP;\
++	CFI_OFFSET edi, PT_EDI-PT_OLDESP;\
++	CFI_OFFSET esi, PT_ESI-PT_OLDESP;\
++	CFI_OFFSET edx, PT_EDX-PT_OLDESP;\
++	CFI_OFFSET ecx, PT_ECX-PT_OLDESP;\
++	CFI_OFFSET ebx, PT_EBX-PT_OLDESP
  
--void __init __attribute__((weak)) smp_setup_processor_id(void)
--{
-+/* Some versions of gcc seem to want to inline/eliminate the call to
-+   this function, even though it is weak and could therefore be
-+   replaced at link time.  Mark it noinline, and add an asm() to make
-+   it harder to digest. */
-+noinline void __init __attribute__((weak)) smp_setup_processor_id(void)
-+{
-+	asm volatile("" : : : "memory");
- }
+ ENTRY(ret_from_fork)
+ 	CFI_STARTPROC
+@@ -234,8 +218,8 @@ ret_from_intr:
+ ret_from_intr:
+ 	GET_THREAD_INFO(%ebp)
+ check_userspace:
+-	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
+-	movb CS(%esp), %al
++	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS and CS
++	movb PT_CS(%esp), %al
+ 	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
+ 	cmpl $USER_RPL, %eax
+ 	jb resume_kernel		# not returning to v8086 or userspace
+@@ -258,7 +242,7 @@ need_resched:
+ 	movl TI_flags(%ebp), %ecx	# need_resched set ?
+ 	testb $_TIF_NEED_RESCHED, %cl
+ 	jz restore_all
+-	testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
++	testl $IF_MASK,PT_EFLAGS(%esp)	# interrupts off (exception path) ?
+ 	jz restore_all
+ 	call preempt_schedule_irq
+ 	jmp need_resched
+@@ -323,15 +307,15 @@ 1:	movl (%ebp),%ebp
+ 	cmpl $(nr_syscalls), %eax
+ 	jae syscall_badsys
+ 	call *sys_call_table(,%eax,4)
+-	movl %eax,EAX(%esp)
++	movl %eax,PT_EAX(%esp)
+ 	DISABLE_INTERRUPTS
+ 	TRACE_IRQS_OFF
+ 	movl TI_flags(%ebp), %ecx
+ 	testw $_TIF_ALLWORK_MASK, %cx
+ 	jne syscall_exit_work
+ /* if something modifies registers it must also disable sysexit */
+-	movl EIP(%esp), %edx
+-	movl OLDESP(%esp), %ecx
++	movl PT_EIP(%esp), %edx
++	movl PT_OLDESP(%esp), %ecx
+ 	xorl %ebp,%ebp
+ 	TRACE_IRQS_ON
+ 	ENABLE_INTERRUPTS_SYSEXIT
+@@ -345,7 +329,7 @@ ENTRY(system_call)
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebp)
+-	testl $TF_MASK,EFLAGS(%esp)
++	testl $TF_MASK,PT_EFLAGS(%esp)
+ 	jz no_singlestep
+ 	orl $_TIF_SINGLESTEP,TI_flags(%ebp)
+ no_singlestep:
+@@ -357,7 +341,7 @@ no_singlestep:
+ 	jae syscall_badsys
+ syscall_call:
+ 	call *sys_call_table(,%eax,4)
+-	movl %eax,EAX(%esp)		# store the return value
++	movl %eax,PT_EAX(%esp)		# store the return value
+ syscall_exit:
+ 	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+@@ -368,12 +352,12 @@ syscall_exit:
+ 	jne syscall_exit_work
  
- asmlinkage void __init start_kernel(void)
+ restore_all:
+-	movl EFLAGS(%esp), %eax		# mix EFLAGS, SS and CS
+-	# Warning: OLDSS(%esp) contains the wrong/random values if we
++	movl PT_EFLAGS(%esp), %eax	# mix EFLAGS, SS and CS
++	# Warning: PT_OLDSS(%esp) contains the wrong/random values if we
+ 	# are returning to the kernel.
+ 	# See comments in process.c:copy_thread() for details.
+-	movb OLDSS(%esp), %ah
+-	movb CS(%esp), %al
++	movb PT_OLDSS(%esp), %ah
++	movb PT_CS(%esp), %al
+ 	andl $(VM_MASK | (SEGMENT_TI_MASK << 8) | SEGMENT_RPL_MASK), %eax
+ 	cmpl $((SEGMENT_LDT << 8) | USER_RPL), %eax
+ 	CFI_REMEMBER_STATE
+@@ -400,7 +384,7 @@ iret_exc:
+ 
+ 	CFI_RESTORE_STATE
+ ldt_ss:
+-	larl OLDSS(%esp), %eax
++	larl PT_OLDSS(%esp), %eax
+ 	jnz restore_nocheck
+ 	testl $0x00400000, %eax		# returning to 32bit stack?
+ 	jnz restore_nocheck		# allright, normal return
+@@ -450,7 +434,7 @@ work_resched:
+ 
+ work_notifysig:				# deal with pending signals and
+ 					# notify-resume requests
+-	testl $VM_MASK, EFLAGS(%esp)
++	testl $VM_MASK, PT_EFLAGS(%esp)
+ 	movl %esp, %eax
+ 	jne work_notifysig_v86		# returning to kernel-space or
+ 					# vm86-space
+@@ -475,14 +459,14 @@ work_notifysig_v86:
+ 	# perform syscall exit tracing
+ 	ALIGN
+ syscall_trace_entry:
+-	movl $-ENOSYS,EAX(%esp)
++	movl $-ENOSYS,PT_EAX(%esp)
+ 	movl %esp, %eax
+ 	xorl %edx,%edx
+ 	call do_syscall_trace
+ 	cmpl $0, %eax
+ 	jne resume_userspace		# ret != 0 -> running under PTRACE_SYSEMU,
+ 					# so must skip actual syscall
+-	movl ORIG_EAX(%esp), %eax
++	movl PT_ORIG_EAX(%esp), %eax
+ 	cmpl $(nr_syscalls), %eax
+ 	jnae syscall_call
+ 	jmp syscall_exit
+@@ -507,11 +491,11 @@ syscall_fault:
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebp)
+-	movl $-EFAULT,EAX(%esp)
++	movl $-EFAULT,PT_EAX(%esp)
+ 	jmp resume_userspace
+ 
+ syscall_badsys:
+-	movl $-ENOSYS,EAX(%esp)
++	movl $-ENOSYS,PT_EAX(%esp)
+ 	jmp resume_userspace
+ 	CFI_ENDPROC
+ 
+@@ -634,10 +618,10 @@ error_code:
+ 	popl %ecx
+ 	CFI_ADJUST_CFA_OFFSET -4
+ 	/*CFI_REGISTER es, ecx*/
+-	movl ES(%esp), %edi		# get the function address
+-	movl ORIG_EAX(%esp), %edx	# get the error code
+-	movl %eax, ORIG_EAX(%esp)
+-	movl %ecx, ES(%esp)
++	movl PT_ES(%esp), %edi		# get the function address
++	movl PT_ORIG_EAX(%esp), %edx	# get the error code
++	movl %eax, PT_ORIG_EAX(%esp)
++	movl %ecx, PT_ES(%esp)
+ 	/*CFI_REL_OFFSET es, ES*/
+ 	movl $(__USER_DS), %ecx
+ 	movl %ecx, %ds
+@@ -928,26 +912,26 @@ ENTRY(arch_unwind_init_running)
+ 	movl	4(%esp), %edx
+ 	movl	(%esp), %ecx
+ 	leal	4(%esp), %eax
+-	movl	%ebx, EBX(%edx)
++	movl	%ebx, PT_EBX(%edx)
+ 	xorl	%ebx, %ebx
+-	movl	%ebx, ECX(%edx)
+-	movl	%ebx, EDX(%edx)
+-	movl	%esi, ESI(%edx)
+-	movl	%edi, EDI(%edx)
+-	movl	%ebp, EBP(%edx)
+-	movl	%ebx, EAX(%edx)
+-	movl	$__USER_DS, DS(%edx)
+-	movl	$__USER_DS, ES(%edx)
+-	movl	%ebx, ORIG_EAX(%edx)
+-	movl	%ecx, EIP(%edx)
++	movl	%ebx, PT_ECX(%edx)
++	movl	%ebx, PT_EDX(%edx)
++	movl	%esi, PT_ESI(%edx)
++	movl	%edi, PT_EDI(%edx)
++	movl	%ebp, PT_EBP(%edx)
++	movl	%ebx, PT_EAX(%edx)
++	movl	$__USER_DS, PT_DS(%edx)
++	movl	$__USER_DS, PT_ES(%edx)
++	movl	%ebx, PT_ORIG_EAX(%edx)
++	movl	%ecx, PT_EIP(%edx)
+ 	movl	12(%esp), %ecx
+-	movl	$__KERNEL_CS, CS(%edx)
+-	movl	%ebx, EFLAGS(%edx)
+-	movl	%eax, OLDESP(%edx)
++	movl	$__KERNEL_CS, PT_CS(%edx)
++	movl	%ebx, PT_EFLAGS(%edx)
++	movl	%eax, PT_OLDESP(%edx)
+ 	movl	8(%esp), %eax
+ 	movl	%ecx, 8(%esp)
+-	movl	EBX(%edx), %ebx
+-	movl	$__KERNEL_DS, OLDSS(%edx)
++	movl	PT_EBX(%edx), %ebx
++	movl	$__KERNEL_DS, PT_OLDSS(%edx)
+ 	jmpl	*%eax
+ 	CFI_ENDPROC
+ ENDPROC(arch_unwind_init_running)
 
 --
 

@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWIARmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWIARuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWIARmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 13:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWIARmE
+	id S1750700AbWIARuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 13:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWIARuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 13:42:04 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:2807 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751401AbWIARmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 13:42:03 -0400
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       frankeh@watson.ibm.com
-In-Reply-To: <1157130970.28577.150.camel@localhost.localdomain>
-References: <20060901110948.GD15684@skybase>
-	 <1157122667.28577.69.camel@localhost.localdomain>
-	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
-	 <1157126640.21733.43.camel@localhost>
-	 <1157127483.28577.117.camel@localhost.localdomain>
-	 <1157127943.21733.52.camel@localhost>
-	 <1157128634.28577.139.camel@localhost.localdomain>
-	 <1157129762.21733.63.camel@localhost>
-	 <1157130970.28577.150.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Fri, 01 Sep 2006 19:42:00 +0200
-Message-Id: <1157132520.21733.78.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 1 Sep 2006 13:50:09 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:48739 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750700AbWIARuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 13:50:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iG5mK+asqtHjfKimsB1VNopZD6OngkQRtvTJaOXR13DVEsZPYDni8i/txjPO8Yvc/XqzJKiraJnpB7a+9uTDxLGX+10VCMgTx96l1aNk+aHv+Il+abJFC/rZyV1agj13sHBXod3WIYu7aRjdLIMibA7dUIbc5i40n8hHKfO72m4=
+Message-ID: <8032e0b00609011050s244960ecx2d8c1106a0294d96@mail.gmail.com>
+Date: Fri, 1 Sep 2006 23:20:06 +0530
+From: "Ashok Shankar Das" <ashok.s.das@gmail.com>
+To: "Chris Wedgwood" <cw@f00f.org>
+Subject: Re: PROBLEM Please Help
+Cc: "David Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060818192816.GA21787@tuatara.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <8032e0b00608172322y6e77b9d9v3f8cd73e8a7b454d@mail.gmail.com>
+	 <20060817.233910.78711257.davem@davemloft.net>
+	 <20060818064338.GA28939@tuatara.stupidest.org>
+	 <8032e0b00608181031g20441a05s49c92820d34d3df3@mail.gmail.com>
+	 <20060818192816.GA21787@tuatara.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 10:16 -0700, Dave Hansen wrote:
-> This feels like something that can be done with RCU.  The
-> __page_discard() is the write operation, right?  So, take an rcu write
-> lock inside of the page discard function, and read locks over the
-> current places where PG_discarded is set.
-> 
-> That should make sure that the discard operation itself can't be done
-> concurrently with one of the __remove_from*() operations.  Once the
-> write lock has been acquired, you just check page->mapping to see if the
-> a __remove_from*() operation has occurred while you waited.
+Hi Friends,
+Yes the above patch worked for me On VIA board. Many many thanks for the help.
+Well I am sorry to report back to you.
 
-The problem of page discard vs. normal page remove is that the page can
-be remove and discarded at the same time. Both sides are writers in the
-sense that they want to remove the page from page cache. RCU doesn't not
-help with that kind of race.
+Anyways thanks.
+
+On 8/19/06, Chris Wedgwood <cw@f00f.org> wrote:
+> On Fri, Aug 18, 2006 at 11:01:37PM +0530, Ashok Shankar Das wrote:
+>
+> > But i will post problems if get unsuccess ;)
+>
+> Please also let us know if it works.
+>
+
 
 -- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+Thanks
+Ashok.
+-------------

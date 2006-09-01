@@ -1,60 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWIADbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWIADnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWIADbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 23:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWIADbY
+	id S1751079AbWIADnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 23:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWIADnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 23:31:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:58765 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750940AbWIADbX
+	Thu, 31 Aug 2006 23:43:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:51860 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751079AbWIADno
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 23:31:23 -0400
-Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception
-	code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <lenb@kernel.org>,
-       "Moore, Robert" <robert.moore@intel.com>,
-       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux acpi <linux-acpi@vger.kernel.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1157078346.2782.24.camel@sli10-desk.sh.intel.com>
-References: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
-	 <200608310248.29861.len.brown@intel.com>
-	 <1157042913.7859.31.camel@keithlap>
-	 <200608311707.00817.bjorn.helgaas@hp.com>
-	 <1157073592.5649.29.camel@keithlap>
-	 <1157078346.2782.24.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 31 Aug 2006 20:31:19 -0700
-Message-Id: <1157081479.5649.40.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Aug 2006 23:43:44 -0400
+Message-ID: <44F7AC65.5050502@cn.ibm.com>
+Date: Fri, 01 Sep 2006 11:43:33 +0800
+From: Yao Fei Zhu <walkinair@cn.ibm.com>
+Reply-To: walkinair@cn.ibm.com
+Organization: IBM
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
+       haveblue@us.ibm.com, xfs@oss.sgi.com
+Subject: Re: kernel BUG in __xfs_get_blocks at fs/xfs/linux-2.6/xfs_aops.c:1293!
+References: <44F67847.6030307@cn.ibm.com>	<20060831074742.GD807830@melbourne.sgi.com>	<44F6979C.4070309@cn.ibm.com>	<20060831081726.GV5737019@melbourne.sgi.com> <20060831015430.6df0d8ba.akpm@osdl.org>
+In-Reply-To: <20060831015430.6df0d8ba.akpm@osdl.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-> > Also see   
-> > http://sourceforge.net/mailarchive/forum.php? 
-> > thread_id=15282420&forum_id=223
-> > 
-> > I don't claim this is the ACPI correct solution and am welcome to any 
-> > input that fixes my issue: acpi_bus_find_driver returning the
-> > incorrect 
-> > driver for a given handle.    
-> Then the issue is your device _CID returned PNP0C01 or PNP0C02. Is this
-> intended? Can we change the BIOS?
+>On Thu, 31 Aug 2006 18:17:26 +1000
+>David Chinner <dgc@sgi.com> wrote:
+>
+>  
+>
+>>>BTW, I have CONFIG_PPC_64K_PAGES enabled.
+>>>      
+>>>
+>>But that might be a good place to start. Can you see if you can
+>>reproduce the problem without this config option set?
+>>    
+>>
+>
+>It would be useful to compare the compiler warning output for 64k pages
+>versus that for smaller-pages.  
+>
+>Several quite worrisome-looking warnings are emitted from various parts of
+>the kernel with 64k pages.  Related to arithmetic on short types.
+>  
+>
+1. the config diff
+blade10:/boot # diff config-2.6.18-rc5-ppc64 config-2.6.18-rc5-ppc64.64kp
+4c4
+< # Thu Aug 31 18:25:42 2006
+---
+ > # Thu Aug 31 21:18:52 2006
+51c51
+< CONFIG_LOCALVERSION="-ppc64"
+---
+ > CONFIG_LOCALVERSION="-ppc64.64kp"
+173c173
+< CONFIG_FORCE_MAX_ZONEORDER=13
+---
+ > CONFIG_FORCE_MAX_ZONEORDER=9
+204c204
+< # CONFIG_PPC_64K_PAGES is not set
+---
+ > CONFIG_PPC_64K_PAGES=y
 
-  The spec talks about _HID for the memory device and that is ok but I
-don't see any reference to required _CID. My _CID is listed as hex.  Can
-I just convert it?
+2. the compiler warning diff
+ltctest:~ # diff 4k.warning 64k.warning
+0a1,5
+ > kernel/power/pm.c:205: warning: ‘pm_register’ is deprecated 
+(declared at kernel/power/pm.c:64)
+ > kernel/power/pm.c:205: warning: ‘pm_register’ is deprecated 
+(declared at kernel/power/pm.c:64)
+ > kernel/power/pm.c:206: warning: ‘pm_send_all’ is deprecated 
+(declared at kernel/power/pm.c:180)
+ > kernel/power/pm.c:206: warning: ‘pm_send_all’ is deprecated 
+(declared at kernel/power/pm.c:180)
+ > fs/bio.c:169: warning: ‘idx’ may be used uninitialized in this 
+function
+8,13d12
+< fs/bio.c:169: warning: ‘idx’ may be used uninitialized in this 
+function
+< kernel/power/pm.c:205: warning: ‘pm_register’ is deprecated 
+(declared at kernel/power/pm.c:64)
+< kernel/power/pm.c:205: warning: ‘pm_register’ is deprecated 
+(declared at kernel/power/pm.c:64)
+< kernel/power/pm.c:206: warning: ‘pm_send_all’ is deprecated 
+(declared at kernel/power/pm.c:180)
+< kernel/power/pm.c:206: warning: ‘pm_send_all’ is deprecated 
+(declared at kernel/power/pm.c:180)
+< fs/eventpoll.c:500: warning: ‘fd’ may be used uninitialized in 
+this function
+17a17,27
+ > fs/eventpoll.c:500: warning: ‘fd’ may be used uninitialized in 
+this function
+ > fs/fat/inode.c:1227: warning: comparison is always false due to 
+limited range of data type
+ > fs/hfs/btree.c:243: warning: comparison is always false due to 
+limited range of data type
+ > fs/hfsplus/btree.c:235: warning: comparison is always false due to 
+limited range of data type
+ > fs/ocfs2/vote.c:774: warning: ‘response’ may be used 
+uninitialized in this function
+ > fs/ocfs2/dlm/dlmdomain.c:70: warning: format ‘%lu’ expects type 
+‘long unsigned int’, but argument 7 has type ‘int’
+ > fs/ocfs2/dlm/dlmdomain.c:70: warning: format ‘%lu’ expects type 
+‘long unsigned int’, but argument 7 has type ‘int’
+ > fs/ocfs2/dlm/dlmdomain.c:70: warning: format ‘%lu’ expects type 
+‘long unsigned int’, but argument 7 has type ‘int’
+ > fs/ocfs2/dlm/dlmdomain.c:918: warning: ‘response’ may be used 
+uninitialized in this function
+ > fs/udf/balloc.c:751: warning: ‘goal_eloc.logicalBlockNum’ may be 
+used uninitialized in this function
+ > fs/udf/super.c:1364: warning: ‘ino.partitionReferenceNum’ may be 
+used uninitialized in this function
+56a67,68
+ > drivers/usb/core/devio.c:620: warning: comparison is always false due 
+to limited range of data type
+ > drivers/net/r8169.c:2131: warning: ‘txd’ may be used 
+uninitialized in this function
+59d70
+< drivers/net/r8169.c:2131: warning: ‘txd’ may be used uninitialized 
+in this function
+70,73c81
+< fs/ocfs2/vote.c:774: warning: ‘response’ may be used uninitialized 
+in this function
+< fs/ocfs2/dlm/dlmdomain.c:918: warning: ‘response’ may be used 
+uninitialized in this function
+< fs/udf/balloc.c:751: warning: ‘goal_eloc.logicalBlockNum’ may be 
+used uninitialized in this function
+< fs/udf/super.c:1364: warning: ‘ino.partitionReferenceNum’ may be 
+used uninitialized in this function
+---
+ > net/key/af_key.c:403: warning: comparison is always false due to 
+limited range of data type
 
- Changing the bios is a little bit of a long shot at this point. 
-
-Thanks,
-  Keith 
 

@@ -1,94 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWIAGsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWIAGtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWIAGsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 02:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWIAGsp
+	id S964878AbWIAGtX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 02:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWIAGtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 02:48:45 -0400
-Received: from gw.goop.org ([64.81.55.164]:61637 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751213AbWIAGso (ORCPT
+	Fri, 1 Sep 2006 02:49:20 -0400
+Received: from gw.goop.org ([64.81.55.164]:5574 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932449AbWIAGsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 02:48:44 -0400
-Message-Id: <20060901064718.918494029@goop.org>
+	Fri, 1 Sep 2006 02:48:53 -0400
+Message-Id: <20060901064824.866074502@goop.org>
+References: <20060901064718.918494029@goop.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 31 Aug 2006 23:47:18 -0700
+Date: Thu, 31 Aug 2006 23:47:23 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: linux-kernel@vger.kernel.org
 Cc: Chuck Ebbert <76306.1226@compuserve.com>, Zachary Amsden <zach@vmware.com>,
        Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/8] Implement per-processor data areas for i386.
+Subject: [PATCH 5/8] Fix places where using %gs changes the usermode ABI.
+Content-Disposition: inline; filename=i386-pda-fix-abi.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Changes since previous post:
-  - fixed UP build
-  - make compiler type-check for writes to PDA
-  - added pda_addr() to get the address of PDA fields ]
+There are a few places where the change in struct pt_regs and the use
+of %gs affect the userspace ABI.  These are primarily debugging
+interfaces where thread state can be inspected or extracted.
 
-This patch implements per-processor data areas by using %gs as the
-base segment of the per-processor memory.  This has two principle
-advantages:
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>
 
-- It allows very simple direct access to per-processor data by
-  effectively using an effective address of the form %gs:offset, where
-  offset is the offset into struct i386_pda.  These sequences are faster
-  and smaller than the current mechanism using current_thread_info().
+---
+ arch/i386/kernel/process.c |    6 +++---
+ arch/i386/kernel/ptrace.c  |   18 ++++++------------
+ include/asm-i386/elf.h     |    2 +-
+ include/asm-i386/unwind.h  |    1 +
+ 4 files changed, 11 insertions(+), 16 deletions(-)
 
-- It also allows per-CPU data to be allocated as each CPU is brought
-  up, rather than statically allocating it based on the maximum number
-  of CPUs which could be brought up.
+===================================================================
+--- a/arch/i386/kernel/process.c
++++ b/arch/i386/kernel/process.c
+@@ -309,8 +309,8 @@ void show_regs(struct pt_regs * regs)
+ 		regs->eax,regs->ebx,regs->ecx,regs->edx);
+ 	printk("ESI: %08lx EDI: %08lx EBP: %08lx",
+ 		regs->esi, regs->edi, regs->ebp);
+-	printk(" DS: %04x ES: %04x\n",
+-		0xffff & regs->xds,0xffff & regs->xes);
++	printk(" DS: %04x ES: %04x GS: %04x\n",
++	       0xffff & regs->xds,0xffff & regs->xes, 0xffff & regs->xgs);
+ 
+ 	cr0 = read_cr0();
+ 	cr2 = read_cr2();
+@@ -504,7 +504,7 @@ void dump_thread(struct pt_regs * regs, 
+ 	dump->regs.ds = regs->xds;
+ 	dump->regs.es = regs->xes;
+ 	savesegment(fs,dump->regs.fs);
+-	savesegment(gs,dump->regs.gs);
++	dump->regs.gs = regs->xgs;
+ 	dump->regs.orig_eax = regs->orig_eax;
+ 	dump->regs.eip = regs->eip;
+ 	dump->regs.cs = regs->xcs;
+===================================================================
+--- a/arch/i386/kernel/ptrace.c
++++ b/arch/i386/kernel/ptrace.c
+@@ -94,13 +94,9 @@ static int putreg(struct task_struct *ch
+ 				return -EIO;
+ 			child->thread.fs = value;
+ 			return 0;
+-		case GS:
+-			if (value && (value & 3) != 3)
+-				return -EIO;
+-			child->thread.gs = value;
+-			return 0;
+ 		case DS:
+ 		case ES:
++		case GS:
+ 			if (value && (value & 3) != 3)
+ 				return -EIO;
+ 			value &= 0xffff;
+@@ -116,8 +112,8 @@ static int putreg(struct task_struct *ch
+ 			value |= get_stack_long(child, EFL_OFFSET) & ~FLAG_MASK;
+ 			break;
+ 	}
+-	if (regno > GS*4)
+-		regno -= 2*4;
++	if (regno > ES*4)
++		regno -= 1*4;
+ 	put_stack_long(child, regno - sizeof(struct pt_regs), value);
+ 	return 0;
+ }
+@@ -131,18 +127,16 @@ static unsigned long getreg(struct task_
+ 		case FS:
+ 			retval = child->thread.fs;
+ 			break;
+-		case GS:
+-			retval = child->thread.gs;
+-			break;
+ 		case DS:
+ 		case ES:
++		case GS:
+ 		case SS:
+ 		case CS:
+ 			retval = 0xffff;
+ 			/* fall through */
+ 		default:
+-			if (regno > GS*4)
+-				regno -= 2*4;
++			if (regno > ES*4)
++				regno -= 1*4;
+ 			regno = regno - sizeof(struct pt_regs);
+ 			retval &= get_stack_long(child, regno);
+ 	}
+===================================================================
+--- a/include/asm-i386/elf.h
++++ b/include/asm-i386/elf.h
+@@ -88,7 +88,7 @@ typedef struct user_fxsr_struct elf_fpxr
+ 	pr_reg[7] = regs->xds;				\
+ 	pr_reg[8] = regs->xes;				\
+ 	savesegment(fs,pr_reg[9]);			\
+-	savesegment(gs,pr_reg[10]);			\
++	pr_reg[10] = regs->xgs;				\
+ 	pr_reg[11] = regs->orig_eax;			\
+ 	pr_reg[12] = regs->eip;				\
+ 	pr_reg[13] = regs->xcs;				\
+===================================================================
+--- a/include/asm-i386/unwind.h
++++ b/include/asm-i386/unwind.h
+@@ -64,6 +64,7 @@ static inline void arch_unw_init_blocked
+ 	info->regs.xss = __KERNEL_DS;
+ 	info->regs.xds = __USER_DS;
+ 	info->regs.xes = __USER_DS;
++	info->regs.xgs = __KERNEL_PDA;
+ }
+ 
+ extern asmlinkage int arch_unwind_init_running(struct unwind_frame_info *,
 
-Performance:
-
-I've done some simple performance tests on an Intel Core Duo running
-at 1GHz (to emphisize any performance delta).  The results for the
-lmbench null syscall latency test, which should show the most negative
-effect from this change, show a ~9ns decline (.237uS -> .245uS).
-This corresponds to around 9 CPU cycles, and correlates well with
-the addition of the push/load/pop %gs into the hot path.
-
-I have not yet measured the effect on other typees of processor or
-more complex syscalls (though I would expect the push/pop overhead
-would be drowned by longer times spent in the kernel, and mitigated by
-actual use of the PDA).
-
-The size improvements on the kernel text are nice as well: 
-    2889361 -> 2883936 = 5425 bytes saved
-
-
-Some background for people unfamiliar with x86 segmentation:
-
-This uses the x86 segmentation stuff in a way similar to NPTL's way of
-implementing Thread-Local Storage.  It relies on the fact that each CPU
-has its own Global Descriptor Table (GDT), which is basically an array
-of base-length pairs (with some extra stuff).  When a segment register
-is loaded with a descriptor (approximately, an index in the GDT), and
-you use that segment register for memory access, the address has the
-base added to it, and the resulting address is used.
-
-In other words, if you imagine the GDT containing an entry:
-	Index	Offset
-	123:	0xc0211000 (allocated PDA)
-and you load %gs with this selector:
-	mov $123, %gs
-and then use GS later on:
-	mov %gs:4, %eax
-This has the effect of
-	mov 0xc0211004, %eax
-and because the GDT is per-CPU, the offset (= 0xc0211000 = memory
-allocated for this CPU's PDA) can be a CPU-specific value while leaving
-everything else constant.
-
-This means that something like "current" or "smp_processor_id()" can
-collapse to a single instruction:
-	mov %gs:PDA_current, %reg
-
-
-TODO: 
-- Modify more things to use the PDA.  The more that uses it, the more
-  the cost of the %gs save/restore is amortized.  smp_processor_id and
-  current are the obvious first choices, which are implemented in this
-  series.
 --
 

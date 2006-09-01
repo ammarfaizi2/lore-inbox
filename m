@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWIAQWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWIAQZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWIAQWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 12:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWIAQWs
+	id S932450AbWIAQZs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 12:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWIAQZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 12:22:48 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:42189 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932391AbWIAQWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 12:22:47 -0400
-Date: Fri, 1 Sep 2006 18:19:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Roman Zippel <zippel@linux-m68k.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 17/17] BLOCK: Make it possible to disable the block layer [try #2]
-Message-ID: <20060901161920.GB32440@wohnheim.fh-wedel.de>
-References: <44F44B8D.4010700@s5r6.in-berlin.de> <Pine.LNX.4.64.0608300311430.6761@scrub.home> <44F5DA00.8050909@s5r6.in-berlin.de> <20060830214356.GO18276@stusta.de> <Pine.LNX.4.64.0608310039440.6761@scrub.home> <1157069717.2347.13.camel@shinybook.infradead.org> <20060831174852.18efec7e.rdunlap@xenotime.net> <1157074048.2347.24.camel@shinybook.infradead.org> <20060901134425.GA32440@wohnheim.fh-wedel.de> <44F85267.1000607@s5r6.in-berlin.de>
+	Fri, 1 Sep 2006 12:25:48 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:61583 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932450AbWIAQZr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 12:25:47 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157127483.28577.117.camel@localhost.localdomain>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157127483.28577.117.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 01 Sep 2006 18:25:43 +0200
+Message-Id: <1157127943.21733.52.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44F85267.1000607@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 September 2006 17:31:51 +0200, Stefan Richter wrote:
+On Fri, 2006-09-01 at 09:18 -0700, Dave Hansen wrote:
+> > 1) The page-is-discarded (PG_discarded) bit is set for pages that have
+> > been recognized as removed by the host. The page needs to be removed
+> > from the page cache while there are still page references floating
+> > around. To prevent multiple removals from the page cache the discarded
+> > bit is needed.
 > 
-> Yes and no. In the latter case, they have to magically know that at
-> least menuconfig and xconfig can be tricked to list depending options.
+> OK, so the page has data in it, and is in the page cache.  The
+> hypervisor kills the page, gives the notification to the kernel that the
+> page has gone away, and the kernel marks PG_discarded.  There still
+> might be active references to the page.
 
-True.  Marginally better than horrible then. :)
+No, the hypervisor does not give the notification immediatly. A discard
+fault is delivered to the guest if it tries to access a page that has
+been removed by the host. That is the fundamental difference between a
+memory ballooner and the guest page hinting.
 
-> Could be a fun project [...]
+> So, is the problem trying to communicate with the reference holders that
+> the page is no longer valid?  How is this fundamentally different from
+> page truncating?
 
-Absolutely.  Assuming that select gets removed in the process, and
-concentrating on oldconfig, would it be enough to have something like
-this in the .config?
+Truncating is similar but the reaction is different. A truncated page is
+gone and will not be recreated. A discarded page can be reloaded.
 
-# CONFIG_USB_STORAGE has unmet dependencies: CONFIG_SCSI, CONFIG_BLOCK
+> > 2) The page-state-change (PG_state_change) bit is required to prevent
+> > that an make_stable "overtakes" a make_volatile. In order to make a page
+> > volatile a number of conditions are check. After this is done the state
+> > change will be done. The critical section is the code that performs the
+> > checks up to the instruction that does the state change. No make_stable
+> > may be done in between. The granularity is per page, to use a global
+> > lock like a spinlock would severly limit the scalability for large smp
+> > systems.
+> 
+> How about doing it in the NUMA node?  Or the mem_section?  Or, even a
+> bit in the mem_map[] for the area guarding the 'struct page' itself?
+> Even a hashed table of locks based on the page address.  You just need
+> something that allows _some_ level of concurrency.  You certainly never
+> have a number of CPUs which is anywhere close to the number of 'struct
+> page's in the system.
 
-Now people looking for usb mass storage can find the option without
-grepping through Kconfig files, but also every single driver for every
-single disabled subsystem shows up.  Might be a bit too much.
-
-Jörn
+NUMA node is not granular enough, mem_section is probably doable. I do
+not understand the part about the bit in the mem_map[] area, a bit in
+the page->flags is exactly that, isn't it?
 
 -- 
-Invincibility is in oneself, vulnerability is in the opponent.
--- Sun Tzu
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

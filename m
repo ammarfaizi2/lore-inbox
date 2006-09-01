@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWIABo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWIABpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWIABo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Aug 2006 21:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWIABo0
+	id S964866AbWIABpl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Aug 2006 21:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWIABpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Aug 2006 21:44:26 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:55942 "EHLO
+	Thu, 31 Aug 2006 21:45:41 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:64134 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964877AbWIABoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Aug 2006 21:44:25 -0400
-Date: Thu, 31 Aug 2006 21:44:14 -0400
+	id S964866AbWIABpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Aug 2006 21:45:40 -0400
+Date: Thu, 31 Aug 2006 21:45:27 -0400
 From: Josef Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@ftp.linux.org.uk
-Subject: [PATCH 06/22][RFC] Unionfs: Dentry operations
-Message-ID: <20060901014414.GG5788@fsl.cs.sunysb.edu>
+Subject: [PATCH 07/22][RFC] Unionfs: Directory file operations
+Message-ID: <20060901014527.GH5788@fsl.cs.sunysb.edu>
 References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains the dentry operations for Unionfs.
+This patch provides directory file operations.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -35,13 +35,13 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
- fs/unionfs/dentry.c |  236 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 236 insertions(+)
+ fs/unionfs/dirfops.c |  270 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 270 insertions(+)
 
-diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/dentry.c linux-2.6-git-unionfs/fs/unionfs/dentry.c
---- linux-2.6-git/fs/unionfs/dentry.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-git-unionfs/fs/unionfs/dentry.c	2006-08-31 19:04:00.000000000 -0400
-@@ -0,0 +1,236 @@
+diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/dirfops.c linux-2.6-git-unionfs/fs/unionfs/dirfops.c
+--- linux-2.6-git/fs/unionfs/dirfops.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6-git-unionfs/fs/unionfs/dirfops.c	2006-08-31 19:04:00.000000000 -0400
+@@ -0,0 +1,270 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -63,218 +63,252 @@ diff -Nur -x linux-2.6-git/Documentation/dontdiff linux-2.6-git/fs/unionfs/dentr
 +
 +#include "union.h"
 +
-+/* declarations added for "sparse" */
-+extern int unionfs_d_revalidate_wrap(struct dentry *dentry,
-+				     struct nameidata *nd);
-+extern void unionfs_d_release(struct dentry *dentry);
-+extern void unionfs_d_iput(struct dentry *dentry, struct inode *inode);
-+
-+/*
-+ * THIS IS A BOOLEAN FUNCTION: returns 1 if valid, 0 otherwise.
-+ */
-+int unionfs_d_revalidate(struct dentry *dentry, struct nameidata *nd)
++/* Make sure our rdstate is playing by the rules. */
++static void verify_rdstate_offset(struct unionfs_dir_state *rdstate)
 +{
-+	int valid = 1;		/* default is valid (1); invalid is 0. */
-+	struct dentry *hidden_dentry;
-+	int bindex, bstart, bend;
-+	int sbgen, dgen;
-+	int positive = 0;
-+	int locked = 0;
-+	int restart = 0;
-+	int interpose_flag;
-+
-+restart:
-+	verify_locked(dentry);
-+
-+	/* if the dentry is unhashed, do NOT revalidate */
-+	if (d_deleted(dentry)) {
-+		printk(KERN_DEBUG "unhashed dentry being revalidated: %*s\n",
-+		       dentry->d_name.len, dentry->d_name.name);
-+		goto out;
-+	}
-+
-+	BUG_ON(dbstart(dentry) == -1);
-+	if (dentry->d_inode)
-+		positive = 1;
-+	dgen = atomic_read(&dtopd(dentry)->udi_generation);
-+	sbgen = atomic_read(&stopd(dentry->d_sb)->usi_generation);
-+	/* If we are working on an unconnected dentry, then there is no
-+	 * revalidation to be done, because this file does not exist within the
-+	 * namespace, and Unionfs operates on the namespace, not data.
-+	 */
-+	if (sbgen != dgen) {
-+		struct dentry *result;
-+		int pdgen;
-+
-+		unionfs_read_lock(dentry->d_sb);
-+		locked = 1;
-+
-+		/* The root entry should always be valid */
-+		BUG_ON(IS_ROOT(dentry));
-+
-+		/* We can't work correctly if our parent isn't valid. */
-+		pdgen = atomic_read(&dtopd(dentry->d_parent)->udi_generation);
-+		if (!restart && (pdgen != sbgen)) {
-+			unionfs_read_unlock(dentry->d_sb);
-+			locked = 0;
-+			/* We must be locked before our parent. */
-+			if (!
-+			    (dentry->d_parent->d_op->
-+			     d_revalidate(dentry->d_parent, nd))) {
-+				valid = 0;
-+				goto out;
-+			}
-+			restart = 1;
-+			goto restart;
-+		}
-+		BUG_ON(pdgen != sbgen);
-+
-+		/* Free the pointers for our inodes and this dentry. */
-+		bstart = dbstart(dentry);
-+		bend = dbend(dentry);
-+		if (bstart >= 0) {
-+			struct dentry *hidden_dentry;
-+			for (bindex = bstart; bindex <= bend; bindex++) {
-+				hidden_dentry =
-+				    dtohd_index_nocheck(dentry, bindex);
-+				if (!hidden_dentry)
-+					continue;
-+				dput(hidden_dentry);
-+			}
-+		}
-+		set_dbstart(dentry, -1);
-+		set_dbend(dentry, -1);
-+
-+		interpose_flag = INTERPOSE_REVAL_NEG;
-+		if (positive) {
-+			interpose_flag = INTERPOSE_REVAL;
-+			mutex_lock(&dentry->d_inode->i_mutex);
-+			bstart = ibstart(dentry->d_inode);
-+			bend = ibend(dentry->d_inode);
-+			if (bstart >= 0) {
-+				struct inode *hidden_inode;
-+				for (bindex = bstart; bindex <= bend; bindex++) {
-+					hidden_inode =
-+					    itohi_index(dentry->d_inode,
-+							bindex);
-+					if (!hidden_inode)
-+						continue;
-+					iput(hidden_inode);
-+				}
-+			}
-+			kfree(itohi_ptr(dentry->d_inode));
-+			itohi_ptr(dentry->d_inode) = NULL;
-+			ibstart(dentry->d_inode) = -1;
-+			ibend(dentry->d_inode) = -1;
-+			mutex_unlock(&dentry->d_inode->i_mutex);
-+		}
-+
-+		result = unionfs_lookup_backend(dentry, interpose_flag);
-+		if (result) {
-+			if (IS_ERR(result)) {
-+				valid = 0;
-+				goto out;
-+			}
-+			/* current unionfs_lookup_backend() doesn't return
-+			   a valid dentry */
-+			dput(dentry);
-+			dentry = result;
-+		}
-+
-+		if (positive && itopd(dentry->d_inode)->uii_stale) {
-+			make_stale_inode(dentry->d_inode);
-+			d_drop(dentry);
-+			valid = 0;
-+			goto out;
-+		}
-+		goto out;
-+	}
-+
-+	/* The revalidation must occur across all branches */
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+	BUG_ON(bstart == -1);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = dtohd_index(dentry, bindex);
-+		if (!hidden_dentry || !hidden_dentry->d_op
-+		    || !hidden_dentry->d_op->d_revalidate)
-+			continue;
-+
-+		if (!hidden_dentry->d_op->d_revalidate(hidden_dentry, nd))
-+			valid = 0;
-+	}
-+
-+	if (!dentry->d_inode)
-+		valid = 0;
-+	if (valid)
-+		fist_copy_attr_all(dentry->d_inode, itohi(dentry->d_inode));
-+
-+out:
-+	if (locked)
-+		unionfs_read_unlock(dentry->d_sb);
-+	return valid;
++	BUG_ON(rdstate->uds_offset >= DIREOF);
++	BUG_ON(rdstate->uds_cookie >= MAXRDCOOKIE);
 +}
 +
-+int unionfs_d_revalidate_wrap(struct dentry *dentry, struct nameidata *nd)
++struct unionfs_getdents_callback {
++	struct unionfs_dir_state *rdstate;
++	void *dirent;
++	int entries_written;
++	int filldir_called;
++	int filldir_error;
++	filldir_t filldir;
++	struct super_block *sb;
++};
++
++/* copied from generic filldir in fs/readir.c */
++static int unionfs_filldir(void *dirent, const char *name, int namelen,
++			   loff_t offset, ino_t ino, unsigned int d_type)
 +{
-+	int err;
++	struct unionfs_getdents_callback *buf =
++	    (struct unionfs_getdents_callback *)dirent;
++	struct filldir_node *found = NULL;
++	int err = 0;
++	int is_wh_entry = 0;
 +
-+	lock_dentry(dentry);
++	buf->filldir_called++;
 +
-+	err = unionfs_d_revalidate(dentry, nd);
++	if ((namelen > UNIONFS_WHLEN) && !strncmp(name, UNIONFS_WHPFX, UNIONFS_WHLEN)) {
++		name += UNIONFS_WHLEN;
++		namelen -= UNIONFS_WHLEN;
++		is_wh_entry = 1;
++	}
 +
-+	unlock_dentry(dentry);
++	found = find_filldir_node(buf->rdstate, name, namelen);
++
++	if (found)
++		goto out;
++
++	/* if 'name' isn't a whiteout filldir it. */
++	if (!is_wh_entry) {
++		off_t pos = rdstate2offset(buf->rdstate);
++		ino_t unionfs_ino = ino;
++
++		if (!err) {
++			err = buf->filldir(buf->dirent, name, namelen, pos,
++					   unionfs_ino, d_type);
++			buf->rdstate->uds_offset++;
++			verify_rdstate_offset(buf->rdstate);
++		}
++	}
++	/* If we did fill it, stuff it in our hash, otherwise return an error */
++	if (err) {
++		buf->filldir_error = err;
++		goto out;
++	}
++	buf->entries_written++;
++	if ((err = add_filldir_node(buf->rdstate, name, namelen,
++				    buf->rdstate->uds_bindex, is_wh_entry)))
++		buf->filldir_error = err;
++
++out:
 +	return err;
 +}
 +
-+void unionfs_d_release(struct dentry *dentry)
++static int unionfs_readdir(struct file *file, void *dirent, filldir_t filldir)
 +{
-+	struct dentry *hidden_dentry;
-+	int bindex, bstart, bend;
++	int err = 0;
++	struct file *hidden_file = NULL;
++	struct inode *inode = NULL;
++	struct unionfs_getdents_callback buf;
++	struct unionfs_dir_state *uds;
++	int bend;
++	loff_t offset;
 +
-+	/* There is no reason to lock the dentry, because we have the only
-+	 * reference, but the printing functions verify that we have a lock
-+	 * on the dentry before calling dbstart, etc. */
-+	lock_dentry(dentry);
-+
-+	/* this could be a negative dentry, so check first */
-+	if (!dtopd(dentry)) {
-+		printk(KERN_DEBUG "dentry without private data: %*s",
-+		       dentry->d_name.len, dentry->d_name.name);
++	if ((err = unionfs_file_revalidate(file, 0)))
 +		goto out;
-+	} else if (dbstart(dentry) < 0) {
-+		/* this is due to a failed lookup */
-+		/* the failed lookup has a dtohd_ptr set to null,
-+		   but this is a better check */
-+		printk(KERN_DEBUG "dentry without hidden dentries : %*s",
-+		       dentry->d_name.len, dentry->d_name.name);
-+		goto out_free;
++
++	inode = file->f_dentry->d_inode;
++
++	uds = ftopd(file)->rdstate;
++	if (!uds) {
++		if (file->f_pos == DIREOF) {
++			goto out;
++		} else if (file->f_pos > 0) {
++			uds = find_rdstate(inode, file->f_pos);
++			if (!uds) {
++				err = -ESTALE;
++				goto out;
++			}
++			ftopd(file)->rdstate = uds;
++		} else {
++			init_rdstate(file);
++			uds = ftopd(file)->rdstate;
++		}
++	}
++	bend = fbend(file);
++
++	while (uds->uds_bindex <= bend) {
++		hidden_file = ftohf_index(file, uds->uds_bindex);
++		if (!hidden_file) {
++			uds->uds_bindex++;
++			uds->uds_dirpos = 0;
++			continue;
++		}
++
++		/* prepare callback buffer */
++		buf.filldir_called = 0;
++		buf.filldir_error = 0;
++		buf.entries_written = 0;
++		buf.dirent = dirent;
++		buf.filldir = filldir;
++		buf.rdstate = uds;
++		buf.sb = inode->i_sb;
++
++		/* Read starting from where we last left off. */
++		offset = vfs_llseek(hidden_file, uds->uds_dirpos, 0);
++		if (offset < 0) {
++			err = offset;
++			goto out;
++		}
++		err = vfs_readdir(hidden_file, unionfs_filldir, (void *)&buf);
++		/* Save the position for when we continue. */
++
++		offset = vfs_llseek(hidden_file, 0, 1);
++		if (offset < 0) {
++			err = offset;
++			goto out;
++		}
++		uds->uds_dirpos = offset;
++
++		/* Copy the atime. */
++		fist_copy_attr_atime(inode, hidden_file->f_dentry->d_inode);
++
++		if (err < 0) {
++			goto out;
++		}
++
++		if (buf.filldir_error) {
++			break;
++		}
++
++		if (!buf.entries_written) {
++			uds->uds_bindex++;
++			uds->uds_dirpos = 0;
++		}
 +	}
 +
-+	/* Release all the hidden dentries */
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = dtohd_index(dentry, bindex);
-+		dput(hidden_dentry);
-+		set_dtohd_index(dentry, bindex, NULL);
++	if (!buf.filldir_error && uds->uds_bindex >= bend) {
++		/* Save the number of hash entries for next time. */
++		itopd(inode)->uii_hashsize = uds->uds_hashentries;
++		free_rdstate(uds);
++		ftopd(file)->rdstate = NULL;
++		file->f_pos = DIREOF;
++	} else {
++		file->f_pos = rdstate2offset(uds);
 +	}
-+	/* free private data (unionfs_dentry_info) here */
-+	kfree(dtohd_ptr(dentry));
-+	dtohd_ptr(dentry) = NULL;
-+
-+out_free:
-+	/* No need to unlock it, because it is disappeared. */
-+	free_dentry_private_data(dtopd(dentry));
-+	dtopd_lhs(dentry) = NULL;	/* just to be safe */
 +
 +out:
-+	/* This is here to make the compiler happy */
-+	return;
++	return err;
 +}
 +
-+struct dentry_operations unionfs_dops = {
-+	.d_revalidate = unionfs_d_revalidate_wrap,
-+	.d_release = unionfs_d_release,
++/* This is not meant to be a generic repositioning function.  If you do
++ * things that aren't supported, then we return EINVAL.
++ *
++ * What is allowed:
++ *  (1) seeking to the same position that you are currently at
++ *	This really has no effect, but returns where you are.
++ *  (2) seeking to the end of the file, if you've read everything
++ *	This really has no effect, but returns where you are.
++ *  (3) seeking to the beginning of the file
++ *	This throws out all state, and lets you begin again.
++ */
++static loff_t unionfs_dir_llseek(struct file *file, loff_t offset, int origin)
++{
++	struct unionfs_dir_state *rdstate;
++	loff_t err;
++
++	if ((err = unionfs_file_revalidate(file, 0)))
++		goto out;
++
++	rdstate = ftopd(file)->rdstate;
++
++	/* We let users seek to their current position, but not anywhere else. */
++	if (!offset) {
++		switch (origin) {
++		case SEEK_SET:
++			if (rdstate) {
++				free_rdstate(rdstate);
++				ftopd(file)->rdstate = NULL;
++			}
++			init_rdstate(file);
++			err = 0;
++			break;
++		case SEEK_CUR:
++			err = file->f_pos;
++			break;
++		case SEEK_END:
++			/* Unsupported, because we would break everything.  */
++			err = -EINVAL;
++			break;
++		}
++	} else {
++		switch (origin) {
++		case SEEK_SET:
++			if (rdstate) {
++				if (offset == rdstate2offset(rdstate)) {
++					err = offset;
++				} else if (file->f_pos == DIREOF) {
++					err = DIREOF;
++				} else {
++					err = -EINVAL;
++				}
++			} else {
++				if ((rdstate = find_rdstate(file->f_dentry->d_inode,
++							offset))) {
++					ftopd(file)->rdstate = rdstate;
++					err = rdstate->uds_offset;
++				} else {
++					err = -EINVAL;
++				}
++			}
++			break;
++		case SEEK_CUR:
++		case SEEK_END:
++			/* Unsupported, because we would break everything.  */
++			err = -EINVAL;
++			break;
++		}
++	}
++
++out:
++	return err;
++}
++
++/* Trimmed directory options, we shouldn't pass everything down since
++ * we don't want to operate on partial directories.
++ */
++struct file_operations unionfs_dir_fops = {
++	.llseek = unionfs_dir_llseek,
++	.read = generic_read_dir,
++	.readdir = unionfs_readdir,
++	.unlocked_ioctl = unionfs_ioctl,
++	.open = unionfs_open,
++	.release = unionfs_file_release,
++	.flush = unionfs_flush,
 +};
 +

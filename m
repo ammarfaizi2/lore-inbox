@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWIAP5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWIAP5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWIAP5A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 11:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWIAP5A
+	id S932165AbWIAP5U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 11:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWIAP5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 11:57:00 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:52615 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932125AbWIAP47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 11:56:59 -0400
-Subject: Re: [patch 8/9] Guest page hinting: discarded page list.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org,
-       nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gatech.edu
-In-Reply-To: <1157125219.21733.24.camel@localhost>
-References: <20060901111117.GI15684@skybase>
-	 <1157123836.28577.77.camel@localhost.localdomain>
-	 <1157125219.21733.24.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 01 Sep 2006 08:56:43 -0700
-Message-Id: <1157126203.28577.106.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 11:57:20 -0400
+Received: from tzec.mtu.ru ([195.34.34.228]:26897 "EHLO tzec.mtu.ru")
+	by vger.kernel.org with ESMTP id S932166AbWIAP5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 11:57:18 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: RFC - sysctl or module parameters.
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Date: Fri, 01 Sep 2006 19:57:12 +0400
+References: <17655.38092.888976.846697@cse.unsw.edu.au> <20060901101001.GA13912@kroah.com>
+User-Agent: KNode/0.10.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20060901155715.A03285F9DAB@tzec.mtu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 17:40 +0200, Martin Schwidefsky wrote:
-> No, unfortunately not. There is a new variable page_discard_list that is
-> only defined if CONFG_PAGE_DISCARD_LIST is set. The compiler will
-> complain about the absence of the variable, even if the code is never
-> reached because PageDiscarded always returns 0.
+Greg KH wrote:
 
-Ahh.  I see that now.  How about a nice inlined helper function
-instead? ;)
+> On Fri, Sep 01, 2006 at 12:02:52PM +1000, Neil Brown wrote:
+>> 
+>>  - I could make it a module parameter: use_hostnames, and tell
+>>    Jo to put
+>>      options lockd use_hostnames=yes
+>>    in /etc/modprobe.d/lockd  if that is what (s)he wants.
+>>    But that won't work if the module is compiled in (will it?).
+> 
+> Yes it will.  See Documentation/kernel-parameters.txt for how it works.
+> 
 
--- Dave
+I must be blind today but I failed to find anything about this in mentioned
+file. Nor do I see how it can possibly work. Could you please elaborate a
+bit?
+
+thank you
+
+-andrey
 

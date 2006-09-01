@@ -1,109 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWIAVYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWIAUoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWIAVYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 17:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWIAVYJ
+	id S1750794AbWIAUoI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 16:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWIAUoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 17:24:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38095 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750901AbWIAVYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 17:24:06 -0400
-Message-ID: <44F8A4F1.4060506@redhat.com>
-Date: Fri, 01 Sep 2006 17:24:01 -0400
-From: Chris Snook <csnook@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: Vadim Lobanov <vlobanov@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.33.2] enforce RLIMIT_NOFILE in poll()
-References: <20060901.PbR.07536400@egw.corp.redhat.com> <20060901034834.GB28317@1wt.eu> <200608312125.14564.vlobanov@speakeasy.net> <44F859CC.6060404@redhat.com> <20060901193135.GA28388@1wt.eu>
-In-Reply-To: <20060901193135.GA28388@1wt.eu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Sep 2006 16:44:08 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:37387 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750794AbWIAUoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 16:44:06 -0400
+Date: Fri, 1 Sep 2006 21:43:43 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roland Dreier <rdreier@cisco.com>, Adrian Bunk <bunk@stusta.de>,
+       Tom Tucker <tom@opengridcomputing.com>,
+       Steve Wise <swise@opengridcomputing.com>,
+       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18-rc5-mm1: drivers/infiniband/hw/amso1100/c2.c compile error
+Message-ID: <20060901204343.GA4979@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Roland Dreier <rdreier@cisco.com>, Adrian Bunk <bunk@stusta.de>,
+	Tom Tucker <tom@opengridcomputing.com>,
+	Steve Wise <swise@opengridcomputing.com>,
+	Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+	openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
+References: <20060901015818.42767813.akpm@osdl.org> <20060901160023.GB18276@stusta.de> <20060901101340.962150cb.akpm@osdl.org> <adak64nij8f.fsf@cisco.com> <20060901112312.5ff0dd8d.akpm@osdl.org> <ada8xl3ics4.fsf@cisco.com> <20060901130444.48f19457.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060901130444.48f19457.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Fri, Sep 01, 2006 at 12:03:24PM -0400, Chris Snook wrote:
->>Willy and Vadim --
->>
->>	We have received reports of apps which poll a large set of 
->>not-necessarily-valid file descriptors which worked fine under 2.4.18, 
->>when the check was only against NR_OPEN, which is 1024*1024, that fail 
->>under newer kernels.  So there is a real motivation to change the 
->>current code.  As for the patch breaking existing apps, there are really 
->>3 scenarios:
->>
->>1)	RLIMIT_NOFILE is at the default value of 1024
->>
->>	In this (default) case, the patch changes nothing.  Calls with nfds 
->>	> 1024 fail with EINVAL both before and after the patch, and calls with 
->>nfds <= 1024 pass the check both before and after the patch, since 1024 
->>is the initial value of max_fdset.
->>
->>2)	RLIMIT_NOFILE has been raised above the default
->>
->>	In this case, poll() becomes more permissive, allowing polling up to 
->>RLIMIT_NOFILE file descriptors even if less than 1024 have been opened. 
->> The patch won't introduce new errors here.  If an application somehow 
->>depends on poll() failing when it polls with duplicate or invalid file 
->>descriptors, it's already broken, since this is already allowed below 
->>1024, and will also work above 1024 if enough file descriptors have been 
->>open at some point to cause max_fdset to have been increased above nfds.
->>
->>3)	RLIMIT_NOFILE has been lowered below the default
->>
->>	In this case, the system administrator or the user has gone out of 
->>their way to protect the system from inefficient (or malicious) 
->>applications wasting kernel memory.  The current code allows polling up 
->>to 1024 file descriptors even if RLIMIT_NOFILE is much lower, which is 
->>not what the user or administrator intended.  Well-written applications 
->>which only poll valid, unique file descriptors will never notice the 
->>difference, because they'll hit the limit on open() first.  If an 
->>application gets broken because of the patch in this case, then it was 
->>already poorly/maliciously designed, and allowing it to work in the past 
->>was a violation of POSIX and a DoS risk on low-resource systems.
+On Fri, Sep 01, 2006 at 01:04:44PM -0700, Andrew Morton wrote:
+> On Fri, 01 Sep 2006 12:53:47 -0700
+> Roland Dreier <rdreier@cisco.com> wrote:
+> > Yes, I agree that's a good plan, especially the documentation part.
+> > However I would argue that what's in drivers/infiniband/hw/mthca/mthca_doorbell.h 
+> > is legitimate: the driver uses __raw_writeq() when it exists and uses
+> > two __raw_writel()s properly serialized with a device-specific lock to
+> > get exactly the atomicity it needs on 32-bit archs.
 > 
+> No, driver-specific workarounds are not legitimate, sorry.
 > 
-> OK, thanks very much for the details. Now, call me an idiot, but why
-> don't you consider broken the apps which are currently failing on
-> newer kernels ? I'm starting to suspect that we have to sets of apps :
+> The driver should simply fail to compile on architectures which do not
+> implement __raw_writeq().
 
-I do consider them poorly designed, but they're out there, and they used 
-to work, and it doesn't violate POSIX to allow them to work again, so 
-all things being equal, I'd like them to work on new kernels.
+So, what you're basically saying is that on architectures which can _NOT_
+implement an atomic __raw_writeq(), certain drivers simply will not be
+available?
 
->   - those which rely on poll() failing for invalid fds (do they really
->     exist ?)
+> We can speed up the process by sending helpful emails to architecture
+> maintainers, but they'll notice either way.
 
-I hope not.  If so, they're already broken in most situations anyway.
+I think you're completely wrong in the context of the message you're
+replying to - it's talking about an _atomic_ 64-bit write.
 
->   - those which rely on poll() not failing for invalid fds.
-
-This is what we've gotten reports of.  I suspect we haven't heard much 
-about this because in most cases the offending apps get fixed to not 
-poll invalid fds, but for some deployed proprietary apps that may not be 
-an option.
-
-> The poll(2) man page suggests what you're saying. Man pages from other
-> OSes found on the net suggest various behaviours. I guess it's better
-> to stick to what has been documented (ie: your fix) but with *infinite
-> care*. Apps which need more than 1024 fds are not end-user mp3 players.
-> Breaking them in a stable branch can have a huge impact. I'd like this
-> patch to be tested in 2.6 long before 2.4, and also it would be good
-> if we could find some feedback from affected people which could confirm
-> that your patch really fixes their problems. If you have some customers
-> reporting the problem in RHEL who confirm the fix, it would be nice if
-> they accepted to inform us about the application(s) which need this fix. 
-
-I agree.  The 2.6 patch is in -mm now.  The patch has been tested 
-successfully with a synthetic reproducer under various vanilla and RHEL 
-2.4 and 2.6 kernels, but we're still waiting on real-world customer 
-results.  Let's wait and see how the customer tests and the -mm patch go.
-
--- Chris
+Sure, if you want a _non-atomic_ 64-bit write then that's possible,
+but many 32-bit architectures can't do a 64-bit atomic IO write and
+that isn't something they can "fix".
 
 -- 
-VGER BF report: H 4.82384e-11
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core
+
+-- 
+VGER BF report: H 5.55112e-17

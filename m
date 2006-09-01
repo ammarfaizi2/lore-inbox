@@ -1,99 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWIASBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750696AbWIASDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWIASBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 14:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750696AbWIASBL
+	id S1750696AbWIASDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 14:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWIASDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 14:01:11 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:60174 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1750705AbWIASBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 14:01:10 -0400
-From: Ondrej Zary <linux@rainbow-software.org>
-To: Patrick McHardy <kaber@trash.net>
-Subject: Re: Oops after 30 days of uptime
-Date: Fri, 1 Sep 2006 20:00:58 +0200
-User-Agent: KMail/1.9.4
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200609011852.39572.linux@rainbow-software.org> <44F86732.5060501@trash.net>
-In-Reply-To: <44F86732.5060501@trash.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Fri, 1 Sep 2006 14:03:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:39053 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750696AbWIASDP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 14:03:15 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157132520.21733.78.camel@localhost>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157127483.28577.117.camel@localhost.localdomain>
+	 <1157127943.21733.52.camel@localhost>
+	 <1157128634.28577.139.camel@localhost.localdomain>
+	 <1157129762.21733.63.camel@localhost>
+	 <1157130970.28577.150.camel@localhost.localdomain>
+	 <1157132520.21733.78.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 11:03:00 -0700
+Message-Id: <1157133780.18728.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609012000.58873.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 September 2006 19:00, Patrick McHardy wrote:
-> Ondrej Zary wrote:
-> > Hello,
-> > my home router crashed after about a month. It does this sometimes but
-> > this time I was able to capture the oops. Here is the result of running
-> > ksymoops on it (took a photo of the screen and then manually converted to
-> > plain-text). Does it look like a bug or something other?
-> >
-> >
-> > Code;  c01eeb9e <init_or_cleanup+15e/160>
-> > 00000000 <_EIP>:
-> > Code;  c01eeb9e <init_or_cleanup+15e/160>   <=====
-> >    0:   8b 5e 18                  mov    0x18(%esi),%ebx   <=====
-> > Code;  c01eeba1 <ip_conntrack_protocol_register+1/70>
-> >    3:   11 d8                     adc    %ebx,%eax
->
-> This looks like a bug in some out of tree protocol module (2.4 only
-> contains the built-in protocols). Did you apply any netfilter patches?
+On Fri, 2006-09-01 at 19:42 +0200, Martin Schwidefsky wrote: 
+> The problem of page discard vs. normal page remove is that the page can
+> be remove and discarded at the same time. Both sides are writers in the
+> sense that they want to remove the page from page cache. RCU doesn't not
+> help with that kind of race. 
 
+OK.  It comes down to a race between 
 
-No patches, it's clean 2.4.31.
-Hopefully I typed all the numbers correctly...
+	__remove_from_page_cache()/__delete_from_swap_cache()
 
-These network-related things are enabled:
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
+and
 
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
+	__page_discard()
 
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_GRED=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_POLICE=y
+running on the same page at the same time.  Right?
 
+-- Dave
 
--- 
-Ondrej Zary

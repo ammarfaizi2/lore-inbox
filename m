@@ -1,100 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWIBFqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWIBFy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWIBFqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 01:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWIBFqh
+	id S1750806AbWIBFy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 01:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIBFy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 01:46:37 -0400
-Received: from mga09.intel.com ([134.134.136.24]:40309 "EHLO
-	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750779AbWIBFqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 01:46:37 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,202,1154934000"; 
-   d="scan'208"; a="119715754:sNHT18385080"
-Message-ID: <44F91A67.6020505@intel.com>
-Date: Fri, 01 Sep 2006 22:45:11 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.5 (X11/20060728)
+	Sat, 2 Sep 2006 01:54:58 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:48652 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750806AbWIBFy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 01:54:57 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Possible gpl problem?
+Date: Fri, 1 Sep 2006 22:54:25 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEIJOCAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: Paul Aviles <paul.aviles@palei.com>
-CC: linux-kernel@vger.kernel.org, NetDev <netdev@vger.kernel.org>
-Subject: Re: e1000 Detected Tx Unit Hang
-References: <000f01c6ce49$affd37e0$3224050a@avilespaxp>
-In-Reply-To: <000f01c6ce49$affd37e0$3224050a@avilespaxp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <1157174636.2473.22.camel@shinybook.infradead.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 01 Sep 2006 22:49:12 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 01 Sep 2006 22:49:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Aviles wrote:
-> I am getting "e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang" 
-> using stock 2.6.17.11, 2.6.17.5 or 2.6.17.4 kernels on centos 4.3.
-> 
-> The server is a Tyan GS10 and is connected to a Netgear GS724T Gig 
-> switch. I can easily reproduce the problem by trying to do a large ftp 
-> transfer to the server. It does not happen if the server is connected to 
-> a dummy 100 Mb switch, only when is connected to the Gig switch.
-> I have also tried the options line below disabling tso, tx and rx in the 
-> modprobe.conf without any luck.
-> 
-> options e1000 XsumRX=0 Speed=1000 Duplex=2 InterruptThrottleRate=0 
-> FlowControl=3 RxDescriptors=4096 TxDescriptors=4096 RxIntDelay=0 
-> TxIntDelay=0
-> 
-> in /var/log/kernel I get the following...
-> 
-> Sep  1 23:53:01 www kernel: e1000: eth0: e1000_clean_tx_irq: Detected Tx 
-> Unit Hang
-> Sep  1 23:53:01 www kernel:   Tx Queue             <0>
-> Sep  1 23:53:01 www kernel:   TDH                  <4c4>
-> Sep  1 23:53:01 www kernel:   TDT                  <4c9>
-> Sep  1 23:53:01 www kernel:   next_to_use          <4c9>
-> Sep  1 23:53:01 www kernel:   next_to_clean        <4c4>
-> Sep  1 23:53:01 www kernel: buffer_info[next_to_clean]
-> Sep  1 23:53:01 www kernel:   time_stamp           <ffff9c60>
-> Sep  1 23:53:01 www kernel:   next_to_watch        <4c4>
-> Sep  1 23:53:01 www kernel:   jiffies              <ffff9d96>
-> Sep  1 23:53:01 www kernel:   next_to_watch.status <0>
-> .
-> repeats the same as above a few times....
-> .
-> Sep  1 23:53:10 www kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> Sep  1 23:53:13 www kernel: e1000: eth0: e1000_watchdog_task: NIC Link 
-> is Up 1000 Mbps Full Duplex
-> 
-> then the server locks up, no response from the keyboard at all and must 
-> be forced down with a power kill.
-> 
-> Here is my driver info,
-> 
-> driver: e1000
-> version: 7.0.33-k2-NAPI
-> firmware-version: N/A
-> bus-info: 0000:02:01.0
-> 
-> What else could I check?
 
-[adding netdev to cc, this is a NET issue]
+> On Tue, 2006-08-29 at 06:57 -0700, David Schwartz wrote:
+> >
+> >     b) Accompany it with a written offer, valid for at least three
+> >     years, to give any third party, for a charge no more than your
+> >     cost of physically performing source distribution, a complete
+> >     machine-readable copy of the corresponding source code, to be
+> >     distributed under the terms of Sections 1 and 2 above on a medium
+> >     customarily used for software interchange; or,
 
-This is a known issue and there are several discussions and bugs filed on this. 
-  Please read this one where most is documented, and also the netdev
+> > Which, you'll notice, says you must *accompany* the
+> > distribution with a
+> > written offer. There is no way this offer could be enforced by
+> > someone who
+> > did not possess it or a copy of it. How would you know who to
+> > contact, the
+> > amount to pay, and so on?
 
-http://sourceforge.net/tracker/index.php?func=detail&aid=1463045&group_id=42302&atid=447449
+> > So if you neither possess the binary nor a copy of an
+> > offer for the source,
+> > you are not entitled to it. At least, that's how I read this.
 
-more links and information available on http://e1000.sf.net/
+> That interpretation doesn't seem particularly consistent with the third
+> and final option as described in the next paragraph of the GPL:
 
-Your debugging information might be needed and helpful, so please take the 
-trouble of digging in the previous bugreports and reporting anything that might 
-be relevant there.
+	Hmm? It's perfectly consistent.
 
-The full lockup is certainly not good, but should not necessarily be related to 
-the tx hang (or the cause of that). It is likely that interrupt sharing might 
-be a problem here; what kind of e1000 nic is this? lspci -vv?
+>     c) Accompany it with the information you received as to the offer
+>     to distribute corresponding source code.  (This alternative is
+>     allowed only for noncommercial distribution and only if you
+>     received the program in object code or executable form with such
+>     an offer, in accord with Subsection b above.)
 
-Cheers,
+	In other words, you must enable the recipient to get the source by passing
+your original offer on to them. The recipient, obviously, must be able to
+enforce the offer or this makes no sense.
 
-Auke
+	So the purpose of the "any third party" requirement is to make sure that
+someone who receives a copy of the offer from a redistributor can acquire
+the source code. It's not so that someone who never received any
+distribution at all can acquire the source code.
+
+	This is consistent with the purpose of the GPL as well, which is to make
+sure that if you have the binary, you can get the source code. It is not to
+ensure that random people can get the source code.
+
+> Unless the party who made the offer of source code is required to extend
+> that offer to "any third party" (as in fact is explicitly stated in
+> subsection b), how can subsection c work?
+
+	Subsection c works because the person distributing the code passes the
+offer on to the recipient so that he is in possession of a copy of the
+offer.
+
+> It doesn't say "any third party who is in possession of a copy of the
+> binary and has a verbatim copy of the original written offer of source".
+> It just says "any third party".
+
+	What would be the point of accompanying it with the information regarding
+the offer if that information served no purpose whatsoever? How could you
+enforce an offer when you had no knowledge of who was making the offer and
+what its terms were?
+
+	DS
+
+
 
 -- 
-VGER BF report: H 0.00334085
+VGER BF report: U 0.499995

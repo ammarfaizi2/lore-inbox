@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751734AbWIBXOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWIBXRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751734AbWIBXOA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 19:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWIBXOA
+	id S1751739AbWIBXRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 19:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWIBXRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 19:14:00 -0400
-Received: from rrcs-24-227-114-150.se.biz.rr.com ([24.227.114.150]:55948 "EHLO
-	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S1751733AbWIBXN7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 19:13:59 -0400
-Date: Sat, 2 Sep 2006 19:11:52 -0400 (EDT)
-From: shogunx <shogunx@sleekfreak.ath.cx>
-To: Matthias Hentges <oe@hentges.net>
-cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
- easily reproducable
-In-Reply-To: <1157233344.18988.7.camel@mhcln03>
-Message-ID: <Pine.LNX.4.44.0609021908320.28542-100000@sleekfreak.ath.cx>
+	Sat, 2 Sep 2006 19:17:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60106 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751736AbWIBXRN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 19:17:13 -0400
+Date: Sun, 3 Sep 2006 01:16:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: prevent swsusp with PAE
+Message-ID: <20060902231654.GD13031@elf.ucw.cz>
+References: <20060831135336.GL3923@elf.ucw.cz> <20060831104304.e3514401.akpm@osdl.org> <20060831223521.GB31125@elf.ucw.cz> <20060831154828.4313327c.akpm@osdl.org> <20060831225232.GE31125@elf.ucw.cz> <20060831160546.3309d745.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060831160546.3309d745.rdunlap@xenotime.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Sep 2006, Matthias Hentges wrote:
+Next version of prevent-swsusp-with-PAE, this time I disable it in
+Kconfig.
 
-> Am Samstag, den 02.09.2006, 15:41 -0400 schrieb shogunx:
-> > On Sat, 2 Sep 2006, Matthias Hentges wrote:
-> >
-> > > Am Freitag, den 01.09.2006, 22:41 -0400 schrieb shogunx:
-> > > > > >
-> > > > > > Has this not been fixed in the 2.6.18 git?
-> > > > >
-> > > > > Good question. I'll try 2.6.18-rc4-mm3 and report back.
-> > > >
-> > > > I am having no problems with 2.6.18-rc5, which I just built and tested.
-> > >
-> > > The NIC is up and running for about 9hrs now w/ -rc4-mm3, thanks for the
-> > > heads up!
-> >
-> > Hey, no worries.  I have a friend who has has that problem for some time,
-> > and I just got one of those cards myself, albeint in an ExpressCard
-> > format.
-> >
-> > Glad its working.
->
-> Well, it just crapped out on me again :(
->
-> Sep  2 23:36:13 localhost kernel: NETDEV WATCHDOG: eth2: transmit timed
-> out
-> Sep  2 23:36:13 localhost kernel: sky2 hardware hung? flushing
->
-> Only a rmmod / modprobe cycle helps at this point.
+PAE + swsusp results in hard-to-debug crash about 50% of time during
+resume. Cause is known, fix needs to be ported from x86-64 (but we
+can't make it to 2.6.18, and I'd like this to be worked around in
+2.6.18).
 
-Really?  What is the error condition causing it?  On my friends lap, which
-has an integrated sky2, his drops out with a full sustained TX...
-uploading to another box for example, at about 4-8MB of transfer.  The
-fix in his case is ifdown eth0 && ifup eth0.  I have
-yet to see the error occur at all on my ExpressCard device, either with
-2.6.18-rc5 or 2.6.17.5.  I built the rc5 as a preemptive measure, but I
-cannot get it to fail under any conditions.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-
-> --
-> Matthias 'CoreDump' Hentges
->
-> Webmaster of hentges.net and OpenZaurus developer.
-> You can reach me in #openzaurus on Freenode.
->
-> My OS: Debian SID. Geek by Nature, Linux by Choice
->
-
-sleekfreak pirate broadcast
-http://sleekfreak.ath.cx:81/
-
+diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
+index ae44a70..619ecab 100644
+--- a/kernel/power/Kconfig
++++ b/kernel/power/Kconfig
+@@ -56,7 +56,7 @@ config PM_TRACE
+ 
+ config SOFTWARE_SUSPEND
+ 	bool "Software Suspend"
+-	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP)
++	depends on PM && SWAP && ((X86 && (!SMP || SUSPEND_SMP) && !X86_PAE) || ((FRV || PPC32) && !SMP))
+ 	---help---
+ 	  Enable the possibility of suspending the machine.
+ 	  It doesn't need ACPI or APM.
+@@ -78,6 +78,10 @@ config SOFTWARE_SUSPEND
+ 
+ 	  For more information take a look at <file:Documentation/power/swsusp.txt>.
+ 
++	  (For now, swsusp is incompatible with PAE aka HIGHMEM_64G on i386.
++	  we need identity mapping for resume to work, and that is trivial
++	  to get with 4MB pages, but less than trivial on PAE).
++
+ config PM_STD_PARTITION
+ 	string "Default resume partition"
+ 	depends on SOFTWARE_SUSPEND
 
 -- 
-VGER BF report: U 0.5
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+-- 
+VGER BF report: U 0.489608

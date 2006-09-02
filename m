@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWIBBfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWIBBjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWIBBfE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 21:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWIBBfE
+	id S1750791AbWIBBjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 21:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWIBBjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 21:35:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:36189 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750780AbWIBBfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 21:35:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k2xN1WNykPis7G6k8vN0Pwvkr7oK/raxZuXr2JwJESC0CiX636FLy5Qs35ga1wJmi+5+Ig5mNIloKjoLE2EDl7tgJyxuYZU6fVVjXBHbU/BcDFvKxjh7B6BgcqxuOCpvWQdDGOUOSqTIN/gRhrWO6/zI1zxfInkaCIcV7vYVr6I=
-Message-ID: <2c0942db0609011835l4e4bef6ie2d3d7a5ad30b8c0@mail.gmail.com>
-Date: Fri, 1 Sep 2006 18:35:01 -0700
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: Ethan <thesyntheticsophist@gmail.com>
-Subject: Re: File corruption with 2940U2 SCSI card and aic7xxx driver.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ea0b05b30609010905v341ba10ap5a7638e1d91faa5b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Sep 2006 21:39:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55990 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750791AbWIBBjb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 21:39:31 -0400
+Date: Fri, 1 Sep 2006 18:39:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: 2.6.18-rc5-mm1
+Message-Id: <20060901183927.eba8179d.akpm@osdl.org>
+In-Reply-To: <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
+References: <20060901015818.42767813.akpm@osdl.org>
+	<3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <ea0b05b30609010905v341ba10ap5a7638e1d91faa5b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/1/06, Ethan <thesyntheticsophist@gmail.com> wrote:
-> I recently installed an Adaptec 2940U2 controller and two disks in my
-> Debian Sarge system, kernel version 2.6.8.
-[...]
-> The original file, "alphabet", contains the line
-> "abcdefghijklmnopqrstuvwxyz" repeated many times; however the file
-> read from the SCSI drive, "alphabet_ver2", contains a number lines
-> like "abcdefghijklmnopqrstubcdefghijklmnopqrstuvwxyz" and
-> "abcdopqrstuvwxyz" --- all the correct characters, just out of order.
+On Sat, 02 Sep 2006 11:06:15 +1000
+Grant Coady <gcoady.lk@gmail.com> wrote:
 
-Well, they're probably not out of order per se, but more than some
-data on a page granularity was dropped, duplicated, or something. If
-you have a bit of coding skills, I'd suggest writing a bunch of 32-bit
-ints to a file, in increasing order, and use that as a test case. That
-way each 32-bit word is unique, and you might be able to spot a bit
-more of a pattern as to what's going on (is it duplicated? Is it out
-of order?).
+> On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+> ...
+> >- See the `hot-fixes' directory for any important updates to this patchset.
+> >
+> Okay, I applied hotfixes and it crashed on boot,
 
-This might give hints to those with bigger brains than mine.
+There's another hotfix there now:  
 
-Ray
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/hot-fixes/revert-acpi-mwait-c-state-fixes.patch
+
+If that doesn't prevent the crash, please try to get a trace out of it
+somehow?
+
+> keyboard LEDs flashing: Repeating message, hand copied:
+> atkbd.c: Spurious ACK in isa0060/serio0. Some program might be trying access 
+
+Yes, one of my machine does that when it crashes too.  It makes the crash
+information scroll off the screen in about half a second, which isn't very
+kernel-developer-friendly.
+
 
 -- 
-VGER BF report: H 0.222399
+VGER BF report: H 2.94209e-15

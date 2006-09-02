@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWIBVla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWIBVr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWIBVla (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 17:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWIBVla
+	id S1751632AbWIBVr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 17:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWIBVr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 17:41:30 -0400
-Received: from hentges.net ([81.169.178.128]:61677 "EHLO
-	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
-	id S1751620AbWIBVl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 17:41:29 -0400
-Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
-	easily reproducable
-From: Matthias Hentges <oe@hentges.net>
-To: shogunx <shogunx@sleekfreak.ath.cx>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0609021540440.25420-100000@sleekfreak.ath.cx>
-References: <Pine.LNX.4.44.0609021540440.25420-100000@sleekfreak.ath.cx>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kNfxxjDyL1nDEidKA0ku"
-Date: Sat, 02 Sep 2006 23:42:23 +0200
-Message-Id: <1157233344.18988.7.camel@mhcln03>
+	Sat, 2 Sep 2006 17:47:28 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62650 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751627AbWIBVr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 17:47:27 -0400
+Subject: Re: 2.6.18-rc5 + pata-drivers on MSI K9N Ultra report, AMD64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+In-Reply-To: <m3psee58lg.fsf@defiant.localdomain>
+References: <m3psee58lg.fsf@defiant.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 02 Sep 2006 23:09:03 +0100
+Message-Id: <1157234944.6271.400.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Sad, 2006-09-02 am 22:14 +0200, ysgrifennodd Krzysztof Halasa:
+> ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+> ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+> 
+> There is no secondary IDE connector on this motherboard, I think
+> it's just disabled by BIOS.
 
---=-kNfxxjDyL1nDEidKA0ku
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Its there if it got that far. May not be wired.
 
-Am Samstag, den 02.09.2006, 15:41 -0400 schrieb shogunx:
-> On Sat, 2 Sep 2006, Matthias Hentges wrote:
->=20
-> > Am Freitag, den 01.09.2006, 22:41 -0400 schrieb shogunx:
-> > > > >
-> > > > > Has this not been fixed in the 2.6.18 git?
-> > > >
-> > > > Good question. I'll try 2.6.18-rc4-mm3 and report back.
-> > >
-> > > I am having no problems with 2.6.18-rc5, which I just built and teste=
-d.
-> >
-> > The NIC is up and running for about 9hrs now w/ -rc4-mm3, thanks for th=
-e
-> > heads up!
->=20
-> Hey, no worries.  I have a friend who has has that problem for some time,
-> and I just got one of those cards myself, albeint in an ExpressCard
-> format.
->=20
-> Glad its working.
+> scsi3 : pata_amd
+> ata4: port is slow to respond, please be patient
+> ata4: port failed to respond (30 secs)
 
-Well, it just crapped out on me again :(
+Please send me an lspci -vxxx. This might be BIOS or might be us
+misparsing disable/enable bits.
 
-Sep  2 23:36:13 localhost kernel: NETDEV WATCHDOG: eth2: transmit timed
-out
-Sep  2 23:36:13 localhost kernel: sky2 hardware hung? flushing
-
-Only a rmmod / modprobe cycle helps at this point.
---=20
-Matthias 'CoreDump' Hentges=20
-
-Webmaster of hentges.net and OpenZaurus developer.
-You can reach me in #openzaurus on Freenode.
-
-My OS: Debian SID. Geek by Nature, Linux by Choice
-
---=-kNfxxjDyL1nDEidKA0ku
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBE+fq/Aq2P5eLUP5IRAuyLAKD8yzp7ECWEPwrUmvER0BO6NAwZtwCg8RYe
-afACkEWsUmivdX/9+p9Nf1A=
-=Fe+o
------END PGP SIGNATURE-----
-
---=-kNfxxjDyL1nDEidKA0ku--
 
 
 -- 
-VGER BF report: H 0.0457149
+VGER BF report: U 0.5

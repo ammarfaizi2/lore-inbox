@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751660AbWIBWpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWIBXP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751660AbWIBWpY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 18:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWIBWpY
+	id S1751737AbWIBXP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 19:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWIBXP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 18:45:24 -0400
-Received: from khc.piap.pl ([195.187.100.11]:31185 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751660AbWIBWpX (ORCPT
+	Sat, 2 Sep 2006 19:15:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58826 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751736AbWIBXP1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 18:45:23 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
-Subject: Re: 2.6.18-rc5 + pata-drivers on MSI K9N Ultra report, AMD64
-References: <m3psee58lg.fsf@defiant.localdomain>
-	<1157234944.6271.400.camel@localhost.localdomain>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 03 Sep 2006 00:45:20 +0200
-In-Reply-To: <1157234944.6271.400.camel@localhost.localdomain> (Alan Cox's message of "Sat, 02 Sep 2006 23:09:03 +0100")
-Message-ID: <m3lkp1anwf.fsf@defiant.localdomain>
+	Sat, 2 Sep 2006 19:15:27 -0400
+Date: Sun, 3 Sep 2006 01:15:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org, pshou@realtek.com.tw
+Subject: Re: CodingStyle (was: Re: sound/pci/hda/intel_hda: small cleanups)
+Message-ID: <20060902231509.GC13031@elf.ucw.cz>
+References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de> <20060831110436.995bdf93.rdunlap@xenotime.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060831110436.995bdf93.rdunlap@xenotime.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi!
 
->> scsi3 : pata_amd
->> ata4: port is slow to respond, please be patient
->> ata4: port failed to respond (30 secs)
->
-> Please send me an lspci -vxxx. This might be BIOS or might be us
-> misparsing disable/enable bits.
+> > Hm, it looks rather like a personal preference.
+> > IMHO, it's harder to read without space...
+> 
+> We have been tending toward not using space in cases like this
+> (in my unscientific memory-based survey).
+> 
+> So, just this morning I have seen questions and opinions about
+> the following that could (or could not) use more documentation
+> or codification and I'm sure that we could easily find more,
+> but do we want to codify Everything??
+> 
+> 
+> 1.  Kconfig help text should be indented (it's not indented in the
+> 	GFS2 patches)
+> 
+> 2.  if (!condition1)	/* no space between ! and condition1 */
+> 
+> 3.  don't use C99-style // comments
+> 
+> 4.  unsigned int bitfield :<nr_bits>;
 
-(removed CC: netdev)
+Looks reasonable to me. Will you do the patch or should I ?
 
-Hmmm... is it that 0x62, isn't it?
-
-        static struct pci_bits amd_enable_bits[] = {
-                { 0x40, 1, 0x02, 0x02 },
-                { 0x40, 1, 0x01, 0x01 }
-        };
-
-        if (!pci_test_config_bits(pdev, &amd_enable_bits[ap->port_no])) {
-                ata_port_disable(ap);
-                printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
-
-Perhaps this code isn't called at all? It looks I can debug it if you
-want so (i.e., if there is no obvious visible bug here).
-
-00:04.0 IDE interface: nVidia Corporation MCP55 IDE (rev a1) (prog-if 8a [Master
- SecP PriP])
-        Subsystem: Unknown device f462:7250
-        Flags: bus master, 66MHz, fast devsel, latency 0
-        I/O ports at ffa0 [size=16]
-        Capabilities: [44] Power Management version 2
-00: de 10 6e 03 05 00 b0 00 a1 8a 01 01 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: a1 ff 00 00 00 00 00 00 00 00 00 00 62 f4 50 72
-30: 00 00 00 00 44 00 00 00 00 00 00 00 00 00 03 01
-40: 62 f4 50 72 01 00 02 00 00 00 00 00 00 00 00 00
-    ^^
-50: 02 f0 04 00 00 00 00 00 a8 a8 a8 20 3f 00 ff 20
-60: 00 00 00 c0 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 60 a0 bb 3e 00 00 02 10 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 10 00 00 00 00 00 00 00
+									Pavel
 -- 
-Krzysztof Halasa
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
 
 -- 
-VGER BF report: U 0.500121
+VGER BF report: U 0.489855

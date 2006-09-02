@@ -1,98 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWIBELY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWIBEiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWIBELY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 00:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWIBELY
+	id S1750785AbWIBEiy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 00:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWIBEiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 00:11:24 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:226 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750775AbWIBELW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 00:11:22 -0400
-X-Sasl-enc: hqVafMCs+A8YBBvGrYL47c3Wz8CftkO/n/O8ItoUGQRi 1157170281
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060901195009.187af603.akpm@osdl.org>
-References: <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <20060901195009.187af603.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 02 Sep 2006 12:11:12 +0800
-Message-Id: <1157170272.3307.5.camel@raven.themaw.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Sat, 2 Sep 2006 00:38:54 -0400
+Received: from dsl-7-36.cofs.net ([68.142.7.36]:52538 "EHLO www.palei.com")
+	by vger.kernel.org with ESMTP id S1750785AbWIBEix (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 00:38:53 -0400
+Message-ID: <000f01c6ce49$affd37e0$3224050a@avilespaxp>
+From: "Paul Aviles" <paul.aviles@palei.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: e1000 Detected Tx Unit Hang
+Date: Sat, 2 Sep 2006 00:38:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 19:50 -0700, Andrew Morton wrote:
-> On Fri, 01 Sep 2006 13:00:44 -0400
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > On Fri, 2006-09-01 at 09:34 -0700, Andrew Morton wrote:
-> > 
-> > > nfs automounter submounts are still broken in Trond's tree, btw.  Are we stuck?
-> > 
-> > You mean autofs indirect maps?
-> 
-> I don't know that that is.
-> 
-> > I'll see if I can't get my hands on an selinux setup like yours in order
-> > to do some debugging. AFAICS, the non-selinux case works fine, though.
-> 
-> It doesn't appear to be related to selinux.
-> 
-> On a stock, mostly-up-to-date FC5 installation:
-> 
-> 	echo 0 > /selinux/enforce
-> 	service autofs stop
-> 	service nfs stop
-> 	service nfs start
-> 	service autofs start
-> 
-> 
-> sony:/home/akpm> ls -l /net/bix/usr/src
-> total 0
-> 
-> sony:/home/akpm> showmount -e bix
-> Export list for bix:
-> /           *
-> /usr/src    *
-> /mnt/export *
-> 
-> 
-> The automounter will mount bix:/ on /net/bix.  But I am unable to get it to
-> mount bix's /usr/src on /net/bix/usr/src.
+I am getting "e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang" using 
+stock 2.6.17.11, 2.6.17.5 or 2.6.17.4 kernels on centos 4.3.
 
-Is it the same symptom as before or is it that bix:/usr/src is not also
-being mounted?
+The server is a Tyan GS10 and is connected to a Netgear GS724T Gig switch. I 
+can easily reproduce the problem by trying to do a large ftp transfer to the 
+server. It does not happen if the server is connected to a dummy 100 Mb 
+switch, only when is connected to the Gig switch.
+I have also tried the options line below disabling tso, tx and rx in the 
+modprobe.conf without any luck.
 
-> Without git-nfs applied, /net/bix/usr/src mounts as expected.
-> 
-> iirc, we decided this is related to the fs-cache infrastructure work which
-> went into git-nfs.  I think David can reproduce this?
+options e1000 XsumRX=0 Speed=1000 Duplex=2 InterruptThrottleRate=0 
+FlowControl=3 RxDescriptors=4096 TxDescriptors=4096 RxIntDelay=0 
+TxIntDelay=0
 
-I'll build the latest mm kernel and try to reproduce it.
->From memory I couldn't reproduce it last time I tried.
-Is there anything I need to add to rc5-mm1 for this?
+in /var/log/kernel I get the following...
 
-Ian
+Sep  1 23:53:01 www kernel: e1000: eth0: e1000_clean_tx_irq: Detected Tx 
+Unit Hang
+Sep  1 23:53:01 www kernel:   Tx Queue             <0>
+Sep  1 23:53:01 www kernel:   TDH                  <4c4>
+Sep  1 23:53:01 www kernel:   TDT                  <4c9>
+Sep  1 23:53:01 www kernel:   next_to_use          <4c9>
+Sep  1 23:53:01 www kernel:   next_to_clean        <4c4>
+Sep  1 23:53:01 www kernel: buffer_info[next_to_clean]
+Sep  1 23:53:01 www kernel:   time_stamp           <ffff9c60>
+Sep  1 23:53:01 www kernel:   next_to_watch        <4c4>
+Sep  1 23:53:01 www kernel:   jiffies              <ffff9d96>
+Sep  1 23:53:01 www kernel:   next_to_watch.status <0>
+.
+repeats the same as above a few times....
+.
+Sep  1 23:53:10 www kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Sep  1 23:53:13 www kernel: e1000: eth0: e1000_watchdog_task: NIC Link is Up 
+1000 Mbps Full Duplex
+
+then the server locks up, no response from the keyboard at all and must be 
+forced down with a power kill.
+
+Here is my driver info,
+
+driver: e1000
+version: 7.0.33-k2-NAPI
+firmware-version: N/A
+bus-info: 0000:02:01.0
+
+What else could I check?
+
+Regards,
+
+Paul Aviles 
 
 
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.5

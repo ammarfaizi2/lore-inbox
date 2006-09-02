@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWIBJGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWIBJgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWIBJGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 05:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWIBJGD
+	id S1750911AbWIBJgh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 05:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWIBJgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 05:06:03 -0400
-Received: from lns-bzn-50f-81-56-194-193.adsl.proxad.net ([81.56.194.193]:31141
-	"EHLO philou.philou.org") by vger.kernel.org with ESMTP
-	id S1750855AbWIBJGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 05:06:01 -0400
-Date: Sat, 2 Sep 2006 11:05:51 +0200
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= <philippe@gramoulle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 2 Sep 2006 05:36:37 -0400
+Received: from gw.goop.org ([64.81.55.164]:51666 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750906AbWIBJgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 05:36:36 -0400
+Message-ID: <44F950A3.1000206@goop.org>
+Date: Sat, 02 Sep 2006 02:36:35 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Matthias Hentges <oe@hentges.net>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-ide@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
 Subject: Re: 2.6.18-rc5-mm1
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
-References: <20060901015818.42767813.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.4.0cvs79 (GTK+ 2.8.18; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20060901015818.42767813.akpm@osdl.org> <1157158847.20509.10.camel@mhcln03> <20060901183028.1c6da4df.akpm@osdl.org> <44F93EB3.8050500@goop.org> <44F942B9.6050102@goop.org> <20060902084440.GA13361@suse.de> <44F9452F.8090306@goop.org> <20060902085254.GA14123@suse.de>
+In-Reply-To: <20060902085254.GA14123@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20060902090552.AF91434AC@philou.gramoulle.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> Yes, try reverting them and see if your machine works again.
+>   
 
-Hello Andrew,
-
-On Fri, 1 Sep 2006 01:58:18 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-  | ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
-
-2.6.18-rc5-mm1 doesn't build whereas 2.6.18-rc5 does.
-
-p4:/usr/src/linux-2.6.17# make bzImage
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CHK     include/linux/compile.h
-  CC      arch/i386/kernel/sys_i386.o
-arch/i386/kernel/sys_i386.c: In function 'kernel_execve':
-arch/i386/kernel/sys_i386.c:262: error: '__NR_execve' undeclared (first use in this function)
-arch/i386/kernel/sys_i386.c:262: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/sys_i386.c:262: error: for each function it appears in.)
-make[1]: *** [arch/i386/kernel/sys_i386.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-
-
-P4 x86
+Reverting them makes the machine work, with basically the same effect as 
+disabling CONFIG_PCI_MSI: no MSI interrupts appear in /proc/interrupts, 
+and e1000 & libata are using IO-APIC-fasteoi.  So, a reasonable result 
+for now.
 
 Thanks,
-
-Philippe
+    J
 
 -- 
-VGER BF report: H 1.56412e-06
+VGER BF report: H 0

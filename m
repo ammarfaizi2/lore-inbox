@@ -1,102 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWIBSAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWIBSBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWIBSAV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 14:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWIBSAV
+	id S1751263AbWIBSBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 14:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWIBSBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 14:00:21 -0400
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:55754 "EHLO smtp5.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1751262AbWIBSAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 14:00:20 -0400
-Date: Sun, 3 Sep 2006 04:14:12 +0300
-From: Samuel Ortiz <samuel@sortiz.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dag Brattli <dag@brattli.net>, irda-users@lists.sourceforge.net
-Subject: Re: General protection fault with aborted ircomm FIR connection
-Message-ID: <20060903011412.GA3992@sortiz.org>
-Reply-To: Samuel Ortiz <samuel@sortiz.org>
-References: <44F4CA96.6060607@gmx.net>
+	Sat, 2 Sep 2006 14:01:49 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:8358 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751263AbWIBSBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 14:01:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=D12089lMhG1uHInRd4O4Eq/Kh/PhAbHuAJBvxkhN3I1yuwdEcKPudFppaszMQY/rE2OO7aU/iAmb98rNitJY8N0eiUG3XDPIXOVN4JMthGIJ0Qx1qMAHSidDpX2FOmty9zPjLJzy1GgZhI5uRir14ecz6+4FiA4O7P3lOABI0KU=
+Message-ID: <7c4668e50609021101j2b8c561er94d41ca95aca2b1b@mail.gmail.com>
+Date: Sat, 2 Sep 2006 20:01:47 +0200
+From: "Bas Bloemsaat" <bas.bloemsaat@gmail.com>
+To: mchehab@infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Vicam driver, device
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44F4CA96.6060607@gmx.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, Aug 30, 2006 at 01:15:34AM +0200, Carl-Daniel Hailfinger wrote:
-> Hi,
-> 
-> first of all, no proprietary modules have ever been loaded. The "Tainted"
-> refers to "SUSE unsupported" modules. Machine is a Samsung P35 laptop (x86).
-> Kernel is 2.6.16.21 with SUSE patches (which don't touch IRDA afaics).
-> FIR chipset is served by nsc-ircc dongle_id=0x08.
-> 
-> The crash happened when I used gammu to connect to my nokia mobile phone
-> over /dev/ircomm0. I moved the phone out of the IR beam by accident and
-> then killed gammu with Ctrl-C while it still had the connection open.
-> At that moment, the kernel spewed a general protection fault on me.
-I think I managed to reproduce (and maybe fix) this bug.
-Could you please check if the following patch fixes it for you as it does
-for me:
+I have an old webcam, a Compro PS39U. By windows it's recognized as
+vicam and works with the vicam driver. With Linux it didn't work.
+lsusb showed that it identifies different than camera's recognized by
+the vicam driver. So I added the usb id to vicam.c, and it now
+produces images through the driver under Linux too. It's still a
+shitty camera though.
 
-diff --git a/net/irda/af_irda.c b/net/irda/af_irda.c
-index 17699ee..7b7cd5b 100644
---- a/net/irda/af_irda.c
-+++ b/net/irda/af_irda.c
-@@ -132,13 +132,14 @@ static void irda_disconnect_indication(v
- 
- 	/* Prevent race conditions with irda_release() and irda_shutdown() */
- 	if (!sock_flag(sk, SOCK_DEAD) && sk->sk_state != TCP_CLOSE) {
-+		lock_sock(sk);
- 		sk->sk_state     = TCP_CLOSE;
- 		sk->sk_err       = ECONNRESET;
- 		sk->sk_shutdown |= SEND_SHUTDOWN;
- 
- 		sk->sk_state_change(sk);
--		/* Uh-oh... Should use sock_orphan ? */
--                sock_set_flag(sk, SOCK_DEAD);
-+                sock_orphan(sk);
-+		release_sock(sk);
- 
- 		/* Close our TSAP.
- 		 * If we leave it open, IrLMP put it back into the list of
-@@ -1212,6 +1213,7 @@ static int irda_release(struct socket *s
-         if (sk == NULL)
- 		return 0;
- 
-+	lock_sock(sk);
- 	sk->sk_state       = TCP_CLOSE;
- 	sk->sk_shutdown   |= SEND_SHUTDOWN;
- 	sk->sk_state_change(sk);
-@@ -1221,6 +1223,7 @@ static int irda_release(struct socket *s
- 
- 	sock_orphan(sk);
- 	sock->sk   = NULL;
-+	release_sock(sk);
- 
- 	/* Purge queues (see sock_init_data()) */
- 	skb_queue_purge(&sk->sk_receive_queue);
-@@ -1353,6 +1356,7 @@ static int irda_recvmsg_dgram(struct kio
- 	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
- 
- 	IRDA_ASSERT(self != NULL, return -1;);
-+	IRDA_ASSERT(!sock_error(sk), return -1;);
- 
- 	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
- 				flags & MSG_DONTWAIT, &err);
-@@ -1405,6 +1409,7 @@ static int irda_recvmsg_stream(struct ki
- 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
- 
- 	IRDA_ASSERT(self != NULL, return -1;);
-+	IRDA_ASSERT(!sock_error(sk), return -1;);
- 
- 	if (sock->flags & __SO_ACCEPTCON)
- 		return(-EINVAL);
+I'm submitting the change, maybe someone else has this camera and
+want's to use it.
+
+Regards,
+Bas
+
+--- drivers/media/video/usbvideo/vicam.c	2006-08-23 23:16:33.000000000 +0200
++++ drivers/media/video/usbvideo/vicam.c.compro	2006-09-02
+19:45:20.000000000 +0200
+@@ -60,6 +60,8 @@
+ /* Define these values to match your device */
+ #define USB_VICAM_VENDOR_ID	0x04c1
+ #define USB_VICAM_PRODUCT_ID	0x009d
++#define USB_COMPRO_VENDOR_ID	0x0602
++#define USB_COMPRO_PRODUCT_ID	0x1001
+
+ #define VICAM_BYTES_PER_PIXEL   3
+ #define VICAM_MAX_READ_SIZE     (512*242+128)
+@@ -1254,6 +1256,7 @@
+ /* table of devices that work with this driver */
+ static struct usb_device_id vicam_table[] = {
+ 	{USB_DEVICE(USB_VICAM_VENDOR_ID, USB_VICAM_PRODUCT_ID)},
++	{USB_DEVICE(USB_COMPRO_VENDOR_ID, USB_COMPRO_PRODUCT_ID)},
+ 	{}			/* Terminating entry */
+ };
 
 -- 
-VGER BF report: U 0.499581
+VGER BF report: H 0.404625

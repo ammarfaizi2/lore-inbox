@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWIBNax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWIBN4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWIBNax (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 09:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWIBNax
+	id S1751094AbWIBN4p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 09:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWIBN4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 09:30:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6336 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751073AbWIBNaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 09:30:52 -0400
-Date: Sat, 2 Sep 2006 09:30:03 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
-       Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: megaraid_sas suspend ok, resume oops
-Message-ID: <20060902133003.GB6108@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
-	Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com,
-	jeff@garzik.org, lkml <linux-kernel@vger.kernel.org>
-References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com> <b6a2187b0608290522vea22930y54ac39bfce3127f2@mail.gmail.com> <1156895131.3232.25.camel@nigel.suspend2.net> <200608301054.56375.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 2 Sep 2006 09:56:45 -0400
+Received: from mail.gmx.de ([213.165.64.20]:22170 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751094AbWIBN4o convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 09:56:44 -0400
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Reiserfs <reiserfs-list@namesys.com>
+Subject: quota problem with 2.6.15.7
+Date: Sat, 2 Sep 2006 15:57:03 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200608301054.56375.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200609021557.03885.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, 2006 at 10:54:56AM +0200, Rafael J. Wysocki wrote:
+Hi,
 
- > > > But without 64 bit support, my notebook will suspend/resume many times
- > > > without failing (with the 5 ahci patches from Pavel Machek)....
- > > 
- > > Neither swsusp (as far as I know) or suspend2 support CONFIG_HIGHMEM64G
- > > at the moment, I'm afraid.
- > > 
- > > It's not impossible, we just haven't seen it as a priority worth putting
- > > time into.
- > 
- > It looks like the Fedora default config has HIGHMEM64G set, so I'll be looking
- > at it shortly.
+I just wanted to enable quotas on one of our server systems and got an oops.
+This is an opteron system with a kernel in 64bit mode. 
+As you can see, the filesystem is reiserfs.
 
-There is no 'Fedora default config'. We ship a number of different kernels,
-some of which enable PAE, some disable it.
+[8278222.836924] Unable to handle kernel paging request at 000000000fd00007 RIP:
+[8278222.842655] <ffffffff80394699>{__down_read+101}
+[8278222.851260] PGD f3509067 PUD adf61067 PMD 0
+[8278222.856596] Oops: 0002 [1] SMP
+[8278222.860597] CPU 1
+[8278222.863231] Modules linked in: ipt_MASQUERADE ipt_state iptable_filter nfsd exportfs iptable_nat ip_nat ip_conntrack ip_tables i2c_
+amd8111 pl2303 usbserial ohci_hcd usbcore bluesmoke_k8 bluesmoke_mc w83627hf i2c_isa lm85 adm1026 hwmon_vid i2c_amd756 i2c_core bcm5700
+[8278222.891808] Pid: 16212, comm: quotaon Not tainted 2.6.15.7 #1
+[8278222.898891] RIP: 0010:[<ffffffff80394699>] <ffffffff80394699>{__down_read+101}
+[8278222.907557] RSP: 0018:ffff81003b987b50  EFLAGS: 00010206
+[8278222.914370] RAX: ffff8100f81b1408 RBX: ffff810043336180 RCX: ffff8100f81b1530
+[8278222.923148] RDX: 000000000fd00007 RSI: 0000000000000000 RDI: ffff81003b987bc8
+[8278222.931931] RBP: ffff8100f81b1400 R08: 0000000000000000 R09: ffff810081ad9440
+[8278222.940723] R10: 0000000000001000 R11: ffffffff80394646 R12: 0000000000000001
+[8278222.949497] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
+[8278222.958273] FS:  00002aaaaae00090(0000) GS:ffffffff80515880(0000) knlGS:00000000558dd2a0
+[8278222.968202] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[8278222.975283] CR2: 000000000fd00007 CR3: 00000000dc0aa000 CR4: 00000000000006e0
+[8278222.984061] Process quotaon (pid: 16212, threadinfo ffff81003b986000, task ffff810043336180)
+[8278222.994398] Stack: ffff8100f81b1408 0000000000000000 ffff810043336180 ffff810000000001
+[8278223.004002]        ffff8100f9fb23c0 0000000100000001 ffffffff00000000 0000000100000001
+[8278223.013841]        ffff810000000000 0000000000000000
+[8278223.020126] Call Trace:<ffffffff8017bc08>{link_path_walk+194} <ffffffff80394646>{__down_read+18}
+[8278223.030894]        <ffffffff80229853>{_atomic_dec_and_lock+43} <ffffffff801bc1f1>{reiserfs_quota_on+191}
+[8278223.042504]        <ffffffff8017bc08>{link_path_walk+194} <ffffffff80394646>{__down_read+18}
+[8278223.052854]        <ffffffff8019f482>{sys_quotactl+960} <ffffffff8014e2c5>{find_get_page+31}
+[8278223.063186]        <ffffffff8014ed81>{filemap_nopage+364} <ffffffff8015ec3e>{__handle_mm_fault+1740}
+[8278223.074364]        <ffffffff801766ac>{vfs_getattr_it+72} <ffffffff80176852>{vfs_fstat+108}
+[8278223.084496]        <ffffffff80176add>{cp_new_stat+233} <ffffffff80229853>{_atomic_dec_and_lock+43}
+[8278223.095483]        <ffffffff80183702>{dput+49} <ffffffff80187f9b>{mntput_no_expire+23}
+[8278223.105218]        <ffffffff8016dd9f>{filp_close+89} <ffffffff8010d852>{system_call+126}
+[8278223.115142]
+[8278223.118114]
+[8278223.118115] Code: 48 89 22 48 89 54 24 08 c7 45 04 01 00 00 00 fb 48 83 7c 24
+[8278223.129157] RIP <ffffffff80394699>{__down_read+101} RSP <ffff81003b987b50>
+[8278223.137621] CR2: 000000000fd00007
 
-For FC5, the installer installs a PAE kernel if you have >4GB, or SMP.
-For FC6, it'll only install one if you have >4GB.
-(or possibly if you have an NX capable CPU, I forget if we enabled that
- magick in the installer)
 
-Precluding NX support + swsusp kinda sucks, but I guess it's a tiny subset of users.
-
-		Dave
+Thanks,
+Bernd
 
 -- 
-http://www.codemonkey.org.uk
+Bernd Schubert
+PCI / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+
 
 -- 
-VGER BF report: H 0.120995
+VGER BF report: H 9.97327e-07

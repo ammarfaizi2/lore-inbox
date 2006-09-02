@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWIBBjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWIBBk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWIBBjb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 21:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWIBBjb
+	id S1750799AbWIBBk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 21:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWIBBk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 21:39:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55990 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750791AbWIBBjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 21:39:31 -0400
-Date: Fri, 1 Sep 2006 18:39:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: 2.6.18-rc5-mm1
-Message-Id: <20060901183927.eba8179d.akpm@osdl.org>
-In-Reply-To: <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
-References: <20060901015818.42767813.akpm@osdl.org>
-	<3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 1 Sep 2006 21:40:26 -0400
+Received: from ms-smtp-04.rdc-kc.rr.com ([24.94.166.116]:63905 "EHLO
+	ms-smtp-04.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S1750799AbWIBBkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 21:40:25 -0400
+Subject: Re: Linux v2.6.18-rc5
+From: Elias Holman <eholman@holtones.com>
+Reply-To: eholman@holtones.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jeff@garzik.org
+In-Reply-To: <20060827231421.f0fc9db1.akpm@osdl.org>
+References: <Pine.LNX.4.64.0608272122250.27779@g5.osdl.org>
+	 <20060827231421.f0fc9db1.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 01 Sep 2006 20:40:01 -0500
+Message-Id: <1157161201.3679.6.camel@parachute.holtones.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Sep 2006 11:06:15 +1000
-Grant Coady <gcoady.lk@gmail.com> wrote:
 
-> On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
-> ...
-> >- See the `hot-fixes' directory for any important updates to this patchset.
-> >
-> Okay, I applied hotfixes and it crashed on boot,
+> From: Elias Holman <eholman@holtones.com>
+> Subject: PROBLEM: PCI/Intel 82945 trouble on Toshiba M400 notebook
 
-There's another hotfix there now:  
+I can successfully boot my M400 under 2.6.18-rc5.  Even better, I can
+now enable hotpluggable CPUs and successfully suspend and resume.  I
+needed the SATA patch (http://lkml.org/lkml/2006/7/20/56), referenced in
+the "T60 not coming out of suspend to RAM" thread as well, so I would
+like to second Michael Tsirkin's request that this be merged in.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/hot-fixes/revert-acpi-mwait-c-state-fixes.patch
+-- 
+Eli
 
-If that doesn't prevent the crash, please try to get a trace out of it
-somehow?
-
-> keyboard LEDs flashing: Repeating message, hand copied:
-> atkbd.c: Spurious ACK in isa0060/serio0. Some program might be trying access 
-
-Yes, one of my machine does that when it crashes too.  It makes the crash
-information scroll off the screen in about half a second, which isn't very
-kernel-developer-friendly.
 
 
 -- 
-VGER BF report: H 2.94209e-15
+VGER BF report: H 0.137978

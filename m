@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWIBTzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWIBUJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWIBTzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 15:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWIBTzc
+	id S1751498AbWIBUJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 16:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWIBUJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 15:55:32 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4751 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751462AbWIBTzb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 15:55:31 -0400
-Date: Sat, 2 Sep 2006 21:55:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Bas Bloemsaat <bas.bloemsaat@gmail.com>
-Cc: mchehab@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Vicam driver, device
-Message-ID: <20060902195518.GA13197@elf.ucw.cz>
-References: <7c4668e50609021101j2b8c561er94d41ca95aca2b1b@mail.gmail.com>
+	Sat, 2 Sep 2006 16:09:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:47879 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751498AbWIBUJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 16:09:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ReIsRUyfe3JbS3c7/Yn9EyRoTQfRWn/wRxV1pGt1CAaCef48ssmyxWxWu0z0kz4Zubo5jckCcY5yRDlUgZTrEDupKKxkjqWo6UPNv0Qn2HrBKCudP4ROHlJAUpjBgVO05USFP1WcZAJGSH6fy8smOMVQfvisKXeMQLrX8YrEp2A=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix possible NULL ptr deref in forcedeth
+Date: Sat, 2 Sep 2006 22:10:25 +0200
+User-Agent: KMail/1.9.4
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       davem@davemloft.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <7c4668e50609021101j2b8c561er94d41ca95aca2b1b@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200609022210.26114.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+There seems to be a possible NULL pointer deref bug in 
+drivers/net/forcedeth.c::nv_loopback_test().
+If dev_alloc_skb() fails, the next line will call skb_put()
+with a NULL first argument which it'll then try to deref - 
+kaboom: a NULL pointer deref.
+Found by coverity (#1337).
 
-> I have an old webcam, a Compro PS39U. By windows it's recognized as
-> vicam and works with the vicam driver. With Linux it didn't work.
-> lsusb showed that it identifies different than camera's recognized by
-> the vicam driver. So I added the usb id to vicam.c, and it now
-> produces images through the driver under Linux too. It's still a
-> shitty camera though.
-> 
-> I'm submitting the change, maybe someone else has this camera and
-> want's to use it.
-> 
-> --- drivers/media/video/usbvideo/vicam.c	2006-08-23 
-> 23:16:33.000000000 +0200
-> +++ drivers/media/video/usbvideo/vicam.c.compro	2006-09-02
-> 19:45:20.000000000 +0200
 
-You want to fix your mailer, it word wraps.
-								Pavel
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ drivers/net/forcedeth.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
+
+--- linux-2.6.18-rc5-git6-orig/drivers/net/forcedeth.c	2006-09-02 21:34:14.000000000 +0200
++++ linux-2.6.18-rc5-git6/drivers/net/forcedeth.c	2006-09-02 22:02:13.000000000 +0200
+@@ -3656,6 +3656,12 @@ static int nv_loopback_test(struct net_d
+ 	/* setup packet for tx */
+ 	pkt_len = ETH_DATA_LEN;
+ 	tx_skb = dev_alloc_skb(pkt_len);
++	if (!tx_skb) {
++		printk(KERN_ERR "dev_alloc_skb() failed during loopback test"
++			 " of %s\n", dev->name);
++		ret = 0;
++		goto out;
++	}
+ 	pkt_data = skb_put(tx_skb, pkt_len);
+ 	for (i = 0; i < pkt_len; i++)
+ 		pkt_data[i] = (u8)(i & 0xff);
+@@ -3720,7 +3726,7 @@ static int nv_loopback_test(struct net_d
+ 		       tx_skb->end-tx_skb->data,
+ 		       PCI_DMA_TODEVICE);
+ 	dev_kfree_skb_any(tx_skb);
+-
++ out:
+ 	/* stop engines */
+ 	nv_stop_rx(dev);
+ 	nv_stop_tx(dev);
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-
--- 
-VGER BF report: U 0.5
+VGER BF report: U 0.499932

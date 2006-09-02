@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWIBIxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWIBJGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWIBIxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 04:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWIBIxo
+	id S1750855AbWIBJGE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 05:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWIBJGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 04:53:44 -0400
-Received: from web36708.mail.mud.yahoo.com ([209.191.85.42]:28546 "HELO
-	web36708.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750887AbWIBIxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 04:53:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iT413CBfSIFatN4vaU/ZUtXD1JhPKDxy/4sUvVi+0VrlCcvutxhgCD+WYXuUuSo06945ZYpY/mmnTInBkEq1Vh29QjgEBuIp0D+V//TX17bCWvEV6v1uqffHiWdG7pv7MR2JxhCPnuHMRQ5KGxXOls+huTEllNm5OP/TrvU2mzQ=  ;
-Message-ID: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com>
-Date: Sat, 2 Sep 2006 01:53:42 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: Pierre Ossman <drzeus-list@drzeus.cx>
+	Sat, 2 Sep 2006 05:06:03 -0400
+Received: from lns-bzn-50f-81-56-194-193.adsl.proxad.net ([81.56.194.193]:31141
+	"EHLO philou.philou.org") by vger.kernel.org with ESMTP
+	id S1750855AbWIBJGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 05:06:01 -0400
+Date: Sat, 2 Sep 2006 11:05:51 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= <philippe@gramoulle.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44D070E7.3080707@drzeus.cx>
-MIME-Version: 1.0
+Subject: Re: 2.6.18-rc5-mm1
+In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+References: <20060901015818.42767813.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.4.0cvs79 (GTK+ 2.8.18; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Message-Id: <20060902090552.AF91434AC@philou.gramoulle.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
-I've made a couple of fixes to my flashmedia driver
-(http://developer.berlios.de/projects/tifmxx/) to the
-effect of much improved R/W speed in PIO mode and
-writing speed in DMA mode.
-I also tried to clean-up reverse engineering mess out
-of the code - it should be more readable now.
 
-Next on my list is MemoryStick functionality.
+Hello Andrew,
+
+On Fri, 1 Sep 2006 01:58:18 -0700
+Andrew Morton <akpm@osdl.org> wrote:
+
+  | ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+
+2.6.18-rc5-mm1 doesn't build whereas 2.6.18-rc5 does.
+
+p4:/usr/src/linux-2.6.17# make bzImage
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CHK     include/linux/compile.h
+  CC      arch/i386/kernel/sys_i386.o
+arch/i386/kernel/sys_i386.c: In function 'kernel_execve':
+arch/i386/kernel/sys_i386.c:262: error: '__NR_execve' undeclared (first use in this function)
+arch/i386/kernel/sys_i386.c:262: error: (Each undeclared identifier is reported only once
+arch/i386/kernel/sys_i386.c:262: error: for each function it appears in.)
+make[1]: *** [arch/i386/kernel/sys_i386.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
 
+P4 x86
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Thanks,
+
+Philippe
 
 -- 
-VGER BF report: U 0.5
+VGER BF report: H 1.56412e-06

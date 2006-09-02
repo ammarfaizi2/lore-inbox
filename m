@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWIBUJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWIBULY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWIBUJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 16:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWIBUJR
+	id S1751500AbWIBULY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 16:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWIBULY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 16:09:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:47879 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751498AbWIBUJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 16:09:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=ReIsRUyfe3JbS3c7/Yn9EyRoTQfRWn/wRxV1pGt1CAaCef48ssmyxWxWu0z0kz4Zubo5jckCcY5yRDlUgZTrEDupKKxkjqWo6UPNv0Qn2HrBKCudP4ROHlJAUpjBgVO05USFP1WcZAJGSH6fy8smOMVQfvisKXeMQLrX8YrEp2A=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix possible NULL ptr deref in forcedeth
-Date: Sat, 2 Sep 2006 22:10:25 +0200
-User-Agent: KMail/1.9.4
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       davem@davemloft.net
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Sep 2006 16:11:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8083 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751500AbWIBULX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 16:11:23 -0400
+Date: Sat, 2 Sep 2006 16:10:01 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+       Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com, jeff@garzik.org,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: megaraid_sas suspend ok, resume oops
+Message-ID: <20060902201001.GC30379@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Nigel Cunningham <ncunningham@linuxmail.org>,
+	Jeff Chua <jeff.chua.linux@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+	Sreenivas.Bagalkote@lsil.com, Sumant.Patro@lsil.com,
+	jeff@garzik.org, lkml <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@ucw.cz>
+References: <b6a2187b0608281004g30706834r96d5d24f85e82cc9@mail.gmail.com> <200608301054.56375.rjw@sisk.pl> <20060902133003.GB6108@redhat.com> <200609022147.05503.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609022210.26114.jesper.juhl@gmail.com>
+In-Reply-To: <200609022147.05503.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a possible NULL pointer deref bug in 
-drivers/net/forcedeth.c::nv_loopback_test().
-If dev_alloc_skb() fails, the next line will call skb_put()
-with a NULL first argument which it'll then try to deref - 
-kaboom: a NULL pointer deref.
-Found by coverity (#1337).
+On Sat, Sep 02, 2006 at 09:47:05PM +0200, Rafael J. Wysocki wrote:
 
+ > > Precluding NX support + swsusp kinda sucks, but I guess it's a tiny subset of users.
+ > 
+ > Well, I think the majority of NX-capable CPUs are also x86_64, in which case
+ > I'd recommend using a 64-bit kernel anyway.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+There's a fairly large number of these "Core Duo" systems out there :)
+Hopefully these are the last CPUs lacking longmode that Intel will make.
+Asides from these, the only other 32-bit only CPUs with NX are the newer VIA C3s.
 
- drivers/net/forcedeth.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
+For the Fedora users it's not that big a deal not being able to take advantage
+of NX, as we fall back to using the old segment limit tricks that exec-shield
+does to emulate NX, without having to worry about PAE headaches.
 
---- linux-2.6.18-rc5-git6-orig/drivers/net/forcedeth.c	2006-09-02 21:34:14.000000000 +0200
-+++ linux-2.6.18-rc5-git6/drivers/net/forcedeth.c	2006-09-02 22:02:13.000000000 +0200
-@@ -3656,6 +3656,12 @@ static int nv_loopback_test(struct net_d
- 	/* setup packet for tx */
- 	pkt_len = ETH_DATA_LEN;
- 	tx_skb = dev_alloc_skb(pkt_len);
-+	if (!tx_skb) {
-+		printk(KERN_ERR "dev_alloc_skb() failed during loopback test"
-+			 " of %s\n", dev->name);
-+		ret = 0;
-+		goto out;
-+	}
- 	pkt_data = skb_put(tx_skb, pkt_len);
- 	for (i = 0; i < pkt_len; i++)
- 		pkt_data[i] = (u8)(i & 0xff);
-@@ -3720,7 +3726,7 @@ static int nv_loopback_test(struct net_d
- 		       tx_skb->end-tx_skb->data,
- 		       PCI_DMA_TODEVICE);
- 	dev_kfree_skb_any(tx_skb);
--
-+ out:
- 	/* stop engines */
- 	nv_stop_rx(dev);
- 	nv_stop_tx(dev);
+Given the only other use of PAE is >4GB support, and these systems typically
+max out at 4GB due to the limited number of memory slots, it's not really that
+big a problem.
+
+ > I was afraid the issue would be urgent, but it doesn't seem so now.  I'd like to
+ > postpone fixing it until we can create suspend images larger that 350 meg on
+ > i386 boxes with highmem (the patch is ready to go to -mm after 2.6.19-rc1 as
+ > 2.6.20 material).
+
+Sounds good to me.
+
+		Dave
 
 -- 
-VGER BF report: U 0.499932
+http://www.codemonkey.org.uk
+
+-- 
+VGER BF report: H 0.178966

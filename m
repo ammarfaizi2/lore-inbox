@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWIBBMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWIBB1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWIBBMV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 21:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWIBBMV
+	id S1750731AbWIBB1f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 21:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIBB1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 21:12:21 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:54608 "EHLO
-	asav09.insightbb.com") by vger.kernel.org with ESMTP
-	id S1750774AbWIBBMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 21:12:21 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAFp1+ESBT4lWLA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Grant Coady <gcoady.lk@gmail.com>
-Subject: Re: 2.6.18-rc5-mm1
-Date: Fri, 1 Sep 2006 21:12:18 -0400
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060901015818.42767813.akpm@osdl.org> <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
-In-Reply-To: <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609012112.18826.dtor@insightbb.com>
+	Fri, 1 Sep 2006 21:27:35 -0400
+Received: from hentges.net ([81.169.178.128]:12764 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1750731AbWIBB1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 21:27:34 -0400
+Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
+	easily reproducable
+From: Matthias Hentges <oe@hentges.net>
+To: shogunx <shogunx@sleekfreak.ath.cx>
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0609012057230.8350-100000@sleekfreak.ath.cx>
+References: <Pine.LNX.4.44.0609012057230.8350-100000@sleekfreak.ath.cx>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pWwTHEuLo1lbNF/+kuSe"
+Date: Sat, 02 Sep 2006 03:28:25 +0200
+Message-Id: <1157160505.20509.12.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 September 2006 21:06, Grant Coady wrote:
-> On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
-> ...
-> >- See the `hot-fixes' directory for any important updates to this patchset.
-> >
-> Okay, I applied hotfixes and it crashed on boot, keyboard LEDs flashing:
-> 
-> Repeating message, hand copied:
-> atkbd.c: Spurious ACK in isa0060/serio0. Some program might be trying access 
-> hardware directly.
-> 
 
-Please try booting with i8042.panicblink=0 to see the real oops (important
-data). We should probably disable blinking if X is not active...
+--=-pWwTHEuLo1lbNF/+kuSe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Am Freitag, den 01.09.2006, 20:57 -0400 schrieb shogunx:
+> On Sat, 2 Sep 2006, Matthias Hentges wrote:
+>=20
+> > Am Freitag, den 01.09.2006, 20:41 +0200 schrieb Thomas Glanzmann:
+> > > Hello,
+> > > my sky2 network card in my intel mac mini just stopped working again =
+on
+> > > me. After a reboot it worked again. This time there is no dmesg outpu=
+t
+> > > related to the problem. :-( Am I the only one who sees that?
+> >
+> > Nope, same here on an Asus P5W DH Deluxe mainboard. The sky2 NIC just
+> > silently dies after some time. Rmmod + modprobe sky2 used to re-enable
+> > the NIC IIRC. Since this bug makes the driver practically unusable I
+> > have since switched to a PCI NIC (which is a shame considering the 2
+> > gigabit sky2 NICs on the mainboard...).
+>=20
+> Has this not been fixed in the 2.6.18 git?
+
+Good question. I'll try 2.6.18-rc4-mm3 and report back.
+--=20
+Matthias 'CoreDump' Hentges=20
+
+Webmaster of hentges.net and OpenZaurus developer.
+You can reach me in #openzaurus on Freenode.
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-pWwTHEuLo1lbNF/+kuSe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBE+N45Aq2P5eLUP5IRAgoOAKDOT4V+yaYh1Z9vZMquw8tVrXO4dgCfS8Kn
+2pIRNaUTteFsZm9QUMni3pQ=
+=uCre
+-----END PGP SIGNATURE-----
+
+--=-pWwTHEuLo1lbNF/+kuSe--
+
 
 -- 
-Dmitry
-
--- 
-VGER BF report: H 2.32592e-14
+VGER BF report: H 0

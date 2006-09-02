@@ -1,64 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWIBUuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWIBVgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbWIBUuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 16:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWIBUuP
+	id S1751614AbWIBVgw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 17:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWIBVgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 16:50:15 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:30347 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751555AbWIBUuO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 16:50:14 -0400
-Message-ID: <44F9EE86.4020500@drzeus.cx>
-Date: Sat, 02 Sep 2006 22:50:14 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Sat, 2 Sep 2006 17:36:52 -0400
+Received: from sccrmhc15.comcast.net ([204.127.200.85]:48873 "EHLO
+	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1751613AbWIBVgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 17:36:52 -0400
+To: sfrench@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, jra@samba.org
+Subject: [PATCH][CIFS] Convert new lock_sem to a mutex
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@love-shack.home.digitalvampire.org>
+Date: Sat, 02 Sep 2006 14:36:46 -0700
+Message-ID: <87zmdi54sx.fsf@love-shack.home.digitalvampire.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Alex Dubov <oakad@yahoo.com>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
- card readers
-References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com>	<44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org>
-In-Reply-To: <20060902094818.49e5e1b1.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Sat, 02 Sep 2006 13:15:52 +0200
-> Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->   
->> Andrew, we could use some help with how this driver should fit into the
->> kernel tree. The hardware is multi-function, so there will be a couple
->> of drivers, one for every function, and a common part. How has this been
->> organised in the past?
->>
->>     
->
-> Greg would be a far better person that I for this.   Is it a PCI device?
->   
+The recent change to "allow Windows blocking locks to be cancelled via
+a CANCEL_LOCK call" introduced a new semaphore in struct cifsFileInfo,
+lock_sem.  However, semaphores used as mutexes are deprecated these
+days, and there's no reason to add a new one to the kernel.
+Therefore, convert lock_sem to a struct mutex (and also fix one
+indentation glitch on one of the lines changed anyway).
 
-It's always difficult to know who to contact when there's an issue that
-isn't specific to one single area. And since you are the 2.6 maintainer
-I figured it wouldn't be too off base to throw this in your lap. ;)
+Compile tested only, since I don't use CIFS.
 
-This is a PCI device yes. Which has a number of card readers as
-separate, hot-pluggable functions. Currently this means it interacts
-with the block device and MMC subsystems of the kernel. As more drivers
-pop up, the other card formats will probably get their own subsystems
-the way MMC has. So there are three issues here:
+Signed-off-by: Roland Dreier <roland@digitalvampire.org>
 
- * Where to put the central module that handles the generic parts of the
-chip and pulls in the other modules as needed.
+---
 
- * If the subfunction modules should be put with the subsystems they
-connect to or with the main, generic module.
-
-Rgds
-Pierre
-
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index b24006c..5d7048a 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -306,7 +306,7 @@ struct cifsFileInfo {
+ 	/* lock scope id (0 if none) */
+ 	struct file * pfile; /* needed for writepage */
+ 	struct inode * pInode; /* needed for oplock break */
+-	struct semaphore lock_sem;
++	struct mutex lock_mutex;
+ 	struct list_head llist; /* list of byte range locks we have. */
+ 	unsigned closePend:1;	/* file is marked to close */
+ 	unsigned invalidHandle:1;  /* file closed via session abend */
+diff --git a/fs/cifs/dir.c b/fs/cifs/dir.c
+index 914239d..58042f5 100644
+--- a/fs/cifs/dir.c
++++ b/fs/cifs/dir.c
+@@ -267,7 +267,7 @@ cifs_create(struct inode *inode, struct 
+ 			pCifsFile->invalidHandle = FALSE;
+ 			pCifsFile->closePend     = FALSE;
+ 			init_MUTEX(&pCifsFile->fh_sem);
+-			init_MUTEX(&pCifsFile->lock_sem);
++			mutex_init(&pCifsFile->lock_mutex);
+ 			INIT_LIST_HEAD(&pCifsFile->llist);
+ 			atomic_set(&pCifsFile->wrtPending,0);
+ 
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index e9c5ba9..e27f077 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -48,7 +48,7 @@ static inline struct cifsFileInfo *cifs_
+ 	private_data->netfid = netfid;
+ 	private_data->pid = current->tgid;	
+ 	init_MUTEX(&private_data->fh_sem);
+-	init_MUTEX(&private_data->lock_sem);
++	mutex_init(&private_data->lock_mutex);
+ 	INIT_LIST_HEAD(&private_data->llist);
+ 	private_data->pfile = file; /* needed for writepage */
+ 	private_data->pInode = inode;
+@@ -504,12 +504,12 @@ int cifs_close(struct inode *inode, stru
+ 
+ 		/* Delete any outstanding lock records.
+ 		   We'll lose them when the file is closed anyway. */
+-		down(&pSMBFile->lock_sem);
++		mutex_lock(&pSMBFile->lock_mutex);
+ 		list_for_each_entry_safe(li, tmp, &pSMBFile->llist, llist) {
+ 			list_del(&li->llist);
+ 			kfree(li);
+ 		}
+-		up(&pSMBFile->lock_sem);
++		mutex_unlock(&pSMBFile->lock_mutex);
+ 
+ 		write_lock(&GlobalSMBSeslock);
+ 		list_del(&pSMBFile->flist);
+@@ -594,9 +594,9 @@ static int store_file_lock(struct cifsFi
+ 	li->offset = offset;
+ 	li->length = len;
+ 	li->type = lockType;
+-	down(&fid->lock_sem);
++	mutex_lock(&fid->lock_mutex);
+ 	list_add(&li->llist, &fid->llist);
+-	up(&fid->lock_sem);
++	mutex_unlock(&fid->lock_mutex);
+ 	return 0;
+ }
+ 
+@@ -752,7 +752,7 @@ int cifs_lock(struct file *file, int cmd
+ 			int stored_rc = 0;
+ 			struct cifsLockInfo *li, *tmp;
+ 
+-			down(&fid->lock_sem);
++			mutex_lock(&fid->lock_mutex);
+ 			list_for_each_entry_safe(li, tmp, &fid->llist, llist) {
+ 				if (pfLock->fl_start <= li->offset &&
+ 						length >= li->length) {
+@@ -766,7 +766,7 @@ int cifs_lock(struct file *file, int cmd
+ 					kfree(li);
+ 				}
+ 			}
+-		up(&fid->lock_sem);
++			mutex_unlock(&fid->lock_mutex);
+ 		}
+ 	}
+ 
 
 -- 
-VGER BF report: H 0.055417
+VGER BF report: H 2.74101e-05

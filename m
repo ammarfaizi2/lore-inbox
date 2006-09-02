@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWIBXRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWIBX0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751739AbWIBXRO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 19:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWIBXRO
+	id S1751748AbWIBX0b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 19:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWIBX0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 19:17:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60106 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751736AbWIBXRN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 19:17:13 -0400
-Date: Sun, 3 Sep 2006 01:16:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: prevent swsusp with PAE
-Message-ID: <20060902231654.GD13031@elf.ucw.cz>
-References: <20060831135336.GL3923@elf.ucw.cz> <20060831104304.e3514401.akpm@osdl.org> <20060831223521.GB31125@elf.ucw.cz> <20060831154828.4313327c.akpm@osdl.org> <20060831225232.GE31125@elf.ucw.cz> <20060831160546.3309d745.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060831160546.3309d745.rdunlap@xenotime.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 2 Sep 2006 19:26:31 -0400
+Received: from hentges.net ([81.169.178.128]:30849 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1751747AbWIBX0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 19:26:30 -0400
+Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
+	easily reproducable
+From: Matthias Hentges <oe@hentges.net>
+To: shogunx <shogunx@sleekfreak.ath.cx>
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0609021908320.28542-100000@sleekfreak.ath.cx>
+References: <Pine.LNX.4.44.0609021908320.28542-100000@sleekfreak.ath.cx>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-g82TI2sUdctKACQ1Ozwo"
+Date: Sun, 03 Sep 2006 01:27:20 +0200
+Message-Id: <1157239640.18988.10.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next version of prevent-swsusp-with-PAE, this time I disable it in
-Kconfig.
 
-PAE + swsusp results in hard-to-debug crash about 50% of time during
-resume. Cause is known, fix needs to be ported from x86-64 (but we
-can't make it to 2.6.18, and I'd like this to be worked around in
-2.6.18).
+--=-g82TI2sUdctKACQ1Ozwo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Am Samstag, den 02.09.2006, 19:11 -0400 schrieb shogunx:
+> On Sat, 2 Sep 2006, Matthias Hentges wrote:
 
-diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
-index ae44a70..619ecab 100644
---- a/kernel/power/Kconfig
-+++ b/kernel/power/Kconfig
-@@ -56,7 +56,7 @@ config PM_TRACE
- 
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend"
--	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP)
-+	depends on PM && SWAP && ((X86 && (!SMP || SUSPEND_SMP) && !X86_PAE) || ((FRV || PPC32) && !SMP))
- 	---help---
- 	  Enable the possibility of suspending the machine.
- 	  It doesn't need ACPI or APM.
-@@ -78,6 +78,10 @@ config SOFTWARE_SUSPEND
- 
- 	  For more information take a look at <file:Documentation/power/swsusp.txt>.
- 
-+	  (For now, swsusp is incompatible with PAE aka HIGHMEM_64G on i386.
-+	  we need identity mapping for resume to work, and that is trivial
-+	  to get with 4MB pages, but less than trivial on PAE).
-+
- config PM_STD_PARTITION
- 	string "Default resume partition"
- 	depends on SOFTWARE_SUSPEND
+> > Well, it just crapped out on me again :(
+> >
+> > Sep  2 23:36:13 localhost kernel: NETDEV WATCHDOG: eth2: transmit timed
+> > out
+> > Sep  2 23:36:13 localhost kernel: sky2 hardware hung? flushing
+> >
+> > Only a rmmod / modprobe cycle helps at this point.
+>=20
+> Really?  What is the error condition causing it?  On my friends lap, whic=
+h
+> has an integrated sky2, his drops out with a full sustained TX...
+> uploading to another box for example, at about 4-8MB of transfer.  The
+> fix in his case is ifdown eth0 && ifup eth0.  I have
+> yet to see the error occur at all on my ExpressCard device, either with
+> 2.6.18-rc5 or 2.6.17.5.  I built the rc5 as a preemptive measure, but I
+> cannot get it to fail under any conditions.
+>=20
+
+I have yet to find a reproduceable way to trigger the bug but I'll try a
+few things tomorrow.
+Currently it appears to be completely ranom. I've loaded the driver w/
+debug=3D10, maybe it'll give some clues.
+--=20
+Matthias 'CoreDump' Hentges=20
+
+Webmaster of hentges.net and OpenZaurus developer.
+You can reach me in #openzaurus on Freenode.
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-g82TI2sUdctKACQ1Ozwo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBE+hNYAq2P5eLUP5IRAublAKDXGzLWJQavGfCBxC/yUANB3kEPRQCfZMLH
+zufegKsUvqNFHmRCRe+baQA=
+=qKkh
+-----END PGP SIGNATURE-----
+
+--=-g82TI2sUdctKACQ1Ozwo--
+
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-
--- 
-VGER BF report: U 0.489608
+VGER BF report: U 0.5

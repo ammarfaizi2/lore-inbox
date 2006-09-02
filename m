@@ -1,106 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWIBFy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWIBF7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWIBFy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 01:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIBFy6
+	id S1750807AbWIBF7L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 01:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIBF7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 01:54:58 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:48652 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1750806AbWIBFy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 01:54:57 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: Possible gpl problem?
-Date: Fri, 1 Sep 2006 22:54:25 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEIJOCAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 2 Sep 2006 01:59:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60648 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750807AbWIBF7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 01:59:09 -0400
+Date: Fri, 1 Sep 2006 22:58:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Kent <raven@themaw.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+ sharing [try #13]
+Message-Id: <20060901225853.0171fd29.akpm@osdl.org>
+In-Reply-To: <1157170272.3307.5.camel@raven.themaw.net>
+References: <20060831102127.8fb9a24b.akpm@osdl.org>
+	<20060830135503.98f57ff3.akpm@osdl.org>
+	<20060830125239.6504d71a.akpm@osdl.org>
+	<20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	<27414.1156970238@warthog.cambridge.redhat.com>
+	<9849.1157018310@warthog.cambridge.redhat.com>
+	<9534.1157116114@warthog.cambridge.redhat.com>
+	<20060901093451.87aa486d.akpm@osdl.org>
+	<1157130044.5632.87.camel@localhost>
+	<20060901195009.187af603.akpm@osdl.org>
+	<1157170272.3307.5.camel@raven.themaw.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <1157174636.2473.22.camel@shinybook.infradead.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 01 Sep 2006 22:49:12 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 01 Sep 2006 22:49:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 02 Sep 2006 12:11:12 +0800
+Ian Kent <raven@themaw.net> wrote:
 
-> On Tue, 2006-08-29 at 06:57 -0700, David Schwartz wrote:
-> >
-> >     b) Accompany it with a written offer, valid for at least three
-> >     years, to give any third party, for a charge no more than your
-> >     cost of physically performing source distribution, a complete
-> >     machine-readable copy of the corresponding source code, to be
-> >     distributed under the terms of Sections 1 and 2 above on a medium
-> >     customarily used for software interchange; or,
+> On Fri, 2006-09-01 at 19:50 -0700, Andrew Morton wrote:
+> > On Fri, 01 Sep 2006 13:00:44 -0400
+> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > 
+> > > On Fri, 2006-09-01 at 09:34 -0700, Andrew Morton wrote:
+> > > 
+> > > > nfs automounter submounts are still broken in Trond's tree, btw.  Are we stuck?
+> > > 
+> > > You mean autofs indirect maps?
+> > 
+> > I don't know that that is.
+> > 
+> > > I'll see if I can't get my hands on an selinux setup like yours in order
+> > > to do some debugging. AFAICS, the non-selinux case works fine, though.
+> > 
+> > It doesn't appear to be related to selinux.
+> > 
+> > On a stock, mostly-up-to-date FC5 installation:
+> > 
+> > 	echo 0 > /selinux/enforce
+> > 	service autofs stop
+> > 	service nfs stop
+> > 	service nfs start
+> > 	service autofs start
+> > 
+> > 
+> > sony:/home/akpm> ls -l /net/bix/usr/src
+> > total 0
+> > 
+> > sony:/home/akpm> showmount -e bix
+> > Export list for bix:
+> > /           *
+> > /usr/src    *
+> > /mnt/export *
+> > 
+> > 
+> > The automounter will mount bix:/ on /net/bix.  But I am unable to get it to
+> > mount bix's /usr/src on /net/bix/usr/src.
+> 
+> Is it the same symptom as before or is it that bix:/usr/src is not also
+> being mounted?
 
-> > Which, you'll notice, says you must *accompany* the
-> > distribution with a
-> > written offer. There is no way this offer could be enforced by
-> > someone who
-> > did not possess it or a copy of it. How would you know who to
-> > contact, the
-> > amount to pay, and so on?
+When this saga first started an `ls -l /net/bix' showed a corrupted dentry
+for /net/bix/usr.  It was determined that this was SELinux-related.  Fixes were
+made and that no longer occurs.
 
-> > So if you neither possess the binary nor a copy of an
-> > offer for the source,
-> > you are not entitled to it. At least, that's how I read this.
+Now, treading on /net/bix/usr/src does not cause bix:/usr/src to be mounted
+at /net/bix/usr/src.  Without git-nfs that mount does occur.
 
-> That interpretation doesn't seem particularly consistent with the third
-> and final option as described in the next paragraph of the GPL:
+The present behaviour is unchanged if /selinux/enforce is set to 0.
 
-	Hmm? It's perfectly consistent.
+> > Without git-nfs applied, /net/bix/usr/src mounts as expected.
+> > 
+> > iirc, we decided this is related to the fs-cache infrastructure work which
+> > went into git-nfs.  I think David can reproduce this?
+> 
+> I'll build the latest mm kernel and try to reproduce it.
+> >From memory I couldn't reproduce it last time I tried.
+> Is there anything I need to add to rc5-mm1 for this?
 
->     c) Accompany it with the information you received as to the offer
->     to distribute corresponding source code.  (This alternative is
->     allowed only for noncommercial distribution and only if you
->     received the program in object code or executable form with such
->     an offer, in accord with Subsection b above.)
-
-	In other words, you must enable the recipient to get the source by passing
-your original offer on to them. The recipient, obviously, must be able to
-enforce the offer or this makes no sense.
-
-	So the purpose of the "any third party" requirement is to make sure that
-someone who receives a copy of the offer from a redistributor can acquire
-the source code. It's not so that someone who never received any
-distribution at all can acquire the source code.
-
-	This is consistent with the purpose of the GPL as well, which is to make
-sure that if you have the binary, you can get the source code. It is not to
-ensure that random people can get the source code.
-
-> Unless the party who made the offer of source code is required to extend
-> that offer to "any third party" (as in fact is explicitly stated in
-> subsection b), how can subsection c work?
-
-	Subsection c works because the person distributing the code passes the
-offer on to the recipient so that he is in possession of a copy of the
-offer.
-
-> It doesn't say "any third party who is in possession of a copy of the
-> binary and has a verbatim copy of the original written offer of source".
-> It just says "any third party".
-
-	What would be the point of accompanying it with the information regarding
-the offer if that information served no purpose whatsoever? How could you
-enforce an offer when you had no knowledge of who was making the offer and
-what its terms were?
-
-	DS
-
-
+Nope.
 
 -- 
-VGER BF report: U 0.499995
+VGER BF report: H 0

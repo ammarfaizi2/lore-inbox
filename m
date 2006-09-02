@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIBHZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIBIIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWIBHZP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 03:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWIBHZP
+	id S1750825AbWIBIIO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 04:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWIBIIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 03:25:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15336 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750836AbWIBHZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 03:25:13 -0400
-Subject: Re: Access Control Lists for tmpfs
-From: Arjan van de Ven <arjan@infradead.org>
+	Sat, 2 Sep 2006 04:08:14 -0400
+Received: from colin.muc.de ([193.149.48.1]:2054 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750825AbWIBIIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 04:08:13 -0400
+Date: 2 Sep 2006 10:08:11 +0200
+Date: Sat, 2 Sep 2006 10:08:11 +0200
+From: Andi Kleen <ak@muc.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20060901145203.d3880d1d.akpm@osdl.org>
-References: <20060901221421.968954146@winden.suse.de>
-	 <20060901221458.148480972@winden.suse.de>
-	 <20060901145203.d3880d1d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sat, 02 Sep 2006 09:24:47 +0200
-Message-Id: <1157181887.2881.9.camel@laptopd505.fenrus.org>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Frank v Waveren <fvw@var.cx>
+Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
+Message-ID: <20060902080811.GA15569@muc.de>
+References: <1156927468.29250.113.camel@localhost.localdomain> <20060831204612.73ed7f33.akpm@osdl.org> <1157100979.29250.319.camel@localhost.localdomain> <20060901020404.c8038837.akpm@osdl.org> <1157103042.29250.337.camel@localhost.localdomain> <20060901201305.f01ec7d2.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060901201305.f01ec7d2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 14:52 -0700, Andrew Morton wrote:
-> On Sat, 02 Sep 2006 00:14:23 +0200
-> Andreas Gruenbacher <agruen@suse.de> wrote:
-> 
-> > +static void
-> > +shmem_set_acl(struct inode *inode, int type, struct posix_acl *acl)
-> > +{
-> > +	spin_lock(&inode->i_lock);
-> > +	switch(type) {
-> > +		case ACL_TYPE_ACCESS:
-> > +			if (SHMEM_I(inode)->i_acl)
-> > +				posix_acl_release(SHMEM_I(inode)->i_acl);
-> > +			SHMEM_I(inode)->i_acl = posix_acl_dup(acl);
-> > +			break;
-> 
-> i_lock is "general-purpose, innermost per-inode lock".  Calling kfree()
-> under it makes it no longer "innermost".  But kfree() is surely atomic wrt
-> everything which filesystems and the VFS will want to do, so that's OK.
+> I wonder if this is related to the occasional hrtimr_run_queues() lockup
+> which Andi is encountering.
 
-and lockdep probably will yell loudly if there's a problem.
+I'm not sure all of my lockups are related to this. It was just one
+case I caught when the system was still usable enough to Sysrq
 
+I did a bisect yesterday but i ended up in some /proc patches which
+didn't look too likely. Repeating it currently.
 
+-Andi
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 0.000684748

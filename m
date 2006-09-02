@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWIBHWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIBHZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWIBHWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 03:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWIBHWv
+	id S1750836AbWIBHZP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 03:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWIBHZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 03:22:51 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:3722 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750823AbWIBHWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 03:22:50 -0400
-Date: Sat, 2 Sep 2006 09:18:22 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven French <sfrench@us.ibm.com>
-cc: akpm@osdl.org, linux-cifs-client@lists.samba.org,
-       linux-kernel@vger.kernel.org,
-       Richard Knutsson <ricknu-0@student.ltu.se>, sfrench@samba.org
-Subject: Re: [PATCH 2.6.18-rc4-mm3 1/2] fs/cifs: Converting into generic
- boolean
-In-Reply-To: <OFE86A755F.DEA60E1E-ON872571DC.00732934-862571DC.00739039@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0609020918010.24701@yvahk01.tjqt.qr>
-References: <OFE86A755F.DEA60E1E-ON872571DC.00732934-862571DC.00739039@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sat, 2 Sep 2006 03:25:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15336 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750836AbWIBHZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 03:25:13 -0400
+Subject: Re: Access Control Lists for tmpfs
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <20060901145203.d3880d1d.akpm@osdl.org>
+References: <20060901221421.968954146@winden.suse.de>
+	 <20060901221458.148480972@winden.suse.de>
+	 <20060901145203.d3880d1d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 02 Sep 2006 09:24:47 +0200
+Message-Id: <1157181887.2881.9.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Should not this become 'bool use_ntlmssp'? Possibly in a later patch?
+On Fri, 2006-09-01 at 14:52 -0700, Andrew Morton wrote:
+> On Sat, 02 Sep 2006 00:14:23 +0200
+> Andreas Gruenbacher <agruen@suse.de> wrote:
+> 
+> > +static void
+> > +shmem_set_acl(struct inode *inode, int type, struct posix_acl *acl)
+> > +{
+> > +	spin_lock(&inode->i_lock);
+> > +	switch(type) {
+> > +		case ACL_TYPE_ACCESS:
+> > +			if (SHMEM_I(inode)->i_acl)
+> > +				posix_acl_release(SHMEM_I(inode)->i_acl);
+> > +			SHMEM_I(inode)->i_acl = posix_acl_dup(acl);
+> > +			break;
+> 
+> i_lock is "general-purpose, innermost per-inode lock".  Calling kfree()
+> under it makes it no longer "innermost".  But kfree() is surely atomic wrt
+> everything which filesystems and the VFS will want to do, so that's OK.
 
->Yes, but ...
->fs/cifs/asn1.c file may go away eventually .  After getting most of the way
->through implementation quite a while ago, I realized that it would be too
->risky to rely on SPNEGO parsing in kernel (too easy to overrun buffers)
->unless the kernel had dedicated asn1 library (which would be very hard)
-
-That sounds like it would be best to make it a FUSE.
+and lockdep probably will yell loudly if there's a problem.
 
 
-Jan Engelhardt
+
 -- 
-
--- 
-VGER BF report: H 0.000513496
+VGER BF report: H 0

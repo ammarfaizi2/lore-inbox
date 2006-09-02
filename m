@@ -1,183 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWIBDc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWIBDvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWIBDc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 23:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWIBDc2
+	id S1750710AbWIBDvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 23:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWIBDvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 23:32:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43469 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750759AbWIBDc1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 23:32:27 -0400
-Date: Fri, 1 Sep 2006 20:32:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Frank v Waveren <fvw@var.cx>
-Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
-Message-Id: <20060901203206.49ab445a.akpm@osdl.org>
-In-Reply-To: <20060901201305.f01ec7d2.akpm@osdl.org>
-References: <1156927468.29250.113.camel@localhost.localdomain>
-	<20060831204612.73ed7f33.akpm@osdl.org>
-	<1157100979.29250.319.camel@localhost.localdomain>
-	<20060901020404.c8038837.akpm@osdl.org>
-	<1157103042.29250.337.camel@localhost.localdomain>
-	<20060901201305.f01ec7d2.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Sep 2006 23:51:08 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:50336 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750710AbWIBDvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 23:51:06 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: 2.6.18-rc5-mm1
+Date: Sat, 02 Sep 2006 13:51:04 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <muuhf21hgb5a5vdpdb7i9nds6t5cokqihf@4ax.com>
+References: <20060901015818.42767813.akpm@osdl.org> <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com> <20060901183927.eba8179d.akpm@osdl.org>
+In-Reply-To: <20060901183927.eba8179d.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Sep 2006 20:13:05 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Fri, 1 Sep 2006 18:39:27 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-> So I modified it to only trigger if current->mm!=NULL and:
+>On Sat, 02 Sep 2006 11:06:15 +1000
+>Grant Coady <gcoady.lk@gmail.com> wrote:
+>
+>> On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
+>> 
+>> >
+>> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+>> ...
+>> >- See the `hot-fixes' directory for any important updates to this patchset.
+>> >
+>> Okay, I applied hotfixes and it crashed on boot,
+>
+>There's another hotfix there now:  
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/hot-fixes/revert-acpi-mwait-c-state-fixes.patch
+>
+>If that doesn't prevent the crash, please try to get a trace out of it
+>somehow?
+>
+>> keyboard LEDs flashing: Repeating message, hand copied:
+>> atkbd.c: Spurious ACK in isa0060/serio0. Some program might be trying access 
+>
+>Yes, one of my machine does that when it crashes too.  It makes the crash
+>information scroll off the screen in about half a second, which isn't very
+>kernel-developer-friendly.
 
-Hey, that worked.
+Dmitry's patch stopped the LEDs but gave VFS no root device error, make no 
+sense to me so I start over...
 
+Apply 2.6.18-rc5-mm1, then:
+File: drivers-md-kconfig-fix-block-dependency.patch
+File: provide-kernel_execve-on-all-architectures-fix-2.patch
+File: provide-kernel_execve-on-all-architectures-fix-3.patch
+File: revert-acpi-mwait-c-state-fixes.patch
+File: revert-ide-hpa-resume-fix.patch
 
-With this patch:
+Falls over, looping, after a VFS no root message :(
 
-diff -puN include/linux/ktime.h~ktime-debug include/linux/ktime.h
---- a/include/linux/ktime.h~ktime-debug
-+++ a/include/linux/ktime.h
-@@ -57,6 +57,7 @@ typedef union {
- } ktime_t;
- 
- #define KTIME_MAX			(~((u64)1 << 63))
-+#define KTIME_SEC_MAX			(KTIME_MAX / NSEC_PER_SEC)
- 
- /*
-  * ktime_t definitions when using the 64-bit scalar representation:
-@@ -64,17 +65,7 @@ typedef union {
- 
- #if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
- 
--/**
-- * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
-- * @secs:	seconds to set
-- * @nsecs:	nanoseconds to set
-- *
-- * Return the ktime_t representation of the value
-- */
--static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)
--{
--	return (ktime_t) { .tv64 = (s64)secs * NSEC_PER_SEC + (s64)nsecs };
--}
-+ktime_t ktime_set(const long secs, const unsigned long nsecs);
- 
- /* Subtract two ktime_t variables. rem = lhs -rhs: */
- #define ktime_sub(lhs, rhs) \
-diff -puN kernel/hrtimer.c~ktime-debug kernel/hrtimer.c
---- a/kernel/hrtimer.c~ktime-debug
-+++ a/kernel/hrtimer.c
-@@ -870,3 +870,32 @@ void __init hrtimers_init(void)
- 	register_cpu_notifier(&hrtimers_nb);
- }
- 
-+
-+#if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
-+
-+/**
-+ * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
-+ * @secs:	seconds to set
-+ * @nsecs:	nanoseconds to set
-+ *
-+ * Return the ktime_t representation of the value
-+ */
-+ktime_t ktime_set(const long secs, const unsigned long nsecs)
-+{
-+#if (BITS_PER_LONG == 64)
-+	static int no88bigabytes = 0;
-+
-+	if (current->mm && unlikely(secs >= KTIME_SEC_MAX)) {
-+		if (!no88bigabytes) {
-+			no88bigabytes = 1;
-+			printk("ktime_set: %ld : %lu\n", secs, nsecs);
-+			WARN_ON(1);
-+		}
-+		return (ktime_t){ .tv64 = KTIME_MAX };
-+	}
-+#endif
-+	return (ktime_t) { .tv64 = (s64)secs * NSEC_PER_SEC + (s64)nsecs };
-+}
-+EXPORT_SYMBOL(ktime_set);
-+
-+#endif
-_
+Apply Dmitry's patch...
 
+Okay, we're not doing the silly looping:
 
-It emits that interrupt-time warning and gets to a login prompt.
+Error is same as previously reported.
 
+A couple blank menu screens in other areas, make oldconfig doesn't :(
 
+WTF happened to SATA support?  Where's it hiding now?  Found it...
 
-But with this patch, which is the same thing with the debug stuff removed:
+Okay, boots --> Needs Dmitry's non-looping patch so errors don't scroll off 
+screen.  Problem was SATA moved to new window and `make oldconfig` didn't ;)
 
-diff -puN include/linux/ktime.h~ktime-debug include/linux/ktime.h
---- a/include/linux/ktime.h~ktime-debug
-+++ a/include/linux/ktime.h
-@@ -57,6 +57,7 @@ typedef union {
- } ktime_t;
- 
- #define KTIME_MAX			(~((u64)1 << 63))
-+#define KTIME_SEC_MAX			(KTIME_MAX / NSEC_PER_SEC)
- 
- /*
-  * ktime_t definitions when using the 64-bit scalar representation:
-@@ -64,17 +65,7 @@ typedef union {
- 
- #if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
- 
--/**
-- * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
-- * @secs:	seconds to set
-- * @nsecs:	nanoseconds to set
-- *
-- * Return the ktime_t representation of the value
-- */
--static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)
--{
--	return (ktime_t) { .tv64 = (s64)secs * NSEC_PER_SEC + (s64)nsecs };
--}
-+ktime_t ktime_set(const long secs, const unsigned long nsecs);
- 
- /* Subtract two ktime_t variables. rem = lhs -rhs: */
- #define ktime_sub(lhs, rhs) \
-diff -puN kernel/hrtimer.c~ktime-debug kernel/hrtimer.c
---- a/kernel/hrtimer.c~ktime-debug
-+++ a/kernel/hrtimer.c
-@@ -870,3 +870,24 @@ void __init hrtimers_init(void)
- 	register_cpu_notifier(&hrtimers_nb);
- }
- 
-+
-+#if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
-+
-+/**
-+ * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
-+ * @secs:	seconds to set
-+ * @nsecs:	nanoseconds to set
-+ *
-+ * Return the ktime_t representation of the value
-+ */
-+ktime_t ktime_set(const long secs, const unsigned long nsecs)
-+{
-+#if (BITS_PER_LONG == 64)
-+	if (unlikely(secs >= KTIME_SEC_MAX))
-+		return (ktime_t){ .tv64 = KTIME_MAX };
-+#endif
-+	return (ktime_t) { .tv64 = (s64)secs * NSEC_PER_SEC + (s64)nsecs };
-+}
-+EXPORT_SYMBOL(ktime_set);
-+
-+#endif
-_
-
-
-it hangs in udev startup.
-
-How very unpleasant.  gcc-4.0.2.
+Grant.
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 6.04481e-06

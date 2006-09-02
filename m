@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWIBAoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWIBAwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWIBAoD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Sep 2006 20:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIBAoD
+	id S1750762AbWIBAwT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Sep 2006 20:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIBAwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 20:44:03 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:7859 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750761AbWIBAoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 20:44:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=icjEnn8fn4wGAe6AE0r01eSI2eEvvQHkFJWJRCHdfcciOhu2U1JXp6xvPmtTbK4AjQADFpsUZ6CIa2EYRcSAbIn411J6LqUXJv6dNYOJHCnVryyAsX1QkL0LPWOkodtYd3VZtRtKUSHAM/j5Zz9t2XIZdCGOMvv5O6k74xx4Z0g=
-Message-ID: <ea0b05b30609011744g1d68e964s726cf86d2e72a34b@mail.gmail.com>
-Date: Fri, 1 Sep 2006 17:44:01 -0700
-From: Ethan <thesyntheticsophist@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: File corruption with 2940U2 SCSI card and aic7xxx driver.
-In-Reply-To: <1157151927.6271.341.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <ea0b05b30609010905v341ba10ap5a7638e1d91faa5b@mail.gmail.com>
-	 <1157151927.6271.341.camel@localhost.localdomain>
+	Fri, 1 Sep 2006 20:52:19 -0400
+Received: from hentges.net ([81.169.178.128]:36059 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1750762AbWIBAwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Sep 2006 20:52:18 -0400
+Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
+	easily reproducable
+From: Matthias Hentges <oe@hentges.net>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060901184106.GI1959@cip.informatik.uni-erlangen.de>
+References: <20060901184106.GI1959@cip.informatik.uni-erlangen.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S78Q3cW55UhNqHaLq7VT"
+Date: Sat, 02 Sep 2006 02:53:11 +0200
+Message-Id: <1157158391.20509.4.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does this still occur with a more recent upstream kernel ?
 
-I've tried kernel version 2.6.16 (with version 7 of the aic7xxx
-driver).  Same problem.
+--=-S78Q3cW55UhNqHaLq7VT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
->
-> There are also known AHA2940 incompatibilities with a few boards. People
-> always had problems with CUV4X* boards for one. Bit early to assume its
-> the board however it might be worth making sure the card is well seated
-> and the cabling looks good. That said I'd expect parity errors..
->
+Am Freitag, den 01.09.2006, 20:41 +0200 schrieb Thomas Glanzmann:
+> Hello,
+> my sky2 network card in my intel mac mini just stopped working again on
+> me. After a reboot it worked again. This time there is no dmesg output
+> related to the problem. :-( Am I the only one who sees that?
 
-I've tried two different PCI slots and two different SCSI cables.
-Same problem.  I've enabled PCI parity checking via the pci_parity
-option to the aic7xxx driver, but I don't see any parity errors in the
-kernel messages.
+Nope, same here on an Asus P5W DH Deluxe mainboard. The sky2 NIC just
+silently dies after some time. Rmmod + modprobe sky2 used to re-enable
+the NIC IIRC. Since this bug makes the driver practically unusable I
+have since switched to a PCI NIC (which is a shame considering the 2
+gigabit sky2 NICs on the mainboard...).
 
-I'm having trouble believing that this could be a hardware problem
-because I can consistently read data from the SCSI disks, the
-corruption only seems to happen during writes.
 
-Thanks for your suggestions.
+--=20
+Matthias 'CoreDump' Hentges=20
+
+Webmaster of hentges.net and OpenZaurus developer.
+You can reach me in #openzaurus on Freenode.
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-S78Q3cW55UhNqHaLq7VT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBE+NX2Aq2P5eLUP5IRAoElAJ9h9ug8Pq+FT0cJStUdvJmdAezkGQCgzZ3g
+qfac1xcACtVSn+nDVZ/x8JA=
+=CcfR
+-----END PGP SIGNATURE-----
+
+--=-S78Q3cW55UhNqHaLq7VT--
+
 
 -- 
-VGER BF report: H 1.90148e-11
+VGER BF report: U 0.5

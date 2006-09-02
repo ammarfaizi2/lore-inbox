@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWIBXP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751734AbWIBXOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbWIBXP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 19:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWIBXP2
+	id S1751734AbWIBXOA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 19:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWIBXOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 19:15:28 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58826 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751736AbWIBXP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 19:15:27 -0400
-Date: Sun, 3 Sep 2006 01:15:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org, pshou@realtek.com.tw
-Subject: Re: CodingStyle (was: Re: sound/pci/hda/intel_hda: small cleanups)
-Message-ID: <20060902231509.GC13031@elf.ucw.cz>
-References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de> <20060831110436.995bdf93.rdunlap@xenotime.net>
+	Sat, 2 Sep 2006 19:14:00 -0400
+Received: from rrcs-24-227-114-150.se.biz.rr.com ([24.227.114.150]:55948 "EHLO
+	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S1751733AbWIBXN7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 19:13:59 -0400
+Date: Sat, 2 Sep 2006 19:11:52 -0400 (EDT)
+From: shogunx <shogunx@sleekfreak.ath.cx>
+To: Matthias Hentges <oe@hentges.net>
+cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
+ easily reproducable
+In-Reply-To: <1157233344.18988.7.camel@mhcln03>
+Message-ID: <Pine.LNX.4.44.0609021908320.28542-100000@sleekfreak.ath.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060831110436.995bdf93.rdunlap@xenotime.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2 Sep 2006, Matthias Hentges wrote:
 
-> > Hm, it looks rather like a personal preference.
-> > IMHO, it's harder to read without space...
-> 
-> We have been tending toward not using space in cases like this
-> (in my unscientific memory-based survey).
-> 
-> So, just this morning I have seen questions and opinions about
-> the following that could (or could not) use more documentation
-> or codification and I'm sure that we could easily find more,
-> but do we want to codify Everything??
-> 
-> 
-> 1.  Kconfig help text should be indented (it's not indented in the
-> 	GFS2 patches)
-> 
-> 2.  if (!condition1)	/* no space between ! and condition1 */
-> 
-> 3.  don't use C99-style // comments
-> 
-> 4.  unsigned int bitfield :<nr_bits>;
+> Am Samstag, den 02.09.2006, 15:41 -0400 schrieb shogunx:
+> > On Sat, 2 Sep 2006, Matthias Hentges wrote:
+> >
+> > > Am Freitag, den 01.09.2006, 22:41 -0400 schrieb shogunx:
+> > > > > >
+> > > > > > Has this not been fixed in the 2.6.18 git?
+> > > > >
+> > > > > Good question. I'll try 2.6.18-rc4-mm3 and report back.
+> > > >
+> > > > I am having no problems with 2.6.18-rc5, which I just built and tested.
+> > >
+> > > The NIC is up and running for about 9hrs now w/ -rc4-mm3, thanks for the
+> > > heads up!
+> >
+> > Hey, no worries.  I have a friend who has has that problem for some time,
+> > and I just got one of those cards myself, albeint in an ExpressCard
+> > format.
+> >
+> > Glad its working.
+>
+> Well, it just crapped out on me again :(
+>
+> Sep  2 23:36:13 localhost kernel: NETDEV WATCHDOG: eth2: transmit timed
+> out
+> Sep  2 23:36:13 localhost kernel: sky2 hardware hung? flushing
+>
+> Only a rmmod / modprobe cycle helps at this point.
 
-Looks reasonable to me. Will you do the patch or should I ?
+Really?  What is the error condition causing it?  On my friends lap, which
+has an integrated sky2, his drops out with a full sustained TX...
+uploading to another box for example, at about 4-8MB of transfer.  The
+fix in his case is ifdown eth0 && ifup eth0.  I have
+yet to see the error occur at all on my ExpressCard device, either with
+2.6.18-rc5 or 2.6.17.5.  I built the rc5 as a preemptive measure, but I
+cannot get it to fail under any conditions.
 
-									Pavel
+
+> --
+> Matthias 'CoreDump' Hentges
+>
+> Webmaster of hentges.net and OpenZaurus developer.
+> You can reach me in #openzaurus on Freenode.
+>
+> My OS: Debian SID. Geek by Nature, Linux by Choice
+>
+
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
+
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-
--- 
-VGER BF report: U 0.489855
+VGER BF report: U 0.5

@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWIBEiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWIBEtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWIBEiy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 00:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWIBEiy
+	id S1750784AbWIBEtp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 00:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWIBEtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 00:38:54 -0400
-Received: from dsl-7-36.cofs.net ([68.142.7.36]:52538 "EHLO www.palei.com")
-	by vger.kernel.org with ESMTP id S1750785AbWIBEix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 00:38:53 -0400
-Message-ID: <000f01c6ce49$affd37e0$3224050a@avilespaxp>
-From: "Paul Aviles" <paul.aviles@palei.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: e1000 Detected Tx Unit Hang
-Date: Sat, 2 Sep 2006 00:38:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Sat, 2 Sep 2006 00:49:45 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:13974 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750711AbWIBEto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 00:49:44 -0400
+Message-Id: <1157172583.9610.269973398@webmail.messagingengine.com>
+X-Sasl-Enc: Z9wL8ZPxkk/mqKpImamvVX6EjQweHx58Dcp045WBwG+/ 1157172583
+From: "Ian Kent" <raven@themaw.net>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: "David Howells" <dhowells@redhat.com>,
+       "Linus Torvalds" <torvalds@osdl.org>, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+References: <20060831102127.8fb9a24b.akpm@osdl.org>
+   <20060830135503.98f57ff3.akpm@osdl.org>
+   <20060830125239.6504d71a.akpm@osdl.org>
+   <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+   <27414.1156970238@warthog.cambridge.redhat.com>
+   <9849.1157018310@warthog.cambridge.redhat.com>
+   <9534.1157116114@warthog.cambridge.redhat.com>
+   <20060901093451.87aa486d.akpm@osdl.org>
+   <1157130044.5632.87.camel@localhost>
+   <20060901195009.187af603.akpm@osdl.org>
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+   sharing [try #13]
+In-Reply-To: <20060901195009.187af603.akpm@osdl.org>
+Date: Sat, 02 Sep 2006 12:49:43 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am getting "e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang" using 
-stock 2.6.17.11, 2.6.17.5 or 2.6.17.4 kernels on centos 4.3.
 
-The server is a Tyan GS10 and is connected to a Netgear GS724T Gig switch. I 
-can easily reproduce the problem by trying to do a large ftp transfer to the 
-server. It does not happen if the server is connected to a dummy 100 Mb 
-switch, only when is connected to the Gig switch.
-I have also tried the options line below disabling tso, tx and rx in the 
-modprobe.conf without any luck.
+On Fri, 1 Sep 2006 19:50:09 -0700, "Andrew Morton" <akpm@osdl.org> said:
+> On Fri, 01 Sep 2006 13:00:44 -0400
+> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> 
+> > On Fri, 2006-09-01 at 09:34 -0700, Andrew Morton wrote:
+> > 
+> > > nfs automounter submounts are still broken in Trond's tree, btw.  Are we stuck?
+> > 
+> > You mean autofs indirect maps?
+> 
+> I don't know that that is.
+> 
 
-options e1000 XsumRX=0 Speed=1000 Duplex=2 InterruptThrottleRate=0 
-FlowControl=3 RxDescriptors=4096 TxDescriptors=4096 RxIntDelay=0 
-TxIntDelay=0
+The mount that Andrew is a "host" type mount.
+autofs gets the host name as a key and is expected to mount all
+filesystems exported from the host. It does this by attempting to
+mounting each export in shortest to longest order (to take account
+of nesting of the mounts).
 
-in /var/log/kernel I get the following...
-
-Sep  1 23:53:01 www kernel: e1000: eth0: e1000_clean_tx_irq: Detected Tx 
-Unit Hang
-Sep  1 23:53:01 www kernel:   Tx Queue             <0>
-Sep  1 23:53:01 www kernel:   TDH                  <4c4>
-Sep  1 23:53:01 www kernel:   TDT                  <4c9>
-Sep  1 23:53:01 www kernel:   next_to_use          <4c9>
-Sep  1 23:53:01 www kernel:   next_to_clean        <4c4>
-Sep  1 23:53:01 www kernel: buffer_info[next_to_clean]
-Sep  1 23:53:01 www kernel:   time_stamp           <ffff9c60>
-Sep  1 23:53:01 www kernel:   next_to_watch        <4c4>
-Sep  1 23:53:01 www kernel:   jiffies              <ffff9d96>
-Sep  1 23:53:01 www kernel:   next_to_watch.status <0>
-.
-repeats the same as above a few times....
-.
-Sep  1 23:53:10 www kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep  1 23:53:13 www kernel: e1000: eth0: e1000_watchdog_task: NIC Link is Up 
-1000 Mbps Full Duplex
-
-then the server locks up, no response from the keyboard at all and must be 
-forced down with a power kill.
-
-Here is my driver info,
-
-driver: e1000
-version: 7.0.33-k2-NAPI
-firmware-version: N/A
-bus-info: 0000:02:01.0
-
-What else could I check?
-
-Regards,
-
-Paul Aviles 
-
+Ian
+Ian
 
 
 -- 
-VGER BF report: U 0.5
+VGER BF report: H 3.10862e-15

@@ -1,62 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWIBKcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWIBKjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWIBKcN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 06:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWIBKcN
+	id S1751028AbWIBKjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 06:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWIBKjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 06:32:13 -0400
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:65479 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S1751014AbWIBKcM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 06:32:12 -0400
-Date: Sat, 2 Sep 2006 11:31:56 +0100
-From: Andrew Clayton <andrew@digital-domain.net>
-To: Greg KH <greg@kroah.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@suse.de>
-Subject: Re: [Bugme-new] [Bug 7065] New: Devices no longer automount
-Message-ID: <20060902113156.0cee3f1c@alpha.digital-domain.net>
-In-Reply-To: <20060902095143.GA27196@kroah.com>
-References: <200608281700.k7SH0CYl013187@fire-2.osdl.org>
-	<20060828121057.035fd690.akpm@osdl.org>
-	<20060902094239.GH26849@kroah.com>
-	<44F95364.8020901@goop.org>
-	<20060902095143.GA27196@kroah.com>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.6.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 2 Sep 2006 06:39:13 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:18356 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751029AbWIBKjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 06:39:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=stMKl+9JBY4D9DH9T/v8IhXBp/4W0e2wntCw+8Z+rSKYPHjfMbbbyKYbw9kGJcf4HPVA8sk0HwyY5RDWs4EUO6qHSm20iiOWDZSZFJczGDf5S5FvYFosGpkA+IgFlXB+TI0cOmlYWqy2r9QI/uiQTeo/NfT9kDgBntiZtnuQDss=  ;
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] driver for mcs7830 (aka DeLOCK) USB ethernet adapter
+Date: Sat, 2 Sep 2006 03:38:54 -0700
+User-Agent: KMail/1.7.1
+Cc: Arnd Bergmann <arnd@arndb.de>, David Hollis <dhollis@davehollis.com>,
+       support@moschip.com, dbrownell@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, Michael Helmling <supermihi@web.de>
+References: <200608071500.55903.arnd.bergmann@de.ibm.com> <200608071811.09978.arnd.bergmann@de.ibm.com> <200608202207.39709.arnd@arndb.de>
+In-Reply-To: <200608202207.39709.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609020338.54932.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Sep 2006 02:51:43 -0700, Greg KH wrote:
-
-> On Sat, Sep 02, 2006 at 02:48:20AM -0700, Jeremy Fitzhardinge wrote:
-> > Greg KH wrote:
-> > >This was narrowed down to a broken userspace configuration by the
-> > >freedesktop.org developers.
-> > >
-> > >Many thanks to them.
-> > >
-> > >So no kernel issue here.
-> > >  
-> > 
-> > Do you have a reference to what the fix is?
+On Sunday 20 August 2006 1:07 pm, Arnd Bergmann wrote:
+> This driver adds support for the DeLOCK USB ethernet adapter
+> and potentially others based on the MosChip MCS7830 chip.
 > 
-> Are you having this same problem?  I think it was an invalid HAL
-> configuration file from what I heard.  Kay would know for sure.
-
-I was unsure what was actually broke as it happened at the same time on
-three different machines.
-
-On my laptop I removed udev and hal and reinstalled them (got an
-updated udev in the process) and now it works with 2.6.18-rc5.
-
-> thanks,
+> It is based on the usbnet and asix drivers as well as the
+> original device driver provided by MosChip, which in turn
+> was based on the usbnet driver.
 > 
-> greg k-h
+> It has been tested successfully on an OHCI, but interestingly
+> there seems to be a problem with the mcs7830 when connected to
+> the ICH6/EHCI in my thinkpad: it keeps receiving lots of
+> broken packets in the RX interrupt.
+
+That is, the "status" polling which you disabled??  If so, please
+update this comment ...
+
+> The problem goes away when 
+> I'm using an active USB hub, so I assume it's not related to
+> the device driver, but rather to the hardware.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Looks basically OK to me, although I'd rather see the two patches
+you posted on 27-August be merged into it before an upstream merge.
+(To use normal MII constants, and handle max size frames.)
 
 
-Cheers,
+> ---
+> 
+> This version incorporates a few cleanups from myself an changes
+> based on comments from David Hollis. 
 
-Andrew
+He has more experience than I do with respect to these sorts of
+real Ethernet adapters and usbnet.  :)
+
+Speaking of which ... isnt this driver missing a hook to make
+the MII stuff visible through ethtool?
+
+- Dave
+
+> In particular, it now has 
+> 
+> - an rx_fixup function that removes an out-of-band data byte
+>   from each received packet.
+> - got rid of the status function, which did not do the right thing
+>   and is not needed in this driver.
+> - has a working set_multicast function, although that one always
+>   needs to set allmulticast mode in order to get the chip to
+>   receive any frames.
+> - doesn't use a private mutex in its mii functions, that functionality
+>   is added in a separate patch to usbnet.
+> 
+> Please merge the driver in 2.6.19!
+> 
+>  drivers/usb/net/Kconfig   |    8
+>  drivers/usb/net/Makefile  |    1
+>  drivers/usb/net/mcs7830.c |  474 ++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 483 insertions(+)
+> 

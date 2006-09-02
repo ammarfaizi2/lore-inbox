@@ -1,76 +1,68 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWIAWBw (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 1 Sep 2006 18:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWIAWBw
+	id S1750754AbWIBFMI (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 2 Sep 2006 01:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWIBFMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Sep 2006 18:01:52 -0400
-Received: from webmail4.vol.cz ([195.250.155.202]:7902 "EHLO webmail4.vol.cz")
-	by vger.kernel.org with ESMTP id S1750925AbWIAWBv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Sep 2006 18:01:51 -0400
-MIME-Version: 1.0
-Subject: =?iso-8859-2?Q?FROM_COULIBALY_=28CONFIDENCIAL=29_B?=
-From: davidcoulibaly01@volny.cz
-X-Originating-Account: davidcoulibaly01/volny.cz
-To: davidcoulibaly01@volny.cz
-Date: Sat, 02 Sep 2006 00:00:02 +0200 (CEST)
-Message-ID: <22541cae0597d97c0acf91696b092409@www4.mail.volny.cz>
-X-Mailer: Volny.cz Webmail2 2.25
-X-Originating-Ip: 200.171.176.9
-X-Originating-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)
-X-Webmail2-Origin: davidcoulibaly01/volny.cz [200.171.176.9]
-X-Originating-X-Forwarded-For: 200.171.176.9
-X-Priority: 3
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Sat, 2 Sep 2006 01:12:08 -0400
+Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:63081 "EHLO
+	timeinc-s03.websys.aol.com") by vger.kernel.org with ESMTP
+	id S1750754AbWIBFMH (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Sat, 2 Sep 2006 01:12:07 -0400
+Message-Id: <200609020512.k81MXw8l001281@timeinc-s01.websys.aol.com>
+Date: Sat, 2 Sep 2006 01:12:05 -0400
+From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
+Subject: Your removal from the HBGUSA-JAMESPATTERSON list
+To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
+Reply-To: HBGUSA-JAMESPATTERSON-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-JAMESPATTERSON
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750928AbWIAWBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750754AbWIBFMI@vger.kernel.org>
 
->From Dave Coulibaly
-Avenue 16 Rue 13
-Treichville Abidjan
-Ivory coast
-PLEASE,
-Permit me to inform you of my mind, Because I have make up my mind to
-write to you this way. however is not mandatory nor will I in any manne=
-r
-compel you to honour against your will.  I am Rapheal Coulibaly, 22
-years old and the only son of my late parents Mr and
-Mrs COULIBALY.  My late father was a highly reputable business merchant
-in a cocoa who operated in the capital of Ivory Coast during his days.
+Sat, 2 Sep 2006 01:12:05
 
-Unfortunately I loosed him mysteriously,He died in France during one
-of his business trips abroad last year octomber 2005. though his sudden
-death was linked or rather suspected to have been masterminded by an
-uncle , who travelled with him at that time. But God
-knows the truth.
-My mother died when I was just 4 years old, and since then my late fath=
-er
-took me so special. Before his death on Octomber 9th/2005 he called
-the secretary who
-accompanied him in hospital and told him to call me,on my arrival to
-the hospital my father told me that he deposited the sum of six million
-US Dollars.  (6 000,000 USD) left in suspense account in one of the
-leading bank in Africa.
-He further told me that he deposited the money in his name,and I as the
-next of kin and finally issued a written instruction to his lawyer whom
-he said is in possession of all the necessary legal document to all
-his properties.
-I am just 22 years old and a University undergraduate and really don
+You have  been automatically removed from  the HBGUSA-JAMESPATTERSON list
+(HBGUSA-JamesPatterson) as  a result  of repeated delivery  error reports
+from your  mail system. This  decision was  based on the  automatic error
+monitoring policy  in effect for the  list, and has not  been reviewed or
+otherwise confirmed  by a human  being. If  you receive this  message, it
+means that  something is wrong: while  you are obviously able  to receive
+mail, your mail system has been regularly reporting that your account did
+not exist, or that you were otherwise permanently unable to receive mail.
+Here is some information which may assist  you or your local help desk in
+determining the cause of the problem:
 
+- The failing address is linux-kernel@VGER.KERNEL.ORG.
 
+- The first error was reported on 25 Aug 2006.
 
---=20
-Ubytov=E1n=ED v =C8ech=E1ch a na Slovensku
-http://im.impact.as/sign/hotel/
+- Since then, a total of 2 delivery errors have been received.
 
+- The last reported error was: SMTP; 550 5.7.1 Content-Policy reject msg:
+The  message contains  HTML subpart,  therefore  we consider  it SPAM  or
+Outlook Virus. TEXT/PLAIN is accepted.!; S1751171AbWH3TAN
 
---=20
-VGER BF report: S 1
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+PLEASE DO NOT  IGNORE THIS MESSAGE. While you can  of course re-subscribe
+to the list, it is important for  you to report this problem to your mail
+administrator so that  it can be solved. This problem  is not specific to
+the HBGUSA-JAMESPATTERSON list, and also  affects your private mail. This
+means  that YOU  HAVE PROBABLY  LOST SOME  PRIVATE MAIL  AS WELL.  Anyone
+trying to  write to  you during  the same time  frame will  probably have
+received the same  errors for the same  reason. The HBGUSA-JAMESPATTERSON
+list is  but one of the  many people who may  have tried to write  to you
+while your mail system was malfunctioning.
+
+DO NOT LET TECHNICAL PEOPLE CONVINCE YOU THAT THIS IS NORMAL. It is never
+normal for a mail system to claim  that a valid, working account does not
+exist, just as it would not be  normal for the post office to return some
+of  your mail  with  "addressee  unknown" when  the  address was  written
+correctly.  It is  true that  some mail  systems are  less reliable  than
+others, and your technical people may be doing the best they can with the
+tools  they have.  But, ultimately,  the level  of service  that you  are
+receiving is the result of a  business decision, and not something due to
+a universal technical limitation that  one can only accept. Reliable mail
+systems do exist, and  it is ultimately up to you  to decide whether this
+level of service is acceptable or not.
+
+-- 
+VGER BF report: U 0.550249

@@ -1,62 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWICWwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWICXfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751031AbWICWwY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWICWwY
+	id S932162AbWICXfF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 19:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWICXfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:52:24 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:58855 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751031AbWICWwW (ORCPT
+	Sun, 3 Sep 2006 19:35:05 -0400
+Received: from smtp.ono.com ([62.42.230.12]:952 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932162AbWICXfC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:52:22 -0400
-From: Neil Brown <neilb@suse.de>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Date: Mon, 4 Sep 2006 08:52:15 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17659.23711.76512.260561@cse.unsw.edu.au>
+	Sun, 3 Sep 2006 19:35:02 -0400
+Date: Mon, 4 Sep 2006 01:34:43 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: in-kernel rpc.statd
-In-Reply-To: message from Bernd Eckenfels on Sunday September 3
-References: <Pine.LNX.4.61.0609032255010.6844@yvahk01.tjqt.qr>
-	<E1GJzw4-0002ti-00@calista.eckenfels.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
+Message-ID: <20060904013443.797ba40b@werewolf.auna.net>
+In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+References: <20060901015818.42767813.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.4.0cvs137 (GTK+ 2.10.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday September 3, ecki@lina.inka.de wrote:
-> In article <Pine.LNX.4.61.0609032255010.6844@yvahk01.tjqt.qr> you wrote:
-> > Hm. I do not have a rpc.statd userspace program nor kernel daemon (running 
-> > on 2.6.17-vanilla). Yet everything is working. Is there a specific need for 
-> > statd?
+On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
+
 > 
-> It is more or less an uptime notification protocol for NFS locks. I think
-> NFS clients can recover from a reboot without the help of the statd in most
-> situations.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+> 
 
-No.
+Err, my burner got lost this summer ;).
+This is really not a bug of _this_ kernel, because I noticed it dissapeared
+with the previous release also, just before going on vacation... But as it
+did not come back with this relase, I report it here.
 
-If a client has a lock and the server reboots, then the client loses
-the lock and must recovery it during the grace period (first 45
-seconds while the server is running again).
-Without statd it doesn't know to do this, and it certainly doesn't
-know when to do it.  So there is a chance that the server will give
-the lock to some other client. Bad.
+Last kernel that I have tried that worked was 2.6.18-rc2-mm1. With this
+relase, it is gone still. dmesg for both kernels is below.
+The only thing I hace noticed is the different IRQ assignment between
+them.
 
-On the flip side, when a client reboots, the server is left holding
-the lock and will not drop it until it discovers that the client has
-rebooted, and this can only be discovered via statd.  So without statd
-you end up with locks that can only be removed by the sysadmin (or a
-server reboot).
-In early days when lockd/statd implementations (not necessarily linux)
-were even more clunky than they are today, stale locks were not
-particularly uncommon.
+Any ideas ? TIA.
 
-NeilBrown
+dmesg for rc2-mm1:
+
+libata version 2.00 loaded.
+ata_piix 0000:00:1f.1: version 2.00ac6
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1f.1 to 64
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 14
+scsi0 : ata_piix
+ata1.00: ATAPI, max UDMA/33
+ata1.01: ATAPI, max MWDMA0, CDB intr
+ata1.00: configured for UDMA/33
+ata1.01: configured for PIO3
+scsi1 : ata_piix
+ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
+ata2.00: ata2: dev 0 multi count 16
+ata2.01: ATAPI, max UDMA/33
+ata2.00: configured for UDMA/100
+ata2.01: configured for UDMA/33
+  Vendor: HL-DT-ST  Model: DVDRAM GSA-4120B  Rev: A111
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+  Vendor: IOMEGA    Model: ZIP 250           Rev: 51.G
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: ATA       Model: ST3120022A        Rev: 3.06
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: TOSHIBA   Model: DVD-ROM SD-M1712  Rev: 1004
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
+ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+...
+
+dmesg for rc5-mm1:
+
+libata version 2.00 loaded.
+ata_piix 0000:00:1f.1: version 2.00ac7
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1f.1 to 64
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
+scsi0 : ata_piix
+ata1.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
+ata1.01: ATAPI, max MWDMA0, CDB intr
+ata1.01: configured for PIO3
+scsi1 : ata_piix
+ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
+ata2.00: ata2: dev 0 multi count 16
+ata2.01: ATAPI, max UDMA/33
+ata2.00: configured for UDMA/100
+ata2.01: configured for UDMA/33
+scsi 0:0:1:0: Direct-Access     IOMEGA   ZIP 250          51.G PQ: 0 ANSI: 5
+sd 0:0:1:0: Attached scsi removable disk sda
+scsi 1:0:0:0: Direct-Access     ATA      ST3120022A       3.06 PQ: 0 ANSI: 5
+SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+ sdb: sdb1
+sd 1:0:0:0: Attached scsi disk sdb
+scsi 1:0:1:0: CD-ROM            TOSHIBA  DVD-ROM SD-M1712 1004 PQ: 0 ANSI: 5
+sr0: scsi3-mmc drive: 48x/48x cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.20
+sr 1:0:1:0: Attached scsi CD-ROM sr0
+ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
+ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam08 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT
 
 -- 
-VGER BF report: H 0.018873
+VGER BF report: U 0.5

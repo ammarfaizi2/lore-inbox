@@ -1,224 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752089AbWICGRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752094AbWICGVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752089AbWICGRu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 02:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWICGRu
+	id S1752094AbWICGVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 02:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752091AbWICGVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 02:17:50 -0400
-Received: from ns2.osuosl.org ([140.211.166.131]:48598 "EHLO ns2.osuosl.org")
-	by vger.kernel.org with ESMTP id S1752089AbWICGRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 02:17:49 -0400
-Message-Id: <20060903071628.11C9112204B@ns2.osuosl.org>
-Date: Sun,  3 Sep 2006 00:16:28 -0700 (PDT)
-From: philips@ifup.org
-To: undisclosed-recipients:;
+	Sun, 3 Sep 2006 02:21:45 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:53177 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1752085AbWICGVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 02:21:43 -0400
+X-Sasl-enc: Fp5U3zjoxqdjXYZs/DyjPOrOirZ4MgyNKiatAFw8Khez 1157264499
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060901225853.0171fd29.akpm@osdl.org>
+References: <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <1157170272.3307.5.camel@raven.themaw.net>
+	 <20060901225853.0171fd29.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 03 Sep 2006 14:21:30 +0800
+Message-Id: <1157264490.3520.16.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From philips@plankton.ifup.org Sun Sep  3 01:04:22 2006
-Message-Id: <20060903060421.987291681@plankton.ifup.org>
-References: <20060903060409.267605367@plankton.ifup.org>
-User-Agent: quilt/0.45-1
-Date: Sun, 03 Sep 2006 01:04:10 -0500
-From: Brandon Philips <brandon@ifup.org>
-To: linux-kernel@vger.kernel.org
-Cc: "Brandon D. Philips" <brandon@ifup.org>
-Subject: [patch] Export CPU Scheduler Tunables via DebugFS
-Content-Disposition: inline; filename=debugfs-tunable-cpu-scheduler.patch
+On Fri, 2006-09-01 at 22:58 -0700, Andrew Morton wrote:
+> > > 
+> > > It doesn't appear to be related to selinux.
 
-This patch exports the CPU scheduler tunables via DebugFS.
+I have a festering suspicion, but no evidence yet, that this is not
+always the case.
 
-philips@plankton:~$ ls /debug/cpu-scheduler/
-child_penalty  interactive_delta  min_timeslice       prio_bonus_ratio
-def_timeslice  max_bonus          on_runqueue_weight  starvation_limit
-exit_weight    max_sleep_avg      parent_penalty
+> > > 
+> > > On a stock, mostly-up-to-date FC5 installation:
+> > > 
+> > > 	echo 0 > /selinux/enforce
+> > > 	service autofs stop
+> > > 	service nfs stop
+> > > 	service nfs start
+> > > 	service autofs start
 
-It is similiar to the patches by Robert Love and Ingo Molnar that were
-available for the 2.5 series: http://kerneltrap.org/node/525/1938
+I'm now setup my little system the same.
 
-The goal remains the same: offer a simple way for _developers_ to tune and
-debug the scheduler.
+[root@raven selinux]# uname -a
+Linux raven.themaw.net 2.6.18-rc5-mm1 #1 SMP Sat Sep 2 23:11:01 WST 2006
+x86_64 x86_64 x86_64 GNU/Linux
 
-Perhaps someone could even automate the testing of different values[1] under
-different workloads[2].
+[root@raven selinux]# rpm -q autofs
+autofs-4.1.4-29
 
-[1] http://meikon.homeip.net/extras/papers/linux-2.5-scheduler-analysis.pdf
-[2] http://test.kernel.org/autotest/QuickStart
+[root@raven selinux]# getenforce
+Permissive
 
-Signed-off-by: Brandon D. Philips <brandon@ifup.org>
----
- kernel/sched.c    |  115 ++++++++++++++++++++++++++++++++++++++++++++++++------
- lib/Kconfig.debug |    8 +++
- 2 files changed, 112 insertions(+), 11 deletions(-)
+[root@raven selinux]# rpm -q selinux-policy
+selinux-policy-2.3.7-2.fc5
 
-Index: linux-rc/kernel/sched.c
-===================================================================
---- linux-rc.orig/kernel/sched.c
-+++ linux-rc/kernel/sched.c
-@@ -52,6 +52,7 @@
- #include <linux/acct.h>
- #include <linux/kprobes.h>
- #include <linux/delayacct.h>
-+#include <linux/debugfs.h>
- #include <asm/tlb.h>
- 
- #include <asm/unistd.h>
-@@ -87,17 +88,60 @@
-  * default timeslice is 100 msecs, maximum timeslice is 800 msecs.
-  * Timeslices get refilled after they expire.
-  */
--#define MIN_TIMESLICE		max(5 * HZ / 1000, 1)
--#define DEF_TIMESLICE		(100 * HZ / 1000)
--#define ON_RUNQUEUE_WEIGHT	 30
--#define CHILD_PENALTY		 95
--#define PARENT_PENALTY		100
--#define EXIT_WEIGHT		  3
--#define PRIO_BONUS_RATIO	 25
--#define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
--#define INTERACTIVE_DELTA	  2
--#define MAX_SLEEP_AVG		(DEF_TIMESLICE * MAX_BONUS)
--#define STARVATION_LIMIT	(MAX_SLEEP_AVG)
-+#define DEFAULT_MIN_TIMESLICE           max(5 * HZ / 1000, 1)
-+#define DEFAULT_DEF_TIMESLICE           (100 * HZ / 1000)
-+#define DEFAULT_ON_RUNQUEUE_WEIGHT       30
-+#define DEFAULT_CHILD_PENALTY            95
-+#define DEFAULT_PARENT_PENALTY          100
-+#define DEFAULT_EXIT_WEIGHT               3
-+#define DEFAULT_PRIO_BONUS_RATIO         25
-+#define DEFAULT_MAX_BONUS               (MAX_USER_PRIO * DEFAULT_PRIO_BONUS_RATIO / 100)
-+#define DEFAULT_INTERACTIVE_DELTA         2
-+#define DEFAULT_MAX_SLEEP_AVG           (DEFAULT_DEF_TIMESLICE * DEFAULT_MAX_BONUS)
-+#define DEFAULT_STARVATION_LIMIT        (DEFAULT_MAX_SLEEP_AVG)
-+#define DEFAULT_NS_MAX_SLEEP_AVG        (JIFFIES_TO_NS(DEFAULT_MAX_SLEEP_AVG))
-+
-+/*
-+ * Simply use the static definitions if we are not exporting tunables via
-+ * DebugFS for runtime tuning.
-+ */
-+#ifndef CONFIG_DEBUGFS_SCHED
-+#define MIN_TIMESLICE		DEFAULT_MIN_TIMESLICE
-+#define DEF_TIMESLICE		DEFAULT_DEF_TIMESLICE
-+#define ON_RUNQUEUE_WEIGHT	DEFAULT_ON_RUNQUEUE_WEIGHT
-+#define CHILD_PENALTY		DEFAULT_CHILD_PENALTY
-+#define PARENT_PENALTY		DEFAULT_PARENT_PENALTY
-+#define EXIT_WEIGHT		DEFAULT_EXIT_WEIGHT
-+#define PRIO_BONUS_RATIO	DEFAULT_PRIO_BONUS_RATIO
-+#define MAX_BONUS		DEFAULT_MAX_BONUS
-+#define INTERACTIVE_DELTA	DEFAULT_INTERACTIVE_DELTA
-+#define MAX_SLEEP_AVG		DEFAULT_MAX_SLEEP_AVG
-+#define STARVATION_LIMIT	DEFAULT_STARVATION_LIMIT
-+#else
-+int min_timeslice;
-+#define MIN_TIMESLICE		(min_timeslice)
-+int def_timeslice;
-+#define DEF_TIMESLICE		(def_timeslice)
-+int on_runqueue_weight;
-+#define ON_RUNQUEUE_WEIGHT	(on_runqueue_weight)
-+int child_penalty;
-+#define CHILD_PENALTY		(child_penalty)
-+int parent_penalty;
-+#define PARENT_PENALTY		(parent_penalty)
-+int exit_weight;
-+#define EXIT_WEIGHT		(exit_weight)
-+int prio_bonus_ratio;
-+#define PRIO_BONUS_RATIO	(prio_bonus_ratio)
-+int max_bonus;
-+#define MAX_BONUS		(max_bonus)
-+int interactive_delta;
-+#define INTERACTIVE_DELTA	(interactive_delta)
-+int max_sleep_avg;
-+#define MAX_SLEEP_AVG		(max_sleep_avg)
-+int starvation_limit;
-+#define STARVATION_LIMIT	(starvation_limit)
-+#endif
-+
- #define NS_MAX_SLEEP_AVG	(JIFFIES_TO_NS(MAX_SLEEP_AVG))
- 
- /*
-@@ -6725,10 +6769,59 @@ int in_sched_functions(unsigned long add
- 		&& addr < (unsigned long)__sched_text_end);
- }
- 
-+#ifdef CONFIG_DEBUGFS_SCHED
-+
-+#define debugfs_sched_create(name, parent) \
-+debugfs_create_u32(#name, 0644, parent, &name)
-+
-+int __init init_debugfs(void)
-+{
-+	struct dentry * root;
-+
-+	if ((root = debugfs_create_dir("cpu-scheduler", NULL)) == NULL)
-+		goto err_root;
-+
-+	debugfs_sched_create(min_timeslice, root);
-+	debugfs_sched_create(def_timeslice, root);
-+	debugfs_sched_create(on_runqueue_weight, root);
-+	debugfs_sched_create(child_penalty, root);
-+	debugfs_sched_create(parent_penalty, root);
-+	debugfs_sched_create(exit_weight, root);
-+	debugfs_sched_create(prio_bonus_ratio, root);
-+	debugfs_sched_create(max_bonus, root);
-+	debugfs_sched_create(interactive_delta , root);
-+	debugfs_sched_create(max_sleep_avg, root);
-+	debugfs_sched_create(starvation_limit, root);
-+
-+err_root:
-+	return 0;
-+}
-+postcore_initcall(init_debugfs);
-+
-+void __init init_tunables(void)
-+{
-+	min_timeslice =		DEFAULT_MIN_TIMESLICE;
-+	def_timeslice = 	DEFAULT_DEF_TIMESLICE;
-+	on_runqueue_weight =	DEFAULT_ON_RUNQUEUE_WEIGHT;
-+	child_penalty =		DEFAULT_CHILD_PENALTY;
-+	parent_penalty = 	DEFAULT_PARENT_PENALTY;
-+	exit_weight =		DEFAULT_EXIT_WEIGHT;
-+	prio_bonus_ratio =	DEFAULT_PRIO_BONUS_RATIO;
-+	max_bonus = 		DEFAULT_MAX_BONUS;
-+	interactive_delta = 	DEFAULT_INTERACTIVE_DELTA;
-+	max_sleep_avg =		DEFAULT_MAX_SLEEP_AVG;
-+	starvation_limit =	DEFAULT_STARVATION_LIMIT;
-+}
-+#endif
-+
- void __init sched_init(void)
- {
- 	int i, j, k;
- 
-+#ifdef CONFIG_DEBUGFS_SCHED
-+	init_tunables();
-+#endif
-+
- 	for_each_possible_cpu(i) {
- 		struct prio_array *array;
- 		struct rq *rq;
-Index: linux-rc/lib/Kconfig.debug
-===================================================================
---- linux-rc.orig/lib/Kconfig.debug
-+++ linux-rc/lib/Kconfig.debug
-@@ -93,6 +93,14 @@ config SCHEDSTATS
- 	  application, you can say N to avoid the very slight overhead
- 	  this adds.
- 
-+config DEBUGFS_SCHED
-+	bool "Export CPU Scheduler Tunables"
-+	depends on DEBUG_KERNEL && DEBUG_FS
-+	help
-+	  If you say Y here, CPU Scheduler tuning knobs will be available via
-+	  debugfs in /debug/cpu-scheduler/.  Note: No sanity checking is done
-+	  on the values.
-+
- config DEBUG_SLAB
- 	bool "Debug slab memory allocations"
- 	depends on DEBUG_KERNEL && SLAB
+> > > 
+> > > 
+> > > sony:/home/akpm> ls -l /net/bix/usr/src
+> > > total 0
+> > > 
+> > > sony:/home/akpm> showmount -e bix
+> > > Export list for bix:
+> > > /           *
+> > > /usr/src    *
+> > > /mnt/export *
 
---
+Almost the same.
+
+[root@raven selinux]# showmount -e budgie
+Export list for budgie:
+/        *
+/usr/src *
+
+> > > 
+> > > 
+> > > The automounter will mount bix:/ on /net/bix.  But I am unable to get it to
+> > > mount bix's /usr/src on /net/bix/usr/src.
+> > 
+> > Is it the same symptom as before or is it that bix:/usr/src is not also
+> > being mounted?
+
+[root@raven selinux]# lsmod|grep autofs
+autofs4                40776  1
+
+I guess you haven't got the autofs module loaded instead of autofs4 by
+mistake.
+
+[raven@raven ~]$ mount
+/dev/hda5 on / type ext3 (rw)
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+tmpfs on /dev/shm type tmpfs (rw)
+/dev/hda6 on /home type ext3 (rw)
+/dev/hda7 on /work type ext3 (rw)
+none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+automount(pid3463) on /net type autofs
+(rw,fd=5,pgrp=3463,minproto=2,maxproto=4)
+
+[raven@raven ~]$ ls /net/budgie
+autofs  cdrom  export71  initrd          lib         opt   sbin  usr
+vmlinuz.old
+bin     dev    floppy    initrd.img      lost+found  proc  sys   var
+boot    etc    home      initrd.img.old  mnt         root  tmp   vmlinuz
+[raven@raven ~]$ mount
+/dev/hda5 on / type ext3 (rw)
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+tmpfs on /dev/shm type tmpfs (rw)
+/dev/hda6 on /home type ext3 (rw)
+/dev/hda7 on /work type ext3 (rw)
+none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+automount(pid3463) on /net type autofs
+(rw,fd=5,pgrp=3463,minproto=2,maxproto=4)
+budgie:/ on /net/budgie type nfs
+(rw,nosuid,nodev,hard,intr,addr=10.49.97.33)
+budgie:/usr/src on /net/budgie/usr/src type nfs
+(rw,nosuid,nodev,hard,intr,addr=10.49.97.33)
+
+So I wonder what the different is between the setups?
+
+> 
+> When this saga first started an `ls -l /net/bix' showed a corrupted dentry
+> for /net/bix/usr.  It was determined that this was SELinux-related.  Fixes were
+> made and that no longer occurs.
+> 
+> Now, treading on /net/bix/usr/src does not cause bix:/usr/src to be mounted
+> at /net/bix/usr/src.  Without git-nfs that mount does occur.
+> 
+> The present behaviour is unchanged if /selinux/enforce is set to 0.
+> 
+> > > Without git-nfs applied, /net/bix/usr/src mounts as expected.
+> > > 
+> > > iirc, we decided this is related to the fs-cache infrastructure work which
+> > > went into git-nfs.  I think David can reproduce this?
+
+Can you reproduce this David?
+
+> > 
+> > I'll build the latest mm kernel and try to reproduce it.
+> > >From memory I couldn't reproduce it last time I tried.
+> > Is there anything I need to add to rc5-mm1 for this?
+> 
+> Nope.
+
+I'm stumped.
+
+Ian
 
 
 
 -- 
-VGER BF report: U 0.528966
+VGER BF report: H 0.0277086

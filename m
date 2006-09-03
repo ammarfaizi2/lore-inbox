@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWICDsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWICELM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752011AbWICDsj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 23:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752012AbWICDsj
+	id S1752021AbWICELM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 00:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752020AbWICELM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 23:48:39 -0400
-Received: from mx1.suse.de ([195.135.220.2]:56020 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752011AbWICDsi (ORCPT
+	Sun, 3 Sep 2006 00:11:12 -0400
+Received: from pat.uio.no ([129.240.10.4]:19686 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1752018AbWICELK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 23:48:38 -0400
-Date: Sat, 2 Sep 2006 20:48:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Andrew Morton <akpm@osdl.org>, Alex Dubov <oakad@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-Message-ID: <20060903034836.GB6505@kroah.com>
-References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com> <44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org> <44F9EE86.4020500@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44F9EE86.4020500@drzeus.cx>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 3 Sep 2006 00:11:10 -0400
+Subject: Re: [PATCH 04/22][RFC] Unionfs: Common file operations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
+In-Reply-To: <20060902024747.GA11964@filer.fsl.cs.sunysb.edu>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
+	 <20060901014138.GE5788@fsl.cs.sunysb.edu>
+	 <1157149200.5628.38.camel@localhost>
+	 <20060902024747.GA11964@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Date: Sun, 03 Sep 2006 00:10:59 -0400
+Message-Id: <1157256659.5637.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.199, required 12,
+	autolearn=disabled, AWL 1.80, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 02, 2006 at 10:50:14PM +0200, Pierre Ossman wrote:
-> Andrew Morton wrote:
-> > On Sat, 02 Sep 2006 13:15:52 +0200
-> > Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> >   
-> >> Andrew, we could use some help with how this driver should fit into the
-> >> kernel tree. The hardware is multi-function, so there will be a couple
-> >> of drivers, one for every function, and a common part. How has this been
-> >> organised in the past?
-> >>
-> >>     
-> >
-> > Greg would be a far better person that I for this.   Is it a PCI device?
-> >   
-> 
-> It's always difficult to know who to contact when there's an issue that
-> isn't specific to one single area. And since you are the 2.6 maintainer
-> I figured it wouldn't be too off base to throw this in your lap. ;)
-> 
-> This is a PCI device yes. Which has a number of card readers as
-> separate, hot-pluggable functions. Currently this means it interacts
-> with the block device and MMC subsystems of the kernel. As more drivers
-> pop up, the other card formats will probably get their own subsystems
-> the way MMC has. So there are three issues here:
-> 
->  * Where to put the central module that handles the generic parts of the
-> chip and pulls in the other modules as needed.
+On Fri, 2006-09-01 at 22:47 -0400, Josef Sipek wrote:
 
-Right now, the drivers/mmc directory has such a driver, the sdhci.c
-file, right?
+> From what I can see, the solution to this would be to pass the lookup
+> intents in unionfs_lookup down to the lower filesystem (the way it should be
+> done in the first place). Then, we could use the dentry here without any
+> problems. Is that all that needs to be done or am I forgetting something?
 
->  * If the subfunction modules should be put with the subsystems they
-> connect to or with the main, generic module.
+That sounds correct. If you pass the lookup intents down to the
+underlying filesystem while doing the lookup, then all should be well:
+NFS will actually open the file for you at that point too, whereas most
+other filesystems will just look it up and return the dentry.
 
-It all depends on how bit it grows over time.  It is always easy to move
-files around at a later time if you so wish.
+In any case, you avoid the race, because you lookup/revalidate the
+underlying dentry at the same time as you lookup/revalidate the unionfs
+dentry.
 
-For now, is the drivers/mmc/ directory acceptable?  If other card
-formats show up, we can reconsider it at that time.  Is that ok?
+Cheers,
+  Trond
 
-thanks,
-
-greg k-h
 
 -- 
-VGER BF report: U 0.476704
+VGER BF report: H 0

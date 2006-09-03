@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752092AbWICGeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752105AbWICGnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752092AbWICGeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 02:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752100AbWICGeP
+	id S1752105AbWICGnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 02:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752106AbWICGnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 02:34:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21916 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752092AbWICGeO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 02:34:14 -0400
-Date: Sun, 3 Sep 2006 08:34:00 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jiri Kosina <jikos@jikos.cz>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel/stop_machine.c: whose code is it?
-Message-ID: <20060903063359.GA20890@elf.ucw.cz>
-References: <20060831123241.GB3923@elf.ucw.cz> <Pine.LNX.4.58.0608311510120.511@twin.jikos.cz> <1157249168.19149.2.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157249168.19149.2.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 3 Sep 2006 02:43:09 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:41922 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1752103AbWICGnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 02:43:06 -0400
+X-Sasl-enc: xgM6rFgUP1Pz1kQEx3UXYF6fXlsg1UO1b3nJB/bHzPSK 1157265784
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060902233023.ce544a00.akpm@osdl.org>
+References: <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <1157170272.3307.5.camel@raven.themaw.net>
+	 <20060901225853.0171fd29.akpm@osdl.org>
+	 <1157264490.3520.16.camel@raven.themaw.net>
+	 <20060902233023.ce544a00.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 03 Sep 2006 14:43:00 +0800
+Message-Id: <1157265781.3520.18.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Would kernel/stop_machine.c author please step up?
-> > 
-> > IMHO it's Rusty Russell (added to CC).
+On Sat, 2006-09-02 at 23:30 -0700, Andrew Morton wrote:
+> On Sun, 03 Sep 2006 14:21:30 +0800
+> Ian Kent <raven@themaw.net> wrote:
 > 
-> Yep.  Not sure the obsession with copyright on every trivial piece of
-> code is healthy, but if it keeps you happy (I had to look back: this
-> code was extracted from the module.c code in 2005).
+> > I guess you haven't got the autofs module loaded instead of autofs4 by
+> > mistake.
+> 
+> Nope.
+> 
+> > So I wonder what the different is between the setups?
+> 
+> Beats me.  Maybe cook up a debug patch?
 
-I'd say it is definitely unhealthy, but knowing whose area of
-expertise particular file is is sometimes helpful.
+OK.
 
-Thanks!
-							Pavel
+Could you add "--debug" to DAEMONOPTIONS in /etc/sysconfig/autofs and
+post the output so I can get some idea where to put the prints please.
+
+Ian
+
+
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-
--- 
-VGER BF report: U 0.500026
+VGER BF report: H 7.45677e-07

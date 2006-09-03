@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWICOqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWICPMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWICOqA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 10:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWICOqA
+	id S1751206AbWICPMW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 11:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWICPMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 10:46:00 -0400
-Received: from stinky.trash.net ([213.144.137.162]:389 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id S1751178AbWICOp7 (ORCPT
+	Sun, 3 Sep 2006 11:12:22 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:23723 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751206AbWICPMV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 10:45:59 -0400
-Message-ID: <44FAEABB.90207@trash.net>
-Date: Sun, 03 Sep 2006 16:46:19 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Sun, 3 Sep 2006 11:12:21 -0400
+Date: Sun, 3 Sep 2006 17:06:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: "VGER BF report:.." ?
+In-Reply-To: <20060902203825.GG16047@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.61.0609031705170.13319@yvahk01.tjqt.qr>
+References: <20060901015818.42767813.akpm@osdl.org> <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com>
+ <20060901183927.eba8179d.akpm@osdl.org> <muuhf21hgb5a5vdpdb7i9nds6t5cokqihf@4ax.com>
+ <alpjf21oipfatq83147kkad77l53rf54vs@4ax.com> <20060902203825.GG16047@mea-ext.zmailer.org>
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?=B6=AD=B6=AD=D9=A9?= <doublefacer007@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in ip_nat_helper_unregister at netfilter/ip_nat_helper.c
-References: <ccbc91640609030716o221dad8as9278b2081a28c490@mail.gmail.com>
-In-Reply-To: <ccbc91640609030716o221dad8as9278b2081a28c490@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------010001070209060104020903"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010001070209060104020903
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
 
-¶­¶­Ù© wrote:
+>> >-- 
+>> >VGER BF report: H 6.04481e-06
+>>                  ^^^^^^^^^^^^^--> perhaps whoever is adding this info-gem 
+>> can add a sane sprintf?  The boggle minds ;)
 
->  When the num of conntrack is up to 15000,I rmmod the ip_nat_ftp
-> and ip_conntrack _ftp modules by typing "modprobe -r ip_nat_ftp"
-> command and then the kernel is dead locked.
-> I think that the dead lock is caused by ip_conntrack_lock and
-> ip_nat_lock.When I rmmod the ip_nat_ftp module, the function flow is
-> as following:
-> ip_nat_helper_unregister->ip_ct_selective_cleanup->get_next_corpse(ip_conntrack_lock)
-> 
-> ->kill_helper(ip_nat_lock)
-> But the kernel there is another flow is as following:
-> ip_nat_fn(ip_nat_lock)->ip_nat_setup_info->ip_conntrack_alter_reply(ip_conntrack_lock)
+Sane? That's just sprintf("%e") - simple, is not it?
+If you are not scientifically gifted, 6.04481 * 10^-6 may be more readable 
+to you ;-)
 
-Good spotting. The lock in kill_helper is unnecessary since the helper
-is not changed once set and new connections can't get the helper that
-is beeing unregistered assigned since it is already removed from the
-list at this point.
+>VGER BF report: U 0.5
 
-Please try if this patch helps.
+Hm, what's "H" (ham?) and "U" standing for?
 
---------------010001070209060104020903
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
 
---- a/net/ipv4/netfilter/ip_nat_helper.c	2006-09-03 16:41:53.000000000 +0200
-+++ b/net/ipv4/netfilter/ip_nat_helper.c	2006-09-03 16:42:04.000000000 +0200
-@@ -522,13 +522,7 @@
- static int
- kill_helper(const struct ip_conntrack *i, void *helper)
- {
--	int ret;
--
--	READ_LOCK(&ip_nat_lock);
--	ret = (i->nat.info.helper == helper);
--	READ_UNLOCK(&ip_nat_lock);
--
--	return ret;
-+	return (i->nat.info.helper == helper);
- }
- 
- void ip_nat_helper_unregister(struct ip_nat_helper *me)
 
---------------010001070209060104020903--
+Jan Engelhardt
+-- 
 
 -- 
-VGER BF report: H 0.0508698
+VGER BF report: U 0.499957

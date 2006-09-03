@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWICWf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWICWhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWICWf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWICWfL
+	id S932126AbWICWhb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWICWh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:35:11 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:23952 "EHLO
+	Sun, 3 Sep 2006 18:37:28 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:61836 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751209AbWICWal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:30:41 -0400
+	id S1751136AbWICW3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:29:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=if06X42EA59jlsefWJrHH/iu8BS8et4Bh5daY7VWEo2zNTghjci4lF/he2klMt0+2p2JV4mew7RqB4ExNF1HZM/sK35NAwS81337LgaRpvFp/AOdbqHzELfYmakM0e/2fkd8i2r2H46y8vQgkIE9xhQNitzh+IEMSkwTMSlb/fE=
+        b=GNd+7kbNavlEKGolx02AHJFmo9/plopfua2q1IoKs1UNFtl40TFeZuTEJbEnKVuH8t95x0cjmRRB5uGh4NQl+HSJBhnJLdfzr7Pi3wh9lf1VCRVHgHMVPG1SclOBKbhDmUi7ZiRhp/gTxzG1Rlb0l+8h5vw2HEhNUd+G2DTmuKM=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 17/26] Dynamic kernel command-line - ppc
-Date: Mon, 4 Sep 2006 01:22:05 +0300
+Subject: [PATCH 07/26] Dynamic kernel command-line - frv
+Date: Mon, 4 Sep 2006 01:18:48 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,73 +35,47 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040122.07017.alon.barlev@gmail.com>
+Message-Id: <200609040118.49662.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Rename saved_command_line into boot_command_line.
+1. Rename saved_command_line into boot_command_line.
+2. Set command_line as __initdata.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ppc/kernel/setup.c linux-2.6.18-rc5-mm1/arch/ppc/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/ppc/kernel/setup.c	2006-09-03 18:55:16.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ppc/kernel/setup.c	2006-09-03 19:47:58.000000000 +0300
-@@ -538,7 +538,7 @@ void __init setup_arch(char **cmdline_p)
- 	init_mm.brk = (unsigned long) klimit;
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c	2006-09-03 18:55:06.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c	2006-09-03 20:59:28.000000000 +0300
+@@ -112,7 +112,7 @@ unsigned long __initdata num_mappedpages
  
- 	/* Save unparsed command line copy for /proc/cmdline */
--	strlcpy(saved_command_line, cmd_line, COMMAND_LINE_SIZE);
-+	strlcpy(boot_command_line, cmd_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = cmd_line;
+ struct cpuinfo_frv __nongprelbss boot_cpu_data;
  
- 	parse_early_param();
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/lopec.c linux-2.6.18-rc5-mm1/arch/ppc/platforms/lopec.c
---- linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/lopec.c	2006-09-03 18:55:16.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ppc/platforms/lopec.c	2006-09-03 19:47:58.000000000 +0300
-@@ -344,7 +344,7 @@ lopec_setup_arch(void)
- 		 if (bootargs != NULL) {
- 			 strcpy(cmd_line, bootargs);
- 			 /* again.. */
--			 strcpy(saved_command_line, cmd_line);
-+			 strcpy(boot_command_line, cmd_line);
- 		}
- 	}
+-char command_line[COMMAND_LINE_SIZE];
++char __initdata command_line[COMMAND_LINE_SIZE];
+ char __initdata redboot_command_line[COMMAND_LINE_SIZE];
+ 
+ #ifdef CONFIG_PM
+@@ -764,7 +764,7 @@ void __init setup_arch(char **cmdline_p)
+ 	printk("uClinux FR-V port done by Red Hat Inc <dhowells@redhat.com>\n");
  #endif
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/pplus.c linux-2.6.18-rc5-mm1/arch/ppc/platforms/pplus.c
---- linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/pplus.c	2006-09-03 18:55:16.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ppc/platforms/pplus.c	2006-09-03 19:47:58.000000000 +0300
-@@ -592,7 +592,7 @@ static void __init pplus_setup_arch(void
- 		if (bootargs != NULL) {
- 			strcpy(cmd_line, bootargs);
- 			/* again.. */
--			strcpy(saved_command_line, cmd_line);
-+			strcpy(boot_command_line, cmd_line);
- 		}
- 	}
+ 
+-	memcpy(saved_command_line, redboot_command_line, COMMAND_LINE_SIZE);
++	memcpy(boot_command_line, redboot_command_line, COMMAND_LINE_SIZE);
+ 
+ 	determine_cpu();
+ 	determine_clocks(1);
+@@ -805,7 +805,7 @@ void __init setup_arch(char **cmdline_p)
  #endif
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/prep_setup.c linux-2.6.18-rc5-mm1/arch/ppc/platforms/prep_setup.c
---- linux-2.6.18-rc5-mm1.org/arch/ppc/platforms/prep_setup.c	2006-09-03 18:55:16.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ppc/platforms/prep_setup.c	2006-09-03 19:47:58.000000000 +0300
-@@ -634,7 +634,7 @@ static void __init prep_init_sound(void)
- 	/*
- 	 * Find a way to push these informations to the cs4232 driver
- 	 * Give it out with printk, when not in cmd_line?
--	 * Append it to  cmd_line and saved_command_line?
-+	 * Append it to  cmd_line and boot_command_line?
- 	 * Format is cs4232=io,irq,dma,dma2
- 	 */
- }
-@@ -897,7 +897,7 @@ prep_setup_arch(void)
- 		 if (bootargs != NULL) {
- 			 strcpy(cmd_line, bootargs);
- 			 /* again.. */
--			 strcpy(saved_command_line, cmd_line);
-+			 strcpy(boot_command_line, cmd_line);
- 		}
- 	}
+ 
+ 	/* deal with the command line - RedBoot may have passed one to the kernel */
+-	memcpy(command_line, saved_command_line, sizeof(command_line));
++	memcpy(command_line, boot_command_line, sizeof(command_line));
+ 	*cmdline_p = &command_line[0];
+ 	parse_cmdline_early(command_line);
  
 
 -- 

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWIDMdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWIDMd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbWIDMdS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 08:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIDMdS
+	id S964866AbWIDMd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 08:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIDMdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 08:33:18 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:30167 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S964853AbWIDMdS
+	Mon, 4 Sep 2006 08:33:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45063 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964859AbWIDMdu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 08:33:18 -0400
-Message-ID: <44FC1D37.5070305@nachtwindheim.de>
-Date: Mon, 04 Sep 2006 14:33:59 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: akpm@osdl.org
+	Mon, 4 Sep 2006 08:33:50 -0400
+Date: Sun, 3 Sep 2006 11:09:56 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [MM] kerneldoc error on ata_piix.c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Bogofilter at VGER.. (part 2)
+Message-ID: <20060903110955.GE4884@ucw.cz>
+References: <20060901125153.GC16047@mea-ext.zmailer.org> <20060902124626.GF16047@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060902124626.GF16047@mea-ext.zmailer.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Hi!
 
-Fixes an kerneldoc error in ata_piix.c.
-This patch is for mm only, since the move of the ata drivers.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> > We are considering of taking Bogofilter into use at VGER.
+> > So far we are using it in TEST mode - to teach it about
+> > SPAM and HAM.
+> 
+> Now after some 30 hour message flow for training the filter
+> has been taken into active use.
+> 
+> It is now able to REJECT things it considers SPAM.
 
----
+Nice, but...
 
---- linux-2.6.18-rc4-mm3/drivers/ata/ata_piix.c	2006-09-13 02:16:14.305171136 +0200
-+++ linux/drivers/ata/ata_piix.c	2006-09-13 02:17:49.731664104 +0200
-@@ -846,7 +846,7 @@
-  *	@ap: Port whose timings we are configuring
-  *	@adev: Drive in question
-  *	@udma: udma mode, 0 - 6
-- *	@is_ich: set if the chip is an ICH device
-+ *	@isich: set if the chip is an ICH device
-  *
-  *	Set UDMA mode for device, in host controller PCI config space.
-  *
+> VGER BF report: U 0.5
+...
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html> -
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
+The list signature is getting long and boooring. Can we move 'vger bf
+report' to X-bogo-report, and only have one FAQ pointer?
+-- 
+Thanks for all the (sleeping) penguins.
 
 -- 
-VGER BF report: U 0.510942
+VGER BF report: H 0.284667

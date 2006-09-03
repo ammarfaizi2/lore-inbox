@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWICWIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWICWIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWICWIG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWICWHt
+	id S932078AbWICWIW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWICWIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:07:49 -0400
-Received: from wx-out-0506.google.com ([66.249.82.226]:36363 "EHLO
+	Sun, 3 Sep 2006 18:08:13 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:25868 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750830AbWICWHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:07:33 -0400
+	id S1750853AbWICWHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:07:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=JtGEWibDOJvs37huvy/1Qct6pnjWsgNwdAKXOjWStdRqSC0otWk6O9TSucY9ev5OhE8pTLTg7r1LAy+YQI7m6povqiIw1ERNx98KSv2BTzCfIiv6fJ2wpCua7cZIQ+MY1BOQMarahM5Slt3lXvf31WfNG7lTpb3RH7tYSzEn7hc=
+        b=APjYQtm5So71l79IkKG9cdwas5+I25j879ihGdOGPYnqr6A/Xzxc8T4wtbpk4oT/ISlkIe5GQxTyCJq9AlHCsrsZ+2MnQdqsSkZK8N92wO+lL+2211kgZT3y2KjKV0M1bs9ZtRNC6kC8fECsBxQWA5gOUH+UQXp+grtHqnRVDo0=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 06/26] Dynamic kernel command-line - cris
-Date: Mon, 4 Sep 2006 00:55:09 +0300
+Subject: [PATCH 08/26] Dynamic kernel command-line - h8300
+Date: Mon, 4 Sep 2006 00:56:02 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040055.10425.alon.barlev@gmail.com>
+Message-Id: <200609040056.05571.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,36 +47,36 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/cris/kernel/setup.c 
-linux-2.6.18-rc5-mm1/arch/cris/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/cris/kernel/setup.c	
-2006-09-03 18:56:48.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/cris/kernel/setup.c	2006-09-03 
-20:58:59.000000000 +0300
-@@ -29,7 +29,7 @@ struct screen_info screen_info;
- extern int root_mountflags;
- extern char _etext, _edata, _end;
+diff -urNp 
+linux-2.6.18-rc5-mm1.org/arch/h8300/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/h8300/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/h8300/kernel/setup.c	
+2006-09-03 18:55:06.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/h8300/kernel/setup.c	
+2006-09-03 20:59:41.000000000 +0300
+@@ -54,7 +54,7 @@ unsigned long rom_length;
+ unsigned long memory_start;
+ unsigned long memory_end;
  
--char cris_command_line[COMMAND_LINE_SIZE] = { 0, };
-+char __initdata cris_command_line[COMMAND_LINE_SIZE] = { 
-0, };
+-char command_line[COMMAND_LINE_SIZE];
++char __initdata command_line[COMMAND_LINE_SIZE];
  
- extern const unsigned long text_start, edata; /* set by the 
-linker script */
- extern unsigned long dram_start, dram_end;
-@@ -153,8 +153,8 @@ setup_arch(char **cmdline_p)
+ extern int _stext, _etext, _sdata, _edata, _sbss, _ebss, 
+_end;
+ extern int _ramstart, _ramend;
+@@ -154,8 +154,8 @@ void __init setup_arch(char **cmdline_p)
  #endif
- 
- 	/* Save command line for future references. */
--	memcpy(saved_command_line, cris_command_line, 
+ 	/* Keep a copy of command line */
+ 	*cmdline_p = &command_line[0];
+-	memcpy(saved_command_line, command_line, 
 COMMAND_LINE_SIZE);
--	saved_command_line[COMMAND_LINE_SIZE - 1] = '\0';
-+	memcpy(boot_command_line, cris_command_line, 
+-	saved_command_line[COMMAND_LINE_SIZE-1] = 0;
++	memcpy(boot_command_line, command_line, 
 COMMAND_LINE_SIZE);
-+	boot_command_line[COMMAND_LINE_SIZE - 1] = '\0';
++	boot_command_line[COMMAND_LINE_SIZE-1] = 0;
  
- 	/* give credit for the CRIS port */
- 	show_etrax_copyright();
+ #ifdef DEBUG
+ 	if (strlen(*cmdline_p)) 
 
 -- 
-VGER BF report: U 0.491704
+VGER BF report: H 0.448381

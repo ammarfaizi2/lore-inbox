@@ -1,102 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWICLQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWICLRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWICLQO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 07:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWICLQN
+	id S1751234AbWICLRX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 07:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWICLRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 07:16:13 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:12550 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751264AbWICLQK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 07:16:10 -0400
-Date: Sun, 3 Sep 2006 21:15:07 +1000
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@davemloft.net>,
-       Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
-Message-ID: <20060903111507.GA12580@gondor.apana.org.au>
-References: <m3odty57gf.fsf@defiant.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3odty57gf.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 3 Sep 2006 07:17:23 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:64145 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751234AbWICLRW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 07:17:22 -0400
+Date: Sun, 3 Sep 2006 13:13:20 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 04/16] GFS2: Daemons and address space operations
+In-Reply-To: <1157031127.3384.791.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0609031245240.31445@yvahk01.tjqt.qr>
+References: <1157031127.3384.791.camel@quoit.chygwyn.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[NET]: Drop tx lock in dev_watchdog_up
 
-On Sat, Sep 02, 2006 at 08:39:28PM +0000, Krzysztof Halasa wrote:
-> 
-> =======================================================
-> [ INFO: possible circular locking dependency detected ]
-> -------------------------------------------------------
-> swapper/0 is trying to acquire lock:
->  (&dev->queue_lock){-+..}, at: [<c02c8c46>] dev_queue_xmit+0x56/0x290
-> 
-> but task is already holding lock:
->  (&dev->_xmit_lock){-+..}, at: [<c02c8e14>] dev_queue_xmit+0x224/0x290
-> 
-> which lock already depends on the new lock.
+>+static void buf_lo_before_commit(struct gfs2_sbd *sdp)
+>+{
+>+	struct buffer_head *bh;
+>+	struct gfs2_log_descriptor *ld;
+>+	struct gfs2_bufdata *bd1 = NULL, *bd2;
+>+	unsigned int total = sdp->sd_log_num_buf;
+>+	unsigned int offset = sizeof(struct gfs2_log_descriptor);
+>+	unsigned int limit;
+>+	unsigned int num;
+>+	unsigned n;
+>+	__be64 *ptr;
+>+
+>+	offset += (sizeof(__be64) - 1);
 
-This turns out to be a genuine bug.  The queue lock and xmit lock are
-intentionally taken out of order.  Two things are supposed to prevent
-dead-locks from occuring:
+-()
 
-1) When we hold the queue_lock we're supposed to only do try_lock on the
-tx_lock.
+>+		ld = (struct gfs2_log_descriptor *)bh->b_data;
+>+		ptr = (__be64 *)(bh->b_data + offset);
 
-2) We always drop the queue_lock after taking the tx_lock and before doing
-anything else.
+Hm too bad that b_data (include/linux/buffer_head.h) is a char*.
 
-> 
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #1 (&dev->_xmit_lock){-+..}:
->        [<c012e7b6>] lock_acquire+0x76/0xa0
->        [<c0336241>] _spin_lock_bh+0x31/0x40
->        [<c02d25a9>] dev_activate+0x69/0x120
+>+	gfs2_replay_incr_blk(sdp, &start);
+>+
+>+	for (; blks; gfs2_replay_incr_blk(sdp, &start), blks--) {
+>+		blkno = be64_to_cpu(*ptr++);
+>+
+>+		sdp->sd_found_blocks++;
+>+
+>+		if (gfs2_revoke_check(sdp, blkno, start))
+>+			continue;
+>+
+>+		error = gfs2_replay_read_block(jd, start, &bh_log);
+>+                if (error)
+>+                        return error;
 
-This path obviously breaks assumption 1) and therefore can lead to ABBA
-dead-locks.
+Last two lines do not match your usual indent.
 
-I've looked at the history and there seems to be no reason for the lock
-to be held at all in dev_watchdog_up.  The lock appeared in day one and
-even there it was unnecessary.  In fact, people added __dev_watchdog_up
-precisely in order to get around the tx lock there.
+>+static void buf_lo_after_scan(struct gfs2_jdesc *jd, int error, int pass)
+>+{
+>+	struct gfs2_inode *ip = GFS2_I(jd->jd_inode);
+>+	struct gfs2_sbd *sdp = GFS2_SB(jd->jd_inode);
+>+
+>+	if (error) {
+>+		gfs2_meta_sync(ip->i_gl,
+>+			       DIO_START | DIO_WAIT);
 
-The function dev_watchdog_up is already serialised by rtnl_lock since
-its only caller dev_activate is always called under it.
+gfs2_meta_sync() would fit on one line.
 
-So here is a simple patch to remove the tx lock from dev_watchdog_up.
-In 2.6.19 we can eliminate the unnecessary __dev_watchdog_up and
-replace it with dev_watchdog_up.
+>+	offset += (2*sizeof(__be64) - 1);
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+>+#ifndef __LOPS_DOT_H__
+>+#define __LOPS_DOT_H__
 
-Cheers,
++struct gfs2_log_operations;
+
+Making sure every .h file would "compile" on its own, this also means #include
+<linux/list.h> for the below, f.ex..
+
+>+
+>+static inline void lops_init_le(struct gfs2_log_element *le,
+>+				const struct gfs2_log_operations *lops)
+>+{
+>+	INIT_LIST_HEAD(&le->le_list);
+>+	le->le_ops = lops;
+>+}
+>+
+>+#endif /* __LOPS_DOT_H__ */
+
+>+MODULE_DESCRIPTION("Global File System");
+>+MODULE_AUTHOR("Red Hat, Inc.");
+>+MODULE_LICENSE("GPL");
+
+Maybe there should be at least one humna person listen in AUTHOR.
+
+>+static const struct address_space_operations aspace_aops = {
+>+	.writepage = gfs2_aspace_writepage,
+>+	.releasepage = gfs2_releasepage,
+>+};
+
+Not all multi-line structs (such as these) have a , on the last element.
+
+>+void gfs2_attach_bufdata(struct gfs2_glock *gl, struct buffer_head *bh,
+>+			 int meta)
+>+{
+>+	struct gfs2_bufdata *bd;
+>+
+>+	if (meta)
+>+		lock_page(bh->b_page);
+>+
+>+	if (bh->b_private) {
+>+		if (meta)
+>+			unlock_page(bh->b_page);
+>+		return;
+>+	}
+>+
+>+	bd = kmem_cache_alloc(gfs2_bufdata_cachep, GFP_NOFS | __GFP_NOFAIL),
+>+	memset(bd, 0, sizeof(struct gfs2_bufdata));
+>+	bd->bd_bh = bh;
+>+	bd->bd_gl = gl;
+>+
+>+	INIT_LIST_HEAD(&bd->bd_list_tr);
+>+	if (meta) {
+>+		lops_init_le(&bd->bd_le, &gfs2_buf_lops);
+>+	} else {
+>+		lops_init_le(&bd->bd_le, &gfs2_databuf_lops);
+>+	}
+
+-{}
+
+>+void gfs2_inum_in(struct gfs2_inum *no, char *buf)
+>+{
+>+	struct gfs2_inum *str = (struct gfs2_inum *)buf;
+>+
+>+	no->no_formal_ino = be64_to_cpu(str->no_formal_ino);
+>+	no->no_addr = be64_to_cpu(str->no_addr);
+>+}
+
+Hm, how about
+
+void gfs2_inum_in(struct gfs2_inum *no, void *buf)
+{
+	const struct gfs2_inum *str = buf;
+
+	no->no_formal_ino = be64_to_cpu(str->no_formal_ino);
+	no->no_addr = be64_to_cpu(str->no_addr);
+}
+
+That is, making the 2nd argument a void*, and the cast can go away. The callers
+most likely also can have their casts dropped, since to-void* is also implicit.
+Also applies to
+
++void gfs2_inum_out(const struct gfs2_inum *no, char *buf)
++static void gfs2_meta_header_in(struct gfs2_meta_header *mh, char *buf)
++static void gfs2_meta_header_out(struct gfs2_meta_header *mh, char *buf)
++void gfs2_sb_in(struct gfs2_sb *sb, char *buf)
++void gfs2_rindex_in(struct gfs2_rindex *ri, char *buf)
++void gfs2_rgrp_in(struct gfs2_rgrp *rg, char *buf)
++void gfs2_rgrp_out(struct gfs2_rgrp *rg, char *buf)
++void gfs2_quota_in(struct gfs2_quota *qu, char *buf)
++void gfs2_dinode_in(struct gfs2_dinode *di, char *buf)
++void gfs2_dinode_out(struct gfs2_dinode *di, char *buf)
++void gfs2_log_header_in(struct gfs2_log_header *lh, char *buf)
++void gfs2_inum_range_in(struct gfs2_inum_range *ir, char *buf)
++void gfs2_inum_range_out(struct gfs2_inum_range *ir, char *buf)
++void gfs2_statfs_change_in(struct gfs2_statfs_change *sc, char *buf)
++void gfs2_statfs_change_out(struct gfs2_statfs_change *sc, char *buf)
++void gfs2_quota_change_in(struct gfs2_quota_change *qc, char *buf)
+
+>+++ b/fs/gfs2/ops_address.c
+>+	if (likely(file != &gfs2_internal_file_sentinal)) {
+
+The thing is usually called "sentinel". Alan might prove me wrong that both
+spelling variants are possible :-)
+
+>+static int gfs2_commit_write(struct file *file, struct page *page,
+>+			     unsigned from, unsigned to)
+>+{
+>+	struct inode *inode = page->mapping->host;
+>+	struct gfs2_inode *ip = GFS2_I(inode);
+>+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+>+	int error = -EOPNOTSUPP;
+>+	struct buffer_head *dibh;
+>+	struct gfs2_alloc *al = &ip->i_alloc;;
+>+
+>+	if (gfs2_assert_withdraw(sdp, gfs2_glock_is_locked_by_me(ip->i_gl)))
+>+                goto fail_nounlock;
+>+
+>+	error = gfs2_meta_inode_buffer(ip, &dibh);
+>+	if (error)
+>+		goto fail_endtrans;
+>+
+>+	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
+>+
+>+	if (gfs2_is_stuffed(ip)) {
+>+		uint64_t file_size;
+>+		void *kaddr;
+>+
+>+		file_size = ((uint64_t)page->index << PAGE_CACHE_SHIFT) + to;
+>+
+>+		kaddr = kmap_atomic(page, KM_USER0);
+>+		memcpy(dibh->b_data + sizeof(struct gfs2_dinode) + from,
+>+		       (char *)kaddr + from, to - from);
+
+Nocast kaddr + from.
+
+>+static void stuck_releasepage(struct buffer_head *bh)
+>+{
+>+static unsigned limit = 0;
+
+Is this really ok to have?
+
+
+
+Jan Engelhardt
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 0834c2e..6f91518 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -238,9 +238,7 @@ void __netdev_watchdog_up(struct net_dev
- 
- static void dev_watchdog_up(struct net_device *dev)
- {
--	netif_tx_lock_bh(dev);
- 	__netdev_watchdog_up(dev);
--	netif_tx_unlock_bh(dev);
- }
- 
- static void dev_watchdog_down(struct net_device *dev)
 
 -- 
-VGER BF report: U 0.5
+VGER BF report: H 0.000958328

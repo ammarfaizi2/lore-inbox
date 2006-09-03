@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWICWMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWICWNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWICWMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWICWL6
+	id S1751068AbWICWNW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWICWJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:11:58 -0400
+	Sun, 3 Sep 2006 18:09:27 -0400
 Received: from wx-out-0506.google.com ([66.249.82.233]:25868 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750940AbWICWKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:10:16 -0400
+	id S932176AbWICWJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:09:20 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Tm+y/q5gDPq3dOFGkCsx56cxFSC3Xjrax5QIzKOcwlxoF4XY0sR3+HzkmIElrGgbvnouPwObdMHoEpEjwso/gQx0nh64EK8lZdK/ks99MwcYXrbuQErD7Nfj32YxTKJ2s3yTXAiu1q0zkGqPF+8P19dt5fk4to2IP5KU6zZgZXI=
+        b=Q5GaN1ubo5v3spxuU978mGH3/WftzXwbyT45vfhN0X+L83E4k2PRL++R2tFAJ+Fun6SmhInvBSK7kSfHIxOTbv5UGBq9gS6wgz0BwGRkMstQZhkFGYm/J+rWBHYIFoyNnwZuzugSUjibjVdaITS6D13pCtQyuSdtWGr2GIQufXU=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 26/26] Dynamic kernel command-line - xtensa
-Date: Mon, 4 Sep 2006 01:03:41 +0300
+Subject: [PATCH 19/26] Dynamic kernel command-line - sh
+Date: Mon, 4 Sep 2006 01:01:04 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040103.44924.alon.barlev@gmail.com>
+Message-Id: <200609040101.05551.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,36 +47,35 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp 
-linux-2.6.18-rc5-mm1.org/arch/xtensa/kernel/setup.c 
-linux-2.6.18-rc5-mm1/arch/xtensa/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/xtensa/kernel/setup.c	
-2006-09-03 18:55:20.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/xtensa/kernel/setup.c	
-2006-09-03 21:03:10.000000000 +0300
-@@ -80,7 +80,7 @@ extern unsigned long loops_per_jiffy;
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/sh/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/sh/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/sh/kernel/setup.c	
+2006-09-03 18:56:51.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/sh/kernel/setup.c	2006-09-03 
+21:02:18.000000000 +0300
+@@ -88,7 +88,7 @@ static struct sh_machine_vector* __init 
+ #define RAMDISK_PROMPT_FLAG		0x8000
+ #define RAMDISK_LOAD_FLAG		0x4000
  
- /* Command line specified as configuration option. */
+-static char command_line[COMMAND_LINE_SIZE] = { 0, };
++static char __initdata command_line[COMMAND_LINE_SIZE] = { 
+0, };
  
--static char command_line[COMMAND_LINE_SIZE];
-+static char __initdata command_line[COMMAND_LINE_SIZE];
+ struct resource standard_io_resources[] = {
+ 	{ "dma1", 0x00, 0x1f },
+@@ -125,8 +125,8 @@ static inline void parse_cmdline (char *
+ 	int len = 0;
  
- #ifdef CONFIG_CMDLINE_BOOL
- static char default_command_line[COMMAND_LINE_SIZE] 
-__initdata = CONFIG_CMDLINE;
-@@ -255,8 +255,8 @@ void __init setup_arch(char **cmdline_p)
- 	extern int mem_reserve(unsigned long, unsigned long, int);
- 	extern void bootmem_init(void);
- 
--	memcpy(saved_command_line, command_line, 
+ 	/* Save unparsed command line copy for /proc/cmdline */
+-	memcpy(saved_command_line, COMMAND_LINE, 
 COMMAND_LINE_SIZE);
 -	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
-+	memcpy(boot_command_line, command_line, 
++	memcpy(boot_command_line, COMMAND_LINE, 
 COMMAND_LINE_SIZE);
 +	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
- 	*cmdline_p = command_line;
  
- 	/* Reserve some memory regions */
+ 	memory_start = (unsigned long)PAGE_OFFSET+__MEMORY_START;
+ 	memory_end = memory_start + __MEMORY_SIZE;
 
 -- 
-VGER BF report: H 0.0953499
+VGER BF report: U 0.499656

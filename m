@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751901AbWICCGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWICCaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751901AbWICCGM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 22:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWICCGM
+	id S1751914AbWICCaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 22:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWICCaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 22:06:12 -0400
-Received: from ozlabs.org ([203.10.76.45]:38066 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751901AbWICCGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 22:06:11 -0400
-Subject: Re: kernel/stop_machine.c: whose code is it?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0608311510120.511@twin.jikos.cz>
-References: <20060831123241.GB3923@elf.ucw.cz>
-	 <Pine.LNX.4.58.0608311510120.511@twin.jikos.cz>
-Content-Type: text/plain
-Date: Sun, 03 Sep 2006 12:06:07 +1000
-Message-Id: <1157249168.19149.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 2 Sep 2006 22:30:30 -0400
+Received: from mxsf21.cluster1.charter.net ([209.225.28.221]:55715 "EHLO
+	mxsf21.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751914AbWICCaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 22:30:30 -0400
+X-IronPort-AV: i="4.08,203,1154923200"; 
+   d="scan'208"; a="827234412:sNHT20419064"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17658.15935.903687.325991@smtp.charter.net>
+Date: Sat, 2 Sep 2006 22:30:23 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "John Stoffel" <john@stoffel.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc5-mm1, make oldconfig from 2.6.18-rc5 destroys LVM
+In-Reply-To: <20060902184054.5db9fe00.akpm@osdl.org>
+References: <17658.9856.132429.196116@smtp.charter.net>
+	<20060902184054.5db9fe00.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-31 at 15:17 +0200, Jiri Kosina wrote:
-> On Thu, 31 Aug 2006, Pavel Machek wrote:
-> 
-> > Would kernel/stop_machine.c author please step up?
-> 
-> IMHO it's Rusty Russell (added to CC).
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-Yep.  Not sure the obsession with copyright on every trivial piece of
-code is healthy, but if it keeps you happy (I had to look back: this
-code was extracted from the module.c code in 2005).
+>> And I'd really suggest that it NOT be this silly name BLOCK, something
+>> more meaningful, like USE_BLOCK_DEVICES or something equally useful to
+>> parse.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.18-rc5-git4/kernel/stop_machine.c tmp/kernel/stop_machine.c
---- linux-2.6.18-rc5-git4/kernel/stop_machine.c	2006-09-01 09:49:11.000000000 +1000
-+++ tmp/kernel/stop_machine.c	2006-09-03 11:55:08.000000000 +1000
-@@ -1,3 +1,6 @@
-+/* Copyright 2005 Rusty Russell rusty@rustcorp.com.au IBM Corporation.
-+ * GPL v2 and any later version.
-+ */
- #include <linux/stop_machine.h>
- #include <linux/kthread.h>
- #include <linux/sched.h>
+Andrew> mm...  I think CONFIG_BLOCK is a reasonable compromise between
+Andrew> the needs for brevity and understandability.
 
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+Well, maybe the hotfix patch converts all the uses of 'if BLOCK' to
+'if CONFIG_BLOCK', but I still think that 'if USE_BLOCK_DEVS' would be
+more clear.  It's not like it should be all *that* used outside of
+config stuff.
 
+Oh well, thanks for your reply, now I can test 2.6.18-rc5-mm1 and see
+if my IRQ problem is really there or not.
+
+John
 
 -- 
 VGER BF report: U 0.5

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWICAtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWICA7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbWICAtK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 20:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWICAtK
+	id S1751814AbWICA7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 20:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWICA7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 20:49:10 -0400
-Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:32668 "EHLO
-	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751806AbWICAtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 20:49:07 -0400
-X-IronPort-AV: i="4.08,203,1154923200"; 
-   d="scan'208"; a="768255856:sNHT27537484"
+	Sat, 2 Sep 2006 20:59:37 -0400
+Received: from imf25aec.mail.bellsouth.net ([205.152.59.73]:22663 "EHLO
+	imf25aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S1751814AbWICA7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 20:59:37 -0400
+Message-ID: <44FA28F7.8010001@bellsouth.net>
+Date: Sat, 02 Sep 2006 19:59:35 -0500
+From: Jay Cliburn <jacliburn@bellsouth.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: No RAID/LVM config in 2.6.18-rc5-mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17658.9856.132429.196116@smtp.charter.net>
-Date: Sat, 2 Sep 2006 20:49:04 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc5-mm1, make oldconfig from 2.6.18-rc5 destroys LVM
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm trying to build 2.6.18-rc5-mm1 from scratch, but I can't find the 
+config options for multi-device (RAID and LVM).  If I go ahead and build 
+a kernel without those options, it fails to boot, complaining that 
+dm-snapshot and others are missing.
 
-Andrew,
+Here is the sequence of events:
+1.  Untar linux-2.6.17.tar.gz
+	make menuconfig -- Yep, multi-device options are there.
+2.  Apply patch-2.6.18-rc5
+	make menuconfig -- Yep, again, multi-device options are there.
+3.  Apply patch 2.6.18-rc5-mm1
+	make menuconfig -- multi-device options are gone.
 
-When I do a make oldconfig under 2.6.18-rc5-mm1, with my working
-2.6.18-rc5 .config file (appended below), all the LVM and MD stuff
-gets blown away silently.  It looks like the drivers/md/Kconfig didn't
-get updated properly when it was tweaked, possibly the new options to
-get rid of BLOCK devices, or the ripping out of LVM1 stuff.
+What am I doing wrong?
 
-It looks like instead of 'if CONFIG_BLOCK' at the top, it just needs
-to be 'if BLOCK' instead.  
-
-And I'd really suggest that it NOT be this silly name BLOCK, something
-more meaningful, like USE_BLOCK_DEVICES or something equally useful to
-parse.
-
-John
+Thanks,
+Jay
 
 -- 
-VGER BF report: U 0.499836
+VGER BF report: H 0.360383

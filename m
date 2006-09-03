@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWICWQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWICWR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWICWQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWICWHn
+	id S1751146AbWICWR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWICWQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:07:43 -0400
+	Sun, 3 Sep 2006 18:16:59 -0400
 Received: from wx-out-0506.google.com ([66.249.82.226]:36363 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932130AbWICWHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:07:11 -0400
+	id S1750831AbWICWHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:07:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=t0vjlGocNgdAswo9t4RdzoTioXnNI6804y8jHDTfBk6kM9X9EYdF/XMY/lGKrcBZl9PkguBxXBNpZ/07t9ZpZGMT4jQmXDSOD8Vz0jikc/1jR2SZ+ZZVgQkSLdA1n2MoObABUKMK0fmoe8Y3wfyKHuC1HAWZtMzgAH/9O1GZ/ew=
+        b=HPxYUtJIiBjgzlf4rVtEUj87ynPXXm5SiXU184/3Y2YoS1Y7jchwuYosVCjfkd4kHLCAxBowUkc8DQCuN80X69sQVsrzXLFdR9HEh60CJyE+T5gEqlyYRI+NxrmVMIbEW0JYpfcitwAwqK4Z86HZ7pxPXZo1l39VATbj8xypAMk=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 03/26] Dynamic kernel command-line - arm
-Date: Mon, 4 Sep 2006 00:53:33 +0300
+Subject: [PATCH 07/26] Dynamic kernel command-line - frv
+Date: Mon, 4 Sep 2006 00:55:35 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040053.33934.alon.barlev@gmail.com>
+Message-Id: <200609040055.37416.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,34 +47,45 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c 
-linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c	
-2006-09-03 18:56:47.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c	2006-09-03 
-20:58:23.000000000 +0300
-@@ -106,7 +106,7 @@ unsigned long phys_initrd_size __initdat
- static struct meminfo meminfo __initdata = { 0, };
- static const char *cpu_name;
- static const char *machine_name;
--static char command_line[COMMAND_LINE_SIZE];
-+static char __initdata command_line[COMMAND_LINE_SIZE];
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c	
+2006-09-03 18:55:06.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c	2006-09-03 
+20:59:28.000000000 +0300
+@@ -112,7 +112,7 @@ unsigned long __initdata num_mappedpages
  
- static char default_command_line[COMMAND_LINE_SIZE] 
-__initdata = CONFIG_CMDLINE;
- static union { char c[4]; unsigned long l; } endian_test 
-__initdata = { { 'l', '?', '?', 'b' } };
-@@ -803,8 +803,8 @@ void __init setup_arch(char **cmdline_p)
- 	init_mm.end_data   = (unsigned long) &_edata;
- 	init_mm.brk	   = (unsigned long) &_end;
+ struct cpuinfo_frv __nongprelbss boot_cpu_data;
  
--	memcpy(saved_command_line, from, COMMAND_LINE_SIZE);
--	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
-+	memcpy(boot_command_line, from, COMMAND_LINE_SIZE);
-+	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
- 	parse_cmdline(cmdline_p, from);
- 	paging_init(&meminfo, mdesc);
- 	request_standard_resources(&meminfo, mdesc);
+-char command_line[COMMAND_LINE_SIZE];
++char __initdata command_line[COMMAND_LINE_SIZE];
+ char __initdata redboot_command_line[COMMAND_LINE_SIZE];
+ 
+ #ifdef CONFIG_PM
+@@ -764,7 +764,7 @@ void __init setup_arch(char **cmdline_p)
+ 	printk("uClinux FR-V port done by Red Hat Inc 
+<dhowells@redhat.com>\n");
+ #endif
+ 
+-	memcpy(saved_command_line, redboot_command_line, 
+COMMAND_LINE_SIZE);
++	memcpy(boot_command_line, redboot_command_line, 
+COMMAND_LINE_SIZE);
+ 
+ 	determine_cpu();
+ 	determine_clocks(1);
+@@ -805,7 +805,7 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ 
+ 	/* deal with the command line - RedBoot may have passed 
+one to the kernel */
+-	memcpy(command_line, saved_command_line, 
+sizeof(command_line));
++	memcpy(command_line, boot_command_line, 
+sizeof(command_line));
+ 	*cmdline_p = &command_line[0];
+ 	parse_cmdline_early(command_line);
+ 
 
 -- 
-VGER BF report: H 0.364495
+VGER BF report: H 0.0196113

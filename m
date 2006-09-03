@@ -1,112 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWICNln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWICN5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWICNln (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 09:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWICNln
+	id S1751113AbWICN5F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 09:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWICN5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 09:41:43 -0400
-Received: from smtp105.plus.mail.re2.yahoo.com ([206.190.53.30]:29111 "HELO
-	smtp105.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751079AbWICNln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 09:41:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=QQc9XOtQ4RldeQruktU9d1yM0gN4hS4aegdtBoWUeC48YLX1dSY4Q+A+t1cg6kskDZHEVh7s6H7NjHdk2W1ociaQfyjJ8szuzaNV4QV0AB/G0XX1idmVe7UMaQq1oJJwBH47AOR14aZB+kiFT9E6S4HZqV2Qsn1o+XTD6uxAohY=  ;
-From: Vincent Pelletier <subdino2004@yahoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sched.c: Be a bit more conservative in SMP
-Date: Sun, 3 Sep 2006 15:41:31 +0200
-User-Agent: KMail/1.9.4
+	Sun, 3 Sep 2006 09:57:05 -0400
+Received: from mxsf20.cluster1.charter.net ([209.225.28.220]:38569 "EHLO
+	mxsf20.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751113AbWICN5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 09:57:01 -0400
+X-IronPort-AV: i="4.08,204,1154923200"; 
+   d="scan'208"; a="816929636:sNHT45860814"
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5707670.b11W0OXBSE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609031541.39984.subdino2004@yahoo.fr>
+Message-ID: <17658.57131.33728.434385@smtp.charter.net>
+Date: Sun, 3 Sep 2006 09:56:59 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       jeff@garzik.org, alan@redhat.com
+Subject: Re: 2.6.18-rc4-mm1 ATA oops on HPT302 controller
+In-Reply-To: <17657.56290.549931.187652@smtp.charter.net>
+References: <17648.47873.675155.821074@stoffel.org>
+	<1157151612.6271.338.camel@localhost.localdomain>
+	<17657.56290.549931.187652@smtp.charter.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5707670.b11W0OXBSE
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-I've often seen the following use case happening on the few linux SMP boxes
-I have access to : one process eats one cpu becaus eit has a big
-computation to do, all cpu being idle, and the process keeps on hopping
-from one cpu to another.
-This patch is a quick try to make this behaviour disapear without requiring
-to bind all processes manually with taskset.
-I don't know if there is any practical performance increase (although I
-believe there locally is).
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Alan> Ar Sad, 2006-08-26 am 17:20 -0400, ysgrifennodd John Stoffel:
+>>> irq 16: nobody cared (try booting with the "irqpoll" option)
+>>> [<c013e3e4>] __report_bad_irq+0x24/0x90
+>>> [<c013e668>] note_interrupt+0x218/0x250
+>>> [<c013d8f3>] handle_IRQ_event+0x33/0x70
 
-Patch principle is simple :
-When calculating the load of "source" cpu (the one the process is on)
-substract one to the number of runing processes so we don't count the
-process to be balanced.
-As I only know sched.c for 5 minutes, I added a max(..., 0) to make sure the
-load can't be negative if the function happens to be called on a cpu with
-only idle tasks. No idea if it can actually happen.
+Alan> Looks like ACPI routing problems
 
-I tested its efficiency this way :
-Before :
-=2Dstart a command eating one full cpu on an idle smp machine.
-I used dd if=3D/dev/urandom of=3D/dev/null.
-=2Dwait for ~30 seconds, and see that it switched to another cpu.
-After :
-=2Drepeat the same test and see that it does not switch to another cpu (the
-patch does what it's meant to).
-=2Dstart a second dd, and bind both to the same cpu with taskset, then free
-one of them (allow it to use 2 cpus, including the one it can already
-access) and see that the task gets moved to the second cpu (load balancing
-still works).
+John> Hmmm, so maybe there's something in the -mm patches which is
+John> screwing up things?  I'll try 2.6.18-rc5-mm1 then with my
+John> regular .config and see what happens.
 
-Disclaimer :=20
-This patch is just the result of a 5 minutes hacking rush. Although I think
-it technically work, I'm no SMP expert.
+Ok, so once I found and fixed the 'if BLOCK' issue in
+drivers/md/Kconfig, I've been able to compile and boot 2.6.18-rc5-mm1
+without any problems using the old drivers/ide/pci/hpt366.c driver,
+and I'm not seeing any IRQ problems.  I get the following in dmesg:
 
-=2D-- linux-2.6-2.6.17/kernel/sched.c     2006-06-18 03:49:35.000000000 +02=
-00
-+++ linux-2.6-2.6.17-conservative/kernel/sched.c        2006-09-03
-13:18:11.000000000 +0200
-@@ -952,7 +952,7 @@ void kick_process(task_t *p)
- static inline unsigned long source_load(int cpu, int type)
- {
-        runqueue_t *rq =3D cpu_rq(cpu);
-=2D       unsigned long load_now =3D rq->nr_running * SCHED_LOAD_SCALE;
-+       unsigned long load_now =3D (max(rq->nr_running - 1, 0)) *
-SCHED_LOAD_SCALE;
-        if (type =3D=3D 0)
-                return load_now;
+  HPT302: IDE controller at PCI slot 0000:03:06.0
+  ACPI: PCI Interrupt 0000:03:06.0[A] -> GSI 18 (level, low) -> IRQ 18
+  HPT302: chipset revision 1
+  HPT302: DPLL base: 66 MHz, f_CNT: 101, assuming 33 MHz PCI
+  HPT302: using 66 MHz DPLL clock
+  HPT302: 100% native mode on irq 18
+      ide2: BM-DMA at 0xe800-0xe807, BIOS settings: hde:DMA, hdf:pio
+      ide3: BM-DMA at 0xe808-0xe80f, BIOS settings: hdg:DMA, hdh:pio
+  Probing IDE interface ide2...
+  hde: WDC WD1200JB-00CRA1, ATA DISK drive
+  ide2 at 0xecf8-0xecff,0xecf2 on irq 18
+  Probing IDE interface ide3...
+  hdg: WDC WD1200JB-00EVA0, ATA DISK drive
+  ide3 at 0xece0-0xece7,0xecda on irq 18
+  Probing IDE interface ide1...
+  hde: max request size: 128KiB
+  hde: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=65535/16/63, UDMA(100)
+  hde: cache flushes not supported
+   hde: hde1
+  hdg: max request size: 512KiB
+  hdg: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=16383/255/63, UDMA(100)
+  hdg: cache flushes supported
+   hdg: hdg1
 
-=2D-=20
-Vincent Pelletier
 
---nextPart5707670.b11W0OXBSE
-Content-Type: application/pgp-signature
+But for 2.6.18-rc4-mm3 with ATA version I get:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+    pata_hpt37x: BIOS has not set timing clocks.
+    hpt37x: HPT302: Bus clock 33MHz.
+    ACPI: PCI Interrupt 0000:03:06.0[A] -> GSI 18 (level, low) -> IRQ 18
+    ata1: PATA max UDMA/133 cmd 0xECF8 ctl 0xECF2 bmdma 0xE800 irq 18
+    ata2: PATA max UDMA/133 cmd 0xECE0 ctl 0xECDA bmdma 0xE808 irq 18
+    scsi2 : pata_hpt37x
+    ata1.00: ATA-5, max UDMA/100, 234441648 sectors: LBA 
+    ata1.00: ata1: dev 0 multi count 16
+    Find mode for 12 reports C829C62
+    Find mode for DMA 69 reports 1C6DDC62
+    ata1.00: configured for UDMA/100
+    scsi3 : pata_hpt37x
+    ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48 
+    ata2.00: ata2: dev 0 multi count 16
+    Find mode for 12 reports C829C62
+    Find mode for DMA 69 reports 1C6DDC62
+    ata2.00: configured for UDMA/100
+    scsi 2:0:0:0: Direct-Access     ATA      WDC WD1200JB-00C 17.0 PQ: 0 ANSI: 5
+    SCSI device sdc: 234441648 512-byte hdwr sectors (120034 MB)
+    sdc: Write Protect is off
+    SCSI device sdc: drive cache: write back
+    SCSI device sdc: 234441648 512-byte hdwr sectors (120034 MB)
+    sdc: Write Protect is off
+    SCSI device sdc: drive cache: write back
+     sdc: sdc1
+    sd 2:0:0:0: Attached scsi disk sdc
+    sd 2:0:0:0: Attached scsi generic sg3 type 0
+    scsi 3:0:0:0: Direct-Access     ATA      WDC WD1200JB-00E 15.0 PQ: 0 ANSI: 5
+    SCSI device sdd: 234441648 512-byte hdwr sectors (120034 MB)
+    sdd: Write Protect is off
+    SCSI device sdd: drive cache: write back
+    SCSI device sdd: 234441648 512-byte hdwr sectors (120034 MB)
+    sdd: Write Protect is off
+    SCSI device sdd: drive cache: write back
+     sdd: sdd1
+    sd 3:0:0:0: Attached scsi disk sdd
+    sd 3:0:0:0: Attached scsi generic sg4 type 0
 
-iD8DBQBE+tuTFEQoKRQyjtURAtJaAJ4/Ka53Zc8JOtzSDLxCn2kD/BSqPQCeIWr5
-m/OZ9TpNdk0E4lbhR8nxqXI=
-=rq+g
------END PGP SIGNATURE-----
 
---nextPart5707670.b11W0OXBSE--
+So I wonder if I'm just getting the wrong DPLL clock setup in the
+drivers/ata/pata_hpt37x.c HPT302 sections?  I'm slowing working
+through the code trying to figure it out, but a one month old and a
+four year don't give me alot of un-interrupted time to poke at this. 
 
-	
- p2.vert.ukl.yahoo.com uncompressed Sun Sep  3 13:27:00 GMT 2006 
-	
-		
-___________________________________________________________________________ 
-Dicouvrez un nouveau moyen de poser toutes vos questions quelque soit le sujet ! 
-Yahoo! Questions/Riponses pour partager vos connaissances, vos opinions et vos expiriences. 
-http://fr.answers.yahoo.com 
+John> I thought the 440GX was a well understood chip, though old now
+John> obviously.  :]   I'll run some more tests and see what happens under
+John> -mm kernels with the old IDE drivers.
 
+Interestingly enough, I'm not seeing any IRQ problems when I boot
+2.6.18-rc5-mm1 and use the old IDE driver, not to say that there's not
+something on IRQ18 which is screwing things up.  Here's my info.  As
+you can see, I've got a lot of devices sharing IRQs on this box.  
+
+  > cat /proc/interrupts 
+	     CPU0       CPU1       
+    0:   18691454   22263933   IO-APIC-edge     timer
+    1:      12123      14082   IO-APIC-edge     i8042
+    4:        496          7   IO-APIC-edge     serial
+    6:          0          3   IO-APIC-edge     floppy
+    8:          4          0   IO-APIC-edge     rtc
+    9:          0          0   IO-APIC-fasteoi  acpi
+   11:      46304      37965   IO-APIC-edge     Cyclom-Y
+   12:      20161      23761   IO-APIC-edge     i8042
+   14:     194172     168410   IO-APIC-edge     ide0
+   16:    1808966    2057575   IO-APIC-fasteoi  ohci_hcd:usb4, mga@pci:0000:01:00.0
+   17:   12035631         20   IO-APIC-fasteoi  ehci_hcd:usb1, Ensoniq AudioPCI, eth0
+   18:     880579    1057408   IO-APIC-fasteoi  ide2, ide3, aic7xxx, aic7xxx, ohci1394
+   19:          0          0   IO-APIC-fasteoi  ohci_hcd:usb2, uhci_hcd:usb3
+  NMI:          0          0 
+  LOC:   40959188   40959346 
+  ERR:          0
+  MIS:          6
+
+
+If there's any tests or patches I can run to help out here, please let
+me know.
+
+Thanks,
+John
 
 -- 
-VGER BF report: U 0.851625
+VGER BF report: U 0.5

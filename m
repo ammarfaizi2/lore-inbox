@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWICQ6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWICQzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbWICQ6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 12:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWICQ6e
+	id S1751423AbWICQzz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 12:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWICQzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 12:58:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43500 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751427AbWICQ6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 12:58:32 -0400
-Date: Sun, 3 Sep 2006 09:58:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Kent <raven@themaw.net>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
- sharing [try #13]
-Message-Id: <20060903095809.c83b8c0b.akpm@osdl.org>
-In-Reply-To: <1157265781.3520.18.camel@raven.themaw.net>
-References: <20060831102127.8fb9a24b.akpm@osdl.org>
-	<20060830135503.98f57ff3.akpm@osdl.org>
-	<20060830125239.6504d71a.akpm@osdl.org>
-	<20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	<27414.1156970238@warthog.cambridge.redhat.com>
-	<9849.1157018310@warthog.cambridge.redhat.com>
-	<9534.1157116114@warthog.cambridge.redhat.com>
-	<20060901093451.87aa486d.akpm@osdl.org>
-	<1157130044.5632.87.camel@localhost>
-	<20060901195009.187af603.akpm@osdl.org>
-	<1157170272.3307.5.camel@raven.themaw.net>
-	<20060901225853.0171fd29.akpm@osdl.org>
-	<1157264490.3520.16.camel@raven.themaw.net>
-	<20060902233023.ce544a00.akpm@osdl.org>
-	<1157265781.3520.18.camel@raven.themaw.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 3 Sep 2006 12:55:54 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:43320 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751423AbWICQzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 12:55:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wy54g96pfO8Ad+BqnkcWOq7991dYbnMlIDZCEFvsrObfAwo2L7Q9R/BJCdVcgD+03vprqDNHNICCLdP0YLslKfmDhU4IQhxRh+TlOh0IC7A6yXlXiWhvkegyaxGcNEHOL0AB0N0RDcNq7OxwqTpIWK7JxQPueAFeRaMPcFyQP+M=
+Message-ID: <a44ae5cd0609030955t6dfcf89bpd6de210d846cfa60@mail.gmail.com>
+Date: Sun, 3 Sep 2006 09:55:52 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Larry Finger" <Larry.Finger@lwfinger.net>
+Subject: Re: 2.6.18-rc5-mm1 -- bcm43xx: Out of DMA descriptor slots!
+Cc: "Michael Buesch" <mb@bu3sch.de>, "Andrew Morton" <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, linville@tuxdriver.com
+In-Reply-To: <44FAE00B.6030701@lwfinger.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a44ae5cd0609030218y547e1c94pd7ba5337e1a27b2b@mail.gmail.com>
+	 <200609031433.49658.mb@bu3sch.de> <44FAE00B.6030701@lwfinger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 03 Sep 2006 14:43:00 +0800
-Ian Kent <raven@themaw.net> wrote:
+On 9/3/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+> Michael Buesch wrote:
+> > On Sunday 03 September 2006 11:18, Miles Lane wrote:
+> >> Michael, I think this is related to your code (bcm43xx_dma.c).  It is
+> >> quite possible that the bug isn't in your code, but rather in the
+> >> general management of DMA.
+> >
+> > Please try latest wireless-2.6 tree. I think it has a bugfix for this.
+>
+> There is a fix (commit 653d5b55c0125dca97a420b9a5e77fad7adbf3f0) for mac_suspended assertions in the
+> latest wireless-2.6. If you just want that fix, use the following:
+>
+> Index: wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> ===================================================================
+> --- wireless-2.6.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> +++ wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> @@ -3349,6 +3349,8 @@
+>      memset(bcm->dma_reason, 0, sizeof(bcm->dma_reason));
+>      bcm->irq_savedstate = BCM43xx_IRQ_INITIAL;
+>
+> +    bcm->mac_suspended = 1;
+> +
+>      /* Noise calculation context */
+>      memset(&bcm->noisecalc, 0, sizeof(bcm->noisecalc));
+>
+>
+> If this patch is already in your code, and you are still getting the assertions, please let me know.
 
-> On Sat, 2006-09-02 at 23:30 -0700, Andrew Morton wrote:
-> > On Sun, 03 Sep 2006 14:21:30 +0800
-> > Ian Kent <raven@themaw.net> wrote:
-> > 
-> > > I guess you haven't got the autofs module loaded instead of autofs4 by
-> > > mistake.
-> > 
-> > Nope.
-> > 
-> > > So I wonder what the different is between the setups?
-> > 
-> > Beats me.  Maybe cook up a debug patch?
-> 
-> OK.
-> 
-> Could you add "--debug" to DAEMONOPTIONS in /etc/sysconfig/autofs and
-> post the output so I can get some idea where to put the prints please.
-> 
+Thanks.  2.6.18-rc5-mm1 doesn't have this patch.  Andrew, could you
+pull a current wireless tree into your next mm release?
 
-Sep  3 09:56:40 sony automount[18446]: starting automounter version 4.1.4-29, path = /net, maptype = program, mapname = /etc/auto.net
-Sep  3 09:56:40 sony kernel: SELinux: initialized (dev autofs, type autofs), uses genfs_contexts
-Sep  3 09:56:40 sony automount[18446]: using kernel protocol version 4.00
-Sep  3 09:56:40 sony automount[18446]: using timeout 60 seconds; freq 15 secs
-Sep  3 09:56:53 sony automount[18446]: attempting to mount entry /net/bix
-Sep  3 09:56:53 sony kernel: SELinux: initialized (dev 0:16, type nfs), uses genfs_contexts
-Sep  3 09:56:53 sony automount[18453]: mount(nfs): mkdir_path /net/bix/usr/src failed: Permission denied
-Sep  3 09:56:53 sony automount[18453]: mount(nfs): mkdir_path /net/bix/mnt/export failed: Permission denied
+Cheerio,
+      Miles
 
 -- 
-VGER BF report: H 0.0383034
+VGER BF report: H 5.12123e-05

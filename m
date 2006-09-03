@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWICT4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWICT71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWICT4g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 15:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWICT4g
+	id S932074AbWICT71 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 15:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWICT71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 15:56:36 -0400
-Received: from ns2.suse.de ([195.135.220.15]:34257 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932067AbWICT4g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 15:56:36 -0400
-Date: Sun, 3 Sep 2006 12:56:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Adam Buchbinder <adam.buchbinder@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17.11] xpad: dance pad support
-Message-ID: <20060903195629.GA14959@kroah.com>
-References: <26b51c320609031236j4884cc9br57ce590c2be074f5@mail.gmail.com>
+	Sun, 3 Sep 2006 15:59:27 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:22992 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932074AbWICT71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 15:59:27 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: "VGER BF report:.." ?
+Date: Mon, 04 Sep 2006 05:59:23 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <8fcmf2pp70psbmac3sgvucv90jlk58qgud@4ax.com>
+References: <20060901015818.42767813.akpm@osdl.org> <3tkhf2p4f1n1s7ancfmclrlijvne8nhoit@4ax.com> <20060901183927.eba8179d.akpm@osdl.org> <muuhf21hgb5a5vdpdb7i9nds6t5cokqihf@4ax.com> <alpjf21oipfatq83147kkad77l53rf54vs@4ax.com> <20060902203825.GG16047@mea-ext.zmailer.org> <Pine.LNX.4.61.0609031705170.13319@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0609031705170.13319@yvahk01.tjqt.qr>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26b51c320609031236j4884cc9br57ce590c2be074f5@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 03, 2006 at 03:36:43PM -0400, Adam Buchbinder wrote:
-> This patch was originally from Dominic Cerquetti originally written
-> for kernel 2.6.11.4, with minor modifications (API changes for USB,
-> spelling fixes to the documentation added in the original patch) made
-> to apply to the current kernel. This is my first time submitting a
-> patch; I've attempted to follow the format laid out in
-> SubmittingPatches, but if there's something amiss here (I should have
-> listed myself as an author, or I should have moved the documentation
-> into another patch), please let me know. Thanks!
+On Sun, 3 Sep 2006 17:06:27 +0200 (MEST), Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-Your email client linewrapped the patch:
+>
+>>> >-- 
+>>> >VGER BF report: H 6.04481e-06
+>>>                  ^^^^^^^^^^^^^--> perhaps whoever is adding this info-gem 
+>>> can add a sane sprintf?  The boggle minds ;)
+>
+>Sane? That's just sprintf("%e") - simple, is not it?
 
-> diff -uprN -X linux-2.6.17.11/Documentation/dontdiff
-> linux-2.6.17.11.orig/Documentation/input/xpad.txt
-> linux-2.6.17.11/Documentation/input/xpad.txt
-> --- linux-2.6.17.11.orig/Documentation/input/xpad.txt
-> 2006-08-31 11:00:48.000000000 -0400
-> +++ linux-2.6.17.11/Documentation/input/xpad.txt        2006-08-31
-> 16:36:41.000000000 -0400
+Not my point.  The value could be rounded to 2 or three digit value for 
+display, perhaps a 2 digit percentage?  The example may as well be zero.
 
-Care to try it again, and CC: the linux-usb-devel list and the input
-subsystem maintainer to get their comments too?
-
-thanks,
-
-greg k-h
+Grant.
 
 -- 
-VGER BF report: H 1.77275e-12
+VGER BF report: H 0.126501

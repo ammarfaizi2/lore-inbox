@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWICWcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWICWcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWICWcM (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750715AbWICWcM (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 3 Sep 2006 18:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWICWbz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWICWbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:31:55 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:14112 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750804AbWICWbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:31:34 -0400
+	Sun, 3 Sep 2006 18:31:53 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:23952 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750715AbWICWbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:31:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=j1WljtW0FlQXP1y6FUs/JpkKkDKV0l4Bk16Bhk3r0sc+c+B8UCtWLvJomprEJ5Mc8eHhsCkVFhM64W+R0+nM1Z5EI0ly8YeuGURIdfSS25EgS57ghiVNcRp2X5GVKBpR1Tfd2w7IkeoyobJj66nMrcZFWLKC5LTtw8/TnO4nb4c=
+        b=egdknzM572AbAWB6LszP8ZiMPr1cLKblV3YRC+AQcDrbNdwkpQ444wLN8ZbItTK4w+NNZcdmJ/AqYIZKAYIohhciumU2OhXlQV9PnrzYqezlkW3WXUV8PhNd9udJ/I23+fXeg+KwnmIWyq4u6F5MDcNAaZ2fByZZM3E1/+Ztc64=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 23/26] Dynamic kernel command-line - um
-Date: Mon, 4 Sep 2006 01:23:42 +0300
+Subject: [PATCH 24/26] Dynamic kernel command-line - v850
+Date: Mon, 4 Sep 2006 01:24:02 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040123.43788.alon.barlev@gmail.com>
+Message-Id: <200609040124.03701.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,30 +47,29 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/um/include/user_util.h linux-2.6.18-rc5-mm1/arch/um/include/user_util.h
---- linux-2.6.18-rc5-mm1.org/arch/um/include/user_util.h	2006-06-18 04:49:35.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/um/include/user_util.h	2006-09-03 23:47:03.000000000 +0300
-@@ -38,7 +38,7 @@ extern unsigned long long highmem;
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/v850/kernel/setup.c linux-2.6.18-rc5-mm1/arch/v850/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/v850/kernel/setup.c	2006-09-03 18:55:19.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/v850/kernel/setup.c	2006-09-03 21:02:53.000000000 +0300
+@@ -42,7 +42,7 @@ extern char _root_fs_image_start __attri
+ extern char _root_fs_image_end __attribute__ ((__weak__));
  
- extern char host_info[];
  
--extern char saved_command_line[];
-+extern char __initdata boot_command_line[];
+-char command_line[COMMAND_LINE_SIZE];
++char __initdata command_line[COMMAND_LINE_SIZE];
  
- extern unsigned long _stext, _etext, _sdata, _edata, __bss_start, _end;
- extern unsigned long _unprotected_end;
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/um/kernel/um_arch.c linux-2.6.18-rc5-mm1/arch/um/kernel/um_arch.c
---- linux-2.6.18-rc5-mm1.org/arch/um/kernel/um_arch.c	2006-09-03 18:56:51.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/um/kernel/um_arch.c	2006-09-03 19:47:59.000000000 +0300
-@@ -482,7 +482,7 @@ void __init setup_arch(char **cmdline_p)
- 	atomic_notifier_chain_register(&panic_notifier_list,
- 			&panic_exit_notifier);
- 	paging_init();
--        strlcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
-+        strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
-  	*cmdline_p = command_line;
- 	setup_hostinfo();
- }
+ /* Memory not used by the kernel.  */
+ static unsigned long total_ram_pages;
+@@ -64,8 +64,8 @@ void __init setup_arch (char **cmdline)
+ {
+ 	/* Keep a copy of command line */
+ 	*cmdline = command_line;
+-	memcpy (saved_command_line, command_line, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE - 1] = '\0';
++	memcpy (boot_command_line, command_line, COMMAND_LINE_SIZE);
++	boot_command_line[COMMAND_LINE_SIZE - 1] = '\0';
+ 
+ 	console_verbose ();
+ 
 
 -- 
 VGER BF report: H 0

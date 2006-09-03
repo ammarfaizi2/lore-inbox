@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWICOAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWICOQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWICOAw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 10:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWICOAw
+	id S1751164AbWICOQI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 10:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWICOQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 10:00:52 -0400
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:49116 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1751129AbWICOAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 10:00:51 -0400
-Message-ID: <44FAE00B.6030701@lwfinger.net>
-Date: Sun, 03 Sep 2006 09:00:43 -0500
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+	Sun, 3 Sep 2006 10:16:08 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:30648 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751164AbWICOQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 10:16:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pYkslKeHUQHfPy1SPkGYfvkj3+GyTwE8xZw28JpDqD2OJyU0TubiY0aBVXm4MCu8/pN5xziDUVtkcqqWvjJhYUYNphJqzuPKGd64Ig63r8yvFZPXfII7kOrt0hD9tXDapP6OeJ8zAYjQCFwahCAb+Ypa63B6rAZX9YMqaKMx4Gg=
+Message-ID: <ccbc91640609030716o221dad8as9278b2081a28c490@mail.gmail.com>
+Date: Sun, 3 Sep 2006 22:16:05 +0800
+From: "=?GB2312?B?tq22rdmp?=" <doublefacer007@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG in ip_nat_helper_unregister at netfilter/ip_nat_helper.c
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@gmail.com>
-CC: Michael Buesch <mb@bu3sch.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, linville@tuxdriver.com
-Subject: Re: 2.6.18-rc5-mm1 -- bcm43xx: Out of DMA descriptor slots!
-References: <a44ae5cd0609030218y547e1c94pd7ba5337e1a27b2b@mail.gmail.com> <200609031433.49658.mb@bu3sch.de>
-In-Reply-To: <200609031433.49658.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> On Sunday 03 September 2006 11:18, Miles Lane wrote:
->> Michael, I think this is related to your code (bcm43xx_dma.c).  It is
->> quite possible that the bug isn't in your code, but rather in the
->> general management of DMA.
-> 
-> Please try latest wireless-2.6 tree. I think it has a bugfix for this.
-
-There is a fix (commit 653d5b55c0125dca97a420b9a5e77fad7adbf3f0) for mac_suspended assertions in the
-latest wireless-2.6. If you just want that fix, use the following:
-
-Index: wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-===================================================================
---- wireless-2.6.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-+++ wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-@@ -3349,6 +3349,8 @@
-     memset(bcm->dma_reason, 0, sizeof(bcm->dma_reason));
-     bcm->irq_savedstate = BCM43xx_IRQ_INITIAL;
-
-+    bcm->mac_suspended = 1;
-+
-     /* Noise calculation context */
-     memset(&bcm->noisecalc, 0, sizeof(bcm->noisecalc));
-
-
-If this patch is already in your code, and you are still getting the assertions, please let me know.
-
-Larry
-
+Hi,
+   I has found a bug that is caused by dead lock on ip_nat_ftp module
+in linux kernel 2.4.27 on SMP machine.My workaround of testing is as following:
+   I create a router by iptables ,FTP client and FTP server for testing.
+   client machine ip: 192.168.1.3/32 ,gateway 192.168.1.10/32
+   server machine ip: 192.168.2.3/32,gateway 192.168.2.10/32
+   router machine with tow NICs,
+       eth0:192.168.1.10/32
+       eth1:192.168.2.10/32
+Testing flow:
+  on router:
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  modprobe ip_nat_ftp
+  iptables -t nat -A POSTROUTING -s 192.168.1.3 -p tcp --dport 21
+-o eth1 -j SNAT --to-source 192.168.2.10
+  on client:
+  I use a benchmark tool to create ftp sessions with the  remote
+FTP server.In the session,includes ftp control connections and data
+connections.The sending rate is about 500 sessions/10s.
+  When the num of conntrack is up to 15000,I rmmod the ip_nat_ftp
+and ip_conntrack _ftp modules by typing "modprobe -r ip_nat_ftp"
+command and then the kernel is dead locked.
+I think that the dead lock is caused by ip_conntrack_lock and
+ip_nat_lock.When I rmmod the ip_nat_ftp module, the function flow is
+as following:
+ip_nat_helper_unregister->ip_ct_selective_cleanup->get_next_corpse(ip_conntrack_lock)
+ ->kill_helper(ip_nat_lock)
+But the kernel there is another flow is as following:
+ip_nat_fn(ip_nat_lock)->ip_nat_setup_info->ip_conntrack_alter_reply(ip_conntrack_lock)
 
 -- 
-VGER BF report: H 0.427049
+VGER BF report: U 0.502111

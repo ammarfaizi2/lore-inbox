@@ -1,128 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWICXfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWICXd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWICXfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 19:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWICXfF
+	id S932156AbWICXd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 19:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWICXd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 19:35:05 -0400
-Received: from smtp.ono.com ([62.42.230.12]:952 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S932162AbWICXfC (ORCPT
+	Sun, 3 Sep 2006 19:33:28 -0400
+Received: from ozlabs.org ([203.10.76.45]:38785 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932156AbWICXd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 19:35:02 -0400
-Date: Mon, 4 Sep 2006 01:34:43 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
-Message-ID: <20060904013443.797ba40b@werewolf.auna.net>
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
-References: <20060901015818.42767813.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.4.0cvs137 (GTK+ 2.10.2; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 3 Sep 2006 19:33:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
+Date: Mon, 4 Sep 2006 09:33:21 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, Matt Domsch <Matt_Domsch@dell.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johninsd@san.rr.com, davej@codemonkey.org.uk, Riley@williams.name,
+       trini@kernel.crashing.org, davem@davemloft.net, ecd@brainaid.de,
+       jj@sunsite.ms.mff.cuni.cz, anton@samba.org, wli@holomorphy.com,
+       lethal@linux-sh.org, rc@rc0.org.uk, spyro@f2s.com, rth@twiddle.net,
+       avr32@atmel.com, hskinnemoen@atmel.com, starvik@axis.com,
+       ralf@linux-mips.org, matthew@wil.cx, grundler@parisc-linux.org,
+       geert@linux-m68k.org, zippel@linux-m68k.org, schwidefsky@de.ibm.com,
+       heiko.carstens@de.ibm.com, uclinux-v850@lsi.nec.co.jp, chris@zankel.net
+Subject: Re: [PATCH 00/26] Dynamic kernel command-line
+In-Reply-To: <200609040050.13410.alon.barlev@gmail.com>
+References: <200609040050.13410.alon.barlev@gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
+Alon Bar-Lev writes:
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
-> 
+> Current implementation stores a static command-line
+> buffer allocated to COMMAND_LINE_SIZE size. Most
+> architectures stores two copies of this buffer, one
+> for future reference and one for parameter parsing.
 
-Err, my burner got lost this summer ;).
-This is really not a bug of _this_ kernel, because I noticed it dissapeared
-with the previous release also, just before going on vacation... But as it
-did not come back with this relase, I report it here.
+Under what circumstances do we actually need a command line of more
+than 256 bytes?
 
-Last kernel that I have tried that worked was 2.6.18-rc2-mm1. With this
-relase, it is gone still. dmesg for both kernels is below.
-The only thing I hace noticed is the different IRQ assignment between
-them.
+It seems to me that if 256 bytes isn't enough, we should take a deep
+breath, step back, and think about whether there might be a better way
+to pass whatever information it is that's using up so much of the
+command line.
 
-Any ideas ? TIA.
-
-dmesg for rc2-mm1:
-
-libata version 2.00 loaded.
-ata_piix 0000:00:1f.1: version 2.00ac6
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 14
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/33
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.00: configured for UDMA/33
-ata1.01: configured for PIO3
-scsi1 : ata_piix
-ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
-ata2.00: ata2: dev 0 multi count 16
-ata2.01: ATAPI, max UDMA/33
-ata2.00: configured for UDMA/100
-ata2.01: configured for UDMA/33
-  Vendor: HL-DT-ST  Model: DVDRAM GSA-4120B  Rev: A111
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: IOMEGA    Model: ZIP 250           Rev: 51.G
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: ST3120022A        Rev: 3.06
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1712  Rev: 1004
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-...
-
-dmesg for rc5-mm1:
-
-libata version 2.00 loaded.
-ata_piix 0000:00:1f.1: version 2.00ac7
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-scsi0 : ata_piix
-ata1.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.01: configured for PIO3
-scsi1 : ata_piix
-ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
-ata2.00: ata2: dev 0 multi count 16
-ata2.01: ATAPI, max UDMA/33
-ata2.00: configured for UDMA/100
-ata2.01: configured for UDMA/33
-scsi 0:0:1:0: Direct-Access     IOMEGA   ZIP 250          51.G PQ: 0 ANSI: 5
-sd 0:0:1:0: Attached scsi removable disk sda
-scsi 1:0:0:0: Direct-Access     ATA      ST3120022A       3.06 PQ: 0 ANSI: 5
-SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
- sdb: sdb1
-sd 1:0:0:0: Attached scsi disk sdb
-scsi 1:0:1:0: CD-ROM            TOSHIBA  DVD-ROM SD-M1712 1004 PQ: 0 ANSI: 5
-sr0: scsi3-mmc drive: 48x/48x cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.20
-sr 1:0:1:0: Attached scsi CD-ROM sr0
-ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam08 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT
+Paul.
 
 -- 
-VGER BF report: U 0.5
+VGER BF report: H 0

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWICWai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWICWbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWICWai (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWICWah
+	id S1751292AbWICWbP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWICWaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:30:37 -0400
+	Sun, 3 Sep 2006 18:30:52 -0400
 Received: from py-out-1112.google.com ([64.233.166.183]:23952 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751231AbWICWaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:30:23 -0400
+	id S1751279AbWICWac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:30:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=bxHw2nHBGHDABji40Y85UK30BoKx9c4ixl4ohaeyHxmz0RBmNoC/Bpw8j03MFwsM4HS1Hk7EZViI82+JxK7rlUHEgyfuC9blZAvz65Q7beeGGJTTtMsYVDGyZoA6cphJ6JYTY0W6o7E0qB3PCgz4QmeQ88guAI0sEgNNX9RRX7g=
+        b=bqFbdOAPKjUEmn2pgKUDzv/bg4GIDpJY3YIalDeGNoMJvU+dI2emKiNbDoAM4eKj1Hy5dsvYu6gM2YVKrxksgtQ6IssKCT3ewlh1CMmc03UxR/H13S5sSwafDZSnObWC3EKaj1dzu+KyMPaGGA6g1+4m/J3XMBgd/lto/FM9Rnw=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 15/26] Dynamic kernel command-line - parisc
-Date: Mon, 4 Sep 2006 01:21:35 +0300
+Subject: [PATCH 16/26] Dynamic kernel command-line - powerpc
+Date: Mon, 4 Sep 2006 01:21:52 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,69 +35,67 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040121.36862.alon.barlev@gmail.com>
+Message-Id: <200609040121.53901.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1. Rename saved_command_line into boot_command_line.
-2. Set command_line as __initdata.
+Rename saved_command_line into boot_command_line.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/parisc/kernel/setup.c linux-2.6.18-rc5-mm1/arch/parisc/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/parisc/kernel/setup.c	2006-09-03 18:55:13.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/parisc/kernel/setup.c	2006-09-03 21:01:13.000000000 +0300
-@@ -45,7 +45,7 @@
- #include <asm/io.h>
- #include <asm/setup.h>
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/legacy_serial.c linux-2.6.18-rc5-mm1/arch/powerpc/kernel/legacy_serial.c
+--- linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/legacy_serial.c	2006-09-03 18:56:50.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/powerpc/kernel/legacy_serial.c	2006-09-03 19:47:58.000000000 +0300
+@@ -498,7 +498,7 @@ static int __init check_legacy_serial_co
+ 	DBG(" -> check_legacy_serial_console()\n");
  
--char	command_line[COMMAND_LINE_SIZE] __read_mostly;
-+char	__initdata command_line[COMMAND_LINE_SIZE] __read_mostly;
- 
- /* Intended for ccio/sba/cpu statistics under /proc/bus/{runway|gsc} */
- struct proc_dir_entry * proc_runway_root __read_mostly = NULL;
-@@ -71,9 +71,9 @@ void __init setup_cmdline(char **cmdline
- 	/* boot_args[0] is free-mem start, boot_args[1] is ptr to command line */
- 	if (boot_args[0] < 64) {
- 		/* called from hpux boot loader */
--		saved_command_line[0] = '\0';
-+		boot_command_line[0] = '\0';
- 	} else {
--		strcpy(saved_command_line, (char *)__va(boot_args[1]));
-+		strcpy(boot_command_line, (char *)__va(boot_args[1]));
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 		if (boot_args[2] != 0) /* did palo pass us a ramdisk? */
-@@ -84,7 +84,7 @@ void __init setup_cmdline(char **cmdline
- #endif
+ 	/* The user has requested a console so this is already set up. */
+-	if (strstr(saved_command_line, "console=")) {
++	if (strstr(boot_command_line, "console=")) {
+ 		DBG(" console was specified !\n");
+ 		return -EBUSY;
  	}
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/prom.c linux-2.6.18-rc5-mm1/arch/powerpc/kernel/prom.c
+--- linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/prom.c	2006-09-03 18:56:50.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/powerpc/kernel/prom.c	2006-09-03 19:47:58.000000000 +0300
+@@ -909,7 +909,7 @@ void __init early_init_devtree(void *par
+ 	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
  
--	strcpy(command_line, saved_command_line);
-+	strcpy(command_line, boot_command_line);
- 	*cmdline_p = command_line;
- }
+ 	/* Save command line for /proc/cmdline and then parse parameters */
+-	strlcpy(saved_command_line, cmd_line, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, cmd_line, COMMAND_LINE_SIZE);
+ 	parse_early_param();
  
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/parisc/mm/init.c linux-2.6.18-rc5-mm1/arch/parisc/mm/init.c
---- linux-2.6.18-rc5-mm1.org/arch/parisc/mm/init.c	2006-09-03 18:56:50.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/parisc/mm/init.c	2006-09-03 23:52:54.000000000 +0300
-@@ -77,12 +77,12 @@ static void __init mem_limit_func(void)
+ 	/* Reserve LMB regions used by kernel, initrd, dt, etc... */
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/udbg.c linux-2.6.18-rc5-mm1/arch/powerpc/kernel/udbg.c
+--- linux-2.6.18-rc5-mm1.org/arch/powerpc/kernel/udbg.c	2006-09-03 18:55:13.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/powerpc/kernel/udbg.c	2006-09-03 19:47:58.000000000 +0300
+@@ -146,7 +146,7 @@ void __init disable_early_printk(void)
  {
- 	char *cp, *end;
- 	unsigned long limit;
--	extern char saved_command_line[];
-+	extern char __initdata boot_command_line[];
+ 	if (!early_console_initialized)
+ 		return;
+-	if (strstr(saved_command_line, "udbg-immortal")) {
++	if (strstr(boot_command_line, "udbg-immortal")) {
+ 		printk(KERN_INFO "early console immortal !\n");
+ 		return;
+ 	}
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/powerpc/platforms/powermac/setup.c linux-2.6.18-rc5-mm1/arch/powerpc/platforms/powermac/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/powerpc/platforms/powermac/setup.c	2006-09-03 18:56:51.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/powerpc/platforms/powermac/setup.c	2006-09-03 19:47:58.000000000 +0300
+@@ -505,8 +505,8 @@ void note_bootable_part(dev_t dev, int p
+ 	if ((goodness <= current_root_goodness) &&
+ 	    ROOT_DEV != DEFAULT_ROOT_DEVICE)
+ 		return;
+-	p = strstr(saved_command_line, "root=");
+-	if (p != NULL && (p == saved_command_line || p[-1] == ' '))
++	p = strstr(boot_command_line, "root=");
++	if (p != NULL && (p == boot_command_line || p[-1] == ' '))
+ 		return;
  
- 	/* We need this before __setup() functions are called */
- 
- 	limit = MAX_MEM;
--	for (cp = saved_command_line; *cp; ) {
-+	for (cp = boot_command_line; *cp; ) {
- 		if (memcmp(cp, "mem=", 4) == 0) {
- 			cp += 4;
- 			limit = memparse(cp, &end);
+ 	if (!found_boot) {
 
 -- 
 VGER BF report: H 0

@@ -1,58 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWICQad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWICQen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWICQad (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 12:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWICQad
+	id S1751418AbWICQen (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 12:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWICQen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 12:30:33 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:6431 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751411AbWICQac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 12:30:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Vh5AIUK1dBF16ZsCJTCd81O3PcutjypS83hDRKSWa8tdUiWNBYsRm33BpPHaoRImTFp61ohaS3yPJm4dE4+9+BIGyfFD1ooGLV6VmSEDwhXkZHMPzX9kSgfjZSRV7doK2IK9+1cSVbYwzy30v6hNq2uL9rurTuAeihLhL+gzAKI=
-Message-ID: <7c3341450609030930h3b5d7edah5dc52049b9760004@mail.gmail.com>
-Date: Sun, 3 Sep 2006 17:30:25 +0100
-From: "Nick Warne" <nick@linicks.net>
-To: "Bas Bloemsaat" <bas.bloemsaat@gmail.com>
-Subject: Re: [PATCH] Vicam driver, device
-Cc: mchehab@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <44FA9493.1090207@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Sep 2006 12:34:43 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:25060 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751418AbWICQem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 12:34:42 -0400
+Date: Sun, 3 Sep 2006 20:34:19 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Eric Dumazet <dada1@cosmosbay.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] simplify/improve rcu batch tuning
+Message-ID: <20060903163419.GA235@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7c4668e50609021101j2b8c561er94d41ca95aca2b1b@mail.gmail.com>
-	 <1157220743.15841.118.camel@praia>
-	 <7c4668e50609030111i5f3cb079j76e9c8651cf8d6b4@mail.gmail.com>
-	 <44FA9493.1090207@gmail.com>
-X-Google-Sender-Auth: a968ce996751bbf9
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/09/06, Bas Bloemsaat <bas.bloemsaat@gmail.com> wrote:
-> Done. I put a line under the current one describing the cam it was developed for.
->
-> And mailed the text without wrapping (thanks to Pavel for bringing that to my attention).
->
-> Regards,
-> Bas
->
-> Description:
-> Trivial patch to make Compro PS39U WebCam work with linux by using the vicam driver.
-> The camera is just a vicam with another USB ID, so I added that ID to the driver, and it works now.
+I have no idea how to test this patch. It passed rcutorture.ko,
+but the "improve" part of the subject is only my speculation, so
+please comment.
 
-Do you get the release call back warning when rmmod the vicam module?
-I tried to fix this ages ago, but all I successfully achieved was
-kernel oops:
+This patch kills a hard-to-calculate 'rsinterval' boot parameter
+and per-cpu rcu_data.last_rs_qlen. Instead, it adds adds a flag
+rcu_ctrlblk.signaled, which records the fact that one of CPUs
+has sent a resched IPI since the last rcu_start_batch().
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0510.3/1113.html
+Roughly speaking, we need two rcu_start_batch()s in order to move
+callbacks from ->nxtlist to ->donelist. This means that when ->qlen
+exceeds qhimark and continues to grow, we should send a resched IPI,
+and then do it again after we gone through a quiescent state.
 
-It would be nice to fix.
+On the other hand, if it was already sent, we don't need to do
+it again when another CPU detects overflow of the queue.
 
-Nick
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.18-rc4/Documentation/kernel-parameters.txt~1_auto	2006-08-19 17:50:56.000000000 +0400
++++ 2.6.18-rc4/Documentation/kernel-parameters.txt	2006-09-03 17:47:38.000000000 +0400
+@@ -1342,10 +1342,6 @@ running once the system is up.
+ 	rcu.qlowmark=	[KNL,BOOT] Set threshold of queued
+ 			RCU callbacks below which batch limiting is re-enabled.
+ 
+-	rcu.rsinterval=	[KNL,BOOT,SMP] Set the number of additional
+-			RCU callbacks to queued before forcing reschedule
+-			on all cpus.
+-
+ 	rdinit=		[KNL]
+ 			Format: <full_path>
+ 			Run specified binary instead of /init from the ramdisk,
+--- 2.6.18-rc4/include/linux/rcupdate.h~1_auto	2006-07-16 01:53:08.000000000 +0400
++++ 2.6.18-rc4/include/linux/rcupdate.h	2006-09-03 18:00:59.000000000 +0400
+@@ -66,6 +66,8 @@ struct rcu_ctrlblk {
+ 	long	completed;	/* Number of the last completed batch         */
+ 	int	next_pending;	/* Is the next batch already waiting?         */
+ 
++	int	signaled;
++
+ 	spinlock_t	lock	____cacheline_internodealigned_in_smp;
+ 	cpumask_t	cpumask; /* CPUs that need to switch in order    */
+ 	                         /* for current batch to proceed.        */
+@@ -106,9 +108,6 @@ struct rcu_data {
+ 	long		blimit;		 /* Upper limit on a processed batch */
+ 	int cpu;
+ 	struct rcu_head barrier;
+-#ifdef CONFIG_SMP
+-	long		last_rs_qlen;	 /* qlen during the last resched */
+-#endif
+ };
+ 
+ DECLARE_PER_CPU(struct rcu_data, rcu_data);
+--- 2.6.18-rc4/kernel/rcupdate.c~1_auto	2006-08-19 17:50:56.000000000 +0400
++++ 2.6.18-rc4/kernel/rcupdate.c	2006-09-03 18:01:23.000000000 +0400
+@@ -71,9 +71,6 @@ static DEFINE_PER_CPU(struct tasklet_str
+ static int blimit = 10;
+ static int qhimark = 10000;
+ static int qlowmark = 100;
+-#ifdef CONFIG_SMP
+-static int rsinterval = 1000;
+-#endif
+ 
+ static atomic_t rcu_barrier_cpu_count;
+ static DEFINE_MUTEX(rcu_barrier_mutex);
+@@ -86,8 +83,8 @@ static void force_quiescent_state(struct
+ 	int cpu;
+ 	cpumask_t cpumask;
+ 	set_need_resched();
+-	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
+-		rdp->last_rs_qlen = rdp->qlen;
++	if (unlikely(!rcp->signaled)) {
++		rcp->signaled = 1;
+ 		/*
+ 		 * Don't send IPI to itself. With irqs disabled,
+ 		 * rdp->cpu is the current cpu.
+@@ -297,6 +294,7 @@ static void rcu_start_batch(struct rcu_c
+ 		smp_mb();
+ 		cpus_andnot(rcp->cpumask, cpu_online_map, nohz_cpu_mask);
+ 
++		rcp->signaled = 0;
+ 	}
+ }
+ 
+@@ -624,9 +622,6 @@ void synchronize_rcu(void)
+ module_param(blimit, int, 0);
+ module_param(qhimark, int, 0);
+ module_param(qlowmark, int, 0);
+-#ifdef CONFIG_SMP
+-module_param(rsinterval, int, 0);
+-#endif
+ EXPORT_SYMBOL_GPL(rcu_batches_completed);
+ EXPORT_SYMBOL_GPL(rcu_batches_completed_bh);
+ EXPORT_SYMBOL_GPL(call_rcu);
+
 
 -- 
-VGER BF report: U 0.495384
+VGER BF report: U 0.50412

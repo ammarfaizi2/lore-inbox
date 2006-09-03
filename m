@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWICBEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751866AbWICBk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751825AbWICBEK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 21:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWICBEK
+	id S1751866AbWICBk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 21:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWICBk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 21:04:10 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:51612 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id S1751822AbWICBEI (ORCPT
+	Sat, 2 Sep 2006 21:40:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60058 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751866AbWICBk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 21:04:08 -0400
-Subject: Re: [PATCH 04/22][RFC] Unionfs: Common file operations
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <1157151440.5628.42.camel@localhost>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-	 <20060901014138.GE5788@fsl.cs.sunysb.edu>
-	 <1157149200.5628.38.camel@localhost>
-	 <1157150161.4398.4.camel@localhost.localdomain>
-	 <1157151440.5628.42.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 02 Sep 2006 21:03:22 -0400
-Message-Id: <1157245402.4398.6.camel@localhost.localdomain>
+	Sat, 2 Sep 2006 21:40:58 -0400
+Date: Sat, 2 Sep 2006 18:40:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc5-mm1, make oldconfig from 2.6.18-rc5 destroys LVM
+Message-Id: <20060902184054.5db9fe00.akpm@osdl.org>
+In-Reply-To: <17658.9856.132429.196116@smtp.charter.net>
+References: <17658.9856.132429.196116@smtp.charter.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter2.cs.columbia.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 18:57 -0400, Trond Myklebust wrote:
-> On Fri, 2006-09-01 at 18:36 -0400, Shaya Potter wrote:
-> > On Fri, 2006-09-01 at 18:20 -0400, Trond Myklebust wrote:
-> > 
-> > > Race! You cannot open an underlying NFS file by name after it has been
-> > > looked up: you have no guarantee that it hasn't been renamed.
-> > 
-> > In a unionfs case that's not an issue.  Nothing else is allowed to use
-> > the backing store (i.e. the nfs fs) while unionfs is using it, so there
-> > shouldn't be a renaming issue.
+On Sat, 2 Sep 2006 20:49:04 -0400
+"John Stoffel" <john@stoffel.org> wrote:
+
 > 
-> How are you enforcing that on the server?
+> Andrew,
+> 
+> When I do a make oldconfig under 2.6.18-rc5-mm1, with my working
+> 2.6.18-rc5 .config file (appended below), all the LVM and MD stuff
+> gets blown away silently.  It looks like the drivers/md/Kconfig didn't
+> get updated properly when it was tweaked, possibly the new options to
+> get rid of BLOCK devices, or the ripping out of LVM1 stuff.
+> 
+> It looks like instead of 'if CONFIG_BLOCK' at the top, it just needs
+> to be 'if BLOCK' instead.  
 
-If I formatted a partition on a san w/ ext3, who would enforce that only
-one machine has access to it at a time?
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/hot-fixes/
+contains a fix for this.
 
-the administrator of the file system.
+> And I'd really suggest that it NOT be this silly name BLOCK, something
+> more meaningful, like USE_BLOCK_DEVICES or something equally useful to
+> parse.
 
+mm...  I think CONFIG_BLOCK is a reasonable compromise between the needs for
+brevity and understandability.
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 0.277375

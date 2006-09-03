@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWICWhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWICWgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWICWhb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWICWh2
+	id S932098AbWICWgs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWICWgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:37:28 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:61836 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751136AbWICW3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:29:12 -0400
+	Sun, 3 Sep 2006 18:36:47 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:10453 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751208AbWICW34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:29:56 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=GNd+7kbNavlEKGolx02AHJFmo9/plopfua2q1IoKs1UNFtl40TFeZuTEJbEnKVuH8t95x0cjmRRB5uGh4NQl+HSJBhnJLdfzr7Pi3wh9lf1VCRVHgHMVPG1SclOBKbhDmUi7ZiRhp/gTxzG1Rlb0l+8h5vw2HEhNUd+G2DTmuKM=
+        b=p4wiFJeX/+IzQwu4sXkz1zyjJA1Y3GgW37WVkPj95FTgXpzcOlEaOWgjA4IhGad4d7Nu3f27qDu4JQF+cbtdhSM9hu87ZB1RT6PbgD8iRJbEqkJ2h24Z4UAWudfD0EpFJb5de8AeExwV1VFDmY8ev3k/PoS5Cj5jsKOHcw3tDT8=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 07/26] Dynamic kernel command-line - frv
-Date: Mon, 4 Sep 2006 01:18:48 +0300
+Subject: [PATCH 12/26] Dynamic kernel command-line - m68k
+Date: Mon, 4 Sep 2006 01:20:42 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,48 +35,29 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040118.49662.alon.barlev@gmail.com>
+Message-Id: <200609040120.43534.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1. Rename saved_command_line into boot_command_line.
-2. Set command_line as __initdata.
+Rename saved_command_line into boot_command_line.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/frv/kernel/setup.c	2006-09-03 18:55:06.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/frv/kernel/setup.c	2006-09-03 20:59:28.000000000 +0300
-@@ -112,7 +112,7 @@ unsigned long __initdata num_mappedpages
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/m68k/kernel/setup.c linux-2.6.18-rc5-mm1/arch/m68k/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/m68k/kernel/setup.c	2006-09-03 18:55:09.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/m68k/kernel/setup.c	2006-09-03 19:47:58.000000000 +0300
+@@ -241,7 +241,7 @@ void __init setup_arch(char **cmdline_p)
+ 	init_mm.brk = (unsigned long) &_end;
  
- struct cpuinfo_frv __nongprelbss boot_cpu_data;
+ 	*cmdline_p = m68k_command_line;
+-	memcpy(saved_command_line, *cmdline_p, CL_SIZE);
++	memcpy(boot_command_line, *cmdline_p, CL_SIZE);
  
--char command_line[COMMAND_LINE_SIZE];
-+char __initdata command_line[COMMAND_LINE_SIZE];
- char __initdata redboot_command_line[COMMAND_LINE_SIZE];
- 
- #ifdef CONFIG_PM
-@@ -764,7 +764,7 @@ void __init setup_arch(char **cmdline_p)
- 	printk("uClinux FR-V port done by Red Hat Inc <dhowells@redhat.com>\n");
- #endif
- 
--	memcpy(saved_command_line, redboot_command_line, COMMAND_LINE_SIZE);
-+	memcpy(boot_command_line, redboot_command_line, COMMAND_LINE_SIZE);
- 
- 	determine_cpu();
- 	determine_clocks(1);
-@@ -805,7 +805,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- 
- 	/* deal with the command line - RedBoot may have passed one to the kernel */
--	memcpy(command_line, saved_command_line, sizeof(command_line));
-+	memcpy(command_line, boot_command_line, sizeof(command_line));
- 	*cmdline_p = &command_line[0];
- 	parse_cmdline_early(command_line);
- 
+ 	/* Parse the command line for arch-specific options.
+ 	 * For the m68k, this is currently only "debug=xxx" to enable printing
 
 -- 
 VGER BF report: H 0

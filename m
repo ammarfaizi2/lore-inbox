@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWICWai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWICWb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWICWai (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWICWaB
+	id S1750764AbWICWb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWICWbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:30:01 -0400
+	Sun, 3 Sep 2006 18:31:23 -0400
 Received: from py-out-1112.google.com ([64.233.166.183]:23952 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751245AbWICW3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:29:47 -0400
+	id S1751195AbWICWau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:30:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=uSChv92H9eOr4ntStjhwThu7yB3p/wxy05+rvrXDmMYKgNUsb75LlGRTNUsm7u3nVaI0x7wi4Wez/+Vv7kJb4MsiRbaasZazcCTnxWF+2d9Bqfub032df/xFnYTLaiGXq5Kmop8zMTgGHbkS+D9PZF26ZcE/nMfIlSwTYbEW+kY=
+        b=TvWRmFnp3CkLDZruVV3v79v9cFdyzu88porGOlZUbQVR6XuzIOXi/K+CQClg3Ff8sFVSYYC88HWQcOwKsaq5uyL7Z7W4uP2g9W+9IqCr3W0OA8KVD3AcReuW6TN16JayeUFW/lEKUfYISfaYQ7/EOwAwouL/a4/TzfG1hxwKGN0=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 11/26] Dynamic kernel command-line - m32r
-Date: Mon, 4 Sep 2006 01:20:19 +0300
+Subject: [PATCH 18/26] Dynamic kernel command-line - s390
+Date: Mon, 4 Sep 2006 01:22:21 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,41 +35,29 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040120.21054.alon.barlev@gmail.com>
+Message-Id: <200609040122.23291.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1. Rename saved_command_line into boot_command_line.
-2. Set command_line as __initdata.
+Rename saved_command_line into boot_command_line.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/m32r/kernel/setup.c linux-2.6.18-rc5-mm1/arch/m32r/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/m32r/kernel/setup.c	2006-09-03 18:55:09.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/m32r/kernel/setup.c	2006-09-03 21:00:37.000000000 +0300
-@@ -64,7 +64,7 @@ struct screen_info screen_info = {
- 
- extern int root_mountflags;
- 
--static char command_line[COMMAND_LINE_SIZE];
-+static char __initdata command_line[COMMAND_LINE_SIZE];
- 
- static struct resource data_resource = {
- 	.name   = "Kernel data",
-@@ -95,8 +95,8 @@ static __inline__ void parse_mem_cmdline
- 	int usermem = 0;
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/s390/kernel/setup.c linux-2.6.18-rc5-mm1/arch/s390/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/s390/kernel/setup.c	2006-09-03 18:56:51.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/s390/kernel/setup.c	2006-09-03 19:47:58.000000000 +0300
+@@ -626,7 +626,7 @@ setup_arch(char **cmdline_p)
+ #endif /* CONFIG_64BIT */
  
  	/* Save unparsed command line copy for /proc/cmdline */
--	memcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
--	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
-+	memcpy(boot_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
-+	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
+-	strlcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
  
- 	memory_start = (unsigned long)CONFIG_MEMORY_START+PAGE_OFFSET;
- 	memory_end = memory_start+(unsigned long)CONFIG_MEMORY_SIZE;
+ 	*cmdline_p = COMMAND_LINE;
+ 	*(*cmdline_p + COMMAND_LINE_SIZE - 1) = '\0';
 
 -- 
 VGER BF report: H 0

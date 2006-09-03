@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWICW2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWICW2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWICW2b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWICW2a
+	id S1751182AbWICW2k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWICW2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:28:30 -0400
+	Sun, 3 Sep 2006 18:28:39 -0400
 Received: from py-out-1112.google.com ([64.233.166.176]:61836 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751084AbWICW23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:28:29 -0400
+	id S1751182AbWICW2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:28:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=qGVM8Jc67Gxs6eqDK7MUHfKiz2K05IliJBQghyVET8To0kGj1K9W8mJleTmxrQEmhoEuUY7msK8CkU0Zp+r/Q204EmmDcFBqSm7oCcoS1JZQTvfh6pGfjtOgdr81F+UFD61alVKGnE9+wMZQ9O1d6VT+b+SWZPaD+f6NdrkLG4I=
+        b=nvVLWsFNhs6ISFSExZ56tvRy7wRSGoJU5iQkp6zI7SXvOpfY0nKrdiZ3M93EohGMN58srfa9DfxuEeogFrsCwMcI0ehp3zlvC6uIZkqVNbUS95szgAJbo2SrFsM4By7f+I06WKXrKDyt+20yZGuWK4PjhbCcxt2Zp4gXQ/1JoEU=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 02/26] Dynamic kernel command-line - alpha
-Date: Mon, 4 Sep 2006 01:17:05 +0300
+Subject: [PATCH 03/26] Dynamic kernel command-line - arm
+Date: Mon, 4 Sep 2006 01:17:28 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040117.06736.alon.barlev@gmail.com>
+Message-Id: <200609040117.31450.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,36 +47,29 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/alpha/kernel/setup.c linux-2.6.18-rc5-mm1/arch/alpha/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/alpha/kernel/setup.c	2006-09-03 18:56:47.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/alpha/kernel/setup.c	2006-09-03 20:57:36.000000000 +0300
-@@ -120,7 +120,7 @@ static void get_sysnames(unsigned long, 
- 			 char **, char **);
- static void determine_cpu_caches (unsigned int);
- 
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c	2006-09-03 18:56:47.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c	2006-09-03 20:58:23.000000000 +0300
+@@ -106,7 +106,7 @@ unsigned long phys_initrd_size __initdat
+ static struct meminfo meminfo __initdata = { 0, };
+ static const char *cpu_name;
+ static const char *machine_name;
 -static char command_line[COMMAND_LINE_SIZE];
 +static char __initdata command_line[COMMAND_LINE_SIZE];
  
- /*
-  * The format of "screen_info" is strange, and due to early
-@@ -541,7 +541,7 @@ setup_arch(char **cmdline_p)
- 	} else {
- 		strlcpy(command_line, COMMAND_LINE, sizeof command_line);
- 	}
--	strcpy(saved_command_line, command_line);
-+	strcpy(boot_command_line, command_line);
- 	*cmdline_p = command_line;
+ static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
+ static union { char c[4]; unsigned long l; } endian_test __initdata = { { 'l', '?', '?', 'b' } };
+@@ -803,8 +803,8 @@ void __init setup_arch(char **cmdline_p)
+ 	init_mm.end_data   = (unsigned long) &_edata;
+ 	init_mm.brk	   = (unsigned long) &_end;
  
- 	/* 
-@@ -583,7 +583,7 @@ setup_arch(char **cmdline_p)
- 	}
- 
- 	/* Replace the command line, now that we've killed it with strsep.  */
--	strcpy(command_line, saved_command_line);
-+	strcpy(command_line, boot_command_line);
- 
- 	/* If we want SRM console printk echoing early, do it now. */
- 	if (alpha_using_srm && srmcons_output) {
+-	memcpy(saved_command_line, from, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
++	memcpy(boot_command_line, from, COMMAND_LINE_SIZE);
++	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
+ 	parse_cmdline(cmdline_p, from);
+ 	paging_init(&meminfo, mdesc);
+ 	request_standard_resources(&meminfo, mdesc);
 
 -- 
 VGER BF report: H 0

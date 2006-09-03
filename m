@@ -1,63 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWICWgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWICWoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWICWgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWICWgr
+	id S1751102AbWICWoA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWICWoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:36:47 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:10453 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751208AbWICW34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:29:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=p4wiFJeX/+IzQwu4sXkz1zyjJA1Y3GgW37WVkPj95FTgXpzcOlEaOWgjA4IhGad4d7Nu3f27qDu4JQF+cbtdhSM9hu87ZB1RT6PbgD8iRJbEqkJ2h24Z4UAWudfD0EpFJb5de8AeExwV1VFDmY8ev3k/PoS5Cj5jsKOHcw3tDT8=
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 12/26] Dynamic kernel command-line - m68k
-Date: Mon, 4 Sep 2006 01:20:42 +0300
-User-Agent: KMail/1.9.4
-Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com,
-       davej@codemonkey.org.uk, Riley@williams.name, trini@kernel.crashing.org,
-       davem@davemloft.net, ecd@brainaid.de, jj@sunsite.ms.mff.cuni.cz,
-       anton@samba.org, wli@holomorphy.com, lethal@linux-sh.org, rc@rc0.org.uk,
-       spyro@f2s.com, rth@twiddle.net, avr32@atmel.com, hskinnemoen@atmel.com,
-       starvik@axis.com, ralf@linux-mips.org, matthew@wil.cx,
-       grundler@parisc-linux.org, geert@linux-m68k.org, zippel@linux-m68k.org,
-       paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
-       uclinux-v850@lsi.nec.co.jp, chris@zankel.net
-References: <200609040115.22856.alon.barlev@gmail.com>
-In-Reply-To: <200609040115.22856.alon.barlev@gmail.com>
+	Sun, 3 Sep 2006 18:44:00 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:47820 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751102AbWICWn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:43:59 -0400
+Message-ID: <44FB5AAD.7020307@perkel.com>
+Date: Sun, 03 Sep 2006 15:43:57 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Raid 0 Swap?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609040120.43534.alon.barlev@gmail.com>
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If I have two drives and I want swap to be fast if I allocate swap spam 
+on both drives does it break up the load between them? Or would it run 
+faster if I did a Raid 0 swap?
 
-Rename saved_command_line into boot_command_line.
-
-Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
-
----
-
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/m68k/kernel/setup.c linux-2.6.18-rc5-mm1/arch/m68k/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/m68k/kernel/setup.c	2006-09-03 18:55:09.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/m68k/kernel/setup.c	2006-09-03 19:47:58.000000000 +0300
-@@ -241,7 +241,7 @@ void __init setup_arch(char **cmdline_p)
- 	init_mm.brk = (unsigned long) &_end;
- 
- 	*cmdline_p = m68k_command_line;
--	memcpy(saved_command_line, *cmdline_p, CL_SIZE);
-+	memcpy(boot_command_line, *cmdline_p, CL_SIZE);
- 
- 	/* Parse the command line for arch-specific options.
- 	 * For the m68k, this is currently only "debug=xxx" to enable printing
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 0.286654

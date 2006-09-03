@@ -1,111 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWICSQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWICSYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWICSQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 14:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWICSQC
+	id S932082AbWICSYb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 14:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWICSYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 14:16:02 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:33356 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932071AbWICSQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 14:16:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ey801y+GqdCP4eq8YAi1eU1Y/X44kZZQ9c8NfMbDOJn7MhOqLnTpcJtJ7qSu4j59Izua1vLRKBUGzUP67qIyLpZw0nhBumLK+9SnpOTWLUgH0nZNyCf8APV4EeaXUa1HN31UDkS2u+oAMbkyZASjCJqTZFPYALqNkt9easwTKx8=
-Message-ID: <a44ae5cd0609031115r3a0d10den8a86a79cd6c5756a@mail.gmail.com>
-Date: Sun, 3 Sep 2006 11:15:59 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- BUG: MAX_STACK_TRACE_ENTRIES too low!
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <a44ae5cd0609031005u263aebebr6e53fb59e0153d0a@mail.gmail.com>
+	Sun, 3 Sep 2006 14:24:31 -0400
+Received: from rrcs-24-227-114-150.se.biz.rr.com ([24.227.114.150]:65171 "EHLO
+	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S932082AbWICSYa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 14:24:30 -0400
+Date: Sun, 3 Sep 2006 14:21:23 -0400 (EDT)
+From: shogunx <shogunx@sleekfreak.ath.cx>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+cc: Matthias Hentges <oe@hentges.net>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
+ easily reproducable
+In-Reply-To: <200609031555.24901.vda.linux@googlemail.com>
+Message-ID: <Pine.LNX.4.44.0609031417060.13873-100000@sleekfreak.ath.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0609022003i2b3157a2kb8bcd6f4f778b6c9@mail.gmail.com>
-	 <20060903125458.GA21390@elte.hu>
-	 <a44ae5cd0609031005u263aebebr6e53fb59e0153d0a@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/3/06, Miles Lane <miles.lane@gmail.com> wrote:
-> On 9/3/06, Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > * Miles Lane <miles.lane@gmail.com> wrote:
-> >
-> > > Sorry Andrew.  I don't see clues here to help me target the report to
-> > > a maintainer. I hope this helps.
+On Sun, 3 Sep 2006, Denis Vlasenko wrote:
+
+> On Sunday 03 September 2006 01:49, shogunx wrote:
+> > > > > Well, it just crapped out on me again :(
+> > > > >
+> > > > > Sep  2 23:36:13 localhost kernel: NETDEV WATCHDOG: eth2: transmit timed
+> > > > > out
+> > > > > Sep  2 23:36:13 localhost kernel: sky2 hardware hung? flushing
+> > > > >
+> > > > > Only a rmmod / modprobe cycle helps at this point.
+> > > >
+> > > > Really?  What is the error condition causing it?  On my friends lap, which
+> > > > has an integrated sky2, his drops out with a full sustained TX...
+> > > > uploading to another box for example, at about 4-8MB of transfer.  The
+> > > > fix in his case is ifdown eth0 && ifup eth0.  I have
+> > > > yet to see the error occur at all on my ExpressCard device, either with
+> > > > 2.6.18-rc5 or 2.6.17.5.  I built the rc5 as a preemptive measure, but I
+> > > > cannot get it to fail under any conditions.
+> > > >
 > > >
-> > > BUG: MAX_STACK_TRACE_ENTRIES too low!
-> > > turning off the locking correctness validator.
+> > > I have yet to find a reproduceable way to trigger the bug but I'll try a
+> > > few things tomorrow.
+> > > Currently it appears to be completely ranom. I've loaded the driver w/
+> > > debug=10, maybe it'll give some clues.
 > >
-> > Miles, could you try the patch below? (Andrew: if this solves Miles'
-> > problem then i think this is v2.6.18 material too. [The other
-> > possibility would be some permanent stack-trace entries leak, in which
-> > case the patch will not help. If that happens then we'll have to debug
-> > this some more.])
-> >
-> >         Ingo
-> >
-> > ---------------->
-> > From: Ingo Molnar <mingo@elte.hu>
-> > Subject: lockdep: double the number of stack-trace entries
-> >
-> > Miles Lane reported the "BUG: MAX_STACK_TRACE_ENTRIES too low!" message,
-> > which means that during normal use his system produced enough lockdep
-> > events so that the 128-thousand entries stack-trace array got exhausted.
-> > Double the size of the array.
-> >
-> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> > ---
-> >  kernel/lockdep_internals.h |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > Index: linux/kernel/lockdep_internals.h
-> > ===================================================================
-> > --- linux.orig/kernel/lockdep_internals.h
-> > +++ linux/kernel/lockdep_internals.h
-> > @@ -27,7 +27,7 @@
-> >   * Stack-trace: tightly packed array of stack backtrace
-> >   * addresses. Protected by the hash_lock.
-> >   */
-> > -#define MAX_STACK_TRACE_ENTRIES        131072UL
-> > +#define MAX_STACK_TRACE_ENTRIES        262144UL
-> >
-> >  extern struct list_head all_lock_classes;
-> >
-> >
+> > Ack.  Awaiting more info.  I pushed it pretty hard last night with both
+> > kernel revisions, scp'ing cd iso images and kernel tarballs back and forth
+> > across the interface, and could not get it to lock.  I am using a 88E8053
+> > chipset.  I'll ask my friend what chipset his is.  Perhaps its a
+> > different bug that is hitting you now...
 >
-> Ingo, there seemed to be a difference between the file you editted and
->  the one in Andrew's tree.  I remade you patch so it applies cleanly.
-> I'll test and let you know.  One word of caution, I only hit the
-> problem once and I'm not sure how to trigger the condition.  I'll do
-> my best.
+> scp isn't "pushing very hard". It takes some time to do ssh crypto
+> and even if your CPU is fast enough for that to be not an issue,
+> scp is using TCP, which is _designed_ to not saturate links to 100.00%.
+
+thats the condition that caused the error on my friends box... scp a large
+file up over the interface in question, and watch the link dump.
+
 >
-> Thanks,
->         Miles
+> Give it a real hard beating with uni- and bidirectional UDP netcat flood! :)
+
+well, there is that.  i'll give it that pounding and see what happens.
+
+> --
+> vda
 >
-> --- kernel/lockdep_internals.h~ 2006-09-03 09:59:29.000000000 -0700
-> +++ kernel/lockdep_internals.h  2006-09-03 10:00:55.000000000 -0700
-> @@ -27,7 +27,7 @@
->   * Stack-trace: tightly packed array of stack backtrace
->   * addresses. Protected by the hash_lock.
->   */
-> -#define MAX_STACK_TRACE_ENTRIES        131072UL
-> +#define MAX_STACK_TRACE_ENTRIES        262144UL
->
->  extern struct list_head all_lock_classes;
+> --
+> VGER BF report: U 0.511791
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-By the way, after making this change "make all install modules
-modules_install" didn't seem to notice that the file had been
-modified.  I backed up .config, ran "make mrproper", etc.  Is this a
-build dependency checker bug?
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
 
-Thanks,
-        Miles
 
 -- 
-VGER BF report: H 4.35163e-06
+VGER BF report: U 0.482991

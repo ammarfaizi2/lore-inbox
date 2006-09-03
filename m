@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWICWNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWICWNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWICWNW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWICWJ1
+	id S1751033AbWICWNd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWICWNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:09:27 -0400
+	Sun, 3 Sep 2006 18:13:25 -0400
 Received: from wx-out-0506.google.com ([66.249.82.233]:25868 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932176AbWICWJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:09:20 -0400
+	id S1750893AbWICWJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:09:28 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Q5GaN1ubo5v3spxuU978mGH3/WftzXwbyT45vfhN0X+L83E4k2PRL++R2tFAJ+Fun6SmhInvBSK7kSfHIxOTbv5UGBq9gS6wgz0BwGRkMstQZhkFGYm/J+rWBHYIFoyNnwZuzugSUjibjVdaITS6D13pCtQyuSdtWGr2GIQufXU=
+        b=is9hwLFjE/jRyG1l9H7q8RAwRIVlN5zY/bNfqi7ta3vLDi0QcVZBAgdhX+n2jyxptljnS7I2Y7GSUO3f05faY53xfpiHsLh4IkLopu5nWAOLC4FFHH4vodQGxbrq/ULG+5jRSQiITSueafEf6J0VpR3bpdR9GRqA0Bl7bGCFLKQ=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 19/26] Dynamic kernel command-line - sh
-Date: Mon, 4 Sep 2006 01:01:04 +0300
+Subject: [PATCH 20/26] Dynamic kernel command-line - sh64
+Date: Mon, 4 Sep 2006 01:01:26 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,7 +35,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040101.05551.alon.barlev@gmail.com>
+Message-Id: <200609040101.27787.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,23 +47,24 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/sh/kernel/setup.c 
-linux-2.6.18-rc5-mm1/arch/sh/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/sh/kernel/setup.c	
-2006-09-03 18:56:51.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/sh/kernel/setup.c	2006-09-03 
-21:02:18.000000000 +0300
-@@ -88,7 +88,7 @@ static struct sh_machine_vector* __init 
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/sh64/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/sh64/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/sh64/kernel/setup.c	
+2006-09-03 18:55:18.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/sh64/kernel/setup.c	2006-09-03 
+21:02:25.000000000 +0300
+@@ -83,7 +83,7 @@ extern int sh64_tlb_init(void);
  #define RAMDISK_PROMPT_FLAG		0x8000
  #define RAMDISK_LOAD_FLAG		0x4000
  
 -static char command_line[COMMAND_LINE_SIZE] = { 0, };
 +static char __initdata command_line[COMMAND_LINE_SIZE] = { 
 0, };
+ unsigned long long memory_start = CONFIG_MEMORY_START;
+ unsigned long long memory_end = CONFIG_MEMORY_START + 
+(CONFIG_MEMORY_SIZE_IN_MB * 1024 * 1024);
  
- struct resource standard_io_resources[] = {
- 	{ "dma1", 0x00, 0x1f },
-@@ -125,8 +125,8 @@ static inline void parse_cmdline (char *
+@@ -95,8 +95,8 @@ static inline void parse_mem_cmdline (ch
  	int len = 0;
  
  	/* Save unparsed command line copy for /proc/cmdline */
@@ -74,8 +75,8 @@ COMMAND_LINE_SIZE);
 COMMAND_LINE_SIZE);
 +	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
  
- 	memory_start = (unsigned long)PAGE_OFFSET+__MEMORY_START;
- 	memory_end = memory_start + __MEMORY_SIZE;
+ 	for (;;) {
+ 	  /*
 
 -- 
-VGER BF report: U 0.499656
+VGER BF report: U 0.49998

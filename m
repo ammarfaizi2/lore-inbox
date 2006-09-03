@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWICHxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWICIaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751681AbWICHxx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 03:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752145AbWICHxx
+	id S1750713AbWICIaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 04:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWICIaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 03:53:53 -0400
-Received: from khc.piap.pl ([195.187.100.11]:62357 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751681AbWIBW70 (ORCPT
+	Sun, 3 Sep 2006 04:30:22 -0400
+Received: from www.osadl.org ([213.239.205.134]:8174 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750713AbWICIaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 18:59:26 -0400
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
-References: <m3odty57gf.fsf@defiant.localdomain>
-	<20060902214839.GA27295@electric-eye.fr.zoreil.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 03 Sep 2006 00:59:24 +0200
-In-Reply-To: <20060902214839.GA27295@electric-eye.fr.zoreil.com> (Francois Romieu's message of "Sat, 2 Sep 2006 23:48:40 +0200")
-Message-ID: <m3ejutan8z.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 3 Sep 2006 04:30:21 -0400
+Subject: Re: [RFC] Simple userspace interface for PCI drivers
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060901211754.GA4884@ucw.cz>
+References: <20060830062338.GA10285@kroah.com>
+	 <20060901211754.GA4884@ucw.cz>
+Content-Type: text/plain
+Date: Sun, 03 Sep 2006 10:34:19 +0200
+Message-Id: <1157272459.29250.393.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> writes:
+On Fri, 2006-09-01 at 21:17 +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > And the name is a bit ackward, anyone have a better suggestion?
+> 
+> drivers/uio (for userspace io driver)?
 
-> dev_activate takes BH disabling locks only. How could a softirq happen
-> on the same cpu and trigger a deadlock ?
+not too bad.
 
-That's BTW "possible circular locking dependency" and there is only
-one CPU (no HT, single core - an old mobile Celeron P3).
+> And yes, I think this one _should_ taint the kernel. When userspace
+> starts playing with interrupts, chances of kernel crash are high.
 
-I have to admit this machine has a history of mysterious hangs (black
-screen of death), though I think they are related to LAN and maybe disk
-activity, not GRE/PPP/ATM/ADSL (RAM tests ok, the hardware is rather
-common - i440BX etc. but who knows).
+Userspace does not play with interrupts directly. You still have a small
+stub driver, which does the primary interrupt handling, else you would
+have a hard time to deal with shared irqs.
+
+> Does it work properly with pci shared interrupts?
+
+See the SERCOS example I posted.
+
+	tglx
+
+
+
 -- 
-Krzysztof Halasa
-
--- 
-VGER BF report: S 0.999877
+VGER BF report: U 0.500128

@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWICDMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751972AbWICDUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751957AbWICDMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 23:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751958AbWICDMx
+	id S1751972AbWICDUk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 23:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751973AbWICDUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 23:12:53 -0400
-Received: from adsl-230-146.dsl.uva.nl ([146.50.230.146]:54939 "EHLO
-	pan.var.cx") by vger.kernel.org with ESMTP id S1751957AbWICDMx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 23:12:53 -0400
-Date: Sun, 3 Sep 2006 05:13:03 +0200
-From: Frank v Waveren <fvw@var.cx>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Paul Eggert <eggert@CS.UCLA.EDU>
-Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
-Message-ID: <20060903031303.GA26881@var.cx>
-References: <1156927468.29250.113.camel@localhost.localdomain> <20060831204612.73ed7f33.akpm@osdl.org> <20060902110445.GC3335@var.cx> <1157222679.29250.386.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+	Sat, 2 Sep 2006 23:20:39 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:52638 "EHLO
+	asav12.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751972AbWICDUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 23:20:39 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KAFvl+USBUIlZLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [RFC/PATCH-mm] i8042: activate panic blink only in X
+Date: Sat, 2 Sep 2006 23:20:36 -0400
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Grant Coady <gcoady.lk@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1157222679.29250.386.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200609022320.36754.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Sep 02, 2006 at 08:44:39PM +0200, Thomas Gleixner wrote:
-> On Sat, 2006-09-02 at 13:04 +0200, Frank v Waveren wrote:
-> > Here's a different patch, which should actually sleep for the
-> > specified amount of time up to 2^64 seconds with a loop around the
-> > sleeps and a tally of how long is left to sleep. It does mean we wake
-> > up once every 300 years on long sleeps, but that shouldn't cause any
-> > huge performance problems.
->
-> Which non academic problem is solved by this patch ?
-Compared to a current linus kernel, it fixes the overflow problem.
-Compared to the current mm (good job on finding the sneaky bug in that
-one by the way) it doesn't fix anything additional, but still fixes
-all of the same things plus the academic problems. And it makes the
-GNU coreutils people happy, which is rarely a bad thing.
-
---=20
-Frank v Waveren                                  Key fingerprint: BDD7 D61E
-fvw@var.cx                                              5D39 CF05 4BFC F57A
-Public key: hkp://wwwkeys.pgp.net/468D62C8              FA00 7D51 468D 62C8
-
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFE+kg/+gB9UUaNYsgRAsU1AJ0VsGX0Nsyz6l5MZxMiKFihI7mqjACePlWa
-TK3EH8bZRMjcttaSkD6Ezhs=
-=s0p1
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
+Here is an attempt to make panicblink only active in X so there is a
+chance of keyboard still working after panic in text console. Any reason
+why is should not be done this way?
 
 -- 
-VGER BF report: H 0.000448983
+Dmitry
+
+Input: i8042 - blink keyboard LEDs during panic only when in X
+
+This gives keyboard a chance to work in text console so user
+can attempt to exctract more useful data form crashed box
+(for example some backtraces from SysRq)
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/serio/i8042.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
+
+Index: work/drivers/input/serio/i8042.c
+===================================================================
+--- work.orig/drivers/input/serio/i8042.c
++++ work/drivers/input/serio/i8042.c
+@@ -20,6 +20,7 @@
+ #include <linux/err.h>
+ #include <linux/rcupdate.h>
+ #include <linux/platform_device.h>
++#include <linux/vt_kern.h>
+ 
+ #include <asm/io.h>
+ 
+@@ -831,6 +832,15 @@ static long i8042_panic_blink(long count
+ 	static char led;
+ 
+ 	/*
++	 * Only blink while in X because it messes up scrollback in console
++	 * preventing users to see the entire oops.
++	 */
++#ifdef CONFIG_HW_CONSOLE
++	if (vc_cons[fg_console].d->vc_mode != KD_GRAPHICS)
++		return 0;
++#endif
++
++	/*
+ 	 * We expect frequency to be about 1/2s. KDB uses about 1s.
+ 	 * Make sure they are different.
+ 	 */
+
+-- 
+VGER BF report: H 0.00257812

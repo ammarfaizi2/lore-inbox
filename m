@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWICNCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWICNUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbWICNCM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 09:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWICNCM
+	id S1751067AbWICNUh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 09:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWICNUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 09:02:12 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:24205 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751021AbWICNCK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 09:02:10 -0400
-Date: Sun, 3 Sep 2006 14:54:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- BUG: MAX_STACK_TRACE_ENTRIES too low!
-Message-ID: <20060903125458.GA21390@elte.hu>
-References: <a44ae5cd0609022003i2b3157a2kb8bcd6f4f778b6c9@mail.gmail.com>
-Mime-Version: 1.0
+	Sun, 3 Sep 2006 09:20:37 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:6871 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751066AbWICNUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 09:20:36 -0400
+From: Grant Coady <g_r_a_n_t_@dodo.com.au>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Grant Coady <gcoady.lk@gmail.com>
+Subject: Re: [RFC/PATCH-mm] i8042: activate panic blink only in X
+Date: Sun, 03 Sep 2006 23:20:30 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <9gllf2l6mgc6oatnni3c0l694dg15c0oli@4ax.com>
+References: <200609022320.36754.dtor@insightbb.com>
+In-Reply-To: <200609022320.36754.dtor@insightbb.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a44ae5cd0609022003i2b3157a2kb8bcd6f4f778b6c9@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2 Sep 2006 23:20:36 -0400, Dmitry Torokhov <dtor@insightbb.com> wrote:
 
-* Miles Lane <miles.lane@gmail.com> wrote:
+>To: LKML <linux-kernel@vger.kernel.org>
+>Subject: [RFC/PATCH-mm] i8042: activate panic blink only in X
+>From: Dmitry Torokhov <dtor@insightbb.com>
+>Date: Sat, 2 Sep 2006 23:20:36 -0400
+>Cc: Andrew Morton <akpm@osdl.org>, Grant Coady <gcoady.lk@gmail.com>
+>
+>Hi,
+>
+>Here is an attempt to make panicblink only active in X so there is a
+>chance of keyboard still working after panic in text console. Any reason
+>why is should not be done this way?
+>
 
-> Sorry Andrew.  I don't see clues here to help me target the report to 
-> a maintainer. I hope this helps.
-> 
-> BUG: MAX_STACK_TRACE_ENTRIES too low!
-> turning off the locking correctness validator.
+Works as expected here on console, I cannot test the X function.
 
-Miles, could you try the patch below? (Andrew: if this solves Miles' 
-problem then i think this is v2.6.18 material too. [The other 
-possibility would be some permanent stack-trace entries leak, in which 
-case the patch will not help. If that happens then we'll have to debug 
-this some more.])
-
-	Ingo
-
----------------->
-From: Ingo Molnar <mingo@elte.hu>
-Subject: lockdep: double the number of stack-trace entries
-
-Miles Lane reported the "BUG: MAX_STACK_TRACE_ENTRIES too low!" message,
-which means that during normal use his system produced enough lockdep
-events so that the 128-thousand entries stack-trace array got exhausted.
-Double the size of the array.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/lockdep_internals.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux/kernel/lockdep_internals.h
-===================================================================
---- linux.orig/kernel/lockdep_internals.h
-+++ linux/kernel/lockdep_internals.h
-@@ -27,7 +27,7 @@
-  * Stack-trace: tightly packed array of stack backtrace
-  * addresses. Protected by the hash_lock.
-  */
--#define MAX_STACK_TRACE_ENTRIES	131072UL
-+#define MAX_STACK_TRACE_ENTRIES	262144UL
- 
- extern struct list_head all_lock_classes;
- 
+Grant.
 
 -- 
-VGER BF report: U 0.5
+VGER BF report: U 0.480126

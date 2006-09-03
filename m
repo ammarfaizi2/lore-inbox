@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWICWQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWICWQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWICWQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWICWPn
+	id S1751112AbWICWQy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWICWHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:15:43 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:25868 "EHLO
+	Sun, 3 Sep 2006 18:07:43 -0400
+Received: from wx-out-0506.google.com ([66.249.82.226]:36363 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750863AbWICWID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:08:03 -0400
+	id S932130AbWICWHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:07:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=GO80J+V/I7mHHeeEYeCMamduUmNDyo67tskZM9J4EZHpl9tiUAz6d6TM66P/2eHPhe/vSx+qOAnwvCYDpII14b1gpmKKHssBC8xvOFWAdLLyLeYLMfsb/O9Fwe/nUGvUAPw/Sl/Bdwn5D0jKzSujrp8nJX2a1eZwOXyyGhFsbfo=
+        b=t0vjlGocNgdAswo9t4RdzoTioXnNI6804y8jHDTfBk6kM9X9EYdF/XMY/lGKrcBZl9PkguBxXBNpZ/07t9ZpZGMT4jQmXDSOD8Vz0jikc/1jR2SZ+ZZVgQkSLdA1n2MoObABUKMK0fmoe8Y3wfyKHuC1HAWZtMzgAH/9O1GZ/ew=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 10/26] Dynamic kernel command-line - ia64
-Date: Mon, 4 Sep 2006 00:56:50 +0300
+Subject: [PATCH 03/26] Dynamic kernel command-line - arm
+Date: Mon, 4 Sep 2006 00:53:33 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,91 +35,46 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040056.52338.alon.barlev@gmail.com>
+Message-Id: <200609040053.33934.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Rename saved_command_line into boot_command_line.
+1. Rename saved_command_line into boot_command_line.
+2. Set command_line as __initdata.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/efi.c 
-linux-2.6.18-rc5-mm1/arch/ia64/kernel/efi.c
---- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/efi.c	
-2006-09-03 18:56:48.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/efi.c	2006-09-03 
-23:52:15.000000000 +0300
-@@ -413,11 +413,11 @@ efi_init (void)
- 	efi_char16_t *c16;
- 	u64 efi_desc_size;
- 	char *cp, vendor[100] = "unknown";
--	extern char saved_command_line[];
-+	extern char __initdata boot_command_line[];
- 	int i;
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/arm/kernel/setup.c	
+2006-09-03 18:56:47.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/arm/kernel/setup.c	2006-09-03 
+20:58:23.000000000 +0300
+@@ -106,7 +106,7 @@ unsigned long phys_initrd_size __initdat
+ static struct meminfo meminfo __initdata = { 0, };
+ static const char *cpu_name;
+ static const char *machine_name;
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
  
- 	/* it's too early to be able to use the standard kernel 
-command line support... */
--	for (cp = saved_command_line; *cp; ) {
-+	for (cp = boot_command_line; *cp; ) {
- 		if (memcmp(cp, "mem=", 4) == 0) {
- 			mem_limit = memparse(cp + 4, &cp);
- 		} else if (memcmp(cp, "max_addr=", 9) == 0) {
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/sal.c 
-linux-2.6.18-rc5-mm1/arch/ia64/kernel/sal.c
---- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/sal.c	
-2006-09-03 18:55:08.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/sal.c	2006-09-03 
-23:42:12.000000000 +0300
-@@ -194,9 +194,9 @@ static void __init
- chk_nointroute_opt(void)
- {
- 	char *cp;
--	extern char saved_command_line[];
-+	extern char __initdata boot_command_line[];
+ static char default_command_line[COMMAND_LINE_SIZE] 
+__initdata = CONFIG_CMDLINE;
+ static union { char c[4]; unsigned long l; } endian_test 
+__initdata = { { 'l', '?', '?', 'b' } };
+@@ -803,8 +803,8 @@ void __init setup_arch(char **cmdline_p)
+ 	init_mm.end_data   = (unsigned long) &_edata;
+ 	init_mm.brk	   = (unsigned long) &_end;
  
--	for (cp = saved_command_line; *cp; ) {
-+	for (cp = boot_command_line; *cp; ) {
- 		if (memcmp(cp, "nointroute", 10) == 0) {
- 			no_int_routing = 1;
- 			printk ("no_int_routing on\n");
-diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/setup.c 
-linux-2.6.18-rc5-mm1/arch/ia64/kernel/setup.c
---- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/setup.c	
-2006-09-03 18:56:48.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/setup.c	2006-09-03 
-19:47:58.000000000 +0300
-@@ -260,7 +260,7 @@ reserve_memory (void)
- 	 * after a kernel panic.
- 	 */
- 	{
--		char *from = strstr(saved_command_line, "crashkernel=");
-+		char *from = strstr(boot_command_line, "crashkernel=");
- 		if (from) {
- 			unsigned long size, base;
- 			size = memparse(from + 12, &from);
-@@ -433,7 +433,7 @@ setup_arch (char **cmdline_p)
- 	ia64_patch_vtop((u64) __start___vtop_patchlist, (u64) 
-__end___vtop_patchlist);
- 
- 	*cmdline_p = __va(ia64_boot_param->command_line);
--	strlcpy(saved_command_line, *cmdline_p, 
-COMMAND_LINE_SIZE);
-+	strlcpy(boot_command_line, *cmdline_p, COMMAND_LINE_SIZE);
- 
- 	efi_init();
- 	io_port_init();
-@@ -514,7 +514,7 @@ setup_arch (char **cmdline_p)
- 
- #ifdef CONFIG_CRASH_DUMP
- 	{
--		char *from = strstr(saved_command_line, "elfcorehdr=");
-+		char *from = strstr(boot_command_line, "elfcorehdr=");
- 
- 		if (from)
- 			elfcorehdr_addr = memparse(from+11, &from);
+-	memcpy(saved_command_line, from, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
++	memcpy(boot_command_line, from, COMMAND_LINE_SIZE);
++	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
+ 	parse_cmdline(cmdline_p, from);
+ 	paging_init(&meminfo, mdesc);
+ 	request_standard_resources(&meminfo, mdesc);
 
 -- 
-VGER BF report: H 0.028445
+VGER BF report: H 0.364495

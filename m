@@ -1,54 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWICWRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWICWQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWICWRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWICWRd
+	id S1751114AbWICWQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWICWPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:17:33 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12549 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750831AbWICWRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:17:02 -0400
-Date: Mon, 4 Sep 2006 00:17:00 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
-Subject: 2.6.18-rc5-mm1: MMU=n compile error
-Message-ID: <20060903221700.GH4416@stusta.de>
-References: <20060901015818.42767813.akpm@osdl.org>
+	Sun, 3 Sep 2006 18:15:43 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:25868 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750863AbWICWID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:08:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=GO80J+V/I7mHHeeEYeCMamduUmNDyo67tskZM9J4EZHpl9tiUAz6d6TM66P/2eHPhe/vSx+qOAnwvCYDpII14b1gpmKKHssBC8xvOFWAdLLyLeYLMfsb/O9Fwe/nUGvUAPw/Sl/Bdwn5D0jKzSujrp8nJX2a1eZwOXyyGhFsbfo=
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: [PATCH 10/26] Dynamic kernel command-line - ia64
+Date: Mon, 4 Sep 2006 00:56:50 +0300
+User-Agent: KMail/1.9.4
+Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johninsd@san.rr.com,
+       davej@codemonkey.org.uk, Riley@williams.name, trini@kernel.crashing.org,
+       davem@davemloft.net, ecd@brainaid.de, jj@sunsite.ms.mff.cuni.cz,
+       anton@samba.org, wli@holomorphy.com, lethal@linux-sh.org, rc@rc0.org.uk,
+       spyro@f2s.com, rth@twiddle.net, avr32@atmel.com, hskinnemoen@atmel.com,
+       starvik@axis.com, ralf@linux-mips.org, matthew@wil.cx,
+       grundler@parisc-linux.org, geert@linux-m68k.org, zippel@linux-m68k.org,
+       paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
+       uclinux-v850@lsi.nec.co.jp, chris@zankel.net
+References: <200609040050.13410.alon.barlev@gmail.com>
+In-Reply-To: <200609040050.13410.alon.barlev@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609040056.52338.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mm-tracking-shared-dirty-pages.patch breaks CONFIG_MMU=n architectures:
 
-<--  snip  -->
+Rename saved_command_line into boot_command_line.
 
-...
-  CC      mm/page-writeback.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/mm/page-writeback.c: In function 'test_clear_page_dirty':
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/mm/page-writeback.c:867: error: implicit declaration of function 'page_mkclean'
-make[2]: *** [mm/page-writeback.o] Error 1
+Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
-<--  snip  -->
+---
 
-cu
-Adrian
-
-BTW: @Andrew:
-     The Cc: line in mm-tracking-shared-dirty-pages.patch is busted.
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/efi.c 
+linux-2.6.18-rc5-mm1/arch/ia64/kernel/efi.c
+--- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/efi.c	
+2006-09-03 18:56:48.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/efi.c	2006-09-03 
+23:52:15.000000000 +0300
+@@ -413,11 +413,11 @@ efi_init (void)
+ 	efi_char16_t *c16;
+ 	u64 efi_desc_size;
+ 	char *cp, vendor[100] = "unknown";
+-	extern char saved_command_line[];
++	extern char __initdata boot_command_line[];
+ 	int i;
+ 
+ 	/* it's too early to be able to use the standard kernel 
+command line support... */
+-	for (cp = saved_command_line; *cp; ) {
++	for (cp = boot_command_line; *cp; ) {
+ 		if (memcmp(cp, "mem=", 4) == 0) {
+ 			mem_limit = memparse(cp + 4, &cp);
+ 		} else if (memcmp(cp, "max_addr=", 9) == 0) {
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/sal.c 
+linux-2.6.18-rc5-mm1/arch/ia64/kernel/sal.c
+--- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/sal.c	
+2006-09-03 18:55:08.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/sal.c	2006-09-03 
+23:42:12.000000000 +0300
+@@ -194,9 +194,9 @@ static void __init
+ chk_nointroute_opt(void)
+ {
+ 	char *cp;
+-	extern char saved_command_line[];
++	extern char __initdata boot_command_line[];
+ 
+-	for (cp = saved_command_line; *cp; ) {
++	for (cp = boot_command_line; *cp; ) {
+ 		if (memcmp(cp, "nointroute", 10) == 0) {
+ 			no_int_routing = 1;
+ 			printk ("no_int_routing on\n");
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/setup.c 
+linux-2.6.18-rc5-mm1/arch/ia64/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/ia64/kernel/setup.c	
+2006-09-03 18:56:48.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/ia64/kernel/setup.c	2006-09-03 
+19:47:58.000000000 +0300
+@@ -260,7 +260,7 @@ reserve_memory (void)
+ 	 * after a kernel panic.
+ 	 */
+ 	{
+-		char *from = strstr(saved_command_line, "crashkernel=");
++		char *from = strstr(boot_command_line, "crashkernel=");
+ 		if (from) {
+ 			unsigned long size, base;
+ 			size = memparse(from + 12, &from);
+@@ -433,7 +433,7 @@ setup_arch (char **cmdline_p)
+ 	ia64_patch_vtop((u64) __start___vtop_patchlist, (u64) 
+__end___vtop_patchlist);
+ 
+ 	*cmdline_p = __va(ia64_boot_param->command_line);
+-	strlcpy(saved_command_line, *cmdline_p, 
+COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, *cmdline_p, COMMAND_LINE_SIZE);
+ 
+ 	efi_init();
+ 	io_port_init();
+@@ -514,7 +514,7 @@ setup_arch (char **cmdline_p)
+ 
+ #ifdef CONFIG_CRASH_DUMP
+ 	{
+-		char *from = strstr(saved_command_line, "elfcorehdr=");
++		char *from = strstr(boot_command_line, "elfcorehdr=");
+ 
+ 		if (from)
+ 			elfcorehdr_addr = memparse(from+11, &from);
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
--- 
-VGER BF report: H 0.00135769
+VGER BF report: H 0.028445

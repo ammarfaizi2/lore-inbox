@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWICOQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWICOQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWICOQI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 10:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWICOQI
+	id S1751166AbWICOQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 10:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWICOQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 10:16:08 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:30648 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751164AbWICOQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 10:16:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=pYkslKeHUQHfPy1SPkGYfvkj3+GyTwE8xZw28JpDqD2OJyU0TubiY0aBVXm4MCu8/pN5xziDUVtkcqqWvjJhYUYNphJqzuPKGd64Ig63r8yvFZPXfII7kOrt0hD9tXDapP6OeJ8zAYjQCFwahCAb+Ypa63B6rAZX9YMqaKMx4Gg=
-Message-ID: <ccbc91640609030716o221dad8as9278b2081a28c490@mail.gmail.com>
-Date: Sun, 3 Sep 2006 22:16:05 +0800
-From: "=?GB2312?B?tq22rdmp?=" <doublefacer007@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG in ip_nat_helper_unregister at netfilter/ip_nat_helper.c
+	Sun, 3 Sep 2006 10:16:34 -0400
+Received: from helium.samage.net ([83.149.67.129]:17584 "EHLO
+	helium.samage.net") by vger.kernel.org with ESMTP id S1751166AbWICOQd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 10:16:33 -0400
+Message-ID: <4947.81.207.0.53.1157292958.squirrel@81.207.0.53>
+In-Reply-To: <200609031251.23743.rjw@sisk.pl>
+References: <200609031251.23743.rjw@sisk.pl>
+Date: Sun, 3 Sep 2006 16:15:58 +0200 (CEST)
+Subject: Re: Q: Suspend/resume support for sata_sil
+From: "Indan Zupancic" <indan@nul.nu>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: "Jeff Garzik" <jeff@garzik.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "LKML" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   I has found a bug that is caused by dead lock on ip_nat_ftp module
-in linux kernel 2.4.27 on SMP machine.My workaround of testing is as following:
-   I create a router by iptables ,FTP client and FTP server for testing.
-   client machine ip: 192.168.1.3/32 ,gateway 192.168.1.10/32
-   server machine ip: 192.168.2.3/32,gateway 192.168.2.10/32
-   router machine with tow NICs,
-       eth0:192.168.1.10/32
-       eth1:192.168.2.10/32
-Testing flow:
-  on router:
-  echo 1 > /proc/sys/net/ipv4/ip_forward
-  modprobe ip_nat_ftp
-  iptables -t nat -A POSTROUTING -s 192.168.1.3 -p tcp --dport 21
--o eth1 -j SNAT --to-source 192.168.2.10
-  on client:
-  I use a benchmark tool to create ftp sessions with the  remote
-FTP server.In the session,includes ftp control connections and data
-connections.The sending rate is about 500 sessions/10s.
-  When the num of conntrack is up to 15000,I rmmod the ip_nat_ftp
-and ip_conntrack _ftp modules by typing "modprobe -r ip_nat_ftp"
-command and then the kernel is dead locked.
-I think that the dead lock is caused by ip_conntrack_lock and
-ip_nat_lock.When I rmmod the ip_nat_ftp module, the function flow is
-as following:
-ip_nat_helper_unregister->ip_ct_selective_cleanup->get_next_corpse(ip_conntrack_lock)
- ->kill_helper(ip_nat_lock)
-But the kernel there is another flow is as following:
-ip_nat_fn(ip_nat_lock)->ip_nat_setup_info->ip_conntrack_alter_reply(ip_conntrack_lock)
+On Sun, September 3, 2006 12:51, Rafael J. Wysocki said:
+> Hi,
+>
+> Could you please tell me if suspend/resume is supported by the sata_sil driver?
+
+Works for me with suspend to ram, and there seem to be plenty suspend/resume functions in
+drivers/scsi/sata_sil.c, so I guess it is.
+
+Greetings,
+
+Indan
+
+
 
 -- 
-VGER BF report: U 0.502111
+VGER BF report: H 0.0826158

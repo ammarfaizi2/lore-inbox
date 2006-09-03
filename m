@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWIDQ74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWIDRCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWIDQ74 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 12:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWIDQ74
+	id S964900AbWIDRCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 13:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWIDRCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 12:59:56 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:64401 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964893AbWIDQ7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 12:59:55 -0400
-Date: Mon, 4 Sep 2006 18:55:53 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 09/16] GFS2: Extended attribute & ACL support
-In-Reply-To: <1157031403.3384.801.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609041835590.28823@yvahk01.tjqt.qr>
-References: <1157031403.3384.801.camel@quoit.chygwyn.com>
+	Mon, 4 Sep 2006 13:02:34 -0400
+Received: from alnrmhc11.comcast.net ([206.18.177.51]:12798 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S964900AbWIDRCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 13:02:33 -0400
+Message-ID: <44FADE18.5040107@gentoo.org>
+Date: Sun, 03 Sep 2006 09:52:24 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Jeff Garzik <jeff@garzik.org>
+CC: Andrew Morton <akpm@osdl.org>, sergio@sergiomb.no-ip.org,
+       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wedgwood <cw@f00f.org>,
+       greg@kroah.com, harmon@ksu.edu, Len Brown <len.brown@intel.com>
+Subject: Re: VIA IRQ quirk fixup only in XT-PIC mode Take 3
+References: <1157330567.3046.24.camel@localhost.portugal> <20060903175841.7a84c63c.akpm@osdl.org> <44FBBD28.6070601@garzik.org>
+In-Reply-To: <44FBBD28.6070601@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> Andrew Morton wrote:
+>> There's a similar patch in -mm: 
+>> pci-quirk_via_irq-behaviour-change.patch. Does that work for you?
+> 
+> And then, we return to:
+> 
+> Some installations have VIA products on a PCI card.  We cannot assume 
+> that all PCI_VENDOR_ID_VIA devices are on-board devices with the special 
+> VIA PIC on-chip routing (the thing quirk_via_irq tweaks).
 
->+#if 0
->+	else if ((ip->i_di.di_flags & GFS2_DIF_EA_PACKED) &&
->+		 er->er_type == GFS2_EATYPE_SYS)
->+		return 1;
->+#endif
+I'm not sure whether you are commenting on my patch 
+(pci-quirk_via_irq-behaviour-change.patch), or Sergio's, but just to 
+clarify:
 
->+/**
->+ * ea_get_unstuffed - actually copies the unstuffed data into the
->+ *                    request buffer
->+ * @ip:
->+ * @ea:
->+ * @data:
->+ *
->+ * Returns: errno
->+ */
+My patch includes a hack that detects the presence of a VIA southbridge, 
+and only applies quirks if a southbridge is present.
 
-There are more of these. If you have the time, please fill in.
+This isn't perfect, as someone could insert a VIA PCI card into a 
+VIA-based motherboard and the PCI card would get quirked, but it's the 
+most accurate solution which has been proposed so far.
 
->+			*dataptr++ = cpu_to_be64((uint64_t)bh->b_blocknr);
+If the southbridge detection hack is acceptable, there is no reason why 
+it could not be combined with Sergio's patch.
 
-At least on i386, this cast seems unnecessary, since
+Daniel
 
-include/asm-i386/byteorder.h:
-static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 val)          
-
-but someone else should probably prove me right/wrong.
-
->+	if (private)
->+		ea_set_remove_stuffed(ip, (struct gfs2_ea_location *)private);
-
-private is a void *, ergo nocast.
-
->+	gfs2_glock_dq_uninit(&al->al_ri_gh);
-
-Another Ken Preslan gem? al_ri_gh_t then.
-
->+		return (5 + (ea->ea_name_len + 1));
-()
-
->+unsigned int gfs2_ea_name2type(const char *name, char **truncated_name)
->+{
->+	unsigned int type;
->+
->+	if (strncmp(name, "system.", 7) == 0) {
->+		type = GFS2_EATYPE_SYS;
->+		if (truncated_name)
->+			*truncated_name = strchr(name, '.') + 1;
-
-Since we already know where the dot is (otherwise, strncmp would have failed),
-we can omit the relookup with strchr:
-
-	*truncated_name = name + sizeof("system.") - 1;
-
->+	} else if (strncmp(name, "user.", 5) == 0) {
->+		type = GFS2_EATYPE_USR;
->+		if (truncated_name)
->+			*truncated_name = strchr(name, '.') + 1;
->+	} else if (strncmp(name, "security.", 9) == 0) {
->+		type = GFS2_EATYPE_SECURITY;
->+		if (truncated_name)
->+			*truncated_name = strchr(name, '.') + 1;
-
-Similarly.
-
-
-
-Jan Engelhardt
--- 

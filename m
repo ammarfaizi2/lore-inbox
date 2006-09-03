@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWICW2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWICW3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWICW2W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 18:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWICW2W
+	id S1751199AbWICW3J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 18:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWICW3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 18:28:22 -0400
+	Sun, 3 Sep 2006 18:29:07 -0400
 Received: from py-out-1112.google.com ([64.233.166.176]:61836 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751184AbWICW2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 18:28:20 -0400
+	id S1751136AbWICW2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 18:28:54 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=rmSkycdest60oW/vIfucYvxyBkRyv1mqcNs5fTSa4XHru7eyJ8QfW+UM8lA+Uf/dyns21Pky98351yr7sUiGYB6srbmW5epYia7HmGbxf8quivRivYAD3oAPedfiLURu0RoPaQhWOq0v5EcljfgzhY3PW7hoifutHdW4dFH+cOw=
+        b=eVkm+T4IxLNLFUKM3vGRZUA9Zv9CETuQwANNPn/VtCDVyWcueE19dyKWM+aVgOQvMgLZlqL4pvetM3MYG23QZTM+Nhgr4K4PF5z2g8aMZpXJ7ZzLXWh08LSU0do5Rl6556yiBXFwysEzOaIU0jaCVlGFBNB4Y0FC39p8gI8bmkU=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: Andi Kleen <ak@suse.de>
-Subject: [PATCH 01/26] Dynamic kernel command-line - common
-Date: Mon, 4 Sep 2006 01:16:44 +0300
+Subject: [PATCH 05/26] Dynamic kernel command-line - avr32
+Date: Mon, 4 Sep 2006 01:18:04 +0300
 User-Agent: KMail/1.9.4
 Cc: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, johninsd@san.rr.com,
@@ -35,116 +35,48 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609040116.46287.alon.barlev@gmail.com>
+Message-Id: <200609040118.06291.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1. Rename saved_command_line into boot_command_line, mark
-   as init disposable.
-2. Add dynamic allocated saved_command_line.
-3. Add dynamic allocated static_command_line.
-4. During startup copy:
-   boot_command_line into saved_command_line.
-   arch command_line into static_command_line.
-5. Parse static_command_line and not
-   arch command_line, so arch command_line may
-   be freed.
+1. Rename saved_command_line into boot_command_line.
+2. Set command_line as __initdata.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.18-rc5-mm1.org/include/linux/init.h linux-2.6.18-rc5-mm1/include/linux/init.h
---- linux-2.6.18-rc5-mm1.org/include/linux/init.h	2006-09-03 18:57:16.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/include/linux/init.h	2006-09-03 20:30:12.000000000 +0300
-@@ -67,7 +67,8 @@ extern initcall_t __con_initcall_start[]
- extern initcall_t __security_initcall_start[], __security_initcall_end[];
+diff -urNp linux-2.6.18-rc5-mm1.org/arch/avr32/kernel/setup.c linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c
+--- linux-2.6.18-rc5-mm1.org/arch/avr32/kernel/setup.c	2006-09-03 18:56:48.000000000 +0300
++++ linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c	2006-09-03 20:58:45.000000000 +0300
+@@ -44,7 +44,7 @@ struct avr32_cpuinfo boot_cpu_data = {
+ };
+ EXPORT_SYMBOL(boot_cpu_data);
  
- /* Defined in init/main.c */
--extern char saved_command_line[];
-+extern char __initdata boot_command_line[];
-+extern char *saved_command_line;
- extern unsigned int reset_devices;
- 
- /* used by init/main.c */
-@@ -145,7 +146,7 @@ struct obs_kernel_param {
- #define early_param(str, fn)					\
- 	__setup_param(str, fn, fn, 1)
- 
--/* Relies on saved_command_line being set */
-+/* Relies on boot_command_line being set */
- void __init parse_early_param(void);
- #endif /* __ASSEMBLY__ */
- 
-diff -urNp linux-2.6.18-rc5-mm1.org/init/main.c linux-2.6.18-rc5-mm1/init/main.c
---- linux-2.6.18-rc5-mm1.org/init/main.c	2006-09-03 18:57:18.000000000 +0300
-+++ linux-2.6.18-rc5-mm1/init/main.c	2006-09-03 23:27:30.000000000 +0300
-@@ -116,8 +116,12 @@ extern void time_init(void);
- void (*late_time_init)(void);
- extern void softirq_init(void);
- 
--/* Untouched command line (eg. for /proc) saved by arch-specific code. */
--char saved_command_line[COMMAND_LINE_SIZE];
-+/* Untouched command line saved by arch-specific code. */
-+char __initdata boot_command_line[COMMAND_LINE_SIZE];
-+/* Untouched saved command line (eg. for /proc) */
-+char *saved_command_line;
-+/* Command line for parameter parsing */
-+static char *static_command_line;
- 
- static char *execute_command;
- static char *ramdisk_execute_command;
-@@ -400,6 +404,20 @@ static void __init smp_init(void)
- #endif
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
  
  /*
-+ * We need to store the untouched command line for future reference.
-+ * We also need to store the touched command line since the parameter
-+ * parsing is performed in place, and we should allow a component to
-+ * store reference of name/value for future reference.
-+ */
-+static void __init setup_command_line(char *command_line)
-+{
-+	saved_command_line = alloc_bootmem(strlen (boot_command_line)+1);
-+	static_command_line = alloc_bootmem(strlen (command_line)+1);
-+	strcpy (saved_command_line, boot_command_line);
-+	strcpy (static_command_line, command_line);
-+}
-+
-+/*
-  * We need to finalize in a non-__init function or else race conditions
-  * between the root thread and the init thread may cause start_kernel to
-  * be reaped by free_initmem before the root thread has proceeded to
-@@ -453,7 +471,7 @@ void __init parse_early_param(void)
- 		return;
+  * Should be more than enough, but if you have a _really_ complex
+@@ -94,7 +94,7 @@ static unsigned long __initdata fbmem_si
  
- 	/* All fall through to do_early_param. */
--	strlcpy(tmp_cmdline, saved_command_line, COMMAND_LINE_SIZE);
-+	strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 	parse_args("early options", tmp_cmdline, NULL, 0, do_early_param);
- 	done = 1;
+ static void __init parse_cmdline_early(char **cmdline_p)
+ {
+-	char *to = command_line, *from = saved_command_line;
++	char *to = command_line, *from = boot_command_line;
+ 	int len = 0;
+ 	char c = ' ';
+ 
+@@ -226,7 +226,7 @@ __tagtable(ATAG_MEM, parse_tag_mem);
+ 
+ static int __init parse_tag_cmdline(struct tag *tag)
+ {
+-	strlcpy(saved_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
+ 	return 0;
  }
-@@ -503,6 +521,7 @@ asmlinkage void __init start_kernel(void
- 	printk(KERN_NOTICE);
- 	printk(linux_banner);
- 	setup_arch(&command_line);
-+	setup_command_line(command_line);
- 	setup_per_cpu_areas();
- 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
- 
-@@ -519,9 +538,9 @@ asmlinkage void __init start_kernel(void
- 	preempt_disable();
- 	build_all_zonelists();
- 	page_alloc_init();
--	printk(KERN_NOTICE "Kernel command line: %s\n", saved_command_line);
-+	printk(KERN_NOTICE "Kernel command line: %s\n", boot_command_line);
- 	parse_early_param();
--	parse_args("Booting kernel", command_line, __start___param,
-+	parse_args("Booting kernel", static_command_line, __start___param,
- 		   __stop___param - __start___param,
- 		   &unknown_bootoption);
- 	sort_main_extable();
+ __tagtable(ATAG_CMDLINE, parse_tag_cmdline);
 
 -- 
 VGER BF report: H 0

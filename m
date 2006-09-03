@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWICDDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWICDMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751952AbWICDDs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 23:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWICDDs
+	id S1751957AbWICDMy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 23:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751958AbWICDMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 23:03:48 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:11568 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751952AbWICDDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 23:03:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jsGK6NCjb4q6/uJHlgcxGX2lLWiSikohfqtlapBgAifHXdrz4wahISCqxI6yzBpV0v3lK5lKVcOF+e2PoypUUxrbekbHgBEajrgveM7iXOINhFHxt8HQJMrCRcVLP9UQ6DLsH1lrgLP++2UNB5YFXmTcV1QmelTldW3+ohHtr/w=
-Message-ID: <a44ae5cd0609022003i2b3157a2kb8bcd6f4f778b6c9@mail.gmail.com>
-Date: Sat, 2 Sep 2006 20:03:46 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc5-mm1 + all hotfixes -- BUG: MAX_STACK_TRACE_ENTRIES too low!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Sep 2006 23:12:53 -0400
+Received: from adsl-230-146.dsl.uva.nl ([146.50.230.146]:54939 "EHLO
+	pan.var.cx") by vger.kernel.org with ESMTP id S1751957AbWICDMx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 23:12:53 -0400
+Date: Sun, 3 Sep 2006 05:13:03 +0200
+From: Frank v Waveren <fvw@var.cx>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Paul Eggert <eggert@CS.UCLA.EDU>
+Subject: Re: [PATCH] prevent timespec/timeval to ktime_t overflow
+Message-ID: <20060903031303.GA26881@var.cx>
+References: <1156927468.29250.113.camel@localhost.localdomain> <20060831204612.73ed7f33.akpm@osdl.org> <20060902110445.GC3335@var.cx> <1157222679.29250.386.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
 Content-Disposition: inline
+In-Reply-To: <1157222679.29250.386.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry Andrew.  I don't see clues here to help me target the report to
-a maintainer.
-I hope this helps.
 
-BUG: MAX_STACK_TRACE_ENTRIES too low!
-turning off the locking correctness validator.
- [<c1003c97>] dump_trace+0x69/0x1b7
- [<c1003dfa>] show_trace_log_lvl+0x15/0x28
- [<c10040f5>] show_trace+0x16/0x19
- [<c1004110>] dump_stack+0x18/0x1d
- [<c102d4d0>] save_trace+0xbb/0xc8
- [<c102d53c>] add_lock_to_list+0x5f/0x7d
- [<c102f3ce>] __lock_acquire+0x93b/0x9f8
- [<c102f75e>] lock_acquire+0x56/0x74
- [<c11dcdb0>] _spin_lock+0x24/0x32
- [<c105471f>] anon_vma_prepare+0x46/0xce
- [<c1050014>] __handle_mm_fault+0xed/0x804
- [<c1012c1a>] do_page_fault+0x214/0x4c1
- [<c11dd629>] error_code+0x39/0x40
-DWARF2 unwinder stuck at error_code+0x39/0x40
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Leftover inexact backtrace:
+On Sat, Sep 02, 2006 at 08:44:39PM +0200, Thomas Gleixner wrote:
+> On Sat, 2006-09-02 at 13:04 +0200, Frank v Waveren wrote:
+> > Here's a different patch, which should actually sleep for the
+> > specified amount of time up to 2^64 seconds with a loop around the
+> > sleeps and a tally of how long is left to sleep. It does mean we wake
+> > up once every 300 years on long sleeps, but that shouldn't cause any
+> > huge performance problems.
+>
+> Which non academic problem is solved by this patch ?
+Compared to a current linus kernel, it fixes the overflow problem.
+Compared to the current mm (good job on finding the sneaky bug in that
+one by the way) it doesn't fix anything additional, but still fixes
+all of the same things plus the academic problems. And it makes the
+GNU coreutils people happy, which is rarely a bad thing.
 
- [<c1003dfa>] show_trace_log_lvl+0x15/0x28
- [<c10040f5>] show_trace+0x16/0x19
- [<c1004110>] dump_stack+0x18/0x1d
- [<c102d4d0>] save_trace+0xbb/0xc8
- [<c102d53c>] add_lock_to_list+0x5f/0x7d
- [<c102f3ce>] __lock_acquire+0x93b/0x9f8
- [<c102f75e>] lock_acquire+0x56/0x74
- [<c11dcdb0>] _spin_lock+0x24/0x32
- [<c105471f>] anon_vma_prepare+0x46/0xce
- [<c1050014>] __handle_mm_fault+0xed/0x804
- [<c1012c1a>] do_page_fault+0x214/0x4c1
- [<c11dd629>] error_code+0x39/0x40
- [<c105fe67>] do_sync_read+0xb8/0xf2
- [<c10601e1>] vfs_read+0xa7/0x149
- [<c1060a81>] sys_read+0x3a/0x61
- [<c1002d41>] sysenter_past_esp+0x56/0x8d
- =======================
+--=20
+Frank v Waveren                                  Key fingerprint: BDD7 D61E
+fvw@var.cx                                              5D39 CF05 4BFC F57A
+Public key: hkp://wwwkeys.pgp.net/468D62C8              FA00 7D51 468D 62C8
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFE+kg/+gB9UUaNYsgRAsU1AJ0VsGX0Nsyz6l5MZxMiKFihI7mqjACePlWa
+TK3EH8bZRMjcttaSkD6Ezhs=
+=s0p1
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
 
 -- 
-VGER BF report: H 0.0999452
+VGER BF report: H 0.000448983

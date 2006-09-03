@@ -1,88 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWIBR5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWIBSAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWIBR5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Sep 2006 13:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWIBR5M
+	id S1751262AbWIBSAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Sep 2006 14:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWIBSAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Sep 2006 13:57:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:62943 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751255AbWIBR5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Sep 2006 13:57:11 -0400
-Subject: RE: Possible gpl problem?
-From: David Woodhouse <dwmw2@infradead.org>
-To: davids@webmaster.com
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEIJOCAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKKEIJOCAB.davids@webmaster.com>
-Content-Type: text/plain
-Date: Sat, 02 Sep 2006 10:55:31 -0700
-Message-Id: <1157219732.2473.51.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 2 Sep 2006 14:00:21 -0400
+Received: from smtp5.pp.htv.fi ([213.243.153.39]:55754 "EHLO smtp5.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751262AbWIBSAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Sep 2006 14:00:20 -0400
+Date: Sun, 3 Sep 2006 04:14:12 +0300
+From: Samuel Ortiz <samuel@sortiz.org>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dag Brattli <dag@brattli.net>, irda-users@lists.sourceforge.net
+Subject: Re: General protection fault with aborted ircomm FIR connection
+Message-ID: <20060903011412.GA3992@sortiz.org>
+Reply-To: Samuel Ortiz <samuel@sortiz.org>
+References: <44F4CA96.6060607@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44F4CA96.6060607@gmx.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-01 at 22:54 -0700, David Schwartz wrote:
-> 	So the purpose of the "any third party" requirement is to make sure that
-> someone who receives a copy of the offer from a redistributor can acquire
-> the source code. It's not so that someone who never received any
-> distribution at all can acquire the source code.
+Hi,
 
-I see. So your claim is that when it says "any third party" it doesn't
-actually mean "any third party".
-
-> > It doesn't say "any third party who is in possession of a copy of the
-> > binary and has a verbatim copy of the original written offer of source".
-> > It just says "any third party".
+On Wed, Aug 30, 2006 at 01:15:34AM +0200, Carl-Daniel Hailfinger wrote:
+> Hi,
 > 
-> 	What would be the point of accompanying it with the information regarding
-> the offer if that information served no purpose whatsoever? How could you
-> enforce an offer when you had no knowledge of who was making the offer and
-> what its terms were?
+> first of all, no proprietary modules have ever been loaded. The "Tainted"
+> refers to "SUSE unsupported" modules. Machine is a Samsung P35 laptop (x86).
+> Kernel is 2.6.16.21 with SUSE patches (which don't touch IRDA afaics).
+> FIR chipset is served by nsc-ircc dongle_id=0x08.
+> 
+> The crash happened when I used gammu to connect to my nokia mobile phone
+> over /dev/ircomm0. I moved the phone out of the IR beam by accident and
+> then killed gammu with Ctrl-C while it still had the connection open.
+> At that moment, the kernel spewed a general protection fault on me.
+I think I managed to reproduce (and maybe fix) this bug.
+Could you please check if the following patch fixes it for you as it does
+for me:
 
-That seems like both question and answer to me; I think you're confusing
-yourself.
-
-The "information regarding the offer" is precisely that knowledge about
-whom to contact to ask for the source. The point in accompanying
-redistributed binaries with that information is so that the recipient of
-the binaries knows how to obtain the source code.
-
-That works because "any third party" has a right to approach the
-original distributor and ask for the sources.
-
-Of course, that third party does need to _know_ that the source is there
-for the asking -- that's why the GPL specifies that the information has
-to be passed on to subsequent recipients of the binaries. But that
-doesn't mean that the original distributor is only required to provide
-source to those who've received binaries -- the GPL says "any third
-party".
-
-It's entirely possible for a someone to be entitled to something without
-actually being _aware_ of the fact. Your argument seems to be based on
-the assumption that that is not possible, as well as a creative
-misinterpretation of the fairly unambiguous phrase "any third party".
-
-You keep talking about enforcement, strangely -- as if a right cannot
-exist without the direct ability to enforce it. Many people seem to
-believe that the only people who can _enforce_ the GPL are those who
-hold copyright in the original source; whose work was used by the party
-who is now refusing to provide their modified sources.
-
-By your logic, if a right cannot exist without the ability to enforce
-it, the only people who are entitled to receive source are the original
-copyright-holders -- not even the direct recipients of the binaries,
-since they are not in a position to _enforce_ the GPL.
-
-That just doesn't make any sense.
+diff --git a/net/irda/af_irda.c b/net/irda/af_irda.c
+index 17699ee..7b7cd5b 100644
+--- a/net/irda/af_irda.c
++++ b/net/irda/af_irda.c
+@@ -132,13 +132,14 @@ static void irda_disconnect_indication(v
+ 
+ 	/* Prevent race conditions with irda_release() and irda_shutdown() */
+ 	if (!sock_flag(sk, SOCK_DEAD) && sk->sk_state != TCP_CLOSE) {
++		lock_sock(sk);
+ 		sk->sk_state     = TCP_CLOSE;
+ 		sk->sk_err       = ECONNRESET;
+ 		sk->sk_shutdown |= SEND_SHUTDOWN;
+ 
+ 		sk->sk_state_change(sk);
+-		/* Uh-oh... Should use sock_orphan ? */
+-                sock_set_flag(sk, SOCK_DEAD);
++                sock_orphan(sk);
++		release_sock(sk);
+ 
+ 		/* Close our TSAP.
+ 		 * If we leave it open, IrLMP put it back into the list of
+@@ -1212,6 +1213,7 @@ static int irda_release(struct socket *s
+         if (sk == NULL)
+ 		return 0;
+ 
++	lock_sock(sk);
+ 	sk->sk_state       = TCP_CLOSE;
+ 	sk->sk_shutdown   |= SEND_SHUTDOWN;
+ 	sk->sk_state_change(sk);
+@@ -1221,6 +1223,7 @@ static int irda_release(struct socket *s
+ 
+ 	sock_orphan(sk);
+ 	sock->sk   = NULL;
++	release_sock(sk);
+ 
+ 	/* Purge queues (see sock_init_data()) */
+ 	skb_queue_purge(&sk->sk_receive_queue);
+@@ -1353,6 +1356,7 @@ static int irda_recvmsg_dgram(struct kio
+ 	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
+ 
+ 	IRDA_ASSERT(self != NULL, return -1;);
++	IRDA_ASSERT(!sock_error(sk), return -1;);
+ 
+ 	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
+ 				flags & MSG_DONTWAIT, &err);
+@@ -1405,6 +1409,7 @@ static int irda_recvmsg_stream(struct ki
+ 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 
+ 	IRDA_ASSERT(self != NULL, return -1;);
++	IRDA_ASSERT(!sock_error(sk), return -1;);
+ 
+ 	if (sock->flags & __SO_ACCEPTCON)
+ 		return(-EINVAL);
 
 -- 
-dwmw2
-
-
--- 
-VGER BF report: U 0.49756
+VGER BF report: U 0.499581

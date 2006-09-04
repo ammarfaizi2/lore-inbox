@@ -1,130 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWIDJKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWIDJ0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWIDJKp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 05:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWIDJKp
+	id S1751269AbWIDJ0H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 05:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWIDJ0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 05:10:45 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:62115 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751163AbWIDJKn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 05:10:43 -0400
-Date: Mon, 4 Sep 2006 11:06:09 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 06/16] GFS2: dentry, export, super and vm operations
-In-Reply-To: <1157031245.3384.795.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609041046380.11217@yvahk01.tjqt.qr>
-References: <1157031245.3384.795.camel@quoit.chygwyn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 4 Sep 2006 05:26:07 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:32985 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1751265AbWIDJ0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 05:26:02 -0400
+Date: Mon, 4 Sep 2006 05:25:34 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH 05/22][RFC] Unionfs: Copyup Functionality
+Message-ID: <20060904092534.GA19836@filer.fsl.cs.sunysb.edu>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901014251.GF5788@fsl.cs.sunysb.edu> <Pine.LNX.4.61.0609040852550.9108@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609040852550.9108@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 04, 2006 at 08:59:08AM +0200, Jan Engelhardt wrote:
+> >+	newattrs.ia_atime = old_hidden_dentry->d_inode->i_atime;
+> >+	newattrs.ia_mtime = old_hidden_dentry->d_inode->i_mtime;
+> >+	newattrs.ia_ctime = old_hidden_dentry->d_inode->i_ctime;
+> 
+> How about,
+> 
+> 	struct inode *ohi = old_hidden_dentry->d_inode;
+> 	newattrs.ia_atime = ohi->i_atime;
+> 
+> reduces typing a little.
 
->+	this 		= &fh_obj.this;
->+	fh_obj.imode 	= DT_UNKNOWN;
->+	memset(&parent, 0, sizeof(struct gfs2_inum));
->+
->+	switch (fh_type) {
->+	case 10:
->+		parent.no_formal_ino = ((uint64_t)be32_to_cpu(fh[4])) << 32;
->+		parent.no_formal_ino |= be32_to_cpu(fh[5]);
->+		parent.no_addr = ((uint64_t)be32_to_cpu(fh[6])) << 32;
->+		parent.no_addr |= be32_to_cpu(fh[7]);
->+		fh_obj.imode = be32_to_cpu(fh[8]);
->+	case 4:
+Makes sense.
 
-What do these constants specify? Would not it be better to have a #define or
-enum{} for them somewhere?
+> >+	} else {
+> >+		printk(KERN_ERR "Unknown inode type %d\n",
+> >+				old_mode);
+> >+		BUG();
+> >+	}
+> 
+> Is BUG the right thing, what do others think? (Using WARN, and set err to
+> something useful?)
+ 
+Well, it is definitely a condition which Unionfs doesn't expect - if it
+doesn't know about the type, how could it copy it up?
+ 
+> >+	if (!path)
+> >+		;
+> 
+> Woha?!
+ 
+Eeek. Good catch. The 'goto out' disappeared somehow.
+ 
+Thanks for the comments.
 
-
->+	if (IS_ERR(inode))
->+		return ERR_PTR(PTR_ERR(inode));
-
-Just return inode.
-
->+	if (!strncmp(sb->s_type->name, "gfs2meta", 8))
->+		return; /* meta fs. don't do nothin' */
-
-Don't nobody go nowhere![1] You see, american negation can be fun, but well,
-just say: Nothing to do for gfs2meta.
-
->+	sb->s_fs_info = NULL;
-
-Required?
-
->+static void gfs2_write_super(struct super_block *sb)
->+{
->+	struct gfs2_sbd *sdp = sb->s_fs_info;
->+	gfs2_log_flush(sdp, NULL);
->+}
-
-gfs2_log_flush(sb->s_fs_info, NULL)
-
->+static void gfs2_unlockfs(struct super_block *sb)
->+{
->+	struct gfs2_sbd *sdp = sb->s_fs_info;
->+	gfs2_unfreeze_fs(sdp);
->+}
-
-
-
->+	for (x = 2;; x++) {
->+		uint64_t space, d;
->+		uint32_t m;
->+
->+		space = sdp->sd_heightsize[x - 1] * sdp->sd_inptrs;
->+		d = space;
->+		m = do_div(d, sdp->sd_inptrs);
-
-Note for Ingo: simple "/" division does not do it:
-
-11:00 gwdg-wb04A:/dev/shm > cat foo.c
-#include <linux/types.h>
-
-
-uint32_t foo(uint32_t arg) {
-    uint64_t bar = 1337;
-    return bar / arg;
-}
-
-
-11:00 gwdg-wb04A:/dev/shm > make -C /lib/modules/2.6.17.11-jen33-default/build
-M=$PWD modules
-make: Entering directory /usr/src/linux-2.6.17.11-jen33-obj/i386/default'
-make -C ../../../linux-2.6.17.11-jen33
-O=../linux-2.6.17.11-jen33-obj/i386/default modules
-  CC [M]  /dev/shm/foo.o
-  Building modules, stage 2.
-  MODPOST
-WARNING: "__udivdi3" [/dev/shm/foo.ko] undefined!
-  CC      /dev/shm/foo.mod.o
-  LD [M]  /dev/shm/foo.ko
-make: Leaving directory /usr/src/linux-2.6.17.11-jen33-obj/i386/default'
-
-
-
->+/**
->+ * gfs2_assert_warn_i - Print a message to the console if @assertion is false
->+ * Returns: -1 if we printed something
->+ *          -2 if we didn't
->+ */
-
-Why not just 0 and 1?
-
-
-
-[1] Marvin in "Back To The Future I"
-
-
-Jan Engelhardt
+Josef 'Jeff' Sipek.
+ 
 -- 
+Real Programmers consider "what you see is what you get" to be just as bad a
+concept in Text Editors as it is in women. No, the Real Programmer wants a
+"you asked for it, you got it" text editor -- complicated, cryptic,
+powerful, unforgiving, dangerous.
 
 -- 
-VGER BF report: U 0.499261
+VGER BF report: H 0.0308323

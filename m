@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWIDLBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWIDLC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWIDLBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWIDLBp
+	id S932130AbWIDLC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWIDLCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:01:45 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:5931 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932123AbWIDLBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:01:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=pNBPHvJ6qO6B6Bwmk6rU9EpGXBOCl6AegpxzdwhBlgW54Y2/jMg+kMrVu6NiNrBv3AxuscO721ZUvBM5JMBqDRZeVyai/2ZAEtf3EDw5Rh3hlocx0p9n8DpCzvcFOM31qoSz3KCbr48hsNIHqbtZNae5lxOStyCD3w/DgUK7cNk=
-Message-ID: <84144f020609040401h314bdb72x4c3bd7c27cb38256@mail.gmail.com>
-Date: Mon, 4 Sep 2006 14:01:41 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>
-Subject: Re: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Stephen Rothwell" <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <20060903194456.GA4977@filer.fsl.cs.sunysb.edu>
+	Mon, 4 Sep 2006 07:02:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43912 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932130AbWIDLCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 07:02:54 -0400
+Date: Mon, 4 Sep 2006 13:02:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Stefan Seyfried <seife@suse.de>, Linux PM <linux-pm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH 2/3] PM: Make console suspending configureable
+Message-ID: <20060904110229.GM9991@elf.ucw.cz>
+References: <200608151509.06087.rjw@sisk.pl> <200608161309.34370.rjw@sisk.pl> <20060904090820.GA4500@suse.de> <200609041303.25817.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-	 <20060901115327.80554494.sfr@canb.auug.org.au>
-	 <20060901172310.GA2622@filer.fsl.cs.sunysb.edu>
-	 <Pine.LNX.4.61.0609031941210.12800@yvahk01.tjqt.qr>
-	 <20060903194456.GA4977@filer.fsl.cs.sunysb.edu>
-X-Google-Sender-Auth: 628272e81f931995
+In-Reply-To: <200609041303.25817.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/3/06, Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
-> I think you misunderstood my comment. What I meant to say was that there is
-> _no way_ you can compile a filesystem that has only dentry ops but not
-> superblock ops - this would happen if you tried to bisect and you landed
-> half way in the series of commits for the filesystem. For the _initial_
-> commit one cset makes sense. For subsequent fixes one commit per fix is the
-> only logical thing to do.
+On Mon 2006-09-04 13:03:25, Rafael J. Wysocki wrote:
+> On Monday, 4 September 2006 11:08, Stefan Seyfried wrote:
+> > Hi,
+> > 
+> > sorry, i am only slowly catching up after vacation.
+> > 
+> > On Wed, Aug 16, 2006 at 01:09:34PM +0200, Rafael J. Wysocki wrote:
+> > > Change suspend_console() so that it waits for all consoles to flush the
+> > > remaining messages and make it possible to switch the console suspending
+> > > off with the help of a Kconfig option.
+> > > 
+> > > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> > 
+> > > +#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
+> > >  /**
+> > >   * suspend_console - suspend the console subsystem
+> > >   *
+> > > @@ -709,8 +710,14 @@ int __init add_preferred_console(char *n
+> > >   */
+> > >  void suspend_console(void)
+> > >  {
+> > > +	printk("Suspending console(s)\n");
+> > >  	acquire_console_sem();
+> > >  	console_suspended = 1;
+> > > +	/* This is needed so that all of the messages that have already been
+> > > +	 * written to all consoles can be actually transmitted (eg. over a
+> > > +	 * network) before we try to suspend the consoles' devices.
+> > > +	 */
+> > > +	ssleep(2);
+> > 
+> > Sorry, but no. Suspend and resume is already slow enough, no need to make
+> > both of them much slower.
+> > If we can condition this on the netconsole being used, ok, but not for the
+> > most common case of "console is on plain VGA".
+> 
+> Hm, it already is in -mm, but of course I can prepare a patch that removes
+> this ssleep().
+> 
+> Pavel, what do you think?
 
-Reorder the patches so that Makefile and Kconfig changes come last and
-git bisect will work just fine.
+Well, in suspend-to-ram case, 2 seconds is quite a lot... like more
+than rest of suspend, so stefan has some point...
 
 -- 
-VGER BF report: H 0
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+-- 
+VGER BF report: H 1.68641e-06

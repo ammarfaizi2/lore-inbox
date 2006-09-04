@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWIDON7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWIDO2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWIDON7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 10:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWIDON6
+	id S1751392AbWIDO2P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 10:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWIDO2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 10:13:58 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59615 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964776AbWIDON5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 10:13:57 -0400
-Subject: [PATCH] audit/accounting: tty locking
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 04 Sep 2006 15:36:32 +0100
-Message-Id: <1157380592.30801.94.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 4 Sep 2006 10:28:15 -0400
+Received: from web36714.mail.mud.yahoo.com ([209.191.85.48]:26959 "HELO
+	web36714.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751392AbWIDO2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 10:28:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=cmHQB9VkNNceg3eZzmAD00qwFBsHhgS3qq+Z3G1T3MXKZhdcEfUZaIEnQti9J5Z8iQp5bVQuexl/+kOHu5+zfHRDGA7dE5zYzT/1aGo9TTY5g3La5gyPuKT9nVuB65AB2gvrp+/tmMdaomuCjd7tMBsxeI+P9wQFkB0Ntis6PCY=  ;
+Message-ID: <20060904142811.21367.qmail@web36714.mail.mud.yahoo.com>
+Date: Mon, 4 Sep 2006 07:28:11 -0700 (PDT)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
+To: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <44FAAF4D.70404@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fairly basic stuff .. make sure the name we are encoding doesn't vanish
-under us.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc5-mm1/kernel/acct.c linux-2.6.18-rc5-mm1/kernel/acct.c
---- linux.vanilla-2.6.18-rc5-mm1/kernel/acct.c	2006-09-01 13:39:20.000000000 +0100
-+++ linux-2.6.18-rc5-mm1/kernel/acct.c	2006-09-01 13:55:46.000000000 +0100
-@@ -483,10 +483,10 @@
- 	ac.ac_ppid = current->parent->tgid;
- #endif
- 
--	read_lock(&tasklist_lock);	/* pin current->signal */
-+	mutex_lock(&tty_mutex);
- 	ac.ac_tty = current->signal->tty ?
- 		old_encode_dev(tty_devnum(current->signal->tty)) : 0;
--	read_unlock(&tasklist_lock);
-+	mutex_unlock(&tty_mutex);
- 
- 	spin_lock_irq(&current->sighand->siglock);
- 	ac.ac_utime = encode_comp_t(jiffies_to_AHZ(cputime_to_jiffies(pacct->ac_utime)));
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc5-mm1/kernel/auditsc.c linux-2.6.18-rc5-mm1/kernel/auditsc.c
---- linux.vanilla-2.6.18-rc5-mm1/kernel/auditsc.c	2006-09-01 13:39:20.000000000 +0100
-+++ linux-2.6.18-rc5-mm1/kernel/auditsc.c	2006-09-01 13:55:51.000000000 +0100
-@@ -766,6 +766,8 @@
- 		audit_log_format(ab, " success=%s exit=%ld", 
- 				 (context->return_valid==AUDITSC_SUCCESS)?"yes":"no",
- 				 context->return_code);
-+				 
-+	mutex_lock(&tty_mutex);
- 	if (tsk->signal && tsk->signal->tty && tsk->signal->tty->name)
- 		tty = tsk->signal->tty->name;
- 	else
-@@ -787,6 +789,9 @@
- 		  context->gid,
- 		  context->euid, context->suid, context->fsuid,
- 		  context->egid, context->sgid, context->fsgid, tty);
-+
-+	mutex_unlock(&tty_mutex);
-+	
- 	audit_log_task_info(ab, tsk);
- 	if (context->filterkey) {
- 		audit_log_format(ab, " key=");
+--- Pierre Ossman <drzeus-list@drzeus.cx> wrote:
 
+> Russell King wrote:
+> > It's really the bus we care about at this stage, since the errors we
+> > receive are along the lines of "the card reported that the last data
+> > block had a CRC error", "we encountered an underrun condition during
+> > the last data block", or "the card didn't request data before we
+> > timed out", etc.
+> >
+> > Basically, the transfer of the next block confirms that the previous
+> > block was successfully received by the card.
+> >
+> >   
+> 
+> Ehm... Now I'm a bit confused. At the point of a bus error, there
+> difference between the data sent to the bus and the data successfully
+> received by the card should amount to one block (as the last block got
+> NACK:ed for whatever reason). If we expect host drivers to report the
+> bytes sent to the bus, we need to subtract one block from the value
+> reported to the block layer.
+> 
+> Rgds
+> Pierre
+> 
+If I understand correctly, there should be two different ways to report bytes_xfered:
+1. for read operations, the current block/byte counter reporting is sufficient
+2. for write operation, error-less BUSY assert/de-assert pairs shall be counted instead
+Currently I only look at the last BUSY de-assert to verify that command is completed successfully.
+As mmc_block always issues single block writes it is sufficient. If this will ever change, more
+sophisticated scheme can be devised.
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

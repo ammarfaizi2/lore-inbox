@@ -1,83 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWIDVQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWIDVZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWIDVQr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 17:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIDVQr
+	id S964985AbWIDVZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 17:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWIDVZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 17:16:47 -0400
-Received: from fremont.jonmasters.org ([64.71.152.22]:42762 "EHLO
-	fremont.jonmasters.org") by vger.kernel.org with ESMTP
-	id S1751482AbWIDVQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 17:16:45 -0400
-From: Jon Masters <jonathan@jonmasters.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org,
-       Victor Castro <victorhugo83@yahoo.com>,
-       Jon Masters <jcm@jonmasters.org>
-In-Reply-To: <20060904140208.03880214.akpm@osdl.org>
-References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-	 <20060904140208.03880214.akpm@osdl.org>
-Content-Type: text/plain
-Organization: World Organi[sz]ation Of Broken Dreams
-Date: Mon, 04 Sep 2006 22:16:38 +0100
-Message-Id: <1157404599.9259.242.camel@perihelion>
+	Mon, 4 Sep 2006 17:25:35 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40069 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964985AbWIDVZf (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 17:25:35 -0400
+Message-Id: <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm3 crypto issues with encrypted disks
+In-Reply-To: Your message of "Mon, 04 Sep 2006 12:02:28 EDT."
+             <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
+From: Valdis.Kletnieks@vt.edu
+References: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+Content-Type: multipart/signed; boundary="==_Exmh_1157405122_3505P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 212.18.227.82
-X-SA-Exim-Mail-From: jonathan@jonmasters.org
-Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
-X-SA-Exim-Version: 4.2 (built Thu, 14 Apr 2005 16:52:54 +0000)
-X-SA-Exim-Scanned: Yes (on fremont.jonmasters.org)
+Date: Mon, 04 Sep 2006 17:25:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 14:02 -0700, Andrew Morton wrote:
+--==_Exmh_1157405122_3505P
+Content-Type: text/plain; charset=us-ascii
 
-> > Also, I'd like to comment on Jon Masters push to include the  
-> > MODULE_FIRMWARE api addition.  I strongly believe that policy should  
-> > not be included in driver code, in this case it's in the form of a  
-> > filename.
-> 
-> You should have cc'ed him!  Some people are not subscribed, and few read
-> it all.
+On Mon, 04 Sep 2006 12:02:28 EDT, Valdis.Kletnieks@vt.edu said:
 
-Thanks. My lkml subscription bounced last week after I decided to
-overhaul my home email (moving country in a couple of weeks...).
+> Sorry for not catching this one earlier..  Sometime between 2.6.18-rc4-mm2
+> and -mm3, something crept into the git-cryptodev.patch that breaks mounting
+> encrypted disks.  What I have in /etc/fstab:
 
-I disagree that MODULE_FIRMWARE encodes policy in the driver. It encodes
-a reference - nothing more. We need to know what firmware we're going to
-be asked for if we have any hope of being able to package up drivers for
-use in distro initrds and the like. I think we can agree on that much.
+And of course, after I spend time doing a -mm bisect, the problem evaporates
+in -rc5-mm1. ;)
 
-Some alternatives:
+> /dev/rootvg/crypto1     /crypto/mount_dir    ext3    nodev,nosuid,noexec,noauto,noatime,nodiratime,user,loop,encryption=aes 1 0
 
-* The firmware API get hacked yet again to use static strings we can
-parse (ugly) or otherwise somehow provide this information.
+> My personal guess as "most likely suspect" (only obvious hit on cryptoloop):
 
-* We add hacks in userspace "if it's this driver and someone used
-MODULE_VERSION correctly, and we can determine the right firmware...".
+Looks like a self-inflicted screw-up in the .config.  The relevant diff
+of the 2 .config files (the -rc4-mm3 had a 'patch -R < git-cryptodev' so
+the new options aren't in that .config)
 
-> > The firmware loader currently needs a filename passed to it so it can  
-> > then pass the $FIRMWARE environment variable to the hotplug script.   
-> > This is ok if you provide a generic filename like "firmware.bin" and  
-> > then let the hotplug script worry about version numbers, i.e.  
-> > "firmware-x.y.z.bin"
+-# Linux kernel version: 2.6.18-rc4-mm3
+-# Wed Aug 30 10:00:30 2006
++# Linux kernel version: 2.6.18-rc5-mm1
++# Mon Sep  4 16:22:37 2006
+....
++CONFIG_CRYPTO_ALGAPI=y
++CONFIG_CRYPTO_BLKCIPHER=y
++CONFIG_CRYPTO_HASH=y
++CONFIG_CRYPTO_MANAGER=y
 
-> > MODULE_FIRMWARE should be used to provide the generic filenames and  
-> > which order the files should be loaded (request_firmware can be  
-> > called various times), but I think its bad to have to change the  
-> > driver everytime a new firmware version is released.
-> 
-> Yes, that does sound bad, but what would I know ;)
+Does 'CONFIG_CRYPTOLOOP' need a 'SELECT CRYPTO_MANAGER' (or one of the other
+symbols)?
 
-I'm ok with the idea of having a generic name, but it does add more
-processing in userspace. Frankly, I don't care what is adopted but
-something needs to be done - sooner or later, it's going to be more
-drivers than Qlogic (and a few others) we need this working for :-)
+--==_Exmh_1157405122_3505P
+Content-Type: application/pgp-signature
 
-I'm optimistic that we'll find the right one line patch eventually!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Jon.
+iD8DBQFE/JnCcC3lWbTT17ARApqpAJ9uyd49Ckzz0CJRKelg4M0q1iVKGgCeMrae
+893oYU1msuLhJej8sIKb0Sw=
+=NbTb
+-----END PGP SIGNATURE-----
 
-
+--==_Exmh_1157405122_3505P--

@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWIDLkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWIDLlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWIDLkV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIDLkV
+	id S964782AbWIDLlP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWIDLlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:40:21 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:18363 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964803AbWIDLkT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:40:19 -0400
-Subject: Re: PATA drivers queued for 2.6.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <44FC0779.9030405@garzik.org>
-References: <44FC0779.9030405@garzik.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 04 Sep 2006 13:02:43 +0100
-Message-Id: <1157371363.30801.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 4 Sep 2006 07:41:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21770 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964782AbWIDLlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 07:41:14 -0400
+Date: Mon, 4 Sep 2006 13:41:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeremy Roberson <jroberson@gtcocalcomp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [2.6 patch] drivers/usb/input/hid-core.c: fix duplicate USB_DEVICE_ID_GTCO_404
+Message-ID: <20060904114110.GK4416@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-04 am 07:01 -0400, ysgrifennodd Jeff Garzik:
-> The following must be in all caps, though:
-> 
-> drivers/ide IS STILL THE PATA DRIVER SET THAT USERS AND DISTROS SHOULD 
-> CHOOSE.
+On Fri, Sep 01, 2006 at 01:58:18AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc4-mm3:
+>...
+> +gregkh-usb-hid-core.c-adds-all-gtco-calcomp-digitizers-and-interwrite-school-products-to-blacklist.patch
+>...
+>  USB tree updates.
+>...
 
-Except optionally for the following for chips not handled by or broken
-totally in drivers/ide:
+The GNU C compiler spotted the following bug:
 
-	pata_mpiix - some early pentium era laptops
-	pata_oldpiix - original "PIIX" chipset
-	pata_radisys - embedded chipset
+<--  snip  -->
 
-The other apparently "libata only" chips are pata_jmicron and
-pata_optidma. There are patches to handle these as "generic" PCI IDE in
-the base 2.6.18 tree already so only features will be lost (eg mode
-switching). As Jeff implies distributions should be using drivers/ide
-for the Jmicron PATA and the Opti DMA PATA for now.
+...
+  CC      drivers/usb/input/hid-core.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c:1446:1: warning: "USB_DEVICE_ID_GTCO_404" redefined
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c:1445:1: warning: this is the location of the previous definition
+...
 
-> * /dev/sdX supports fewer partitions than /dev/hdX (16 versus 64, IIRC)
-> 
-> * /dev/sdX does not support all the HDIO_xxx ioctls that /dev/hdX does. 
->   In practice, the ioctls we ignored are ones that very few people care 
-> about.
+<--  snip  -->
 
-Add "/dev/sr*" does not support partitions. (That needs fixing anyway)
-    
-> * ARM, PPC and other non-x86 platform drivers are severely 
-> under-represented.
+This patch fixes this cut'n'paste error.
 
-libata needs changes for this too. I have some stuff saved from the
-older discussions to look at.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> As an aside, I would love to see paride updated to use libata, but we 
-> can probably count the number of paride users on one hand these days...
-
-and thats without using fingers or thumbs.
+--- linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c.old	2006-09-03 21:00:25.000000000 +0200
++++ linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c	2006-09-03 21:00:44.000000000 +0200
+@@ -1443,7 +1443,7 @@
+ #define USB_DEVICE_ID_GTCO_402		0x0402
+ #define USB_DEVICE_ID_GTCO_403		0x0403
+ #define USB_DEVICE_ID_GTCO_404		0x0404
+-#define USB_DEVICE_ID_GTCO_404		0x0405
++#define USB_DEVICE_ID_GTCO_405		0x0405
+ #define USB_DEVICE_ID_GTCO_500		0x0500
+ #define USB_DEVICE_ID_GTCO_501		0x0501
+ #define USB_DEVICE_ID_GTCO_502		0x0502
+@@ -1663,7 +1663,7 @@
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_402, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_403, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
+-	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
++	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_405, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_500, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_501, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_502, HID_QUIRK_IGNORE },
 
 
 -- 
-VGER BF report: H 0.235691
+VGER BF report: U 0.499995

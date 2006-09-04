@@ -1,307 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIDKzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWIDLA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWIDKzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 06:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWIDKzU
+	id S1751312AbWIDLA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWIDLAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 06:55:20 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:50127 "EHLO
-	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1751300AbWIDJum convert rfc822-to-8bit (ORCPT
+	Mon, 4 Sep 2006 07:00:25 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:28140 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751312AbWIDLAZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 05:50:42 -0400
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: [take15 2/4] kevent: poll/select() notifications.
-In-Reply-To: <1157364862688@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 4 Sep 2006 14:14:23 +0400
-Message-Id: <11573648632061@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Mon, 4 Sep 2006 07:00:25 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: [RFC][PATCH 2/3] PM: Make console suspending configureable
+Date: Mon, 4 Sep 2006 13:03:25 +0200
+User-Agent: KMail/1.9.1
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+References: <200608151509.06087.rjw@sisk.pl> <200608161309.34370.rjw@sisk.pl> <20060904090820.GA4500@suse.de>
+In-Reply-To: <20060904090820.GA4500@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609041303.25817.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, 4 September 2006 11:08, Stefan Seyfried wrote:
+> Hi,
+> 
+> sorry, i am only slowly catching up after vacation.
+> 
+> On Wed, Aug 16, 2006 at 01:09:34PM +0200, Rafael J. Wysocki wrote:
+> > Change suspend_console() so that it waits for all consoles to flush the
+> > remaining messages and make it possible to switch the console suspending
+> > off with the help of a Kconfig option.
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> 
+> > +#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
+> >  /**
+> >   * suspend_console - suspend the console subsystem
+> >   *
+> > @@ -709,8 +710,14 @@ int __init add_preferred_console(char *n
+> >   */
+> >  void suspend_console(void)
+> >  {
+> > +	printk("Suspending console(s)\n");
+> >  	acquire_console_sem();
+> >  	console_suspended = 1;
+> > +	/* This is needed so that all of the messages that have already been
+> > +	 * written to all consoles can be actually transmitted (eg. over a
+> > +	 * network) before we try to suspend the consoles' devices.
+> > +	 */
+> > +	ssleep(2);
+> 
+> Sorry, but no. Suspend and resume is already slow enough, no need to make
+> both of them much slower.
+> If we can condition this on the netconsole being used, ok, but not for the
+> most common case of "console is on plain VGA".
 
-poll/select() notifications.
+Hm, it already is in -mm, but of course I can prepare a patch that removes
+this ssleep().
 
-This patch includes generic poll/select and timer notifications.
+Pavel, what do you think?
 
-kevent_poll works simialr to epoll and has the same issues (callback
-is invoked not from internal state machine of the caller, but through
-process awake).
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
-
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 2561020..a697930 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -236,6 +236,7 @@ #include <linux/prio_tree.h>
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/mutex.h>
-+#include <linux/kevent.h>
- 
- #include <asm/atomic.h>
- #include <asm/semaphore.h>
-@@ -546,6 +547,10 @@ #ifdef CONFIG_INOTIFY
- 	struct mutex		inotify_mutex;	/* protects the watches list */
- #endif
- 
-+#ifdef CONFIG_KEVENT_SOCKET
-+	struct kevent_storage	st;
-+#endif
-+
- 	unsigned long		i_state;
- 	unsigned long		dirtied_when;	/* jiffies of first dirtying */
- 
-@@ -698,6 +703,9 @@ #ifdef CONFIG_EPOLL
- 	struct list_head	f_ep_links;
- 	spinlock_t		f_ep_lock;
- #endif /* #ifdef CONFIG_EPOLL */
-+#ifdef CONFIG_KEVENT_POLL
-+	struct kevent_storage	st;
-+#endif
- 	struct address_space	*f_mapping;
- };
- extern spinlock_t files_lock;
-diff --git a/kernel/kevent/kevent_poll.c b/kernel/kevent/kevent_poll.c
-new file mode 100644
-index 0000000..fb74e0f
---- /dev/null
-+++ b/kernel/kevent/kevent_poll.c
-@@ -0,0 +1,222 @@
-+/*
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/file.h>
-+#include <linux/kevent.h>
-+#include <linux/poll.h>
-+#include <linux/fs.h>
-+
-+static kmem_cache_t *kevent_poll_container_cache;
-+static kmem_cache_t *kevent_poll_priv_cache;
-+
-+struct kevent_poll_ctl
-+{
-+	struct poll_table_struct 	pt;
-+	struct kevent			*k;
-+};
-+
-+struct kevent_poll_wait_container
-+{
-+	struct list_head		container_entry;
-+	wait_queue_head_t		*whead;
-+	wait_queue_t			wait;
-+	struct kevent			*k;
-+};
-+
-+struct kevent_poll_private
-+{
-+	struct list_head		container_list;
-+	spinlock_t			container_lock;
-+};
-+
-+static int kevent_poll_enqueue(struct kevent *k);
-+static int kevent_poll_dequeue(struct kevent *k);
-+static int kevent_poll_callback(struct kevent *k);
-+
-+static int kevent_poll_wait_callback(wait_queue_t *wait,
-+		unsigned mode, int sync, void *key)
-+{
-+	struct kevent_poll_wait_container *cont =
-+		container_of(wait, struct kevent_poll_wait_container, wait);
-+	struct kevent *k = cont->k;
-+	struct file *file = k->st->origin;
-+	u32 revents;
-+
-+	revents = file->f_op->poll(file, NULL);
-+
-+	kevent_storage_ready(k->st, NULL, revents);
-+
-+	return 0;
-+}
-+
-+static void kevent_poll_qproc(struct file *file, wait_queue_head_t *whead,
-+		struct poll_table_struct *poll_table)
-+{
-+	struct kevent *k =
-+		container_of(poll_table, struct kevent_poll_ctl, pt)->k;
-+	struct kevent_poll_private *priv = k->priv;
-+	struct kevent_poll_wait_container *cont;
-+	unsigned long flags;
-+
-+	cont = kmem_cache_alloc(kevent_poll_container_cache, SLAB_KERNEL);
-+	if (!cont) {
-+		kevent_break(k);
-+		return;
-+	}
-+
-+	cont->k = k;
-+	init_waitqueue_func_entry(&cont->wait, kevent_poll_wait_callback);
-+	cont->whead = whead;
-+
-+	spin_lock_irqsave(&priv->container_lock, flags);
-+	list_add_tail(&cont->container_entry, &priv->container_list);
-+	spin_unlock_irqrestore(&priv->container_lock, flags);
-+
-+	add_wait_queue(whead, &cont->wait);
-+}
-+
-+static int kevent_poll_enqueue(struct kevent *k)
-+{
-+	struct file *file;
-+	int err, ready = 0;
-+	unsigned int revents;
-+	struct kevent_poll_ctl ctl;
-+	struct kevent_poll_private *priv;
-+
-+	file = fget(k->event.id.raw[0]);
-+	if (!file)
-+		return -ENODEV;
-+
-+	err = -EINVAL;
-+	if (!file->f_op || !file->f_op->poll)
-+		goto err_out_fput;
-+
-+	err = -ENOMEM;
-+	priv = kmem_cache_alloc(kevent_poll_priv_cache, SLAB_KERNEL);
-+	if (!priv)
-+		goto err_out_fput;
-+
-+	spin_lock_init(&priv->container_lock);
-+	INIT_LIST_HEAD(&priv->container_list);
-+
-+	k->priv = priv;
-+
-+	ctl.k = k;
-+	init_poll_funcptr(&ctl.pt, &kevent_poll_qproc);
-+
-+	err = kevent_storage_enqueue(&file->st, k);
-+	if (err)
-+		goto err_out_free;
-+
-+	revents = file->f_op->poll(file, &ctl.pt);
-+	if (revents & k->event.event) {
-+		ready = 1;
-+		kevent_poll_dequeue(k);
-+	}
-+
-+	return ready;
-+
-+err_out_free:
-+	kmem_cache_free(kevent_poll_priv_cache, priv);
-+err_out_fput:
-+	fput(file);
-+	return err;
-+}
-+
-+static int kevent_poll_dequeue(struct kevent *k)
-+{
-+	struct file *file = k->st->origin;
-+	struct kevent_poll_private *priv = k->priv;
-+	struct kevent_poll_wait_container *w, *n;
-+	unsigned long flags;
-+
-+	kevent_storage_dequeue(k->st, k);
-+
-+	spin_lock_irqsave(&priv->container_lock, flags);
-+	list_for_each_entry_safe(w, n, &priv->container_list, container_entry) {
-+		list_del(&w->container_entry);
-+		remove_wait_queue(w->whead, &w->wait);
-+		kmem_cache_free(kevent_poll_container_cache, w);
-+	}
-+	spin_unlock_irqrestore(&priv->container_lock, flags);
-+
-+	kmem_cache_free(kevent_poll_priv_cache, priv);
-+	k->priv = NULL;
-+
-+	fput(file);
-+
-+	return 0;
-+}
-+
-+static int kevent_poll_callback(struct kevent *k)
-+{
-+	struct file *file = k->st->origin;
-+	unsigned int revents = file->f_op->poll(file, NULL);
-+
-+	k->event.ret_data[0] = revents & k->event.event;
-+
-+	return (revents & k->event.event);
-+}
-+
-+static int __init kevent_poll_sys_init(void)
-+{
-+	struct kevent_callbacks pc = {
-+		.callback = &kevent_poll_callback,
-+		.enqueue = &kevent_poll_enqueue,
-+		.dequeue = &kevent_poll_dequeue};
-+
-+	kevent_poll_container_cache = kmem_cache_create("kevent_poll_container_cache",
-+			sizeof(struct kevent_poll_wait_container), 0, 0, NULL, NULL);
-+	if (!kevent_poll_container_cache) {
-+		printk(KERN_ERR "Failed to create kevent poll container cache.\n");
-+		return -ENOMEM;
-+	}
-+
-+	kevent_poll_priv_cache = kmem_cache_create("kevent_poll_priv_cache",
-+			sizeof(struct kevent_poll_private), 0, 0, NULL, NULL);
-+	if (!kevent_poll_priv_cache) {
-+		printk(KERN_ERR "Failed to create kevent poll private data cache.\n");
-+		kmem_cache_destroy(kevent_poll_container_cache);
-+		kevent_poll_container_cache = NULL;
-+		return -ENOMEM;
-+	}
-+
-+	kevent_add_callbacks(&pc, KEVENT_POLL);
-+
-+	printk(KERN_INFO "Kevent poll()/select() subsystem has been initialized.\n");
-+	return 0;
-+}
-+
-+static struct lock_class_key kevent_poll_key;
-+
-+void kevent_poll_reinit(struct file *file)
-+{
-+	lockdep_set_class(&file->st.lock, &kevent_poll_key);
-+}
-+
-+static void __exit kevent_poll_sys_fini(void)
-+{
-+	kmem_cache_destroy(kevent_poll_priv_cache);
-+	kmem_cache_destroy(kevent_poll_container_cache);
-+}
-+
-+module_init(kevent_poll_sys_init);
-+module_exit(kevent_poll_sys_fini);
+Rafael
 
 
 -- 
-VGER BF report: S 0.999941
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller
+
+-- 
+VGER BF report: H 4.55007e-15

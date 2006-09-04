@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWIDLBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWIDLBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbWIDLBR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWIDLBQ
+	id S932123AbWIDLBp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWIDLBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:01:16 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:2944 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751395AbWIDLBP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:01:15 -0400
-Message-ID: <44FC0779.9030405@garzik.org>
-Date: Mon, 04 Sep 2006 07:01:13 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 4 Sep 2006 07:01:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:5931 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932123AbWIDLBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 07:01:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=pNBPHvJ6qO6B6Bwmk6rU9EpGXBOCl6AegpxzdwhBlgW54Y2/jMg+kMrVu6NiNrBv3AxuscO721ZUvBM5JMBqDRZeVyai/2ZAEtf3EDw5Rh3hlocx0p9n8DpCzvcFOM31qoSz3KCbr48hsNIHqbtZNae5lxOStyCD3w/DgUK7cNk=
+Message-ID: <84144f020609040401h314bdb72x4c3bd7c27cb38256@mail.gmail.com>
+Date: Mon, 4 Sep 2006 14:01:41 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Josef Sipek" <jsipek@fsl.cs.sunysb.edu>
+Subject: Re: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       "Stephen Rothwell" <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@ftp.linux.org.uk
+In-Reply-To: <20060903194456.GA4977@filer.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: PATA drivers queued for 2.6.19
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
+	 <20060901115327.80554494.sfr@canb.auug.org.au>
+	 <20060901172310.GA2622@filer.fsl.cs.sunysb.edu>
+	 <Pine.LNX.4.61.0609031941210.12800@yvahk01.tjqt.qr>
+	 <20060903194456.GA4977@filer.fsl.cs.sunysb.edu>
+X-Google-Sender-Auth: 628272e81f931995
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/3/06, Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
+> I think you misunderstood my comment. What I meant to say was that there is
+> _no way_ you can compile a filesystem that has only dentry ops but not
+> superblock ops - this would happen if you tried to bisect and you landed
+> half way in the series of commits for the filesystem. For the _initial_
+> commit one cset makes sense. For subsequent fixes one commit per fix is the
+> only logical thing to do.
 
-I just pulled the "pata-drivers" branch of libata-dev.git into the 
-"upstream" branch, which means that Alan's libata PATA driver collection 
-is now queued for 2.6.19.
-
-Testing-wise, these PATA drivers have been Andrew Morton's -mm tree for 
-many months.  Community-wise, no one posted objections to the PATA 
-driver merge plan, when Alan posted it on LKML and linux-ide.
-
-The following must be in all caps, though:
-
-drivers/ide IS STILL THE PATA DRIVER SET THAT USERS AND DISTROS SHOULD 
-CHOOSE.
-
-At this time, drivers/ide should not be added to 
-Documentation/feature-removal-schedule.txt.  The libata PATA driver set 
-should be considered experimental still, and there remains a few 
-user-visible differences between the two trees:
-
-* Host-protected area (HPA) not ignored in libata, which means disk 
-sizes differ between drivers/ide (whole disk) and libata (whole disk 
-minus HPA).
-
-* The obvious change between /dev/hdX to /dev/sdX
-
-* /dev/sdX supports fewer partitions than /dev/hdX (16 versus 64, IIRC)
-
-* /dev/sdX does not support all the HDIO_xxx ioctls that /dev/hdX does. 
-  In practice, the ioctls we ignored are ones that very few people care 
-about.
-
-* ARM, PPC and other non-x86 platform drivers are severely 
-under-represented.
-
-As an aside, I would love to see paride updated to use libata, but we 
-can probably count the number of paride users on one hand these days...
-
-	Jeff
-
-
+Reorder the patches so that Makefile and Kconfig changes come last and
+git bisect will work just fine.
 
 -- 
-VGER BF report: U 0.499983
+VGER BF report: H 0

@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWIDNDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWIDNFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWIDNDv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWIDNDv
+	id S964904AbWIDNFF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWIDNFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:03:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62954 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964886AbWIDNDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:03:49 -0400
-Subject: Re: [PATCHSET] The GFS2 filesystem (for review)
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       David Teigland <teigland@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <20060901212759.GB4884@ucw.cz>
-References: <1157030815.3384.782.camel@quoit.chygwyn.com>
-	 <20060901212759.GB4884@ucw.cz>
+	Mon, 4 Sep 2006 09:05:05 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37854 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964901AbWIDNFB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:05:01 -0400
+Subject: Re: PATA drivers queued for 2.6.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Jeff Garzik <jeff@garzik.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
+References: <44FC0779.9030405@garzik.org>
+	 <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
 Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 04 Sep 2006 14:07:28 +0100
-Message-Id: <1157375248.3384.914.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+Date: Mon, 04 Sep 2006 14:27:09 +0100
+Message-Id: <1157376429.30801.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Llu, 2006-09-04 am 22:02 +1000, ysgrifennodd Grant Coady:
+> I can't see an easy way to arrange multi-boot with different /etc/fstab 
+> depending if I'm trying /dev/hdaX or /dev/sdaX.  Parallel '/' partitions?
 
-On Fri, 2006-09-01 at 21:27 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > Following on from this message are the 16 patches of GFS2 which we are
-> > again posting for review. Since the last posting we have, I hope,
-> > addressed all the issues raised as well as fixing a number of bugs. In
-> > particular, we have now only one new exported symbol (see patch 16 of
-> > the series).
-> 
-> I'm missing some Documentation/ so that I can learn what is gfs2 good
-> for...
-> 
-> 
-Documentation/filesystems/gfs2.txt does exist... it was in patch 13, or
-are you requesting that it should be a more detailed document? The
-Kconfig file also has a brief description of GFS2 and what it can be
-used for,
+Mount by label on modern distributions. You can also generally boot far
+enough to just test by booting a libata kernel with
+root=/dev/sdawhatever init=/bin/sh
 
-Steve.
-
+Thats enough to get a test shell and poke around and check the boot
+messages
 

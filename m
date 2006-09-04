@@ -1,288 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWIDXOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWIDXP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWIDXOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 19:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWIDXON
+	id S932235AbWIDXP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 19:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWIDXP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 19:14:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22149 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932234AbWIDXOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 19:14:12 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, saito.tadashi@soft.fujitsu.com, ak@suse.de,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH] proc: readdir race fix.
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-Date: Mon, 04 Sep 2006 17:13:10 -0600
-In-Reply-To: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-	(KAMEZAWA Hiroyuki's message of "Fri, 25 Aug 2006 18:29:43 +0900")
-Message-ID: <m1y7sz4455.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Sep 2006 19:15:29 -0400
+Received: from ns2.suse.de ([195.135.220.15]:34221 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932235AbWIDXP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 19:15:28 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 5 Sep 2006 09:15:21 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 9] knfsd: minor gss/v4 cleanups and major ACL surgery.
+Message-ID: <20060905090617.21303.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Following are 9 patches for nfsd from Bruce Fields.  First 5 are minor
+cleanups around gss code and elsewhere.  Last 4 make substantial
+changes to ACL handling, particularly for mapping between Posix draft
+ACLs and NFSv4 ACLs.
 
-The problem: An opendir, readdir, closedir sequence can fail to report
-process ids that are continually in use throughout the sequence of
-system calls.  For this race to trigger the process that proc_pid_readdir
-stops at must exit before readdir is called again.
-
-This can cause ps to fail to report processes, and  it is in violation
-of posix guarantees and normal application expectations with respect
-to readdir.
-
-Currently there is no way to work around this problem in user space
-short of providing a gargantuan buffer to user space so the directory
-read all happens in on system call.
-
-This patch implements the normal directory semantics for proc,
-that guarantee that a directory entry that is neither created nor
-destroyed while reading the directory entry will be returned.  For
-directory that are either created or destroyed during the readdir you
-may or may not see them.  Furthermore you may seek to a directory
-offset you have previously seen.
-
-These are the guarantee that ext[23] provides and that posix requires,
-and more importantly that user space expects. Plus it is a simple
-semantic to implement reliable service.  It is just a matter of
-calling readdir a second time if you are wondering if something new
-has show up.
-
-These better semantics are implemented by scanning through the
-pids in numerical order and by making the file offset a pid
-plus a fixed offset.
-
-The pid scan happens on the pid bitmap, which when you look at it is
-remarkably efficient for a brute force algorithm.  Given that a typical
-cache line is 64 bytes and thus covers space for 64*8 == 200 pids.  There
-are only 40 cache lines for the entire 32K pid space.  A typical system
-will have 100 pids or more so this is actually fewer cache lines we have
-to look at to scan a linked list, and the worst case of having to scan
-the entire pid bitmap is pretty reasonable.
-
-If we need something more efficient we can go to a more efficient data
-structure for indexing the pids, but for now what we have should be
-sufficient.
-
-In addition this takes no additional locks and is actually less
-code than what we are doing now.
-
-This patch is against 2.6.18-rc6 and it should be relatively straight
-forward to backport to older kernels as well.
-
-Thanks to KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> for
-providing the first fix, pointing this out and working on it.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- fs/proc/base.c      |   93 +++++++++++++--------------------------------------
- include/linux/pid.h |    1 +
- kernel/pid.c        |   37 ++++++++++++++++++++
- 3 files changed, 62 insertions(+), 69 deletions(-)
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index fe8d55f..7b93454 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2141,72 +2141,32 @@ out_no_task:
- }
- 
- /*
-- * Find the first tgid to return to user space.
-+ * Find the first task with tgid >= tgid
-  *
-- * Usually this is just whatever follows &init_task, but if the users
-- * buffer was too small to hold the full list or there was a seek into
-- * the middle of the directory we have more work to do.
-- *
-- * In the case of a short read we start with find_task_by_pid.
-- *
-- * In the case of a seek we start with &init_task and walk nr
-- * threads past it.
-  */
--static struct task_struct *first_tgid(int tgid, unsigned int nr)
-+static struct task_struct *next_tgid(unsigned int tgid)
- {
--	struct task_struct *pos;
--	rcu_read_lock();
--	if (tgid && nr) {
--		pos = find_task_by_pid(tgid);
--		if (pos && thread_group_leader(pos))
--			goto found;
--	}
--	/* If nr exceeds the number of processes get out quickly */
--	pos = NULL;
--	if (nr && nr >= nr_processes())
--		goto done;
--
--	/* If we haven't found our starting place yet start with
--	 * the init_task and walk nr tasks forward.
--	 */
--	for (pos = next_task(&init_task); nr > 0; --nr) {
--		pos = next_task(pos);
--		if (pos == &init_task) {
--			pos = NULL;
--			goto done;
--		}
--	}
--found:
--	get_task_struct(pos);
--done:
--	rcu_read_unlock();
--	return pos;
--}
-+	struct task_struct *task;
-+	struct pid *pid;
- 
--/*
-- * Find the next task in the task list.
-- * Return NULL if we loop or there is any error.
-- *
-- * The reference to the input task_struct is released.
-- */
--static struct task_struct *next_tgid(struct task_struct *start)
--{
--	struct task_struct *pos;
-+	task = NULL;
- 	rcu_read_lock();
--	pos = start;
--	if (pid_alive(start))
--		pos = next_task(start);
--	if (pid_alive(pos) && (pos != &init_task)) {
--		get_task_struct(pos);
--		goto done;
-+retry:
-+	pid = find_next_pid(tgid);
-+	if (pid) {
-+		tgid = pid->nr + 1;
-+		task = pid_task(pid, PIDTYPE_PID);
-+		if (!task || !thread_group_leader(task))
-+			goto retry;
-+		get_task_struct(task);
- 	}
--	pos = NULL;
--done:
- 	rcu_read_unlock();
--	put_task_struct(start);
--	return pos;
-+	return task;
-+	
- }
- 
-+#define TGID_OFFSET ((FIRST_PROCESS_ENTRY + 1) - 1)
-+
- /* for the /proc/ directory itself, after non-process stuff has been done */
- int proc_pid_readdir(struct file * filp, void * dirent, filldir_t filldir)
- {
-@@ -2222,29 +2182,24 @@ int proc_pid_readdir(struct file * filp,
- 		filp->f_pos++;
- 		nr++;
- 	}
--	nr -= 1;
- 
--	/* f_version caches the tgid value that the last readdir call couldn't
--	 * return. lseek aka telldir automagically resets f_version to 0.
--	 */
--	tgid = filp->f_version;
--	filp->f_version = 0;
--	for (task = first_tgid(tgid, nr);
-+	tgid = filp->f_pos - TGID_OFFSET;
-+	for (task = next_tgid(tgid);
- 	     task;
--	     task = next_tgid(task), filp->f_pos++) {
-+	     task = next_tgid(tgid + 1)) {
- 		int len;
- 		ino_t ino;
- 		tgid = task->pid;
-+		filp->f_pos = tgid + TGID_OFFSET;
- 		len = snprintf(buf, sizeof(buf), "%d", tgid);
- 		ino = fake_ino(tgid, PROC_TGID_INO);
- 		if (filldir(dirent, buf, len, filp->f_pos, ino, DT_DIR) < 0) {
--			/* returning this tgid failed, save it as the first
--			 * pid for the next readir call */
--			filp->f_version = tgid;
- 			put_task_struct(task);
--			break;
-+			goto out;
- 		}
- 	}
-+	filp->f_pos = PID_MAX_LIMIT + TGID_OFFSET;
-+out:
- 	return 0;
- }
- 
-diff --git a/include/linux/pid.h b/include/linux/pid.h
-index 29960b0..a24db52 100644
---- a/include/linux/pid.h
-+++ b/include/linux/pid.h
-@@ -87,6 +87,7 @@ extern struct pid *FASTCALL(find_pid(int
-  * Lookup a PID in the hash table, and return with it's count elevated.
-  */
- extern struct pid *find_get_pid(int nr);
-+extern struct pid *find_next_pid(int nr);
- 
- extern struct pid *alloc_pid(void);
- extern void FASTCALL(free_pid(struct pid *pid));
-diff --git a/kernel/pid.c b/kernel/pid.c
-index 93e212f..53d4159 100644
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -145,6 +145,23 @@ static int alloc_pidmap(void)
- 	return -1;
- }
- 
-+static int next_pidmap(int last)
-+{
-+	int offset;
-+	pidmap_t *map;
-+
-+	offset = (last + 1) & BITS_PER_PAGE_MASK;
-+	map = &pidmap_array[(last + 1)/BITS_PER_PAGE];
-+	for (; map < &pidmap_array[PIDMAP_ENTRIES]; map++, offset = 0) {
-+		if (unlikely(!map->page))
-+			continue;
-+		offset = find_next_bit((map)->page, BITS_PER_PAGE, offset);
-+		if (offset < BITS_PER_PAGE) 
-+			return mk_pid(map, offset);
-+	}
-+	return -1;
-+}
-+
- fastcall void put_pid(struct pid *pid)
- {
- 	if (!pid)
-@@ -297,6 +314,26 @@ struct pid *find_get_pid(pid_t nr)
- }
- 
- /*
-+ * Used by proc to find the pid with the first
-+ * pid that is greater than or equal to number.
-+ *
-+ * If there is a pid at nr this function is exactly the same as find_pid.
-+ */
-+struct pid *find_next_pid(int nr)
-+{
-+	struct pid *next;
-+
-+	next = find_pid(nr);
-+	while (!next) {
-+		nr = next_pidmap(nr);
-+		if (nr <= 0)
-+			break;
-+		next = find_pid(nr);
-+	}
-+	return next;
-+}
-+
-+/*
-  * The pid hash table is scaled according to the amount of memory in the
-  * machine.  From a minimum of 16 slots up to 4096 slots at one gigabyte or
-  * more.
--- 
+Thanks,
+NeilBrown
 
 
+ [PATCH 001 of 9] knfsd: svcrpc: gss: factor out some common wrapping code
+ [PATCH 002 of 9] knfsd: svcrpc: gss: fix failure on SVC_DENIED in integrity case
+ [PATCH 003 of 9] knfsd: svcrpc: use consistent variable name for the reply state
+ [PATCH 004 of 9] knfsd: nfsd4: refactor exp_pseudoroot
+ [PATCH 005 of 9] knfsd: nfsd4: clean up exp_pseudoroot
+ [PATCH 006 of 9] knfsd: nfsd4: acls: relax the nfsv4->posix mapping
+ [PATCH 007 of 9] knfsd: nfsd4: acls: fix inheritance
+ [PATCH 008 of 9] knfsd: nfsd4: acls: simplify nfs4_acl_nfsv4_to_posix interface
+ [PATCH 009 of 9] knfsd: nfsd4: acls: fix handling of zero-length acls

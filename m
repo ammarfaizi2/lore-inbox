@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWIDWAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWIDWDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWIDWAx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWIDWAx
+	id S1751485AbWIDWDh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWIDWDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:00:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25281 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751447AbWIDWAw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:00:52 -0400
-Date: Mon, 4 Sep 2006 15:00:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Hobein <ah2@delair.de>
-cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roland McGrath <roland@redhat.com>, Markus Gutschke <markus@google.com>
-Subject: Re: Trouble with ptrace self-attach rule since kernel > 2.6.14
-In-Reply-To: <200609042342.41184.ah2@delair.de>
-Message-ID: <Pine.LNX.4.64.0609041452520.27779@g5.osdl.org>
-References: <200608312305.47515.ah2@delair.de> <20060904152307.GA98@oleg>
- <200609041756.18343.ah2@delair.de> <200609042342.41184.ah2@delair.de>
+	Mon, 4 Sep 2006 18:03:36 -0400
+Received: from smtp.flash.net.br ([201.46.240.48]:55244 "EHLO
+	smtp.gru.flash.tv.br") by vger.kernel.org with ESMTP
+	id S1751485AbWIDWDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:03:35 -0400
+Date: Mon, 4 Sep 2006 18:32:24 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
+       linux-netdev@vger.kernel.org, John Heffner <jheffner@psc.edu>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: Problems with ipv4 part of Kernels post-2.6.16
+Message-ID: <20060904213223.GA10823@ime.usp.br>
+References: <20060903201335.GA3703@ime.usp.br> <20060903183403.GB604@1wt.eu> <5a4c581d0609031507w54a397c4g2876b47b2fbbd45c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5a4c581d0609031507w54a397c4g2876b47b2fbbd45c@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Willy, Alessandro and others,
+
+On Sep 04 2006, Alessandro Suardi wrote:
+> On 9/3/06, Willy Tarreau <w@1wt.eu> wrote:
+> >Hi Rogério,
+> >
+> >On Sun, Sep 03, 2006 at 05:13:35PM -0300, Rogério Brito wrote:
+> >> I can't access (from where I am) the site www.everymac.com, while I
+> >> can access other sites.
+> >
+> >I believe I read on LKML last month that there's a problem on this
+> >site with window scaling. There's a patch floating around to allow
+> >per destination window clamping. I believe that you can workaround
+> >the problem by disabling TCP window scaling :
+> >
+> >   echo 0 >/proc/sys/net/ipv4/tcp_window_scaling
+
+I still have not had the opportunity of disabling TCP window scaling,
+since I'm running a quite intensive process right now under a kernel
+that doesn't exhibit the problem.
+
+> The above does help while hitting certain websites from behind my
+> corporate proxy (while others are okay); same websites can be accessed
+> without any issue from my home ISP connection.
+
+Well, it's "nice" to see that I am not the only one hitting this
+problem.  :-(
+
+> I logged an internal ticket for this, will check whether there's been
+> any update as of recently; both happens with recent 2.6.18-rc and with
+> FC5-latest kernel.
+
+One thing that I might test (when I have some time) is to just reverse
+the patch and see if the problem persists, but, of course, the net
+developers would know much better what should be done.
 
 
-On Mon, 4 Sep 2006, Andreas Hobein wrote:
-> 
-> I've tested tracing child threads from the parent thread as well as tracing 
-> siblings and parent threads from a child. All tests where successful when 
-> reverting the above mentioned changes.
+Thanks for the answers, Rogério Brito.
 
-The problems tend to happen when the thread leader exits while one of the 
-sub-threads is being traced, and the tracer thread ends up being 
-re-parented to be the child of the traced thread (or something like that - 
-I forget the exact details).
-
-There was also some problem with the tracer doing an exit() without 
-detaching, or something. 
-
-We may have fixed most of the problems since - Oleg has certainly been 
-cleaning up some of this, and it's possible that the problems we had are 
-ok now. 
-
-Even back when it was broken, _normal_ use never showed the problem (ie no 
-well-behaved ptrace use would cause anything bad to happen). But the 
-breakage was a local DoS attack, where you could either force an oops or a 
-unkillable process, I forget which.
-
-There was an exploit for at least one of the exploits, so maybe somebody 
-could test that exploit together with the one-line revert.
-
-That said, it sounds like both of the people who ever noticed this are 
-reasonably happy with their work-arounds, so I'm hoping we can simply 
-decide not to care, and just keep doing the simpler "you can't ptrace your 
-own thread group" thing. That rule simply avoids a lot of special cases.
-
-			Linus
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

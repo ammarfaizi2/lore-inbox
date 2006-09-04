@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWIDNm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWIDNnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWIDNm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWIDNm5
+	id S964846AbWIDNnA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIDNnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:42:57 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:57056 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751382AbWIDNmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:42:55 -0400
-Date: Mon, 4 Sep 2006 15:35:41 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Tomasz Torcz <zdzichu@irc.pl>
-cc: Grant Coady <gcoady.lk@gmail.com>, Jeff Garzik <jeff@garzik.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: PATA drivers queued for 2.6.19
-In-Reply-To: <20060904123546.GB23978@irc.pl>
-Message-ID: <Pine.LNX.4.61.0609041534210.17279@yvahk01.tjqt.qr>
-References: <44FC0779.9030405@garzik.org> <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
- <Pine.LNX.4.61.0609041406140.21005@yvahk01.tjqt.qr> <20060904123546.GB23978@irc.pl>
+	Mon, 4 Sep 2006 09:43:00 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:28382 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1751384AbWIDNm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:42:59 -0400
+Message-ID: <44FC2D94.7050503@nachtwindheim.de>
+Date: Mon, 04 Sep 2006 15:43:48 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [MM] 9/10 pci_module_init() convertion
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
->> Got udev?
->> 
->> /dev/disk/by-id/ata-ST3802110A_5LR13RN7-partX could be your friend.
->
->  Almost. It would alternate between "ata-" and "scsi-".
+This changes the pci_module_init macro into a static inline function,
+which is marked as deprecated.
+For use on mm only. 
+At this time there are only 3 drivers with pci_module_init() in the mm tree
+and this patch should help developers of new drivers to use
+pci_register_driver() when their driver is tested in mm.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Well then label your partitions and use /dev/disk/by-label/ (harhar...)
+---
 
-You can also try by-uuid (FS UUID) (a214ecf5-6e06-47a8-bc6d-9cd9d6f10cd6) 
-or by-path (pci-0000:00:1f.1-ide-0:0-part1).
+--- linux-2.6.18-rc5-mm1/include/linux/pci.h	2006-09-04 15:33:23.000000000 +0200
++++ linux/include/linux/pci.h	2006-09-04 15:33:35.000000000 +0200
+@@ -384,12 +384,6 @@
+ 	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+ 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+ 
+-/*
+- * pci_module_init is obsolete, this stays here till we fix up all usages of it
+- * in the tree.
+- */
+-#define pci_module_init	pci_register_driver
+-
+ /* these external functions are only available when PCI support is enabled */
+ #ifdef CONFIG_PCI
+ 
+@@ -549,6 +543,16 @@
+ 	return __pci_register_driver(driver, THIS_MODULE);
+ }
+ 
++/*
++ * pci_module_init is obsolete, this stays here till we fix up all usages of it
++ * in the tree.
++ */
++
++static inline int __deprecated pci_module_init(struct pci_driver* drv)
++{
++	return pci_register_driver(drv);
++}
++
+ void pci_unregister_driver(struct pci_driver *);
+ void pci_remove_behind_bridge(struct pci_dev *);
+ struct pci_driver *pci_dev_driver(const struct pci_dev *);
 
 
-Jan Engelhardt
--- 

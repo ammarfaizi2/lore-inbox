@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWIDNFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWIDNGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964904AbWIDNFF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWIDNFF
+	id S964902AbWIDNGE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWIDNGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:05:05 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37854 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964901AbWIDNFB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:05:01 -0400
-Subject: Re: PATA drivers queued for 2.6.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
-References: <44FC0779.9030405@garzik.org>
-	 <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
-Content-Type: text/plain
+	Mon, 4 Sep 2006 09:06:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:20657 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964902AbWIDNGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:06:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BGnTEm160LK2THe13H61YMoKUj3BHXsAHujZ6xdq+CLLKfHDPv9i1GPaoZd2EbP/6PcbYiQvEvR0f39rQKJylXjvHisjO0UsaRNXBE8LM0mIhUQP6LrzJFQ8HZzjS3gbjrVk+XdJ0AzkLKeiOy/pV5LDn2/o5DOjqgOa30UIXyc=
+Message-ID: <625fc13d0609040605o313f3910yca80cb29b76ebc60@mail.gmail.com>
+Date: Mon, 4 Sep 2006 08:05:59 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: Aubrey <aubreylee@gmail.com>
+Subject: Re: [PATCH] Fill more device IDS in the structure of m25p80 driver
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+In-Reply-To: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 04 Sep 2006 14:27:09 +0100
-Message-Id: <1157376429.30801.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-04 am 22:02 +1000, ysgrifennodd Grant Coady:
-> I can't see an easy way to arrange multi-boot with different /etc/fstab 
-> depending if I'm trying /dev/hdaX or /dev/sdaX.  Parallel '/' partitions?
+On 9/4/06, Aubrey <aubreylee@gmail.com> wrote:
+> Hi all,
+>
+> the structure:
+> struct flash_info __devinitdata m25p_data [] = {
+> /* REVISIT: fill in JEDEC ids, for parts that have them */
+> ...
+> };
+>
+> has a bunch of missing fields (like the JEDEC ids indicated) ... this
+> causes problems when actually trying to use some ST parts as it gets
+> detected incorrectly
+>
+> The following is the patch.
 
-Mount by label on modern distributions. You can also generally boot far
-enough to just test by booting a libata kernel with
-root=/dev/sdawhatever init=/bin/sh
+The patch appears to have corrupted whitespace.  Your mailer probably
+mangled it.  Care to try and fix it and resend?
 
-Thats enough to get a test shell and poke around and check the boot
-messages
-
+thx,
+josh

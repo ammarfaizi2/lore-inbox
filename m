@@ -1,131 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWIDBMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWIDBXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWIDBMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 21:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWIDBMn
+	id S932197AbWIDBXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 21:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWIDBXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 21:12:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64649 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932195AbWIDBMl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 21:12:41 -0400
-Date: Sun, 3 Sep 2006 18:12:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. =?ISO-8859-1?B?TWFnYWxs824i?= <jamagallon@ono.com>"@osdl.org
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
-Subject: Re: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
-Message-Id: <20060903181226.58f9ea80.akpm@osdl.org>
-In-Reply-To: <20060904013443.797ba40b@werewolf.auna.net>
-References: <20060901015818.42767813.akpm@osdl.org>
-	<20060904013443.797ba40b@werewolf.auna.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 3 Sep 2006 21:23:18 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:39075 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932197AbWIDBXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 21:23:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=3WtfC/ZQFFInJAFJYoMAqO2HiQLL7kgaTt6HweN136lZJsaIA9MsNUoqYA45AQXy4q4YK84G17AAfTsmzZBuy2uQuAUaI42eXQ121OO3rVMMDhkzO07Qa8if1D4XzS3WFKsHjJZd+xgcAiHQLHmzAUii3l3WaOgfWtxV/umLGwI=  ;
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: [patch/RFC 2.6.18-rc] platform_device_probe(), to conserve memory
+Date: Sun, 3 Sep 2006 18:23:05 -0700
+User-Agent: KMail/1.7.1
+Cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609031823.05560.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Sep 2006 01:34:43 +0200
-"J.A. Magallón" <jamagallon@ono.com> wrote:
+This defines a new platform_driver_probe() method allowing the driver's
+probe() method, and its support code+data, to safely live in __init
+sections for common system configurations.
 
-> On Fri, 1 Sep 2006 01:58:18 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
-> > 
-> 
-> Err, my burner got lost this summer ;).
-> This is really not a bug of _this_ kernel, because I noticed it dissapeared
-> with the previous release also, just before going on vacation... But as it
-> did not come back with this relase, I report it here.
-> 
-> Last kernel that I have tried that worked was 2.6.18-rc2-mm1. With this
-> relase, it is gone still. dmesg for both kernels is below.
-> The only thing I hace noticed is the different IRQ assignment between
-> them.
-> 
-> Any ideas ? TIA.
-> 
-> dmesg for rc2-mm1:
-> 
-> libata version 2.00 loaded.
-> ata_piix 0000:00:1f.1: version 2.00ac6
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.1 to 64
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 14
-> scsi0 : ata_piix
-> ata1.00: ATAPI, max UDMA/33
-> ata1.01: ATAPI, max MWDMA0, CDB intr
-> ata1.00: configured for UDMA/33
-> ata1.01: configured for PIO3
-> scsi1 : ata_piix
-> ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
-> ata2.00: ata2: dev 0 multi count 16
-> ata2.01: ATAPI, max UDMA/33
-> ata2.00: configured for UDMA/100
-> ata2.01: configured for UDMA/33
->   Vendor: HL-DT-ST  Model: DVDRAM GSA-4120B  Rev: A111
->   Type:   CD-ROM                             ANSI SCSI revision: 05
->   Vendor: IOMEGA    Model: ZIP 250           Rev: 51.G
->   Type:   Direct-Access                      ANSI SCSI revision: 05
->   Vendor: ATA       Model: ST3120022A        Rev: 3.06
->   Type:   Direct-Access                      ANSI SCSI revision: 05
->   Vendor: TOSHIBA   Model: DVD-ROM SD-M1712  Rev: 1004
->   Type:   CD-ROM                             ANSI SCSI revision: 05
-> ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> ...
-> 
-> dmesg for rc5-mm1:
-> 
-> libata version 2.00 loaded.
-> ata_piix 0000:00:1f.1: version 2.00ac7
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.1 to 64
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-> scsi0 : ata_piix
-> ata1.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
-> ata1.01: ATAPI, max MWDMA0, CDB intr
-> ata1.01: configured for PIO3
-> scsi1 : ata_piix
-> ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
-> ata2.00: ata2: dev 0 multi count 16
-> ata2.01: ATAPI, max UDMA/33
-> ata2.00: configured for UDMA/100
-> ata2.01: configured for UDMA/33
-> scsi 0:0:1:0: Direct-Access     IOMEGA   ZIP 250          51.G PQ: 0 ANSI: 5
-> sd 0:0:1:0: Attached scsi removable disk sda
-> scsi 1:0:0:0: Direct-Access     ATA      ST3120022A       3.06 PQ: 0 ANSI: 5
-> SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write back
-> SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write back
->  sdb: sdb1
-> sd 1:0:0:0: Attached scsi disk sdb
-> scsi 1:0:1:0: CD-ROM            TOSHIBA  DVD-ROM SD-M1712 1004 PQ: 0 ANSI: 5
-> sr0: scsi3-mmc drive: 48x/48x cd/rw xa/form2 cdda tray
-> Uniform CD-ROM driver Revision: 3.20
-> sr 1:0:1:0: Attached scsi CD-ROM sr0
-> ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> 
+Many system-on-chip processors could benefit from this API to the tune
+of saving hundreds to thousands of bytes per driver, which is currently
+wasted holding code which can never be called after system startup yet may
+not be removed.   It may not be removed because of the linkage requirement
+that pointers to init section code (like, ideally, probe support) must
+not live in sections that persist after that section is removed (like
+driver methods) when those pointers would be invalid.
 
-Please, try to cc the relevant developers on bug reports.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Thanks.
+Index: g26/include/linux/platform_device.h
+===================================================================
+--- g26.orig/include/linux/platform_device.h	2006-09-03 13:02:23.000000000 -0700
++++ g26/include/linux/platform_device.h	2006-09-03 13:02:49.000000000 -0700
+@@ -58,6 +58,12 @@ struct platform_driver {
+ extern int platform_driver_register(struct platform_driver *);
+ extern void platform_driver_unregister(struct platform_driver *);
+ 
++/* non-hotpluggable platform devices may use this so that probe() and
++ * its support may live in __init sections, conserving runtime memory.
++ */
++extern int platform_driver_probe(struct platform_driver *driver,
++		int (*probe)(struct platform_device *));
++
+ #define platform_get_drvdata(_dev)	dev_get_drvdata(&(_dev)->dev)
+ #define platform_set_drvdata(_dev,data)	dev_set_drvdata(&(_dev)->dev, (data))
+ 
+Index: g26/drivers/base/platform.c
+===================================================================
+--- g26.orig/drivers/base/platform.c	2006-09-03 13:02:23.000000000 -0700
++++ g26/drivers/base/platform.c	2006-09-03 13:02:49.000000000 -0700
+@@ -451,6 +451,51 @@ void platform_driver_unregister(struct p
+ }
+ EXPORT_SYMBOL_GPL(platform_driver_unregister);
+ 
++/**
++ * platform_driver_probe - register driver for non-hotpluggable device
++ * @drv: platform driver structure
++ * @probe: the driver probe routine, probably from an __init section
++ *
++ * Use this instead of platform_driver_register() when you know the device
++ * is not hotpluggable and has already been registered, and you want to
++ * remove its run-once probe() infrastructure from memory after the driver
++ * has bound to the device.
++ *
++ * One typical use for this would be with drivers for controllers integrated
++ * into system-on-chip processors, where the controller devices have been
++ * configured as part of board setup.
++ *
++ * Returns zero if the driver registered and bound to a device, else returns
++ * a negative error code and with the driver not registered.
++ */
++int platform_driver_probe(struct platform_driver *drv,
++		int (*probe)(struct platform_device *))
++{
++	int retval;
++
++	/* temporary section violation */
++	drv->probe = probe;
++
++	retval = platform_driver_register(drv);
++	if (retval)
++		return retval;
++
++	/* Fixup that section violation, being paranoid about code scanning
++	 * the list of drivers in order to probe new devices.  Check to see
++	 * if the probe was successful.
++	 */
++	spin_lock(&platform_bus_type.klist_drivers.k_lock);
++	drv->driver.probe = NULL;
++	drv->probe = NULL;
++	if (list_empty(&drv->driver.klist_devices.k_list))
++		retval = -ENODEV;
++	spin_unlock(&platform_bus_type.klist_drivers.k_lock);
++
++	if (retval)
++		platform_driver_unregister(drv);
++	return retval;
++}
++EXPORT_SYMBOL_GPL(platform_driver_probe);
+ 
+ /* modalias support enables more hands-off userspace setup:
+  * (a) environment variable lets new-style hotplug events work once system is
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.499965

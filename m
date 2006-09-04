@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWIDCXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWIDCep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWIDCXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 22:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWIDCXw
+	id S1751307AbWIDCep (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 22:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWIDCep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 22:23:52 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:23992 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751245AbWIDCXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 22:23:51 -0400
-X-Sasl-enc: bkFfThqWtLZnb6qqUfmkW9VCxq46W8WbNn4OZ/35wBss 1157336629
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060903095809.c83b8c0b.akpm@osdl.org>
-References: <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <20060901195009.187af603.akpm@osdl.org>
-	 <1157170272.3307.5.camel@raven.themaw.net>
-	 <20060901225853.0171fd29.akpm@osdl.org>
-	 <1157264490.3520.16.camel@raven.themaw.net>
-	 <20060902233023.ce544a00.akpm@osdl.org>
-	 <1157265781.3520.18.camel@raven.themaw.net>
-	 <20060903095809.c83b8c0b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 04 Sep 2006 10:23:44 +0800
-Message-Id: <1157336624.2954.3.camel@raven.themaw.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Sun, 3 Sep 2006 22:34:45 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:41844 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751307AbWIDCeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 22:34:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=TSexgzj12B/Yt9exNdj4JlZ4te4Rg9U8SvjVXgSSH/IVfe8/K0yFSVTjK0V66itBnXFCDI4vAgABzO0WZ7pFhHFHZuQR9fEQZA1puT+XiU9eb8lkk5rIDZ1tKP63+v/c2O3r6QlFXJ6AUWOFyrdFNgGii7xRUzCl2t7w2RYNCwM=  ;
+Date: Sun, 03 Sep 2006 19:34:40 -0700
+From: David Brownell <david-b@pacbell.net>
+To: dtor@insightbb.com
+Subject: Re: [patch/RFC 2.6.18-rc] platform_device_probe(), to conserve memory
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, greg@kroah.com
+References: <200609031823.05560.david-b@pacbell.net>
+ <200609032134.30195.dtor@insightbb.com>
+In-Reply-To: <200609032134.30195.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20060904023440.E7848195C95@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-03 at 09:58 -0700, Andrew Morton wrote:
-> On Sun, 03 Sep 2006 14:43:00 +0800
-> Ian Kent <raven@themaw.net> wrote:
-> 
-> > On Sat, 2006-09-02 at 23:30 -0700, Andrew Morton wrote:
-> > > On Sun, 03 Sep 2006 14:21:30 +0800
-> > > Ian Kent <raven@themaw.net> wrote:
-> > > 
-> > > > I guess you haven't got the autofs module loaded instead of autofs4 by
-> > > > mistake.
-> > > 
-> > > Nope.
-> > > 
-> > > > So I wonder what the different is between the setups?
-> > > 
-> > > Beats me.  Maybe cook up a debug patch?
+> From: Dmitry Torokhov <dtor@insightbb.com>
+> Date: Sun, 3 Sep 2006 21:34:29 -0400
+>
+> On Sunday 03 September 2006 21:23, David Brownell wrote:
+> > This defines a new platform_driver_probe() method allowing the driver's
+> > probe() method, and its support code+data, to safely live in __init
+> > sections for common system configurations.
 > > 
-> > OK.
-> > 
-> > Could you add "--debug" to DAEMONOPTIONS in /etc/sysconfig/autofs and
-> > post the output so I can get some idea where to put the prints please.
-> > 
-> 
-> Sep  3 09:56:40 sony automount[18446]: starting automounter version 4.1.4-29, path = /net, maptype = program, mapname = /etc/auto.net
-> Sep  3 09:56:40 sony kernel: SELinux: initialized (dev autofs, type autofs), uses genfs_contexts
-> Sep  3 09:56:40 sony automount[18446]: using kernel protocol version 4.00
-> Sep  3 09:56:40 sony automount[18446]: using timeout 60 seconds; freq 15 secs
-> Sep  3 09:56:53 sony automount[18446]: attempting to mount entry /net/bix
-> Sep  3 09:56:53 sony kernel: SELinux: initialized (dev 0:16, type nfs), uses genfs_contexts
-> Sep  3 09:56:53 sony automount[18453]: mount(nfs): mkdir_path /net/bix/usr/src failed: Permission denied
-> Sep  3 09:56:53 sony automount[18453]: mount(nfs): mkdir_path /net/bix/mnt/export failed: Permission denied
+>
+> If you do this you also need to kill drivers bind/unbind attributes
+> to show that dynamic [un]binding is not supported.
 
-Yes and these should be EXIST.
+Unbinding hasn't changed; so if that attribute breaks because of this,
+it was already broken.
 
-Could you humor me a little further and load the base selinux policy
-that enables rules that "dontaudit" access fails using:
+It might be important that drv->probe() be replaced with something
+that always fails though, since it seems there's an odd assumption
+that not having a probe() means the driver works for any device...
 
-semodule -b /usr/share/selinux/targeted/enableaudit.pp
-
-and see if we get any avc messages.
-
-Ian
-
-
+- Dave
 
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 1.38493e-10

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWIDOya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWIDO6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWIDOya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 10:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWIDOya
+	id S1751080AbWIDO6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 10:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWIDO6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 10:54:30 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:16818 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751451AbWIDOy3 (ORCPT
+	Mon, 4 Sep 2006 10:58:36 -0400
+Received: from mail.suse.de ([195.135.220.2]:6793 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751080AbWIDO6f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 10:54:29 -0400
-Date: Mon, 4 Sep 2006 16:50:34 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 08/16] GFS2: Resource group code
-In-Reply-To: <1157031351.3384.799.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609041637500.17279@yvahk01.tjqt.qr>
-References: <1157031351.3384.799.camel@quoit.chygwyn.com>
+	Mon, 4 Sep 2006 10:58:35 -0400
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Andrew Morton <akpm@osdl.org>, Grant Coady <gcoady.lk@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH-mm] i8042: activate panic blink only in X
+References: <200609022320.36754.dtor@insightbb.com>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Sep 2006 16:58:33 +0200
+In-Reply-To: <200609022320.36754.dtor@insightbb.com>
+Message-ID: <p738xkz65ly.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov <dtor@insightbb.com> writes:
 
->+#define BFITNOENT 0xFFFFFFFF
+> Hi,
+> 
+> Here is an attempt to make panicblink only active in X so there is a
+> chance of keyboard still working after panic in text console. Any reason
+> why is should not be done this way?
+> 
 
-See previous mail, (uint32_t)-1 / (uint32_t)~0 or leave it.
+Looks good to me.
 
->+static inline int rgrp_contains_block(struct gfs2_rindex *ri, uint64_t block)
->+{
->+	uint64_t first = ri->ri_data0;
->+	uint64_t last = first + ri->ri_data;
->+	return !!(first <= block && block < last);
->+}
+Of course it would be even better to fix the panic stuff to not disrupt scrollback,
+but short of that it's a good idea.
 
-No need for the !!, the expression !! is operating on is already a boolean.
-IOW,
-
-	return first <= block && block < last;
-
-
->+/**
->+ * gfs2_alloc_put - throw away the struct gfs2_alloc for an inode
->+ * @ip: the inode
->+ *
->+ */
->+
->+void gfs2_alloc_put(struct gfs2_inode *ip)
->+{
->+	return;
->+}
-
-Missing some code? Code that comes later?
-
-
-Jan Engelhardt
--- 
+-Andi (original panic blink author)

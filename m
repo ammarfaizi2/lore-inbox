@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWIDR4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWIDSUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWIDR4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 13:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWIDR4M
+	id S964961AbWIDSUq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 14:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWIDSUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 13:56:12 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:22945 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964955AbWIDR4L (ORCPT
+	Mon, 4 Sep 2006 14:20:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36066 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751419AbWIDSUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 13:56:11 -0400
-Date: Mon, 4 Sep 2006 19:51:39 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 02/16] GFS2: Core locking interface
-In-Reply-To: <1157384401.3384.956.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609041945310.28823@yvahk01.tjqt.qr>
-References: <1157030977.3384.786.camel@quoit.chygwyn.com> 
- <Pine.LNX.4.61.0609010852470.25521@yvahk01.tjqt.qr> 
- <1157360497.3384.888.camel@quoit.chygwyn.com>  <Pine.LNX.4.61.0609041108570.11217@yvahk01.tjqt.qr>
- <1157384401.3384.956.camel@quoit.chygwyn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 4 Sep 2006 14:20:45 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060901093451.87aa486d.akpm@osdl.org> 
+References: <20060901093451.87aa486d.akpm@osdl.org>  <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 04 Sep 2006 19:20:32 +0100
+Message-ID: <18448.1157394032@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
->> >Unfortunately thats not possible as the struct gfs2_sbd is actually
->> >changed lower down the call chain, but only in the lock_dlm module.
->> 
->> +void gfs2_lm_unmount(struct gfs2_sbd *sdp)
->> +{
->> +	if (likely(!test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
->> +		gfs2_unmount_lockproto(&sdp->sd_lockstruct);
->> +}
->> 
->> I can't follow... test_bit does not modify *sdp or sdp->sd_flags, and
->> gfs2_unmount_lockproto does not either.
->
->sd_lockstruct is part of the superblock and fields in the lockstruct are
->changed by (for example) fs/gfs2/locking/dlm/mount.c: gdlm_unmount() so
->I don't think its valid to mark the superblock const here (despite being
->a great fan of using const in general).
+Andrew Morton <akpm@osdl.org> wrote:
 
-Ah I just looked, and saw that
+> I fixed it all up, I think.  Please review-and-test rc5-mm1
 
-  struct {
-      struct ... sd_lockstruct;
-  } sdp;
+It seems to work okay, and the you seem to have made a change to fs/afs/file.c
+that matches the one that I've made, so thanks.
 
-sd_lockstruct is not a pointer but a struct in line. Yes, you are right.
-It would have been valid only if sd_lockstruct was a pointer to non-const
-memory.
+> (including hot-fixes/ contents, which grows apace).
 
+ (*) drivers-md-kconfig-fix-block-dependency.patch
 
-Jan Engelhardt
--- 
+     I ACK'd Adrian's patch, and the change it makes appears in Jens's block
+     GIT tree, even if the patch itself does not AFAICT.
+
+David

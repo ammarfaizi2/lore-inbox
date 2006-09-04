@@ -1,50 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWIDOsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWIDOtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWIDOsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 10:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWIDOsi
+	id S1751441AbWIDOtr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 10:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWIDOtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 10:48:38 -0400
-Received: from lucidpixels.com ([66.45.37.187]:34486 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751442AbWIDOsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 10:48:36 -0400
-Date: Mon, 4 Sep 2006 10:48:35 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Neil Brown <neilb@suse.de>
-cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       apiszcz@lucidpixels.com
-Subject: Re: [NFS] 2.6.17.6 New(?) NFS Kernel Bug (OOPS) When vi /over/nfs/file.txt
-In-Reply-To: <17660.5710.887383.554921@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.64.0609041048210.1572@p34.internal.lan>
-References: <Pine.LNX.4.64.0608310708050.2348@p34.internal.lan>
- <17660.5710.887383.554921@cse.unsw.edu.au>
+	Mon, 4 Sep 2006 10:49:47 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:44171 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751441AbWIDOtq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 10:49:46 -0400
+Message-ID: <44FC3D08.4030707@drzeus.cx>
+Date: Mon, 04 Sep 2006 16:49:44 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Alex Dubov <oakad@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
+ card readers
+References: <20060904141300.87440.qmail@web36712.mail.mud.yahoo.com>
+In-Reply-To: <20060904141300.87440.qmail@web36712.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh, whoa, thanks for this and identifying the patch fix!
-
-Justin.
-
-On Mon, 4 Sep 2006, Neil Brown wrote:
-
-> On Thursday August 31, jpiszcz@lucidpixels.com wrote:
->> Short description: I have a text file I was editing over NFS, around 4 to
->> 5 kilobytes.  It was during this time this occured:
+Alex Dubov wrote:
+> --- Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>
+>   
+>> I suppose it's a matter of taste, but personally I think the mere
+>> mentioning of 'for' allows you to directly see that there is some kind
+>> of looping involved. And it shouldn't be terribly complex:
 >>
->> Note, this is the first time I have ever seen this bug.
->> My .config is attached.  After a reboot, I ran the same vi command, no
->> issues, so I could easily reproduce the problem.
+>> for (i = 0;i < 8;i++) {
+>>     resp[i] = readw(addr + RESPONSE + (7 - i)*4) << 16;
+>>     resp[i] |= readw(addr + RESPONSE + (6 - i)*4);
+>> }
 >>
->> Could anyone offer any insight to exactly what it was that caused this
->> bug?
+>>     
 >
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=2f34931fdc78b4895553aaa33748939cc7697c99
+> The actual loop is slightly different (there are 4 elements in cmd->resp):
+>   
+
+My bad. I got confused with your eight registers. ;)
+
+> for (i=0; i < 4; i++) {
+>       resp[i] = readl(addr + RESP + (7 - 2 * i) * 4) << 16;
+>       resp[i] |= readl(addr + RESP + (6 - 2 * i) * 4);
+> }
+> As there are only 4 iterations it's not a lot of work to spare the compiler from address
+> calculation. readl also seems more appropriate than readw, as resp is array of u32.
 >
-> This is fixed in a 2.6.17.11 and possibly earlier stable releases.
+>   
+
+I smell premature optimisation. Besides, the compiler is probably better
+than you at unraveling that loop in an efficient manner anyway. You
+should generally start with readable and obviously correct code and
+optimise only when bottle necks are found. It keeps the code
+maintainable in the long run.
+
+As for the readw(), it was because you said only 16 of the 32 bits
+contained anything of value.
+
+> I changed the variable and function names to *_timeout, but left the macros as *_TO. This way,
+> the macro name corresponds to the datasheet and the meaning is evident from context:
 >
-> NeilBrown
+> writel(data_timeout, sock->addr + SOCK_MMCSD_DATA_TO);
 >
+>   
+
+Great. That should allow even the most inexperienced reader to
+understand the code.
+
+> Additionally, I added defines for response and command types.
+>
+>   
+
+Should be ready for merge then. We just need to sort out exactly where
+to put the files. And Russell probably wants his say in this as well. ;)
+
+Rgds
+Pierre
+

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWIENLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWIENSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWIENLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 09:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWIENLs
+	id S964880AbWIENSw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 09:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWIENSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 09:11:48 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4101 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932183AbWIENLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 09:11:48 -0400
-Date: Tue, 5 Sep 2006 15:11:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: frv compile error in set_pte()
-Message-ID: <20060905131140.GC9173@stusta.de>
-References: <20060904115845.GP4416@stusta.de> <20060903220657.GG4416@stusta.de> <14367.1157361985@warthog.cambridge.redhat.com> <9812.1157459492@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9812.1157459492@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 5 Sep 2006 09:18:52 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14245 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964845AbWIENSv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 09:18:51 -0400
+Subject: Re: [PATCH] ide: Fix crash on repeated reset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: akpm@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060904193807.GA6118@rhlx01.fht-esslingen.de>
+References: <1157378041.30801.78.camel@localhost.localdomain>
+	 <20060904193807.GA6118@rhlx01.fht-esslingen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 04 Sep 2006 23:04:37 +0100
+Message-Id: <1157407477.9018.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 01:31:32PM +0100, David Howells wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
+Ar Llu, 2006-09-04 am 21:38 +0200, ysgrifennodd Andreas Mohr:
+> Hi,
 > 
-> > It's a gcc 4.1.1 from ftp.gnu.org.
+> On Mon, Sep 04, 2006 at 02:54:01PM +0100, Alan Cox wrote:
+> >  	unsigned int sleeping	: 1;
+> >  		/* BOOL: polling active & poll_timeout field valid */
+> >  	unsigned int polling	: 1;
+> > +	 	/* BOOL: in a polling reset situation. Must not trigger another reset yet */
+> > +	unsigned	resetting  : 1;
+> > +
 > 
-> If you patch it with the attached patch, does it then work?
+> Inconsistent variable type declarations/formatting?
 
-Yes.  :-)
+Harmless but true. Updated in my tree.
 
-> David
->...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan
 

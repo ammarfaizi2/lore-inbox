@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWIDKV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWIDKZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWIDKV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 06:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWIDKV5
+	id S1751364AbWIDKZV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 06:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWIDKZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 06:21:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7659 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932122AbWIDKV4 (ORCPT
+	Mon, 4 Sep 2006 06:25:21 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:25789 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751352AbWIDKZU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 06:21:56 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> 
-References: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> 
-To: Aubrey <aubreylee@gmail.com>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com, dhowells@redhat.com,
-       davidm@snapgear.com, gerg@snapgear.com
-Subject: Re: kernel BUGs when removing largish files with the SLOB allocator 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 04 Sep 2006 11:21:35 +0100
-Message-ID: <17162.1157365295@warthog.cambridge.redhat.com>
+	Mon, 4 Sep 2006 06:25:20 -0400
+Date: Mon, 4 Sep 2006 14:24:47 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take15 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20060904102447.GA16259@2ka.mipt.ru>
+References: <12345678912345.GA1898@2ka.mipt.ru> <11573648604058@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <11573648604058@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 04 Sep 2006 14:24:48 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 04, 2006 at 02:14:20PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> 
+> Generic event handling mechanism.
 
-Aubrey <aubreylee@gmail.com> wrote:
-
-> Is there any solution/patch to fix the issue?
-
-Make the SLOB allocator mark its pages PG_slab, just like the SLAB allocator
-does.  I think this should be okay as the SLOB allocator and the SLAB
-allocator seem to be mutually exclusive.
-
-Using PG_slab would also give an instant check to things like SLOB's kfree().
-
-> +#ifdef CONFIG_SLAB
->        if (PageSlab(page))
-> +#endif
-
-This is not a valid workaround as the object won't necessarily have been
-allocated from a slab (shared ramfs mappings and SYSV SHM for example).  You
-may not pass to ksize() objects allocated by means other than SLAB/SLOB.
-
-David
+I've also updated documentation at
+http://linux-net.osdl.org/index.php/Kevent
 
 -- 
-VGER BF report: H 1.12398e-05
+	Evgeniy Polyakov
+
+-- 
+VGER BF report: H 0

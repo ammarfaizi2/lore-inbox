@@ -1,121 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWIDVKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWIDVQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWIDVKw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 17:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWIDVKw
+	id S964809AbWIDVQr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 17:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIDVQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 17:10:52 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:4591 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751454AbWIDVKv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 17:10:51 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
-Date: Mon, 4 Sep 2006 23:11:20 +0200
-User-Agent: KMail/1.9.1
-Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>, Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-References: <200609041237.46528.ossthema@de.ibm.com> <20060904201606.GA24386@electric-eye.fr.zoreil.com>
-In-Reply-To: <20060904201606.GA24386@electric-eye.fr.zoreil.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200609042311.21202.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	Mon, 4 Sep 2006 17:16:47 -0400
+Received: from fremont.jonmasters.org ([64.71.152.22]:42762 "EHLO
+	fremont.jonmasters.org") by vger.kernel.org with ESMTP
+	id S1751482AbWIDVQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 17:16:45 -0400
+From: Jon Masters <jonathan@jonmasters.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org,
+       Victor Castro <victorhugo83@yahoo.com>,
+       Jon Masters <jcm@jonmasters.org>
+In-Reply-To: <20060904140208.03880214.akpm@osdl.org>
+References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
+	 <20060904140208.03880214.akpm@osdl.org>
+Content-Type: text/plain
+Organization: World Organi[sz]ation Of Broken Dreams
+Date: Mon, 04 Sep 2006 22:16:38 +0100
+Message-Id: <1157404599.9259.242.camel@perihelion>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 212.18.227.82
+X-SA-Exim-Mail-From: jonathan@jonmasters.org
+Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
+X-SA-Exim-Version: 4.2 (built Thu, 14 Apr 2005 16:52:54 +0000)
+X-SA-Exim-Scanned: Yes (on fremont.jonmasters.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Monday 04 September 2006 22:16 schrieb Francois Romieu:
-> > +#include "ehea.h"
-> > +#include "ehea_qmr.h"
-> > +#include "ehea_phyp.h"
->
-> Afaik none of those is included in this patch nor in my 2.6.18-git tree.
+On Mon, 2006-09-04 at 14:02 -0700, Andrew Morton wrote:
+
+> > Also, I'd like to comment on Jon Masters push to include the  
+> > MODULE_FIRMWARE api addition.  I strongly believe that policy should  
+> > not be included in driver code, in this case it's in the form of a  
+> > filename.
+> 
+> You should have cc'ed him!  Some people are not subscribed, and few read
+> it all.
+
+Thanks. My lkml subscription bounced last week after I decided to
+overhaul my home email (moving country in a couple of weeks...).
+
+I disagree that MODULE_FIRMWARE encodes policy in the driver. It encodes
+a reference - nothing more. We need to know what firmware we're going to
+be asked for if we have any hope of being able to package up drivers for
+use in distro initrds and the like. I think we can agree on that much.
+
+Some alternatives:
+
+* The firmware API get hacked yet again to use static strings we can
+parse (ugly) or otherwise somehow provide this information.
+
+* We add hacks in userspace "if it's this driver and someone used
+MODULE_VERSION correctly, and we can determine the right firmware...".
+
+> > The firmware loader currently needs a filename passed to it so it can  
+> > then pass the $FIRMWARE environment variable to the hotplug script.   
+> > This is ok if you provide a generic filename like "firmware.bin" and  
+> > then let the hotplug script worry about version numbers, i.e.  
+> > "firmware-x.y.z.bin"
+
+> > MODULE_FIRMWARE should be used to provide the generic filenames and  
+> > which order the files should be loaded (request_firmware can be  
+> > called various times), but I think its bad to have to change the  
+> > driver everytime a new firmware version is released.
+> 
+> Yes, that does sound bad, but what would I know ;)
+
+I'm ok with the idea of having a generic name, but it does add more
+processing in userspace. Frankly, I don't care what is adopted but
+something needs to be done - sooner or later, it's going to be more
+drivers than Qlogic (and a few others) we need this working for :-)
+
+I'm optimistic that we'll find the right one line patch eventually!
+
+Jon.
 
 
-They are in 5, 3 and 2, respectively
-
-> Happy bissect in sight.
-
-The driver should get merged as a single commit anyway, even
-if split diffs are posted for review. Even if it gets merged
-like this, bisect will work since the Kconfig option is added
-in the final patch.
-
-> > +
-> > +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
-> > +{
-> > +     struct ehea_port *port = netdev_priv(dev);
-> > +     struct net_device_stats *stats = &port->stats;
-> > +     struct hcp_ehea_port_cb2 *cb2;
-> > +     u64 hret, rx_packets;
-> > +     int i;
->
-> unsigned int ?
-
-does it matter? int as a counter is pretty standard.
-
-> > +
-> > +     if (netif_msg_hw(port))
-> > +             ehea_dump(cb2, sizeof(*cb2), "net_device_stats");
-> > +
-> > +     rx_packets = 0;
->
-> Could be initialized when it is declared.
->
-> > +     for (i = 0; i < port->num_def_qps; i++)
-> > +             rx_packets += port->port_res[i].rx_packets;
-
-In one of the previous reviews, we told them to do it this way
-instead. Initializing at declaration is error-prone.
-
-> > +
-> > +     intreq = ((pr->p_state.ehea_poll & 0xF) == 0xF);
->
-> Arguable parenthesis.
->
-
-I'd argue to keep them ;-)
-
-> > +
-> > +     hret = ehea_h_modify_ehea_port(port->adapter->handle,
-> > +                                    port->logical_port_id,
-> > +                                    H_PORT_CB0, mask, cb0);
-> > +     if (hret != H_SUCCESS) {
-> > +             ret = -EIO;
->
-> Why can't ehea_xyz return -EIO/0 directly ?
->
-
-the lowest-level hypercall should return H_* by convention.
-
-Then again, it should also be called plpar_modify_ehea_port()
-in that case.
-
-> > +static int ehea_start_xmit(struct sk_buff *skb, struct net_device *dev)
-> > +{
-> > +     struct ehea_port *port = netdev_priv(dev);
-> > +     struct ehea_port_res *pr;
-> > +     struct ehea_swqe *swqe;
-> > +     unsigned long flags;
-> > +     u32 lkey;
-> > +     int swqe_index;
-> > +
-> > +     pr = &port->port_res[0];
->
-> Initialization and declaration can happen at the same time.
-
-it's a gray area. In general, I recommend not to combine them
-at all. Initialization to NULL or 0 is always bad, this one
-is harmless, but I'd still leave it this way, especially after
-telling them to clean this up earlier ;-)
-
-	Arnd <><

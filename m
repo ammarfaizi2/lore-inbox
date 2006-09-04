@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWIDO7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWIDPBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbWIDO7I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 10:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWIDO7I
+	id S964832AbWIDPBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 11:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWIDPBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 10:59:08 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:45250 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751452AbWIDO7F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 10:59:05 -0400
-Date: Mon, 4 Sep 2006 16:55:11 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-In-Reply-To: <1157381440.3384.941.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609041652520.17279@yvahk01.tjqt.qr>
-References: <1157031183.3384.793.camel@quoit.chygwyn.com> 
- <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr> <1157381440.3384.941.camel@quoit.chygwyn.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 4 Sep 2006 11:01:09 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:7093 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751452AbWIDPBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 11:01:06 -0400
+X-Sasl-enc: iXfpCZkBQOGoWNdTNiUwJWSADU7DKgsRACuvxDj8JhiH 1157382064
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org,
+       steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <32013.1157377601@warthog.cambridge.redhat.com>
+References: <1157376295.3240.13.camel@raven.themaw.net>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <32013.1157377601@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Mon, 04 Sep 2006 23:00:57 +0800
+Message-Id: <1157382057.4166.0.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-09-04 at 14:46 +0100, David Howells wrote:
+> Ian Kent <raven@themaw.net> wrote:
+> 
+> > This is the point I'm trying to make.
+> > I'm able to reproduce this with exports that don't have "nohide".
+> > The mkdir used to return EEXIST, possibly before getting to the EACCES
+> > test. It appears to be a change in semantic behavior and I can't see
+> > where it is coming from. autofs expects an EEXIST but not an EACCES and
+> > so doesn't perform the mount. I could ignore the EACCES but that would
+> > be cheating.
+> 
+> Here's something you can try:  Look in fs/nfs/dir.c.  Find nfs_lookup().  In
+> there, find the following lines:
+> 
+> 	/* If we're doing an exclusive create, optimize away the lookup */
+> 	if (nfs_is_exclusive_create(dir, nd))
+> 		goto no_entry;
+> 
+> Comment that bit out and see what the effect it.
 
->> Is not there a better way to do this? Note that there is also a "nfsd4" process
->> running. Do you really want to do a 'costly'
->> 
->>   strcmp(current->comm, "nfsd") != 0 && strcmp(current->comm, "nfsd4") != 0
->> 
->> every time someone does a readdir? What if I run a userspace nfs daemon?
->> What if that userspace daemon is called differently?
->> 
->> jengelh@linux01:7 08:28:14 ~ > ps -e | grep nfs
->>  5580 ?        00:00:08 rpc.nfsd
->> jengelh@linux01:7 08:28:30 ~ > rpm -qf /usr/sbin/rpc.nfsd 
->> nfs-server-2.2beta51-209.2 (a userspace nfsd)
->
->Ah, now this is a very tricky one to solve. Its on my todo list to look
->at this area again. You are right that the test is bogus in that it
->should only respond to the in kernel NFS server and the reason for its
+OK. But tomorrow.
+I'll let you know.
 
-In that case, you could use the fact that ... (I'll express it in C code):
-
-    is_kernel_task = !current->mm;
-
->existence is due to locking issues with the way that NFS calls through
->the VFS layer.
+Ian
 
 
-Jan Engelhardt
--- 

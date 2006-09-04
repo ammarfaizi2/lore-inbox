@@ -1,72 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWIDL1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWIDLjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWIDL1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWIDL1A
+	id S964840AbWIDLjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIDLjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:27:00 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:16481 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S964793AbWIDL07
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:26:59 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-Subject: [2.6.19 PATCH 7/7] ehea: Makefile & Kconfig
-Date: Mon, 4 Sep 2006 12:44:53 +0200
-User-Agent: KMail/1.8.2
+	Mon, 4 Sep 2006 07:39:15 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:51683 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964840AbWIDLjO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 07:39:14 -0400
+Date: Mon, 4 Sep 2006 13:35:12 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 07/16] GFS2: Directory handling
+In-Reply-To: <1157031298.3384.797.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr>
+References: <1157031298.3384.797.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-To: netdev <netdev@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>
-Cc: Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609041244.53416.ossthema@de.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com> 
+
+>+
+>+	return copied;
+>+fail:
+>+	return (copied) ? copied : error;
+>+}
+>+
+>+typedef int (*gfs2_dscan_t)(const struct gfs2_dirent *dent,
+>+			    const struct qstr *name,
+>+			    void *opaque);
+
+Collect all the typedefs above all functions (applies to all .c files).
+
+>+static inline int __gfs2_dirent_find(const struct gfs2_dirent *dent,
+>+				     const struct qstr *name, int ret)
+>+{
+>+	if (dent->de_inum.no_addr != 0 &&
+>+	    be32_to_cpu(dent->de_hash) == name->hash &&
+>+	    be16_to_cpu(dent->de_name_len) == name->len &&
+>+	    memcmp((char *)(dent+1), name->name, name->len) == 0)
+
+Nocast.
+
+>+static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode,
+>+					    void *buf,
+>+					    unsigned int len, gfs2_dscan_t scan,
+>+					    const struct qstr *name,
+>+					    void *opaque)
+>+{
+>+	struct gfs2_dirent *dent, *prev;
+>+	unsigned offset;
+>+	unsigned size;
+>+	int ret = 0;
+>+
+>+	ret = gfs2_dirent_offset(buf);
+>+	if (ret < 0)
+>+		goto consist_inode;
+>+
+>+	offset = ret;
+>+	prev = NULL;
+>+	dent = (struct gfs2_dirent *)(buf + offset);
+
+Nocast.
+
+>+		dent = (struct gfs2_dirent *)(buf + offset);
 
 
- drivers/net/Kconfig  |    9 +++++++++
- drivers/net/Makefile |    1 +
- 2 files changed, 10 insertions(+)
+>+	if ((char *)cur + cur_rec_len >= bh_end) {
+>+		if ((char *)cur + cur_rec_len > bh_end) {
+>+			gfs2_consist_inode(dip);
+>+			return -EIO;
+>+		}
+>+		return -ENOENT;
+>+	}
+
+if((char *)cur + cur_rec_len > bh_end) {
+	gfs2_consist_inode(dip);
+	return -EIO;
+} else if((char *)cur + cur_rec_len == bh_end)
+	return -ENOENT;
+
+>+	tmp = (struct gfs2_dirent *)((char *)cur + cur_rec_len);
+>+
+>+	if ((char *)tmp + be16_to_cpu(tmp->de_rec_len) > bh_end) {
+
+Aah, this makes my eyes hurt. Though, it is probably a task not too short to
+think of something that would do without casts.
+
+>+	leaf->lf_depth = cpu_to_be16(depth);
+>+	leaf->lf_entries = cpu_to_be16(0);
+
+0 is said to be portable across all CPUs, therefore
+
+	leaf->lf_entries = 0;
+
+should suffice.
+
+>+	leaf->lf_next = cpu_to_be64(0);
 
 
+>+		for (x = sdp->sd_hash_ptrs; x--; from++) {
+>+			*to++ = *from;	/*  No endianess worries  */
+>+			*to++ = *from;
+>+		}
 
-diff -Nurp -X dontdiff linux-2.6.18-rc6/drivers/net/Kconfig patched_kernel/drivers/net/Kconfig
---- linux-2.6.18-rc6/drivers/net/Kconfig	2006-09-04 04:19:48.000000000 +0200
-+++ patched_kernel/drivers/net/Kconfig	2006-09-04 11:38:59.000000000 +0200
-@@ -2318,6 +2318,15 @@ config CHELSIO_T1
-           To compile this driver as a module, choose M here: the module
-           will be called cxgb.
- 
-+config EHEA
-+	tristate "eHEA Ethernet support"
-+	depends on IBMEBUS
-+	---help---
-+	  This driver supports the IBM pSeries eHEA ethernet adapter.
-+
-+	  To compile the driver as a module, choose M here. The module
-+	  will be called ehea.
-+
- config IXGB
- 	tristate "Intel(R) PRO/10GbE support"
- 	depends on PCI
-diff -Nurp -X dontdiff linux-2.6.18-rc6/drivers/net/Makefile patched_kernel/drivers/net/Makefile
---- linux-2.6.18-rc6/drivers/net/Makefile	2006-09-04 04:19:48.000000000 +0200
-+++ patched_kernel/drivers/net/Makefile	2006-09-04 11:39:06.000000000 +0200
-@@ -10,6 +10,7 @@ obj-$(CONFIG_E1000) += e1000/
- obj-$(CONFIG_IBM_EMAC) += ibm_emac/
- obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
-+obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
- 
+Add /* Hakuna Matata */ and there will never be worries :-)
+
+>+static int compare_dents(const void *a, const void *b)
+>+{
+>+	struct gfs2_dirent *dent_a, *dent_b;
+>+	uint32_t hash_a, hash_b;
+>+	int ret = 0;
+>+
+>+	dent_a = *(struct gfs2_dirent **)a;
+
+But in this function you can have it const! Or not?
+
+>+	hash_a = be32_to_cpu(dent_a->de_hash);
+>+
+>+	dent_b = *(struct gfs2_dirent **)b;
+>+	hash_b = be32_to_cpu(dent_b->de_hash);
+>+
+>+	if (hash_a > hash_b)
+>+		ret = 1;
+>+	else if (hash_a < hash_b)
+>+		ret = -1;
+>+	else {
+>+		unsigned int len_a = be16_to_cpu(dent_a->de_name_len);
+>+		unsigned int len_b = be16_to_cpu(dent_b->de_name_len);
+>+
+>+		if (len_a > len_b)
+>+			ret = 1;
+>+		else if (len_a < len_b)
+>+			ret = -1;
+>+		else
+>+			ret = memcmp((char *)(dent_a + 1),
+>+				     (char *)(dent_b + 1),
+>+				     len_a);
+
+Nocast.
+
+>+		error = filldir(opaque, (char *)(dent + 1),
+
+If you case, then cast it directly, in this case, filldir takes "const char *"
+as 2nd type.
+
+>+	larr = vmalloc((leaves + entries) * sizeof(void*));
+                                                       ^
+Space, to go in line with all the other casts.
+
+>+static inline uint32_t gfs2_disk_hash(const char *data, int len)
+>+{
+>+        return crc32_le(0xFFFFFFFF, data, len) ^ 0xFFFFFFFF;
+>+}
+
+Mind using (uint32_t)-1 or (uint32_t)~0 for that?
+
+>+	memcpy((char*)(dent+1), name->name, name->len);
+
+Last but not least, nocast.
+
+
+Otherwise just stuff already mentioned.
+
+Jan Engelhardt
+-- 
 
 -- 
-VGER BF report: H 0.160317
+VGER BF report: H 0.0146386

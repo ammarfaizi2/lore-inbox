@@ -1,77 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWIDLC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWIDLFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWIDLC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWIDLCz
+	id S932132AbWIDLFY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWIDLFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:02:55 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43912 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932130AbWIDLCy (ORCPT
+	Mon, 4 Sep 2006 07:05:24 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:61907 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932132AbWIDLFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:02:54 -0400
-Date: Mon, 4 Sep 2006 13:02:30 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Stefan Seyfried <seife@suse.de>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH 2/3] PM: Make console suspending configureable
-Message-ID: <20060904110229.GM9991@elf.ucw.cz>
-References: <200608151509.06087.rjw@sisk.pl> <200608161309.34370.rjw@sisk.pl> <20060904090820.GA4500@suse.de> <200609041303.25817.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609041303.25817.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 4 Sep 2006 07:05:23 -0400
+Date: Mon, 4 Sep 2006 13:05:08 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [-mm patch] AVR32: Implement kernel_execve
+Message-ID: <20060904130508.05ea3a4e@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-09-04 13:03:25, Rafael J. Wysocki wrote:
-> On Monday, 4 September 2006 11:08, Stefan Seyfried wrote:
-> > Hi,
-> > 
-> > sorry, i am only slowly catching up after vacation.
-> > 
-> > On Wed, Aug 16, 2006 at 01:09:34PM +0200, Rafael J. Wysocki wrote:
-> > > Change suspend_console() so that it waits for all consoles to flush the
-> > > remaining messages and make it possible to switch the console suspending
-> > > off with the help of a Kconfig option.
-> > > 
-> > > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > 
-> > > +#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
-> > >  /**
-> > >   * suspend_console - suspend the console subsystem
-> > >   *
-> > > @@ -709,8 +710,14 @@ int __init add_preferred_console(char *n
-> > >   */
-> > >  void suspend_console(void)
-> > >  {
-> > > +	printk("Suspending console(s)\n");
-> > >  	acquire_console_sem();
-> > >  	console_suspended = 1;
-> > > +	/* This is needed so that all of the messages that have already been
-> > > +	 * written to all consoles can be actually transmitted (eg. over a
-> > > +	 * network) before we try to suspend the consoles' devices.
-> > > +	 */
-> > > +	ssleep(2);
-> > 
-> > Sorry, but no. Suspend and resume is already slow enough, no need to make
-> > both of them much slower.
-> > If we can condition this on the netconsole being used, ok, but not for the
-> > most common case of "console is on plain VGA".
-> 
-> Hm, it already is in -mm, but of course I can prepare a patch that removes
-> this ssleep().
-> 
-> Pavel, what do you think?
+Move execve() into arch/avr32/kernel/sys_avr32.c, rename it to
+kernel_execve() and return the syscall return value directly without
+setting errno.
 
-Well, in suspend-to-ram case, 2 seconds is quite a lot... like more
-than rest of suspend, so stefan has some point...
+This also gets rid of the __KERNEL_SYSCALLS__ stuff from unistd.h
+and expands #ifdef __KERNEL__ to cover everything in unistd.h except
+the __NR_foo definitions.
+
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+
+---
+ arch/avr32/kernel/sys_avr32.c |   14 +++++++
+ include/asm-avr32/unistd.h    |   80 +-----------------------------------------
+ 2 files changed, 17 insertions(+), 77 deletions(-)
+
+Index: linux-2.6.18-rc5-mm1/arch/avr32/kernel/sys_avr32.c
+===================================================================
+--- linux-2.6.18-rc5-mm1.orig/arch/avr32/kernel/sys_avr32.c	2006-09-04 11:34:13.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/avr32/kernel/sys_avr32.c	2006-09-04 12:57:34.000000000 +0200
+@@ -49,3 +49,17 @@ asmlinkage long sys_mmap2(unsigned long 
+ 		fput(file);
+ 	return error;
+ }
++
++int kernel_execve(const char *file, char **argv, char **envp)
++{
++	register long scno asm("r8") = __NR_execve;
++	register long sc1 asm("r12") = (long)file;
++	register long sc2 asm("r11") = (long)argv;
++	register long sc3 asm("r10") = (long)envp;
++
++	asm volatile("scall"
++		     : "=r"(sc1)
++		     : "r"(scno), "0"(sc1), "r"(sc2), "r"(sc3)
++		     : "cc", "memory");
++	return sc1;
++}
+Index: linux-2.6.18-rc5-mm1/include/asm-avr32/unistd.h
+===================================================================
+--- linux-2.6.18-rc5-mm1.orig/include/asm-avr32/unistd.h	2006-09-04 11:21:48.000000000 +0200
++++ linux-2.6.18-rc5-mm1/include/asm-avr32/unistd.h	2006-09-04 11:39:26.000000000 +0200
+@@ -281,30 +281,10 @@
+ #define __NR_tee		263
+ #define __NR_vmsplice		264
+ 
++#ifdef __KERNEL__
+ #define NR_syscalls		265
+ 
+ 
+-/*
+- * AVR32 calling convention for system calls:
+- *   - System call number in r8
+- *   - Parameters in r12 and downwards to r9 as well as r6 and r5.
+- *   - Return value in r12
+- */
+-
+-/*
+- * user-visible error numbers are in the range -1 - -124: see
+- * <asm-generic/errno.h>
+- */
+-
+-#define __syscall_return(type, res) do {				\
+-		if ((unsigned long)(res) >= (unsigned long)(-125)) {	\
+-			errno = -(res);					\
+-			res = -1;					\
+-		}							\
+-		return (type) (res);					\
+-	} while (0)
+-
+-#ifdef __KERNEL__
+ #define __ARCH_WANT_IPC_PARSE_VERSION
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+@@ -319,62 +299,6 @@
+ #define __ARCH_WANT_SYS_GETPGRP
+ #define __ARCH_WANT_SYS_RT_SIGACTION
+ #define __ARCH_WANT_SYS_RT_SIGSUSPEND
+-#endif
+-
+-#if defined(__KERNEL_SYSCALLS__) || defined(__CHECKER__)
+-
+-#include <linux/types.h>
+-#include <linux/linkage.h>
+-#include <asm/signal.h>
+-
+-struct pt_regs;
+-
+-/*
+- * we need this inline - forking from kernel space will result
+- * in NO COPY ON WRITE (!!!), until an execve is executed. This
+- * is no problem, but for the stack. This is handled by not letting
+- * main() use the stack at all after fork(). Thus, no function
+- * calls - which means inline code for fork too, as otherwise we
+- * would use the stack upon exit from 'fork()'.
+- *
+- * Actually only pause and fork are needed inline, so that there
+- * won't be any messing with the stack from main(), but we define
+- * some others too.
+- */
+-static inline int execve(const char *file, char **argv, char **envp)
+-{
+-	register long scno asm("r8") = __NR_execve;
+-	register long sc1 asm("r12") = (long)file;
+-	register long sc2 asm("r11") = (long)argv;
+-	register long sc3 asm("r10") = (long)envp;
+-	int res;
+-
+-	asm volatile("scall"
+-		     : "=r"(sc1)
+-		     : "r"(scno), "0"(sc1), "r"(sc2), "r"(sc3)
+-		     : "lr", "memory");
+-	res = sc1;
+-	__syscall_return(int, res);
+-}
+-
+-asmlinkage long sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize);
+-asmlinkage int sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss,
+-			       struct pt_regs *regs);
+-asmlinkage int sys_rt_sigreturn(struct pt_regs *regs);
+-asmlinkage int sys_pipe(unsigned long __user *filedes);
+-asmlinkage long sys_mmap2(unsigned long addr, unsigned long len,
+-			  unsigned long prot, unsigned long flags,
+-			  unsigned long fd, off_t offset);
+-asmlinkage int sys_cacheflush(int operation, void __user *addr, size_t len);
+-asmlinkage int sys_fork(struct pt_regs *regs);
+-asmlinkage int sys_clone(unsigned long clone_flags, unsigned long newsp,
+-			 unsigned long parent_tidptr,
+-			 unsigned long child_tidptr, struct pt_regs *regs);
+-asmlinkage int sys_vfork(struct pt_regs *regs);
+-asmlinkage int sys_execve(char __user *ufilename, char __user *__user *uargv,
+-			  char __user *__user *uenvp, struct pt_regs *regs);
+-
+-#endif
+ 
+ /*
+  * "Conditional" syscalls
+@@ -384,4 +308,6 @@ asmlinkage int sys_execve(char __user *u
+  */
+ #define cond_syscall(x) asm(".weak\t" #x "\n\t.set\t" #x ",sys_ni_syscall");
+ 
++#endif /* __KERNEL__ */
++
+ #endif /* __ASM_AVR32_UNISTD_H */
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
-
--- 
-VGER BF report: H 1.68641e-06
+VGER BF report: U 0.500178

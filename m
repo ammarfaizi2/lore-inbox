@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWIDJIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWIDJJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWIDJIn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 05:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWIDJIn
+	id S1751203AbWIDJJm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 05:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWIDJJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 05:08:43 -0400
-Received: from ns2.suse.de ([195.135.220.15]:53687 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751097AbWIDJIl (ORCPT
+	Mon, 4 Sep 2006 05:09:42 -0400
+Received: from mail.suse.de ([195.135.220.2]:46017 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751211AbWIDJJk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 05:08:41 -0400
-Date: Mon, 4 Sep 2006 11:08:20 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC][PATCH 2/3] PM: Make console suspending configureable
-Message-ID: <20060904090820.GA4500@suse.de>
-References: <200608151509.06087.rjw@sisk.pl> <20060816104143.GC9497@elf.ucw.cz> <200608161304.51758.rjw@sisk.pl> <200608161309.34370.rjw@sisk.pl>
+	Mon, 4 Sep 2006 05:09:40 -0400
+Date: Mon, 4 Sep 2006 11:09:39 +0200
+From: Olaf Kirch <okir@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 016 of 19] knfsd: match GRANTED_RES replies using	cookies
+Message-ID: <20060904090939.GC28400@suse.de>
+References: <20060901141639.27206.patches@notabene> <1060901043932.27641@suse.de> <1157126618.5632.52.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200608161309.34370.rjw@sisk.pl>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-rc5-2-default
+In-Reply-To: <1157126618.5632.52.camel@localhost>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 01, 2006 at 12:03:38PM -0400, Trond Myklebust wrote:
+> Vetoed. The reason why we need the client's IP address as an argument
+> for nlmsvc_find_block() is 'cos the cookie value is unique to the
+> _client_ only.
 
-sorry, i am only slowly catching up after vacation.
+In NLM, a cookie can be used to identify the asynchronous reply to the
+original request. Previously, there was a hack in the code that
+sends GRANT replies to reuse the original cookie from the client's
+LOCK request. The protocol spec explicitly says you must not rely
+on this behavior; the only reason I added this kludge was that some
+HPUX and SunOS versions did just that.
 
-On Wed, Aug 16, 2006 at 01:09:34PM +0200, Rafael J. Wysocki wrote:
-> Change suspend_console() so that it waits for all consoles to flush the
-> remaining messages and make it possible to switch the console suspending
-> off with the help of a Kconfig option.
-> 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+The down side of that kludge is that we are using a client-provided cookie
+in one of our calls - which means we keep our fingers crossed it doesn't
+collide with the cookie we generate ourselves. And to reduce the risk,
+we also check the client IP when searching the nlm_blocked list. But it
+is incorrect, and a kludge, and the longer I look at this code the
+more I'm amazed it hasn't blown up.
 
-> +#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
->  /**
->   * suspend_console - suspend the console subsystem
->   *
-> @@ -709,8 +710,14 @@ int __init add_preferred_console(char *n
->   */
->  void suspend_console(void)
->  {
-> +	printk("Suspending console(s)\n");
->  	acquire_console_sem();
->  	console_suspended = 1;
-> +	/* This is needed so that all of the messages that have already been
-> +	 * written to all consoles can be actually transmitted (eg. over a
-> +	 * network) before we try to suspend the consoles' devices.
-> +	 */
-> +	ssleep(2);
+This patch changes the code so that the only cookies we ever use
+to look up something are those we generate ourselves, so they
+are globally unique. As a consequence, we can stop using the client's
+IP when searching the list.
 
-Sorry, but no. Suspend and resume is already slow enough, no need to make
-both of them much slower.
-If we can condition this on the netconsole being used, ok, but not for the
-most common case of "console is on plain VGA".
+> IOW: when we go searching a global list of blocks for a given cookie
+> value that was sent to us by a given client, then we want to know that
+> we're only searching through that particular client's blocks.
+
+This is no longer true after applying this change.
+
+> A better way, BTW, would be to get rid of the global list nlm_blocked,
+> and just move the list of blocks into a field in the nlm_host for each
+> client.
+
+Given an incoming NLM_GRANTED_RES, how can you look up the nlm_host
+and the pending NLM_GRANTED_MSG?
+The reply may not come from any IP address you know of. The whole
+reason for introducing this cookie nonsense in the NLM specification
+was that the RPC layer doesn't always give you enough clues to
+match a callback to the original message.
+
+So this is really a bugfix which you *do* want to apply.
+
+Olaf
+-- 
+Olaf Kirch   |  --- o --- Nous sommes du soleil we love when we play
+okir@suse.de |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax
 
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
-
--- 
-VGER BF report: U 0.49988
+VGER BF report: H 0.149416

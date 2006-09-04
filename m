@@ -1,106 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWIDPgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWIDPid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWIDPgR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 11:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIDPgR
+	id S964876AbWIDPid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 11:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIDPid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 11:36:17 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:54190 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S964876AbWIDPgP
+	Mon, 4 Sep 2006 11:38:33 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:62382 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S964876AbWIDPic
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 11:36:15 -0400
-Date: Mon, 4 Sep 2006 16:36:13 +0100
+	Mon, 4 Sep 2006 11:38:32 -0400
+Date: Mon, 4 Sep 2006 16:38:30 +0100
 To: Keith Mannthey <kmannth@gmail.com>
 Cc: akpm@osdl.org, tony.luck@intel.com,
        Linux Memory Management List <linux-mm@kvack.org>, ak@suse.de,
        bob.picco@hp.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
-Message-ID: <20060904153613.GA14263@skynet.ie>
-References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie> <20060821134638.22179.44471.sendpatchset@skynet.skynet.ie> <a762e240608301357n3915250bk8546dd340d5d4d77@mail.gmail.com> <20060831154903.GA7011@skynet.ie> <a762e240608311052h28843b2ege651e9fa82c49f2a@mail.gmail.com> <Pine.LNX.4.64.0608311906300.13392@skynet.skynet.ie> <a762e240608312008v3e35b63ay46c95fbb6c3f15ec@mail.gmail.com>
+Subject: Account for holes that are outside the range of physical memory
+Message-ID: <20060904153830.GB14263@skynet.ie>
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie> <20060821134638.22179.44471.sendpatchset@skynet.skynet.ie> <a762e240608301357n3915250bk8546dd340d5d4d77@mail.gmail.com> <20060831154903.GA7011@skynet.ie> <a762e240608311052h28843b2ege651e9fa82c49f2a@mail.gmail.com> <Pine.LNX.4.64.0608311906300.13392@skynet.skynet.ie> <a762e240608312008v3e35b63ay46c95fbb6c3f15ec@mail.gmail.com> <20060904153613.GA14263@skynet.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <a762e240608312008v3e35b63ay46c95fbb6c3f15ec@mail.gmail.com>
+In-Reply-To: <20060904153613.GA14263@skynet.ie>
 User-Agent: Mutt/1.5.9i
 From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (31/08/06 20:08), Keith Mannthey didst pronounce:
-> >So, do you actally expect a lot of unused mem_map to be allocated with
-> >struct pages that are inactive until memory is hot-added in an
-> >x86_64-specific manner? The arch-independent stuff currently will not do
-> >that. It sets up memmap for where memory really exists. If that is not
-> >what you expect, it will hit issues at hotadd time which is not the
-> >current issue but one that can be fixed.
-> 
-> Yes. RESERVED based is a big waste of mem_map space.  The add areas
-> are marked as RESERVED during boot and then later onlined during add.
-> It might be ok.  I will play with tomorrow.  I might just need to
-> call add_active_range in the right spot :)
-> 
+absent_pages_in_range() made the assumption that users of the API would
+not care about holes beyound the end of physical memory. This was not the
+case. This patch will account for ranges outside of physical memory as
+holes correctly.
 
-Following this mail should be two patches that may address the problem
-with reserved memory hot-add. One assumption made by arch-independent
-zone-sizing was that the only memory holes of interest were those before the
-end of physical memory.  Another assumption was that mem_map should only be
-allocated for memory that was physically present in the machine.
-
-With MEMORY_HOTPLUG_RESERVE on x86_64, these assumptions do not hold. This
-feature expects that mem_map is allocated at boot time and later activated
-on a memory hot-add event. To determine if the region is usable for hot-add
-in the future, holes are calculated beyond the end of physical memory.
-
-The following two patches fix these two assumptions. They have been boot-tested
-on a range of hardware (x86, ppc64, ia64 and x86_64) so there should be no
-new regressions.
-
-I don't have access to hardware that can use MEMORY_HOTPLUG_RESERVE so I'd
-appreciate hearing if the patches work. I wrote a test program that simulated
-the input from the machine the problem was reported on.  It registers active
-memory and simulates the check made by reserve_hotadd(). push_node_boundaries()
-is called to push the end of the node out by 100 pages like what SRAT would
-do for reserve hot-add and it appears to do the right thing. Output is below.
-
-mel@arnold:~/patches/brokenout/zonesizing/driver_test$ gcc driver_test.c -o
-driver_test && ./driver_test | grep -v "active with" | grep -v
-account_node_boundary
-Stage 1: Registering active ranges
-Entering add_active_range(0, 0, 152) 0 entries of 96 used
-Entering add_active_range(0, 256, 524165) 1 entries of 96 used
-Entering add_active_range(0, 1048576, 4653056) 2 entries of 96 used
-Entering add_active_range(1, 17235968, 18219008) 3 entries of 96 used
-
-Dumping active map
-0: 0  0 -> 152
-1: 0  256 -> 524165
-2: 0  1048576 -> 4653056
-3: 1  17235968 -> 18219008
-Entering push_node_boundaries(0, 0, 4653156)
-
-Checking reserve-hotadd
-  absent_pages_in_range(4653056, 17235968) == 17235968 - 4653056 == 12582912
-  absent_pages_in_range(18219008, 52428800) == 52428800 - 18219008 == 34209792
-
-Stage 2: Calculating zone sizes and holes
-
-Stage 3: Dumping zone sizes and holes
-zone_size[0][0] =     4096 zone_holes[0][0] =      104
-zone_size[0][1] =  1044480 zone_holes[0][1] =   524411
-zone_size[0][2] =  3604580 zone_holes[0][2] =      100
-zone_size[1][2] =   983040 zone_holes[1][2] =        0
-
-Stage 4: Printing present pages
-On node 0, 4128541 pages
- zone 0 present_pages = 3992
- zone 1 present_pages = 520069
- zone 2 present_pages = 3604480
-On node 1, 983040 pages
- zone 2 present_pages = 983040
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm3-clean/arch/x86_64/mm/srat.c linux-2.6.18-rc4-mm3-001_account_holes_range/arch/x86_64/mm/srat.c
+--- linux-2.6.18-rc4-mm3-clean/arch/x86_64/mm/srat.c	2006-08-28 15:05:28.000000000 +0100
++++ linux-2.6.18-rc4-mm3-001_account_holes_range/arch/x86_64/mm/srat.c	2006-09-01 13:29:25.000000000 +0100
+@@ -240,7 +240,9 @@ static int reserve_hotadd(int node, unsi
+ 
+ 	/* This check might be a bit too strict, but I'm keeping it for now. */
+ 	if (absent_pages_in_range(s_pfn, e_pfn) != e_pfn - s_pfn) {
+-		printk(KERN_ERR "SRAT: Hotplug area has existing memory\n");
++		printk(KERN_ERR
++			"SRAT: Hotplug area %lu -> %lu has existing memory\n",
++			s_pfn, e_pfn);
+ 		return -1;
+ 	}
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm3-clean/mm/page_alloc.c linux-2.6.18-rc4-mm3-001_account_holes_range/mm/page_alloc.c
+--- linux-2.6.18-rc4-mm3-clean/mm/page_alloc.c	2006-08-28 15:05:30.000000000 +0100
++++ linux-2.6.18-rc4-mm3-001_account_holes_range/mm/page_alloc.c	2006-09-01 13:29:25.000000000 +0100
+@@ -2259,6 +2259,10 @@ unsigned long __init __absent_pages_in_r
+ 	if (i == -1)
+ 		return 0;
+ 
++	/* Account for ranges before physical memory on this node */
++	if (early_node_map[i].start_pfn > range_start_pfn)
++		hole_pages = early_node_map[i].start_pfn - range_start_pfn;
++
+ 	prev_end_pfn = early_node_map[i].start_pfn;
+ 
+ 	/* Find all holes for the zone within the node */
+@@ -2280,6 +2284,11 @@ unsigned long __init __absent_pages_in_r
+ 		prev_end_pfn = early_node_map[i].end_pfn;
+ 	}
+ 
++	/* Account for ranges past physical memory on this node */
++	if (range_end_pfn > prev_end_pfn)
++		hole_pages = range_end_pfn -
++				max(range_start_pfn, prev_end_pfn);
++
+ 	return hole_pages;
+ }
+ 
+@@ -2301,9 +2310,16 @@ unsigned long __init zone_absent_pages_i
+ 					unsigned long zone_type,
+ 					unsigned long *ignored)
+ {
+-	return __absent_pages_in_range(nid,
+-				arch_zone_lowest_possible_pfn[zone_type],
+-				arch_zone_highest_possible_pfn[zone_type]);
++	unsigned long node_start_pfn, node_end_pfn;
++	unsigned long zone_start_pfn, zone_end_pfn;
++
++	get_pfn_range_for_nid(nid, &node_start_pfn, &node_end_pfn);
++	zone_start_pfn = max(arch_zone_lowest_possible_pfn[zone_type],
++							node_start_pfn);
++	zone_end_pfn = min(arch_zone_highest_possible_pfn[zone_type],
++							node_end_pfn);
++
++	return __absent_pages_in_range(nid, zone_start_pfn, zone_end_pfn);
+ }
+ 
+ /* Return the zone index a PFN is in */

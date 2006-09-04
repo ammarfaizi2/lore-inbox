@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWIDWLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWIDWME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbWIDWLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWIDWLM
+	id S964987AbWIDWME (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWIDWME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:11:12 -0400
-Received: from freehackers.org ([82.225.154.2]:21140 "EHLO freehackers.org")
-	by vger.kernel.org with ESMTP id S964999AbWIDWLK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:11:10 -0400
-From: Thomas Capricelli <orzel@freehackers.org>
-Organization: freehackers.org
-To: linux-kernel@vger.kernel.org
-Subject: zeta-0.5 released : port of linux to the virtual Zeta architecutre
-Date: Tue, 5 Sep 2006 00:15:06 +0200
-User-Agent: KMail/1.9.4
+	Mon, 4 Sep 2006 18:12:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29199 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964987AbWIDWMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:12:02 -0400
+Date: Tue, 5 Sep 2006 00:11:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: gerg@uclinux.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/m68knommu/kernel/setup.c should always #include <asm/pgtable.h>
+Message-ID: <20060904221158.GA9173@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609050015.06883.orzel@freehackers.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes the following compile error with 
+CONFIG_BLK_DEV_INITRD=n and -Werror-implicit-function-declaration:
 
+<--  snip  -->
 
-Hello,
+...
+  CC      arch/m68knommu/kernel/setup.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c: In function 'setup_arch':
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c:268: error: implicit declaration of function 'paging_init'
+make[2]: *** [arch/m68knommu/kernel/setup.o] Error 1
 
-	Some people might be aware of Zeta linux, an academic project of creating a 
-virtual architecture, and porting binutils+gcc+linux to it. There have been 
-already  three releases this year (0.3, 0.4 and today, 0.5).
+<--  snip  -->
 
-	Quick outplot :
-	* Graphical interface for the emulator, with a (simple) page tables browser.
-	* the kernel almost boots up to the start of a userspace process.
-	* use binutils-2.17, gcc-4.1.1 and linux-2.6.17.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-	Everything you want to know about it is on http://orzel.freehackers.org/zeta
+--- linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c.old	2006-09-05 00:07:42.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c	2006-09-05 00:08:20.000000000 +0200
+@@ -36,10 +36,7 @@
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/machdep.h>
+-
+-#ifdef CONFIG_BLK_DEV_INITRD
+ #include <asm/pgtable.h>
+-#endif
+ 
+ unsigned long memory_start;
+ unsigned long memory_end;
 
-	This is of interest mostly to people who, like me, want to know more about 
-the toolchain internals and linux core stuff internals (== not drivers, 
-subsystems or filesystems).
-
-	The next release will focus on writing the handbook (documentation, howto's, 
-specifications..).
-
-best regards,
-Thomas
--- 
-Thomas Capricelli <orzel@freehackers.org>
-http://orzel.freehackers.org/

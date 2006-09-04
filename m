@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWIDT3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWIDThm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWIDT3z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 15:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWIDT3z
+	id S964924AbWIDThm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 15:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWIDThm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 15:29:55 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:39896 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751536AbWIDT3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 15:29:53 -0400
-Message-ID: <44FC7EAE.6020300@free.fr>
-Date: Mon, 04 Sep 2006 21:29:50 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060809 Debian/1.7.13-0.3
-X-Accept-Language: fr-fr, en, en-us
+	Mon, 4 Sep 2006 15:37:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:64756 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964924AbWIDThl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 15:37:41 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: matthieu castet <castet.matthieu@free.fr>
+Subject: Re: msleep_interruptible vs msleep
+Date: Mon, 4 Sep 2006 21:38:26 +0200
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <44FC7EAE.6020300@free.fr>
+In-Reply-To: <44FC7EAE.6020300@free.fr>
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: msleep_interruptible vs msleep
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609042138.26603.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Monday 04 September 2006 21:29 schrieb matthieu castet:
+>
+> But why if I have a kernel thread that do [1] :
+>
+> while (true) {
+> Do some stuff
+> msleep(1000)
+> }
+>
+> the load average is high (near 100%).
+>
+> and if I use msleep_interruptible the load average is normal.
 
-What's the difference between msleep_interruptible and msleep ?
-If I understand correctly the main difference between msleep and 
-msleep_interruptible is that msleep_interruptible can return if there is 
-a pending signal ?
+These are the traditional semantics of incorruptible vs. noninterruptible
+sleep. A process that sleep noninterruptible contributes to the load
+average but does not consume actual CPU cycles.
 
-But why if I have a kernel thread that do [1] :
+I guess you can take that as a hint that the code you're describing
+above is a bad thing to do.
 
-while (true) {
-Do some stuff
-msleep(1000)
-}
+> Does the same applies to wait_event_timeout vs
+> wait_event_interruptible_timeout ?
 
-the load average is high (near 100%).
+yes.
 
-and if I use msleep_interruptible the load average is normal.
-
-Does the same applies to wait_event_timeout vs 
-wait_event_interruptible_timeout ?
-
-Thanks,
-
-Matthieu CASTET
+	Arnd <><

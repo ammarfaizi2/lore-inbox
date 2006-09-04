@@ -1,108 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWIDXRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWIDXS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWIDXRO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 19:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbWIDXRN
+	id S965022AbWIDXS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 19:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWIDXS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 19:17:13 -0400
-Received: from qb-out-0506.google.com ([72.14.204.234]:63033 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965034AbWIDXQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 19:16:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=BHo5Tk7g3ZTDY7GLbxDP2ACfylGTWwAfeI0SxSuSndU1MZ0Y6FGFXxQ12ilx/0YwqfqVvFuHyPwIgAmhT0XOtVDT620C2n3rPTAdGtsIBE9WQzLeT7cV9gbZo6F91deSHDzj9645EXg2e3oDILPeyeMQHnlCkCvozVgZ3fe2MPw=
-Date: Tue, 5 Sep 2006 03:16:39 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
+	Mon, 4 Sep 2006 19:18:28 -0400
+Received: from mx1.suse.de ([195.135.220.2]:33485 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932244AbWIDXQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 19:16:04 -0400
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/SubmittingDrivers: minor update
-Message-ID: <20060904231639.GC5200@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Date: Tue, 5 Sep 2006 09:15:59 +1000
+Message-Id: <1060904231559.23136@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 007 of 9] knfsd: nfsd4: acls: fix inheritance
+References: <20060905090617.21303.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* fix copright typo
-* remove trailing whitespace
-* remove Kernel Traffic from Resources. Zack, it was great reading!
-* Name Arjan by name and fix URL of "How to NOT" paper.
-* Remove "Last updated" tag.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+From: J.Bruce Fields <bfields@fieldses.org>
 
- Documentation/SubmittingDrivers |   20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+We can be a little more flexible about the flags allowed for inheritance
+(in particular, we can deal with either the presence or the absence of
+INHERIT_ONLY), but we should probably reject other combinations that we
+don't understand.
 
---- a/Documentation/SubmittingDrivers
-+++ b/Documentation/SubmittingDrivers
-@@ -59,11 +59,11 @@ Copyright:	The copyright owner must agre
- 		are the same person/entity. If not, the name of
- 		the person/entity authorizing use of GPL should be
- 		listed in case it's necessary to verify the will of
--		the copright owner.
-+		the copyright owner.
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/nfsd/nfs4acl.c |   43 ++++++++++++++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 13 deletions(-)
+
+diff .prev/fs/nfsd/nfs4acl.c ./fs/nfsd/nfs4acl.c
+--- .prev/fs/nfsd/nfs4acl.c	2006-09-04 17:20:49.000000000 +1000
++++ ./fs/nfsd/nfs4acl.c	2006-09-04 17:26:00.000000000 +1000
+@@ -63,6 +63,8 @@
+ #define NFS4_INHERITANCE_FLAGS (NFS4_ACE_FILE_INHERIT_ACE \
+ 		| NFS4_ACE_DIRECTORY_INHERIT_ACE | NFS4_ACE_INHERIT_ONLY_ACE)
  
- Interfaces:	If your driver uses existing interfaces and behaves like
- 		other drivers in the same class it will be much more likely
--		to be accepted than if it invents gratuitous new ones. 
-+		to be accepted than if it invents gratuitous new ones.
- 		If you need to implement a common API over Linux and NT
- 		drivers do it in userspace.
++#define NFS4_SUPPORTED_FLAGS (NFS4_INHERITANCE_FLAGS | NFS4_ACE_IDENTIFIER_GROUP)
++
+ #define MASK_EQUAL(mask1, mask2) \
+ 	( ((mask1) & NFS4_ACE_MASK_ALL) == ((mask2) & NFS4_ACE_MASK_ALL) )
  
-@@ -88,7 +88,7 @@ Clarity:	It helps if anyone can see how 
- 		it will go in the bitbucket.
+@@ -721,22 +723,37 @@ nfs4_acl_split(struct nfs4_acl *acl, str
+ 		    ace->type != NFS4_ACE_ACCESS_DENIED_ACE_TYPE)
+ 			return -EINVAL;
  
- Control:	In general if there is active maintainance of a driver by
--		the author then patches will be redirected to them unless 
-+		the author then patches will be redirected to them unless
- 		they are totally obvious and without need of checking.
- 		If you want to be the contact and update point for the
- 		driver it is a good idea to state this in the comments,
-@@ -100,7 +100,7 @@ What Criteria Do Not Determine Acceptanc
- Vendor:		Being the hardware vendor and maintaining the driver is
- 		often a good thing. If there is a stable working driver from
- 		other people already in the tree don't expect 'we are the
--		vendor' to get your driver chosen. Ideally work with the 
-+		vendor' to get your driver chosen. Ideally work with the
- 		existing driver author to build a single perfect driver.
+-		if ((ace->flag & NFS4_INHERITANCE_FLAGS)
+-				!= NFS4_INHERITANCE_FLAGS)
+-			continue;
++		if (ace->flag & ~NFS4_SUPPORTED_FLAGS)
++			return -EINVAL;
  
- Author:		It doesn't matter if a large Linux company wrote the driver,
-@@ -116,17 +116,13 @@ Linux kernel master tree:
- 	ftp.??.kernel.org:/pub/linux/kernel/...
- 	?? == your country code, such as "us", "uk", "fr", etc.
- 
--Linux kernel mailing list:		
-+Linux kernel mailing list:
- 	linux-kernel@vger.kernel.org
- 	[mail majordomo@vger.kernel.org to subscribe]
- 
- Linux Device Drivers, Third Edition (covers 2.6.10):
- 	http://lwn.net/Kernel/LDD3/  (free version)
- 
--Kernel traffic:
--	Weekly summary of kernel list activity (much easier to read)
--	http://www.kerneltraffic.org/kernel-traffic/
+-		error = nfs4_acl_add_ace(dacl, ace->type, ace->flag,
++		switch (ace->flag & NFS4_INHERITANCE_FLAGS) {
++		case 0:
++			/* Leave this ace in the effective acl: */
++			continue;
++		case NFS4_INHERITANCE_FLAGS:
++			/* Add this ace to the default acl and remove it
++			 * from the effective acl: */
++			error = nfs4_acl_add_ace(dacl, ace->type, ace->flag,
+ 				ace->access_mask, ace->whotype, ace->who);
+-		if (error < 0)
+-			goto out;
 -
- LWN.net:
- 	Weekly summary of kernel development activity - http://lwn.net/
- 	2.6 API changes:
-@@ -145,11 +141,8 @@ KernelNewbies:
- Linux USB project:
- 	http://www.linux-usb.org/
- 
--How to NOT write kernel driver by arjanv@redhat.com
--	http://people.redhat.com/arjanv/olspaper.pdf
-+How to NOT write kernel driver by Arjan van de Ven:
-+	http://www.fenrus.org/how-to-not-write-a-device-driver-paper.pdf
- 
- Kernel Janitor:
- 	http://janitor.kernelnewbies.org/
+-		list_del(h);
+-		kfree(ace);
+-		acl->naces--;
++			if (error)
++				return error;
++			list_del(h);
++			kfree(ace);
++			acl->naces--;
++			break;
++		case NFS4_INHERITANCE_FLAGS & ~NFS4_ACE_INHERIT_ONLY_ACE:
++			/* Add this ace to the default, but leave it in
++			 * the effective acl as well: */
++			error = nfs4_acl_add_ace(dacl, ace->type, ace->flag,
++				ace->access_mask, ace->whotype, ace->who);
++			if (error)
++				return error;
++			break;
++		default:
++			return -EINVAL;
++		}
+ 	}
 -
----
--Last updated on 17 Nov 2005.
-
+-out:
+-	return error;
++	return 0;
+ }
+ 
+ static short

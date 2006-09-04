@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWIDNGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWIDNJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWIDNGE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWIDNGE
+	id S964905AbWIDNJx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWIDNJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:06:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:20657 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964902AbWIDNGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:06:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BGnTEm160LK2THe13H61YMoKUj3BHXsAHujZ6xdq+CLLKfHDPv9i1GPaoZd2EbP/6PcbYiQvEvR0f39rQKJylXjvHisjO0UsaRNXBE8LM0mIhUQP6LrzJFQ8HZzjS3gbjrVk+XdJ0AzkLKeiOy/pV5LDn2/o5DOjqgOa30UIXyc=
-Message-ID: <625fc13d0609040605o313f3910yca80cb29b76ebc60@mail.gmail.com>
-Date: Mon, 4 Sep 2006 08:05:59 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: Aubrey <aubreylee@gmail.com>
-Subject: Re: [PATCH] Fill more device IDS in the structure of m25p80 driver
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-In-Reply-To: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Sep 2006 09:09:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36614 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964905AbWIDNJw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:09:52 -0400
+Date: Mon, 4 Sep 2006 13:09:33 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jim Gettys <jg@laptop.org>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
+Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
+Message-ID: <20060904130933.GC6279@ucw.cz>
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <20060830194317.GA9116@srcf.ucam.org> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
+In-Reply-To: <1157070616.7974.232.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/06, Aubrey <aubreylee@gmail.com> wrote:
-> Hi all,
->
-> the structure:
-> struct flash_info __devinitdata m25p_data [] = {
-> /* REVISIT: fill in JEDEC ids, for parts that have them */
-> ...
-> };
->
-> has a bunch of missing fields (like the JEDEC ids indicated) ... this
-> causes problems when actually trying to use some ST parts as it gets
-> detected incorrectly
->
-> The following is the patch.
+Hi!
 
-The patch appears to have corrupted whitespace.  Your mailer probably
-mangled it.  Care to try and fix it and resend?
+> In short, we have novel hardware: we can have our screen on, and suspend
+> the processor to RAM, and use a half a watt.  We can have our wireless
+> forwarding packets in our mesh networks, with the processor suspended,
+> consuming under 400mw (we hope 300mw by the time we ship).  Both on, and
+> we're still under one watt.
+> 
+> For keyboard activity, human perception is in the 100-200 millisecond
+> range; for some other stuff, it is even less much than that.  So that's
+> the necessity; now the invention.
+> 
+> I've done a straw pole among kernel gurus at OLS and elsewhere on how
+> fast Linux might be able to resume. I've gotten answers of typically
+> "one second".
+> 
+> But, on other platforms (see attached), I have data I've measured myself
+> showing Linux going from resume from RAM to *scheduling user level
+> processes* 100 times faster than that, on a wimpy 200mhz ARM processor.
+> Yes, Matilda, Linux can, on non-braindead hardware, resume all the way
+> to scheduling user processes in 10 milliseconds on a 200mhz processor.
 
-thx,
-josh
+2.4 and 2.6 are *very* different here. You'll probably need to optimize freezer
+in 2.6 a bit...
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

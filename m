@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWIDFDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWIDFFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWIDFDL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 01:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIDFDK
+	id S932275AbWIDFFr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 01:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWIDFFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 01:03:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41089 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932271AbWIDFDI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 01:03:08 -0400
-Date: Mon, 4 Sep 2006 15:02:41 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Converting into generic boolean
-Message-ID: <20060904150241.I3335706@wobbly.melbourne.sgi.com>
-References: <44F833C9.1000208@student.ltu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Sep 2006 01:05:46 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:22116 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932275AbWIDFFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 01:05:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n/KcPr1/iTTfaHEeY10hchvSD3Ovuqxj+oyFDagVOQAd3j25KQFFoRrP1TmyA8MS8EKRr9Ym+8AHiZctyI0oAsb9RVChWcTCfhARcTumi1WM/44m5Kv3oIuMzbSTpMpj3MHdyjBbFUhuHiKVmLdrmZ3sSF+Uko0mcqHVxI19qOA=
+Message-ID: <9e0cf0bf0609032205t2731cedey2eccf7375af0bcd4@mail.gmail.com>
+Date: Mon, 4 Sep 2006 08:05:44 +0300
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+To: "Paul Mackerras" <paulus@samba.org>
+Subject: Re: [PATCH 00/26] Dynamic kernel command-line
+Cc: "Andi Kleen" <ak@suse.de>, "Matt Domsch" <Matt_Domsch@dell.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johninsd@san.rr.com, davej@codemonkey.org.uk, Riley@williams.name,
+       trini@kernel.crashing.org, davem@davemloft.net, ecd@brainaid.de,
+       jj@sunsite.ms.mff.cuni.cz, anton@samba.org, wli@holomorphy.com,
+       lethal@linux-sh.org, rc@rc0.org.uk, spyro@f2s.com, rth@twiddle.net,
+       avr32@atmel.com, hskinnemoen@atmel.com, starvik@axis.com,
+       ralf@linux-mips.org, matthew@wil.cx, grundler@parisc-linux.org,
+       geert@linux-m68k.org, zippel@linux-m68k.org, schwidefsky@de.ibm.com,
+       heiko.carstens@de.ibm.com, uclinux-v850@lsi.nec.co.jp, chris@zankel.net
+In-Reply-To: <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <44F833C9.1000208@student.ltu.se>; from ricknu-0@student.ltu.se on Fri, Sep 01, 2006 at 03:21:13PM +0200
+References: <200609040050.13410.alon.barlev@gmail.com>
+	 <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 03:21:13PM +0200, Richard Knutsson wrote:
-> From: Richard Knutsson <ricknu-0@student.ltu.se>
-> 
-> Converting:
-> 'B_FALSE' into 'false'
-> 'B_TRUE'  into 'true'
-> 'boolean_t' into 'bool'
+On 9/4/06, Paul Mackerras <paulus@samba.org> wrote:
+> Alon Bar-Lev writes:
+>
+> > Current implementation stores a static command-line
+> > buffer allocated to COMMAND_LINE_SIZE size. Most
+> > architectures stores two copies of this buffer, one
+> > for future reference and one for parameter parsing.
+>
+> Under what circumstances do we actually need a command line of more
+> than 256 bytes?
 
-Hmm, so your bool is better than the next guys bool[ean[_t]]? :)
+Sure!
+With static modules options, splash support, disk encryption, suspend,
+local initrd settings we need much more than 256 bytes...
 
-Seems like it'll be a few more days until the next cleanup patch
-to remove _that_, so we shouldn't go that path.  Since we do use
-the current boolean_t somewhat inconsistently in XFS, I'd say we
-should just toss the thing and use int.
+> It seems to me that if 256 bytes isn't enough, we should take a deep
+> breath, step back, and think about whether there might be a better way
+> to pass whatever information it is that's using up so much of the
+> command line.
 
-I took the earlier patch and completed it, switching over to int
-use in place of boolean_t in the few places it used - I'll merge
-that at some point, when its had enough testing.
+But the command line is a wonderful tool... It allows you to compile
+the same kernel/initramfs and install it on different machines,
+modifying only the boot loader configuration file. It also allows
+several boot profiles at boot loader level, without the need to
+replaces files or have complex initrd...
+ So it worth modifying current implementation.
 
-cheers.
+Best Regards,
+Alon Bar-Lev.
 
 -- 
-Nathan
-
--- 
-VGER BF report: U 0.496999
+VGER BF report: H 0

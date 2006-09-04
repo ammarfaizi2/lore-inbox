@@ -1,79 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWIDPNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWIDPVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWIDPNo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 11:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIDPNn
+	id S1751463AbWIDPVq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 11:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWIDPVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 11:13:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13474 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751452AbWIDPNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 11:13:43 -0400
-Subject: Re: [PATCH] audit/accounting: tty locking
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1157380592.30801.94.camel@localhost.localdomain>
-References: <1157380592.30801.94.camel@localhost.localdomain>
+	Mon, 4 Sep 2006 11:21:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3033 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751463AbWIDPVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 11:21:44 -0400
+Subject: Re: [PATCH 06/16] GFS2: dentry, export, super and vm operations
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+In-Reply-To: <Pine.LNX.4.61.0609041046380.11217@yvahk01.tjqt.qr>
+References: <1157031245.3384.795.camel@quoit.chygwyn.com>
+	 <Pine.LNX.4.61.0609041046380.11217@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 04 Sep 2006 16:36:19 +0100
-Message-Id: <1157384179.30801.100.camel@localhost.localdomain>
+Organization: Red Hat (UK) Ltd
+Date: Mon, 04 Sep 2006 16:27:02 +0100
+Message-Id: <1157383622.3384.950.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-04 am 15:36 +0100, ysgrifennodd Alan Cox:
-> Fairly basic stuff .. make sure the name we are encoding doesn't vanish
-> under us.
+Hi,
 
-Here's a replacement that is more paranoid about the locking as
-suggested by Arjan. The whole current->signal-> locking is all deeply
-strange but its for someone else to sort out. Add rather than replace
-the lock for acct.c
+On Mon, 2006-09-04 at 11:06 +0200, Jan Engelhardt wrote:
+> >+	this 		= &fh_obj.this;
+> >+	fh_obj.imode 	= DT_UNKNOWN;
+> >+	memset(&parent, 0, sizeof(struct gfs2_inum));
+> >+
+> >+	switch (fh_type) {
+> >+	case 10:
+> >+		parent.no_formal_ino = ((uint64_t)be32_to_cpu(fh[4])) << 32;
+> >+		parent.no_formal_ino |= be32_to_cpu(fh[5]);
+> >+		parent.no_addr = ((uint64_t)be32_to_cpu(fh[6])) << 32;
+> >+		parent.no_addr |= be32_to_cpu(fh[7]);
+> >+		fh_obj.imode = be32_to_cpu(fh[8]);
+> >+	case 4:
+> 
+> What do these constants specify? Would not it be better to have a #define or
+> enum{} for them somewhere?
+> 
+The sizes of the NFS file handles in units of sizeof(u32). I've added a
+couple of #defines as requested.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> >+	if (IS_ERR(inode))
+> >+		return ERR_PTR(PTR_ERR(inode));
+> 
+> Just return inode.
+> 
+The function returns a dentry, so it would need to be casted and I
+thought that would look "more odd" than this construction.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc5-mm1/kernel/acct.c linux-2.6.18-rc5-mm1/kernel/acct.c
---- linux.vanilla-2.6.18-rc5-mm1/kernel/acct.c	2006-09-01 13:39:20.000000000 +0100
-+++ linux-2.6.18-rc5-mm1/kernel/acct.c	2006-09-04 15:47:58.324205496 +0100
-@@ -483,10 +483,14 @@
- 	ac.ac_ppid = current->parent->tgid;
- #endif
- 
--	read_lock(&tasklist_lock);	/* pin current->signal */
-+	mutex_lock(&tty_mutex);
-+	/* FIXME: Whoever is responsible for current->signal locking needs
-+	   to use the same locking all over the kernel and document it */
-+	read_lock(&tasklist_lock);
- 	ac.ac_tty = current->signal->tty ?
- 		old_encode_dev(tty_devnum(current->signal->tty)) : 0;
- 	read_unlock(&tasklist_lock);
-+	mutex_unlock(&tty_mutex);
- 
- 	spin_lock_irq(&current->sighand->siglock);
- 	ac.ac_utime = encode_comp_t(jiffies_to_AHZ(cputime_to_jiffies(pacct->ac_utime)));
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc5-mm1/kernel/auditsc.c linux-2.6.18-rc5-mm1/kernel/auditsc.c
---- linux.vanilla-2.6.18-rc5-mm1/kernel/auditsc.c	2006-09-01 13:39:20.000000000 +0100
-+++ linux-2.6.18-rc5-mm1/kernel/auditsc.c	2006-09-01 13:55:51.000000000 +0100
-@@ -766,6 +766,8 @@
- 		audit_log_format(ab, " success=%s exit=%ld", 
- 				 (context->return_valid==AUDITSC_SUCCESS)?"yes":"no",
- 				 context->return_code);
-+				 
-+	mutex_lock(&tty_mutex);
- 	if (tsk->signal && tsk->signal->tty && tsk->signal->tty->name)
- 		tty = tsk->signal->tty->name;
- 	else
-@@ -787,6 +789,9 @@
- 		  context->gid,
- 		  context->euid, context->suid, context->fsuid,
- 		  context->egid, context->sgid, context->fsgid, tty);
-+
-+	mutex_unlock(&tty_mutex);
-+	
- 	audit_log_task_info(ab, tsk);
- 	if (context->filterkey) {
- 		audit_log_format(ab, " key=");
+> >+	if (!strncmp(sb->s_type->name, "gfs2meta", 8))
+> >+		return; /* meta fs. don't do nothin' */
+> 
+> Don't nobody go nowhere![1] You see, american negation can be fun, but well,
+> just say: Nothing to do for gfs2meta.
+> 
+> >+	sb->s_fs_info = NULL;
+> 
+> Required?
+> 
+Both fixed.
+
+> >+static void gfs2_write_super(struct super_block *sb)
+> >+{
+> >+	struct gfs2_sbd *sdp = sb->s_fs_info;
+> >+	gfs2_log_flush(sdp, NULL);
+> >+}
+> 
+> gfs2_log_flush(sb->s_fs_info, NULL)
+> 
+ok.
+
+> >+static void gfs2_unlockfs(struct super_block *sb)
+> >+{
+> >+	struct gfs2_sbd *sdp = sb->s_fs_info;
+> >+	gfs2_unfreeze_fs(sdp);
+> >+}
+> 
+> 
+I just realised that I missed this one, but it will be in the next
+patch...
+
+> 
+> >+	for (x = 2;; x++) {
+> >+		uint64_t space, d;
+> >+		uint32_t m;
+> >+
+> >+		space = sdp->sd_heightsize[x - 1] * sdp->sd_inptrs;
+> >+		d = space;
+> >+		m = do_div(d, sdp->sd_inptrs);
+> 
+> Note for Ingo: simple "/" division does not do it:
+> 
+> 11:00 gwdg-wb04A:/dev/shm > cat foo.c
+> #include <linux/types.h>
+> 
+> 
+> uint32_t foo(uint32_t arg) {
+>     uint64_t bar = 1337;
+>     return bar / arg;
+> }
+> 
+> 
+> 11:00 gwdg-wb04A:/dev/shm > make -C /lib/modules/2.6.17.11-jen33-default/build
+> M=$PWD modules
+> make: Entering directory /usr/src/linux-2.6.17.11-jen33-obj/i386/default'
+> make -C ../../../linux-2.6.17.11-jen33
+> O=../linux-2.6.17.11-jen33-obj/i386/default modules
+>   CC [M]  /dev/shm/foo.o
+>   Building modules, stage 2.
+>   MODPOST
+> WARNING: "__udivdi3" [/dev/shm/foo.ko] undefined!
+>   CC      /dev/shm/foo.mod.o
+>   LD [M]  /dev/shm/foo.ko
+> make: Leaving directory /usr/src/linux-2.6.17.11-jen33-obj/i386/default'
+> 
+> 
+Yes, I'd spotted this in your email earlier on in the day, so thats why
+I didn't reply to this thread before.
+
+> 
+> >+/**
+> >+ * gfs2_assert_warn_i - Print a message to the console if @assertion is false
+> >+ * Returns: -1 if we printed something
+> >+ *          -2 if we didn't
+> >+ */
+> 
+> Why not just 0 and 1?
+> 
+gfs2_assert_warn_i is called from the gfs2_assert_warn macro in util.h.
+The macro evaluates to 0 in the case that the assert is not triggered,
+so anything non-zero means that it was triggered, even if nothing was
+printed. The patch this time is:
+
+http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=5acd3967347dab361d296d39ba19f8241507ef65
+
+Steve.
+
 

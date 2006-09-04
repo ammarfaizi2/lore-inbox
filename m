@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWIDNNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWIDNRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWIDNNs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWIDNNs
+	id S964918AbWIDNRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWIDNRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:13:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64264 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964909AbWIDNNq
+	Mon, 4 Sep 2006 09:17:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40621 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964910AbWIDNRU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:13:46 -0400
-Date: Mon, 4 Sep 2006 13:13:23 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Len Brown <lenb@kernel.org>
-Cc: jg@laptop.org, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
-Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
-Message-ID: <20060904131323.GE6279@ucw.cz>
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain> <200608312353.05337.len.brown@intel.com>
+	Mon, 4 Sep 2006 09:17:20 -0400
+Subject: [PATCH] specialix - remove private speed decoding
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 04 Sep 2006 14:39:57 +0100
+Message-Id: <1157377198.30801.68.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608312353.05337.len.brown@intel.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 31-08-06 23:53:04, Len Brown wrote:
-> On Thursday 31 August 2006 20:30, Jim Gettys wrote:
-> > On Thu, 2006-08-31 at 17:13 -0600, Bjorn Helgaas wrote:
-> > > On Wednesday 30 August 2006 13:43, Matthew Garrett wrote:
-> > > > That would be helpful. For the One Laptop Per Child project (or whatever 
-> > > > it's called today), it would be advantageous to run without acpi.
-> > > 
-> > > Out of curiosity, what is the motivation for running without acpi?
-> > > It costs a lot to diverge from the mainstream in areas like that,
-> > > so there must be a big payoff.  But maybe if OLPC depends on acpi
-> > > being smarter about power or code size or whatever, those improvements
-> > > could be made and everybody would benefit.
-> > 
-> > Good question; I see Matthew beat me to part of the explanation, but
-> > here is more detail:
-> 
-> I recommended that the OLPC guys not use ACPI.
-> 
-> I do not think it would benefit their system.  Although it is an i386
-> instruction set, their system is more like an embedded device than
-> like a traditional laptop.
-> 
-> The Geode doesn't suport any C-states -- so ACPI wouldn't help them there anyway.
-> 
-> As Jim wrote, OLPC plans to suspend-to-ram from idle, and to keep video running,
-> so ACPI wouldn't help them on that either.
-> 
-> Re: optimizing suspend/resume speed
-> I expect suspend/resume speed has more to do with devices than with ACPI.
-> But frankly, with gaping functionality holes in Linux suspend/resume support such as
-> IDE and SATA, I think that optimizing for suspend/resume speed on a mainstream laptop
-> is somewhat "forward looking".
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Well, list of hardware where s2ram works okay is long and growing...
-of course, help is always wanted. And yes, it would be nice if someone
-optimized suspend/resume speed. There are somelow-hanging fruits
-there.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc5-mm1/drivers/char/specialix.c linux-2.6.18-rc5-mm1/drivers/char/specialix.c
+--- linux.vanilla-2.6.18-rc5-mm1/drivers/char/specialix.c	2006-09-01 13:39:04.000000000 +0100
++++ linux-2.6.18-rc5-mm1/drivers/char/specialix.c	2006-09-01 13:52:48.000000000 +0100
+@@ -1087,24 +1087,16 @@
+ 		port->MSVR =  (sx_in(bp, CD186x_MSVR) & MSVR_RTS);
+ 	spin_unlock_irqrestore(&bp->lock, flags);
+ 	dprintk (SX_DEBUG_TERMIOS, "sx: got MSVR=%02x.\n", port->MSVR);
+-	baud = C_BAUD(tty);
++	baud = tty_get_baud_rate(tty);
+ 
+-	if (baud & CBAUDEX) {
+-		baud &= ~CBAUDEX;
+-		if (baud < 1 || baud > 2)
+-			port->tty->termios->c_cflag &= ~CBAUDEX;
+-		else
+-			baud += 15;
+-	}
+-	if (baud == 15) {
++	if (baud == 38400) {
+ 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
+ 			baud ++;
+ 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
+ 			baud += 2;
+ 	}
+ 
+-
+-	if (!baud_table[baud]) {
++	if (!baud) {
+ 		/* Drop DTR & exit */
+ 		dprintk (SX_DEBUG_TERMIOS, "Dropping DTR...  Hmm....\n");
+ 		if (!SX_CRTSCTS (tty)) {
+@@ -1134,7 +1126,7 @@
+ 		                  "This is an untested option, please be carefull.\n",
+ 		                  port_No (port), tmp);
+ 	else
+-		tmp = (((SX_OSCFREQ + baud_table[baud]/2) / baud_table[baud] +
++		tmp = (((SX_OSCFREQ + baud/2) / baud +
+ 		         CD186x_TPC/2) / CD186x_TPC);
+ 
+ 	if ((tmp < 0x10) && time_before(again, jiffies)) {
 
--- 
-Thanks for all the (sleeping) penguins.

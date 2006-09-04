@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWIDTYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWIDT3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWIDTYb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 15:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWIDTYa
+	id S964962AbWIDT3z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 15:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWIDT3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 15:24:30 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29710 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751534AbWIDTY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 15:24:29 -0400
-Date: Mon, 4 Sep 2006 21:24:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Banks <gnb@melbourne.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc5-mm1: ARCH_DISCONTIGMEM_ENABLE=y, SMP=n compile error
-Message-ID: <20060904192425.GZ4416@stusta.de>
-References: <20060901015818.42767813.akpm@osdl.org> <20060904170411.GT4416@stusta.de> <20060904120430.a2ab9479.akpm@osdl.org>
+	Mon, 4 Sep 2006 15:29:55 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:39896 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751536AbWIDT3x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 15:29:53 -0400
+Message-ID: <44FC7EAE.6020300@free.fr>
+Date: Mon, 04 Sep 2006 21:29:50 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060809 Debian/1.7.13-0.3
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060904120430.a2ab9479.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: msleep_interruptible vs msleep
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 12:04:30PM -0700, Andrew Morton wrote:
-> On Mon, 4 Sep 2006 19:04:11 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > cpumask-add-highest_possible_node_id.patch causes the following compile 
-> > error with CONFIG_ARCH_DISCONTIGMEM_ENABLE=y, CONFIG_SMP=n
-> > (and CONFIG_SUNRPC=y):
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      vmlinux
-> > net/built-in.o: In function `svc_create_pooled':
-> > (.text+0x675fc): undefined reference to `highest_possible_node_id'
-> > net/built-in.o: In function `svc_create_pooled':
-> > (.text+0x675fc): relocation truncated to fit: R_M32R_26_PCREL_RELA against undefined symbol `highest_possible_node_id'
-> > make[1]: *** [vmlinux] Error 1
-> 
-> On m32r?
-> 
-> If so, could it be a binutils or m32r bug?
+Hi,
 
-No, it is a kernel bug (don't be confused by the second message, the 
-first one describes the bug).
+What's the difference between msleep_interruptible and msleep ?
+If I understand correctly the main difference between msleep and 
+msleep_interruptible is that msleep_interruptible can return if there is 
+a pending signal ?
 
-The problem is simple:
+But why if I have a kernel thread that do [1] :
 
-- net/sunrpc/svc.c uses highest_possible_node_id()
-- include/linux/nodemask.h says highest_possible_node_id() is
-  out-of-line #if MAX_NUMNODES > 1
-- the out-of-line highest_possible_node_id() is in lib/cpumask.c
-- lib/Makefile: lib-$(CONFIG_SMP) += cpumask.o
+while (true) {
+Do some stuff
+msleep(1000)
+}
 
-CONFIG_ARCH_DISCONTIGMEM_ENABLE=y, CONFIG_SMP=n, CONFIG_SUNRPC=y
--> highest_possible_node_id() is used in net/sunrpc/svc.c
-   CONFIG_NODES_SHIFT defined and > 0
--> include/linux/numa.h: MAX_NUMNODES > 1
--> compile error
+the load average is high (near 100%).
 
-The bug is not present on architectures where ARCH_DISCONTIGMEM_ENABLE 
-depends on NUMA (but m32r isn't the only affected architecture).
+and if I use msleep_interruptible the load average is normal.
 
-cu
-Adrian
+Does the same applies to wait_event_timeout vs 
+wait_event_interruptible_timeout ?
 
--- 
+Thanks,
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Matthieu CASTET

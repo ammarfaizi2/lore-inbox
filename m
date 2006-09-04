@@ -1,76 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbWIDXiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWIDXwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbWIDXiB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 19:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWIDXiB
+	id S965058AbWIDXwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 19:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWIDXwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 19:38:01 -0400
-Received: from hentges.net ([81.169.178.128]:8119 "EHLO
-	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
-	id S965046AbWIDXh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 19:37:59 -0400
-Subject: Re: 2.6.18-rc5-mm1
-From: Matthias Hentges <oe@hentges.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-In-Reply-To: <1157370725.18988.13.camel@mhcln03>
-References: <EB12A50964762B4D8111D55B764A84548839C0@scsmsx413.amr.corp.intel.com>
-	 <20060903175048.6fed40ab.akpm@osdl.org> <1157370725.18988.13.camel@mhcln03>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yTGQXw2LnrN2Prsb+lGZ"
-Date: Tue, 05 Sep 2006 01:39:02 +0200
-Message-Id: <1157413142.18988.17.camel@mhcln03>
+	Mon, 4 Sep 2006 19:52:16 -0400
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:54561 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S965058AbWIDXwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 19:52:14 -0400
+Subject: Very slow CD audio rip with DVD DUAL 4XMax
+From: Alex Bennee <kernel-hacker@bennee.com>
+Reply-To: kernel-hacker@bennee.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 00:52:36 +0100
+Message-Id: <1157413956.7632.9.camel@malory>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-yTGQXw2LnrN2Prsb+lGZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I was trying to rip some of my collection this evening when I noticed
+grip was running at something like 0.3x speed. Investigating the kernel
+log I was seeing a whole load of:
 
-Am Montag, den 04.09.2006, 13:52 +0200 schrieb Matthias Hentges:
-> Am Sonntag, den 03.09.2006, 17:50 -0700 schrieb Andrew Morton:
->=20
-> > Spose so.
-> >=20
-> > But what _did_ cause it?  Looks like we took an IRQ and then leapt into
-> > outer space, when do_IRQ() called desc->handle_irq().
-> >=20
-> > Matthias, could you please test with CONFIG_4KSTACKS=3Dn?
-> >=20
-> > Also, one cause of this might be a module which fails to clean up when =
-it's
-> > removed.  And the trace indicates that some module has previously
-> > been unloaded.  Can you work out which module(s) that might be?
-> >=20
->=20
-> I'll try CONFIG_4KSTACKS=3Dn when I get back from work (~10hrs...) and
-> report back.
+ATAPI device hdc:
+  Error: Not ready -- (Sense key=0x02)
+  Incompatible medium installed -- (asc=0x30, ascq=0x00)
+  The failed "Read Subchannel" packet command was:
+  "42 02 40 01 00 00 00 00 10 00 00 00 00 00 00 00 "
 
-Just tried CONFIG_4KSTACKS=3Dn but as Jeremy Fitzhardinge suggested, it
-didn't change anything ;)
---=20
-Matthias 'CoreDump' Hentges=20
+Messages, followed by the ide subsystem timing out:
 
-Webmaster of hentges.net and OpenZaurus developer.
-You can reach me in #openzaurus on Freenode.
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xff { Busy }
+ide: failed opcode was: unknown
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xff { Busy }
+ide: failed opcode was: unknown
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xff { Busy }
+ide: failed opcode was: unknown
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xff { Busy }
+ide: failed opcode was: unknown
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+Losing some ticks... checking if CPU frequency changed.
 
-My OS: Debian SID. Geek by Nature, Linux by Choice
+The drive is a 40x MSI DVD/RW drive so it should be running a lot faster
+than that. Any idea how I can figure out what is going on? I've attached
+the relevant dmesg dumps:
 
---=-yTGQXw2LnrN2Prsb+lGZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+NFORCE3-250: IDE controller at PCI slot 0000:00:08.0
+NFORCE3-250: chipset revision 162
+NFORCE3-250: not 100% native mode: will probe irqs later
+NFORCE3-250: 0000:00:08.0 (rev a2) UDMA133 controller
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+Probing IDE interface ide1...
+hdc: ATAPI DVD DUAL 4XMax, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide0...
+hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+libata version 2.00 loaded.
+sata_nv 0000:00:0a.0: version 2.0
+ACPI: PCI Interrupt Link [APSJ] enabled at IRQ 21
+GSI 18 sharing vector 0xC1 and IRQ 18
+ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [APSJ] -> GSI 21 (level,
+high) -> IRQ 193
+PCI: Setting latency timer of device 0000:00:0a.0 to 64
+ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xD800 irq 193
+ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xD808 irq 193
+scsi0 : sata_nv
+ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ata1.00: ATA-7, max UDMA/133, 398297088 sectors: LBA48 NCQ (depth 0/32)
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/133
+scsi1 : sata_nv
+ata2: SATA link down (SStatus 0 SControl 300)
+  Vendor: ATA       Model: Maxtor 6B200M0    Rev: BANC
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 398297088 512-byte hdwr sectors (203928 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 398297088 512-byte hdwr sectors (203928 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3 sda4
+sd 0:0:0:0: Attached scsi disk sda
 
-iD8DBQBE/LkWAq2P5eLUP5IRAh0CAKDkPzKtq/fdv/6NgGBYYvoYAllUWACfXJME
-PRNvufy/TrQj1v7Acrxazvo=
-=bZhG
------END PGP SIGNATURE-----
+malory downloaded # uname -a
+Linux malory 2.6.18-rc4-ajb #25 Sat Aug 12 14:04:51 BST 2006 x86_64 AMD
+Athlon(tm) 64 Processor 3400+ GNU/Linux
 
---=-yTGQXw2LnrN2Prsb+lGZ--
+What else would be useful to figure out whats going on?
+
+--
+Alex, homepage: http://www.bennee.com/~alex/
+Mal (naked, alone in the desert): "Yep... that went well."
 

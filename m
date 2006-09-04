@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWIDPtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWIDP4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWIDPtR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 11:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWIDPtR
+	id S964898AbWIDP4W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 11:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWIDP4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 11:49:17 -0400
-Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:17091 "EHLO erg.abdn.ac.uk")
-	by vger.kernel.org with ESMTP id S964880AbWIDPtQ (ORCPT
+	Mon, 4 Sep 2006 11:56:22 -0400
+Received: from mx.delair.de ([62.80.31.6]:50661 "EHLO mx.delair.de")
+	by vger.kernel.org with ESMTP id S964898AbWIDP4V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 11:49:16 -0400
-From: gerrit@erg.abdn.ac.uk
-To: davem@davemloft.net
-Subject: [PATCH 2.6.17] net/ipv6/udp.c: Enforce mandatory checksums as per RFC 2460
-Date: Mon, 4 Sep 2006 16:49:01 +0100
-User-Agent: KMail/1.8.3
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+	Mon, 4 Sep 2006 11:56:21 -0400
+From: Andreas Hobein <ah2@delair.de>
+Organization: delair Air Traffic Systems GmbH
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: Trouble with ptrace self-attach rule since kernel > 2.6.14
+Date: Mon, 4 Sep 2006 17:56:17 +0200
+User-Agent: KMail/1.9.4
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Roland McGrath <roland@redhat.com>, Markus Gutschke <markus@google.com>
+References: <200608312305.47515.ah2@delair.de> <200609041416.03945.ah2@delair.de> <20060904152307.GA98@oleg>
+In-Reply-To: <20060904152307.GA98@oleg>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609041649.01763@strip-the-willow>
-X-ERG-MailScanner: Found to be clean
-X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
+Message-Id: <200609041756.18343.ah2@delair.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[UDPv6]: Enforce mandatory checksums as per RFC 2460
+On Monday 04 September 2006 17:23, you wrote:
+> Could you test your application with 2.6.18-rc6 and this change
+>
+> 	-       if (task == current)
+> 	+       if (task->tgid == current->tgid)
+>
+> reverted? I think any report, positive or negative, would be useful.
 
-The current behaviour of computing outgoing checksums is not
-compliant with RFC 2460, as per section 8.1:
+In fact I applied exactly this change before posting to this mailing list to 
+kernel-2.6.17-1.2174_FC5 (Source rpm from fedora core 5) _without_ success. 
+Thats why I thought there were also some other changes with similar effects 
+in the kernel source at the same time.
 
- "Unlike IPv4, when UDP packets are originated by an IPv6 node,
-  the UDP checksum is not optional.  That is, whenever
-  originating a UDP packet, an IPv6 node must compute a UDP
-  checksum over the packet and the pseudo-header, [...]"
+> It would be nice if your test covers different conditions, such as
+> 'main thread debugs sub-thread' and vice versa. Exec under ptrace is
+> also interesting.
 
-This modification hence enforces to ignore sk_no_check on UDPv6.
+In my application a child thread debugs sibling threads and the parent. 
+Neither works for newer kernels.
 
-Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
---
+I will try a 2.6.18-rc6 vanilla kernel with the above patch applied at home 
+and give you some feedback wether there is a different result as with the 
+patched 2.6.17-1.2174_FC5 kernel.
 
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 8d3432a..5122c4d 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -567,11 +567,6 @@ static int udp_v6_push_pending_frames(st
-        uh->len = htons(up->len);
-        uh->check = 0;
+> It's a pity to disappoint you, but you may be the 3rd :) Found this
+> unanswered message:
+>
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=114073955827139
 
--       if (sk->sk_no_check == UDP_CSUM_NOXMIT) {
--               skb->ip_summed = CHECKSUM_NONE;
--               goto send;
--       }
--
-        if (skb_queue_len(&sk->sk_write_queue) == 1) {
-                skb->csum = csum_partial((char *)uh,
-                                sizeof(struct udphdr), skb->csum);
+May be there are more advocates of self-debugging than expected ...
+
+	Andreas

@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWIDO6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWIDO7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWIDO6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 10:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWIDO6g
+	id S964850AbWIDO7I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 10:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWIDO7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 10:58:36 -0400
-Received: from mail.suse.de ([195.135.220.2]:6793 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751080AbWIDO6f (ORCPT
+	Mon, 4 Sep 2006 10:59:08 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:45250 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751452AbWIDO7F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 10:58:35 -0400
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Andrew Morton <akpm@osdl.org>, Grant Coady <gcoady.lk@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH-mm] i8042: activate panic blink only in X
-References: <200609022320.36754.dtor@insightbb.com>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Sep 2006 16:58:33 +0200
-In-Reply-To: <200609022320.36754.dtor@insightbb.com>
-Message-ID: <p738xkz65ly.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 4 Sep 2006 10:59:05 -0400
+Date: Mon, 4 Sep 2006 16:55:11 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+In-Reply-To: <1157381440.3384.941.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0609041652520.17279@yvahk01.tjqt.qr>
+References: <1157031183.3384.793.camel@quoit.chygwyn.com> 
+ <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr> <1157381440.3384.941.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor@insightbb.com> writes:
 
-> Hi,
-> 
-> Here is an attempt to make panicblink only active in X so there is a
-> chance of keyboard still working after panic in text console. Any reason
-> why is should not be done this way?
-> 
+>> Is not there a better way to do this? Note that there is also a "nfsd4" process
+>> running. Do you really want to do a 'costly'
+>> 
+>>   strcmp(current->comm, "nfsd") != 0 && strcmp(current->comm, "nfsd4") != 0
+>> 
+>> every time someone does a readdir? What if I run a userspace nfs daemon?
+>> What if that userspace daemon is called differently?
+>> 
+>> jengelh@linux01:7 08:28:14 ~ > ps -e | grep nfs
+>>  5580 ?        00:00:08 rpc.nfsd
+>> jengelh@linux01:7 08:28:30 ~ > rpm -qf /usr/sbin/rpc.nfsd 
+>> nfs-server-2.2beta51-209.2 (a userspace nfsd)
+>
+>Ah, now this is a very tricky one to solve. Its on my todo list to look
+>at this area again. You are right that the test is bogus in that it
+>should only respond to the in kernel NFS server and the reason for its
 
-Looks good to me.
+In that case, you could use the fact that ... (I'll express it in C code):
 
-Of course it would be even better to fix the panic stuff to not disrupt scrollback,
-but short of that it's a good idea.
+    is_kernel_task = !current->mm;
 
--Andi (original panic blink author)
+>existence is due to locking issues with the way that NFS calls through
+>the VFS layer.
+
+
+Jan Engelhardt
+-- 

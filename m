@@ -1,74 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWIDVCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWIDVKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWIDVCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 17:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWIDVCh
+	id S1751474AbWIDVKw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 17:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWIDVKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 17:02:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36531 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751430AbWIDVCh (ORCPT
+	Mon, 4 Sep 2006 17:10:52 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:4591 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751454AbWIDVKv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 17:02:37 -0400
-Date: Mon, 4 Sep 2006 14:02:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Victor Hugo <victor@vhugo.net>
-Cc: linux-kernel@vger.kernel.org, Victor Castro <victorhugo83@yahoo.com>,
-       Jon Masters <jcm@jonmasters.org>
-Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
-Message-Id: <20060904140208.03880214.akpm@osdl.org>
-In-Reply-To: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Sep 2006 17:10:51 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
+Date: Mon, 4 Sep 2006 23:11:20 +0200
+User-Agent: KMail/1.9.1
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+References: <200609041237.46528.ossthema@de.ibm.com> <20060904201606.GA24386@electric-eye.fr.zoreil.com>
+In-Reply-To: <20060904201606.GA24386@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200609042311.21202.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Sep 2006 19:55:53 -0700
-Victor Hugo <victor@vhugo.net> wrote:
+Am Monday 04 September 2006 22:16 schrieb Francois Romieu:
+> > +#include "ehea.h"
+> > +#include "ehea_qmr.h"
+> > +#include "ehea_phyp.h"
+>
+> Afaik none of those is included in this patch nor in my 2.6.18-git tree.
 
-> Hi Everyone,
-> 
-> I'm trying to become the firmware loader maintainer  
-> (request_firmware) and I felt the first thing I should do is update  
-> the incomplete example driver under Documentaion/firmware_class/.   
-> The example (firmware_sample_driver.c) doesn't work out of box and  
-> needs tweaking just to get it to compile.  I've added two files which  
-> use request_firmware and the asynchronous request_firmware_nowait.
 
-Thanks.
+They are in 5, 3 and 2, respectively
 
-> The next step would be to update the documentation to make hotplug/ 
-> udev functionality a little more clear.  Hopefully I can get this in  
-> the next couple of days.
+> Happy bissect in sight.
 
-Documentation updates are welcome.
+The driver should get merged as a single commit anyway, even
+if split diffs are posted for review. Even if it gets merged
+like this, bisect will work since the Kconfig option is added
+in the final patch.
 
-> Also, I'd like to comment on Jon Masters push to include the  
-> MODULE_FIRMWARE api addition.  I strongly believe that policy should  
-> not be included in driver code, in this case it's in the form of a  
-> filename.
+> > +
+> > +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
+> > +{
+> > +     struct ehea_port *port = netdev_priv(dev);
+> > +     struct net_device_stats *stats = &port->stats;
+> > +     struct hcp_ehea_port_cb2 *cb2;
+> > +     u64 hret, rx_packets;
+> > +     int i;
+>
+> unsigned int ?
 
-You should have cc'ed him!  Some people are not subscribed, and few read
-it all.
+does it matter? int as a counter is pretty standard.
 
-> The firmware loader currently needs a filename passed to it so it can  
-> then pass the $FIRMWARE environment variable to the hotplug script.   
-> This is ok if you provide a generic filename like "firmware.bin" and  
-> then let the hotplug script worry about version numbers, i.e.  
-> "firmware-x.y.z.bin"
-> 
-> MODULE_FIRMWARE should be used to provide the generic filenames and  
-> which order the files should be loaded (request_firmware can be  
-> called various times), but I think its bad to have to change the  
-> driver everytime a new firmware version is released.
+> > +
+> > +     if (netif_msg_hw(port))
+> > +             ehea_dump(cb2, sizeof(*cb2), "net_device_stats");
+> > +
+> > +     rx_packets = 0;
+>
+> Could be initialized when it is declared.
+>
+> > +     for (i = 0; i < port->num_def_qps; i++)
+> > +             rx_packets += port->port_res[i].rx_packets;
 
-Yes, that does sound bad, but what would I know ;)
+In one of the previous reviews, we told them to do it this way
+instead. Initializing at declaration is error-prone.
 
-> That said, here's the patch...
+> > +
+> > +     intreq = ((pr->p_state.ehea_poll & 0xF) == 0xF);
+>
+> Arguable parenthesis.
+>
 
-application/octet-stream.  Please don't do that.  Inlined-in-the-body is
-much preferred.  If you cannot do that (ie: your MUA is lame but you don't
-want to switch) then, in extremis, text/plain attachments are tolerated.
+I'd argue to keep them ;-)
 
+> > +
+> > +     hret = ehea_h_modify_ehea_port(port->adapter->handle,
+> > +                                    port->logical_port_id,
+> > +                                    H_PORT_CB0, mask, cb0);
+> > +     if (hret != H_SUCCESS) {
+> > +             ret = -EIO;
+>
+> Why can't ehea_xyz return -EIO/0 directly ?
+>
+
+the lowest-level hypercall should return H_* by convention.
+
+Then again, it should also be called plpar_modify_ehea_port()
+in that case.
+
+> > +static int ehea_start_xmit(struct sk_buff *skb, struct net_device *dev)
+> > +{
+> > +     struct ehea_port *port = netdev_priv(dev);
+> > +     struct ehea_port_res *pr;
+> > +     struct ehea_swqe *swqe;
+> > +     unsigned long flags;
+> > +     u32 lkey;
+> > +     int swqe_index;
+> > +
+> > +     pr = &port->port_res[0];
+>
+> Initialization and declaration can happen at the same time.
+
+it's a gray area. In general, I recommend not to combine them
+at all. Initialization to NULL or 0 is always bad, this one
+is harmless, but I'd still leave it this way, especially after
+telling them to clean this up earlier ;-)
+
+	Arnd <><

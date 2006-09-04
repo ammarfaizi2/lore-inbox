@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWIDBBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWIDBHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWIDBBh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Sep 2006 21:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWIDBBg
+	id S932191AbWIDBHB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Sep 2006 21:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWIDBHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Sep 2006 21:01:36 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:6443 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932187AbWIDBBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Sep 2006 21:01:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oDD/UtDBZeL9dAGnJYulH8gqZ60AGZVAhMe+5M4znw0QlxT25GCyVLXKl2lDASK4a0kjXELQreJkI2VDZDSj2dLZUCubapZ5CmYVHs4XCh8YGiK0SllfgAxVTl8VGLbzgYkuqbFYInvfyZjrBXelVLt9oIKh+K7/FHBDY4hpD2A=
-Message-ID: <625fc13d0609031801o2ecfc5eawaf5c36ae406236b8@mail.gmail.com>
-Date: Sun, 3 Sep 2006 20:01:34 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Alon Bar-Lev" <alon.barlev@gmail.com>
-Subject: Re: [PATCH 00/26] Dynamic kernel command-line
-Cc: "Andi Kleen" <ak@suse.de>, "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johninsd@san.rr.com, davej@codemonkey.org.uk, Riley@williams.name,
-       trini@kernel.crashing.org, davem@davemloft.net, ecd@brainaid.de,
-       jj@sunsite.ms.mff.cuni.cz, anton@samba.org, wli@holomorphy.com,
-       lethal@linux-sh.org, rc@rc0.org.uk, spyro@f2s.com, rth@twiddle.net,
-       avr32@atmel.com, hskinnemoen@atmel.com, starvik@axis.com,
-       ralf@linux-mips.org, matthew@wil.cx, grundler@parisc-linux.org,
-       geert@linux-m68k.org, zippel@linux-m68k.org, paulus@samba.org,
-       schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
-       uclinux-v850@lsi.nec.co.jp, chris@zankel.net
-In-Reply-To: <200609040050.13410.alon.barlev@gmail.com>
+	Sun, 3 Sep 2006 21:07:01 -0400
+Received: from natblert.rzone.de ([81.169.145.181]:30374 "EHLO
+	natblert.rzone.de") by vger.kernel.org with ESMTP id S932191AbWIDBHA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Sep 2006 21:07:00 -0400
+From: Wolfgang Draxinger <Wolfgang.Draxinger@campus.lmu.de>
+To: linux-kernel@vger.kernel.org
+Subject: Building Comedi modules for 2.6.17
+Date: Mon, 4 Sep 2006 03:06:34 +0200
+User-Agent: KMail/1.9.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart22700790.1d3DECYTz5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200609040050.13410.alon.barlev@gmail.com>
+Message-Id: <200609040306.41292.Wolfgang.Draxinger@campus.lmu.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/3/06, Alon Bar-Lev <alon.barlev@gmail.com> wrote:
->
-> This patch is for linux-2.6.18-rc5-mm1 and is divided to
-> target each architecture. I could not check this in any
-> architecture so please forgive me if I got it wrong.
+--nextPart22700790.1d3DECYTz5
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-You didn't test this on _any_ architecture?  It's a bit bold to send
-out a patch like this without at least testing it on one architecture.
+I know it's not the perfect place to ask for, but the Comedi project=20
+seems to be quiet (dead?) for a lot of months, and I figured, that=20
+eventually some people who did the job already can help me out.
 
-josh
+Unfortunately I have to get a DAQ device working and the so=20
+called "drivers" and "support" from the manufactor ****** me really=20
+of; IMHO they're a case for gplviolations.org, since the drivers only=20
+come for 3 certain distributions in the versions as they are sold in=20
+the self boxes. The kernel module is precompiled, no not only a BLOB=20
+but merely a precompiles .ko for the kernels that ship with the=20
+distribution CDs. And the supported Distributions are old. Not from=20
+the stone ages, but thinking of ancient rome kinda comes close to it.
+
+At first I really liked GKH's "Instrumentation I/O", but seeing how=20
+industry cares I don't know if it was really such a great idea.
+
+Ah, were was I? Right: Building the Comedi kernel modules. Making the=20
+lib was easy enough, but it seems, that Comedi bypasses the kbuild=20
+system (if that is to support multiple kernel versions why not just=20
+deliver separate Makefiles and then make -F ?).
+
+Diging in the google archive I found the suggestion, just to turn the=20
+Makefiles into kbuild ones. I had the same idea, but OTOH I'm=20
+probably not the only one with the same need, so eventually someone=20
+already got those Makefiles done. In that case I'd really apreciate,=20
+to get those.
+
+Sorry for the large "venting"-overhead, but you should see that e-mail=20
+in my draft box I'd really like to send the guy who suggested=20
+me: "reconfigure your kernel, to make the module work"; OTOH that=20
+poor guy probably only looked up the company's knowlegde base, which=20
+is probably maintained by a groom.
+
+Happy coding
+
+Wolfgang - *grrrr* (not against comedi, but the ignorant hardware=20
+industry) - Draxinger
+=2D-=20
+E-Mail address works, Jabber: hexarith@jabber.org, ICQ: 134682867
+GPG key FP: 2FC8 319E C7D7 1ADC 0408 65C6 05F5 A645 1FD3 BD3E
+
+--nextPart22700790.1d3DECYTz5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE+3whBfWmRR/TvT4RAjpsAJ9BK4ivEJ5RRTS4eGd444CVCsH3zQCbBgKw
+TKMb03TxGBB2ZIrAQ3Ud4eA=
+=6Mxw
+-----END PGP SIGNATURE-----
+
+--nextPart22700790.1d3DECYTz5--
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.900631

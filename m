@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWIDRIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWIDRIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWIDRIR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 13:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWIDRIR
+	id S964940AbWIDRIt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 13:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWIDRIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 13:08:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:51940 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964939AbWIDRIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 13:08:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
-        b=Jxb2O+Wjseg5QHxmlvaOaNsoUmndYrF2eSxhP9iJulzVk3BSxb78QQNg4JMDdCRQlfbYSBNy/l4bj5QOAUS/9MBDqR88qI02txjt3CxIlhutPwX45qe5rcKbE6UskaXyc+6tdICOrtSfkRRKWAH7zvlxr4/lEMeJF5mVg21TTns=
-Date: Mon, 4 Sep 2006 19:09:29 +0200
-From: Luca <kronos.it@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: [PATCH 00/26] Dynamic kernel command-line
-Message-ID: <20060904170929.GA27986@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 4 Sep 2006 13:08:49 -0400
+Received: from main.gmane.org ([80.91.229.2]:58342 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964940AbWIDRIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 13:08:47 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH] [USB] hid-core.c: Fix apparent typo in   GTCO blacklist
+ entries
+Date: Mon, 04 Sep 2006 20:08:26 +0200
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <44FC6B9A.1000402@flower.upol.cz>
+References: <87pseb61cj.fsf@digitalvampire.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 158.194.192.153
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
+X-Accept-Language: en
+In-Reply-To: <87pseb61cj.fsf@digitalvampire.org>
+X-Image-Url: http://flower.upol.cz/~olecom/upol-cz.png
+X-Face: =sibd$\hCvyTK_%u<|5M05t1lOc1Ld1'SSQ`+=v3P7:)0g%v{U`~4(q4"X(az&asiUNG.C3)XS1E`)4O'hK0{r}P9fxtLGVWvQQJekut9!Q"K8H2l>/Tfd.~R@PoY{TfjXUht[HdA+.Ncy?W;*K$5v(|n-=C6mne&mN}1(n
+Cc: linux-usb-users@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(trimming CC list)
-
-Paul Mackerras <paulus@samba.org> ha scritto:
- Alon Bar-Lev writes:
+Roland Dreier wrote:
+> Commit 6f8d9e26e7deecb1296c221aa979542bc5d63f20 added blacklist
+> entries for GTCO products, but it included an apparent cut-and-paste
+> typo (the device ID entry for GTCO_404 is duplicated with two
+> different values, and used twice in the blacklist).  This leads to the
+> warning:
 > 
->> Current implementation stores a static command-line
->> buffer allocated to COMMAND_LINE_SIZE size. Most
->> architectures stores two copies of this buffer, one
->> for future reference and one for parameter parsing.
+>     drivers/usb/input/hid-core.c:1447:1: warning: "USB_DEVICE_ID_GTCO_404" redefined
 > 
-> Under what circumstances do we actually need a command line of more
-> than 256 bytes?
+> Fix this by correcting the second device ID name to GTCO_405, and
+> using it in the blacklist.
 > 
-> It seems to me that if 256 bytes isn't enough, we should take a deep
-> breath, step back, and think about whether there might be a better way
-> to pass whatever information it is that's using up so much of the
-> command line.
+> Signed-off-by: Roland Dreier <roland@digitalvampire.org>
+> 
+It was patched today already.
+<http://permalink.gmane.org/gmane.linux.kernel/443314>
 
-Well, if you want to set a parameter of a builtin module you have to
-use:
-        modulename.parameter=whatever
-
-which can use a lot of space... I suppose that with an "everything
-builtin" kernel and a few modules to tune you can get near the limit.
-
-Luca
 -- 
-Home: http://kronoz.cjb.net
-Il tempo speso
-a coltivare sogni
-non è sprecato.
+-o--=O`C
+  #oo'L O $ dd </all:xml>/dev/null
+<___=E M
+

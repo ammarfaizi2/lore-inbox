@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWIDK3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWIDKjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWIDK3W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 06:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWIDK3W
+	id S1751386AbWIDKjg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 06:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWIDKjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 06:29:22 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:52318 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751372AbWIDK3W (ORCPT
+	Mon, 4 Sep 2006 06:39:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:44269 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751383AbWIDKjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 06:29:22 -0400
-Message-ID: <44FBFFFC.90309@tls.msk.ru>
-Date: Mon, 04 Sep 2006 14:29:16 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Mon, 4 Sep 2006 06:39:33 -0400
+Message-ID: <44FC0261.6010807@garzik.org>
+Date: Mon, 04 Sep 2006 06:39:29 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Raid 0 Swap?
-References: <44FB5AAD.7020307@perkel.com> <44FBD08A.1080600@tls.msk.ru> <44FBF62A.1010900@aitel.hist.no>
-In-Reply-To: <44FBF62A.1010900@aitel.hist.no>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Netdev List <netdev@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       "Kok, Auke" <auke-jan.h.kok@intel.com>
+Subject: [RFT] e100 driver on ARM
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Michael Tokarev wrote:
-[]
->> If something with swap space goes wrong, God only knows what will break.
->> It is trivial to break userspace data this way, when an app is swapped
->> out and there's an error reading it from swap, its data file very likely
->> to be corrupt, especially when it is interrupted during file update.
->> It is probably possible to corrupt the whole filesystem this way too,
->> when some kernel memory has been swapped out and is needed to write some
->> parts of filesystem, but it can't be read back.
->>   
-> I thought kernel data weren't swapped at all?
-> Mostly because kernel data could be needed immediately, with
-> no option of waiting for swapin. So, bad swap should only really kill
-> userspace programs,
-> although it probably can cause some bad delays in cases
-> where the userspace program calls into the kernel,
-> passing an address that happens to be in damaged swap.
-> You might then stall the kernel holding some resources
-> while the disks retries umpteen times.
+One of the last steps necessary to deprecate the eepro100 driver is to 
+ensure that e100 works everywhere that eepro100 does.
 
-Well, it's not that simple.  Kernel uses both swappable and
-non-swappable memory internally.  For some things, it's
-unswappable, for some, it's swappable.  In general, it's
-impossible to say which parts of kernel will break (and
-in wich ways) if swap goes havoc.
+The eepro100 removal has been blocked for almost a year by a vague 
+suggestion from Russell that e100 doesn't work on ARM.  But he doesn't 
+have that machine anymore.  So, we're stuck in limbo.
 
->> Ie, your swap space must be reliable.  At least not worse than your
->> memory.
->> And with striping, you've much more chances of disk failure...
->>   Yes it sounds very promising at first, to let kernel stripe swap space,
->> for faster operations.  But hell, first, try to avoid swappnig in the
->> first place, by installing appropriate amount memory which is cheap
->> nowadays, so there will be just no need for swapping.  And when it's
->> done, it's not relevant anymore whenever your swap space is fast or
->> not.  But make it *reliable*.
->>   
-> Some swap is nice to have.  "Ouch - sluggish server today,
-> I will have to look into it" is so much better
-> than "Eww - the OOM serial killer took out another 5 processes,
-> people are screaming!"
+This is a call to anyone who can test an Intel 10/100 chip on the ARM 
+platform, in an effort to see where we are.  I'm looking for answers to 
+the following two questions:
 
-I didn't say "eliminate swap space", I said about trying to avoid
-swap usage.  In the other words, DO set up swap space, and DO it
-in a reliable way.  Not "swap isn't needed" - well yes, it's
-not entirely clear from my statement.
+1) Does e100 driver work on ARM?
 
-> As for reliable swap - swap on raid-1 is nice - and it
-> probably perform better than single-disk swap too,
-> although not as fast as striped swap.
+2) If not, does the "e100-sbit" branch of 
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git 
+work on ARM?
 
-Yes it's slower.  But you don't really care, because in normal
-life, there should be almost no swap usage.  When swapping starts
-occuring in amounts where speed difference is noticeable, it's
-time to add more memory (or to run less hungry processes),
-not to speed up swap space.
+FWIW, the e100-sbit branch has been in Andrew Morton's -mm tree since 
+Nov 2005.
 
-/mjt
+Below is the commit message for the e100-sbit change, in case anyone is 
+interested.  I'm also hoping that Intel will help solve this problem, 
+but poking Intel hasn't produced very much :(
+
+	Jeff
+
+
+> commit 32c1459bb3814274b3c5e0c5ed4efc6c0aa89eb4
+> Author: Scott Feldman <sfeldma@pobox.com>
+> Date:   Wed Nov 9 02:18:52 2005 -0500
+> 
+>     [netdrvr e100] experiment with doing RX in a similar manner to eepro100
+> 
+>     I was going to say that eepro100's speedo_rx_link() does the same DMA
+>     abuse as e100, but then I noticed one little detail: eepro100 sets  both
+>     EL (end of list) and S (suspend) bits in the RFD as it chains it  to the
+>     RFD list.  e100 was only setting the EL bit.  Hmmm, that's  interesting.
+>     That means that if HW reads a RFD with the S-bit set,  it'll process
+>     that RFD and then suspend the receive unit.  The  receive unit will
+>     resume when SW clears the S-bit.  There is no need  for SW to restart
+>     the receive unit.  Which means a lot of the receive  unit state tracking
+>     code in the driver goes away.
+> 
+>     So here's a patch against 2.6.14.  (Sorry for inlining it; the mailer
+>     I'm using now will mess with the word wrap).  I can't test this on
+>     XScale (unless someone has an e100 module for Gumstix :) .  It should
+>     be doing exactly what eepro100 does with RFDs.  I don't believe this
+>     change will introduce a performance hit because the S-bit and EL-bit  go
+>     hand-in-hand meaning if we're going to suspend because of the S- bit,
+>     we're on the last resource anyway, so we'll have to wait for SW  to
+>     replenish.
+
+
+
 
 -- 
-VGER BF report: H 0.182426
+VGER BF report: U 0.499999

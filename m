@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWIDWb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWIDWgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbWIDWb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWIDWb6
+	id S965020AbWIDWgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWIDWgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:31:58 -0400
-Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:35488 "EHLO
-	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S932149AbWIDWb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:31:56 -0400
-Date: Tue, 5 Sep 2006 00:31:54 +0200
-From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-To: Gene Heskett <gene.heskett@verizon.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Jeremy Roberson <jroberson@gtcocalcomp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.18-rc6
-Message-ID: <20060904223153.GK13238@bayes.mathematik.tu-chemnitz.de>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Jeremy Roberson <jroberson@gtcocalcomp.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org> <200609040705.53780.gene.heskett@verizon.net>
-Mime-Version: 1.0
+	Mon, 4 Sep 2006 18:36:15 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13992 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932169AbWIDWgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:36:14 -0400
+Date: Tue, 5 Sep 2006 00:35:20 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: ACPI mailing list <linux-acpi@vger.kernel.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: x60 - spontaneous thermal shutdown
+Message-ID: <20060904223520.GB1958@elf.ucw.cz>
+References: <20060904214059.GA1702@elf.ucw.cz> <20060904222614.GA1614@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609040705.53780.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.2.1i
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: --- Start der SpamAssassin 3.1.2 Textanalyse (-1.4 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	-1.4 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner
-	weitergeleitet
-	0.0 UPPERCASE_25_50        Nachrichtentext besteht zu 25-50% aus
-	Grossbuchstaben
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: 6c4dba1e91403f6684caf61b693d4145
+In-Reply-To: <20060904222614.GA1614@rhlx01.fht-esslingen.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 07:05:53AM -0400, Gene Heskett wrote:
-> On Sunday 03 September 2006 22:42, Linus Torvalds wrote:
-> >Things are definitely calming down, and while I'm not ready to call it a
-> >final 2.6.18 yet, this migt be the last -rc.
-> >
-> It has one new build warning, no idea if show stopper or not:
-> ----------
-> drivers/usb/input/hid-core.c:1447:1: warning: "USB_DEVICE_ID_GTCO_404" 
-> redefined
-> drivers/usb/input/hid-core.c:1446:1: warning: this is the location of the 
-> previous definition
-> ----------
-> until after I boot to it...
+Hi!
+
+> > x60 shut down after quite a while of uptime, in period of quite heavy
+> > load:
+> > 
+> > Sep  4 23:33:01 amd kernel: ACPI: Critical trip point
+> > Sep  4 23:33:01 amd kernel: Critical temperature reached (128 C), shutting down.
+> > Sep  4 23:33:01 amd shutdown[32585]: shutting down for system halt
+> > Sep  4 23:34:42 amd init: Switching to runlevel: 0
+> > 
+> > I do not think cpu reached 128C, as I still have my machine... Did
+> > anyone else see that?
 > 
-> And that didn't seem to effect the mouse.  Other usb stuff has not been 
-> exersized yet.
+> Could this be in any way related to the (in)famous Random Shutdown issues
+> on a little too many Apple MacBooks?
+> (since the x60 incidentally just happens to be Core Duo
+ > architecture, too)
 
-The offending patch is 
-hid-core.c: Adds all GTCO CalComp Digitizers and InterWrite School Products to blacklist
+Well, but those macbooks were really overheating, no? This seems like
+sensor failure, because I do not think cpu had 128 Celsius, without
+going through 100 Celsius, first.
 
-If one looks at this patch it seems to be just a typo. 
-The patch below fixes at least the warning.
+> Those Random Shutdown issues at least in several cases appear to happen
+> due to trouble with the temperature sensor or mainboard issues.
+> Thermal management is in quite some trouble there, judging from
+> the rather diverse aspects of machine shutdown failure...
+> (fan not working, CPU overheating, NOT overheating but shutting down
+> directly after boot, ...)
 
---- vanilla-2.6.18-rc6/drivers/usb/input/hid-core.c	2006-09-04 04:19:48.000000000 +0200
-+++ linux-2.6.18-rc6/drivers/usb/input/hid-core.c	2006-09-04 23:53:10.000000000 +0200
-@@ -1444,7 +1444,7 @@
- #define USB_DEVICE_ID_GTCO_402		0x0402
- #define USB_DEVICE_ID_GTCO_403		0x0403
- #define USB_DEVICE_ID_GTCO_404		0x0404
--#define USB_DEVICE_ID_GTCO_404		0x0405
-+#define USB_DEVICE_ID_GTCO_405		0x0405
- #define USB_DEVICE_ID_GTCO_500		0x0500
- #define USB_DEVICE_ID_GTCO_501		0x0501
- #define USB_DEVICE_ID_GTCO_502		0x0502
-@@ -1657,7 +1657,7 @@
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_402, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_403, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_405, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_500, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_501, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_502, HID_QUIRK_IGNORE },
+I had fan working at the time of shutdown, and machine was able to
+boot immediately afterwards. That means that 128 celsius was sensor
+error.
+
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

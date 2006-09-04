@@ -1,67 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWIDGkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWIDG4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWIDGkq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 02:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWIDGkq
+	id S932388AbWIDG4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 02:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWIDG4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 02:40:46 -0400
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:4237 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932362AbWIDGkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 02:40:45 -0400
+	Mon, 4 Sep 2006 02:56:35 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:3526 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932388AbWIDG4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 02:56:34 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=lI6YZnKt2zcGkN5/J1iIfr89iIcNNwcBt3xJ85wWzjvf9NFWwctwEcFRDbGRI+1SjEE17OX2Soe4wiOoE4MuZ69Gs7nNo15TJy8ZHffM7X4CRJrGJvKzXcl58wvWw9u3T/bzqw0CQptAeFMWJ3kV/GR/nUdiHUzioPk5sHftQG4=  ;
-Date: Sun, 03 Sep 2006 23:40:42 -0700
-From: David Brownell <david-b@pacbell.net>
-To: arnd@arndb.de
-Subject: Re: [linux-usb-devel] [PATCH] driver for mcs7830 (aka DeLOCK) USB 
- ethernet adapter
-Cc: support@moschip.com, supermihi@web.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       dhollis@davehollis.com
-References: <200608071500.55903.arnd.bergmann@de.ibm.com>
- <200608202207.39709.arnd@arndb.de>
- <200609020338.54932.david-b@pacbell.net>
- <200609021951.40470.arnd@arndb.de>
-In-Reply-To: <200609021951.40470.arnd@arndb.de>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=avZqcS3C/vgYhGsLQTuUT+kRGY+XdT6i2oyPjGUJAYy1mcbv+qh5LocfWJT6Hnp2/pv+xGmamMohVdVAle2ASxHnFOomledgcSCdGjS5bjuQPQ0a8PR4PoLZkQu5gZip8YoU+qeSLL3TdfIyBWmz0V27VobPF5uxnM/tFu09QXI=
+Message-ID: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com>
+Date: Mon, 4 Sep 2006 14:56:33 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUGs when removing largish files with the SLOB allocator
+Cc: mpm@selenic.com, dhowells@redhat.com, davidm@snapgear.com,
+       gerg@snapgear.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20060904064042.2E40719E185@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, the receive errors are independent from the status interrupt.
-> I have now got confirmation by another user that they also
-> happen on a different thinkpad when not using a USB hub, but
-> with a hub everything seems fine.
+Hi all,
 
-Odd.  Hardware issues, I guess ... I'd like to understand better
-just why high speed peripherals are acting up on root hubs.  Maybe
-it's flakey motherboards ...
+I'm working on the nommu blackfin uclinux(2.6.16) platform and  get a
+kernel BUG! at mm/nommu.c:124 when removing largish file with the SLOB
+allocator.
 
+root:~> df -k
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/mtdblock3            3008      1264      1744  42% /
+root:~> cp /bin/busybox /busy
+root:~> df -k
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/mtdblock3            3008      1532      1476  51% /
+root:~> ls -l /bin/busybox /busy
+-rwxr-xr-x    1 0        0          423904 /bin/busybox
+-rwxr-xr-x    1 0        0          423904 /busy
+root:~> md5sum /bin/busybox
+7db253a2259ab71bc854c9e5dac544d6  /bin/busybox
+root:~> md5sum /busy
+7db253a2259ab71bc854c9e5dac544d6  /busy
+root:~> rm /busy
+kernel BUG at mm/nommu.c:124!
+Kernel panic - not syncing: BUG!
 
-> > Speaking of which ... isnt this driver missing a hook to make
-> > the MII stuff visible through ethtool?
->
-> hmm, I wasn't aware that ethtool does this. I did check that mii-tool
-> works though.
+Bug comes from  mm/nommu.c:
+=======================================
+        if (!objp || !((page = virt_to_page(objp))) ||
+           (unsigned long)objp >= memory_end)
+                return 0;
 
-Then my main concern is gone.
+        if (PageSlab(page))
+                return ksize(objp);
 
+        BUG_ON(page->index < 0);
+124:    BUG_ON(page->index >= MAX_ORDER);
+=======================================
 
-> Going through the ethtool operations, I think that it should be
-> possible to implement a few of them, including ETHTOOL_GREGS,
-> ETHTOOL_GEEPROM, ETHTOOL_SEEPROM, ETHTOOL_NWAY_RST and ETHTOOL_GPERMADDR.
-> Do you think these should be done?
+This seems that the SLOB allocator doesn't set the SLAB page flag
+while nommu.c seem to be written for SLAB only.
 
-I've not got much use for those, but maybe the netdev folk would
-care.  That's probably not enough to hold up any merge.
+On my side the following patch seems to work around the issue
+============================================================
+--- nommu.c     2006-06-26 14:49:28.000000000 +0800
++++ nommu.c.new 2006-06-26 14:47:20.000000000 +0800
+@@ -18,7 +18,9 @@
+ #include <linux/file.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
+-#include <linux/slab.h>
++#ifdef CONFIG_SLAB
++# include <linux/slab.h>
++#endif
+ #include <linux/vmalloc.h>
+ #include <linux/ptrace.h>
+ #include <linux/blkdev.h>
+@@ -117,7 +119,9 @@
+        if (!objp || !((page = virt_to_page(objp))) || (unsigned
+long)objp >= memory_end)
+                return 0;
 
-- Dave
++#ifdef CONFIG_SLAB
+        if (PageSlab(page))
++#endif
+                return ksize(objp);
 
+        BUG_ON(page->index < 0);
+============================================================
+
+Is there any solution/patch to fix the issue?
+
+Any suggestions are really appreciated.
+
+Thanks,
+-Aubrey
 
 -- 
-VGER BF report: U 0.499998
+VGER BF report: U 0.498985

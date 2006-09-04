@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWIDJ7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWIDKEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWIDJ7d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 05:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWIDJ7c
+	id S1751327AbWIDKEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 06:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWIDKEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 05:59:32 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:62642 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751326AbWIDJ7b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 05:59:31 -0400
-Date: Mon, 4 Sep 2006 13:58:50 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take15 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20060904095850.GA2654@2ka.mipt.ru>
-References: <12345678912345.GA1898@2ka.mipt.ru> <11573648604058@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 4 Sep 2006 06:04:44 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:8142 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751327AbWIDKEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 06:04:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
+        b=UlzBiQzMuCKt7QWlOgycJzdUPB3IzRg+FRZUxoi10ioByN7yGRn1cRroUvuTNufT1frOe5fDj5XUvcYTQAk6DeSi6vvDsq6inu6gseVT5K7Z/y6zpkbYfUAJYbyusRUkJXXTDZ/DNUjucj3C86/ggDn3RFI+gDIi3RYP7X8bUdE=
+Date: Mon, 4 Sep 2006 12:04:05 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: jeff@garzik.org
+Cc: alan@lxorguk.ukuu.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc5-mm1 ich_pata_cbl_detect returns a value despite being void
+Message-ID: <20060904120405.GC1581@slug>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11573648604058@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 04 Sep 2006 13:58:56 +0400 (MSD)
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 02:14:20PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> 
-> Generic event handling mechanism.
+Hi,
 
-Unfortunately bogofilter on vger.kernel.org decided that socket and
-timer notifications are spam, so they will not be found in linux-kernel
-archive.
+Compiling 2.6.18-rc5-mm1 issues the following warning:
+  CC      drivers/ata/ata_piix.o
+  drivers/ata/ata_piix.c: In function 'ich_pata_cbl_detect':
+  drivers/ata/ata_piix.c:612: warning: 'return' with a value, in
+  function returning void
 
-One can use kevent homepage instead:
-http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+This was introduced by the
+libata-add-40pin-short-cable-support-honour-drive.patch.
+The attached patch fixes the issue by assigning ap->cbl.
 
+Regards,
+Frederik
 
-Missed socket notifications description:
-# added socket notifications (send/recv/accept). Using trivial web
-# server based on kevent and this features instead of epoll it's
-# performance increased more than noticebly. More details about
-# benchmark and server itself (evserver_kevent.c) can be found on project
-# homepage. Splitted patches are available in archive 
-# http://tservice.net.ru/~s0mbre/archive/kevent/2.6.18.15
+Signed-off-by: Frederik Deweerdt <deweerdt@free.fr>
+diff --git a/drivers/ata/ata_piix.c b/drivers/ata/ata_piix.c
+index e4d7873..c9c8341 100644
+--- a/drivers/ata/ata_piix.c
++++ b/drivers/ata/ata_piix.c
+@@ -608,8 +608,10 @@ static void ich_pata_cbl_detect(struct a
+ 	while (lap->device) {
+ 		if (lap->device == pdev->device &&
+ 		    lap->subvendor == pdev->subsystem_vendor &&
+-		    lap->subdevice == pdev->subsystem_device)
+-		    	return ATA_CBL_PATA40_SHORT;
++		    lap->subdevice == pdev->subsystem_device) {
++			ap->cbl = ATA_CBL_PATA40_SHORT;
++		    	return;
++		}
+ 		lap++;
+ 	}
+ 
 
 -- 
-	Evgeniy Polyakov
-
--- 
-VGER BF report: U 0.499757
+VGER BF report: U 0.500037

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWIDP4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWIDQCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWIDP4W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 11:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWIDP4W
+	id S964906AbWIDQCp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 12:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWIDQCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 11:56:22 -0400
-Received: from mx.delair.de ([62.80.31.6]:50661 "EHLO mx.delair.de")
-	by vger.kernel.org with ESMTP id S964898AbWIDP4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 11:56:21 -0400
-From: Andreas Hobein <ah2@delair.de>
-Organization: delair Air Traffic Systems GmbH
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: Trouble with ptrace self-attach rule since kernel > 2.6.14
-Date: Mon, 4 Sep 2006 17:56:17 +0200
-User-Agent: KMail/1.9.4
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roland McGrath <roland@redhat.com>, Markus Gutschke <markus@google.com>
-References: <200608312305.47515.ah2@delair.de> <200609041416.03945.ah2@delair.de> <20060904152307.GA98@oleg>
-In-Reply-To: <20060904152307.GA98@oleg>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 4 Sep 2006 12:02:45 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:45766 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964906AbWIDQCo (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 12:02:44 -0400
+Message-Id: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc4-mm3 crypto issues with encrypted disks
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1157385748_3784P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609041756.18343.ah2@delair.de>
+Date: Mon, 04 Sep 2006 12:02:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 September 2006 17:23, you wrote:
-> Could you test your application with 2.6.18-rc6 and this change
->
-> 	-       if (task == current)
-> 	+       if (task->tgid == current->tgid)
->
-> reverted? I think any report, positive or negative, would be useful.
+--==_Exmh_1157385748_3784P
+Content-Type: text/plain; charset=us-ascii
 
-In fact I applied exactly this change before posting to this mailing list to 
-kernel-2.6.17-1.2174_FC5 (Source rpm from fedora core 5) _without_ success. 
-Thats why I thought there were also some other changes with similar effects 
-in the kernel source at the same time.
+Sorry for not catching this one earlier..  Sometime between 2.6.18-rc4-mm2
+and -mm3, something crept into the git-cryptodev.patch that breaks mounting
+encrypted disks.  What I have in /etc/fstab:
 
-> It would be nice if your test covers different conditions, such as
-> 'main thread debugs sub-thread' and vice versa. Exec under ptrace is
-> also interesting.
+/dev/rootvg/crypto1     /crypto/mount_dir    ext3    nodev,nosuid,noexec,noauto,noatime,nodiratime,user,loop,encryption=aes 1 0
 
-In my application a child thread debugs sibling threads and the parent. 
-Neither works for newer kernels.
+This worked in -mm2, and a bisect of -mm patches points git-cryptodev as
+the problem, so it's one of the commits in that patch between -mm2 and -mm3.
 
-I will try a 2.6.18-rc6 vanilla kernel with the above patch applied at home 
-and give you some feedback wether there is a different result as with the 
-patched 2.6.17-1.2174_FC5 kernel.
+/sbin/mount is able to set up the loopback, but then gets an error that
+no valid superblock was found - which says to me that it's not treating the
+passphrase or something the same, and decrypting to something other than what
+the -mm2 kernel decrypted the superblock to.
 
-> It's a pity to disappoint you, but you may be the 3rd :) Found this
-> unanswered message:
->
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=114073955827139
+My personal guess as "most likely suspect" (only obvious hit on cryptoloop):
 
-May be there are more advocates of self-debugging than expected ...
+commit d1bc13c88efaa1c1f4f78ac5510297f3187c7f63
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Sun Aug 13 08:45:10 2006 +1000
 
-	Andreas
+    [BLOCK] cryptoloop: Use block ciphers where applicable
+
+    This patch converts cryptoloop to use the new block cipher type where
+    applicable.  As a result the ECB-specific and CBC-specific transfer
+    functions have been merged.
+
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+but I have *not* extracted that one GIT commit to test it yet.
+
+--==_Exmh_1157385748_3784P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFE/E4TcC3lWbTT17ARAqm/AJ9TirZSQEZhWoJOZtprXC9Va9WI5QCg+nI9
+JNwP1AU3orujkyqGM26VUdc=
+=QfKe
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1157385748_3784P--

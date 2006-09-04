@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWIDKjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWIDKqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWIDKjg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 06:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWIDKjf
+	id S1751388AbWIDKqe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 06:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWIDKqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 06:39:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44269 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751383AbWIDKjd (ORCPT
+	Mon, 4 Sep 2006 06:46:34 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:51654 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751378AbWIDKqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 06:39:33 -0400
-Message-ID: <44FC0261.6010807@garzik.org>
-Date: Mon, 04 Sep 2006 06:39:29 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 4 Sep 2006 06:46:33 -0400
+Date: Mon, 4 Sep 2006 12:41:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH 05/22][RFC] Unionfs: Copyup Functionality
+In-Reply-To: <20060904092534.GA19836@filer.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0609041239390.17115@yvahk01.tjqt.qr>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901014251.GF5788@fsl.cs.sunysb.edu>
+ <Pine.LNX.4.61.0609040852550.9108@yvahk01.tjqt.qr>
+ <20060904092534.GA19836@filer.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-To: Netdev List <netdev@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       "Kok, Auke" <auke-jan.h.kok@intel.com>
-Subject: [RFT] e100 driver on ARM
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the last steps necessary to deprecate the eepro100 driver is to 
-ensure that e100 works everywhere that eepro100 does.
 
-The eepro100 removal has been blocked for almost a year by a vague 
-suggestion from Russell that e100 doesn't work on ARM.  But he doesn't 
-have that machine anymore.  So, we're stuck in limbo.
-
-This is a call to anyone who can test an Intel 10/100 chip on the ARM 
-platform, in an effort to see where we are.  I'm looking for answers to 
-the following two questions:
-
-1) Does e100 driver work on ARM?
-
-2) If not, does the "e100-sbit" branch of 
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git 
-work on ARM?
-
-FWIW, the e100-sbit branch has been in Andrew Morton's -mm tree since 
-Nov 2005.
-
-Below is the commit message for the e100-sbit change, in case anyone is 
-interested.  I'm also hoping that Intel will help solve this problem, 
-but poking Intel hasn't produced very much :(
-
-	Jeff
-
-
-> commit 32c1459bb3814274b3c5e0c5ed4efc6c0aa89eb4
-> Author: Scott Feldman <sfeldma@pobox.com>
-> Date:   Wed Nov 9 02:18:52 2005 -0500
+>> Is BUG the right thing, what do others think? (Using WARN, and set err to
+>> something useful?)
 > 
->     [netdrvr e100] experiment with doing RX in a similar manner to eepro100
-> 
->     I was going to say that eepro100's speedo_rx_link() does the same DMA
->     abuse as e100, but then I noticed one little detail: eepro100 sets  both
->     EL (end of list) and S (suspend) bits in the RFD as it chains it  to the
->     RFD list.  e100 was only setting the EL bit.  Hmmm, that's  interesting.
->     That means that if HW reads a RFD with the S-bit set,  it'll process
->     that RFD and then suspend the receive unit.  The  receive unit will
->     resume when SW clears the S-bit.  There is no need  for SW to restart
->     the receive unit.  Which means a lot of the receive  unit state tracking
->     code in the driver goes away.
-> 
->     So here's a patch against 2.6.14.  (Sorry for inlining it; the mailer
->     I'm using now will mess with the word wrap).  I can't test this on
->     XScale (unless someone has an e100 module for Gumstix :) .  It should
->     be doing exactly what eepro100 does with RFDs.  I don't believe this
->     change will introduce a performance hit because the S-bit and EL-bit  go
->     hand-in-hand meaning if we're going to suspend because of the S- bit,
->     we're on the last resource anyway, so we'll have to wait for SW  to
->     replenish.
+>Well, it is definitely a condition which Unionfs doesn't expect - if it
+>doesn't know about the type, how could it copy it up?
+
+Other filesystems don't seem to BUG either (at least I have not run into 
+that yet) when - for whatever reasons - the statdata of a dentry is 
+fubared. `ls`  just displays it then, like
+
+ ?-w---Sr-T 1 root root 4294967295 date fubared_file
 
 
 
+Jan Engelhardt
+-- 
 
 -- 
-VGER BF report: U 0.499999
+VGER BF report: H 0

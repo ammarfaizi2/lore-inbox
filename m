@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWIDVmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWIDVoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWIDVmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 17:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWIDVmo
+	id S965002AbWIDVoH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 17:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWIDVoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 17:42:44 -0400
-Received: from mx.delair.de ([62.80.31.6]:27101 "EHLO mx.delair.de")
-	by vger.kernel.org with ESMTP id S964998AbWIDVmn (ORCPT
+	Mon, 4 Sep 2006 17:44:07 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:43209 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S965000AbWIDVoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 17:42:43 -0400
-From: Andreas Hobein <ah2@delair.de>
-Organization: delair Air Traffic Systems GmbH
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: Trouble with ptrace self-attach rule since kernel > 2.6.14
-Date: Mon, 4 Sep 2006 23:42:40 +0200
-User-Agent: KMail/1.9.4
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roland McGrath <roland@redhat.com>, Markus Gutschke <markus@google.com>
-References: <200608312305.47515.ah2@delair.de> <20060904152307.GA98@oleg> <200609041756.18343.ah2@delair.de>
-In-Reply-To: <200609041756.18343.ah2@delair.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 4 Sep 2006 17:44:04 -0400
+Subject: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification
+	Filesystem
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@ftp.linux.org.uk
+In-Reply-To: <20060904203346.GA6646@elf.ucw.cz>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
+	 <20060903110507.GD4884@ucw.cz>
+	 <1157376506.4398.15.camel@localhost.localdomain>
+	 <20060904203346.GA6646@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 04 Sep 2006 17:43:04 -0400
+Message-Id: <1157406184.4398.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.92 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609042342.41184.ah2@delair.de>
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter1.cs.columbia.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Monday 04 September 2006 17:23, you wrote:
-> > Could you test your application with 2.6.18-rc6 and this change
-> >
-> > 	-       if (task == current)
-> > 	+       if (task->tgid == current->tgid)
-> >
-> > reverted? I think any report, positive or negative, would be useful.
+On Mon, 2006-09-04 at 22:33 +0200, Pavel Machek wrote:
+> On Mon 2006-09-04 09:28:26, Shaya Potter wrote:
+> > On Sun, 2006-09-03 at 11:05 +0000, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > - Modifying a Unionfs branch directly, while the union is mounted, is
+> > > >   currently unsupported.  Any such change may cause Unionfs to oops and it
+> > > >   can even result in data loss!
+> > > 
+> > > I'm not sure if that is acceptable. Even root user should be unable to
+> > > oops the kernel using 'normal' actions.
+> > 
+> > As I said in the other case.  imagine ext2/3 on a a san file system
+> > where 2 systems try to make use of it.  Will they not have issues?
+> 
+> They probably will have issues (altrough I'm not sure, perhaps ext2
+> has been debugged enough), but they'll fix them (as opposed to
+> document that oopses are okay).
 
-Reverting this change in kernel 2.6.18-rc6 was successful, that means my 
-application has the old behaviour as before 2.6.15. I don't know why patching 
-the fedora kernel didn't lead to the same result.
+I agree that unionfs shouldn't oops, it should handle that situation in
+a more graceful manner, but once the "backing store" is modified
+underneath it, all bets are off for either unionfs or ext2/3 behaving
+"correctly" (where "correctly" doesn't just mean handle the error
+gracefully).
 
-I've tested tracing child threads from the parent thread as well as tracing 
-siblings and parent threads from a child. All tests where successful when 
-reverting the above mentioned changes.
+But are you also 100% sure that messing with the underlying backing
+store wouldn't be considered an admin bug as opposed to an administrator
+bug? I mean there's nothing that we can do to prevent an administrator
+from FUBAR'ing their system by 
 
-I cannot judge wether reverting back to "if (task == current)" would cause 
-trouble in other cases. On the other hand, I'm quite happy with my 
-fork()/pipe() solution that works fine in my application so there is no need 
-to go back from my point of view.
+dd if=/dev/random of=/dev/kmem.
 
-I started this discussion mainly to get more background information, why 
-ptracing sibling threads is forbidden since kernel 2.6.15. I hope I 
-understood correctly that this change was a trade-off between removing the 
-self attach feature and elliminating many serious bugs. Thus I would 
-understand if the change won't be reverted in future kernel versions.
+where does one draw the line?  I agree that stackable file systems make
+this a more pressing issue, as the "backing store" can be visible within
+the file system namespace as a regular file system that people are
+generally accustomed to interacting with.
 
-Andreas

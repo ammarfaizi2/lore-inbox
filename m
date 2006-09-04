@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWIDWgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWIDWtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965020AbWIDWgP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWIDWgP
+	id S932221AbWIDWtd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWIDWtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:36:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13992 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932169AbWIDWgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:36:14 -0400
-Date: Tue, 5 Sep 2006 00:35:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: ACPI mailing list <linux-acpi@vger.kernel.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: x60 - spontaneous thermal shutdown
-Message-ID: <20060904223520.GB1958@elf.ucw.cz>
-References: <20060904214059.GA1702@elf.ucw.cz> <20060904222614.GA1614@rhlx01.fht-esslingen.de>
+	Mon, 4 Sep 2006 18:49:33 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29385 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932221AbWIDWtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:49:32 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de
+Subject: Re: [RFC][PATCH] ps command race fix take 4 [1/4] callback subroutine
+References: <20060825182505.5e9ddc8f.kamezawa.hiroyu@jp.fujitsu.com>
+Date: Mon, 04 Sep 2006 16:48:43 -0600
+In-Reply-To: <20060825182505.5e9ddc8f.kamezawa.hiroyu@jp.fujitsu.com>
+	(KAMEZAWA Hiroyuki's message of "Fri, 25 Aug 2006 18:25:05 +0900")
+Message-ID: <m17j0j5juc.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060904222614.GA1614@rhlx01.fht-esslingen.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
 
-> > x60 shut down after quite a while of uptime, in period of quite heavy
-> > load:
-> > 
-> > Sep  4 23:33:01 amd kernel: ACPI: Critical trip point
-> > Sep  4 23:33:01 amd kernel: Critical temperature reached (128 C), shutting down.
-> > Sep  4 23:33:01 amd shutdown[32585]: shutting down for system halt
-> > Sep  4 23:34:42 amd init: Switching to runlevel: 0
-> > 
-> > I do not think cpu reached 128C, as I still have my machine... Did
-> > anyone else see that?
-> 
-> Could this be in any way related to the (in)famous Random Shutdown issues
-> on a little too many Apple MacBooks?
-> (since the x60 incidentally just happens to be Core Duo
- > architecture, too)
+> Updated some dirty codes. maybe easier to read than previous one.
+>
+> This ps command fix (proc_pid_readdir() fix) fixes the problem by
+>
+> - attach a callback for updating pointer from file descriptor to a task invoked
+>   at release_task()
+> - no additional global lock is required.
+> - walk through all and only task structs which is thread group leader.
+>
+> *Bad* point is adding additonal (small) lock and callback in exit path.
+With an unbounded callback chain length influenced by user space.
 
-Well, but those macbooks were really overheating, no? This seems like
-sensor failure, because I do not think cpu had 128 Celsius, without
-going through 100 Celsius, first.
+My gut feel is that you have just about reinvented struct pid.
+All you need to do now is to move the task list or a version
+of it into struct pid and you can reference count the existing
+structure.
 
-> Those Random Shutdown issues at least in several cases appear to happen
-> due to trouble with the temperature sensor or mainboard issues.
-> Thermal management is in quite some trouble there, judging from
-> the rather diverse aspects of machine shutdown failure...
-> (fan not working, CPU overheating, NOT overheating but shutting down
-> directly after boot, ...)
-
-I had fan working at the time of shutdown, and machine was able to
-boot immediately afterwards. That means that 128 celsius was sensor
-error.
-
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Eric

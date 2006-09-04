@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWIDSfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWIDSl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWIDSfo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 14:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWIDSfo
+	id S964817AbWIDSl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 14:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWIDSl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 14:35:44 -0400
-Received: from mail.linicks.net ([217.204.244.146]:57361 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S964974AbWIDSfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 14:35:43 -0400
-From: Nick Warne <nick@linicks.net>
-To: "Bas Bloemsaat" <bas.bloemsaat@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Vicam driver, device
-Date: Mon, 4 Sep 2006 19:35:37 +0100
-User-Agent: KMail/1.9.4
-References: <7c4668e50609021101j2b8c561er94d41ca95aca2b1b@mail.gmail.com> <7c3341450609030930h3b5d7edah5dc52049b9760004@mail.gmail.com> <7c4668e50609041128j4e382815me92cdbabb53d662d@mail.gmail.com>
-In-Reply-To: <7c4668e50609041128j4e382815me92cdbabb53d662d@mail.gmail.com>
+	Mon, 4 Sep 2006 14:41:57 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52749 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751450AbWIDSl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 14:41:56 -0400
+Date: Mon, 4 Sep 2006 20:41:52 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] mm/memory_hotplug.c must #include <linux/cpuset.h>
+Message-ID: <20060904184152.GX4416@stusta.de>
+References: <20060901015818.42767813.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200609041935.37858.nick@linicks.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 September 2006 19:28, Bas Bloemsaat wrote:
-> Yes, but not an oops as you describe. I get the following in the
-> syslog when I modprobe it:
-> kernel: videodev: "ViCam-based USB Camera" has no release callback.
-> Please fix your driver for proper sysfs support, see
-> http://lwn.net/Articles/36850/
+This patch fixes the following compile error:
 
-No sorry, I worded it all wrong.  I meant on modprobe.  I then attempted to 
-fix the code, which produced kernel oops, so it was my bad code that caused 
-it - it needs someone that knows what they are doing ;-)
+<--  snip  -->
 
-> When rmmodding, the only message I see is: "kernel: usbcore:
-> deregistering driver vicam", which seems normal.
+...
+  CC      mm/memory_hotplug.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/mm/memory_hotplug.c: In function ‘add_memory’:
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/mm/memory_hotplug.c:286: error: implicit declaration of function ‘cpuset_track_online_nodes’
+make[2]: *** [mm/memory_hotplug.o] Error 1
 
-After my attempted fixes, this is when my kernel crashed.
+<--  snip  -->
 
-> I didn't plan on using the webcam, I just couldn't stand that it
-> didn't work while a driver was supposed to be available, and now it
-> works.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I don't use mine now, but it would be nice to get this code brought up to 
-date.
+--- linux-2.6.18-rc5-mm1/mm/memory_hotplug.c.old	2006-09-04 20:23:30.000000000 +0200
++++ linux-2.6.18-rc5-mm1/mm/memory_hotplug.c	2006-09-04 20:23:48.000000000 +0200
+@@ -22,6 +22,7 @@
+ #include <linux/highmem.h>
+ #include <linux/vmalloc.h>
+ #include <linux/ioport.h>
++#include <linux/cpuset.h>
+ 
+ #include <asm/tlbflush.h>
+ 
 
-Nick
--- 
-Every program has two purposes:
-one for which it was written and another for which it wasn't.

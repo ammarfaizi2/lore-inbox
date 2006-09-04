@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWIDM5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWIDNAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWIDM5v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 08:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWIDM5v
+	id S964889AbWIDNAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWIDNAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 08:57:51 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:53445 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S964863AbWIDM5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 08:57:50 -0400
-Date: Mon, 4 Sep 2006 14:57:44 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-Subject: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
-Message-ID: <20060904125744.GA1961@wohnheim.fh-wedel.de>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060903110507.GD4884@ucw.cz>
+	Mon, 4 Sep 2006 09:00:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59919 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964838AbWIDNAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:00:37 -0400
+Date: Mon, 4 Sep 2006 12:59:21 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Adam Belay <abelay@novell.com>
+Cc: Len Brown <len.brown@intel.com>, ACPI ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
+Message-ID: <20060904125921.GB6279@ucw.cz>
+References: <1156884681.1781.120.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060903110507.GD4884@ucw.cz>
+In-Reply-To: <1156884681.1781.120.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 September 2006 11:05:08 +0000, Pavel Machek wrote:
-> 
-> > - Modifying a Unionfs branch directly, while the union is mounted, is
-> >   currently unsupported.  Any such change may cause Unionfs to oops and it
-> >   can even result in data loss!
-> 
-> I'm not sure if that is acceptable. Even root user should be unable to
-> oops the kernel using 'normal' actions.
+Hi!
 
-Direct modification of branches is similar to direct modification of
-block devices underneith a mounted filesystem.  While I agree that
-such a thing _should_ not oops the kernel, I'd bet that you can easily
-run a stresstest on a filesystem while randomly flipping bits in the
-block device and get just that.
+> This patch improves the ACPI c-state selection algorithm.  It also
+> includes a major cleanup and simplification of the processor idle code.
 
-There are bigger problems in unionfs to worry about.
+Nice!
 
-Jörn
+> @@ -1009,7 +883,7 @@
+>  
+>  	seq_printf(seq, "active state:            C%zd\n"
+>  		   "max_cstate:              C%d\n"
+> -		   "bus master activity:     %08x\n",
+> +		   "bus master activity:     %d\n",
+>  		   pr->power.state ? pr->power.state - pr->power.states : 0,
+>  		   max_cstate, (unsigned)pr->power.bm_activity);
+>  
 
+This changes kernel - user interface. You should change the field
+description, or keep it in hex...
+
+BTW will you be on september's labs conference?
+
+							Pavel
 -- 
-Simplicity is prerequisite for reliability.
--- Edsger W. Dijkstra
+Thanks for all the (sleeping) penguins.

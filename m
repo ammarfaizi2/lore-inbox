@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWIDXQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWIDXQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWIDXQE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 19:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWIDXPy
+	id S965026AbWIDXQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 19:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWIDXQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 19:15:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36781 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932237AbWIDXPj (ORCPT
+	Mon, 4 Sep 2006 19:16:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44461 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965026AbWIDXQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 19:15:39 -0400
+	Mon, 4 Sep 2006 19:16:14 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 5 Sep 2006 09:15:32 +1000
-Message-Id: <1060904231532.23071@suse.de>
+Date: Tue, 5 Sep 2006 09:16:08 +1000
+Message-Id: <1060904231608.23162@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 9] knfsd: svcrpc: gss: fix failure on SVC_DENIED in integrity case
+Subject: [PATCH 009 of 9] knfsd: nfsd4: acls: fix handling of zero-length acls
 References: <20060905090617.21303.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,101 +25,76 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: J.Bruce Fields <bfields@fieldses.org>
 
-If the request is denied after gss_accept was called, we shouldn't try to
-wrap the reply.  We were checking the accept_stat but not the reply_stat.
+It is legal to have zero-length NFSv4 acls; they just deny everything.
 
-To check the reply_stat in _release, we need a pointer to before (rather
-than after) the verifier, so modify body_start appropriately.
+Also, nfs4_acl_nfsv4_to_posix will always return with pacl and dpacl set on
+success, so the caller doesn't need to check this.
 
 Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./net/sunrpc/auth_gss/svcauth_gss.c |   30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ ./fs/nfsd/nfs4acl.c |   15 +--------------
+ ./fs/nfsd/vfs.c     |   10 ++++------
+ 2 files changed, 5 insertions(+), 20 deletions(-)
 
-diff .prev/net/sunrpc/auth_gss/svcauth_gss.c ./net/sunrpc/auth_gss/svcauth_gss.c
---- .prev/net/sunrpc/auth_gss/svcauth_gss.c	2006-09-04 17:12:31.000000000 +1000
-+++ ./net/sunrpc/auth_gss/svcauth_gss.c	2006-09-04 17:13:17.000000000 +1000
-@@ -903,9 +903,9 @@ out_seq:
- struct gss_svc_data {
- 	/* decoded gss client cred: */
- 	struct rpc_gss_wire_cred	clcred;
--	/* pointer to the beginning of the procedure-specific results,
--	 * which may be encrypted/checksummed in svcauth_gss_release: */
--	u32				*body_start;
-+	/* save a pointer to the beginning of the encoded verifier,
-+	 * for use in encryption/checksumming in svcauth_gss_release: */
-+	u32				*verf_start;
- 	struct rsc			*rsci;
- };
- 
-@@ -968,7 +968,7 @@ svcauth_gss_accept(struct svc_rqst *rqst
- 	if (!svcdata)
- 		goto auth_err;
- 	rqstp->rq_auth_data = svcdata;
--	svcdata->body_start = NULL;
-+	svcdata->verf_start = NULL;
- 	svcdata->rsci = NULL;
- 	gc = &svcdata->clcred;
- 
-@@ -1097,6 +1097,7 @@ svcauth_gss_accept(struct svc_rqst *rqst
- 		goto complete;
- 	case RPC_GSS_PROC_DATA:
- 		*authp = rpcsec_gsserr_ctxproblem;
-+		svcdata->verf_start = resv->iov_base + resv->iov_len;
- 		if (gss_write_verf(rqstp, rsci->mechctx, gc->gc_seq))
- 			goto auth_err;
- 		rqstp->rq_cred = rsci->cred;
-@@ -1110,7 +1111,6 @@ svcauth_gss_accept(struct svc_rqst *rqst
- 					gc->gc_seq, rsci->mechctx))
- 				goto auth_err;
- 			/* placeholders for length and seq. number: */
--			svcdata->body_start = resv->iov_base + resv->iov_len;
- 			svc_putu32(resv, 0);
- 			svc_putu32(resv, 0);
- 			break;
-@@ -1119,7 +1119,6 @@ svcauth_gss_accept(struct svc_rqst *rqst
- 					gc->gc_seq, rsci->mechctx))
- 				goto auth_err;
- 			/* placeholders for length and seq. number: */
--			svcdata->body_start = resv->iov_base + resv->iov_len;
- 			svc_putu32(resv, 0);
- 			svc_putu32(resv, 0);
- 			break;
-@@ -1150,14 +1149,21 @@ out:
- u32 *
- svcauth_gss_prepare_to_wrap(struct xdr_buf *resbuf, struct gss_svc_data *gsd)
- {
--	u32 *p;
-+	u32 *p, verf_len;
-+
-+	p = gsd->verf_start;
-+	gsd->verf_start = NULL;
- 
--	p = gsd->body_start;
--	gsd->body_start = NULL;
-+	/* If the reply stat is nonzero, don't wrap: */
-+	if (*(p-1) != rpc_success)
-+		return NULL;
-+	/* Skip the verifier: */
-+	p += 1;
-+	verf_len = ntohl(*p++);
-+	p += XDR_QUADLEN(verf_len);
- 	/* move accept_stat to right place: */
- 	memcpy(p, p + 2, 4);
--	/* Don't wrap in failure case: */
--	/* Counting on not getting here if call was not even accepted! */
-+	/* Also don't wrap if the accept stat is nonzero: */
- 	if (*p != rpc_success) {
- 		resbuf->head[0].iov_len -= 2 * 4;
- 		return NULL;
-@@ -1283,7 +1289,7 @@ svcauth_gss_release(struct svc_rqst *rqs
- 	if (gc->gc_proc != RPC_GSS_PROC_DATA)
+diff .prev/fs/nfsd/nfs4acl.c ./fs/nfsd/nfs4acl.c
+--- .prev/fs/nfsd/nfs4acl.c	2006-09-04 17:27:48.000000000 +1000
++++ ./fs/nfsd/nfs4acl.c	2006-09-04 17:28:10.000000000 +1000
+@@ -357,33 +357,20 @@ nfs4_acl_nfsv4_to_posix(struct nfs4_acl 
  		goto out;
- 	/* Release can be called twice, but we only wrap once. */
--	if (gsd->body_start == NULL)
-+	if (gsd->verf_start == NULL)
- 		goto out;
- 	/* normally not set till svc_send, but we need it here: */
- 	/* XXX: what for?  Do we mess it up the moment we call svc_putu32
+ 
+ 	error = nfs4_acl_split(acl, dacl);
+-	if (error < 0)
++	if (error)
+ 		goto out_acl;
+ 
+-	if (acl->naces == 0) {
+-		error = -ENODATA;
+-		goto try_dpacl;
+-	}
+-
+ 	*pacl = _nfsv4_to_posix_one(acl, flags);
+ 	if (IS_ERR(*pacl)) {
+ 		error = PTR_ERR(*pacl);
+ 		*pacl = NULL;
+ 		goto out_acl;
+ 	}
+-try_dpacl:
+-	if (dacl->naces == 0) {
+-		if (pacl == NULL || *pacl == NULL)
+-			error = -ENODATA;
+-		goto out_acl;
+-	}
+ 
+-	error = 0;
+ 	*dpacl = _nfsv4_to_posix_one(dacl, flags);
+ 	if (IS_ERR(*dpacl)) {
+ 		error = PTR_ERR(*dpacl);
+ 		*dpacl = NULL;
+-		goto out_acl;
+ 	}
+ out_acl:
+ 	if (error) {
+
+diff .prev/fs/nfsd/vfs.c ./fs/nfsd/vfs.c
+--- .prev/fs/nfsd/vfs.c	2006-09-04 17:09:47.000000000 +1000
++++ ./fs/nfsd/vfs.c	2006-09-04 17:28:10.000000000 +1000
+@@ -447,13 +447,11 @@ nfsd4_set_nfs4_acl(struct svc_rqst *rqst
+ 	} else if (error < 0)
+ 		goto out_nfserr;
+ 
+-	if (pacl) {
+-		error = set_nfsv4_acl_one(dentry, pacl, POSIX_ACL_XATTR_ACCESS);
+-		if (error < 0)
+-			goto out_nfserr;
+-	}
++	error = set_nfsv4_acl_one(dentry, pacl, POSIX_ACL_XATTR_ACCESS);
++	if (error < 0)
++		goto out_nfserr;
+ 
+-	if (dpacl) {
++	if (S_ISDIR(inode->i_mode)) {
+ 		error = set_nfsv4_acl_one(dentry, dpacl, POSIX_ACL_XATTR_DEFAULT);
+ 		if (error < 0)
+ 			goto out_nfserr;

@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWIDRFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWIDRIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWIDRFY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 13:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWIDREu
+	id S964939AbWIDRIR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 13:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWIDRIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 13:04:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10509 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964909AbWIDREW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 13:04:22 -0400
-Date: Mon, 4 Sep 2006 19:04:19 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fix kernel_execve() related compile errors
-Message-ID: <20060904170419.GU4416@stusta.de>
-References: <20060901015818.42767813.akpm@osdl.org>
+	Mon, 4 Sep 2006 13:08:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:51940 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964939AbWIDRIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 13:08:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
+        b=Jxb2O+Wjseg5QHxmlvaOaNsoUmndYrF2eSxhP9iJulzVk3BSxb78QQNg4JMDdCRQlfbYSBNy/l4bj5QOAUS/9MBDqR88qI02txjt3CxIlhutPwX45qe5rcKbE6UskaXyc+6tdICOrtSfkRRKWAH7zvlxr4/lEMeJF5mVg21TTns=
+Date: Mon, 4 Sep 2006 19:09:29 +0200
+From: Luca <kronos.it@gmail.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org, Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: [PATCH 00/26] Dynamic kernel command-line
+Message-ID: <20060904170929.GA27986@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF8
 Content-Disposition: inline
-In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 01, 2006 at 01:58:18AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc4-mm3:
->...
-> +rename-the-provided-execve-functions-to-kernel_execve.patch
->...
->  kernel syscalls cleanup
->...
+(trimming CC list)
 
-This patch fixes some typos causing compile errors.
+Paul Mackerras <paulus@samba.org> ha scritto:
+ Alon Bar-Lev writes:
+> 
+>> Current implementation stores a static command-line
+>> buffer allocated to COMMAND_LINE_SIZE size. Most
+>> architectures stores two copies of this buffer, one
+>> for future reference and one for parameter parsing.
+> 
+> Under what circumstances do we actually need a command line of more
+> than 256 bytes?
+> 
+> It seems to me that if 256 bytes isn't enough, we should take a deep
+> breath, step back, and think about whether there might be a better way
+> to pass whatever information it is that's using up so much of the
+> command line.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Well, if you want to set a parameter of a builtin module you have to
+use:
+        modulename.parameter=whatever
 
----
+which can use a lot of space... I suppose that with an "everything
+builtin" kernel and a few modules to tune you can get near the limit.
 
- arch/arm/kernel/sys_arm.c    |    2 +-
- arch/arm26/kernel/sys_arm.c  |    2 +-
- arch/parisc/kernel/process.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
---- linux-2.6.18-rc5-mm1/arch/arm/kernel/sys_arm.c.old	2006-09-03 23:32:16.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/arch/arm/kernel/sys_arm.c	2006-09-03 23:32:24.000000000 +0200
-@@ -279,7 +279,7 @@
- 	return error;
- }
- 
--int kernel_execve(const char *filename, char *const argv[], char *const envp[]);
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
- {
- 	struct pt_regs regs;
- 	int ret;
---- linux-2.6.18-rc5-mm1/arch/arm26/kernel/sys_arm.c.old	2006-09-03 23:32:31.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/arch/arm26/kernel/sys_arm.c	2006-09-03 23:32:37.000000000 +0200
-@@ -283,7 +283,7 @@
- }
- 
- /* FIXME - see if this is correct for arm26 */
--int kernel_execve(const char *filename, char *const argv[], char *const envp[]);
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
- {
- 	struct pt_regs regs;
-         int ret;
---- linux-2.6.18-rc5-mm1/arch/parisc/kernel/process.c.old	2006-09-03 23:32:45.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/arch/parisc/kernel/process.c	2006-09-03 23:32:50.000000000 +0200
-@@ -370,7 +370,7 @@
- 
- extern int __execve(const char *filename, char *const argv[],
- 		char *const envp[], struct task_struct *task);
--int kernel_execve(const char *filename, char *const argv[], char *const envp[]);
-+int kernel_execve(const char *filename, char *const argv[], char *const envp[])
- {
- 	return __execve(filename, argv, envp, current);
- }
-
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Il tempo speso
+a coltivare sogni
+non è sprecato.

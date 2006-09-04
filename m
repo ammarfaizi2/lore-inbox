@@ -1,85 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWIDQx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWIDQ74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbWIDQx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 12:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIDQx4
+	id S964893AbWIDQ74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 12:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWIDQ74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 12:53:56 -0400
-Received: from mail.tmr.com ([64.65.253.246]:10645 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S964811AbWIDQxz (ORCPT
+	Mon, 4 Sep 2006 12:59:56 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:64401 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964893AbWIDQ7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 12:53:55 -0400
-Message-ID: <44FC5B68.7080500@tmr.com>
-Date: Mon, 04 Sep 2006 12:59:20 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 4 Sep 2006 12:59:55 -0400
+Date: Mon, 4 Sep 2006 18:55:53 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 09/16] GFS2: Extended attribute & ACL support
+In-Reply-To: <1157031403.3384.801.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0609041835590.28823@yvahk01.tjqt.qr>
+References: <1157031403.3384.801.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-To: adam radford <aradford@gmail.com>
-CC: Jim Klimov <klimov@2ka.mipt.ru>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: 3ware glitches cause softraid rebuilds
-References: <1926236045.20060829034652@2ka.mipt.ru> <b1bc6a000608281756s1e76a80eq5f70e654e2e7e3e3@mail.gmail.com>
-In-Reply-To: <b1bc6a000608281756s1e76a80eq5f70e654e2e7e3e3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adam radford wrote:
 
-> Jim,
->
-> Can you try the attached (and below) patch for 2.6.17.11?
+>+#if 0
+>+	else if ((ip->i_di.di_flags & GFS2_DIF_EA_PACKED) &&
+>+		 er->er_type == GFS2_EATYPE_SYS)
+>+		return 1;
+>+#endif
+
+>+/**
+>+ * ea_get_unstuffed - actually copies the unstuffed data into the
+>+ *                    request buffer
+>+ * @ip:
+>+ * @ea:
+>+ * @data:
+>+ *
+>+ * Returns: errno
+>+ */
+
+There are more of these. If you have the time, please fill in.
+
+>+			*dataptr++ = cpu_to_be64((uint64_t)bh->b_blocknr);
+
+At least on i386, this cast seems unnecessary, since
+
+include/asm-i386/byteorder.h:
+static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 val)          
+
+but someone else should probably prove me right/wrong.
+
+>+	if (private)
+>+		ea_set_remove_stuffed(ip, (struct gfs2_ea_location *)private);
+
+private is a void *, ergo nocast.
+
+>+	gfs2_glock_dq_uninit(&al->al_ri_gh);
+
+Another Ken Preslan gem? al_ri_gh_t then.
+
+>+		return (5 + (ea->ea_name_len + 1));
+()
+
+>+unsigned int gfs2_ea_name2type(const char *name, char **truncated_name)
+>+{
+>+	unsigned int type;
+>+
+>+	if (strncmp(name, "system.", 7) == 0) {
+>+		type = GFS2_EATYPE_SYS;
+>+		if (truncated_name)
+>+			*truncated_name = strchr(name, '.') + 1;
+
+Since we already know where the dot is (otherwise, strncmp would have failed),
+we can omit the relookup with strchr:
+
+	*truncated_name = name + sizeof("system.") - 1;
+
+>+	} else if (strncmp(name, "user.", 5) == 0) {
+>+		type = GFS2_EATYPE_USR;
+>+		if (truncated_name)
+>+			*truncated_name = strchr(name, '.') + 1;
+>+	} else if (strncmp(name, "security.", 9) == 0) {
+>+		type = GFS2_EATYPE_SECURITY;
+>+		if (truncated_name)
+>+			*truncated_name = strchr(name, '.') + 1;
+
+Similarly.
 
 
-Don't you want the sleep BEFORE setting the new value? ie. giving a wait 
-for status to change before checking it again?
 
->
-> Also, please make sure you are running the latest firmware.
->
-> Thanks,
->
-> -Adam
->
-> diff -Naur linux-2.6.17.11/drivers/scsi/3w-9xxx.c
-> linux-2.6.17.12/drivers/scsi/3w-9xxx.c
-> --- linux-2.6.17.11/drivers/scsi/3w-9xxx.c    2006-08-23 
-> 14:16:33.000000000 -0700
-> +++ linux-2.6.17.12/drivers/scsi/3w-9xxx.c    2006-08-28 
-> 17:48:29.000000000 -0700
-> @@ -943,6 +943,7 @@
->         before = jiffies;
->         while ((response_que_value & TW_9550SX_DRAIN_COMPLETED) !=
-> TW_9550SX_DRAIN_COMPLETED) {
->             response_que_value = 
-> readl(TW_RESPONSE_QUEUE_REG_ADDR_LARGE(tw_dev));
-> +            msleep(1);
->             if (time_after(jiffies, before + HZ * 30))
->                 goto out;
->         }
->
->------------------------------------------------------------------------
->
->diff -Naur linux-2.6.17.11/drivers/scsi/3w-9xxx.c linux-2.6.17.12/drivers/scsi/3w-9xxx.c
->--- linux-2.6.17.11/drivers/scsi/3w-9xxx.c	2006-08-23 14:16:33.000000000 -0700
->+++ linux-2.6.17.12/drivers/scsi/3w-9xxx.c	2006-08-28 17:48:29.000000000 -0700
->@@ -943,6 +943,7 @@
-> 		before = jiffies;
-> 		while ((response_que_value & TW_9550SX_DRAIN_COMPLETED) != TW_9550SX_DRAIN_COMPLETED) {
-> 			response_que_value = readl(TW_RESPONSE_QUEUE_REG_ADDR_LARGE(tw_dev));
->+			msleep(1);
-> 			if (time_after(jiffies, before + HZ * 30))
-> 				goto out;
-> 		}
->  
->
-
-
+Jan Engelhardt
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
-

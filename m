@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWIDVoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWIDVw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWIDVoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 17:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWIDVoH
+	id S965008AbWIDVw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 17:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWIDVw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 17:44:07 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:43209 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id S965000AbWIDVoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 17:44:04 -0400
-Subject: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification
-	Filesystem
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <20060904203346.GA6646@elf.ucw.cz>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
-	 <20060903110507.GD4884@ucw.cz>
-	 <1157376506.4398.15.camel@localhost.localdomain>
-	 <20060904203346.GA6646@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 04 Sep 2006 17:43:04 -0400
-Message-Id: <1157406184.4398.24.camel@localhost.localdomain>
+	Mon, 4 Sep 2006 17:52:28 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:62175 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S965005AbWIDVw1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 17:52:27 -0400
+Date: Mon, 4 Sep 2006 23:49:45 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
+Message-ID: <20060904214945.GA30804@electric-eye.fr.zoreil.com>
+References: <200609041237.46528.ossthema@de.ibm.com> <20060904201606.GA24386@electric-eye.fr.zoreil.com> <200609042311.21202.arnd@arndb.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
-Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, X-Seen-By filter1.cs.columbia.edu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609042311.21202.arnd@arndb.de>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 22:33 +0200, Pavel Machek wrote:
-> On Mon 2006-09-04 09:28:26, Shaya Potter wrote:
-> > On Sun, 2006-09-03 at 11:05 +0000, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > - Modifying a Unionfs branch directly, while the union is mounted, is
-> > > >   currently unsupported.  Any such change may cause Unionfs to oops and it
-> > > >   can even result in data loss!
-> > > 
-> > > I'm not sure if that is acceptable. Even root user should be unable to
-> > > oops the kernel using 'normal' actions.
-> > 
-> > As I said in the other case.  imagine ext2/3 on a a san file system
-> > where 2 systems try to make use of it.  Will they not have issues?
+Arnd Bergmann <arnd@arndb.de> :
+[...]
+> The driver should get merged as a single commit anyway, even
+> if split diffs are posted for review. Even if it gets merged
+> like this, bisect will work since the Kconfig option is added
+> in the final patch.
+
+I have seen/done worse but it's not exactly pretty.
+
+[...]
+> > > +?????int i;
+> >
+> > unsigned int ?
 > 
-> They probably will have issues (altrough I'm not sure, perhaps ext2
-> has been debugged enough), but they'll fix them (as opposed to
-> document that oopses are okay).
+> does it matter? int as a counter is pretty standard.
 
-I agree that unionfs shouldn't oops, it should handle that situation in
-a more graceful manner, but once the "backing store" is modified
-underneath it, all bets are off for either unionfs or ext2/3 behaving
-"correctly" (where "correctly" doesn't just mean handle the error
-gracefully).
+ppc64 takes unsigned int as a little optimization. I do not know how
+the target platform behaves here.
 
-But are you also 100% sure that messing with the underlying backing
-store wouldn't be considered an admin bug as opposed to an administrator
-bug? I mean there's nothing that we can do to prevent an administrator
-from FUBAR'ing their system by 
-
-dd if=/dev/random of=/dev/kmem.
-
-where does one draw the line?  I agree that stackable file systems make
-this a more pressing issue, as the "backing store" can be visible within
-the file system namespace as a regular file system that people are
-generally accustomed to interacting with.
-
+-- 
+Ueimor

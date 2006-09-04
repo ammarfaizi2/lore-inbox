@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWIDLy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWIDLz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWIDLy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 07:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWIDLy2
+	id S964835AbWIDLz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 07:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWIDLz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 07:54:28 -0400
-Received: from styx.suse.cz ([82.119.242.94]:6364 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S964831AbWIDLy1 (ORCPT
+	Mon, 4 Sep 2006 07:55:59 -0400
+Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:43663 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S964835AbWIDLz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 07:54:27 -0400
-Date: Mon, 4 Sep 2006 13:54:23 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jeremy Roberson <jroberson@gtcocalcomp.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] drivers/usb/input/hid-core.c: fix duplicate USB_DEVICE_ID_GTCO_404
-Message-ID: <20060904115423.GA31489@suse.cz>
-References: <20060904114110.GK4416@stusta.de>
+	Mon, 4 Sep 2006 07:55:58 -0400
+X-AntiVirus: PTMail-AV 0.3-0.88.4
+Subject: Re: VIA IRQ quirk, another (embarrassing) suggestion.
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, greg@kroah.com, harmon@ksu.edu,
+       Daniel Drake <dsd@gentoo.org>, Len Brown <len.brown@intel.com>
+In-Reply-To: <20060904055502.GA26816@tuatara.stupidest.org>
+References: <1157330567.3046.24.camel@localhost.portugal>
+	 <20060903175841.7a84c63c.akpm@osdl.org> <44FBBD28.6070601@garzik.org>
+	 <20060904055502.GA26816@tuatara.stupidest.org>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 04 Sep 2006 12:54:07 +0100
+Message-Id: <1157370847.4624.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060904114110.GK4416@stusta.de>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 01:41:10PM +0200, Adrian Bunk wrote:
-> On Fri, Sep 01, 2006 at 01:58:18AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc4-mm3:
-> >...
-> > +gregkh-usb-hid-core.c-adds-all-gtco-calcomp-digitizers-and-interwrite-school-products-to-blacklist.patch
-> >...
-> >  USB tree updates.
-> >...
+On Sun, 2006-09-03 at 22:55 -0700, Chris Wedgwood wrote:
+> On Mon, Sep 04, 2006 at 01:44:08AM -0400, Jeff Garzik wrote:
 > 
-> The GNU C compiler spotted the following bug:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/usb/input/hid-core.o
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c:1446:1: warning: "USB_DEVICE_ID_GTCO_404" redefined
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c:1445:1: warning: this is the location of the previous definition
-> ...
-> 
-> <--  snip  -->
-> 
-> This patch fixes this cut'n'paste error.
+> > Some installations have VIA products on a PCI card.  We cannot
+> > assume that all PCI_VENDOR_ID_VIA devices are on-board devices with
+> > the special VIA PIC on-chip routing (the thing quirk_via_irq
+> > tweaks). 
 
-Thanks, Adrian. Greg, please apply.
+I don't know if this is a real question. Have we VIA products on PCI
+card, running on not VIA chip sets ? 
 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c.old	2006-09-03 21:00:25.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/drivers/usb/input/hid-core.c	2006-09-03 21:00:44.000000000 +0200
-> @@ -1443,7 +1443,7 @@
->  #define USB_DEVICE_ID_GTCO_402		0x0402
->  #define USB_DEVICE_ID_GTCO_403		0x0403
->  #define USB_DEVICE_ID_GTCO_404		0x0404
-> -#define USB_DEVICE_ID_GTCO_404		0x0405
-> +#define USB_DEVICE_ID_GTCO_405		0x0405
->  #define USB_DEVICE_ID_GTCO_500		0x0500
->  #define USB_DEVICE_ID_GTCO_501		0x0501
->  #define USB_DEVICE_ID_GTCO_502		0x0502
-> @@ -1663,7 +1663,7 @@
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_402, HID_QUIRK_IGNORE },
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_403, HID_QUIRK_IGNORE },
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
-> -	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
-> +	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_405, HID_QUIRK_IGNORE },
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_500, HID_QUIRK_IGNORE },
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_501, HID_QUIRK_IGNORE },
->  	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_502, HID_QUIRK_IGNORE },
-> 
-> 
-> 
+but in this cases, we can add other "if" to exclude this cases from
+quirks. Until then I think it is urgent put this VIA PIC quirks back to
+state of kernel 2.6.12, with quirking just on PIC mode .
+(http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%
+2Fv2.6%2Fpatch-2.6.12.bz2;z=2752)
+
+Thanks, 
+--
+Sérgio M. B.
+
 
 -- 
-Vojtech Pavlik
-Director SuSE Labs
-
--- 
-VGER BF report: H 0.0165713
+VGER BF report: H 5.50155e-11

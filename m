@@ -1,155 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWIDJuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWIDJvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWIDJuo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 05:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWIDJun
+	id S1751291AbWIDJvF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 05:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWIDJvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 05:50:43 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:49615 "EHLO
-	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1751265AbWIDJul convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 05:50:41 -0400
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: [take15 4/4] kevent: Timer notifications.
-In-Reply-To: <1157364863610@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 4 Sep 2006 14:14:23 +0400
-Message-Id: <11573648632380@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Mon, 4 Sep 2006 05:51:04 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:59556 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751291AbWIDJuo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 05:50:44 -0400
+Message-ID: <44FBF62A.1010900@aitel.hist.no>
+Date: Mon, 04 Sep 2006 11:47:22 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Raid 0 Swap?
+References: <44FB5AAD.7020307@perkel.com> <44FBD08A.1080600@tls.msk.ru>
+In-Reply-To: <44FBD08A.1080600@tls.msk.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Tokarev wrote:
+> Marc Perkel wrote:
+>   
+>> If I have two drives and I want swap to be fast if I allocate swap spam
+>> on both drives does it break up the load between them? Or would it run
+>> faster if I did a Raid 0 swap?
+>>     
+>
+> Don't do that - swap on raid0.  Don't do that.  Unless you don't care
+> about your data, ofcourse.  Seriously.
+>
+> If something with swap space goes wrong, God only knows what will break.
+> It is trivial to break userspace data this way, when an app is swapped
+> out and there's an error reading it from swap, its data file very likely
+> to be corrupt, especially when it is interrupted during file update.
+> It is probably possible to corrupt the whole filesystem this way too,
+> when some kernel memory has been swapped out and is needed to write some
+> parts of filesystem, but it can't be read back.
+>   
+I thought kernel data weren't swapped at all?
+Mostly because kernel data could be needed immediately, with
+no option of waiting for swapin. 
+So, bad swap should only really kill userspace programs,
+although it probably can cause some bad delays in cases
+where the userspace program calls into the kernel,
+passing an address that happens to be in damaged swap.
+You might then stall the kernel holding some resources
+while the disks retries umpteen times.
+> Ie, your swap space must be reliable.  At least not worse than your memory.
+> And with striping, you've much more chances of disk failure...
+>   
+> Yes it sounds very promising at first, to let kernel stripe swap space,
+> for faster operations.  But hell, first, try to avoid swappnig in the
+> first place, by installing appropriate amount memory which is cheap
+> nowadays, so there will be just no need for swapping.  And when it's
+> done, it's not relevant anymore whenever your swap space is fast or
+> not.  But make it *reliable*.
+>   
+Some swap is nice to have.  "Ouch - sluggish server today,
+I will have to look into it" is so much better
+than "Eww - the OOM serial killer took out another 5 processes,
+people are screaming!"
 
-Timer notifications.
+As for reliable swap - swap on raid-1 is nice - and it
+probably perform better than single-disk swap too,
+although not as fast as striped swap.
 
-Timer notifications can be used for fine grained per-process time 
-management, since interval timers are very inconvenient to use, 
-and they are limited.
+Helge Hafting
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
-
-diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
-new file mode 100644
-index 0000000..b2fee61
---- /dev/null
-+++ b/kernel/kevent/kevent_timer.c
-@@ -0,0 +1,105 @@
-+/*
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/jiffies.h>
-+#include <linux/kevent.h>
-+
-+struct kevent_timer
-+{
-+	struct timer_list	ktimer;
-+	struct kevent_storage	ktimer_storage;
-+};
-+
-+static void kevent_timer_func(unsigned long data)
-+{
-+	struct kevent *k = (struct kevent *)data;
-+	struct timer_list *t = k->st->origin;
-+
-+	kevent_storage_ready(k->st, NULL, KEVENT_MASK_ALL);
-+	mod_timer(t, jiffies + msecs_to_jiffies(k->event.id.raw[0]));
-+}
-+
-+static struct lock_class_key kevent_timer_key;
-+
-+static int kevent_timer_enqueue(struct kevent *k)
-+{
-+	int err;
-+	struct kevent_timer *t;
-+
-+	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
-+
-+	setup_timer(&t->ktimer, &kevent_timer_func, (unsigned long)k);
-+
-+	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
-+	if (err)
-+		goto err_out_free;
-+	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-+
-+	err = kevent_storage_enqueue(&t->ktimer_storage, k);
-+	if (err)
-+		goto err_out_st_fini;
-+
-+	mod_timer(&t->ktimer, jiffies + msecs_to_jiffies(k->event.id.raw[0]));
-+
-+	return 0;
-+
-+err_out_st_fini:
-+	kevent_storage_fini(&t->ktimer_storage);
-+err_out_free:
-+	kfree(t);
-+
-+	return err;
-+}
-+
-+static int kevent_timer_dequeue(struct kevent *k)
-+{
-+	struct kevent_storage *st = k->st;
-+	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
-+
-+	del_timer_sync(&t->ktimer);
-+	kevent_storage_dequeue(st, k);
-+	kfree(t);
-+
-+	return 0;
-+}
-+
-+static int kevent_timer_callback(struct kevent *k)
-+{
-+	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
-+	return 1;
-+}
-+
-+static int __init kevent_init_timer(void)
-+{
-+	struct kevent_callbacks tc = {
-+		.callback = &kevent_timer_callback,
-+		.enqueue = &kevent_timer_enqueue,
-+		.dequeue = &kevent_timer_dequeue};
-+
-+	return kevent_add_callbacks(&tc, KEVENT_TIMER);
-+}
-+module_init(kevent_init_timer);
 
 
 -- 
-VGER BF report: U 0.951759
+VGER BF report: U 0.498988

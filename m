@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWIDIqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWIDIsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWIDIqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 04:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIDIqq
+	id S1751216AbWIDIsi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 04:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWIDIsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 04:46:46 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:4936 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751181AbWIDIqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 04:46:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TUzYoYtVDFtS94Uhn+1zVNt/goFlNkYVnUYt4ge3eizQ1cVPQm2mFBAsVXrRmzo07gdGSQb0T0DG9omboa6PWq32d4tGI6Oxuv6LOPbvYLDO0fK84lvW0X52noSyKcb9cY86lRQhYK7PsdOORXBcXHcx4lXESNP0/fn3fVEd3oc=
-Message-ID: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
-Date: Mon, 4 Sep 2006 16:46:44 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fill more device IDS in the structure of m25p80 driver
-Cc: linux-mtd@lists.infradead.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Sep 2006 04:48:37 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:58375 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751200AbWIDIsg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 04:48:36 -0400
+Date: Mon, 4 Sep 2006 18:48:19 +1000
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: "David S. Miller" <davem@davemloft.net>, Krzysztof Halasa <khc@pm.waw.pl>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
+Message-ID: <20060904084819.GA27121@gondor.apana.org.au>
+References: <m3odty57gf.fsf@defiant.localdomain> <20060903111507.GA12580@gondor.apana.org.au> <20060904084414.GA19793@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060904084414.GA19793@ms2.inr.ac.ru>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Sep 04, 2006 at 12:44:14PM +0400, Alexey Kuznetsov wrote:
+> 
+> Seems, it serializes mod_timer and timer handler to keep timer
+> in predictable state. Maybe, this is not necessary. A priori, it is required.
+> 
+> Note that in dev_watchdog_down() queue_lock is released before
+> taking xmit_lock. Probably, this is the thing which was supposed
+> to be done in dev_watchdog_up() too.
 
-the structure:
-struct flash_info __devinitdata m25p_data [] = {
-/* REVISIT: fill in JEDEC ids, for parts that have them */
-...
-};
+Right, in that case this should definitely be unncessary because both
+dev_watchdog_up and dev_watchdog_up are called under RTNL.
 
-has a bunch of missing fields (like the JEDEC ids indicated) ... this
-causes problems when actually trying to use some ST parts as it gets
-detected incorrectly
+The function __dev_watchdog_up could possibly be dodgy though but that's
+a different story.
 
-The following is the patch.
-----------------------------------------------------------------------
-Signed-off-by: Aubrey L1 <aubreylee@gmail.com>
----
-
- * Fill more device IDS in the structure of m25p80 driver.
-diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
-index a846614..ef4a731 100644
---- a/drivers/mtd/devices/m25p80.c
-+++ b/drivers/mtd/devices/m25p80.c
-@@ -406,13 +406,13 @@ struct flash_info {
-
- static struct flash_info __devinitdata m25p_data [] = {
-        /* REVISIT: fill in JEDEC ids, for parts that have them */
--       { "m25p05", 0x05, 0x0000, 32 * 1024, 2 },
--       { "m25p10", 0x10, 0x0000, 32 * 1024, 4 },
--       { "m25p20", 0x11, 0x0000, 64 * 1024, 4 },
--       { "m25p40", 0x12, 0x0000, 64 * 1024, 8 },
-+       { "m25p05", 0x05, 0x2010, 32 * 1024, 2 },
-+       { "m25p10", 0x10, 0x2011, 32 * 1024, 4 },
-+       { "m25p20", 0x11, 0x2012, 64 * 1024, 4 },
-+       { "m25p40", 0x12, 0x2013, 64 * 1024, 8 },
-        { "m25p80", 0x13, 0x0000, 64 * 1024, 16 },
--       { "m25p16", 0x14, 0x0000, 64 * 1024, 32 },
--       { "m25p32", 0x15, 0x0000, 64 * 1024, 64 },
-+       { "m25p16", 0x14, 0x2015, 64 * 1024, 32 },
-+       { "m25p32", 0x15, 0x2016, 64 * 1024, 64 },
-        { "m25p64", 0x16, 0x2017, 64 * 1024, 128 },
- };
-
-Regards,
--Aubrey
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
 -- 
-VGER BF report: H 0.283918
+VGER BF report: H 3.52484e-12

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWIDNrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWIDNs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWIDNrB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 09:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWIDNrA
+	id S964803AbWIDNs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 09:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWIDNs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 09:47:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964939AbWIDNq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 09:46:58 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157376295.3240.13.camel@raven.themaw.net> 
-References: <1157376295.3240.13.camel@raven.themaw.net>  <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> 
-To: Ian Kent <raven@themaw.net>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org,
-       steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 04 Sep 2006 14:46:41 +0100
-Message-ID: <32013.1157377601@warthog.cambridge.redhat.com>
+	Mon, 4 Sep 2006 09:48:29 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:15582 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S964803AbWIDNs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 09:48:28 -0400
+Date: Mon, 4 Sep 2006 07:48:27 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Sukadev Bhattiprolu <sukadev@us.ibm.com>,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] 2.6.18-rc5-mm1: is_init() parisc compile error
+Message-ID: <20060904134826.GF2558@parisc-linux.org>
+References: <20060901015818.42767813.akpm@osdl.org> <20060904114130.GN4416@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060904114130.GN4416@stusta.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> wrote:
+On Mon, Sep 04, 2006 at 01:41:30PM +0200, Adrian Bunk wrote:
+> pidspace-is_init.patch causes the following compile error on parisc:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      arch/parisc/kernel/module.o
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/parisc/kernel/module.c:76: error: conflicting types for 'is_init'
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/include/linux/sched.h:1090: error: previous definition of 'is_init' was here
+> make[2]: *** [arch/parisc/kernel/module.o] Error 1
+> 
+> <--  snip  -->
 
-> This is the point I'm trying to make.
-> I'm able to reproduce this with exports that don't have "nohide".
-> The mkdir used to return EEXIST, possibly before getting to the EACCES
-> test. It appears to be a change in semantic behavior and I can't see
-> where it is coming from. autofs expects an EEXIST but not an EACCES and
-> so doesn't perform the mount. I could ignore the EACCES but that would
-> be cheating.
-
-Here's something you can try:  Look in fs/nfs/dir.c.  Find nfs_lookup().  In
-there, find the following lines:
-
-	/* If we're doing an exclusive create, optimize away the lookup */
-	if (nfs_is_exclusive_create(dir, nd))
-		goto no_entry;
-
-Comment that bit out and see what the effect it.
-
-David
+Looks like ia64 calls the same function in_init().  I'm tempted to
+change parisc to have the same name.

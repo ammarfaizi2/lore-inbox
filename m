@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWIDK1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWIDK3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWIDK1W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 06:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWIDK1W
+	id S1751372AbWIDK3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 06:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWIDK3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 06:27:22 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:20237 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751367AbWIDK1V (ORCPT
+	Mon, 4 Sep 2006 06:29:22 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:52318 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751372AbWIDK3W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 06:27:21 -0400
-Message-ID: <44FC0061.1000007@sw.ru>
-Date: Mon, 04 Sep 2006 14:30:57 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Mon, 4 Sep 2006 06:29:22 -0400
+Message-ID: <44FBFFFC.90309@tls.msk.ru>
+Date: Mon, 04 Sep 2006 14:29:16 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-To: =?windows-1251?Q?Fernando_Luis_V=E1zquez_Cao?= 
-	<fernando@oss.ntt.co.jp>
-CC: Greg KH <gregkh@suse.de>, Greg KH <greg@kroah.com>,
-       "Luck, Tony" <tony.luck@intel.com>, akpm@osdl.org, dev@openvz.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, stable@kernel.org, kamezawa.hiroyu@jp.fujitsu.com,
-       xemul@openvz.org
-Subject: Re: [stable] [PATCH] Linux 2.6.17.11 - fix compilation error on	IA64
- (try #3)
-References: <617E1C2C70743745A92448908E030B2A72869D@scsmsx411.amr.corp.intel.com>	 <20060829013137.GA27869@kroah.com> <44F431F5.7020703@sw.ru>	 <20060829160841.GB9078@suse.de> <1157364634.3162.8.camel@sebastian.intellilink.co.jp>
-In-Reply-To: <1157364634.3162.8.camel@sebastian.intellilink.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Raid 0 Swap?
+References: <44FB5AAD.7020307@perkel.com> <44FBD08A.1080600@tls.msk.ru> <44FBF62A.1010900@aitel.hist.no>
+In-Reply-To: <44FBF62A.1010900@aitel.hist.no>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando,
+Helge Hafting wrote:
+> Michael Tokarev wrote:
+[]
+>> If something with swap space goes wrong, God only knows what will break.
+>> It is trivial to break userspace data this way, when an app is swapped
+>> out and there's an error reading it from swap, its data file very likely
+>> to be corrupt, especially when it is interrupted during file update.
+>> It is probably possible to corrupt the whole filesystem this way too,
+>> when some kernel memory has been swapped out and is needed to write some
+>> parts of filesystem, but it can't be read back.
+>>   
+> I thought kernel data weren't swapped at all?
+> Mostly because kernel data could be needed immediately, with
+> no option of waiting for swapin. So, bad swap should only really kill
+> userspace programs,
+> although it probably can cause some bad delays in cases
+> where the userspace program calls into the kernel,
+> passing an address that happens to be in damaged swap.
+> You might then stall the kernel holding some resources
+> while the disks retries umpteen times.
 
-I planned to send it today. You will be on CC
+Well, it's not that simple.  Kernel uses both swappable and
+non-swappable memory internally.  For some things, it's
+unswappable, for some, it's swappable.  In general, it's
+impossible to say which parts of kernel will break (and
+in wich ways) if swap goes havoc.
 
-Thanks,
-Kirill
+>> Ie, your swap space must be reliable.  At least not worse than your
+>> memory.
+>> And with striping, you've much more chances of disk failure...
+>>   Yes it sounds very promising at first, to let kernel stripe swap space,
+>> for faster operations.  But hell, first, try to avoid swappnig in the
+>> first place, by installing appropriate amount memory which is cheap
+>> nowadays, so there will be just no need for swapping.  And when it's
+>> done, it's not relevant anymore whenever your swap space is fast or
+>> not.  But make it *reliable*.
+>>   
+> Some swap is nice to have.  "Ouch - sluggish server today,
+> I will have to look into it" is so much better
+> than "Eww - the OOM serial killer took out another 5 processes,
+> people are screaming!"
 
-> On Tue, 2006-08-29 at 09:08 -0700, Greg KH wrote:
-> 
->>On Tue, Aug 29, 2006 at 04:24:21PM +0400, Kirill Korotaev wrote:
->>
->>>Probably it is my fault, since I thought that patches which got into -stable
->>>automatically go into Linus tree.
->>
->>No they do not.  Usually it's the requirement that they be in his tree
->>first, but I didn't think it was necessary this time due to my
->>misunderstanding about the fix.
-> 
-> 2.6.18-rc6 has just been released and neither my patch nor the original
-> patch to which it is a fix seem to have been included. Does this mean
-> they will not be sent to Linux before the final release of 2.6.18?
-> 
-> Regards,
-> 
-> Fernando
-> 
-> 
+I didn't say "eliminate swap space", I said about trying to avoid
+swap usage.  In the other words, DO set up swap space, and DO it
+in a reliable way.  Not "swap isn't needed" - well yes, it's
+not entirely clear from my statement.
 
+> As for reliable swap - swap on raid-1 is nice - and it
+> probably perform better than single-disk swap too,
+> although not as fast as striped swap.
+
+Yes it's slower.  But you don't really care, because in normal
+life, there should be almost no swap usage.  When swapping starts
+occuring in amounts where speed difference is noticeable, it's
+time to add more memory (or to run less hungry processes),
+not to speed up swap space.
+
+/mjt
 
 -- 
-VGER BF report: H 0
+VGER BF report: H 0.182426

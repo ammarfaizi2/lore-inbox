@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWIDWNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWIDWSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbWIDWNa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWIDWNa
+	id S965010AbWIDWSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWIDWSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:13:30 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:44775 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S965007AbWIDWN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:13:29 -0400
-Date: Mon, 04 Sep 2006 16:13:00 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: 2.6.18-rc5-mm1 unusual IRQ number for VIA device
-In-reply-to: <fa.2CAUcMm0GNX2+CNwugoJEUNtwzQ@ifi.uio.no>
-To: Jay Cliburn <jacliburn@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <44FCA4EC.3060507@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.zOFUKsGFxa+fu0uGVN6HuRT+Krg@ifi.uio.no>
- <fa.2CAUcMm0GNX2+CNwugoJEUNtwzQ@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Mon, 4 Sep 2006 18:18:00 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33039 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965010AbWIDWR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:17:59 -0400
+Date: Tue, 5 Sep 2006 00:17:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, gerg@uclinux.org
+Subject: [-mm patch] arch/m68knommu/kernel/sys_m68k.c must #include <asm/unistd.h>
+Message-ID: <20060904221756.GB9173@stusta.de>
+References: <20060901015818.42767813.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060901015818.42767813.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Cliburn wrote:
-> Jay Cliburn wrote:
->> Running 2.6.18-rc5.mm1 on an Asus M2V mainboard with dual-core Athlon 
->> cpu, the onboard audio device gets assigned and IRQ of 8410.  Under 
->> 2.6.18-rc4-mm3, the same device gets assigned IRQ 17.  Is this a way 
->> to get around this?
-> 
-> What I meant to ask is:  Is there a way to get around this?
-> 
-> Thanks,
-> Jay
+On Fri, Sep 01, 2006 at 01:58:18AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc4-mm3:
+>...
+> +provide-kernel_execve-on-all-architectures.patch
+>...
+>  kernel syscalls cleanup
+>...
 
-What do you think needs to be "gotten around"? It is using MSI 
-interrupts, I think that the IRQ numbers will be different.
+This patch fixes the following compile error on m68knommu:
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+<--  snip  -->
+
+...
+  CC      arch/m68knommu/kernel/sys_m68k.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/sys_m68k.c:215: error: '__NR_execve' undeclared (first use in this function)
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/sys_m68k.c:215: error: (Each undeclared identifier is reported only once
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/sys_m68k.c:215: error: for each function it appears in.)
+make[2]: *** [arch/m68knommu/kernel/sys_m68k.o] Error 1
+
+<--  snip  -->
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/sys_m68k.c.old	2006-09-05 00:16:11.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/sys_m68k.c	2006-09-05 00:16:25.000000000 +0200
+@@ -26,6 +26,7 @@
+ #include <asm/traps.h>
+ #include <asm/ipc.h>
+ #include <asm/cacheflush.h>
++#include <asm/unistd.h>
+ 
+ /*
+  * sys_pipe() is the normal C calling standard for creating
 

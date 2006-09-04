@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWIDWME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWIDWMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbWIDWME (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 18:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWIDWME
+	id S965004AbWIDWMe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 18:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWIDWMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 18:12:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29199 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964987AbWIDWMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 18:12:02 -0400
-Date: Tue, 5 Sep 2006 00:11:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: gerg@uclinux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/m68knommu/kernel/setup.c should always #include <asm/pgtable.h>
-Message-ID: <20060904221158.GA9173@stusta.de>
-MIME-Version: 1.0
+	Mon, 4 Sep 2006 18:12:34 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:19975 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965004AbWIDWMc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 18:12:32 -0400
+Date: Tue, 5 Sep 2006 08:12:21 +1000
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm3 crypto issues with encrypted disks
+Message-ID: <20060904221221.GA31911@gondor.apana.org.au>
+References: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu> <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following compile error with 
-CONFIG_BLK_DEV_INITRD=n and -Werror-implicit-function-declaration:
+On Mon, Sep 04, 2006 at 05:25:22PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> 
+> -# Linux kernel version: 2.6.18-rc4-mm3
+> -# Wed Aug 30 10:00:30 2006
+> +# Linux kernel version: 2.6.18-rc5-mm1
+> +# Mon Sep  4 16:22:37 2006
+> ....
+> +CONFIG_CRYPTO_ALGAPI=y
+> +CONFIG_CRYPTO_BLKCIPHER=y
+> +CONFIG_CRYPTO_HASH=y
+> +CONFIG_CRYPTO_MANAGER=y
+> 
+> Does 'CONFIG_CRYPTOLOOP' need a 'SELECT CRYPTO_MANAGER' (or one of the other
+> symbols)?
 
-<--  snip  -->
+All of these symbols default to m so they should have selected themselves.
 
-...
-  CC      arch/m68knommu/kernel/setup.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c: In function 'setup_arch':
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c:268: error: implicit declaration of function 'paging_init'
-make[2]: *** [arch/m68knommu/kernel/setup.o] Error 1
-
-<--  snip  -->
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c.old	2006-09-05 00:07:42.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c	2006-09-05 00:08:20.000000000 +0200
-@@ -36,10 +36,7 @@
- #include <asm/setup.h>
- #include <asm/irq.h>
- #include <asm/machdep.h>
--
--#ifdef CONFIG_BLK_DEV_INITRD
- #include <asm/pgtable.h>
--#endif
- 
- unsigned long memory_start;
- unsigned long memory_end;
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

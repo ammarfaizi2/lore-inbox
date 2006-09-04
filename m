@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWIDXd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWIDXfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbWIDXd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 19:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbWIDXd0
+	id S965033AbWIDXfW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 19:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWIDXfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 19:33:26 -0400
-Received: from hentges.net ([81.169.178.128]:695 "EHLO
-	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
-	id S965032AbWIDXdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 19:33:25 -0400
-Subject: Re: sky2 hangs on me again: This time 200 kb/s IPv4 traffic, not
-	easily reproducable
-From: Matthias Hentges <oe@hentges.net>
-To: shogunx <shogunx@sleekfreak.ath.cx>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0609041324240.4407-100000@sleekfreak.ath.cx>
-References: <Pine.LNX.4.44.0609041324240.4407-100000@sleekfreak.ath.cx>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HJMytYN4oS6Lk1F2ndSg"
-Date: Tue, 05 Sep 2006 01:34:28 +0200
-Message-Id: <1157412868.18988.15.camel@mhcln03>
+	Mon, 4 Sep 2006 19:35:22 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:51869 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S965033AbWIDXfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 19:35:20 -0400
+Date: Mon, 4 Sep 2006 19:34:54 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@ftp.linux.org.uk
+Subject: Re: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
+Message-ID: <20060904233454.GC19836@filer.fsl.cs.sunysb.edu>
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060901115327.80554494.sfr@canb.auug.org.au> <20060901172310.GA2622@filer.fsl.cs.sunysb.edu> <Pine.LNX.4.61.0609031941210.12800@yvahk01.tjqt.qr> <20060903194456.GA4977@filer.fsl.cs.sunysb.edu> <84144f020609040401h314bdb72x4c3bd7c27cb38256@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020609040401h314bdb72x4c3bd7c27cb38256@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 04, 2006 at 02:01:41PM +0300, Pekka Enberg wrote:
+> On 9/3/06, Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
+> >I think you misunderstood my comment. What I meant to say was that there is
+> >_no way_ you can compile a filesystem that has only dentry ops but not
+> >superblock ops - this would happen if you tried to bisect and you landed
+> >half way in the series of commits for the filesystem. For the _initial_
+> >commit one cset makes sense. For subsequent fixes one commit per fix is the
+> >only logical thing to do.
+> 
+> Reorder the patches so that Makefile and Kconfig changes come last and
+> git bisect will work just fine.
 
---=-HJMytYN4oS6Lk1F2ndSg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Already done.
 
-Am Montag, den 04.09.2006, 13:24 -0400 schrieb shogunx:
-> >
-> > I have yet to find a reproduceable way to trigger the bug but I'll try =
-a
-> > few things tomorrow.
-> > Currently it appears to be completely ranom. I've loaded the driver w/
-> > debug=3D10, maybe it'll give some clues.
->=20
-> Seen that error again?  I've done everything I can think of to get this
-> interface to fail, and I just can't do it.
->=20
+Josef 'Jeff' Sipek.
 
-After running almost a full day w/o problems, it freaked out on me when
-debugging was disabled after a reboot *sigh*.
---=20
-Matthias 'CoreDump' Hentges=20
-
-Webmaster of hentges.net and OpenZaurus developer.
-You can reach me in #openzaurus on Freenode.
-
-My OS: Debian SID. Geek by Nature, Linux by Choice
-
---=-HJMytYN4oS6Lk1F2ndSg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBE/LgEAq2P5eLUP5IRAqfgAKCJcSvg2PnJe2qnPGXgusb6HALxMQCfYMvz
-IIleZUXtZxPhAo8AXAGLNtU=
-=JSEi
------END PGP SIGNATURE-----
-
---=-HJMytYN4oS6Lk1F2ndSg--
-
+-- 
+Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are, by
+definition, not smart enough to debug it.
+		- Brian W. Kernighan 

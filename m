@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWIDIJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWIDIZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWIDIJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 04:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWIDIJ1
+	id S1751099AbWIDIZL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 04:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWIDIZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 04:09:27 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:63901 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S932491AbWIDIJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 04:09:26 -0400
-Date: Mon, 4 Sep 2006 10:09:24 +0200
-From: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: in-kernel rpc.statd
-Message-ID: <20060904080924.GA23460@pc51072.physik.uni-regensburg.de>
-Reply-To: christian.guggenberger@physik.uni-regensburg.de
-References: <20060903180052.GA3743@pc51072.physik.uni-regensburg.de> <Pine.LNX.4.61.0609032255010.6844@yvahk01.tjqt.qr> <1157317915.5587.10.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157317915.5587.10.camel@localhost>
-User-Agent: Mutt/1.5.9i
+	Mon, 4 Sep 2006 04:25:10 -0400
+Received: from ns1.suse.de ([195.135.220.2]:58811 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750779AbWIDIZI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 04:25:08 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@ftp.linux.org.uk
+Subject: Re: [PATCH 18/22][RFC] Unionfs: Superblock operations
+References: <20060901013512.GA5788@fsl.cs.sunysb.edu>
+	<20060901015851.GS5788@fsl.cs.sunysb.edu>
+	<Pine.LNX.4.61.0609040940010.9108@yvahk01.tjqt.qr>
+X-Yow: ...I think I'm having an overnight sensation right now!!
+Date: Mon, 04 Sep 2006 10:24:56 +0200
+In-Reply-To: <Pine.LNX.4.61.0609040940010.9108@yvahk01.tjqt.qr> (Jan
+	Engelhardt's message of "Mon, 4 Sep 2006 09:46:59 +0200 (MEST)")
+Message-ID: <jek64k2g4n.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Hm. I do not have a rpc.statd userspace program nor kernel daemon (running 
-> > on 2.6.17-vanilla). Yet everything is working. Is there a specific need for 
-> > statd?
-> 
-> Yes. Locking over NFSv2/v3 won't work without it.
-> 
-> That said, there is no reason why we need an rpc.statd in the kernel
-> when the nfs-utils package already provides one that works fine in
-> userland.
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+
+>>+/* final actions when unmounting a file system */
+>>+static void unionfs_put_super(struct super_block *sb)
+>>+{
+>>+	int bindex, bstart, bend;
+>>+	struct unionfs_sb_info *spd;
+>>+
+>>+	if ((spd = stopd(sb))) {
 >
+> Sugg.:
+>
+> if((spd = stopd(sb)) == NULL)
+> 	return;
 
-I know. The reason behind my query was just that Suse distros - SLES9 at
-least - do not provide userland rpc.statd anymore.
+Better:
 
-cheers.
- - Christian
+  spd = stopd(sb);
+  if (!spd)
+          return;
+
+Andreas.
 
 -- 
-VGER BF report: H 3.23172e-09
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."
+
+-- 
+VGER BF report: H 0

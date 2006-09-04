@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWIDIqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWIDIqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWIDIqG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 04:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWIDIqG
+	id S1751190AbWIDIqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 04:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIDIqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 04:46:06 -0400
-Received: from minus.inr.ac.ru ([194.67.69.97]:20964 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1751179AbWIDIqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 04:46:03 -0400
+	Mon, 4 Sep 2006 04:46:46 -0400
+Received: from nz-out-0102.google.com ([64.233.162.201]:4936 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751181AbWIDIqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 04:46:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=HLVYzaV+NbMMgWuC32xgTpn18pCy2Ahj5E+CirbVIkmSLv0Eg4bqUx1li2sK5jJrQOfK68QaSiV350EAuJN4Z2RiZ4MbDYgxRxSv3K2ql0LTXQrTe+6MDs/ABg3yJFyVjbMHbgVs2cUSHTTmcAnXBHUQdrABjZE0ALmVtPRrpSo=;
-Date: Mon, 4 Sep 2006 12:44:14 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>, Krzysztof Halasa <khc@pm.waw.pl>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
-Message-ID: <20060904084414.GA19793@ms2.inr.ac.ru>
-References: <m3odty57gf.fsf@defiant.localdomain> <20060903111507.GA12580@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TUzYoYtVDFtS94Uhn+1zVNt/goFlNkYVnUYt4ge3eizQ1cVPQm2mFBAsVXrRmzo07gdGSQb0T0DG9omboa6PWq32d4tGI6Oxuv6LOPbvYLDO0fK84lvW0X52noSyKcb9cY86lRQhYK7PsdOORXBcXHcx4lXESNP0/fn3fVEd3oc=
+Message-ID: <6d6a94c50609040146k3538ef21x2a6d426f344f1e2e@mail.gmail.com>
+Date: Mon, 4 Sep 2006 16:46:44 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fill more device IDS in the structure of m25p80 driver
+Cc: linux-mtd@lists.infradead.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060903111507.GA12580@gondor.apana.org.au>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi all,
 
-> This path obviously breaks assumption 1) and therefore can lead to ABBA
-> dead-locks.
+the structure:
+struct flash_info __devinitdata m25p_data [] = {
+/* REVISIT: fill in JEDEC ids, for parts that have them */
+...
+};
 
-Yes...
+has a bunch of missing fields (like the JEDEC ids indicated) ... this
+causes problems when actually trying to use some ST parts as it gets
+detected incorrectly
 
+The following is the patch.
+----------------------------------------------------------------------
+Signed-off-by: Aubrey L1 <aubreylee@gmail.com>
+---
 
-> I've looked at the history and there seems to be no reason for the lock
-> to be held at all in dev_watchdog_up.  The lock appeared in day one and
-> even there it was unnecessary.
+ * Fill more device IDS in the structure of m25p80 driver.
+diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
+index a846614..ef4a731 100644
+--- a/drivers/mtd/devices/m25p80.c
++++ b/drivers/mtd/devices/m25p80.c
+@@ -406,13 +406,13 @@ struct flash_info {
 
-Seems, it serializes mod_timer and timer handler to keep timer
-in predictable state. Maybe, this is not necessary. A priori, it is required.
+ static struct flash_info __devinitdata m25p_data [] = {
+        /* REVISIT: fill in JEDEC ids, for parts that have them */
+-       { "m25p05", 0x05, 0x0000, 32 * 1024, 2 },
+-       { "m25p10", 0x10, 0x0000, 32 * 1024, 4 },
+-       { "m25p20", 0x11, 0x0000, 64 * 1024, 4 },
+-       { "m25p40", 0x12, 0x0000, 64 * 1024, 8 },
++       { "m25p05", 0x05, 0x2010, 32 * 1024, 2 },
++       { "m25p10", 0x10, 0x2011, 32 * 1024, 4 },
++       { "m25p20", 0x11, 0x2012, 64 * 1024, 4 },
++       { "m25p40", 0x12, 0x2013, 64 * 1024, 8 },
+        { "m25p80", 0x13, 0x0000, 64 * 1024, 16 },
+-       { "m25p16", 0x14, 0x0000, 64 * 1024, 32 },
+-       { "m25p32", 0x15, 0x0000, 64 * 1024, 64 },
++       { "m25p16", 0x14, 0x2015, 64 * 1024, 32 },
++       { "m25p32", 0x15, 0x2016, 64 * 1024, 64 },
+        { "m25p64", 0x16, 0x2017, 64 * 1024, 128 },
+ };
 
-Note that in dev_watchdog_down() queue_lock is released before
-taking xmit_lock. Probably, this is the thing which was supposed
-to be done in dev_watchdog_up() too.
-
-Alexey
+Regards,
+-Aubrey
 
 -- 
-VGER BF report: U 0.46385
+VGER BF report: H 0.283918

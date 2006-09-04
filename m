@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWIDMbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWIDMb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWIDMbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 08:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWIDMbb
+	id S964855AbWIDMb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 08:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWIDMb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 08:31:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19158 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964851AbWIDMba (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 08:31:30 -0400
-Message-ID: <44FC1C90.200@redhat.com>
-Date: Mon, 04 Sep 2006 14:31:12 +0200
-From: Milan Broz <mbroz@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
-Subject: [PATCH] fix creating zero sized bio mempools in low memory system
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Sep 2006 08:31:27 -0400
+Received: from alephnull.demon.nl ([83.160.184.112]:19846 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S964837AbWIDMb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 08:31:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
+	d=wantstofly.org;
+	h=date:from:to:cc:subject:message-id:mime-version:content-type:
+	content-disposition:in-reply-to:user-agent;
+	b=EpojoIaE0ChMgT7xc7WYiJ0JZ9Yw1vX8qGIRa9B2Oh8ClLvLyz+W1XK3gzzlV
+	2I1+7bokl9tOgE1Ih24NoG1FQ==
+Date: Mon, 4 Sep 2006 14:31:23 +0200
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Netdev List <netdev@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       "Kok, Auke" <auke-jan.h.kok@intel.com>
+Subject: Re: [RFT] e100 driver on ARM
+Message-ID: <20060904123123.GB1285@xi.wantstofly.org>
+References: <44FC0261.6010807@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44FC0261.6010807@garzik.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the very low memory systems is in the init_bio call
-scale parameter set to zero and it leads to creating
-zero sized mempool.
+On Mon, Sep 04, 2006 at 06:39:29AM -0400, Jeff Garzik wrote:
 
-This patch prevents pool_entries parameter become zero,
-so the created pool have at least 1 entry.
+> 1) Does e100 driver work on ARM?
 
-Mempool with 0 entries lead to incorrect behaviour 
-of mempool_free. (Alloc requests are not waken up
-and system stalls in mempool_alloc->ioschedule). 
+FWIW, e100 seems to work okay for me on an intel ixp2400 (xscale based)
+board, an ixp2850 (xscale based) board and an ixp2350 (xscale3 based)
+board.  ixp2350 works both with hardware coherency turned on (cpu
+snoops bus) and turned off (manual dma cache clean/invalidate as usual.)
 
-
-Signed-off-by: Milan Broz <mbroz@redhat.com>
-
-Index: linux-2.6.18-rc6/fs/bio.c
-===================================================================
---- linux-2.6.18-rc6.orig/fs/bio.c
-+++ linux-2.6.18-rc6/fs/bio.c
-@@ -1142,7 +1142,7 @@ static int biovec_create_pools(struct bi
- 		struct biovec_slab *bp = bvec_slabs + i;
- 		mempool_t **bvp = bs->bvec_pools + i;
- 
--		if (i >= scale)
-+		if (pool_entries > 1 && i >= scale)
- 			pool_entries >>= 1;
- 
- 		*bvp = mempool_create_slab_pool(pool_entries, bp->slab);
+As for the other ARM platforms that I'm interested in / have hardware
+for / maintain, the at91/ep93xx/pxa270 don't have PCI, and the other
+two (iop32x/iop33x) I can't test because I don't have such systems with
+e100 NICs, but I expect those would work, since they're both xscale
+based like the ixp2400, and the ixp2400 works.
 
 
+cheers,
+Lennert
 
 -- 
-VGER BF report: U 0.493705
+VGER BF report: H 6.97804e-11

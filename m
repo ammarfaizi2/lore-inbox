@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWIDImd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWIDIqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWIDImd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 04:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIDImc
+	id S1751192AbWIDIqG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 04:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWIDIqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 04:42:32 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:6091 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751157AbWIDImb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 04:42:31 -0400
+	Mon, 4 Sep 2006 04:46:06 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:20964 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1751179AbWIDIqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 04:46:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qcFNrK4o3iD6X+1tfvSoqoENOBboNbJr/PmSSMtYpi8u3fCM7lfXij3JQ8hoTNLgmnovS9j8HaInI8ttJAY/5uKs0cLnpJK6l2HNDY9T7sSRobMKPtm+XhLJTuP9HxUSALWZBWw8i3Q57KedLwo1s+Hc9WiMuC0oG1StPgf8JK8=
-Message-ID: <9e0cf0bf0609040142y795f9252sd7a8ca1ce8fdde75@mail.gmail.com>
-Date: Mon, 4 Sep 2006 11:42:30 +0300
-From: "Alon Bar-Lev" <alon.barlev@gmail.com>
-To: schwidefsky@de.ibm.com
-Subject: Re: [PATCH 00/26] Dynamic kernel command-line
-Cc: "Nigel Cunningham" <ncunningham@linuxmail.org>,
-       "Paul Mackerras" <paulus@samba.org>, "Andi Kleen" <ak@suse.de>,
-       "Matt Domsch" <Matt_Domsch@dell.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johninsd@san.rr.com,
-       davej@codemonkey.org.uk, Riley@williams.name, trini@kernel.crashing.org,
-       davem@davemloft.net, ecd@brainaid.de, jj@sunsite.ms.mff.cuni.cz,
-       anton@samba.org, wli@holomorphy.com, lethal@linux-sh.org, rc@rc0.org.uk,
-       spyro@f2s.com, rth@twiddle.net, avr32@atmel.com, hskinnemoen@atmel.com,
-       starvik@axis.com, ralf@linux-mips.org, matthew@wil.cx,
-       grundler@parisc-linux.org, geert@linux-m68k.org, zippel@linux-m68k.org,
-       heiko.carstens@de.ibm.com, uclinux-v850@lsi.nec.co.jp, chris@zankel.net
-In-Reply-To: <1157358727.5078.11.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+  s=s1024; d=ms2.inr.ac.ru;
+  b=HLVYzaV+NbMMgWuC32xgTpn18pCy2Ahj5E+CirbVIkmSLv0Eg4bqUx1li2sK5jJrQOfK68QaSiV350EAuJN4Z2RiZ4MbDYgxRxSv3K2ql0LTXQrTe+6MDs/ABg3yJFyVjbMHbgVs2cUSHTTmcAnXBHUQdrABjZE0ALmVtPRrpSo=;
+Date: Mon, 4 Sep 2006 12:44:14 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>, Krzysztof Halasa <khc@pm.waw.pl>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
+Message-ID: <20060904084414.GA19793@ms2.inr.ac.ru>
+References: <m3odty57gf.fsf@defiant.localdomain> <20060903111507.GA12580@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200609040050.13410.alon.barlev@gmail.com>
-	 <17659.26177.846522.226410@cargo.ozlabs.ibm.com>
-	 <1157338220.10336.147.camel@nigel.suspend2.net>
-	 <1157358727.5078.11.camel@localhost>
+In-Reply-To: <20060903111507.GA12580@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/06, Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-> The reason is our initial address space layout for the very first kernel
-> images. Now it is hard to changed because the different ipl tools rely
-> on the layout. We choose to add a few more bytes than 256 because on
-> s390 we potentially have many devices. The dasd= parameter can really be
-> big.
+Hello!
 
-Thanks for the explanation... I've been curios as well :)
-Can you please check if this patch is OK in s390 environment?
+> This path obviously breaks assumption 1) and therefore can lead to ABBA
+> dead-locks.
 
-Best Regards,
-Alon Bar-Lev.
+Yes...
+
+
+> I've looked at the history and there seems to be no reason for the lock
+> to be held at all in dev_watchdog_up.  The lock appeared in day one and
+> even there it was unnecessary.
+
+Seems, it serializes mod_timer and timer handler to keep timer
+in predictable state. Maybe, this is not necessary. A priori, it is required.
+
+Note that in dev_watchdog_down() queue_lock is released before
+taking xmit_lock. Probably, this is the thing which was supposed
+to be done in dev_watchdog_up() too.
+
+Alexey
 
 -- 
-VGER BF report: H 0
+VGER BF report: U 0.46385

@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWIEIMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWIEIOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWIEIMk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 04:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWIEIMk
+	id S932178AbWIEIOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 04:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWIEIOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 04:12:40 -0400
-Received: from webmail.gtco.com ([209.36.34.20]:51272 "EHLO
-	mdmailserv.gtcocalcomp.local") by vger.kernel.org with ESMTP
-	id S932168AbWIEIMj convert rfc822-to-8bit (ORCPT
+	Tue, 5 Sep 2006 04:14:43 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46498 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932178AbWIEIOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 04:12:39 -0400
-Content-class: urn:content-classes:message
+	Tue, 5 Sep 2006 04:14:42 -0400
+Date: Tue, 5 Sep 2006 10:14:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: bcollins@debian.org, scjody@modernduck.com,
+       linux1394-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: set power state of firewire host during suspend
+Message-ID: <20060905081426.GA4105@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH] [USB] hid-core.c: Fix apparent typo in GTCO blacklist entries
-Date: Tue, 5 Sep 2006 01:15:20 -0700
-Message-ID: <8EE501DE48611042A700AED41225B6B94E3DE7@azmailserv.gtcocalcomp.local>
-In-Reply-To: <87pseb61cj.fsf@digitalvampire.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [USB] hid-core.c: Fix apparent typo in GTCO blacklist entries
-Thread-Index: AcbQP9XNE1VrNAHISMG1Ouf4P7WoUgAg1nMQ
-From: "Roberson, Jeremy" <jroberson@gtcocalcomp.com>
-To: "Roland Dreier" <roland@digitalvampire.org>, <gregkh@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, "Gene Heskett" <gene.heskett@verizon.net>,
-       <linux-usb-users@lists.sourceforge.net>
-X-OriginalArrivalTime: 05 Sep 2006 08:15:21.0929 (UTC) FILETIME=[6E97F390:01C6D0C3]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry all, that was indeed a typo. 
+Put firewire host controller in PCI Dx state for system suspend.
+(I was not able to measure any power savings, but it sounds like right
+thing to do, anyway.)
 
------Original Message-----
-From: Roland Dreier [mailto:roland@digitalvampire.org]
-Sent: Monday, September 04, 2006 9:31 AM
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org; Gene Heskett; Roberson, Jeremy;
-linux-usb-users@lists.sourceforge.net
-Subject: [PATCH] [USB] hid-core.c: Fix apparent typo in GTCO blacklist
-entries
-Importance: High
-
-
-Commit 6f8d9e26e7deecb1296c221aa979542bc5d63f20 added blacklist
-entries for GTCO products, but it included an apparent cut-and-paste
-typo (the device ID entry for GTCO_404 is duplicated with two
-different values, and used twice in the blacklist).  This leads to the
-warning:
-
-    drivers/usb/input/hid-core.c:1447:1: warning: "USB_DEVICE_ID_GTCO_404" redefined
-
-Fix this by correcting the second device ID name to GTCO_405, and
-using it in the blacklist.
-
-Signed-off-by: Roland Dreier <roland@digitalvampire.org>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
 ---
+commit 099774f95904ca16463b9383d812d20621553555
+tree 9173983914ccf142ce948dc03f7ae493b489c28f
+parent c0aceb8cda90a681ee8028e22b45c00e98b7c33c
+author <pavel@amd.ucw.cz> Tue, 05 Sep 2006 10:13:37 +0200
+committer <pavel@amd.ucw.cz> Tue, 05 Sep 2006 10:13:37 +0200
 
-diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
-index acb24c6..a2c56b2 100644
---- a/drivers/usb/input/hid-core.c
-+++ b/drivers/usb/input/hid-core.c
-@@ -1444,7 +1444,7 @@ #define USB_DEVICE_ID_GTCO_401		0x0401
- #define USB_DEVICE_ID_GTCO_402		0x0402
- #define USB_DEVICE_ID_GTCO_403		0x0403
- #define USB_DEVICE_ID_GTCO_404		0x0404
--#define USB_DEVICE_ID_GTCO_404		0x0405
-+#define USB_DEVICE_ID_GTCO_405		0x0405
- #define USB_DEVICE_ID_GTCO_500		0x0500
- #define USB_DEVICE_ID_GTCO_501		0x0501
- #define USB_DEVICE_ID_GTCO_502		0x0502
-@@ -1657,7 +1657,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_402, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_403, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_404, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_405, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_500, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_501, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_502, HID_QUIRK_IGNORE },
+ drivers/ieee1394/ohci1394.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
+index 448df27..12b6dfa 100644
+--- a/drivers/ieee1394/ohci1394.c
++++ b/drivers/ieee1394/ohci1394.c
+@@ -3565,6 +3565,7 @@ static int ohci1394_pci_suspend (struct 
+ 	}
+ #endif
+ 
++	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+ 	return 0;
+ }
+ 
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

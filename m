@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWIEPU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWIEPVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965108AbWIEPU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWIEPU1
+	id S965116AbWIEPVc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWIEPVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:20:27 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:18775 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965108AbWIEPU0 (ORCPT
+	Tue, 5 Sep 2006 11:21:32 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:64010 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965116AbWIEPVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:20:26 -0400
-Message-ID: <44FD9699.705@sw.ru>
-Date: Tue, 05 Sep 2006 19:24:09 +0400
+	Tue, 5 Sep 2006 11:21:30 -0400
+Message-ID: <44FD96D9.3080900@sw.ru>
+Date: Tue, 05 Sep 2006 19:25:13 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -25,7 +25,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH 5/13] BC: user interface (syscalls)
+Subject: [PATCH 6/13] BC: kernel memory (core)
 References: <44FD918A.7050501@sw.ru>
 In-Reply-To: <44FD918A.7050501@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -33,378 +33,627 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the following system calls for BC management:
- 1. sys_get_bcid     - get current BC id
- 2. sys_set_bcid     - change exec_ and fork_ BCs on current
- 3. sys_set_bclimit  - set limits for resources consumtions 
- 4. sys_get_bcstat   - return br_resource_parm on resource
+Introduce BC_KMEMSIZE resource which accounts kernel
+objects allocated by task's request.
+
+Reference to BC is kept on struct page or slab object.
+For slabs each struct slab contains a set of pointers
+corresponding objects are charged to.
+
+Allocation charge rules:
+ 1. Pages - if allocation is performed with __GFP_BC flag - page
+    is charged to current's exec_bc.
+ 2. Slabs - kmem_cache may be created with SLAB_BC flag - in this
+    case each allocation is charged. Caches used by kmalloc are
+    created with SLAB_BC | SLAB_BC_NOCHARGE flags. In this case
+    only __GFP_BC allocations are charged.
 
 Signed-off-by: Pavel Emelianov <xemul@sw.ru>
 Signed-off-by: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- arch/i386/kernel/syscall_table.S |    4 +
- arch/ia64/kernel/entry.S         |    4 +
- arch/sparc/kernel/entry.S        |    2 
- arch/sparc/kernel/systbls.S      |    6 +
- arch/sparc64/kernel/entry.S      |    2 
- arch/sparc64/kernel/systbls.S    |   10 ++-
- include/asm-i386/unistd.h        |    6 +
- include/asm-ia64/unistd.h        |    6 +
- include/asm-powerpc/systbl.h     |    4 +
- include/asm-powerpc/unistd.h     |    6 +
- include/asm-sparc/unistd.h       |    4 +
- include/asm-sparc64/unistd.h     |    4 +
- include/asm-x86_64/unistd.h      |   10 ++-
- kernel/bc/Makefile               |    1 
- kernel/bc/sys.c                  |  120 +++++++++++++++++++++++++++++++++++++++
- kernel/sys_ni.c                  |    6 +
- 16 files changed, 186 insertions(+), 9 deletions(-)
+ include/bc/beancounter.h |    4 +
+ include/bc/kmem.h        |   46 +++++++++++++++++
+ include/linux/gfp.h      |    8 ++-
+ include/linux/mm.h       |    4 +
+ include/linux/slab.h     |    4 +
+ include/linux/vmalloc.h  |    1 
+ kernel/bc/Makefile       |    1 
+ kernel/bc/beancounter.c  |    3 +
+ kernel/bc/kmem.c         |   85 +++++++++++++++++++++++++++++++++
+ mm/mempool.c             |    2 
+ mm/page_alloc.c          |   11 ++++
+ mm/slab.c                |  121 ++++++++++++++++++++++++++++++++++++++---------
+ mm/vmalloc.c             |    6 ++
+ 13 files changed, 271 insertions(+), 25 deletions(-)
 
---- ./arch/i386/kernel/syscall_table.S.bcsys	2006-09-05 11:47:31.000000000 +0400
-+++ ./arch/i386/kernel/syscall_table.S	2006-09-05 12:47:21.000000000 +0400
-@@ -318,3 +318,7 @@ ENTRY(sys_call_table)
- 	.long sys_vmsplice
- 	.long sys_move_pages
- 	.long sys_getcpu
-+	.long sys_get_bcid
-+	.long sys_set_bcid		/* 320 */
-+	.long sys_set_bclimit
-+	.long sys_get_bcstat
---- ./arch/ia64/kernel/entry.S.bcsys	2006-09-05 11:47:31.000000000 +0400
-+++ ./arch/ia64/kernel/entry.S	2006-09-05 12:47:21.000000000 +0400
-@@ -1610,5 +1610,9 @@ sys_call_table:
- 	data8 sys_sync_file_range		// 1300
- 	data8 sys_tee
- 	data8 sys_vmsplice
-+	data8 sys_get_bcid
-+	data8 sys_set_bcid
-+	data8 sys_set_bclimit			// 1305
-+	data8 sys_get_bcstat
+--- ./include/bc/beancounter.h.bckmemcore	2006-09-05 12:54:17.000000000 +0400
++++ ./include/bc/beancounter.h	2006-09-05 12:54:40.000000000 +0400
+@@ -12,7 +12,9 @@
+  *	Resource list.
+  */
  
- 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
---- ./arch/sparc/kernel/entry.S.bcsys	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc/kernel/entry.S	2006-09-05 12:47:21.000000000 +0400
-@@ -37,7 +37,7 @@
- 
- #define curptr      g6
- 
--#define NR_SYSCALLS 300      /* Each OS is different... */
-+#define NR_SYSCALLS 304      /* Each OS is different... */
- 
- /* These are just handy. */
- #define _SV	save	%sp, -STACKFRAME_SZ, %sp
---- ./arch/sparc/kernel/systbls.S.bcsys	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc/kernel/systbls.S	2006-09-05 12:47:21.000000000 +0400
-@@ -78,7 +78,8 @@ sys_call_table:
- /*285*/	.long sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
- /*290*/	.long sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- /*295*/	.long sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
--/*300*/	.long sys_set_robust_list, sys_get_robust_list
-+/*300*/	.long sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
-+/*305*/	.long sys_get_bcstat
- 
- #ifdef CONFIG_SUNOS_EMUL
- 	/* Now the SunOS syscall table. */
-@@ -192,4 +193,7 @@ sunos_sys_table:
- 	.long sunos_nosys, sunos_nosys, sunos_nosys
- 	.long sunos_nosys, sunos_nosys, sunos_nosys
- 
-+	.long sunos_nosys, sunos_nosys, sunos_nosys,
-+	.long sunos_nosys
+-#define BC_RESOURCES	0
++#define BC_KMEMSIZE	0
 +
++#define BC_RESOURCES	1
+ 
+ struct bc_resource_parm {
+ 	unsigned long barrier;	/* A barrier over which resource allocations
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./include/bc/kmem.h	2006-09-05 12:54:40.000000000 +0400
+@@ -0,0 +1,46 @@
++/*
++ *  include/bc/kmem.h
++ *
++ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
++ *
++ */
++
++#ifndef __BC_KMEM_H_
++#define __BC_KMEM_H_
++
++/*
++ * BC_KMEMSIZE accounting
++ */
++
++struct mm_struct;
++struct page;
++struct beancounter;
++
++#ifdef CONFIG_BEANCOUNTERS
++int __must_check bc_page_charge(struct page *page, int order, gfp_t flags);
++void bc_page_uncharge(struct page *page, int order);
++
++int __must_check bc_slab_charge(kmem_cache_t *cachep, void *obj, gfp_t flags);
++void bc_slab_uncharge(kmem_cache_t *cachep, void *obj);
++#else
++static inline int __must_check bc_page_charge(struct page *page,
++		int order, gfp_t flags)
++{
++	return 0;
++}
++
++static inline void bc_page_uncharge(struct page *page, int order)
++{
++}
++
++static inline int __must_check bc_slab_charge(kmem_cache_t *cachep,
++		void *obj, gfp_t flags)
++{
++	return 0;
++}
++
++static inline void bc_slab_uncharge(kmem_cache_t *cachep, void *obj)
++{
++}
++#endif
++#endif /* __BC_SLAB_H_ */
+--- ./include/linux/gfp.h.bckmemcore	2006-09-05 12:53:55.000000000 +0400
++++ ./include/linux/gfp.h	2006-09-05 12:54:40.000000000 +0400
+@@ -46,15 +46,18 @@ struct vm_area_struct;
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+ #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
+ #define __GFP_THISNODE	((__force gfp_t)0x40000u)/* No fallback, no policies */
++#define __GFP_BC	 ((__force gfp_t)0x80000u) /* Charge allocation with BC */
++#define __GFP_BC_LIMIT ((__force gfp_t)0x100000u) /* Charge against BC limit */
+ 
+-#define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
++#define __GFP_BITS_SHIFT 21	/* Room for 21 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
+ 
+ /* if you forget to add the bitmask here kernel will crash, period */
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE)
++			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE| \
++			__GFP_BC|__GFP_BC_LIMIT)
+ 
+ /* This equals 0, but use constants in case they ever change */
+ #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+@@ -63,6 +66,7 @@ struct vm_area_struct;
+ #define GFP_NOIO	(__GFP_WAIT)
+ #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+ #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
++#define GFP_KERNEL_BC	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_BC)
+ #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
+ #define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
+ 			 __GFP_HIGHMEM)
+--- ./include/linux/mm.h.bckmemcore	2006-09-05 12:53:55.000000000 +0400
++++ ./include/linux/mm.h	2006-09-05 12:55:28.000000000 +0400
+@@ -274,8 +274,12 @@ struct page {
+ 	unsigned int gfp_mask;
+ 	unsigned long trace[8];
  #endif
---- ./arch/sparc64/kernel/entry.S.bcsys	2006-07-10 12:39:10.000000000 +0400
-+++ ./arch/sparc64/kernel/entry.S	2006-09-05 12:47:21.000000000 +0400
-@@ -25,7 +25,7 @@
++#ifdef CONFIG_BEANCOUNTERS
++	struct beancounter	*page_bc;
++#endif
+ };
  
- #define curptr      g6
++#define page_bc(page)			((page)->page_bc)
+ #define page_private(page)		((page)->private)
+ #define set_page_private(page, v)	((page)->private = (v))
  
--#define NR_SYSCALLS 300      /* Each OS is different... */
-+#define NR_SYSCALLS 304      /* Each OS is different... */
+--- ./include/linux/slab.h.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./include/linux/slab.h	2006-09-05 12:54:40.000000000 +0400
+@@ -46,6 +46,8 @@ typedef struct kmem_cache kmem_cache_t;
+ #define SLAB_PANIC		0x00040000UL	/* panic if kmem_cache_create() fails */
+ #define SLAB_DESTROY_BY_RCU	0x00080000UL	/* defer freeing pages to RCU */
+ #define SLAB_MEM_SPREAD		0x00100000UL	/* Spread some memory over cpuset */
++#define SLAB_BC		0x00200000UL	/* Account with BC */
++#define SLAB_BC_NOCHARGE	0x00400000UL	/* Explicit accounting */
  
- 	.text
- 	.align		32
---- ./arch/sparc64/kernel/systbls.S.bcsys	2006-07-10 12:39:11.000000000 +0400
-+++ ./arch/sparc64/kernel/systbls.S	2006-09-05 12:47:21.000000000 +0400
-@@ -79,7 +79,8 @@ sys_call_table32:
- 	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compat_sys_fstatat64
- /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- 	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll, sys_unshare
--/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list
-+/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
-+	.word sys_nis_syscall
+ /* flags passed to a constructor func */
+ #define	SLAB_CTOR_CONSTRUCTOR	0x001UL		/* if not set, then deconstructor */
+@@ -291,6 +293,8 @@ extern kmem_cache_t	*fs_cachep;
+ extern kmem_cache_t	*sighand_cachep;
+ extern kmem_cache_t	*bio_cachep;
  
- #endif /* CONFIG_COMPAT */
++struct beancounter;
++struct beancounter **kmem_cache_bcp(kmem_cache_t *cachep, void *obj);
+ #endif	/* __KERNEL__ */
  
-@@ -149,7 +150,9 @@ sys_call_table:
- 	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
- /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- 	.word sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
--/*300*/	.word sys_set_robust_list, sys_get_robust_list
-+/*300*/	.word sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
-+	.word sys_get_bcstat
-+
- 
- #if defined(CONFIG_SUNOS_EMUL) || defined(CONFIG_SOLARIS_EMUL) || \
-     defined(CONFIG_SOLARIS_EMUL_MODULE)
-@@ -263,4 +266,7 @@ sunos_sys_table:
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
- 	.word sunos_nosys, sunos_nosys, sunos_nosys
-+
-+	.word sunos_nosys, sunos_nosys, sunos_nosys
-+	.word sunos_nosys
- #endif
---- ./include/asm-i386/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-i386/unistd.h	2006-09-05 12:48:37.000000000 +0400
-@@ -324,8 +324,12 @@
- #define __NR_vmsplice		316
- #define __NR_move_pages		317
- #define __NR_getcpu		318
-+#define __NR_get_bcid		319
-+#define __NR_set_bcid		320
-+#define __NR_set_bclimit	321
-+#define __NR_get_bcstat		322
- 
--#define NR_syscalls 318
-+#define NR_syscalls 323
- #include <linux/err.h>
- 
- /*
---- ./include/asm-ia64/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-ia64/unistd.h	2006-09-05 12:47:21.000000000 +0400
-@@ -291,11 +291,15 @@
- #define __NR_sync_file_range		1300
- #define __NR_tee			1301
- #define __NR_vmsplice			1302
-+#define __NR_get_bcid			1303
-+#define __NR_set_bcid			1304
-+#define __NR_set_bclimit		1305
-+#define __NR_get_bcstat			1306
- 
- #ifdef __KERNEL__
- 
- 
--#define NR_syscalls			279 /* length of syscall table */
-+#define NR_syscalls			283 /* length of syscall table */
- 
- #define __ARCH_WANT_SYS_RT_SIGACTION
- 
---- ./include/asm-powerpc/systbl.h.bcsys	2006-07-10 12:39:19.000000000 +0400
-+++ ./include/asm-powerpc/systbl.h	2006-09-05 12:47:21.000000000 +0400
-@@ -304,3 +304,7 @@ SYSCALL_SPU(fchmodat)
- SYSCALL_SPU(faccessat)
- COMPAT_SYS_SPU(get_robust_list)
- COMPAT_SYS_SPU(set_robust_list)
-+SYSCALL(sys_get_bcid)
-+SYSCALL(sys_set_bcid)
-+SYSCALL(sys_set_bclimit)
-+SYSCALL(sys_get_bcstat)
---- ./include/asm-powerpc/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-powerpc/unistd.h	2006-09-05 12:47:21.000000000 +0400
-@@ -323,10 +323,14 @@
- #define __NR_faccessat		298
- #define __NR_get_robust_list	299
- #define __NR_set_robust_list	300
-+#define __NR_get_bcid		301
-+#define __NR_set_bcid		302
-+#define __NR_set_bclimit	303
-+#define __NR_get_bcstat		304
- 
- #ifdef __KERNEL__
- 
--#define __NR_syscalls		301
-+#define __NR_syscalls		305
- 
- #define __NR__exit __NR_exit
- #define NR_syscalls	__NR_syscalls
---- ./include/asm-sparc/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-sparc/unistd.h	2006-09-05 12:47:21.000000000 +0400
-@@ -318,6 +318,10 @@
- #define __NR_unshare		299
- #define __NR_set_robust_list	300
- #define __NR_get_robust_list	301
-+#define __NR_get_bcid		302
-+#define __NR_set_bcid		303
-+#define __NR_set_bclimit	304
-+#define __NR_get_bcstat		305
- 
- #ifdef __KERNEL__
- /* WARNING: You MAY NOT add syscall numbers larger than 301, since
---- ./include/asm-sparc64/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-sparc64/unistd.h	2006-09-05 12:47:21.000000000 +0400
-@@ -320,6 +320,10 @@
- #define __NR_unshare		299
- #define __NR_set_robust_list	300
- #define __NR_get_robust_list	301
-+#define __NR_get_bcid		302
-+#define __NR_set_bcid		303
-+#define __NR_set_bclimit	304
-+#define __NR_get_bcstat		305
- 
- #ifdef __KERNEL__
- /* WARNING: You MAY NOT add syscall numbers larger than 301, since
---- ./include/asm-x86_64/unistd.h.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./include/asm-x86_64/unistd.h	2006-09-05 12:49:03.000000000 +0400
-@@ -619,8 +619,16 @@ __SYSCALL(__NR_sync_file_range, sys_sync
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages		279
- __SYSCALL(__NR_move_pages, sys_move_pages)
-+#define __NR_get_bcid		280
-+__SYSCALL(__NR_get_bcid, sys_get_bcid)
-+#define __NR_set_bcid		281
-+__SYSCALL(__NR_set_bcid, sys_set_bcid)
-+#define __NR_set_bclimit	282
-+__SYSCALL(__NR_set_bclimit, sys_set_bclimit)
-+#define __NR_get_bcstat		283
-+__SYSCALL(__NR_get_bcstat, sys_get_bcstat)
- 
--#define __NR_syscall_max __NR_move_pages
-+#define __NR_syscall_max __NR_get_bcstat
- #include <linux/err.h>
- 
- #ifndef __NO_STUBS
---- ./kernel/bc/Makefile.bcsys	2006-09-05 12:24:39.000000000 +0400
-+++ ./kernel/bc/Makefile	2006-09-05 12:49:28.000000000 +0400
-@@ -6,3 +6,4 @@
- 
+ #endif	/* _LINUX_SLAB_H */
+--- ./include/linux/vmalloc.h.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./include/linux/vmalloc.h	2006-09-05 12:54:40.000000000 +0400
+@@ -36,6 +36,7 @@ struct vm_struct {
+  *	Highlevel APIs for driver use
+  */
+ extern void *vmalloc(unsigned long size);
++extern void *vmalloc_bc(unsigned long size);
+ extern void *vmalloc_user(unsigned long size);
+ extern void *vmalloc_node(unsigned long size, int node);
+ extern void *vmalloc_exec(unsigned long size);
+--- ./kernel/bc/Makefile.bckmemcore	2006-09-05 12:54:24.000000000 +0400
++++ ./kernel/bc/Makefile	2006-09-05 12:54:50.000000000 +0400
+@@ -7,3 +7,4 @@
  obj-y += beancounter.o
  obj-y += misc.o
-+obj-y += sys.o
+ obj-y += sys.o
++obj-y += kmem.o
+--- ./kernel/bc/beancounter.c.bckmemcore	2006-09-05 12:54:21.000000000 +0400
++++ ./kernel/bc/beancounter.c	2006-09-05 12:55:13.000000000 +0400
+@@ -20,6 +20,7 @@ static void init_beancounter_struct(stru
+ struct beancounter init_bc;
+ 
+ const char *bc_rnames[] = {
++	"kmemsize",	/* 0 */
+ };
+ 
+ #define BC_HASH_BITS		8
+@@ -230,6 +231,8 @@ static void init_beancounter_syslimits(s
+ {
+ 	int k;
+ 
++	bc->bc_parms[BC_KMEMSIZE].limit = 32 * 1024 * 1024;
++
+ 	for (k = 0; k < BC_RESOURCES; k++)
+ 		bc->bc_parms[k].barrier = bc->bc_parms[k].limit;
+ }
 --- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./kernel/bc/sys.c	2006-09-05 12:47:21.000000000 +0400
-@@ -0,0 +1,120 @@
++++ ./kernel/bc/kmem.c	2006-09-05 12:54:40.000000000 +0400
+@@ -0,0 +1,85 @@
 +/*
-+ *  kernel/bc/sys.c
++ *  kernel/bc/kmem.c
 + *
 + *  Copyright (C) 2006 OpenVZ. SWsoft Inc
 + *
 + */
 +
 +#include <linux/sched.h>
-+#include <asm/uaccess.h>
++#include <linux/gfp.h>
++#include <linux/slab.h>
++#include <linux/mm.h>
 +
 +#include <bc/beancounter.h>
++#include <bc/kmem.h>
 +#include <bc/task.h>
 +
-+asmlinkage long sys_get_bcid(void)
++/*
++ * Slab accounting
++ */
++
++int bc_slab_charge(kmem_cache_t *cachep, void *objp, gfp_t flags)
 +{
-+	struct beancounter *bc;
++	unsigned int size;
++	struct beancounter *bc, **slab_bcp;
 +
 +	bc = get_exec_bc();
-+	return bc->bc_id;
++
++	size = kmem_cache_size(cachep);
++	if (bc_charge(bc, BC_KMEMSIZE, size,
++			(flags & __GFP_BC_LIMIT ? BC_LIMIT : BC_BARRIER)))
++		return -ENOMEM;
++
++	slab_bcp = kmem_cache_bcp(cachep, objp);
++	*slab_bcp = get_beancounter(bc);
++	return 0;
 +}
 +
-+asmlinkage long sys_set_bcid(bcid_t id)
++void bc_slab_uncharge(kmem_cache_t *cachep, void *objp)
 +{
-+	int error;
-+	struct beancounter *bc;
-+	struct task_beancounter *task_bc;
++	unsigned int size;
++	struct beancounter *bc, **slab_bcp;
 +
-+	task_bc = &current->task_bc;
++	slab_bcp = kmem_cache_bcp(cachep, objp);
++	if (*slab_bcp == NULL)
++		return;
 +
-+	/* You may only set an bc as root */
-+	error = -EPERM;
-+	if (!capable(CAP_SETUID))
-+		goto out;
-+
-+	/* Ok - set up a beancounter entry for this user */
-+	error = -ENOMEM;
-+	bc = beancounter_findcreate(id, BC_ALLOC);
-+	if (bc == NULL)
-+		goto out;
-+
-+	/* install bc */
-+	put_beancounter(task_bc->exec_bc);
-+	task_bc->exec_bc = bc;
-+	put_beancounter(task_bc->fork_bc);
-+	task_bc->fork_bc = get_beancounter(bc);
-+	error = 0;
-+out:
-+	return error;
-+}
-+
-+asmlinkage long sys_set_bclimit(bcid_t id, unsigned long resource,
-+		unsigned long __user *limits)
-+{
-+	int error;
-+	unsigned long flags;
-+	struct beancounter *bc;
-+	unsigned long new_limits[2];
-+
-+	error = -EPERM;
-+	if(!capable(CAP_SYS_RESOURCE))
-+		goto out;
-+
-+	error = -EINVAL;
-+	if (resource >= BC_RESOURCES)
-+		goto out;
-+
-+	error = -EFAULT;
-+	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
-+		goto out;
-+
-+	error = -EINVAL;
-+	if (new_limits[0] > BC_MAXVALUE || new_limits[1] > BC_MAXVALUE ||
-+			new_limits[0] > new_limits[1])
-+		goto out;
-+
-+	error = -ENOENT;
-+	bc = beancounter_findcreate(id, BC_LOOKUP);
-+	if (bc == NULL)
-+		goto out;
-+
-+	spin_lock_irqsave(&bc->bc_lock, flags);
-+	bc->bc_parms[resource].barrier = new_limits[0];
-+	bc->bc_parms[resource].limit = new_limits[1];
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+
++	bc = *slab_bcp;
++	size = kmem_cache_size(cachep);
++	bc_uncharge(bc, BC_KMEMSIZE, size);
 +	put_beancounter(bc);
-+	error = 0;
-+out:
-+	return error;
++	*slab_bcp = NULL;
 +}
 +
-+int sys_get_bcstat(bcid_t id, unsigned long resource,
-+		struct bc_resource_parm __user *uparm)
++/*
++ * Pages accounting
++ */
++
++int bc_page_charge(struct page *page, int order, gfp_t flags)
 +{
-+	int error;
-+	unsigned long flags;
 +	struct beancounter *bc;
-+	struct bc_resource_parm parm;
 +
-+	error = -EINVAL;
-+	if (resource >= BC_RESOURCES)
-+		goto out;
++	BUG_ON(page_bc(page) != NULL);
 +
-+	error = -ENOENT;
-+	bc = beancounter_findcreate(id, BC_LOOKUP);
-+	if (bc == NULL)
-+		goto out;
++	bc = get_exec_bc();
 +
-+	spin_lock_irqsave(&bc->bc_lock, flags);
-+	parm = bc->bc_parms[resource];
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+	put_beancounter(bc);
++	if (bc_charge(bc, BC_KMEMSIZE, PAGE_SIZE << order,
++			(flags & __GFP_BC_LIMIT ? BC_LIMIT : BC_BARRIER)))
++		return -ENOMEM;
 +
-+	error = 0;
-+	if (copy_to_user(uparm, &parm, sizeof(parm)))
-+		error = -EFAULT;
-+
-+out:
-+	return error;
++	page_bc(page) = get_beancounter(bc);
++	return 0;
 +}
---- ./kernel/sys_ni.c.bcsys	2006-09-05 11:47:33.000000000 +0400
-+++ ./kernel/sys_ni.c	2006-09-05 12:49:16.000000000 +0400
-@@ -139,3 +139,9 @@ cond_syscall(compat_sys_move_pages);
- cond_syscall(sys_bdflush);
- cond_syscall(sys_ioprio_set);
- cond_syscall(sys_ioprio_get);
 +
-+/* user resources syscalls */
-+cond_syscall(sys_set_bcid);
-+cond_syscall(sys_get_bcid);
-+cond_syscall(sys_set_bclimit);
-+cond_syscall(sys_get_bcstat);
++void bc_page_uncharge(struct page *page, int order)
++{
++	struct beancounter *bc;
++
++	bc = page_bc(page);
++	if (bc == NULL)
++		return;
++
++	bc_uncharge(bc, BC_KMEMSIZE, PAGE_SIZE << order);
++	put_beancounter(bc);
++	page_bc(page) = NULL;
++}
+--- ./mm/mempool.c.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/mempool.c	2006-09-05 12:54:40.000000000 +0400
+@@ -119,6 +119,7 @@ int mempool_resize(mempool_t *pool, int 
+ 	unsigned long flags;
+ 
+ 	BUG_ON(new_min_nr <= 0);
++	gfp_mask &= ~__GFP_BC;
+ 
+ 	spin_lock_irqsave(&pool->lock, flags);
+ 	if (new_min_nr <= pool->min_nr) {
+@@ -212,6 +213,7 @@ void * mempool_alloc(mempool_t *pool, gf
+ 	gfp_mask |= __GFP_NOMEMALLOC;	/* don't allocate emergency reserves */
+ 	gfp_mask |= __GFP_NORETRY;	/* don't loop in __alloc_pages */
+ 	gfp_mask |= __GFP_NOWARN;	/* failures are OK */
++	gfp_mask &= ~__GFP_BC;		/* do not charge */
+ 
+ 	gfp_temp = gfp_mask & ~(__GFP_WAIT|__GFP_IO);
+ 
+--- ./mm/page_alloc.c.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/page_alloc.c	2006-09-05 12:54:40.000000000 +0400
+@@ -40,6 +40,8 @@
+ #include <linux/sort.h>
+ #include <linux/pfn.h>
+ 
++#include <bc/kmem.h>
++
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+ #include "internal.h"
+@@ -516,6 +518,8 @@ static void __free_pages_ok(struct page 
+ 	if (reserved)
+ 		return;
+ 
++	bc_page_uncharge(page, order);
++
+ 	kernel_map_pages(page, 1 << order, 0);
+ 	local_irq_save(flags);
+ 	__count_vm_events(PGFREE, 1 << order);
+@@ -799,6 +803,8 @@ static void fastcall free_hot_cold_page(
+ 	if (free_pages_check(page))
+ 		return;
+ 
++	bc_page_uncharge(page, 0);
++
+ 	kernel_map_pages(page, 1, 0);
+ 
+ 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
+@@ -1188,6 +1194,11 @@ nopage:
+ 		show_mem();
+ 	}
+ got_pg:
++	if ((gfp_mask & __GFP_BC) &&
++			bc_page_charge(page, order, gfp_mask)) {
++		__free_pages(page, order);
++		page = NULL;
++	}
+ #ifdef CONFIG_PAGE_OWNER
+ 	if (page)
+ 		set_page_owner(page, order, gfp_mask);
+--- ./mm/slab.c.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/slab.c	2006-09-05 12:54:40.000000000 +0400
+@@ -108,6 +108,8 @@
+ #include	<linux/mutex.h>
+ #include	<linux/rtmutex.h>
+ 
++#include	<bc/kmem.h>
++
+ #include	<asm/uaccess.h>
+ #include	<asm/cacheflush.h>
+ #include	<asm/tlbflush.h>
+@@ -175,11 +177,13 @@
+ 			 SLAB_CACHE_DMA | \
+ 			 SLAB_MUST_HWCACHE_ALIGN | SLAB_STORE_USER | \
+ 			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
++			 SLAB_BC | SLAB_BC_NOCHARGE | \
+ 			 SLAB_DESTROY_BY_RCU | SLAB_MEM_SPREAD)
+ #else
+ # define CREATE_MASK	(SLAB_HWCACHE_ALIGN | \
+ 			 SLAB_CACHE_DMA | SLAB_MUST_HWCACHE_ALIGN | \
+ 			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
++			 SLAB_BC | SLAB_BC_NOCHARGE | \
+ 			 SLAB_DESTROY_BY_RCU | SLAB_MEM_SPREAD)
+ #endif
+ 
+@@ -793,9 +797,33 @@ static struct kmem_cache *kmem_find_gene
+ 	return __find_general_cachep(size, gfpflags);
+ }
+ 
+-static size_t slab_mgmt_size(size_t nr_objs, size_t align)
++static size_t slab_mgmt_size_raw(size_t nr_objs)
+ {
+-	return ALIGN(sizeof(struct slab)+nr_objs*sizeof(kmem_bufctl_t), align);
++	return sizeof(struct slab) + nr_objs * sizeof(kmem_bufctl_t);
++}
++
++#ifdef CONFIG_BEANCOUNTERS
++#define BC_EXTRASIZE	sizeof(struct beancounter *)
++static inline size_t slab_mgmt_size_noalign(int flags, size_t nr_objs)
++{
++	size_t size;
++
++	size = slab_mgmt_size_raw(nr_objs);
++	if (flags & SLAB_BC)
++		size = ALIGN(size, BC_EXTRASIZE) + nr_objs * BC_EXTRASIZE;
++	return size;
++}
++#else
++#define BC_EXTRASIZE	0
++static inline size_t slab_mgmt_size_noalign(int flags, size_t nr_objs)
++{
++	return slab_mgmt_size_raw(nr_objs);
++}
++#endif
++
++static inline size_t slab_mgmt_size(int flags, size_t nr_objs, size_t align)
++{
++	return ALIGN(slab_mgmt_size_noalign(flags, nr_objs), align);
+ }
+ 
+ /*
+@@ -840,20 +868,21 @@ static void cache_estimate(unsigned long
+ 		 * into account.
+ 		 */
+ 		nr_objs = (slab_size - sizeof(struct slab)) /
+-			  (buffer_size + sizeof(kmem_bufctl_t));
++			  (buffer_size + sizeof(kmem_bufctl_t) +
++			  (flags & SLAB_BC ? BC_EXTRASIZE : 0));
+ 
+ 		/*
+ 		 * This calculated number will be either the right
+ 		 * amount, or one greater than what we want.
+ 		 */
+-		if (slab_mgmt_size(nr_objs, align) + nr_objs*buffer_size
++		if (slab_mgmt_size(flags, nr_objs, align) + nr_objs*buffer_size
+ 		       > slab_size)
+ 			nr_objs--;
+ 
+ 		if (nr_objs > SLAB_LIMIT)
+ 			nr_objs = SLAB_LIMIT;
+ 
+-		mgmt_size = slab_mgmt_size(nr_objs, align);
++		mgmt_size = slab_mgmt_size(flags, nr_objs, align);
+ 	}
+ 	*num = nr_objs;
+ 	*left_over = slab_size - nr_objs*buffer_size - mgmt_size;
+@@ -1412,7 +1441,8 @@ void __init kmem_cache_init(void)
+ 	sizes[INDEX_AC].cs_cachep = kmem_cache_create(names[INDEX_AC].name,
+ 					sizes[INDEX_AC].cs_size,
+ 					ARCH_KMALLOC_MINALIGN,
+-					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
++					ARCH_KMALLOC_FLAGS | SLAB_BC |
++						SLAB_BC_NOCHARGE | SLAB_PANIC,
+ 					NULL, NULL);
+ 
+ 	if (INDEX_AC != INDEX_L3) {
+@@ -1420,7 +1450,8 @@ void __init kmem_cache_init(void)
+ 			kmem_cache_create(names[INDEX_L3].name,
+ 				sizes[INDEX_L3].cs_size,
+ 				ARCH_KMALLOC_MINALIGN,
+-				ARCH_KMALLOC_FLAGS|SLAB_PANIC,
++				ARCH_KMALLOC_FLAGS | SLAB_BC |
++					SLAB_BC_NOCHARGE | SLAB_PANIC,
+ 				NULL, NULL);
+ 	}
+ 
+@@ -1438,7 +1469,8 @@ void __init kmem_cache_init(void)
+ 			sizes->cs_cachep = kmem_cache_create(names->name,
+ 					sizes->cs_size,
+ 					ARCH_KMALLOC_MINALIGN,
+-					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
++					ARCH_KMALLOC_FLAGS | SLAB_BC |
++						SLAB_BC_NOCHARGE | SLAB_PANIC,
+ 					NULL, NULL);
+ 		}
+ 
+@@ -1941,7 +1973,8 @@ static size_t calculate_slab_order(struc
+ 			 * looping condition in cache_grow().
+ 			 */
+ 			offslab_limit = size - sizeof(struct slab);
+-			offslab_limit /= sizeof(kmem_bufctl_t);
++			offslab_limit /= (sizeof(kmem_bufctl_t) +
++					(flags & SLAB_BC ? BC_EXTRASIZE : 0));
+ 
+  			if (num > offslab_limit)
+ 				break;
+@@ -2249,8 +2282,8 @@ kmem_cache_create (const char *name, siz
+ 		cachep = NULL;
+ 		goto oops;
+ 	}
+-	slab_size = ALIGN(cachep->num * sizeof(kmem_bufctl_t)
+-			  + sizeof(struct slab), align);
++
++	slab_size = slab_mgmt_size(flags, cachep->num, align);
+ 
+ 	/*
+ 	 * If the slab has been placed off-slab, and we have enough space then
+@@ -2261,11 +2294,9 @@ kmem_cache_create (const char *name, siz
+ 		left_over -= slab_size;
+ 	}
+ 
+-	if (flags & CFLGS_OFF_SLAB) {
++	if (flags & CFLGS_OFF_SLAB)
+ 		/* really off slab. No need for manual alignment */
+-		slab_size =
+-		    cachep->num * sizeof(kmem_bufctl_t) + sizeof(struct slab);
+-	}
++		slab_size = slab_mgmt_size_noalign(flags, cachep->num);
+ 
+ 	cachep->colour_off = cache_line_size();
+ 	/* Offset must be a multiple of the alignment. */
+@@ -2509,6 +2540,30 @@ void kmem_cache_destroy(struct kmem_cach
+ }
+ EXPORT_SYMBOL(kmem_cache_destroy);
+ 
++static inline kmem_bufctl_t *slab_bufctl(struct slab *slabp)
++{
++	return (kmem_bufctl_t *) (slabp + 1);
++}
++
++#ifdef CONFIG_BEANCOUNTERS
++static inline struct beancounter **slab_bc_ptrs(kmem_cache_t *cachep,
++		struct slab *slabp)
++{
++	return (struct beancounter **) ALIGN((unsigned long)
++			(slab_bufctl(slabp) + cachep->num), BC_EXTRASIZE);
++}
++
++struct beancounter **kmem_cache_bcp(kmem_cache_t *cachep, void *objp)
++{
++	struct slab *slabp;
++	struct beancounter **bcs;
++
++	slabp = virt_to_slab(objp);
++	bcs = slab_bc_ptrs(cachep, slabp);
++	return bcs + obj_to_index(cachep, slabp, objp);
++}
++#endif
++
+ /*
+  * Get the memory for a slab management obj.
+  * For a slab cache when the slab descriptor is off-slab, slab descriptors
+@@ -2529,7 +2584,8 @@ static struct slab *alloc_slabmgmt(struc
+ 	if (OFF_SLAB(cachep)) {
+ 		/* Slab management obj is off-slab. */
+ 		slabp = kmem_cache_alloc_node(cachep->slabp_cache,
+-					      local_flags, nodeid);
++					      local_flags & (~__GFP_BC),
++					      nodeid);
+ 		if (!slabp)
+ 			return NULL;
+ 	} else {
+@@ -2540,14 +2596,14 @@ static struct slab *alloc_slabmgmt(struc
+ 	slabp->colouroff = colour_off;
+ 	slabp->s_mem = objp + colour_off;
+ 	slabp->nodeid = nodeid;
++#ifdef CONFIG_BEANCOUNTERS
++	if (cachep->flags & SLAB_BC)
++		memset(slab_bc_ptrs(cachep, slabp), 0,
++				cachep->num * BC_EXTRASIZE);
++#endif
+ 	return slabp;
+ }
+ 
+-static inline kmem_bufctl_t *slab_bufctl(struct slab *slabp)
+-{
+-	return (kmem_bufctl_t *) (slabp + 1);
+-}
+-
+ static void cache_init_objs(struct kmem_cache *cachep,
+ 			    struct slab *slabp, unsigned long ctor_flags)
+ {
+@@ -2725,7 +2781,7 @@ static int cache_grow(struct kmem_cache 
+ 	 * Get mem for the objs.  Attempt to allocate a physical page from
+ 	 * 'nodeid'.
+ 	 */
+-	objp = kmem_getpages(cachep, flags, nodeid);
++	objp = kmem_getpages(cachep, flags & (~__GFP_BC), nodeid);
+ 	if (!objp)
+ 		goto failed;
+ 
+@@ -3073,6 +3129,19 @@ static inline void *____cache_alloc(stru
+ 	return objp;
+ }
+ 
++static inline int bc_should_charge(kmem_cache_t *cachep, gfp_t flags)
++{
++#ifdef CONFIG_BEANCOUNTERS
++	if (!(cachep->flags & SLAB_BC))
++		return 0;
++	if (flags & __GFP_BC)
++		return 1;
++	if (!(cachep->flags & SLAB_BC_NOCHARGE))
++		return 1;
++#endif
++	return 0;
++}
++
+ static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
+ 						gfp_t flags, void *caller)
+ {
+@@ -3086,6 +3155,12 @@ static __always_inline void *__cache_all
+ 	local_irq_restore(save_flags);
+ 	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
+ 					    caller);
++
++	if (objp && bc_should_charge(cachep, flags))
++		if (bc_slab_charge(cachep, objp, flags)) {
++			kmem_cache_free(cachep, objp);
++			objp = NULL;
++		}
+ 	prefetchw(objp);
+ 	return objp;
+ }
+@@ -3283,6 +3358,8 @@ static inline void __cache_free(struct k
+ 	struct array_cache *ac = cpu_cache_get(cachep);
+ 
+ 	check_irq_off();
++	if (cachep->flags & SLAB_BC)
++		bc_slab_uncharge(cachep, objp);
+ 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+ 
+ 	if (cache_free_alien(cachep, objp))
+--- ./mm/vmalloc.c.bckmemcore	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/vmalloc.c	2006-09-05 12:54:40.000000000 +0400
+@@ -520,6 +520,12 @@ void *vmalloc(unsigned long size)
+ }
+ EXPORT_SYMBOL(vmalloc);
+ 
++void *vmalloc_bc(unsigned long size)
++{
++	return __vmalloc(size, GFP_KERNEL_BC | __GFP_HIGHMEM, PAGE_KERNEL);
++}
++EXPORT_SYMBOL(vmalloc_bc);
++
+ /**
+  *	vmalloc_user  -  allocate virtually contiguous memory which has
+  *			   been zeroed so it can be mapped to userspace without

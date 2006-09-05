@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWIEEpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWIEEyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWIEEpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 00:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWIEEpn
+	id S965152AbWIEEyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 00:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWIEEyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 00:45:43 -0400
-Received: from [213.184.169.125] ([213.184.169.125]:15488 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1750708AbWIEEpn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 00:45:43 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: =?utf-8?q?J=C3=B6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
-Date: Tue, 5 Sep 2006 07:46:44 +0300
-User-Agent: KMail/1.5
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk, Pavel Machek <pavel@suse.cz>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060903110507.GD4884@ucw.cz> <20060904125744.GA1961@wohnheim.fh-wedel.de>
-In-Reply-To: <20060904125744.GA1961@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200609050746.44502.a1426z@gawab.com>
+	Tue, 5 Sep 2006 00:54:17 -0400
+Received: from pat.uio.no ([129.240.10.4]:46500 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965148AbWIEEyQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 00:54:16 -0400
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157429030.3915.8.camel@raven.themaw.net>
+References: <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+	 <1157421445.5510.13.camel@localhost>
+	 <1157424937.3002.4.camel@raven.themaw.net>
+	 <1157428241.5510.72.camel@localhost>
+	 <1157429030.3915.8.camel@raven.themaw.net>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 00:53:59 -0400
+Message-Id: <1157432039.32412.37.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.107, required 12,
+	autolearn=disabled, AWL 1.89, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Sun, 3 September 2006 11:05:08 +0000, Pavel Machek wrote:
-> > > - Modifying a Unionfs branch directly, while the union is mounted, is
-> > >   currently unsupported.  Any such change may cause Unionfs to oops
-> > > and it can even result in data loss!
-> >
-> > I'm not sure if that is acceptable. Even root user should be unable to
-> > oops the kernel using 'normal' actions.
->
-> Direct modification of branches is similar to direct modification of
-> block devices underneith a mounted filesystem.  While I agree that
-> such a thing _should_ not oops the kernel, I'd bet that you can easily
-> run a stresstest on a filesystem while randomly flipping bits in the
-> block device and get just that.
+On Tue, 2006-09-05 at 12:03 +0800, Ian Kent wrote:
+> Sure but this is an old version of autofs which is in use so changing
+> the expected behavior of a system call is not acceptable and I expect
+> other applications may well have a problem with this also.
 
-Not really a fair comparison.  The block level is conceptionally totally 
-different than the fs level, while a stackable fs is within the realms of 
-the fs level.
+Applications that rely on mkdir() to never return EACCES are broken.
+Particularly so in an selinux system (as was the case here).
 
-> There are bigger problems in unionfs to worry about.
+Note that an ordinary application will not see this: if I do
 
-Agreed.  Moving basic functionality abstractions into the VFS could easily 
-alleviate theses kinds of problems.
+Machine 1				Machine 2
+---------				---------
+mkdir foo
+					mkdir foo/bar
+					chmod 555 foo/bar foo
+mkdir foo/bar
+mkdir: cannot create directory 
+`foo/bar': File exists
 
+i.e. as expected. So this really only affects applications that are not
+supposed to be calling mkdir() in the first place.
 
-Thanks!
+> > > It is coping with the EACCESS return by not mounting the filesystem
+> > > which is the correct response in this case.
+> > 
+> > No it isn't. The directory exists. It can be looked up. There is no
+> > reason why you can't mount something on top of it.
+> > 
+> > Being permitted to do mkdir() or not has nothing to do with anything.
+> 
+> Agreed.
+> 
+> The fact that it's a mkdir is irrelevant given that nfs_lookup is
+> returning an EACCESS instead of EEXIST this will likely affect other
+> system calls such as "stat". I'll check this.
 
---
-Al
+In both cases, the call to vfs_mkdir() is returning the EACCES. Not
+nfs_lookup. The reason why we are no longer returning EEXIST is because
+the intents have changed due to the patch
+
+http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
+
+I suspect that reverting that patch would 'fix' the autofs bug.
 

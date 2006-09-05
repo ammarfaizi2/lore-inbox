@@ -1,134 +1,403 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWIEXo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbWIEXvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWIEXo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 19:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWIEXo1
+	id S965148AbWIEXvF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 19:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWIEXvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 19:44:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:28883 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932237AbWIEXoZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 19:44:25 -0400
-Subject: Re: [2.6 patch] net/sctp/: cleanups
-From: Sridhar Samudrala <sri@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>, davem@davemloft.net
-Cc: lksctp-developers@lists.sourceforge.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-In-Reply-To: <20060905215721.GM9173@stusta.de>
-References: <20060905215721.GM9173@stusta.de>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 16:44:21 -0700
-Message-Id: <1157499861.3728.7.camel@w-sridhar2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 19:51:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:48592 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965148AbWIEXvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 19:51:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=rJ9ORLmRdYqy/GsUDbKXAB7kHNhuzX8N75JFsHO9qDAhDbbtyuEwtLTIrkYp5gCQ97hC028A8gALEY7xZFTKh12EmZcy50z/DHvE0V93qkXYY1xsteO/FvCAqMnumKowVKR8G6m4/RqITo0TWAv+hhtxpfMjmi5r/Ja3HqCu/ig=
+Message-ID: <f71aedf40609051651k5d36d4fdkb6020685fc366983@mail.gmail.com>
+Date: Tue, 5 Sep 2006 18:51:00 -0500
+From: "madhu chikkature" <crmadhu210@gmail.com>
+To: "Pierre Ossman" <drzeus-list@drzeus.cx>
+Subject: Re: SDIO card support in Linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44F73E37.6030602@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_12580_21253898.1157500260519"
+References: <f71aedf40608310804w75728559ma5fd317e16e94b56@mail.gmail.com>
+	 <44F73E37.6030602@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 23:57 +0200, Adrian Bunk wrote:
-> This patch contains the following cleanups:
-> - make the following needlessly global function static:
->   - socket.c: sctp_apply_peer_addr_params()
-> - add proper prototypes for the several global functions in
->   include/net/sctp/sctp.h
-> 
-> Note that this fixes wrong prototypes for the following functions:
-> - sctp_snmp_proc_exit()
-> - sctp_eps_proc_exit()
-> - sctp_assocs_proc_exit()
-> 
-> The latter was spotted by the GNU C compiler and reported
-> by David Woodhouse.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+------=_Part_12580_21253898.1157500260519
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Acked-by: Sridhar Samudrala <sri@us.ibm.com>
+Hi Pierre,
 
-> 
-> ---
-> 
->  include/net/sctp/sctp.h |   13 +++++++++++++
->  net/sctp/ipv6.c         |    1 -
->  net/sctp/protocol.c     |    7 -------
->  net/sctp/socket.c       |   14 +++++++-------
->  4 files changed, 20 insertions(+), 15 deletions(-)
-> 
-> --- linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h.old	2006-09-05 16:50:33.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h	2006-09-05 16:54:18.000000000 +0200
-> @@ -128,6 +128,8 @@
->  				     int flags);
->  extern struct sctp_pf *sctp_get_pf_specific(sa_family_t family);
->  extern int sctp_register_pf(struct sctp_pf *, sa_family_t);
-> +int sctp_inetaddr_event(struct notifier_block *this, unsigned long ev,
-> +                        void *ptr);
->  
->  /*
->   * sctp/socket.c
-> @@ -178,6 +180,17 @@
->  			  struct sock *oldsk, struct sock *newsk);
->  
->  /*
-> + * sctp/proc.c
-> + */
-> +int sctp_snmp_proc_init(void);
-> +void sctp_snmp_proc_exit(void);
-> +int sctp_eps_proc_init(void);
-> +void sctp_eps_proc_exit(void);
-> +int sctp_assocs_proc_init(void);
-> +void sctp_assocs_proc_exit(void);
-> +
-> +
-> +/*
->   *  Section:  Macros, externs, and inlines
->   */
->  
-> --- linux-2.6.18-rc5-mm1/net/sctp/socket.c.old	2006-09-05 16:49:15.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/net/sctp/socket.c	2006-09-05 16:49:27.000000000 +0200
-> @@ -2081,13 +2081,13 @@
->   *                     SPP_SACKDELAY_ENABLE, setting both will have undefined
->   *                     results.
->   */
-> -int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
-> -				struct sctp_transport   *trans,
-> -				struct sctp_association *asoc,
-> -				struct sctp_sock        *sp,
-> -				int                      hb_change,
-> -				int                      pmtud_change,
-> -				int                      sackdelay_change)
-> +static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
-> +				       struct sctp_transport   *trans,
-> +				       struct sctp_association *asoc,
-> +				       struct sctp_sock        *sp,
-> +				       int                      hb_change,
-> +				       int                      pmtud_change,
-> +				       int                      sackdelay_change)
->  {
->  	int error;
->  
-> --- linux-2.6.18-rc5-mm1/net/sctp/ipv6.c.old	2006-09-05 16:50:51.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/net/sctp/ipv6.c	2006-09-05 16:50:58.000000000 +0200
-> @@ -78,7 +78,6 @@
->  
->  #include <asm/uaccess.h>
->  
-> -extern int sctp_inetaddr_event(struct notifier_block *, unsigned long, void *);
->  static struct notifier_block sctp_inet6addr_notifier = {
->  	.notifier_call = sctp_inetaddr_event,
->  };
-> --- linux-2.6.18-rc5-mm1/net/sctp/protocol.c.old	2006-09-05 16:53:10.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/net/sctp/protocol.c	2006-09-05 16:53:20.000000000 +0200
-> @@ -82,13 +82,6 @@
->  kmem_cache_t *sctp_chunk_cachep __read_mostly;
->  kmem_cache_t *sctp_bucket_cachep __read_mostly;
->  
-> -extern int sctp_snmp_proc_init(void);
-> -extern int sctp_snmp_proc_exit(void);
-> -extern int sctp_eps_proc_init(void);
-> -extern int sctp_eps_proc_exit(void);
-> -extern int sctp_assocs_proc_init(void);
-> -extern int sctp_assocs_proc_exit(void);
-> -
->  /* Return the address of the control sock. */
->  struct sock *sctp_get_ctl_sock(void)
->  {
+Here is some piece of code that i wrote for SDIO. I use 2.6.10 kernel
+and hence i can not really take a diff between the latest kernel
+version. But this is not really a patch. So, You can just comment on
+my code. I might later on work on the latest kernel versions based on
+your comment.I see that there are more discussions happening. Please
+pont to me if you have some code already written.
 
+After your previous mail, i see that i can remove the support for CMD3
+seperately for SDIO and do it the SD way. But i am not sure how to
+maintain the list of SDIO cards seperately.Also some hardware as our
+omap does, can support multiple MMC slots, in such cases one slot can
+have SDIO and the other MMC. The core needs to cliam the cards from
+different lists. So you may see some not so correct parts in my code.
+
+I am on the Texas Instruments MMC/SD/SDIO controller on the omap2 platform.
+
+Regards,
+Madhu
+
+
+On 8/31/06, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> madhu chikkature wrote:
+> > Hi,
+> >
+> > This is regarding the discussion going on in the list about the
+> > support of SDIO cards in Linux. I read some discussion happening to
+> > support SDIO cards using the existing Linux MMC core but I could not
+> > figure out what would be the direction the community to support the
+> > SDIO cards.
+> >
+>
+> I've been casually working on adding SDIO support to the MMC layer. The
+> driver model needs quite a bit of changes, so it's a bit of work before
+> we have something working. So far I've only got the basic init up and
+> running.
+>
+> The current version of the patch included (ignore the failed chunks for
+> mmc_block.c). Feel free to test away. :)
+>
+> > I have done some work using our own hardware platform runing ARM
+> > Linux. My hardware platform can support MMC/SD/SDIO cards.
+> >
+>
+> Out of curiosity, what controller are you using?
+>
+> >
+> > CMD3 of MMC can be reused during the discover cards phase, except that
+> > the card will respond back with the RCA.
+> >
+>
+> This is a SD "feature" and not specific to SDIO, so we have code for
+> this already.
+>
+> >
+> > With this, is it a fissible solution to have the MMC core do the
+> > initialization part of the card by having the CMD sequence for SDIO
+> > card (CMD5 and CMD3) in the mmc_setup sequence and maintain the SDIO
+> > card list along with MMC/SD?
+> >
+>
+> SD mandates a star topology (just a single card per bus), so we'll just
+> force a single card into the list. SD memory cards can actually work on
+> a shared bus, SDIO can not. It's not a big problem in practice though.
+>
+> > The CMD52 and CMD53 can be implemented with a simple pointer to
+> > mmc_data structure(An instance of it for SDIO) to send and receive
+> > data. Exporting the functions that implement CMD52 and CMD53 need to
+> > be done, so that any card specific driver sitting on the top of the
+> > MMC core can call these functions to read/write data from the card and
+> > configure the card.
+>
+> I've started implementing some SDIO equivalents of readX/writeX.
+>
+> >
+> > Couple of issues i faced are, how do we maintain the list of SDIO
+> > cards? Right now, i am not adding it to the list of MMC cards. SDIO
+> > combo cards need more work.
+> >
+>
+> The driver model isn't designed for SDIO cards, so it needs to be
+> changed. The design I'm working on couples "functions" to each card,
+> where drivers will bind to these functions instead of the card. Search
+> the archives for "MMC driver model" and you should find my LKML post
+> about it.
+>
+> > Second issue is related to how well the data transfer commands can be
+> > supported in such a way that the middleware, which does not exist as
+> > of today to hook the SDIO cards to specific Linux subsystems based on
+> > the type of the SDIO cards detected, for exaple WLAN SDIO card may
+> > need to talk to the networking subsystem etc.
+>
+> It shouldn't be different from PCI, USB or any other bus.
+>
+> >
+> > I am leaving the SDIO generic interrupts to the card specific driver.
+> > With this setup and few additions to the MMC controller driver, i
+> > could get the SDIO cards to be detected and i am able to read and
+> > write data from the SDIO card CCCR registers.In fact the MMC/SD and
+> > SDIO cards can co-exist.
+> >
+>
+> We need controller help to do interrupts. It's on my todo-list as it
+> requires a bit more indirection than "normal" interrupts.
+>
+> > Does this provide a basic support on which SDIO support can be worked
+> > on? or does community have any other idea?
+>
+> The basic model changes should come first as they will dictate on how
+> the rest of the code must be organised. I'd love to see your code though.
+>
+> >
+> > SD support came in at 2.6.14 times and many people still does not have
+> > access to SD specification easily. Is there any such issues related to
+> > SDIO as well which might prevent the community from supporting SDIO
+> > cards?
+> >
+>
+> SDIO is actually easier as there is a spec for at least the protocol and
+> Bluetooth cards.
+>
+> Rgds
+> Pierre
+>
+>
+
+------=_Part_12580_21253898.1157500260519
+Content-Type: application/octet-stream; name=mmc-core.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_erqxloxb
+Content-Disposition: attachment; filename="mmc-core.patch"
+
+LS0tIDIuNl9rZXJuZWwvZHJpdmVycy9tbWMvbW1jLmMJMjAwNi0wOS0wNSAxNzo0ODo1MC4wMDAw
+MDAwMDAgLTA1MDAKKysrIDIuNl9rZXJuZWwtc2Rpby9kcml2ZXJzL21tYy9tbWMuYwkyMDA2LTA5
+LTA1IDE3OjU3OjA2LjAwMDAwMDAwMCAtMDUwMApAQCAtNzA5LDYgKzcwOSwyMyBAQCBtbWNfYWxs
+b2NfY2FyZChzdHJ1Y3QgbW1jX2hvc3QgKmhvc3QsIHUzCiB9CiAKIC8qCisgKiBBbGxvY2F0ZSBh
+IG5ldyBTRElPIGNhcmQsIGFuZCBhc3NpZ24gYSBSQ0EuCisgKi8KK3N0YXRpYyBzdHJ1Y3QgbW1j
+X2NhcmQgKgorc2Rpb19hbGxvY19jYXJkKHN0cnVjdCBtbWNfaG9zdCAqaG9zdCwgaW50IGlvX3Jj
+YSkKK3sKKwlzdHJ1Y3QgbW1jX2NhcmQgKmNhcmQ7CisKKwljYXJkID0ga21hbGxvYyhzaXplb2Yo
+c3RydWN0IG1tY19jYXJkKSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFjYXJkKQorCQlyZXR1cm4gRVJS
+X1BUUigtRU5PTUVNKTsKKwltbWNfaW5pdF9jYXJkKGNhcmQsIGhvc3QpOworCWNhcmQtPnJjYSA9
+IGlvX3JjYTsKKworCXJldHVybiBjYXJkOworfQorCisvKgogICogVGVsbCBhdHRhY2hlZCBjYXJk
+cyB0byBnbyB0byBJRExFIHN0YXRlCiAgKi8KIHN0YXRpYyB2b2lkIG1tY19pZGxlX2NhcmRzKHN0
+cnVjdCBtbWNfaG9zdCAqaG9zdCkKQEAgLTc5Niw2ICs4MTMsMTIxIEBAIHN0YXRpYyBpbnQgbW1j
+X3NlbmRfb3BfY29uZChzdHJ1Y3QgbW1jX2gKIAlyZXR1cm4gZXJyOwogfQogCitzdGF0aWMgaW50
+IGlvX3NlbmRfb3BfY29uZChzdHJ1Y3QgbW1jX2hvc3QgKmhvc3QsIHUzMiBvY3IsIHUzMiAqIHJv
+Y3IpCit7CisJc3RydWN0IG1tY19jb21tYW5kIGNtZDsKKwlpbnQgaSwgZXJyID0gMDsKKworCWNt
+ZC5vcGNvZGUgPSBJT19TRU5EX09QX0NPTkQ7CisJY21kLmFyZyA9IG9jcjsKKwljbWQuZmxhZ3Mg
+PSBNTUNfUlNQX1I0OworCQorCWZvciAoaSA9IDEwMDsgaTsgaS0tKSB7CisJCWVyciA9IG1tY193
+YWl0X2Zvcl9jbWQoaG9zdCwgJmNtZCwgMCk7CisJCWlmIChlcnIgIT0gTU1DX0VSUl9OT05FKQor
+CQkJYnJlYWs7CisKKwkJaWYgKGNtZC5yZXNwWzBdICYgTU1DX0NBUkRfQlVTWSB8fCBvY3IgPT0g
+MCkKKwkJCWJyZWFrOworCQltbWNfZGVsYXkoMSk7CisJCWVyciA9IE1NQ19FUlJfVElNRU9VVDsK
+KworCQltbWNfZGVsYXkoMTApOworCX0KKworCWlmIChyb2NyKQorCQkqcm9jciA9IGNtZC5yZXNw
+WzBdOworCisJcmV0dXJuIGVycjsKK30KKworc3RydWN0IG1tY19jYXJkICpzZGlvY2FyZDsKK3N0
+YXRpYyBpbnQgaW9fc2VsZWN0X2NhcmQoc3RydWN0IG1tY19ob3N0ICpob3N0KXsKKwlzdHJ1Y3Qg
+bW1jX2NvbW1hbmQgY21kOworCWludCBlcnIgPSAwOworCisJY21kLm9wY29kZSA9IE1NQ19TRUxF
+Q1RfQ0FSRDsKKwljbWQuYXJnID0gc2Rpb2NhcmQtPnJjYTsKKwljbWQuZmxhZ3MgPSBNTUNfUlNQ
+X1IxOworCisJZXJyID0gbW1jX3dhaXRfZm9yX2NtZChob3N0LCAmY21kLDApOworCXJldHVybiBl
+cnI7Cit9CisKK3N0YXRpYyBpbnQgcmVhZF9jaWEsc2Rpb3Jlc3A7CisvKgorKiBSZWFkL1dyaXRl
+IG9uZSBieXRlIG9mIGRhdGEgZnJvbSBhbiBTRElPIGNhcmQgcmVnaXN0ZXIgb2YgdGhlIGdpdmVu
+IGZ1bmN0aW9uIG9uIHRoZSByZXNwIGxpbmUuCisqLworaW50IGlvX3J3X2RpcmVjdChpbnQgcndG
+bGFnLGludCBmdW5jTnVtLGludCByYXdGbGFnLCB1bnNpZ25lZCBsb25nIHJlZ0FkZHIsaW50IHZh
+bHVlKXsKKwlzdHJ1Y3QgbW1jX2NvbW1hbmQgY21kOworCWludCBlcnIgPSAwLHRyYW5zX2VyciA9
+IDE7CisKKyAgICAgICAgaWYgKCFzZGlvY2FyZCkKKwkgICAgcmV0dXJuIHRyYW5zX2VycjsKKwkg
+ICAgCisJaWYgKHNkaW9yZXNwKSAgIAorCSAgICByZXR1cm4gdHJhbnNfZXJyOworCSAgICAKKwlj
+bWQub3Bjb2RlID0gSU9fUldfRElSRUNUOworCWlmKHJ3RmxhZykKKwkgICAgICAgIGNtZC5hcmcg
+PSAoKHJ3RmxhZzw8MzEpIHwgKGZ1bmNOdW0gPDwgMjgpIHwgKHJhd0ZsYWc8PDI3KSB8IChyZWdB
+ZGRyIDw8IDkpIHwgdmFsdWUpOworCWVsc2UKKwkgICAgICAgIGNtZC5hcmcgPSAoKHJ3RmxhZzw8
+MzEpIHwgKGZ1bmNOdW0gPDwgMjgpIHwgKHJhd0ZsYWc8PDI3KSB8IChyZWdBZGRyIDw8IDkpKTsK
+KwljbWQuZmxhZ3MgPSBNTUNfUlNQX1I1OworCisJaWYgKHJlYWRfY2lhID09IDApCisJICAgIG1t
+Y19jbGFpbV9ob3N0KHNkaW9jYXJkLT5ob3N0KTsKKwkgICAgCisJaWYgKHNkaW9jYXJkLT5ob3N0
+LT5pb3MuY2xvY2sgPT0gMCl7CisJICAgIHByaW50ayhLRVJOX0VSUiJDTUQ1MiB3aGVuIHRoZSBo
+b3N0IGlzIHN1c3BlbmRlZFxuIik7CisJICAgIG1tY19yZWxlYXNlX2hvc3Qoc2Rpb2NhcmQtPmhv
+c3QpOworCSAgICByZXR1cm4gdHJhbnNfZXJyOworCX0KKwkKKwllcnIgPSBtbWNfd2FpdF9mb3Jf
+Y21kKHNkaW9jYXJkLT5ob3N0LCAmY21kLDApOworCQorCWlmIChlcnIhPSBNTUNfRVJSX05PTkUp
+CisJICAgIHJldHVybiBlcnI7CisJCisJaWYgKHJlYWRfY2lhID09IDApCisJICAgIG1tY19yZWxl
+YXNlX2hvc3Qoc2Rpb2NhcmQtPmhvc3QpOworCQorCWlmIChyd0ZsYWcpCisJICAgIHJldHVybiBl
+cnI7CisJZWxzZSAgICAKKwkgICAgcmV0dXJuIGNtZC5yZXNwWzBdICYgMHhGRjsKK30KK0VYUE9S
+VF9TWU1CT0woaW9fcndfZGlyZWN0KTsKKy8qCisqIFJlYWQvV3JpdGUgYnl0ZWMgbnVtYmVyIG9m
+IGJ5dGVzIGZyb20gU0RJTyBjYXJkIHJlZ2lzdGVycyBvZiBhIGdpdmVuIGZ1bmN0aW9uIG9uIHRo
+ZSBkYXRhIGxpbmVzLgorKi8KK2ludCBpb19yd19leHRlbmRlZChzdHJ1Y3QgbW1jX3JlcXVlc3Qg
+Km1ycSxpbnQgcndGbGFnLGludCBmdW5jTnVtLGludCBibGtNb2RlLGludCBvcGNvZGUsIHVuc2ln
+bmVkIGxvbmcgcmVnQWRkciwgaW50IGJ5dGVjKXsKKwlzdHJ1Y3QgbW1jX2NvbW1hbmQgY21kOwor
+CWludCBlcnIgPSAwLHRyYW5zX2VyciA9IDE7CisJCisgICAgICAgIGlmICghc2Rpb2NhcmQpCisJ
+ICAgIHJldHVybiB0cmFuc19lcnI7CisJICAgIAorCW1ycS0+Y21kID0gJmNtZDsKKwljbWQub3Bj
+b2RlID0gSU9fUldfRVhURU5ERUQ7CisJY21kLmFyZyA9ICgocndGbGFnPDwzMSkgfCAoZnVuY051
+bSA8PCAyOCkgfCAoYmxrTW9kZTw8MjcpIHwgKG9wY29kZSA8PCAyNikgfCAocmVnQWRkciA8PCA5
+KSB8IGJ5dGVjKTsKKwljbWQuZmxhZ3MgPSBNTUNfUlNQX1I1OworCisgICAgICAgIG1tY19jbGFp
+bV9ob3N0KHNkaW9jYXJkLT5ob3N0KTsKKwkKKwlpZiAoc2Rpb2NhcmQtPmhvc3QtPmlvcy5jbG9j
+ayA9PSAwKXsKKwkgICAgcHJpbnRrKEtFUk5fRVJSIkNNRDUzIHdoZW4gdGhlIGhvc3QgaXMgc3Vz
+cGVuZGVkXG4iKTsKKwkgICAgbW1jX3JlbGVhc2VfaG9zdChzZGlvY2FyZC0+aG9zdCk7CisJICAg
+IHJldHVybiB0cmFuc19lcnI7CisJfQorCQorICAgICAgICBlcnIgPSBtbWNfd2FpdF9mb3JfcmVx
+KHNkaW9jYXJkLT5ob3N0LCBtcnEpOworCQorCW1tY19yZWxlYXNlX2hvc3Qoc2Rpb2NhcmQtPmhv
+c3QpOworCQorCXJldHVybiBlcnI7Cit9CitFWFBPUlRfU1lNQk9MKGlvX3J3X2V4dGVuZGVkKTsK
+IHN0YXRpYyBpbnQgbW1jX3NlbmRfYXBwX29wX2NvbmQoc3RydWN0IG1tY19ob3N0ICpob3N0LCB1
+MzIgb2NyLCB1MzIgKnJvY3IpCiB7CiAJc3RydWN0IG1tY19jb21tYW5kIGNtZDsKQEAgLTgzNSwx
+MSArOTY3LDI3IEBAIHN0YXRpYyBpbnQgbW1jX3NlbmRfYXBwX29wX2NvbmQoc3RydWN0IG0KIHN0
+YXRpYyB2b2lkIG1tY19kaXNjb3Zlcl9jYXJkcyhzdHJ1Y3QgbW1jX2hvc3QgKmhvc3QpCiB7CiAJ
+c3RydWN0IG1tY19jYXJkICpjYXJkOwotCXVuc2lnbmVkIGludCBmaXJzdF9yY2EgPSAxLCBlcnI7
+CisJdW5zaWduZWQgaW50IGZpcnN0X3JjYSA9IDEsaW9fcmNhLCBlcnI7CiAKIAl3aGlsZSAoMSkg
+ewogCQlzdHJ1Y3QgbW1jX2NvbW1hbmQgY21kOwogCisJICAgICAgICBpZiAoaG9zdC0+bW9kZSA9
+PSBNTUNfTU9ERV9TRElPKXsKKwkJICAgIC8qIFJlYWQgdGhlIHJjYSBvZiBhbiBTRElPIGNhcmQu
+CisJCSAgICAgKiAqLworCSAgICAgICAgICAgIGNtZC5vcGNvZGUgPSBTRElPX1NFTkRfUkVMQVRJ
+VkVfQUREUjsKKwkgICAgICAgICAgICBjbWQuYXJnID0gMHgwOworCSAgICAgICAgICAgIGNtZC5m
+bGFncyA9IE1NQ19SU1BfUjY7CisKKwkgICAgICAgICAgICBlcnIgPSBtbWNfd2FpdF9mb3JfY21k
+KGhvc3QsICZjbWQsMCk7CisJCQorCQlpZiAoZXJyID09IE1NQ19FUlJfTk9ORSl7CisJICAgICAg
+ICAgICAgaW9fcmNhID0gY21kLnJlc3BbMF0gJiAweEZGRkYwMDAwOworCQkgICAgc2Rpb2NhcmQg
+PSBzZGlvX2FsbG9jX2NhcmQoaG9zdCwgaW9fcmNhKTsKKwkJICAgIGJyZWFrOworCQkgIH0KKwkJ
+fQorCiAJCWNtZC5vcGNvZGUgPSBNTUNfQUxMX1NFTkRfQ0lEOwogCQljbWQuYXJnID0gMDsKIAkJ
+Y21kLmZsYWdzID0gTU1DX1JTUF9SMjsKQEAgLTEwNTIsNiArMTIwMCw3MCBAQCBzdGF0aWMgdW5z
+aWduZWQgaW50IG1tY19yZWFkX2V4dF9jc2Qoc3RyCiAJcmV0dXJuIGVycjsKIH0KIAorCisvKgor
+ICogUmVhZCB0aGUgQ0NDUiByZWdpc3RlciBjb250ZW50cyBvZiBhbiBJL08gY2FyZC4KKyAqLwor
+c3RhdGljIHZvaWQgaW9fcmVhZF9jaWEoc3RydWN0IG1tY19ob3N0ICpob3N0KQoreworICAgICAg
+ICBpbnQgc2Rpb19yZXYsaW9fY2FyZFR5cGUsaW9fYnVzV2lkdGgsaW9fY2FyZENhcDsJCisKKyAg
+ICAgICAgcmVhZF9jaWEgPSAxOworICAgICAgICBzZGlvcmVzcCA9IGlvX3NlbGVjdF9jYXJkKGhv
+c3QpOworCisJaG9zdC0+aW9zLmJ1c193aWR0aCA9IE1NQ19CVVNfV0lEVEhfMTsKKwlpZiAoc2Rp
+b3Jlc3AgPT0gMCl7CisJaWYgKGhvc3QtPmNhcHMgJiBNTUNfQ0FQXzRfQklUX0RBVEEpIHsKKwkg
+ICAgICAgIGlvX2NhcmRDYXAgPSBpb19yd19kaXJlY3QoUkVBRCxGVU5DVElPTl8wLDAsQ0NDUl9D
+QVJEX0NBUEFDSVRZLDB4MCk7CisgICAgICAgICAgICAgICAgaWYgKGlvX2NhcmRDYXAgJiAoMTw8
+NikpeworCSAgICAgICAgICAgICAgIGhvc3QtPmlvcy5jbG9jayA9IGhvc3QtPmZfbWluOworCSAg
+ICAgICAgICAgICAgIGhvc3QtPm9wcy0+c2V0X2lvcyhob3N0LCAmaG9zdC0+aW9zKTsKKwkJCSAg
+IGlmIChpb19jYXJkQ2FwICYgKDE8PDcpKXsKKwkJICAgICAgICAgICAgIGlvX2J1c1dpZHRoID0g
+aW9fcndfZGlyZWN0KFJFQUQsRlVOQ1RJT05fMCwwLENDQ1JfQlVTX0lOVEZfQ09OVFJPTCwweDAp
+OworCSAgICAgIAkgICAgICAJICAgCWlvX2J1c1dpZHRoIHw9IDB4MjsKKwkgICAgICAJCSAgICAg
+IGlvX3J3X2RpcmVjdChXUklURSxGVU5DVElPTl8wLDAsQ0NDUl9CVVNfSU5URl9DT05UUk9MLGlv
+X2J1c1dpZHRoKTsKKwkJCQlob3N0LT5pb3MuYnVzX3dpZHRoID0gTU1DX0JVU19XSURUSF80Owor
+CQkgICAgICAgCX0KKyAgICAgICAgICAgICAgICB9IGVsc2UgeworCSAgICAgICAgICAgICAgIGhv
+c3QtPmlvcy5jbG9jayA9IDI1MDAwMDAwOworCSAgICAgICAgICAgICAgIGhvc3QtPmlvcy5idXNf
+d2lkdGggPSBNTUNfQlVTX1dJRFRIXzQ7CisJICAgICAgICAgICAgICAgaG9zdC0+b3BzLT5zZXRf
+aW9zKGhvc3QsICZob3N0LT5pb3MpOworCSAgICAgICAgICAgICAgIGlvX2J1c1dpZHRoID0gaW9f
+cndfZGlyZWN0KFJFQUQsRlVOQ1RJT05fMCwwLENDQ1JfQlVTX0lOVEZfQ09OVFJPTCwweDApOwor
+CSAgICAgICAgICAgICAgIGlvX2J1c1dpZHRoIHw9IDB4MjsKKwkgICAgICAgICAgICAgICBpb19y
+d19kaXJlY3QoV1JJVEUsRlVOQ1RJT05fMCwwLENDQ1JfQlVTX0lOVEZfQ09OVFJPTCxpb19idXNX
+aWR0aCk7CisKKwkgICB9CisJCQorCX0KKwkKKwlzZGlvX3JldiA9IGlvX3J3X2RpcmVjdChSRUFE
+LEZVTkNUSU9OXzAsMCxDQ0NSX1NESU9fUkVWSVNJT04sMHgwKTsKKwkvKgorCSAqIEVuYWJsZSBh
+bGwgdGhlIGZ1bmN0aW9ucyBpbiB0aGUgY2FyZC4KKwkqLworCWlvX3J3X2RpcmVjdChXUklURSxG
+VU5DVElPTl8wLDAsQ0NDUl9JT19FTkFCTEUsMHhGRik7CisJaW9fcndfZGlyZWN0KFdSSVRFLEZV
+TkNUSU9OXzAsMCxDQ0NSX0ZVTkNUSU9OX1NFTEVDVCxpb19yd19kaXJlY3QoUkVBRCxGVU5DVElP
+Tl8wLDAsQ0NDUl9GVU5DVElPTl9TRUxFQ1QsMHgwKSB8IDB4MSk7CisKKwlpb19jYXJkVHlwZSA9
+IGlvX3J3X2RpcmVjdChSRUFELEZVTkNUSU9OXzEsMCxGQlIxLDB4MCk7CisJaWYgKGlvX2NhcmRU
+eXBlID09IDB4MCkKKwkJcHJpbnRrKEtFUk5fSU5GTyJTRElPIFdMQU4gY2FyZCBkZXRlY3RlZFxu
+Iik7CisJZWxzZSBpZiAoaW9fY2FyZFR5cGUgPT0gMHgxKQorCQlwcmludGsoS0VSTl9JTkZPIlNE
+SU8gVUFSVCBpbnRlcmZhY2UgZGV0ZWN0ZWRcbiIpOworCWVsc2UgaWYgKGlvX2NhcmRUeXBlID09
+IDB4MikKKwkJcHJpbnRrKEtFUk5fSU5GTyJTRElPIHRoaW4gYmx1ZXRvb3RoIGludGVyZmFjZSBk
+ZXRlY3RlZFxuIik7CisJZWxzZSBpZiAoaW9fY2FyZFR5cGUgPT0gMHgzKQorCQlwcmludGsoS0VS
+Tl9JTkZPIlNESU8gY29tcGxldGUgYmx1ZXRvb3RoIGludGVyZmFjZSBkZXRlY3RlZFxuIik7CisJ
+ZWxzZSBpZiAoaW9fY2FyZFR5cGUgPT0gMHg0KQorCQlwcmludGsoS0VSTl9JTkZPIlNESU8gR1BT
+IHN0YW5kYXJkIGludGVyZmFjZSBkZXRlY3RlZFxuIik7CisJZWxzZSBpZiAoaW9fY2FyZFR5cGUg
+PT0gMHg1KQorCQlwcmludGsoS0VSTl9JTkZPIlNESU8gQ2FtZXJhIHN0YW5kYXJkIGludGVyZmFj
+ZSBkZXRlY3RlZFxuIik7CisJZWxzZSBpZiAoaW9fY2FyZFR5cGUgPT0gMHg2KQorCQlwcmludGso
+S0VSTl9JTkZPIlNESU8gUEhTIFJhZGlvIHN0YW5kYXJkIGludGVyZmFjZSBkZXRlY3RlZFxuIik7
+CisJaWYgKHNkaW9fcmV2ID09IDB4MDApCisJCXByaW50ayhLRVJOX0lORk8iU0RJTyByZXZpc2lv
+biAxLjAwXG4iKTsKKwkJCisJfQorCXJlYWRfY2lhID0gMDsKK30JCQkJCQkJCQkJCQkJCQkJCQkg
+ICAgCiBzdGF0aWMgdW5zaWduZWQgaW50IG1tY19jYWxjdWxhdGVfY2xvY2soc3RydWN0IG1tY19o
+b3N0ICpob3N0KQogewogCXN0cnVjdCBtbWNfY2FyZCAqY2FyZDsKQEAgLTE0NTMsMTggKzE2NjUs
+MjQgQEAgc3RhdGljIHZvaWQgbW1jX3NldHVwKHN0cnVjdCBtbWNfaG9zdCAqaAogCQlpbnQgZXJy
+OwogCQl1MzIgb2NyOwogCi0JCWhvc3QtPm1vZGUgPSBNTUNfTU9ERV9TRDsKKwkJaG9zdC0+bW9k
+ZSA9IE1NQ19NT0RFX1NESU87CiAKIAkJbW1jX3Bvd2VyX3VwKGhvc3QpOwogCQltbWNfaWRsZV9j
+YXJkcyhob3N0KTsKIAorCQllcnIgPSBpb19zZW5kX29wX2NvbmQoaG9zdCwgMCwgJm9jcik7CisJ
+ICAgICAgIC8qCisJICAgICAgICAqICogSWYgd2UgZmFpbCB0byBkZXRlY3QgYW55IFNESU8gY2Fy
+ZHMgdGhlbiB0cnkKKwkgICAgICAgICogKiBzZWFyY2hpbmcgZm9yIFNEIGNhcmRzLgorCSAgICAg
+ICAgICovCisJICAgICAgICBpZiAoZXJyICE9IE1NQ19FUlJfTk9ORSkgewogCQllcnIgPSBtbWNf
+c2VuZF9hcHBfb3BfY29uZChob3N0LCAwLCAmb2NyKTsKIAogCSAgICAgICAvKgogCSAgICAgICAg
+KiAqIElmIHdlIGZhaWwgdG8gZGV0ZWN0IGFueSBTRCBjYXJkcyB0aGVuIHRyeQogCSAgICAgICAg
+KiAqIHNlYXJjaGluZyBmb3IgTU1DIGNhcmRzLgogCSAgICAgICAgICovCi0JCWlmIChlcnIgIT0g
+TU1DX0VSUl9OT05FKXsKKwkJCWlmIChlcnIgIT0gTU1DX0VSUl9OT05FKXsKIAkJICAgICAgICAg
+ICAgIGhvc3QtPm1vZGUgPSBNTUNfTU9ERV9NTUM7CiAJCSAgICAgICAgICAgICBlcnIgPSBtbWNf
+c2VuZF9vcF9jb25kKGhvc3QsIDAsICZvY3IpOwogCQkgICAgICAgICAgICAgaWYgKGVyciAhPSBN
+TUNfRVJSX05PTkUpCkBAIC0xNDczLDYgKzE2OTEsNyBAQCBzdGF0aWMgdm9pZCBtbWNfc2V0dXAo
+c3RydWN0IG1tY19ob3N0ICpoCiAJCWVsc2UgewkKIAkgICAgICAgIAlob3N0LT5tb2RlID0gTU1D
+X01PREVfU0Q7CiAJCSAgICAgfQorCQl9CiAJCWhvc3QtPm9jciA9IG1tY19zZWxlY3Rfdm9sdGFn
+ZShob3N0LCBvY3IpOwogCiAJCS8qCkBAIC0xNTExLDcgKzE3MzAsMTAgQEAgc3RhdGljIHZvaWQg
+bW1jX3NldHVwKHN0cnVjdCBtbWNfaG9zdCAqaAogCSAqIGFsbCBnZXQgdGhlIGlkZWEgdGhhdCB0
+aGV5IHNob3VsZCBiZSByZWFkeSBmb3IgQ01EMi4KIAkgKiAoTXkgU2FuRGlzayBjYXJkIHNlZW1z
+IHRvIG5lZWQgdGhpcy4pCiAJICovCi0JaWYgKGhvc3QtPm1vZGUgPT0gTU1DX01PREVfU0QpCisg
+ICAgICAgIGlmIChob3N0LT5tb2RlID09IE1NQ19NT0RFX1NESU8peworCQkgaW9fc2VuZF9vcF9j
+b25kKGhvc3QsIGhvc3QtPm9jciwgTlVMTCk7CisJfQorCWVsc2UgaWYgKGhvc3QtPm1vZGUgPT0g
+TU1DX01PREVfU0QpCiAJCSBtbWNfc2VuZF9hcHBfb3BfY29uZChob3N0LCBob3N0LT5vY3IsIE5V
+TEwpOwogCWVsc2UKIAkgICAgICAgICBtbWNfc2VuZF9vcF9jb25kKGhvc3QsIGhvc3QtPm9jciwg
+TlVMTCk7CkBAIC0xNTIzLDcgKzE3NDUsMTAgQEAgc3RhdGljIHZvaWQgbW1jX3NldHVwKHN0cnVj
+dCBtbWNfaG9zdCAqaAogCSAqLwogCWhvc3QtPmlvcy5idXNfbW9kZSA9IE1NQ19CVVNNT0RFX1BV
+U0hQVUxMOwogCWhvc3QtPm9wcy0+c2V0X2lvcyhob3N0LCAmaG9zdC0+aW9zKTsKLSAgICAgICAg
+bW1jX3JlYWRfY3Nkcyhob3N0KTsKKwlpZiAoaG9zdC0+bW9kZSA9PSBNTUNfTU9ERV9NTUMgfHwg
+aG9zdC0+bW9kZSA9PSBNTUNfTU9ERV9TRCkKKwkgICAgICAgICBtbWNfcmVhZF9jc2RzKGhvc3Qp
+OworCWVsc2UKKwkgICAgICAgICBpb19yZWFkX2NpYShob3N0KTsKIAogCWlmIChob3N0LT5tb2Rl
+ID09IE1NQ19NT0RFX1NEKQogCQltbWNfcmVhZF9zY3JzKGhvc3QpOwpAQCAtMTYwMCw4ICsxODI1
+LDE2IEBAIHN0YXRpYyB2b2lkIG1tY19yZXNjYW4odm9pZCAqZGF0YSkKIAkgKiBJZiB3ZSBkaXNj
+b3ZlciB0aGF0IHRoZXJlIGFyZSBubyBjYXJkcyBvbiB0aGUKIAkgKiBidXMsIHR1cm4gb2ZmIHRo
+ZSBjbG9jayBhbmQgcG93ZXIgZG93bi4KIAkgKi8KKwlpZiAoaG9zdC0+bW9kZSA9PSBNTUNfTU9E
+RV9TRElPICl7CisJICAgICAgICBpZiAoc2Rpb3Jlc3AgPT0gMSl7CisJCSAgICAgIGtmcmVlKHNk
+aW9jYXJkKTsKKwkJICAgICAgbW1jX3Bvd2VyX29mZihob3N0KTsKKwkJfSAgICAgIAorCX0KKwll
+bHNlIHsKIAlpZiAobGlzdF9lbXB0eSgmaG9zdC0+Y2FyZHMpKQogCQltbWNfcG93ZXJfb2ZmKGhv
+c3QpOworCX0JCiB9CiAKIAo=
+------=_Part_12580_21253898.1157500260519
+Content-Type: application/octet-stream; name=mmc-include.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_erqxmkdp
+Content-Disposition: attachment; filename="mmc-include.patch"
+
+ZGlmZiAtcHVyTiAyLjZfa2VybmVsL2luY2x1ZGUvbGludXgvbW1jL2NhcmQuaCAyLjZfa2VybmVs
+LXNkaW8vaW5jbHVkZS9saW51eC9tbWMvY2FyZC5oCi0tLSAyLjZfa2VybmVsL2luY2x1ZGUvbGlu
+dXgvbW1jL2NhcmQuaAkyMDA2LTA5LTA1IDE3OjUzOjMxLjAwMDAwMDAwMCAtMDUwMAorKysgMi42
+X2tlcm5lbC1zZGlvL2luY2x1ZGUvbGludXgvbW1jL2NhcmQuaAkyMDA2LTA5LTA1IDE3OjU2OjQ5
+LjAwMDAwMDAwMCAtMDUwMApAQCAtMTUwLDQgKzE1MCwzMiBAQCBzdGF0aWMgaW5saW5lIGludCBt
+bWNfY2FyZF9jbGFpbV9ob3N0KHN0CiAvKiBBUkcgZm9yIENNRDYgdG8gY2hhbmdlIGJ1cyB3aWR0
+aC4KICAqLwogI2RlZmluZSBCVVNfV0lEVEhfQ0hBTkdFX0FSRyAweDAzQjcwMTAwCisKKy8qCisg
+KiBTRElPIGNhcmQgQ0NDUiByZWdpc3RlciBvZmZzZXRzLgorICovCisjZGVmaW5lIENDQ1JfU0RJ
+T19SRVZJU0lPTiAgICAgICAgICAgICAgMHgwMAorI2RlZmluZSBDQ0NSX1NEX1NQRUNJRklDQVRJ
+T05fUkVWSVNJT04gIDB4MDEKKyNkZWZpbmUgQ0NDUl9JT19FTkFCTEUgICAgICAgICAgICAgICAg
+ICAweDAyCisjZGVmaW5lIENDQ1JfSU9fUkVBRFkgICAgICAgICAgICAgICAgICAgMHgwMworI2Rl
+ZmluZSBDQ0NSX0lOVF9FTkFCTEUgICAgICAgICAgICAgICAgIDB4MDQKKyNkZWZpbmUgQ0NDUl9J
+TlRfUEVORElORyAgICAgICAgICAgICAgICAweDA1CisjZGVmaW5lIENDQ1JfSU9fQUJPUlQgICAg
+ICAgICAgICAgICAgICAgMHgwNgorI2RlZmluZSBDQ0NSX0JVU19JTlRGX0NPTlRST0wgICAgICAg
+ICAgIDB4MDcKKyNkZWZpbmUgQ0NDUl9DQVJEX0NBUEFDSVRZICAgICAgICAgICAgICAweDA4Cisj
+ZGVmaW5lIENDQ1JfQ09NTU9OX0NJU19QVFIxICAgICAgICAgICAgMHgwOQorI2RlZmluZSBDQ0NS
+X0NPTU1PTl9DSVNfUFRSMiAgICAgICAgICAgIDB4MEEKKyNkZWZpbmUgQ0NDUl9DT01NT05fQ0lT
+X1BUUjMgICAgICAgICAgICAweDBCCisjZGVmaW5lIENDQ1JfQlVTX1NVU1BFTkQgICAgICAgICAg
+ICAgICAgMHgwQworI2RlZmluZSBDQ0NSX0ZVTkNUSU9OX1NFTEVDVCAgICAgICAgICAgIDB4MEQK
+KyNkZWZpbmUgQ0NDUl9FWEVDX0ZMQUdTICAgICAgICAgICAgICAgICAweDBFCisjZGVmaW5lIEND
+Q1JfUkVBRFlfRkxBR1MgICAgICAgICAgICAgICAgMHgwRgorI2RlZmluZSBDQ0NSX0ZOMF9CTEtf
+U0laRTEgICAgICAgICAgICAgIDB4MTAKKyNkZWZpbmUgQ0NDUl9GTjBfQkxLX1NJWkUyICAgICAg
+ICAgICAgICAweDExCisjZGVmaW5lIEZCUjEgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgx
+MDAKKworI2RlZmluZSBGVU5DVElPTl8wICAgICAgICAgICAgICAgICAgICAgIDAKKyNkZWZpbmUg
+RlVOQ1RJT05fMSAgICAgICAgICAgICAgICAgICAgICAxCisjZGVmaW5lIFJFQUQgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgMAorI2RlZmluZSBXUklURSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIDEKICNlbmRpZgpkaWZmIC1wdXJOIDIuNl9rZXJuZWwvaW5jbHVkZS9saW51eC9tbWMvaG9z
+dC5oIDIuNl9rZXJuZWwtc2Rpby9pbmNsdWRlL2xpbnV4L21tYy9ob3N0LmgKLS0tIDIuNl9rZXJu
+ZWwvaW5jbHVkZS9saW51eC9tbWMvaG9zdC5oCTIwMDYtMDktMDUgMTc6NTU6MjIuMDAwMDAwMDAw
+IC0wNTAwCisrKyAyLjZfa2VybmVsLXNkaW8vaW5jbHVkZS9saW51eC9tbWMvaG9zdC5oCTIwMDYt
+MDktMDUgMTc6NTY6MzguMDAwMDAwMDAwIC0wNTAwCkBAIC0xMDYsNiArMTA2LDcgQEAgc3RydWN0
+IG1tY19ob3N0IHsKIAl1bnNpZ25lZCBpbnQJCW1vZGU7CQkvKiBjdXJyZW50IGNhcmQgbW9kZSBv
+ZiBob3N0ICovCiAjZGVmaW5lIE1NQ19NT0RFX01NQwkJMAogI2RlZmluZSBNTUNfTU9ERV9TRAkJ
+MQorI2RlZmluZSBNTUNfTU9ERV9TRElPICAgICAgICAgICAyCiAKIAlzdHJ1Y3QgbGlzdF9oZWFk
+CWNhcmRzOwkJLyogZGV2aWNlcyBhdHRhY2hlZCB0byB0aGlzIGhvc3QgKi8KIApkaWZmIC1wdXJO
+IDIuNl9rZXJuZWwvaW5jbHVkZS9saW51eC9tbWMvbW1jLmggMi42X2tlcm5lbC1zZGlvL2luY2x1
+ZGUvbGludXgvbW1jL21tYy5oCi0tLSAyLjZfa2VybmVsL2luY2x1ZGUvbGludXgvbW1jL21tYy5o
+CTIwMDYtMDktMDUgMTc6NTI6MTIuMDAwMDAwMDAwIC0wNTAwCisrKyAyLjZfa2VybmVsLXNkaW8v
+aW5jbHVkZS9saW51eC9tbWMvbW1jLmgJMjAwNi0wOS0wNSAxNzo1NjoxMy4wMDAwMDAwMDAgLTA1
+MDAKQEAgLTM4LDYgKzM4LDggQEAgc3RydWN0IG1tY19jb21tYW5kIHsKICNkZWZpbmUgTU1DX1JT
+UF9SMUIJKE1NQ19SU1BfU0hPUlR8TU1DX1JTUF9DUkN8TU1DX1JTUF9CVVNZKQogI2RlZmluZSBN
+TUNfUlNQX1IyCShNTUNfUlNQX0xPTkd8TU1DX1JTUF9DUkMpCiAjZGVmaW5lIE1NQ19SU1BfUjMJ
+KE1NQ19SU1BfU0hPUlQpCisjZGVmaW5lIE1NQ19SU1BfUjQgICAgICAoTU1DX1JTUF9TSE9SVCkK
+KyNkZWZpbmUgTU1DX1JTUF9SNSAgICAgIChNTUNfUlNQX1NIT1JUKQogI2RlZmluZSBNTUNfUlNQ
+X1I2CShNTUNfUlNQX1NIT1JUfE1NQ19SU1BfQ1JDKQogCiAJdW5zaWduZWQgaW50CQlyZXRyaWVz
+OwkvKiBtYXggbnVtYmVyIG9mIHJldHJpZXMgKi8KQEAgLTc4LDkgKzgwLDE2IEBAIHN0cnVjdCBt
+bWNfZGF0YSB7CiAJc3RydWN0IHNjYXR0ZXJsaXN0CSpzZzsJCS8qIEkvTyBzY2F0dGVyIGxpc3Qg
+Ki8KIH07CiAKK3N0cnVjdCBzZGlvX2RhdGEgeworICAgICAgICB1MzIgICpzZGlvX2J1ZmZlcl9w
+aHlzOworICAgICAgICB2b2lkICpzZGlvX2J1ZmZlcl92aXJ0OworCXN0cnVjdCBtbWNfcmVxdWVz
+dAkqbXJxOwkJLyogYXNzb2ljYXRlZCByZXF1ZXN0ICovCit9OworCiBzdHJ1Y3QgbW1jX3JlcXVl
+c3QgewogCXN0cnVjdCBtbWNfY29tbWFuZAkqY21kOwogCXN0cnVjdCBtbWNfZGF0YQkJKmRhdGE7
+CisJc3RydWN0IHNkaW9fZGF0YSAgICAgICAgKnNkaW9kYXRhOwogCXN0cnVjdCBtbWNfY29tbWFu
+ZAkqc3RvcDsKIAogCXZvaWQJCQkqZG9uZV9kYXRhOwkvKiBjb21wbGV0aW9uIGRhdGEgKi8KZGlm
+ZiAtcHVyTiAyLjZfa2VybmVsL2luY2x1ZGUvbGludXgvbW1jL3Byb3RvY29sLmggMi42X2tlcm5l
+bC1zZGlvL2luY2x1ZGUvbGludXgvbW1jL3Byb3RvY29sLmgKLS0tIDIuNl9rZXJuZWwvaW5jbHVk
+ZS9saW51eC9tbWMvcHJvdG9jb2wuaAkyMDA2LTA5LTA1IDE3OjU0OjQxLjAwMDAwMDAwMCAtMDUw
+MAorKysgMi42X2tlcm5lbC1zZGlvL2luY2x1ZGUvbGludXgvbW1jL3Byb3RvY29sLmgJMjAwNi0w
+OS0wNSAxNzo1NjoyNi4wMDAwMDAwMDAgLTA1MDAKQEAgLTkwLDYgKzkwLDEyIEBACiAjZGVmaW5l
+IFNEX0FQUF9PUF9DT05EICAgICAgICAgICA0MSAgIC8qIGJjciAgWzMxOjBdIE9DUiAgICAgICAg
+IFIzICAqLwogI2RlZmluZSBTRF9BUFBfU0VORF9TQ1IgICAgICAgICAgNTEgICAvKiBhZHRjICAg
+ICAgICAgICAgICAgICAgICBSMSAgKi8KIAorLyogU0RJTyBjb21tYW5kcyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIHR5cGUgIGFyZ3VtZW50ICAgICByZXNwb25zZSAqLworLyogVGhpcyBpcyBi
+YXNpY2FsbHkgdGhlIHNhbWUgY29tbWFuZCBhcyBmb3IgTU1DIHdpdGggc29tZSBxdWlya3MuICov
+CisjZGVmaW5lIFNESU9fU0VORF9SRUxBVElWRV9BRERSICAzICAgLyogYmNyICAgICAgICAgICAg
+ICAgICAgICAgUjYgICovCisjZGVmaW5lIElPX1NFTkRfT1BfQ09ORCAgICAgICAgICA1CisjZGVm
+aW5lIElPX1JXX0RJUkVDVCAgICAgICAgICAgICA1MgorI2RlZmluZSBJT19SV19FWFRFTkRFRCAg
+ICAgICAgICAgNTMKIC8qCiAgIE1NQyBzdGF0dXMgaW4gUjEKICAgVHlwZQo=
+------=_Part_12580_21253898.1157500260519--

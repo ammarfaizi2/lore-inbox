@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbWIETlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWIETp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161004AbWIETlY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWIETlY
+	id S1161005AbWIETp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWIETp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:41:24 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:6867 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030237AbWIETlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:41:23 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: VFAT truncate performance
-To: Mattias =?ISO-8859-1?Q?R=F6nnblom?= <hofors@lysator.liu.se>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 05 Sep 2006 21:38:45 +0200
-References: <6RJD8-3i0-1@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1GKglG-00018u-4l@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+	Tue, 5 Sep 2006 15:45:57 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:50117 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161005AbWIETp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 15:45:56 -0400
+Date: Tue, 5 Sep 2006 21:37:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       Daniel Walker <dwalker@mvista.com>, Hua Zhong <hzhong@gmail.com>
+Subject: Re: lockdep oddity
+Message-ID: <20060905193742.GA1566@elte.hu>
+References: <20060901015818.42767813.akpm@osdl.org> <20060905130356.GB6940@osiris.boeblingen.de.ibm.com> <20060905181241.GC16207@elte.hu> <20060905190807.GA27171@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060905190807.GA27171@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattias Rönnblom <hofors@lysator.liu.se> wrote:
 
-> extending files by ftruncate(2) runs very slow on VFAT file
-> systems. On my USB harddisk w/ VFAT, it takes 14 seconds to extend an
-> empty file to 1 GB. On a memory stick, it takes well over 4 minutes.
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> My question is: is this problem on the conceptual level (ie there is
-> no way of extending files on FAT that doesn't involve many disk
-> operations) or is the current Linux fs driver suboptimal in this
-> respect?
+> > > The reason is that the BUILD_LOCK_OPS macros in kernel/lockdep.c 
+> > > don't contain any of the *_acquire calls, while all of the _unlock 
+> > > functions contain a *_release call. Hence I get immediately 
+> > > unbalanced locks.
+> > 
+> > hmmm ... that sounds like a bug. Weird - i recently ran 
+> > PREEMPT+SMP+LOCKDEP kernels and didnt notice this.
+> 
+> ok, the reason i didnt find this problem is because this is fixed in 
+> my tree, but i didnt realize that it's a fix also for upstream ...
 
-Linux needs to zero files it truncate-extends because of security guarantees.
+actually ... it works fine in the upstream kernel due to this:
 
-You could temporarily ignore the truncate after create if it's followed by
-writing the file (defer untill first non-write), but it will be a BAD hack.
-It might work.
+  * If lockdep is enabled then we use the non-preemption spin-ops
+  * even on CONFIG_PREEMPT, because lockdep assumes that interrupts are
+  * not re-enabled during lock-acquire (which the preempt-spin-ops do):
+  */
+ #if !defined(CONFIG_PREEMPT) || !defined(CONFIG_SMP) || \
+         defined(CONFIG_DEBUG_LOCK_ALLOC)
 
-Default: open(O_WRITE|O_CREAT|O_TRUNC) -> do it, goto State 1
-         otherwise -> just do it
+so i'm wondering, how did you you manage to get into the 
+BUILD_LOCK_OPS() branch?
 
-State 1: ftruncate -> remember offset instead of executing ftruncate,
-                      goto State 2
-         otherwise -> goto Default
-
-State 2: write     -> do it, stay in State 2 unless file size increases
-                      beyond fake size, then goto Default
-         stat      -> return fake size
-         otherwise -> really do ftruncate, goto Default
-
-It might cause some operations to be slow you'd expect to be fast, and
-I'm not sure how it has to deal with concurrent access.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+	Ingo

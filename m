@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWIESuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWIESur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbWIESuY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWIESuY
+	id S1030215AbWIESur (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWIESuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:50:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:28906 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030213AbWIESuW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:50:22 -0400
-Date: Tue, 5 Sep 2006 13:50:20 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, linuxppc-dev@ozlabs.org,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Yanmin Zhang <yanmin.zhang@intel.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: pci error recovery procedure
-Message-ID: <20060905185020.GD7139@austin.ibm.com>
-References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com> <20060831175001.GE8704@austin.ibm.com> <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com> <20060901212548.GS8704@austin.ibm.com> <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com> <1157360592.22705.46.camel@localhost.localdomain>
+	Tue, 5 Sep 2006 14:50:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:37918 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030215AbWIESuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:50:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ucAIq7pjnk1ciqV5z9fMoT7V4xlswV2JMGOmnU5pNvsd0Si4mg237FJwrfltbKgPWrkgt0uexx3mcfWEbQvSDSOLulowG98+KIzb2LuzlvttcNrinMTSpZ2SU5bJwHGikqjRk+XJsQUuGBhRP7co5Rl1gpRmbAzQkX05MH50wxA=
+Message-ID: <bbe04eb10609051150g2636c438gf88195499b85279c@mail.gmail.com>
+Date: Tue, 5 Sep 2006 14:50:42 -0400
+From: "Kimball Murray" <kimball.murray@gmail.com>
+To: "Dave Hansen" <haveblue@us.ibm.com>
+Subject: Re: [Feature] x86_64 page tracking for Stratus servers
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, ak@suse.de
+In-Reply-To: <1157479017.3186.33.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1157360592.22705.46.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+References: <20060905173229.14149.60535.sendpatchset@dhcp83-86.boston.redhat.com>
+	 <1157479017.3186.33.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 07:03:12PM +1000, Benjamin Herrenschmidt wrote:
-> 
-> > As you know, all functions of a device share the same bus number and 5 bit dev number.
-> > They just have different 3 bit function number. We could deduce if functions are in the same
-> > device (slot).
-> 
-> Until you have a P2P bridge ...
+Hi Dave,
 
-And this is not theoretical: for example, the matrox graphics cards:
+The "hooks" have default funtions in the patch (see track.c), all of
+which do exactly what Stratus needs them to do.  Knowing that this
+functionality is only needed by Stratus, the hook was my attempt to
+allow other users of this interface to make it behave differently.  I
+wouldn't object to removing the hooks and instead calling the default
+functions directly.
 
-0000:c8:01.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge (non-transparent mode) (rev 13)
-0000:c9:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 85)
+-kimball
 
-Now, I could have sworn there was another device behind this bridge, 
-some serial or joystick controller or something, although this
-particular card doesn't seem to have it.
-
-------
-It's not clear to me what hardware may show up in the future. 
-For example, someone may build a 32x PCI-E card that will act 
-as a bridge to a drawer with half-a-dozen ordinary PCI-X slots 
-in it. This is perhaps a bit hypothetical, but changing the API 
-will make it harder to implement eror recovery for such a system.
-
-FWIW, there is at least one pSeries system in the lab which has
-several hundred PCI slots attached to it, although I've never 
-done testing on it. Hmm. Maybe its time I did ... 
-
---linas
-
+On 9/5/06, Dave Hansen <haveblue@us.ibm.com> wrote:
+> On Tue, 2006-09-05 at 13:34 -0400, Kimball Murray wrote:
+> > +static __inline__ void mm_track_pte(void * val)
+> > +{
+> > +       if (unlikely(mm_tracking_struct.active))
+> > +               do_mm_track_pte(val);
+> > +}
+>
+> This patch just appears to be a big collection of hooks.  Could you post
+> an example user of these hooks?  It is obviously GPL from all of the
+> EXPORT_SYMBOL_GPL()s anyway, right?
+>
+> -- Dave
+>
+>

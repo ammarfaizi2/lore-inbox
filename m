@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWIEL1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWIELaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWIEL1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 07:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIEL1K
+	id S1751290AbWIELaT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 07:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWIELaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 07:27:10 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43725 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751247AbWIEL1H (ORCPT
+	Tue, 5 Sep 2006 07:30:19 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55509 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751290AbWIELaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 07:27:07 -0400
-Date: Tue, 5 Sep 2006 13:19:26 +0200
+	Tue, 5 Sep 2006 07:30:17 -0400
+Date: Tue, 5 Sep 2006 13:22:39 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Cc: Steven Whitehouse <swhiteho@redhat.com>, linux-kernel@vger.kernel.org,
        Russell Cattelan <cattelan@redhat.com>,
        David Teigland <teigland@redhat.com>, hch@infradead.org
 Subject: Re: [PATCH 07/16] GFS2: Directory handling
-Message-ID: <20060905111926.GB8195@elte.hu>
+Message-ID: <20060905112239.GA11064@elte.hu>
 References: <1157031298.3384.797.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr> <1157445854.3384.965.camel@quoit.chygwyn.com> <20060905084334.GA16788@elte.hu> <Pine.LNX.4.61.0609051111480.28583@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -39,71 +39,45 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-> >> > >+	if ((char *)cur + cur_rec_len >= bh_end) {
-> >> > >+		if ((char *)cur + cur_rec_len > bh_end) {
-> >> > >+			gfs2_consist_inode(dip);
-> >> > >+			return -EIO;
-> >> > >+		}
-> >> > >+		return -ENOENT;
-> >> > >+	}
-> >> > 
-> >> > if((char *)cur + cur_rec_len > bh_end) {
-> >> > 	gfs2_consist_inode(dip);
-> >> > 	return -EIO;
-> >> > } else if((char *)cur + cur_rec_len == bh_end)
-> >> > 	return -ENOENT;
-> >> > 
-> >> ok
+> >Secondly, whenever we have curly braces in the first block, we tend to 
+> >do it in the second block too, for easier parsing. I.e.:
 > >
-> >this one is not OK! Firstly, Jan, and i mentioned this before, please 
-> >stop using 'if(', it is highly inconsistent and against basic taste. We 
-> >only use this construct for function calls (and macros), not for C 
-> >statements.
+> >	if ((char *)cur + cur_rec_len > bh_end) {
+> >		gfs2_consist_inode(dip);
+> >		return -EIO;
+> >	} else {
+> >		if ((char *)cur + cur_rec_len == bh_end)
+> >			return -ENOENT;
+> >	}
 > 
-> Now there is no rule in CodingStyle for this yet. [...]
-
-as i told you before, it is basic taste. Show me the CodingStyle rules 
-that forbids this construct:
-
-	if((((i+-+-+-+-+1-1))))
-		var=0;;;;;;;
-
-instead of:
-
-	if (i)
-		var = 0;
-
-?
-
-You will find no explicit rule in CodingStyle that explicitly forbids 
-any aspect of this line, because CodingStyle mainly concentrates on the 
-harder to follow rules. So please use common sense in combination with 
-CodingStyle.
-
-(And even if you dont agree with the taste, "if ( )" is done by 98% of 
-core code, so for the sake of consistency it's the thing to follow.)
-
-> 11:17 gwdg-wb04A:~/linux > grep -Pri '(if|for|while)\(' . | wc -l
-> 24242
+> I would very much like to do just this
 > 
-> [To be honest, I also present the other number:]
-> 11:17 gwdg-wb04A:~/linux > grep -Pri '(if|for|while) \(' . | wc -l
-> 380895
-> 
-> Although a minority, it does not seem so uncommon.
+> 		many insns;
+> 	} else if(...) {
+> 		single insn;
+> 	}
 
-What is your point?
+yeah, almost - what we want is:
 
-ugly code is not at all uncommon, sadly - but i'm glad that it's only 6% 
-in this particular case (and 1.9% for core kernel code).
+		many insns;
+	} else if (...) {
+		single insn;
+	}
 
-> [...] Plus, I was wanting to show how to reorder the construct, so 
-> change in whitespace between "if" and "(" is outoftopic.
+;-)
 
-it is not offtopic, because you _are_ nitpicking over style issues 
-(which is OK and desirable, if not overdone), while still seeming to 
-believe that "if(" is fine :-) The one who judges others is judged by 
-higher standards. In other words, i'm trying to fix the guy who is 
-fixing others ;-)
+> but again, some people think no {} should be there because it's just a 
+> single insn. [...]
+
+i used to be such a person but got converted: it makes visual sense to 
+have symmetry of curly braces. So it's fine to have:
+
+	if (...)
+		single insn;
+	else
+		single insn;
+
+but otherwise, if any of the blocks grows larger than 1 line, it should 
+be curly braces all around.
 
 	Ingo

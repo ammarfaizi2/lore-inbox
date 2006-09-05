@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWIENkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbWIENke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbWIENkH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 09:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWIENkG
+	id S965062AbWIENke (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 09:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWIENke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 09:40:06 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:29870 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965036AbWIENkC (ORCPT
+	Tue, 5 Sep 2006 09:40:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:480 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965050AbWIENka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 09:40:02 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take15 4/4] kevent: Timer notifications.
-Date: Tue, 5 Sep 2006 15:39:57 +0200
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-References: <11573648632380@2ka.mipt.ru>
-In-Reply-To: <11573648632380@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609051539.58492.arnd.bergmann@de.ibm.com>
+	Tue, 5 Sep 2006 09:40:30 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1157460815.5621.10.camel@localhost> 
+References: <1157460815.5621.10.camel@localhost>  <1157421445.5510.13.camel@localhost> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <4012.1157450226@warthog.cambridge.redhat.com> <1157460472.5621.3.camel@localhost> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 05 Sep 2006 14:40:23 +0100
+Message-ID: <11442.1157463623@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 September 2006 12:14, Evgeniy Polyakov wrote:
-> Timer notifications can be used for fine grained per-process time 
-> management, since interval timers are very inconvenient to use, 
-> and they are limited.
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-I guess this must have been discussed before, but why is this
-not using high-resolution timers?
+> > That is fine. As long as it is doing so in the _autofs_ filesystem. A
+> > call to 'stat()' should suffice to tell if this is the case.
+> 
+> I meant statfs().
 
-Are you planning to change this?
+stat() too: st_dev.
 
-Maybe at least mention it in the description.
-
-	Arnd <><
+David

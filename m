@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWIELGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWIELVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWIELGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 07:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWIELGF
+	id S1751344AbWIELVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 07:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWIELVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 07:06:05 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9174 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751415AbWIELGB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 07:06:01 -0400
-Date: Tue, 5 Sep 2006 12:58:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Steven Whitehouse <swhiteho@redhat.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, hch@infradead.org
-Subject: Re: [PATCH 07/16] GFS2: Directory handling
-Message-ID: <20060905105813.GA8195@elte.hu>
-References: <1157031298.3384.797.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr> <1157445854.3384.965.camel@quoit.chygwyn.com> <20060905084334.GA16788@elte.hu> <je3bb6zo4g.fsf@sykes.suse.de>
+	Tue, 5 Sep 2006 07:21:11 -0400
+Received: from agent.admingilde.org ([213.95.21.5]:9196 "EHLO
+	mail.admingilde.org") by vger.kernel.org with ESMTP
+	id S1751323AbWIELVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 07:21:09 -0400
+Date: Tue, 5 Sep 2006 13:20:57 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC][PATCH 3/9] actual generic PAGE_SIZE infrastructure
+Message-ID: <20060905112056.GJ17042@admingilde.org>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <20060830221604.E7320C0F@localhost.localdomain> <20060830221606.40937644@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVh9lyqKgK19OcEf"
 Content-Disposition: inline
-In-Reply-To: <je3bb6zo4g.fsf@sykes.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060830221606.40937644@localhost.localdomain>
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andreas Schwab <schwab@suse.de> wrote:
+--EVh9lyqKgK19OcEf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >> > >+	if (dent->de_inum.no_addr != 0 &&
-> >> > >+	    be32_to_cpu(dent->de_hash) == name->hash &&
-> >> > >+	    be16_to_cpu(dent->de_name_len) == name->len &&
-> >> > >+	    memcmp((char *)(dent+1), name->name, name->len) == 0)
-> >> > 
-> >> > Nocast.
-> >> > 
-> >> ok
-> >
-> > actually, sizeof(*dent) != 1, so how can a non-casted memcmp be correct 
-> > here?
-> 
-> How can the cast change anything?
+hoi :)
 
-yeah - i for a minute thought that the '+' is outside the cast - but it 
-is inside.
+On Wed, Aug 30, 2006 at 03:16:06PM -0700, Dave Hansen wrote:
+> * Define ASM_CONST() macro to help using constants in both assembly
+>   and C code.  Several architectures have some form of this, and
+>   they will be consolidated around this one.
 
-	Ingo
+arm uses UL() for this and I think this is much more readable than
+ASM_CONST().  Can we please change the name of this macro?
+
+--=20
+Martin Waitz
+
+--EVh9lyqKgK19OcEf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFE/V2Yj/Eaxd/oD7IRAlW5AJwOaK27o73iX/riP1NB2LyQjw9uxACffAu8
+r+mLEYn/BZ3UAWoHDopViS8=
+=WfbZ
+-----END PGP SIGNATURE-----
+
+--EVh9lyqKgK19OcEf--

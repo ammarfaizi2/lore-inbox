@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWIEKlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWIELFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWIEKlE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIEKlD
+	id S1751414AbWIELFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 07:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWIELFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:41:03 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:49383 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1751309AbWIEKlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:41:01 -0400
-Message-ID: <44FD5342.1040207@s5r6.in-berlin.de>
-Date: Tue, 05 Sep 2006 12:36:50 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Tue, 5 Sep 2006 07:05:35 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:45703 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751414AbWIELFe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 07:05:34 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: [PATCH -mm] PM: Remove sleeping from suspend_console
+Date: Tue, 5 Sep 2006 13:08:37 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Laurent Riffard <laurent.riffard@free.fr>
+References: <200609042250.41592.rjw@sisk.pl> <20060905062842.GA21738@suse.de>
+In-Reply-To: <20060905062842.GA21738@suse.de>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: bcollins@debian.org, scjody@modernduck.com,
-       linux1394-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: set power state of firewire host during suspend
-References: <20060905081426.GA4105@elf.ucw.cz>
-In-Reply-To: <20060905081426.GA4105@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609051308.38401.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> --- a/drivers/ieee1394/ohci1394.c
-> +++ b/drivers/ieee1394/ohci1394.c
-> @@ -3565,6 +3565,7 @@ static int ohci1394_pci_suspend (struct 
->  	}
->  #endif
->  
-> +	pci_set_power_state(pdev, pci_choose_state(pdev, state));
->  	return 0;
->  }
->  
+On Tuesday, 5 September 2006 08:28, Stefan Seyfried wrote:
+> On Mon, Sep 04, 2006 at 10:50:40PM +0200, Rafael J. Wysocki wrote:
+> > Remove ssleep() from suspend_console().
+> > 
+> > Stefan thinks it is unnecessary and will slow down the suspend too much.
 > 
+> "unnecessary" is not exactly what i think, rather "unacceptable" :-)
 
-Does this work on PPC_PMAC? Note the platform code before #endif.
-http://www.linux-m32r.org/lxr/http/source/drivers/ieee1394/ohci1394.c?v=2.6.18-rc5-mm1#L3554
+Still that implies it's not necessary. ;-)
+
+> We probably need to do something for some kinds of consoles to make sure all
+> characters are sent, but sleeping unconditionally is not the right thing IMO.
+
+Yup.  This was added as a result of the Laurent Riffard's report that the sleep
+was necessary, but it turned out to be due to the network card problem, so we
+should get rid of the ssleep().
+
+Greetings,
+Rafael
+
+
 -- 
-Stefan Richter
--=====-=-==- =--= --=-=
-http://arcgraph.de/sr/
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

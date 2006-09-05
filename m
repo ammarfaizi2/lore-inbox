@@ -1,114 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWIEXH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWIEXOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWIEXH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 19:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWIEXH4
+	id S932207AbWIEXOh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 19:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIEXOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 19:07:56 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:65498 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932206AbWIEXHz (ORCPT
+	Tue, 5 Sep 2006 19:14:37 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64968 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932207AbWIEXOg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 19:07:55 -0400
-Date: Wed, 6 Sep 2006 03:07:53 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, alan@redhat.com,
-       arjan@linux.intel.com, viro@zeniv.linux.org.uk
-Subject: Re: + audit-accounting-tty-locking.patch added to -mm tree
-Message-ID: <20060905230753.GA613@oleg>
-References: <200609052013.k85KDRWx010062@shell0.pdx.osdl.net>
+	Tue, 5 Sep 2006 19:14:36 -0400
+Date: Wed, 6 Sep 2006 09:14:08 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: akpm@osdl.org, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [xfs-masters] Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Converting into generic boolean
+Message-ID: <20060906091407.M3365803@wobbly.melbourne.sgi.com>
+References: <44F833C9.1000208@student.ltu.se> <20060904150241.I3335706@wobbly.melbourne.sgi.com> <44FBFEE9.4010201@student.ltu.se> <20060905130557.A3334712@wobbly.melbourne.sgi.com> <44FD71C6.20006@student.ltu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609052013.k85KDRWx010062@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <44FD71C6.20006@student.ltu.se>; from ricknu-0@student.ltu.se on Tue, Sep 05, 2006 at 02:47:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/05, Andrew Morton wrote:
->
-> Subject: audit/accounting: tty locking
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->
-> Add tty locking around the audit and accounting code.
->
-> The whole current->signal-> locking is all deeply strange but it's for
-> someone else to sort out.  Add rather than replace the lock for acct.c
+On Tue, Sep 05, 2006 at 02:47:02PM +0200, Richard Knutsson wrote:
+> Just the notion: "your" guys was the ones to make those to boolean(_t), 
 
-Historically ->signal/->sighand (both ptrs and their contents) were globally
-protected by tasklist_lock. 'current' can use these pointers lockless, they
-can't be changed under him.
+Sort of, we actually inherited that type from IRIX where it is
+defined in <sys/types.h>.
 
-Nowadays ->signal/->sighand are _also_ protected by ->sighand->siglock.
-Unless you are current, you can't lock ->siglock directly (without holding
-tasklist_lock), you should use lock_task_sighand().
+> and now you seem to want to patch them away because I tried to make them 
+> more general.
 
-But I don't understand ->signal->tty locking. I know nothing about job
-control, looking into the tty_io.c for the first time.
+Nah, I just don't see the value either way, and see it as another
+code churn exercise.
 
-tty_io.c:
-	->tty is set under task_lock()
+> So, is the:
+> B_FALSE -> false
+> B_TRUE -> true
+> ok by you?
 
-	->tty is cleared under lock_kernel() + tasklist_lock
+Personally, no.  Thats code churn with no value IMO.
 
-	except TIOCNOTTY, cleared under task_lock()
+> >"int needflush;" is just as readable (some would argue moreso) as
+> >"bool needflush;" and thats pretty much the level of use in XFS -
+> >  
+> How are you sure "needflush" is, for example, not a counter?
 
-Note that include/linux/sched.h doesn't document that ->alloc_lock
-protects ->tty, it is only used in tty_io.c for that purpose, why?
+Well, that would be named "flushcount" or some such thing.  And you
+would be able to tell that it was a counter by the way its used in
+the surrounding code.
 
-daemonize:
-	->tty is cleared under tty_mutex
+This discussion really isn't going anywhere useful; I think you need
+to accept that not everyone sees value in a boolean type. :)
 
-sys_setsid:
-	->tty is cleared under tty_mutex + tasklist_lock
+cheers.
 
-Btw, I think tiocsctty()/tty_open() is racy wrt to sys_setsid().
-tiocsctty() can see the result of '->signal->leader = 1' before
-sys_setsid() changed ->session/->pgrp and passed '->tty = NULL'.
-
-I think tiocsctty() and tty_open() need tty_mutex, no?
-
-> --- a/kernel/acct.c~audit-accounting-tty-locking
-> +++ a/kernel/acct.c
-> @@ -483,10 +483,14 @@ static void do_acct_process(struct file
->  	ac.ac_ppid = current->parent->tgid;
->  #endif
->
-> -	read_lock(&tasklist_lock);	/* pin current->signal */
-> +	mutex_lock(&tty_mutex);
-> +	/* FIXME: Whoever is responsible for current->signal locking needs
-> +	   to use the same locking all over the kernel and document it */
-> +	read_lock(&tasklist_lock);
->  	ac.ac_tty = current->signal->tty ?
->  		old_encode_dev(tty_devnum(current->signal->tty)) : 0;
->  	read_unlock(&tasklist_lock);
-> +	mutex_unlock(&tty_mutex);
-
-I think the purpose of read_lock(&tasklist_lock) was to protect ->tty,
-not ->signal, so I believe this comment is not correct.
-
-Am I understand correctly? tasklist_lock is not enough, ->tty could be
-cleared by ioctl(TIOCNOTTY). tty_mutex can't protect from changing ->tty
-pointer, but it protects from releasing tty_struct, yes?
-
-What about ->tty usage in do_task_stat() then ?
-
-> --- a/kernel/auditsc.c~audit-accounting-tty-locking
-> +++ a/kernel/auditsc.c
-> @@ -766,6 +766,8 @@ static void audit_log_exit(struct audit_
->  		audit_log_format(ab, " success=%s exit=%ld",
->  				 (context->return_valid==AUDITSC_SUCCESS)?"yes":"no",
->  				 context->return_code);
-> +
-> +	mutex_lock(&tty_mutex);
->  	if (tsk->signal && tsk->signal->tty && tsk->signal->tty->name)
-
-Ugh. I think this is ok, but I know nothing about audit.c. grep, grep ...
-This 'tsk' should be == current. Probably we need a comment.
-
-copy_process() calls audit_free() after cleanup_signal() (frees ->signal),
-but in that case context->in_syscall can't be true, so audit_log_exit()
-is not called, yes ?
-
-Oleg.
-
+-- 
+Nathan

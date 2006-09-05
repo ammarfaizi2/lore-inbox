@@ -1,64 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWIECzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWIEDB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965091AbWIECzY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 22:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWIECzX
+	id S965114AbWIEDB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 23:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWIEDB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 22:55:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43949 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965091AbWIECzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 22:55:23 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       saito.tadashi@soft.fujitsu.com, ak@suse.de, oleg@tv-sign.ru,
-       jdelvare@suse.de
-Subject: Re: [PATCH] proc: readdir race fix.
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1y7sz4455.fsf@ebiederm.dsl.xmission.com>
-	<20060905112621.b663bc7d.kamezawa.hiroyu@jp.fujitsu.com>
-Date: Mon, 04 Sep 2006 20:54:30 -0600
-In-Reply-To: <20060905112621.b663bc7d.kamezawa.hiroyu@jp.fujitsu.com>
-	(KAMEZAWA Hiroyuki's message of "Tue, 5 Sep 2006 11:26:21 +0900")
-Message-ID: <m1d5ab3tw9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Sep 2006 23:01:56 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:55503 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S965111AbWIEDBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 23:01:54 -0400
+X-Sasl-enc: pL8IlLwGGGRmzPTCVOv+eyVuBoEwXfyqWU0GRGjkaIWl 1157425313
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157423027.5510.23.camel@localhost>
+References: <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157423027.5510.23.camel@localhost>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 11:01:49 +0800
+Message-Id: <1157425309.3002.10.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+On Mon, 2006-09-04 at 22:23 -0400, Trond Myklebust wrote:
+> On Mon, 2006-09-04 at 12:52 +0100, David Howells wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > sony:/home/akpm> ls -l /net/bix/usr/src
+> > > total 0
+> > > 
+> > > sony:/home/akpm> showmount -e bix
+> > > Export list for bix:
+> > > /           *
+> > > /usr/src    *
+> > > /mnt/export *
+> > 
+> > Yes, but what's your /etc/exports now?  Not all options appear to showmount.
+> > 
+> > Can you add "nohide" to the /usr/src and /mnt/export lines and "fsid=0" to the
+> > / line if you don't currently have them and try again?
+> > 
+> > > iirc, we decided this is related to the fs-cache infrastructure work which
+> > > went into git-nfs.  I think David can reproduce this?
+> > 
+> > I'd only reproduced it with SELinux in enforcing mode.
+> > 
+> > Under such conditions, unless there's a readdir on the root directory, the
+> > subdirs under which exports exist will remain as incorrectly negative
+> > dentries.
+> > 
+> > The problem is a conjunction of circumstances:
+> > 
+> >  (1) nfs_lookup() has a shortcut in it that skips contact with the server if
+> >      we're doing a lookup with intent to create.  This leaves an incorrectly
+> >      negative dentry if there _is_ actually an object on the server.
+> > 
+> >  (2) The mkdir procedure is aborted between the lookup() op and the mkdir() op
+> >      by SELinux (see vfs_mkdir()).  Note that SELinux isn't the _only_ method
+> >      by which the abort can occur.
+> > 
+> >  (3) One of my patches correctly assigns the security label to the automounted
+> >      root dentry.
+> > 
+> >  (4) SELinux then aborts the automounter's mkdir() call because the automounter
+> >      does _not_ carry the correct security label to write to the NFS directory.
+> > 
+> >  (5) The incorrectly set up dentry from (1) remains because the the mkdir() op
+> >      is not invoked to set it right.
+> > 
+> > The only bit I added was (3), but that's not the only circumstance in which
+> > this can occur.
+> > 
+> > 
+> > If, for example, I do "chmod a-w /" on the NFS server, I can see the same
+> > effects on the client without the need for SELinux to put its foot in the door.
+> > Automount does:
+> > 
+> > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
+> > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+> > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
+> > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
+> > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
+> > 
+> > And where I was listing the disputed directory, I see:
+> > 
+> > 	[root@andromeda ~]# ls -lad /net/trash/usr/src
+> > 	drwxr-xr-x 4 root root 1024 Aug 30 10:35 /net/trash/usr/src/
+> > 	[root@andromeda ~]#
+> > 
+> > which isn't what I'd expect.  What I'd expect is:
+> > 
+> > 	[root@andromeda ~]# ls -l /net/trash/usr/src
+> > 	total 15
+> > 	drwxr-xr-x 3 root root  1024 Aug 30 10:35 debug/
+> > 	-rw-r--r-- 1 root root     0 Aug 16 10:01 hello
+> > 	drwx------ 2 root root 12288 Aug 16 10:00 lost+found/
+> > 	[root@andromeda ~]#
+> 
+> One way to fix this is to simply not hash the dentry when we're doing
+> the O_EXCL intent optimisation, but rather to only hash it _after_ we've
+> successfully created the file on the server. Something like the attached
+> patch ought to do it.
+> 
+> Note, though, that this will not fix the autofs problem: autofs is
+> trying to perform a totally unnecessary mkdir(), and is giving up when
+> it is told that SELinux won't authorise that particular operation. This
+> is clearly an autofs bug...
 
-> On Mon, 04 Sep 2006 17:13:10 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> Hi, Hit OOM-Killer, because of memory leak of task struct.
->
-> patch is attached.
-> -Kame
->
-> task struct should be put always.
+selinux is not involved in this senario.
 
-Good catch. I actually have a pending cleanup that works better if the
-task struct is held across the filldir so the incremental patch should look like:
 
-I also noticed a benign typo in TGID_OFFSET (1 subtract one that I shouldn't)
-
-Complete patch in just a moment.
-
-Eric
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index b7650b9..03f6680 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2186,7 +2186,7 @@ int proc_pid_readdir(struct file * filp,
-        tgid = filp->f_pos - TGID_OFFSET;
-        for (task = next_tgid(tgid);
-             task;
--            task = next_tgid(tgid + 1)) {
-+            put_task_struct(task), task = next_tgid(tgid + 1)) {
-                int len;
-                ino_t ino;
-                tgid = task->pid;
 

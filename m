@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWIETwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWIETyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWIETwh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWIETwh
+	id S1161009AbWIETyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWIETyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:52:37 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:13737 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030235AbWIETwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:52:36 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44FDD55D.8010205@s5r6.in-berlin.de>
-Date: Tue, 05 Sep 2006 21:51:57 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+	Tue, 5 Sep 2006 15:54:51 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:1230 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1030235AbWIETyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 15:54:50 -0400
+From: =?utf-8?q?=C4=B0smail_D=C3=B6nmez?= <ismail@pardus.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
+To: linux-atm-general@lists.sourceforge.net
+Subject: [PATCH] Move linux/device.h include in linux/atmdev.h to #ifdef __KERNEL__ section
+Date: Tue, 5 Sep 2006 22:55:09 +0300
+User-Agent: KMail/1.9.4
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive locking
- detected
-References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>	 <20060905111306.80398394.akpm@osdl.org>	 <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>	 <44FDC9F5.3090605@s5r6.in-berlin.de> <a44ae5cd0609051219p5962b62ek8dd695d3f3c88fa4@mail.gmail.com>
-In-Reply-To: <a44ae5cd0609051219p5962b62ek8dd695d3f3c88fa4@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_eYd/Ec7qAhl/A47"
+Message-Id: <200609052255.10004.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> The patch doesn't apply cleanly, but I suspect this is no big deal.
-> 
-> patch -p1 -R <
-> /home/miles/119-ieee1394-nodemgr-convert-nodemgr_serialize-semaphore-to-mutex.patch
-> 
-> patching file drivers/ieee1394/nodemgr.c
-> Hunk #2 succeeded at 1630 (offset 9 lines).
-> Hunk #3 succeeded at 1659 (offset 9 lines).
-> Hunk #4 succeeded at 1677 (offset 9 lines).
+--Boundary-00=_eYd/Ec7qAhl/A47
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes, these offsets are harmless.
+Hi,
 
-Thanks for the help to debug this.
--- 
-Stefan Richter
--=====-=-==- =--= --=-=
-http://arcgraph.de/sr/
+linux/device.h header is not included in the David Woodhouse's kernel-heade=
+rs=20
+git tree which is used for userspace kernel headers. Which results in compi=
+le=20
+errors when building iproute2. Attached patch moves linux/device.h include=
+=20
+under the #ifdef __KERNEL__ section. Compile tested on x86. Patch is agains=
+t=20
+Linus' 2.6 git tree.
+
+Signed-off-by: =C4=B0smail D=C3=B6nmez <ismail@pardus.org.tr>
+
+
+Regards,
+ismail
+
+=2D-=20
+=E3=82=A2=E3=83=8B=E3=83=A1=E3=81=AF=E6=9C=AC=E5=BD=93=E3=81=AB=E3=81=99=E3=
+=81=94=E3=81=84=E3=81=99=E3=81=8E=E3=82=8B=E3=82=88 !
+
+--Boundary-00=_eYd/Ec7qAhl/A47
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="device-header.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="device-header.patch"
+
+diff --git a/include/linux/atmdev.h b/include/linux/atmdev.h
+index 41788a3..2096e5c 100644
+--- a/include/linux/atmdev.h
++++ b/include/linux/atmdev.h
+@@ -7,7 +7,6 @@ #ifndef LINUX_ATMDEV_H
+ #define LINUX_ATMDEV_H
+ 
+ 
+-#include <linux/device.h>
+ #include <linux/atmapi.h>
+ #include <linux/atm.h>
+ #include <linux/atmioc.h>
+@@ -210,6 +209,7 @@ #define ATM_VF2TXT_MAP \
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/device.h>
+ #include <linux/wait.h> /* wait_queue_head_t */
+ #include <linux/time.h> /* struct timeval */
+ #include <linux/net.h>
+
+--Boundary-00=_eYd/Ec7qAhl/A47--

@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWIEGov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWIEGp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWIEGov (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 02:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWIEGov
+	id S965188AbWIEGp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 02:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWIEGp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 02:44:51 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:46319 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1750708AbWIEGot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 02:44:49 -0400
-Date: Tue, 5 Sep 2006 08:40:42 +0200
-From: Voluspa <lista1@comhem.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjan@infradead.org, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: Re: [PATCH] lockdep: disable lock debugging when kernel state
- becomes untrusted
-Message-Id: <20060905084042.20966381.lista1@comhem.se>
-In-Reply-To: <20060813184159.b536736f.akpm@osdl.org>
-References: <20060814030954.c3a57e05.lista1@comhem.se>
-	<20060813184159.b536736f.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.4.13; i686-pc-linux-gnu)
+	Tue, 5 Sep 2006 02:45:26 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:723 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S965184AbWIEGpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 02:45:22 -0400
+X-Sasl-enc: 99Dk4Z8PHrIk/GAW9vkF+ofSu1Lm0zo93U75XR+laGF6 1157438720
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157432221.32412.41.camel@localhost>
+References: <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157423027.5510.23.camel@localhost>
+	 <1157429219.3915.11.camel@raven.themaw.net>
+	 <1157432221.32412.41.camel@localhost>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 14:45:14 +0800
+Message-Id: <1157438714.4133.0.camel@raven.themaw.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 18:41:59 -0700 Andrew Morton wrote:
-> On Mon, 14 Aug 2006 03:09:54 +0200
-> Voluspa wrote:
+On Tue, 2006-09-05 at 00:57 -0400, Trond Myklebust wrote:
+> On Tue, 2006-09-05 at 12:06 +0800, Ian Kent wrote:
 > 
-> > On 2006-07-10 21:02:59 git-commits-head received:
-> > > commit 2c16e9c888985761511bd1905b00fb271169c3c0
-> > > tree e17756b3ed27b0f4953547c39cf46864cdd6f818
-> > > parent e54695a59c278b9ff48cd4b263da7a1d392f5061
-> > > author Arjan van de Ven Mon, 10 Jul 2006
-> > > 18:45:42 -0700 committer Linus Torvalds Tue, 11
-> > > Jul 2006 03:24:27 -0700
-> > >
-> > > [PATCH] lockdep: disable lock debugging when kernel state becomes
-> > > untrusted
-> > >
-> > > Disable lockdep debugging in two situations where the integrity
-> > > of the kernel no longer is guaranteed: when oopsing and when
-> > > hitting a tainting-condition.  The goal is to not get weird
-> > > lockdep traces that don't make sense or are otherwise
-> > > undebuggable, to not waste time.
-> > >
-> > > Lockdep assumes that the previous state it knows about is valid to
-> > > operate, which is why lockdep turns itself off after the first
-> > > violation it reports, after that point it can no longer make that
-> > > assumption.
-> > >
-> > > A kernel oops means that the integrity of the kernel compromised;
-> > > in addition anything lockdep would report is of lesser importance
-> > > than the oops.
-> > >
-> > > All the tainting conditions are of similar integrity-violating
-> > > nature and also make debugging/diagnosing more difficult.
+> > > One way to fix this is to simply not hash the dentry when we're doing
+> > > the O_EXCL intent optimisation, but rather to only hash it _after_ we've
+> > > successfully created the file on the server. Something like the attached
+> > > patch ought to do it.
 > > 
-> > On my x86_64 notebook I need ndiswrapper. No but-s, if-s or
-> > anything-s. Period. I also have to work outside of X in a clean
-> > terminal (console).
+> > No.
 > > 
-> > This patch unfortunately creates a 'pipe' directly from
-> >  /var/log/messages to the screen. So if I work in a textbased
-> > program, and something happens in the log, the program gets a
-> > broken interface. Programs that simultaniously output to the log
-> > becomes unusable.
-> > 
-> > It is also darn irritating when text strings materializes at the
-> > shell prompt...
-> > 
-> > Once the 'pipe' is established (by tainting) it can not be reverted
-> > by eg rmmod ndiswrapper.
-> > 
-> > I haven't even enabled any lockdep debugging:
+> > This patch simply marks the dentry negative and returns ENOMEM from the
+> > lookup which, as would be expected, results in this error being returned
+> > to userspace.
 > 
-> That would appear to be a bug.  debug_locks_off() is running
-> console_verbose() waaaay after the locking selftest code has
-> completed.
+> Oops. You are right. I forgot to set res=NULL...
 
-The possibly final -rc6 is likewise broken. What would it take to incur
-some respect for us, the millions of users effected by this shit?
-Should we all become quasi-developers and bombard lkml with patches
-that taint the kernel whenever some of the Intel binary blobs are
-loaded?
+Now returns EPERM.
 
-Would that cluebat Arjan off of his high horse?
 
-Mvh
-Mats Johannesson
+

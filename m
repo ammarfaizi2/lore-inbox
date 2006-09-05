@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWIETHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWIETNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWIETHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWIETHT
+	id S1030257AbWIETNH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWIETNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:07:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50108 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030225AbWIETHR (ORCPT
+	Tue, 5 Sep 2006 15:13:07 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8399 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030257AbWIETNG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:07:17 -0400
-Date: Tue, 5 Sep 2006 12:07:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: Access Control Lists for tmpfs
-Message-Id: <20060905120700.4f778843.akpm@osdl.org>
-In-Reply-To: <20060901221458.148480972@winden.suse.de>
-References: <20060901221421.968954146@winden.suse.de>
-	<20060901221458.148480972@winden.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 15:13:06 -0400
+Date: Tue, 5 Sep 2006 12:12:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Andrew Morton <akpm@osdl.org>, Alex Dubov <oakad@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
+Message-ID: <20060905191241.GA18427@kroah.com>
+References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com> <44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org> <44F9EE86.4020500@drzeus.cx> <20060903034836.GB6505@kroah.com> <44FAA61F.9000504@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44FAA61F.9000504@drzeus.cx>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Sep 2006 00:14:23 +0200
-Andreas Gruenbacher <agruen@suse.de> wrote:
+On Sun, Sep 03, 2006 at 11:53:35AM +0200, Pierre Ossman wrote:
+> Greg KH wrote:
+> > On Sat, Sep 02, 2006 at 10:50:14PM +0200, Pierre Ossman wrote:
+> >   
+> >>
+> >> This is a PCI device yes. Which has a number of card readers as
+> >> separate, hot-pluggable functions. Currently this means it interacts
+> >> with the block device and MMC subsystems of the kernel. As more drivers
+> >> pop up, the other card formats will probably get their own subsystems
+> >> the way MMC has. So there are three issues here:
+> >>
+> >>  * Where to put the central module that handles the generic parts of the
+> >> chip and pulls in the other modules as needed.
+> >>     
+> >
+> > Right now, the drivers/mmc directory has such a driver, the sdhci.c
+> > file, right?
+> >
+> >   
+> 
+> Not quite. sdhci is a vendor-neutral MMC controller driver. What I'm
+> talking about here is the interface-neutral portion for the Texas
+> Instruments multi-format card reader.
+> 
+> >>  * If the subfunction modules should be put with the subsystems they
+> >> connect to or with the main, generic module.
+> >>     
+> >
+> > It all depends on how bit it grows over time.  It is always easy to move
+> > files around at a later time if you so wish.
+> >
+> > For now, is the drivers/mmc/ directory acceptable?  If other card
+> > formats show up, we can reconsider it at that time.  Is that ok?
+> >   
+> 
+> Support for MemoryStick isn't that far off in the future, so it would be
+> preferable to get this right from the start.
+> 
+> Is there no driver in the kernel that already has this design?
 
-> --- linux-2.6.18-rc5.orig/mm/shmem.c
-> +++ linux-2.6.18-rc5/mm/shmem.c
-> @@ -26,6 +26,8 @@
->  #include <linux/module.h>
->  #include <linux/init.h>
->  #include <linux/fs.h>
-> +#include <linux/xattr.h>
-> +#include <linux/generic_acl.h>
->  #include <linux/mm.h>
->  #include <linux/mman.h>
->  #include <linux/file.h>
-> @@ -176,6 +178,7 @@ static const struct address_space_operat
->  static struct file_operations shmem_file_operations;
->  static struct inode_operations shmem_inode_operations;
->  static struct inode_operations shmem_dir_inode_operations;
-> +static struct inode_operations shmem_special_inode_operations;
->  static struct vm_operations_struct shmem_vm_ops;
->  
->  static struct backing_dev_info shmem_backing_dev_info  __read_mostly = {
-> @@ -630,13 +633,15 @@ static void shmem_truncate(struct inode 
->  	shmem_truncate_range(inode, inode->i_size, (loff_t)-1);
->  }
->  
-> +extern struct generic_acl_operations shmem_acl_ops;
+Not directly, no.  USB-storage handles a wide range of devices like this
+by virtue of them following the usb storage spec (which is really just
+scsi).
 
-Can we move this declaration into a header file please?
+thanks,
+
+greg k-h

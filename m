@@ -1,113 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWIEMSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWIEMS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWIEMSc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 08:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWIEMSc
+	id S932116AbWIEMS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 08:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWIEMS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 08:18:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19875 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932085AbWIEMSa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 08:18:30 -0400
-Subject: Re: [PATCH 09/16] GFS2: Extended attribute & ACL support
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609041835590.28823@yvahk01.tjqt.qr>
-References: <1157031403.3384.801.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041835590.28823@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 05 Sep 2006 13:23:58 +0100
-Message-Id: <1157459038.3384.1001.camel@quoit.chygwyn.com>
+	Tue, 5 Sep 2006 08:18:28 -0400
+Received: from pool-72-66-207-181.ronkva.east.verizon.net ([72.66.207.181]:22467
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932116AbWIEMS1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 08:18:27 -0400
+Message-Id: <200609051217.k85CH5j7004648@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm3 crypto issues with encrypted disks
+In-Reply-To: Your message of "Mon, 04 Sep 2006 17:25:22 EDT."
+             <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
+From: Valdis.Kletnieks@vt.edu
+References: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
+            <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1157458625_3367P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 05 Sep 2006 08:17:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_1157458625_3367P
+Content-Type: text/plain; charset=us-ascii
 
-On Mon, 2006-09-04 at 18:55 +0200, Jan Engelhardt wrote:
-> >+#if 0
-> >+	else if ((ip->i_di.di_flags & GFS2_DIF_EA_PACKED) &&
-> >+		 er->er_type == GFS2_EATYPE_SYS)
-> >+		return 1;
-> >+#endif
+On Mon, 04 Sep 2006 17:25:22 EDT, Valdis.Kletnieks@vt.edu said:
+> --==_Exmh_1157405122_3505P
+> Content-Type: text/plain; charset=us-ascii
 > 
-now removed.
+> On Mon, 04 Sep 2006 12:02:28 EDT, Valdis.Kletnieks@vt.edu said:
+> 
+> > Sorry for not catching this one earlier..  Sometime between 2.6.18-rc4-mm2
+> > and -mm3, something crept into the git-cryptodev.patch that breaks mounting
+> > encrypted disks.  What I have in /etc/fstab:
+> 
+> And of course, after I spend time doing a -mm bisect, the problem evaporates
+> in -rc5-mm1. ;)
 
-> >+/**
-> >+ * ea_get_unstuffed - actually copies the unstuffed data into the
-> >+ *                    request buffer
-> >+ * @ip:
-> >+ * @ea:
-> >+ * @data:
-> >+ *
-> >+ * Returns: errno
-> >+ */
-> 
-> There are more of these. If you have the time, please fill in.
-> 
-I've filled in the remaining ones in this file so far.
+I'm an idiot, had a typo in grub.conf and booted an old working kernel.
+It's still broken in -rc5-mm1.  Unfortunately, I'm going to be cleaning
+manure off the impellers for the rest of the week, so I won't be able to
+dig further into it before the weekend.
 
-> >+			*dataptr++ = cpu_to_be64((uint64_t)bh->b_blocknr);
-> 
-> At least on i386, this cast seems unnecessary, since
-> 
-> include/asm-i386/byteorder.h:
-> static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 val)          
-> 
-> but someone else should probably prove me right/wrong.
-> 
-I agree, so I've removed it.
+--==_Exmh_1157458625_3367P
+Content-Type: application/pgp-signature
 
-> >+	if (private)
-> >+		ea_set_remove_stuffed(ip, (struct gfs2_ea_location *)private);
-> 
-> private is a void *, ergo nocast.
-> 
-ok
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> >+	gfs2_glock_dq_uninit(&al->al_ri_gh);
-> 
-> Another Ken Preslan gem? al_ri_gh_t then.
-> 
-:-) It is, but it does make sense:
+iD8DBQFE/WrBcC3lWbTT17ARAsGTAKDqC78PNWCPVa4l8TQYIPDWOqDZbACeNLe1
+iNvMT6TA9a46pf1fO4dk32A=
+=oNxe
+-----END PGP SIGNATURE-----
 
- The al prefix means its part of a gfs2_alloc structure
- The ri stands for "Resource Index" one of GFS2's special files which in
-this case contains a list of the on-disk locations of the resource
-groups (think ext2/3 block groups and you won't be too far wrong).
- The gh stands for gfs2_holder which is the structure associated with
-holding a glock on something (in this case the Resource Index inode).
-
-> >+		return (5 + (ea->ea_name_len + 1));
-> ()
-> 
-> >+unsigned int gfs2_ea_name2type(const char *name, char **truncated_name)
-> >+{
-> >+	unsigned int type;
-> >+
-> >+	if (strncmp(name, "system.", 7) == 0) {
-> >+		type = GFS2_EATYPE_SYS;
-> >+		if (truncated_name)
-> >+			*truncated_name = strchr(name, '.') + 1;
-> 
-> Since we already know where the dot is (otherwise, strncmp would have failed),
-> we can omit the relookup with strchr:
-> 
-> 	*truncated_name = name + sizeof("system.") - 1;
-> 
-ok, all fixed. Also I noticed as soon as I did that, that it was
-possible to add a bunch more const in various places, so I did that too.
-I've also taken a look over the indenting which appeared a bit odd in
-places and fixed up that at the same time. The patch is here:
-
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=cca195c5c09b81065018dee39f4013b95bf47502
-
-Steve.
-
-
+--==_Exmh_1157458625_3367P--

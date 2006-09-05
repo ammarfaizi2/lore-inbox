@@ -1,178 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWIEIig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWIEIux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWIEIig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 04:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWIEIig
+	id S965053AbWIEIux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 04:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWIEIux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 04:38:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35460 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932148AbWIEIif (ORCPT
+	Tue, 5 Sep 2006 04:50:53 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37787 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965053AbWIEIuw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 04:38:35 -0400
+	Tue, 5 Sep 2006 04:50:52 -0400
+Date: Tue, 5 Sep 2006 10:43:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, hch@infradead.org
 Subject: Re: [PATCH 07/16] GFS2: Directory handling
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr>
-References: <1157031298.3384.797.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 05 Sep 2006 09:44:14 +0100
-Message-Id: <1157445854.3384.965.camel@quoit.chygwyn.com>
+Message-ID: <20060905084334.GA16788@elte.hu>
+References: <1157031298.3384.797.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609041314470.21005@yvahk01.tjqt.qr> <1157445854.3384.965.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157445854.3384.965.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 2006-09-04 at 13:35 +0200, Jan Engelhardt wrote:
-> >+
-> >+	return copied;
-> >+fail:
-> >+	return (copied) ? copied : error;
-> >+}
-> >+
-> >+typedef int (*gfs2_dscan_t)(const struct gfs2_dirent *dent,
-> >+			    const struct qstr *name,
-> >+			    void *opaque);
-> 
-> Collect all the typedefs above all functions (applies to all .c files).
-> 
-ok
+* Steven Whitehouse <swhiteho@redhat.com> wrote:
 
-> >+static inline int __gfs2_dirent_find(const struct gfs2_dirent *dent,
-> >+				     const struct qstr *name, int ret)
-> >+{
-> >+	if (dent->de_inum.no_addr != 0 &&
-> >+	    be32_to_cpu(dent->de_hash) == name->hash &&
-> >+	    be16_to_cpu(dent->de_name_len) == name->len &&
-> >+	    memcmp((char *)(dent+1), name->name, name->len) == 0)
-> 
-> Nocast.
-> 
-ok
+> > >+static inline int __gfs2_dirent_find(const struct gfs2_dirent *dent,
+> > >+				     const struct qstr *name, int ret)
+> > >+{
+> > >+	if (dent->de_inum.no_addr != 0 &&
+> > >+	    be32_to_cpu(dent->de_hash) == name->hash &&
+> > >+	    be16_to_cpu(dent->de_name_len) == name->len &&
+> > >+	    memcmp((char *)(dent+1), name->name, name->len) == 0)
+> > 
+> > Nocast.
+> > 
+> ok
 
-> >+static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode,
-[lines snipped]
-> >+	offset = ret;
-> >+	prev = NULL;
-> >+	dent = (struct gfs2_dirent *)(buf + offset);
-> 
-> Nocast.
-> 
-ok
-> >+		dent = (struct gfs2_dirent *)(buf + offset);
-> 
-> 
-> >+	if ((char *)cur + cur_rec_len >= bh_end) {
-> >+		if ((char *)cur + cur_rec_len > bh_end) {
-> >+			gfs2_consist_inode(dip);
-> >+			return -EIO;
-> >+		}
-> >+		return -ENOENT;
-> >+	}
-> 
-> if((char *)cur + cur_rec_len > bh_end) {
-> 	gfs2_consist_inode(dip);
-> 	return -EIO;
-> } else if((char *)cur + cur_rec_len == bh_end)
-> 	return -ENOENT;
-> 
-ok
+actually, sizeof(*dent) != 1, so how can a non-casted memcmp be correct 
+here?
 
-> >+	tmp = (struct gfs2_dirent *)((char *)cur + cur_rec_len);
-> >+
-> >+	if ((char *)tmp + be16_to_cpu(tmp->de_rec_len) > bh_end) {
-> 
-> Aah, this makes my eyes hurt. Though, it is probably a task not too short to
-> think of something that would do without casts.
-> 
-Well I've had a crack at this. I've got it down to one cast. Let me know
-if you think thats ok now... I managed to factor out some common code at
-the same time.
+> > >+	if ((char *)cur + cur_rec_len >= bh_end) {
+> > >+		if ((char *)cur + cur_rec_len > bh_end) {
+> > >+			gfs2_consist_inode(dip);
+> > >+			return -EIO;
+> > >+		}
+> > >+		return -ENOENT;
+> > >+	}
+> > 
+> > if((char *)cur + cur_rec_len > bh_end) {
+> > 	gfs2_consist_inode(dip);
+> > 	return -EIO;
+> > } else if((char *)cur + cur_rec_len == bh_end)
+> > 	return -ENOENT;
+> > 
+> ok
 
-> >+	leaf->lf_depth = cpu_to_be16(depth);
-> >+	leaf->lf_entries = cpu_to_be16(0);
-> 
-> 0 is said to be portable across all CPUs, therefore
-> 
-> 	leaf->lf_entries = 0;
-> 
-> should suffice.
-> 
-> >+	leaf->lf_next = cpu_to_be64(0);
-> 
-ok, both now fixed.
+this one is not OK! Firstly, Jan, and i mentioned this before, please 
+stop using 'if(', it is highly inconsistent and against basic taste. We 
+only use this construct for function calls (and macros), not for C 
+statements.
 
-> 
-> >+		for (x = sdp->sd_hash_ptrs; x--; from++) {
-> >+			*to++ = *from;	/*  No endianess worries  */
-> >+			*to++ = *from;
-> >+		}
-> 
-> Add /* Hakuna Matata */ and there will never be worries :-)
-> 
-:-) I had to use google to understand the reference :-)
+Secondly, whenever we have curly braces in the first block, we tend to 
+do it in the second block too, for easier parsing. I.e.:
 
-> >+static int compare_dents(const void *a, const void *b)
-> >+{
-> >+	struct gfs2_dirent *dent_a, *dent_b;
-> >+	uint32_t hash_a, hash_b;
-> >+	int ret = 0;
-> >+
-> >+	dent_a = *(struct gfs2_dirent **)a;
-> 
-> But in this function you can have it const! Or not?
-> 
-Yes, and now all converted to const
-[lines snipped]
-> 		ret = memcmp((char *)(dent_a + 1),
-> >+				     (char *)(dent_b + 1),
-> >+				     len_a);
-> 
-> Nocast.
-> 
-ok
+	if ((char *)cur + cur_rec_len > bh_end) {
+		gfs2_consist_inode(dip);
+		return -EIO;
+	} else {
+		if ((char *)cur + cur_rec_len == bh_end)
+			return -ENOENT;
+	}
 
-> >+		error = filldir(opaque, (char *)(dent + 1),
-> 
-> If you case, then cast it directly, in this case, filldir takes "const char *"
-> as 2nd type.
-> 
-ok
+Thirdly, the original code was quite fine as-is! What's the point of 
+introducing random perturbations like this? It is an open invitation for 
+the introduction of bugs... So unless there is a clear style reason to 
+do a change, i'd suggest to not touch the code.
 
-> >+	larr = vmalloc((leaves + entries) * sizeof(void*));
->                                                        ^
-> Space, to go in line with all the other casts.
-> 
-fixed
-
-> >+static inline uint32_t gfs2_disk_hash(const char *data, int len)
-> >+{
-> >+        return crc32_le(0xFFFFFFFF, data, len) ^ 0xFFFFFFFF;
-> >+}
-> 
-> Mind using (uint32_t)-1 or (uint32_t)~0 for that?
-> 
-~0 is the variant I've chosen.
-
-> >+	memcpy((char*)(dent+1), name->name, name->len);
-> 
-> Last but not least, nocast.
-> 
-ok.
-
-The patch is:
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=2bdbc5d73961c040fdc9b30d985fab3047d697a0
-
-Thanks for doing all this review work, btw. I'll be working on your more
-recent emails today,
-
-Steve.
-
-
+	Ingo

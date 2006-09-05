@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWIEPNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWIEPOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbWIEPNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWIEPNZ
+	id S965101AbWIEPOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWIEPOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:13:25 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:31685 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965102AbWIEPNX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:13:23 -0400
-Subject: Re: [RFC][PATCH 2/2] ACPI: handle timer ticks proactively
-From: Adam Belay <abelay@novell.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net,
-       arjan@linux.intel.com
-In-Reply-To: <20060905090328.GA4888@elf.ucw.cz>
-References: <20060904131027.GD6279@ucw.cz>
-	 <20060905082855.GC5082@elf.ucw.cz> <20060905085319.GA2237@elf.ucw.cz>
-	 <20060905090328.GA4888@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 11:16:00 -0400
-Message-Id: <1157469360.3420.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Tue, 5 Sep 2006 11:14:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42667 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965101AbWIEPOJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 11:14:09 -0400
+Message-ID: <44FD9431.2050403@garzik.org>
+Date: Tue, 05 Sep 2006 11:13:53 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+CC: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, greg@kroah.com, harmon@ksu.edu,
+       Daniel Drake <dsd@gentoo.org>, Len Brown <len.brown@intel.com>
+Subject: Re: VIA IRQ quirk, another (embarrassing) suggestion.
+References: <1157330567.3046.24.camel@localhost.portugal>	 <20060903175841.7a84c63c.akpm@osdl.org> <44FBBD28.6070601@garzik.org>	 <20060904055502.GA26816@tuatara.stupidest.org>	 <1157370847.4624.15.camel@localhost.localdomain>	 <20060904183352.GA14004@tuatara.stupidest.org> <1157468155.30252.17.camel@localhost.localdomain>
+In-Reply-To: <1157468155.30252.17.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 11:03 +0200, Pavel Machek wrote:
-> Hi!
+Sergio Monteiro Basto wrote:
+> On Mon, 2006-09-04 at 11:33 -0700, Chris Wedgwood wrote:
+>> On Mon, Sep 04, 2006 at 12:54:07PM +0100, Sergio Monteiro Basto wrote:
+>>
+>>> I don't know if this is a real question. Have we VIA products on PCI
+>>> card, running on not VIA chip sets ?
+>> Yes.  Certainly for on-board devices too.
 > 
-> > > > This patch takes advantage of the infrastructure introduced in the last
-> > > > patch, and allows the processor idle algorithm to proactively choose a
-> > > > c-state based on the time the next timer interrupt is expected to occur.
-> > > > It preserves the residency metric, so the algorithm should, in theory,
-> > > > remain effective against bursts of activity from other interrupt
-> > > > sources.
-> > > > 
-> > > > This patch is mostly intended to be illustrative.  There may be some
-> > > > "#ifdef CONFIG_ACPI" issues, and I would appreciate any advice on
-> > > > implementing this more cleanly.
-> > 
-> > Okay, just to get you some feedback:
-> > 
-> > It seems to change things a _lot_. Power consumption with usb modules
-> > loaded went from 14315mW to 13800mW -- that is huge
-> > deal. Unfortunately something strange is going on: with stock kernel,
-> > power consumption is mostly constant. With your patch, it varies a
-> > lot, at 2 second timescale.
-> > 
-> > Power consumption with usb unloaded (only way to get reasonable power
-> > on x60) went from stable 10450mW to  something rapidly changing, and
-> > probably even worse than original:
-> 
-> I also noticed that with your patch, bus master activity tends to be constant?!
+> OK , other argument.
+> We have billions of VIA chip sets with VIA PCI on-board and 
+> VIA PCI on others chip sets, if exists, are a very few.
+> So, because some exceptions, we shouldn't stop a resolution of a very
+> large % of the cases. 
 
-Is this the case even when userspace touches the disk?  On my hardware I
-see a constant flow of short BM activity bursts.
+No thanks.  As VIA SATA maintainer, I like being able to use my VIA SATA 
+PCI card.
 
-Thanks,
-Adam
+	Jeff
+
 
 

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWIEVT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWIEVYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWIEVT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWIEVT5
+	id S965082AbWIEVYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWIEVYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:19:57 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7615 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751179AbWIEVT4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:19:56 -0400
-Subject: Re: pci error recovery procedure
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, linuxppc-dev@ozlabs.org,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Yanmin Zhang <yanmin.zhang@intel.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-In-Reply-To: <20060905185020.GD7139@austin.ibm.com>
-References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
-	 <20060831175001.GE8704@austin.ibm.com>
-	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
-	 <20060901212548.GS8704@austin.ibm.com>
-	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
-	 <1157360592.22705.46.camel@localhost.localdomain>
-	 <20060905185020.GD7139@austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 06 Sep 2006 07:19:11 +1000
-Message-Id: <1157491152.22705.133.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 5 Sep 2006 17:24:20 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:31930 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751375AbWIEVYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 17:24:19 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Jeff Garzik <jeff@garzik.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: PATA drivers queued for 2.6.19
+Date: Wed, 06 Sep 2006 07:24:09 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <lcqrf2hjo1fo28jpikf4iebq55c955folf@4ax.com>
+References: <44FC0779.9030405@garzik.org> <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com> <Pine.LNX.4.61.0609041406140.21005@yvahk01.tjqt.qr> <44FD7B1E.7020102@aitel.hist.no> <1157467176.9018.48.camel@localhost.localdomain> <b9arf2lrbh5v4pv9klbtujfhvq3hiuehdk@4ax.com> <m3veo2b3ht.fsf@defiant.localdomain>
+In-Reply-To: <m3veo2b3ht.fsf@defiant.localdomain>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 13:50 -0500, Linas Vepstas wrote:
-> On Mon, Sep 04, 2006 at 07:03:12PM +1000, Benjamin Herrenschmidt wrote:
-> > 
-> > > As you know, all functions of a device share the same bus number and 5 bit dev number.
-> > > They just have different 3 bit function number. We could deduce if functions are in the same
-> > > device (slot).
-> > 
-> > Until you have a P2P bridge ...
-> 
-> And this is not theoretical: for example, the matrox graphics cards:
-> 
-> 0000:c8:01.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge (non-transparent mode) (rev 13)
-> 0000:c9:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 85)
+On Tue, 05 Sep 2006 19:57:34 +0200, Krzysztof Halasa <khc@pm.waw.pl> wrote:
 
-It's also very common with multiple ports network cards
+>Grant Coady <gcoady.lk@gmail.com> writes:
+>
+>> Which leads back to this slackware user, who's never used an initrd, 
+>> thinking about dual root partitions just to get the name change from 
+>> another /etc/fstab?  
+>
+>I think it's unnecessary, /etc/fstab is not used while mounting root fs,
+>and both mount and fsck should understand labels (i.e., you can put
+>labels there, even for root fs).
 
-Ben.
+Thanks, Krzysztof, Alan and others, I can do labels now, avoiding 
+them too long ;)
 
-
+Grant.

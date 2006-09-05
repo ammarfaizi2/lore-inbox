@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWIEKaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWIEKhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWIEKaa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWIEKaa
+	id S1751320AbWIEKhs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWIEKhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:30:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3783 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751295AbWIEKa3 (ORCPT
+	Tue, 5 Sep 2006 06:37:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57291 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751305AbWIEKhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:30:29 -0400
-Subject: Re: [PATCH 08/16] GFS2: Resource group code
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609041637500.17279@yvahk01.tjqt.qr>
-References: <1157031351.3384.799.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041637500.17279@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 05 Sep 2006 11:36:13 +0100
-Message-Id: <1157452573.3384.984.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 06:37:47 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1157451611.4133.22.camel@raven.themaw.net> 
+References: <1157451611.4133.22.camel@raven.themaw.net>  <1157436412.3915.26.camel@raven.themaw.net> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <1157421445.5510.13.camel@localhost> <1157424937.3002.4.camel@raven.themaw.net> <1157428241.5510.72.camel@localhost> <1157429030.3915.8.camel@raven.themaw.net> <1157432039.32412.37.camel@localhost> <3698.1157449249@warthog.cambridge.redhat.com> 
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 05 Sep 2006 11:37:36 +0100
+Message-ID: <4987.1157452656@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ian Kent <raven@themaw.net> wrote:
 
-On Mon, 2006-09-04 at 16:50 +0200, Jan Engelhardt wrote:
-> >+#define BFITNOENT 0xFFFFFFFF
+> > As long as you don't rely on stat...mkdir working.  That can go wrong if the
+> > dentry gets booted from the dcache by memory pressure in the "...".
 > 
-> See previous mail, (uint32_t)-1 / (uint32_t)~0 or leave it.
-> 
-ok.
+> I'm not clear on your point here.
 
-> >+static inline int rgrp_contains_block(struct gfs2_rindex *ri, uint64_t block)
-> >+{
-> >+	uint64_t first = ri->ri_data0;
-> >+	uint64_t last = first + ri->ri_data;
-> >+	return !!(first <= block && block < last);
-> >+}
-> 
-> No need for the !!, the expression !! is operating on is already a boolean.
-> IOW,
-> 
-> 	return first <= block && block < last;
-> 
-Now fixed in:
+I was wondering if you were going to rely on stat() forcing the dentry to be
+correctly initialised before you did mkdir(), but it seems not.
 
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=16910427e1eb2a8069708ee24406d2d465381ebd
+> If I stat a path and it exists then all is good and I'm done.
+> If I stat a path and I get something other than ENOENT then all is bad
+> and I return fail.
+> Otherwise I can just attempt to create the directory and fail if all is
+> bad with that.
 
-> 
-> >+/**
-> >+ * gfs2_alloc_put - throw away the struct gfs2_alloc for an inode
-> >+ * @ip: the inode
-> >+ *
-> >+ */
-> >+
-> >+void gfs2_alloc_put(struct gfs2_inode *ip)
-> >+{
-> >+	return;
-> >+}
-> 
-> Missing some code? Code that comes later?
-> 
-> 
-> Jan Engelhardt
+Okay, I suppose.  But that still doesn't seem to deal with the case of creating
+a directory on the client that then overlays a symlink on the server that you
+can't yet access.
 
-Well the allocation structure used to be kmalloc'ed and free'd by this
-function and gfs2_alloc_get. I changed that to put it inline in the
-struct gfs2_inode since there didn't seem a lot of point in having it
-dynamically allocated. I had left this function though since it was
-useful to have some demarcation points in the code which showed where
-the structure was in use. My plan was to later add some debugging to
-detect any use outside of those points, hence, I'd left in this
-function.
+You may also get ENOENT because you stat a symlink, though you'll get EEXIST
+from mkdir, even if there's nothing at the far end.
 
-It could be removed now, but I'd prefer to give it a stay of execution
-for a little while at least if nobody has any strong objections to that,
-
-Steve.
-
-
+David

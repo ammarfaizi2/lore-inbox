@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWIEMS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWIEMU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWIEMS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 08:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWIEMS2
+	id S932144AbWIEMU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 08:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWIEMU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 08:18:28 -0400
-Received: from pool-72-66-207-181.ronkva.east.verizon.net ([72.66.207.181]:22467
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932116AbWIEMS1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 08:18:27 -0400
-Message-Id: <200609051217.k85CH5j7004648@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm3 crypto issues with encrypted disks
-In-Reply-To: Your message of "Mon, 04 Sep 2006 17:25:22 EDT."
-             <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
-From: Valdis.Kletnieks@vt.edu
-References: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
-            <200609042125.k84LPMYR003633@turing-police.cc.vt.edu>
+	Tue, 5 Sep 2006 08:20:27 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:22187 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932127AbWIEMUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 08:20:25 -0400
+X-Sasl-enc: FqGN9GB0+lCnnHl7f72kvQI3qXV8GkIMotkeIh0wWuNa 1157458824
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4987.1157452656@warthog.cambridge.redhat.com>
+References: <1157451611.4133.22.camel@raven.themaw.net>
+	 <1157436412.3915.26.camel@raven.themaw.net>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+	 <1157421445.5510.13.camel@localhost>
+	 <1157424937.3002.4.camel@raven.themaw.net>
+	 <1157428241.5510.72.camel@localhost>
+	 <1157429030.3915.8.camel@raven.themaw.net>
+	 <1157432039.32412.37.camel@localhost>
+	 <3698.1157449249@warthog.cambridge.redhat.com>
+	 <4987.1157452656@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 20:20:17 +0800
+Message-Id: <1157458817.4133.29.camel@raven.themaw.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1157458625_3367P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 05 Sep 2006 08:17:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1157458625_3367P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 04 Sep 2006 17:25:22 EDT, Valdis.Kletnieks@vt.edu said:
-> --==_Exmh_1157405122_3505P
-> Content-Type: text/plain; charset=us-ascii
+On Tue, 2006-09-05 at 11:37 +0100, David Howells wrote:
+> Ian Kent <raven@themaw.net> wrote:
 > 
-> On Mon, 04 Sep 2006 12:02:28 EDT, Valdis.Kletnieks@vt.edu said:
+> > > As long as you don't rely on stat...mkdir working.  That can go wrong if the
+> > > dentry gets booted from the dcache by memory pressure in the "...".
+> > 
+> > I'm not clear on your point here.
 > 
-> > Sorry for not catching this one earlier..  Sometime between 2.6.18-rc4-mm2
-> > and -mm3, something crept into the git-cryptodev.patch that breaks mounting
-> > encrypted disks.  What I have in /etc/fstab:
+> I was wondering if you were going to rely on stat() forcing the dentry to be
+> correctly initialised before you did mkdir(), but it seems not.
 > 
-> And of course, after I spend time doing a -mm bisect, the problem evaporates
-> in -rc5-mm1. ;)
+> > If I stat a path and it exists then all is good and I'm done.
+> > If I stat a path and I get something other than ENOENT then all is bad
+> > and I return fail.
+> > Otherwise I can just attempt to create the directory and fail if all is
+> > bad with that.
+> 
+> Okay, I suppose.  But that still doesn't seem to deal with the case of creating
+> a directory on the client that then overlays a symlink on the server that you
+> can't yet access.
 
-I'm an idiot, had a typo in grub.conf and booted an old working kernel.
-It's still broken in -rc5-mm1.  Unfortunately, I'm going to be cleaning
-manure off the impellers for the rest of the week, so I won't be able to
-dig further into it before the weekend.
+We're largely performing user space actions at this point.
+Wouldn't the subsequent call to mount(8) catch that?
 
---==_Exmh_1157458625_3367P
-Content-Type: application/pgp-signature
+> 
+> You may also get ENOENT because you stat a symlink, though you'll get EEXIST
+> from mkdir, even if there's nothing at the far end.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Don't think this is something I need to care about either.
+I can't mount on a symlink so the error return would be the correct way
+to deal with it.
 
-iD8DBQFE/WrBcC3lWbTT17ARAsGTAKDqC78PNWCPVa4l8TQYIPDWOqDZbACeNLe1
-iNvMT6TA9a46pf1fO4dk32A=
-=oNxe
------END PGP SIGNATURE-----
+Ian
 
---==_Exmh_1157458625_3367P--
+

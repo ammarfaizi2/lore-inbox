@@ -1,120 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWIEJ7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWIEKAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWIEJ7I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 05:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWIEJ7I
+	id S1750952AbWIEKAX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWIEKAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 05:59:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15284 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965045AbWIEJ7E (ORCPT
+	Tue, 5 Sep 2006 06:00:23 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:17560 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750792AbWIEKAV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 05:59:04 -0400
-Subject: Re: [PATCH 04/16] GFS2: Daemons and address space operations
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
+	Tue, 5 Sep 2006 06:00:21 -0400
+Date: Tue, 5 Sep 2006 11:56:30 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
        David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
        hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609041624380.17279@yvahk01.tjqt.qr>
-References: <1157031127.3384.791.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609031245240.31445@yvahk01.tjqt.qr>
-	 <1157379188.3384.926.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041624380.17279@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 05 Sep 2006 11:04:47 +0100
-Message-Id: <1157450687.3384.976.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 11/16] GFS2: Quota and LVB handling
+In-Reply-To: <1157031525.3384.805.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0609051142550.32409@yvahk01.tjqt.qr>
+References: <1157031525.3384.805.camel@quoit.chygwyn.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 2006-09-04 at 16:36 +0200, Jan Engelhardt wrote:
-> >> >+	offset += (2*sizeof(__be64) - 1);
-> >> 
-> >> >+#ifndef __LOPS_DOT_H__
-> >> >+#define __LOPS_DOT_H__
-> >> 
-> >> +struct gfs2_log_operations;
-> >> 
-> >> Making sure every .h file would "compile" on its own, this also means #include
-> >> <linux/list.h> for the below, f.ex..
-> >> 
-> >Is this really a requirement? I suspect there are a fair few exception
-> >to this over the kernel code.
-> 
-> A requirement - not yet. I could not find my own post about it, but this 
-> one is a similar one two years earlier http://lkml.org/lkml/2004/6/15/90
-> 
-Ok. I've had a go at that:
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=f2f7ba5237e2fe10ba3e328a4f728b9e1ff141da
+>+static uint64_t qd2offset(struct gfs2_quota_data *qd)
+>+{
+>+	uint64_t offset;
+>+
+>+	offset = 2 * (uint64_t)qd->qd_id + !test_bit(QDF_USER, &qd->qd_flags);
 
-> >> Maybe there should be at least one humna person listen in AUTHOR.
-> >> 
-> >Ok, I'll get back to you on that one :-)
-> 
-> Should have been "human" of course.
-> 
-Yes, I'd realised that, its a question of which one to put in. Even
-though I've been working on this for almost a year now, its still true
-to say that Ken Preslan's code is more numerous than mine. So I'm not
-sure that I should claim authorship for myself, on the other hand, if
-this is a statement of where bug fixes should be sent, then I'm probably
-as good a choice as any. There are of course a lot of other contributors
-both from within Red Hat, and particularly since the review process
-started, from outside Red Hat too.
+At the moment this (test_bit) might work, because the only other quota besides
+USER is GROUP. But think of XFS, it has a third quota type. With !test_bit, +1
+would be added for GROUP and PROJECT (3rd xfs quota type), although PROJECT
+would likely need +2 by then.
 
-> >Are you saying that they should all end in a , or that they should not,
-> >or even just that it should be consistent?
-> 
-> There seems to be no explicit CodingStyle rule at this point, so you are 
-> free to choose either. Just be consistent (like with the goto labels).
-> 
-Ok, now fixed in:
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=ea67eedb211d3418fa62fe3477e0d19b2888225e
+>+	offset *= sizeof(struct gfs2_quota);
+>+
+>+	return offset;
+>+}
+>+
 
-> >> >+++ b/fs/gfs2/ops_address.c
-> >> >+	if (likely(file != &gfs2_internal_file_sentinal)) {
-> >> 
-> >> The thing is usually called "sentinel". Alan might prove me wrong that both
-> >> spelling variants are possible :-)
-> >> 
-> >I think you are right, so I've changed it.
-> 
-> http://dictionary.reference.com/search?q=sentinal&x=0&y=0
-> W.W.W.W.W.
-> 
-Yes, and my (rather small) treeware dictionary says likewise - its fixed
-now anyway.
-
-> >> >+static void stuck_releasepage(struct buffer_head *bh)
-> >> >+{
-> >> >+static unsigned limit = 0;
-> >> 
-> >> Is this really ok to have?
-> >> 
-> >I think so. I don't really care about the odd race here. All I want to
-> >do is ensure that in the (very unlikely, I hope) situation of this
-> >function being called, we don't land up generating huge amounts of
-> >debugging information. Usually only the first message will have the
-> 
-> There is printk_ratelimit() and SUBSYSTEM_ratelimit().
-> 
-> >useful information in it, so this was just to ensure that we are not
-> >flooded. I have made a slight change to it though. Let me know if you'd
-> >like some further changes in this area.
-> 
-> 
-> Jan Engelhardt
-
-Hmm. I'm not sure that this would really be the right thing... what I
-want is to limit the maximum number of times that this is triggered
-rather than limiting the rate at which its triggered. I think thats a
-subtle difference from the ratelimit functions,
-
-Steve.
+>+ found:
+>+	for (b = 0; b < 8; b++)
+>+		if (!(byte & (1 << b)))
+>+			break;
+>+	qd->qd_slot = c * (8 * PAGE_SIZE) + o * 8 + b;
 
 
+
+>+static int sort_qd(const void *a, const void *b)
+>+{
+>+	struct gfs2_quota_data *qd_a = *(struct gfs2_quota_data **)a;
+>+	struct gfs2_quota_data *qd_b = *(struct gfs2_quota_data **)b;
+>+	int ret = 0;
+>+
+>+	if (!test_bit(QDF_USER, &qd_a->qd_flags) !=
+>+	    !test_bit(QDF_USER, &qd_b->qd_flags)) {
+>+		if (test_bit(QDF_USER, &qd_a->qd_flags))
+>+			ret = -1;
+>+		else
+>+			ret = 1;
+>+	} else {
+>+		if (qd_a->qd_id < qd_b->qd_id)
+>+			ret = -1;
+>+		else if (qd_a->qd_id > qd_b->qd_id)
+>+			ret = 1;
+>+	}
+>+
+>+	return ret;
+>+}
+
+Here is another const candidate. And you can use early-returns[1]. 
+
+[1] Like @@ -1213,31 +1213,26 @@ in
+http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=75d3b817a0b48425da921052955cc58f20bbab52
+
+>+	x = qc->qc_change;
+>+	x = be64_to_cpu(x) + change;
+>+	qc->qc_change = cpu_to_be64(x);
+
+There probably is a reason (apart from styling, Ingo) why it's not
+
+	qc->qc_change = cpu_to_be64(be64_to_cpu(qc->qc_change) + change);
+
+Do some architectures do this conversion in more than one step? That is, is
+there risk of having undefined behavior in the expression evaluation of above
+statement like there is in ..?
+
+	printf("%d\n", c, modify_int(&c));
+
+>+static int gfs2_adjust_quota(struct gfs2_inode *ip, loff_t loc,
+>+			     int64_t change, struct gfs2_quota_data *qd)
+>+{
+>+	unsigned offset = loc & (PAGE_CACHE_SHIFT - 1);
+>+	void *kaddr;
+>+	__be64 *ptr;
+>+
+>+	kaddr = kmap_atomic(page, KM_USER0);
+>+	ptr = (__be64 *)(kaddr + offset);
+
+Nocast I'd say.
+
+>+#if 0
+>+	qd->qd_qb.qb_limit = cpu_to_be64(q.qu_limit);
+>+	qd->qd_qb.qb_warn = cpu_to_be64(q.qu_warn);
+>+#endif
+
+Enable or disable.
+
+>+#if 0
+
+Yes or no. :)
+
+>+int gfs2_quota_read(struct gfs2_sbd *sdp, int user, uint32_t id,
+>+		    struct gfs2_quota *q)
+>+{
+>+	struct gfs2_quota_data *qd;
+>+	struct gfs2_holder q_gh;
+>+	int error;
+>+
+>+	if (((user) ? (id != current->fsuid) : (!in_group_p(id))) &&
+
+
+
+Jan Engelhardt
+-- 

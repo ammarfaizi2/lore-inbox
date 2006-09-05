@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWIEHB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbWIEHFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbWIEHB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 03:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWIEHB1
+	id S965190AbWIEHFW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 03:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbWIEHFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 03:01:27 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6530 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965183AbWIEHB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 03:01:26 -0400
-Date: Tue, 5 Sep 2006 09:01:10 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Josef Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk, Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH 00/22][RFC] Unionfs: Stackable Namespace Unification Filesystem
-Message-ID: <20060905070110.GA30923@wohnheim.fh-wedel.de>
-References: <20060901013512.GA5788@fsl.cs.sunysb.edu> <20060903110507.GD4884@ucw.cz> <20060904125744.GA1961@wohnheim.fh-wedel.de> <200609050746.44502.a1426z@gawab.com>
+	Tue, 5 Sep 2006 03:05:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27856 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965190AbWIEHFV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 03:05:21 -0400
+Date: Tue, 5 Sep 2006 00:05:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc5-mm1 unusual IRQ number for VIA device
+Message-Id: <20060905000515.c8b38fe9.akpm@osdl.org>
+In-Reply-To: <44FC459D.3040700@bellsouth.net>
+References: <44FC2F7C.6040301@bellsouth.net>
+	<44FC459D.3040700@bellsouth.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200609050746.44502.a1426z@gawab.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 September 2006 07:46:44 +0300, Al Boldi wrote:
-> Jörn Engel wrote:
-> >
-> > Direct modification of branches is similar to direct modification of
-> > block devices underneith a mounted filesystem.  While I agree that
-> > such a thing _should_ not oops the kernel, I'd bet that you can easily
-> > run a stresstest on a filesystem while randomly flipping bits in the
-> > block device and get just that.
+On Mon, 04 Sep 2006 10:26:21 -0500
+Jay Cliburn <jacliburn@bellsouth.net> wrote:
+
+> Jay Cliburn wrote:
+> > Running 2.6.18-rc5.mm1 on an Asus M2V mainboard with dual-core Athlon 
+> > cpu, the onboard audio device gets assigned and IRQ of 8410.  Under 
+> > 2.6.18-rc4-mm3, the same device gets assigned IRQ 17.  Is this a way to 
+> > get around this?
 > 
-> Not really a fair comparison.  The block level is conceptionally totally 
-> different than the fs level, while a stackable fs is within the realms of 
-> the fs level.
+> What I meant to ask is:  Is there a way to get around this?
+> 
 
-Well, I didn't realize that unionfs required its backing filesystems
-to be mounted.  That's more like having the block device open in a
-text editor while mounting ext3.  In the presence of such a design, an
-oops clearly is not acceptable.  And this sort of design is just what
-I was talking about when I said:
-
-> > There are bigger problems in unionfs to worry about.
-
-Jörn
-
--- 
-You can't tell where a program is going to spend its time. Bottlenecks
-occur in surprising places, so don't try to second guess and put in a
-speed hack until you've proven that's where the bottleneck is.
--- Rob Pike
+MSI is rather busted and has been redone.  Disabling CONFIG_MSI
+may well help.

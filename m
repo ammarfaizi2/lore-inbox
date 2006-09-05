@@ -1,99 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWIES2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWIES3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWIES2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWIES2R
+	id S1030207AbWIES3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWIES3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:28:17 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:45242 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030181AbWIES2P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:28:15 -0400
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: schwidefsky@de.ibm.com
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       frankeh@watson.ibm.com
-In-Reply-To: <1157368883.5078.24.camel@localhost>
-References: <20060901110948.GD15684@skybase>
-	 <1157122667.28577.69.camel@localhost.localdomain>
-	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
-	 <1157126640.21733.43.camel@localhost>
-	 <1157127483.28577.117.camel@localhost.localdomain>
-	 <1157127943.21733.52.camel@localhost>
-	 <1157128634.28577.139.camel@localhost.localdomain>
-	 <1157129762.21733.63.camel@localhost>
-	 <1157130970.28577.150.camel@localhost.localdomain>
-	 <1157132520.21733.78.camel@localhost>
-	 <1157133780.18728.6.camel@localhost.localdomain>
-	 <1157133841.21733.79.camel@localhost>
-	 <1157135024.18728.19.camel@localhost.localdomain>
-	 <1157135504.21733.83.camel@localhost>
-	 <1157136106.18728.27.camel@localhost.localdomain>
-	 <1157368883.5078.24.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 11:27:53 -0700
-Message-Id: <1157480873.3186.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 5 Sep 2006 14:29:24 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:52377 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030207AbWIES3X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:29:23 -0400
+Message-ID: <44FDC1E1.7090006@in.ibm.com>
+Date: Tue, 05 Sep 2006 23:58:49 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+ memory)
+References: <44FD918A.7050501@sw.ru> <1157478392.3186.26.camel@localhost.localdomain>
+In-Reply-To: <1157478392.3186.26.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 13:21 +0200, Martin Schwidefsky wrote:
-> Any kind of locking won't work. You need the information that a page has
-> been discarded until the page has been freed. Only then the fact that
-> the page has been discarded may enter nirvana. Any kind of lock needs to
-> be freed again to allow the next discard fault to happen. Since you
-> don't when the last page reference is returned you cannot hold the lock
-> until the page is free.
+Dave Hansen wrote:
+> On Tue, 2006-09-05 at 19:02 +0400, Kirill Korotaev wrote:
+>> Core Resource Beancounters (BC) + kernel/user memory control.
+>>
+>> BC allows to account and control consumption
+>> of kernel resources used by group of processes. 
+> 
+> Hi Kirill, 
+> 
+> I've honestly lost track of these discussions along the way, so I hope
+> you don't mind summarizing a bit.
+> 
+> Do these patches help with accounting for anything other than memory?
+> Will we need new user/kernel interfaces for cpu, i/o bandwidth, etc...?
+> 
+> Have you given any thought to the possibility that a task might need to
+> move between accounting contexts?  That has certainly been a
+> "requirement" pushed on to CKRM for a long time, and the need goes
+> something like this:
+> 
+> 1. A system runs a web server, which services several virtual domains
+> 2. that web server receives a request for foo.com
+> 3. the web server switches into foo.com's accounting context
+> 4. the web server reads things from disk, allocates some memory, and
+>    makes a database request.
+> 5. the database receives the request, and switches into foo.com's
+>    accounting context, and charges foo.com for its resource use
+> etc...
+> 
+> So, the goal is to run _one_ copy of an application on a system, but
+> account for its resources in a much more fine-grained way than at the
+> application level.
+> 
+> I think we can probably use beancounters for this, if we do not worry
+> about migrating _existing_ charges when we change accounting context.
+> Does that make sense?
+> 
+> -- Dave
 
-First of all, you *CAN* sleep with the BKL held. ;)
+This is much better stated than I did. Thanks!
 
-Why doesn't the normal lock_page() help?  It can sleep, too?
+-- 
 
-As far as simplifying the patches, I feel like some of the
-page_make_stable() stuff should be done inside of page_cache_get().
-Perhaps the API needs to be changed so that page_cache_get()s can fail.
-
-There are also a ton of "mapping == page->mapping" tests all over.
-Perhaps you need a page_still_in_mapping(page, mapping) call that also
-checks the page's discard state.
-
-I also have the feeling that every single page_host_discards() check
-which is actually placed in the VM code shouldn't be there.  The ones in
-page_make_stable() and friends are OK, but the ones in
-shrink_inactive_list() seem bogus to me.  Looks like they should be
-covered up in some _other_ function that checks PageDiscarded().
-
-You could even put these things in (what are now) simple functions like
-lru_to_page().  The logic would be along the lines of, whenever I am
-looking into the LRU, I need to make sure this page is still actually
-there.
-
-As for the locking, imagine a seqlock (per-zone, node, section, hash,
-anon_vma, mapping, whatever...).  A write is taken any time that
-PG_discard would have been set, and the page is placed in to a list so
-that it can be found (the data structure isn't important now).  All of
-the places that currently check PG_discard would go and take a read on
-the seqlock.  If they fail to acquire it (what is normally now a loop),
-they would go look in the list to see if the page they are interested in
-is there.  If it is, then they treat it as dicarded, otherwise they
-proceed normally.  So, the operation is normally very cheap (a
-non-atomic read).  It is very expensive _during_ a discard because of
-the traversal of the list, but these should be rare.
-
-The structure storing the page could be like this:
-
-struct page_list {
-	struct list_head list;
-	struct page *page;
-};
-
-So that it doesn't require any extra space in the struct page, and
-limits the overhead to only the people actually using the page discard
-mechanism.
-
--- Dave
-
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

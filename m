@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWIEQwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWIEQwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWIEQwa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 12:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWIEQw3
+	id S1030202AbWIEQwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 12:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWIEQwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 12:52:29 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:37258 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1030196AbWIEQw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 12:52:28 -0400
-Subject: Re: Kernel drops ethernet packets during disk writes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tiemen Schut <tschut@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <86b122f40609050906u7aafe808h5002c9f15369a744@mail.gmail.com>
-References: <86b122f40609050815v664ff217kcfc82a5c9f2772ad@mail.gmail.com>
-	 <86b122f40609050906u7aafe808h5002c9f15369a744@mail.gmail.com>
-Content-Type: text/plain
+	Tue, 5 Sep 2006 12:52:11 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:12988 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1030190AbWIEQwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 12:52:09 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Jeff Garzik <jeff@garzik.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: PATA drivers queued for 2.6.19
+Date: Wed, 06 Sep 2006 02:51:56 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <b9arf2lrbh5v4pv9klbtujfhvq3hiuehdk@4ax.com>
+References: <44FC0779.9030405@garzik.org> <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com> <Pine.LNX.4.61.0609041406140.21005@yvahk01.tjqt.qr> <44FD7B1E.7020102@aitel.hist.no> <1157467176.9018.48.camel@localhost.localdomain>
+In-Reply-To: <1157467176.9018.48.camel@localhost.localdomain>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 05 Sep 2006 18:15:12 +0100
-Message-Id: <1157476512.9018.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-05 am 18:06 +0200, ysgrifennodd Tiemen Schut:
-> Summary: The linux kernel appears to drop raw ethernet packets if
-> another process is writing to disk.
+On Tue, 05 Sep 2006 15:39:36 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-No suprise. 
+>Ar Maw, 2006-09-05 am 15:26 +0200, ysgrifennodd Helge Hafting:
+>> between sda/hda unless they also use an initrd.  The kernel
+>> itself does not seem to support partition by label. :-(
+>
+>This is correct and one reason vendor kernels generally use an initrd.
+>The kernel does however support "root=/dev/sda1"
 
-1Gbit is a bit over 100Mbyte/second
+Which leads back to this slackware user, who's never used an initrd, 
+thinking about dual root partitions just to get the name change from 
+another /etc/fstab?  
 
-Thats from the card over PCI to memory
-Then over PCI from memory to the disk controller
+I dual boot 2.4 / 2.6 kernels, looking for a simple solution so I can 
+test Alan's work.  
 
-We are up to 200Mbytes/second
+No udev, no initrd, funny I see a second '/' partition as 'easy'? ;)
 
-Best case performance for a 32bit PCI bus is 133Mbytes/second and you
-won't get close to that. Even if both devices are PCI 66Mhz you are
-right on the bus limit.
+I'm missing something here?  Generally /etc/lilo.conf looks like:
+  <http://bugsplatter.mine.nu/test/boxen/deltree/lilo.conf>
 
-And if its an earlyish PIV what is your main memory bandwidth ?
-
+Grant.

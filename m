@@ -1,304 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWIETTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWIETUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbWIETTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161007AbWIETTV
+	id S1161010AbWIETUA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWIETT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:19:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49625 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161006AbWIETTT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:19:19 -0400
-From: David Howells <dhowells@redhat.com>
-To: dwmw2@infradead.org
-cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Make MTD chardev mmap available under some circumstances
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 05 Sep 2006 20:18:06 +0100
-Message-ID: <24712.1157483886@warthog.cambridge.redhat.com>
+	Tue, 5 Sep 2006 15:19:59 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:6467 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161010AbWIETT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 15:19:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jk3EZPZpW53Zr3B46vf0D42QJhWdBOymR97TW2IHpjC8UWtGTU7C1jCM83VMOEtN28OtwxifyBI9zbe1/66eH9pV11Yy8lrJruTDbBY4AzHPEF0W0O4Li7X+0lFDj3ha+96osFXXOqtgfTKv0SCLYd81R51KxVkw8L7Ch/tNea0=
+Message-ID: <a44ae5cd0609051219p5962b62ek8dd695d3f3c88fa4@mail.gmail.com>
+Date: Tue, 5 Sep 2006 12:19:57 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive locking detected
+Cc: "Andrew Morton" <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Herbert Xu" <herbert@gondor.apana.org.au>
+In-Reply-To: <44FDC9F5.3090605@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>
+	 <20060905111306.80398394.akpm@osdl.org>
+	 <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>
+	 <44FDC9F5.3090605@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/5/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> Miles Lane wrote:
+> > On 9/5/06, Andrew Morton <akpm@osdl.org> wrote:
+> >> On Tue, 5 Sep 2006 10:37:51 -0700
+> >> "Miles Lane" <miles.lane@gmail.com> wrote:
+> >>
+> >>> ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+> >>> ieee1394: Node changed: 0-02:1023 -> 0-01:1023
+> >>> ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0080880002103eae]
+> >>>
+> >>> =============================================
+> >>> [ INFO: possible recursive locking detected ]
+> >>> 2.6.18-rc5-mm1 #2
+> >>> ---------------------------------------------
+> >>> knodemgrd_0/2321 is trying to acquire lock:
+> >>>  (&s->rwsem){----}, at: [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
+> >>>
+> >>> but task is already holding lock:
+> >>>  (&s->rwsem){----}, at: [<f8959078>] nodemgr_host_thread+0x717/0x883 [ieee1394]
+>
+> How often does this happen?
 
-Make it possible to mmap MTD chardevs directly or by copy on a NOMMU system.
-This is done by:
+It seems to happen each time I plug in my JVC MiniDV camera (model GR-DVL9800U).
 
- (1) Presenting backing device capabilities for MTD character device files to
-     allow NOMMU mmap to do direct mapping where possible.
+> >> That's a 1394 glitch, possibly introduced by git-ieee1394.patch.
+> >
+> > Would you like me to verify that removing the patch fixes it, or
+> > should I wait for the 2.6.18-rc6-mm1 tree?
+>
+> My patches
+> "ieee1394: nodemgr: switch to kthread api, replace reset semaphore" and
+> "ieee1394: nodemgr: convert nodemgr_serialize semaphore to mutex"
+> may be relevant. They are included in git-ieee1394.patch.
+>
+> Could you revert them individually and test? It should be possible to
+> just "patch -p1 -R < ...." the following patchfiles:
+> http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/119-ieee1394-nodemgr-convert-nodemgr_serialize-semaphore-to-mutex.patch
+> If the problem persists, also revert
+> http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/118-ieee1394-nodemgr-switch-to-kthread-api--replace-reset-semaphore.patch
+>
+> If that does not help, install them again and unapply all ieee1394
+> patches from -mm. If you have the time.
 
-     Three BDIs are made available:
+I am setting up to test with the first patch removed.  The patch
+doesn't apply cleanly, but I suspect this is no big deal.
 
-     (a) One to indicate that a device supports direct mapping with both read
-     	 and write capability (eg: a RAM device).
-
-     (b) One to indicate that a device supports direct mapping, but only with
-     	 read capability (eg: a ROM device).
-
-     (c) One to indicate that a device does not support direct mapping (eg: a
-     	 NAND flash device).
-
-     In all three cases, private mmap by copying *is* supported, which means
-     that such as NAND flashes *can* be mapped privately.  The NOMMU mmap
-     routine allocates some memory to hold the private mapping and then reads
-     the data from the device into it.  This memory is then presented as the
-     mapping.  This is *not* currently possible under MMU conditions; to
-     support that will require changes to mm/mmap.c.
-
- (2) Providing a get_unmapped_area() op to permit the device driver to specify
-     the whereabouts of the mappable data.
-
-     If the get_unmapped_area() op is not present in mtd_info, -ENOSYS is
-     returned to the caller to indicate that mapping isn't actually supported.
-     The device driver may also return -ENOSYS if it doesn't want to handle the
-     mapping.
-
- (3) Have the MTD partitioning code adjust and transfer the get_unmapped_area()
-     op to the master device.
-
-The MTDRAM driver has been modified to support this new op, and thus is able to
-support full readable, writable and executable shared and private mappings.
-
-
-This can be seen in the following strace excerpt:
-
-	open("/dev/mtd0", O_RDWR)               = 4
-	mmap2(NULL, 16384, PROT_READ|PROT_WRITE, MAP_SHARED, 4, 0) = 0xc0c00000
-	mmap2(NULL, 16384, PROT_READ|PROT_WRITE, MAP_SHARED, 4, 0) = 0xc0c00000
-
-which results in the following appearing in the /proc/pid/maps file:
-
-	c0c00000-c0c04000 rw-S 00000000 00:0b 8561016    /dev/mtd0
-	c0c00000-c0c04000 rw-S 00000000 00:0b 8561016    /dev/mtd0
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-
- drivers/mtd/devices/mtdram.c |   14 ++++++
- drivers/mtd/mtdchar.c        |   99 ++++++++++++++++++++++++++++++++++++++++++
- drivers/mtd/mtdpart.c        |   13 ++++++
- include/linux/mtd/mtd.h      |    9 ++++
- 4 files changed, 134 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/mtd/devices/mtdram.c b/drivers/mtd/devices/mtdram.c
-index e427c82..438cdb9 100644
---- a/drivers/mtd/devices/mtdram.c
-+++ b/drivers/mtd/devices/mtdram.c
-@@ -62,6 +62,19 @@ static void ram_unpoint(struct mtd_info 
- {
- }
- 
-+/*
-+ * Allow NOMMU mmap() to directly map the device (if not NULL)
-+ * - return the address to which the offset maps
-+ * - return -ENOSYS to indicate refusal to do the mapping
-+ */
-+static unsigned long ram_get_unmapped_area(struct mtd_info *mtd,
-+					   unsigned long len,
-+					   unsigned long offset,
-+					   unsigned long flags)
-+{
-+	return (unsigned long) mtd->priv + offset;
-+}
-+
- static int ram_read(struct mtd_info *mtd, loff_t from, size_t len,
- 		size_t *retlen, u_char *buf)
- {
-@@ -113,6 +126,7 @@ int mtdram_init_device(struct mtd_info *
- 	mtd->erase = ram_erase;
- 	mtd->point = ram_point;
- 	mtd->unpoint = ram_unpoint;
-+	mtd->get_unmapped_area = ram_get_unmapped_area;
- 	mtd->read = ram_read;
- 	mtd->write = ram_write;
- 
-diff --git a/drivers/mtd/mtdchar.c b/drivers/mtd/mtdchar.c
-index fb8b4f7..9742570 100644
---- a/drivers/mtd/mtdchar.c
-+++ b/drivers/mtd/mtdchar.c
-@@ -12,6 +12,7 @@ #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/sched.h>
-+#include <linux/backing-dev.h>
- 
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/compatmac.h>
-@@ -20,6 +21,35 @@ #include <asm/uaccess.h>
- 
- static struct class *mtd_class;
- 
-+/*
-+ * backing device capabilities for non-mappable devices (such as NAND flash)
-+ * - permits private mappings, copies are taken of the data
-+ */
-+static struct backing_dev_info mtd_bdi_unmappable = {
-+	.capabilities	= BDI_CAP_MAP_COPY,
-+};
-+
-+/*
-+ * backing device capabilities for R/O mappable devices (such as ROM)
-+ * - permits private mappings, copies are taken of the data
-+ * - permits non-writable shared mappings
-+ */
-+static struct backing_dev_info mtd_bdi_ro_mappable = {
-+	.capabilities	= (BDI_CAP_MAP_COPY | BDI_CAP_MAP_DIRECT |
-+			   BDI_CAP_EXEC_MAP | BDI_CAP_READ_MAP),
-+};
-+
-+/*
-+ * backing device capabilities for writable mappable devices (such as RAM)
-+ * - permits private mappings, copies are taken of the data
-+ * - permits non-writable shared mappings
-+ */
-+static struct backing_dev_info mtd_bdi_rw_mappable = {
-+	.capabilities	= (BDI_CAP_MAP_COPY | BDI_CAP_MAP_DIRECT |
-+			   BDI_CAP_EXEC_MAP | BDI_CAP_READ_MAP |
-+			   BDI_CAP_WRITE_MAP),
-+};
-+
- static void mtd_notify_add(struct mtd_info* mtd)
- {
- 	if (!mtd)
-@@ -106,9 +136,19 @@ static int mtd_open(struct inode *inode,
- 	if (!mtd)
- 		return -ENODEV;
- 
--	if (MTD_ABSENT == mtd->type) {
-+	switch (mtd->type) {
-+	case MTD_ABSENT:
- 		put_mtd_device(mtd);
- 		return -ENODEV;
-+	case MTD_RAM:
-+		file->f_mapping->backing_dev_info = &mtd_bdi_rw_mappable;
-+		break;
-+	case MTD_ROM:
-+		file->f_mapping->backing_dev_info = &mtd_bdi_ro_mappable;
-+		break;
-+	default:
-+		file->f_mapping->backing_dev_info = &mtd_bdi_unmappable;
-+		break;
- 	}
- 
- 	/* You can't open it RW if it's not a writeable device */
-@@ -763,6 +803,59 @@ #endif
- 	return ret;
- } /* memory_ioctl */
- 
-+/*
-+ * try to determine where a shared mapping can be made
-+ * - only supported for NOMMU at the moment (MMU can't doesn't copy private
-+ *   mappings)
-+ */
-+#ifndef CONFIG_MMU
-+static unsigned long mtd_get_unmapped_area(struct file *file,
-+					   unsigned long addr,
-+					   unsigned long len,
-+					   unsigned long pgoff,
-+					   unsigned long flags)
-+{
-+	struct mtd_file_info *mfi = file->private_data;
-+	struct mtd_info *mtd = mfi->mtd;
-+
-+	if (mtd->get_unmapped_area) {
-+		unsigned long offset;
-+
-+		if (addr != 0)
-+			return (unsigned long) -EINVAL;
-+
-+		if (len > mtd->size || pgoff >= (mtd->size >> PAGE_SHIFT))
-+			return (unsigned long) -EINVAL;
-+
-+		offset = pgoff << PAGE_SHIFT;
-+		if (offset > mtd->size - len)
-+			return (unsigned long) -EINVAL;
-+
-+		return mtd->get_unmapped_area(mtd, len, offset, flags);
-+	}
-+
-+	/* can't map directly */
-+	return (unsigned long) -ENOSYS;
-+}
-+#endif
-+
-+/*
-+ * set up a mapping for shared memory segments
-+ */
-+static int mtd_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+#ifdef CONFIG_MMU
-+	struct mtd_file_info *mfi = file->private_data;
-+	struct mtd_info *mtd = mfi->mtd;
-+
-+	if (mtd->type == MTD_RAM || mtd->type == MTD_ROM)
-+		return 0;
-+	return -ENOSYS;
-+#else
-+	return vma->vm_flags & VM_SHARED ? 0 : -ENOSYS;
-+#endif
-+}
-+
- static struct file_operations mtd_fops = {
- 	.owner		= THIS_MODULE,
- 	.llseek		= mtd_lseek,
-@@ -771,6 +864,10 @@ static struct file_operations mtd_fops =
- 	.ioctl		= mtd_ioctl,
- 	.open		= mtd_open,
- 	.release	= mtd_close,
-+	.mmap		= mtd_mmap,
-+#ifndef CONFIG_MMU
-+	.get_unmapped_area = mtd_get_unmapped_area,
-+#endif
- };
- 
- static int __init init_mtdchar(void)
-diff --git a/drivers/mtd/mtdpart.c b/drivers/mtd/mtdpart.c
-index 06a9303..48bbc77 100644
---- a/drivers/mtd/mtdpart.c
-+++ b/drivers/mtd/mtdpart.c
-@@ -86,6 +86,17 @@ static void part_unpoint (struct mtd_inf
- 	part->master->unpoint (part->master, addr, from + part->offset, len);
- }
- 
-+static unsigned long part_get_unmapped_area(struct mtd_info *mtd,
-+					    unsigned long len,
-+					    unsigned long offset,
-+					    unsigned long flags)
-+{
-+	struct mtd_part *part = PART(mtd);
-+
-+	offset += part->offset;
-+	return part->master->get_unmapped_area(mtd, len, offset, flags);
-+}
-+
- static int part_read_oob(struct mtd_info *mtd, loff_t from,
- 			 struct mtd_oob_ops *ops)
- {
-@@ -354,6 +365,8 @@ int add_mtd_partitions(struct mtd_info *
- 			slave->mtd.unpoint = part_unpoint;
- 		}
- 
-+		if (master->get_unmapped_area)
-+			slave->mtd.get_unmapped_area = part_get_unmapped_area;
- 		if (master->read_oob)
- 			slave->mtd.read_oob = part_read_oob;
- 		if (master->write_oob)
-diff --git a/include/linux/mtd/mtd.h b/include/linux/mtd/mtd.h
-index 94a443d..ab0f21f 100644
---- a/include/linux/mtd/mtd.h
-+++ b/include/linux/mtd/mtd.h
-@@ -156,6 +156,15 @@ #define MTD_PROGREGION_CTRLMODE_INVALID(
- 	/* We probably shouldn't allow XIP if the unpoint isn't a NULL */
- 	void (*unpoint) (struct mtd_info *mtd, u_char * addr, loff_t from, size_t len);
- 
-+	/* Allow NOMMU mmap() to directly map the device (if not NULL)
-+	 * - return the address to which the offset maps
-+	 * - return -ENOSYS to indicate refusal to do the mapping
-+	 */
-+	unsigned long (*get_unmapped_area) (struct mtd_info *mtd,
-+					    unsigned long len,
-+					    unsigned long offset,
-+					    unsigned long flags);
-+
- 
- 	int (*read) (struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf);
- 	int (*write) (struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
+patch -p1 -R < /home/miles/119-ieee1394-nodemgr-convert-nodemgr_serialize-semaphore-to-mutex.patch
+patching file drivers/ieee1394/nodemgr.c
+Hunk #2 succeeded at 1630 (offset 9 lines).
+Hunk #3 succeeded at 1659 (offset 9 lines).
+Hunk #4 succeeded at 1677 (offset 9 lines).

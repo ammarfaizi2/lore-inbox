@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWIEPPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWIEPQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWIEPPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWIEPPg
+	id S965106AbWIEPQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWIEPQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:15:36 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:60694 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965107AbWIEPPf (ORCPT
+	Tue, 5 Sep 2006 11:16:22 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:18823 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965106AbWIEPQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:15:35 -0400
-Message-ID: <44FD956F.7000603@sw.ru>
-Date: Tue, 05 Sep 2006 19:19:11 +0400
+	Tue, 5 Sep 2006 11:16:21 -0400
+Message-ID: <44FD95A4.9050808@sw.ru>
+Date: Tue, 05 Sep 2006 19:20:04 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -25,7 +25,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH 1/13] BC: introduce atomic_dec_and_lock_irqsave()
+Subject: [PATCH 2/13] BC: kconfig
 References: <44FD918A.7050501@sw.ru>
 In-Reply-To: <44FD918A.7050501@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -33,86 +33,54 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov noticed to me that the construction like
-(used in beancounter patches and free_uid()):
+Add kernel/bc/Kconfig file with BC options and
+include it into arch Kconfigs
 
-  local_irq_save(flags);
-  if (atomic_dec_and_lock(&refcnt, &lock))
-	  ...
-
-is not that good for preemtible kernels, since with preemption
-spin_lock() can schedule() to reduce latency. However, it won't schedule
-if interrupts are disabled.
-
-So this patch introduces atomic_dec_and_lock_irqsave() as a logical
-counterpart to atomic_dec_and_lock().
-
-Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Signed-off-by: Pavel Emelianov <xemul@sw.ru>
+Signed-off-by: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- include/linux/spinlock.h |    6 ++++++
- kernel/user.c            |    5 +----
- lib/dec_and_lock.c       |   19 +++++++++++++++++++
- 3 files changed, 26 insertions(+), 4 deletions(-)
+ init/Kconfig      |    2 ++
+ kernel/bc/Kconfig |   25 +++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
 
---- ./include/linux/spinlock.h.dlirq	2006-08-28 10:17:35.000000000 +0400
-+++ ./include/linux/spinlock.h	2006-08-28 11:22:37.000000000 +0400
-@@ -266,6 +266,12 @@ extern int _atomic_dec_and_lock(atomic_t
- #define atomic_dec_and_lock(atomic, lock) \
- 		__cond_lock(lock, _atomic_dec_and_lock(atomic, lock))
+--- ./init/Kconfig.bckm	2006-07-10 12:39:10.000000000 +0400
++++ ./init/Kconfig	2006-07-28 14:10:41.000000000 +0400
+@@ -222,6 +222,8 @@ source "crypto/Kconfig"
  
-+extern int _atomic_dec_and_lock_irqsave(atomic_t *atomic, spinlock_t *lock,
-+		unsigned long *flagsp);
-+#define atomic_dec_and_lock_irqsave(atomic, lock, flags) \
-+		__cond_lock(lock, \
-+			_atomic_dec_and_lock_irqsave(atomic, lock, &flags))
+ 	  Say N if unsure.
+ 
++source "kernel/bc/Kconfig"
 +
- /**
-  * spin_can_lock - would spin_trylock() succeed?
-  * @lock: the spinlock in question.
---- ./kernel/user.c.dlirq	2006-07-10 12:39:20.000000000 +0400
-+++ ./kernel/user.c	2006-08-28 11:08:56.000000000 +0400
-@@ -108,15 +108,12 @@ void free_uid(struct user_struct *up)
- 	if (!up)
- 		return;
+ config SYSCTL
+ 	bool
  
--	local_irq_save(flags);
--	if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
-+	if (atomic_dec_and_lock_irqsave(&up->__count, &uidhash_lock, flags)) {
- 		uid_hash_remove(up);
- 		spin_unlock_irqrestore(&uidhash_lock, flags);
- 		key_put(up->uid_keyring);
- 		key_put(up->session_keyring);
- 		kmem_cache_free(uid_cachep, up);
--	} else {
--		local_irq_restore(flags);
- 	}
- }
- 
---- ./lib/dec_and_lock.c.dlirq	2006-04-21 11:59:36.000000000 +0400
-+++ ./lib/dec_and_lock.c	2006-08-28 11:22:08.000000000 +0400
-@@ -33,3 +33,22 @@ int _atomic_dec_and_lock(atomic_t *atomi
- }
- 
- EXPORT_SYMBOL(_atomic_dec_and_lock);
+--- ./kernel/bc/Kconfig.bckconf	2006-09-05 12:21:09.000000000 +0400
++++ ./kernel/bc/Kconfig	2006-09-05 12:19:54.000000000 +0400
+@@ -0,0 +1,25 @@
++#
++# Resource beancounters (BC)
++#
++# Copyright (C) 2006 OpenVZ. SWsoft Inc
 +
-+/*
-+ * the same, but takes the lock with _irqsave
-+ */
-+int _atomic_dec_and_lock_irqsave(atomic_t *atomic, spinlock_t *lock,
-+		unsigned long *flagsp)
-+{
-+#ifdef CONFIG_SMP
-+	if (atomic_add_unless(atomic, -1, 1))
-+		return 0;
-+#endif
-+	spin_lock_irqsave(lock, *flagsp);
-+	if (atomic_dec_and_test(atomic))
-+		return 1;
-+	spin_unlock_irqrestore(lock, *flagsp);
-+	return 0;
-+}
++menu "User resources"
 +
-+EXPORT_SYMBOL(_atomic_dec_and_lock_irqsave);
++config BEANCOUNTERS
++	bool "Enable resource accounting/control"
++	default n
++	help
++          When Y this option provides accounting and allows configuring
++          limits for user's consumption of exhaustible system resources.
++          The most important resource controlled by this patch is unswappable
++          memory (either mlock'ed or used by internal kernel structures and
++          buffers). The main goal of this patch is to protect processes
++          from running short of important resources because of accidental
++          misbehavior of processes or malicious activity aiming to ``kill''
++          the system. It's worth mentioning that resource limits configured
++          by setrlimit(2) do not give an acceptable level of protection
++          because they cover only a small fraction of resources and work on a
++          per-process basis.  Per-process accounting doesn't prevent malicious
++          users from spawning a lot of resource-consuming processes.
++
++endmenu

@@ -1,451 +1,827 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWIEP0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbWIEP2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWIEP0x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWIEP0x
+	id S965169AbWIEP2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWIEP2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:26:53 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:61714 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965119AbWIEP0t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:26:49 -0400
-Date: Tue, 5 Sep 2006 11:26:48 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-cc: Rodolfo Giometti <giometti@linux.it>
-Subject: [RFC] USB device persistence across suspend-to-disk
-Message-ID: <Pine.LNX.4.44L0.0609051104260.14667-100000@iolanthe.rowland.org>
+	Tue, 5 Sep 2006 11:28:40 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:24680 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965148AbWIEP2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 11:28:37 -0400
+Message-ID: <44FD9884.9090801@sw.ru>
+Date: Tue, 05 Sep 2006 19:32:20 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: [PATCH 12/13] BC: vmrss (core)
+References: <44FD918A.7050501@sw.ru>
+In-Reply-To: <44FD918A.7050501@sw.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lots of people have asked why USB mass-storage devices don't survive
-suspend-to-disk (swsusp).  The answer is technical and not too
-interesting; what matters is that people have been forced to unmount all
-filesystems on USB devices before doing suspend-to-disk.  On some systems
-this is necessary even for suspend-to-RAM.
+This is the core of vmrss accounting.
 
-This patch adds the capability for USB devices to persist across such
-suspends.  You can even suspend with your root fs on a USB flash device!  
-(I think -- I haven't actually tried it.  But it _should_ work.)
+The main introduced object is page_beancounter.
+It ties together page and BCs which use the page.
+This allows correctly account fractions of memory shared
+between BCs (http://wiki.openvz.org/RSS_fractions_accounting)
 
-It's all explained in Documentation/usb/persist.txt, added by the patch.  
-The "persist" mode is turned off by default because it can be dangerous.
+Accounting API:
+1. bc_alloc_rss_counter() allocates a tie between page and BC
+2. bc_free_rss_counter frees it.
 
-The patch is based on 2.6.18-rc5-mm1.  If people like it, I'll submit it
-to Greg KH for inclusion in the USB development tree.
+(1) and (2) must be done each time a page is about
+to be added to someone's rss.
 
-Alan Stern
+3. When page is touched by BC (i.e. by any task which mm belongs to BC)
+   page is bc_vmrss_page_add()-ed to that BC. Touching page leads
+   to subtracting it from unused_prvvmpages and adding to held_pages.
+4. When page is unmapped from BC it is bc_vmrss_page_del()-ed from it.
 
+5. When task forks all it's mapped pages must be bc_vmrss_page_dup()-ed.
+   i.e. page beancounter reference counter must be increased.
+   
+6. Some pages (former PGReserved) must be added to rss, but without
+   having a reference on it. These pages are bc_vmrss_page_add_noref()-ed.
 
-Index: mm/drivers/usb/core/generic.c
-===================================================================
---- mm.orig/drivers/usb/core/generic.c
-+++ mm/drivers/usb/core/generic.c
-@@ -194,6 +194,8 @@ static int generic_suspend(struct usb_de
+Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+
+---
+
+ include/bc/beancounter.h |    3 
+ include/bc/vmpages.h     |    4 
+ include/bc/vmrss.h       |   72 ++++++
+ include/linux/mm.h       |    6 
+ include/linux/shmem_fs.h |    2 
+ init/main.c              |    2 
+ kernel/bc/Kconfig        |    9 
+ kernel/bc/Makefile       |    1 
+ kernel/bc/beancounter.c  |    9 
+ kernel/bc/vmpages.c      |    7 
+ kernel/bc/vmrss.c        |  508 +++++++++++++++++++++++++++++++++++++++++++++++
+ mm/shmem.c               |    6 
+ 12 files changed, 627 insertions(+), 2 deletions(-)
+
+--- ./include/bc/beancounter.h.bcrsscore	2006-09-05 13:44:33.000000000 +0400
++++ ./include/bc/beancounter.h	2006-09-05 13:50:29.000000000 +0400
+@@ -68,6 +68,9 @@ struct beancounter {
+ 	struct hlist_node	hash;
  
- static int generic_resume(struct usb_device *udev)
- {
-+	if (udev->do_persist)
-+		return usb_reset_persistent_device(udev);
- 	return usb_port_resume(udev);
+ 	unsigned long		unused_privvmpages;
++#ifdef CONFIG_BEANCOUNTERS_RSS
++	unsigned long long	rss_pages;
++#endif
+ 	/* resources statistics and settings */
+ 	struct bc_resource_parm	bc_parms[BC_RESOURCES];
+ };
+--- ./include/bc/vmpages.h.bcrsscore	2006-09-05 13:40:21.000000000 +0400
++++ ./include/bc/vmpages.h	2006-09-05 13:46:35.000000000 +0400
+@@ -77,6 +77,8 @@ void bc_locked_shm_uncharge(struct shmem
+ 		put_beancounter((info)->shm_bc);			\
+ 	} while (0)
+ 
++#define mm_same_bc(mm1, mm2)	((mm1)->mm_bc == (mm2)->mm_bc)
++
+ void bc_update_privvmpages(struct beancounter *bc);
+ 
+ #else /* CONFIG_BEANCOUNTERS */
+@@ -136,6 +138,8 @@ static inline void bc_locked_shm_uncharg
+ #define shmi_init_bc(info)	do { } while (0)
+ #define shmi_free_bc(info)	do { } while (0)
+ 
++#define mm_same_bc(mm1, mm2)	(1)
++
+ #endif /* CONFIG_BEANCOUNTERS */
+ #endif
+ 
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./include/bc/vmrss.h	2006-09-05 13:50:25.000000000 +0400
+@@ -0,0 +1,72 @@
++/*
++ *  include/ub/vmrss.h
++ *
++ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
++ *
++ */
++
++#ifndef __BC_VMRSS_H_
++#define __BC_VMRSS_H_
++
++struct page_beancounter;
++
++struct page;
++struct mm_struct;
++struct vm_area_struct;
++
++/* values that represens page's 'weight' in bc rss accounting */
++#define PB_PAGE_WEIGHT_SHIFT 24
++#define PB_PAGE_WEIGHT (1 << PB_PAGE_WEIGHT_SHIFT)
++/* page obtains one more reference within beancounter */
++#define PB_COPY_SAME	((struct page_beancounter *)-1)
++
++#ifdef CONFIG_BEANCOUNTERS_RSS
++
++struct page_beancounter * __must_check bc_alloc_rss_counter(void);
++struct page_beancounter * __must_check bc_alloc_rss_counter_list(long num,
++		struct page_beancounter *list);
++
++void bc_free_rss_counter(struct page_beancounter *rc);
++
++void bc_vmrss_page_add(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma, struct page_beancounter **ppb);
++void bc_vmrss_page_del(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma);
++void bc_vmrss_page_dup(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma, struct page_beancounter **ppb);
++void bc_vmrss_page_add_noref(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma);
++
++unsigned long mm_rss_pages(struct mm_struct *mm, unsigned long start,
++		unsigned long end);
++
++void bc_init_rss(void);
++
++#else /* CONFIG_BEANCOUNTERS_RSS */
++
++static inline struct page_beancounter * __must_check bc_alloc_rss_counter(void)
++{
++	return NULL;
++}
++
++static inline struct page_beancounter * __must_check bc_alloc_rss_counter_list(
++		long num, struct page_beancounter *list)
++{
++	return NULL;
++}
++
++static inline void bc_free_rss_counter(struct page_beancounter *rc)
++{
++}
++
++#define bc_vmrss_page_add(pg, mm, vma, pb)	do { } while (0)
++#define bc_vmrss_page_del(pg, mm, vma)		do { } while (0)
++#define bc_vmrss_page_dup(pg, mm, vma, pb)	do { } while (0)
++#define bc_vmrss_page_add_noref(pg, mm, vma)	do { } while (0)
++#define mm_rss_pages(mm, start, end)	(0)
++
++#define bc_init_rss()			do { } while (0)
++
++#endif /* CONFIG_BEANCOUNTERS_RSS */
++
++#endif
+--- ./include/linux/mm.h.bcrsscore	2006-09-05 13:06:37.000000000 +0400
++++ ./include/linux/mm.h	2006-09-05 13:47:12.000000000 +0400
+@@ -275,11 +275,15 @@ struct page {
+ 	unsigned long trace[8];
+ #endif
+ #ifdef CONFIG_BEANCOUNTERS
+-	struct beancounter	*page_bc;
++	union {
++		struct beancounter	*page_bc;
++		struct page_beancounter	*page_pb;
++	};
+ #endif
+ };
+ 
+ #define page_bc(page)			((page)->page_bc)
++#define page_pb(page)			((page)->page_pb)
+ #define page_private(page)		((page)->private)
+ #define set_page_private(page, v)	((page)->private = (v))
+ 
+--- ./include/linux/shmem_fs.h.bcrsscore	2006-09-05 12:59:27.000000000 +0400
++++ ./include/linux/shmem_fs.h	2006-09-05 13:50:19.000000000 +0400
+@@ -41,4 +41,6 @@ static inline struct shmem_inode_info *S
+ 	return container_of(inode, struct shmem_inode_info, vfs_inode);
  }
  
-Index: mm/drivers/usb/core/hub.c
-===================================================================
---- mm.orig/drivers/usb/core/hub.c
-+++ mm/drivers/usb/core/hub.c
-@@ -61,6 +61,18 @@ module_param (blinkenlights, bool, S_IRU
- MODULE_PARM_DESC (blinkenlights, "true to cycle leds on hubs");
++int is_shmem_mapping(struct address_space *mapping);
++
+ #endif
+--- ./init/main.c.bcrsscore	2006-09-05 12:54:17.000000000 +0400
++++ ./init/main.c	2006-09-05 13:46:35.000000000 +0400
+@@ -51,6 +51,7 @@
+ #include <linux/lockdep.h>
  
- /*
-+ * Support persistence of devices across power-loss during suspend.
+ #include <bc/beancounter.h>
++#include <bc/vmrss.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -608,6 +609,7 @@ asmlinkage void __init start_kernel(void
+ 	check_bugs();
+ 
+ 	acpi_early_init(); /* before LAPIC and SMP init */
++	bc_init_rss();
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+ 	rest_init();
+--- ./kernel/bc/Kconfig.bcrsscore	2006-09-05 12:54:14.000000000 +0400
++++ ./kernel/bc/Kconfig	2006-09-05 13:50:35.000000000 +0400
+@@ -22,4 +22,13 @@ config BEANCOUNTERS
+           per-process basis.  Per-process accounting doesn't prevent malicious
+           users from spawning a lot of resource-consuming processes.
+ 
++config BEANCOUNTERS_RSS
++	bool "Account physical memory usage"
++	default y
++	depends on BEANCOUNTERS
++	help
++	  This allows to estimate per beancounter physical memory usage.
++	  Implemented alghorithm accounts shared pages of memory as well,
++	  dividing them by number of beancounter which use the page.
++
+ endmenu
+--- ./kernel/bc/Makefile.bcrsscore	2006-09-05 12:59:37.000000000 +0400
++++ ./kernel/bc/Makefile	2006-09-05 13:50:48.000000000 +0400
+@@ -9,3 +9,4 @@ obj-y += misc.o
+ obj-y += sys.o
+ obj-y += kmem.o
+ obj-y += vmpages.o
++obj-$(CONFIG_BEANCOUNTERS_RSS) += vmrss.o
+--- ./kernel/bc/beancounter.c.bcrsscore	2006-09-05 13:44:53.000000000 +0400
++++ ./kernel/bc/beancounter.c	2006-09-05 13:49:38.000000000 +0400
+@@ -11,6 +11,7 @@
+ #include <linux/hash.h>
+ 
+ #include <bc/beancounter.h>
++#include <bc/vmrss.h>
+ 
+ static kmem_cache_t *bc_cachep;
+ static struct beancounter default_beancounter;
+@@ -112,6 +113,14 @@ void put_beancounter(struct beancounter 
+ 			printk("BC: %d has %lu of %s held on put", bc->bc_id,
+ 				bc->bc_parms[i].held, bc_rnames[i]);
+ 
++	if (bc->unused_privvmpages != 0)
++		printk("BC: %d has %lu of unused pages held on put", bc->bc_id,
++			bc->unused_privvmpages);
++#ifdef CONFIG_BEANCOUNTERS_RSS
++	if (bc->rss_pages != 0)
++		printk("BC: %d hash %llu of rss pages held on put", bc->bc_id,
++			bc->rss_pages);
++#endif
+ 	hlist_del(&bc->hash);
+ 	nr_beancounters--;
+ 	spin_unlock_irqrestore(&bc_hash_lock, flags);
+--- ./kernel/bc/vmpages.c.bcrsscore	2006-09-05 13:45:34.000000000 +0400
++++ ./kernel/bc/vmpages.c	2006-09-05 13:48:50.000000000 +0400
+@@ -11,12 +11,17 @@
+ 
+ #include <bc/beancounter.h>
+ #include <bc/vmpages.h>
++#include <bc/vmrss.h>
+ 
+ #include <asm/page.h>
+ 
+ void bc_update_privvmpages(struct beancounter *bc)
+ {
+-	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages;
++	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages
++#ifdef CONFIG_BEANCOUNTERS_RSS
++		+ (bc->rss_pages >> PB_PAGE_WEIGHT_SHIFT)
++#endif
++		;
+ 	bc_adjust_minheld(bc, BC_PRIVVMPAGES);
+ 	bc_adjust_maxheld(bc, BC_PRIVVMPAGES);
+ }
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./kernel/bc/vmrss.c	2006-09-05 13:51:21.000000000 +0400
+@@ -0,0 +1,508 @@
++/*
++ *  kernel/bc/vmrss.c
 + *
-+ * WARNING: This option can corrupt filesystems and crash the kernel
-+ * if a mass-storage device or its media are switched while the system
-+ * is asleep and the controller is unpowered.
++ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
++ *
 + */
-+static int persist;
-+module_param(persist, bool, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(persist, "Make devices persist across suspend-to-disk "
-+		"(USE AT YOUR OWN RISK)");
++
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/vmalloc.h>
++#include <linux/shmem_fs.h>
++#include <linux/highmem.h>
++
++#include <bc/beancounter.h>
++#include <bc/vmpages.h>
++#include <bc/vmrss.h>
++
++#include <asm/pgtable.h>
 +
 +/*
-  * As of 2.6.10 we introduce a new USB device initialization scheme which
-  * closely resembles the way Windows works.  Hopefully it will be compatible
-  * with a wider range of devices than the old scheme.  However some previously
-@@ -540,6 +552,12 @@ static void hub_pre_reset(struct usb_int
- 	struct usb_device *hdev = hub->hdev;
- 	int port1;
- 
-+	/* If this is part of a "persistent-device" reset then we should
-+	 * do nothing, especially not disconnect the children.
-+	 */
-+	if (hdev->do_persist)
-+		return;
-+
- 	for (port1 = 1; port1 <= hdev->maxchild; ++port1) {
- 		if (hdev->children[port1 - 1]) {
- 			usb_disconnect(&hdev->children[port1 - 1]);
-@@ -1056,6 +1074,9 @@ void usb_set_device_state(struct usb_dev
-  * is resumed and Vbus power has been interrupted or the controller
-  * has been reset.  The routine marks all the children of the root hub
-  * as NOTATTACHED and marks logical connect-change events on their ports.
++ * Core object of accounting.
++ * page_beancounter (or rss_counter) ties together page an bc.
++ * Page has associated circular list of such pbs. When page is
++ * shared between bcs then it's size is splitted between all of
++ * them in 2^n-s parts.
 + *
-+ * But if the "persist" module parameter is set, instead the routine
-+ * begins the power-session recovery procedure at the root hub.
-  */
- void usb_root_hub_lost_power(struct usb_device *rhdev)
- {
-@@ -1064,6 +1085,13 @@ void usb_root_hub_lost_power(struct usb_
- 	unsigned long flags;
- 
- 	dev_warn(&rhdev->dev, "root hub lost power or was reset\n");
-+
-+	/* Start the "persistent device" mechanism */
-+	if (persist) {
-+		usb_reset_persistent_device(rhdev);
-+		return;
-+	}
-+
- 	spin_lock_irqsave(&device_state_lock, flags);
- 	hub = hdev_to_hub(rhdev);
- 	for (port1 = 1; port1 <= rhdev->maxchild; ++port1) {
-@@ -1077,6 +1105,90 @@ void usb_root_hub_lost_power(struct usb_
- }
- EXPORT_SYMBOL_GPL(usb_root_hub_lost_power);
- 
-+/**
-+ * usb_reset_persistent_device - reset device following power-session loss
-+ * @udev: device to be reset instead of resumed
-+ *
-+ * If a host controller doesn't maintain VBUS suspend current during a
-+ * system sleep or is reset when the system wakes up, all the USB
-+ * power sessions below it will be broken.  This is especially troublesome
-+ * for mass-storage devices containing mounted filesystems, since the
-+ * device will appear to have disconnected and all the memory mappings
-+ * to it will be lost.
-+ *
-+ * As an alternative, this routine attempts to recover power sessions for
-+ * devices that are still present by resetting them instead of resuming
-+ * them.  If all goes well, the devices will appear to persist across the
-+ * the interruption of the power sessions.
-+ *
-+ * This facility is inherently dangerous.  Although usb_reset_device()
-+ * makes every effort to insure that the same device is present after the
-+ * reset as before, it cannot provide a 100% guarantee.  Furthermore it's
-+ * quite possible for a device to remain unaltered but its media to be
-+ * changed.  If the user replaces a flash memory card while the system is
-+ * asleep, he will have only himself to blame when the filesystem on the
-+ * new card is corrupted and the system crashes.
++ * E.g. three bcs will share page like 1/2:1/4:1/4
++ * adding one more reference would produce such a change:
++ * 1/2(bc1) : 1/4(bc2) : 1/4(bc3) ->
++ * (1/4(bc1) + 1/4(bc1)) : 1/4(bc2) : 1/4(bc3) ->
++ * 1/4(bc2) : 1/4(bc3) : 1/4(bc4) : 1/4(bc1)
 + */
-+int usb_reset_persistent_device(struct usb_device *udev)
++
++#define PB_MAGIC	0x62700001UL
++
++struct page_beancounter {
++	unsigned long magic;
++	struct page *page;
++	struct beancounter *bc;
++	struct page_beancounter *next_hash;
++	unsigned refcount;
++	struct list_head page_list;
++};
++
++#define PB_REFC_BITS 24
++
++#define pb_shift(p)	((p)->refcount >> PB_REFC_BITS)
++#define pb_shift_inc(p)	do { ((p)->refcount += (1 << PB_REFC_BITS)); } while (0)
++#define pb_shift_dec(p)	do { ((p)->refcount -= (1 << PB_REFC_BITS)); } while (0)
++
++#define pb_count(p)	((p)->refcount & ((1 << PB_REFC_BITS) - 1))
++#define pb_get(p)	do { ((p)->refcount++); } while (0)
++#define pb_put(p)	do { ((p)->refcount--); } while (0)
++
++#define pb_refcount_init(p, shift) do {					\
++		(p)->refcount = ((shift) << PB_REFC_BITS) + (1);	\
++	} while (0)
++
++static spinlock_t pb_lock = SPIN_LOCK_UNLOCKED;
++static struct page_beancounter **pb_hash_table;
++static unsigned int pb_hash_mask;
++
++static inline int pb_hash(struct beancounter *bc, struct page *page)
 +{
-+	struct usb_host_config *config;
-+	int i;
++	return (page_to_pfn(page) + (bc->bc_id << 10)) & pb_hash_mask;
++}
 +
-+	/* Root hubs don't need to be (and can't be) reset */
-+	if (!udev->parent)
-+		goto mark_children;
++static kmem_cache_t *pb_cachep;
++#define alloc_pb()	kmem_cache_alloc(pb_cachep, GFP_KERNEL)
++#define free_pb(p)	kmem_cache_free(pb_cachep, p)
 +
-+	/* The parent hub's port connect-change status might be set */
-+	clear_port_feature(udev->parent, udev->portnum,
-+			USB_PORT_FEAT_C_CONNECTION);
++#define next_page_pb(p) list_entry(p->page_list.next,	\
++		struct page_beancounter, page_list);
++#define prev_page_pb(p) list_entry(p->page_list.prev,	\
++		struct page_beancounter, page_list);
 +
-+	/* Can't reset it if it's marked as suspended */
-+	usb_set_device_state(udev, USB_STATE_ADDRESS);
-+	i = usb_reset_device(udev);
-+	if (i < 0)
-+		return i;
++/*
++ * Allocates a new page_beancounter struct and
++ * initialises requred fields.
++ * pb->next_hash is set to NULL as this field is used
++ * in two ways:
++ * 1. When pb is in hash - it points to the next one in
++ *    the current hash chain;
++ * 2. When pb is not in hash yet - it points to the next pb
++ *    in list just allocated.
++ */
++struct page_beancounter *bc_alloc_rss_counter(void)
++{
++	struct page_beancounter *pb;
 +
-+	/* Let the interface drivers know the device has been reset.
-+	 * The call to the post_reset() method essentially replaces the
-+	 * call to resume().
-+	 */
-+	config = udev->actconfig;
-+	if (config) {
-+		struct usb_interface *cintf;
-+		struct usb_driver *drv;
++	pb = alloc_pb();
++	if (pb == NULL)
++		return ERR_PTR(-ENOMEM);
 +
-+		for (i = 0; i < config->desc.bNumInterfaces; ++i) {
-+			cintf = config->interface[i];
++	pb->magic = PB_MAGIC;
++	pb->next_hash = NULL;
++	return pb;
++}
 +
-+			/* We can't lock the interface because we already
-+			 * hold the pm_mutex.  Luckily it doesn't matter
-+			 * since no other tasks will be running during a
-+			 * system resume.
-+			 */
-+			if (device_is_registered(&cintf->dev) &&
-+					cintf->dev.driver &&
-+					!is_active(cintf)) {
-+				drv = to_usb_driver(cintf->dev.driver);
-+				if (drv->pre_reset && drv->post_reset) {
-+					(drv->pre_reset)(cintf);
-+					(drv->post_reset)(cintf);
-+					mark_active(cintf);
-+				}
-+			}
++/*
++ * This function ensures that @list has at least @num elements.
++ * Otherwise needed elements are allocated and new list is
++ * returned. On error old list is freed.
++ *
++ * num == BC_ALLOC_ALL means that lis must contain as many
++ * elements as there are BCCs in hash now.
++ */
++struct page_beancounter *bc_alloc_rss_counter_list(long num,
++		struct page_beancounter *list)
++{
++	struct page_beancounter *pb;
++
++	for (pb = list; pb != NULL && num != 0; pb = pb->next_hash, num--);
++
++	/* need to allocate num more elements */
++	while (num > 0) {
++		pb = alloc_pb();
++		if (pb == NULL)
++			goto err;
++
++		pb->magic = PB_MAGIC;
++		pb->next_hash = list;
++		list = pb;
++		num--;
++	}
++
++	return list;
++
++err:
++	bc_free_rss_counter(list);
++	return ERR_PTR(-ENOMEM);
++}
++
++/*
++ * Free the list of page_beancounter-s
++ */
++void bc_free_rss_counter(struct page_beancounter *pb)
++{
++	struct page_beancounter *tmp;
++
++	while (pb) {
++		tmp = pb->next_hash;
++		free_pb(pb);
++		pb = tmp;
++	}
++}
++
++/*
++ * Helpers to update rss_pages and unused_privvmpages on BC
++ */
++static void mod_rss_pages(struct beancounter *bc, int val,
++		struct vm_area_struct *vma, int unused)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&bc->bc_lock, flags);
++	if (vma && BC_VM_PRIVATE(vma->vm_flags, vma->vm_file)) {
++		if (unused < 0 && unlikely(bc->unused_privvmpages < -unused)) {
++			printk("BC: overuncharging %d unused pages: "
++					"val %i, held %lu\n",
++					bc->bc_id, unused,
++					bc->unused_privvmpages);
++			unused = -bc->unused_privvmpages;
 +		}
++		bc->unused_privvmpages += unused;
 +	}
++	bc->rss_pages += val;
++	bc_update_privvmpages(bc);
++	spin_unlock_irqrestore(&bc->bc_lock, flags);
++}
 +
-+	/* Mark the child devices for reset */
-+mark_children:
-+	for (i = 0; i < udev->maxchild; ++i) {
-+		if (udev->children[i])
-+			udev->children[i]->do_persist = 1;
-+	}
++#define __inc_rss_pages(bc, val)	mod_rss_pages(bc, val, NULL, 0)
++#define __dec_rss_pages(bc, val)	mod_rss_pages(bc, -(val), NULL, 0)
++#define inc_rss_pages(bc, val, vma)	mod_rss_pages(bc, val, vma, -1)
++#define dec_rss_pages(bc, val, vma)	mod_rss_pages(bc, -(val), vma, 1)
 +
-+	udev->do_persist = 0;
++/*
++ * Routines to manipulate page-to-bc references (page_beancounter)
++ * Reference may be added, removed or duplicated (see descriptions below)
++ */
++
++static int __pb_dup_ref(struct page *pg, struct beancounter *bc, int hash)
++{
++	struct page_beancounter *p;
++
++	for (p = pb_hash_table[hash];
++			p != NULL && (p->page != pg || p->bc != bc);
++			p = p->next_hash);
++	if (p == NULL)
++		return -1;
++
++	pb_get(p);
 +	return 0;
 +}
 +
- #endif	/* CONFIG_PM */
++static int __pb_add_ref(struct page *pg, struct beancounter *bc,
++		int hash, struct page_beancounter **ppb)
++{
++	struct page_beancounter *head, *p;
++	int shift, ret;
++
++	p = *ppb;
++	*ppb = p->next_hash;
++
++	p->page = pg;
++	p->bc = get_beancounter(bc);
++	p->next_hash = pb_hash_table[hash];
++	pb_hash_table[hash] = p;
++
++	head = page_pb(pg);
++	if (head != NULL) {
++		BUG_ON(head->magic != PB_MAGIC);
++		/* 
++		 * Move the first element to the end of the list.
++		 * List head (pb_head) is set to the next entry.
++		 * Note that this code works even if head is the only element
++		 * on the list (because it's cyclic).
++		 */
++		page_pb(pg) = next_page_pb(head);
++		pb_shift_inc(head);
++		shift = pb_shift(head);
++		/*
++		 * Update user beancounter, the share of head has been changed.
++		 * Note that the shift counter is taken after increment.
++		 */
++		__dec_rss_pages(head->bc, PB_PAGE_WEIGHT >> shift);
++		/*
++		 * Add the new page beancounter to the end of the list.
++		 */
++		list_add_tail(&p->page_list, &page_pb(pg)->page_list);
++	} else {
++		page_pb(pg) = p;
++		shift = 0;
++		INIT_LIST_HEAD(&p->page_list);
++	}
++
++	pb_refcount_init(p, shift);
++	ret = PB_PAGE_WEIGHT >> shift;
++	return ret;
++}
++
++static int __pb_remove_ref(struct page *page, struct beancounter *bc)
++{
++	int hash, ret;
++	struct page_beancounter *p, **q;
++	int shift, shiftt;
++
++	ret = 0;
++
++	hash = pb_hash(bc, page);
++
++	BUG_ON(page_pb(page) != NULL && page_pb(page)->magic != PB_MAGIC);
++	for (q = pb_hash_table + hash, p = *q;
++			p != NULL && (p->page != page || p->bc != bc);
++			q = &p->next_hash, p = *q);
++	if (p == NULL)
++		goto out;
++
++	pb_put(p);
++	if (pb_count(p) > 0)
++		goto out;
++
++	/* remove from the hash list */
++	*q = p->next_hash;
++
++	shift = pb_shift(p);
++	ret = PB_PAGE_WEIGHT >> shift;
++
++	if (page_pb(page) == p) {
++		if (list_empty(&p->page_list)) {
++			page_pb(page) = NULL;
++			put_beancounter(bc);
++			free_pb(p);
++			goto out;
++		}
++		page_pb(page) = next_page_pb(p);
++	}
++
++	list_del(&p->page_list);
++	put_beancounter(bc);
++	free_pb(p);
++
++	/*
++	 * Now balance the list.
++	 * Move the tail and adjust its shift counter.
++	 */
++	p = prev_page_pb(page_pb(page));
++	shiftt = pb_shift(p);
++	pb_shift_dec(p);
++	page_pb(page) = p;
++	__inc_rss_pages(p->bc, PB_PAGE_WEIGHT >> shiftt);
++
++	/*
++	 * If the shift counter of the moved beancounter is different from the
++	 * removed one's, repeat the procedure for one more tail beancounter 
++	 */
++	if (shiftt > shift) {
++		p = prev_page_pb(page_pb(page));
++		pb_shift_dec(p);
++		page_pb(page) = p;
++		__inc_rss_pages(p->bc, PB_PAGE_WEIGHT >> shiftt);
++	}
++out:
++	return ret;
++}
++
++/*
++ * bc_vmrss_page_add: Called when page is added to resident set
++ *   of any mm. In this case page is substracted from unused_privvmpages
++ *   (if it is BC_VM_PRIVATE one) and a reference to BC must be set
++ *   with page_beancounter.
++ *
++ * bc_vmrss_page_del: The reverse operation - page is removed from
++ *   resident set and must become unused.
++ *
++ * bc_vmrss_page_dup: This is called on dup_mmap() when all pages
++ *   become shared between two mm structs. This case has one feature:
++ *   some pages (see below) may lack a reference to BC, so setting
++ *   new reference is not needed, but update of unused_privvmpages
++ *   is required.
++ *
++ * bc_vmrss_page_add_noref: This is called for (former) reserved pages
++ *   like ZERO_PAGE() or some pages set up with insert_page(). These
++ *   pages must not have reference to any BC, but must be accounted in
++ *   rss.
++ */
++
++void bc_vmrss_page_add(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma, struct page_beancounter **ppb)
++{
++	struct beancounter *bc;
++	int hash, ret;
++
++	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
++		return;
++
++	bc = mm->mm_bc;
++	hash = pb_hash(bc, pg);
++
++	ret = 0;
++	spin_lock(&pb_lock);
++	if (__pb_dup_ref(pg, bc, hash))
++		ret = __pb_add_ref(pg, bc, hash, ppb);
++	spin_unlock(&pb_lock);
++
++	inc_rss_pages(bc, ret, vma);
++}
++
++void bc_vmrss_page_del(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma)
++{
++	struct beancounter *bc;
++	int ret;
++
++	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
++		return;
++
++	bc = mm->mm_bc;
++
++	spin_lock(&pb_lock);
++	ret = __pb_remove_ref(pg, bc);
++	spin_unlock(&pb_lock);
++
++	dec_rss_pages(bc, ret, vma);
++}
++
++void bc_vmrss_page_dup(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma, struct page_beancounter **ppb)
++{
++	struct beancounter *bc;
++	int hash, ret;
++
++	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
++		return;
++
++	bc = mm->mm_bc;
++	hash = pb_hash(bc, pg);
++
++	ret = 0;
++	spin_lock(&pb_lock);
++	if (page_pb(pg) == NULL)
++		/*
++		 * pages like ZERO_PAGE must not be accounted in pbc
++		 * so on fork we just skip them
++		 */
++		goto out_unlock;
++
++	if (*ppb == PB_COPY_SAME) {
++		if (__pb_dup_ref(pg, bc, hash))
++			WARN_ON(1);
++	} else
++		ret = __pb_add_ref(pg, bc, hash, ppb);
++out_unlock:
++	spin_unlock(&pb_lock);
++
++	inc_rss_pages(bc, ret, vma);
++}
++
++void bc_vmrss_page_add_noref(struct page *pg, struct mm_struct *mm,
++		struct vm_area_struct *vma)
++{
++	inc_rss_pages(mm->mm_bc, 0, vma);
++}
++
++/*
++ * Calculate the number of currently resident pages for
++ * given mm_struct in a given range (addr - end).
++ * This is needed for mprotect_fixup() as by the time
++ * it is called some pages can be resident and thus
++ * not accounted in bc->unused_privvmpages. Such pages
++ * must num be uncharged (as they already are).
++ */
++
++static unsigned long pages_in_pte_range(struct mm_struct *mm, pmd_t *pmd,
++				unsigned long addr, unsigned long end,
++				unsigned long *pages)
++{
++	pte_t *pte;
++	spinlock_t *ptl;
++
++	pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
++	do {
++		pte_t ptent = *pte;
++		if (!pte_none(ptent) && pte_present(ptent))
++			(*pages)++;
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++	pte_unmap_unlock(pte - 1, ptl);
++	return addr;
++}
++
++static inline unsigned long pages_in_pmd_range(struct mm_struct *mm, pud_t *pud,
++				unsigned long addr, unsigned long end,
++				unsigned long *pages)
++{
++	pmd_t *pmd;
++	unsigned long next;
++
++	pmd = pmd_offset(pud, addr);
++	do {
++		next = pmd_addr_end(addr, end);
++		if (pmd_none_or_clear_bad(pmd))
++			continue;
++
++		next = pages_in_pte_range(mm, pmd, addr, next, pages);
++	} while (pmd++, addr = next, addr != end);
++	return addr;
++}
++
++static inline unsigned long pages_in_pud_range(struct mm_struct *mm, pgd_t *pgd,
++				unsigned long addr, unsigned long end,
++				unsigned long *pages)
++{
++	pud_t *pud;
++	unsigned long next;
++
++	pud = pud_offset(pgd, addr);
++	do {
++		next = pud_addr_end(addr, end);
++		if (pud_none_or_clear_bad(pud))
++			continue;
++
++		next = pages_in_pmd_range(mm, pud, addr, next, pages);
++	} while (pud++, addr = next, addr != end);
++	return addr;
++}
++
++unsigned long mm_rss_pages(struct mm_struct *mm,
++		unsigned long addr, unsigned long end)
++{
++	pgd_t *pgd;
++	unsigned long next;
++	unsigned long pages;
++
++	BUG_ON(addr >= end);
++
++	pages = 0;
++	pgd = pgd_offset(mm, addr);
++	do {
++		next = pgd_addr_end(addr, end);
++		if (pgd_none_or_clear_bad(pgd))
++			continue;
++
++		next = pages_in_pud_range(mm, pgd, addr, next, &pages);
++	} while (pgd++, addr = next, addr != end);
++	return pages;
++}
++
++void __init bc_init_rss(void)
++{
++	unsigned long hash_size;
++
++	pb_cachep = kmem_cache_create("page_beancounter",
++			sizeof(struct page_beancounter), 0,
++			SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL, NULL);
++
++	hash_size = num_physpages >> 2;
++	for (pb_hash_mask = 1;
++			(hash_size & pb_hash_mask) != hash_size;
++			pb_hash_mask = (pb_hash_mask << 1) + 1);
++
++	hash_size = pb_hash_mask + 1;
++	printk(KERN_INFO "BC: Page beancounter hash is %lu entries.\n",
++			hash_size);
++	pb_hash_table = vmalloc(hash_size * sizeof(struct page_beancounter *));
++	memset(pb_hash_table, 0, hash_size * sizeof(struct page_beancounter *));
++}
+--- ./mm/shmem.c.bcrsscore	2006-09-05 13:39:26.000000000 +0400
++++ ./mm/shmem.c	2006-09-05 13:46:35.000000000 +0400
+@@ -2236,6 +2236,12 @@ static struct vm_operations_struct shmem
+ #endif
+ };
  
- static void choose_address(struct usb_device *udev)
-@@ -2845,6 +2957,8 @@ static int config_descriptors_changed(st
- 	unsigned			len = 0;
- 	struct usb_config_descriptor	*buf;
++#ifdef CONFIG_BEANCOUNTERS_RSS
++int is_shmem_mapping(struct address_space *mapping)
++{
++	return (mapping != NULL && mapping->a_ops == &shmem_aops);
++}
++#endif
  
-+	/* FIXME: Compare the Vendor, Product, and Serial string descriptors */
-+
- 	for (index = 0; index < udev->descriptor.bNumConfigurations; index++) {
- 		if (len < le16_to_cpu(udev->config[index].desc.wTotalLength))
- 			len = le16_to_cpu(udev->config[index].desc.wTotalLength);
-Index: mm/drivers/usb/core/usb.h
-===================================================================
---- mm.orig/drivers/usb/core/usb.h
-+++ mm/drivers/usb/core/usb.h
-@@ -36,6 +36,7 @@ extern int usb_suspend_both(struct usb_d
- extern int usb_resume_both(struct usb_device *udev);
- extern int usb_port_suspend(struct usb_device *dev);
- extern int usb_port_resume(struct usb_device *dev);
-+extern int usb_reset_persistent_device(struct usb_device *udev);
- 
- #else
- 
-Index: mm/include/linux/usb.h
-===================================================================
---- mm.orig/include/linux/usb.h
-+++ mm/include/linux/usb.h
-@@ -355,7 +355,8 @@ struct usb_device {
- 	unsigned short bus_mA;		/* Current available from the bus */
- 	u8 portnum;			/* Parent port number (origin 1) */
- 
--	int have_langid;		/* whether string_langid is valid */
-+	unsigned do_persist:1;		/* Needs persistent-device reset */
-+	unsigned have_langid:1;		/* whether string_langid is valid */
- 	int string_langid;		/* language ID for strings */
- 
- 	/* static strings from the device */
-Index: mm/Documentation/kernel-parameters.txt
-===================================================================
---- mm.orig/Documentation/kernel-parameters.txt
-+++ mm/Documentation/kernel-parameters.txt
-@@ -1235,6 +1235,16 @@ and is between 256 and 4096 characters. 
- 			Format: { 0 | 1 }
- 			See arch/parisc/kernel/pdc_chassis.c
- 
-+	persist=	[USB] Enable USB device persistence across power loss
-+			during system suspend.
-+			Format: { 0 | 1 }
-+			See also Documentation/usb/persist.txt
-+			WARNING!!  If a USB mass-storage device or its media
-+			are changed while the system is suspended, the kernel
-+			may not realize what has happened.  If this option is
-+			enabled then filesystem corruption and a system crash
-+			may result.
-+
- 	pf.		[PARIDE]
- 			See Documentation/paride.txt.
- 
-Index: mm/Documentation/usb/persist.txt
-===================================================================
---- /dev/null
-+++ mm/Documentation/usb/persist.txt
-@@ -0,0 +1,154 @@
-+		USB device persistence during system suspend
-+
-+		   Alan Stern <stern@rowland.harvard.edu>
-+
-+				September 2, 2006
-+
-+
-+
-+	What is the problem?
-+
-+According to the USB specification, when a USB bus is suspended the
-+bus must continue to supply suspend current (around 1-5 mA).  This
-+is so that devices can maintain their internal state and hubs can
-+detect connect-change events (devices being plugged in or unplugged).
-+The technical term is "power session".
-+
-+If a USB device's power session is interrupted then the system is
-+required to behave as though the device has been unplugged.  It's a
-+conservative approach; in the absence of suspend current the computer
-+has no way to know what has actually happened.  Perhaps the same
-+device is still attached or perhaps it was removed and a different
-+device plugged into the port.  The system must assume the worst.
-+
-+By default, Linux behaves according to the spec.  If a USB host
-+controller loses power during a system suspend, then when the system
-+wakes up all the devices attached to that controller are treated as
-+though they had disconnected.  This is always safe and it is the
-+"officially correct" thing to do.
-+
-+For many sorts of devices this behavior doesn't matter in the least.
-+If the kernel wants to believe that your USB keyboard was unplugged
-+while the system was asleep and a new keyboard was plugged in when the
-+system woke up, who cares?  It'll still work the same when you type on
-+it.
-+
-+Unfortunately problems _can_ arise, particularly with mass-storage
-+devices.  The effect is exactly the same as if the device really had
-+been unplugged while the system was suspended.  If you had a mounted
-+filesystem on the device, you're out of luck -- everything in that
-+filesystem is now inaccessible.  This is especially annoying if your
-+root filesystem was located on the device, since your system will
-+instantly crash.  :-(
-+
-+Loss of power isn't the only mechanism to worry about.  Anything that
-+interrupts a power session will have the same effect.  For example,
-+even though suspend current may have been maintained while the system
-+was asleep, on many systems during the initial stages of wakeup the
-+firmware (i.e., the BIOS) resets the motherboard's USB host
-+controllers.  Result: all the power sessions are destroyed and again
-+it's as though you had unplugged all the USB devices.  Yes, it's
-+entirely the BIOS's fault, but that doesn't do _you_ any good unless
-+you can convince the BIOS supplier to fix the problem (lots of luck!).
-+
-+On many systems the USB host controllers will get reset after a
-+suspend-to-RAM.  On almost all systems, no suspend current is
-+available during suspend-to-disk (also known as swsusp).  You can
-+check the kernel log after resuming to see if either of these has
-+happened; look for lines saying "root hub lost power or was reset".
-+
-+In practice, people are forced to unmount any filesystems on a USB
-+device before suspending.  If the root filesystem is on a USB device,
-+the system can't be suspended at all.  (All right, it _can_ be
-+suspended -- but it will crash as soon as it wakes up, which isn't
-+much better.)
-+
-+
-+	What is the solution?
-+
-+Setting the "persist=y" module parameter for usbcore will cause the
-+kernel to work around these issues.  If usbcore is build into the
-+main kernel instead of as a separate module, you can put
-+"usbcore.persist=1" on the boot command line.  You can also change the
-+kernel's behavior on the fly using sysfs: Type
-+
-+	echo y >/sys/module/usbcore/parameters/persist
-+
-+to turn the option on, and replace the 'y' with an 'n' to turn it off.
-+
-+The "persist" option enables a mode in which the core USB device data
-+structures are allowed to persist across a power-session disruption.
-+It works like this.  If the kernel sees that a USB host controller is
-+not in the expected state during resume (i.e., if the controller was
-+reset or otherwise had lost power) then it applies a persistence check
-+to each of the USB devices below that controller.  It doesn't try to
-+resume the device; that can't work once the power session is gone.
-+Instead it issues a USB port reset followed by a re-enumeration.
-+(This is exactly the same thing that happens whenever a USB device is
-+reset.)  If the re-enumeration shows that the device now attached to
-+that port has the same descriptors as before, including the Vendor and
-+Product IDs, then the kernel continues to use the same device
-+structure.  In effect, the kernel treats the device as though it had
-+merely been reset instead of unplugged.
-+
-+If no device is now attached to the port, or if the descriptors are
-+different from what the kernel remembers, then the treatment is what
-+you would expect.  The kernel destroys the old device structure and
-+behaves as though the old device had been unplugged and a new device
-+plugged in, just as it would without the "persist=y" option.
-+
-+The end result is that the USB device remains available and usable.
-+Mounts and memory mappings are unaffected, and the world is now a good
-+and happy place.
-+
-+
-+	Is this the best solution?
-+
-+Perhaps not.  Arguably, keeping track of mounted filesystems and
-+memory mappings across device disconnects should be handled by a
-+centralized Logical Volume Manager.  Such a solution would allow you
-+to plug in a USB flash device, create a persistent volume associated
-+with it, unplug the flash device, plug it back in later, and still
-+have the same persistent volume associated with the device.  As such
-+it would be more far-reaching than usbcore's "persist=y" option.
-+
-+On the other hand, writing a persistent volume manager would be a big
-+job and using it would require significant input from the user.  This
-+solution is much quicker and easier -- and it exists now, a giant
-+point in its favor!
-+
-+Furthermore, the "persist" option applies to _all_ USB devices, not
-+just mass-storage devices.  It might turn out to be equally useful for
-+other device types, such as network interfaces.
-+
-+
-+	WARNING: Using "persist=y" can be dangerous!!
-+
-+When recovering an interrupted power session the kernel does its best
-+to make sure the USB device hasn't been changed; that is, the same
-+device is still plugged into the port as before.  But the checks
-+aren't guaranteed to be 100% accurate.
-+
-+If you replace one USB device with another of the same type (same
-+manufacturer, same IDs, and so on) there's an excellent chance the
-+kernel won't detect the change.  Serial numbers and other strings are
-+not compared.  In many cases it wouldn't help if they were, because
-+manufacturers frequently omit serial numbers entirely in their
-+devices.
-+
-+Furthermore it's quite possible to leave a USB device exactly the
-+same while changing its media.  If you replace the flash memory card
-+in a USB card reader while the system is asleep, the kernel will have
-+no way to know you did it.  The kernel will assume that nothing has
-+happened and will continue to use the partition tables and memory
-+mappings for the old card.
-+
-+If the kernel gets fooled in this way, it's almost certain to cause
-+filesystem corruption and to crash your system.  You'll have no one to
-+blame but yourself.
-+
-+YOU HAVE BEEN WARNED!  USE AT YOUR OWN RISK!
-+
-+That having been said, most of the time there shouldn't be any trouble
-+at all.  The "persist" feature can be extremely useful.  Make the most
-+of it.
-Index: mm/drivers/usb/core/message.c
-===================================================================
---- mm.orig/drivers/usb/core/message.c
-+++ mm/drivers/usb/core/message.c
-@@ -764,7 +764,7 @@ int usb_string(struct usb_device *dev, i
- 			err = -EINVAL;
- 			goto errout;
- 		} else {
--			dev->have_langid = -1;
-+			dev->have_langid = 1;
- 			dev->string_langid = tbuf[2] | (tbuf[3]<< 8);
- 				/* always use the first langid listed */
- 			dev_dbg (&dev->dev, "default language 0x%04x\n",
-Index: mm/Documentation/power/swsusp.txt
-===================================================================
---- mm.orig/Documentation/power/swsusp.txt
-+++ mm/Documentation/power/swsusp.txt
-@@ -405,6 +405,9 @@ safest thing is to unmount all filesyste
- Firewire, CompactFlash, MMC, external SATA, or even IDE hotplug bays)
- before suspending; then remount them after resuming.
- 
-+There is a work-around for this problem.  For more information, see
-+Documentation/usb/persist.txt.
-+
- Q: I upgraded the kernel from 2.6.15 to 2.6.16. Both kernels were
- compiled with the similar configuration files. Anyway I found that
- suspend to disk (and resume) is much slower on 2.6.16 compared to
-
+ static int shmem_get_sb(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data, struct vfsmount *mnt)

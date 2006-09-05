@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWIESUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWIES0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWIESUc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWIESUc
+	id S932150AbWIES0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWIES0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:20:32 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:28885 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030206AbWIESUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:20:30 -0400
-Date: Tue, 5 Sep 2006 20:12:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>,
-       Daniel Walker <dwalker@mvista.com>, Hua Zhong <hzhong@gmail.com>
-Subject: Re: lockdep oddity
-Message-ID: <20060905181241.GC16207@elte.hu>
-References: <20060901015818.42767813.akpm@osdl.org> <20060905130356.GB6940@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060905130356.GB6940@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 5 Sep 2006 14:26:11 -0400
+Received: from smtp105.biz.mail.mud.yahoo.com ([68.142.200.253]:7790 "HELO
+	smtp105.biz.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932150AbWIES0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:26:10 -0400
+In-Reply-To: <1157441620.24916.5.camel@localhost>
+References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net> <1157441620.24916.5.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <508B6A67-CA5B-4A81-B868-BF8A03D78888@vhugo.net>
+Cc: linux-kernel@vger.kernel.org, Victor Castro <victorhugo83@yahoo.com>,
+       Jon Masters <jonathan@jonmasters.org>
+Content-Transfer-Encoding: 7bit
+From: Victor Hugo <victor@vhugo.net>
+Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
+Date: Tue, 5 Sep 2006 11:26:06 -0700
+To: Marcel Holtmann <marcel@holtmann.org>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+Hi Marcel,
 
-> The lock validator gives me this (latest -mm and 2.6.18-rc6):
-> 
-> ===================================== 
-> [ BUG: bad unlock balance detected! ] 
-> ------------------------------------- 
-> swapper/0 is trying to release lock (resource_lock) at:
-> [<0000000000042842>] request_resource+0x52/0x88 
-> but there are no more locks to release! 
-> 
-> The reason is that the BUILD_LOCK_OPS macros in kernel/lockdep.c don't 
-> contain any of the *_acquire calls, while all of the _unlock functions 
-> contain a *_release call. Hence I get immediately unbalanced locks.
+On Sep 5, 2006, at 12:33 AM, Marcel Holtmann wrote:
+>
+> actually it has never been really a filename. It was a simple pattern
+> that the initial hotplug script and later the udev script mapped  
+> 1:1 to
+> a filename on your filesystem. If you check the mailing list  
+> archives of
+> LKML and linux-hotplug you will see that I always resisted in allowing
+> drivers to include a directory path in that call. A couple of people
+> tried this and it is not what it was meant to be.
+>
+> The MODULE_FIRMWARE approach simply makes this pattern visible via
+> modinfo, because otherwise you would have to scan the source code to
+> find this pattern. And to make it use you have to apply the same  
+> policy
+> the firmware script is applying when choosing the file. Currently this
+> is a 1:1 mapping.
+>
+> Regards
+>
+> Marcel
 
-hmmm ... that sounds like a bug. Weird - i recently ran 
-PREEMPT+SMP+LOCKDEP kernels and didnt notice this.
+You're right, I should have been more specific when I said  
+"filename", I really meant a 1:1 mapping to a file in /lib/firmware.
 
-> Found this will debugging some random memory corruptions that happen 
-> when CONFIG_PROVE_LOCKING and CONFIG_PROFILE_LIKELY are both on. 
-> Switching both off or having only one of them on seems to work.
+My question is, should we have a generic 1:1 mapping and make it  
+visible through MODULE_FIRMWARE.
 
-previously i had some weirdnesses with PROFILE_LIKELY too, they were 
-caused by it generating cross-calls from within lockdep. Do the 
-corruptions go away if you remove all likely() and unlikely() markings 
-from kernel/lockdep.c?
+  Or like Jon Masters suggested have specific version numbers in the  
+pattern and have them map to specific versions in /lib/firmware and  
+make them all visible through MODULE_FIRMWARE.  I believe the  
+reasoning behind this was to make packaging drivers easier.
 
-	Ingo
+
+I believe that we should have a generic mapping in the driver (i.e,  
+"firmware.bin") and let the admin or the userspace hotplug scripts  
+take care of filename policy with a link to the correct firmware  
+version.
+
+example :
+
+firmware.bin -> firmware-xyz.bin
+
+The main reason for not including speciic mapping in the driver is  
+that everytime a new firmware version is released the driver has to  
+be updated and recompiled.  Its much easier to change a hotplug script.
+
+
+-Victor

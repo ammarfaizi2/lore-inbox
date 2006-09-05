@@ -1,158 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWIES1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWIES2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWIES1t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWIES1t
+	id S1030181AbWIES2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWIES2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:27:49 -0400
-Received: from 71-215-130-30.ptld.qwest.net ([71.215.130.30]:56775 "EHLO
-	vonnegut.anholt.net") by vger.kernel.org with ESMTP id S965215AbWIERnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 13:43:17 -0400
-From: Eric Anholt <eric@anholt.net>
-To: linux-kernel@vger.kernel.org
-Cc: davej@codemonkey.org.uk, Eric Anholt <eric@anholt.net>
-Subject: [PATCH] Whitespace cleanup, remove an unnecessary comment, and remove an unnecessary include.
-Reply-To: Eric Anholt <eric@anholt.net>
-Date: Tue, 05 Sep 2006 10:37:34 -0700
-Message-Id: <11574778924142-git-send-email-eric@anholt.net>
-X-Mailer: git-send-email 1.4.1
-In-Reply-To: <115747787383-git-send-email-eric@anholt.net>
-References: 11551502672606-git-send-email-eric@anholt.net <115747785570-git-send-email-eric@anholt.net> <115747787383-git-send-email-eric@anholt.net>
+	Tue, 5 Sep 2006 14:28:17 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:45242 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030181AbWIES2P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:28:15 -0400
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       frankeh@watson.ibm.com
+In-Reply-To: <1157368883.5078.24.camel@localhost>
+References: <20060901110948.GD15684@skybase>
+	 <1157122667.28577.69.camel@localhost.localdomain>
+	 <1157124674.21733.13.camel@localhost>  <44F8563B.3050505@shadowen.org>
+	 <1157126640.21733.43.camel@localhost>
+	 <1157127483.28577.117.camel@localhost.localdomain>
+	 <1157127943.21733.52.camel@localhost>
+	 <1157128634.28577.139.camel@localhost.localdomain>
+	 <1157129762.21733.63.camel@localhost>
+	 <1157130970.28577.150.camel@localhost.localdomain>
+	 <1157132520.21733.78.camel@localhost>
+	 <1157133780.18728.6.camel@localhost.localdomain>
+	 <1157133841.21733.79.camel@localhost>
+	 <1157135024.18728.19.camel@localhost.localdomain>
+	 <1157135504.21733.83.camel@localhost>
+	 <1157136106.18728.27.camel@localhost.localdomain>
+	 <1157368883.5078.24.camel@localhost>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 11:27:53 -0700
+Message-Id: <1157480873.3186.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
-index c51b365..e643445 100644
---- a/drivers/char/agp/intel-agp.c
-+++ b/drivers/char/agp/intel-agp.c
-@@ -16,7 +16,6 @@
-  * <alanh@tungstengraphics.com>.
-  */
- 
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-@@ -24,7 +23,6 @@ #include <linux/pagemap.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
- 
--/* Should be moved to include/linux/pci_ids.h */
- #define PCI_DEVICE_ID_INTEL_82946GZ_HB      0x2970
- #define PCI_DEVICE_ID_INTEL_82946GZ_IG      0x2972
- #define PCI_DEVICE_ID_INTEL_82965G_1_HB     0x2980
-@@ -379,7 +377,7 @@ static struct aper_size_info_fixed intel
- 	/* The 64M mode still requires a 128k gatt */
- 	{64, 16384, 5},
- 	{256, 65536, 6},
--        {512, 131072, 7},
-+	{512, 131072, 7},
- };
- 
- static struct _intel_i830_private {
-@@ -404,10 +402,10 @@ static void intel_i830_init_gtt_entries(
- 	 * reason) at the top of stolen memory. Then we add 4KB to that
- 	 * for the video BIOS popup, which is also stored in there. */
- 
--       if (IS_I965)
--               size = 512 + 4;
--       else
--               size = agp_bridge->driver->fetch_size() + 4;
-+	if (IS_I965)
-+		size = 512 + 4;
-+	else
-+		size = agp_bridge->driver->fetch_size() + 4;
- 
- 	if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82830_HB ||
- 	    agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82845G_HB) {
-@@ -766,7 +764,7 @@ static int intel_i915_remove_entries(str
- static int intel_i915_fetch_size(void)
- {
- 	struct aper_size_info_fixed *values;
--	u32 temp, offset = 0;
-+	u32 temp, offset;
- 
- #define I915_256MB_ADDRESS_MASK (1<<27)
- 
-@@ -1808,34 +1806,34 @@ static int __devinit agp_intel_probe(str
- 			bridge->driver = &intel_845_driver;
- 		name = "945GM";
- 		break;
--       case PCI_DEVICE_ID_INTEL_82946GZ_HB:
--               if (find_i830(PCI_DEVICE_ID_INTEL_82946GZ_IG))
--                       bridge->driver = &intel_i965_driver;
--               else
--                       bridge->driver = &intel_845_driver;
--               name = "946GZ";
--               break;
--       case PCI_DEVICE_ID_INTEL_82965G_1_HB:
--               if (find_i830(PCI_DEVICE_ID_INTEL_82965G_1_IG))
--                       bridge->driver = &intel_i965_driver;
--               else
--                       bridge->driver = &intel_845_driver;
--               name = "965G";
--               break;
--       case PCI_DEVICE_ID_INTEL_82965Q_HB:
--               if (find_i830(PCI_DEVICE_ID_INTEL_82965Q_IG))
--                       bridge->driver = &intel_i965_driver;
--               else
--                       bridge->driver = &intel_845_driver;
--               name = "965Q";
--               break;
--       case PCI_DEVICE_ID_INTEL_82965G_HB:
--               if (find_i830(PCI_DEVICE_ID_INTEL_82965G_IG))
--                       bridge->driver = &intel_i965_driver;
--               else
--                       bridge->driver = &intel_845_driver;
--               name = "965G";
--               break;
-+	case PCI_DEVICE_ID_INTEL_82946GZ_HB:
-+		if (find_i830(PCI_DEVICE_ID_INTEL_82946GZ_IG))
-+			bridge->driver = &intel_i965_driver;
-+		else
-+			bridge->driver = &intel_845_driver;
-+		name = "946GZ";
-+		break;
-+	case PCI_DEVICE_ID_INTEL_82965G_1_HB:
-+		if (find_i830(PCI_DEVICE_ID_INTEL_82965G_1_IG))
-+			bridge->driver = &intel_i965_driver;
-+		else
-+			bridge->driver = &intel_845_driver;
-+		name = "965G";
-+		break;
-+	case PCI_DEVICE_ID_INTEL_82965Q_HB:
-+		if (find_i830(PCI_DEVICE_ID_INTEL_82965Q_IG))
-+			bridge->driver = &intel_i965_driver;
-+		else
-+			bridge->driver = &intel_845_driver;
-+		name = "965Q";
-+		break;
-+	case PCI_DEVICE_ID_INTEL_82965G_HB:
-+		if (find_i830(PCI_DEVICE_ID_INTEL_82965G_IG))
-+			bridge->driver = &intel_i965_driver;
-+		else
-+			bridge->driver = &intel_845_driver;
-+		name = "965G";
-+		break;
- 
- 	case PCI_DEVICE_ID_INTEL_7505_0:
- 		bridge->driver = &intel_7505_driver;
-@@ -1978,10 +1976,10 @@ #define ID(x)						\
- 	ID(PCI_DEVICE_ID_INTEL_82915GM_HB),
- 	ID(PCI_DEVICE_ID_INTEL_82945G_HB),
- 	ID(PCI_DEVICE_ID_INTEL_82945GM_HB),
--        ID(PCI_DEVICE_ID_INTEL_82946GZ_HB),
--        ID(PCI_DEVICE_ID_INTEL_82965G_1_HB),
--        ID(PCI_DEVICE_ID_INTEL_82965Q_HB),
--        ID(PCI_DEVICE_ID_INTEL_82965G_HB),
-+	ID(PCI_DEVICE_ID_INTEL_82946GZ_HB),
-+	ID(PCI_DEVICE_ID_INTEL_82965G_1_HB),
-+	ID(PCI_DEVICE_ID_INTEL_82965Q_HB),
-+	ID(PCI_DEVICE_ID_INTEL_82965G_HB),
- 	{ }
- };
- 
--- 
-1.4.1
+On Mon, 2006-09-04 at 13:21 +0200, Martin Schwidefsky wrote:
+> Any kind of locking won't work. You need the information that a page has
+> been discarded until the page has been freed. Only then the fact that
+> the page has been discarded may enter nirvana. Any kind of lock needs to
+> be freed again to allow the next discard fault to happen. Since you
+> don't when the last page reference is returned you cannot hold the lock
+> until the page is free.
+
+First of all, you *CAN* sleep with the BKL held. ;)
+
+Why doesn't the normal lock_page() help?  It can sleep, too?
+
+As far as simplifying the patches, I feel like some of the
+page_make_stable() stuff should be done inside of page_cache_get().
+Perhaps the API needs to be changed so that page_cache_get()s can fail.
+
+There are also a ton of "mapping == page->mapping" tests all over.
+Perhaps you need a page_still_in_mapping(page, mapping) call that also
+checks the page's discard state.
+
+I also have the feeling that every single page_host_discards() check
+which is actually placed in the VM code shouldn't be there.  The ones in
+page_make_stable() and friends are OK, but the ones in
+shrink_inactive_list() seem bogus to me.  Looks like they should be
+covered up in some _other_ function that checks PageDiscarded().
+
+You could even put these things in (what are now) simple functions like
+lru_to_page().  The logic would be along the lines of, whenever I am
+looking into the LRU, I need to make sure this page is still actually
+there.
+
+As for the locking, imagine a seqlock (per-zone, node, section, hash,
+anon_vma, mapping, whatever...).  A write is taken any time that
+PG_discard would have been set, and the page is placed in to a list so
+that it can be found (the data structure isn't important now).  All of
+the places that currently check PG_discard would go and take a read on
+the seqlock.  If they fail to acquire it (what is normally now a loop),
+they would go look in the list to see if the page they are interested in
+is there.  If it is, then they treat it as dicarded, otherwise they
+proceed normally.  So, the operation is normally very cheap (a
+non-atomic read).  It is very expensive _during_ a discard because of
+the traversal of the list, but these should be rare.
+
+The structure storing the page could be like this:
+
+struct page_list {
+	struct list_head list;
+	struct page *page;
+};
+
+So that it doesn't require any extra space in the struct page, and
+limits the overhead to only the people actually using the page discard
+mechanism.
+
+-- Dave
 

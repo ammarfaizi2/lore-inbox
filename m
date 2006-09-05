@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWIEQxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWIEQ7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWIEQxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 12:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWIEQxu
+	id S965191AbWIEQ7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 12:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWIEQ7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 12:53:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:61414 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030200AbWIEQxs
+	Tue, 5 Sep 2006 12:59:49 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:11274 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932150AbWIEQ7s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 12:53:48 -0400
-Message-ID: <44FDAB81.5050608@in.ibm.com>
-Date: Tue, 05 Sep 2006 22:23:21 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Tue, 5 Sep 2006 12:59:48 -0400
+Date: Tue, 5 Sep 2006 12:59:39 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [RFC] USB device persistence across suspend-to-disk
+In-Reply-To: <20060905091318.42c273d2.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.44L0.0609051252240.5763-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
- memory)
-References: <44FD918A.7050501@sw.ru>
-In-Reply-To: <44FD918A.7050501@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
-> Core Resource Beancounters (BC) + kernel/user memory control.
-> 
-> BC allows to account and control consumption
-> of kernel resources used by group of processes.
-> 
-> Draft UBC description on OpenVZ wiki can be found at
-> http://wiki.openvz.org/UBC_parameters
-> 
-> The full BC patch set allows to control:
-> - kernel memory. All the kernel objects allocatable
-> on user demand should be accounted and limited
-> for DoS protection.
-> E.g. page tables, task structs, vmas etc.
+On Tue, 5 Sep 2006, Randy.Dunlap wrote:
 
-One of the key requirements of resource management for us is to be able to
-migrate tasks across resource groups. Since bean counters do not associate
-a list of tasks associated with them, I do not see how this can be done
-with the existing bean counters.
+> > +Setting the "persist=y" module parameter for usbcore will cause the
+> 
+>                 persist=1 ??
 
--- 
+Either will work.
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+> > +kernel to work around these issues.  If usbcore is build into the
+> 
+> s/build/built/
+
+Got it, thanks.
+
+> > +main kernel instead of as a separate module, you can put
+> > +"usbcore.persist=1" on the boot command line.  You can also change the
+> > +kernel's behavior on the fly using sysfs: Type
+> > +
+> > +	echo y >/sys/module/usbcore/parameters/persist
+> 
+> Does sysfs treat 'y' as '1'?
+> Anyway, it would be Good to be consistent.
+
+Yes; I'll change everything to 'y'.
+
+> > +structure.  In effect, the kernel treats the device as though it had
+> > +merely been reset instead of unplugged.
+> 
+> so does the USB device also retain its same USB address?
+
+It does.  It didn't seem worthwhile to mention that point, however.
+
+> > -			dev->have_langid = -1;
+> > +			dev->have_langid = 1;
+
+> Different patch (?).
+
+When this is submitted for inclusion, that change will be broken out into 
+a separate patch.
+
+Alan Stern
+

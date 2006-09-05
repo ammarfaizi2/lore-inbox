@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWIES51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWIES5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWIES51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWIES51
+	id S1030221AbWIES5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWIES5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:57:27 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:40098 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030220AbWIES5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:57:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oAxpnOkMGyGmnTMTWnBYTSuCXY5jXUv7WjRV+El7PMyT4XEiXWrzPdIRuYsNE+EgqG3bm86w2yUVgcWjZxltQP9X/BbKgPYrkUkCx9LY1Elcvr6XOVXfjTBBjTuUFrnUhpS4plkGNmOtiqWpiuaswvag+qOAbBStSpsXhdUMmdA=
-Message-ID: <a762e240609051157p47084522o7df1730cf6f6fd29@mail.gmail.com>
-Date: Tue, 5 Sep 2006 11:57:23 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Om Narasimhan" <om.turyx@gmail.com>
-Subject: Re: howto map HDT dumped addresses to AMD64 kernel virtual addresses.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 5 Sep 2006 14:57:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:41174 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030221AbWIES5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:57:25 -0400
+Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: Will Simoneau <simoneau@ele.uri.edu>, lkml <linux-kernel@vger.kernel.org>,
+       ext4 <linux-ext4@vger.kernel.org>
+In-Reply-To: <1157479756.23501.18.camel@dyn9047017100.beaverton.ibm.com>
+References: <20060905171049.GB27433@ele.uri.edu>
+	 <1157479756.23501.18.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 13:57:12 -0500
+Message-Id: <1157482632.19432.6.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/5/06, Om Narasimhan <om.turyx@gmail.com> wrote:
-> Hi,
-> I am running a kernel (Suse Enterprise 9 with SP3) and it is hanging
-> somewhere in the kernel. By hooking up HDT from AMD, I got a the
-> assembly dump of the routine which causes the infinite loop. How
-> should I map the addresses dumped by HDT in the format SEG:Offset
-> (e.g,
-> 0033:00000000_00400C18   mov   esi,[loc_0000000000501a64h]
-> 0033:00000000_00400C1E   test   esi,esi
-> 0033:00000000_00400C20   jz   loc_0000000000400c30h
-> ...etc)
-> to kernel virtual address space?
+On Tue, 2006-09-05 at 11:09 -0700, Badari Pulavarty wrote:
+> On Tue, 2006-09-05 at 13:10 -0400, Will Simoneau wrote:
+> > Has anyone seen this before? These three traces occured at different times
+> > today when three new user accounts (and associated quotas) were created. This
+> > machine is an NFS server which uses quotas on an ext3 fs (dir_index is on).
+> > Kernel is 2.6.17.11 on an x86 smp w/64G highmem; 4G ram is installed. The
+> > affected filesystem is on a software raid1 of two hardware raid0 volumes from a
+> > megaraid card.
+> > 
+> > BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+> >  <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread+0x26/0x2a
+> >  <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
+> >  <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
+> >  <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
+> >  <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
+> >  <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time+0x52/0x6a
+> >  <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
+> >  <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup+0xdf/0x266
+> >  <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
+> >  <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
+> >  <c0102a97> syscall_call+0x7/0xb 
+> 
+> I think its a bogus warning. 
+> 
+> ext3_getblk() is calling ext3_get_blocks_handle() to map "1" block for
+> read. But for *some* reason ext3_get_blocks_handle() more than 1 block.
+> ext3_get_blocks_handle() return "positive #of blocks" is a valid case.
+> So needs to be fixed.
 
-I don't know about your HDT (never used one) but have you already
-tried the regular debug paths (nmi watchdog/sysrq/crashdump/kdb) that
-SLES9 has?
+I'm having a hard time figuring out exactly what ext3_get_blocks_handle
+is trying to return, but it looks to me like if it is allocating one
+data block, and needs to allocate an indirect block as well, then it
+will return 2 rather than 1.  Is this expected, or am I just confused?
 
-Thanks,
-  Keith
+> I did search for callers of ext3_get_blocks_handle() and found that
+> ext3_readdir() seems to do wrong thing all the time with error check :(
+> Need to take a closer look..
+> 
+> 	err = ext3_get_blocks_handle(NULL, inode, blk, 1,
+>                                                 &map_bh, 0, 0);
+>         if (err > 0) {  <<<< BAD
+>                   page_cache_readahead(sb->s_bdev->bd_inode->i_mapping,
+>                                 &filp->f_ra,
+>                                 filp,
+>                                 map_bh.b_blocknr >>
+>                                 (PAGE_CACHE_SHIFT - inode->i_blkbits),
+>                                 1);
+>                         bh = ext3_bread(NULL, inode, blk, 0, &err);
+>        }
+
+Bad to do this what it's doing, or bad to call name the variable "err"?
+I think if it looked like this:
+
+	count = ext3_get_blocks_handle(NULL, inode, blk, 1,
+                                                &map_bh, 0, 0);
+        if (count > 0) { 
+
+it would be a lot less confusing.
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

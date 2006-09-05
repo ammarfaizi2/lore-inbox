@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWIESur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWIES5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWIESur (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWIESuq
+	id S932194AbWIES5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWIES5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:50:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:37918 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030215AbWIESuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:50:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ucAIq7pjnk1ciqV5z9fMoT7V4xlswV2JMGOmnU5pNvsd0Si4mg237FJwrfltbKgPWrkgt0uexx3mcfWEbQvSDSOLulowG98+KIzb2LuzlvttcNrinMTSpZ2SU5bJwHGikqjRk+XJsQUuGBhRP7co5Rl1gpRmbAzQkX05MH50wxA=
-Message-ID: <bbe04eb10609051150g2636c438gf88195499b85279c@mail.gmail.com>
-Date: Tue, 5 Sep 2006 14:50:42 -0400
-From: "Kimball Murray" <kimball.murray@gmail.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Subject: Re: [Feature] x86_64 page tracking for Stratus servers
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, ak@suse.de
-In-Reply-To: <1157479017.3186.33.camel@localhost.localdomain>
+	Tue, 5 Sep 2006 14:57:13 -0400
+Received: from ns1.suse.de ([195.135.220.2]:25756 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932194AbWIES5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:57:11 -0400
+Date: Tue, 5 Sep 2006 11:56:41 -0700
+From: Greg KH <greg@kroah.com>
+To: maximilian attems <maks@sternwelten.at>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: Re: Linux 2.6.18-rc6
+Message-ID: <20060905185641.GA17950@kroah.com>
+References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org> <20060905122656.GA3650@aepfle.de> <20060905124505.GE4868@baikonur.stro.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060905173229.14149.60535.sendpatchset@dhcp83-86.boston.redhat.com>
-	 <1157479017.3186.33.camel@localhost.localdomain>
+In-Reply-To: <20060905124505.GE4868@baikonur.stro.at>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Tue, Sep 05, 2006 at 02:45:05PM +0200, maximilian attems wrote:
+> On Tue, Sep 05, 2006 at 02:26:56PM +0200, Olaf Hering wrote:
+> > On Sun, Sep 03, Linus Torvalds wrote:
+> > 
+> > > 
+> > > Things are definitely calming down, and while I'm not ready to call it a 
+> > > final 2.6.18 yet, this migt be the last -rc.
+> > 
+> 
+> there is a regression since 2.6.17 on some boxes:
+> http://bugzilla.kernel.org/show_bug.cgi?id=6875
+> http://bugzilla.kernel.org/show_bug.cgi?id=6920
+> 
+> the attached patch is known to fix the regression:
+> http://bugzilla.kernel.org/attachment.cgi?id=8798&action=view
 
-The "hooks" have default funtions in the patch (see track.c), all of
-which do exactly what Stratus needs them to do.  Knowing that this
-functionality is only needed by Stratus, the hook was my attempt to
-allow other users of this interface to make it behave differently.  I
-wouldn't object to removing the hooks and instead calling the default
-functions directly.
+The fix for this (your referenced patch) is already in 2.6.18-rc5.  Does
+it not work properly for you?
 
--kimball
+thanks,
 
-On 9/5/06, Dave Hansen <haveblue@us.ibm.com> wrote:
-> On Tue, 2006-09-05 at 13:34 -0400, Kimball Murray wrote:
-> > +static __inline__ void mm_track_pte(void * val)
-> > +{
-> > +       if (unlikely(mm_tracking_struct.active))
-> > +               do_mm_track_pte(val);
-> > +}
->
-> This patch just appears to be a big collection of hooks.  Could you post
-> an example user of these hooks?  It is obviously GPL from all of the
-> EXPORT_SYMBOL_GPL()s anyway, right?
->
-> -- Dave
->
->
+greg k-h

@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWIETEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWIETHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWIETEi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWIETEi
+	id S1030225AbWIETHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWIETHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:04:38 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:52385 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030228AbWIETEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:04:35 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44FDC9F5.3090605@s5r6.in-berlin.de>
-Date: Tue, 05 Sep 2006 21:03:17 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Miles Lane <miles.lane@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive locking
- detected
-References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>	<20060905111306.80398394.akpm@osdl.org> <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>
-In-Reply-To: <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 5 Sep 2006 15:07:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50108 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030225AbWIETHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 15:07:17 -0400
+Date: Tue, 5 Sep 2006 12:07:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: Access Control Lists for tmpfs
+Message-Id: <20060905120700.4f778843.akpm@osdl.org>
+In-Reply-To: <20060901221458.148480972@winden.suse.de>
+References: <20060901221421.968954146@winden.suse.de>
+	<20060901221458.148480972@winden.suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> On 9/5/06, Andrew Morton <akpm@osdl.org> wrote:
->> On Tue, 5 Sep 2006 10:37:51 -0700
->> "Miles Lane" <miles.lane@gmail.com> wrote:
->>
->>> ieee1394: Node changed: 0-01:1023 -> 0-00:1023
->>> ieee1394: Node changed: 0-02:1023 -> 0-01:1023
->>> ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0080880002103eae]
->>>
->>> =============================================
->>> [ INFO: possible recursive locking detected ]
->>> 2.6.18-rc5-mm1 #2
->>> ---------------------------------------------
->>> knodemgrd_0/2321 is trying to acquire lock:
->>>  (&s->rwsem){----}, at: [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
->>>
->>> but task is already holding lock:
->>>  (&s->rwsem){----}, at: [<f8959078>] nodemgr_host_thread+0x717/0x883 [ieee1394]
+On Sat, 02 Sep 2006 00:14:23 +0200
+Andreas Gruenbacher <agruen@suse.de> wrote:
 
-How often does this happen?
+> --- linux-2.6.18-rc5.orig/mm/shmem.c
+> +++ linux-2.6.18-rc5/mm/shmem.c
+> @@ -26,6 +26,8 @@
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+>  #include <linux/fs.h>
+> +#include <linux/xattr.h>
+> +#include <linux/generic_acl.h>
+>  #include <linux/mm.h>
+>  #include <linux/mman.h>
+>  #include <linux/file.h>
+> @@ -176,6 +178,7 @@ static const struct address_space_operat
+>  static struct file_operations shmem_file_operations;
+>  static struct inode_operations shmem_inode_operations;
+>  static struct inode_operations shmem_dir_inode_operations;
+> +static struct inode_operations shmem_special_inode_operations;
+>  static struct vm_operations_struct shmem_vm_ops;
+>  
+>  static struct backing_dev_info shmem_backing_dev_info  __read_mostly = {
+> @@ -630,13 +633,15 @@ static void shmem_truncate(struct inode 
+>  	shmem_truncate_range(inode, inode->i_size, (loff_t)-1);
+>  }
+>  
+> +extern struct generic_acl_operations shmem_acl_ops;
 
-[...]
->> That's a 1394 glitch, possibly introduced by git-ieee1394.patch.
-> 
-> Would you like me to verify that removing the patch fixes it, or
-> should I wait for the 2.6.18-rc6-mm1 tree?
-
-My patches
-"ieee1394: nodemgr: switch to kthread api, replace reset semaphore" and
-"ieee1394: nodemgr: convert nodemgr_serialize semaphore to mutex"
-may be relevant. They are included in git-ieee1394.patch.
-
-Could you revert them individually and test? It should be possible to
-just "patch -p1 -R < ...." the following patchfiles:
-http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/119-ieee1394-nodemgr-convert-nodemgr_serialize-semaphore-to-mutex.patch
-If the problem persists, also revert
-http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/118-ieee1394-nodemgr-switch-to-kthread-api--replace-reset-semaphore.patch
-
-If that does not help, install them again and unapply all ieee1394
-patches from -mm. If you have the time.
-
-Thanks a lot,
--- 
-Stefan Richter
--=====-=-==- =--= --=-=
-http://arcgraph.de/sr/
+Can we move this declaration into a header file please?

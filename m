@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWIEBih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWIEB5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWIEBih (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 21:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWIEBih
+	id S965089AbWIEB5l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 21:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWIEB5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 21:38:37 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:31695 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964951AbWIEBig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 21:38:36 -0400
-Date: Tue, 5 Sep 2006 10:41:56 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [RFC][PATCH] ps command race fix take 4 [1/4] callback
- subroutine
-Message-Id: <20060905104156.3a91e941.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <m17j0j5juc.fsf@ebiederm.dsl.xmission.com>
-References: <20060825182505.5e9ddc8f.kamezawa.hiroyu@jp.fujitsu.com>
-	<m17j0j5juc.fsf@ebiederm.dsl.xmission.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Mon, 4 Sep 2006 21:57:41 -0400
+Received: from pat.uio.no ([129.240.10.4]:11763 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965085AbWIEB5k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 21:57:40 -0400
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157376295.3240.13.camel@raven.themaw.net>
+References: <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+Content-Type: text/plain
+Date: Mon, 04 Sep 2006 21:57:24 -0400
+Message-Id: <1157421445.5510.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.22, required 12,
+	autolearn=disabled, AWL 1.78, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Sep 2006 16:48:43 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Mon, 2006-09-04 at 21:24 +0800, Ian Kent wrote:
 
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+> > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
+> > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+> > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
+> > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
+> > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
 > 
-> > Updated some dirty codes. maybe easier to read than previous one.
-> >
-> > This ps command fix (proc_pid_readdir() fix) fixes the problem by
-> >
-> > - attach a callback for updating pointer from file descriptor to a task invoked
-> >   at release_task()
-> > - no additional global lock is required.
-> > - walk through all and only task structs which is thread group leader.
-> >
-> > *Bad* point is adding additonal (small) lock and callback in exit path.
-> With an unbounded callback chain length influenced by user space.
-> 
-yes. 1000 ps process will add 1000 chains. 1000 callbacks are called if a task is
-removed while 1000 ps task points to it.
+> This is the point I'm trying to make.
+> I'm able to reproduce this with exports that don't have "nohide".
+> The mkdir used to return EEXIST, possibly before getting to the EACCES
+> test. It appears to be a change in semantic behavior and I can't see
+> where it is coming from. autofs expects an EEXIST but not an EACCES and
+> so doesn't perform the mount. I could ignore the EACCES but that would
+> be cheating.
 
+Why the hell is it doing a mkdir in the first place? ...and why the hell
+is it not able to cope with EACCES? The latter is hardly an unlikely
+reply: it means that the automounter should not be doing this in the
+first place, 'cos it doesn't have the privileges. That is not the same
+as saying that it doesn't have the privileges to do a lookup.
 
--Kame
+Trond
 

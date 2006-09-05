@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWIEMX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWIEM1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWIEMX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 08:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWIEMX0
+	id S932143AbWIEM1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 08:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWIEM1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 08:23:26 -0400
-Received: from ns1.suse.de ([195.135.220.2]:28872 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932131AbWIEMXZ (ORCPT
+	Tue, 5 Sep 2006 08:27:08 -0400
+Received: from ns2.suse.de ([195.135.220.15]:29335 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932143AbWIEM1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 08:23:25 -0400
-Date: Tue, 05 Sep 2006 14:23:23 +0200
-Message-ID: <s5hwt8iijt0.wl%tiwai@suse.de>
+	Tue, 5 Sep 2006 08:27:06 -0400
+Date: Tue, 05 Sep 2006 14:26:46 +0200
+Message-ID: <s5hveo2ijnd.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: "Filip Sneppe" <filip.sneppe@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc6 (audio-related ?) oops during boot
-In-Reply-To: <9151ac2a0609050313h22d3c34fy2fc46124ba6876cc@mail.gmail.com>
-References: <9151ac2a0609050313h22d3c34fy2fc46124ba6876cc@mail.gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Alsa-devel] [RFC: 2.6 patch] build sound/sound_firmware.c only for	OSS
+In-Reply-To: <20060904114135.GO4416@stusta.de>
+References: <20060904114135.GO4416@stusta.de>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (+CVS-20060326) (i386-suse-linux)
@@ -25,62 +26,91 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Tue, 5 Sep 2006 12:13:24 +0200,
-Filip Sneppe wrote:
+At Mon, 4 Sep 2006 13:41:35 +0200,
+Adrian Bunk wrote:
 > 
-> Hi,
+> All sound/sound_firmware.c contains is mod_firmware_load() that is a 
+> legacy API only used by some OSS drivers.
 > 
-> I tried out 2.6.18-rc6 today and got this during the boot on my
-> Debian testing machine:
+> This patch builds it into an own sound_firmware module that is only 
+> built depending on CONFIG_SOUND_PRIME making the kernel slightly smaller 
+> for ALSA users.
 > 
-> pnp: Device 00:04 disabled.
-> cs: IO port probe 0x100-0x4ff: clean.
-> cs: IO port probe 0x800-0x8ff: clean.
-> cs: IO port probe 0xc00-0xcff: clean.
-> cs: IO port probe 0xa00-0xaff: clean.
-> Adding 730948k swap on /dev/hda2.  Priority:-1 extents:1 across:730948k
-> EXT3 FS on hda5, internal journal
-> kobject_add failed for audio with -EEXIST, don't try to register
-> things with the same name in the same directory.
->  [<b01aa41c>] kobject_add+0x13c/0x163
->  [<b0205b01>] class_device_add+0x9f/0x3c1
->  [<b01aa19c>] kobject_get+0x12/0x17
->  [<b01aa49d>] kobject_init+0x32/0x43
->  [<b0205eaf>] class_device_create+0x76/0x98
->  [<f091c195>] sound_insert_unit+0xea/0x113 [soundcore]
->  [<f091c387>] register_sound_special_device+0x125/0x12d [soundcore]
->  [<b01ace3c>] vsnprintf+0x413/0x452
->  [<f0944d65>] snd_register_oss_device+0x111/0x16c [snd]
->  [<f0ae74e4>] register_oss_dsp+0x31/0x53 [snd_pcm_oss]
->  [<b0112318>] __activate_task+0x1c/0x28
->  [<b01a9fa6>] idr_get_new+0xf/0x30
->  [<b0177791>] proc_register+0x31/0xd6
->  [<b0177b93>] create_proc_entry+0x86/0x98
->  [<f094278e>] snd_create_proc_entry+0xb/0x1a [snd]
->  [<f094281e>] snd_info_register+0x81/0x86 [snd]
->  [<f0ae912c>] snd_pcm_oss_register_minor+0x31/0x122 [snd_pcm_oss]
->  [<b0161667>] alloc_inode+0xf5/0x182
->  [<b0161e21>] new_inode+0x16/0x6f
->  [<b0160440>] d_instantiate+0x3a/0x70
->  [<b017fb6e>] sysfs_new_dirent+0x1a/0x62
->  [<b017fc64>] sysfs_make_dirent+0x19/0x6e
->  [<b017f610>] sysfs_add_file+0x48/0x63
->  [<b0139e0b>] free_hot_cold_page+0x8d/0xd8
->  [<f0963fa8>] snd_pcm_notify+0x7a/0x9a [snd_pcm]
->  [<f0889061>] alsa_pcm_oss_init+0x61/0x6e [snd_pcm_oss]
->  [<b012b225>] sys_init_module+0x13aa/0x1506
->  [<b0102a09>] sysenter_past_esp+0x56/0x79
-> device-mapper: ioctl: 4.7.0-ioctl (2006-06-24) initialised: dm-devel@redhat.com
-> kjournald starting.  Commit interval 5 seconds
-> EXT3 FS on hda1, internal journal
-> EXT3-fs: mounted filesystem with ordered data mode.
-> kjournald starting.  Commit interval 5 seconds
-> EXT3 FS on hda8, internal journal
-> EXT3-fs: mounted filesystem with ordered data mode.
-> kjournald starting.  Commit interval 5 seconds
-> EXT3 FS on hda6, internal journal
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Did you load any other OSS modules in prior?
+Thanks, it's good for us.
+
+Acked-by: Takashi Iwai <tiwai@suse.de>
 
 
 Takashi
+
+> 
+> ---
+> 
+> This patch was already sent on:
+> - 22 Aug 2006
+> 
+>  sound/Makefile         |    3 ++-
+>  sound/sound_core.c     |    4 ----
+>  sound/sound_firmware.c |    3 +++
+>  3 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> --- linux-2.6.18-rc4-mm2/sound/Makefile.old	2006-08-22 00:07:41.000000000 +0200
+> +++ linux-2.6.18-rc4-mm2/sound/Makefile	2006-08-22 00:10:41.000000000 +0200
+> @@ -2,6 +2,7 @@
+>  #
+>  
+>  obj-$(CONFIG_SOUND) += soundcore.o
+> +obj-$(CONFIG_SOUND_PRIME) += sound_firmware.o
+>  obj-$(CONFIG_SOUND_PRIME) += oss/
+>  obj-$(CONFIG_DMASOUND) += oss/
+>  obj-$(CONFIG_SND) += core/ i2c/ drivers/ isa/ pci/ ppc/ arm/ synth/ usb/ sparc/ parisc/ pcmcia/ mips/
+> @@ -11,4 +12,4 @@
+>    obj-y += last.o
+>  endif
+>  
+> -soundcore-objs  := sound_core.o sound_firmware.o
+> +soundcore-objs  := sound_core.o
+> --- linux-2.6.18-rc4-mm2/sound/sound_core.c.old	2006-08-22 00:09:13.000000000 +0200
+> +++ linux-2.6.18-rc4-mm2/sound/sound_core.c	2006-08-22 00:12:10.000000000 +0200
+> @@ -517,10 +517,6 @@
+>  	return -ENODEV;
+>  }
+>  
+> -extern int mod_firmware_load(const char *, char **);
+> -EXPORT_SYMBOL(mod_firmware_load);
+> -
+> -
+>  MODULE_DESCRIPTION("Core sound module");
+>  MODULE_AUTHOR("Alan Cox");
+>  MODULE_LICENSE("GPL");
+> --- linux-2.6.18-rc4-mm2/sound/sound_firmware.c.old	2006-08-22 00:10:53.000000000 +0200
+> +++ linux-2.6.18-rc4-mm2/sound/sound_firmware.c	2006-08-22 00:26:03.000000000 +0200
+> @@ -4,6 +4,7 @@
+>  #include <linux/mm.h>
+>  #include <linux/slab.h>
+>  #include <asm/uaccess.h>
+> +#include "oss/sound_firmware.h"
+>  
+>  static int do_mod_firmware_load(const char *fn, char **fp)
+>  {
+> @@ -73,4 +74,6 @@
+>  	set_fs(fs);
+>  	return r;
+>  }
+> +EXPORT_SYMBOL(mod_firmware_load);
+>  
+> +MODULE_LICENSE("GPL");
+> 
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> Alsa-devel mailing list
+> Alsa-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/alsa-devel
+> 

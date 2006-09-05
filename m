@@ -1,131 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWIEDB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWIEDGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWIEDB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 23:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWIEDB4
+	id S965115AbWIEDGa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 23:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWIEDGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 23:01:56 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:55503 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S965111AbWIEDBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 23:01:54 -0400
-X-Sasl-enc: pL8IlLwGGGRmzPTCVOv+eyVuBoEwXfyqWU0GRGjkaIWl 1157425313
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+	Mon, 4 Sep 2006 23:06:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1957 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965115AbWIEDG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 23:06:29 -0400
+Date: Tue, 5 Sep 2006 13:05:57 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: akpm@osdl.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <1157423027.5510.23.camel@localhost>
-References: <20060901195009.187af603.akpm@osdl.org>
-	 <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157423027.5510.23.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 11:01:49 +0800
-Message-Id: <1157425309.3002.10.camel@raven.themaw.net>
+Subject: Re: [PATCH 2.6.18-rc4-mm3 2/2] fs/xfs: Converting into generic boolean
+Message-ID: <20060905130557.A3334712@wobbly.melbourne.sgi.com>
+References: <44F833C9.1000208@student.ltu.se> <20060904150241.I3335706@wobbly.melbourne.sgi.com> <44FBFEE9.4010201@student.ltu.se>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <44FBFEE9.4010201@student.ltu.se>; from ricknu-0@student.ltu.se on Mon, Sep 04, 2006 at 12:24:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 22:23 -0400, Trond Myklebust wrote:
-> On Mon, 2006-09-04 at 12:52 +0100, David Howells wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > sony:/home/akpm> ls -l /net/bix/usr/src
-> > > total 0
-> > > 
-> > > sony:/home/akpm> showmount -e bix
-> > > Export list for bix:
-> > > /           *
-> > > /usr/src    *
-> > > /mnt/export *
-> > 
-> > Yes, but what's your /etc/exports now?  Not all options appear to showmount.
-> > 
-> > Can you add "nohide" to the /usr/src and /mnt/export lines and "fsid=0" to the
-> > / line if you don't currently have them and try again?
-> > 
-> > > iirc, we decided this is related to the fs-cache infrastructure work which
-> > > went into git-nfs.  I think David can reproduce this?
-> > 
-> > I'd only reproduced it with SELinux in enforcing mode.
-> > 
-> > Under such conditions, unless there's a readdir on the root directory, the
-> > subdirs under which exports exist will remain as incorrectly negative
-> > dentries.
-> > 
-> > The problem is a conjunction of circumstances:
-> > 
-> >  (1) nfs_lookup() has a shortcut in it that skips contact with the server if
-> >      we're doing a lookup with intent to create.  This leaves an incorrectly
-> >      negative dentry if there _is_ actually an object on the server.
-> > 
-> >  (2) The mkdir procedure is aborted between the lookup() op and the mkdir() op
-> >      by SELinux (see vfs_mkdir()).  Note that SELinux isn't the _only_ method
-> >      by which the abort can occur.
-> > 
-> >  (3) One of my patches correctly assigns the security label to the automounted
-> >      root dentry.
-> > 
-> >  (4) SELinux then aborts the automounter's mkdir() call because the automounter
-> >      does _not_ carry the correct security label to write to the NFS directory.
-> > 
-> >  (5) The incorrectly set up dentry from (1) remains because the the mkdir() op
-> >      is not invoked to set it right.
-> > 
-> > The only bit I added was (3), but that's not the only circumstance in which
-> > this can occur.
-> > 
-> > 
-> > If, for example, I do "chmod a-w /" on the NFS server, I can see the same
-> > effects on the client without the need for SELinux to put its foot in the door.
-> > Automount does:
-> > 
-> > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
-> > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
-> > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
-> > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
-> > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
-> > 
-> > And where I was listing the disputed directory, I see:
-> > 
-> > 	[root@andromeda ~]# ls -lad /net/trash/usr/src
-> > 	drwxr-xr-x 4 root root 1024 Aug 30 10:35 /net/trash/usr/src/
-> > 	[root@andromeda ~]#
-> > 
-> > which isn't what I'd expect.  What I'd expect is:
-> > 
-> > 	[root@andromeda ~]# ls -l /net/trash/usr/src
-> > 	total 15
-> > 	drwxr-xr-x 3 root root  1024 Aug 30 10:35 debug/
-> > 	-rw-r--r-- 1 root root     0 Aug 16 10:01 hello
-> > 	drwx------ 2 root root 12288 Aug 16 10:00 lost+found/
-> > 	[root@andromeda ~]#
-> 
-> One way to fix this is to simply not hash the dentry when we're doing
-> the O_EXCL intent optimisation, but rather to only hash it _after_ we've
-> successfully created the file on the server. Something like the attached
-> patch ought to do it.
-> 
-> Note, though, that this will not fix the autofs problem: autofs is
-> trying to perform a totally unnecessary mkdir(), and is giving up when
-> it is told that SELinux won't authorise that particular operation. This
-> is clearly an autofs bug...
+On Mon, Sep 04, 2006 at 12:24:41PM +0200, Richard Knutsson wrote:
+> Nathan Scott wrote:
+> >Hmm, so your bool is better than the next guys bool[ean[_t]]? :)
+> Well yes, because it is not "mine". ;)
+> It is, after all, just a typedef of the C99 _Bool-type.
 
-selinux is not involved in this senario.
+Hmm, one is really no better than the other IMO.
 
+> >I took the earlier patch and completed it, switching over to int
+> >use in place of boolean_t in the few places it used - I'll merge
+> >that at some point, when its had enough testing.
+> >
+> Is that set in stone? Or is there a chance to (in my opinion) improve 
+> the readability, by setting the variables to their real type.
 
+Nothings completely "set in stone" ... anyone can (and does) offer
+their own opinion.  The opinion of people who a/ read and write XFS
+code alot and b/ test their changes, is alot more interesting than
+the opinion of those who don't, however.
 
+In reality, from an XFS point of view, there are so few uses of the
+local boolean_t and so little value from it, that it really is just
+not worth getting involved in the pending bool code churn IMO (I see
+72 definitions of TRUE and FALSE in a recent mainline tree, so you
+have your work cut out for you...).
+
+"int needflush;" is just as readable (some would argue moreso) as
+"bool needflush;" and thats pretty much the level of use in XFS -
+and we're using the "int" form in so many other places anyway...
+but, I'll see what the rest of the XFS folks think and take it from
+there.
+
+cheers.
+
+-- 
+Nathan

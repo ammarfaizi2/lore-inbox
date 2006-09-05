@@ -1,79 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWIES0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWIES1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWIES0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWIES0L
+	id S932189AbWIES1t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWIES1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:26:11 -0400
-Received: from smtp105.biz.mail.mud.yahoo.com ([68.142.200.253]:7790 "HELO
-	smtp105.biz.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932150AbWIES0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:26:10 -0400
-In-Reply-To: <1157441620.24916.5.camel@localhost>
-References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net> <1157441620.24916.5.camel@localhost>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <508B6A67-CA5B-4A81-B868-BF8A03D78888@vhugo.net>
-Cc: linux-kernel@vger.kernel.org, Victor Castro <victorhugo83@yahoo.com>,
-       Jon Masters <jonathan@jonmasters.org>
-Content-Transfer-Encoding: 7bit
-From: Victor Hugo <victor@vhugo.net>
-Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
-Date: Tue, 5 Sep 2006 11:26:06 -0700
-To: Marcel Holtmann <marcel@holtmann.org>
-X-Mailer: Apple Mail (2.752.2)
+	Tue, 5 Sep 2006 14:27:49 -0400
+Received: from 71-215-130-30.ptld.qwest.net ([71.215.130.30]:56775 "EHLO
+	vonnegut.anholt.net") by vger.kernel.org with ESMTP id S965215AbWIERnR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 13:43:17 -0400
+From: Eric Anholt <eric@anholt.net>
+To: linux-kernel@vger.kernel.org
+Cc: davej@codemonkey.org.uk, Eric Anholt <eric@anholt.net>
+Subject: [PATCH] Whitespace cleanup, remove an unnecessary comment, and remove an unnecessary include.
+Reply-To: Eric Anholt <eric@anholt.net>
+Date: Tue, 05 Sep 2006 10:37:34 -0700
+Message-Id: <11574778924142-git-send-email-eric@anholt.net>
+X-Mailer: git-send-email 1.4.1
+In-Reply-To: <115747787383-git-send-email-eric@anholt.net>
+References: 11551502672606-git-send-email-eric@anholt.net <115747785570-git-send-email-eric@anholt.net> <115747787383-git-send-email-eric@anholt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+diff --git a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
+index c51b365..e643445 100644
+--- a/drivers/char/agp/intel-agp.c
++++ b/drivers/char/agp/intel-agp.c
+@@ -16,7 +16,6 @@
+  * <alanh@tungstengraphics.com>.
+  */
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
+@@ -24,7 +23,6 @@ #include <linux/pagemap.h>
+ #include <linux/agp_backend.h>
+ #include "agp.h"
+ 
+-/* Should be moved to include/linux/pci_ids.h */
+ #define PCI_DEVICE_ID_INTEL_82946GZ_HB      0x2970
+ #define PCI_DEVICE_ID_INTEL_82946GZ_IG      0x2972
+ #define PCI_DEVICE_ID_INTEL_82965G_1_HB     0x2980
+@@ -379,7 +377,7 @@ static struct aper_size_info_fixed intel
+ 	/* The 64M mode still requires a 128k gatt */
+ 	{64, 16384, 5},
+ 	{256, 65536, 6},
+-        {512, 131072, 7},
++	{512, 131072, 7},
+ };
+ 
+ static struct _intel_i830_private {
+@@ -404,10 +402,10 @@ static void intel_i830_init_gtt_entries(
+ 	 * reason) at the top of stolen memory. Then we add 4KB to that
+ 	 * for the video BIOS popup, which is also stored in there. */
+ 
+-       if (IS_I965)
+-               size = 512 + 4;
+-       else
+-               size = agp_bridge->driver->fetch_size() + 4;
++	if (IS_I965)
++		size = 512 + 4;
++	else
++		size = agp_bridge->driver->fetch_size() + 4;
+ 
+ 	if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82830_HB ||
+ 	    agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82845G_HB) {
+@@ -766,7 +764,7 @@ static int intel_i915_remove_entries(str
+ static int intel_i915_fetch_size(void)
+ {
+ 	struct aper_size_info_fixed *values;
+-	u32 temp, offset = 0;
++	u32 temp, offset;
+ 
+ #define I915_256MB_ADDRESS_MASK (1<<27)
+ 
+@@ -1808,34 +1806,34 @@ static int __devinit agp_intel_probe(str
+ 			bridge->driver = &intel_845_driver;
+ 		name = "945GM";
+ 		break;
+-       case PCI_DEVICE_ID_INTEL_82946GZ_HB:
+-               if (find_i830(PCI_DEVICE_ID_INTEL_82946GZ_IG))
+-                       bridge->driver = &intel_i965_driver;
+-               else
+-                       bridge->driver = &intel_845_driver;
+-               name = "946GZ";
+-               break;
+-       case PCI_DEVICE_ID_INTEL_82965G_1_HB:
+-               if (find_i830(PCI_DEVICE_ID_INTEL_82965G_1_IG))
+-                       bridge->driver = &intel_i965_driver;
+-               else
+-                       bridge->driver = &intel_845_driver;
+-               name = "965G";
+-               break;
+-       case PCI_DEVICE_ID_INTEL_82965Q_HB:
+-               if (find_i830(PCI_DEVICE_ID_INTEL_82965Q_IG))
+-                       bridge->driver = &intel_i965_driver;
+-               else
+-                       bridge->driver = &intel_845_driver;
+-               name = "965Q";
+-               break;
+-       case PCI_DEVICE_ID_INTEL_82965G_HB:
+-               if (find_i830(PCI_DEVICE_ID_INTEL_82965G_IG))
+-                       bridge->driver = &intel_i965_driver;
+-               else
+-                       bridge->driver = &intel_845_driver;
+-               name = "965G";
+-               break;
++	case PCI_DEVICE_ID_INTEL_82946GZ_HB:
++		if (find_i830(PCI_DEVICE_ID_INTEL_82946GZ_IG))
++			bridge->driver = &intel_i965_driver;
++		else
++			bridge->driver = &intel_845_driver;
++		name = "946GZ";
++		break;
++	case PCI_DEVICE_ID_INTEL_82965G_1_HB:
++		if (find_i830(PCI_DEVICE_ID_INTEL_82965G_1_IG))
++			bridge->driver = &intel_i965_driver;
++		else
++			bridge->driver = &intel_845_driver;
++		name = "965G";
++		break;
++	case PCI_DEVICE_ID_INTEL_82965Q_HB:
++		if (find_i830(PCI_DEVICE_ID_INTEL_82965Q_IG))
++			bridge->driver = &intel_i965_driver;
++		else
++			bridge->driver = &intel_845_driver;
++		name = "965Q";
++		break;
++	case PCI_DEVICE_ID_INTEL_82965G_HB:
++		if (find_i830(PCI_DEVICE_ID_INTEL_82965G_IG))
++			bridge->driver = &intel_i965_driver;
++		else
++			bridge->driver = &intel_845_driver;
++		name = "965G";
++		break;
+ 
+ 	case PCI_DEVICE_ID_INTEL_7505_0:
+ 		bridge->driver = &intel_7505_driver;
+@@ -1978,10 +1976,10 @@ #define ID(x)						\
+ 	ID(PCI_DEVICE_ID_INTEL_82915GM_HB),
+ 	ID(PCI_DEVICE_ID_INTEL_82945G_HB),
+ 	ID(PCI_DEVICE_ID_INTEL_82945GM_HB),
+-        ID(PCI_DEVICE_ID_INTEL_82946GZ_HB),
+-        ID(PCI_DEVICE_ID_INTEL_82965G_1_HB),
+-        ID(PCI_DEVICE_ID_INTEL_82965Q_HB),
+-        ID(PCI_DEVICE_ID_INTEL_82965G_HB),
++	ID(PCI_DEVICE_ID_INTEL_82946GZ_HB),
++	ID(PCI_DEVICE_ID_INTEL_82965G_1_HB),
++	ID(PCI_DEVICE_ID_INTEL_82965Q_HB),
++	ID(PCI_DEVICE_ID_INTEL_82965G_HB),
+ 	{ }
+ };
+ 
+-- 
+1.4.1
 
-Hi Marcel,
-
-On Sep 5, 2006, at 12:33 AM, Marcel Holtmann wrote:
->
-> actually it has never been really a filename. It was a simple pattern
-> that the initial hotplug script and later the udev script mapped  
-> 1:1 to
-> a filename on your filesystem. If you check the mailing list  
-> archives of
-> LKML and linux-hotplug you will see that I always resisted in allowing
-> drivers to include a directory path in that call. A couple of people
-> tried this and it is not what it was meant to be.
->
-> The MODULE_FIRMWARE approach simply makes this pattern visible via
-> modinfo, because otherwise you would have to scan the source code to
-> find this pattern. And to make it use you have to apply the same  
-> policy
-> the firmware script is applying when choosing the file. Currently this
-> is a 1:1 mapping.
->
-> Regards
->
-> Marcel
-
-You're right, I should have been more specific when I said  
-"filename", I really meant a 1:1 mapping to a file in /lib/firmware.
-
-My question is, should we have a generic 1:1 mapping and make it  
-visible through MODULE_FIRMWARE.
-
-  Or like Jon Masters suggested have specific version numbers in the  
-pattern and have them map to specific versions in /lib/firmware and  
-make them all visible through MODULE_FIRMWARE.  I believe the  
-reasoning behind this was to make packaging drivers easier.
-
-
-I believe that we should have a generic mapping in the driver (i.e,  
-"firmware.bin") and let the admin or the userspace hotplug scripts  
-take care of filename policy with a link to the correct firmware  
-version.
-
-example :
-
-firmware.bin -> firmware-xyz.bin
-
-The main reason for not including speciic mapping in the driver is  
-that everytime a new firmware version is released the driver has to  
-be updated and recompiled.  Its much easier to change a hotplug script.
-
-
--Victor

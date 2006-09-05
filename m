@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWIEGp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWIEG4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbWIEGp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 02:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWIEGp0
+	id S965167AbWIEG4J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 02:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWIEG4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 02:45:26 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:723 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S965184AbWIEGpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 02:45:22 -0400
-X-Sasl-enc: 99Dk4Z8PHrIk/GAW9vkF+ofSu1Lm0zo93U75XR+laGF6 1157438720
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1157432221.32412.41.camel@localhost>
-References: <20060901195009.187af603.akpm@osdl.org>
-	 <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157423027.5510.23.camel@localhost>
-	 <1157429219.3915.11.camel@raven.themaw.net>
-	 <1157432221.32412.41.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 14:45:14 +0800
-Message-Id: <1157438714.4133.0.camel@raven.themaw.net>
+	Tue, 5 Sep 2006 02:56:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27086 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965167AbWIEG4H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 02:56:07 -0400
+Date: Mon, 4 Sep 2006 23:55:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Voluspa <lista1@comhem.se>
+Cc: arjan@infradead.org, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: [PATCH] lockdep: disable lock debugging when kernel state
+ becomes untrusted
+Message-Id: <20060904235549.f8f6eaab.akpm@osdl.org>
+In-Reply-To: <20060905084042.20966381.lista1@comhem.se>
+References: <20060814030954.c3a57e05.lista1@comhem.se>
+	<20060813184159.b536736f.akpm@osdl.org>
+	<20060905084042.20966381.lista1@comhem.se>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 00:57 -0400, Trond Myklebust wrote:
-> On Tue, 2006-09-05 at 12:06 +0800, Ian Kent wrote:
+On Tue, 5 Sep 2006 08:40:42 +0200
+Voluspa <lista1@comhem.se> wrote:
+
+> > That would appear to be a bug.  debug_locks_off() is running
+> > console_verbose() waaaay after the locking selftest code has
+> > completed.
 > 
-> > > One way to fix this is to simply not hash the dentry when we're doing
-> > > the O_EXCL intent optimisation, but rather to only hash it _after_ we've
-> > > successfully created the file on the server. Something like the attached
-> > > patch ought to do it.
-> > 
-> > No.
-> > 
-> > This patch simply marks the dentry negative and returns ENOMEM from the
-> > lookup which, as would be expected, results in this error being returned
-> > to userspace.
+> The possibly final -rc6 is likewise broken. What would it take to incur
+> some respect for us, the millions of users effected by this shit?
+> Should we all become quasi-developers and bombard lkml with patches
+> that taint the kernel whenever some of the Intel binary blobs are
+> loaded?
 > 
-> Oops. You are right. I forgot to set res=NULL...
+> Would that cluebat Arjan off of his high horse?
 
-Now returns EPERM.
+Thanks for the reminder ;)
 
-
+Arjan, what's that console_verbose() doing in debug_locks_off()?  Whatever
+it is, can we fix it?  Presumably the previous loglevel needs to be
+readopted somehow, or we just take it out of there.
 

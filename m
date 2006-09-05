@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWIENig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWIENjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWIENig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 09:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWIENig
+	id S965043AbWIENjO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 09:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWIENjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 09:38:36 -0400
-Received: from smtp131.iad.emailsrvr.com ([207.97.245.131]:22173 "EHLO
-	smtp131.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S964943AbWIENif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 09:38:35 -0400
-Message-ID: <44FD7DAE.7030705@gentoo.org>
-Date: Tue, 05 Sep 2006 09:37:50 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
-MIME-Version: 1.0
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-CC: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
-       harmon@ksu.edu
-Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
-References: <1154091662.7200.9.camel@localhost.localdomain>	 <44DE5A6F.50500@gentoo.org> <1156906638.3022.18.camel@localhost.portugal>	 <44F50A0A.2040800@gentoo.org>	 <1156937128.2624.6.camel@localhost.localdomain>	 <44F5B933.2010608@gentoo.org> <1157024002.2724.4.camel@localhost.localdomain>
-In-Reply-To: <1157024002.2724.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 09:39:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:991 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965043AbWIENjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 09:39:11 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1157458817.4133.29.camel@raven.themaw.net> 
+References: <1157458817.4133.29.camel@raven.themaw.net>  <1157451611.4133.22.camel@raven.themaw.net> <1157436412.3915.26.camel@raven.themaw.net> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <1157421445.5510.13.camel@localhost> <1157424937.3002.4.camel@raven.themaw.net> <1157428241.5510.72.camel@localhost> <1157429030.3915.8.camel@raven.themaw.net> <1157432039.32412.37.camel@localhost> <3698.1157449249@warthog.cambridge.redhat.com> <4987.1157452656@warthog.cambridge.redhat.com> 
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 05 Sep 2006 14:38:42 +0100
+Message-ID: <11346.1157463522@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
-> On Wed, 2006-08-30 at 12:13 -0400, Daniel Drake wrote:
+Ian Kent <raven@themaw.net> wrote:
+
+> > Okay, I suppose.  But that still doesn't seem to deal with the case of
+> > creating a directory on the client that then overlays a symlink on the
+> > server that you can't yet access.
 > 
->>> about Linus suggestion : 
->>> -	new_irq = dev->irq & 0xf;
->>> +	new_irq = dev->irq;
->>> +	if (!new_irq || new_irq >= 15)
->>> +		return;
->>>
->>> no, we have problem with VIA SATA controllers which have irq lower than
->>> 15 
->> Any chance you can provide a link to this example so that we can 
->> document the decision in the commit message?
+> We're largely performing user space actions at this point.
+> Wouldn't the subsequent call to mount(8) catch that?
+
+Not if you've already caused the NFS filesystem to create a "dummy" dentry
+that's a directory because you couldn't see that what that name corresponds to
+on the server is actually a symlink.
+
+> > You may also get ENOENT because you stat a symlink, though you'll get EEXIST
+> > from mkdir, even if there's nothing at the far end.
 > 
-> http://lkml.org/lkml/2006/7/30/59
+> Don't think this is something I need to care about either.
+> I can't mount on a symlink so the error return would be the correct way
+> to deal with it.
 
-I'm confused. Heikki's report is about a sata_sil controller and he 
-didn't include any dmesg output so I don't know how you can conclude 
-that quirking an IRQ to something less than 15 was the fix...
+But you might have to transit a symlink to reach the mountpoint.
 
-Also note that the fix was *not* quirking the device at all (your patch 
-ensured that the quirks didn't run because IO-APIC was enabled), this 
-hardly seems like an accurate way of arguing that quirks that change the 
-IRQ to something less than 15 are *required*...
-
-Daniel
-
-
-Daniel
-
+David

@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWIEEEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbWIEEGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWIEEEC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 00:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWIEEEB
+	id S965145AbWIEEGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 00:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWIEEGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 00:04:01 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:34460 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S965140AbWIEEEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 00:04:00 -0400
-X-Sasl-enc: 1Rsub9y1YkzCuyMzvXa5LQAWOrivKhP9zM4cOO2yoFdB 1157429038
+	Tue, 5 Sep 2006 00:06:23 -0400
+Received: from pat.uio.no ([129.240.10.4]:35571 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965141AbWIEEGV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 00:06:21 -0400
 Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
 	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ian Kent <raven@themaw.net>
 Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
        torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
        linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <1157428241.5510.72.camel@localhost>
+In-Reply-To: <1157425309.3002.10.camel@raven.themaw.net>
 References: <20060901195009.187af603.akpm@osdl.org>
 	 <20060831102127.8fb9a24b.akpm@osdl.org>
 	 <20060830135503.98f57ff3.akpm@osdl.org>
@@ -30,79 +29,112 @@ References: <20060901195009.187af603.akpm@osdl.org>
 	 <20060901093451.87aa486d.akpm@osdl.org>
 	 <1157130044.5632.87.camel@localhost>
 	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157376295.3240.13.camel@raven.themaw.net>
-	 <1157421445.5510.13.camel@localhost>
-	 <1157424937.3002.4.camel@raven.themaw.net>
-	 <1157428241.5510.72.camel@localhost>
+	 <1157423027.5510.23.camel@localhost>
+	 <1157425309.3002.10.camel@raven.themaw.net>
 Content-Type: text/plain
-Date: Tue, 05 Sep 2006 12:03:50 +0800
-Message-Id: <1157429030.3915.8.camel@raven.themaw.net>
+Date: Tue, 05 Sep 2006 00:05:59 -0400
+Message-Id: <1157429159.32412.9.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.003, required 12,
+	autolearn=disabled, AWL 2.00, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 23:50 -0400, Trond Myklebust wrote:
-> On Tue, 2006-09-05 at 10:55 +0800, Ian Kent wrote:
-> > On Mon, 2006-09-04 at 21:57 -0400, Trond Myklebust wrote:
-> > > On Mon, 2006-09-04 at 21:24 +0800, Ian Kent wrote:
+On Tue, 2006-09-05 at 11:01 +0800, Ian Kent wrote:
+> On Mon, 2006-09-04 at 22:23 -0400, Trond Myklebust wrote:
+> > On Mon, 2006-09-04 at 12:52 +0100, David Howells wrote:
+> > > Andrew Morton <akpm@osdl.org> wrote:
 > > > 
-> > > > > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
-> > > > > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
-> > > > > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
-> > > > > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
-> > > > > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
+> > > > sony:/home/akpm> ls -l /net/bix/usr/src
+> > > > total 0
 > > > > 
-> > > > This is the point I'm trying to make.
-> > > > I'm able to reproduce this with exports that don't have "nohide".
-> > > > The mkdir used to return EEXIST, possibly before getting to the EACCES
-> > > > test. It appears to be a change in semantic behavior and I can't see
-> > > > where it is coming from. autofs expects an EEXIST but not an EACCES and
-> > > > so doesn't perform the mount. I could ignore the EACCES but that would
-> > > > be cheating.
+> > > > sony:/home/akpm> showmount -e bix
+> > > > Export list for bix:
+> > > > /           *
+> > > > /usr/src    *
+> > > > /mnt/export *
 > > > 
-> > > Why the hell is it doing a mkdir in the first place? ...and why the hell
-> > > is it not able to cope with EACCES? The latter is hardly an unlikely
-> > > reply: it means that the automounter should not be doing this in the
-> > > first place, 'cos it doesn't have the privileges. That is not the same
-> > > as saying that it doesn't have the privileges to do a lookup.
+> > > Yes, but what's your /etc/exports now?  Not all options appear to showmount.
+> > > 
+> > > Can you add "nohide" to the /usr/src and /mnt/export lines and "fsid=0" to the
+> > > / line if you don't currently have them and try again?
+> > > 
+> > > > iirc, we decided this is related to the fs-cache infrastructure work which
+> > > > went into git-nfs.  I think David can reproduce this?
+> > > 
+> > > I'd only reproduced it with SELinux in enforcing mode.
+> > > 
+> > > Under such conditions, unless there's a readdir on the root directory, the
+> > > subdirs under which exports exist will remain as incorrectly negative
+> > > dentries.
+> > > 
+> > > The problem is a conjunction of circumstances:
+> > > 
+> > >  (1) nfs_lookup() has a shortcut in it that skips contact with the server if
+> > >      we're doing a lookup with intent to create.  This leaves an incorrectly
+> > >      negative dentry if there _is_ actually an object on the server.
+> > > 
+> > >  (2) The mkdir procedure is aborted between the lookup() op and the mkdir() op
+> > >      by SELinux (see vfs_mkdir()).  Note that SELinux isn't the _only_ method
+> > >      by which the abort can occur.
+> > > 
+> > >  (3) One of my patches correctly assigns the security label to the automounted
+> > >      root dentry.
+> > > 
+> > >  (4) SELinux then aborts the automounter's mkdir() call because the automounter
+> > >      does _not_ carry the correct security label to write to the NFS directory.
+> > > 
+> > >  (5) The incorrectly set up dentry from (1) remains because the the mkdir() op
+> > >      is not invoked to set it right.
+> > > 
+> > > The only bit I added was (3), but that's not the only circumstance in which
+> > > this can occur.
+> > > 
+> > > 
+> > > If, for example, I do "chmod a-w /" on the NFS server, I can see the same
+> > > effects on the client without the need for SELinux to put its foot in the door.
+> > > Automount does:
+> > > 
+> > > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
+> > > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+> > > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
+> > > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
+> > > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
+> > > 
+> > > And where I was listing the disputed directory, I see:
+> > > 
+> > > 	[root@andromeda ~]# ls -lad /net/trash/usr/src
+> > > 	drwxr-xr-x 4 root root 1024 Aug 30 10:35 /net/trash/usr/src/
+> > > 	[root@andromeda ~]#
+> > > 
+> > > which isn't what I'd expect.  What I'd expect is:
+> > > 
+> > > 	[root@andromeda ~]# ls -l /net/trash/usr/src
+> > > 	total 15
+> > > 	drwxr-xr-x 3 root root  1024 Aug 30 10:35 debug/
+> > > 	-rw-r--r-- 1 root root     0 Aug 16 10:01 hello
+> > > 	drwx------ 2 root root 12288 Aug 16 10:00 lost+found/
+> > > 	[root@andromeda ~]#
 > > 
-> > Why the hell shouldn't it be able to do an mkdir!
+> > One way to fix this is to simply not hash the dentry when we're doing
+> > the O_EXCL intent optimisation, but rather to only hash it _after_ we've
+> > successfully created the file on the server. Something like the attached
+> > patch ought to do it.
+> > 
+> > Note, though, that this will not fix the autofs problem: autofs is
+> > trying to perform a totally unnecessary mkdir(), and is giving up when
+> > it is told that SELinux won't authorise that particular operation. This
+> > is clearly an autofs bug...
 > 
-> Firstly, if the call to mkdir actually _was_ successful, it would be
-> creating a new directory on the NFS server, and it would be doing so
-> with the automounter's privileges instead of the user's privileges. Why
-> would I want it to do that?
-> 
-> Secondly, and more pertinently to this case, you have no guarantee that
-> the automounter has _any_ privileges on the server at all other than
-> what is required to mount a filesystem. selinux is enforcing that on the
-> client side here, but the server could just as well be set up to do the
-> same (in fact, you could set up selinux to do the exact same thing on
-> the server).
-> 
-> IOW, the automounter should just be calling stat('/net/trash/mnt'). It
-> shouldn't be trying to create directories on the server at all.
+> selinux is not involved in this senario.
 
-Sure but this is an old version of autofs which is in use so changing
-the expected behavior of a system call is not acceptable and I expect
-other applications may well have a problem with this also.
+Right. David rigged the NFS server to produce the same result as selinux
+on autofs. He is demonstrating that autofs is wrong to call mkdir().
 
-> 
-> > It is coping with the EACCESS return by not mounting the filesystem
-> > which is the correct response in this case.
-> 
-> No it isn't. The directory exists. It can be looked up. There is no
-> reason why you can't mount something on top of it.
-> 
-> Being permitted to do mkdir() or not has nothing to do with anything.
-
-Agreed.
-
-The fact that it's a mkdir is irrelevant given that nfs_lookup is
-returning an EACCESS instead of EEXIST this will likely affect other
-system calls such as "stat". I'll check this.
-
-
+As I said above, my patch fixes the problem that David noted in (1)
+above, namely that a negative dentry in incorrectly instantiated when
+the mkdir() (or other exclusive create) operation fails due to a
+permission error.
 

@@ -1,128 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751534AbWIEV5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWIEWJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751534AbWIEV5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWIEV5b
+	id S965142AbWIEWJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 18:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWIEWJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:57:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21769 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751523AbWIEV5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:57:30 -0400
-Date: Tue, 5 Sep 2006 23:57:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: sri@us.ibm.com
-Cc: lksctp-developers@lists.sourceforge.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: [2.6 patch] net/sctp/: cleanups
-Message-ID: <20060905215721.GM9173@stusta.de>
+	Tue, 5 Sep 2006 18:09:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:47320 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965142AbWIEWJv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 18:09:51 -0400
+Message-ID: <44FDF5A5.3070608@fr.ibm.com>
+Date: Wed, 06 Sep 2006 00:09:41 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Kirill Korotaev <dev@sw.ru>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 11/13] BC: vmrss (preparations)
+References: <44FD918A.7050501@sw.ru> <44FD9853.6040002@sw.ru>
+In-Reply-To: <44FD9853.6040002@sw.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make the following needlessly global function static:
-  - socket.c: sctp_apply_peer_addr_params()
-- add proper prototypes for the several global functions in
-  include/net/sctp/sctp.h
+Kirill Korotaev wrote:
 
-Note that this fixes wrong prototypes for the following functions:
-- sctp_snmp_proc_exit()
-- sctp_eps_proc_exit()
-- sctp_assocs_proc_exit()
+<snip>
 
-The latter was spotted by the GNU C compiler and reported
-by David Woodhouse.
+> --- ./include/bc/beancounter.h.bcvmrssprep    2006-09-05
+> 13:17:50.000000000 +0400
+> +++ ./include/bc/beancounter.h    2006-09-05 13:44:33.000000000 +0400
+> @@ -45,6 +45,13 @@ struct bc_resource_parm {
+> #define BC_MAXVALUE    LONG_MAX
+> 
+> /*
+> + * This magic is used to distinuish user beancounter and pages beancounter
+> + * in struct page. page_ub and page_bc are placed in union and MAGIC
+> + * ensures us that we don't use pbc as ubc in bc_page_uncharge().
+> + */
+> +#define BC_MAGIC                0x62756275UL
+> +
+> +/*
+>  *    Resource management structures
+>  * Serialization issues:
+>  *   beancounter list management is protected via bc_hash_lock
+> @@ -54,11 +61,13 @@ struct bc_resource_parm {
+>  */
+> 
+> struct beancounter {
+> +    unsigned long        bc_magic;
+>     atomic_t        bc_refcount;
+>     spinlock_t        bc_lock;
+>     bcid_t            bc_id;
+>     struct hlist_node    hash;
+> 
+> +    unsigned long        unused_privvmpages;
+>     /* resources statistics and settings */
+>     struct bc_resource_parm    bc_parms[BC_RESOURCES];
+> };
+> @@ -74,6 +83,8 @@ enum bc_severity { BC_BARRIER, BC_LIMIT,
+> 
+> #ifdef CONFIG_BEANCOUNTERS
+> 
+> +extern unsigned int nr_beancounters = 1;
+> +
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+my gcc doesn't like this one ...
+
+regards,
+
+C.
+
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
 
 ---
+ include/bc/beancounter.h |    2 +-
+ kernel/bc/beancounter.c  |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
- include/net/sctp/sctp.h |   13 +++++++++++++
- net/sctp/ipv6.c         |    1 -
- net/sctp/protocol.c     |    7 -------
- net/sctp/socket.c       |   14 +++++++-------
- 4 files changed, 20 insertions(+), 15 deletions(-)
+Index: 2.6.18-rc5-mm1/include/bc/beancounter.h
+===================================================================
+--- 2.6.18-rc5-mm1.orig/include/bc/beancounter.h
++++ 2.6.18-rc5-mm1/include/bc/beancounter.h
+@@ -86,7 +86,7 @@ enum bc_severity { BC_BARRIER, BC_LIMIT,
 
---- linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h.old	2006-09-05 16:50:33.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h	2006-09-05 16:54:18.000000000 +0200
-@@ -128,6 +128,8 @@
- 				     int flags);
- extern struct sctp_pf *sctp_get_pf_specific(sa_family_t family);
- extern int sctp_register_pf(struct sctp_pf *, sa_family_t);
-+int sctp_inetaddr_event(struct notifier_block *this, unsigned long ev,
-+                        void *ptr);
- 
+ #ifdef CONFIG_BEANCOUNTERS
+
+-extern unsigned int nr_beancounters = 1;
++extern unsigned int nr_beancounters;
+
  /*
-  * sctp/socket.c
-@@ -178,6 +180,17 @@
- 			  struct sock *oldsk, struct sock *newsk);
- 
- /*
-+ * sctp/proc.c
-+ */
-+int sctp_snmp_proc_init(void);
-+void sctp_snmp_proc_exit(void);
-+int sctp_eps_proc_init(void);
-+void sctp_eps_proc_exit(void);
-+int sctp_assocs_proc_init(void);
-+void sctp_assocs_proc_exit(void);
-+
-+
-+/*
-  *  Section:  Macros, externs, and inlines
-  */
- 
---- linux-2.6.18-rc5-mm1/net/sctp/socket.c.old	2006-09-05 16:49:15.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/net/sctp/socket.c	2006-09-05 16:49:27.000000000 +0200
-@@ -2081,13 +2081,13 @@
-  *                     SPP_SACKDELAY_ENABLE, setting both will have undefined
-  *                     results.
-  */
--int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
--				struct sctp_transport   *trans,
--				struct sctp_association *asoc,
--				struct sctp_sock        *sp,
--				int                      hb_change,
--				int                      pmtud_change,
--				int                      sackdelay_change)
-+static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
-+				       struct sctp_transport   *trans,
-+				       struct sctp_association *asoc,
-+				       struct sctp_sock        *sp,
-+				       int                      hb_change,
-+				       int                      pmtud_change,
-+				       int                      sackdelay_change)
- {
- 	int error;
- 
---- linux-2.6.18-rc5-mm1/net/sctp/ipv6.c.old	2006-09-05 16:50:51.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/net/sctp/ipv6.c	2006-09-05 16:50:58.000000000 +0200
-@@ -78,7 +78,6 @@
- 
- #include <asm/uaccess.h>
- 
--extern int sctp_inetaddr_event(struct notifier_block *, unsigned long, void *);
- static struct notifier_block sctp_inet6addr_notifier = {
- 	.notifier_call = sctp_inetaddr_event,
- };
---- linux-2.6.18-rc5-mm1/net/sctp/protocol.c.old	2006-09-05 16:53:10.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/net/sctp/protocol.c	2006-09-05 16:53:20.000000000 +0200
-@@ -82,13 +82,6 @@
- kmem_cache_t *sctp_chunk_cachep __read_mostly;
- kmem_cache_t *sctp_bucket_cachep __read_mostly;
- 
--extern int sctp_snmp_proc_init(void);
--extern int sctp_snmp_proc_exit(void);
--extern int sctp_eps_proc_init(void);
--extern int sctp_eps_proc_exit(void);
--extern int sctp_assocs_proc_init(void);
--extern int sctp_assocs_proc_exit(void);
--
- /* Return the address of the control sock. */
- struct sock *sctp_get_ctl_sock(void)
- {
+  * These functions tune minheld and maxheld values for a given
+Index: 2.6.18-rc5-mm1/kernel/bc/beancounter.c
+===================================================================
+--- 2.6.18-rc5-mm1.orig/kernel/bc/beancounter.c
++++ 2.6.18-rc5-mm1/kernel/bc/beancounter.c
+@@ -20,7 +20,7 @@ static void init_beancounter_struct(stru
 
+ struct beancounter init_bc;
+
+-unsigned int nr_beancounters;
++unsigned int nr_beancounters = 1;
+
+ const char *bc_rnames[] = {
+ 	"kmemsize",	/* 0 */

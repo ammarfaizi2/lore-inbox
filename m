@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWIEB5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWIECRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWIEB5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 21:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWIEB5l
+	id S964953AbWIECRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 22:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWIECRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 21:57:41 -0400
-Received: from pat.uio.no ([129.240.10.4]:11763 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965085AbWIEB5k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 21:57:40 -0400
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ian Kent <raven@themaw.net>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1157376295.3240.13.camel@raven.themaw.net>
-References: <20060901195009.187af603.akpm@osdl.org>
-	 <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157376295.3240.13.camel@raven.themaw.net>
+	Mon, 4 Sep 2006 22:17:25 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:449 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S964953AbWIECRY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 22:17:24 -0400
+Subject: Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
+From: Adam Belay <abelay@novell.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Len Brown <len.brown@intel.com>, ACPI ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@linux.intel.com>
+In-Reply-To: <20060904125921.GB6279@ucw.cz>
+References: <1156884681.1781.120.camel@localhost.localdomain>
+	 <20060904125921.GB6279@ucw.cz>
 Content-Type: text/plain
-Date: Mon, 04 Sep 2006 21:57:24 -0400
-Message-Id: <1157421445.5510.13.camel@localhost>
+Date: Mon, 04 Sep 2006 22:19:49 -0400
+Message-Id: <1157422789.3777.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.22, required 12,
-	autolearn=disabled, AWL 1.78, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-04 at 21:24 +0800, Ian Kent wrote:
+Hi Pavel,
 
-> > [pid  3838] mkdir("/net", 0555)         = -1 EEXIST (File exists)
-> > [pid  3838] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
-> > [pid  3838] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
-> > [pid  3838] stat64("/net/trash", {st_mode=S_IFDIR|0555, st_size=1024, ...}) = 0
-> > [pid  3838] mkdir("/net/trash/mnt", 0555) = -1 EACCES (Permission denied)
+On Mon, 2006-09-04 at 12:59 +0000, Pavel Machek wrote:
+> Hi!
 > 
-> This is the point I'm trying to make.
-> I'm able to reproduce this with exports that don't have "nohide".
-> The mkdir used to return EEXIST, possibly before getting to the EACCES
-> test. It appears to be a change in semantic behavior and I can't see
-> where it is coming from. autofs expects an EEXIST but not an EACCES and
-> so doesn't perform the mount. I could ignore the EACCES but that would
-> be cheating.
+> > This patch improves the ACPI c-state selection algorithm.  It also
+> > includes a major cleanup and simplification of the processor idle code.
+> 
+> Nice!
+> 
+> > @@ -1009,7 +883,7 @@
+> >  
+> >  	seq_printf(seq, "active state:            C%zd\n"
+> >  		   "max_cstate:              C%d\n"
+> > -		   "bus master activity:     %08x\n",
+> > +		   "bus master activity:     %d\n",
+> >  		   pr->power.state ? pr->power.state - pr->power.states : 0,
+> >  		   max_cstate, (unsigned)pr->power.bm_activity);
+> >  
+> 
+> This changes kernel - user interface. You should change the field
+> description, or keep it in hex...
 
-Why the hell is it doing a mkdir in the first place? ...and why the hell
-is it not able to cope with EACCES? The latter is hardly an unlikely
-reply: it means that the automounter should not be doing this in the
-first place, 'cos it doesn't have the privileges. That is not the same
-as saying that it doesn't have the privileges to do a lookup.
+Good catch!  Essentially the field now counts the number of times bus
+master activity was detected, rather than bitshifting.  I'll change its
+name in the next iteration.
 
-Trond
+> 
+> BTW will you be on september's labs conference?
+
+It's not currently in my plans, but I'd love to attend one at some
+point.
+
+> 
+> 							Pavel
+
+Thanks for the comments.
+
+Regards,
+Adam
+
 

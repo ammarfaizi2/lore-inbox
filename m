@@ -1,118 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbWIEE5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWIEFIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965155AbWIEE5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 00:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbWIEE5S
+	id S965149AbWIEFIj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 01:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWIEFIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 00:57:18 -0400
-Received: from pat.uio.no ([129.240.10.4]:12711 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965149AbWIEE5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 00:57:16 -0400
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ian Kent <raven@themaw.net>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1157429219.3915.11.camel@raven.themaw.net>
-References: <20060901195009.187af603.akpm@osdl.org>
-	 <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157423027.5510.23.camel@localhost>
-	 <1157429219.3915.11.camel@raven.themaw.net>
-Content-Type: multipart/mixed; boundary="=-EYvKbG5nnZ2BULxojOOW"
-Date: Tue, 05 Sep 2006 00:57:01 -0400
-Message-Id: <1157432221.32412.41.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.183, required 12,
-	autolearn=disabled, AWL 1.82, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 5 Sep 2006 01:08:39 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:60141 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965149AbWIEFIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 01:08:38 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Clean up expand_fdtable() and expand_files().
+Date: Mon, 4 Sep 2006 22:08:36 -0700
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609042208.36894.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-EYvKbG5nnZ2BULxojOOW
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This patch performs a code cleanup against the expand_fdtable() and 
+expand_files() functions inside fs/file.c. It aims to make the flow of code 
+within these functions simpler and easier to understand, via added comments 
+and modest refactoring. The patch was generated against 2.6.18-rc5-mm1, and 
+was successfully run live. Please apply.
 
-On Tue, 2006-09-05 at 12:06 +0800, Ian Kent wrote:
+(I'm trying out KMail for this patch. I tested this mailer beforehand to make 
+sure the patch will come out unmangled, but, as with all things software, 
+success is far from guaranteed. :) Please yell if the patch is borked.)
 
-> > One way to fix this is to simply not hash the dentry when we're doing
-> > the O_EXCL intent optimisation, but rather to only hash it _after_ we've
-> > successfully created the file on the server. Something like the attached
-> > patch ought to do it.
-> 
-> No.
-> 
-> This patch simply marks the dentry negative and returns ENOMEM from the
-> lookup which, as would be expected, results in this error being returned
-> to userspace.
+Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
 
-Oops. You are right. I forgot to set res=NULL...
-
-
-
---=-EYvKbG5nnZ2BULxojOOW
-Content-Disposition: inline; filename=linux-2.6.18-063-fix_exclusive_create.dif
-Content-Type: message/rfc822; name=linux-2.6.18-063-fix_exclusive_create.dif
-
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-Date: 
-NFS: nfs_lookup - don't hash dentry when optimising away the lookup
-Subject: No Subject
-Message-Id: <1157432220.32412.40.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/nfs/dir.c |   14 +++++++++++---
- 1 files changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 51328ae..3419c2d 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -904,9 +904,15 @@ static struct dentry *nfs_lookup(struct 
+diff -Npru linux-a/fs/file.c linux-b/fs/file.c
+--- linux-a/fs/file.c	2006-09-01 20:34:12.000000000 -0700
++++ linux-b/fs/file.c	2006-09-04 16:42:33.000000000 -0700
+@@ -296,37 +296,30 @@ static int expand_fdtable(struct files_s
+ 	__releases(files->file_lock)
+ 	__acquires(files->file_lock)
+ {
+-	int error = 0;
+-	struct fdtable *fdt;
+-	struct fdtable *nfdt = NULL;
++	struct fdtable *new_fdt, *cur_fdt;
  
- 	lock_kernel();
- 
--	/* If we're doing an exclusive create, optimize away the lookup */
--	if (nfs_is_exclusive_create(dir, nd))
--		goto no_entry;
-+	/*
-+	 * If we're doing an exclusive create, optimize away the lookup
-+	 * but don't hash the dentry.
-+	 */
-+	if (nfs_is_exclusive_create(dir, nd)) {
-+		d_instantiate(dentry, NULL);
-+		res = NULL;
-+		goto out_unlock;
-+	}
- 
- 	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
- 	if (error == -ENOENT)
-@@ -1161,6 +1167,8 @@ int nfs_instantiate(struct dentry *dentr
- 	if (IS_ERR(inode))
- 		return error;
- 	d_instantiate(dentry, inode);
-+	if (d_unhashed(dentry))
-+		d_rehash(dentry);
- 	return 0;
+ 	spin_unlock(&files->file_lock);
+-	nfdt = alloc_fdtable(nr);
+-	if (!nfdt) {
+-		error = -ENOMEM;
+-		spin_lock(&files->file_lock);
+-		goto out;
+-	}
+-
++	new_fdt = alloc_fdtable(nr);
+ 	spin_lock(&files->file_lock);
+-	fdt = files_fdtable(files);
++	if (!new_fdt)
++		return -ENOMEM;
+ 	/*
+-	 * Check again since another task may have expanded the
+-	 * fd table while we dropped the lock
++	 * Check again since another task may have expanded the fd table while
++	 * we dropped the lock
+ 	 */
+-	if (nr >= fdt->max_fds || nr >= fdt->max_fdset) {
+-		copy_fdtable(nfdt, fdt);
++	cur_fdt = files_fdtable(files);
++	if (nr >= cur_fdt->max_fds || nr >= cur_fdt->max_fdset) {
++		/* Continue as planned */
++		copy_fdtable(new_fdt, cur_fdt);
++		rcu_assign_pointer(files->fdt, new_fdt);
++		free_fdtable(cur_fdt);
+ 	} else {
+-		/* Somebody expanded while we dropped file_lock */
++		/* Somebody else expanded, so undo our attempt */
+ 		spin_unlock(&files->file_lock);
+-		__free_fdtable(nfdt);
++		__free_fdtable(new_fdt);
+ 		spin_lock(&files->file_lock);
+-		goto out;
+ 	}
+-	rcu_assign_pointer(files->fdt, nfdt);
+-	free_fdtable(fdt);
+-out:
+-	return error;
++	return 1;
  }
  
-
---=-EYvKbG5nnZ2BULxojOOW--
-
+ /*
+@@ -336,23 +329,19 @@ out:
+  */
+ int expand_files(struct files_struct *files, int nr)
+ {
+-	int err, expand = 0;
+ 	struct fdtable *fdt;
+ 
+ 	fdt = files_fdtable(files);
+-	if (nr >= fdt->max_fdset || nr >= fdt->max_fds) {
+-		if (fdt->max_fdset >= NR_OPEN ||
+-			fdt->max_fds >= NR_OPEN || nr >= NR_OPEN) {
+-			err = -EMFILE;
+-			goto out;
+-		}
+-		expand = 1;
+-		if ((err = expand_fdtable(files, nr)))
+-			goto out;
+-	}
+-	err = expand;
+-out:
+-	return err;
++	/* Do we need to expand? */
++	if (nr < fdt->max_fdset && nr < fdt->max_fds)
++		return 0;
++	/* Can we expand? */
++	if (fdt->max_fdset >= NR_OPEN || fdt->max_fds >= NR_OPEN ||
++	    nr >= NR_OPEN)
++		return -EMFILE;
++
++	/* All good, so we try */
++	return expand_fdtable(files, nr);
+ }
+ 
+ static void __devinit fdtable_defer_list_init(int cpu)

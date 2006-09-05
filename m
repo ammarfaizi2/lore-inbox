@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWIEKjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWIEKlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWIEKjR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWIEKjR
+	id S1751309AbWIEKlE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIEKlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:39:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39372 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751299AbWIEKjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:39:16 -0400
-Subject: Re: [PATCH 06/16] GFS2: dentry, export, super and vm operations
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609041832010.28823@yvahk01.tjqt.qr>
-References: <1157031245.3384.795.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041046380.11217@yvahk01.tjqt.qr>
-	 <1157383622.3384.950.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609041832010.28823@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 05 Sep 2006 11:44:54 +0100
-Message-Id: <1157453094.3384.994.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 5 Sep 2006 06:41:03 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:49383 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1751309AbWIEKlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 06:41:01 -0400
+Message-ID: <44FD5342.1040207@s5r6.in-berlin.de>
+Date: Tue, 05 Sep 2006 12:36:50 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: bcollins@debian.org, scjody@modernduck.com,
+       linux1394-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: set power state of firewire host during suspend
+References: <20060905081426.GA4105@elf.ucw.cz>
+In-Reply-To: <20060905081426.GA4105@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2006-09-04 at 18:35 +0200, Jan Engelhardt wrote:
-> >> >+	switch (fh_type) {
-> >> >+	case 10:
-> >> >+		parent.no_formal_ino = ((uint64_t)be32_to_cpu(fh[4])) << 32;
-> >> >+		parent.no_formal_ino |= be32_to_cpu(fh[5]);
-> >> >+		parent.no_addr = ((uint64_t)be32_to_cpu(fh[6])) << 32;
-> >> >+		parent.no_addr |= be32_to_cpu(fh[7]);
-> >> >+		fh_obj.imode = be32_to_cpu(fh[8]);
-> >> >+	case 4:
-> >> 
-> >> What do these constants specify? Would not it be better to have a #define or
-> >> enum{} for them somewhere?
-> >
-> >The sizes of the NFS file handles in units of sizeof(u32). I've added a
-> >couple of #defines as requested.
+Pavel Machek wrote:
+> --- a/drivers/ieee1394/ohci1394.c
+> +++ b/drivers/ieee1394/ohci1394.c
+> @@ -3565,6 +3565,7 @@ static int ohci1394_pci_suspend (struct 
+>  	}
+>  #endif
+>  
+> +	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+>  	return 0;
+>  }
+>  
 > 
-> A #define/enum is only really useful if more than one place references it.
-> If this is the only one, just add a comment.
-> 
-There are several places as its used on both the fh encoding and fh
-decoding routines.
 
-> >> >+	if (IS_ERR(inode))
-> >> >+		return ERR_PTR(PTR_ERR(inode));
-> >> 
-> >> Just return inode.
-> >
-> >The function returns a dentry, so it would need to be casted and I
-> >thought that would look "more odd" than this construction.
-> 
-> Yes, it is very odd indeed that you return an inode as a dentry at all. How is
-> the caller supposed to know whether it was an inode or dentry that was actually
-> returned?
-> 
-> 
-> Jan Engelhardt
-
-This is dealing with the error case only. If the function being called
-returns an error (signaled by IS_ERR(inode) - hence an invalid pointer
-value) then we need to return that error to the calling routing. Since
-this function in question returns a dentry, we convert the invalid
-pointer value from the function returning an inode into an integer and
-then covert the integer into an invalid pointer value again, but this
-time its an invalid pointer to a dentry and hence the correct return
-type for this function.
-
-So the caller of this function will get a pointer to a dentry which will
-either be a valid dentry pointer or an error value testable with
-IS_ERR().
-
-Steve.
-
-
+Does this work on PPC_PMAC? Note the platform code before #endif.
+http://www.linux-m32r.org/lxr/http/source/drivers/ieee1394/ohci1394.c?v=2.6.18-rc5-mm1#L3554
+-- 
+Stefan Richter
+-=====-=-==- =--= --=-=
+http://arcgraph.de/sr/

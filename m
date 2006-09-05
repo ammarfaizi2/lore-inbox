@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWIEKG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWIEKGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWIEKG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWIEKG2
+	id S1751158AbWIEKGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWIEKGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:06:28 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:29363 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750997AbWIEKG1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:06:27 -0400
-Date: Tue, 5 Sep 2006 12:02:00 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 12/16] GFS2: Mounting & sysfs interface
-In-Reply-To: <1157031578.3384.807.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609051156330.32409@yvahk01.tjqt.qr>
-References: <1157031578.3384.807.camel@quoit.chygwyn.com>
+	Tue, 5 Sep 2006 06:06:37 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:40679 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751158AbWIEKGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 06:06:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nLl2q3XAC7FvCf0rG68G/j5/8t9BD89pAXq/RWsG/8t18DOsQ1nHjKgxga+caH28X++vFyx3GSw9faCcFYYaPy8bD8m3ZCkcimacwRlBoew5NBV6RlQIaZahY6wcz0ats2vNTDuODU8P3OFerLxv/mKFPbyDzzWLcqORsFWIFSQ=
+Message-ID: <3634de740609050306y38ff56a4t2700e044e11a439f@mail.gmail.com>
+Date: Tue, 5 Sep 2006 15:36:27 +0530
+From: Maximus <john.maximus@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SDIO functions?
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+    Just going through the sdio specs and ossman's patch.
 
 
->+static struct kset gfs2_kset = {
->+	.subsys = &fs_subsys,
->+	.kobj   = {.name = "gfs2",},
+   What are these functions and thier numbers in CMD 53
 
-I think
+   Does that mean an SDIO Card can support upto 8 different functions?.
 
-	.kobj   = {.name = "gfs2"},
+   An sdio card can be used as a wlan and camera (if it supports 2
+functions wlan and camera).
 
-would suffice style-wise (, only looks good on multiple lines IMO, but anyone
-who wants to object may scream out loud *now*).
+  Is it like that?. Because i have not come across a card which
+supports more than one function.
 
->+	.ktype  = &gfs2_ktype,
->+};
+  What does "function" mean - does that mean some kind of firmware
+inside the card or some kind electronics.
 
-
->+/* one oddball doesn't fit the macro mold */
->+static ssize_t noatime_show(struct gfs2_sbd *sdp, char *buf)
->+{
->+	return sprintf(buf, "%d\n", !!test_bit(SDF_NOATIME, &sdp->sd_flags));
->+}
-
-Hm, what does test_bit return, if not 0 or 1? (Questioning the
-possible redundancy of !!)
+  I dont understand.
 
 
-
-Jan Engelhardt
--- 
+Thanks and Regards,
+Jo

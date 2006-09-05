@@ -1,131 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWIEKAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWIEKCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWIEKAX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWIEKAX
+	id S1750993AbWIEKCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWIEKCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:00:23 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:17560 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750792AbWIEKAV (ORCPT
+	Tue, 5 Sep 2006 06:02:17 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64490 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750988AbWIEKCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:00:21 -0400
-Date: Tue, 5 Sep 2006 11:56:30 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Steven Whitehouse <swhiteho@redhat.com>
-cc: linux-kernel@vger.kernel.org, Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 11/16] GFS2: Quota and LVB handling
-In-Reply-To: <1157031525.3384.805.camel@quoit.chygwyn.com>
-Message-ID: <Pine.LNX.4.61.0609051142550.32409@yvahk01.tjqt.qr>
-References: <1157031525.3384.805.camel@quoit.chygwyn.com>
+	Tue, 5 Sep 2006 06:02:14 -0400
+Date: Tue, 5 Sep 2006 11:03:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: abelay@novell.com, len.brown@intel.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net,
+       arjan@linux.intel.com
+Subject: Re: [RFC][PATCH 2/2] ACPI: handle timer ticks proactively
+Message-ID: <20060905090328.GA4888@elf.ucw.cz>
+References: <20060904131027.GD6279@ucw.cz> <20060905082855.GC5082@elf.ucw.cz> <20060905085319.GA2237@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060905085319.GA2237@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->+static uint64_t qd2offset(struct gfs2_quota_data *qd)
->+{
->+	uint64_t offset;
->+
->+	offset = 2 * (uint64_t)qd->qd_id + !test_bit(QDF_USER, &qd->qd_flags);
+> > > This patch takes advantage of the infrastructure introduced in the last
+> > > patch, and allows the processor idle algorithm to proactively choose a
+> > > c-state based on the time the next timer interrupt is expected to occur.
+> > > It preserves the residency metric, so the algorithm should, in theory,
+> > > remain effective against bursts of activity from other interrupt
+> > > sources.
+> > > 
+> > > This patch is mostly intended to be illustrative.  There may be some
+> > > "#ifdef CONFIG_ACPI" issues, and I would appreciate any advice on
+> > > implementing this more cleanly.
+> 
+> Okay, just to get you some feedback:
+> 
+> It seems to change things a _lot_. Power consumption with usb modules
+> loaded went from 14315mW to 13800mW -- that is huge
+> deal. Unfortunately something strange is going on: with stock kernel,
+> power consumption is mostly constant. With your patch, it varies a
+> lot, at 2 second timescale.
+> 
+> Power consumption with usb unloaded (only way to get reasonable power
+> on x60) went from stable 10450mW to  something rapidly changing, and
+> probably even worse than original:
 
-At the moment this (test_bit) might work, because the only other quota besides
-USER is GROUP. But think of XFS, it has a third quota type. With !test_bit, +1
-would be added for GROUP and PROJECT (3rd xfs quota type), although PROJECT
-would likely need +2 by then.
+I also noticed that with your patch, bus master activity tends to be constant?!
 
->+	offset *= sizeof(struct gfs2_quota);
->+
->+	return offset;
->+}
->+
+root@amd:/data/l/tp/tp_smapi-0.22# cat /proc/acpi/processor/CPU0/power
+active state:            C3
+max_cstate:              C8
+bus master activity:     37244
+states:
+    C1:                  type[C1] latency[000] usage[00000067]
+duration[00000000000000000067]
+    C2:                  type[C2] latency[001] usage[00042173]
+duration[00000000000454647687]
+   *C3:                  type[C3] latency[057] usage[00290242]
+duration[00000000003402855375]
+root@amd:/data/l/tp/tp_smapi-0.22# cat /proc/acpi/processor/CPU0/power
+active state:            C3
+max_cstate:              C8
+bus master activity:     37244
+states:
+    C1:                  type[C1] latency[000] usage[00000067]
+duration[00000000000000000067]
+    C2:                  type[C2] latency[001] usage[00042274]
+duration[00000000000454688808]
+   *C3:                  type[C3] latency[057] usage[00305466]
+duration[00000000003595077816]
+root@amd:/data/l/tp/tp_smapi-0.22#
+								Pavel
 
->+ found:
->+	for (b = 0; b < 8; b++)
->+		if (!(byte & (1 << b)))
->+			break;
->+	qd->qd_slot = c * (8 * PAGE_SIZE) + o * 8 + b;
-
-
-
->+static int sort_qd(const void *a, const void *b)
->+{
->+	struct gfs2_quota_data *qd_a = *(struct gfs2_quota_data **)a;
->+	struct gfs2_quota_data *qd_b = *(struct gfs2_quota_data **)b;
->+	int ret = 0;
->+
->+	if (!test_bit(QDF_USER, &qd_a->qd_flags) !=
->+	    !test_bit(QDF_USER, &qd_b->qd_flags)) {
->+		if (test_bit(QDF_USER, &qd_a->qd_flags))
->+			ret = -1;
->+		else
->+			ret = 1;
->+	} else {
->+		if (qd_a->qd_id < qd_b->qd_id)
->+			ret = -1;
->+		else if (qd_a->qd_id > qd_b->qd_id)
->+			ret = 1;
->+	}
->+
->+	return ret;
->+}
-
-Here is another const candidate. And you can use early-returns[1]. 
-
-[1] Like @@ -1213,31 +1213,26 @@ in
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=75d3b817a0b48425da921052955cc58f20bbab52
-
->+	x = qc->qc_change;
->+	x = be64_to_cpu(x) + change;
->+	qc->qc_change = cpu_to_be64(x);
-
-There probably is a reason (apart from styling, Ingo) why it's not
-
-	qc->qc_change = cpu_to_be64(be64_to_cpu(qc->qc_change) + change);
-
-Do some architectures do this conversion in more than one step? That is, is
-there risk of having undefined behavior in the expression evaluation of above
-statement like there is in ..?
-
-	printf("%d\n", c, modify_int(&c));
-
->+static int gfs2_adjust_quota(struct gfs2_inode *ip, loff_t loc,
->+			     int64_t change, struct gfs2_quota_data *qd)
->+{
->+	unsigned offset = loc & (PAGE_CACHE_SHIFT - 1);
->+	void *kaddr;
->+	__be64 *ptr;
->+
->+	kaddr = kmap_atomic(page, KM_USER0);
->+	ptr = (__be64 *)(kaddr + offset);
-
-Nocast I'd say.
-
->+#if 0
->+	qd->qd_qb.qb_limit = cpu_to_be64(q.qu_limit);
->+	qd->qd_qb.qb_warn = cpu_to_be64(q.qu_warn);
->+#endif
-
-Enable or disable.
-
->+#if 0
-
-Yes or no. :)
-
->+int gfs2_quota_read(struct gfs2_sbd *sdp, int user, uint32_t id,
->+		    struct gfs2_quota *q)
->+{
->+	struct gfs2_quota_data *qd;
->+	struct gfs2_holder q_gh;
->+	int error;
->+
->+	if (((user) ? (id != current->fsuid) : (!in_group_p(id))) &&
-
-
-
-Jan Engelhardt
 -- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,102 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWIEVw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751534AbWIEV5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWIEVw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWIEVw0
+	id S1751534AbWIEV5c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWIEV5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:52:26 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:29152 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751508AbWIEVwZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:52:25 -0400
-Message-ID: <44FDF16D.8040505@us.ibm.com>
-Date: Tue, 05 Sep 2006 14:51:41 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
+	Tue, 5 Sep 2006 17:57:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21769 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751523AbWIEV5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 17:57:30 -0400
+Date: Tue, 5 Sep 2006 23:57:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: sri@us.ibm.com
+Cc: lksctp-developers@lists.sourceforge.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: [2.6 patch] net/sctp/: cleanups
+Message-ID: <20060905215721.GM9173@stusta.de>
 MIME-Version: 1.0
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-CC: Badari Pulavarty <pbadari@us.ibm.com>,
-       Badari Pulavarty <pbadari@gmail.com>,
-       Will Simoneau <simoneau@ele.uri.edu>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-References: <20060905171049.GB27433@ele.uri.edu>	 <1157479756.23501.18.camel@dyn9047017100.beaverton.ibm.com>	 <1157482632.19432.6.camel@kleikamp.austin.ibm.com>	 <44FDDA89.7080207@us.ibm.com> <1157491179.19432.11.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1157491179.19432.11.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp wrote:
-> On Tue, 2006-09-05 at 13:14 -0700, Badari Pulavarty wrote:
-> 
->>Dave Kleikamp wrote:
-> 
-> 
->>>I'm having a hard time figuring out exactly what ext3_get_blocks_handle
->>>is trying to return, but it looks to me like if it is allocating one
->>>data block, and needs to allocate an indirect block as well, then it
->>>will return 2 rather than 1.  Is this expected, or am I just confused?
->>>
->>>  
->>
->>It would return "1" in that case.. (data block)
->>
->> > 0 means get_block() suceeded and indicates the number of blocks mapped
->>= 0 lookup failed
->>< 0 mean error case
-> 
-> 
-> Okay, I got confused looking through the code.  I still don't see how
-> ext3_get_blocks_handle() should be returning a number greater than
-> maxblocks.
-> 
+This patch contains the following cleanups:
+- make the following needlessly global function static:
+  - socket.c: sctp_apply_peer_addr_params()
+- add proper prototypes for the several global functions in
+  include/net/sctp/sctp.h
 
-yes ext3_get_blocks_handle() will return the number of data blocks 
-allocated(not including the indirect/double indirecto blocks), and that 
-number should not than maxblocks. In this case, it should return 1 instead.
+Note that this fixes wrong prototypes for the following functions:
+- sctp_snmp_proc_exit()
+- sctp_eps_proc_exit()
+- sctp_assocs_proc_exit()
 
-The ext3_get_blocks_handle() behavior was changed when multiple blocks 
-map/allocation was added to ext3 via this function. Previously, the 
-behavior of ext3_get_blokc_handle() returns 0 for success case, and 
-returns non-zero(nagive) for error case. While with new behavior, the 
-success case is the thre returned value should > 0.
+The latter was spotted by the GNU C compiler and reported
+by David Woodhouse.
 
-How many blocks is being mapped in this case? > 1? or 0? If it failed to 
-map the block (ext3_get_blocks_handle() returns 0), ext3_getblk() will 
-also WARN_ON().
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> 
->>>>I did search for callers of ext3_get_blocks_handle() and found that
->>>>ext3_readdir() seems to do wrong thing all the time with error check :(
->>>>Need to take a closer look..
->>>>
->>>>	err = ext3_get_blocks_handle(NULL, inode, blk, 1,
->>>>                                                &map_bh, 0, 0);
->>>>        if (err > 0) {  <<<< BAD
->>>>                  page_cache_readahead(sb->s_bdev->bd_inode->i_mapping,
->>>>                                &filp->f_ra,
->>>>                                filp,
->>>>                                map_bh.b_blocknr >>
->>>>                                (PAGE_CACHE_SHIFT - inode->i_blkbits),
->>>>                                1);
->>>>                        bh = ext3_bread(NULL, inode, blk, 0, &err);
->>>>       }
->>>>    
->>>
->>>Bad to do what it's doing, or bad to call name the variable "err"?
->>>I think if it looked like this:
->>>
->>>	count = ext3_get_blocks_handle(NULL, inode, blk, 1,
->>>                                                &map_bh, 0, 0);
->>>        if (count > 0) { 
->>>
->>>it would be a lot less confusing.
->>>  
->>
->>I am sorry !! it is doing the right thing :(
-> 
-> 
-> Not your fault.  The variable is very badly named.
+---
+
+ include/net/sctp/sctp.h |   13 +++++++++++++
+ net/sctp/ipv6.c         |    1 -
+ net/sctp/protocol.c     |    7 -------
+ net/sctp/socket.c       |   14 +++++++-------
+ 4 files changed, 20 insertions(+), 15 deletions(-)
+
+--- linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h.old	2006-09-05 16:50:33.000000000 +0200
++++ linux-2.6.18-rc5-mm1/include/net/sctp/sctp.h	2006-09-05 16:54:18.000000000 +0200
+@@ -128,6 +128,8 @@
+ 				     int flags);
+ extern struct sctp_pf *sctp_get_pf_specific(sa_family_t family);
+ extern int sctp_register_pf(struct sctp_pf *, sa_family_t);
++int sctp_inetaddr_event(struct notifier_block *this, unsigned long ev,
++                        void *ptr);
+ 
+ /*
+  * sctp/socket.c
+@@ -178,6 +180,17 @@
+ 			  struct sock *oldsk, struct sock *newsk);
+ 
+ /*
++ * sctp/proc.c
++ */
++int sctp_snmp_proc_init(void);
++void sctp_snmp_proc_exit(void);
++int sctp_eps_proc_init(void);
++void sctp_eps_proc_exit(void);
++int sctp_assocs_proc_init(void);
++void sctp_assocs_proc_exit(void);
++
++
++/*
+  *  Section:  Macros, externs, and inlines
+  */
+ 
+--- linux-2.6.18-rc5-mm1/net/sctp/socket.c.old	2006-09-05 16:49:15.000000000 +0200
++++ linux-2.6.18-rc5-mm1/net/sctp/socket.c	2006-09-05 16:49:27.000000000 +0200
+@@ -2081,13 +2081,13 @@
+  *                     SPP_SACKDELAY_ENABLE, setting both will have undefined
+  *                     results.
+  */
+-int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
+-				struct sctp_transport   *trans,
+-				struct sctp_association *asoc,
+-				struct sctp_sock        *sp,
+-				int                      hb_change,
+-				int                      pmtud_change,
+-				int                      sackdelay_change)
++static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
++				       struct sctp_transport   *trans,
++				       struct sctp_association *asoc,
++				       struct sctp_sock        *sp,
++				       int                      hb_change,
++				       int                      pmtud_change,
++				       int                      sackdelay_change)
+ {
+ 	int error;
+ 
+--- linux-2.6.18-rc5-mm1/net/sctp/ipv6.c.old	2006-09-05 16:50:51.000000000 +0200
++++ linux-2.6.18-rc5-mm1/net/sctp/ipv6.c	2006-09-05 16:50:58.000000000 +0200
+@@ -78,7 +78,6 @@
+ 
+ #include <asm/uaccess.h>
+ 
+-extern int sctp_inetaddr_event(struct notifier_block *, unsigned long, void *);
+ static struct notifier_block sctp_inet6addr_notifier = {
+ 	.notifier_call = sctp_inetaddr_event,
+ };
+--- linux-2.6.18-rc5-mm1/net/sctp/protocol.c.old	2006-09-05 16:53:10.000000000 +0200
++++ linux-2.6.18-rc5-mm1/net/sctp/protocol.c	2006-09-05 16:53:20.000000000 +0200
+@@ -82,13 +82,6 @@
+ kmem_cache_t *sctp_chunk_cachep __read_mostly;
+ kmem_cache_t *sctp_bucket_cachep __read_mostly;
+ 
+-extern int sctp_snmp_proc_init(void);
+-extern int sctp_snmp_proc_exit(void);
+-extern int sctp_eps_proc_init(void);
+-extern int sctp_eps_proc_exit(void);
+-extern int sctp_assocs_proc_init(void);
+-extern int sctp_assocs_proc_exit(void);
+-
+ /* Return the address of the control sock. */
+ struct sock *sctp_get_ctl_sock(void)
+ {
 

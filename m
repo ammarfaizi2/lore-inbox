@@ -1,216 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbWIEX6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWIEX6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965247AbWIEX6G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 19:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWIEX6E
+	id S965235AbWIEX6C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 19:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWIEX56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 19:58:04 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:693 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1422634AbWIEX56 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Sep 2006 19:57:58 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:65460 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S965232AbWIEX5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 19:57:53 -0400
 From: Zach Brown <zach.brown@oracle.com>
 To: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
        linux-kernel@vger.kernel.org
-Message-Id: <20060905235757.29630.86115.sendpatchset@tetsuo.zabbo.net>
+Message-Id: <20060905235752.29630.25970.sendpatchset@tetsuo.zabbo.net>
 In-Reply-To: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
 References: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
-Subject: [RFC 5/5] dio: only call aio_complete() after returning -EIOCBQUEUED
-Date: Tue,  5 Sep 2006 16:57:57 -0700 (PDT)
+Subject: [RFC 4/5] dio: remove duplicate bio wait code
+Date: Tue,  5 Sep 2006 16:57:52 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dio: only call aio_complete() after returning -EIOCBQUEUED
+dio: remove duplicate bio wait code
 
-The only time it is safe to call aio_complete() is when the ->ki_retry function
-returns -EIOCBQUEUED to the AIO core.  direct_io_worker() has historically done
-this by relying on its caller to translate positive return codes into
--EIOCBQUEUED for the aio case.  It did this by trying to keep conditionals in
-sync.  direct_io_worker() knew when finished_one_bio() was going to call
-aio_complete().  It would reverse the test and wait and free the dio in the
-cases it thought that finished_one_bio() wasn't going to.
+Now that we have a single refcount and waiting path we can reuse it in the
+async 'should_wait' path.  It continues to rely on the fragile link between the
+conditional in dio_complete_aio() which decides to complete the AIO and the
+conditional in direct_io_worker() which decides to wait and free.
 
-Not surprisingly, it ended up getting it wrong.  'ret' could be a negative
-errno from the submission path but it failed to communicate this to
-finished_one_bio().  direct_io_worker() would return < 0, it's callers wouldn't
-raise -EIOCBQUEUED, and aio_complete() would be called.  In the future
-finished_one_bio()'s tests wouldn't reflect this and aio_complete() would be
-called for a second time which can manifest as an oops.
-
-The previous cleanups have whittled the sync and async completion paths down to
-the point where we can collapse them and clearly reassert the invariant that we
-must only call aio_complete() after returning -EIOCBQUEUED.  direct_io_worker()
-will only return -EIOCBQUEUED when it is not the last to drop the dio refcount
-and the aio bio completion path will only call aio_complete() when it is the
-last to drop the dio refcount.  direct_io_worker() can ensure that it is the
-last to drop the reference count by waiting for bios to drain.  It does this
-for sync ops, of course, and for partial dio writes that must fall back to
-buffered and for aio ops that saw errors during submission.
-
-This means that operations that end up waiting, even if they were issued as aio
-ops, will not call aio_complete() from dio.  Instead we return the return code
-of the operation and let the aio core call aio_complete().  This is purposely
-done to fix a bug where AIO DIO file extensions would call aio_complete()
-before their callers have a chance to update i_size.
-
-Now that direct_io_worker() is explicitly returning -EIOCBQUEUED its callers no
-longer have to translate for it.
+By waiting before dropping the reference we stop dio_bio_end_aio() from calling
+dio_complete_aio() which used to wake up the waiter after seeing the reference
+count drop to 0.  We hoist this wake up into dio_bio_end_aio() which now
+notices when it's left a single remaining reference that is held by the waiter.
 
 Signed-off-by: Zach Brown <zach.brown@oracle.com>
 ---
 
- fs/direct-io.c |   92 ++++++++++++++++++-----------------------------
- mm/filemap.c   |    4 --
- 2 files changed, 36 insertions(+), 60 deletions(-)
+ fs/direct-io.c |   41 ++++++++++++-----------------------------
+ 1 file changed, 12 insertions(+), 29 deletions(-)
 
 Index: 2.6.18-rc6-dio-cleanup/fs/direct-io.c
 ===================================================================
 --- 2.6.18-rc6-dio-cleanup.orig/fs/direct-io.c
 +++ 2.6.18-rc6-dio-cleanup/fs/direct-io.c
-@@ -225,6 +225,15 @@ static int dio_complete(struct dio *dio,
+@@ -256,7 +256,6 @@ static int dio_complete(struct dio *dio,
+  */
+ static void dio_complete_aio(struct dio *dio)
  {
- 	ssize_t transferred = 0;
+-	unsigned long flags;
+ 	int ret;
  
-+	/*
-+	 * AIO submission can race with bio completion to get here while
-+	 * expecting to have the last io completed by bio completion.
-+	 * In that case -EIOCBQUEUED is in fact not an error we want
-+	 * to preserve through this call.
-+	 */
-+	if (ret == -EIOCBQUEUED)
-+		ret = 0;
-+
- 	if (dio->result) {
- 		transferred = dio->result;
- 
-@@ -250,24 +259,6 @@ static int dio_complete(struct dio *dio,
- 	return ret;
+ 	ret = dio_complete(dio, dio->iocb->ki_pos, 0);
+@@ -266,14 +265,6 @@ static void dio_complete_aio(struct dio 
+ 		((dio->rw == READ) && dio->result)) {
+ 		aio_complete(dio->iocb, ret, 0);
+ 		kfree(dio);
+-	} else {
+-		/*
+-		 * Falling back to buffered
+-		 */
+-		spin_lock_irqsave(&dio->bio_lock, flags);
+-		if (dio->waiter)
+-			wake_up_process(dio->waiter);
+-		spin_unlock_irqrestore(&dio->bio_lock, flags);
+ 	}
  }
  
--/*
-- * Called when a BIO has been processed.  If the count goes to zero then IO is
-- * complete and we can signal this to the AIO layer.
-- */
--static void dio_complete_aio(struct dio *dio)
--{
--	int ret;
--
--	ret = dio_complete(dio, dio->iocb->ki_pos, 0);
--
--	/* Complete AIO later if falling back to buffered i/o */
--	if (dio->result == dio->size ||
--		((dio->rw == READ) && dio->result)) {
--		aio_complete(dio->iocb, ret, 0);
--		kfree(dio);
--	}
--}
--
- static int dio_bio_complete(struct dio *dio, struct bio *bio);
- /*
-  * Asynchronous IO callback. 
-@@ -289,8 +280,11 @@ static int dio_bio_end_aio(struct bio *b
- 	if (remaining == 1 && waiter_holds_ref)
- 		wake_up_process(dio->waiter);
+@@ -284,6 +275,8 @@ static int dio_bio_complete(struct dio *
+ static int dio_bio_end_aio(struct bio *bio, unsigned int bytes_done, int error)
+ {
+ 	struct dio *dio = bio->bi_private;
++	int waiter_holds_ref = 0;
++	int remaining;
  
--	if (remaining == 0)
--		dio_complete_aio(dio);
-+	if (remaining == 0) {
-+		int ret = dio_complete(dio, dio->iocb->ki_pos, 0);
-+		aio_complete(dio->iocb, ret, 0);
-+		kfree(dio);
-+	}
+ 	if (bio->bi_size)
+ 		return 1;
+@@ -291,7 +284,12 @@ static int dio_bio_end_aio(struct bio *b
+ 	/* cleanup the bio */
+ 	dio_bio_complete(dio, bio);
+ 
+-	if (atomic_dec_and_test(&dio->refcount))
++	waiter_holds_ref = !!dio->waiter;
++	remaining = atomic_sub_return(1, (&dio->refcount));
++	if (remaining == 1 && waiter_holds_ref)
++		wake_up_process(dio->waiter);
++
++	if (remaining == 0)
+ 		dio_complete_aio(dio);
  
  	return 0;
- }
-@@ -1074,47 +1068,33 @@ direct_io_worker(int rw, struct kiocb *i
- 		mutex_unlock(&dio->inode->i_mutex);
+@@ -1089,30 +1087,15 @@ direct_io_worker(int rw, struct kiocb *i
+ 		if (ret == 0)
+ 			ret = dio->result;
  
- 	/*
--	 * OK, all BIOs are submitted, so we can decrement bio_count to truly
--	 * reflect the number of to-be-processed BIOs.
--	 */
--	if (dio->is_async) {
--		int should_wait = 0;
++		if (should_wait)
++			dio_await_completion(dio);
++
+ 		/* this can free the dio */
+ 		if (atomic_dec_and_test(&dio->refcount))
+ 			dio_complete_aio(dio);
+ 
+-		if (should_wait) {
+-			unsigned long flags;
+-			/*
+-			 * Wait for already issued I/O to drain out and
+-			 * release its references to user-space pages
+-			 * before returning to fallback on buffered I/O
+-			 */
 -
--		if (dio->result < dio->size && (rw & WRITE)) {
--			dio->waiter = current;
--			should_wait = 1;
+-			spin_lock_irqsave(&dio->bio_lock, flags);
+-			set_current_state(TASK_UNINTERRUPTIBLE);
+-			while (atomic_read(&dio->refcount)) {
+-				spin_unlock_irqrestore(&dio->bio_lock, flags);
+-				io_schedule();
+-				spin_lock_irqsave(&dio->bio_lock, flags);
+-				set_current_state(TASK_UNINTERRUPTIBLE);
+-			}
+-			spin_unlock_irqrestore(&dio->bio_lock, flags);
+-			set_current_state(TASK_RUNNING);
++		if (should_wait)
+ 			kfree(dio);
 -		}
--		if (ret == 0)
--			ret = dio->result;
--
--		if (should_wait)
--			dio_await_completion(dio);
--
--		/* this can free the dio */
--		if (atomic_dec_and_test(&dio->refcount))
--			dio_complete_aio(dio);
-+	 * The only time we want to leave bios in flight is when a successful
-+	 * partial aio read or full aio write have been setup.  In that case
-+	 * bio completion will call aio_complete.  The only time it's safe to
-+	 * call aio_complete is when we return -EIOCBQUEUED, so we key on that.
-+	 * This had *better* be the only place that raises -EIOCBQUEUED.
-+	 */
-+	BUG_ON(ret == -EIOCBQUEUED);
-+	if (dio->is_async && ret == 0 && dio->result &&
-+	    ((rw & READ) || (dio->result == dio->size)))
-+		ret = -EIOCBQUEUED;
- 
--		if (should_wait)
--			kfree(dio);
--	} else {
-+	if (ret != -EIOCBQUEUED)
+ 	} else {
  		dio_await_completion(dio);
  
-+	/*
-+	 * Sync will always be dropping the final ref and completing the
-+	 * operation.  AIO can if it was a broken operation described above
-+	 * or in fact if all the bios race to complete before we get here.
-+	 * In that case dio_complete() translates the EIOCBQUEUED into
-+	 * the proper return code that the caller will hand to aio_complete().
-+	 */
-+	if (atomic_dec_and_test(&dio->refcount)) {
- 		ret = dio_complete(dio, offset, ret);
-+		kfree(dio);
-+	} else
-+		BUG_ON(ret != -EIOCBQUEUED);
- 
--		/* We could have also come here on an AIO file extend */
--		if (!is_sync_kiocb(iocb) && (rw & WRITE) &&
--		    ret >= 0 && dio->result == dio->size)
--			/*
--			 * For AIO writes where we have completed the
--			 * i/o, we have to mark the the aio complete.
--			 */
--			aio_complete(iocb, ret, 0);
--
--		if (atomic_dec_and_test(&dio->refcount))
--			kfree(dio);
--		else
--			BUG();
--	}
- 	return ret;
- }
- 
-Index: 2.6.18-rc6-dio-cleanup/mm/filemap.c
-===================================================================
---- 2.6.18-rc6-dio-cleanup.orig/mm/filemap.c
-+++ 2.6.18-rc6-dio-cleanup/mm/filemap.c
-@@ -1175,8 +1175,6 @@ __generic_file_aio_read(struct kiocb *io
- 		if (pos < size) {
- 			retval = generic_file_direct_IO(READ, iocb,
- 						iov, pos, nr_segs);
--			if (retval > 0 && !is_sync_kiocb(iocb))
--				retval = -EIOCBQUEUED;
- 			if (retval > 0)
- 				*ppos = pos + retval;
- 		}
-@@ -2053,8 +2051,6 @@ generic_file_direct_write(struct kiocb *
- 		if (err < 0)
- 			written = err;
- 	}
--	if (written == count && !is_sync_kiocb(iocb))
--		written = -EIOCBQUEUED;
- 	return written;
- }
- EXPORT_SYMBOL(generic_file_direct_write);

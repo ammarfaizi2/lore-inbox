@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbWIEP2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWIEP3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965169AbWIEP2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWIEP2k
+	id S965183AbWIEP3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbWIEP3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:28:40 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:24680 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965148AbWIEP2h (ORCPT
+	Tue, 5 Sep 2006 11:29:47 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:56251 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965153AbWIEP3m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:28:37 -0400
-Message-ID: <44FD9884.9090801@sw.ru>
-Date: Tue, 05 Sep 2006 19:32:20 +0400
+	Tue, 5 Sep 2006 11:29:42 -0400
+Message-ID: <44FD98BD.7090207@sw.ru>
+Date: Tue, 05 Sep 2006 19:33:17 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -25,7 +25,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH 12/13] BC: vmrss (core)
+Subject: [PATCH 13/13] BC: vmrss (charges)
 References: <44FD918A.7050501@sw.ru>
 In-Reply-To: <44FD918A.7050501@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -33,795 +33,894 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the core of vmrss accounting.
-
-The main introduced object is page_beancounter.
-It ties together page and BCs which use the page.
-This allows correctly account fractions of memory shared
-between BCs (http://wiki.openvz.org/RSS_fractions_accounting)
-
-Accounting API:
-1. bc_alloc_rss_counter() allocates a tie between page and BC
-2. bc_free_rss_counter frees it.
-
-(1) and (2) must be done each time a page is about
-to be added to someone's rss.
-
-3. When page is touched by BC (i.e. by any task which mm belongs to BC)
-   page is bc_vmrss_page_add()-ed to that BC. Touching page leads
-   to subtracting it from unused_prvvmpages and adding to held_pages.
-4. When page is unmapped from BC it is bc_vmrss_page_del()-ed from it.
-
-5. When task forks all it's mapped pages must be bc_vmrss_page_dup()-ed.
-   i.e. page beancounter reference counter must be increased.
-   
-6. Some pages (former PGReserved) must be added to rss, but without
-   having a reference on it. These pages are bc_vmrss_page_add_noref()-ed.
+Introduce calls to BC code over the kernel to add
+accounting of physical pages/privvmpages.
 
 Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
 Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- include/bc/beancounter.h |    3 
- include/bc/vmpages.h     |    4 
- include/bc/vmrss.h       |   72 ++++++
- include/linux/mm.h       |    6 
- include/linux/shmem_fs.h |    2 
- init/main.c              |    2 
- kernel/bc/Kconfig        |    9 
- kernel/bc/Makefile       |    1 
- kernel/bc/beancounter.c  |    9 
- kernel/bc/vmpages.c      |    7 
- kernel/bc/vmrss.c        |  508 +++++++++++++++++++++++++++++++++++++++++++++++
- mm/shmem.c               |    6 
- 12 files changed, 627 insertions(+), 2 deletions(-)
+ fs/exec.c          |   11 ++++
+ include/linux/mm.h |    3 -
+ kernel/fork.c      |    2 
+ mm/filemap_xip.c   |    2 
+ mm/fremap.c        |   11 ++++
+ mm/memory.c        |  141 +++++++++++++++++++++++++++++++++++++++++------------
+ mm/migrate.c       |    3 +
+ mm/mprotect.c      |   12 +++-
+ mm/rmap.c          |    4 +
+ mm/swapfile.c      |   47 ++++++++++++-----
+ 10 files changed, 186 insertions(+), 50 deletions(-)
 
---- ./include/bc/beancounter.h.bcrsscore	2006-09-05 13:44:33.000000000 +0400
-+++ ./include/bc/beancounter.h	2006-09-05 13:50:29.000000000 +0400
-@@ -68,6 +68,9 @@ struct beancounter {
- 	struct hlist_node	hash;
+--- ./fs/exec.c.bcrssch	2006-09-05 12:53:55.000000000 +0400
++++ ./fs/exec.c	2006-09-05 13:51:55.000000000 +0400
+@@ -50,6 +50,8 @@
+ #include <linux/cn_proc.h>
+ #include <linux/audit.h>
  
- 	unsigned long		unused_privvmpages;
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+	unsigned long long	rss_pages;
-+#endif
- 	/* resources statistics and settings */
- 	struct bc_resource_parm	bc_parms[BC_RESOURCES];
- };
---- ./include/bc/vmpages.h.bcrsscore	2006-09-05 13:40:21.000000000 +0400
-+++ ./include/bc/vmpages.h	2006-09-05 13:46:35.000000000 +0400
-@@ -77,6 +77,8 @@ void bc_locked_shm_uncharge(struct shmem
- 		put_beancounter((info)->shm_bc);			\
- 	} while (0)
++#include <bc/vmrss.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
  
-+#define mm_same_bc(mm1, mm2)	((mm1)->mm_bc == (mm2)->mm_bc)
+@@ -308,6 +310,11 @@ void install_arg_page(struct vm_area_str
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pte_t * pte;
+ 	spinlock_t *ptl;
++	struct page_beancounter *pb;
 +
- void bc_update_privvmpages(struct beancounter *bc);
++	pb = bc_alloc_rss_counter();
++	if (IS_ERR(pb))
++		goto out_nopb;
  
- #else /* CONFIG_BEANCOUNTERS */
-@@ -136,6 +138,8 @@ static inline void bc_locked_shm_uncharg
- #define shmi_init_bc(info)	do { } while (0)
- #define shmi_free_bc(info)	do { } while (0)
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto out;
+@@ -325,11 +332,15 @@ void install_arg_page(struct vm_area_str
+ 	set_pte_at(mm, address, pte, pte_mkdirty(pte_mkwrite(mk_pte(
+ 					page, vma->vm_page_prot))));
+ 	page_add_new_anon_rmap(page, vma, address);
++	bc_vmrss_page_add(page, mm, vma, &pb);
+ 	pte_unmap_unlock(pte, ptl);
  
-+#define mm_same_bc(mm1, mm2)	(1)
-+
- #endif /* CONFIG_BEANCOUNTERS */
- #endif
- 
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./include/bc/vmrss.h	2006-09-05 13:50:25.000000000 +0400
-@@ -0,0 +1,72 @@
-+/*
-+ *  include/ub/vmrss.h
-+ *
-+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
-+ *
-+ */
-+
-+#ifndef __BC_VMRSS_H_
-+#define __BC_VMRSS_H_
-+
-+struct page_beancounter;
-+
-+struct page;
-+struct mm_struct;
-+struct vm_area_struct;
-+
-+/* values that represens page's 'weight' in bc rss accounting */
-+#define PB_PAGE_WEIGHT_SHIFT 24
-+#define PB_PAGE_WEIGHT (1 << PB_PAGE_WEIGHT_SHIFT)
-+/* page obtains one more reference within beancounter */
-+#define PB_COPY_SAME	((struct page_beancounter *)-1)
-+
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+
-+struct page_beancounter * __must_check bc_alloc_rss_counter(void);
-+struct page_beancounter * __must_check bc_alloc_rss_counter_list(long num,
-+		struct page_beancounter *list);
-+
-+void bc_free_rss_counter(struct page_beancounter *rc);
-+
-+void bc_vmrss_page_add(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma, struct page_beancounter **ppb);
-+void bc_vmrss_page_del(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma);
-+void bc_vmrss_page_dup(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma, struct page_beancounter **ppb);
-+void bc_vmrss_page_add_noref(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma);
-+
-+unsigned long mm_rss_pages(struct mm_struct *mm, unsigned long start,
-+		unsigned long end);
-+
-+void bc_init_rss(void);
-+
-+#else /* CONFIG_BEANCOUNTERS_RSS */
-+
-+static inline struct page_beancounter * __must_check bc_alloc_rss_counter(void)
-+{
-+	return NULL;
-+}
-+
-+static inline struct page_beancounter * __must_check bc_alloc_rss_counter_list(
-+		long num, struct page_beancounter *list)
-+{
-+	return NULL;
-+}
-+
-+static inline void bc_free_rss_counter(struct page_beancounter *rc)
-+{
-+}
-+
-+#define bc_vmrss_page_add(pg, mm, vma, pb)	do { } while (0)
-+#define bc_vmrss_page_del(pg, mm, vma)		do { } while (0)
-+#define bc_vmrss_page_dup(pg, mm, vma, pb)	do { } while (0)
-+#define bc_vmrss_page_add_noref(pg, mm, vma)	do { } while (0)
-+#define mm_rss_pages(mm, start, end)	(0)
-+
-+#define bc_init_rss()			do { } while (0)
-+
-+#endif /* CONFIG_BEANCOUNTERS_RSS */
-+
-+#endif
---- ./include/linux/mm.h.bcrsscore	2006-09-05 13:06:37.000000000 +0400
-+++ ./include/linux/mm.h	2006-09-05 13:47:12.000000000 +0400
-@@ -275,11 +275,15 @@ struct page {
- 	unsigned long trace[8];
- #endif
- #ifdef CONFIG_BEANCOUNTERS
--	struct beancounter	*page_bc;
-+	union {
-+		struct beancounter	*page_bc;
-+		struct page_beancounter	*page_pb;
-+	};
- #endif
- };
- 
- #define page_bc(page)			((page)->page_bc)
-+#define page_pb(page)			((page)->page_pb)
- #define page_private(page)		((page)->private)
- #define set_page_private(page, v)	((page)->private = (v))
- 
---- ./include/linux/shmem_fs.h.bcrsscore	2006-09-05 12:59:27.000000000 +0400
-+++ ./include/linux/shmem_fs.h	2006-09-05 13:50:19.000000000 +0400
-@@ -41,4 +41,6 @@ static inline struct shmem_inode_info *S
- 	return container_of(inode, struct shmem_inode_info, vfs_inode);
+ 	/* no need for flush_tlb */
++	bc_free_rss_counter(pb);
+ 	return;
+ out:
++	bc_free_rss_counter(pb);
++out_nopb:
+ 	__free_page(page);
+ 	force_sig(SIGKILL, current);
  }
+--- ./include/linux/mm.h.bcrssch	2006-09-05 13:47:12.000000000 +0400
++++ ./include/linux/mm.h	2006-09-05 13:51:55.000000000 +0400
+@@ -753,7 +753,8 @@ void free_pgd_range(struct mmu_gather **
+ void free_pgtables(struct mmu_gather **tlb, struct vm_area_struct *start_vma,
+ 		unsigned long floor, unsigned long ceiling);
+ int copy_page_range(struct mm_struct *dst, struct mm_struct *src,
+-			struct vm_area_struct *vma);
++			struct vm_area_struct *vma,
++			struct vm_area_struct *dst_vma);
+ int zeromap_page_range(struct vm_area_struct *vma, unsigned long from,
+ 			unsigned long size, pgprot_t prot);
+ void unmap_mapping_range(struct address_space *mapping,
+--- ./kernel/fork.c.bcrssch	2006-09-05 13:23:27.000000000 +0400
++++ ./kernel/fork.c	2006-09-05 13:51:55.000000000 +0400
+@@ -280,7 +280,7 @@ static inline int dup_mmap(struct mm_str
+ 		rb_parent = &tmp->vm_rb;
  
-+int is_shmem_mapping(struct address_space *mapping);
+ 		mm->map_count++;
+-		retval = copy_page_range(mm, oldmm, mpnt);
++		retval = copy_page_range(mm, oldmm, mpnt, tmp);
+ 
+ 		if (tmp->vm_ops && tmp->vm_ops->open)
+ 			tmp->vm_ops->open(tmp);
+--- ./mm/filemap_xip.c.bcrssch	2006-07-10 12:39:20.000000000 +0400
++++ ./mm/filemap_xip.c	2006-09-05 13:51:55.000000000 +0400
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/uio.h>
+ #include <linux/rmap.h>
++#include <bc/vmrss.h>
+ #include <asm/tlbflush.h>
+ #include "filemap.h"
+ 
+@@ -189,6 +190,7 @@ __xip_unmap (struct address_space * mapp
+ 			/* Nuke the page table entry. */
+ 			flush_cache_page(vma, address, pte_pfn(*pte));
+ 			pteval = ptep_clear_flush(vma, address, pte);
++			bc_vmrss_page_del(page, mm, vma);
+ 			page_remove_rmap(page);
+ 			dec_mm_counter(mm, file_rss);
+ 			BUG_ON(pte_dirty(pteval));
+--- ./mm/fremap.c.bcrssch	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/fremap.c	2006-09-05 13:51:55.000000000 +0400
+@@ -16,6 +16,8 @@
+ #include <linux/module.h>
+ #include <linux/syscalls.h>
+ 
++#include <bc/vmrss.h>
 +
- #endif
---- ./init/main.c.bcrsscore	2006-09-05 12:54:17.000000000 +0400
-+++ ./init/main.c	2006-09-05 13:46:35.000000000 +0400
-@@ -51,6 +51,7 @@
- #include <linux/lockdep.h>
- 
- #include <bc/beancounter.h>
-+#include <bc/vmrss.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -608,6 +609,7 @@ asmlinkage void __init start_kernel(void
- 	check_bugs();
- 
- 	acpi_early_init(); /* before LAPIC and SMP init */
-+	bc_init_rss();
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
---- ./kernel/bc/Kconfig.bcrsscore	2006-09-05 12:54:14.000000000 +0400
-+++ ./kernel/bc/Kconfig	2006-09-05 13:50:35.000000000 +0400
-@@ -22,4 +22,13 @@ config BEANCOUNTERS
-           per-process basis.  Per-process accounting doesn't prevent malicious
-           users from spawning a lot of resource-consuming processes.
- 
-+config BEANCOUNTERS_RSS
-+	bool "Account physical memory usage"
-+	default y
-+	depends on BEANCOUNTERS
-+	help
-+	  This allows to estimate per beancounter physical memory usage.
-+	  Implemented alghorithm accounts shared pages of memory as well,
-+	  dividing them by number of beancounter which use the page.
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+@@ -33,6 +35,7 @@ static int zap_pte(struct mm_struct *mm,
+ 		if (page) {
+ 			if (pte_dirty(pte))
+ 				set_page_dirty(page);
++			bc_vmrss_page_del(page, mm, vma);
+ 			page_remove_rmap(page);
+ 			page_cache_release(page);
+ 		}
+@@ -57,6 +60,11 @@ int install_page(struct mm_struct *mm, s
+ 	pte_t *pte;
+ 	pte_t pte_val;
+ 	spinlock_t *ptl;
++	struct page_beancounter *pb;
 +
- endmenu
---- ./kernel/bc/Makefile.bcrsscore	2006-09-05 12:59:37.000000000 +0400
-+++ ./kernel/bc/Makefile	2006-09-05 13:50:48.000000000 +0400
-@@ -9,3 +9,4 @@ obj-y += misc.o
- obj-y += sys.o
- obj-y += kmem.o
- obj-y += vmpages.o
-+obj-$(CONFIG_BEANCOUNTERS_RSS) += vmrss.o
---- ./kernel/bc/beancounter.c.bcrsscore	2006-09-05 13:44:53.000000000 +0400
-+++ ./kernel/bc/beancounter.c	2006-09-05 13:49:38.000000000 +0400
-@@ -11,6 +11,7 @@
- #include <linux/hash.h>
++	pb = bc_alloc_rss_counter();
++	if (IS_ERR(pb))
++		goto out_nopb;
  
- #include <bc/beancounter.h>
-+#include <bc/vmrss.h>
- 
- static kmem_cache_t *bc_cachep;
- static struct beancounter default_beancounter;
-@@ -112,6 +113,14 @@ void put_beancounter(struct beancounter 
- 			printk("BC: %d has %lu of %s held on put", bc->bc_id,
- 				bc->bc_parms[i].held, bc_rnames[i]);
- 
-+	if (bc->unused_privvmpages != 0)
-+		printk("BC: %d has %lu of unused pages held on put", bc->bc_id,
-+			bc->unused_privvmpages);
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+	if (bc->rss_pages != 0)
-+		printk("BC: %d hash %llu of rss pages held on put", bc->bc_id,
-+			bc->rss_pages);
-+#endif
- 	hlist_del(&bc->hash);
- 	nr_beancounters--;
- 	spin_unlock_irqrestore(&bc_hash_lock, flags);
---- ./kernel/bc/vmpages.c.bcrsscore	2006-09-05 13:45:34.000000000 +0400
-+++ ./kernel/bc/vmpages.c	2006-09-05 13:48:50.000000000 +0400
-@@ -11,12 +11,17 @@
- 
- #include <bc/beancounter.h>
- #include <bc/vmpages.h>
-+#include <bc/vmrss.h>
- 
- #include <asm/page.h>
- 
- void bc_update_privvmpages(struct beancounter *bc)
- {
--	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages;
-+	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+		+ (bc->rss_pages >> PB_PAGE_WEIGHT_SHIFT)
-+#endif
-+		;
- 	bc_adjust_minheld(bc, BC_PRIVVMPAGES);
- 	bc_adjust_maxheld(bc, BC_PRIVVMPAGES);
+ 	pte = get_locked_pte(mm, addr, &ptl);
+ 	if (!pte)
+@@ -82,12 +90,15 @@ int install_page(struct mm_struct *mm, s
+ 	pte_val = mk_pte(page, prot);
+ 	set_pte_at(mm, addr, pte, pte_val);
+ 	page_add_file_rmap(page);
++	bc_vmrss_page_add(page, mm, vma, &pb);
+ 	update_mmu_cache(vma, addr, pte_val);
+ 	lazy_mmu_prot_update(pte_val);
+ 	err = 0;
+ unlock:
+ 	pte_unmap_unlock(pte, ptl);
+ out:
++	bc_free_rss_counter(pb);
++out_nopb:
+ 	return err;
  }
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./kernel/bc/vmrss.c	2006-09-05 13:51:21.000000000 +0400
-@@ -0,0 +1,508 @@
-+/*
-+ *  kernel/bc/vmrss.c
-+ *
-+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
-+ *
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/shmem_fs.h>
-+#include <linux/highmem.h>
-+
-+#include <bc/beancounter.h>
+ EXPORT_SYMBOL(install_page);
+--- ./mm/memory.c.bcrssch	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/memory.c	2006-09-05 13:51:55.000000000 +0400
+@@ -51,6 +51,9 @@
+ #include <linux/init.h>
+ #include <linux/writeback.h>
+ 
 +#include <bc/vmpages.h>
 +#include <bc/vmrss.h>
 +
-+#include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+ #include <asm/tlb.h>
+@@ -427,7 +430,9 @@ struct page *vm_normal_page(struct vm_ar
+ static inline void
+ copy_one_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		pte_t *dst_pte, pte_t *src_pte, struct vm_area_struct *vma,
+-		unsigned long addr, int *rss)
++		unsigned long addr, int *rss,
++		struct vm_area_struct *dst_vma,
++		struct page_beancounter **ppb)
+ {
+ 	unsigned long vm_flags = vma->vm_flags;
+ 	pte_t pte = *src_pte;
+@@ -481,6 +486,7 @@ copy_one_pte(struct mm_struct *dst_mm, s
+ 	page = vm_normal_page(vma, addr, pte);
+ 	if (page) {
+ 		get_page(page);
++		bc_vmrss_page_dup(page, dst_mm, dst_vma, ppb);
+ 		page_dup_rmap(page);
+ 		rss[!!PageAnon(page)]++;
+ 	}
+@@ -489,20 +495,32 @@ out_set_pte:
+ 	set_pte_at(dst_mm, addr, dst_pte, pte);
+ }
+ 
++#define pte_ptrs(a)     (PTRS_PER_PTE - ((a >> PAGE_SHIFT)&(PTRS_PER_PTE - 1)))
 +
-+/*
-+ * Core object of accounting.
-+ * page_beancounter (or rss_counter) ties together page an bc.
-+ * Page has associated circular list of such pbs. When page is
-+ * shared between bcs then it's size is splitted between all of
-+ * them in 2^n-s parts.
-+ *
-+ * E.g. three bcs will share page like 1/2:1/4:1/4
-+ * adding one more reference would produce such a change:
-+ * 1/2(bc1) : 1/4(bc2) : 1/4(bc3) ->
-+ * (1/4(bc1) + 1/4(bc1)) : 1/4(bc2) : 1/4(bc3) ->
-+ * 1/4(bc2) : 1/4(bc3) : 1/4(bc4) : 1/4(bc1)
-+ */
-+
-+#define PB_MAGIC	0x62700001UL
-+
-+struct page_beancounter {
-+	unsigned long magic;
-+	struct page *page;
-+	struct beancounter *bc;
-+	struct page_beancounter *next_hash;
-+	unsigned refcount;
-+	struct list_head page_list;
-+};
-+
-+#define PB_REFC_BITS 24
-+
-+#define pb_shift(p)	((p)->refcount >> PB_REFC_BITS)
-+#define pb_shift_inc(p)	do { ((p)->refcount += (1 << PB_REFC_BITS)); } while (0)
-+#define pb_shift_dec(p)	do { ((p)->refcount -= (1 << PB_REFC_BITS)); } while (0)
-+
-+#define pb_count(p)	((p)->refcount & ((1 << PB_REFC_BITS) - 1))
-+#define pb_get(p)	do { ((p)->refcount++); } while (0)
-+#define pb_put(p)	do { ((p)->refcount--); } while (0)
-+
-+#define pb_refcount_init(p, shift) do {					\
-+		(p)->refcount = ((shift) << PB_REFC_BITS) + (1);	\
-+	} while (0)
-+
-+static spinlock_t pb_lock = SPIN_LOCK_UNLOCKED;
-+static struct page_beancounter **pb_hash_table;
-+static unsigned int pb_hash_mask;
-+
-+static inline int pb_hash(struct beancounter *bc, struct page *page)
-+{
-+	return (page_to_pfn(page) + (bc->bc_id << 10)) & pb_hash_mask;
-+}
-+
-+static kmem_cache_t *pb_cachep;
-+#define alloc_pb()	kmem_cache_alloc(pb_cachep, GFP_KERNEL)
-+#define free_pb(p)	kmem_cache_free(pb_cachep, p)
-+
-+#define next_page_pb(p) list_entry(p->page_list.next,	\
-+		struct page_beancounter, page_list);
-+#define prev_page_pb(p) list_entry(p->page_list.prev,	\
-+		struct page_beancounter, page_list);
-+
-+/*
-+ * Allocates a new page_beancounter struct and
-+ * initialises requred fields.
-+ * pb->next_hash is set to NULL as this field is used
-+ * in two ways:
-+ * 1. When pb is in hash - it points to the next one in
-+ *    the current hash chain;
-+ * 2. When pb is not in hash yet - it points to the next pb
-+ *    in list just allocated.
-+ */
-+struct page_beancounter *bc_alloc_rss_counter(void)
-+{
+ static int copy_pte_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		pmd_t *dst_pmd, pmd_t *src_pmd, struct vm_area_struct *vma,
+-		unsigned long addr, unsigned long end)
++		unsigned long addr, unsigned long end,
++		struct vm_area_struct *dst_vma)
+ {
+ 	pte_t *src_pte, *dst_pte;
+ 	spinlock_t *src_ptl, *dst_ptl;
+ 	int progress = 0;
+-	int rss[2];
++	int rss[2], err;
 +	struct page_beancounter *pb;
-+
-+	pb = alloc_pb();
-+	if (pb == NULL)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pb->magic = PB_MAGIC;
-+	pb->next_hash = NULL;
-+	return pb;
-+}
-+
-+/*
-+ * This function ensures that @list has at least @num elements.
-+ * Otherwise needed elements are allocated and new list is
-+ * returned. On error old list is freed.
-+ *
-+ * num == BC_ALLOC_ALL means that lis must contain as many
-+ * elements as there are BCCs in hash now.
-+ */
-+struct page_beancounter *bc_alloc_rss_counter_list(long num,
-+		struct page_beancounter *list)
-+{
-+	struct page_beancounter *pb;
-+
-+	for (pb = list; pb != NULL && num != 0; pb = pb->next_hash, num--);
-+
-+	/* need to allocate num more elements */
-+	while (num > 0) {
-+		pb = alloc_pb();
-+		if (pb == NULL)
-+			goto err;
-+
-+		pb->magic = PB_MAGIC;
-+		pb->next_hash = list;
-+		list = pb;
-+		num--;
-+	}
-+
-+	return list;
-+
-+err:
-+	bc_free_rss_counter(list);
-+	return ERR_PTR(-ENOMEM);
-+}
-+
-+/*
-+ * Free the list of page_beancounter-s
-+ */
-+void bc_free_rss_counter(struct page_beancounter *pb)
-+{
-+	struct page_beancounter *tmp;
-+
-+	while (pb) {
-+		tmp = pb->next_hash;
-+		free_pb(pb);
-+		pb = tmp;
-+	}
-+}
-+
-+/*
-+ * Helpers to update rss_pages and unused_privvmpages on BC
-+ */
-+static void mod_rss_pages(struct beancounter *bc, int val,
-+		struct vm_area_struct *vma, int unused)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&bc->bc_lock, flags);
-+	if (vma && BC_VM_PRIVATE(vma->vm_flags, vma->vm_file)) {
-+		if (unused < 0 && unlikely(bc->unused_privvmpages < -unused)) {
-+			printk("BC: overuncharging %d unused pages: "
-+					"val %i, held %lu\n",
-+					bc->bc_id, unused,
-+					bc->unused_privvmpages);
-+			unused = -bc->unused_privvmpages;
-+		}
-+		bc->unused_privvmpages += unused;
-+	}
-+	bc->rss_pages += val;
-+	bc_update_privvmpages(bc);
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+}
-+
-+#define __inc_rss_pages(bc, val)	mod_rss_pages(bc, val, NULL, 0)
-+#define __dec_rss_pages(bc, val)	mod_rss_pages(bc, -(val), NULL, 0)
-+#define inc_rss_pages(bc, val, vma)	mod_rss_pages(bc, val, vma, -1)
-+#define dec_rss_pages(bc, val, vma)	mod_rss_pages(bc, -(val), vma, 1)
-+
-+/*
-+ * Routines to manipulate page-to-bc references (page_beancounter)
-+ * Reference may be added, removed or duplicated (see descriptions below)
-+ */
-+
-+static int __pb_dup_ref(struct page *pg, struct beancounter *bc, int hash)
-+{
-+	struct page_beancounter *p;
-+
-+	for (p = pb_hash_table[hash];
-+			p != NULL && (p->page != pg || p->bc != bc);
-+			p = p->next_hash);
-+	if (p == NULL)
-+		return -1;
-+
-+	pb_get(p);
-+	return 0;
-+}
-+
-+static int __pb_add_ref(struct page *pg, struct beancounter *bc,
-+		int hash, struct page_beancounter **ppb)
-+{
-+	struct page_beancounter *head, *p;
-+	int shift, ret;
-+
-+	p = *ppb;
-+	*ppb = p->next_hash;
-+
-+	p->page = pg;
-+	p->bc = get_beancounter(bc);
-+	p->next_hash = pb_hash_table[hash];
-+	pb_hash_table[hash] = p;
-+
-+	head = page_pb(pg);
-+	if (head != NULL) {
-+		BUG_ON(head->magic != PB_MAGIC);
-+		/* 
-+		 * Move the first element to the end of the list.
-+		 * List head (pb_head) is set to the next entry.
-+		 * Note that this code works even if head is the only element
-+		 * on the list (because it's cyclic).
-+		 */
-+		page_pb(pg) = next_page_pb(head);
-+		pb_shift_inc(head);
-+		shift = pb_shift(head);
-+		/*
-+		 * Update user beancounter, the share of head has been changed.
-+		 * Note that the shift counter is taken after increment.
-+		 */
-+		__dec_rss_pages(head->bc, PB_PAGE_WEIGHT >> shift);
-+		/*
-+		 * Add the new page beancounter to the end of the list.
-+		 */
-+		list_add_tail(&p->page_list, &page_pb(pg)->page_list);
-+	} else {
-+		page_pb(pg) = p;
-+		shift = 0;
-+		INIT_LIST_HEAD(&p->page_list);
-+	}
-+
-+	pb_refcount_init(p, shift);
-+	ret = PB_PAGE_WEIGHT >> shift;
-+	return ret;
-+}
-+
-+static int __pb_remove_ref(struct page *page, struct beancounter *bc)
-+{
-+	int hash, ret;
-+	struct page_beancounter *p, **q;
-+	int shift, shiftt;
-+
-+	ret = 0;
-+
-+	hash = pb_hash(bc, page);
-+
-+	BUG_ON(page_pb(page) != NULL && page_pb(page)->magic != PB_MAGIC);
-+	for (q = pb_hash_table + hash, p = *q;
-+			p != NULL && (p->page != page || p->bc != bc);
-+			q = &p->next_hash, p = *q);
-+	if (p == NULL)
-+		goto out;
-+
-+	pb_put(p);
-+	if (pb_count(p) > 0)
-+		goto out;
-+
-+	/* remove from the hash list */
-+	*q = p->next_hash;
-+
-+	shift = pb_shift(p);
-+	ret = PB_PAGE_WEIGHT >> shift;
-+
-+	if (page_pb(page) == p) {
-+		if (list_empty(&p->page_list)) {
-+			page_pb(page) = NULL;
-+			put_beancounter(bc);
-+			free_pb(p);
+ 
++	err = -ENOMEM;
++	pb = (mm_same_bc(dst_mm, src_mm) ? PB_COPY_SAME : NULL);
+ again:
++	if (pb != PB_COPY_SAME) {
++		pb = bc_alloc_rss_counter_list(pte_ptrs(addr), pb);
++		if (IS_ERR(pb))
 +			goto out;
-+		}
-+		page_pb(page) = next_page_pb(p);
 +	}
 +
-+	list_del(&p->page_list);
-+	put_beancounter(bc);
-+	free_pb(p);
+ 	rss[1] = rss[0] = 0;
+ 	dst_pte = pte_alloc_map_lock(dst_mm, dst_pmd, addr, &dst_ptl);
+ 	if (!dst_pte)
+-		return -ENOMEM;
++		goto out;
+ 	src_pte = pte_offset_map_nested(src_pmd, addr);
+ 	src_ptl = pte_lockptr(src_mm, src_pmd);
+ 	spin_lock_nested(src_ptl, SINGLE_DEPTH_NESTING);
+@@ -524,7 +542,8 @@ again:
+ 			progress++;
+ 			continue;
+ 		}
+-		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vma, addr, rss);
++		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vma, addr, rss,
++				dst_vma, &pb);
+ 		progress += 8;
+ 	} while (dst_pte++, src_pte++, addr += PAGE_SIZE, addr != end);
+ 
+@@ -536,12 +555,18 @@ again:
+ 	cond_resched();
+ 	if (addr != end)
+ 		goto again;
+-	return 0;
 +
-+	/*
-+	 * Now balance the list.
-+	 * Move the tail and adjust its shift counter.
-+	 */
-+	p = prev_page_pb(page_pb(page));
-+	shiftt = pb_shift(p);
-+	pb_shift_dec(p);
-+	page_pb(page) = p;
-+	__inc_rss_pages(p->bc, PB_PAGE_WEIGHT >> shiftt);
-+
-+	/*
-+	 * If the shift counter of the moved beancounter is different from the
-+	 * removed one's, repeat the procedure for one more tail beancounter 
-+	 */
-+	if (shiftt > shift) {
-+		p = prev_page_pb(page_pb(page));
-+		pb_shift_dec(p);
-+		page_pb(page) = p;
-+		__inc_rss_pages(p->bc, PB_PAGE_WEIGHT >> shiftt);
-+	}
++	err = 0;
 +out:
-+	return ret;
-+}
-+
-+/*
-+ * bc_vmrss_page_add: Called when page is added to resident set
-+ *   of any mm. In this case page is substracted from unused_privvmpages
-+ *   (if it is BC_VM_PRIVATE one) and a reference to BC must be set
-+ *   with page_beancounter.
-+ *
-+ * bc_vmrss_page_del: The reverse operation - page is removed from
-+ *   resident set and must become unused.
-+ *
-+ * bc_vmrss_page_dup: This is called on dup_mmap() when all pages
-+ *   become shared between two mm structs. This case has one feature:
-+ *   some pages (see below) may lack a reference to BC, so setting
-+ *   new reference is not needed, but update of unused_privvmpages
-+ *   is required.
-+ *
-+ * bc_vmrss_page_add_noref: This is called for (former) reserved pages
-+ *   like ZERO_PAGE() or some pages set up with insert_page(). These
-+ *   pages must not have reference to any BC, but must be accounted in
-+ *   rss.
-+ */
-+
-+void bc_vmrss_page_add(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma, struct page_beancounter **ppb)
-+{
-+	struct beancounter *bc;
-+	int hash, ret;
-+
-+	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
-+		return;
-+
-+	bc = mm->mm_bc;
-+	hash = pb_hash(bc, pg);
-+
-+	ret = 0;
-+	spin_lock(&pb_lock);
-+	if (__pb_dup_ref(pg, bc, hash))
-+		ret = __pb_add_ref(pg, bc, hash, ppb);
-+	spin_unlock(&pb_lock);
-+
-+	inc_rss_pages(bc, ret, vma);
-+}
-+
-+void bc_vmrss_page_del(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma)
-+{
-+	struct beancounter *bc;
-+	int ret;
-+
-+	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
-+		return;
-+
-+	bc = mm->mm_bc;
-+
-+	spin_lock(&pb_lock);
-+	ret = __pb_remove_ref(pg, bc);
-+	spin_unlock(&pb_lock);
-+
-+	dec_rss_pages(bc, ret, vma);
-+}
-+
-+void bc_vmrss_page_dup(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma, struct page_beancounter **ppb)
-+{
-+	struct beancounter *bc;
-+	int hash, ret;
-+
-+	if (!PageAnon(pg) && is_shmem_mapping(pg->mapping))
-+		return;
-+
-+	bc = mm->mm_bc;
-+	hash = pb_hash(bc, pg);
-+
-+	ret = 0;
-+	spin_lock(&pb_lock);
-+	if (page_pb(pg) == NULL)
-+		/*
-+		 * pages like ZERO_PAGE must not be accounted in pbc
-+		 * so on fork we just skip them
-+		 */
-+		goto out_unlock;
-+
-+	if (*ppb == PB_COPY_SAME) {
-+		if (__pb_dup_ref(pg, bc, hash))
-+			WARN_ON(1);
-+	} else
-+		ret = __pb_add_ref(pg, bc, hash, ppb);
-+out_unlock:
-+	spin_unlock(&pb_lock);
-+
-+	inc_rss_pages(bc, ret, vma);
-+}
-+
-+void bc_vmrss_page_add_noref(struct page *pg, struct mm_struct *mm,
-+		struct vm_area_struct *vma)
-+{
-+	inc_rss_pages(mm->mm_bc, 0, vma);
-+}
-+
-+/*
-+ * Calculate the number of currently resident pages for
-+ * given mm_struct in a given range (addr - end).
-+ * This is needed for mprotect_fixup() as by the time
-+ * it is called some pages can be resident and thus
-+ * not accounted in bc->unused_privvmpages. Such pages
-+ * must num be uncharged (as they already are).
-+ */
-+
-+static unsigned long pages_in_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+				unsigned long addr, unsigned long end,
-+				unsigned long *pages)
-+{
-+	pte_t *pte;
-+	spinlock_t *ptl;
-+
-+	pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
-+	do {
-+		pte_t ptent = *pte;
-+		if (!pte_none(ptent) && pte_present(ptent))
-+			(*pages)++;
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	pte_unmap_unlock(pte - 1, ptl);
-+	return addr;
-+}
-+
-+static inline unsigned long pages_in_pmd_range(struct mm_struct *mm, pud_t *pud,
-+				unsigned long addr, unsigned long end,
-+				unsigned long *pages)
-+{
-+	pmd_t *pmd;
-+	unsigned long next;
-+
-+	pmd = pmd_offset(pud, addr);
-+	do {
-+		next = pmd_addr_end(addr, end);
-+		if (pmd_none_or_clear_bad(pmd))
-+			continue;
-+
-+		next = pages_in_pte_range(mm, pmd, addr, next, pages);
-+	} while (pmd++, addr = next, addr != end);
-+	return addr;
-+}
-+
-+static inline unsigned long pages_in_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+				unsigned long addr, unsigned long end,
-+				unsigned long *pages)
-+{
-+	pud_t *pud;
-+	unsigned long next;
-+
-+	pud = pud_offset(pgd, addr);
-+	do {
-+		next = pud_addr_end(addr, end);
-+		if (pud_none_or_clear_bad(pud))
-+			continue;
-+
-+		next = pages_in_pmd_range(mm, pud, addr, next, pages);
-+	} while (pud++, addr = next, addr != end);
-+	return addr;
-+}
-+
-+unsigned long mm_rss_pages(struct mm_struct *mm,
-+		unsigned long addr, unsigned long end)
-+{
-+	pgd_t *pgd;
-+	unsigned long next;
-+	unsigned long pages;
-+
-+	BUG_ON(addr >= end);
-+
-+	pages = 0;
-+	pgd = pgd_offset(mm, addr);
-+	do {
-+		next = pgd_addr_end(addr, end);
-+		if (pgd_none_or_clear_bad(pgd))
-+			continue;
-+
-+		next = pages_in_pud_range(mm, pgd, addr, next, &pages);
-+	} while (pgd++, addr = next, addr != end);
-+	return pages;
-+}
-+
-+void __init bc_init_rss(void)
-+{
-+	unsigned long hash_size;
-+
-+	pb_cachep = kmem_cache_create("page_beancounter",
-+			sizeof(struct page_beancounter), 0,
-+			SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL, NULL);
-+
-+	hash_size = num_physpages >> 2;
-+	for (pb_hash_mask = 1;
-+			(hash_size & pb_hash_mask) != hash_size;
-+			pb_hash_mask = (pb_hash_mask << 1) + 1);
-+
-+	hash_size = pb_hash_mask + 1;
-+	printk(KERN_INFO "BC: Page beancounter hash is %lu entries.\n",
-+			hash_size);
-+	pb_hash_table = vmalloc(hash_size * sizeof(struct page_beancounter *));
-+	memset(pb_hash_table, 0, hash_size * sizeof(struct page_beancounter *));
-+}
---- ./mm/shmem.c.bcrsscore	2006-09-05 13:39:26.000000000 +0400
-+++ ./mm/shmem.c	2006-09-05 13:46:35.000000000 +0400
-@@ -2236,6 +2236,12 @@ static struct vm_operations_struct shmem
- #endif
- };
++	if (pb != PB_COPY_SAME)
++		bc_free_rss_counter(pb);
++	return err;
+ }
  
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+int is_shmem_mapping(struct address_space *mapping)
-+{
-+	return (mapping != NULL && mapping->a_ops == &shmem_aops);
-+}
-+#endif
+ static inline int copy_pmd_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		pud_t *dst_pud, pud_t *src_pud, struct vm_area_struct *vma,
+-		unsigned long addr, unsigned long end)
++		unsigned long addr, unsigned long end,
++		struct vm_area_struct *dst_vma)
+ {
+ 	pmd_t *src_pmd, *dst_pmd;
+ 	unsigned long next;
+@@ -555,7 +580,7 @@ static inline int copy_pmd_range(struct 
+ 		if (pmd_none_or_clear_bad(src_pmd))
+ 			continue;
+ 		if (copy_pte_range(dst_mm, src_mm, dst_pmd, src_pmd,
+-						vma, addr, next))
++						vma, addr, next, dst_vma))
+ 			return -ENOMEM;
+ 	} while (dst_pmd++, src_pmd++, addr = next, addr != end);
+ 	return 0;
+@@ -563,7 +588,8 @@ static inline int copy_pmd_range(struct 
  
- static int shmem_get_sb(struct file_system_type *fs_type,
- 	int flags, const char *dev_name, void *data, struct vfsmount *mnt)
+ static inline int copy_pud_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		pgd_t *dst_pgd, pgd_t *src_pgd, struct vm_area_struct *vma,
+-		unsigned long addr, unsigned long end)
++		unsigned long addr, unsigned long end,
++		struct vm_area_struct *dst_vma)
+ {
+ 	pud_t *src_pud, *dst_pud;
+ 	unsigned long next;
+@@ -577,14 +603,14 @@ static inline int copy_pud_range(struct 
+ 		if (pud_none_or_clear_bad(src_pud))
+ 			continue;
+ 		if (copy_pmd_range(dst_mm, src_mm, dst_pud, src_pud,
+-						vma, addr, next))
++						vma, addr, next, dst_vma))
+ 			return -ENOMEM;
+ 	} while (dst_pud++, src_pud++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+ int copy_page_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+-		struct vm_area_struct *vma)
++		struct vm_area_struct *vma, struct vm_area_struct *dst_vma)
+ {
+ 	pgd_t *src_pgd, *dst_pgd;
+ 	unsigned long next;
+@@ -612,7 +638,7 @@ int copy_page_range(struct mm_struct *ds
+ 		if (pgd_none_or_clear_bad(src_pgd))
+ 			continue;
+ 		if (copy_pud_range(dst_mm, src_mm, dst_pgd, src_pgd,
+-						vma, addr, next))
++						vma, addr, next, dst_vma))
+ 			return -ENOMEM;
+ 	} while (dst_pgd++, src_pgd++, addr = next, addr != end);
+ 	return 0;
+@@ -681,6 +707,7 @@ static unsigned long zap_pte_range(struc
+ 					mark_page_accessed(page);
+ 				file_rss--;
+ 			}
++			bc_vmrss_page_del(page, mm, vma);
+ 			page_remove_rmap(page);
+ 			tlb_remove_page(tlb, page);
+ 			continue;
+@@ -1104,8 +1131,9 @@ int get_user_pages(struct task_struct *t
+ }
+ EXPORT_SYMBOL(get_user_pages);
+ 
+-static int zeromap_pte_range(struct mm_struct *mm, pmd_t *pmd,
+-			unsigned long addr, unsigned long end, pgprot_t prot)
++static int zeromap_pte_range(struct mm_struct *mm,
++		struct vm_area_struct *vma, pmd_t *pmd,
++		unsigned long addr, unsigned long end, pgprot_t prot)
+ {
+ 	pte_t *pte;
+ 	spinlock_t *ptl;
+@@ -1118,6 +1146,7 @@ static int zeromap_pte_range(struct mm_s
+ 		struct page *page = ZERO_PAGE(addr);
+ 		pte_t zero_pte = pte_wrprotect(mk_pte(page, prot));
+ 		page_cache_get(page);
++		bc_vmrss_page_add_noref(page, mm, vma);
+ 		page_add_file_rmap(page);
+ 		inc_mm_counter(mm, file_rss);
+ 		BUG_ON(!pte_none(*pte));
+@@ -1128,8 +1157,9 @@ static int zeromap_pte_range(struct mm_s
+ 	return 0;
+ }
+ 
+-static inline int zeromap_pmd_range(struct mm_struct *mm, pud_t *pud,
+-			unsigned long addr, unsigned long end, pgprot_t prot)
++static inline int zeromap_pmd_range(struct mm_struct *mm,
++		struct vm_area_struct *vma, pud_t *pud,
++		unsigned long addr, unsigned long end, pgprot_t prot)
+ {
+ 	pmd_t *pmd;
+ 	unsigned long next;
+@@ -1139,14 +1169,15 @@ static inline int zeromap_pmd_range(stru
+ 		return -ENOMEM;
+ 	do {
+ 		next = pmd_addr_end(addr, end);
+-		if (zeromap_pte_range(mm, pmd, addr, next, prot))
++		if (zeromap_pte_range(mm, vma, pmd, addr, next, prot))
+ 			return -ENOMEM;
+ 	} while (pmd++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+-static inline int zeromap_pud_range(struct mm_struct *mm, pgd_t *pgd,
+-			unsigned long addr, unsigned long end, pgprot_t prot)
++static inline int zeromap_pud_range(struct mm_struct *mm,
++		struct vm_area_struct *vma, pgd_t *pgd,
++		unsigned long addr, unsigned long end, pgprot_t prot)
+ {
+ 	pud_t *pud;
+ 	unsigned long next;
+@@ -1156,7 +1187,7 @@ static inline int zeromap_pud_range(stru
+ 		return -ENOMEM;
+ 	do {
+ 		next = pud_addr_end(addr, end);
+-		if (zeromap_pmd_range(mm, pud, addr, next, prot))
++		if (zeromap_pmd_range(mm, vma, pud, addr, next, prot))
+ 			return -ENOMEM;
+ 	} while (pud++, addr = next, addr != end);
+ 	return 0;
+@@ -1176,7 +1207,7 @@ int zeromap_page_range(struct vm_area_st
+ 	flush_cache_range(vma, addr, end);
+ 	do {
+ 		next = pgd_addr_end(addr, end);
+-		err = zeromap_pud_range(mm, pgd, addr, next, prot);
++		err = zeromap_pud_range(mm, vma, pgd, addr, next, prot);
+ 		if (err)
+ 			break;
+ 	} while (pgd++, addr = next, addr != end);
+@@ -1202,12 +1233,15 @@ pte_t * fastcall get_locked_pte(struct m
+  * old drivers should use this, and they needed to mark their
+  * pages reserved for the old functions anyway.
+  */
+-static int insert_page(struct mm_struct *mm, unsigned long addr, struct page *page, pgprot_t prot)
++static int insert_page(struct vm_area_struct *vma, unsigned long addr, struct page *page, pgprot_t prot)
+ {
++	struct mm_struct *mm;
+ 	int retval;
+ 	pte_t *pte;
+ 	spinlock_t *ptl;  
+ 
++	mm = vma->vm_mm;
++
+ 	retval = -EINVAL;
+ 	if (PageAnon(page))
+ 		goto out;
+@@ -1223,6 +1257,7 @@ static int insert_page(struct mm_struct 
+ 	/* Ok, finally just insert the thing.. */
+ 	get_page(page);
+ 	inc_mm_counter(mm, file_rss);
++	bc_vmrss_page_add_noref(page, mm, vma);
+ 	page_add_file_rmap(page);
+ 	set_pte_at(mm, addr, pte, mk_pte(page, prot));
+ 
+@@ -1262,7 +1297,7 @@ int vm_insert_page(struct vm_area_struct
+ 	if (!page_count(page))
+ 		return -EINVAL;
+ 	vma->vm_flags |= VM_INSERTPAGE;
+-	return insert_page(vma->vm_mm, addr, page, vma->vm_page_prot);
++	return insert_page(vma, addr, page, vma->vm_page_prot);
+ }
+ EXPORT_SYMBOL(vm_insert_page);
+ 
+@@ -1483,6 +1518,7 @@ static int do_wp_page(struct mm_struct *
+ 	pte_t entry;
+ 	int reuse = 0, ret = VM_FAULT_MINOR;
+ 	struct page *dirty_page = NULL;
++	struct page_beancounter *pb;
+ 
+ 	old_page = vm_normal_page(vma, address, orig_pte);
+ 	if (!old_page)
+@@ -1555,6 +1591,10 @@ static int do_wp_page(struct mm_struct *
+ gotten:
+ 	pte_unmap_unlock(page_table, ptl);
+ 
++	pb = bc_alloc_rss_counter();
++	if (IS_ERR(pb))
++		goto oom_nopb;
++
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto oom;
+ 	if (old_page == ZERO_PAGE(address)) {
+@@ -1574,6 +1614,7 @@ gotten:
+ 	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+ 	if (likely(pte_same(*page_table, orig_pte))) {
+ 		if (old_page) {
++			bc_vmrss_page_del(old_page, mm, vma);
+ 			page_remove_rmap(old_page);
+ 			if (!PageAnon(old_page)) {
+ 				dec_mm_counter(mm, file_rss);
+@@ -1589,6 +1630,7 @@ gotten:
+ 		update_mmu_cache(vma, address, entry);
+ 		lru_cache_add_active(new_page);
+ 		page_add_new_anon_rmap(new_page, vma, address);
++		bc_vmrss_page_add(new_page, mm, vma, &pb);
+ 
+ 		/* Free the old page.. */
+ 		new_page = old_page;
+@@ -1598,6 +1640,7 @@ gotten:
+ 		page_cache_release(new_page);
+ 	if (old_page)
+ 		page_cache_release(old_page);
++	bc_free_rss_counter(pb);
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
+ 	if (dirty_page) {
+@@ -1606,6 +1649,8 @@ unlock:
+ 	}
+ 	return ret;
+ oom:
++	bc_free_rss_counter(pb);
++oom_nopb:
+ 	if (old_page)
+ 		page_cache_release(old_page);
+ 	return VM_FAULT_OOM;
+@@ -1970,9 +2015,14 @@ static int do_swap_page(struct mm_struct
+ 	swp_entry_t entry;
+ 	pte_t pte;
+ 	int ret = VM_FAULT_MINOR;
++	struct page_beancounter *pb;
+ 
+ 	if (!pte_unmap_same(mm, pmd, page_table, orig_pte))
+-		goto out;
++		goto out_nopb;
++
++	pb = bc_alloc_rss_counter();
++	if (IS_ERR(pb))
++		goto out_nopb;
+ 
+ 	entry = pte_to_swp_entry(orig_pte);
+ 	if (is_migration_entry(entry)) {
+@@ -2030,6 +2080,7 @@ static int do_swap_page(struct mm_struct
+ 	flush_icache_page(vma, page);
+ 	set_pte_at(mm, address, page_table, pte);
+ 	page_add_anon_rmap(page, vma, address);
++	bc_vmrss_page_add(page, mm, vma, &pb);
+ 
+ 	swap_free(entry);
+ 	if (vm_swap_full())
+@@ -2049,11 +2100,14 @@ static int do_swap_page(struct mm_struct
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
+ out:
++	bc_free_rss_counter(pb);
++out_nopb:
+ 	return ret;
+ out_nomap:
+ 	pte_unmap_unlock(page_table, ptl);
+ 	unlock_page(page);
+ 	page_cache_release(page);
++	bc_free_rss_counter(pb);
+ 	return ret;
+ }
+ 
+@@ -2069,11 +2123,16 @@ static int do_anonymous_page(struct mm_s
+ 	struct page *page;
+ 	spinlock_t *ptl;
+ 	pte_t entry;
++	struct page_beancounter *pb;
+ 
+ 	if (write_access) {
+ 		/* Allocate our own private page. */
+ 		pte_unmap(page_table);
+ 
++		pb = bc_alloc_rss_counter();
++		if (IS_ERR(pb))
++			goto oom_nopb;
++
+ 		if (unlikely(anon_vma_prepare(vma)))
+ 			goto oom;
+ 		page = alloc_zeroed_user_highpage(vma, address);
+@@ -2089,7 +2148,9 @@ static int do_anonymous_page(struct mm_s
+ 		inc_mm_counter(mm, anon_rss);
+ 		lru_cache_add_active(page);
+ 		page_add_new_anon_rmap(page, vma, address);
++		bc_vmrss_page_add(page, mm, vma, &pb);
+ 	} else {
++		pb = NULL;
+ 		/* Map the ZERO_PAGE - vm_page_prot is readonly */
+ 		page = ZERO_PAGE(address);
+ 		page_cache_get(page);
+@@ -2101,6 +2162,7 @@ static int do_anonymous_page(struct mm_s
+ 			goto release;
+ 		inc_mm_counter(mm, file_rss);
+ 		page_add_file_rmap(page);
++		bc_vmrss_page_add_noref(page, mm, vma);
+ 	}
+ 
+ 	set_pte_at(mm, address, page_table, entry);
+@@ -2110,11 +2172,14 @@ static int do_anonymous_page(struct mm_s
+ 	lazy_mmu_prot_update(entry);
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
++	bc_free_rss_counter(pb);
+ 	return VM_FAULT_MINOR;
+ release:
+ 	page_cache_release(page);
+ 	goto unlock;
+ oom:
++	bc_free_rss_counter(pb);
++oom_nopb:
+ 	return VM_FAULT_OOM;
+ }
+ 
+@@ -2143,6 +2208,7 @@ static int do_no_page(struct mm_struct *
+ 	int ret = VM_FAULT_MINOR;
+ 	int anon = 0;
+ 	struct page *dirty_page = NULL;
++	struct page_beancounter *pb;
+ 
+ 	pte_unmap(page_table);
+ 	BUG_ON(vma->vm_flags & VM_PFNMAP);
+@@ -2152,6 +2218,10 @@ static int do_no_page(struct mm_struct *
+ 		sequence = mapping->truncate_count;
+ 		smp_rmb(); /* serializes i_size against truncate_count */
+ 	}
++
++	pb = bc_alloc_rss_counter();
++	if (IS_ERR(pb))
++		goto oom_nopb;
+ retry:
+ 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, &ret);
+ 	/*
+@@ -2164,9 +2234,9 @@ retry:
+ 
+ 	/* no page was available -- either SIGBUS or OOM */
+ 	if (new_page == NOPAGE_SIGBUS)
+-		return VM_FAULT_SIGBUS;
++		goto bus_nopg;
+ 	if (new_page == NOPAGE_OOM)
+-		return VM_FAULT_OOM;
++		goto oom_nopg;
+ 
+ 	/*
+ 	 * Should we do an early C-O-W break?
+@@ -2190,11 +2260,8 @@ retry:
+ 			 * address space wants to know that the page is about
+ 			 * to become writable */
+ 			if (vma->vm_ops->page_mkwrite &&
+-			    vma->vm_ops->page_mkwrite(vma, new_page) < 0
+-			    ) {
+-				page_cache_release(new_page);
+-				return VM_FAULT_SIGBUS;
+-			}
++			    vma->vm_ops->page_mkwrite(vma, new_page) < 0)
++				goto bus;
+ 		}
+ 	}
+ 
+@@ -2242,6 +2309,8 @@ retry:
+ 				get_page(dirty_page);
+ 			}
+ 		}
++
++		bc_vmrss_page_add(new_page, mm, vma, &pb);
+ 	} else {
+ 		/* One of our sibling threads was faster, back out. */
+ 		page_cache_release(new_page);
+@@ -2257,10 +2326,20 @@ unlock:
+ 		set_page_dirty_balance(dirty_page);
+ 		put_page(dirty_page);
+ 	}
++	bc_free_rss_counter(pb);
+ 	return ret;
+ oom:
+ 	page_cache_release(new_page);
++oom_nopg:
++	bc_free_rss_counter(pb);
++oom_nopb:
+ 	return VM_FAULT_OOM;
++
++bus:
++	page_cache_release(new_page);
++bus_nopg:
++	bc_free_rss_counter(pb);
++	return VM_FAULT_SIGBUS;
+ }
+ 
+ /*
+--- ./mm/migrate.c.bcrssch	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/migrate.c	2006-09-05 13:51:55.000000000 +0400
+@@ -29,6 +29,8 @@
+ #include <linux/vmalloc.h>
+ #include <linux/security.h>
+ 
++#include <bc/vmrss.h>
++
+ #include "internal.h"
+ 
+ #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
+@@ -179,6 +181,7 @@ static void remove_migration_pte(struct 
+ 	else
+ 		page_add_file_rmap(new);
+ 
++	bc_vmrss_page_del(new, mm, vma);
+ 	/* No need to invalidate - it was non-present before */
+ 	update_mmu_cache(vma, addr, pte);
+ 	lazy_mmu_prot_update(pte);
+--- ./mm/mprotect.c.bcrssch	2006-09-05 13:27:40.000000000 +0400
++++ ./mm/mprotect.c	2006-09-05 13:54:20.000000000 +0400
+@@ -22,6 +22,7 @@
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
+ #include <bc/vmpages.h>
++#include <bc/vmrss.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/cacheflush.h>
+@@ -141,6 +142,7 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	int error;
+ 	int dirty_accountable = 0;
+ 	int recharge;
++	unsigned long rss;
+ 
+ 	if (newflags == oldflags) {
+ 		*pprev = vma;
+@@ -148,8 +150,10 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	}
+ 
+ 	recharge = bc_privvm_recharge(oldflags, newflags, vma->vm_file);
+-	if (recharge == BC_CHARGE) {
+-		if (bc_privvm_charge(mm, end - start))
++	if (recharge != BC_NOCHARGE) {
++		rss = mm_rss_pages(mm, start, end) << PAGE_SHIFT;
++		if (recharge == BC_CHARGE && bc_privvm_charge(mm,
++					end - start - rss) < 0)
+ 			return -ENOMEM;
+ 	}
+ 
+@@ -215,7 +219,7 @@ success:
+ 		change_protection(vma, start, end, vma->vm_page_prot, dirty_accountable);
+ 
+ 	if (recharge == BC_UNCHARGE)
+-		bc_privvm_uncharge(mm, end - start);
++		bc_privvm_uncharge(mm, end - start - rss);
+ 	vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
+ 	vm_stat_account(mm, newflags, vma->vm_file, nrpages);
+ 	return 0;
+@@ -224,7 +228,7 @@ fail:
+ 	vm_unacct_memory(charged);
+ fail_acct:
+ 	if (recharge == BC_CHARGE)
+-		bc_privvm_uncharge(mm, end - start);
++		bc_privvm_uncharge(mm, end - start - rss);
+ 	return error;
+ }
+ 
+--- ./mm/rmap.c.bcrssch	2006-09-05 12:58:17.000000000 +0400
++++ ./mm/rmap.c	2006-09-05 13:51:55.000000000 +0400
+@@ -54,6 +54,8 @@
+ #include <linux/rcupdate.h>
+ #include <linux/module.h>
+ 
++#include <bc/vmrss.h>
++
+ #include <asm/tlbflush.h>
+ 
+ struct kmem_cache *anon_vma_cachep;
+@@ -687,6 +689,7 @@ static int try_to_unmap_one(struct page 
+ 		dec_mm_counter(mm, file_rss);
+ 
+ 
++	bc_vmrss_page_del(page, mm, vma);
+ 	page_remove_rmap(page);
+ 	page_cache_release(page);
+ 
+@@ -777,6 +780,7 @@ static void try_to_unmap_cluster(unsigne
+ 		if (pte_dirty(pteval))
+ 			set_page_dirty(page);
+ 
++		bc_vmrss_page_del(page, mm, vma);
+ 		page_remove_rmap(page);
+ 		page_cache_release(page);
+ 		dec_mm_counter(mm, file_rss);
+--- ./mm/swapfile.c.bcrssch	2006-09-05 12:53:59.000000000 +0400
++++ ./mm/swapfile.c	2006-09-05 13:54:59.000000000 +0400
+@@ -28,6 +28,9 @@
+ #include <linux/capability.h>
+ #include <linux/syscalls.h>
+ 
++#include <bc/beancounter.h>
++#include <bc/vmrss.h>
++
+ #include <asm/pgtable.h>
+ #include <asm/tlbflush.h>
+ #include <linux/swapops.h>
+@@ -487,13 +490,15 @@ unsigned int count_swap_pages(int type, 
+  * force COW, vm_page_prot omits write permission from any private vma.
+  */
+ static void unuse_pte(struct vm_area_struct *vma, pte_t *pte,
+-		unsigned long addr, swp_entry_t entry, struct page *page)
++		unsigned long addr, swp_entry_t entry, struct page *page,
++		struct page_beancounter **ppb)
+ {
+ 	inc_mm_counter(vma->vm_mm, anon_rss);
+ 	get_page(page);
+ 	set_pte_at(vma->vm_mm, addr, pte,
+ 		   pte_mkold(mk_pte(page, vma->vm_page_prot)));
+ 	page_add_anon_rmap(page, vma, addr);
++	bc_vmrss_page_add(page, vma->vm_mm, vma, ppb);
+ 	swap_free(entry);
+ 	/*
+ 	 * Move the page to the active list so it is not
+@@ -504,7 +509,8 @@ static void unuse_pte(struct vm_area_str
+ 
+ static int unuse_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end,
+-				swp_entry_t entry, struct page *page)
++				swp_entry_t entry, struct page *page,
++				struct page_beancounter **ppb)
+ {
+ 	pte_t swp_pte = swp_entry_to_pte(entry);
+ 	pte_t *pte;
+@@ -518,7 +524,7 @@ static int unuse_pte_range(struct vm_are
+ 		 * Test inline before going to call unuse_pte.
+ 		 */
+ 		if (unlikely(pte_same(*pte, swp_pte))) {
+-			unuse_pte(vma, pte++, addr, entry, page);
++			unuse_pte(vma, pte++, addr, entry, page, ppb);
+ 			found = 1;
+ 			break;
+ 		}
+@@ -529,7 +535,8 @@ static int unuse_pte_range(struct vm_are
+ 
+ static inline int unuse_pmd_range(struct vm_area_struct *vma, pud_t *pud,
+ 				unsigned long addr, unsigned long end,
+-				swp_entry_t entry, struct page *page)
++				swp_entry_t entry, struct page *page,
++				struct page_beancounter **ppb)
+ {
+ 	pmd_t *pmd;
+ 	unsigned long next;
+@@ -539,7 +546,7 @@ static inline int unuse_pmd_range(struct
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		if (unuse_pte_range(vma, pmd, addr, next, entry, page))
++		if (unuse_pte_range(vma, pmd, addr, next, entry, page, ppb))
+ 			return 1;
+ 	} while (pmd++, addr = next, addr != end);
+ 	return 0;
+@@ -547,7 +554,8 @@ static inline int unuse_pmd_range(struct
+ 
+ static inline int unuse_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
+ 				unsigned long addr, unsigned long end,
+-				swp_entry_t entry, struct page *page)
++				swp_entry_t entry, struct page *page,
++				struct page_beancounter **ppb)
+ {
+ 	pud_t *pud;
+ 	unsigned long next;
+@@ -557,14 +565,15 @@ static inline int unuse_pud_range(struct
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none_or_clear_bad(pud))
+ 			continue;
+-		if (unuse_pmd_range(vma, pud, addr, next, entry, page))
++		if (unuse_pmd_range(vma, pud, addr, next, entry, page, ppb))
+ 			return 1;
+ 	} while (pud++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+ static int unuse_vma(struct vm_area_struct *vma,
+-				swp_entry_t entry, struct page *page)
++				swp_entry_t entry, struct page *page,
++				struct page_beancounter **ppb)
+ {
+ 	pgd_t *pgd;
+ 	unsigned long addr, end, next;
+@@ -585,14 +594,15 @@ static int unuse_vma(struct vm_area_stru
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+-		if (unuse_pud_range(vma, pgd, addr, next, entry, page))
++		if (unuse_pud_range(vma, pgd, addr, next, entry, page, ppb))
+ 			return 1;
+ 	} while (pgd++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+ static int unuse_mm(struct mm_struct *mm,
+-				swp_entry_t entry, struct page *page)
++				swp_entry_t entry, struct page *page,
++				struct page_beancounter **ppb)
+ {
+ 	struct vm_area_struct *vma;
+ 
+@@ -607,7 +617,7 @@ static int unuse_mm(struct mm_struct *mm
+ 		lock_page(page);
+ 	}
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+-		if (vma->anon_vma && unuse_vma(vma, entry, page))
++		if (vma->anon_vma && unuse_vma(vma, entry, page, ppb))
+ 			break;
+ 	}
+ 	up_read(&mm->mmap_sem);
+@@ -673,6 +683,7 @@ static int try_to_unuse(unsigned int typ
+ 	int retval = 0;
+ 	int reset_overflow = 0;
+ 	int shmem;
++	struct page_beancounter *pb;
+ 
+ 	/*
+ 	 * When searching mms for an entry, a good strategy is to
+@@ -692,6 +703,7 @@ static int try_to_unuse(unsigned int typ
+ 	start_mm = &init_mm;
+ 	atomic_inc(&init_mm.mm_users);
+ 
++	pb = NULL;
+ 	/*
+ 	 * Keep on scanning until all entries have gone.  Usually,
+ 	 * one pass through swap_map is enough, but not necessarily:
+@@ -703,6 +715,12 @@ static int try_to_unuse(unsigned int typ
+ 			break;
+ 		}
+ 
++		pb = bc_alloc_rss_counter_list(nr_beancounters, pb);
++		if (IS_ERR(pb)) {
++			retval = PTR_ERR(pb);
++			break;
++		}
++
+ 		/* 
+ 		 * Get a page for the entry, using the existing swap
+ 		 * cache page if there is one.  Otherwise, get a clean
+@@ -757,7 +775,7 @@ static int try_to_unuse(unsigned int typ
+ 			if (start_mm == &init_mm)
+ 				shmem = shmem_unuse(entry, page);
+ 			else
+-				retval = unuse_mm(start_mm, entry, page);
++				retval = unuse_mm(start_mm, entry, page, &pb);
+ 		}
+ 		if (*swap_map > 1) {
+ 			int set_start_mm = (*swap_map >= swcount);
+@@ -787,7 +805,7 @@ static int try_to_unuse(unsigned int typ
+ 					set_start_mm = 1;
+ 					shmem = shmem_unuse(entry, page);
+ 				} else
+-					retval = unuse_mm(mm, entry, page);
++					retval = unuse_mm(mm, entry, page, &pb);
+ 				if (set_start_mm && *swap_map < swcount) {
+ 					mmput(new_start_mm);
+ 					atomic_inc(&mm->mm_users);
+@@ -878,6 +896,9 @@ static int try_to_unuse(unsigned int typ
+ 		cond_resched();
+ 	}
+ 
++	if (!IS_ERR(pb))
++		bc_free_rss_counter(pb);
++
+ 	mmput(start_mm);
+ 	if (reset_overflow) {
+ 		printk(KERN_WARNING "swapoff: cleared swap entry overflow\n");

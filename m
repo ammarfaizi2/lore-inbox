@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWIEKGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWIEKIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWIEKGh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 06:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWIEKGh
+	id S1751200AbWIEKIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 06:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWIEKIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 06:06:37 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:40679 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751158AbWIEKGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 06:06:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nLl2q3XAC7FvCf0rG68G/j5/8t9BD89pAXq/RWsG/8t18DOsQ1nHjKgxga+caH28X++vFyx3GSw9faCcFYYaPy8bD8m3ZCkcimacwRlBoew5NBV6RlQIaZahY6wcz0ats2vNTDuODU8P3OFerLxv/mKFPbyDzzWLcqORsFWIFSQ=
-Message-ID: <3634de740609050306y38ff56a4t2700e044e11a439f@mail.gmail.com>
-Date: Tue, 5 Sep 2006 15:36:27 +0530
-From: Maximus <john.maximus@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SDIO functions?
+	Tue, 5 Sep 2006 06:08:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:15580 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751200AbWIEKIo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 06:08:44 -0400
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Jan Kara <jack@suse.cz>
+Subject: Re: quota problem with 2.6.15.7
+Date: Tue, 5 Sep 2006 12:08:43 +0200
+User-Agent: KMail/1.9.4
+Cc: reiserfs-list@namesys.org, linux-kernel@vger.kernel.org
+References: <200609021557.03885.bernd-schubert@gmx.de> <20060905091924.GC3830@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060905091924.GC3830@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
+Message-Id: <200609051208.43857.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    Just going through the sdio specs and ossman's patch.
+Hello Jan,
 
+On Tuesday 05 September 2006 11:19, Jan Kara wrote:
+>   Hello,
+>
+> > I just wanted to enable quotas on one of our server systems and got an
+> > oops. This is an opteron system with a kernel in 64bit mode.
+> > As you can see, the filesystem is reiserfs.
+>
+>   Hmm, is this reproducible? Any chances of trying out some newer
+> kernel?
 
-   What are these functions and thier numbers in CMD 53
+[trace deleted]
 
-   Does that mean an SDIO Card can support upto 8 different functions?.
+>   Hmm, the trace looks strange... It is definitely mixed with some old
+> data. We definitely reached reiserfs_quota_on() but didn't reach
+> vfs_quota_on() so it seems we crashed somewhere in path_lookup() (also
+> link_path_walk() in the beginning of the trace suggests that). That's
+> generic VFS code so maybe this is nothing quota specific. So this looks
+> quite hard to debug if there's no reasonable way of reproducing it.
 
-   An sdio card can be used as a wlan and camera (if it supports 2
-functions wlan and camera).
+Its reproducible, I hoped it wouldn't happen again after a reboot, but 
+unfortunately it did. Trying a newer kernel, hmm, usually a problem on server 
+systems. I will try to test quotas on another amd64 system first(*).
 
-  Is it like that?. Because i have not come across a card which
-supports more than one function.
+Thanks for your help,
+Bernd
 
-  What does "function" mean - does that mean some kind of firmware
-inside the card or some kind electronics.
+(*) Which would be easy, if there wouldn't be a 64bit kernel, 32bit glibc, 
+nfsclient inode truncation bug, which forces me to run all of our amd64 
+nfsroot-clients with a 32bit kernel, http://lkml.org/lkml/2005/2/28/172. 
+Well, my fault that I still didn't submit a glibc bug report.
 
-  I dont understand.
+-- 
+Bernd Schubert
+PCI / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
 
-
-Thanks and Regards,
-Jo

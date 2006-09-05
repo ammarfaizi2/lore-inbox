@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWIEHdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWIEHxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751496AbWIEHdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 03:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWIEHdW
+	id S932151AbWIEHxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 03:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWIEHxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 03:33:22 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:991 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751496AbWIEHdV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 03:33:21 -0400
-Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Victor Hugo <victor@vhugo.net>
-Cc: linux-kernel@vger.kernel.org, Victor Castro <victorhugo83@yahoo.com>
-In-Reply-To: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-Content-Type: text/plain
-Date: Tue, 05 Sep 2006 09:33:40 +0200
-Message-Id: <1157441620.24916.5.camel@localhost>
+	Tue, 5 Sep 2006 03:53:16 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:60835 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932151AbWIEHxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 03:53:15 -0400
+Date: Tue, 5 Sep 2006 09:52:55 +0200
+From: Voluspa <lista1@comhem.se>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: akpm@osdl.org, arjan@linux.intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lockdep: disable lock debugging when kernel state
+ becomes untrusted
+Message-Id: <20060905095255.349e684c.lista1@comhem.se>
+In-Reply-To: <20060905071501.GA2765@elte.hu>
+References: <20060814030954.c3a57e05.lista1@comhem.se>
+	<20060813184159.b536736f.akpm@osdl.org>
+	<20060905071501.GA2765@elte.hu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.4.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Victor,
-
-> Also, I'd like to comment on Jon Masters push to include the  
-> MODULE_FIRMWARE api addition.  I strongly believe that policy should  
-> not be included in driver code, in this case it's in the form of a  
-> filename.
+On Tue, 5 Sep 2006 09:15:01 +0200 Ingo Molnar wrote:
 > 
-> The firmware loader currently needs a filename passed to it so it can  
-> then pass the $FIRMWARE environment variable to the hotplug script.   
-> This is ok if you provide a generic filename like "firmware.bin" and  
-> then let the hotplug script worry about version numbers, i.e.  
-> "firmware-x.y.z.bin"
+> * Andrew Morton wrote:
 > 
-> MODULE_FIRMWARE should be used to provide the generic filenames and  
-> which order the files should be loaded (request_firmware can be  
-> called various times), but I think its bad to have to change the  
-> driver everytime a new firmware version is released.
+> > That would appear to be a bug.  debug_locks_off() is running 
+> > console_verbose() waaaay after the locking selftest code has 
+> > completed.
+> 
+> debug_locks_off() should only be used when a real bug is being
+> displayed 
+> - which isnt the case when we call add_taint(). The patch below
+> should fix this.
 
-actually it has never been really a filename. It was a simple pattern
-that the initial hotplug script and later the udev script mapped 1:1 to
-a filename on your filesystem. If you check the mailing list archives of
-LKML and linux-hotplug you will see that I always resisted in allowing
-drivers to include a directory path in that call. A couple of people
-tried this and it is not what it was meant to be.
+Thanks, it works as advertised.
 
-The MODULE_FIRMWARE approach simply makes this pattern visible via
-modinfo, because otherwise you would have to scan the source code to
-find this pattern. And to make it use you have to apply the same policy
-the firmware script is applying when choosing the file. Currently this
-is a 1:1 mapping.
-
-Regards
-
-Marcel
-
-
+Mvh
+Mats Johannesson

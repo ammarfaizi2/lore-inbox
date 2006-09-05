@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWIEG4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbWIEHBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbWIEG4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 02:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWIEG4J
+	id S965189AbWIEHBl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 03:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWIEHBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 02:56:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965167AbWIEG4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 02:56:07 -0400
-Date: Mon, 4 Sep 2006 23:55:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Voluspa <lista1@comhem.se>
-Cc: arjan@infradead.org, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: Re: [PATCH] lockdep: disable lock debugging when kernel state
- becomes untrusted
-Message-Id: <20060904235549.f8f6eaab.akpm@osdl.org>
-In-Reply-To: <20060905084042.20966381.lista1@comhem.se>
-References: <20060814030954.c3a57e05.lista1@comhem.se>
-	<20060813184159.b536736f.akpm@osdl.org>
-	<20060905084042.20966381.lista1@comhem.se>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 5 Sep 2006 03:01:40 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:50408 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S965185AbWIEHBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 03:01:39 -0400
+X-Sasl-enc: KbV5CrR6ogzP025Nb0K7QpLFhVZC5U1du6XVjL49RjBG 1157439697
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157436412.3915.26.camel@raven.themaw.net>
+References: <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+	 <1157421445.5510.13.camel@localhost>
+	 <1157424937.3002.4.camel@raven.themaw.net>
+	 <1157428241.5510.72.camel@localhost>
+	 <1157429030.3915.8.camel@raven.themaw.net>
+	 <1157432039.32412.37.camel@localhost>
+	 <1157436412.3915.26.camel@raven.themaw.net>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 15:01:31 +0800
+Message-Id: <1157439691.4133.12.camel@raven.themaw.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Sep 2006 08:40:42 +0200
-Voluspa <lista1@comhem.se> wrote:
-
-> > That would appear to be a bug.  debug_locks_off() is running
-> > console_verbose() waaaay after the locking selftest code has
-> > completed.
+On Tue, 2006-09-05 at 14:06 +0800, Ian Kent wrote:
+> On Tue, 2006-09-05 at 00:53 -0400, Trond Myklebust wrote:
+> > On Tue, 2006-09-05 at 12:03 +0800, Ian Kent wrote:
+> > > Sure but this is an old version of autofs which is in use so changing
+> > > the expected behavior of a system call is not acceptable and I expect
+> > > other applications may well have a problem with this also.
+> > 
+> > Applications that rely on mkdir() to never return EACCES are broken.
+> > Particularly so in an selinux system (as was the case here).
 > 
-> The possibly final -rc6 is likewise broken. What would it take to incur
-> some respect for us, the millions of users effected by this shit?
-> Should we all become quasi-developers and bombard lkml with patches
-> that taint the kernel whenever some of the Intel binary blobs are
-> loaded?
+> That's not quite right.
 > 
-> Would that cluebat Arjan off of his high horse?
+> autofs v4 doesn't rely on mkdir never returning EACCESS just that it
+> return EEXIST if the directory exists. Never the less if the behavior of
+> stat will work in this case I'll change v4 to do it the way you suggest
+> (as v5 does already). 
 
-Thanks for the reminder ;)
+Aaah. Wrong again!
 
-Arjan, what's that console_verbose() doing in debug_locks_off()?  Whatever
-it is, can we fix it?  Presumably the previous loglevel needs to be
-readopted somehow, or we just take it out of there.
+Although v5 doesn't attempt to mount an NFS export if the directory
+doesn't exist it does end up doing a mkdir later as the most common case
+is mounting an NFS export within an autofs filesystem or other, usually
+local filesystem.
+
+
 

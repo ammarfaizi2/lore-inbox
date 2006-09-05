@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWIELFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWIELEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751414AbWIELFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 07:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWIELFf
+	id S1751396AbWIELEK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 07:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWIELEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 07:05:35 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:45703 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751414AbWIELFe (ORCPT
+	Tue, 5 Sep 2006 07:04:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24738 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751396AbWIELEH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 07:05:34 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: [PATCH -mm] PM: Remove sleeping from suspend_console
-Date: Tue, 5 Sep 2006 13:08:37 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Laurent Riffard <laurent.riffard@free.fr>
-References: <200609042250.41592.rjw@sisk.pl> <20060905062842.GA21738@suse.de>
-In-Reply-To: <20060905062842.GA21738@suse.de>
+	Tue, 5 Sep 2006 07:04:07 -0400
+Date: Tue, 5 Sep 2006 13:03:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: bcollins@debian.org, scjody@modernduck.com,
+       linux1394-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: set power state of firewire host during suspend
+Message-ID: <20060905110347.GA2052@elf.ucw.cz>
+References: <20060905081426.GA4105@elf.ucw.cz> <44FD5342.1040207@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609051308.38401.rjw@sisk.pl>
+In-Reply-To: <44FD5342.1040207@s5r6.in-berlin.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 5 September 2006 08:28, Stefan Seyfried wrote:
-> On Mon, Sep 04, 2006 at 10:50:40PM +0200, Rafael J. Wysocki wrote:
-> > Remove ssleep() from suspend_console().
+Hi!
+
+> Pavel Machek wrote:
+> > --- a/drivers/ieee1394/ohci1394.c
+> > +++ b/drivers/ieee1394/ohci1394.c
+> > @@ -3565,6 +3565,7 @@ static int ohci1394_pci_suspend (struct 
+> >  	}
+> >  #endif
+> >  
+> > +	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+> >  	return 0;
+> >  }
+> >  
 > > 
-> > Stefan thinks it is unnecessary and will slow down the suspend too much.
 > 
-> "unnecessary" is not exactly what i think, rather "unacceptable" :-)
-
-Still that implies it's not necessary. ;-)
-
-> We probably need to do something for some kinds of consoles to make sure all
-> characters are sent, but sleeping unconditionally is not the right thing IMO.
-
-Yup.  This was added as a result of the Laurent Riffard's report that the sleep
-was necessary, but it turned out to be due to the network card problem, so we
-should get rid of the ssleep().
-
-Greetings,
-Rafael
+> Does this work on PPC_PMAC? Note the platform code before #endif.
+> http://www.linux-m32r.org/lxr/http/source/drivers/ieee1394/ohci1394.c?v=2.6.18-rc5-mm1#L3554
 
 
+No idea, I know very little about PMACs. They still have PCI, right?
+Why does it need hooks into drivers like this?
+								Pavel
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

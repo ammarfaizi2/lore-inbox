@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWIEP0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWIEP1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWIEP0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWIEP0q
+	id S965076AbWIEP1v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWIEP1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:26:46 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:27912 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965111AbWIEP0o (ORCPT
+	Tue, 5 Sep 2006 11:27:51 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:19787 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965076AbWIEP1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:26:44 -0400
-Message-ID: <44FD9812.1060202@sw.ru>
-Date: Tue, 05 Sep 2006 19:30:26 +0400
+	Tue, 5 Sep 2006 11:27:48 -0400
+Message-ID: <44FD9853.6040002@sw.ru>
+Date: Tue, 05 Sep 2006 19:31:31 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -25,7 +25,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH 10/13] BC: privvm pages
+Subject: [PATCH 11/13] BC: vmrss (preparations)
 References: <44FD918A.7050501@sw.ru>
 In-Reply-To: <44FD918A.7050501@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -33,342 +33,214 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch instroduces new resource - BC_PRIVVMPAGES.
-It is an upper estimation of currently used physical memory.
+This patch does simple things:
+- intruduces an bc_magic field on beancunter to make sure
+  union on struct page is correctly used in next patches
+- adds nr_beancounters
+- adds unused_privvmpages variable (counter of privvm pages
+  which are not mapped into VM address space and thus potentially
+  can be allocated later)
 
-There are different approaches to user pages control:
-a) account all the mappings on mmap/brk and reject as
-   soon as the sum of VMA's lengths reaches the barrier.
-
-   This approach is very bad as applications always map
-   more than they really use, very often MUCH more.
-
-b) account only the really used memory and reject as
-   soon as RSS reaches the limit.
-
-   This approach is not good either as user space pages are
-   allocated in page fault handler and the only way to reject
-   allocation is to kill the task.
-   
-   Comparing to previous scenarion this is much worse as
-   application won't even be able to terminate gracefully.
-
-c) account a part of memory on mmap/brk and reject there,
-   and account the rest of the memory in page fault handlers
-   without any rejects.
-   This type of accounting is used in UBC.
-
-d) account physical memory and behave like a standalone
-   kernel - reclaim user memory when run out of it.
-
-   This type of memory control is to be introduced later
-   as an addition to c). UBC provides all the needed
-   statistics for this (physical memory, swap pages etc.)
-
-Privvmpages accounting is described in details in
-http://wiki.openvz.org/User_pages_accounting
-
-A note about sys_mprotect: as it can change mapping state from
-BC_VM_PRIVATE to !BC_VM_PRIVATE and vice-versa appropriate amount of
-pages is (un)charged in mprotect_fixup.
+This is needed by vmrss accounting and is done to make patch reviewing
+simpler.
 
 Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
 Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
 ---
 
- include/bc/beancounter.h |    3 +-
- include/bc/vmpages.h     |   44 +++++++++++++++++++++++++++++++++++++++
- kernel/bc/beancounter.c  |    2 +
- kernel/bc/vmpages.c      |   53 ++++++++++++++++++++++++++++++++++++++++++++---
- kernel/fork.c            |    9 +++++++
- mm/mprotect.c            |   17 ++++++++++++++-
- mm/shmem.c               |    7 ++++++
- 7 files changed, 129 insertions(+), 6 deletions(-)
+ include/bc/beancounter.h |   13 +++++++++++++
+ include/bc/vmpages.h     |    2 ++
+ kernel/bc/beancounter.c  |    5 +++++
+ kernel/bc/kmem.c         |    1 +
+ kernel/bc/vmpages.c      |   44 ++++++++++++++++++++++++++++++++++++++++----
+ 5 files changed, 61 insertions(+), 4 deletions(-)
 
---- ./include/bc/beancounter.h.bcprivvm	2006-09-05 12:59:27.000000000 +0400
-+++ ./include/bc/beancounter.h	2006-09-05 13:17:50.000000000 +0400
-@@ -14,8 +14,9 @@
+--- ./include/bc/beancounter.h.bcvmrssprep	2006-09-05 13:17:50.000000000 +0400
++++ ./include/bc/beancounter.h	2006-09-05 13:44:33.000000000 +0400
+@@ -45,6 +45,13 @@ struct bc_resource_parm {
+ #define BC_MAXVALUE	LONG_MAX
  
- #define BC_KMEMSIZE	0
- #define BC_LOCKEDPAGES	1
-+#define BC_PRIVVMPAGES	2
- 
--#define BC_RESOURCES	2
-+#define BC_RESOURCES	3
- 
- struct bc_resource_parm {
- 	unsigned long barrier;	/* A barrier over which resource allocations
---- ./include/bc/vmpages.h.bcprivvm	2006-09-05 13:04:03.000000000 +0400
-+++ ./include/bc/vmpages.h	2006-09-05 13:38:07.000000000 +0400
-@@ -8,6 +8,8 @@
- #ifndef __BC_VMPAGES_H_
- #define __BC_VMPAGES_H_
- 
-+#include <linux/mm.h>
-+
- #include <bc/beancounter.h>
- #include <bc/task.h>
- 
-@@ -15,12 +17,37 @@ struct mm_struct;
- struct file;
- struct shmem_inode_info;
- 
-+/*
-+ * sys_mprotect() can change mapping state form private to
-+ * shared and vice-versa. Thus rescharging is needed, but
-+ * with the following rules:
-+ * 1. No state change   : nothing to be done at all;
-+ * 2. shared -> private : need to charge before operation starts
-+ *                        and roll back on error path;
-+ * 3. private -> shared : need to uncharge after successfull state
-+ *                        change. Uncharging first and charging back
-+ *                        on error path isn't good as charge will have
-+ *                        to be BC_FORCE and thus can potentially create
-+ *                        an overcharged privvmpages.
+ /*
++ * This magic is used to distinuish user beancounter and pages beancounter
++ * in struct page. page_ub and page_bc are placed in union and MAGIC
++ * ensures us that we don't use pbc as ubc in bc_page_uncharge().
 + */
-+#define BC_NOCHARGE	0
-+#define BC_UNCHARGE	1 /* private -> shared */
-+#define BC_CHARGE	2 /* shared -> private */
++#define BC_MAGIC                0x62756275UL
 +
-+#define BC_VM_PRIVATE(flags, file) ( ((flags) & VM_WRITE) ? \
-+			( (file) == NULL || !((flags) & VM_SHARED) ) : 0 )
-+
++/*
+  *	Resource management structures
+  * Serialization issues:
+  *   beancounter list management is protected via bc_hash_lock
+@@ -54,11 +61,13 @@ struct bc_resource_parm {
+  */
+ 
+ struct beancounter {
++	unsigned long		bc_magic;
+ 	atomic_t		bc_refcount;
+ 	spinlock_t		bc_lock;
+ 	bcid_t			bc_id;
+ 	struct hlist_node	hash;
+ 
++	unsigned long		unused_privvmpages;
+ 	/* resources statistics and settings */
+ 	struct bc_resource_parm	bc_parms[BC_RESOURCES];
+ };
+@@ -74,6 +83,8 @@ enum bc_severity { BC_BARRIER, BC_LIMIT,
+ 
  #ifdef CONFIG_BEANCOUNTERS
- int __must_check bc_memory_charge(struct mm_struct *mm, unsigned long size,
- 		unsigned long vm_flags, struct file *vm_file, int strict);
- void bc_memory_uncharge(struct mm_struct *mm, unsigned long size,
- 		unsigned long vm_flags, struct file *vm_file);
  
-+int __must_check bc_privvm_recharge(unsigned long old_flags,
-+		unsigned long new_flags, struct file *vm_file);
-+int __must_check bc_privvm_charge(struct mm_struct *mm, unsigned long size);
-+void bc_privvm_uncharge(struct mm_struct *mm, unsigned long size);
++extern unsigned int nr_beancounters = 1;
 +
- int __must_check bc_locked_charge(struct mm_struct *mm, unsigned long size);
- void bc_locked_uncharge(struct mm_struct *mm, unsigned long size);
+ /*
+  * These functions tune minheld and maxheld values for a given
+  * resource when held value changes
+@@ -137,6 +137,8 @@ extern const char *bc_rnames[];
  
-@@ -64,6 +91,23 @@ static inline void bc_memory_uncharge(st
- {
- }
+ #else /* CONFIG_BEANCOUNTERS */
  
-+static inline int __must_check bc_privvm_recharge(unsigned long old_flags,
-+		unsigned long new_flags, struct file *vm_file)
-+{
-+	return BC_NOCHARGE;
-+}
++#define nr_beancounters 0
 +
-+static inline int __must_check bc_privvm_charge(struct mm_struct *mm,
-+		unsigned long size)
-+{
-+	return 0;
-+}
+ #define beancounter_findcreate(id, f)			(NULL)
+ #define get_beancounter(bc)				(NULL)
+ #define put_beancounter(bc)				do { } while (0)
+--- ./include/bc/vmpages.h.bcvmrssprep	2006-09-05 13:38:07.000000000 +0400
++++ ./include/bc/vmpages.h	2006-09-05 13:40:21.000000000 +0400
+@@ -77,6 +77,8 @@ void bc_locked_shm_uncharge(struct shmem
+ 		put_beancounter((info)->shm_bc);			\
+ 	} while (0)
+ 
++void bc_update_privvmpages(struct beancounter *bc);
 +
-+static inline void bc_privvm_uncharge(struct mm_struct *mm,
-+		unsigned long size)
-+{
-+}
+ #else /* CONFIG_BEANCOUNTERS */
+ 
+ static inline int __must_check bc_memory_charge(struct mm_struct *mm,
+--- ./kernel/bc/beancounter.c.bcvmrssprep	2006-09-05 13:17:50.000000000 +0400
++++ ./kernel/bc/beancounter.c	2006-09-05 13:44:53.000000000 +0400
+@@ -19,6 +19,8 @@ static void init_beancounter_struct(stru
+ 
+ struct beancounter init_bc;
+ 
++unsigned int nr_beancounters;
 +
- static inline int __must_check bc_locked_charge(struct mm_struct *mm,
- 		unsigned long size)
- {
---- ./kernel/bc/beancounter.c.bcprivvm	2006-09-05 12:59:45.000000000 +0400
-+++ ./kernel/bc/beancounter.c	2006-09-05 13:17:50.000000000 +0400
-@@ -22,6 +22,7 @@ struct beancounter init_bc;
  const char *bc_rnames[] = {
  	"kmemsize",	/* 0 */
  	"lockedpages",
-+	"privvmpages",
- };
+@@ -88,6 +90,7 @@ retry:
  
- #define BC_HASH_BITS		8
-@@ -234,6 +235,7 @@ static void init_beancounter_syslimits(s
+ out_install:
+ 	hlist_add_head(&new_bc->hash, slot);
++	nr_beancounters++;
+ 	spin_unlock_irqrestore(&bc_hash_lock, flags);
+ out:
+ 	return new_bc;
+@@ -110,6 +113,7 @@ void put_beancounter(struct beancounter 
+ 				bc->bc_parms[i].held, bc_rnames[i]);
  
- 	bc->bc_parms[BC_KMEMSIZE].limit = 32 * 1024 * 1024;
- 	bc->bc_parms[BC_LOCKEDPAGES].limit = 8;
-+	bc->bc_parms[BC_PRIVVMPAGES].limit = BC_MAXVALUE;
+ 	hlist_del(&bc->hash);
++	nr_beancounters--;
+ 	spin_unlock_irqrestore(&bc_hash_lock, flags);
  
- 	for (k = 0; k < BC_RESOURCES; k++)
- 		bc->bc_parms[k].barrier = bc->bc_parms[k].limit;
---- ./kernel/bc/vmpages.c.bcprivvm	2006-09-05 12:59:27.000000000 +0400
-+++ ./kernel/bc/vmpages.c	2006-09-05 13:28:16.000000000 +0400
-@@ -18,26 +18,73 @@ int bc_memory_charge(struct mm_struct *m
+ 	kmem_cache_free(bc_cachep, bc);
+@@ -214,6 +218,7 @@ EXPORT_SYMBOL_GPL(bc_uncharge);
+ 
+ static void init_beancounter_struct(struct beancounter *bc, bcid_t id)
+ {
++	bc->bc_magic = BC_MAGIC;
+ 	atomic_set(&bc->bc_refcount, 1);
+ 	spin_lock_init(&bc->bc_lock);
+ 	bc->bc_id = id;
+--- ./kernel/bc/kmem.c.bcvmrssprep	2006-09-05 12:54:40.000000000 +0400
++++ ./kernel/bc/kmem.c	2006-09-05 13:40:21.000000000 +0400
+@@ -79,6 +79,7 @@ void bc_page_uncharge(struct page *page,
+ 	if (bc == NULL)
+ 		return;
+ 
++	BUG_ON(bc->bc_magic != BC_MAGIC);
+ 	bc_uncharge(bc, BC_KMEMSIZE, PAGE_SIZE << order);
+ 	put_beancounter(bc);
+ 	page_bc(page) = NULL;
+--- ./kernel/bc/vmpages.c.bcvmrssprep	2006-09-05 13:28:16.000000000 +0400
++++ ./kernel/bc/vmpages.c	2006-09-05 13:45:34.000000000 +0400
+@@ -14,6 +14,34 @@
+ 
+ #include <asm/page.h>
+ 
++void bc_update_privvmpages(struct beancounter *bc)
++{
++	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages;
++	bc_adjust_minheld(bc, BC_PRIVVMPAGES);
++	bc_adjust_maxheld(bc, BC_PRIVVMPAGES);
++}
++
++static inline int privvm_charge(struct beancounter *bc, unsigned long sz,
++		int strict)
++{
++	if (bc_charge_locked(bc, BC_PRIVVMPAGES, sz, strict))
++		return -ENOMEM;
++
++	bc->unused_privvmpages += sz;
++	return 0;
++}
++
++static inline void privvm_uncharge(struct beancounter *bc, unsigned long sz)
++{
++	if (unlikely(bc->unused_privvmpages < sz)) {
++		printk("BC: overuncharging %d unused pages: val %lu held %lu\n",
++				bc->bc_id, sz, bc->unused_privvmpages);
++		sz = bc->unused_privvmpages;
++	}
++	bc->unused_privvmpages -= sz;
++	bc_update_privvmpages(bc);
++}
++
+ int bc_memory_charge(struct mm_struct *mm, unsigned long size,
  		unsigned long vm_flags, struct file *vm_file, int strict)
  {
+@@ -28,7 +56,7 @@ int bc_memory_charge(struct mm_struct *m
+ 		if (bc_charge_locked(bc, BC_LOCKEDPAGES, size, strict))
+ 			goto err_locked;
+ 	if (BC_VM_PRIVATE(vm_flags, vm_file))
+-		if (bc_charge_locked(bc, BC_PRIVVMPAGES, size, strict))
++		if (privvm_charge(bc, size, strict))
+ 			goto err_privvm;
+ 	spin_unlock_irqrestore(&bc->bc_lock, flags);
+ 	return 0;
+@@ -53,7 +81,7 @@ void bc_memory_uncharge(struct mm_struct
+ 	if (vm_flags & VM_LOCKED)
+ 		bc_uncharge_locked(bc, BC_LOCKEDPAGES, size);
+ 	if (BC_VM_PRIVATE(vm_flags, vm_file))
+-		bc_uncharge_locked(bc, BC_PRIVVMPAGES, size);
++		privvm_uncharge(bc, size);
+ 	spin_unlock_irqrestore(&bc->bc_lock, flags);
+ }
+ 
+@@ -73,18 +101,26 @@ int bc_privvm_recharge(unsigned long vm_
+ 
+ int bc_privvm_charge(struct mm_struct *mm, unsigned long size)
+ {
++	int ret;
  	struct beancounter *bc;
 +	unsigned long flags;
  
  	bc = mm->mm_bc;
- 	size >>= PAGE_SHIFT;
- 
+-	bc_charge(bc, BC_PRIVVMPAGES, size >> PAGE_SHIFT);
 +	spin_lock_irqsave(&bc->bc_lock, flags);
- 	if (vm_flags & VM_LOCKED)
--		if (bc_charge(bc, BC_LOCKEDPAGES, size, strict))
--			return -ENOMEM;
-+		if (bc_charge_locked(bc, BC_LOCKEDPAGES, size, strict))
-+			goto err_locked;
-+	if (BC_VM_PRIVATE(vm_flags, vm_file))
-+		if (bc_charge_locked(bc, BC_PRIVVMPAGES, size, strict))
-+			goto err_privvm;
++	ret = privvm_charge(bc, size >> PAGE_SHIFT, BC_BARRIER);
 +	spin_unlock_irqrestore(&bc->bc_lock, flags);
- 	return 0;
-+
-+err_privvm:
-+	bc_uncharge_locked(bc, BC_LOCKEDPAGES, size);
-+err_locked:
-+	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+	return -ENOMEM;
++	return ret;
  }
  
- void bc_memory_uncharge(struct mm_struct *mm, unsigned long size,
- 		unsigned long vm_flags, struct file *vm_file)
+ void bc_privvm_uncharge(struct mm_struct *mm, unsigned long size)
  {
  	struct beancounter *bc;
 +	unsigned long flags;
  
  	bc = mm->mm_bc;
- 	size >>= PAGE_SHIFT;
- 
+-	bc_uncharge(bc, BC_PRIVVMPAGES, size >> PAGE_SHIFT);
 +	spin_lock_irqsave(&bc->bc_lock, flags);
- 	if (vm_flags & VM_LOCKED)
--		bc_uncharge(bc, BC_LOCKEDPAGES, size);
-+		bc_uncharge_locked(bc, BC_LOCKEDPAGES, size);
-+	if (BC_VM_PRIVATE(vm_flags, vm_file))
-+		bc_uncharge_locked(bc, BC_PRIVVMPAGES, size);
++	privvm_uncharge(bc, size >> PAGE_SHIFT);
 +	spin_unlock_irqrestore(&bc->bc_lock, flags);
-+}
-+
-+int bc_privvm_recharge(unsigned long vm_flags_old, unsigned long vm_flags_new,
-+		struct file *vm_file)
-+{
-+	int priv_old, priv_new;
-+
-+	priv_old = (BC_VM_PRIVATE(vm_flags_old, vm_file) ? 1 : 0);
-+	priv_new = (BC_VM_PRIVATE(vm_flags_new, vm_file) ? 1 : 0);
-+
-+	if (priv_old == priv_new)
-+		return BC_NOCHARGE;
-+
-+	return priv_new ? BC_CHARGE : BC_UNCHARGE;
-+}
-+
-+int bc_privvm_charge(struct mm_struct *mm, unsigned long size)
-+{
-+	struct beancounter *bc;
-+
-+	bc = mm->mm_bc;
-+	bc_charge(bc, BC_PRIVVMPAGES, size >> PAGE_SHIFT);
-+}
-+
-+void bc_privvm_uncharge(struct mm_struct *mm, unsigned long size)
-+{
-+	struct beancounter *bc;
-+
-+	bc = mm->mm_bc;
-+	bc_uncharge(bc, BC_PRIVVMPAGES, size >> PAGE_SHIFT);
  }
  
  static inline int locked_charge(struct beancounter *bc,
---- ./kernel/fork.c.bcprivvm	2006-09-05 13:17:15.000000000 +0400
-+++ ./kernel/fork.c	2006-09-05 13:23:27.000000000 +0400
-@@ -236,9 +236,13 @@ static inline int dup_mmap(struct mm_str
- 				goto fail_nomem;
- 			charge = len;
- 		}
-+		if (bc_memory_charge(mm, mpnt->vm_end - mpnt->vm_start,
-+					mpnt->vm_flags & ~VM_LOCKED,
-+					mpnt->vm_file, BC_LIMIT) < 0)
-+			goto fail_nomem;
- 		tmp = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
- 		if (!tmp)
--			goto fail_nomem;
-+			goto fail_alloc;
- 		*tmp = *mpnt;
- 		pol = mpol_copy(vma_policy(mpnt));
- 		retval = PTR_ERR(pol);
-@@ -292,6 +296,9 @@ out:
- 	return retval;
- fail_nomem_policy:
- 	kmem_cache_free(vm_area_cachep, tmp);
-+fail_alloc:
-+	bc_memory_uncharge(mm, mpnt->vm_end - mpnt->vm_start,
-+			mpnt->vm_flags & ~VM_LOCKED, mpnt->vm_file);
- fail_nomem:
- 	retval = -ENOMEM;
- 	vm_unacct_memory(charge);
---- ./mm/mprotect.c.bcprivvm	2006-09-05 12:53:59.000000000 +0400
-+++ ./mm/mprotect.c	2006-09-05 13:27:40.000000000 +0400
-@@ -21,6 +21,7 @@
- #include <linux/syscalls.h>
- #include <linux/swap.h>
- #include <linux/swapops.h>
-+#include <bc/vmpages.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/cacheflush.h>
-@@ -139,12 +140,19 @@ mprotect_fixup(struct vm_area_struct *vm
- 	pgoff_t pgoff;
- 	int error;
- 	int dirty_accountable = 0;
-+	int recharge;
- 
- 	if (newflags == oldflags) {
- 		*pprev = vma;
- 		return 0;
- 	}
- 
-+	recharge = bc_privvm_recharge(oldflags, newflags, vma->vm_file);
-+	if (recharge == BC_CHARGE) {
-+		if (bc_privvm_charge(mm, end - start))
-+			return -ENOMEM;
-+	}
-+
- 	/*
- 	 * If we make a private mapping writable we increase our commit;
- 	 * but (without finer accounting) cannot reduce our commit if we
-@@ -157,8 +165,9 @@ mprotect_fixup(struct vm_area_struct *vm
- 	if (newflags & VM_WRITE) {
- 		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
- 			charged = nrpages;
-+			error = -ENOMEM;
- 			if (security_vm_enough_memory(charged))
--				return -ENOMEM;
-+				goto fail_acct;
- 			newflags |= VM_ACCOUNT;
- 		}
- 	}
-@@ -205,12 +213,18 @@ success:
- 		hugetlb_change_protection(vma, start, end, vma->vm_page_prot);
- 	else
- 		change_protection(vma, start, end, vma->vm_page_prot, dirty_accountable);
-+
-+	if (recharge == BC_UNCHARGE)
-+		bc_privvm_uncharge(mm, end - start);
- 	vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
- 	vm_stat_account(mm, newflags, vma->vm_file, nrpages);
- 	return 0;
- 
- fail:
- 	vm_unacct_memory(charged);
-+fail_acct:
-+	if (recharge == BC_CHARGE)
-+		bc_privvm_uncharge(mm, end - start);
- 	return error;
- }
- 
---- ./mm/shmem.c.bcprivvm	2006-09-05 13:06:37.000000000 +0400
-+++ ./mm/shmem.c	2006-09-05 13:39:26.000000000 +0400
-@@ -2363,6 +2363,13 @@ int shmem_zero_setup(struct vm_area_stru
- 
- 	if (vma->vm_file)
- 		fput(vma->vm_file);
-+	else if (vma->vm_flags & VM_WRITE)
-+		/*
-+		 * this means that mapping was considered to be private
-+		 * in do_mmap_pgoff, but now it becomes non-private, as
-+		 * file is attached to the vma.
-+		 */
-+		bc_privvm_uncharge(vma->vm_mm, size);
- 	vma->vm_file = file;
- 	vma->vm_ops = &shmem_vm_ops;
- 	return 0;

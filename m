@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWIEOSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWIEOcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbWIEOSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 10:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWIEOSi
+	id S965013AbWIEOcN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 10:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWIEOcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 10:18:38 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22685 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965073AbWIEOSh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 10:18:37 -0400
-Subject: Re: PATA drivers queued for 2.6.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Grant Coady <gcoady.lk@gmail.com>, Jeff Garzik <jeff@garzik.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <44FD7B1E.7020102@aitel.hist.no>
-References: <44FC0779.9030405@garzik.org>
-	 <po4of2pnhpc0325kqj2hd37b7eh3epcdsm@4ax.com>
-	 <Pine.LNX.4.61.0609041406140.21005@yvahk01.tjqt.qr>
-	 <44FD7B1E.7020102@aitel.hist.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 05 Sep 2006 15:39:36 +0100
-Message-Id: <1157467176.9018.48.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 5 Sep 2006 10:32:13 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:17135 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S965013AbWIEOcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 10:32:11 -0400
+Date: Tue, 05 Sep 2006 08:32:27 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.6.18-rc5-mm1 unusual IRQ number for VIA device
+In-reply-to: <44FCCB7A.8000105@bellsouth.net>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <44FD8A7B.1000503@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.zOFUKsGFxa+fu0uGVN6HuRT+Krg@ifi.uio.no>
+ <fa.2CAUcMm0GNX2+CNwugoJEUNtwzQ@ifi.uio.no> <44FCA4EC.3060507@shaw.ca>
+ <44FCA920.4020706@bellsouth.net> <44FCCB7A.8000105@bellsouth.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-05 am 15:26 +0200, ysgrifennodd Helge Hafting:
-> between sda/hda unless they also use an initrd.  The kernel
-> itself does not seem to support partition by label. :-(
+Jay Cliburn wrote:
+> Nothing I've read about MSI so far indicates that an IRQ number greater 
+> than 255 is permissible, yet this device gets assigned an IRQ number of 
+> 8,410 when MSI is enabled.  Booting 2.6.18-rc5-mm1 with pci=nomsi causes 
+> the device to be assigned IRQ 17 instead of 8410.
+> 
+> The problem with the large IRQ number is made manifest in Fedora's 
+> irqbalance program, which is run as an init script.  An array is built 
+> in that program that's indexed by IRQ number, with a max of 255.  When 
+> the program attempts to index element 8410, it segfaults.
+> 
+> Are IRQ numbers greater than 255 allowed with MSI?
 
-This is correct and one reason vendor kernels generally use an initrd.
-The kernel does however support "root=/dev/sda1"
+I assume you're on x86-64 with CONFIG_NR_CPUS set to 255. In that case 
+the max IRQ number is 256 + (32 * NR_CPUS) or 8416. The MSI interrupts 
+will get assigned from highest IRQ to lowest, so you should expect to 
+see such high numbers..
 
-Alan
+It appears that irqbalance's assumption that IRQ cannot exceed 255 is 
+not valid on x86-64 (on i386 it is since NR_IRQS is 224).
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

@@ -1,61 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWIEQBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWIEQCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbWIEQBO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 12:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWIEQBO
+	id S965131AbWIEQCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 12:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWIEQCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 12:01:14 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55046 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965122AbWIEQBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 12:01:13 -0400
-Date: Tue, 5 Sep 2006 18:01:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Mirkin <amirkin@sw.ru>
-Subject: Re: [RFC][PATCH] fail kernel compilation in case of unresolved symbols
-Message-ID: <20060905160104.GF9173@stusta.de>
-References: <44FD7FED.7000603@sw.ru> <20060905153159.GA13082@uranus.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060905153159.GA13082@uranus.ravnborg.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 5 Sep 2006 12:02:17 -0400
+Received: from main.gmane.org ([80.91.229.2]:63901 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965131AbWIEQCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 12:02:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Steve Fox" <drfickle@us.ibm.com>
+Subject: Re: 2.6.18-rc5-mm1 dependency on curses devel still there
+Date: Tue, 5 Sep 2006 16:00:59 +0000 (UTC)
+Message-ID: <edk6vr$i0u$1@sea.gmane.org>
+References: <20060901015818.42767813.akpm@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 24-159-201-235.dhcp.roch.mn.charter.com
+User-Agent: pan 0.109 (Beable)
+Cc: linux-kernel-announce@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 05:31:59PM +0200, Sam Ravnborg wrote:
-> On Tue, Sep 05, 2006 at 05:47:25PM +0400, Kirill Korotaev wrote:
-> > At stage 2 modpost utility is used to check modules.
-> > In case of unresolved symbols modpost only prints warning.
+On Fri, 01 Sep 2006 01:58:18 -0700, Andrew Morton wrote:
+
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/
+
+The dependency on having curses installed reported by Andy Whitcroft for
+2.6.18-rc4-mm1 is still there. I've included the prior discussion below.
+Could this patch be reverted or fixed to not build things which use
+curses? Thanks.
+
+Andy Whitcroft wrote:
+> Andy Whitcroft wrote:
+> > Andrew Morton wrote:
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/ 
+> >>
 > > 
-> > IMHO it is a good idea to fail compilation process in case of
-> > unresolved symbols, since usually such errors are left unnoticed,
-> > but kernel modules are broken.
+> >>  git-lxdialog.patch
+> > 
+> > This tree seems to change the Makefile dependancies in the kconfig 
+> > subdirectory such that a plain compile of the kernel leads to an attempt 
+> > to build the menuconfig targets.  This in turn adds a new dependancy on 
+> > the curses development libraries.
+> > 
+> >   08/15/06-05:23:09 building kernel - make -j4 vmlinux
+> >     HOSTCC  scripts/kconfig/lxdialog/checklist.o
+> >   In file included from scripts/kconfig/lxdialog/checklist.c:24:
+> >               scripts/kconfig/lxdialog/dialog.h:31:20: error: curses.h:
+> >               No such file or directory
+> > 
+> > This seems to come from this rather innocent sounding change in that tree:
+> > 
+> > commit 9238251dddc15b52656e70b74dffe56193d01215
+> > Author: Sam Ravnborg <sam@mars.ravnborg.org>
+> > Date:   Mon Jul 24 21:40:46 2006 +0200
+> > 
+> >     kconfig/lxdialog: refactor color support
+> > 
 > 
-> The primary reason why we do not fail in this case is that building
-> external modules often result in unresolved symbols at modpost time.
+> Ok, reading the patch as if its git output isn't a good plan.  The 
+> changeset appears to be this one:
 > 
-> And there is many legitime uses of external modules that we shall support.
+> commit 49140e7b29bb1fcc195efef3e1c54c144dd2eff7
+> Author: Sam Ravnborg <sam@mars.ravnborg.org>
+> Date:   Thu Jul 27 22:10:27 2006 +0200
+> 
+>      kconfig/menuconfig: lxdialog is now built-in
+> 
+> 
+> > which also seems to change the Makefile about, specifically bringing the 
+> > sub Makefile into the top level one.
+> > 
+> > [...]
+> > -       $(Q)$(MAKE) $(build)=scripts/kconfig/lxdialog
+> > [...]
+> > +# lxdialog stuff
+> > +check-lxdialog  := $(srctree)/$(src)/lxdialog/check-lxdialog.sh
+> > [...]
+> > 
+> > Sam?
+> > 
+> > -apw
 
-Is there a way we can get this only for building the kernel itself?
-In this case an unresolved symbol is a real bug that should cause an 
-abort of the compilation.
-
-I'm often doing compile tests for the kernel, and the current warnings 
-are too easy to miss.
-
-> 	Sam
-
-cu
-Adrian
-
+Andy Whitcroft wrote:
+> Sam Ravnborg wrote:
+> > On Wed, Aug 16, 2006 at 10:41:59AM +0100, Andy Whitcroft wrote:
+> >> This tree seems to change the Makefile dependancies in the kconfig 
+> >> subdirectory such that a plain compile of the kernel leads to an attempt 
+> >> to build the menuconfig targets.  This in turn adds a new dependancy on 
+> >> the curses development libraries.
+> > What I see is that "make defconfig" builds _all_ *config targets -
+> > strange...
+> 
+> Well it could be trying to build them all for me too, but as I don't 
+> have curses development libraries it would fail at that point.  I don't 
+> think we want it to build the ones its not using.  Thats daft :).
 -- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Steve Fox
+IBM Linux Technology Center
 

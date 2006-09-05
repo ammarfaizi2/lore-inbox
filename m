@@ -1,69 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbWIEQGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWIEQI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbWIEQGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 12:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWIEQGU
+	id S965174AbWIEQI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 12:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWIEQI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 12:06:20 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:4877 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965102AbWIEQGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 12:06:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hMvNKzU9A5mie5Fiv34AiaYd6ZZgWl0evlDo9yAtXOL0KeFvMZo5H/sSPmQ4lJYZ8dC14IddZ8in0ngIBHM1ikgbiMXh49mL/RuyT6qsH9hoFDOCPr7i3Mtp/QZmGiqbrVdfIGPzj205M62p/O6HfoTHPf4ji9HPs6NXXnS5+K0=
-Message-ID: <86b122f40609050906u7aafe808h5002c9f15369a744@mail.gmail.com>
-Date: Tue, 5 Sep 2006 18:06:18 +0200
-From: "Tiemen Schut" <tschut@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel drops ethernet packets during disk writes
-In-Reply-To: <86b122f40609050815v664ff217kcfc82a5c9f2772ad@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 5 Sep 2006 12:08:26 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:15309 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965018AbWIEQIY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 12:08:24 -0400
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, sct@redhat.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>,
+       jack@suse.cz
+In-Reply-To: <20060901101801.7845bca2.akpm@osdl.org>
+References: <1157125829.30578.6.camel@dyn9047017100.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk>
+	 <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060901101801.7845bca2.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 09:11:42 -0700
+Message-Id: <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <86b122f40609050815v664ff217kcfc82a5c9f2772ad@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: The linux kernel appears to drop raw ethernet packets if
-another process is writing to disk.
+On Fri, 2006-09-01 at 10:18 -0700, Andrew Morton wrote:
+> On Fri, 01 Sep 2006 09:32:22 -0700
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> 
+> > > > Kernel BUG at fs/buffer.c:2791
+> > > > invalid opcode: 0000 [1] SMP
+> > > > 
+> > > > Its complaining about BUG_ON(!buffer_mapped(bh)).
+> 
+> I need to have a little think about this, remember what _should_ be
+> happening in this situation.
+> 
+> We (mainly I) used to do a huge amount of fsx-linux testing on 1k blocksize
+> filesystems.  We've done something to make this start happening.  Part of
+> resolving this bug will be working out what that was.
+> 
 
-Test environment: Used a p4 1.7 GHz with gigabit interface
-point-to-point connection to another p4 (windows pc). This windows PC
-generates raw ethernet frames holding a counter and sends 'm on to the
-linux PC, at a transfer rate of 350 Mbit/s. When not writing to disk,
-everything goes quite fine. I can check the counters at the linux
-side, and will notice a minimal packet loss (<  0.001 % or so).
+It took a while to track this down. 2.6.13 is the last kernel
+which runs my fsx tests fine (72+ hours).
 
-However, for my application I want to write each and every frame to
-disk. So, I created a second app, and through a fifo the receiver app
-and the disk writer app communicate. Now I'm losing like 80% of my
-packets :o Reducing the throughput on the network doesn't really help
-(though it does help a little).
+Here is the change that seems to cause the problem. Jana Kara
+introduced a new mode "SWRITE" for ll_rw_block() - where it
+waits for buffer to be unlocked (WRITE will skip locked
+buffers) + jbd journal_commit_transaction() has been changed
+to make use of SWRITE.
 
-Note: I tried everything in the same app first, but my guess was that
-the write operation delayed the app, so I decided to put everything in
-two apps to give the scheduler some work ;) Didn't work though.
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=112109788702895&w=2
 
-My guess would be that the kernel drops the packets because the write
-operation takes to long (how long can it take, it's just a stupid 1512
-bytes frame). Anyway, I tried to enlarge
-.sys.net.core.netdev_max_backlog, but that didn't do the trick.
+Theoritically same race (between journal_commit_transaction() and
+journal_unmap_buffer()+set_page_dirty()) could exist before his changes
+- which should trigger bug in submit_bh(). But I can't seem to hit
+it without his changes. My guess is ll_rw_block() is always skipping
+those cleaned up buffers, before page gets dirtied again ..
 
-This problem occures on both 2.6.13 and 2.4.idontremember.
+Andrew, what should we do ? Do you suggest handling this in jbd
+itself (like this patch) ?
 
-It kinda sucks, what's the use of receiving traffic if you can't write
-it to disk?
+Thanks,
+Badari
 
-I'm sending the packets using the winpcap library, and I'm receiving
-the packets using the pcap library.
+Patch to fix: Kernel BUG at fs/buffer.c:2791
+on 1k (2k) filesystems while running fsx.
 
-Any help would be _greatly_ appreciated, and if neccessary, please ask
-for additional information/used software/test results/etc.
+journal_commit_transaction collects lots of dirty buffer from
+and does a single ll_rw_block() to write them out. ll_rw_block()
+locks the buffer and checks to see if they are dirty and submits
+them for IO.
 
-Tiemen Schut
+In the mean while, journal_unmap_buffers() as part of
+truncate can unmap the buffer and throw it away. Since its
+a 1k (2k) filesystem - each page (4k) will have more than
+one buffer_head attached to the page and and we can't free 
+up buffer_heads attached to the page (if we are not
+invalidating the whole page).
+
+Now, any call to set_page_dirty() (like msync_interval)
+could end up setting all the buffer heads attached to
+this page again dirty, including the ones those got
+cleaned up :(
+
+So, -not-so-elegant fix would be to have make jbd skip all 
+the buffers that are not mapped.
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+---
+ fs/jbd/commit.c |   32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.18-rc5/fs/jbd/commit.c
+===================================================================
+--- linux-2.6.18-rc5.orig/fs/jbd/commit.c	2006-08-27 20:41:48.000000000 -0700
++++ linux-2.6.18-rc5/fs/jbd/commit.c	2006-09-01 10:43:54.000000000 -0700
+@@ -160,6 +160,34 @@ static int journal_write_commit_record(j
+ 	return (ret == -EIO);
+ }
+ 
++static void jbd_write_buffers(int nr, struct buffer_head *bhs[])
++{
++	int i;
++
++	for (i = 0; i < nr; i++) {
++		struct buffer_head *bh = bhs[i];
++
++		lock_buffer(bh);
++
++		/*
++		 * case 1: Buffer could have been flushed by now,
++		 * if so nothing to do for us.
++		 * case 2: Buffer could have been unmapped up by
++		 * journal_unmap_buffer - but still attached to the
++		 * page. Any calls to set_page_dirty() would dirty
++		 * the buffer even though its not mapped.  If so,
++		 * we need to skip them.
++		 */
++		if (buffer_mapped(bh) && test_clear_buffer_dirty(bh)) {
++			bh->b_end_io = end_buffer_write_sync;
++			get_bh(bh);
++			submit_bh(WRITE, bh);
++			continue;
++		}
++		unlock_buffer(bh);
++	}
++}
++
+ /*
+  * journal_commit_transaction
+  *
+@@ -356,7 +384,7 @@ write_out_data:
+ 					jbd_debug(2, "submit %d writes\n",
+ 							bufs);
+ 					spin_unlock(&journal->j_list_lock);
+-					ll_rw_block(SWRITE, bufs, wbuf);
++					jbd_write_buffers(bufs, wbuf);
+ 					journal_brelse_array(wbuf, bufs);
+ 					bufs = 0;
+ 					goto write_out_data;
+@@ -379,7 +407,7 @@ write_out_data:
+ 
+ 	if (bufs) {
+ 		spin_unlock(&journal->j_list_lock);
+-		ll_rw_block(SWRITE, bufs, wbuf);
++		jbd_write_buffers(bufs, wbuf);
+ 		journal_brelse_array(wbuf, bufs);
+ 		spin_lock(&journal->j_list_lock);
+ 	}
 
 
-PS: Personal CC's are okay with me, but if it's to much trouble never mind :)

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWIEQok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWIEQsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbWIEQok (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 12:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWIEQoj
+	id S1030191AbWIEQsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 12:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWIEQsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 12:44:39 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:59116 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S965221AbWIEQoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 12:44:38 -0400
-Message-ID: <44FDA87B.5030902@s5r6.in-berlin.de>
-Date: Tue, 05 Sep 2006 18:40:27 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Takashi Iwai <tiwai@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org, pshou@realtek.com.tw
-Subject: Re: CodingStyle
-References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de> <20060831110436.995bdf93.rdunlap@xenotime.net> <20060902231509.GC13031@elf.ucw.cz> <20060902213046.dd9bf569.rdunlap@xenotime.net> <20060905080813.GE1958@elf.ucw.cz>
-In-Reply-To: <20060905080813.GE1958@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 5 Sep 2006 12:48:10 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:29068 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030189AbWIEQsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 12:48:09 -0400
+Subject: Re: [RFC][PATCH 3/9] actual generic PAGE_SIZE infrastructure
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Martin Waitz <tali@admingilde.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <20060905112056.GJ17042@admingilde.org>
+References: <20060830221604.E7320C0F@localhost.localdomain>
+	 <20060830221606.40937644@localhost.localdomain>
+	 <20060905112056.GJ17042@admingilde.org>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 09:47:43 -0700
+Message-Id: <1157474863.3186.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> +Avoid extra spaces around ! operator, and do not place spaces around (s.
+On Tue, 2006-09-05 at 13:20 +0200, Martin Waitz wrote:
+> On Wed, Aug 30, 2006 at 03:16:06PM -0700, Dave Hansen wrote:
+> > * Define ASM_CONST() macro to help using constants in both assembly
+> >   and C code.  Several architectures have some form of this, and
+> >   they will be consolidated around this one.
+> 
+> arm uses UL() for this and I think this is much more readable than
+> ASM_CONST().  Can we please change the name of this macro?
 
-How about:
+I don't have any real problem with changing it, but I fear that the ppc
+guys will want it the _other_ way. ;)
 
-	Avoid extra spaces after the ! operator.
-	Do not place spaces around parentheses.
+Do you really mind if we just keep it as it is?  If there is some
+further disagreement on it, I'll change it.
 
-Because "foo && !bar" is certainly OK.
+-- Dave
 
-Or more draconian for the former and less so for the latter rule:
-
-	Do not put whitespace between any of the unary operators and
-	their operand.
-
-	It is usually unnecessary to have whitespace around parentheses
-	as part of expressions, around brackets, or around the operators
-	. and ->.
-
-Rule 1 certainly applies likewise to ++, --, unary +, unary -, !, ~,
-(typecast), unary *, unary &, sizeof.
-
-Rule 2 applies to all of ( ), [ ], ., ->, except where line breaks and
-indentation warrant whitespace, or where whitespace helps to read
-expressions with more levels of braces. Although the latter should be
-avoided anyway.
--- 
-Stefan Richter
--=====-=-==- =--= --=-=
-http://arcgraph.de/sr/

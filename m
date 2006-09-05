@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbWIENke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWIENlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbWIENke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 09:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWIENke
+	id S965023AbWIENlP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 09:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWIENlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 09:40:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:480 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965050AbWIENka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 09:40:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157460815.5621.10.camel@localhost> 
-References: <1157460815.5621.10.camel@localhost>  <1157421445.5510.13.camel@localhost> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <4012.1157450226@warthog.cambridge.redhat.com> <1157460472.5621.3.camel@localhost> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 05 Sep 2006 14:40:23 +0100
-Message-ID: <11442.1157463623@warthog.cambridge.redhat.com>
+	Tue, 5 Sep 2006 09:41:15 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:47285 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S965023AbWIENlN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 09:41:13 -0400
+Message-ID: <44FD7DB3.3060406@aitel.hist.no>
+Date: Tue, 05 Sep 2006 15:37:55 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Bernd Eckenfels <ecki@lina.inka.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Raid 0 Swap?
+References: <E1GKKiV-0006P7-00@calista.eckenfels.net>
+In-Reply-To: <E1GKKiV-0006P7-00@calista.eckenfels.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Bernd Eckenfels wrote:
+> In article <200609041529.k84FTolf004383@turing-police.cc.vt.edu> you wrote:
+>   
+>> Memory is indeed cheap.  However, if you're already at the max supported
+>> memory configuration for your system, buying another RAM socket to plug that
+>> cheap memory card into can be *really* expensive.
+>>     
+>
+> Dont expect any useable system performance if you swap regularly.
+>   
+Not entirely correct.  Performance with continous swapping will
+be fine as long as the swap bandwidth is lower than available disk
+bandwidth. 
 
-> > That is fine. As long as it is doing so in the _autofs_ filesystem. A
-> > call to 'stat()' should suffice to tell if this is the case.
-> 
-> I meant statfs().
+This is a narrow line to walk though, memory bandwidth being
+much higher than disk bandwith so it don't take much more
+swapping before performance drops like a rock.
 
-stat() too: st_dev.
+Helge Hafting
 
-David

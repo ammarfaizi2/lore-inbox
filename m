@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWIEVTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWIEVT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWIEVTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWIEVTo
+	id S1751179AbWIEVT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWIEVT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:19:44 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56212 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750792AbWIEVTm (ORCPT
+	Tue, 5 Sep 2006 17:19:57 -0400
+Received: from gate.crashing.org ([63.228.1.57]:7615 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751179AbWIEVT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:19:42 -0400
-Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Badari Pulavarty <pbadari@gmail.com>, Will Simoneau <simoneau@ele.uri.edu>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-In-Reply-To: <44FDDA89.7080207@us.ibm.com>
-References: <20060905171049.GB27433@ele.uri.edu>
-	 <1157479756.23501.18.camel@dyn9047017100.beaverton.ibm.com>
-	 <1157482632.19432.6.camel@kleikamp.austin.ibm.com>
-	 <44FDDA89.7080207@us.ibm.com>
+	Tue, 5 Sep 2006 17:19:56 -0400
+Subject: Re: pci error recovery procedure
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, linuxppc-dev@ozlabs.org,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Yanmin Zhang <yanmin.zhang@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>
+In-Reply-To: <20060905185020.GD7139@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
+	 <20060831175001.GE8704@austin.ibm.com>
+	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
+	 <20060901212548.GS8704@austin.ibm.com>
+	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
+	 <1157360592.22705.46.camel@localhost.localdomain>
+	 <20060905185020.GD7139@austin.ibm.com>
 Content-Type: text/plain
-Date: Tue, 05 Sep 2006 16:19:39 -0500
-Message-Id: <1157491179.19432.11.camel@kleikamp.austin.ibm.com>
+Date: Wed, 06 Sep 2006 07:19:11 +1000
+Message-Id: <1157491152.22705.133.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 13:14 -0700, Badari Pulavarty wrote:
-> Dave Kleikamp wrote:
-
-> > I'm having a hard time figuring out exactly what ext3_get_blocks_handle
-> > is trying to return, but it looks to me like if it is allocating one
-> > data block, and needs to allocate an indirect block as well, then it
-> > will return 2 rather than 1.  Is this expected, or am I just confused?
-> >
-> >   
+On Tue, 2006-09-05 at 13:50 -0500, Linas Vepstas wrote:
+> On Mon, Sep 04, 2006 at 07:03:12PM +1000, Benjamin Herrenschmidt wrote:
+> > 
+> > > As you know, all functions of a device share the same bus number and 5 bit dev number.
+> > > They just have different 3 bit function number. We could deduce if functions are in the same
+> > > device (slot).
+> > 
+> > Until you have a P2P bridge ...
 > 
-> It would return "1" in that case.. (data block)
+> And this is not theoretical: for example, the matrox graphics cards:
 > 
->  > 0 means get_block() suceeded and indicates the number of blocks mapped
-> = 0 lookup failed
-> < 0 mean error case
+> 0000:c8:01.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge (non-transparent mode) (rev 13)
+> 0000:c9:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 85)
 
-Okay, I got confused looking through the code.  I still don't see how
-ext3_get_blocks_handle() should be returning a number greater than
-maxblocks.
+It's also very common with multiple ports network cards
 
-> >> I did search for callers of ext3_get_blocks_handle() and found that
-> >> ext3_readdir() seems to do wrong thing all the time with error check :(
-> >> Need to take a closer look..
-> >>
-> >> 	err = ext3_get_blocks_handle(NULL, inode, blk, 1,
-> >>                                                 &map_bh, 0, 0);
-> >>         if (err > 0) {  <<<< BAD
-> >>                   page_cache_readahead(sb->s_bdev->bd_inode->i_mapping,
-> >>                                 &filp->f_ra,
-> >>                                 filp,
-> >>                                 map_bh.b_blocknr >>
-> >>                                 (PAGE_CACHE_SHIFT - inode->i_blkbits),
-> >>                                 1);
-> >>                         bh = ext3_bread(NULL, inode, blk, 0, &err);
-> >>        }
-> >>     
-> >
-> > Bad to do what it's doing, or bad to call name the variable "err"?
-> > I think if it looked like this:
-> >
-> > 	count = ext3_get_blocks_handle(NULL, inode, blk, 1,
-> >                                                 &map_bh, 0, 0);
-> >         if (count > 0) { 
-> >
-> > it would be a lot less confusing.
-> >   
-> I am sorry !! it is doing the right thing :(
+Ben.
 
-Not your fault.  The variable is very badly named.
--- 
-David Kleikamp
-IBM Linux Technology Center
 

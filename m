@@ -1,98 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWIERLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWIERUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWIERLK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 13:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWIERLK
+	id S965018AbWIERUr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 13:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWIERUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 13:11:10 -0400
-Received: from orca.ele.uri.edu ([131.128.51.63]:27312 "EHLO orca.ele.uri.edu")
-	by vger.kernel.org with ESMTP id S965211AbWIERLF (ORCPT
+	Tue, 5 Sep 2006 13:20:47 -0400
+Received: from xenotime.net ([66.160.160.81]:18157 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965018AbWIERUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 13:11:05 -0400
-Date: Tue, 5 Sep 2006 13:10:49 -0400
-From: Will Simoneau <simoneau@ele.uri.edu>
-To: linux-kernel@vger.kernel.org
-Subject: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-Message-ID: <20060905171049.GB27433@ele.uri.edu>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 [Linux 2.6.17.11 sparc64]
+	Tue, 5 Sep 2006 13:20:45 -0400
+Date: Tue, 5 Sep 2006 10:24:11 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, Matt Domsch <Matt_Domsch@dell.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johninsd@san.rr.com, davej@codemonkey.org.uk, Riley@williams.name,
+       trini@kernel.crashing.org, davem@davemloft.net, ecd@brainaid.de,
+       jj@sunsite.ms.mff.cuni.cz, anton@samba.org, wli@holomorphy.com,
+       lethal@linux-sh.org, rc@rc0.org.uk, spyro@f2s.com, rth@twiddle.net,
+       avr32@atmel.com, hskinnemoen@atmel.com, starvik@axis.com,
+       ralf@linux-mips.org, matthew@wil.cx, grundler@parisc-linux.org,
+       geert@linux-m68k.org, zippel@linux-m68k.org, paulus@samba.org,
+       schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
+       uclinux-v850@lsi.nec.co.jp, chris@zankel.net
+Subject: Re: [PATCH 23/26] Dynamic kernel command-line - um
+Message-Id: <20060905102411.0767059a.rdunlap@xenotime.net>
+In-Reply-To: <200609040123.43788.alon.barlev@gmail.com>
+References: <200609040115.22856.alon.barlev@gmail.com>
+	<200609040123.43788.alon.barlev@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Sep 2006 01:23:42 +0300 Alon Bar-Lev wrote:
 
---E39vaYmALEf/7YXx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> 1. Rename saved_command_line into boot_command_line.
+> 2. Set command_line as __initdata.
+> 
+> Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
+> 
+> ---
+> 
+> diff -urNp linux-2.6.18-rc5-mm1.org/arch/um/include/user_util.h linux-2.6.18-rc5-mm1/arch/um/include/user_util.h
+> --- linux-2.6.18-rc5-mm1.org/arch/um/include/user_util.h	2006-06-18 04:49:35.000000000 +0300
+> +++ linux-2.6.18-rc5-mm1/arch/um/include/user_util.h	2006-09-03 23:47:03.000000000 +0300
+> @@ -38,7 +38,7 @@ extern unsigned long long highmem;
+>  
+>  extern char host_info[];
+>  
+> -extern char saved_command_line[];
+> +extern char __initdata boot_command_line[];
+>  
+>  extern unsigned long _stext, _etext, _sdata, _edata, __bss_start, _end;
+>  extern unsigned long _unprotected_end;
+> diff -urNp linux-2.6.18-rc5-mm1.org/arch/um/kernel/um_arch.c linux-2.6.18-rc5-mm1/arch/um/kernel/um_arch.c
+> --- linux-2.6.18-rc5-mm1.org/arch/um/kernel/um_arch.c	2006-09-03 18:56:51.000000000 +0300
+> +++ linux-2.6.18-rc5-mm1/arch/um/kernel/um_arch.c	2006-09-03 19:47:59.000000000 +0300
+> @@ -482,7 +482,7 @@ void __init setup_arch(char **cmdline_p)
+>  	atomic_notifier_chain_register(&panic_notifier_list,
+>  			&panic_exit_notifier);
+>  	paging_init();
+> -        strlcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
+> +        strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
+>   	*cmdline_p = command_line;
+>  	setup_hostinfo();
+>  }
 
-Has anyone seen this before? These three traces occured at different times
-today when three new user accounts (and associated quotas) were created. Th=
-is
-machine is an NFS server which uses quotas on an ext3 fs (dir_index is on).
-Kernel is 2.6.17.11 on an x86 smp w/64G highmem; 4G ram is installed. The
-affected filesystem is on a software raid1 of two hardware raid0 volumes fr=
-om a
-megaraid card.
+Please use tabs instead of spaces for indentation.
 
-BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
- <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread+0x26/0x2a
- <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
- <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
- <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
- <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
- <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time+0x52/0x6a
- <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
- <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup+0xdf/0x2=
-66
- <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
- <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
- <c0102a97> syscall_call+0x7/0xb=20
-
-BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
- <c01c5140> ext3_getblk+0x98/0x2a6  <c0141311> buffered_rmqueue+0xed/0x15b
- <c01414a6> get_page_from_freelist+0x80/0x9e  <c01c536d> ext3_bread+0x1f/0x=
-88
- <c01cedf9> ext3_quota_read+0x136/0x1ae  <c018b683> v1_read_dqblk+0x61/0xac
- <c0188f32> dquot_acquire+0xf6/0x107  <c01ceaba> ext3_acquire_dquot+0x46/0x=
-68
- <c01897d4> dqget+0x155/0x1e7  <c018a97b> dquot_transfer+0x3e0/0x3e9
- <c016fe52> dput+0x23/0x13e  <c01c7986> ext3_setattr+0xc3/0x240
- <c0120f66> current_fs_time+0x52/0x6a  <c017320e> notify_change+0x2bd/0x30d
- <c0159246> chown_common+0x9c/0xc5  <c02a222c> strncpy_from_user+0x3b/0x68
- <c0167fe6> do_path_lookup+0xdf/0x266  <c016841b> __user_walk_fd+0x44/0x5a
- <c01592b9> sys_chown+0x4a/0x55  <c015a43c> vfs_write+0xe7/0x13c
- <c0104f4f> do_IRQ+0x63/0xa1  <c0102a97> syscall_call+0x7/0xb
-
-BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
- <c01c5140> ext3_getblk+0x98/0x2a6  <c01d5f8b> __journal_file_buffer+0x18d/=
-0x284
- <c01d5142> journal_dirty_metadata+0x141/0x218  <c01dad97> journal_alloc_jo=
-urnal_head+0x12/0x68
- <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
- <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
- <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
- <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
- <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time+0x52/0x6a
- <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
- <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup+0xdf/0x2=
-66
- <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
- <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
- <c0102a97> syscall_call+0x7/0xb=20
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFE/a+ZLYBaX8VDLLURAi2SAJ9st3OTBl3Ssl5qw3EdMW8qYPGp1gCgwvE5
-kUBvZzY5DvD60kN7Z+S4sJg=
-=SRvG
------END PGP SIGNATURE-----
-
---E39vaYmALEf/7YXx--
+---
+~Randy

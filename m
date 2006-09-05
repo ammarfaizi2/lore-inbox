@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWIEA5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWIEB1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWIEA5d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Sep 2006 20:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWIEA5d
+	id S1751529AbWIEB1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Sep 2006 21:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWIEB1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Sep 2006 20:57:33 -0400
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:37356 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S1751513AbWIEA5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Sep 2006 20:57:32 -0400
-Message-ID: <44FCCB7A.8000105@bellsouth.net>
-Date: Mon, 04 Sep 2006 19:57:30 -0500
-From: Jay Cliburn <jacliburn@bellsouth.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc5-mm1 unusual IRQ number for VIA device
-References: <fa.zOFUKsGFxa+fu0uGVN6HuRT+Krg@ifi.uio.no> <fa.2CAUcMm0GNX2+CNwugoJEUNtwzQ@ifi.uio.no> <44FCA4EC.3060507@shaw.ca> <44FCA920.4020706@bellsouth.net>
-In-Reply-To: <44FCA920.4020706@bellsouth.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 4 Sep 2006 21:27:37 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:37343 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751527AbWIEB1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Sep 2006 21:27:36 -0400
+Date: Tue, 5 Sep 2006 10:30:10 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       saito.tadashi@soft.fujitsu.com, ak@suse.de, oleg@tv-sign.ru,
+       jdelvare@suse.de
+Subject: Re: [PATCH] proc: readdir race fix.
+Message-Id: <20060905103010.5f744bee.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <m1y7sz4455.fsf@ebiederm.dsl.xmission.com>
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1y7sz4455.fsf@ebiederm.dsl.xmission.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Cliburn wrote:
-> Robert Hancock wrote:
->> Jay Cliburn wrote:
->>> Jay Cliburn wrote:
->>>> Running 2.6.18-rc5.mm1 on an Asus M2V mainboard with dual-core 
->>>> Athlon cpu, the onboard audio device gets assigned and IRQ of 8410.  
->>>> Under 2.6.18-rc4-mm3, the same device gets assigned IRQ 17.  Is this 
->>>> a way to get around this?
->>>
->>> What I meant to ask is:  Is there a way to get around this?
->>>
->>> Thanks,
->>> Jay
->>
->> What do you think needs to be "gotten around"? It is using MSI 
->> interrupts, I think that the IRQ numbers will be different.
->>
-> I'll have to go research what MSI interrupts are.  Thanks for the pointer.
+Hi,
 
-Nothing I've read about MSI so far indicates that an IRQ number greater 
-than 255 is permissible, yet this device gets assigned an IRQ number of 
-8,410 when MSI is enabled.  Booting 2.6.18-rc5-mm1 with pci=nomsi causes 
-the device to be assigned IRQ 17 instead of 8410.
+On Mon, 04 Sep 2006 17:13:10 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+> These better semantics are implemented by scanning through the
+> pids in numerical order and by making the file offset a pid
+> plus a fixed offset.
+I think this is very sane/solid approach.
+Maybe this is the way to go. I'll test and ack later, thank you.
 
-The problem with the large IRQ number is made manifest in Fedora's 
-irqbalance program, which is run as an init script.  An array is built 
-in that program that's indexed by IRQ number, with a max of 255.  When 
-the program attempts to index element 8410, it segfaults.
+> The pid scan happens on the pid bitmap, which when you look at it is
+> remarkably efficient for a brute force algorithm.  Given that a typical
+> cache line is 64 bytes and thus covers space for 64*8 == 200 pids.  There
+> are only 40 cache lines for the entire 32K pid space.  A typical system
+> will have 100 pids or more so this is actually fewer cache lines we have
+> to look at to scan a linked list, and the worst case of having to scan
+> the entire pid bitmap is pretty reasonable.
 
-Are IRQ numbers greater than 255 allowed with MSI?
+I agree with you but..
+Becasue this approach has to access *all* task structs in a system,
+and have to scan pidhash many times. I'm not sure that this scan & lookup
+is good for future implementation. But this patch is obviously better than
+current implementation.
+
+
+
+>  /*
+> + * Used by proc to find the pid with the first
+> + * pid that is greater than or equal to number.
+> + *
+> + * If there is a pid at nr this function is exactly the same as find_pid.
+> + */
+> +struct pid *find_next_pid(int nr)
+> +{
+
+How about find_first_used_pid(int nr) ?
+
+-Kame
 

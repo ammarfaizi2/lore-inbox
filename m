@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWIETA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWIETEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbWIETA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 15:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWIETA7
+	id S1030228AbWIETEi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 15:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWIETEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 15:00:59 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36587 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030227AbWIETA4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 15:00:56 -0400
-Date: Tue, 5 Sep 2006 20:52:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>
-Subject: Re: lockdep oddity
-Message-ID: <20060905185220.GA24013@elte.hu>
-References: <20060905181241.GC16207@elte.hu> <000b01c6d11d$3f528ff0$6721100a@nuitysystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000b01c6d11d$3f528ff0$6721100a@nuitysystems.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4994]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 5 Sep 2006 15:04:38 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:52385 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030228AbWIETEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 15:04:35 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44FDC9F5.3090605@s5r6.in-berlin.de>
+Date: Tue, 05 Sep 2006 21:03:17 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Miles Lane <miles.lane@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive locking
+ detected
+References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>	<20060905111306.80398394.akpm@osdl.org> <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>
+In-Reply-To: <a44ae5cd0609051116k6c236ba6xa2fd0119708a6950@mail.gmail.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miles Lane wrote:
+> On 9/5/06, Andrew Morton <akpm@osdl.org> wrote:
+>> On Tue, 5 Sep 2006 10:37:51 -0700
+>> "Miles Lane" <miles.lane@gmail.com> wrote:
+>>
+>>> ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+>>> ieee1394: Node changed: 0-02:1023 -> 0-01:1023
+>>> ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0080880002103eae]
+>>>
+>>> =============================================
+>>> [ INFO: possible recursive locking detected ]
+>>> 2.6.18-rc5-mm1 #2
+>>> ---------------------------------------------
+>>> knodemgrd_0/2321 is trying to acquire lock:
+>>>  (&s->rwsem){----}, at: [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
+>>>
+>>> but task is already holding lock:
+>>>  (&s->rwsem){----}, at: [<f8959078>] nodemgr_host_thread+0x717/0x883 [ieee1394]
 
-* Hua Zhong <hzhong@gmail.com> wrote:
+How often does this happen?
 
-> Maybe we should define raw __likely/__unlikely which behave the same 
-> way as the vanilla and use them in places like spinlocks to avoid 
-> these weird problems.
+[...]
+>> That's a 1394 glitch, possibly introduced by git-ieee1394.patch.
+> 
+> Would you like me to verify that removing the patch fixes it, or
+> should I wait for the 2.6.18-rc6-mm1 tree?
 
-yes - but only once the true reason for the oddity is debugged.
+My patches
+"ieee1394: nodemgr: switch to kthread api, replace reset semaphore" and
+"ieee1394: nodemgr: convert nodemgr_serialize semaphore to mutex"
+may be relevant. They are included in git-ieee1394.patch.
 
-	Ingo
+Could you revert them individually and test? It should be possible to
+just "patch -p1 -R < ...." the following patchfiles:
+http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/119-ieee1394-nodemgr-convert-nodemgr_serialize-semaphore-to-mutex.patch
+If the problem persists, also revert
+http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18-rc5/patches/118-ieee1394-nodemgr-switch-to-kthread-api--replace-reset-semaphore.patch
+
+If that does not help, install them again and unapply all ieee1394
+patches from -mm. If you have the time.
+
+Thanks a lot,
+-- 
+Stefan Richter
+-=====-=-==- =--= --=-=
+http://arcgraph.de/sr/

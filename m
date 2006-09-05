@@ -1,197 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWIELeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWIELh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWIELeN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 07:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWIELeN
+	id S1751281AbWIELh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 07:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWIELh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 07:34:13 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:4672 "EHLO
-	ecqcmtlbh.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S1751318AbWIELTw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 07:19:52 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Tue, 5 Sep 2006 07:37:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43946 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751281AbWIELhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 07:37:55 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
+       jdelvare@suse.de, Albert Cahalan <acahalan@gmail.com>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] proc: readdir race fix
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1y7sz4455.fsf@ebiederm.dsl.xmission.com>
+	<20060905112621.b663bc7d.kamezawa.hiroyu@jp.fujitsu.com>
+	<m14pvn3tam.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060905101050.GA128@oleg>
+Date: Tue, 05 Sep 2006 05:36:55 -0600
+In-Reply-To: <20060905101050.GA128@oleg> (Oleg Nesterov's message of "Tue, 5
+	Sep 2006 14:10:50 +0400")
+Message-ID: <m1r6yq35pk.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: HP XW6200: ACPI errors vs SMP / Hyperthreading + bad memory detection, 2.6.16.28 and 2.6.17.11? [try #3]
-Date: Tue, 5 Sep 2006 07:19:44 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7028FDE6A@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HP XW6200: ACPI errors vs SMP / Hyperthreading + bad memory detection, 2.6.16.28 and 2.6.17.11? [try #3]
-Thread-Index: AcbN3S3K/fWIXGrvQUauIkOXH4WSHgC/9TuQ
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Sep 2006 11:19:44.0710 (UTC) FILETIME=[30865E60:01C6D0DD]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-I've been running into a few troubles on our HP XW6200 workstations.
+> On 09/04, Eric W. Biederman wrote:
+>> 
+>> -static struct task_struct *next_tgid(struct task_struct *start)
+>> -{
+>> -	struct task_struct *pos;
+>> +	task = NULL;
+>>  	rcu_read_lock();
+>> -	pos = start;
+>> -	if (pid_alive(start))
+>> -		pos = next_task(start);
+>> -	if (pid_alive(pos) && (pos != &init_task)) {
+>> -		get_task_struct(pos);
+>> -		goto done;
+>> +retry:
+>> +	pid = find_next_pid(tgid);
+>> +	if (pid) {
+>> +		tgid = pid->nr + 1;
+>> +		task = pid_task(pid, PIDTYPE_PID);
+>> +		if (!task || !thread_group_leader(task))
+>                               ^^^^^^^^^^^^^^^^^^^
+> There is a window while de_thread() switches leadership, so next_tgid()
+> may skip a task doing exec. What do you think about
+>
+>                              // needs a comment
+> 		if (!task || task->pid != task->tgid)
+> 			goto retry;
+>
+> instead? Currently first_tgid() has the same (very minor) problem.
 
-SYMPTOM 1:
+I see the problem, and your test will certainly alleviate the symptom.
+You are making the test has this process ever been a thread group leader.
 
-If I'm booting normally I'm getting theses errors in dmesg (using either
-a 2.6.16.x or 2.6.17.11):
+I guess alleviating the symptom is all that is necessary there.
 
-EXT3-fs: mounted filesystem with ordered data mode.
-Adding 2048276k swap on /dev/sda3.  Priority:-1 extents:1
-across:2048276k
-EXT3 FS on sda2, internal journal
-ACPI Error (evgpe-0688): No handler or method for GPE[ 0], disabling
-event [20060127] ACPI Error (evgpe-0688): No handler or method for GPE[
-1], disabling event [20060127] ACPI Error (evgpe-0688): No handler or
-method for GPE[ 2], disabling event [20060127] ACPI Error (evgpe-0688):
-No handler or method for GPE[ 5], disabling event [20060127] ACPI Error
-(evgpe-0688): No handler or method for GPE[ 6], disabling event
-[20060127] ACPI Error (evgpe-0688): No handler or method for GPE[ 7],
-disabling event [20060127] ACPI Error (evgpe-0688): No handler or method
-for GPE[ 9], disabling event [20060127] ACPI Error (evgpe-0688): No
-handler or method for GPE[ A], disabling event [20060127] ACPI Error
-(evgpe-0688): No handler or method for GPE[ F], disabling event
-[20060127] ACPI Error (evgpe-0688): No handler or method for GPE[10],
-disabling event [20060127] ACPI Error (evgpe-0688): No handler or method
-for GPE[11], disabling event [20060127] ACPI Error (evgpe-0688): No
-handler or method for GPE[12], disabling event [20060127] ACPI Error
-(evgpe-0688): No handler or method for GPE[13], disabling event
-[20060127] ACPI Error (evgpe-0688): No handler or method for GPE[14],
-disabling event [20060127] ACPI Error (evgpe-0688): No handler or method
-for GPE[15], disabling event [20060127] ACPI Error (evgpe-0688): No
-handler or method for GPE[16], disabling event [20060127] ACPI Error
-(evgpe-0688): No handler or method for GPE[17], disabling event
-[20060127] ACPI Error (evgpe-0688): No handler or method for GPE[19],
-disabling event [20060127] ACPI Error (evgpe-0688): No handler or method
-for GPE[1A], disabling event [20060127] ACPI Error (evgpe-0688): No
-handler or method for GPE[1B], disabling event [20060127] ACPI Error
-(evgpe-0688): No handler or method for GPE[1C], disabling event
-[20060127] ACPI Error (evgpe-0688): No handler or method for GPE[1D],
-disabling event [20060127] ACPI Error (evgpe-0688): No handler or method
-for GPE[1E], disabling event [20060127] ACPI Error (evgpe-0688): No
-handler or method for GPE[1F], disabling event [20060127]
-mice: PS/2 mouse device common for all mice
-usbcore: registered new driver usbmouse
+Grumble.  I hate that entire pid transfer case, too bad glibc cares.
+
+If I could in the fix for this I would like to add a clean concept
+that we are testing for wrapped in a helper function.  Otherwise
+even with a big fat comment this will be easy to break next time
+someone refactors the code.
 
 
-Also, if I add the acpi=off it removes the ACPI Error msgs but then I
-just can see two cpu instead of the usual 4 (2 + hyper-threading)... I
-really don't know if I'm actually seing two physical CPU or just one
-with it's hyperthreading?
-Here is one cpuinfo:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 1
-cpu MHz         : 3200.728
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 1
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm
-constant_tsc pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 6409.57
+>> +			goto retry;
+>> +		get_task_struct(task);
+>>  	}
+>> -	pos = NULL;
+>> -done:
+>>  	rcu_read_unlock();
+>> -	put_task_struct(start);
+>> -	return pos;
+>> +	return task;
+>> +
+>>  }
+>
+> Emply line before '}'
+>
+>> +struct pid *find_next_pid(int nr)
+>> +{
+>> +	struct pid *next;
+>> +
+>> +	next = find_pid(nr);
+>> +	while (!next) {
+>> +		nr = next_pidmap(nr);
+>> +		if (nr <= 0)
+>> +			break;
+>> +		next = find_pid(nr);
+>> +	}
+>> +	return next;
+>> +}
+>
+> This is strange that we are doing find_pid() before and at the end of loop,
+> I'd suggest this code:
+>
+> 	struct pid *find_next_pid(int nr)
+> 	{
+> 		struct pid *pid;
+>
+> 		do {
+> 			pid = find_pid(nr);
+> 			if (pid != NULL)
+> 				break;
+> 			nr = next_pidmap(nr);
+> 		} while (nr > 0);
+>
+> 		return pid;
+> 	}
+>
+> Imho, a bit easier to read.
+It is at least not worse, so it is probably worth doing.
 
-Top with acpi=off
-top - 17:57:51 up  1:28,  3 users,  load average: 2.56, 2.61, 2.41
-Tasks: 120 total,   4 running, 116 sleeping,   0 stopped,   0 zombie
- Cpu0 : 56.3% us,  5.5% sy,  0.0% ni, 31.4% id,  1.5% wa,  0.2% hi,5.1%
-si
- Cpu1 : 57.3% us,  5.7% sy,  0.0% ni, 33.1% id,  1.7% wa,  0.2% hi,2.0%
-si
+Eric
 
-Top without acpi=off
-top - 17:58:42 up 8 min,  1 user,  load average: 0.00, 0.05, 0.03
-Tasks:  84 total,   1 running,  83 sleeping,   0 stopped,   0 zombie
- Cpu0 :  0.0% us,  0.0% sy,  0.0% ni, 100.0% id,  0.0% wa,  0.0% hi,0.0%
-si
- Cpu1 :  0.0% us,  0.0% sy,  0.0% ni, 100.0% id,  0.0% wa,  0.0% hi,0.0%
-si
- Cpu2 :  0.0% us,  0.0% sy,  0.0% ni, 99.0% id,  0.0% wa,  0.0% hi,1.0%
-si
- Cpu3 :  0.0% us,  0.0% sy,  0.0% ni, 94.4% id,  0.0% wa,  0.0% hi,5.6%
-si
-
-Note that noapic option did not changed any behaviour about this.
-
-========================================================================
-===
-SYMPTOM 2:
-
-Also, theses workstations are either running with 4gig or 5gig of ram
-(depending of the workstation..).  If the kernel is not set-up into
-"bigmem" (64gig) then I can only see about 3gig of ram?
-
-Here is the meminfo WITHOUT 64gig highmem enabled:
-MemTotal:      3370236 kB
-MemFree:       3136524 kB
-Buffers:          8656 kB
-Cached:         119728 kB
-SwapCached:          0 kB
-Active:         149880 kB
-Inactive:        45432 kB
-HighTotal:     2228180 kB
-HighFree:      2031484 kB
-LowTotal:      1142056 kB
-LowFree:       1105040 kB
-SwapTotal:     2048276 kB
-SwapFree:      2048276 kB
-Dirty:               4 kB
-Writeback:           0 kB
-Mapped:          85092 kB
-Slab:            17796 kB
-CommitLimit:   3733392 kB
-Committed_AS:   157468 kB
-PageTables:        620 kB
-VmallocTotal:   114680 kB
-VmallocUsed:     43564 kB
-VmallocChunk:    66036 kB
-
-
-And here is the same system WITH 64gig highmem enabled:
-MemTotal:      5189828 kB
-MemFree:       3583332 kB
-Buffers:        152364 kB
-Cached:        1201992 kB
-SwapCached:          0 kB
-Active:        1098516 kB
-Inactive:       368720 kB
-HighTotal:     4325332 kB
-HighFree:      3002304 kB
-LowTotal:       864496 kB
-LowFree:        581028 kB
-SwapTotal:     2048276 kB
-SwapFree:      2048276 kB
-Dirty:            7672 kB
-Writeback:           0 kB
-Mapped:         166440 kB
-Slab:           120676 kB
-CommitLimit:   4643188 kB
-Committed_AS:   299400 kB
-PageTables:       2408 kB
-VmallocTotal:   118776 kB
-VmallocUsed:     43528 kB
-VmallocChunk:    70132 kB
-
-Note that noapic or acpi=off do not affect this.
-
-
-Has anybody ran into theses type of errors?
-
-Thnx!
-
-Vincent Fortier

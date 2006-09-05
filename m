@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWIEUtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWIEVBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422632AbWIEUtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 16:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWIEUtJ
+	id S1422649AbWIEVBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWIEVBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 16:49:09 -0400
-Received: from ns1.suse.de ([195.135.220.2]:42668 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422632AbWIEUtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 16:49:07 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Kimball Murray" <kimball.murray@gmail.com>
-Subject: Re: [Feature] x86_64 page tracking for Stratus servers
-Date: Tue, 5 Sep 2006 22:48:56 +0200
-User-Agent: KMail/1.9.3
-Cc: "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com
-References: <20060905173229.14149.60535.sendpatchset@dhcp83-86.boston.redhat.com> <1157478021.9036.29.camel@laptopd505.fenrus.org> <bbe04eb10609051138k4059c9e4yd1b4f693d77b3761@mail.gmail.com>
-In-Reply-To: <bbe04eb10609051138k4059c9e4yd1b4f693d77b3761@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 5 Sep 2006 17:01:22 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:5352 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1422649AbWIEVBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 17:01:21 -0400
+Subject: Re: Linux 2.6.18-rc6
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060905122656.GA3650@aepfle.de>
+References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org>
+	 <20060905122656.GA3650@aepfle.de>
+Content-Type: text/plain
+Date: Tue, 05 Sep 2006 16:01:06 -0500
+Message-Id: <1157490066.3463.73.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609052248.56838.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 September 2006 20:38, Kimball Murray wrote:
+On Tue, 2006-09-05 at 14:26 +0200, Olaf Hering wrote:
+> <4>Machine check in kernel mode.
+> <4>Caused by (from SRR1=49030): Transfer error ack signal
+> <4>Oops: Machine check, sig: 7 [#1]
+[...]
+> <4> scsi0: PCI error Interrupt at seqaddr = 0x8
 
-> As before, Stratus would not object to providing all kernel modules as
-> GPL, but still our problem is that there is some code that reflects
-> some of our chipset vendor's proprietary information, so they won't
+Is this actually a PCI bus error?  In which case it's probably the
+ahc_inb(,SBLKCTL) of ahc_linux_get_signalling().  Can you verify this?
+And what happens when you try to cat /proc/scsi_host/host<n>/signalling
+for this card?
 
-Is that Intel? They normally don't have problems with free drivers.
+James
 
-> At 1400 lines, I should probably find a server to make this available.
->  But not having one at the moment, please forgive the attachment.
-
-The code would certainly need a lot of cleanup and split up etc.
-(Andrew has a nice document on that somewhere, it's called "the perfect 
-patch")
-
-What I could see is that if you turn that into generic "memory mirror" 
-VM code and submit the patches to do that together with some simple
-that uses it. I suppose other people could then use it too and it might
-end up as a nice generic facility in Linux code.
-
-Then when that generic subsystem is in your hardware specific drivers could 
-possibly use it, although it would be definitely strongly prefered if those
-were GPL too.
-
--Andi
 

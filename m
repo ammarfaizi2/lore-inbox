@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWIEPAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWIEPEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965075AbWIEPAH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 11:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWIEPAH
+	id S965081AbWIEPEY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 11:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbWIEPEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 11:00:07 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:34310 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S965075AbWIEPAD (ORCPT
+	Tue, 5 Sep 2006 11:04:24 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:20955 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S965081AbWIEPEX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 11:00:03 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Mattias =?iso-8859-1?Q?R=F6nnblom?= <hofors@lysator.liu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFAT truncate performance
-References: <m3mz9e5sk1.fsf@isengard.friendlyfire.se>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 05 Sep 2006 23:59:52 +0900
-In-Reply-To: <m3mz9e5sk1.fsf@isengard.friendlyfire.se> (Mattias
- =?iso-8859-1?Q?R=F6nnblom's?= message of "05 Sep 2006 15\:52\:46 +0200")
-Message-ID: <8764g28il3.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 5 Sep 2006 11:04:23 -0400
+Date: Tue, 5 Sep 2006 17:04:10 +0200 (MEST)
+Message-Id: <200609051504.k85F4AKi028355@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: akpm@osdl.org, amirkin@sw.ru, dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] fail kernel compilation in case of unresolved symbols
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattias Rönnblom <hofors@lysator.liu.se> writes:
+Kirill Korotaev writes:
+ > At stage 2 modpost utility is used to check modules.
+ > In case of unresolved symbols modpost only prints warning.
+ > 
+ > IMHO it is a good idea to fail compilation process in case of
+ > unresolved symbols, since usually such errors are left unnoticed,
+ > but kernel modules are broken.
 
-> extending files by ftruncate(2) runs very slow on VFAT file
-> systems. On my USB harddisk w/ VFAT, it takes 14 seconds to extend an
-> empty file to 1 GB. On a memory stick, it takes well over 4 minutes.
->
-> My question is: is this problem on the conceptual level (ie there is
-> no way of extending files on FAT that doesn't involve many disk
-> operations) or is the current Linux fs driver suboptimal in this
-> respect?
+Total disagree. A big warning is appropriate, but failure
+is unnecessary and harmful.
 
-Unfortunately FAT doesn't support sparse file, so ftruncate(2) which
-extend size needs to fill all clusters with zero, and write data.
+Consider a big modular config, which has loads of modules
+I'll never need or use. Even if $random_module has an
+unresolved symbol, the kernel+modules will still work with
+a fairly high degree of probability, allowing me to test
+other things even though $random_module is (temporarily)
+broken.
 
-This is limitation of FAT filesystem.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Your suggestion would either force me to reconfigure to
+avoid the broken module (allowing me to forget about it),
+or it would prevent me from testing that kernel at all
+until I or someone else fixed the $random_module breakage.
+Either way, testing suffers.

@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWIESR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWIESSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWIESR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 14:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWIESR2
+	id S1030184AbWIESSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 14:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWIESSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 14:17:28 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57863 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030205AbWIESRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 14:17:24 -0400
-Date: Tue, 5 Sep 2006 20:17:16 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: gerg@uclinux.org
+	Tue, 5 Sep 2006 14:18:16 -0400
+Received: from khc.piap.pl ([195.187.100.11]:40930 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030184AbWIESSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 14:18:14 -0400
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: m68knommu: dma_{alloc,free}_coherent compile error
-Message-ID: <20060905181716.GG9173@stusta.de>
+Subject: Re: 2.6.18rc5: NFSd possible recursive locking
+References: <m3slj8ae84.fsf@defiant.localdomain>
+	<1157436733.14324.9.camel@twins>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 05 Sep 2006 20:18:11 +0200
+In-Reply-To: <1157436733.14324.9.camel@twins> (Peter Zijlstra's message of "Tue, 05 Sep 2006 08:12:13 +0200")
+Message-ID: <m3mz9eb2jg.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following compile error trying to compile 2.6.18-rc5-mm1 
-(but it doesn't seem to be specific to -mm) for m68knommu with 
-CONFIG_PCI=n (with -Werror-implicit-function-declaration):
+Peter Zijlstra <a.p.zijlstra@chello.nl> writes:
 
-<--  snip  -->
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/broken-out/nfsd-lockdep-annotation.patch
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc5/2.6.18-rc5-mm1/broken-out/knfsd-nfsd-lockdep-annotation-fix.patch
+>
+> Do those patches fix it?
 
-...
-  CC      drivers/base/dmapool.o
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/base/dmapool.c: In function 'pool_alloc_page':
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/base/dmapool.c:170: error: implicit declaration of function 'dma_alloc_coherent'
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/base/dmapool.c:173: warning: assignment makes pointer from integer without a cast
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/base/dmapool.c: In function 'pool_free_page':
-/home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/drivers/base/dmapool.c:208: error: implicit declaration of function 'dma_free_coherent'
-make[3]: *** [drivers/base/dmapool.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
+I think so. And NFS server still works :-)
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Krzysztof Halasa

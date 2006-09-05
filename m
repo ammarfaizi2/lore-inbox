@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWIERhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWIERjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWIERhx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 13:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWIERhx
+	id S965067AbWIERjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 13:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWIERjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 13:37:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:35042 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932202AbWIERhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 13:37:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nLtOPEr7i2yhdEGC5HWj7dTjYWIrUAE62UY0X50rA4Fd65nO95GLPjVKI0UbFeuYTRCGAQER2rmsVosUT3ntqphQbHrFW3VKGzA6tOKxkm/D2ztft2x3SioMteBlmL65KUYH6Q9HcJJRldWLbN6q2DZFtlQG35PBjqpgV3Mhimg=
-Message-ID: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>
-Date: Tue, 5 Sep 2006 10:37:51 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Herbert Xu" <herbert@gondor.apana.org.au>
-Subject: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive locking detected
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 13:39:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:27841 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965067AbWIERjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 13:39:42 -0400
+Date: Tue, 5 Sep 2006 19:39:40 +0200
+From: Olaf Kirch <okir@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 016 of 19] knfsd: match GRANTED_RES replies using	cookies
+Message-ID: <20060905173940.GA12578@suse.de>
+References: <20060901141639.27206.patches@notabene> <1060901043932.27641@suse.de> <1157126618.5632.52.camel@localhost> <20060904090939.GC28400@suse.de> <1157472751.8238.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1157472751.8238.4.camel@localhost>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node changed: 0-02:1023 -> 0-01:1023
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0080880002103eae]
+On Tue, Sep 05, 2006 at 12:12:30PM -0400, Trond Myklebust wrote:
+> Right. The question is how many clients out there do still rely on the
+> current behaviour?
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.18-rc5-mm1 #2
----------------------------------------------
-knodemgrd_0/2321 is trying to acquire lock:
- (&s->rwsem){----}, at: [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
+Right. I know that old SunOS releases did, as did HPUX-6.5 or whatever
+it was. But that was ages ago.
 
-but task is already holding lock:
- (&s->rwsem){----}, at: [<f8959078>] nodemgr_host_thread+0x717/0x883 [ieee1394]
+Suse has had this code change for a while now in SL10.1 (6 months) as
+well as SLES10, and I haven't heard of any interoperability problems,
+neither from partners or users, nor from our own QA.
 
-other info that might help us debug this:
-2 locks held by knodemgrd_0/2321:
- #0:  (nodemgr_serialize){--..}, at: [<c11e76cd>]
-mutex_lock_interruptible+0x1c/0x21
- #1:  (&s->rwsem){----}, at: [<f8959078>]
-nodemgr_host_thread+0x717/0x883 [ieee1394]
+> Looking at Brent's 'NFS Illustrated', I see that he notes that for
+> NLM_GRANTED, the cookie is "An opaque value that is normally the same as
+> the client sent in the LOCK request, though the client cannot depend on
+> it". Which sounds like weasel words for "some clients still do depend on
+> it".
 
-stack backtrace:
- [<c1003c97>] dump_trace+0x69/0x1b7
- [<c1003dfa>] show_trace_log_lvl+0x15/0x28
- [<c10040f5>] show_trace+0x16/0x19
- [<c1004110>] dump_stack+0x18/0x1d
- [<c102f1e1>] __lock_acquire+0x7a2/0x9f8
- [<c102f70a>] lock_acquire+0x56/0x74
- [<c102b805>] down_write+0x27/0x41
- [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
- [<f8959098>] nodemgr_host_thread+0x737/0x883 [ieee1394]
- [<c1028c19>] kthread+0xaf/0xde
- [<c100397b>] kernel_thread_helper+0x7/0x10
-DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+The spec says the same (except it doesn't mention that the cookie is
+"normally the same", it just explicitly states that the client must not
+rely on the cookie in the GRANT call being the same as the one in the
+LOCK call).
 
-Leftover inexact backtrace:
+My guess is that this was an implementation "shortcut" in the original
+Sun code that metastased into all the derived implementations, and when
+they discovered it was a bad bug that could lead to lock mix-up, this
+sloppiness had spread all over the Unix landscape and they needed to
+put stern words into the standard...
 
- [<c1003dfa>] show_trace_log_lvl+0x15/0x28
- [<c10040f5>] show_trace+0x16/0x19
- [<c1004110>] dump_stack+0x18/0x1d
- [<c102f1e1>] __lock_acquire+0x7a2/0x9f8
- [<c102f70a>] lock_acquire+0x56/0x74
- [<c102b805>] down_write+0x27/0x41
- [<f8958897>] nodemgr_probe_ne+0x311/0x38d [ieee1394]
- [<f8959098>] nodemgr_host_thread+0x737/0x883 [ieee1394]
- [<c1028c19>] kthread+0xaf/0xde
- [<c100397b>] kernel_thread_helper+0x7/0x10
- =======================
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[0080880002103eae]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-ieee1394: Node changed: 0-01:1023 -> 0-02:1023
+In summary, I think more than 10 years after the publication of the
+X/Open NLM spec it is acceptable to remove that kludge.
+
+Olaf
+-- 
+Olaf Kirch   |  --- o --- Nous sommes du soleil we love when we play
+okir@suse.de |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax

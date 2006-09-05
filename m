@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWIEVGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWIEVGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422650AbWIEVGu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWIEVGu
+	id S1422643AbWIEVGf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWIEVGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:06:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:39828 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422647AbWIEVGs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:06:48 -0400
-Message-ID: <44FDE6E5.3090009@us.ibm.com>
-Date: Tue, 05 Sep 2006 14:06:45 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Tue, 5 Sep 2006 17:06:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:26844 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422643AbWIEVGe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 17:06:34 -0400
+To: "Om Narasimhan" <om.turyx@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: howto map HDT dumped addresses to AMD64 kernel virtual addresses.
+References: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Sep 2006 23:06:32 +0200
+In-Reply-To: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
+Message-ID: <p734pvm58h3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Will Simoneau <simoneau@ele.uri.edu>
-CC: linux-kernel@vger.kernel.org, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-References: <20060905171049.GB27433@ele.uri.edu>
-In-Reply-To: <20060905171049.GB27433@ele.uri.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will Simoneau wrote:
-> Has anyone seen this before? These three traces occured at different times
-> today when three new user accounts (and associated quotas) were created. This
-> machine is an NFS server which uses quotas on an ext3 fs (dir_index is on).
-> Kernel is 2.6.17.11 on an x86 smp w/64G highmem; 4G ram is installed. The
-> affected filesystem is on a software raid1 of two hardware raid0 volumes from a
-> megaraid card.
->
-> BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
->  <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread+0x26/0x2a
->  <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
->  <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
->  <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
->  <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
->  
-Made me curious and looking around on what the warning is coming ? Few 
-basic questions ..
-Do you have CONFIG_LBD ?
+"Om Narasimhan" <om.turyx@gmail.com> writes:
 
-I see the ext3_getblk() used "long" for "block" & 
-ext3_get_blocks_handle() expects "sector_t"
-for "block". Wondering if you are running into 64-bit -to- 32-bit 
-conversion issues .. ?
+> Hi,
+> I am running a kernel (Suse Enterprise 9 with SP3) and it is hanging
+> somewhere in the kernel. By hooking up HDT from AMD, I got a the
+> assembly dump of the routine which causes the infinite loop. How
+> should I map the addresses dumped by HDT in the format SEG:Offset
+> (e.g,
+> 0033:00000000_00400C18   mov   esi,[loc_0000000000501a64h]
+> 0033:00000000_00400C1E   test   esi,esi
+> 0033:00000000_00400C20   jz   loc_0000000000400c30h
+> ...etc)
+> to kernel virtual address space?
 
-Thanks,
-Badari
+The tool should be able to show you virtual addresses. Those are the virtual
+addresses the kernel uses.
 
+-Andi

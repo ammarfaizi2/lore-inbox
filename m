@@ -1,57 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbWIEG25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWIEGov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965180AbWIEG25 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 02:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbWIEG25
+	id S1750708AbWIEGov (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 02:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWIEGov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 02:28:57 -0400
-Received: from ns1.suse.de ([195.135.220.2]:26262 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965180AbWIEG24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 02:28:56 -0400
-Date: Tue, 5 Sep 2006 08:28:42 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] PM: Remove sleeping from suspend_console
-Message-ID: <20060905062842.GA21738@suse.de>
-References: <200609042250.41592.rjw@sisk.pl>
+	Tue, 5 Sep 2006 02:44:51 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:46319 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1750708AbWIEGot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 02:44:49 -0400
+Date: Tue, 5 Sep 2006 08:40:42 +0200
+From: Voluspa <lista1@comhem.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjan@infradead.org, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: [PATCH] lockdep: disable lock debugging when kernel state
+ becomes untrusted
+Message-Id: <20060905084042.20966381.lista1@comhem.se>
+In-Reply-To: <20060813184159.b536736f.akpm@osdl.org>
+References: <20060814030954.c3a57e05.lista1@comhem.se>
+	<20060813184159.b536736f.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.4.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200609042250.41592.rjw@sisk.pl>
-X-Operating-System: openSUSE 10.2 (i586) Alpha4, Kernel 2.6.18-rc5-2-default
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 10:50:40PM +0200, Rafael J. Wysocki wrote:
-> Remove ssleep() from suspend_console().
+On Sun, 13 Aug 2006 18:41:59 -0700 Andrew Morton wrote:
+> On Mon, 14 Aug 2006 03:09:54 +0200
+> Voluspa wrote:
 > 
-> Stefan thinks it is unnecessary and will slow down the suspend too much.
+> > On 2006-07-10 21:02:59 git-commits-head received:
+> > > commit 2c16e9c888985761511bd1905b00fb271169c3c0
+> > > tree e17756b3ed27b0f4953547c39cf46864cdd6f818
+> > > parent e54695a59c278b9ff48cd4b263da7a1d392f5061
+> > > author Arjan van de Ven Mon, 10 Jul 2006
+> > > 18:45:42 -0700 committer Linus Torvalds Tue, 11
+> > > Jul 2006 03:24:27 -0700
+> > >
+> > > [PATCH] lockdep: disable lock debugging when kernel state becomes
+> > > untrusted
+> > >
+> > > Disable lockdep debugging in two situations where the integrity
+> > > of the kernel no longer is guaranteed: when oopsing and when
+> > > hitting a tainting-condition.  The goal is to not get weird
+> > > lockdep traces that don't make sense or are otherwise
+> > > undebuggable, to not waste time.
+> > >
+> > > Lockdep assumes that the previous state it knows about is valid to
+> > > operate, which is why lockdep turns itself off after the first
+> > > violation it reports, after that point it can no longer make that
+> > > assumption.
+> > >
+> > > A kernel oops means that the integrity of the kernel compromised;
+> > > in addition anything lockdep would report is of lesser importance
+> > > than the oops.
+> > >
+> > > All the tainting conditions are of similar integrity-violating
+> > > nature and also make debugging/diagnosing more difficult.
+> > 
+> > On my x86_64 notebook I need ndiswrapper. No but-s, if-s or
+> > anything-s. Period. I also have to work outside of X in a clean
+> > terminal (console).
+> > 
+> > This patch unfortunately creates a 'pipe' directly from
+> >  /var/log/messages to the screen. So if I work in a textbased
+> > program, and something happens in the log, the program gets a
+> > broken interface. Programs that simultaniously output to the log
+> > becomes unusable.
+> > 
+> > It is also darn irritating when text strings materializes at the
+> > shell prompt...
+> > 
+> > Once the 'pipe' is established (by tainting) it can not be reverted
+> > by eg rmmod ndiswrapper.
+> > 
+> > I haven't even enabled any lockdep debugging:
+> 
+> That would appear to be a bug.  debug_locks_off() is running
+> console_verbose() waaaay after the locking selftest code has
+> completed.
 
-"unnecessary" is not exactly what i think, rather "unacceptable" :-)
-We probably need to do something for some kinds of consoles to make sure all
-characters are sent, but sleeping unconditionally is not the right thing IMO.
+The possibly final -rc6 is likewise broken. What would it take to incur
+some respect for us, the millions of users effected by this shit?
+Should we all become quasi-developers and bombard lkml with patches
+that taint the kernel whenever some of the Intel binary blobs are
+loaded?
 
-> --- linux-2.6.18-rc5-mm1.orig/kernel/printk.c
-> +++ linux-2.6.18-rc5-mm1/kernel/printk.c
-> @@ -713,11 +713,6 @@ void suspend_console(void)
->  	printk("Suspending console(s)\n");
->  	acquire_console_sem();
->  	console_suspended = 1;
-> -	/* This is needed so that all of the messages that have already been
-> -	 * written to all consoles can be actually transmitted (eg. over a
-> -	 * network) before we try to suspend the consoles' devices.
-> -	 */
-> -	ssleep(2);
->  }
->  
->  void resume_console(void)
+Would that cluebat Arjan off of his high horse?
 
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Mvh
+Mats Johannesson

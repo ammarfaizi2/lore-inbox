@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWIEVGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWIEVHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbWIEVGf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 17:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWIEVGf
+	id S1422642AbWIEVHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 17:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWIEVHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 17:06:35 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26844 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422643AbWIEVGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 17:06:34 -0400
-To: "Om Narasimhan" <om.turyx@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: howto map HDT dumped addresses to AMD64 kernel virtual addresses.
-References: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Sep 2006 23:06:32 +0200
-In-Reply-To: <6b4e42d10609051048o23b8c5edj2ab110bd87acd57f@mail.gmail.com>
-Message-ID: <p734pvm58h3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 5 Sep 2006 17:07:52 -0400
+Received: from ptb-relay02.plus.net ([212.159.14.213]:9938 "EHLO
+	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
+	id S1422642AbWIEVHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 17:07:50 -0400
+Message-ID: <44FDE721.2070303@mauve.plus.com>
+Date: Tue, 05 Sep 2006 22:07:45 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Maximus <john.maximus@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SDIO functions?
+References: <3634de740609050306y38ff56a4t2700e044e11a439f@mail.gmail.com>
+In-Reply-To: <3634de740609050306y38ff56a4t2700e044e11a439f@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Om Narasimhan" <om.turyx@gmail.com> writes:
-
+Maximus wrote:
 > Hi,
-> I am running a kernel (Suse Enterprise 9 with SP3) and it is hanging
-> somewhere in the kernel. By hooking up HDT from AMD, I got a the
-> assembly dump of the routine which causes the infinite loop. How
-> should I map the addresses dumped by HDT in the format SEG:Offset
-> (e.g,
-> 0033:00000000_00400C18   mov   esi,[loc_0000000000501a64h]
-> 0033:00000000_00400C1E   test   esi,esi
-> 0033:00000000_00400C20   jz   loc_0000000000400c30h
-> ...etc)
-> to kernel virtual address space?
+>    Just going through the sdio specs and ossman's patch.
 
-The tool should be able to show you virtual addresses. Those are the virtual
-addresses the kernel uses.
+>   What are these functions and thier numbers in CMD 53
+>   Does that mean an SDIO Card can support upto 8 different functions?.
+> 
+>   An sdio card can be used as a wlan and camera (if it supports 2
+> functions wlan and camera).
 
--Andi
+Exactly.
+It supports one or zero memory functions, and up to 7 (8?) IO functions.
+
+AIUI, there are at the moment cards with memory and wifi.
+
+I have wondered about expander cards - a card with a microcontroller to 
+do enumeration and several sockets.
+This is quite complex though.

@@ -1,564 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWIFL3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIFLbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWIFL3w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 07:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWIFL3w
+	id S1750836AbWIFLbn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 07:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWIFLbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 07:29:52 -0400
-Received: from anyanka.rfc1149.net ([81.56.47.149]:47304 "EHLO
-	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S1750812AbWIFL3v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 07:29:51 -0400
-Date: Wed, 6 Sep 2006 13:29:46 +0200
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: linux-kernel@vger.kernel.org, wim@iguana.be
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com>
+	Wed, 6 Sep 2006 07:31:43 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:30600 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1750832AbWIFLbm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 07:31:42 -0400
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: [take16 4/4] kevent: Timer notifications.
+In-Reply-To: <11575437234110@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 6 Sep 2006 15:55:23 +0400
+Message-Id: <11575437233033@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44FEAD7E.6010201@draigBrady.com>
-User-Agent: Mutt/1.5.11
-From: Samuel Tardieu <sam@rfc1149.net>
-Organization: RFC 1149 (see http://www.rfc1149.net/)
-X-WWW: http://www.rfc1149.net/sam
-X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
-X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
-Message-Id: <2006-09-06-13-29-46+trackit+sam@rfc1149.net>
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6/09, Pádraig Brady wrote:
 
-| Looks good, thanks.
+Timer notifications.
 
-Thanks a lot Pádraig for your review.
+Timer notifications can be used for fine grained per-process time 
+management, since interval timers are very inconvenient to use, 
+and they are limited.
 
-| I've got a W83697H*F* here on a VIA motherboard,
-| which is the same from a watchdog point of view.
-| It is on port 0x2e though.
-| Is 0x4e a good default?
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
 
-I think we may find half of each (0x2e and 0x4e). I'm reluctant to let
-the autodetection routine be the default. What if another peripheral is at
-the other address, could bad things happen?
-
-| Is W83697HG a good name?
-
-HF would be equally good. I just named it after the watchdog I had in my
-hardware. If there is a preference for HF, I can change it.
-
-| Note I've CC'd Wim Van Sebroeck who is the watchdog tree maintainer.
-
-Thank you.
-
-| I noticed you didn't include the check that's in the
-| W83627HF driver to reset the timeout if already running
-| from the BIOS. This was because some BIOS set the timeout
-| to 4 minutes for example, so when the driver was loaded
-| and reset the mode to seconds, the machine rebooted
-| before the init scripts could run and start the userspace
-| watchdog daemon.
-
-Note that the watchdog is enabled only when the device is open and is
-signalled during the wdt_enable() routine just after switching the mode
-to seconds. The opportunity for the device to reboot while we are in the
-middle of open() will exist anyway and would be a very bad luck.
-
-But I buy your argument in order to reduce the risks: setting the
-counter to 0 before switching the mode (in wdt_enable()) would decrease
-the possibility of bad luck happening :) But I don't think this is worth
-a warning; just set the counter to 0 (not counting) before doing the
-configuration is benign enough not to be signalled IMO.
-
-Also, wdt_open() has a wdt_ping() just after the wdt_enable() and this
-is superfluous, I remove it.
-
-Here is an updated patch with the changes mentionned above. Don't
-hesitate to comment on it or request other changes.
-
-
-
-Winbond W83697HG watchdog timer
-
-The Winbond SuperIO W83697HG includes a watchdog that can count from
-1 to 255 seconds (or minutes). This drivers allows the seconds mode to
-be used. It exposes a standard /dev/watchdog interface.
-
-This chip is currently being used on motherboards designed by
-VIA and Dedibox. It should be compatible with W83697HF chips as well
-according to the datasheet but is untested on those.
-
-By default, the module looks for a chip at I/O port 0x4e. The chip can
-be configured to be at 0x2e on some motherboards, the address can be
-chosen using the wdt_io module parameter. Using 0 will try to autodetect
-the address.
-
-Signed-off-by: Samuel Tardieu <sam@rfc1149.net>
-
-diff -r b1d36669f98d drivers/char/watchdog/Kconfig
---- a/drivers/char/watchdog/Kconfig	Mon Sep 04 03:00:04 2006 +0000
-+++ b/drivers/char/watchdog/Kconfig	Wed Sep 06 12:25:06 2006 +0200
-@@ -371,6 +371,21 @@ config W83627HF_WDT
- 
- 	  Most people will say N.
- 
-+config W83697HG_WDT
-+	tristate "W83697HG Watchdog Timer"
-+	depends on WATCHDOG && X86
-+	---help---
-+	  This is the driver for the hardware watchdog on the W83697HG chipset
-+	  as used in Dedibox/VIA motherboards (and likely others).
-+	  This watchdog simply watches your kernel to make sure it doesn't
-+	  freeze, and if it does, it reboots your computer after a certain
-+	  amount of time.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called w83697hg_wdt.
-+
-+	  Most people will say N.
-+
- config W83877F_WDT
- 	tristate "W83877F (EMACS) Watchdog Timer"
- 	depends on WATCHDOG && X86
-diff -r b1d36669f98d drivers/char/watchdog/Makefile
---- a/drivers/char/watchdog/Makefile	Mon Sep 04 03:00:04 2006 +0000
-+++ b/drivers/char/watchdog/Makefile	Wed Sep 06 12:25:06 2006 +0200
-@@ -51,6 +51,7 @@ obj-$(CONFIG_SBC8360_WDT) += sbc8360.o
- obj-$(CONFIG_SBC8360_WDT) += sbc8360.o
- obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
- obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
-+obj-$(CONFIG_W83697HG_WDT) += w83697hg_wdt.o
- obj-$(CONFIG_W83877F_WDT) += w83877f_wdt.o
- obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
- obj-$(CONFIG_MACHZ_WDT) += machzwd.o
-diff -r b1d36669f98d drivers/char/watchdog/w83697hg_wdt.c
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/char/watchdog/w83697hg_wdt.c	Wed Sep 06 13:25:02 2006 +0200
-@@ -0,0 +1,424 @@
+diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+new file mode 100644
+index 0000000..04acc46
+--- /dev/null
++++ b/kernel/kevent/kevent_timer.c
+@@ -0,0 +1,113 @@
 +/*
-+ *	w83697hg WDT driver
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
 + *
-+ *      (c) Copyright 2006 Samuel Tardieu <sam@rfc1149.net>
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + *
-+ *	Based on w83627hf_wdt which is based on wadvantechwdt.c
-+ *      which is based on wdt.c.
-+ *	Original copyright messages:
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + *
-+ *	(c) Copyright 2003 Pádraig Brady <P@draigBrady.com>
-+ *
-+ *	(c) Copyright 2000-2001 Marek Michalkiewicz <marekm@linux.org.pl>
-+ *
-+ *	(c) Copyright 1996 Alan Cox <alan@redhat.com>, All Rights Reserved.
-+ *				http://www.redhat.com
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ *
-+ *	Neither Alan Cox nor CymruNet Ltd. admit liability nor provide
-+ *	warranty for any of this software. This material is provided
-+ *	"AS-IS" and at no charge.
-+ *
-+ *	(c) Copyright 1995    Alan Cox <alan@redhat.com>
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
 +
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
++#include <linux/kernel.h>
 +#include <linux/types.h>
-+#include <linux/miscdevice.h>
-+#include <linux/watchdog.h>
-+#include <linux/fs.h>
-+#include <linux/ioport.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
-+#include <linux/init.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/hrtimer.h>
++#include <linux/jiffies.h>
++#include <linux/kevent.h>
 +
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
-+
-+#define WATCHDOG_NAME "w83697hg WDT"
-+#define PFX WATCHDOG_NAME ": "
-+#define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
-+
-+static unsigned long wdt_is_open;
-+static char expect_close;
-+
-+/* You must set this - there is no sane way to probe for this board. */
-+static int wdt_io = 0x4e;
-+module_param(wdt_io, int, 0);
-+MODULE_PARM_DESC(wdt_io, "w83697hg WDT io port (default 0x4e, 0 = autodetect)");
-+
-+static int timeout = WATCHDOG_TIMEOUT;	/* in seconds */
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds. 1<= timeout <=255, default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ".");
-+
-+static int nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
-+/*
-+ *	Kernel methods.
-+ */
-+
-+#define W83697HG_EFER (wdt_io+0)   /* Extended function enable register */
-+#define W83697HG_EFIR (wdt_io+0)   /* Extended function index register */
-+#define W83697HG_EFDR (wdt_io+1)   /* Extended function data register */
-+
-+static inline void
-+w83697hg_unlock(void)
++struct kevent_timer
 +{
-+	outb_p(0x87, W83697HG_EFER);
-+	outb_p(0x87, W83697HG_EFER);
++	struct hrtimer		ktimer;
++	struct kevent_storage	ktimer_storage;
++	struct kevent		*ktimer_event;
++};
++
++static int kevent_timer_func(struct hrtimer *timer)
++{
++	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
++	struct kevent *k = t->ktimer_event;
++
++	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
++	hrtimer_forward(timer, timer->base->softirq_time,
++			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
++	return HRTIMER_RESTART;
 +}
 +
-+static inline void
-+w83697hg_lock(void)
++static struct lock_class_key kevent_timer_key;
++
++static int kevent_timer_enqueue(struct kevent *k)
 +{
-+	outb_p(0xAA, W83697HG_EFER);
++	int err;
++	struct kevent_timer *t;
++
++	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
++	if (!t)
++		return -ENOMEM;
++
++	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
++	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
++	t->ktimer.function = kevent_timer_func;
++	t->ktimer_event = k;
++
++	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
++	if (err)
++		goto err_out_free;
++	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
++
++	err = kevent_storage_enqueue(&t->ktimer_storage, k);
++	if (err)
++		goto err_out_st_fini;
++
++	printk("%s: jiffies: %lu, timer: %p.\n", __func__, jiffies, &t->ktimer);
++	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++
++	return 0;
++
++err_out_st_fini:
++	kevent_storage_fini(&t->ktimer_storage);
++err_out_free:
++	kfree(t);
++
++	return err;
 +}
 +
-+/*
-+ *	The three functions w83697hg_get_reg(), w83697_set_reg() and
-+ *	wdt_ctrl() must be called with the device unlocked.
-+ */
-+
-+static unsigned char
-+w83697hg_get_reg(unsigned char reg)
++static int kevent_timer_dequeue(struct kevent *k)
 +{
-+	outb_p(reg, W83697HG_EFIR);
-+	return inb_p(W83697HG_EFDR);
-+}
++	struct kevent_storage *st = k->st;
++	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
 +
-+static void
-+w83697hg_set_reg(unsigned char reg, unsigned char data)
-+{
-+	outb_p(reg, W83697HG_EFIR);
-+	outb_p(data, W83697HG_EFDR);
-+}
++	hrtimer_cancel(&t->ktimer);
++	kevent_storage_dequeue(st, k);
++	kfree(t);
 +
-+static void
-+wdt_ctrl(int timeout)
-+{
-+	w83697hg_set_reg(0xF4, timeout);
-+}
-+
-+static void
-+w83697hg_select_wdt(void)
-+{
-+	w83697hg_unlock();
-+	w83697hg_set_reg(0x07, 0x08);   /* Switch to logic device 8 */
-+}
-+
-+static inline void
-+w83697hg_deselect_wdt(void)
-+{
-+	w83697hg_lock();
-+}
-+
-+static void
-+wdt_ping(void)
-+{
-+	w83697hg_select_wdt();
-+	wdt_ctrl(timeout);
-+	w83697hg_deselect_wdt();
-+}
-+
-+static void
-+wdt_enable(void)
-+{
-+	unsigned char bbuf;
-+
-+	w83697hg_select_wdt();
-+
-+	wdt_ctrl(0);                    /* Disable while configuring */
-+
-+	bbuf = w83697hg_get_reg(0x29);
-+	bbuf &= ~0x60;
-+	bbuf |= 0x20;
-+	w83697hg_set_reg(0x29, bbuf);   /* Set pin 119 to WDTO# mode */
-+
-+	bbuf = w83697hg_get_reg(0xF3);
-+	bbuf &= ~0x04;
-+	w83697hg_set_reg(0xF3, bbuf);   /* Count mode is seconds */
-+
-+	wdt_ctrl(timeout);              /* Start timer */
-+	w83697hg_set_reg(0x30, 1);      /* Enable timer */
-+
-+	w83697hg_deselect_wdt();
-+}
-+
-+static void
-+wdt_disable(void)
-+{
-+	w83697hg_select_wdt();
-+	w83697hg_set_reg(0x30, 0);       /* Disable timer */
-+	wdt_ctrl(0);
-+	w83697hg_deselect_wdt();
-+}
-+
-+static int
-+wdt_set_heartbeat(int t)
-+{
-+	if ((t < 1) || (t > 255))
-+		return -EINVAL;
-+
-+	timeout = t;
 +	return 0;
 +}
 +
-+static ssize_t
-+wdt_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
++static int kevent_timer_callback(struct kevent *k)
 +{
-+	if (count) {
-+		if (!nowayout) {
-+			size_t i;
-+      
-+			expect_close = 0;
-+      
-+			for (i = 0; i != count; i++) {
-+				char c;
-+				if (get_user(c, buf+i))
-+					return -EFAULT;
-+				if (c == 'V')
-+					expect_close = 42;
-+			}
-+		}
-+		wdt_ping();
-+	}
-+	return count;
++	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
++	return 1;
 +}
 +
-+static int
-+wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-+	  unsigned long arg)
++static int __init kevent_init_timer(void)
 +{
-+	void __user *argp = (void __user *)arg;
-+	int __user *p = argp;
-+	int new_timeout;
-+	static struct watchdog_info ident = {
-+		.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-+		.firmware_version = 1,
-+		.identity = "W83697HG WDT",
-+	};
++	struct kevent_callbacks tc = {
++		.callback = &kevent_timer_callback,
++		.enqueue = &kevent_timer_enqueue,
++		.dequeue = &kevent_timer_dequeue};
 +
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		if (copy_to_user(argp, &ident, sizeof(ident)))
-+			return -EFAULT;
-+		break;
-+
-+	case WDIOC_GETSTATUS:
-+	case WDIOC_GETBOOTSTATUS:
-+		return put_user(0, p);
-+
-+	case WDIOC_KEEPALIVE:
-+		wdt_ping();
-+		break;
-+
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(new_timeout, p))
-+			return -EFAULT;
-+		if (wdt_set_heartbeat(new_timeout))
-+			return -EINVAL;
-+		wdt_ping();
-+		/* Fall */
-+
-+	case WDIOC_GETTIMEOUT:
-+		return put_user(timeout, p);
-+
-+	case WDIOC_SETOPTIONS:
-+	{
-+		int options, retval = -EINVAL;
-+      
-+		if (get_user(options, p))
-+			return -EFAULT;
-+      
-+		if (options & WDIOS_DISABLECARD) {
-+			wdt_disable();
-+			retval = 0;
-+		}
-+
-+		if (options & WDIOS_ENABLECARD) {
-+			wdt_ping();
-+			retval = 0;
-+		}
-+
-+		return retval;
-+	}
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+	return 0;
++	return kevent_add_callbacks(&tc, KEVENT_TIMER);
 +}
++module_init(kevent_init_timer);
 +
-+static int
-+wdt_open(struct inode *inode, struct file *file)
-+{
-+	if (test_and_set_bit(0, &wdt_is_open))
-+		return -EBUSY;
-+	/*
-+	 *	Activate
-+	 */
-+
-+	wdt_enable();
-+	return nonseekable_open(inode, file);
-+}
-+
-+static int
-+wdt_close(struct inode *inode, struct file *file)
-+{
-+	if (expect_close == 42) {
-+		wdt_disable();
-+	} else {
-+		printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
-+		wdt_ping();
-+	}
-+	expect_close = 0;
-+	clear_bit(0, &wdt_is_open);
-+	return 0;
-+}
-+
-+/*
-+ *	Notifier for system down
-+ */
-+
-+static int
-+wdt_notify_sys(struct notifier_block *this, unsigned long code,
-+	       void *unused)
-+{
-+	if (code == SYS_DOWN || code == SYS_HALT) {
-+		/* Turn the WDT off */
-+		wdt_disable();
-+	}
-+	return NOTIFY_DONE;
-+}
-+
-+/*
-+ *	Kernel Interfaces
-+ */
-+
-+static struct file_operations wdt_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.write		= wdt_write,
-+	.ioctl		= wdt_ioctl,
-+	.open		= wdt_open,
-+	.release	= wdt_close,
-+};
-+
-+static struct miscdevice wdt_miscdev = {
-+	.minor = WATCHDOG_MINOR,
-+	.name = "watchdog",
-+	.fops = &wdt_fops,
-+};
-+
-+/*
-+ *	The WDT needs to learn about soft shutdowns in order to
-+ *	turn the timebomb registers off.
-+ */
-+
-+static struct notifier_block wdt_notifier = {
-+	.notifier_call = wdt_notify_sys,
-+};
-+
-+static int
-+w83697hg_init(void)
-+{
-+	if (!request_region(wdt_io, 2, WATCHDOG_NAME)) {
-+		printk(KERN_ERR PFX "I/O address 0x%x already in use\n", wdt_io);
-+		return -EIO;
-+	}
-+  
-+	printk(KERN_INFO PFX "Looking for W83697HG at address 0x%x\n", wdt_io);
-+	w83697hg_unlock();
-+	if (w83697hg_get_reg(0x20) == 0x60) {
-+		printk(KERN_INFO PFX "W83697HG found at address 0x%x\n", wdt_io);
-+		w83697hg_lock();
-+		return 0;
-+	}
-+	w83697hg_lock();   /* Reprotect in case it was a compatible device */
-+  
-+	printk(KERN_INFO PFX "W83697HG not found at address 0x%x\n", wdt_io);
-+	release_region(wdt_io, 2);
-+	return -EIO;
-+}
-+
-+static int __init
-+wdt_init(void)
-+{
-+	int ret, autodetect;
-+  
-+	printk(KERN_INFO PFX "WDT driver for W83697HG initializing\n");
-+  
-+	autodetect = wdt_io == 0;
-+	if (autodetect)
-+		wdt_io = 0x2e;
-+  
-+	if (!w83697hg_init())
-+		goto found;
-+  
-+	if (autodetect) {
-+		wdt_io = 0x4e;
-+		if (!w83697hg_init())
-+			goto found;
-+	}
-+  
-+	printk(KERN_ERR PFX "No W83697HG could be found\n");
-+	ret = -EIO;
-+	goto out;
-+  
-+ found:
-+  
-+	if (wdt_set_heartbeat(timeout)) {
-+		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
-+		printk(KERN_INFO PFX "timeout value must be 1<=timeout<=255, using %d\n",
-+		       WATCHDOG_TIMEOUT);
-+	}
-+  
-+	ret = register_reboot_notifier(&wdt_notifier);
-+	if (ret != 0) {
-+		printk (KERN_ERR PFX "cannot register reboot notifier (err=%d)\n",
-+			ret);
-+		goto unreg_regions;
-+	}
-+  
-+	ret = misc_register(&wdt_miscdev);
-+	if (ret != 0) {
-+		printk (KERN_ERR PFX "cannot register miscdev on minor=%d (err=%d)\n",
-+			WATCHDOG_MINOR, ret);
-+		goto unreg_reboot;
-+	}
-+  
-+	printk (KERN_INFO PFX "initialized. timeout=%d sec (nowayout=%d)\n",
-+		timeout, nowayout);
-+  
-+ out:
-+	return ret;
-+ unreg_reboot:
-+	unregister_reboot_notifier(&wdt_notifier);
-+ unreg_regions:
-+	release_region(wdt_io, 2);
-+	goto out;
-+}
-+
-+static void __exit
-+wdt_exit(void)
-+{
-+	misc_deregister(&wdt_miscdev);
-+	unregister_reboot_notifier(&wdt_notifier);
-+	release_region(wdt_io, 2);
-+}
-+
-+module_init(wdt_init);
-+module_exit(wdt_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Samuel Tardieu <sam@rfc1149.net>");
-+MODULE_DESCRIPTION("w83697hg WDT driver");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 

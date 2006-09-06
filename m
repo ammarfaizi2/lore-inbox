@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWIFRnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWIFR7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbWIFRnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 13:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWIFRnE
+	id S1751262AbWIFR7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 13:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWIFR7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 13:43:04 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:30936 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751214AbWIFRnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 13:43:01 -0400
-Subject: Re: [PATCH] ext3_getblk should handle HOLE correctly
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       ext4 <linux-ext4@vger.kernel.org>, Will Simoneau <simoneau@ele.uri.edu>,
-       cmm@us.ibm.com
-In-Reply-To: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
-References: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Wed, 06 Sep 2006 12:42:55 -0500
-Message-Id: <1157564575.8200.16.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 13:59:10 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:45247 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751252AbWIFR7B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 13:59:01 -0400
+Message-ID: <44FF0C4D.7020905@us.ibm.com>
+Date: Wed, 06 Sep 2006 10:58:37 -0700
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] aic94xx: Fix spelling error
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 10:39 -0700, Badari Pulavarty wrote:
+This patch corrects the spelling of "ENEBLEABLE" in the aic94xx driver.
 
-> Index: linux-2.6.18-rc5/fs/ext3/inode.c
-> ===================================================================
-> --- linux-2.6.18-rc5.orig/fs/ext3/inode.c	2006-08-27 20:41:48.000000000 -0700
-> +++ linux-2.6.18-rc5/fs/ext3/inode.c	2006-09-05 15:32:57.000000000 -0700
-> @@ -1009,11 +1009,12 @@ struct buffer_head *ext3_getblk(handle_t
->  	buffer_trace_init(&dummy.b_history);
->  	err = ext3_get_blocks_handle(handle, inode, block, 1,
->  					&dummy, create, 1);
-> -	if (err == 1) {
-> +	/*
-> +	 * ext3_get_blocks_handle() returns number of blocks
-> +	 * mapped. 0 in case of a HOLE.
-> +	 */
-> +	if (err > 0) {
->  		err = 0;
-> -	} else if (err >= 0) {
-> -		WARN_ON(1);
-> -		err = -EIO;
->  	}
+--D
 
-I'd get rid of the {} too.
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 
->  	*errp = err;
->  	if (!err && buffer_mapped(&dummy)) {
-
--- 
-David Kleikamp
-IBM Linux Technology Center
+diff --git a/drivers/scsi/aic94xx/aic94xx_sds.c b/drivers/scsi/aic94xx/aic94xx_sds.c
+index eec1e0d..7508250 100644
+@@ -807,11 +808,11 @@ static void *asd_find_ll_by_id(void * co
+  *
+  * HIDDEN phys do not count in the total count.  REPORTED phys cannot
+  * be enabled but are reported and counted towards the total.
+- * ENEBLEABLE phys are enabled by default and count towards the total.
++ * ENABLEABLE phys are enabled by default and count towards the total.
+  * The absolute total phy number is ASD_MAX_PHYS.  hw_prof->num_phys
+  * merely specifies the number of phys the host adapter decided to
+  * report.  E.g., it is possible for phys 0, 1 and 2 to be HIDDEN,
+- * phys 3, 4 and 5 to be REPORTED and phys 6 and 7 to be ENEBLEABLE.
++ * phys 3, 4 and 5 to be REPORTED and phys 6 and 7 to be ENABLEABLE.
+  * In this case ASD_MAX_PHYS is 8, hw_prof->num_phys is 5, and only 2
+  * are actually enabled (enabled by default, max number of phys
+  * enableable in this case).
+@@ -868,7 +869,7 @@ static int asd_ms_get_phy_params(struct 
+ 			rep_phys++;
+ 			continue;
+ 		case MS_PHY_STATE_ENABLEABLE:
+-			ASD_DPRINTK("ms: phy%d: ENEBLEABLE\n", i);
++			ASD_DPRINTK("ms: phy%d: ENABLEABLE\n", i);
+ 			asd_ha->hw_prof.enabled_phys |= (1 << i);
+ 			en_phys++;
+ 			break;
 

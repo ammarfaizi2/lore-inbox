@@ -1,64 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWIFAv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWIFBAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWIFAv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 20:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWIFAv1
+	id S965098AbWIFBAK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 21:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbWIFBAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 20:51:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10434 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030214AbWIFAv0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 20:51:26 -0400
-Subject: Re: [BUG] no sound on ppc mac mini
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       lkml <linux-kernel@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <1157502802.28296.58.camel@localhost>
-References: <1152821370.6845.9.camel@localhost>
-	 <1152831309.23037.31.camel@localhost.localdomain>
-	 <1f1b08da0607312337l34eabc56jdee7b056acd9a71a@mail.gmail.com>
-	 <1153.153.96.175.159.1154423993.squirrel@secure.sipsolutions.net>
-	 <1157502802.28296.58.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 06 Sep 2006 10:50:51 +1000
-Message-Id: <1157503851.22705.160.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 5 Sep 2006 21:00:10 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:24896 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965098AbWIFBAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 21:00:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IBX4hhgNl8UXxBmnhZUUzzs27W8ESACAohWkldygdQSha2BH6xJKxDGV7/CfkP4/LiIFzHWCkqwniWjtluam09f9BlfSn1x7Ro6z2r1U62vVSCM7GdjMW+CPz9Q6F6IvecpbNkuQ8HlW1RRYs2nBy+3Ein/jG87iZfENVziDLUI=
+Message-ID: <625fc13d0609051800w5d4b114cp5e2517ca683708ee@mail.gmail.com>
+Date: Tue, 5 Sep 2006 20:00:06 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "David Howells" <dhowells@redhat.com>
+Subject: Re: [PATCH] Make MTD chardev mmap available under some circumstances
+Cc: dwmw2@infradead.org, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <24712.1157483886@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <24712.1157483886@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/5/06, David Howells <dhowells@redhat.com> wrote:
+>
+> Make it possible to mmap MTD chardevs directly or by copy on a NOMMU system.
 
-> However...  ;)
-> 
-> It seems the new device doesn't have any volume control. I know the old
-> toonie driver used some form of softvol support, but "it just worked",
-> where as now I have no control over my system's audio volume.
-
-It's a userland problem :) Your alsa config needs to enable the softvol
-plugin for it.
-
-> While not the most terrible of regressions, its a bit irritating (waking
-> to loud mail notifications, specifically :). Is this something that I
-> have to wait for an alsa userland update to fix, or is the new kernel
-> driver just not fully functional yet?
-
-Part of the problem is that you can't anymore identify the type of codec
-based on the card name thus Alsa old mecanism of having a specific
-toonie config file that includes softvol doesn't work any more. The
-trick was bad in the first place though because you can have multiple
-different codecs anyway, so it didn't scale. (The old driver couldn't
-deal with it, but the new one can, though we haven't yet implemented
-support for any of the topaz digital codecs).
-
-I remember a discussion with the Alsa folks where it was question to
-have Alsa userland automatically instanciate softvol if there is no
-volume provided by the driver, which is a better approach.
-
-Takashi, was this ever implemented ? John, what is your Alsa userland
-version ?
-
-Ben.
+Why would you want to do this?  I'm just curious.
 
 
+> +/*
+> + * Allow NOMMU mmap() to directly map the device (if not NULL)
+> + * - return the address to which the offset maps
+> + * - return -ENOSYS to indicate refusal to do the mapping
+
+Where do you actually do the -ENOSYS part?  I think that comment
+belongs to the actual mtd_get_unmapped_area call in mtdchar.c, no?
+
+> +/*
+> + * try to determine where a shared mapping can be made
+> + * - only supported for NOMMU at the moment (MMU can't doesn't copy private
+> + *   mappings)
+> + */
+> +#ifndef CONFIG_MMU
+> +static unsigned long mtd_get_unmapped_area(struct file *file,
+> +                                          unsigned long addr,
+> +                                          unsigned long len,
+> +                                          unsigned long pgoff,
+> +                                          unsigned long flags)
+> +{
+> +       struct mtd_file_info *mfi = file->private_data;
+> +       struct mtd_info *mtd = mfi->mtd;
+> +
+> +       if (mtd->get_unmapped_area) {
+> +               unsigned long offset;
+> +
+> +               if (addr != 0)
+> +                       return (unsigned long) -EINVAL;
+> +
+> +               if (len > mtd->size || pgoff >= (mtd->size >> PAGE_SHIFT))
+> +                       return (unsigned long) -EINVAL;
+> +
+> +               offset = pgoff << PAGE_SHIFT;
+> +               if (offset > mtd->size - len)
+> +                       return (unsigned long) -EINVAL;
+> +
+> +               return mtd->get_unmapped_area(mtd, len, offset, flags);
+> +       }
+> +
+> +       /* can't map directly */
+> +       return (unsigned long) -ENOSYS;
+> +}
+> +#endif
+
+Could we do something like:
+
+#else
+#define mtd_get_unmapped_area (NULL);
+
+which would prevent the ugly ifdef in the mtd_fops structure?
+
+>  static struct file_operations mtd_fops = {
+>         .owner          = THIS_MODULE,
+>         .llseek         = mtd_lseek,
+> @@ -771,6 +864,10 @@ static struct file_operations mtd_fops =
+>         .ioctl          = mtd_ioctl,
+>         .open           = mtd_open,
+>         .release        = mtd_close,
+> +       .mmap           = mtd_mmap,
+> +#ifndef CONFIG_MMU
+> +       .get_unmapped_area = mtd_get_unmapped_area,
+> +#endif
+
+See above.
+
+
+josh

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWIFOTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWIFOUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWIFOTW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 10:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWIFOTW
+	id S1751149AbWIFOUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 10:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWIFOUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 10:19:22 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:18094 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751139AbWIFOTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:19:21 -0400
-Subject: Re: lockdep oddity
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Hua Zhong <hzhong@gmail.com>,
-       "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "'Arjan van de Ven'" <arjan@infradead.org>
-In-Reply-To: <20060906084021.GA30856@elte.hu>
-References: <20060906080129.GD6898@osiris.boeblingen.de.ibm.com>
-	 <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
-	 <20060906084021.GA30856@elte.hu>
-Content-Type: text/plain
-Date: Wed, 06 Sep 2006 07:19:19 -0700
-Message-Id: <1157552359.3541.16.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 6 Sep 2006 10:20:33 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:34405 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751147AbWIFOUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 10:20:30 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [2.6.19 PATCH 6/7] ehea: eHEA Makefile
+Date: Wed, 6 Sep 2006 15:38:05 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Disposition: inline
+To: netdev <netdev@vger.kernel.org>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609061538.05537.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 10:40 +0200, Ingo Molnar wrote:
-> * Hua Zhong <hzhong@gmail.com> wrote:
-> 
-> > We are just trading accuracy for speed here.
-> 
-> no, we are trading _both_ accuracy and speed here! a global 'likeliness' 
-> pointer for commonly executed codepaths is causing global cacheline 
-> ping-pongs - which is as bad as it gets.
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com> 
 
-Up stream or no, would be better for it to again be light weight.
 
-> the right approach, which incidentally would also be perfectly accurate, 
-> is to store an alloc_percpu()-ed pointer at the call site, not the 
-> counter itself.
+ drivers/net/ehea/Makefile |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I don't think it could be done via the macro. If it were called during
-run time it would have to be special alloc_percpu() that didn't call
-back into the profiling code (which almost everything does do).
 
-> the current code needs more work before it can go upstream i think.
 
-It was never really planned to go upstream. It's ultimately a debugging
-feature that's really only needed in -mm .. 
-
-Daniel
-
+--- linux-2.6.18-rc6-orig/drivers/net/ehea/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ kernel/drivers/net/ehea/Makefile	2006-09-06 15:53:43.000000000 +0200
+@@ -0,0 +1,6 @@
++#
++# Makefile for the eHEA ethernet device driver for IBM eServer System p
++#
++ehea-y = ehea_main.o ehea_phyp.o ehea_qmr.o ehea_ethtool.o ehea_phyp.o
++obj-$(CONFIG_EHEA) += ehea.o
++

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWIFNjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWIFNk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWIFNjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 09:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWIFNih
+	id S1750971AbWIFNk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 09:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWIFNk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 09:38:37 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:50224 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750918AbWIFNi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 09:38:29 -0400
-Message-Id: <20060906133954.023622000@chello.nl>
-References: <20060906131630.793619000@chello.nl>>
-User-Agent: quilt/0.45-1
-Date: Wed, 06 Sep 2006 15:16:37 +0200
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [PATCH 07/21] nfs: add a comment explaining the use of PG_private in the NFS client
-Content-Disposition: inline; filename=nfs_PG_private_comment.patch
+	Wed, 6 Sep 2006 09:40:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59918 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750932AbWIFNjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 09:39:54 -0400
+Date: Wed, 6 Sep 2006 15:39:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: stable@kernel.org, maks@sternwelten.at, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [SERIAL] icom: select FW_LOADER
+Message-ID: <20060906133944.GP9173@stusta.de>
+References: <20060816175350.GA9888@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060816175350.GA9888@aepfle.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>
----
- fs/nfs/write.c |    5 +++++
- 1 file changed, 5 insertions(+)
+On Wed, Aug 16, 2006 at 07:53:50PM +0200, Olaf Hering wrote:
+> 
+> The icom driver uses request_firmware()
+> and thus needs to select FW_LOADER.
+>...
 
-Index: linux-2.6/fs/nfs/write.c
-===================================================================
---- linux-2.6.orig/fs/nfs/write.c
-+++ linux-2.6/fs/nfs/write.c
-@@ -424,6 +424,11 @@ static int nfs_inode_add_request(struct 
- 		if (nfs_have_delegation(inode, FMODE_WRITE))
- 			nfsi->change_attr++;
- 	}
-+	/*
-+	 * The PG_private bit is unfortunately needed if we want to fix the
-+	 * hole in the mmap semantics. If we do not set it, then the VM will
-+	 * fail to call the "releasepage" address ops.
-+	 */
- 	SetPagePrivate(req->wb_page);
- 	nfsi->npages++;
- 	atomic_inc(&req->wb_count);
+Thanks, applied to 2.6.16.
 
---
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

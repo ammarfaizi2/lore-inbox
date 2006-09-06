@@ -1,90 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWIFXAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWIFXAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751790AbWIFXAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 19:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWIFXAP
+	id S1751798AbWIFXAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 19:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWIFXAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 19:00:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2218 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751790AbWIFXAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 19:00:13 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Jean Delvare <jdelvare@suse.de>, Andrew Morton <akpm@osdl.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] proc-readdir-race-fix-take-3-fix-3
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
-	<200609061101.11544.jdelvare@suse.de>
-	<200609062312.57774.jdelvare@suse.de> <20060906222556.GA168@oleg>
-	<20060906223838.GA198@oleg>
-Date: Wed, 06 Sep 2006 16:59:12 -0600
-In-Reply-To: <20060906223838.GA198@oleg> (Oleg Nesterov's message of "Thu, 7
-	Sep 2006 02:38:38 +0400")
-Message-ID: <m1r6yotxdr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 6 Sep 2006 19:00:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57291 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751798AbWIFXAv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 19:00:51 -0400
+Date: Wed, 6 Sep 2006 15:55:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jeffm@suse.com, agk@redhat.com,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 10/37] dm: move idr_pre_get
+Message-ID: <20060906225539.GK15922@kroah.com>
+References: <20060906224631.999046890@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="dm-move-idr_pre_get.patch"
+In-Reply-To: <20060906225444.GA15922@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> On 09/07, Oleg Nesterov wrote:
->>
->> On 09/06, Jean Delvare wrote:
->> >
->> > On Wednesday 6 September 2006 11:01, Jean Delvare wrote:
->> > > Eric, Kame, thanks a lot for working on this. I'll be giving some good
->> > > testing to this patch today, and will return back to you when I'm done.
->> > 
->> > The original issue is indeed fixed, but there's a problem with the patch. 
->> > When stressing /proc (to verify the bug was fixed), my test machine ended 
->> > up crashing. Here are the 2 traces I found in the logs:
->> > 
->> > Sep  6 12:06:00 arrakis kernel: BUG: warning at 
->> > kernel/fork.c:113/__put_task_struct()
->> > Sep  6 12:06:00 arrakis kernel:  [<c0115f93>] __put_task_struct+0xf3/0x100
->> > Sep  6 12:06:00 arrakis kernel:  [<c019666a>] proc_pid_readdir+0x13a/0x150
->> > Sep  6 12:06:00 arrakis kernel:  [<c01745f0>] vfs_readdir+0x80/0xa0
->> > Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
->> > Sep  6 12:06:00 arrakis kernel:  [<c017488c>] sys_getdents+0x6c/0xb0
->> > Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
->> > Sep  6 12:06:00 arrakis kernel:  [<c0102fb7>] syscall_call+0x7/0xb
->> 
->> If the task found is not a group leader, we go to retry, but
->> the task != NULL.
->> 
->> Now, if find_ge_pid(tgid) returns NULL, we return that wrong
->> task, and it was not get_task_struct()'ed.
+------------------
 
-Yep.  That would do it.  And of course having written the
-code it was very hard for me to step back far enough to see that.
+From: Jeff Mahoney <jeffm@suse.com>
 
-The other two failure modes still don't make sense to me but
-they may have been a side effect of this.
+idr_pre_get() can sleep while allocating memory.
 
-And it would have taken a thread being the highest pid in the
-system that exits while we are calling filldir to trigger this.
-Wow.  That was a good stress test.
+The next patch will change _minor_lock into a spinlock, so this patch moves
+idr_pre_get() outside the lock in preparation.
 
+[akpm: too late for 2.6.17 - suitable for 2.6.17.x after it has settled]
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
->
-> --- t/fs/proc/base.c~	2006-09-07 02:33:26.000000000 +0400
-> +++ t/fs/proc/base.c	2006-09-07 02:34:19.000000000 +0400
-> @@ -2149,9 +2149,9 @@ static struct task_struct *next_tgid(uns
->  	struct task_struct *task;
->  	struct pid *pid;
->  
-> -	task = NULL;
->  	rcu_read_lock();
->  retry:
-> +	task = NULL;
->  	pid = find_ge_pid(tgid);
->  	if (pid) {
->  		tgid = pid->nr + 1;
+ drivers/md/dm.c |   23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
+
+--- linux-2.6.17.11.orig/drivers/md/dm.c
++++ linux-2.6.17.11/drivers/md/dm.c
+@@ -766,6 +766,10 @@ static int specific_minor(struct mapped_
+ 	if (minor >= (1 << MINORBITS))
+ 		return -EINVAL;
+ 
++	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
++	if (!r)
++		return -ENOMEM;
++
+ 	mutex_lock(&_minor_lock);
+ 
+ 	if (idr_find(&_minor_idr, minor)) {
+@@ -773,16 +777,9 @@ static int specific_minor(struct mapped_
+ 		goto out;
+ 	}
+ 
+-	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
+-	if (!r) {
+-		r = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	r = idr_get_new_above(&_minor_idr, MINOR_ALLOCED, minor, &m);
+-	if (r) {
++	if (r)
+ 		goto out;
+-	}
+ 
+ 	if (m != minor) {
+ 		idr_remove(&_minor_idr, m);
+@@ -800,13 +797,11 @@ static int next_free_minor(struct mapped
+ 	int r;
+ 	unsigned int m;
+ 
+-	mutex_lock(&_minor_lock);
+-
+ 	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
+-	if (!r) {
+-		r = -ENOMEM;
+-		goto out;
+-	}
++	if (!r)
++		return -ENOMEM;
++
++	mutex_lock(&_minor_lock);
+ 
+ 	r = idr_get_new(&_minor_idr, MINOR_ALLOCED, &m);
+ 	if (r) {
+
+--

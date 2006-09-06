@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWIFP6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWIFQCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWIFP6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 11:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWIFP6Q
+	id S1751257AbWIFQCV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 12:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWIFQCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 11:58:16 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36624 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751189AbWIFP6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 11:58:15 -0400
-Date: Wed, 6 Sep 2006 17:58:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Mirkin <amirkin@sw.ru>
-Subject: Re: [RFC][PATCH] fail kernel compilation in case of unresolved symbols
-Message-ID: <20060906155805.GT9173@stusta.de>
-References: <44FD7FED.7000603@sw.ru> <20060905153159.GA13082@uranus.ravnborg.org> <20060905160104.GF9173@stusta.de> <44FEE3CF.7090603@sw.ru>
+	Wed, 6 Sep 2006 12:02:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17563 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751257AbWIFQCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 12:02:20 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Linux Containers <containers@lists.osdl.org>
+Subject: [PATCH] FIX: whitespace damage in namespaces-incorporate-fs-namespace-into-nsproxy
+Date: Wed, 06 Sep 2006 10:01:37 -0600
+Message-ID: <m1wt8hx9um.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44FEE3CF.7090603@sw.ru>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 07:05:51PM +0400, Kirill Korotaev wrote:
-> Adrian Bunk wrote:
-> >On Tue, Sep 05, 2006 at 05:31:59PM +0200, Sam Ravnborg wrote:
-> >
-> >>On Tue, Sep 05, 2006 at 05:47:25PM +0400, Kirill Korotaev wrote:
-> >>
-> >>>At stage 2 modpost utility is used to check modules.
-> >>>In case of unresolved symbols modpost only prints warning.
-> >>>
-> >>>IMHO it is a good idea to fail compilation process in case of
-> >>>unresolved symbols, since usually such errors are left unnoticed,
-> >>>but kernel modules are broken.
-> >>
-> >>The primary reason why we do not fail in this case is that building
-> >>external modules often result in unresolved symbols at modpost time.
-> >>
-> >>And there is many legitime uses of external modules that we shall support.
-> 
-> >Is there a way we can get this only for building the kernel itself?
 
-s/kernel itself/modules shipped with the kernel/
+---
+ fs/proc/base.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> >In this case an unresolved symbol is a real bug that should cause an 
-> >abort of the compilation.
-> IMHO for kernel linking will fail...
-> 
-> Don't you consider the kernel to be broken if suddenly one of your modules
-> began to have unresolved symbols?
->...
-
-> Thanks,
-> Kirill
-
-cu
-Adrian
-
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 45b70fd..4096518 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -545,7 +545,7 @@ static int mountstats_open(struct inode 
+ 
+ 		if (task) {
+ 			task_lock(task);
+-	namespace = task->nsproxy->namespace;
++			namespace = task->nsproxy->namespace;
+ 			if (namespace)
+ 				get_namespace(namespace);
+ 			task_unlock(task);
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+1.4.2.rc3.g7e18e-dirty
 

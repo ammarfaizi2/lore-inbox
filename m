@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWIFPRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWIFPTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWIFPRV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 11:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIFPRU
+	id S1751408AbWIFPTf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 11:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIFPTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 11:17:20 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:64183 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751394AbWIFPRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 11:17:19 -0400
-Date: Wed, 6 Sep 2006 17:17:17 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 11/21] nbd: limit blk_queue
-Message-ID: <20060906151716.GG16721@harddisk-recovery.com>
-References: <20060906131630.793619000@chello.nl>> <20060906133954.845224000@chello.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060906133954.845224000@chello.nl>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 6 Sep 2006 11:19:35 -0400
+Received: from alnrmhc11.comcast.net ([204.127.225.91]:38025 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751408AbWIFPTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 11:19:33 -0400
+Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM
+	Improvements
+From: Jim Gettys <jg@laptop.org>
+Reply-To: jg@laptop.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
+In-Reply-To: <20060906103725.GA4987@atrey.karlin.mff.cuni.cz>
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com>
+	 <20060830194317.GA9116@srcf.ucam.org>
+	 <200608311713.21618.bjorn.helgaas@hp.com>
+	 <1157070616.7974.232.camel@localhost.localdomain>
+	 <20060904130933.GC6279@ucw.cz>
+	 <1157466710.6011.262.camel@localhost.localdomain>
+	 <20060906103725.GA4987@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Organization: OLPC
+Date: Wed, 06 Sep 2006 11:19:09 -0400
+Message-Id: <1157555949.6011.516.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 03:16:41PM +0200, Peter Zijlstra wrote:
-> -		disk->queue = blk_init_queue(do_nbd_request, &nbd_lock);
-> +		disk->queue = blk_init_queue_node_elv(do_nbd_request,
-> +				&nbd_lock, -1, "noop");
+On Wed, 2006-09-06 at 12:37 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > 2.4 and 2.6 are *very* different here. You'll probably need to optimize freezer
+> > > in 2.6 a bit...
+> > > 						
+> > 
+> > Among other problems: e.g. 2.4 did not automatically do a VT switch; 2.6
+> > does; we'll have to have a way to signal "we're a sane display driver;
+> > don't switch away from me on suspend".
+> 
+> Not like that, please.
+> 
+> You are using X running over framebuffer, right? So that kernel is
+> controlling the graphics hardware. In such case it is safe to avoid VT
+> switch.
 
-So what happens if the noop scheduler isn't compiled into the kernel?
+It should be perfectly safe.
 
+The Geode has significantly more than dumb frame buffer support, even
+though it can't support 3D in hardware (we do get blit and alpha
+blending, and YUV->RGB support in hardware).
 
-Erik
+We have an fbdev driver for the hardware (in fact, have to finally have
+a decent driver in general, as the transfer to and from DCON controlled
+display has to happen at interrupt time).  We won't be doing thing evil
+in X behind the operating system's back the way most XF86 drivers do,
+but very much the way display drivers supported X before the strange
+notion of completely OS independent drivers without any kernel support
+twisted the way XF86 drivers usually work.  Ah, back to the future
+(past)....
+                                        - Jim
+
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Jim Gettys
+One Laptop Per Child
+
+

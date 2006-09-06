@@ -1,150 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWIFKDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWIFKGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWIFKDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 06:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIFKDM
+	id S1750752AbWIFKGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 06:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWIFKGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 06:03:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9422 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750762AbWIFKDK (ORCPT
+	Wed, 6 Sep 2006 06:06:13 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:34834 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1750752AbWIFKGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 06:03:10 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] FRV: Use the generic time stuff for FRV
-Date: Wed, 06 Sep 2006 11:02:45 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com,
-       johnstul@us.ibm.com
-Message-Id: <20060906100245.9833.61804.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 6 Sep 2006 06:06:12 -0400
+Date: Wed, 6 Sep 2006 12:06:10 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060906100610.GA16395@clipper.ens.fr>
+References: <20060905212643.GA13613@clipper.ens.fr> <20060906002730.23586.qmail@web36609.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060906002730.23586.qmail@web36609.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Wed, 06 Sep 2006 12:06:11 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: john stultz <johnstul@us.ibm.com>
+On Wed, Sep 06, 2006 at 12:27:50AM +0000, Casey Schaufler wrote:
+> --- David Madore <david.madore@ens.fr> wrote:
+> > As we all know, capabilities under Linux are
+> > currently crippled to the
+> > point of being useless.
+> 
+> The current work in progress to support
+> capability set on files will address this
+> longstanding issue.
 
-Use the generic time stuff for FRV.
+It seems to me that the issues of the capability inheritance semantics
+and the capability filesystem support are quite orthogonal.  My patch
+provides the first, and will quite happily live with a patch such as
+<URL: http://lwn.net/Articles/142507/ > providing filesystem support.
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Even in the absence of filesystem support, there is no reason for
+capabilities not to be inheritable: this is what my patch addresses.
+Of course, it is even more interesting in the presence of filesystem
+support.  (I could provide a combined patch that would do both, with
+xattrs, as a proof of concept.)
 
- arch/frv/Kconfig       |    4 ++
- arch/frv/kernel/time.c |   81 ------------------------------------------------
- 2 files changed, 4 insertions(+), 81 deletions(-)
+> Not a bad idea, but the notion of underprivileged
+> processes has been tried before. The capability
+> mechanism is explicitly designed to provide for
+> the seperation and management of privilege and
+> taking it in the "other" direction requires
+> a rethinking of the inheritance mechanism.
 
-diff --git a/arch/frv/Kconfig b/arch/frv/Kconfig
-index be3b621..5e6583a 100644
---- a/arch/frv/Kconfig
-+++ b/arch/frv/Kconfig
-@@ -29,6 +29,10 @@ config GENERIC_HARDIRQS
- 	bool
- 	default n
- 
-+config GENERIC_TIME
-+	bool
-+	default y
-+
- config TIME_LOW_RES
- 	bool
- 	default y
-diff --git a/arch/frv/kernel/time.c b/arch/frv/kernel/time.c
-index d5b64e1..68a77fe 100644
---- a/arch/frv/kernel/time.c
-+++ b/arch/frv/kernel/time.c
-@@ -32,8 +32,6 @@ #include <linux/timex.h>
- 
- #define TICK_SIZE (tick_nsec / 1000)
- 
--extern unsigned long wall_jiffies;
--
- unsigned long __nongprelbss __clkin_clock_speed_HZ;
- unsigned long __nongprelbss __ext_bus_clock_speed_HZ;
- unsigned long __nongprelbss __res_bus_clock_speed_HZ;
-@@ -145,85 +143,6 @@ void time_init(void)
- }
- 
- /*
-- * This version of gettimeofday has near microsecond resolution.
-- */
--void do_gettimeofday(struct timeval *tv)
--{
--	unsigned long seq;
--	unsigned long usec, sec;
--	unsigned long max_ntp_tick;
--
--	do {
--		unsigned long lost;
--
--		seq = read_seqbegin(&xtime_lock);
--
--		usec = 0;
--		lost = jiffies - wall_jiffies;
--
--		/*
--		 * If time_adjust is negative then NTP is slowing the clock
--		 * so make sure not to go into next possible interval.
--		 * Better to lose some accuracy than have time go backwards..
--		 */
--		if (unlikely(time_adjust < 0)) {
--			max_ntp_tick = (USEC_PER_SEC / HZ) - tickadj;
--			usec = min(usec, max_ntp_tick);
--
--			if (lost)
--				usec += lost * max_ntp_tick;
--		}
--		else if (unlikely(lost))
--			usec += lost * (USEC_PER_SEC / HZ);
--
--		sec = xtime.tv_sec;
--		usec += (xtime.tv_nsec / 1000);
--	} while (read_seqretry(&xtime_lock, seq));
--
--	while (usec >= 1000000) {
--		usec -= 1000000;
--		sec++;
--	}
--
--	tv->tv_sec = sec;
--	tv->tv_usec = usec;
--}
--
--EXPORT_SYMBOL(do_gettimeofday);
--
--int do_settimeofday(struct timespec *tv)
--{
--	time_t wtm_sec, sec = tv->tv_sec;
--	long wtm_nsec, nsec = tv->tv_nsec;
--
--	if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
--		return -EINVAL;
--
--	write_seqlock_irq(&xtime_lock);
--	/*
--	 * This is revolting. We need to set "xtime" correctly. However, the
--	 * value in this location is the value at the most recent update of
--	 * wall time.  Discover what correction gettimeofday() would have
--	 * made, and then undo it!
--	 */
--	nsec -= 0 * NSEC_PER_USEC;
--	nsec -= (jiffies - wall_jiffies) * TICK_NSEC;
--
--	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - sec);
--	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - nsec);
--
--	set_normalized_timespec(&xtime, sec, nsec);
--	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
--
--	ntp_clear();
--	write_sequnlock_irq(&xtime_lock);
--	clock_was_set();
--	return 0;
--}
--
--EXPORT_SYMBOL(do_settimeofday);
--
--/*
-  * Scheduler clock - returns current time in nanosec units.
-  */
- unsigned long long sched_clock(void)
+Yes, it required a slight rethinking, and that is precisely what I am
+providing: <URL: http://www.madore.org/~david/linux/newcaps/#semantics >.
+Do you see anything specificly wrong with it?
+
+> > In short: currently (i.e., prior to applying this
+> > patch), Linux has
+> > capabilities, but they are (deliberately) crippled,
+> 
+> The crippling is not deliberate.
+
+At least the crippling of CAP_SETPCAP was deliberate and unnecessary:
+it was done following an incorrect analysis by the sendmail team of a
+caps-related sendmail exploit under Linux.
+
+>				   It is
+> unfortunate and represents a number of complex
+> issues that are being resolved. Finally.
+
+Resolving them is precisely what I proposed to do.  If you are saying
+someone else also proposed to do the same, can you point to that work?
+Perhaps we could merge usefully and thus go forward faster.
+
+> Again, the capability scheme is intended to
+> address the omnipotent userid problem. It pulls
+> the userid and privilege apart. It also provides
+> a more granular privilege. But it does not change
+> what operations require privilege. That is left
+> to wiser minds.
+
+I don't quite understand what you're saying here.  Do you see
+something wrong with my proposal for doing it?
+
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

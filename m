@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWIFTmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWIFUDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWIFTmK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 15:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWIFTmJ
+	id S1751540AbWIFUDP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWIFUDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 15:42:09 -0400
-Received: from outmx019.isp.belgacom.be ([195.238.4.200]:54221 "EHLO
-	outmx019.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1750922AbWIFTmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 15:42:06 -0400
-Date: Wed, 6 Sep 2006 21:41:49 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Samuel Tardieu <sam@rfc1149.net>
-Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-Message-ID: <20060906194149.GA2386@infomag.infomag.iguana.be>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com> <2006-09-06-13-29-46+trackit+sam@rfc1149.net> <44FEB5B6.10008@draigBrady.com> <2006-09-06-14-07-50+trackit+sam@rfc1149.net>
+	Wed, 6 Sep 2006 16:03:15 -0400
+Received: from xenotime.net ([66.160.160.81]:1224 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751533AbWIFUDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 16:03:14 -0400
+Date: Wed, 6 Sep 2006 13:06:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: Generic infrastructure for acls
+Message-Id: <20060906130647.7c415043.rdunlap@xenotime.net>
+In-Reply-To: <200609061840.12707.agruen@suse.de>
+References: <20060901221421.968954146@winden.suse.de>
+	<20060901221457.803728153@winden.suse.de>
+	<20060901144423.aa306d36.akpm@osdl.org>
+	<200609061840.12707.agruen@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2006-09-06-14-07-50+trackit+sam@rfc1149.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wed, 6 Sep 2006 18:40:12 +0200 Andreas Gruenbacher wrote:
 
-> | So in the case the BIOS sets the watchdog to 4 mins
-> | for example the 2 drivers are a little different.
-> | 
-> | W83627HF resets to timeout seconds on module load
-> | W83697HG resets to timeout seconds on /dev/watchdog open
+> On Friday, 01 September 2006 23:44, Andrew Morton wrote:
+> > That's a clumsy-looking interface.
 > 
-> Yes, I'm reluctant at changing anything set by the BIOS before the first
-> *use* of the module. In particular, if the watchdog was not activated by
-> default in the BIOS, I'd prefer the box not to reboot just because the
-> module was loaded (maybe by mistake) if no daemon open /dev/watchdog
-> at least once.
+> I have added a little documentation now. This will hopefully suffice to 
+> clarify why the interface is as clumsy-looking as it is ;)
 
-My feedback: it is important that during the initialization of the module,
-the watchdog is being disabled. A watchdog should only start working after
-it has been started via /dev/watchdog.
+oops.  A bit difficult to comment on the patch.
+Anyway, for the kernel-doc function headers (Thanks),
+all of the parameters need to be listed, not just the first
+one (@ops).
 
-> In particular, some boxes may take a long time to boot, e.g. if fscks are
-> needed; if the module is loaded by an initrd before filesystems are mounted
-> and fscks are done, if I'm not mistaken the box could reboot in loop
-> every time in the middle of fscks.
-
-Please note that I added 4 days ago a patch of Marcus Junker <junker@anduras.de>
-in my linux-2.6-watchdog-mm tree for the w83697hf chipset.
-See: http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog-mm.git;a=commitdiff;h=d19ea38e6e99c4924c894cb54440e242179bf27d;hp=19cdb014d58f2c47470d86188a7e556380469008
-
-Greetings,
-Wim.
-
+---
+~Randy

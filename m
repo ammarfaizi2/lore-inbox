@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWIFOT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWIFOTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWIFOT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 10:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWIFOT2
+	id S1751139AbWIFOTW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 10:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWIFOTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 10:19:28 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:22474 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751142AbWIFOT1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:19:27 -0400
-Message-ID: <44FED8E3.5010900@fr.ibm.com>
-Date: Wed, 06 Sep 2006 16:19:15 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 7/13] BC: kernel memory (marks)
-References: <44FD918A.7050501@sw.ru> <44FD9717.1000709@sw.ru>
-In-Reply-To: <44FD9717.1000709@sw.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 6 Sep 2006 10:19:22 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:18094 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751139AbWIFOTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 10:19:21 -0400
+Subject: Re: lockdep oddity
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Hua Zhong <hzhong@gmail.com>,
+       "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "'Arjan van de Ven'" <arjan@infradead.org>
+In-Reply-To: <20060906084021.GA30856@elte.hu>
+References: <20060906080129.GD6898@osiris.boeblingen.de.ibm.com>
+	 <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
+	 <20060906084021.GA30856@elte.hu>
+Content-Type: text/plain
+Date: Wed, 06 Sep 2006 07:19:19 -0700
+Message-Id: <1157552359.3541.16.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor issue bellow in arch/ia64/mm/init.c. I'm not sure what the charge
-argument should be. Please check.
+On Wed, 2006-09-06 at 10:40 +0200, Ingo Molnar wrote:
+> * Hua Zhong <hzhong@gmail.com> wrote:
+> 
+> > We are just trading accuracy for speed here.
+> 
+> no, we are trading _both_ accuracy and speed here! a global 'likeliness' 
+> pointer for commonly executed codepaths is causing global cacheline 
+> ping-pongs - which is as bad as it gets.
 
-Regards,
+Up stream or no, would be better for it to again be light weight.
 
-C.
+> the right approach, which incidentally would also be perfectly accurate, 
+> is to store an alloc_percpu()-ed pointer at the call site, not the 
+> counter itself.
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+I don't think it could be done via the macro. If it were called during
+run time it would have to be special alloc_percpu() that didn't call
+back into the profiling code (which almost everything does do).
 
----
- arch/ia64/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> the current code needs more work before it can go upstream i think.
 
-Index: 2.6.18-rc5-mm1/arch/ia64/mm/init.c
-===================================================================
---- 2.6.18-rc5-mm1.orig/arch/ia64/mm/init.c
-+++ 2.6.18-rc5-mm1/arch/ia64/mm/init.c
-@@ -95,7 +95,7 @@ check_pgt_cache(void)
-        preempt_disable();
-        while (unlikely((pages_to_free = min_pages_to_free()) > 0)) {
-                while (pages_to_free--) {
--                       free_page((unsigned long)pgtable_quicklist_alloc());
-+                       free_page((unsigned long)pgtable_quicklist_alloc(0));
-                }
-                preempt_enable();
-                preempt_disable();
+It was never really planned to go upstream. It's ultimately a debugging
+feature that's really only needed in -mm .. 
+
+Daniel
+

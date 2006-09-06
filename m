@@ -1,163 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWIFWkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWIFWoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWIFWkO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 18:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWIFWhx
+	id S964769AbWIFWoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWIFWoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 18:37:53 -0400
-Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:41152 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964787AbWIFWhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 18:37:47 -0400
-From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.18-rc6 09/10] Simple testing for kmemleak
-Date: Wed, 06 Sep 2006 23:37:42 +0100
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060906223742.21550.98821.stgit@localhost.localdomain>
-In-Reply-To: <20060906223536.21550.55411.stgit@localhost.localdomain>
-References: <20060906223536.21550.55411.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 6 Sep 2006 18:44:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42695 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964769AbWIFWoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 18:44:15 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] proc: readdir race fix (take 3)
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
+	<200609061101.11544.jdelvare@suse.de>
+	<200609062312.57774.jdelvare@suse.de>
+Date: Wed, 06 Sep 2006 16:43:09 -0600
+In-Reply-To: <200609062312.57774.jdelvare@suse.de> (Jean Delvare's message of
+	"Wed, 6 Sep 2006 23:12:57 +0200")
+Message-ID: <m1zmdcty4i.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+Jean Delvare <jdelvare@suse.de> writes:
 
-This patch only contains some very simple testing at the moment. Proper
-testing will be needed.
+> On Wednesday 6 September 2006 11:01, Jean Delvare wrote:
+>> Eric, Kame, thanks a lot for working on this. I'll be giving some good
+>> testing to this patch today, and will return back to you when I'm done.
+>
+> The original issue is indeed fixed, but there's a problem with the patch. 
+> When stressing /proc (to verify the bug was fixed), my test machine ended 
+> up crashing. Here are the 2 traces I found in the logs:
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
+Ugh.  
 
- lib/Kconfig.debug |   11 +++++++
- mm/Makefile       |    1 +
- mm/memleak-test.c |   89 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 101 insertions(+), 0 deletions(-)
+So the death in __put_task_struct() is from:
+WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
+So it appears we have something that is decrementing but not
+incrementing the count on the task struct.
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index b36ac64..64b6362 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -207,6 +207,17 @@ config DEBUG_KEEP_INIT
- 
- 	  If unsure, say N.
- 
-+config DEBUG_MEMLEAK_TEST
-+	tristate "Test the kernel memory leak detector"
-+	default n
-+	depends on DEBUG_MEMLEAK
-+	help
-+	  Say Y or M here to build the test harness for the kernel
-+	  memory leak detector. At the moment, this option enables a
-+	  module that explicitly leaks memory.
-+
-+	  If unsure, say N.
-+
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
- 	depends on DEBUG_KERNEL && PREEMPT && TRACE_IRQFLAGS_SUPPORT
-diff --git a/mm/Makefile b/mm/Makefile
-index edccbc0..fd46a73 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_DEBUG_MEMLEAK) += memleak.o
-+obj-$(CONFIG_DEBUG_MEMLEAK_TEST) += memleak-test.o
-diff --git a/mm/memleak-test.c b/mm/memleak-test.c
-new file mode 100644
-index 0000000..8120223
---- /dev/null
-+++ b/mm/memleak-test.c
-@@ -0,0 +1,89 @@
-+/*
-+ * mm/memleak-test.c
-+ *
-+ * Copyright (C) 2006 ARM Limited
-+ * Written by Catalin Marinas <catalin.marinas@arm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/list.h>
-+
-+#include <linux/memleak.h>
-+
-+struct test_node {
-+	long header[25];
-+	struct list_head list;
-+	long footer[25];
-+};
-+
-+static LIST_HEAD(test_list);
-+
-+/* Some very simple testing. This function needs to be extended for
-+ * proper testing */
-+static int __init memleak_test_init(void)
-+{
-+	struct test_node *elem;
-+	int i;
-+
-+	printk(KERN_INFO "KMemLeak testing\n");
-+
-+	/* make some orphan objects */
-+	kmalloc(32, GFP_KERNEL);
-+	kmalloc(32, GFP_KERNEL);
-+	kmalloc(1024, GFP_KERNEL);
-+	kmalloc(1024, GFP_KERNEL);
-+	kmalloc(2048, GFP_KERNEL);
-+	kmalloc(2048, GFP_KERNEL);
-+	kmalloc(4096, GFP_KERNEL);
-+	kmalloc(4096, GFP_KERNEL);
-+#ifndef CONFIG_MODULES
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+#endif
-+	vmalloc(64);
-+	vmalloc(64);
-+
-+	/* add elements to a list. They should only appear as orphan
-+	 * after the module is removed */
-+	for (i = 0; i < 10; i++) {
-+		elem = kmalloc(sizeof(*elem), GFP_KERNEL);
-+		if (!elem)
-+			return -ENOMEM;
-+		memset(elem, 0, sizeof(*elem));
-+		INIT_LIST_HEAD(&elem->list);
-+
-+		list_add_tail(&elem->list, &test_list);
-+	}
-+
-+	return 0;
-+}
-+module_init(memleak_test_init);
-+
-+static void __exit memleak_test_exit(void)
-+{
-+	struct test_node *elem, *tmp;
-+
-+	/* remove the list elements without actually freeing the memory */
-+	list_for_each_entry_safe(elem, tmp, &test_list, list)
-+		list_del(&elem->list);
-+}
-+module_exit(memleak_test_exit);
-+
-+MODULE_LICENSE("GPL");
+Now what is interesting is that there are a couple of other failure modes
+present here.
+free_uid called from __put_task_struct is failing
+
+
+And you seem to have a recursive page fault going on somewhere.
+
+I suspect the triggering of this bug is the result of an earlier oops,
+that left some process half cleaned up.
+
+Have you tested 2.6.18-rc6 without my patch?
+If not can you please test the same 2.6.18-rc6 configuration with my patch?
+
+> Sometimes the machine just hung, with nothing in the logs. The machine is 
+> a Sony laptop (i686).
+>
+> I have been testing the patch on another machine (x86_64) and had no 
+> problem at all, so the reproduceability of the bug might depend on the 
+> arch or some config option. I'll help nailing down this issue if I can, 
+> just tell me what to do.
+
+So I don't know what is going on with your laptop.  It feels nasty.
+
+I think my patch is just tripping on the problem, rather than causing
+it.  The previous version of fs/proc/base.c should have tripped over
+this problem as well if it happened to have hit the same process.
+
+I'm staring at the patch and I can not think of anything that would
+explain your problem.  The reference counting is simple and the only
+bug I had in a posted version was a failure to decrement the count
+on the task_struct.
+
+I guess the practical question is what was your test methodology to
+reproduce this problem?  A couple of more people running the same
+test on a few more machines might at least give us confidence in what
+is going on.
+
+Eric

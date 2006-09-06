@@ -1,93 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWIFNEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWIFNZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWIFNEm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 09:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWIFNEm
+	id S1750915AbWIFNZL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 09:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWIFNZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 09:04:42 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:23945 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750817AbWIFNEk (ORCPT
+	Wed, 6 Sep 2006 09:25:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21735 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750909AbWIFNZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 09:04:40 -0400
-Date: Wed, 6 Sep 2006 14:56:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: David Howells <dhowells@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj
-Message-ID: <20060906125626.GA3718@elte.hu>
-References: <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13982.1157545856@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 6 Sep 2006 09:25:09 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1157546813.5541.8.camel@lade.trondhjem.org> 
+References: <1157546813.5541.8.camel@lade.trondhjem.org>  <1157518718.3066.22.camel@raven.themaw.net> <1157458817.4133.29.camel@raven.themaw.net> <1157451611.4133.22.camel@raven.themaw.net> <1157436412.3915.26.camel@raven.themaw.net> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <1157421445.5510.13.camel@localhost> <1157424937.3002.4.camel@raven.themaw.net> <1157428241.5510.72.camel@localhost> <1157429030.3915.8.camel@raven.themaw.net> <1157432039.32412.37.camel@localhost> <3698.1157449249@warth!
+ og.cambridge.redhat.com> <4987.1157452656@war! thog.cambridge.redhat.com> <11346.1157463522@warthog.cambridge.redhat.com> <8912.1157536306@warthog.cambridge.redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 06 Sep 2006 14:24:42 +0100
+Message-ID: <15694.1157549082@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-* David Howells <dhowells@redhat.com> wrote:
+> It really doesn't matter whether there is a symlink or not. automounters
+> should _not_ be trying to create directories on any filesystem other
+> than the autofs filesystem itself.
 
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > btw., would be nice to convert it to genirq (and irqchips) too =B-) That 
-> > would solve the kind of disable_irq_lockdep() breakage that was reported 
-> > recently.
-> 
-> I can think of reasons for not using that stuff also.
-> 
->  (1) Passing "struct pt_regs *regs" around is a complete waste of 
->      resources on FRV.  It's in GR28 at all times and can thus be 
->      accessed directly.
+Yes, I agree.
 
-we'll get rid of that pt_regs thing centrally, from all drivers at once 
-- there's upstream buy-in for that already, and Thomas already generated 
-a test-patch for that a few months ago. But it's not a big issue right 
-now.
-
->  (2) All the little operations functions cause unnecessary jumping, 
->      jumps that icache lookahead can't predict because they're 
->      register-indirect.
-
-this shouldnt be a big issue either - we use indirect jumps all around 
-the kernel. CPUs are either smart enough to predict it, or they simply 
-dont have that high penalties. (and if they have high penalties but dont 
-optimize for it then genirq will be the last of their worries. The VFS 
-and the MM is full of function pointers.)
-
->  (3) ACK'ing and controlling interrupts has to be done by groups.
-
-please be more specific, how is this not possible via genirq?
-
->  (4) No account is taken of interrupt priority.
-
-hm, i'm not sure what you mean - could you be more specific?
-
->  (5) The FRV CPU doesn't tell me which IRQ source fired.  Much of the 
->      code I've got is stuff to try and work it out.  I could just 
->      blindly poll all the sources attached to a particular interrupt 
->      level, but that seemssomehow less efficient.
-
-but ... somehow the current FRV code does figure out which IRQ source 
-fired, right? How is that a hindrance for a genirq/irqchips based 
-design?
-
-> BTW, have you looked at my patch to fix lockdep yet?
-
-oops, i missed it - just acked it. (This problem too was a side-effect 
-of FRV having its own IRQ layer.)
-
-	Ingo
+David

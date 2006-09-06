@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWIFW1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWIFW01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751544AbWIFW1i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 18:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWIFW1i
+	id S1750928AbWIFW01 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIFW01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 18:27:38 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:23817 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S1751544AbWIFW1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 18:27:37 -0400
-Date: Thu, 7 Sep 2006 00:27:31 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060906222731.GA10675@clipper.ens.fr>
-References: <20060905212643.GA13613@clipper.ens.fr> <20060906182531.GA24670@sergelap.austin.ibm.com>
+	Wed, 6 Sep 2006 18:26:27 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:51424 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1750928AbWIFW00
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 18:26:26 -0400
+Date: Thu, 7 Sep 2006 02:25:56 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] proc: readdir race fix (take 3)
+Message-ID: <20060906222556.GA168@oleg>
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com> <200609061101.11544.jdelvare@suse.de> <200609062312.57774.jdelvare@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060906182531.GA24670@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Thu, 07 Sep 2006 00:27:31 +0200 (CEST)
+In-Reply-To: <200609062312.57774.jdelvare@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 01:25:31PM -0500, Serge E. Hallyn wrote:
-> The fact that you're changing the inheritance rules is a bit scary, so
-> I'm going to (and I hope others will) take some time to look it over.
+On 09/06, Jean Delvare wrote:
+>
+> On Wednesday 6 September 2006 11:01, Jean Delvare wrote:
+> > Eric, Kame, thanks a lot for working on this. I'll be giving some good
+> > testing to this patch today, and will return back to you when I'm done.
+> 
+> The original issue is indeed fixed, but there's a problem with the patch. 
+> When stressing /proc (to verify the bug was fixed), my test machine ended 
+> up crashing. Here are the 2 traces I found in the logs:
+> 
+> Sep  6 12:06:00 arrakis kernel: BUG: warning at 
+> kernel/fork.c:113/__put_task_struct()
+> Sep  6 12:06:00 arrakis kernel:  [<c0115f93>] __put_task_struct+0xf3/0x100
+> Sep  6 12:06:00 arrakis kernel:  [<c019666a>] proc_pid_readdir+0x13a/0x150
+> Sep  6 12:06:00 arrakis kernel:  [<c01745f0>] vfs_readdir+0x80/0xa0
+> Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
+> Sep  6 12:06:00 arrakis kernel:  [<c017488c>] sys_getdents+0x6c/0xb0
+> Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
+> Sep  6 12:06:00 arrakis kernel:  [<c0102fb7>] syscall_call+0x7/0xb
 
-Thanks!  I'd appreciate it.  Don't hesitate to ask me if some
-decisions I made are unclear.
+I think there is a bug in next_tgid(),
 
-I was about to write to you, in fact, since I wrote a version of my
-patch which merges with the one you made (an old version, though, I
-suppose: I took it from <URL: http://lkml.org/lkml/2006/8/15/294 >,
-but I can try merging with more recent versions).  The point being to
-show that my patch is not incompatible with yours: they are quite
-complementary.  (The merged patch can be found in <URL:
-ftp://quatramaran.ens.fr/pub/madore/newcaps/pre-alpha/ >.)
+> -static struct task_struct *next_tgid(struct task_struct *start)
+> -{
+> -	struct task_struct *pos;
+> +	task = NULL;
+>  	rcu_read_lock();
+> -	pos = start;
+> -	if (pid_alive(start))
+> -		pos = next_task(start);
+> -	if (pid_alive(pos) &amp;&amp; (pos != &amp;init_task)) {
+> -		get_task_struct(pos);
+> -		goto done;
+> +retry:
+> +	pid = find_ge_pid(tgid);
+> +	if (pid) {
+> +		tgid = pid->nr + 1;
+> +		task = pid_task(pid, PIDTYPE_PID);
+> +		/* What we to know is if the pid we have find is the
+> +		 * pid of a thread_group_leader.  Testing for task
+> +		 * being a thread_group_leader is the obvious thing
+> +		 * todo but there is a window when it fails, due to
+> +		 * the pid transfer logic in de_thread.
+> +		 *
+> +		 * So we perform the straight forward test of seeing
+> +		 * if the pid we have found is the pid of a thread
+> +		 * group leader, and don't worry if the task we have
+> +		 * found doesn't happen to be a thread group leader.
+> +		 * As we don't care in the case of readdir.
+> +		 */
+> +		if (!task || !has_group_leader_pid(task))
+> +			goto retry;
+> +		get_task_struct(task);
+>  	}
+> -	pos = NULL;
+> -done:
+>  	rcu_read_unlock();
+> -	put_task_struct(start);
+> -	return pos;
+> +	return task;
+>  }
 
-> In the meantime, so long as you're adding some new capabilities, how
-> about also splitting up a few like CAP_SYS_ADMIN?  Have you looked into
-> it and decided none are really separable, i.e. any subset leads to the
-> ability to get any other subset?
+If the task found is not a group leader, we go to retry, but
+the task != NULL.
 
-I agree that splitting CAP_SYS_ADMIN might be worth while, but it
-really looks like opening a worm can, so I didn't feel up to the
-challenge there.  It might be a good idea to reserve some bits for
-that possibility, however - I'm not sure how best to proceed.
+Now, if find_ge_pid(tgid) returns NULL, we return that wrong
+task, and it was not get_task_struct()'ed.
 
-> I'd recommend you split this patch into at least 3:
-> 	1. move to 64-bit caps
-> 	2. introduce your new caps
-> 		(perhaps even one new cap per patch)
-> 	3. introduce the new inheritance rules
+Oleg.
 
-Yes, that sounds like a good idea.  I'll do that.
 
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )

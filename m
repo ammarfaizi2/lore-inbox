@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWIFUHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWIFUNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWIFUHf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 16:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWIFUHf
+	id S932114AbWIFUNj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbWIFUNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 16:07:35 -0400
-Received: from posti5.jyu.fi ([130.234.4.34]:34753 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S1751537AbWIFUHe (ORCPT
+	Wed, 6 Sep 2006 16:13:39 -0400
+Received: from 1wt.eu ([62.212.114.60]:13074 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751548AbWIFUNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 16:07:34 -0400
-Message-ID: <44FF2A6D.3000500@cc.jyu.fi>
-Date: Wed, 06 Sep 2006 23:07:09 +0300
-From: lamikr <lamikr@cc.jyu.fi>
-Reply-To: lamikr@cc.jyu.fi
-User-Agent: Thunderbird 1.5.0.5 (X11/20060804)
-MIME-Version: 1.0
-To: tony@atomide.com
-CC: OMAP-Linux <linux-omap-open-source@linux.omap.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa
- driver.
-References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com>
-In-Reply-To: <20060905151808.GC18073@atomide.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 16:13:38 -0400
+Date: Wed, 6 Sep 2006 22:13:33 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: ellis@spinics.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bogofilter ate 3/5
+Message-ID: <20060906201333.GA711@1wt.eu>
+References: <20060906180020.GD604@1wt.eu> <200609061856.k86IuS61017253@no.spam>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609061856.k86IuS61017253@no.spam>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 06, 2006 at 11:56:28AM -0700, ellis@spinics.net wrote:
+> > OK, but doing something could simply consist in adding a header
+> > that anyone is free to filter on or not.
+> 
+> The problem with that is the post gets no indication that his
+> mail has been filtered. The way it works now is the rejection
+> happens at SMTP time and that causes the poster to see the
+> problem. If people filtered on a header, you'd never know why you
+> weren't getting a response.
 
->> now Tux can finally call home :-)
->>     
->
-> Cool that you got the phone features working :)
->   
-Yes,  and gprs is also working nicely with the pppd so I can finally
-start eating dog food :-)
-Some problems there still are
+Valid point.
 
-1) As we do not yet have any kind of multiplexing support to gsm module
-(currently directly accesing dev/ttyS1 for at commands)
-our phone app is not able to run simultaneously with the ppp. I am not
-sure should I resolve this in the kernel space or user space.
+Regards,
+Willy
 
-2) I can not suspend/resume by using power button but we have still
-problem from waking up the iPAQ
-from suspend for the incoming calls.
-So far I have tried to enable UART2 wakeup by using
-
-    level2_wake |= OMAP_IRQ_BIT(INT_MPUIO);
-
-in omap_pm_wakeup_setup() method of plat-omap/pm.c but did not have
-success with that.
-Could you have any idea for this one?
-
-Mika

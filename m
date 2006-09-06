@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWIFGw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWIFGz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWIFGw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 02:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWIFGw2
+	id S932076AbWIFGz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 02:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWIFGz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 02:52:28 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:60039 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750760AbWIFGw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 02:52:27 -0400
-Date: Wed, 6 Sep 2006 10:51:54 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take15 1/4] kevent: Core files.
-Message-ID: <20060906065154.GC28825@2ka.mipt.ru>
-References: <1157364862688@2ka.mipt.ru> <200609051528.18437.arnd.bergmann@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 6 Sep 2006 02:55:29 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:51845 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751509AbWIFGz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 02:55:28 -0400
+Date: Wed, 6 Sep 2006 08:54:51 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       Daniel Walker <dwalker@mvista.com>, Hua Zhong <hzhong@gmail.com>
+Subject: Re: lockdep oddity
+Message-ID: <20060906065451.GA6898@osiris.boeblingen.de.ibm.com>
+References: <20060901015818.42767813.akpm@osdl.org> <20060905130356.GB6940@osiris.boeblingen.de.ibm.com> <20060905181241.GC16207@elte.hu> <20060905190807.GA27171@elte.hu> <20060905193742.GA1566@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609051528.18437.arnd.bergmann@de.ibm.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 06 Sep 2006 10:51:56 +0400 (MSD)
+In-Reply-To: <20060905193742.GA1566@elte.hu>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 03:28:17PM +0200, Arnd Bergmann (arnd.bergmann@de.ibm.com) wrote:
-> On Monday 04 September 2006 12:14, Evgeniy Polyakov wrote:
+> > > > The reason is that the BUILD_LOCK_OPS macros in kernel/lockdep.c 
+> > > > don't contain any of the *_acquire calls, while all of the _unlock 
+> > > > functions contain a *_release call. Hence I get immediately 
+> > > > unbalanced locks.
+> > > 
+> > > hmmm ... that sounds like a bug. Weird - i recently ran 
+> > > PREEMPT+SMP+LOCKDEP kernels and didnt notice this.
+> > 
+> > ok, the reason i didnt find this problem is because this is fixed in 
+> > my tree, but i didnt realize that it's a fix also for upstream ...
 > 
-> > +asmlinkage long sys_kevent_get_events(int ctl_fd, unsigned int min_nr,
-> > 		unsigned int max_nr, __u64 timeout, void __user *buf,
-> > 		unsigned flags) 
-> > +asmlinkage long sys_kevent_ctl(int fd, unsigned int cmd, unsigned int num,
-> > 		void __user *arg) 
+> actually ... it works fine in the upstream kernel due to this:
 > 
-> 'void __user *arg' in both of these always points to a struct ukevent,
-> according to your documentation. Shouldn't it be a 
-> 'struct ukevent __user *arg' then?
+>   * If lockdep is enabled then we use the non-preemption spin-ops
+>   * even on CONFIG_PREEMPT, because lockdep assumes that interrupts are
+>   * not re-enabled during lock-acquire (which the preempt-spin-ops do):
+>   */
+>  #if !defined(CONFIG_PREEMPT) || !defined(CONFIG_SMP) || \
+>          defined(CONFIG_DEBUG_LOCK_ALLOC)
+> 
+> so i'm wondering, how did you you manage to get into the 
+> BUILD_LOCK_OPS() branch?
 
-Yep. I will update it in the next patchset.
-Thank you.
+That seems to be code that isn't upstream. 2.6.18-rc5-mm1 as well as
+Linus' current git tree have this:
 
-> 	Arnd <><
+/*
+ * If lockdep is enabled then we use the non-preemption spin-ops
+ * even on CONFIG_PREEMPT, because lockdep assumes that interrupts are
+ * not re-enabled during lock-acquire (which the preempt-spin-ops do):
+ */
+#if !defined(CONFIG_PREEMPT) || !defined(CONFIG_SMP) || \
+        defined(CONFIG_PROVE_LOCKING)
 
--- 
-	Evgeniy Polyakov
+And yes, using CONFIG_DEBUG_LOCK_ALLOC instead of CONFIG_PROVE_LOCKING fixes
+this for me :)

@@ -1,82 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWIFLYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWIFL0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWIFLYh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 07:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIFLYh
+	id S1750793AbWIFL0m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 07:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIFL0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 07:24:37 -0400
-Received: from host-84-9-200-167.bulldogdsl.com ([84.9.200.167]:15712 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750806AbWIFLYg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 07:24:36 -0400
-Date: Wed, 6 Sep 2006 12:24:35 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: linux-kernel@vger.kernel.org, wim@iguana.be
-Subject: [PATCH] S3C24XX: Fix watchdog driver way-out path
-Message-ID: <20060906112435.GA23384@home.fluff.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+	Wed, 6 Sep 2006 07:26:42 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:18647 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750793AbWIFL0l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 07:26:41 -0400
+Date: Wed, 6 Sep 2006 13:16:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Subject: [patch] lockdep core: improve the lock-chain-hash
+Message-ID: <20060906111601.GA23826@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060403
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Ingo Molnar <mingo@elte.hu>
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+With CONFIG_DEBUG_LOCK_ALLOC turned off i was getting sporadic
+failures in the locking self-test:
 
-If the driver is not configured for `no way out`,
-then the open method should not automatically allow
-the setting of allow_close to CLOSE_STATE_ALLOW.
+------------>
+| Locking API testsuite:
+----------------------------------------------------------------------------
+                                 | spin |wlock |rlock |mutex | wsem | rsem |
+  --------------------------------------------------------------------------
+                     A-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+                 A-B-B-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+             A-B-B-C-C-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+             A-B-C-A-B-C deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+         A-B-B-C-C-D-D-A deadlock:  ok  |FAILED|  ok  |  ok  |  ok  |  ok  |
+         A-B-C-D-B-D-D-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |  ok  |
+         A-B-C-D-B-C-D-A deadlock:  ok  |  ok  |  ok  |  ok  |  ok  |FAILED|
 
-The setting of allow_close nullifies the use of
-the magic close via the write path. It means that
-in the default state, the watchdog will shut-down
-even if the magic close has not been issued.
+after much debugging it turned out to be caused by accidental chain-hash
+key collisions. The current hash is:
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+ #define iterate_chain_key(key1, key2) \
+	(((key1) << MAX_LOCKDEP_KEYS_BITS/2) ^ \
+	((key1) >> (64-MAX_LOCKDEP_KEYS_BITS/2)) ^ \
+ 	(key2))
 
+where MAX_LOCKDEP_KEYS_BITS is 11. This hash is pretty good as it will
+shift by 5 bits in every iteration, where every new ID 'mixed' into the
+hash would have up to 11 bits. But because there was a 6 bits overlap
+between subsequent IDs and their high bits tended to be similar, there
+was a chance for accidental chain-hash collision for a low number of
+locks held.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2618-rc6-wdog-wayout-fix.patch"
+the solution is to shift by 11 bits:
 
-diff -urpN -X ../dontdiff linux-2.6.18-rc5-s3c2412-r5/drivers/char/watchdog/s3c2410_wdt.c linux-2.6.18-rc5-s3c2412-r6/drivers/char/watchdog/s3c2410_wdt.c
---- linux-2.6.18-rc5-s3c2412-r5/drivers/char/watchdog/s3c2410_wdt.c	2006-08-31 10:13:07.000000000 +0100
-+++ linux-2.6.18-rc5-s3c2412-r6/drivers/char/watchdog/s3c2410_wdt.c	2006-09-06 12:09:49.000000000 +0100
-@@ -62,7 +62,7 @@
- #define CONFIG_S3C2410_WATCHDOG_ATBOOT		(0)
- #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(15)
+ #define iterate_chain_key(key1, key2) \
+	(((key1) << MAX_LOCKDEP_KEYS_BITS) ^ \
+	((key1) >> (64-MAX_LOCKDEP_KEYS_BITS)) ^ \
+ 	(key2))
+
+This keeps the hash perfect up to 5 locks held, but even above that the
+hash is still good because 11 bits is a relative prime to the total 64
+bits, so a complete match will only occur after 64 held locks (which
+doesnt happen in Linux). Even after 5 locks held, entropy of the 5 IDs
+mixed into the hash is already good enough so that overlap doesnt
+generate a colliding hash ID.
+
+which this change the false positives went away.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+---
+ kernel/lockdep.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
+@@ -121,8 +121,8 @@ static struct list_head chainhash_table[
+  * unique.
+  */
+ #define iterate_chain_key(key1, key2) \
+-	(((key1) << MAX_LOCKDEP_KEYS_BITS/2) ^ \
+-	((key1) >> (64-MAX_LOCKDEP_KEYS_BITS/2)) ^ \
++	(((key1) << MAX_LOCKDEP_KEYS_BITS) ^ \
++	((key1) >> (64-MAX_LOCKDEP_KEYS_BITS)) ^ \
+ 	(key2))
  
--static int nowayout = WATCHDOG_NOWAYOUT;
-+static int nowayout	= WATCHDOG_NOWAYOUT;
- static int tmr_margin	= CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME;
- static int tmr_atboot	= CONFIG_S3C2410_WATCHDOG_ATBOOT;
- static int soft_noboot	= 0;
-@@ -213,11 +213,10 @@ static int s3c2410wdt_open(struct inode 
- 	if(down_trylock(&open_lock))
- 		return -EBUSY;
- 
--	if (nowayout) {
-+	if (nowayout)
- 		__module_get(THIS_MODULE);
--	} else {
--		allow_close = CLOSE_STATE_ALLOW;
--	}
-+
-+	allow_close = CLOSE_STATE_NOT;
- 
- 	/* start the timer */
- 	s3c2410wdt_start();
-@@ -230,6 +229,7 @@ static int s3c2410wdt_release(struct ino
- 	 *	Shut off the timer.
- 	 * 	Lock it in if it's a module and we set nowayout
- 	 */
-+
- 	if (allow_close == CLOSE_STATE_ALLOW) {
- 		s3c2410wdt_stop();
- 	} else {
-
---lrZ03NoBR/3+SXJZ--
+ void lockdep_off(void)

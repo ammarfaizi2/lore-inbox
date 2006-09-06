@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWIFPWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWIFPbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWIFPWX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 11:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWIFPWX
+	id S1751456AbWIFPbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 11:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWIFPbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 11:22:23 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:32731 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751443AbWIFPWW (ORCPT
+	Wed, 6 Sep 2006 11:31:40 -0400
+Received: from gate.perex.cz ([85.132.177.35]:4299 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1751456AbWIFPbj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 11:22:22 -0400
-Message-ID: <44FEE7A8.1050904@garzik.org>
-Date: Wed, 06 Sep 2006 11:22:16 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 6 Sep 2006 11:31:39 -0400
+Date: Wed, 6 Sep 2006 17:31:37 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: ALSA planed changes for 2.6.19
+Message-ID: <Pine.LNX.4.61.0609061729070.9343@tm8103.perex-int.cz>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Francois Romieu <romieu@fr.zoreil.com>,
-       Jan-Bernd Themann <ossthema@de.ibm.com>,
-       netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
-References: <200609041237.46528.ossthema@de.ibm.com> <20060904201606.GA24386@electric-eye.fr.zoreil.com> <200609042311.21202.arnd@arndb.de>
-In-Reply-To: <200609042311.21202.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> Am Monday 04 September 2006 22:16 schrieb Francois Romieu:
->>> +#include "ehea.h"
->>> +#include "ehea_qmr.h"
->>> +#include "ehea_phyp.h"
->> Afaik none of those is included in this patch nor in my 2.6.18-git tree.
-> 
-> 
-> They are in 5, 3 and 2, respectively
-> 
->> Happy bissect in sight.
-> 
-> The driver should get merged as a single commit anyway, even
-> if split diffs are posted for review. Even if it gets merged
-> like this, bisect will work since the Kconfig option is added
-> in the final patch.
 
-That's impossible, in the form they were submitted...
+Here is a short summary of ALSA changes planed to merge into 2.6.19.
+All changes are in GIT tree [1].
 
+* core changes
+  - Control API - TLV implementation
+    This extension implements a TLV mechanism to transfer an additional
+    information like dB scale to the user space. Most of drivers were
+    updated to support dB scale information.
+  - system timer: cleanups, fixes
+  - hotplug changes
+    + snd /proc interface - fix disconnection
+    + unregister device files at disconnection
+    + deprecate snd_card_free_in_thread()
+  - Add pcm_class attribute to PCM sysfs entry
+* AC97 codec
+  - add experimental support of aggressive AC97 power-saving mode
+  - add codec-specific controls for UCB1400
+* HDA codec
+  - a lot of codec specific updates
+  - add independent headphone volume control
+  - enable center/LFE speaker on some laptops
+* intel-hda - Switch to polling mode for CORB/RIRB communication
+* emu10k1 - Implement 24bit capture via Philips 1361T ADC for SB0240 card
+* add snd-mts64 driver for ESI Miditerminal 4140
+* es18xx - Add PnP BIOS support
+* ice1724 - Revolution 5.1 support
+* sparc dbri updates
+* hdsp - Fix auto-updating of firmware
+* usbaudio - Support for non-standard rates in USB audio driver
 
+[1] http://www.kernel.org/pub/scm/linux/kernel/git/perex/alsa-current.git
+    http://www.kernel.org/git/?p=linux/kernel/git/perex/alsa-current.git
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

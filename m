@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWIFJAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWIFJDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWIFJAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 05:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIFJAk
+	id S1750716AbWIFJDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 05:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWIFJDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 05:00:40 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:55740
-	"EHLO gwia-smtp.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750714AbWIFJAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 05:00:39 -0400
-From: Jean Delvare <jdelvare@suse.de>
-Organization: SUSE
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-Date: Wed, 6 Sep 2006 11:01:11 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de,
-       Albert Cahalan <acahalan@gmail.com>, Paul Jackson <pj@sgi.com>
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <20060905101050.GA128@oleg> <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
+	Wed, 6 Sep 2006 05:03:55 -0400
+Received: from buick.jordet.net ([193.91.240.190]:29110 "EHLO buick.jordet.net")
+	by vger.kernel.org with ESMTP id S1750716AbWIFJDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 05:03:54 -0400
+Message-ID: <44FE8EBA.4060104@jordet.net>
+Date: Wed, 06 Sep 2006 11:02:50 +0200
+From: Stian Jordet <liste@jordet.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Daniel Drake <dsd@gentoo.org>
+CC: akpm@osdl.org, sergio@sergiomb.no-ip.org, jeff@garzik.org, greg@kroah.com,
+       cw@f00f.org, bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, harmon@ksu.edu, len.brown@intel.com,
+       vsu@altlinux.ru
+Subject: Re: [NEW PATCH] VIA IRQ quirk behaviour change
+References: <20060906020429.6ECE67B40A0@zog.reactivated.net>
+In-Reply-To: <20060906020429.6ECE67B40A0@zog.reactivated.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609061101.11544.jdelvare@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 5 September 2006 16:52, Eric W. Biederman wrote:
-> The problem: An opendir, readdir, closedir sequence can fail to report
-> process ids that are continually in use throughout the sequence of
-> system calls.  For this race to trigger the process that
-> proc_pid_readdir stops at must exit before readdir is called again.
->
-> This can cause ps to fail to report processes, and  it is in violation
-> of posix guarantees and normal application expectations with respect
-> to readdir.
->
-> Currently there is no way to work around this problem in user space
-> short of providing a gargantuan buffer to user space so the directory
-> read all happens in on system call.
->
-> This patch implements the normal directory semantics for proc,
-> that guarantee that a directory entry that is neither created nor
-> destroyed while reading the directory entry will be returned.  For
-> directory that are either created or destroyed during the readdir you
-> may or may not see them.  Furthermore you may seek to a directory
-> offset you have previously seen.
->
-> These are the guarantee that ext[23] provides and that posix requires,
-> and more importantly that user space expects. Plus it is a simple
-> semantic to implement reliable service.  It is just a matter of
-> calling readdir a second time if you are wondering if something new
-> has show up.
->
-> These better semantics are implemented by scanning through the
-> pids in numerical order and by making the file offset a pid
-> plus a fixed offset.
->
-> The pid scan happens on the pid bitmap, which when you look at it is
-> remarkably efficient for a brute force algorithm.  Given that a typical
-> cache line is 64 bytes and thus covers space for 64*8 == 200 pids. 
-> There are only 40 cache lines for the entire 32K pid space.  A typical
-> system will have 100 pids or more so this is actually fewer cache lines
-> we have to look at to scan a linked list, and the worst case of having
-> to scan the entire pid bitmap is pretty reasonable.
->
-> If we need something more efficient we can go to a more efficient data
-> structure for indexing the pids, but for now what we have should be
-> sufficient.
->
-> In addition this takes no additional locks and is actually less
-> code than what we are doing now.
->
-> Also another very subtle bug in this area has been fixed.  It is
-> possible to catch a task in the middle of de_thread where a thread is
-> assuming the thread of it's thread group leader.  This patch carefully
-> handles that case so if we hit it we don't fail to return the pid, that
-> is undergoing the de_thread dance.
->
-> This patch is against 2.6.18-rc6 and it should be relatively straight
-> forward to backport to older kernels as well.
->
-> Thanks to KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> for
-> providing the first fix, pointing this out and working on it.
+Daniel Drake wrote:
+> Stian Jordet: You're on CC due to a discussion linked to from above where
+> it appeared that you needed Bjorn's patch. Please test this patch against
+> unmodified 2.6.17 or 2.6.18-rc and let us know if there are any problems.
+> 
+No more usb for me with this patch :P
 
-Eric, Kame, thanks a lot for working on this. I'll be giving some good 
-testing to this patch today, and will return back to you when I'm done.
+When usb is loaded I get this in dmesg:
 
--- 
-Jean Delvare
+irq 9: nobody cared (try booting with the "irqpoll" option)
+  [<c01302d3>] __report_bad_irq+0x2b/0x69
+  [<c01304bd>] note_interrupt+0x1ac/0x1e3
+  [<c0246175>] acpi_irq+0xb/0x14
+  [<c012fadb>] handle_IRQ_event+0x23/0x49
+  [<c012fbb3>] __do_IRQ+0xb2/0xe6
+  [<c0104b3d>] do_IRQ+0x43/0x52
+  [<c01031ea>] common_interrupt+0x1a/0x20
+  [<c0101620>] default_idle+0x0/0x59
+  [<c0101651>] default_idle+0x31/0x59
+  [<c01016d7>] cpu_idle+0x5e/0x74
+  [<c053d6d7>] start_kernel+0x353/0x35a
+handlers:
+[<c024616a>] (acpi_irq+0x0/0x14)
+Disabling IRQ #9
+
+and while USB has the same irq in /proc/interrupts now as earlier, usb 
+doesn't work (or sometimes it does, just dog slow!). Acpi is of course 
+disabled, so no acpi events neither.
+
+I have to admit, that this computer have some weird behaviour - see 
+http://bugzilla.kernel.org/show_bug.cgi?id=2874 - but still, it's been 
+working well for many years now, before this patch. While I do 
+understand that I seem to be the only one affected by this bug, I hope 
+someone will help me look into another way to solve my problems if this 
+patch get applied.
+
+Thanks.
+
+-Stian

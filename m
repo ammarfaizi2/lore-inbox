@@ -1,83 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWIFNDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWIFNEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWIFNDL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 09:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWIFNDL
+	id S1750817AbWIFNEm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 09:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWIFNEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 09:03:11 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:1200 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750884AbWIFNDJ (ORCPT
+	Wed, 6 Sep 2006 09:04:42 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23945 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750817AbWIFNEk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 09:03:09 -0400
-Message-ID: <44FEC7E4.7030708@sw.ru>
-Date: Wed, 06 Sep 2006 17:06:44 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
- memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-In-Reply-To: <44FDAB81.5050608@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 09:04:40 -0400
+Date: Wed, 6 Sep 2006 14:56:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj
+Message-ID: <20060906125626.GA3718@elte.hu>
+References: <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <13982.1157545856@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Kirill Korotaev wrote:
+
+* David Howells <dhowells@redhat.com> wrote:
+
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
->> Core Resource Beancounters (BC) + kernel/user memory control.
->>
->> BC allows to account and control consumption
->> of kernel resources used by group of processes.
->>
->> Draft UBC description on OpenVZ wiki can be found at
->> http://wiki.openvz.org/UBC_parameters
->>
->> The full BC patch set allows to control:
->> - kernel memory. All the kernel objects allocatable
->> on user demand should be accounted and limited
->> for DoS protection.
->> E.g. page tables, task structs, vmas etc.
+> > btw., would be nice to convert it to genirq (and irqchips) too =B-) That 
+> > would solve the kind of disable_irq_lockdep() breakage that was reported 
+> > recently.
 > 
+> I can think of reasons for not using that stuff also.
 > 
-> One of the key requirements of resource management for us is to be able to
-> migrate tasks across resource groups. Since bean counters do not associate
-> a list of tasks associated with them, I do not see how this can be done
-> with the existing bean counters.
-It was discussed multiple times already.
-The key problem here is the objects which do not _belong_ to tasks.
-e.g. IPC objects. They exist in global namespace and can't be reaccounted.
-At least no one proposed the policy to reaccount.
-And please note, IPCs are not the only such objects.
+>  (1) Passing "struct pt_regs *regs" around is a complete waste of 
+>      resources on FRV.  It's in GR28 at all times and can thus be 
+>      accessed directly.
 
-But I guess your comment mostly concerns user pages, yeah?
-In this case reaccounting can be easily done using page beancounters
-which are introduced in this patch set.
-So if it is a requirement, then lets cooperate and create such functionality.
+we'll get rid of that pt_regs thing centrally, from all drivers at once 
+- there's upstream buy-in for that already, and Thomas already generated 
+a test-patch for that a few months ago. But it's not a big issue right 
+now.
 
-So for now I see 2 main requirements from people:
-- memory reclamation
-- tasks moving across beancounters
+>  (2) All the little operations functions cause unnecessary jumping, 
+>      jumps that icache lookahead can't predict because they're 
+>      register-indirect.
 
-I agree with these requirements and lets move into this direction.
-But moving so far can't be done without accepting:
-1. core functionality
-2. accounting
+this shouldnt be a big issue either - we use indirect jumps all around 
+the kernel. CPUs are either smart enough to predict it, or they simply 
+dont have that high penalties. (and if they have high penalties but dont 
+optimize for it then genirq will be the last of their worries. The VFS 
+and the MM is full of function pointers.)
 
-Thanks,
-Kirill
+>  (3) ACK'ing and controlling interrupts has to be done by groups.
 
+please be more specific, how is this not possible via genirq?
+
+>  (4) No account is taken of interrupt priority.
+
+hm, i'm not sure what you mean - could you be more specific?
+
+>  (5) The FRV CPU doesn't tell me which IRQ source fired.  Much of the 
+>      code I've got is stuff to try and work it out.  I could just 
+>      blindly poll all the sources attached to a particular interrupt 
+>      level, but that seemssomehow less efficient.
+
+but ... somehow the current FRV code does figure out which IRQ source 
+fired, right? How is that a hindrance for a genirq/irqchips based 
+design?
+
+> BTW, have you looked at my patch to fix lockdep yet?
+
+oops, i missed it - just acked it. (This problem too was a side-effect 
+of FRV having its own IRQ layer.)
+
+	Ingo

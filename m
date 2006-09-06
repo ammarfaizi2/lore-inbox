@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751750AbWIFRP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751762AbWIFRVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751750AbWIFRP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 13:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWIFRPz
+	id S1751762AbWIFRVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 13:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWIFRVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 13:15:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751750AbWIFRPy (ORCPT
+	Wed, 6 Sep 2006 13:21:54 -0400
+Received: from smtpout.mac.com ([17.250.248.186]:767 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751762AbWIFRVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 13:15:54 -0400
-Date: Wed, 6 Sep 2006 13:22:57 -0400
-From: Dave Jones <davej@redhat.com>
-To: Eric Anholt <eric@anholt.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resubmit: Intel 965 Express AGP patches
-Message-ID: <20060906172257.GB20304@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Eric Anholt <eric@anholt.net>, linux-kernel@vger.kernel.org
-References: <115747785570-git-send-email-eric@anholt.net> <20060906160210.GK15918@redhat.com> <1157561785.11752.12.camel@vonnegut>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157561785.11752.12.camel@vonnegut>
-User-Agent: Mutt/1.4.2.2i
+	Wed, 6 Sep 2006 13:21:53 -0400
+In-Reply-To: <44FE0BDE.40309@tmr.com>
+References: <44FB5AAD.7020307@perkel.com> <44FBD08A.1080600@tls.msk.ru> <44FE0BDE.40309@tmr.com>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A9A810B9-2FA1-4BEB-AA16-5EB16A0839A3@mac.com>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Raid 0 Swap?
+Date: Wed, 6 Sep 2006 13:21:33 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAQAAA+k=
+X-Language-Identified: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 09:56:25AM -0700, Eric Anholt wrote:
- > > Also, do we need an entry in agp_intel_resume() for the 965 ?
- > Yeah, looks like it.
+On Sep 05, 2006, at 19:44:30, Bill Davidsen wrote:
+> Final note: if you are building a really reliable system, RAID6 on  
+> all data, redundant power supplies (the highest point of total  
+> failure), then you should go to RAID0 for swap, on multiple  
+> controllers, preferably one drives in different enclosures. RAID6  
+> for swap sucks rocks off the bottom of the ocean, three way RAID1  
+> performs well even after a one drive failure.
 
-Ok, I added this ..
+There's also some interesting high-performance FPGA-based products  
+out there which stack another layer or two of reed-solomon coding on  
+top of a group of N existing drives so that you can handle up to M  
+drive failures where M < N, and optionally also a failure of a stripe  
+of up to K sectors out of every group of J sectors.  IIRC your  
+average CD and DVD uses this kind of encoding, so if you have a bunch  
+of scattered errors or a single big error up to like 9k long you can  
+still recover all the data while decoding.  Those kind of matrix  
+transformations would be dog-slow on a general purpose CPU, but with  
+custom FPGA or VLSI chips you can do it in parallel easily better  
+than disk bandwidth
 
-
-diff --git a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
-index 42c7d8d..d1ede7d 100644
---- a/drivers/char/agp/intel-agp.c
-+++ b/drivers/char/agp/intel-agp.c
-@@ -1924,6 +1924,8 @@ static int agp_intel_resume(struct pci_d
-                intel_i830_configure();
-        else if (bridge->driver == &intel_810_driver)
-                intel_i810_configure();
-+       else if (bridge->driver == &intel_i965_driver)
-+               intel_i915_configure();
- 
-        return 0;
- }
-
-
-This bit could probably be cleaned up a lot by having a .suspend method
-in the bridge struct too, but thats for another day.
-
-	Dave
+Cheers,
+Kyle Moffett

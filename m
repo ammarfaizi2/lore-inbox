@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWIFOZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWIFOZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWIFOZB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 10:25:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWIFOZA
+	id S1751148AbWIFOZf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 10:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIFOZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 10:25:00 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:48405 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750790AbWIFOY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:24:59 -0400
-Message-ID: <44FED84A.9090002@sw.ru>
-Date: Wed, 06 Sep 2006 18:16:42 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [PATCH 9/13] BC: locked pages (charge hooks)
-References: <44FD918A.7050501@sw.ru> <44FD97D1.4070206@sw.ru> <44FE43E7.1030003@yahoo.com.au>
-In-Reply-To: <44FE43E7.1030003@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 10:25:34 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:30625 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751148AbWIFOZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 10:25:31 -0400
+Message-Id: <20060906133956.488875000@chello.nl>
+References: <20060906131630.793619000@chello.nl>>
+User-Agent: quilt/0.45-1
+Date: Wed, 06 Sep 2006 15:16:50 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Mike Christie <michaelc@cs.wisc.edu>
+Subject: [PATCH 20/21] mm: a process flags to avoid blocking allocations
+Content-Disposition: inline; filename=pf_mem_nowait.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick,
+PF_MEM_NOWAIT - will make allocations fail before blocking. This is usefull
+to convert process behaviour to non-blocking.
 
-> Kirill Korotaev wrote:
-> 
-> 
->>Introduce calls to BC core over the kernel to charge locked memory.
->>
->>Normaly new locked piece of memory may appear in insert_vm_struct,
->>but there are places (do_mmap_pgoff, dup_mmap etc) when new vma
->>is not inserted by insert_vm_struct(), but either link_vma-ed or
->>merged with some other - these places call BC code explicitly.
->>
->>Plus sys_mlock[all] itself has to be patched to charge/uncharge
->>needed amount of pages.
-> 
-> 
-> 
-> I still haven't heard your good reasons why such a complex scheme is
-> required when my really simple proposal of unconditionally charging
-> the page to the container it was allocated by.
-Nick can you elaborate what your proposal is?
-Probably I missed it somewhere...
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Mike Christie <michaelc@cs.wisc.edu>
+---
+ include/linux/sched.h |    1 +
+ mm/page_alloc.c       |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-> That has the benefit of not being full of user explotable holes and
-> also not putting such a huge burden on mm/ and the wider kernel in
-> general.
-I guess you will have to account locked pages still and
-thus complexity won't be reduced much in this regard...
+Index: linux-2.6/include/linux/sched.h
+===================================================================
+--- linux-2.6.orig/include/linux/sched.h
++++ linux-2.6/include/linux/sched.h
+@@ -1056,6 +1056,7 @@ static inline void put_task_struct(struc
+ #define PF_SPREAD_SLAB	0x02000000	/* Spread some slab caches over cpuset */
+ #define PF_MEMPOLICY	0x10000000	/* Non-default NUMA mempolicy */
+ #define PF_MUTEX_TESTER	0x20000000	/* Thread belongs to the rt mutex tester */
++#define PF_MEM_NOWAIT	0x40000000	/* Make allocations fail instead of block */
+ 
+ /*
+  * Only the _current_ task can read/write to tsk->flags, but other
+Index: linux-2.6/mm/page_alloc.c
+===================================================================
+--- linux-2.6.orig/mm/page_alloc.c
++++ linux-2.6/mm/page_alloc.c
+@@ -912,11 +912,11 @@ struct page * fastcall
+ __alloc_pages(gfp_t gfp_mask, unsigned int order,
+ 		struct zonelist *zonelist)
+ {
+-	const gfp_t wait = gfp_mask & __GFP_WAIT;
++	struct task_struct *p = current;
++	const int wait = (gfp_mask & __GFP_WAIT) && !(p->flags & PF_MEM_NOWAIT);
+ 	struct zone **z;
+ 	struct page *page;
+ 	struct reclaim_state reclaim_state;
+-	struct task_struct *p = current;
+ 	int do_retry;
+ 	int alloc_flags;
+ 	int did_some_progress;
 
-Thanks,
-Kirill
+--

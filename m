@@ -1,63 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWIFJ7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWIFKDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWIFJ7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 05:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIFJ7y
+	id S1750762AbWIFKDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 06:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIFKDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 05:59:54 -0400
-Received: from secure.htb.at ([195.69.104.11]:4621 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S1750746AbWIFJ7x (ORCPT
+	Wed, 6 Sep 2006 06:03:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9422 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750762AbWIFKDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 05:59:53 -0400
-Date: Wed, 6 Sep 2006 11:59:47 +0200
-From: Richard Mittendorfer <delist@gmx.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: Wrong free space reported for XFS filesystem
-Message-Id: <20060906115947.7980f919.delist@gmx.net>
-In-Reply-To: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com>
-References: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-X-Face: &0P^N,K:@}b8ykW@3d!=n}3D;*Cf{9KYT>>+gcM)XyIMRkBSDg|ur7Zen^BlzmJVr&!;7KT6\t+sHI69\fW(}.=PM+(`w_jnzZ.HbWb/KM"`795_k(&\Lje|'g\cm$4e%Zy*I)hJz-z0!}xkm@!>U0rO{>~[YZUs/=B{}R%#nZ8eBt'{,*>kTTKl_kj'vzrl5|'j5SBiFy#!Sj,p_zl;)q.lpSI\Er"]D`bZY@#+']kJW/YsqvRzi0GR!7ifpt$?]0TYcNs.*wC5OukokPm~R&mmW\q&DL@='khZEET;3ryo[0_mC^K~7,ZvHkj
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 06:03:10 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] FRV: Use the generic time stuff for FRV
+Date: Wed, 06 Sep 2006 11:02:45 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com,
+       johnstul@us.ibm.com
+Message-Id: <20060906100245.9833.61804.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach "Jesper Juhl" <jesper.juhl@gmail.com> (Wed, 6 Sep 2006
-10:54:34 +0200):
-> For your information;
-> 
-> I've been running a bunch of benchmarks on a 250GB XFS filesystem.
-> After the benchmarks had run for a few hours and almost filled up the
-> fs, I removed all the files and did a "df -h" with interresting
-> results :
-> 
-> /dev/mapper/Data1-test
->                      250G  -64Z  251G 101% /mnt/test
-> 
-[...] 
-> I then did an umount and remount of the filesystem and then things
-> look more sane :
-> 
-> "df -h" :
-> /dev/mapper/Data1-test
->                       250G  126M  250G   1% /mnt/test
-[...]
-> The filesystem is mounted like this :
-> 
-> /dev/mapper/Data1-test on /mnt/test type xfs
-> (rw,noatime,ihashsize=64433,logdev=/dev/Log1/test_log,usrquota)
+From: john stultz <johnstul@us.ibm.com>
 
-I once (2.6.12?) had to copy a quite large directory to an XFS
-partition. It "should" had fit onto it (by what df said), but I ran into
-"disk full". I think the reason was related to a large xfsbufd_centisecs
-or xfssyncd_centisecs and indeed I could watch free space to grow and
-shrink in regulaer intervals (watch df -k). I may well be wrong here (as
-I'm sure no XFS-expert), but it looked like old data gets some kind of
-"comressed" or "ordered" by the XFS-driver while newly written data took
-more place. A "slow" copy did it, as well as a later try to an reiserfs
-or ext.
+Use the generic time stuff for FRV.
 
-sl ritch
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ arch/frv/Kconfig       |    4 ++
+ arch/frv/kernel/time.c |   81 ------------------------------------------------
+ 2 files changed, 4 insertions(+), 81 deletions(-)
+
+diff --git a/arch/frv/Kconfig b/arch/frv/Kconfig
+index be3b621..5e6583a 100644
+--- a/arch/frv/Kconfig
++++ b/arch/frv/Kconfig
+@@ -29,6 +29,10 @@ config GENERIC_HARDIRQS
+ 	bool
+ 	default n
+ 
++config GENERIC_TIME
++	bool
++	default y
++
+ config TIME_LOW_RES
+ 	bool
+ 	default y
+diff --git a/arch/frv/kernel/time.c b/arch/frv/kernel/time.c
+index d5b64e1..68a77fe 100644
+--- a/arch/frv/kernel/time.c
++++ b/arch/frv/kernel/time.c
+@@ -32,8 +32,6 @@ #include <linux/timex.h>
+ 
+ #define TICK_SIZE (tick_nsec / 1000)
+ 
+-extern unsigned long wall_jiffies;
+-
+ unsigned long __nongprelbss __clkin_clock_speed_HZ;
+ unsigned long __nongprelbss __ext_bus_clock_speed_HZ;
+ unsigned long __nongprelbss __res_bus_clock_speed_HZ;
+@@ -145,85 +143,6 @@ void time_init(void)
+ }
+ 
+ /*
+- * This version of gettimeofday has near microsecond resolution.
+- */
+-void do_gettimeofday(struct timeval *tv)
+-{
+-	unsigned long seq;
+-	unsigned long usec, sec;
+-	unsigned long max_ntp_tick;
+-
+-	do {
+-		unsigned long lost;
+-
+-		seq = read_seqbegin(&xtime_lock);
+-
+-		usec = 0;
+-		lost = jiffies - wall_jiffies;
+-
+-		/*
+-		 * If time_adjust is negative then NTP is slowing the clock
+-		 * so make sure not to go into next possible interval.
+-		 * Better to lose some accuracy than have time go backwards..
+-		 */
+-		if (unlikely(time_adjust < 0)) {
+-			max_ntp_tick = (USEC_PER_SEC / HZ) - tickadj;
+-			usec = min(usec, max_ntp_tick);
+-
+-			if (lost)
+-				usec += lost * max_ntp_tick;
+-		}
+-		else if (unlikely(lost))
+-			usec += lost * (USEC_PER_SEC / HZ);
+-
+-		sec = xtime.tv_sec;
+-		usec += (xtime.tv_nsec / 1000);
+-	} while (read_seqretry(&xtime_lock, seq));
+-
+-	while (usec >= 1000000) {
+-		usec -= 1000000;
+-		sec++;
+-	}
+-
+-	tv->tv_sec = sec;
+-	tv->tv_usec = usec;
+-}
+-
+-EXPORT_SYMBOL(do_gettimeofday);
+-
+-int do_settimeofday(struct timespec *tv)
+-{
+-	time_t wtm_sec, sec = tv->tv_sec;
+-	long wtm_nsec, nsec = tv->tv_nsec;
+-
+-	if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
+-		return -EINVAL;
+-
+-	write_seqlock_irq(&xtime_lock);
+-	/*
+-	 * This is revolting. We need to set "xtime" correctly. However, the
+-	 * value in this location is the value at the most recent update of
+-	 * wall time.  Discover what correction gettimeofday() would have
+-	 * made, and then undo it!
+-	 */
+-	nsec -= 0 * NSEC_PER_USEC;
+-	nsec -= (jiffies - wall_jiffies) * TICK_NSEC;
+-
+-	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - sec);
+-	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - nsec);
+-
+-	set_normalized_timespec(&xtime, sec, nsec);
+-	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
+-
+-	ntp_clear();
+-	write_sequnlock_irq(&xtime_lock);
+-	clock_was_set();
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(do_settimeofday);
+-
+-/*
+  * Scheduler clock - returns current time in nanosec units.
+  */
+ unsigned long long sched_clock(void)

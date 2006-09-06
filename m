@@ -1,113 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWIFOun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWIFOwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWIFOun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 10:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWIFOun
+	id S1751208AbWIFOwz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 10:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWIFOwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 10:50:43 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:53200 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751194AbWIFOum
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:50:42 -0400
-Date: Wed, 6 Sep 2006 07:50:31 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/18] 2.6.17.9 perfmon2 patch for review: event sets and multiplexing support
-Message-ID: <20060906145031.GE13962@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230805.k7N85x2H000432@frankl.hpl.hp.com> <20060823155148.a2945c4e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060823155148.a2945c4e.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Wed, 6 Sep 2006 10:52:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33733 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751208AbWIFOwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 10:52:53 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060906125626.GA3718@elte.hu> 
+References: <20060906125626.GA3718@elte.hu>  <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com> 
+To: Ingo Molnar <mingo@elte.hu>
+Cc: David Howells <dhowells@redhat.com>, john stultz <johnstul@us.ibm.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 06 Sep 2006 15:46:02 +0100
+Message-ID: <17274.1157553962@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Ingo Molnar <mingo@elte.hu> wrote:
 
-On Wed, Aug 23, 2006 at 03:51:48PM -0700, Andrew Morton wrote:
-> >
-> > +struct pfm_event_set *pfm_find_set(struct pfm_context *ctx, u16 set_id,
-> > +					  int alloc)
-> > +{
-> > +	kmem_cache_t *cachep;
-> > +	struct pfm_event_set *set, *new_set, *prev;
-> > +	unsigned long offs;
-> > +	size_t view_size;
-> > +	void *view;
-> > +
-> > +	PFM_DBG("looking for set=%u", set_id);
-> > +
-> > +	/*
-> > +	 * shortcut for set 0: always exist, cannot be removed
-> > +	 */
-> > +	if (set_id == 0 && !alloc)
-> > +		return list_entry(ctx->list.next, struct pfm_event_set, list);
-> > +
-> > +	prev = NULL;
-> > +	list_for_each_entry(set, &ctx->list, list) {
-> > +		if (set->id == set_id)
-> > +			return set;
-> > +		if (set->id > set_id)
-> > +			break;
-> > +		prev = set;
-> > +	}
-> > +
-> > +	if (!alloc)
-> > +		return NULL;
-> > +
-> > +	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
-> > +
-> > +	new_set = kmem_cache_alloc(cachep, SLAB_ATOMIC);
+> we'll get rid of that pt_regs thing centrally, from all drivers at once 
+> - there's upstream buy-in for that already, and Thomas already generated 
+> a test-patch for that a few months ago. But it's not a big issue right 
+> now.
+
+Yay!  Can you give me a pointer to the patch?
+
+> this shouldnt be a big issue either - we use indirect jumps all around 
+> the kernel.
+
+Yes, I know.  I'm sometimes concerned at just how fast indirect jumps (and even
+direct calls) are proliferating.  Look at the read syscall path for something
+like ext3 these days: it's like a pile of spaghetti.  That seems particularly
+true of direct-IO where it seems to weave in and out of core code and the
+filesystem as it goes down.  I'm also concerned about stack usage.
+
+> CPUs are either smart enough to predict it
+
+I was told a while back (2002?) not to use indirect pointers for some stuff
+because CPUs _couldn't_ predict it.  Maybe this has changed in modern CPUs.
+
+> >  (3) ACK'ing and controlling interrupts has to be done by groups.
 > 
-> SLAB_ATOMIC is unreliable.  Is it possible to use SLAB_KERNEL here?  If
-> coms ecallers can sleep and others cannot then passing in the gfp_flags
-> would permit improvement here.
+> please be more specific,
+
+Under some circumstances I can work out which sources have triggered which
+interrupts (there are various off-CPU FPGAs which implement auxiliary PICs that
+do announce their sources), but the aux-PIC channels are grouped together upon
+delivery to the CPU PIC, so some of the ACK'ing has to be done at the group
+level.
+
+> how is this not possible via genirq?
+
+How is it possible with genirq?
+
+Unless I tie all the grouped sources together into one virtual IRQ line, this
+doesn't appear to be possible.  But doing that I might then also have a mixed
+set of "flow" types in any particular IRQ.
+
+> >  (4) No account is taken of interrupt priority.
 > 
+> hm, i'm not sure what you mean - could you be more specific?
 
-I made some changes and now I know I execute this part of the function
-with interrupts disabled, holding only the perfmon context lock. I assume
-SLAB_KERNEL means, we can sleep. I think I can make this change safely.
+The FRV CPU, like many others, supports interrupt prioritisation.  A particular
+interrupt level is set in the PSR, and any interrupt of a higher priority can
+interrupt.  do_IRQ() can then do the interrupt processing in the interrupt
+level of the interrupt that invoked it, thus permitting higher priority
+interrupts to still happen.
 
+> but ... somehow the current FRV code does figure out which IRQ source 
+> fired, right?
 
-> 
-> > +		if (ctx->flags.mapset) {
-> > +			view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-> > +			view      = vmalloc(view_size);
-> 
-> vmalloc() sleeps, so this _could_ have used SLAB_ATOMIC.
-> 
+Not always; sometimes it has to fall back to polling the drivers unfortunately.
 
-I am not sure I follow you here. Are you talking about eh kmem_cache_alloc()
-above?
+Btw why are we using IRQ_INPROGRESS, IRQ_DISABLED, IRQ_PENDING and friends?
+They would appear unnecessary.
 
-> > +static struct page *pfm_view_map_pagefault(struct vm_area_struct *vma,
-> > +					   unsigned long address, int *type)
-> > +{
-> > +	void *kaddr;
-> > +	struct page *page;
-> > +
-> > +	kaddr = vma->vm_private_data;
-> > +	if (kaddr == NULL) {
-> > +		PFM_DBG("no view");
-> > +		return NOPAGE_SIGBUS;
-> > +	}
-> > +
-> > +	if ( (address < (unsigned long) vma->vm_start) ||
-> > +	     (address > (unsigned long) (vma->vm_start + PAGE_SIZE)) )
-> 
-> Should that be >=?
-
-Yes.
-
-Thanks.
-
--- 
--Stephane
+David

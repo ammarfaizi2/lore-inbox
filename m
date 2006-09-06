@@ -1,28 +1,19 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751554AbWIFDCa (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 5 Sep 2006 23:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWIFDCa
+	id S1751562AbWIFDKU (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 5 Sep 2006 23:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWIFDKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 23:02:30 -0400
-Received: from [170.76.57.35] ([170.76.57.35]:50405 "HELO 170.76.57.35")
-	by vger.kernel.org with SMTP id S1751550AbWIFDC3 (ORCPT
+	Tue, 5 Sep 2006 23:10:19 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:40678 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751562AbWIFDKS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 23:02:29 -0400
-Reply-To: "Josiah Gaston" <prakasovwv@ci.deere.com>
-From: "Josiah" <prakasovwv@ci.deere.com>
-Message-ID: <4709542122.717000907832@ci.deere.com>
-Date: Tue, 5 Sep 2006 22:09:07 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: delectable incest porno!
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Sep 2006 23:10:18 -0400
+Date: Wed, 6 Sep 2006 03:10:17 GMT
+From: linux-kernel@vger.kernel.org
+Message-Id: <200609060310.k863A5KC015283@zeus1.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751554AbWIFDCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751562AbWIFDKU@vger.kernel.org>
 
-
-Son fuccking magnificent Mom!
-
-http://podcherkeches.com
-
+aaazzzaaazzzaaazzzaaazzzaaazzz

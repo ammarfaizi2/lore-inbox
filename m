@@ -1,120 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWIFUjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWIFUoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWIFUjm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 16:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWIFUjm
+	id S1751214AbWIFUoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWIFUoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 16:39:42 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34732 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751167AbWIFUjl (ORCPT
+	Wed, 6 Sep 2006 16:44:19 -0400
+Received: from 66-117-159-244.lmi.net ([66.117.159.244]:5762 "EHLO slick.org")
+	by vger.kernel.org with ESMTP id S1751214AbWIFUoS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 16:39:41 -0400
-Date: Wed, 6 Sep 2006 15:39:39 -0500
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: Rajesh Shah <rajesh.shah@intel.com>, Yanmin Zhang <yanmin.zhang@intel.com>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
-Subject: Re: pci error recovery procedure
-Message-ID: <20060906203939.GM7139@austin.ibm.com>
-References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com> <20060831175001.GE8704@austin.ibm.com> <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com> <20060901212548.GS8704@austin.ibm.com> <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com> <20060905191739.GF7139@austin.ibm.com> <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
+	Wed, 6 Sep 2006 16:44:18 -0400
+Message-ID: <44FF3325.50805@imvu.com>
+Date: Wed, 06 Sep 2006 13:44:21 -0700
+From: "Brett G. Durrett" <brett@imvu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+To: "Patro, Sumant" <Sumant.Patro@lsil.com>
+CC: Dave Lloyd <dlloyd@exegy.com>,
+       "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
+       lkml <linux-kernel@vger.kernel.org>, Berkley Shands <bshands@exegy.com>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>
+Subject: Re: megaraid_sas waiting for command and then offline
+References: <0631C836DBF79F42B5A60C8C8D4E82296A722A@NAMAIL2.ad.lsil.com>
+In-Reply-To: <0631C836DBF79F42B5A60C8C8D4E82296A722A@NAMAIL2.ad.lsil.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 10:04:31AM +0800, Zhang, Yanmin wrote:
-> On Wed, 2006-09-06 at 03:17, Linas Vepstas wrote:
-> > On Mon, Sep 04, 2006 at 01:47:30PM +0800, Zhang, Yanmin wrote:
-> > > > 
-> > > > Again, consider the multi-function cards. On pSeries, I can  only enable 
-> > > > DMA on a per-slot basis, not a per-function basis. So if one driver
-> > > > enables DMA before some other driver has reset appropriately, everything
-> > > > breaks.
-> > > Does here 'reset' mean hardware slot reset? 
-> > 
-> > I should have said: If one driver of a multi-function card enables DMA before 
-> > another driver has stabilized its harware, then everything breaks.
-> What's another driver's hardware? A function of the previous multi-function
-> card? Or a function of another device?
 
-Yes. Either. Both. Doesn't matter.  Enabling DMA is "granular" at a 
-different size scale than pci functions, and possibly even pci devices 
-or slots, dependeing on the architecture. Before DMA can be enabled, 
-*all* affected device drivers have to be approve, and have to be ready
-for it. 
+Sumant,
 
-> > If we enabled both DMA and MMIO at the same time, there are many cases
-> > where the card will immediately trap again -- for example, if its
-> > DMA'ing to some crazy address. Thus, typically, one wants DMA disabled 
-> > until after the card reset.  Without the mmio_enabled() reset, there
-> > is no way of doing this.
+Not sure if I am missing something - I appear to be running the latest 
+FW available:
+
+                Versions
+                ================
+Product Name    : PERC 5/i Integrated
+Serial No       : 12345
+FW Package Build: 5.0.1-0030
+FW Version      : 1.00.01-0088
+BIOS Version    : MT23
+Ctrl-R Version  :1.02-007
+
+
+
+Patro, Sumant wrote:
+
+>Hello Brett,
 >
-> Did you asume the card reset is executed by callback mmio_enabled?
-
-I am assuming that, when a driver receives the mmio_enabled() callback,
-it will perform some sort of register i/o.  For example, I am currently
-planning to modify the e1000 driver to do the following:
-
--- The error_occurred() callback returns PCI_ERS_RESULT_CAN_RECOVER
--- The arch enables mmio, and then calls the mmio_enabled() callback.
--- The mmio_enabled() callback in the driver takes a full dump of all 
-   of the regsters on the card.  It then returns PCI_ERS_RESULT_NEED_RESET
--- The arch performs the full electrical #RST of device. Recovery from
-   this point proceeds as before.
-
-> > Again, consider the multi-function cards. On pSeries, I can only enable 
-> > DMA on a per-slot basis, not a per-function basis. So if one driver
-> > enables DMA before some other driver has reset appropriately, everything
-> > breaks.
+>	A DMA related bug was fixed in FW ver *.0095 that was causing
+>the FW to stop responding. 
+>	
+>	Please upgrade the FW version to >= *.0095 and let me know if
+>you still see the issue.
+> 
+>Regards,
 >
-> What does 'I' above stand for? The platform error recovery procedure
-
-Yes. The pSeries platform error recovery procedure can only enable DMA
-on a per-slot basis.
-
-> I guess it means platform, that is,
-> only platform enables DMA for the whole slot. 
-
-Yes.
-
-> But why does the last sentence
-> become driver enables DMA? 
-
-In your proposal, you were suggesting that MMIO and DMA be enabled with 
-one and the same routine, and I was attempting to explain why that can't
-work.
-
-> Could driver enable DMA for a function?
-
-No, not on pSeries hardware.
-
-> > > If mmio_enabled is not used currently, I think we could delete it firstly. Later on,
-> > > if a platform really need it, we could add it, so we could keep the simplied codes.
-> > 
-> > It would be very difficult to add it later. And it would be especially
-> > silly, given that someone would find this discussion in the mailing list 
-> > archives.
-> You stick to keep mmio_enabled which is not used currently, but if there will be
-> a new platform who uses a more fine-grained steps to recover pci/pci-e, would
-> you say 'it would be very difficut' and refuse add new callbacks?
-
-Yes. 
-
-> It doesn't prevent software from merging some steps. And, we want
-> to implement pci/pci-e error recovery for more platforms instead of just
-> pSeries.
-
-Yes. The API was designed so that it could be supported on every
-current and future platform we could think of. You haven't yet
-claimed that "pci-e can't be supported".  Based on what 
-I understand, changing the API wouldn't make the implementation 
-any easier. (It is very easy to call a callback, and then 
-examine its return value. Removing a few callbacks does not
-materially simplify the recovery mechanism. Managing these
-callbacks is *not* the hard part of implementing this thing.)
-
---linas
+>Sumant
+>
+>
+>-----Original Message-----
+>From: Brett G. Durrett [mailto:brett@imvu.com] 
+>Sent: Wednesday, September 06, 2006 9:04 AM
+>To: Dave Lloyd
+>Cc: Patro, Sumant; Bagalkote, Sreenivas; lkml; Berkley Shands
+>Subject: Re: megaraid_sas waiting for command and then offline
+>
+>
+>The machines are Dell 2900s, so the mobo is custom.  From a Dell SE, 
+>"Dell uses a custom mobo that is Dell branded with the Intel chipset 
+>Greencreek.".
+>
+>B-
+>
+>
+>
+>
+>Dave Lloyd wrote:
+>
+>  
+>
+>>Brett G. Durrett wrote:
+>>    
+>>
+>>>I have the same or a similar issue running 2.6.17 SMP x86_64 - the
+>>>megaraid_sas driver hangs waiting for commands and then the
+>>>      
+>>>
+>filesystem
+>  
+>
+>>>unmounts, leaving the machine in an unusable state until there is a 
+>>>      
+>>>
+>>hard
+>>    
+>>
+>>>reboot (the machine is responsive but any access, shell or 
+>>>      
+>>>
+>>otherwise, is
+>>    
+>>
+>>>impossible without the filesystem).  While I do not have much
+>>>      
+>>>
+>debugging
+>  
+>
+>>>information available, this happens to me about once every 6-7 days
+>>>      
+>>>
+>in
+>  
+>
+>>>my pool of seven machines, so I can probably get debugging info.
+>>>      
+>>>
+>Since
+>  
+>
+>>>the disk is offline and I can't get remote console, I don't have any
+>>>details except something similar to Dave Lloyd's post, below.
+>>>
+>>>The only thing that the machines with these failures seem to have in
+>>>common is the fact that they are almost exclusively writes - they
+>>>      
+>>>
+>are
+>  
+>
+>>>slave database machines with large memory and pretty much just
+>>>replicate.  The read/write machines seem to have less failures.
+>>>
+>>>I am happy to help provide debugging information in any reasonable
+>>>      
+>>>
+>way.
+>  
+>
+>>>In the mean time, if there are any known suggestions or workarounds
+>>>      
+>>>
+>for
+>  
+>
+>>>the problem, I would be grateful for the guidance.
+>>>
+>>>Here are what details on the controller.  If you want additional
+>>>      
+>>>
+>info,
+>  
+>
+>>>let me know exactly what you need and I will do what I can to get it
+>>>      
+>>>
+>to
+>  
+>
+>>>you.:
+>>>
+>>>Product Name    : PERC 5/i Integrated
+>>>Serial No       : 12345
+>>>FW Package Build: 5.0.1-0030
+>>>FW Version      : 1.00.01-0088
+>>>BIOS Version    : MT23
+>>>Ctrl-R Version  :1.02-007
+>>>
+>>>B-
+>>>      
+>>>
+>>Which motherboard are you using?  We believe that this may be a
+>>motherboard specific issue.  It appears to happen on a SuperMicro
+>>motherboard but not a Tyan motherboard.
+>>
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

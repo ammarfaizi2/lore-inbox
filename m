@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWIFTTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWIFTSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWIFTTk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 15:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWIFTTk
+	id S1751516AbWIFTSx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 15:18:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWIFTSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 15:19:40 -0400
-Received: from relay01.pair.com ([209.68.5.15]:35336 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1751505AbWIFTTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 15:19:39 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Wed, 6 Sep 2006 14:15:46 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: ellis@spinics.net
-cc: w@1wt.eu (Willy Tarreau), ellis@spinics.net (Rick Ellis),
-       linux-kernel@vger.kernel.org
-Subject: Re: bogofilter ate 3/5
-In-Reply-To: <200609061856.k86IuS61017253@no.spam>
-Message-ID: <Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse>
-References: <200609061856.k86IuS61017253@no.spam>
+	Wed, 6 Sep 2006 15:18:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:51376 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751501AbWIFTSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 15:18:51 -0400
+Date: Wed, 6 Sep 2006 12:17:40 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, "David S. Miller" <davem@davemloft.net>,
+       devel@openvz.org, xemul@openvz.org
+Subject: Re: [stable] [PATCH] IA64,sparc: local DoS with corrupted ELFs
+In-Reply-To: <20060906191215.GK2558@parisc-linux.org>
+Message-ID: <Pine.LNX.4.64.0609061214430.11553@schroedinger.engr.sgi.com>
+References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
+ <20060906182733.GJ2558@parisc-linux.org> <20060906184509.GA15942@kroah.com>
+ <20060906191215.GK2558@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2006, ellis@spinics.net wrote:
+On Wed, 6 Sep 2006, Matthew Wilcox wrote:
 
->> OK, but doing something could simply consist in adding a header
->> that anyone is free to filter on or not.
->
-> The problem with that is the post gets no indication that his
-> mail has been filtered. The way it works now is the rejection
-> happens at SMTP time and that causes the poster to see the
-> problem. If people filtered on a header, you'd never know why you
-> weren't getting a response.
->
+> What's the easiest way to get coverage here?  Sending a parisc
+> workstation or server to someone?  Giving accounts to some/all of the
+> stable team?  Finding someone who cares about parisc to join the stable
+> team?
 
-How about this:
+Follow the conventional patch: Send patch to Andrew for mm inclusion so 
+that we can all test it and then get it into Linus' tree?
 
-1. Incoming mail from subscribers is accepted
-2. Incoming mail to honeypot addresses is trained as SPAM
-3. Incoming mail from non-subscribers is marked with X-Bogofilter:
-4. A handy Perl script subscribes to lkml, and for any message it gets 
-with an X-Bogofilter: SPAM header, it sends a notification (rate-limited) 
-to the message sender explaining that his message will be filtered as SPAM 
-by some recipients, and inviting him to contact postmaster to resolve the 
-issue, and additionally letting him know that notification is rate-limited 
-and there is a website he can check to see the SUBJECTs of all messages 
-filtered as SPAM on lkml (say for the last week or two) if he wants to try 
-and correct the problem himself.
+2.6.17.x is used neither by Suse nor by Redhat. For Suse exposure you may 
+have to get it into 2.6.16.x.
 
-Thanks,
-Chase

@@ -1,22 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWIFKi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWIFKjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWIFKi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 06:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWIFKi1
+	id S1750741AbWIFKjz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 06:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWIFKjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 06:38:27 -0400
-Received: from mx1.mail.ru ([194.67.23.121]:17792 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S1750748AbWIFJqB (ORCPT
+	Wed, 6 Sep 2006 06:39:55 -0400
+Received: from main.gmane.org ([80.91.229.2]:18567 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750741AbWIFJjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 05:46:01 -0400
-From: Damon LaCrosse <arid@inbox.ru>
+	Wed, 6 Sep 2006 05:39:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.17 odd hd slow down
-Date: Wed, 06 Sep 2006 11:45:56 +0200
-Message-ID: <87r6ypuy3v.fsf@inbox.ru>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+From: Damon LaCrosse <arid@inbox.ru>
+Subject: 2.6.17 strange hd slow down
+Date: Wed, 06 Sep 2006 11:38:31 +0200
+Organization: Julian Assange Memorial Society
+Message-ID: <87wt8huyg8.fsf@inbox.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 62-101-126-227.ip.fastwebnet.it
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+Cancel-Lock: sha1:NzlK6gGYJ2NLbpbr3qb0jmZuykI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWIFDuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWIFEfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbWIFDuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 23:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbWIFDuz
+	id S932315AbWIFEfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 00:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWIFEfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 23:50:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16107 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751682AbWIFDuy (ORCPT
+	Wed, 6 Sep 2006 00:35:41 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:30873 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932305AbWIFEfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 23:50:54 -0400
-Date: Tue, 5 Sep 2006 20:33:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Andrew Morton <akpm@osdl.org>, Alex Dubov <oakad@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-Message-ID: <20060906033347.GE7886@kroah.com>
-References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com> <44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org> <44F9EE86.4020500@drzeus.cx> <20060903034836.GB6505@kroah.com> <44FAA61F.9000504@drzeus.cx> <20060905191241.GA18427@kroah.com> <44FDD94E.7060701@drzeus.cx>
+	Wed, 6 Sep 2006 00:35:40 -0400
+Message-ID: <44FE5019.6010404@oracle.com>
+Date: Tue, 05 Sep 2006 21:35:37 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44FDD94E.7060701@drzeus.cx>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+CC: linux-fsdevel@vger.kernel.org
+Subject: Re: bogofilter ate 3/5
+References: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
+In-Reply-To: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 10:08:46PM +0200, Pierre Ossman wrote:
-> Greg KH wrote:
-> > On Sun, Sep 03, 2006 at 11:53:35AM +0200, Pierre Ossman wrote:
-> >   
-> >> Is there no driver in the kernel that already has this design?
-> >>     
-> >
-> > Not directly, no.  USB-storage handles a wide range of devices like this
-> > by virtue of them following the usb storage spec (which is really just
-> > scsi).
-> >   
-> 
-> How about this... We put the main driver in drivers/misc, add a Kconfig
-> for it that isn't visible, put the submodules in their respective
-> subsystems and set their Kconfigs to select the main module. Does that
-> sound like a good solution?
 
-But there is no "subsystem" for a memory card reader, right?  That's one
-of the problems here :)
+There was a 3/5 but the bogofilter decided it was spam.  It made it into
+the linux-aio archive:
 
-I don't know, but misc/ is fine with me unless someone else has a good
-idea of where to put it.
+  http://marc.theaimsgroup.com/?l=linux-aio&m=115750084710650&w=2
 
-thanks,
+What should I have done to avoid the spam regexes and what should I do
+now that I have a patch that makes them angry?
 
-greg k-h
+- z

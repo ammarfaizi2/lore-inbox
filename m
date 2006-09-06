@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWIFSN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWIFSOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWIFSN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 14:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWIFSN0
+	id S1751497AbWIFSOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 14:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIFSOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 14:13:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63892 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751479AbWIFSNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 14:13:25 -0400
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC 0/5] dio: clean up completion phase of direct_io_worker()
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-References: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
-	<x49hczl11ru.fsf@segfault.boston.devel.redhat.com>
-	<44FEFB5A.7060905@oracle.com>
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Wed, 06 Sep 2006 14:13:14 -0400
-In-Reply-To: <44FEFB5A.7060905@oracle.com> (Zach Brown's message of "Wed, 06
- Sep 2006 09:46:18 -0700")
-Message-ID: <x4964g0279h.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Sep 2006 14:14:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:21962 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751491AbWIFSOV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 14:14:21 -0400
+Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception code: 
+	0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Len Brown <lenb@kernel.org>, "Moore, Robert" <robert.moore@intel.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>,
+       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux acpi <linux-acpi@vger.kernel.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <200609011720.36318.bjorn.helgaas@hp.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4D850BB@orsmsx415.amr.corp.intel.com>
+	 <49303.24.9.204.52.1157080555.squirrel@mail.cce.hp.com>
+	 <1157151674.5656.21.camel@keithlap>
+	 <200609011720.36318.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Wed, 06 Sep 2006 11:14:15 -0700
+Message-Id: <1157566456.5713.4.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [RFC 0/5] dio: clean up completion phase of direct_io_worker(); Zach Brown <zach.brown@oracle.com> adds:
+On Fri, 2006-09-01 at 17:20 -0600, Bjorn Helgaas wrote:
+> On Friday 01 September 2006 17:01, keith mannthey wrote:
+> > On Thu, 2006-08-31 at 21:15 -0600, Bjorn Helgaas wrote:
+> > > The current ACPI driver binding algorithm in acpi_bus_find_driver()
+> > > looks at each driver, checking whether it can match either the _HID
+> > > or the _CID of a device.  Since we try the motherboard driver first,
+> > > it matches the memory device _CID.
+> > 
+> > Ok I reverted the motherboard driver patch and cooked up the following
+> > patch that works for my issue.  
+> > 
+> >   It creates the idea that acpi_match_ids has a type of request to check
+> > against for _HID, _CID or both.  See acpi_bus_match_req. I then fix up
+> > all the needed callers to change the API to acpi_match_ids and
+> > acpi_bus_match and have callers can say what they want to match
+> > against. 
+> >   
+> >   Then in acpi_bus_find_driver I have it do 2 passes to search for _HID
+> > first then the _CID.  
+> > 
+> > Does this look like it is in the right ballpark or should we be doing
+> > something else?  Built/tested against 2.6.18-rc4-mm3. 
+> 
+> Conceptually I like this much better than mucking with the motherboard
+> driver.  I'm not sure the important people have signed off on this
+> strategy of binding with _HID first, then _CID (hi, Len :-))  Maybe
+> there are ramifications that we need to consider.  But I think it
+> is a better match for "what people expect should happen."
 
->> This all looks good, the code is much easier to follow.  What do you think
->> about making dio->result an unsigned quantity?  It should never be negative
->> now that there is an io_error field.
+ACPI folks can we get some response to this?  This problem has been
+reported a few times against the -mm tree and I would like to get the
+proper fix (whatever it is) upstream sometime soon. 
 
-zach.brown> Yeah, that has always bugged me too.  I considered renaming it
-zach.brown> 'issued', or something, as part of this patchset but thought we
-zach.brown> could do it later.
+Bjorn thanks for the help and for pointing the error reports in the
+right direction. 
 
-I figured since you were doing some house-keeping, we might as well clean
-up as much as possible.  It's up to you, though.  ;)
+Thanks,
+  Keith 
 
-zach.brown> While we're on this topic, I'm nervious that we increment it
-zach.brown> when do_direct_IO fails.  It might be sound, but that we
-zach.brown> consider it the amount of work "transferred" for dio->end_io
-zach.brown> makes me want to make sure there aren't confusing corner cases
-zach.brown> here.
 
-It does look non-obvious when reading the code.  However, I'm pretty sure
-it's right.  dio->block_in_file is only updated if there is no error
-returned from submit_page_section.  As such, it really does reflect how
-much work was done before the error, right?  It does seem odd that we do
-this math in two separate places, though.
-
--Jeff

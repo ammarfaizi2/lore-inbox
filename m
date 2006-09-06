@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWIFI5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWIFJAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWIFI5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 04:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWIFI5r
+	id S1750714AbWIFJAk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 05:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIFJAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 04:57:47 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:15317 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750710AbWIFI5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 04:57:46 -0400
-Message-ID: <44FE8D82.3060103@in.ibm.com>
-Date: Wed, 06 Sep 2006 14:27:38 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Wed, 6 Sep 2006 05:00:40 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:55740
+	"EHLO gwia-smtp.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750714AbWIFJAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 05:00:39 -0400
+From: Jean Delvare <jdelvare@suse.de>
+Organization: SUSE
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] proc: readdir race fix (take 3)
+Date: Wed, 6 Sep 2006 11:01:11 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ak@suse.de,
+       Albert Cahalan <acahalan@gmail.com>, Paul Jackson <pj@sgi.com>
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <20060905101050.GA128@oleg> <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 5/13] BC: user interface (syscalls)
-References: <44FD918A.7050501@sw.ru> <44FD9699.705@sw.ru> <44FDA024.7030700@in.ibm.com> <44FE86EF.3050101@openvz.org>
-In-Reply-To: <44FE86EF.3050101@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609061101.11544.jdelvare@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
->>> +
->>> +asmlinkage long sys_set_bcid(bcid_t id)
->>> +{
->>> +    int error;
->>> +    struct beancounter *bc;
->>> +    struct task_beancounter *task_bc;
->>> +
->>> +    task_bc = &current->task_bc;
->> I was playing around with the bc patches and found that to make
->> use of bc's, I had to actually call set_bcid() and then exec() a
->> task/shell so that the id would stick around. Would you consider
-> That sounds very strange as sys_set_bcid() actually changes current's
-> exec_bc.
-> One note is about mm's bc - mm obtains new bc only after fork or exec -
-> that's
-> true. But kmemsize starts charging right after the sys_set_bcid.
+On Tuesday 5 September 2006 16:52, Eric W. Biederman wrote:
+> The problem: An opendir, readdir, closedir sequence can fail to report
+> process ids that are continually in use throughout the sequence of
+> system calls.  For this race to trigger the process that
+> proc_pid_readdir stops at must exit before readdir is called again.
+>
+> This can cause ps to fail to report processes, and  it is in violation
+> of posix guarantees and normal application expectations with respect
+> to readdir.
+>
+> Currently there is no way to work around this problem in user space
+> short of providing a gargantuan buffer to user space so the directory
+> read all happens in on system call.
+>
+> This patch implements the normal directory semantics for proc,
+> that guarantee that a directory entry that is neither created nor
+> destroyed while reading the directory entry will be returned.  For
+> directory that are either created or destroyed during the readdir you
+> may or may not see them.  Furthermore you may seek to a directory
+> offset you have previously seen.
+>
+> These are the guarantee that ext[23] provides and that posix requires,
+> and more importantly that user space expects. Plus it is a simple
+> semantic to implement reliable service.  It is just a matter of
+> calling readdir a second time if you are wondering if something new
+> has show up.
+>
+> These better semantics are implemented by scanning through the
+> pids in numerical order and by making the file offset a pid
+> plus a fixed offset.
+>
+> The pid scan happens on the pid bitmap, which when you look at it is
+> remarkably efficient for a brute force algorithm.  Given that a typical
+> cache line is 64 bytes and thus covers space for 64*8 == 200 pids. 
+> There are only 40 cache lines for the entire 32K pid space.  A typical
+> system will have 100 pids or more so this is actually fewer cache lines
+> we have to look at to scan a linked list, and the worst case of having
+> to scan the entire pid bitmap is pretty reasonable.
+>
+> If we need something more efficient we can go to a more efficient data
+> structure for indexing the pids, but for now what we have should be
+> sufficient.
+>
+> In addition this takes no additional locks and is actually less
+> code than what we are doing now.
+>
+> Also another very subtle bug in this area has been fixed.  It is
+> possible to catch a task in the middle of de_thread where a thread is
+> assuming the thread of it's thread group leader.  This patch carefully
+> handles that case so if we hit it we don't fail to return the pid, that
+> is undergoing the de_thread dance.
+>
+> This patch is against 2.6.18-rc6 and it should be relatively straight
+> forward to backport to older kernels as well.
+>
+> Thanks to KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> for
+> providing the first fix, pointing this out and working on it.
 
-I was playing around only with kmemsize. I think the reason for my observation
-is this
-
-bash --> (my utility) --> set_bcid()
-
-Since bash spawns my utility in a separate process, it creates and assigns
-a bean counter to it and then my utility exits. Unless it spawns/exec()'s a
-new shell, the beancounter is freed when the task exits (my utility).
-
->> changing sys_set_bcid to sys_set_task_bcid() or adding a new
->> system call sys_set_task_bcid()? We could pass the pid that we
->> intend to associate with the new id. This also means we'll need
->> locking around to protect task->task_bc.
-> 
-
+Eric, Kame, thanks a lot for working on this. I'll be giving some good 
+testing to this patch today, and will return back to you when I'm done.
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Jean Delvare

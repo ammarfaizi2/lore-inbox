@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751635AbWIFW0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWIFWfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751635AbWIFW0p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 18:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWIFW0p
+	id S932155AbWIFWfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWIFWfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 18:26:45 -0400
-Received: from relay02.pair.com ([209.68.5.16]:63242 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1751490AbWIFW0o (ORCPT
+	Wed, 6 Sep 2006 18:35:32 -0400
+Received: from cantor.suse.de ([195.135.220.2]:16307 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751764AbWIFWfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 18:26:44 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Wed, 6 Sep 2006 17:22:13 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Pavel Machek <pavel@ucw.cz>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Takashi Iwai <tiwai@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org, pshou@realtek.com.tw
-Subject: Re: CodingStyle (was: Re: sound/pci/hda/intel_hda: small cleanups)
-In-Reply-To: <20060906135140.GC11405@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.64.0609061716260.18840@turbotaz.ourhouse>
-References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de>
- <20060831110436.995bdf93.rdunlap@xenotime.net> <20060902231509.GC13031@elf.ucw.cz>
- <20060902213046.dd9bf569.rdunlap@xenotime.net> <20060905080813.GE1958@elf.ucw.cz>
- <20060905084352.1ced999e.rdunlap@xenotime.net> <20060906135140.GC11405@elf.ucw.cz>
+	Wed, 6 Sep 2006 18:35:32 -0400
+Date: Wed, 6 Sep 2006 15:35:20 -0700
+From: Greg KH <gregkh@suse.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>,
+       linux1394-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Ben Collins <bcollins@ubuntu.com>
+Subject: Re: 2.6.18-rc5-mm1 + all hotfixes -- INFO: possible recursive	locking detected
+Message-ID: <20060906223520.GA9658@suse.de>
+References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com> <20060905111306.80398394.akpm@osdl.org> <44FDCEAD.5070905@s5r6.in-berlin.de> <44FE751E.4030505@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44FE751E.4030505@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2006, Pavel Machek wrote:
+On Wed, Sep 06, 2006 at 09:13:34AM +0200, Stefan Richter wrote:
+> Do class->subsys.rwsem, bus->subsys.rwsem, and bus_type.subsys.rwsem
+> point to identical or different lock instances?
 
-> Hi!
->
->>> +comment out unused code.
->>> +
->>
->> Is there an acceptable way to leave source code in a file but
->> render it unused?  Like #if 0/#endif or #if BOGUS_SYMBOL/#endif ?
->
-> I'd say "no way is acceptable, but #if 0/#endif is least evil" :-).
+class->subsys.rwsem is different from the others.  bus->subsys.rwsem and
+bus_type.subsys.rwsem are probably the same thing (depending on what
+that bus-> pointer is to.)
 
-I'd say "no way is acceptable, but #if 0/#endif with proper comments is 
-less evil."
+> Either way, could it hurt to convert nodemgr to uniformly use
+> ieee1394_bus_type.subsys.rwsem all over the place?
 
-Disabled code will never break if other parts of the code change 
-without it; rather, it could just become plain wrong. People might either 
-leave it alone (if they don't know what it is for) or try to change it (if 
-they think they do).
+Probably a good idea.
 
-If you must leave disabled code behind (which in my perfect world would be 
-'never'), you should at least leave behind a comment explaining what the 
-code is supposed to do and why it isn't enabled.
+thanks,
 
-If it starts to drift from almost-functional to plain wrong, it becomes an 
-even worse wart than it originally was.
-
-Thanks,
-Chase
+greg k-h

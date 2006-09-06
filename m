@@ -1,34 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWIFQxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWIFQzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751677AbWIFQxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 12:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbWIFQxP
+	id S1751696AbWIFQzU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 12:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWIFQzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 12:53:15 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:50398 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751672AbWIFQxO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 12:53:14 -0400
-Message-ID: <44FEFCF0.7040903@pobox.com>
-Date: Wed, 06 Sep 2006 12:53:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 6 Sep 2006 12:55:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55479 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751689AbWIFQzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 12:55:18 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <fastboot@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: [PATCH] i386 kexec: Remove experimental mark of kexec
+References: <m1zmddvthi.fsf@ebiederm.dsl.xmission.com>
+Date: Wed, 06 Sep 2006 10:54:34 -0600
+In-Reply-To: <m1zmddvthi.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+	message of "Wed, 06 Sep 2006 10:40:25 -0600")
+Message-ID: <m1r6ypvstx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: cramerj@intel.com, john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com, auke-jan.h.kok@intel.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [2.6 patch] make drivers/net/e1000/e1000_hw.c:e1000_phy_igp_get_info()
- static
-References: <20060904114114.GL4416@stusta.de>
-In-Reply-To: <20060904114114.GL4416@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
+
+kexec has been marked experimental for a year now and all
+of the serious problems have been worked through.  So it
+is time (if not past time) to remove the experimental mark.
+
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+
+This time with a Signed-off-by line.
+
+ arch/i386/Kconfig |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index 798405f..4205437 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -765,8 +765,7 @@ config VGA_NOPROBE
+ source kernel/Kconfig.hz
+ 
+ config KEXEC
+-	bool "kexec system call (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
++	bool "kexec system call"
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-- 
+1.4.2.rc3.g7e18e-dirty
 

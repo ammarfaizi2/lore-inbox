@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWIFUvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWIFU5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWIFUvR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 16:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWIFUvR
+	id S1751425AbWIFU5A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWIFU5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 16:51:17 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48566 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751252AbWIFUvQ (ORCPT
+	Wed, 6 Sep 2006 16:57:00 -0400
+Received: from khc.piap.pl ([195.187.100.11]:462 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751425AbWIFU46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 16:51:16 -0400
-Date: Wed, 6 Sep 2006 13:51:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] security: introduce fs caps
-Message-Id: <20060906135113.00051e89.pj@sgi.com>
-In-Reply-To: <20060906182719.GB24670@sergelap.austin.ibm.com>
-References: <20060906182719.GB24670@sergelap.austin.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 16:56:58 -0400
+To: Chase Venters <chase.venters@clientec.com>
+Cc: ellis@spinics.net, w@1wt.eu (Willy Tarreau), linux-kernel@vger.kernel.org
+Subject: Re: bogofilter ate 3/5
+References: <200609061856.k86IuS61017253@no.spam>
+	<Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 06 Sep 2006 22:56:55 +0200
+In-Reply-To: <Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse> (Chase Venters's message of "Wed, 6 Sep 2006 14:15:46 -0500 (CDT)")
+Message-ID: <m34pvkvhm0.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge wrote:
-> 	One remaining question is the note under task_setscheduler: are we
-> 	ok with CAP_SYS_NICE being sufficient to confine a process to a
-> 	cpuset?
+Chase Venters <chase.venters@clientec.com> writes:
 
-So far as I know (which isn't very far ;), that's ok.
+> 1. Incoming mail from subscribers is accepted
 
-Can you explain to me how this will visibly affect users?
+How do you know if the sender is really a subscriber?
 
-Under what conditions, with what kernel configurations or options
-selected or not, and with what permissions settings, would they notice
-any difference, before and after this patch, in the behaviour of
-cpusets, such as when they do the operation of writing a pid to tasks
-file that invokes kernel/cpuset.c:attach_task()?
+> 4. A handy Perl script subscribes to lkml, and for any message it gets
+> with an X-Bogofilter: SPAM header, it sends a notification
+> (rate-limited) to the message sender
 
+How do you know who the sender really is? IMHO bouncing anything
+(especially spam) after SMTP OK is worse than the spam itself.
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Krzysztof Halasa

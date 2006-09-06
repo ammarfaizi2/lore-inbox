@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWIFPgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWIFPh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWIFPgX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 11:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWIFPgX
+	id S1751086AbWIFPh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 11:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIFPh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 11:36:23 -0400
-Received: from ns.nankai.edu.cn ([202.113.16.11]:47615 "HELO
-	mail.nankai.edu.cn") by vger.kernel.org with SMTP id S1751011AbWIFOJP
+	Wed, 6 Sep 2006 11:37:29 -0400
+Received: from ns.nankai.edu.cn ([202.113.16.11]:36224 "HELO
+	mail.nankai.edu.cn") by vger.kernel.org with SMTP id S1751086AbWIFOLR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:09:15 -0400
-Message-ID: <357551991.05297@mail.nankai.edu.cn>
+	Wed, 6 Sep 2006 10:11:17 -0400
+Message-ID: <357552113.05297@mail.nankai.edu.cn>
 X-EYOUMAIL-SMTPAUTH: struggle@mail.nankai.edu.cn
-Message-ID: <44FED695.9030501@mail.nankai.edu.cn>
-Date: Wed, 06 Sep 2006 22:09:25 +0800
-From: =?GB2312?B?0e6yqA==?= <struggle@mail.nankai.edu.cn>
+Message-ID: <44FED70F.6080208@mail.nankai.edu.cn>
+Date: Wed, 06 Sep 2006 22:11:27 +0800
+From: Bo Yang <struggle@mail.nankai.edu.cn>
 User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org

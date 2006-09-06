@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751708AbWIFRAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751712AbWIFRD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751708AbWIFRAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 13:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbWIFRAx
+	id S1751712AbWIFRD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 13:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWIFRD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 13:00:53 -0400
-Received: from 69-30-77-85.dq1sn.easystreet.com ([69.30.77.85]:44011 "EHLO
-	camus.anholt.net") by vger.kernel.org with ESMTP id S1751676AbWIFRAv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 13:00:51 -0400
-Subject: Re: Resubmit: Intel 965 Express AGP patches
-From: Eric Anholt <eric@anholt.net>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060906160210.GK15918@redhat.com>
-References: <115747785570-git-send-email-eric@anholt.net>
-	 <20060906160210.GK15918@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oWalGnGr/stiuRoHnAjM"
-Date: Wed, 06 Sep 2006 09:56:25 -0700
-Message-Id: <1157561785.11752.12.camel@vonnegut>
+	Wed, 6 Sep 2006 13:03:26 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10170 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751697AbWIFRDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 13:03:25 -0400
+Date: Wed, 6 Sep 2006 19:03:30 +0200
+From: Jan Kara <jack@suse.cz>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+Message-ID: <20060906170330.GB14345@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk> <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com> <20060901101801.7845bca2.akpm@osdl.org> <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com> <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157561031.23501.33.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 FreeBSD GNOME Team Port 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157561031.23501.33.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Wed, 2006-09-06 at 18:27 +0200, Jan Kara wrote:
+> > > 
+> > > But my debug clearly shows that we are clearing the buffer, while
+> > > we haven't actually submitted to ll_rw_block() code. (I added "track"
+> > > flag to bh and set it in journal_commit_transaction() when we add
+> > > them to wbuf[] and clear it in ll_rw_block() after submit. I checked
+> > > for this flag in journal_unmap_buffer() while clearing the buffer).
+> > > Here is what my debug shows:
+> > > 
+> > > buffer is tracked bh ffff8101686ea850 size 1024 
+> > > 
+> > > Call Trace:
+> > >  [<ffffffff8020b395>] show_trace+0xb5/0x370
+> > >  [<ffffffff8020b665>] dump_stack+0x15/0x20
+> > >  [<ffffffff8030d474>] journal_invalidatepage+0x314/0x3b0
+> >   I see just journal_invalidatepage() here. That is fine. It calls
+> > journal_unmap_buffer() which should do nothing return 0. If it does
+> > not it would be IMO bug.. If the buffer is really unmapped here, in what
+> > state it is (i.e. which list is it on?).
+> > 
+> Acutally, I added dump_stack() in journal_unmap_buffer() when it
+> does clear_buffer_mapped(). gcc must of pulled in the function ..
+> I will add more debug to track the list bh came from.
+  Ah, ok. My guess is that the buffer is in BJ_Locked list. But we don't
+write buffers from BJ_Locked list (as they are supposedly already
+written). What probably happens is:
+  Process 1				Process 2
+  We start scanning t_sync_datalist.
+  Add buffer to wbuf[].
+					Locks the buffer (it can be some other
+					writer).
+  Restarts scanning the list
+  Finds buffer is locked -> moves to
+   BJ_Locked list (actually this is BUG
+   as we have not written the buffer yet)
+                                        journal_unmap_buffer() happens
 
---=-oWalGnGr/stiuRoHnAjM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+  Maybe what you could verify is, that we are moving the buffer added to
+wbuf[] to BJ_Locked list in the write_out_data: loop.
+  If it really happens, what I've described above, the fix should be
+different. We shouldn't have moved the buffer to BJ_Locked list...
 
-On Wed, 2006-09-06 at 12:02 -0400, Dave Jones wrote:
-> On Tue, Sep 05, 2006 at 10:37:32AM -0700, Eric Anholt wrote:
->  > The following should be the updated patch series for the Intel 965 Exp=
-ress
->  > support, unless I'm making some mistake with git-send-email.  I think =
-I've
->  > covered Dave's concerns=20
->=20
-> This chunk seems unrelated to 965 support.
->=20
-> @@ -1469,7 +1570,7 @@ static struct agp_bridge_driver intel_91
->         .owner                  =3D THIS_MODULE,
->         .aperture_sizes         =3D intel_i830_sizes,
->         .size_type              =3D FIXED_APER_SIZE,
-> -       .num_aperture_sizes     =3D 3,
-> +       .num_aperture_sizes     =3D 4,
->         .needs_scratch_page     =3D TRUE,
->         .configure              =3D intel_i915_configure,
->         .fetch_size             =3D intel_i915_fetch_size,
->=20
-> It seems to be a valid fix (as there are indeed 4 entries in
-> intel_i830_sizes), but I wonder if this was intentional ?
-> Has this been tested on 915/945?
-> I've chopped this bit out and committed the rest, we can
-> add this as a separate commit, which may ease future bisecting
-> if anything should go awry.
-> The intel_830_driver struct also lists the num of sizes as '3' btw.
-> It could just be lots of cut-n-paste braindamage, but things like
-> this make me nervous in a driver that supports so much hardware
-> and is so.. twisted.
-
-It just looks to me like when the 512MB entry was added for the 965, the
-count was bumped for 915 too.  It wouldn't have mattered for the 915 (or
-i830, if it had got the treatment), since it'll never have a 512MB
-aperture anyway, and doesn't use the generic gatt creation.
-
-> Also, do we need an entry in agp_intel_resume() for the 965 ?
-
-Yeah, looks like it.
-
->  >, except for making the PCI ID stuff table-driven.
->  > You can find a patch for that on the intel-agp-i965 branch at
->  > git://anongit.freedesktop.org/~anholt/linux-2.6
->=20
-> I'll take a look at those soon.
-
-Thanks!
-
---=20
-Eric Anholt                             anholt@FreeBSD.org
-eric@anholt.net                         eric.anholt@intel.com
-
---=-oWalGnGr/stiuRoHnAjM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (FreeBSD)
-
-iD8DBQBE/v25HUdvYGzw6vcRAl10AJ9fl9UUAks2+IlEOBF4EMa+is3dVwCeLup0
-tFrbx3GdsSttnWQ7d7FK50w=
-=ZevL
------END PGP SIGNATURE-----
-
---=-oWalGnGr/stiuRoHnAjM--
-
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

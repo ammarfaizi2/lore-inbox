@@ -1,125 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWIFVrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWIFVtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWIFVrm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 17:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWIFVrm
+	id S932172AbWIFVtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 17:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWIFVtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 17:47:42 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:62148 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932166AbWIFVrk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 17:47:40 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
-	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: balbir@in.ibm.com, Rik van Riel <riel@redhat.com>,
-       Srivatsa <vatsa@in.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44FEC7E4.7030708@sw.ru>
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 06 Sep 2006 14:47:34 -0700
-Message-Id: <1157579254.31893.19.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 17:49:47 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4356 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932172AbWIFVtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 17:49:46 -0400
+Date: Wed, 6 Sep 2006 23:49:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.29-rc1
+Message-ID: <20060906214944.GB12157@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 17:06 +0400, Kirill Korotaev wrote:
-> Balbir Singh wrote:
-> > Kirill Korotaev wrote:
-> > 
-> >> Core Resource Beancounters (BC) + kernel/user memory control.
-> >>
-> >> BC allows to account and control consumption
-> >> of kernel resources used by group of processes.
-> >>
-> >> Draft UBC description on OpenVZ wiki can be found at
-> >> http://wiki.openvz.org/UBC_parameters
-> >>
-> >> The full BC patch set allows to control:
-> >> - kernel memory. All the kernel objects allocatable
-> >> on user demand should be accounted and limited
-> >> for DoS protection.
-> >> E.g. page tables, task structs, vmas etc.
-> > 
-> > 
-> > One of the key requirements of resource management for us is to be able to
-> > migrate tasks across resource groups. Since bean counters do not associate
-> > a list of tasks associated with them, I do not see how this can be done
-> > with the existing bean counters.
-> It was discussed multiple times already.
-> The key problem here is the objects which do not _belong_ to tasks.
-> e.g. IPC objects. They exist in global namespace and can't be reaccounted.
-> At least no one proposed the policy to reaccount.
-> And please note, IPCs are not the only such objects.
+There are still several patches pending - they will go into 2.6.16.30.
 
->From implementation point of view I do not see it to be any different
-than how it can be done under UBC.
+Security fixes since 2.6.16.28:
+- CVE-2006-3468: NFS over ext3 DoS
+- ipv6: oops triggerable by any user
 
-AFAICS, beancounters are associated with tasks not those "objects".
-Those "objects" get their bc through some association with a task. The
-same can be done in the other case also. 
 
-If my understanding is wrong, please tell me how one can associate such
-"object" to a bc.
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-> 
-> But I guess your comment mostly concerns user pages, yeah?
-> In this case reaccounting can be easily done using page beancounters
-> which are introduced in this patch set.
-> So if it is a requirement, then lets cooperate and create such functionality.
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-hmm... that is what I thought I was doing when I was replying on these
-threads. May be I should have waited for this "call for co-operation"
-before jumping on it :)
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-> 
-> So for now I see 2 main requirements from people:
-> - memory reclamation
-> - tasks moving across beancounters
 
-Please consider the requirements I listed before
-http://marc.theaimsgroup.com/?l=ckrm-tech&m=115593001810616&w=2
- 
-> 
-> I agree with these requirements and lets move into this direction.
-> But moving so far can't be done without accepting:
-> 1. core functionality
-> 2. accounting
+Changes since 2.6.16.28:
 
-I agree that discussion need to happen on the core functionality and
-interface.
-> 
-> Thanks,
-> Kirill
-> 
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+Adrian Bunk:
+      Linux 2.6.16.29-rc1
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Alan Cox:
+      Missing PCI id update for VIA IDE
+      pci_ids.h: add some VIA IDE identifiers
 
+Alexey Dobriyan:
+      eicon: fix define conflict with ptrace
+
+Chen-Li Tien:
+      [PKTGEN]: Fix oops when used with balance-tlb bonding
+
+Christian Borntraeger:
+      fix misoptimization in futex unqueue_me
+
+David S. Miller:
+      [PKTGEN]: Make sure skb->{nh,h} are initialized in fill_packet_ipv6() too.
+
+Dean Nelson:
+      ia64 SGI-SN2: fix silent data corruption caused by XPC
+
+Eric Sandeen:
+      Have ext3 reject file handles with bad inode numbers early
+
+Hannes Reinecke:
+      aic79xx: use BIOS settings
+
+Herbert Xu:
+      ETHTOOL: Fix UFO typo
+
+Kirill Korotaev:
+      fix struct file leakage
+
+Mark Huang:
+      ulog: fix panic on SMP kernels
+
+maximilian attems:
+      [SERIAL] icom: select FW_LOADER
+
+Neil Brown:
+      Fix a potential NULL dereference in md/raid1
+      ext3: avoid triggering ext3_error on bad NFS file handle
+
+Neil Horman:
+      SCTP: Fix persistent slowdown in sctp when a gap ack consumes rx buffer.
+
+Patrick McHardy:
+      ip_tables: fix table locking in ipt_do_table
+
+Paul Fulghum:
+      tty serialize flush_to_ldisc
+
+Remy Bruno:
+      ALSA: RME HDSP - fixed proc interface (missing {})
+
+Sonny Rao:
+      idr: fix race in idr code
+
+Sridhar Samudrala:
+      Fix sctp_primitive_ABORT() call in sctp_close()
+
+Takashi Iwai:
+      ALSA: au88x0 - Fix 64bit address of MPU401 MMIO port
+      ALSA: Fix a deadlock in snd-rtctimer
+      ALSA: Fix missing array terminators in AD1988 codec support
+      ALSA: Fix model for HP dc7600
+      ALSA: Fix workaround for AD1988A rev2 codec
+      ALSA: hda-intel - Fix race in remove
+
+Tsutomu Fujii:
+      SCTP: Send only 1 window update SACK per message.
+
+Vlad Yasevich:
+      SCTP: Reject sctp packets with broadcast addresses.
+      SCTP: Limit association max_retrans setting in setsockopt.
+      SCTP: Reset rtt_in_progress for the chunk when processing its sack.
+
+Willy Tarreau:
+      ethtool: fix oops in ethtool_set_pauseparam()
+
+YOSHIFUJI Hideaki:
+      [IPV6]: Fix kernel OOPs when setting sticky socket options.
+
+
+ Makefile                               |    2 -
+ arch/ia64/sn/kernel/xpc_channel.c      |    4 +-
+ arch/ia64/sn/kernel/xpc_main.c         |   28 ++++++++++-------
+ arch/ia64/sn/kernel/xpc_partition.c    |   22 ++++---------
+ drivers/char/tty_io.c                  |   14 +++++---
+ drivers/ide/pci/via82cxxx.c            |    3 +
+ drivers/isdn/hardware/eicon/divasync.h |    1 
+ drivers/md/raid1.c                     |    4 +-
+ drivers/scsi/aic7xxx/aic79xx_osm.c     |   35 +++++++++++++++++----
+ drivers/serial/Kconfig                 |    1 
+ fs/ext3/inode.c                        |   15 ++++-----
+ fs/ext3/namei.c                        |   15 ++++++++-
+ fs/ext3/super.c                        |   40 +++++++++++++++++++++++++
+ fs/namei.c                             |    8 ++++-
+ include/asm-ia64/sn/xp.h               |   22 +++++++++++--
+ include/asm-ia64/sn/xpc.h              |    3 +
+ include/linux/ext3_fs.h                |    9 +++++
+ include/linux/pci_ids.h                |    5 ++-
+ include/net/sctp/structs.h             |    3 +
+ kernel/futex.c                         |    1 
+ lib/idr.c                              |   16 +++++++---
+ net/bridge/netfilter/ebt_ulog.c        |    3 +
+ net/core/ethtool.c                     |    5 +--
+ net/core/pktgen.c                      |    4 ++
+ net/ipv4/netfilter/arp_tables.c        |    3 +
+ net/ipv4/netfilter/ip_tables.c         |    3 +
+ net/ipv4/netfilter/ipt_ULOG.c          |    5 +++
+ net/ipv6/exthdrs.c                     |   29 ++++++++++--------
+ net/netfilter/nfnetlink_log.c          |    3 +
+ net/sctp/input.c                       |    3 +
+ net/sctp/ipv6.c                        |    6 ++-
+ net/sctp/outqueue.c                    |    1 
+ net/sctp/protocol.c                    |    8 ++++-
+ net/sctp/sm_statefuns.c                |   10 +++++-
+ net/sctp/socket.c                      |   38 ++++++++++++++++++++---
+ net/sctp/ulpevent.c                    |   30 +++++++++++++++++-
+ sound/core/timer.c                     |    5 +--
+ sound/pci/au88x0/au88x0_mpu401.c       |    2 -
+ sound/pci/hda/hda_intel.c              |    4 +-
+ sound/pci/hda/patch_analog.c           |   19 ++++++++---
+ sound/pci/hda/patch_realtek.c          |    2 -
+ sound/pci/rme9652/hdsp.c               |    3 +
+ 42 files changed, 328 insertions(+), 109 deletions(-)
 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWIFIsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750696AbWIFIsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWIFIsl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 04:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWIFIsl
+	id S1750696AbWIFIsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 04:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWIFIsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 04:48:41 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:23983 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750701AbWIFIsk (ORCPT
+	Wed, 6 Sep 2006 04:48:06 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:38195 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750696AbWIFIsC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 04:48:40 -0400
-Date: Wed, 6 Sep 2006 10:40:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>
-Subject: Re: lockdep oddity
-Message-ID: <20060906084021.GA30856@elte.hu>
-References: <20060906080129.GD6898@osiris.boeblingen.de.ibm.com> <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4932]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 6 Sep 2006 04:48:02 -0400
+Message-ID: <44FE8A8D.9090801@openvz.org>
+Date: Wed, 06 Sep 2006 12:45:01 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 9/13] BC: locked pages (charge hooks)
+References: <44FD918A.7050501@sw.ru> <44FD97D1.4070206@sw.ru> <44FE43E7.1030003@yahoo.com.au>
+In-Reply-To: <44FE43E7.1030003@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Hua Zhong <hzhong@gmail.com> wrote:
-
-> We are just trading accuracy for speed here.
-
-no, we are trading _both_ accuracy and speed here! a global 'likeliness' 
-pointer for commonly executed codepaths is causing global cacheline 
-ping-pongs - which is as bad as it gets.
-
-the right approach, which incidentally would also be perfectly accurate, 
-is to store an alloc_percpu()-ed pointer at the call site, not the 
-counter itself.
-
-the current code needs more work before it can go upstream i think.
-
-	Ingo
+Nick Piggin wrote:
+> Kirill Korotaev wrote:
+>
+>> Introduce calls to BC core over the kernel to charge locked memory.
+>>
+>> Normaly new locked piece of memory may appear in insert_vm_struct,
+>> but there are places (do_mmap_pgoff, dup_mmap etc) when new vma
+>> is not inserted by insert_vm_struct(), but either link_vma-ed or
+>> merged with some other - these places call BC code explicitly.
+>>
+>> Plus sys_mlock[all] itself has to be patched to charge/uncharge
+>> needed amount of pages.
+>
+>
+> I still haven't heard your good reasons why such a complex scheme is
+> required when my really simple proposal of unconditionally charging
+> the page to the container it was allocated by.
+Charging the page to the container it was allocated in is a possible and
+correct way, we agree, but how does this comment refer to locked pages
+accounting?
+>
+> That has the benefit of not being full of user explotable holes and
+> also not putting such a huge burden on mm/ and the wider kernel in
+> general.

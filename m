@@ -1,40 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWIFJiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWIFJlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWIFJiE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 05:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWIFJiE
+	id S1750744AbWIFJlN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 05:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIFJlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 05:38:04 -0400
-Received: from bayc1-pasmtp01.bayc1.hotmail.com ([65.54.191.161]:62052 "EHLO
-	bayc1-pasmtp01.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1750738AbWIFJiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 05:38:01 -0400
-Message-ID: <BAYC1-PASMTP0112942AF8C189405E01FBAE310@CEZ.ICE>
-X-Originating-IP: [65.94.249.130]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Wed, 6 Sep 2006 05:37:59 -0400
-From: Sean <seanlkml@sympatico.ca>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GIT.kernel.org down?
-Message-Id: <20060906053759.4f3484d8.seanlkml@sympatico.ca>
-In-Reply-To: <Pine.LNX.4.61.0609061027140.2054@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0609061027140.2054@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.1; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Sep 2006 05:41:13 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:54119 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750744AbWIFJlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 05:41:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=XB9fJi+GJzwNVZQuJsQ0gZmZlTRywTBUS8cKdgfmwDILgs0wmNa3sxCPwkHR+lk7T/fwV+Q2t9iC1tb6sVxftAUtJZmuIk/iEwa8O45cLCEZt7HgBFxI8ql540Kpo27USGrA8HWzSTew5b83dD1brmRRYaIJkp1snqp7Sw27fIk=  ;
+Message-ID: <44FE97B1.7050206@yahoo.com.au>
+Date: Wed, 06 Sep 2006 19:41:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Emelianov <xemul@openvz.org>
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 9/13] BC: locked pages (charge hooks)
+References: <44FD918A.7050501@sw.ru> <44FD97D1.4070206@sw.ru> <44FE43E7.1030003@yahoo.com.au> <44FE8A8D.9090801@openvz.org>
+In-Reply-To: <44FE8A8D.9090801@openvz.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Sep 2006 09:38:01.0454 (UTC) FILETIME=[251D28E0:01C6D198]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2006 10:27:45 +0200 (MEST)
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+Pavel Emelianov wrote:
 
-> cg-fetch: fetching pack failed
-> 
-> Server problems?
+>Nick Piggin wrote:
+>
+>>Kirill Korotaev wrote:
+>>
+>>
+>>>Introduce calls to BC core over the kernel to charge locked memory.
+>>>
+>>>Normaly new locked piece of memory may appear in insert_vm_struct,
+>>>but there are places (do_mmap_pgoff, dup_mmap etc) when new vma
+>>>is not inserted by insert_vm_struct(), but either link_vma-ed or
+>>>merged with some other - these places call BC code explicitly.
+>>>
+>>>Plus sys_mlock[all] itself has to be patched to charge/uncharge
+>>>needed amount of pages.
+>>>
+>>
+>>I still haven't heard your good reasons why such a complex scheme is
+>>required when my really simple proposal of unconditionally charging
+>>the page to the container it was allocated by.
+>>
+>Charging the page to the container it was allocated in is a possible and
+>correct way, we agree, but how does this comment refer to locked pages
+>
 
-Yes server problems,  can't pull from kernel or git archives either.
+If it is a possible and correct way, I'd must rather see *that* way
+get tried first, and then made more complex or discarded if it is
+found to be insufficient.
 
-Sean
+>accounting?
+>
+
+That's where I'd looked at enough mm/ stuff to decide that it wasn't
+just my usual unjustified whining. Complexity of this approach is
+quite... high.
+
+Sorry if that wasn't clear.
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

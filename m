@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWIFXYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWIFXa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWIFXYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 19:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWIFXYQ
+	id S1030243AbWIFXa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 19:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWIFXa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 19:24:16 -0400
-Received: from mga01.intel.com ([192.55.52.88]:20779 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1030204AbWIFXYM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 19:24:12 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,221,1154934000"; 
-   d="scan'208"; a="126780495:sNHT1552252142"
-Date: Wed, 6 Sep 2006 14:27:54 -0700
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       "David S. Miller" <davem@davemloft.net>, linux-ia64@vger.kernel.org,
-       stable@kernel.org, xemul@openvz.org, devel@openvz.org
-Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
-Message-ID: <20060906212754.GA3222@intel.com>
-References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061314430.27779@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Sep 2006 19:30:56 -0400
+Received: from smtp19.orange.fr ([80.12.242.18]:24403 "EHLO
+	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
+	id S1030243AbWIFXaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 19:30:55 -0400
+X-ME-UUID: 20060906233054693.A954F1C000A6@mwinf1918.orange.fr
+From: Vincent Pelletier <vincent.plr@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched.c: Be a bit more conservative in SMP
+Date: Thu, 7 Sep 2006 01:30:53 +0200
+User-Agent: KMail/1.9.4
+References: <200609031541.39984.subdino2004@yahoo.fr> <200609031910.57259.vincent.plr@wanadoo.fr>
+In-Reply-To: <200609031910.57259.vincent.plr@wanadoo.fr>
+Cc: mingo@elte.hu
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609061314430.27779@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200609070130.53995.vincent.plr@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 01:20:59PM -0700, Linus Torvalds wrote:
-> Btw, is there some reason for the __ASSEMBLY__ check?
+I found one maybe-drawback to this change :
+When runing n+1 process (n = number of cpu), one takes one cpu, the other 2 
+share another cpu. And, because of this patch, all processes stay in their 
+own cpu, so one always has 100% of cpu power, the 2 others get 50% each.
+In current implementation, one of the 2 processes from the same cpu would 
+migrate to the other cpu, and so on, somehow sharing cpu time among them.
+Is it a feature or a side effect of current implementation ?
 
-On ia64 entry.S includes asm/pgtable.h, which includes asm/mman.h
-
--Tony
+I'll do some tests soon to see which version gives better performance at a 
+higher level than just process migration cost - if different at all.
+-- 
+Vincent Pelletier

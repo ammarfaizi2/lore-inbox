@@ -1,345 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWIFKPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWIFK2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWIFKPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 06:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWIFKPX
+	id S1750787AbWIFK2K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 06:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWIFK2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 06:15:23 -0400
-Received: from smtp107.biz.mail.mud.yahoo.com ([68.142.200.255]:2690 "HELO
-	smtp107.biz.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750773AbWIFKPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 06:15:21 -0400
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=UTF-8; delsp=yes; format=flowed
-Message-Id: <E2E3656D-17A8-4E6B-92E8-900D92D6F2F5@vhugo.net>
-Cc: Victor Castro <victorhugo83@yahoo.com>
+	Wed, 6 Sep 2006 06:28:10 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:50569 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750787AbWIFK2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 06:28:08 -0400
+X-Sasl-enc: G6GU376SKh1CvC+tyESl4SVRWPgIkdcJPORjtRkkEG6t 1157538485
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Ian Kent <raven@themaw.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157460472.5621.3.camel@localhost>
+References: <1157421445.5510.13.camel@localhost>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+	 <4012.1157450226@warthog.cambridge.redhat.com>
+	 <1157460472.5621.3.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 06 Sep 2006 18:27:58 +0800
+Message-Id: <1157538478.4050.0.camel@raven.themaw.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-From: Victor Hugo <victor@vhugo.net>
-Subject: [PATCH]request_firmware examples
-Date: Wed, 6 Sep 2006 03:15:18 -0700
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+On Tue, 2006-09-05 at 08:47 -0400, Trond Myklebust wrote:
+> On Tue, 2006-09-05 at 10:57 +0100, David Howells wrote:
+> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > 
+> > > Why the hell is it doing a mkdir in the first place?
+> > 
+> > I think the problems it is solving are these:
+> > 
+> >  (1) What happens if "/" is _not_ exported?
+> > 
+> >  (2) What happens if some intermediate directory (say "/usr") is not
+> >      accessible?
+> > 
+> > 
+> > In the first case, the automounter just makes "usr" and "usr/src", say, in the
+> > autofs filesystem, and then mounts server:/usr/src on that.
+> 
+> That is fine. As long as it is doing so in the _autofs_ filesystem. A
+> call to 'stat()' should suffice to tell if this is the case.
+> 
+> > In the second case, the automounter relies on NFS letting it make intervening
+> > directories it couldn't otherwise access to span the gap between "/" and
+> > "src".
+> 
+> If the directory isn't accessible, then autofs shouldn't be trying to
+> override that. It certainly shouldn't be doing so by trying to create
+> the directory.
+> 
 
-Here's the new patch for the firmware loader example drivers, fixed  
-possible stack overflow in original example file.
+In the case above the directory is in the autofs filesystem and so needs
+to be created.
 
-P.S.- sorry if I sent out some funky e-mails before, my email client  
-sucks--
+Ian
 
-Signed-off-by: Victor Hugo <victor@vhugo.net>
----
-
-diff -Nur linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_example.c linux/Documentation/firmware_class/firmware_example.c
---- linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_example.c     1969-12-31 16:00:00.000000000 -0800
-+++ linux/Documentation/firmware_class/firmware_example.c        
-2006-09-06 00:57:45.000000000 -0700
-@@ -0,0 +1,68 @@
-+/*
-+ * firmware_example.c -
-+ *
-+ * Copyright (c) 2006 Victor Hugo <victor@vhugo.net>
-+ * Based on firmware_sample_driver.c by Manuel Estrada Sainz
-+ * Sample code on how to use request_firmware() from drivers.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/string.h>
-+#include <linux/firmware.h>
-+
-+static void sample_firmware_load(char *firmware, int size)
-+{
-+       u8 *buf = kmalloc(size + 1, GFP_KERNEL);
-+       memcpy(buf, firmware, size);
-+       buf[size] = '\0';
-+       printk(KERN_INFO "firmware_example: Firmware: %s\n", buf);
-+       kfree(buf);
-+}
-+
-+static void sample_probe(struct device *dev)
-+{
-+       /* uses the default method to get the firmware */
-+       const struct firmware *fw_entry;
-+       printk(KERN_INFO "firmware_example: ghost device inserted\n");
-+
-+       if (request_firmware(&fw_entry, "sample_firware.bin", dev) !=  
-0) {
-+               printk(KERN_ERR "firmware_example: Firmware not  
-available\n");
-+               return;
-+       }
-+
-+       sample_firmware_load(fw_entry->data, fw_entry->size);
-+
-+       release_firmware(fw_entry);
-+
-+       /* finish setting up the device */
-+}
-+
-+static void ghost_release(struct device *dev)
-+{
-+       printk(KERN_DEBUG "firmware_example : ghost device released\n");
-+}
-+
-+static struct device ghost_device = {
-+       .bus_id = "ghost0",
-+       .release = ghost_release
-+};
-+
-+static int __init sample_init(void)
-+{
-+       device_register(&ghost_device);
-+       sample_probe(&ghost_device);
-+       return 0;
-+}
-+static void __exit sample_exit(void)
-+{
-+       device_unregister(&ghost_device);
-+}
-+
-+module_init(sample_init);
-+module_exit(sample_exit);
-+
-+MODULE_LICENSE("GPL");
-diff -Nur linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_nowait_example.c linux/Documentation/firmware_class/ 
-firmware_nowait_example.c
---- linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_nowait_example.c      1969-12-31 16:00:00.000000000 -0800
-+++ linux/Documentation/firmware_class/ 
-firmware_nowait_example.c        2006-09-06 00:58:06.000000000 -0700
-@@ -0,0 +1,83 @@
-+/*
-+ * firmware_nowait_example.c -
-+ *
-+ * Copyright (c) 2006 Victor Hugo <victor@vhugo.net>
-+ * Based on firmware_sample_driver.c by Manuel Estrada Sainz
-+ * Sample code on how to use request_firmware() from drivers.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/string.h>
-+#include <linux/firmware.h>
-+
-+static void sample_firmware_load(char *firmware, int size)
-+{
-+       u8 *buf = kmalloc(size + 1, GFP_KERNEL);
-+       memcpy(buf, firmware, size);
-+       buf[size] = '\0';
-+       printk(KERN_INFO "firmware_example: Firmware: %s\n", buf);
-+       kfree(buf);
-+}
-+
-+static void sample_probe_async_cont(const struct firmware *fw, void  
-*context)
-+{
-+       if (!fw) {
-+               printk(KERN_ERR
-+                      "firmware_nowait_example: Firmware not  
-available\n");
-+               return;
-+       }
-+
-+       printk(KERN_INFO "firmware_nowait_example: Device Pointer \"%s 
-\"\n",
-+              (char *)context);
-+       sample_firmware_load(fw->data, fw->size);
-+
-+}
-+
-+static void sample_probe_async(struct device *dev)
-+{
-+       /* Let's say I can't sleep */
-+       int error;
-+
-+       printk(KERN_INFO "firmware_example: ghost device inserted\n");
-+
-+       error = request_firmware_nowait(THIS_MODULE,  
-FW_ACTION_NOHOTPLUG,
-+                                       "sample_firmware.bin", dev,
-+                                       "my device pointer",
-+                                       sample_probe_async_cont);
-+
-+       if (error) {
-+               printk(KERN_ERR
-+                      "firmware_nowait_example:  
-request_firmware_nowait Failed\n");
-+       }
-+
-+}
-+
-+static void ghost_release(struct device *dev)
-+{
-+       printk(KERN_DEBUG "firmware_nowait_example: ghost device  
-released\n");
-+}
-+
-+static struct device ghost_device = {
-+       .bus_id = "ghost0",
-+       .release = ghost_release
-+};
-+
-+static int __init sample_init(void)
-+{
-+       device_register(&ghost_device);
-+       sample_probe_async(&ghost_device);
-+       return 0;
-+}
-+static void __exit sample_exit(void)
-+{
-+       device_unregister(&ghost_device);
-+}
-+
-+module_init(sample_init);
-+module_exit(sample_exit);
-+
-+MODULE_LICENSE("GPL");
-diff -Nur linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_sample_driver.c linux/Documentation/firmware_class/ 
-firmware_sample_driver.c
---- linux-2.6.17.11/Documentation/firmware_class/ 
-firmware_sample_driver.c       2006-08-23 14:16:33.000000000 -0700
-+++ linux/Documentation/firmware_class/firmware_sample_driver.c  
-1969-12-31 16:00:00.000000000 -0800
-@@ -1,115 +0,0 @@
--/*
-- * firmware_sample_driver.c -
-- *
-- * Copyright (c) 2003 Manuel Estrada Sainz <ranty@debian.org>
-- *
-- * Sample code on how to use request_firmware() from drivers.
-- *
-- */
--
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/device.h>
--#include <linux/string.h>
--
--#include "linux/firmware.h"
--
--static struct device ghost_device = {
--       .bus_id    = "ghost0",
--};
--
--
--static void sample_firmware_load(char *firmware, int size)
--{
--       u8 buf[size+1];
--       memcpy(buf, firmware, size);
--       buf[size] = '\0';
--       printk(KERN_INFO "firmware_sample_driver: firmware: %s\n", buf);
--}
--
--static void sample_probe_default(void)
--{
--       /* uses the default method to get the firmware */
--        const struct firmware *fw_entry;
--       printk(KERN_INFO "firmware_sample_driver: a ghost device got  
-inserted :)\n");
--
--        if(request_firmware(&fw_entry, "sample_driver_fw",  
-&ghost_device)!=0)
--       {
--               printk(KERN_ERR
--                      "firmware_sample_driver: Firmware not available 
-\n");
--               return;
--       }
--
--       sample_firmware_load(fw_entry->data, fw_entry->size);
--
--       release_firmware(fw_entry);
--
--       /* finish setting up the device */
--}
--static void sample_probe_specific(void)
--{
--       /* Uses some specific hotplug support to get the firmware from
--        * userspace  directly into the hardware, or via some sysfs  
-file */
--
--       /* NOTE: This currently doesn't work */
--
--       printk(KERN_INFO "firmware_sample_driver: a ghost device got  
-inserted :)\n");
--
--        if(request_firmware(NULL, "sample_driver_fw", &ghost_device)! 
-=0)
--       {
--               printk(KERN_ERR
--                      "firmware_sample_driver: Firmware load failed 
-\n");
--               return;
--       }
--
--       /* request_firmware blocks until userspace finished, so at
--        * this point the firmware should be already in the device */
--
--       /* finish setting up the device */
--}
--static void sample_probe_async_cont(const struct firmware *fw, void  
-*context)
--{
--       if(!fw){
--               printk(KERN_ERR
--                      "firmware_sample_driver: firmware load failed 
-\n");
--               return;
--       }
--
--       printk(KERN_INFO "firmware_sample_driver: device pointer \"%s 
-\"\n",
--              (char *)context);
--       sample_firmware_load(fw->data, fw->size);
--}
--static void sample_probe_async(void)
--{
--       /* Let's say that I can't sleep */
--       int error;
--       error = request_firmware_nowait (THIS_MODULE,  
-FW_ACTION_NOHOTPLUG,
--                                        "sample_driver_fw",  
-&ghost_device,
--                                        "my device pointer",
--                                        sample_probe_async_cont);
--       if(error){
--               printk(KERN_ERR
--                      "firmware_sample_driver:"
--                      " request_firmware_nowait failed\n");
--       }
--}
--
--static int sample_init(void)
--{
--       device_initialize(&ghost_device);
--       /* since there is no real hardware insertion I just call the
--        * sample probe functions here */
--       sample_probe_specific();
--       sample_probe_default();
--       sample_probe_async();
--       return 0;
--}
--static void __exit sample_exit(void)
--{
--}
--
--module_init (sample_init);
--module_exit (sample_exit);
--
--MODULE_LICENSE("GPL");
 

@@ -1,78 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWIFU2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWIFUjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751603AbWIFU2W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 16:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWIFU2W
+	id S1751167AbWIFUjm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWIFUjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 16:28:22 -0400
-Received: from 1wt.eu ([62.212.114.60]:15122 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751602AbWIFU2V (ORCPT
+	Wed, 6 Sep 2006 16:39:42 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:34732 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751167AbWIFUjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 16:28:21 -0400
-Date: Wed, 6 Sep 2006 22:27:20 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, "David S. Miller" <davem@davemloft.net>,
-       devel@openvz.org, xemul@openvz.org
-Subject: Re: [stable] [PATCH] IA64,sparc: local DoS with corrupted ELFs
-Message-ID: <20060906202720.GA541@1wt.eu>
-References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org> <20060906182733.GJ2558@parisc-linux.org> <20060906184509.GA15942@kroah.com> <20060906191215.GK2558@parisc-linux.org> <20060906192511.GA14579@kroah.com>
-Mime-Version: 1.0
+	Wed, 6 Sep 2006 16:39:41 -0400
+Date: Wed, 6 Sep 2006 15:39:39 -0500
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: Rajesh Shah <rajesh.shah@intel.com>, Yanmin Zhang <yanmin.zhang@intel.com>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
+Subject: Re: pci error recovery procedure
+Message-ID: <20060906203939.GM7139@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com> <20060831175001.GE8704@austin.ibm.com> <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com> <20060901212548.GS8704@austin.ibm.com> <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com> <20060905191739.GF7139@austin.ibm.com> <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060906192511.GA14579@kroah.com>
+In-Reply-To: <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
 User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 12:25:11PM -0700, Greg KH wrote:
-> On Wed, Sep 06, 2006 at 01:12:16PM -0600, Matthew Wilcox wrote:
-> > On Wed, Sep 06, 2006 at 11:45:09AM -0700, Greg KH wrote:
-> > > On Wed, Sep 06, 2006 at 12:27:33PM -0600, Matthew Wilcox wrote:
-> > > > On Wed, Sep 06, 2006 at 11:24:05AM -0700, Linus Torvalds wrote:
-> > > > > If MIPS and parisc don't matter for the stable tree (very possible - there 
-> > > > > are no big commercial distributions for them), then dammit, neither should 
-> > > > > ia64 and sparc (there are no big commercial distros for them either). 
+On Wed, Sep 06, 2006 at 10:04:31AM +0800, Zhang, Yanmin wrote:
+> On Wed, 2006-09-06 at 03:17, Linas Vepstas wrote:
+> > On Mon, Sep 04, 2006 at 01:47:30PM +0800, Zhang, Yanmin wrote:
 > > > > 
-> > > > Erm, RHEL and SLES both support ia64.
-> > > 
-> > > Yes, but the -stable developers don't build for those arches, that's why
-> > > it was missed here.
+> > > > Again, consider the multi-function cards. On pSeries, I can  only enable 
+> > > > DMA on a per-slot basis, not a per-function basis. So if one driver
+> > > > enables DMA before some other driver has reset appropriately, everything
+> > > > breaks.
+> > > Does here 'reset' mean hardware slot reset? 
 > > 
-> > What's the easiest way to get coverage here?  Sending a parisc
-> > workstation or server to someone?  Giving accounts to some/all of the
-> > stable team?  Finding someone who cares about parisc to join the stable
-> > team?
-> 
-> How about: Someone from that arch trying out the -stable release
-> canidates to make sure it doesn't break anything on their arches /
-> favorite machine?
+> > I should have said: If one driver of a multi-function card enables DMA before 
+> > another driver has stabilized its harware, then everything breaks.
+> What's another driver's hardware? A function of the previous multi-function
+> card? Or a function of another device?
 
-IMHO it's even simpler than that. You already announce release candidates
-with what you intend to push into next -stable. Those who complain that
--stable breaks on them just get what they deserve. They're free to announce
-the problem and even provide a patch in order to fix the problem in next
--stable ASAP, but I find it a bit easy to complain about the -stable team
-that some fixes break a few rarely tested pieces of software !
+Yes. Either. Both. Doesn't matter.  Enabling DMA is "granular" at a 
+different size scale than pci functions, and possibly even pci devices 
+or slots, dependeing on the architecture. Before DMA can be enabled, 
+*all* affected device drivers have to be approve, and have to be ready
+for it. 
 
-I'd prefer that we get slightly more -stable releases with a few ones
-potentially wrong on rare occasions, than fewer ones which get released
-only once everyone agrees (ie mostly never).
+> > If we enabled both DMA and MMIO at the same time, there are many cases
+> > where the card will immediately trap again -- for example, if its
+> > DMA'ing to some crazy address. Thus, typically, one wants DMA disabled 
+> > until after the card reset.  Without the mmio_enabled() reset, there
+> > is no way of doing this.
+>
+> Did you asume the card reset is executed by callback mmio_enabled?
 
-> And no, I really don't want a parisc machine here :)
+I am assuming that, when a driver receives the mmio_enabled() callback,
+it will perform some sort of register i/o.  For example, I am currently
+planning to modify the e1000 driver to do the following:
 
-I have one right here serving my web pages, but I have to check that
-my toolchain is still OK (I don't build on it - 32 MB, NFS root). You
-don't know what you're missing :-)
+-- The error_occurred() callback returns PCI_ERS_RESULT_CAN_RECOVER
+-- The arch enables mmio, and then calls the mmio_enabled() callback.
+-- The mmio_enabled() callback in the driver takes a full dump of all 
+   of the regsters on the card.  It then returns PCI_ERS_RESULT_NEED_RESET
+-- The arch performs the full electrical #RST of device. Recovery from
+   this point proceeds as before.
 
-> thanks,
-> 
-> greg k-h
+> > Again, consider the multi-function cards. On pSeries, I can only enable 
+> > DMA on a per-slot basis, not a per-function basis. So if one driver
+> > enables DMA before some other driver has reset appropriately, everything
+> > breaks.
+>
+> What does 'I' above stand for? The platform error recovery procedure
 
-Regards,
-Willy
+Yes. The pSeries platform error recovery procedure can only enable DMA
+on a per-slot basis.
 
+> I guess it means platform, that is,
+> only platform enables DMA for the whole slot. 
+
+Yes.
+
+> But why does the last sentence
+> become driver enables DMA? 
+
+In your proposal, you were suggesting that MMIO and DMA be enabled with 
+one and the same routine, and I was attempting to explain why that can't
+work.
+
+> Could driver enable DMA for a function?
+
+No, not on pSeries hardware.
+
+> > > If mmio_enabled is not used currently, I think we could delete it firstly. Later on,
+> > > if a platform really need it, we could add it, so we could keep the simplied codes.
+> > 
+> > It would be very difficult to add it later. And it would be especially
+> > silly, given that someone would find this discussion in the mailing list 
+> > archives.
+> You stick to keep mmio_enabled which is not used currently, but if there will be
+> a new platform who uses a more fine-grained steps to recover pci/pci-e, would
+> you say 'it would be very difficut' and refuse add new callbacks?
+
+Yes. 
+
+> It doesn't prevent software from merging some steps. And, we want
+> to implement pci/pci-e error recovery for more platforms instead of just
+> pSeries.
+
+Yes. The API was designed so that it could be supported on every
+current and future platform we could think of. You haven't yet
+claimed that "pci-e can't be supported".  Based on what 
+I understand, changing the API wouldn't make the implementation 
+any easier. (It is very easy to call a callback, and then 
+examine its return value. Removing a few callbacks does not
+materially simplify the recovery mechanism. Managing these
+callbacks is *not* the hard part of implementing this thing.)
+
+--linas

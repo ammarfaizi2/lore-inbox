@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWIFDnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWIFDuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWIFDnn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 23:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWIFDnn
+	id S1751710AbWIFDuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 23:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbWIFDuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 23:43:43 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:23983 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751695AbWIFDnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 23:43:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=JtsEq5ephcG5lGq7wxZUL1sQgwePmN0Po3fPUeheaSI7u8STJtPn2UoReKStMcbT7oKLp4/MmP/5Im/wu1IK4sGUHAlcBtQaSHIcicmBg0L6TxJCzUichOGwIdf7lV+5iUnEXa/4uZMoRQceO9h0cQXOSzeJab+TnPhX8oxfNzk=  ;
-Message-ID: <44FE43E7.1030003@yahoo.com.au>
-Date: Wed, 06 Sep 2006 13:43:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
-X-Accept-Language: en
+	Tue, 5 Sep 2006 23:50:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16107 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751682AbWIFDuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 23:50:54 -0400
+Date: Tue, 5 Sep 2006 20:33:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Andrew Morton <akpm@osdl.org>, Alex Dubov <oakad@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
+Message-ID: <20060906033347.GE7886@kroah.com>
+References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com> <44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org> <44F9EE86.4020500@drzeus.cx> <20060903034836.GB6505@kroah.com> <44FAA61F.9000504@drzeus.cx> <20060905191241.GA18427@kroah.com> <44FDD94E.7060701@drzeus.cx>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 9/13] BC: locked pages (charge hooks)
-References: <44FD918A.7050501@sw.ru> <44FD97D1.4070206@sw.ru>
-In-Reply-To: <44FD97D1.4070206@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44FDD94E.7060701@drzeus.cx>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
+On Tue, Sep 05, 2006 at 10:08:46PM +0200, Pierre Ossman wrote:
+> Greg KH wrote:
+> > On Sun, Sep 03, 2006 at 11:53:35AM +0200, Pierre Ossman wrote:
+> >   
+> >> Is there no driver in the kernel that already has this design?
+> >>     
+> >
+> > Not directly, no.  USB-storage handles a wide range of devices like this
+> > by virtue of them following the usb storage spec (which is really just
+> > scsi).
+> >   
+> 
+> How about this... We put the main driver in drivers/misc, add a Kconfig
+> for it that isn't visible, put the submodules in their respective
+> subsystems and set their Kconfigs to select the main module. Does that
+> sound like a good solution?
 
-> Introduce calls to BC core over the kernel to charge locked memory.
->
-> Normaly new locked piece of memory may appear in insert_vm_struct,
-> but there are places (do_mmap_pgoff, dup_mmap etc) when new vma
-> is not inserted by insert_vm_struct(), but either link_vma-ed or
-> merged with some other - these places call BC code explicitly.
->
-> Plus sys_mlock[all] itself has to be patched to charge/uncharge
-> needed amount of pages.
+But there is no "subsystem" for a memory card reader, right?  That's one
+of the problems here :)
 
+I don't know, but misc/ is fine with me unless someone else has a good
+idea of where to put it.
 
-I still haven't heard your good reasons why such a complex scheme is
-required when my really simple proposal of unconditionally charging
-the page to the container it was allocated by.
+thanks,
 
-That has the benefit of not being full of user explotable holes and
-also not putting such a huge burden on mm/ and the wider kernel in
-general.
-
---
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+greg k-h

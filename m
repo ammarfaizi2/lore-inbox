@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWIFFAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWIFFCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWIFFAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 01:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWIFFAw
+	id S932091AbWIFFCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 01:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWIFFCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 01:00:52 -0400
-Received: from 1wt.eu ([62.212.114.60]:10258 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932088AbWIFFAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 01:00:51 -0400
-Date: Wed, 6 Sep 2006 07:00:44 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: bogofilter ate 3/5
-Message-ID: <20060906050044.GC604@1wt.eu>
-References: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net> <44FE5019.6010404@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44FE5019.6010404@oracle.com>
-User-Agent: Mutt/1.5.11
+	Wed, 6 Sep 2006 01:02:34 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:55691 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932091AbWIFFCd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 01:02:33 -0400
+Message-ID: <44FE5668.4090000@drzeus.cx>
+Date: Wed, 06 Sep 2006 07:02:32 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, Alex Dubov <oakad@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
+ card readers
+References: <20060902085343.93521.qmail@web36708.mail.mud.yahoo.com> <44F967E8.9020503@drzeus.cx> <20060902094818.49e5e1b1.akpm@osdl.org> <44F9EE86.4020500@drzeus.cx> <20060903034836.GB6505@kroah.com> <44FAA61F.9000504@drzeus.cx> <20060905191241.GA18427@kroah.com> <44FDD94E.7060701@drzeus.cx> <20060906033347.GE7886@kroah.com>
+In-Reply-To: <20060906033347.GE7886@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 09:35:37PM -0700, Zach Brown wrote:
-> 
-> There was a 3/5 but the bogofilter decided it was spam.  It made it into
-> the linux-aio archive:
-> 
->   http://marc.theaimsgroup.com/?l=linux-aio&m=115750084710650&w=2
-> 
-> What should I have done to avoid the spam regexes and what should I do
-> now that I have a patch that makes them angry?
+Greg KH wrote:
+> But there is no "subsystem" for a memory card reader, right?  That's one
+> of the problems here :)
+>   
 
-I don't know. IMHO, bogofilter should only add a header so that people
-who want to filter can and those who don't want to will get all the
-messages. Spam has never been a real problem for me on LKML, but loss
-of messages and patches will certainly be. I would rather have the choice
-to not filter anything :-/
+There is for the MMC portion. And MemoryStick will probably get one next.
 
-Willy
+> I don't know, but misc/ is fine with me unless someone else has a good
+> idea of where to put it.
+>   
+
+I was more interested in if the Kconfig select scheme seemed reasonable.
+If so, then Alex can start transforming his code into a patch against
+the current tree.
+
+Rgds
+Pierre
 

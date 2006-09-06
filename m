@@ -1,99 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWIFW01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751635AbWIFW0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWIFW01 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 18:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIFW01
+	id S1751635AbWIFW0p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWIFW0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 18:26:27 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:51424 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1750928AbWIFW00
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 18:26:26 -0400
-Date: Thu, 7 Sep 2006 02:25:56 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jean Delvare <jdelvare@suse.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-Message-ID: <20060906222556.GA168@oleg>
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <m1ac5e2woe.fsf_-_@ebiederm.dsl.xmission.com> <200609061101.11544.jdelvare@suse.de> <200609062312.57774.jdelvare@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609062312.57774.jdelvare@suse.de>
-User-Agent: Mutt/1.5.11
+	Wed, 6 Sep 2006 18:26:45 -0400
+Received: from relay02.pair.com ([209.68.5.16]:63242 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751490AbWIFW0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 18:26:44 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Wed, 6 Sep 2006 17:22:13 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Pavel Machek <pavel@ucw.cz>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Takashi Iwai <tiwai@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org, pshou@realtek.com.tw
+Subject: Re: CodingStyle (was: Re: sound/pci/hda/intel_hda: small cleanups)
+In-Reply-To: <20060906135140.GC11405@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0609061716260.18840@turbotaz.ourhouse>
+References: <20060831123706.GC3923@elf.ucw.cz> <s5h8xl52h52.wl%tiwai@suse.de>
+ <20060831110436.995bdf93.rdunlap@xenotime.net> <20060902231509.GC13031@elf.ucw.cz>
+ <20060902213046.dd9bf569.rdunlap@xenotime.net> <20060905080813.GE1958@elf.ucw.cz>
+ <20060905084352.1ced999e.rdunlap@xenotime.net> <20060906135140.GC11405@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/06, Jean Delvare wrote:
+On Wed, 6 Sep 2006, Pavel Machek wrote:
+
+> Hi!
 >
-> On Wednesday 6 September 2006 11:01, Jean Delvare wrote:
-> > Eric, Kame, thanks a lot for working on this. I'll be giving some good
-> > testing to this patch today, and will return back to you when I'm done.
-> 
-> The original issue is indeed fixed, but there's a problem with the patch. 
-> When stressing /proc (to verify the bug was fixed), my test machine ended 
-> up crashing. Here are the 2 traces I found in the logs:
-> 
-> Sep  6 12:06:00 arrakis kernel: BUG: warning at 
-> kernel/fork.c:113/__put_task_struct()
-> Sep  6 12:06:00 arrakis kernel:  [<c0115f93>] __put_task_struct+0xf3/0x100
-> Sep  6 12:06:00 arrakis kernel:  [<c019666a>] proc_pid_readdir+0x13a/0x150
-> Sep  6 12:06:00 arrakis kernel:  [<c01745f0>] vfs_readdir+0x80/0xa0
-> Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
-> Sep  6 12:06:00 arrakis kernel:  [<c017488c>] sys_getdents+0x6c/0xb0
-> Sep  6 12:06:00 arrakis kernel:  [<c0174750>] filldir+0x0/0xd0
-> Sep  6 12:06:00 arrakis kernel:  [<c0102fb7>] syscall_call+0x7/0xb
+>>> +comment out unused code.
+>>> +
+>>
+>> Is there an acceptable way to leave source code in a file but
+>> render it unused?  Like #if 0/#endif or #if BOGUS_SYMBOL/#endif ?
+>
+> I'd say "no way is acceptable, but #if 0/#endif is least evil" :-).
 
-I think there is a bug in next_tgid(),
+I'd say "no way is acceptable, but #if 0/#endif with proper comments is 
+less evil."
 
-> -static struct task_struct *next_tgid(struct task_struct *start)
-> -{
-> -	struct task_struct *pos;
-> +	task = NULL;
->  	rcu_read_lock();
-> -	pos = start;
-> -	if (pid_alive(start))
-> -		pos = next_task(start);
-> -	if (pid_alive(pos) &amp;&amp; (pos != &amp;init_task)) {
-> -		get_task_struct(pos);
-> -		goto done;
-> +retry:
-> +	pid = find_ge_pid(tgid);
-> +	if (pid) {
-> +		tgid = pid->nr + 1;
-> +		task = pid_task(pid, PIDTYPE_PID);
-> +		/* What we to know is if the pid we have find is the
-> +		 * pid of a thread_group_leader.  Testing for task
-> +		 * being a thread_group_leader is the obvious thing
-> +		 * todo but there is a window when it fails, due to
-> +		 * the pid transfer logic in de_thread.
-> +		 *
-> +		 * So we perform the straight forward test of seeing
-> +		 * if the pid we have found is the pid of a thread
-> +		 * group leader, and don't worry if the task we have
-> +		 * found doesn't happen to be a thread group leader.
-> +		 * As we don't care in the case of readdir.
-> +		 */
-> +		if (!task || !has_group_leader_pid(task))
-> +			goto retry;
-> +		get_task_struct(task);
->  	}
-> -	pos = NULL;
-> -done:
->  	rcu_read_unlock();
-> -	put_task_struct(start);
-> -	return pos;
-> +	return task;
->  }
+Disabled code will never break if other parts of the code change 
+without it; rather, it could just become plain wrong. People might either 
+leave it alone (if they don't know what it is for) or try to change it (if 
+they think they do).
 
-If the task found is not a group leader, we go to retry, but
-the task != NULL.
+If you must leave disabled code behind (which in my perfect world would be 
+'never'), you should at least leave behind a comment explaining what the 
+code is supposed to do and why it isn't enabled.
 
-Now, if find_ge_pid(tgid) returns NULL, we return that wrong
-task, and it was not get_task_struct()'ed.
+If it starts to drift from almost-functional to plain wrong, it becomes an 
+even worse wart than it originally was.
 
-Oleg.
-
-
+Thanks,
+Chase

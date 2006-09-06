@@ -1,78 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWIFV51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWIFWAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWIFV51 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 17:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWIFV51
+	id S1751268AbWIFWAe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWIFWAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 17:57:27 -0400
-Received: from main.gmane.org ([80.91.229.2]:32944 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932205AbWIFV50 (ORCPT
+	Wed, 6 Sep 2006 18:00:34 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:28861 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751268AbWIFWAd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 17:57:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: alternatives to getrusage() ?
-Date: Wed, 06 Sep 2006 23:56:42 +0200
-Message-ID: <edng6u$kcc$1@sea.gmane.org>
+	Wed, 6 Sep 2006 18:00:33 -0400
+Subject: Re: JFS - real deadlock and lockdep warning (2.6.18-rc5-mm1)
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <20060905203309.GA3981@inferi.kami.home>
+References: <20060905203309.GA3981@inferi.kami.home>
+Content-Type: text/plain
+Date: Wed, 06 Sep 2006 17:00:28 -0500
+Message-Id: <1157580028.8200.72.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3B94A1DEE6C4BADC596C0280"
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dslb-084-061-146-169.pools.arcor-ip.net
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-X-Enigmail-Version: 0.94.0.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3B94A1DEE6C4BADC596C0280
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+I meant to reply to this earlier.  I've had a lot of distractions.
 
-Hi,
+On Tue, 2006-09-05 at 22:33 +0200, Mattia Dongili wrote:
+> Hello,
+> 
+> as the subject says it's some time[0] I'm experiencing deadlocks[1] (I'm
+> only tracking -mm, and sporadically using the stable series). I have a
+> couple of use cases that seem to reliably trigger the deadlock, namely
+> using Eclipse and Firefox.
+> 
+> [0]: I'd say at least since 2.6.17-rc-something
+> [1]: no sysrq, no logs, no nothing, netconsole doesn't log anything
+>      more, just screwed FS which grub can't read (Inconsistent
+>      filesystem - press any key to continue)
+> 
+> I decided to try out the LOCKDEP stuff to see if I can provide more
+> useful info, and here we go, as soon as my /home (jfs) partition is
+> written (at login):
+> [   72.420000] 
+> [   72.420000] =============================================
+> [   72.420000] [ INFO: possible recursive locking detected ]
+> [   72.420000] 2.6.18-rc5-mm1-2-lockdep #9
+> [   72.420000] ---------------------------------------------
+> [   72.420000] zsh/3844 is trying to acquire lock:
+> [   72.420000]  (&jfs_ip->commit_mutex){--..}, at: [<c0320948>] mutex_lock+0x8/0x10
+> [   72.420000] 
+> [   72.420000] but task is already holding lock:
+> [   72.420000]  (&jfs_ip->commit_mutex){--..}, at: [<c0320948>] mutex_lock+0x8/0x10
+> [   72.420000] 
+> [   72.420000] other info that might help us debug this:
+> [   72.420000] 2 locks held by zsh/3844:
+> [   72.420000]  #0:  (&inode->i_mutex){--..}, at: [<c0320948>] mutex_lock+0x8/0x10
+> [   72.420000]  #1:  (&jfs_ip->commit_mutex){--..}, at: [<c0320948>] mutex_lock+0x8/0x10
+> [   72.420000] 
+> [   72.420000] stack backtrace:
+> [   72.420000]  [<c0103b8f>] dump_trace+0x1ef/0x230
+> [   72.420000]  [<c0103bf6>] show_trace_log_lvl+0x26/0x40
+> [   72.420000]  [<c01043cb>] show_trace+0x1b/0x20
+> [   72.420000]  [<c01044b4>] dump_stack+0x24/0x30
+> [   72.420000]  [<c0136050>] __lock_acquire+0x8e0/0xd80
+> [   72.420000]  [<c0136869>] lock_acquire+0x69/0x90
+> [   72.420000]  [<c0320705>] __mutex_lock_slowpath+0x75/0x2b0
+> [   72.420000]  [<c0320948>] mutex_lock+0x8/0x10
+> [   72.420000]  [<d137950b>] jfs_create+0xbb/0x420 [jfs]
+> [   72.420000]  [<c016cb7b>] vfs_create+0xcb/0x120
+> [   72.420000]  [<c0170158>] open_namei+0x618/0x6f0
+> [   72.420000]  [<c0162368>] do_filp_open+0x38/0x60
+> [   72.420000]  [<c01623db>] do_sys_open+0x4b/0xf0
+> [   72.420000]  [<c01624d7>] sys_open+0x27/0x30
+> [   72.420000]  [<c01032af>] syscall_call+0x7/0xb
+> [   72.420000]  [<b7ec8b8d>] 0xb7ec8b8d
+> [   72.420000]  =======================
+> 
+> I suspect JFS is guilty, anyway my HD has these partitions:
 
-first, if this is the wrong place to ask, then i'm sorry and please
-recomm a better place to me.
+I haven't got around to instrumenting jfs properly with
+mutex_lock_nested(), so I know jfs doesn't run clean with lockdep
+enabled.  What that means is that these warnings don't necessarily point
+to a real problem, and on the other hand, lockdep hasn't been run
+correctly against jfs to prove that the mutex usage is safe.
 
+That said, I'm not aware of any known problems in jfs resulting in a
+deadlock.  Unfortunately, without being able to use sysrq, I don't have
+any real good ideas for you off the top of my head to further track down
+the problem.
 
-My goal is to do some precise benchmarking/profiling.
+I'm pretty busy this week, but I'll try to get the lockdep stuff right
+in jfs as soon as possible.  Who knows?  Maybe it will find a real
+locking problem.
 
-I am looking for (Linux specific) alternatives to getrusage().
-As far as i understand, the precision of getrusage() is given by the
-timer frequency that can be adjusted in recent kernel-versions. I think
-i have the choice between 100Hz, 250Hz and 1000Hz. By chosing 1000Hz, i
-get a precision of 1ms, right?
-
-On the other hand, there are things like rdtsc() which reads the clock
-counter of the CPU. So does the linux kernel currently provide a
-process-specific value which counts the CPU clocks "consumed" by a
-process? Maybe there are some patches?
-
-Are there other alternatives that i didn't think about yet?
-
-Are there maybe some kernel-unrelated alternatives?
-
-
-Thanks,
-
-  Sven
-
-
---------------enig3B94A1DEE6C4BADC596C0280
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (Cygwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFE/0Qa7Ww7FjRBE4ARAqZBAKDnamE9HQ3kOWDecB8NJWkGUevfhwCfZhTt
-3gG05+LqGvVvLftpT+opT88=
-=Ju2T
------END PGP SIGNATURE-----
-
---------------enig3B94A1DEE6C4BADC596C0280--
+> 
+> /dev/hda1 on / type reiserfs (rw)
+> /dev/hda3 on /usr type reiserfs (rw)
+> /dev/hda5 on /home type jfs (rw)
+> 
+> bootlog: http://oioio.altervista.org/linux/dmesg-2.6.18-rc5-mm1-lockdep
+> config: http://oioio.altervista.org/linux/config-2.6.18-rc5-mm1-lockdep
+> 
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

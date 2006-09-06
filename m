@@ -1,123 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWIFBwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbWIFCBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965265AbWIFBwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 21:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWIFBwO
+	id S965263AbWIFCBA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 22:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWIFCBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 21:52:14 -0400
-Received: from orca.ele.uri.edu ([131.128.51.63]:13994 "EHLO orca.ele.uri.edu")
-	by vger.kernel.org with ESMTP id S965226AbWIFBwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 21:52:12 -0400
-Date: Tue, 5 Sep 2006 21:53:37 -0400
-From: Will Simoneau <simoneau@ele.uri.edu>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: akpm@osdl.org, cmm@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-Message-ID: <20060906015337.GC16449@ele.uri.edu>
-References: <20060905171049.GB27433@ele.uri.edu> <44FDE6E5.3090009@us.ibm.com> <20060905214703.GA16449@ele.uri.edu> <1157496228.23501.21.camel@dyn9047017100.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jy6Sn24JjFx/iggw"
-Content-Disposition: inline
-In-Reply-To: <1157496228.23501.21.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.13 [Linux 2.6.17.11-grsec-b0rg i686]
+	Tue, 5 Sep 2006 22:01:00 -0400
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:23836 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S965263AbWIFCA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 22:00:59 -0400
+From: Daniel Drake <dsd@gentoo.org>
+To: akpm@osdl.org
+Cc: sergio@sergiomb.no-ip.org
+Cc: jeff@garzik.org
+Cc: greg@kroah.com
+Cc: cw@f00f.org
+Cc: bjorn.helgaas@hp.com
+Cc: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Cc: harmon@ksu.edu
+Cc: len.brown@intel.com
+Cc: vsu@altlinux.ru
+Cc: liste@jordet.net
+Subject: [NEW PATCH] VIA IRQ quirk behaviour change
+Message-Id: <20060906020429.6ECE67B40A0@zog.reactivated.net>
+Date: Wed,  6 Sep 2006 03:04:29 +0100 (BST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The most recent VIA IRQ quirk changes have broken various VIA devices for
+some users.  We are not able to add these devices to the blacklist as they
+are also available in PCI-card form, and running the quirk on these devices
+brings us back to square one (running the VIA quirk on non-VIA boards where
+the quirk is not needed).
 
---jy6Sn24JjFx/iggw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch, based on suggestions from Sergey Vlasov, implements a scheme
+similar to but more restrictive than the scheme we had in 2.6.16 and
+earlier.  It runs the quirk on all VIA hardware, but *only* if a VIA
+southbridge was detected on the system.
 
-On 15:43 Tue 05 Sep     , Badari Pulavarty wrote:
-> On Tue, 2006-09-05 at 17:47 -0400, Will Simoneau wrote:
-> > On 14:06 Tue 05 Sep     , Badari Pulavarty wrote:
-> > > Will Simoneau wrote:
-> > > >Has anyone seen this before? These three traces occured at different=
- times
-> > > >today when three new user accounts (and associated quotas) were crea=
-ted.=20
-> > > >This
-> > > >machine is an NFS server which uses quotas on an ext3 fs (dir_index =
-is on).
-> > > >Kernel is 2.6.17.11 on an x86 smp w/64G highmem; 4G ram is installed=
-=2E The
-> > > >affected filesystem is on a software raid1 of two hardware raid0 vol=
-umes=20
-> > > >from a
-> > > >megaraid card.
-> > > >
-> > > >BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-> > > > <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread+0x26=
-/0x2a
-> > > > <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0=
-x1ae
-> > > > <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0=
-x107
-> > > > <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1=
-e7
-> > > > <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
->=20
-> I think, we found your problem.
->=20
-> ext3_getblk() is not handling HOLE correctly. Does this patch help ?
-> Mingming, what do you think ?
->=20
-> Thanks,
-> Badari
->=20
-> ext3_get_blocks_handle() returns number of blocks it mapped.
-> It returns 0 in case of HOLE. ext3_getblk() should handle
-> HOLE properly (currently its dumping warning stack and
-> returning -EIO).
->=20
-> Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-> ---
->  fs/ext3/inode.c |    9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
->=20
-> Index: linux-2.6.18-rc5/fs/ext3/inode.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.18-rc5.orig/fs/ext3/inode.c	2006-08-27 20:41:48.000000000 -=
-0700
-> +++ linux-2.6.18-rc5/fs/ext3/inode.c	2006-09-05 15:32:57.000000000 -0700
-> @@ -1009,11 +1009,12 @@ struct buffer_head *ext3_getblk(handle_t
->  	buffer_trace_init(&dummy.b_history);
->  	err =3D ext3_get_blocks_handle(handle, inode, block, 1,
->  					&dummy, create, 1);
-> -	if (err =3D=3D 1) {
-> +	/*
-> +	 * ext3_get_blocks_handle() returns number of blocks
-> +	 * mapped. 0 in case of a HOLE.
-> +	 */
-> +	if (err > 0) {
->  		err =3D 0;
-> -	} else if (err >=3D 0) {
-> -		WARN_ON(1);
-> -		err =3D -EIO;
->  	}
->  	*errp =3D err;
->  	if (!err && buffer_mapped(&dummy)) {
+Based on suggestions and much investigation from from Sergio Monteiro Basto,
+this patch also partially reverts commit
+93cffffa19960464a52f9c78d9a6150270d23785 from Bjorn Helgaas. It is not clear
+if this was ever the correct fix, see http://lkml.org/lkml/2005/9/26/183
+This patch additionally includes a change suggested by Linus in that thread,
+where we only quirk devices on non-legacy IRQs.
 
-Unfortunately this will be difficult for me to test as the machine is a
-production server, I will try it when I get a chance to offline for a
-few minutes.
+There is still a downside to this patch: if the user inserts a VIA PCI card
+into a VIA-based motherboard, in some circumstances the quirk will also run on
+the VIA PCI card. This corner case is hard to avoid.
 
---jy6Sn24JjFx/iggw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Andrew, please replace the current -mm patch with this one. The general idea
+is that we consider applying the quirk to a lot more devices than we currently
+do (more comparable to 2.6.16 and previous), but we add various bail-out
+conditions to actually end up applying the quirks much less.
 
-iD8DBQFE/iohLYBaX8VDLLURAvjfAJ0fPVvauhKyhzPW6cCxqqQZd0nF6wCgie2Z
-dUGqN1QDcNtNy25WB3LSW04=
-=6oUP
------END PGP SIGNATURE-----
+I am fairly confident that we'll still be quirking enough hardware to not
+cause any breakage, but we can't be sure until it has seen some testing. This
+is compile-tested only.
 
---jy6Sn24JjFx/iggw--
+Stian Jordet: You're on CC due to a discussion linked to from above where
+it appeared that you needed Bjorn's patch. Please test this patch against
+unmodified 2.6.17 or 2.6.18-rc and let us know if there are any problems.
+
+Index: linux/drivers/pci/quirks.c
+===================================================================
+--- linux.orig/drivers/pci/quirks.c
++++ linux/drivers/pci/quirks.c
+@@ -650,26 +650,59 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_V
+  * Some of the on-chip devices are actually '586 devices' so they are
+  * listed here.
+  */
++
++static int via_irq_fixup_needed = -1;
++
++/*
++ * As some VIA hardware is available in PCI-card form, we need to restrict
++ * this quirk to VIA PCI hardware built onto VIA-based motherboards only.
++ * We try to locate a VIA southbridge before deciding whether the quirk
++ * should be applied.
++ */
++static const struct pci_device_id via_irq_fixup_tbl[] = {
++	{
++		.vendor 	= PCI_VENDOR_ID_VIA,
++		.device		= PCI_ANY_ID,
++		.subvendor	= PCI_ANY_ID,
++		.subdevice	= PCI_ANY_ID,
++		.class		= PCI_CLASS_BRIDGE_ISA << 8,
++		.class_mask	= 0xffff00,
++	},
++	{ 0, },
++};
++
+ static void quirk_via_irq(struct pci_dev *dev)
+ {
+ 	u8 irq, new_irq;
+ 
+-	new_irq = dev->irq & 0xf;
++#ifdef CONFIG_X86_IO_APIC
++	if (nr_ioapics && !skip_ioapic_setup)
++		return;
++#endif
++#ifdef CONFIG_ACPI
++	if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
++		return;
++#endif
++
++	if (via_irq_fixup_needed == -1)
++		via_irq_fixup_needed = pci_dev_present(via_irq_fixup_tbl);
++
++	if (!via_irq_fixup_needed)
++		return;
++
++	new_irq = dev->irq;
++	if (!new_irq || new_irq >= 15)
++		return;
++
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	if (new_irq != irq) {
+-		printk(KERN_INFO "PCI: VIA IRQ fixup for %s, from %d to %d\n",
++		printk(KERN_INFO "PCI: VIA PIC IRQ fixup for %s, from %d to %d\n",
+ 			pci_name(dev), irq, new_irq);
+ 		udelay(15);	/* unknown if delay really needed */
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+ 
+ /*
+  * VIA VT82C598 has its device ID settable and many BIOSes

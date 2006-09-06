@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWIFUDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWIFUCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751540AbWIFUDP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 16:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWIFUDP
+	id S932081AbWIFUCI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 16:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWIFUCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 16:03:15 -0400
-Received: from xenotime.net ([66.160.160.81]:1224 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751533AbWIFUDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 16:03:14 -0400
-Date: Wed, 6 Sep 2006 13:06:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@namei.org>, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: Generic infrastructure for acls
-Message-Id: <20060906130647.7c415043.rdunlap@xenotime.net>
-In-Reply-To: <200609061840.12707.agruen@suse.de>
-References: <20060901221421.968954146@winden.suse.de>
-	<20060901221457.803728153@winden.suse.de>
-	<20060901144423.aa306d36.akpm@osdl.org>
-	<200609061840.12707.agruen@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 16:02:08 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:27030 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751360AbWIFUCF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 16:02:05 -0400
+Date: Wed, 6 Sep 2006 15:01:55 -0500
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Yanmin Zhang <yanmin.zhang@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: pci error recovery procedure
+Message-ID: <20060906200155.GL7139@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com> <20060831175001.GE8704@austin.ibm.com> <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com> <20060901212548.GS8704@austin.ibm.com> <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com> <1157360592.22705.46.camel@localhost.localdomain> <1157423528.20092.365.camel@ymzhang-perf.sh.intel.com> <20060905190115.GE7139@austin.ibm.com> <1157506016.20092.386.camel@ymzhang-perf.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157506016.20092.386.camel@ymzhang-perf.sh.intel.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2006 18:40:12 +0200 Andreas Gruenbacher wrote:
+On Wed, Sep 06, 2006 at 09:26:56AM +0800, Zhang, Yanmin wrote:
+> > > The
+> > > error_detected of the drivers in the latest kernel who support err handlers
+> > > always returns PCI_ERS_RESULT_NEED_RESET. They are typical examples.
+> > 
+> > Just because the current drivers do it this way does not mean that this is
+> > the best way to do things.
+>
+> If it's not the best way, why did you choose to reset slot for e1000/e100/ipr
+> error handlers? They are typical widely-used devices. To make it easier to
+> add error handlers?
 
-> On Friday, 01 September 2006 23:44, Andrew Morton wrote:
-> > That's a clumsy-looking interface.
-> 
-> I have added a little documentation now. This will hopefully suffice to 
-> clarify why the interface is as clumsy-looking as it is ;)
+I did it that way just to get going, get something working. I do not
+have hardware specs for any of these devices, and do not have much of 
+an idea of what they are capable of; the recovery code I wrote is of
+"brute force, hit it with a hammer"-nature.  Driver writers who 
+know thier hardware well, and are interested in a more refined 
+approach are encouraged to actualy use a more refined approach.
 
-oops.  A bit difficult to comment on the patch.
-Anyway, for the kernel-doc function headers (Thanks),
-all of the parameters need to be listed, not just the first
-one (@ops).
+--linas
 
----
-~Randy

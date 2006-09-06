@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWIFO51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWIFPB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWIFO51 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 10:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWIFO51
+	id S1751265AbWIFPB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 11:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWIFPB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 10:57:27 -0400
-Received: from outbound-kan.frontbridge.com ([63.161.60.23]:39299 "EHLO
-	outbound1-kan-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751243AbWIFO5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 10:57:25 -0400
-X-BigFish: VP
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Wed, 6 Sep 2006 08:58:49 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-cc: "Jim Gettys" <jg@laptop.org>, "Brown, Len" <len.brown@intel.com>,
-       "Linux Kernel ML" <linux-kernel@vger.kernel.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>,
-       "ACPI ML" <linux-acpi@vger.kernel.org>,
-       "Adam Belay" <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Arjan van de Ven" <arjan@linux.intel.com>, devel@laptop.org,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: ACPI: Idle Processor PM Improvements
-Message-ID: <20060906145849.GE2623@cosmic.amd.com>
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com>
- <20060830194317.GA9116@srcf.ucam.org>
- <200608311713.21618.bjorn.helgaas@hp.com>
- <1157070616.7974.232.camel@localhost.localdomain>
- <20060904130933.GC6279@ucw.cz>
- <1157466710.6011.262.camel@localhost.localdomain>
- <20060906103725.GA4987@atrey.karlin.mff.cuni.cz>
+	Wed, 6 Sep 2006 11:01:29 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:51099 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751265AbWIFPB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 11:01:28 -0400
+Message-ID: <44FEE3A6.1080009@sw.ru>
+Date: Wed, 06 Sep 2006 19:05:10 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-In-Reply-To: <20060906103725.GA4987@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 06 Sep 2006 14:57:17.0013 (UTC)
- FILETIME=[BEB78050:01C6D1C4]
-X-WSS-ID: 68E03E470Y42415596-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Mirkin <amirkin@sw.ru>
+Subject: Re: [RFC][PATCH] fail kernel compilation in case of unresolved symbols
+References: <44FD7FED.7000603@sw.ru> <20060905153159.GA13082@uranus.ravnborg.org>
+In-Reply-To: <20060905153159.GA13082@uranus.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/09/06 12:37 +0200, Pavel Machek wrote:
-> Hi!
+Sam Ravnborg wrote:
+> On Tue, Sep 05, 2006 at 05:47:25PM +0400, Kirill Korotaev wrote:
 > 
-> > > 2.4 and 2.6 are *very* different here. You'll probably need to optimize freezer
-> > > in 2.6 a bit...
-> > > 						
-> > 
-> > Among other problems: e.g. 2.4 did not automatically do a VT switch; 2.6
-> > does; we'll have to have a way to signal "we're a sane display driver;
-> > don't switch away from me on suspend".
+>>At stage 2 modpost utility is used to check modules.
+>>In case of unresolved symbols modpost only prints warning.
+>>
+>>IMHO it is a good idea to fail compilation process in case of
+>>unresolved symbols, since usually such errors are left unnoticed,
+>>but kernel modules are broken.
 > 
-> Not like that, please.
 > 
-> You are using X running over framebuffer, right? So that kernel is
-> controlling the graphics hardware. In such case it is safe to avoid VT
-> switch.
+> The primary reason why we do not fail in this case is that building
+> external modules often result in unresolved symbols at modpost time.
+> 
+> And there is many legitime uses of external modules that we shall support.
+ok. is it ok for you to introduce new Make target 'modules_check'?
 
-Actually not - the Geode GX has full 2D hardware acceleration with a complete
-X driver to match.  No Xfbdev here.
-
-Jordan
-
-Pavel
--- 
-Jordan Crouse
-Senior Linux Engineer
-Advanced Micro Devices, Inc.
-<www.amd.com/embeddedprocessors>
-
-
+Thanks,
+Kirill

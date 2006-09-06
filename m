@@ -1,30 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965280AbWIFXIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWIFXKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965280AbWIFXIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 19:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWIFXDB
+	id S964971AbWIFXKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 19:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWIFXI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 19:03:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51916 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964975AbWIFXCF (ORCPT
+	Wed, 6 Sep 2006 19:08:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26317 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965061AbWIFXDC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 19:02:05 -0400
-Date: Wed, 6 Sep 2006 15:56:48 -0700
+	Wed, 6 Sep 2006 19:03:02 -0400
+Date: Wed, 6 Sep 2006 15:57:55 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [patch 18/37] SPARC64: Fix X server crashes on sparc64
-Message-ID: <20060906225648.GS15922@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 33/37] sky2: clear status IRQ after empty
+Message-ID: <20060906225755.GH15922@kroah.com>
 References: <20060906224631.999046890@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sparc64-fix-x-server-crashes-on-sparc64.patch"
+Content-Disposition: inline; filename="sky2-status-clr.patch"
 In-Reply-To: <20060906225444.GA15922@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,45 +35,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: David S. Miller <davem@davemloft.net>
+From: Stephen Hemminger <shemminger@osdl.org>
 
-[SPARC64]: Fix X server hangs due to large pages.
+Don't clear status IRQ until list has been read to avoid causing
+status list wraparound. Clearing IRQ forces a Transmit Status update
+if it is pending.
 
-This problem was introduced by changeset
-14778d9072e53d2171f66ffd9657daff41acfaed
-
-Unlike the hugetlb code paths, the normal fault code is not setup to
-propagate PTE changes for large page sizes correctly like the ones we
-make for I/O mappings in io_remap_pfn_range().
-
-It is absolutely necessary to update all sub-ptes of a largepage
-mapping on a fault.  Adding special handling for this would add
-considerably complexity to tlb_batch_add().  So let's just side-step
-the issue and forcefully dirty any writable PTEs created by
-io_remap_pfn_range().
-
-The only other real option would be to disable to large PTE code of
-io_remap_pfn_range() and we really don't want to do that.
-
-Much thanks to Mikael Pettersson for tracking down this problem and
-testing debug patches.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- arch/sparc64/mm/generic.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/sky2.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- linux-2.6.17.11.orig/arch/sparc64/mm/generic.c
-+++ linux-2.6.17.11/arch/sparc64/mm/generic.c
-@@ -69,6 +69,8 @@ static inline void io_remap_pte_range(st
- 		} else
- 			offset += PAGE_SIZE;
+--- linux-2.6.17.11.orig/drivers/net/sky2.c
++++ linux-2.6.17.11/drivers/net/sky2.c
+@@ -2016,6 +2016,9 @@ static int sky2_status_intr(struct sky2_
+ 		}
+ 	}
  
-+		if (pte_write(entry))
-+			entry = pte_mkdirty(entry);
- 		do {
- 			BUG_ON(!pte_none(*pte));
- 			set_pte_at(mm, address, pte, entry);
++	/* Fully processed status ring so clear irq */
++	sky2_write32(hw, STAT_CTRL, SC_STAT_CLR_IRQ);
++
+ exit_loop:
+ 	return work_done;
+ }
+@@ -2218,9 +2221,6 @@ static int sky2_poll(struct net_device *
+ 	*budget -= work_done;
+ 	dev0->quota -= work_done;
+ 
+-	if (status & Y2_IS_STAT_BMU)
+-		sky2_write32(hw, STAT_CTRL, SC_STAT_CLR_IRQ);
+-
+ 	if (sky2_more_work(hw))
+ 		return 1;
+ 
 
 --

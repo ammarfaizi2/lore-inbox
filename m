@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWIFJwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWIFJ7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWIFJwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 05:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWIFJwQ
+	id S1750746AbWIFJ7y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 05:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIFJ7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 05:52:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61638 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750753AbWIFJwO (ORCPT
+	Wed, 6 Sep 2006 05:59:54 -0400
+Received: from secure.htb.at ([195.69.104.11]:4621 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S1750746AbWIFJ7x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 05:52:14 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157518718.3066.22.camel@raven.themaw.net> 
-References: <1157518718.3066.22.camel@raven.themaw.net>  <1157458817.4133.29.camel@raven.themaw.net> <1157451611.4133.22.camel@raven.themaw.net> <1157436412.3915.26.camel@raven.themaw.net> <20060901195009.187af603.akpm@osdl.org> <20060831102127.8fb9a24b.akpm@osdl.org> <20060830135503.98f57ff3.akpm@osdl.org> <20060830125239.6504d71a.akpm@osdl.org> <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com> <27414.1156970238@warthog.cambridge.redhat.com> <9849.1157018310@warthog.cambridge.redhat.com> <9534.1157116114@warthog.cambridge.redhat.com> <20060901093451.87aa486d.akpm@osdl.org> <1157130044.5632.87.camel@localhost> <28945.1157370732@warthog.cambridge.redhat.com> <1157376295.3240.13.camel@raven.themaw.net> <1157421445.5510.13.camel@localhost> <1157424937.3002.4.camel@raven.themaw.net> <1157428241.5510.72.camel@localhost> <1157429030.3915.8.camel@raven.themaw.net> <1157432039.32412.37.camel@localhost> <3698.1157449249@warthog.cambridge.redhat.com> <4987.1157452656@war!
- thog.cambridge.redhat.com> <11346.1157463522@warthog.cambridge.redhat.com> 
-To: Ian Kent <raven@themaw.net>
-Cc: David Howells <dhowells@redhat.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock sharing [try #13] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 06 Sep 2006 10:51:46 +0100
-Message-ID: <8912.1157536306@warthog.cambridge.redhat.com>
+	Wed, 6 Sep 2006 05:59:53 -0400
+Date: Wed, 6 Sep 2006 11:59:47 +0200
+From: Richard Mittendorfer <delist@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: Wrong free space reported for XFS filesystem
+Message-Id: <20060906115947.7980f919.delist@gmx.net>
+In-Reply-To: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com>
+References: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+X-Face: &0P^N,K:@}b8ykW@3d!=n}3D;*Cf{9KYT>>+gcM)XyIMRkBSDg|ur7Zen^BlzmJVr&!;7KT6\t+sHI69\fW(}.=PM+(`w_jnzZ.HbWb/KM"`795_k(&\Lje|'g\cm$4e%Zy*I)hJz-z0!}xkm@!>U0rO{>~[YZUs/=B{}R%#nZ8eBt'{,*>kTTKl_kj'vzrl5|'j5SBiFy#!Sj,p_zl;)q.lpSI\Er"]D`bZY@#+']kJW/YsqvRzi0GR!7ifpt$?]0TYcNs.*wC5OukokPm~R&mmW\q&DL@='khZEET;3ryo[0_mC^K~7,ZvHkj
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> wrote:
-
-> > Not if you've already caused the NFS filesystem to create a "dummy" dentry
-> > that's a directory because you couldn't see that what that name
-> > corresponds to on the server is actually a symlink.
+Also sprach "Jesper Juhl" <jesper.juhl@gmail.com> (Wed, 6 Sep 2006
+10:54:34 +0200):
+> For your information;
 > 
-> Shouldn't stat tell me if this is a symlink?
+> I've been running a bunch of benchmarks on a 250GB XFS filesystem.
+> After the benchmarks had run for a few hours and almost filled up the
+> fs, I removed all the files and did a "df -h" with interresting
+> results :
+> 
+> /dev/mapper/Data1-test
+>                      250G  -64Z  251G 101% /mnt/test
+> 
+[...] 
+> I then did an umount and remount of the filesystem and then things
+> look more sane :
+> 
+> "df -h" :
+> /dev/mapper/Data1-test
+>                       250G  126M  250G   1% /mnt/test
+[...]
+> The filesystem is mounted like this :
+> 
+> /dev/mapper/Data1-test on /mnt/test type xfs
+> (rw,noatime,ihashsize=64433,logdev=/dev/Log1/test_log,usrquota)
 
-You may not be able to find out from the server what it is you're trying to
-deal with because you may not have permission to do so, or because whatever it
-is may not be exported.  The first may be the trickiest to deal with because
-the MOUNT service for NFS2 and NFS3 can jump you over bits of the path you
-can't otherwise access.
+I once (2.6.12?) had to copy a quite large directory to an XFS
+partition. It "should" had fit onto it (by what df said), but I ran into
+"disk full". I think the reason was related to a large xfsbufd_centisecs
+or xfssyncd_centisecs and indeed I could watch free space to grow and
+shrink in regulaer intervals (watch df -k). I may well be wrong here (as
+I'm sure no XFS-expert), but it looked like old data gets some kind of
+"comressed" or "ordered" by the XFS-driver while newly written data took
+more place. A "slow" copy did it, as well as a later try to an reiserfs
+or ext.
 
-The problem actually comes when the conditions on the server change; perhaps an
-intermediate directory is made accessible on the server and suddenly the client
-can see inside of it.  It may then find out that what it had assumed to be
-directories, and what it had set dummy directory dentries up for, aren't.
-
-David
+sl ritch

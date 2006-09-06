@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWIFSYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWIFSN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751502AbWIFSYo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 14:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWIFSYo
+	id S1751479AbWIFSN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 14:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWIFSN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 14:24:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21419 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751477AbWIFSYn (ORCPT
+	Wed, 6 Sep 2006 14:13:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63892 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751479AbWIFSNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 14:24:43 -0400
-Date: Wed, 6 Sep 2006 11:24:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kirill Korotaev <dev@openvz.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
-       devel@openvz.org
-Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
-In-Reply-To: <44FC193C.4080205@openvz.org>
-Message-ID: <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
-References: <44FC193C.4080205@openvz.org>
+	Wed, 6 Sep 2006 14:13:25 -0400
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC 0/5] dio: clean up completion phase of direct_io_worker()
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <20060905235732.29630.3950.sendpatchset@tetsuo.zabbo.net>
+	<x49hczl11ru.fsf@segfault.boston.devel.redhat.com>
+	<44FEFB5A.7060905@oracle.com>
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Wed, 06 Sep 2006 14:13:14 -0400
+In-Reply-To: <44FEFB5A.7060905@oracle.com> (Zach Brown's message of "Wed, 06
+ Sep 2006 09:46:18 -0700")
+Message-ID: <x4964g0279h.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+==> Regarding Re: [RFC 0/5] dio: clean up completion phase of direct_io_worker(); Zach Brown <zach.brown@oracle.com> adds:
 
+>> This all looks good, the code is much easier to follow.  What do you think
+>> about making dio->result an unsigned quantity?  It should never be negative
+>> now that there is an io_error field.
 
-On Mon, 4 Sep 2006, Kirill Korotaev wrote:
-> 
-> this patch is already commited into -stable 2.6.17.y tree.
+zach.brown> Yeah, that has always bugged me too.  I considered renaming it
+zach.brown> 'issued', or something, as part of this patchset but thought we
+zach.brown> could do it later.
 
-I don't like it. Apparently the patch was bad, and broken on MIPS and 
-parisc, and it was applied to the stable tree without being in the 
-standard tree.
+I figured since you were doing some house-keeping, we might as well clean
+up as much as possible.  It's up to you, though.  ;)
 
-If MIPS and parisc don't matter for the stable tree (very possible - there 
-are no big commercial distributions for them), then dammit, neither should 
-ia64 and sparc (there are no big commercial distros for them either). 
-Either way, it seems this didn't happen the way it should have.
+zach.brown> While we're on this topic, I'm nervious that we increment it
+zach.brown> when do_direct_IO fails.  It might be sound, but that we
+zach.brown> consider it the amount of work "transferred" for dio->end_io
+zach.brown> makes me want to make sure there aren't confusing corner cases
+zach.brown> here.
 
-The proper fix would _seem_ to have the whole
+It does look non-obvious when reading the code.  However, I'm pretty sure
+it's right.  dio->block_in_file is only updated if there is no error
+returned from submit_page_section.  As such, it really does reflect how
+much work was done before the error, right?  It does seem odd that we do
+this math in two separate places, though.
 
-	#ifndef arch_mmap_check
-	#define arch_mmap_check(addr, len, flags) (0)
-	#endif
-
-in the only file that actually _uses_ this, namely mm/mmap.c. Rather than 
-pollute lots of architecture-specific files with this macro that nobody 
-really is interested in except for ia64 and sparc.
-
-			Linus
+-Jeff

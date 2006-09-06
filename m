@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWIFPMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWIFPRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWIFPMl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 11:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWIFPMl
+	id S1751405AbWIFPRV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 11:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIFPRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 11:12:41 -0400
-Received: from www.rapidforum.com ([80.237.244.2]:12264 "HELO rapidforum.com")
-	by vger.kernel.org with SMTP id S1751341AbWIFPMk (ORCPT
+	Wed, 6 Sep 2006 11:17:20 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:64183 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751394AbWIFPRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 11:12:40 -0400
-Message-ID: <44FEE554.5050903@rapidforum.com>
-Date: Wed, 06 Sep 2006 17:12:20 +0200
-From: Christian Schmid <webmaster@rapidforum.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: de, en
+	Wed, 6 Sep 2006 11:17:19 -0400
+Date: Wed, 6 Sep 2006 17:17:17 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 11/21] nbd: limit blk_queue
+Message-ID: <20060906151716.GG16721@harddisk-recovery.com>
+References: <20060906131630.793619000@chello.nl>> <20060906133954.845224000@chello.nl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Large Block Devices not supported in 64 bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060906133954.845224000@chello.nl>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, Sep 06, 2006 at 03:16:41PM +0200, Peter Zijlstra wrote:
+> -		disk->queue = blk_init_queue(do_nbd_request, &nbd_lock);
+> +		disk->queue = blk_init_queue_node_elv(do_nbd_request,
+> +				&nbd_lock, -1, "noop");
 
-I run kernel 2.6.17.11 vanilla in 64 bit mode with 32 bit emulation.
+So what happens if the noop scheduler isn't compiled into the kernel?
 
-Unfortunately there is no support for file-systems bigger than 2 TB in 64 bit mode.
 
-erikm in #kernelnewbies told me to report it here:
+Erik
 
-<Dragony> statfs("/MD2", 0xff8deca4)              = -1 EOVERFLOW (Value too large for defined data type)
-<erikm> Dragony: prolly no LBD support
-<erikm> Dragony: ah wait, you probably do have support for large block devices, but the 32 bit 
-portability syscall forgot to support it
-<erikm> Dragony: see block/Kconfig
-<Dragony> #XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
-<Dragony> #for instance.
-<Dragony> config LBD
-<Dragony>         bool "Support for Large Block Devices"
-<Dragony>         depends on X86 || (MIPS && 32BIT) || PPC32 || (S390 && !64BIT) || SUPERH || UML
-<Dragony> yes but this option only appears in 32 bit mode not in 64 bit mode
-<erikm> Dragony: hence my comment
-<Dragony> actually /MD2 is mounted and i can access the files, but not any stats
-<erikm> Dragony: it *IS* supported, but not properly backported to the 32 bit compatibility layer
-<Dragony> hmm what can i do?
-<erikm> Dragony: post to lkml
-
-Can someone help me?
-
-Regards,
-Chris
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

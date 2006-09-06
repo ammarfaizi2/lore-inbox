@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIFIyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWIFI5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWIFIyg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 04:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWIFIyg
+	id S1750710AbWIFI5r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 04:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWIFI5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 04:54:36 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:15275 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750706AbWIFIyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 04:54:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BJBKnovPHT6waW+mfXnI5oI0ZK/o91Epr5i2Sqog8EBVOXfnzpXBCuKXxGbBfK1Ckomar95RcCgSqRFeVTTPlcBEwxUU/LtVFxwwjzRfRsyplju8AtDxKjr8ZPSOxzxm+OMD4/16m7QuQ1AMSlakimRb94r0PUHG/tkTwyyKIZs=
-Message-ID: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com>
-Date: Wed, 6 Sep 2006 10:54:34 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Wrong free space reported for XFS filesystem
-Cc: "Nathan Scott" <nathans@sgi.com>
+	Wed, 6 Sep 2006 04:57:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:15317 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750710AbWIFI5q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 04:57:46 -0400
+Message-ID: <44FE8D82.3060103@in.ibm.com>
+Date: Wed, 06 Sep 2006 14:27:38 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 5/13] BC: user interface (syscalls)
+References: <44FD918A.7050501@sw.ru> <44FD9699.705@sw.ru> <44FDA024.7030700@in.ibm.com> <44FE86EF.3050101@openvz.org>
+In-Reply-To: <44FE86EF.3050101@openvz.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For your information;
+Pavel Emelianov wrote:
+> Balbir Singh wrote:
+>>> +
+>>> +asmlinkage long sys_set_bcid(bcid_t id)
+>>> +{
+>>> +    int error;
+>>> +    struct beancounter *bc;
+>>> +    struct task_beancounter *task_bc;
+>>> +
+>>> +    task_bc = &current->task_bc;
+>> I was playing around with the bc patches and found that to make
+>> use of bc's, I had to actually call set_bcid() and then exec() a
+>> task/shell so that the id would stick around. Would you consider
+> That sounds very strange as sys_set_bcid() actually changes current's
+> exec_bc.
+> One note is about mm's bc - mm obtains new bc only after fork or exec -
+> that's
+> true. But kmemsize starts charging right after the sys_set_bcid.
 
-I've been running a bunch of benchmarks on a 250GB XFS filesystem.
-After the benchmarks had run for a few hours and almost filled up the
-fs, I removed all the files and did a "df -h" with interresting
-results :
+I was playing around only with kmemsize. I think the reason for my observation
+is this
 
-/dev/mapper/Data1-test
-                     250G  -64Z  251G 101% /mnt/test
+bash --> (my utility) --> set_bcid()
 
-"df -k"  reported this :
+Since bash spawns my utility in a separate process, it creates and assigns
+a bean counter to it and then my utility exits. Unless it spawns/exec()'s a
+new shell, the beancounter is freed when the task exits (my utility).
 
-/dev/mapper/Data1-test
-                     262144000 -73786976294838202960 262147504 101% /mnt/test
-
-I then did an umount and remount of the filesystem and then things
-look more sane :
-
-"df -h" :
-/dev/mapper/Data1-test
-                      250G  126M  250G   1% /mnt/test
-
-"df -k" :
-/dev/mapper/Data1-test
-                     262144000    128280 262015720   1% /mnt/test
-
-The filesystem is mounted like this :
-
-/dev/mapper/Data1-test on /mnt/test type xfs
-(rw,noatime,ihashsize=64433,logdev=/dev/Log1/test_log,usrquota)
+>> changing sys_set_bcid to sys_set_task_bcid() or adding a new
+>> system call sys_set_task_bcid()? We could pass the pid that we
+>> intend to associate with the new id. This also means we'll need
+>> locking around to protect task->task_bc.
+> 
 
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

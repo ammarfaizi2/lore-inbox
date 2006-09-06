@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWIFNxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWIFNzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWIFNxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 09:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWIFNxt
+	id S1751048AbWIFNzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 09:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWIFNzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 09:53:49 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:40340 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751050AbWIFNxr (ORCPT
+	Wed, 6 Sep 2006 09:55:38 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:40635 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751045AbWIFNzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 09:53:47 -0400
-Message-ID: <44FED3CA.7000005@sw.ru>
-Date: Wed, 06 Sep 2006 17:57:30 +0400
+	Wed, 6 Sep 2006 09:55:37 -0400
+Message-ID: <44FED43B.8050301@sw.ru>
+Date: Wed, 06 Sep 2006 17:59:23 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
 CC: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
@@ -26,97 +26,97 @@ CC: Andrew Morton <akpm@osdl.org>,
        Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Hugh Dickins <hugh@veritas.com>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
- memory)
-References: <44FD918A.7050501@sw.ru> <1157478392.3186.26.camel@localhost.localdomain>
-In-Reply-To: <1157478392.3186.26.camel@localhost.localdomain>
+Subject: Re: [PATCH 11/13] BC: vmrss (preparations)
+References: <44FD918A.7050501@sw.ru> <44FD9853.6040002@sw.ru> <44FDF5A5.3070608@fr.ibm.com>
+In-Reply-To: <44FDF5A5.3070608@fr.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2006-09-05 at 19:02 +0400, Kirill Korotaev wrote:
+Thanks a lot!!!
+
+> Kirill Korotaev wrote:
 > 
->>Core Resource Beancounters (BC) + kernel/user memory control.
+> <snip>
+> 
+>>--- ./include/bc/beancounter.h.bcvmrssprep    2006-09-05
+>>13:17:50.000000000 +0400
+>>+++ ./include/bc/beancounter.h    2006-09-05 13:44:33.000000000 +0400
+>>@@ -45,6 +45,13 @@ struct bc_resource_parm {
+>>#define BC_MAXVALUE    LONG_MAX
 >>
->>BC allows to account and control consumption
->>of kernel resources used by group of processes. 
+>>/*
+>>+ * This magic is used to distinuish user beancounter and pages beancounter
+>>+ * in struct page. page_ub and page_bc are placed in union and MAGIC
+>>+ * ensures us that we don't use pbc as ubc in bc_page_uncharge().
+>>+ */
+>>+#define BC_MAGIC                0x62756275UL
+>>+
+>>+/*
+>> *    Resource management structures
+>> * Serialization issues:
+>> *   beancounter list management is protected via bc_hash_lock
+>>@@ -54,11 +61,13 @@ struct bc_resource_parm {
+>> */
+>>
+>>struct beancounter {
+>>+    unsigned long        bc_magic;
+>>    atomic_t        bc_refcount;
+>>    spinlock_t        bc_lock;
+>>    bcid_t            bc_id;
+>>    struct hlist_node    hash;
+>>
+>>+    unsigned long        unused_privvmpages;
+>>    /* resources statistics and settings */
+>>    struct bc_resource_parm    bc_parms[BC_RESOURCES];
+>>};
+>>@@ -74,6 +83,8 @@ enum bc_severity { BC_BARRIER, BC_LIMIT,
+>>
+>>#ifdef CONFIG_BEANCOUNTERS
+>>
+>>+extern unsigned int nr_beancounters = 1;
+>>+
 > 
 > 
-> Hi Kirill, 
+> my gcc doesn't like this one ...
 > 
-> I've honestly lost track of these discussions along the way, so I hope
-> you don't mind summarizing a bit.
-I think we need to create wiki to summarize it once and forever.
-http://wiki.openvz.org/UBC_discussion
+> regards,
+> 
+> C.
+> 
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+> 
+> ---
+>  include/bc/beancounter.h |    2 +-
+>  kernel/bc/beancounter.c  |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: 2.6.18-rc5-mm1/include/bc/beancounter.h
+> ===================================================================
+> --- 2.6.18-rc5-mm1.orig/include/bc/beancounter.h
+> +++ 2.6.18-rc5-mm1/include/bc/beancounter.h
+> @@ -86,7 +86,7 @@ enum bc_severity { BC_BARRIER, BC_LIMIT,
+> 
+>  #ifdef CONFIG_BEANCOUNTERS
+> 
+> -extern unsigned int nr_beancounters = 1;
+> +extern unsigned int nr_beancounters;
+> 
+>  /*
+>   * These functions tune minheld and maxheld values for a given
+> Index: 2.6.18-rc5-mm1/kernel/bc/beancounter.c
+> ===================================================================
+> --- 2.6.18-rc5-mm1.orig/kernel/bc/beancounter.c
+> +++ 2.6.18-rc5-mm1/kernel/bc/beancounter.c
+> @@ -20,7 +20,7 @@ static void init_beancounter_struct(stru
+> 
+>  struct beancounter init_bc;
+> 
+> -unsigned int nr_beancounters;
+> +unsigned int nr_beancounters = 1;
+> 
+>  const char *bc_rnames[] = {
+>  	"kmemsize",	/* 0 */
+> 
 
-> Do these patches help with accounting for anything other than memory?
-this patch set - no, but the complete one - does:
-* numfile
-* numptys
-* numsocks (TCP, other, etc.)
-* numtasks
-* numflocks
-...
-this list of resources was chosen to make sure that no DoS from the container
-is possible.
-This list is extensible easily and if resource is out of interest than
-its limits can be set to unlimited.
-
-> Will we need new user/kernel interfaces for cpu, i/o bandwidth, etc...?
-no. no new interfaces are required.
-
-BUT: I remind you the talks at OKS/OLS and in previous UBC discussions.
-It was noted that having a separate interfaces for CPU, I/O bandwidth
-and memory maybe worthwhile. BTW, I/O bandwidth already has a separate
-interface :/
-
-> Have you given any thought to the possibility that a task might need to
-> move between accounting contexts?  That has certainly been a
-> "requirement" pushed on to CKRM for a long time, and the need goes
-> something like this:
-Yes we thought about this and this is no more problematic for BC
-than for CKRM. See my explanation below.
-
-> 1. A system runs a web server, which services several virtual domains
-> 2. that web server receives a request for foo.com
-> 3. the web server switches into foo.com's accounting context
-> 4. the web server reads things from disk, allocates some memory, and
->    makes a database request.
-> 5. the database receives the request, and switches into foo.com's
->    accounting context, and charges foo.com for its resource use
-> etc...
-The question is - whether web server is multithreaded or not...
-If it is not - then no problem here, you can change current
-context and new resources will be charged accordingly.
-
-And current BC code is _able_ to handle it with _minor_ changes.
-(One just need to save bc not on mm struct, but rather on vma struct
-and change mm->bc on set_bc_id()).
-
-However, no one (can some one from CKRM team please?) explained so far
-what to do with threads. Consider the following example.
-
-1. Threaded web server spawns a child to serve a client.
-2. child thread touches some pages and they are charged to child BC
-   (which differs from parent's one)
-3. child exits, but since its mm is shared with parent, these pages
-   stay mapped and charged to child BC.
-
-So the question is:  what to do with these pages?
-- should we recharge them to another BC?
-- leave them charged?
-
-> So, the goal is to run _one_ copy of an application on a system, but
-> account for its resources in a much more fine-grained way than at the
-> application level.
-Yes.
-
-> I think we can probably use beancounters for this, if we do not worry
-> about migrating _existing_ charges when we change accounting context.
-> Does that make sense?
-exactly. thats what I'm saying. we can use beancounters for this
-if charges are kept for creator.
-
-Thanks,
-Kirill

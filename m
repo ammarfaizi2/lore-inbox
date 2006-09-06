@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWIFS4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWIFSpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWIFS4o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 14:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWIFS4n
+	id S1751138AbWIFSpl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 14:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWIFSpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 14:56:43 -0400
-Received: from vzn1-20146.ce.pixelgate.net ([66.254.95.226]:58762 "EHLO
-	spinics.net") by vger.kernel.org with ESMTP id S1750909AbWIFS4n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 14:56:43 -0400
-From: ellis@spinics.net
-Message-Id: <200609061856.k86IuS61017253@no.spam>
-Subject: Re: bogofilter ate 3/5
-To: w@1wt.eu (Willy Tarreau)
-Date: Wed, 6 Sep 2006 11:56:28 -0700 (PDT)
-Cc: ellis@spinics.net (Rick Ellis), linux-kernel@vger.kernel.org
-In-Reply-To: <20060906180020.GD604@1wt.eu> from "Willy Tarreau" at Sep 06, 2006 08:00:20 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Wed, 6 Sep 2006 14:45:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:59538 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750743AbWIFSpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 14:45:40 -0400
+Date: Wed, 6 Sep 2006 11:45:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, "David S. Miller" <davem@davemloft.net>,
+       devel@openvz.org, xemul@openvz.org
+Subject: Re: [stable] [PATCH] IA64,sparc: local DoS with corrupted ELFs
+Message-ID: <20060906184509.GA15942@kroah.com>
+References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org> <20060906182733.GJ2558@parisc-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060906182733.GJ2558@parisc-linux.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, but doing something could simply consist in adding a header
-> that anyone is free to filter on or not.
+On Wed, Sep 06, 2006 at 12:27:33PM -0600, Matthew Wilcox wrote:
+> On Wed, Sep 06, 2006 at 11:24:05AM -0700, Linus Torvalds wrote:
+> > If MIPS and parisc don't matter for the stable tree (very possible - there 
+> > are no big commercial distributions for them), then dammit, neither should 
+> > ia64 and sparc (there are no big commercial distros for them either). 
+> 
+> Erm, RHEL and SLES both support ia64.
 
-The problem with that is the post gets no indication that his
-mail has been filtered. The way it works now is the rejection
-happens at SMTP time and that causes the poster to see the
-problem. If people filtered on a header, you'd never know why you
-weren't getting a response.
+Yes, but the -stable developers don't build for those arches, that's why
+it was missed here.
 
---
-http://www.spinics.net/lists/kernel/
+So, what's the proper patch for the next -stable release to fix this
+problem?  I see a bunch of different ones floating around...
 
+thanks,
+
+greg k-h

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWIFIe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWIFIsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWIFIe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 04:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWIFIe3
+	id S1750701AbWIFIsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 04:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWIFIsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 04:34:29 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:20497 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750711AbWIFIe3 (ORCPT
+	Wed, 6 Sep 2006 04:48:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23983 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750701AbWIFIsk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 04:34:29 -0400
-Message-ID: <44FE8819.9020005@openvz.org>
-Date: Wed, 06 Sep 2006 12:34:33 +0400
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
- memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-In-Reply-To: <44FDAB81.5050608@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 04:48:40 -0400
+Date: Wed, 6 Sep 2006 10:40:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Daniel Walker'" <dwalker@mvista.com>
+Subject: Re: lockdep oddity
+Message-ID: <20060906084021.GA30856@elte.hu>
+References: <20060906080129.GD6898@osiris.boeblingen.de.ibm.com> <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <004901c6d18d$acc45620$0200a8c0@nuitysystems.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4932]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Kirill Korotaev wrote:
->> Core Resource Beancounters (BC) + kernel/user memory control.
->>
->> BC allows to account and control consumption
->> of kernel resources used by group of processes.
->>
->> Draft UBC description on OpenVZ wiki can be found at
->> http://wiki.openvz.org/UBC_parameters
->>
->> The full BC patch set allows to control:
->> - kernel memory. All the kernel objects allocatable
->> on user demand should be accounted and limited
->> for DoS protection.
->> E.g. page tables, task structs, vmas etc.
->
-> One of the key requirements of resource management for us is to be
-> able to
-> migrate tasks across resource groups. Since bean counters do not
-> associate
-Then could you tell me please what to do with all the resources allocated
-by the task you are moving to another group?
-> a list of tasks associated with them, I do not see how this can be done
-> with the existing bean counters.
->
-Associating a list of tasks with beancounter is not so hard actually.
-The question is wether this is usefull (regarding my previous comment).
+
+* Hua Zhong <hzhong@gmail.com> wrote:
+
+> We are just trading accuracy for speed here.
+
+no, we are trading _both_ accuracy and speed here! a global 'likeliness' 
+pointer for commonly executed codepaths is causing global cacheline 
+ping-pongs - which is as bad as it gets.
+
+the right approach, which incidentally would also be perfectly accurate, 
+is to store an alloc_percpu()-ed pointer at the call site, not the 
+counter itself.
+
+the current code needs more work before it can go upstream i think.
+
+	Ingo

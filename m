@@ -1,123 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWIFNlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWIFNnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWIFNlh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 09:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWIFNjt
+	id S1751035AbWIFNnR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 09:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWIFNme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 09:39:49 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:39351 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750934AbWIFNif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 09:38:35 -0400
-Message-Id: <20060906133956.264720000@chello.nl>
+	Wed, 6 Sep 2006 09:42:34 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:18666 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750945AbWIFNid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 09:38:33 -0400
+Message-Id: <20060906133954.673752000@chello.nl>
 References: <20060906131630.793619000@chello.nl>>
 User-Agent: quilt/0.45-1
-Date: Wed, 06 Sep 2006 15:16:49 +0200
+Date: Wed, 06 Sep 2006 15:16:40 +0200
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Cc: Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
        David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Mike Christie <michaelc@cs.wisc.edu>
-Subject: [PATCH 19/21] netlink: add SOCK_VMIO support to AF_NETLINK
-Content-Disposition: inline; filename=netlink_vmio.patch
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Jens Axboe <axboe@suse.de>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 10/21] block: elevator selection and pinning
+Content-Disposition: inline; filename=block_queue_init_elv.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Propagate SOCK_VMIO from kernel socket to userspace sockets.
-Allow sys_{send,recv}msg to succeed under memory pressure for
-SOCK_VMIO netlink sockets.
+Provide an block queue init function that allows to set an elevator. And a 
+function to pin the current elevator.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Mike Christie <michaelc@cs.wisc.edu>
+Signed-off-by: Daniel Phillips <phillips@google.com>
+CC: Jens Axboe <axboe@suse.de>
+CC: Pavel Machek <pavel@ucw.cz>
 ---
- include/linux/netlink.h  |    1 +
- net/netlink/af_netlink.c |    8 +++++---
- net/socket.c             |    6 +++---
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ block/elevator.c         |   56 ++++++++++++++++++++++++++++++++++++-----------
+ block/ll_rw_blk.c        |   12 ++++++++--
+ include/linux/blkdev.h   |    9 +++++++
+ include/linux/elevator.h |    1 
+ 4 files changed, 63 insertions(+), 15 deletions(-)
 
-Index: linux-2.6/net/netlink/af_netlink.c
+Index: linux-2.6/block/ll_rw_blk.c
 ===================================================================
---- linux-2.6.orig/net/netlink/af_netlink.c
-+++ linux-2.6/net/netlink/af_netlink.c
-@@ -199,7 +199,7 @@ netlink_unlock_table(void)
- 		wake_up(&nl_table_wait);
+--- linux-2.6.orig/block/ll_rw_blk.c
++++ linux-2.6/block/ll_rw_blk.c
+@@ -1899,6 +1899,14 @@ EXPORT_SYMBOL(blk_init_queue);
+ request_queue_t *
+ blk_init_queue_node(request_fn_proc *rfn, spinlock_t *lock, int node_id)
+ {
++	return blk_init_queue_node_elv(rfn, lock, node_id, NULL);
++}
++EXPORT_SYMBOL(blk_init_queue_node);
++
++request_queue_t *
++blk_init_queue_node_elv(request_fn_proc *rfn, spinlock_t *lock, int node_id,
++		char *elv_name)
++{
+ 	request_queue_t *q = blk_alloc_queue_node(GFP_KERNEL, node_id);
+ 
+ 	if (!q)
+@@ -1939,7 +1947,7 @@ blk_init_queue_node(request_fn_proc *rfn
+ 	/*
+ 	 * all done
+ 	 */
+-	if (!elevator_init(q, NULL)) {
++	if (!elevator_init(q, elv_name)) {
+ 		blk_queue_congestion_threshold(q);
+ 		return q;
+ 	}
+@@ -1947,7 +1955,7 @@ blk_init_queue_node(request_fn_proc *rfn
+ 	blk_put_queue(q);
+ 	return NULL;
+ }
+-EXPORT_SYMBOL(blk_init_queue_node);
++EXPORT_SYMBOL(blk_init_queue_node_elv);
+ 
+ int blk_get_queue(request_queue_t *q)
+ {
+Index: linux-2.6/include/linux/blkdev.h
+===================================================================
+--- linux-2.6.orig/include/linux/blkdev.h
++++ linux-2.6/include/linux/blkdev.h
+@@ -444,6 +444,12 @@ struct request_queue
+ #define QUEUE_FLAG_REENTER	6	/* Re-entrancy avoidance */
+ #define QUEUE_FLAG_PLUGGED	7	/* queue is plugged */
+ #define QUEUE_FLAG_ELVSWITCH	8	/* don't use elevator, just do FIFO */
++#define QUEUE_FLAG_ELVPINNED	9	/* pin the current elevator */
++
++static inline void blk_queue_pin_elevator(struct request_queue *q)
++{
++	set_bit(QUEUE_FLAG_ELVPINNED, &q->queue_flags);
++}
+ 
+ enum {
+ 	/*
+@@ -696,6 +702,9 @@ static inline void elv_dispatch_add_tail
+ /*
+  * Access functions for manipulating queue properties
+  */
++extern request_queue_t *blk_init_queue_node_elv(request_fn_proc *rfn,
++					spinlock_t *lock, int node_id,
++					char *elv_name);
+ extern request_queue_t *blk_init_queue_node(request_fn_proc *rfn,
+ 					spinlock_t *lock, int node_id);
+ extern request_queue_t *blk_init_queue(request_fn_proc *, spinlock_t *);
+Index: linux-2.6/block/elevator.c
+===================================================================
+--- linux-2.6.orig/block/elevator.c
++++ linux-2.6/block/elevator.c
+@@ -856,11 +856,33 @@ fail_register:
+ 	return 0;
  }
  
--static __inline__ struct sock *netlink_lookup(int protocol, u32 pid)
-+__inline__ struct sock *netlink_lookup(int protocol, u32 pid)
++int elv_iosched_switch(request_queue_t *q, const char *elevator_name)
++{
++	struct elevator_type *e;
++
++	if (test_bit(QUEUE_FLAG_ELVPINNED, &q->queue_flags))
++		return -EPERM;
++
++	e = elevator_get(elevator_name);
++	if (!e)
++		return -EINVAL;
++
++	if (!strcmp(elevator_name, q->elevator->elevator_type->elevator_name)) {
++		elevator_put(e);
++		return -EEXIST;
++	}
++
++	if (!elevator_switch(q, e))
++		return -ENOMEM;
++
++	return 0;
++}
++
+ ssize_t elv_iosched_store(request_queue_t *q, const char *name, size_t count)
  {
- 	struct nl_pid_hash *hash = &nl_table[protocol].hash;
- 	struct hlist_head *head;
-@@ -1147,7 +1147,7 @@ static int netlink_sendmsg(struct kiocb 
- 	if (len > sk->sk_sndbuf - 32)
- 		goto out;
- 	err = -ENOBUFS;
--	skb = alloc_skb(len, GFP_KERNEL);
-+	skb = __alloc_skb(len, GFP_KERNEL, SKB_ALLOC_RX);
- 	if (skb==NULL)
- 		goto out;
+ 	char elevator_name[ELV_NAME_MAX];
+ 	size_t len;
+-	struct elevator_type *e;
++	int error;
  
-@@ -1178,7 +1178,8 @@ static int netlink_sendmsg(struct kiocb 
+ 	elevator_name[sizeof(elevator_name) - 1] = '\0';
+ 	strncpy(elevator_name, name, sizeof(elevator_name) - 1);
+@@ -869,20 +891,27 @@ ssize_t elv_iosched_store(request_queue_
+ 	if (len && elevator_name[len - 1] == '\n')
+ 		elevator_name[len - 1] = '\0';
  
- 	if (dst_group) {
- 		atomic_inc(&skb->users);
--		netlink_broadcast(sk, skb, dst_pid, dst_group, GFP_KERNEL);
-+		netlink_broadcast(sk, skb, dst_pid, dst_group,
-+				sk->sk_allocation);
+-	e = elevator_get(elevator_name);
+-	if (!e) {
+-		printk(KERN_ERR "elevator: type %s not found\n", elevator_name);
+-		return -EINVAL;
+-	}
+-
+-	if (!strcmp(elevator_name, q->elevator->elevator_type->elevator_name)) {
+-		elevator_put(e);
+-		return count;
++	error = elv_iosched_switch(q, elevator_name);
++	switch (error) {
++		case -EPERM:
++			printk(KERN_NOTICE
++				"elevator: cannot switch elevator, pinned\n");
++			break;
++
++		case -EINVAL:
++			printk(KERN_ERR "elevator: type %s not found\n",
++					elevator_name);
++			break;
++
++		case -ENOMEM:
++			printk(KERN_ERR "elevator: switch to %s failed\n",
++					elevator_name);
++		default:
++			error = 0;
++			break;
  	}
- 	err = netlink_unicast(sk, skb, dst_pid, msg->msg_flags&MSG_DONTWAIT);
  
-@@ -1788,6 +1789,7 @@ panic:
+-	if (!elevator_switch(q, e))
+-		printk(KERN_ERR "elevator: switch to %s failed\n",elevator_name);
+-	return count;
++	return error ?: count;
+ }
  
- core_initcall(netlink_proto_init);
- 
-+EXPORT_SYMBOL(netlink_lookup);
- EXPORT_SYMBOL(netlink_ack);
- EXPORT_SYMBOL(netlink_run_queue);
- EXPORT_SYMBOL(netlink_queue_skip);
-Index: linux-2.6/net/socket.c
+ ssize_t elv_iosched_show(request_queue_t *q, char *name)
+@@ -914,5 +943,6 @@ EXPORT_SYMBOL(__elv_add_request);
+ EXPORT_SYMBOL(elv_next_request);
+ EXPORT_SYMBOL(elv_dequeue_request);
+ EXPORT_SYMBOL(elv_queue_empty);
++EXPORT_SYMBOL(elv_iosched_switch);
+ EXPORT_SYMBOL(elevator_exit);
+ EXPORT_SYMBOL(elevator_init);
+Index: linux-2.6/include/linux/elevator.h
 ===================================================================
---- linux-2.6.orig/net/socket.c
-+++ linux-2.6/net/socket.c
-@@ -1790,7 +1790,7 @@ asmlinkage long sys_sendmsg(int fd, stru
- 	err = -ENOMEM;
- 	iov_size = msg_sys.msg_iovlen * sizeof(struct iovec);
- 	if (msg_sys.msg_iovlen > UIO_FASTIOV) {
--		iov = sock_kmalloc(sock->sk, iov_size, GFP_KERNEL);
-+		iov = sock_kmalloc(sock->sk, iov_size, sock->sk->sk_allocation);
- 		if (!iov)
- 			goto out_put;
- 	}
-@@ -1818,7 +1818,7 @@ asmlinkage long sys_sendmsg(int fd, stru
- 	} else if (ctl_len) {
- 		if (ctl_len > sizeof(ctl))
- 		{
--			ctl_buf = sock_kmalloc(sock->sk, ctl_len, GFP_KERNEL);
-+			ctl_buf = sock_kmalloc(sock->sk, ctl_len, sock->sk->sk_allocation);
- 			if (ctl_buf == NULL) 
- 				goto out_freeiov;
- 		}
-@@ -1891,7 +1891,7 @@ asmlinkage long sys_recvmsg(int fd, stru
- 	err = -ENOMEM;
- 	iov_size = msg_sys.msg_iovlen * sizeof(struct iovec);
- 	if (msg_sys.msg_iovlen > UIO_FASTIOV) {
--		iov = sock_kmalloc(sock->sk, iov_size, GFP_KERNEL);
-+		iov = sock_kmalloc(sock->sk, iov_size, sock->sk->sk_allocation);
- 		if (!iov)
- 			goto out_put;
- 	}
-Index: linux-2.6/include/linux/netlink.h
-===================================================================
---- linux-2.6.orig/include/linux/netlink.h
-+++ linux-2.6/include/linux/netlink.h
-@@ -150,6 +150,7 @@ struct netlink_skb_parms
- #define NETLINK_CREDS(skb)	(&NETLINK_CB((skb)).creds)
+--- linux-2.6.orig/include/linux/elevator.h
++++ linux-2.6/include/linux/elevator.h
+@@ -107,6 +107,7 @@ extern int elv_may_queue(request_queue_t
+ extern void elv_completed_request(request_queue_t *, struct request *);
+ extern int elv_set_request(request_queue_t *, struct request *, struct bio *, gfp_t);
+ extern void elv_put_request(request_queue_t *, struct request *);
++extern int elv_iosched_switch(request_queue_t *, const char *);
  
- 
-+extern struct sock *netlink_lookup(int protocol, __u32 pid);
- extern struct sock *netlink_kernel_create(int unit, unsigned int groups, void (*input)(struct sock *sk, int len), struct module *module);
- extern void netlink_ack(struct sk_buff *in_skb, struct nlmsghdr *nlh, int err);
- extern int netlink_has_listeners(struct sock *sk, unsigned int group);
+ /*
+  * io scheduler registration
 
 --

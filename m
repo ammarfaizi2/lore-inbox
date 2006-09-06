@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751712AbWIFRD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWIFRF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751712AbWIFRD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 13:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWIFRD0
+	id S1751723AbWIFRF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 13:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWIFRF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 13:03:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10170 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751697AbWIFRDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 13:03:25 -0400
-Date: Wed, 6 Sep 2006 19:03:30 +0200
-From: Jan Kara <jack@suse.cz>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-Message-ID: <20060906170330.GB14345@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk> <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com> <20060901101801.7845bca2.akpm@osdl.org> <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com> <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157561031.23501.33.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157561031.23501.33.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 6 Sep 2006 13:05:27 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:21402 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751722AbWIFRF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 13:05:27 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Wed, 6 Sep 2006 19:04:38 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [RFT PATCH 1/2] ieee1394: nodemgr: fix rwsem recursion
+To: linux1394-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Miles Lane <miles.lane@gmail.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Ben Collins <bcollins@ubuntu.com>, Greg KH <gregkh@suse.de>
+In-Reply-To: <44FEFC68.90201@s5r6.in-berlin.de>
+Message-ID: <tkrat.a76041f4792feb5b@s5r6.in-berlin.de>
+References: <a44ae5cd0609051037k47d1ad7dsa8276dc0cec416bf@mail.gmail.com>
+ <20060905111306.80398394.akpm@osdl.org> <44FDCEAD.5070905@s5r6.in-berlin.de>
+ <44FE751E.4030505@s5r6.in-berlin.de> <44FEFC68.90201@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2006-09-06 at 18:27 +0200, Jan Kara wrote:
-> > > 
-> > > But my debug clearly shows that we are clearing the buffer, while
-> > > we haven't actually submitted to ll_rw_block() code. (I added "track"
-> > > flag to bh and set it in journal_commit_transaction() when we add
-> > > them to wbuf[] and clear it in ll_rw_block() after submit. I checked
-> > > for this flag in journal_unmap_buffer() while clearing the buffer).
-> > > Here is what my debug shows:
-> > > 
-> > > buffer is tracked bh ffff8101686ea850 size 1024 
-> > > 
-> > > Call Trace:
-> > >  [<ffffffff8020b395>] show_trace+0xb5/0x370
-> > >  [<ffffffff8020b665>] dump_stack+0x15/0x20
-> > >  [<ffffffff8030d474>] journal_invalidatepage+0x314/0x3b0
-> >   I see just journal_invalidatepage() here. That is fine. It calls
-> > journal_unmap_buffer() which should do nothing return 0. If it does
-> > not it would be IMO bug.. If the buffer is really unmapped here, in what
-> > state it is (i.e. which list is it on?).
-> > 
-> Acutally, I added dump_stack() in journal_unmap_buffer() when it
-> does clear_buffer_mapped(). gcc must of pulled in the function ..
-> I will add more debug to track the list bh came from.
-  Ah, ok. My guess is that the buffer is in BJ_Locked list. But we don't
-write buffers from BJ_Locked list (as they are supposedly already
-written). What probably happens is:
-  Process 1				Process 2
-  We start scanning t_sync_datalist.
-  Add buffer to wbuf[].
-					Locks the buffer (it can be some other
-					writer).
-  Restarts scanning the list
-  Finds buffer is locked -> moves to
-   BJ_Locked list (actually this is BUG
-   as we have not written the buffer yet)
-                                        journal_unmap_buffer() happens
+nodemgr_update_pdrv grabbed an rw semaphore (as reader) which was
+already taken by its caller's caller, nodemgr_probe_ne (as reader too).
+Reported by Miles Lane, call path pointed out by Arjan van de Ven.
 
-  Maybe what you could verify is, that we are moving the buffer added to
-wbuf[] to BJ_Locked list in the write_out_data: loop.
-  If it really happens, what I've described above, the fix should be
-different. We shouldn't have moved the buffer to BJ_Locked list...
+FIXME:
+Shouldn't we rather use class->sem there, not class->subsys.rwsem?
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+Index: linux/drivers/ieee1394/nodemgr.c
+===================================================================
+--- linux.orig/drivers/ieee1394/nodemgr.c	2006-08-30 20:47:57.000000000 +0200
++++ linux/drivers/ieee1394/nodemgr.c	2006-09-06 19:03:24.000000000 +0200
+@@ -1316,6 +1316,7 @@ static void nodemgr_node_scan(struct hos
+ }
+ 
+ 
++/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader. */
+ static void nodemgr_suspend_ne(struct node_entry *ne)
+ {
+ 	struct class_device *cdev;
+@@ -1368,15 +1369,14 @@ static void nodemgr_resume_ne(struct nod
+ }
+ 
+ 
++/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader. */
+ static void nodemgr_update_pdrv(struct node_entry *ne)
+ {
+ 	struct unit_directory *ud;
+ 	struct hpsb_protocol_driver *pdrv;
+-	struct class *class = &nodemgr_ud_class;
+ 	struct class_device *cdev;
+ 
+-	down_read(&class->subsys.rwsem);
+-	list_for_each_entry(cdev, &class->children, node) {
++	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
+ 		ud = container_of(cdev, struct unit_directory, class_dev);
+ 		if (ud->ne != ne || !ud->device.driver)
+ 			continue;
+@@ -1389,7 +1389,6 @@ static void nodemgr_update_pdrv(struct n
+ 			up_write(&ud->device.bus->subsys.rwsem);
+ 		}
+ 	}
+-	up_read(&class->subsys.rwsem);
+ }
+ 
+ 
+@@ -1420,6 +1419,8 @@ static void nodemgr_irm_write_bc(struct 
+ }
+ 
+ 
++/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader because the
++ * calls to nodemgr_update_pdrv() and nodemgr_suspend_ne() here require it. */
+ static void nodemgr_probe_ne(struct host_info *hi, struct node_entry *ne, int generation)
+ {
+ 	struct device *dev;
+
+

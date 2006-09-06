@@ -1,128 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWIFCGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWIFCf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965232AbWIFCGT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 22:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWIFCGS
+	id S1751431AbWIFCf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 22:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWIFCf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 22:06:18 -0400
-Received: from mga05.intel.com ([192.55.52.89]:57364 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965232AbWIFCGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 22:06:17 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,209,1154934000"; 
-   d="scan'208"; a="126346015:sNHT61303116"
-Subject: Re: pci error recovery procedure
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Rajesh Shah <rajesh.shah@intel.com>, Yanmin Zhang <yanmin.zhang@intel.com>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
-In-Reply-To: <20060905191739.GF7139@austin.ibm.com>
-References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
-	 <20060831175001.GE8704@austin.ibm.com>
-	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
-	 <20060901212548.GS8704@austin.ibm.com>
-	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
-	 <20060905191739.GF7139@austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 06 Sep 2006 10:04:31 +0800
+	Tue, 5 Sep 2006 22:35:57 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:46717 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751431AbWIFCf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 22:35:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mEijdwgehazWlKZ8uxdSN0KW+2cYfwb7H7rn2UA6md1iRhqheeRHPdjsO4UVuU69lDH+AFV5yEoqLc6aDI1scDUjLzvYglsfCGdNFV7/uKVTYNSM2oOHvr6Rtm1E+Q6tITtISruuFFd4EiGtPQqAxQube8fCKg8xaWBjIusZBgg=
+Message-ID: <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com>
+Date: Wed, 6 Sep 2006 10:35:55 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "David Howells" <dhowells@redhat.com>
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com, davidm@snapgear.com,
+       gerg@snapgear.com
+In-Reply-To: <3551.1157448903@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com>
+	 <17162.1157365295@warthog.cambridge.redhat.com>
+	 <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com>
+	 <3551.1157448903@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 03:17, Linas Vepstas wrote:
-> On Mon, Sep 04, 2006 at 01:47:30PM +0800, Zhang, Yanmin wrote:
-> > > 
-> > > Again, consider the multi-function cards. On pSeries, I can  only enable 
-> > > DMA on a per-slot basis, not a per-function basis. So if one driver
-> > > enables DMA before some other driver has reset appropriately, everything
-> > > breaks.
-> > Does here 'reset' mean hardware slot reset? 
-> 
-> I should have said: If one driver of a multi-function card enables DMA before 
-> another driver has stabilized its harware, then everything breaks.
-What's another driver's hardware? A function of the previous multi-function
-card? Or a function of another device?
+Yeah, I agree with most of your opinion. Using PG_slab is really a
+quickest way to determine the size of the object. But I think using a
+flag named "PG_slab" on a memory algorithm named "slob" seems not
+reasonable. It may confuse the people who start to read the kernel
+source code. So I'm writing to ask if there is a better solution to
+fix the issue.
 
-Ok. now, I copy what you said before below for more discussion.
-> If we enabled both DMA and MMIO at the same time, there are mnay cases
-> where the card will immediately trap again -- for example, if its
-> DMA'ing to some crazy address. Thus, typically, one wants DMA disabled 
-> until after the card reset.  Withouth the mmio_enabled() reset, there
-> is no way of doing this.
-Did you asume the card reset is executed by callback mmio_enabled?
+-Aubrey
 
-
-> Again, consider the multi-function cards. On pSeries, I can  only enable 
-> DMA on a er-slot basis, not a per-function basis. So if one driver
-> enables DMA before some other driver has reset appropriately, everything
-> breaks.
-What does 'I' above stand for? The platform error recovery procedure
-or the error callbacks of drivers? I guess it means platform, that is,
-only platform enables DMA for the whole slot. But why does the last sentence
-become driver enables DMA? As you know, driver binds device function instead of
-slot. Could driver enable DMA for a function?
-
-
-> 
-> > Then, if the slot is always reset, there will be no the problem. 
-> 
-> But that assumes that a hardware #RST will always be done. The API
-> was designed to get away from this requirement.
-> 
-> > If mmio_enabled is not used currently, I think we could delete it firstly. Later on,
-> > if a platform really need it, we could add it, so we could keep the simplied codes.
-> 
-> It would be very difficult to add it later. And it would be especially
-> silly, given that someone would find this discussion in the mailing list 
-> archives.
-You stick to keep mmio_enabled which is not used currently, but if there will be
-a new platform who uses a more fine-grained steps to recover pci/pci-e, would
-you say 'it would be very difficut' and refuse add new callbacks?
-
-> 
-> > Thanks. Now I understand why you specified mmio_enabled and slot_reset. They are just
-> > to map to pSeries platform hardware operation steps. I know little about pSeries hardware,
-> 
-> The hardware was designed that way because the hardware engineers
-> thought that this is what the device driver writers would need. 
-> Thay are there to map to actual recovery steps that actual device
-> drivers might want to do.
-It doesn't prevent software from merging some steps. And, we want
-to implement pci/pci-e error recovery for more platforms instead of just
-pSeries.
-
-> 
-> > but is it possible to merge such hardware steps from software point of view?
-> 
-> The previous email explained why this would be a bad idea. 
-Obviously, such conclusion is too early.
-
-> 
-> > > The platform. By "electrical reset", I mean "dropping the #RST pin low
-> > > for 200mS". Only the platform can do this.
-> > Thanks for your explanation. I assume after the electrical reset, all device
-> > functions of the device slot will go back to the initial status before
-> > attaching their drivers.
-> 
-> Maybe. Depends on what yur BIOS does. On pSeries, I also need to
-> set up the adress BARs
-> 
-> > I found a problem of e1000 driver when testing its error handlers. After the NIC is resumed,
-> > its RX/TX packets numbers are crazy.
-> 
-> Hmm. There is a patch to prevent this from happening. I thought
-> it was applied a long time ago. e1000_update_stats() should include the
-> lines:
-> 
->    if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
->       return;
-> 
-> which is enough to prevent crazy stats on my machine.
-Thanks a lot!
-
-Yanmin
+On 9/5/06, David Howells <dhowells@redhat.com> wrote:
+> Aubrey <aubreylee@gmail.com> wrote:
+>
+> > IMHO the problem is nommu.c is written for slab only. So when slob is
+> > enabled, it need to be considered to make some modification to make
+> > two or more memory allocator algorithms work properly, rather than to
+> > force all others algorithm to be compatible with the current one(slab)
+> > to match the code in the nommu.c, which is not common enough.
+> >
+> > Does that make sense?
+>
+> No, not really.
+>
+> The point is that kobjsize() needs to determine the size of the object it has
+> been asked to assess.  It knows how to do that directly if the page is
+> allocated by the main page allocator, but not if the page belongs to the slab
+> allocator.  The quickest way it can determine this is to look at PG_slab.  In
+> such a case it defers to the slab allocator for a determination.
+>
+> What I don't want to happen is that we have to defer immediately to the slob
+> allocator which then goes and searches various lists to see if it owns the
+> page.  Remember: unless the page is _marked_ as belonging to the slob
+> allocator, the slob allocator may _not_ assume any of the metadata in struct
+> page is valid slob metadata.  It _has_ to determine the validity of the page
+> by other means _before_ it can use the metadata, and that most likely means a
+> search.  This is why PG_slab exists: if it is set, you _know_ you can
+> instantly trust the metadata.
+>
+> Since slob appears to be an entry-point-by-entry-point replacement for the
+> slab allocator, the slob allocator can also mark its pages for anything that's
+> looking to defer to it using PG_slab since the presence of slab and slob are
+> mutually exclusive.
+>
+> Also, we already have two major memory allocator algorithms in the kernel at
+> any one time: (1) the main page allocator and (2) slab or slob.  We don't
+> really want to start going to three or more.
+>
+>
+> So, I come back to the main question: Why don't you want to use PG_slab?
+>
+> David
+>

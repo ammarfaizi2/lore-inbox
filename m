@@ -1,74 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbWIFBsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWIFBwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbWIFBsN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 21:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbWIFBsN
+	id S965265AbWIFBwO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 21:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWIFBwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 21:48:13 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29631 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965216AbWIFBsK (ORCPT
+	Tue, 5 Sep 2006 21:52:14 -0400
+Received: from orca.ele.uri.edu ([131.128.51.63]:13994 "EHLO orca.ele.uri.edu")
+	by vger.kernel.org with ESMTP id S965226AbWIFBwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 21:48:10 -0400
-Message-ID: <44FE28CB.6070005@garzik.org>
-Date: Tue, 05 Sep 2006 21:47:55 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Tue, 5 Sep 2006 21:52:12 -0400
+Date: Tue, 5 Sep 2006 21:53:37 -0400
+From: Will Simoneau <simoneau@ele.uri.edu>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: akpm@osdl.org, cmm@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       ext4 <linux-ext4@vger.kernel.org>
+Subject: Re: BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+Message-ID: <20060906015337.GC16449@ele.uri.edu>
+References: <20060905171049.GB27433@ele.uri.edu> <44FDE6E5.3090009@us.ibm.com> <20060905214703.GA16449@ele.uri.edu> <1157496228.23501.21.camel@dyn9047017100.beaverton.ibm.com>
 MIME-Version: 1.0
-To: sergio@sergiomb.no-ip.org
-CC: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, greg@kroah.com, harmon@ksu.edu,
-       Daniel Drake <dsd@gentoo.org>, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] take 4 Re: VIA IRQ quirk, another (embarrassing)	suggestion.
-References: <1157330567.3046.24.camel@localhost.portugal>	 <20060903175841.7a84c63c.akpm@osdl.org> <44FBBD28.6070601@garzik.org>	 <20060904055502.GA26816@tuatara.stupidest.org>	 <1157370847.4624.15.camel@localhost.localdomain>	 <20060904183352.GA14004@tuatara.stupidest.org>	 <1157468155.30252.17.camel@localhost.localdomain>	 <44FD9431.2050403@garzik.org> <1157505255.3145.32.camel@localhost.portugal>
-In-Reply-To: <1157505255.3145.32.camel@localhost.portugal>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jy6Sn24JjFx/iggw"
+Content-Disposition: inline
+In-Reply-To: <1157496228.23501.21.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.5.13 [Linux 2.6.17.11-grsec-b0rg i686]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
-> On Tue, 2006-09-05 at 11:13 -0400, Jeff Garzik wrote:
->> Sergio Monteiro Basto wrote:
->>> On Mon, 2006-09-04 at 11:33 -0700, Chris Wedgwood wrote:
->>>> On Mon, Sep 04, 2006 at 12:54:07PM +0100, Sergio Monteiro Basto wrote:
->>>>
->>>>> I don't know if this is a real question. Have we VIA products on PCI
->>>>> card, running on not VIA chip sets ?
->>>> Yes.  Certainly for on-board devices too.
->>> OK , other argument.
->>> We have billions of VIA chip sets with VIA PCI on-board and 
->>> VIA PCI on others chip sets, if exists, are a very few.
->>> So, because some exceptions, we shouldn't stop a resolution of a very
->>> large % of the cases. 
->> No thanks.  As VIA SATA maintainer, I like being able to use my VIA SATA 
->> PCI card.
->>
->> 	Jeff
-> 
-> I have 2 computer with 2 different Asrock
-> (http://www.asrock.com/product/775Dual-880Pro.htm) boards, both have a
-> VIA8237 and a VIA SATA, and both are quirked wrongly, when I use kernels
-> 2.6.17+ . 
-> And if I haven't bought this 2 computers in a supermarket, I won't be
-> here discussion this subjects.
-> 
-> So I like to remember  
-> http://lkml.org/lkml/2006/7/28/264
-> http://lkml.org/lkml/2006/9/4/111 ( that confirm a VIA SATA on XT-PIC
-> mode ) http://lkml.org/lkml/2006/9/1/106 )
-> 
-> So VIA SATA needs my patch or Daniel Drake patch to _WORK_ .
 
-No argument.
+--jy6Sn24JjFx/iggw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm just saying that you cannot avoid the VIA-device-not-on-VIA-chipset 
-case.  I don't care which patch is used, as long as _both_ cases work.
+On 15:43 Tue 05 Sep     , Badari Pulavarty wrote:
+> On Tue, 2006-09-05 at 17:47 -0400, Will Simoneau wrote:
+> > On 14:06 Tue 05 Sep     , Badari Pulavarty wrote:
+> > > Will Simoneau wrote:
+> > > >Has anyone seen this before? These three traces occured at different=
+ times
+> > > >today when three new user accounts (and associated quotas) were crea=
+ted.=20
+> > > >This
+> > > >machine is an NFS server which uses quotas on an ext3 fs (dir_index =
+is on).
+> > > >Kernel is 2.6.17.11 on an x86 smp w/64G highmem; 4G ram is installed=
+=2E The
+> > > >affected filesystem is on a software raid1 of two hardware raid0 vol=
+umes=20
+> > > >from a
+> > > >megaraid card.
+> > > >
+> > > >BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+> > > > <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread+0x26=
+/0x2a
+> > > > <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0=
+x1ae
+> > > > <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0=
+x107
+> > > > <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1=
+e7
+> > > > <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
+>=20
+> I think, we found your problem.
+>=20
+> ext3_getblk() is not handling HOLE correctly. Does this patch help ?
+> Mingming, what do you think ?
+>=20
+> Thanks,
+> Badari
+>=20
+> ext3_get_blocks_handle() returns number of blocks it mapped.
+> It returns 0 in case of HOLE. ext3_getblk() should handle
+> HOLE properly (currently its dumping warning stack and
+> returning -EIO).
+>=20
+> Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+> ---
+>  fs/ext3/inode.c |    9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+>=20
+> Index: linux-2.6.18-rc5/fs/ext3/inode.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linux-2.6.18-rc5.orig/fs/ext3/inode.c	2006-08-27 20:41:48.000000000 -=
+0700
+> +++ linux-2.6.18-rc5/fs/ext3/inode.c	2006-09-05 15:32:57.000000000 -0700
+> @@ -1009,11 +1009,12 @@ struct buffer_head *ext3_getblk(handle_t
+>  	buffer_trace_init(&dummy.b_history);
+>  	err =3D ext3_get_blocks_handle(handle, inode, block, 1,
+>  					&dummy, create, 1);
+> -	if (err =3D=3D 1) {
+> +	/*
+> +	 * ext3_get_blocks_handle() returns number of blocks
+> +	 * mapped. 0 in case of a HOLE.
+> +	 */
+> +	if (err > 0) {
+>  		err =3D 0;
+> -	} else if (err >=3D 0) {
+> -		WARN_ON(1);
+> -		err =3D -EIO;
+>  	}
+>  	*errp =3D err;
+>  	if (!err && buffer_mapped(&dummy)) {
 
-	Jeff
+Unfortunately this will be difficult for me to test as the machine is a
+production server, I will try it when I get a chance to offline for a
+few minutes.
 
+--jy6Sn24JjFx/iggw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
+iD8DBQFE/iohLYBaX8VDLLURAvjfAJ0fPVvauhKyhzPW6cCxqqQZd0nF6wCgie2Z
+dUGqN1QDcNtNy25WB3LSW04=
+=6oUP
+-----END PGP SIGNATURE-----
+
+--jy6Sn24JjFx/iggw--

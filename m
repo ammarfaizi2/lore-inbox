@@ -1,141 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbWIFCBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWIFCGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965263AbWIFCBA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Sep 2006 22:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWIFCBA
+	id S965232AbWIFCGT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Sep 2006 22:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWIFCGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Sep 2006 22:01:00 -0400
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:23836 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S965263AbWIFCA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Sep 2006 22:00:59 -0400
-From: Daniel Drake <dsd@gentoo.org>
-To: akpm@osdl.org
-Cc: sergio@sergiomb.no-ip.org
-Cc: jeff@garzik.org
-Cc: greg@kroah.com
-Cc: cw@f00f.org
-Cc: bjorn.helgaas@hp.com
-Cc: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Cc: harmon@ksu.edu
-Cc: len.brown@intel.com
-Cc: vsu@altlinux.ru
-Cc: liste@jordet.net
-Subject: [NEW PATCH] VIA IRQ quirk behaviour change
-Message-Id: <20060906020429.6ECE67B40A0@zog.reactivated.net>
-Date: Wed,  6 Sep 2006 03:04:29 +0100 (BST)
+	Tue, 5 Sep 2006 22:06:18 -0400
+Received: from mga05.intel.com ([192.55.52.89]:57364 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S965232AbWIFCGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Sep 2006 22:06:17 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,209,1154934000"; 
+   d="scan'208"; a="126346015:sNHT61303116"
+Subject: Re: pci error recovery procedure
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Rajesh Shah <rajesh.shah@intel.com>, Yanmin Zhang <yanmin.zhang@intel.com>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
+In-Reply-To: <20060905191739.GF7139@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
+	 <20060831175001.GE8704@austin.ibm.com>
+	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
+	 <20060901212548.GS8704@austin.ibm.com>
+	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
+	 <20060905191739.GF7139@austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1157508270.20092.426.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 06 Sep 2006 10:04:31 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The most recent VIA IRQ quirk changes have broken various VIA devices for
-some users.  We are not able to add these devices to the blacklist as they
-are also available in PCI-card form, and running the quirk on these devices
-brings us back to square one (running the VIA quirk on non-VIA boards where
-the quirk is not needed).
+On Wed, 2006-09-06 at 03:17, Linas Vepstas wrote:
+> On Mon, Sep 04, 2006 at 01:47:30PM +0800, Zhang, Yanmin wrote:
+> > > 
+> > > Again, consider the multi-function cards. On pSeries, I can  only enable 
+> > > DMA on a per-slot basis, not a per-function basis. So if one driver
+> > > enables DMA before some other driver has reset appropriately, everything
+> > > breaks.
+> > Does here 'reset' mean hardware slot reset? 
+> 
+> I should have said: If one driver of a multi-function card enables DMA before 
+> another driver has stabilized its harware, then everything breaks.
+What's another driver's hardware? A function of the previous multi-function
+card? Or a function of another device?
 
-This patch, based on suggestions from Sergey Vlasov, implements a scheme
-similar to but more restrictive than the scheme we had in 2.6.16 and
-earlier.  It runs the quirk on all VIA hardware, but *only* if a VIA
-southbridge was detected on the system.
+Ok. now, I copy what you said before below for more discussion.
+> If we enabled both DMA and MMIO at the same time, there are mnay cases
+> where the card will immediately trap again -- for example, if its
+> DMA'ing to some crazy address. Thus, typically, one wants DMA disabled 
+> until after the card reset.  Withouth the mmio_enabled() reset, there
+> is no way of doing this.
+Did you asume the card reset is executed by callback mmio_enabled?
 
-Based on suggestions and much investigation from from Sergio Monteiro Basto,
-this patch also partially reverts commit
-93cffffa19960464a52f9c78d9a6150270d23785 from Bjorn Helgaas. It is not clear
-if this was ever the correct fix, see http://lkml.org/lkml/2005/9/26/183
-This patch additionally includes a change suggested by Linus in that thread,
-where we only quirk devices on non-legacy IRQs.
 
-There is still a downside to this patch: if the user inserts a VIA PCI card
-into a VIA-based motherboard, in some circumstances the quirk will also run on
-the VIA PCI card. This corner case is hard to avoid.
+> Again, consider the multi-function cards. On pSeries, I can  only enable 
+> DMA on a er-slot basis, not a per-function basis. So if one driver
+> enables DMA before some other driver has reset appropriately, everything
+> breaks.
+What does 'I' above stand for? The platform error recovery procedure
+or the error callbacks of drivers? I guess it means platform, that is,
+only platform enables DMA for the whole slot. But why does the last sentence
+become driver enables DMA? As you know, driver binds device function instead of
+slot. Could driver enable DMA for a function?
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
----
 
-Andrew, please replace the current -mm patch with this one. The general idea
-is that we consider applying the quirk to a lot more devices than we currently
-do (more comparable to 2.6.16 and previous), but we add various bail-out
-conditions to actually end up applying the quirks much less.
+> 
+> > Then, if the slot is always reset, there will be no the problem. 
+> 
+> But that assumes that a hardware #RST will always be done. The API
+> was designed to get away from this requirement.
+> 
+> > If mmio_enabled is not used currently, I think we could delete it firstly. Later on,
+> > if a platform really need it, we could add it, so we could keep the simplied codes.
+> 
+> It would be very difficult to add it later. And it would be especially
+> silly, given that someone would find this discussion in the mailing list 
+> archives.
+You stick to keep mmio_enabled which is not used currently, but if there will be
+a new platform who uses a more fine-grained steps to recover pci/pci-e, would
+you say 'it would be very difficut' and refuse add new callbacks?
 
-I am fairly confident that we'll still be quirking enough hardware to not
-cause any breakage, but we can't be sure until it has seen some testing. This
-is compile-tested only.
+> 
+> > Thanks. Now I understand why you specified mmio_enabled and slot_reset. They are just
+> > to map to pSeries platform hardware operation steps. I know little about pSeries hardware,
+> 
+> The hardware was designed that way because the hardware engineers
+> thought that this is what the device driver writers would need. 
+> Thay are there to map to actual recovery steps that actual device
+> drivers might want to do.
+It doesn't prevent software from merging some steps. And, we want
+to implement pci/pci-e error recovery for more platforms instead of just
+pSeries.
 
-Stian Jordet: You're on CC due to a discussion linked to from above where
-it appeared that you needed Bjorn's patch. Please test this patch against
-unmodified 2.6.17 or 2.6.18-rc and let us know if there are any problems.
+> 
+> > but is it possible to merge such hardware steps from software point of view?
+> 
+> The previous email explained why this would be a bad idea. 
+Obviously, such conclusion is too early.
 
-Index: linux/drivers/pci/quirks.c
-===================================================================
---- linux.orig/drivers/pci/quirks.c
-+++ linux/drivers/pci/quirks.c
-@@ -650,26 +650,59 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_V
-  * Some of the on-chip devices are actually '586 devices' so they are
-  * listed here.
-  */
-+
-+static int via_irq_fixup_needed = -1;
-+
-+/*
-+ * As some VIA hardware is available in PCI-card form, we need to restrict
-+ * this quirk to VIA PCI hardware built onto VIA-based motherboards only.
-+ * We try to locate a VIA southbridge before deciding whether the quirk
-+ * should be applied.
-+ */
-+static const struct pci_device_id via_irq_fixup_tbl[] = {
-+	{
-+		.vendor 	= PCI_VENDOR_ID_VIA,
-+		.device		= PCI_ANY_ID,
-+		.subvendor	= PCI_ANY_ID,
-+		.subdevice	= PCI_ANY_ID,
-+		.class		= PCI_CLASS_BRIDGE_ISA << 8,
-+		.class_mask	= 0xffff00,
-+	},
-+	{ 0, },
-+};
-+
- static void quirk_via_irq(struct pci_dev *dev)
- {
- 	u8 irq, new_irq;
- 
--	new_irq = dev->irq & 0xf;
-+#ifdef CONFIG_X86_IO_APIC
-+	if (nr_ioapics && !skip_ioapic_setup)
-+		return;
-+#endif
-+#ifdef CONFIG_ACPI
-+	if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
-+		return;
-+#endif
-+
-+	if (via_irq_fixup_needed == -1)
-+		via_irq_fixup_needed = pci_dev_present(via_irq_fixup_tbl);
-+
-+	if (!via_irq_fixup_needed)
-+		return;
-+
-+	new_irq = dev->irq;
-+	if (!new_irq || new_irq >= 15)
-+		return;
-+
- 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
- 	if (new_irq != irq) {
--		printk(KERN_INFO "PCI: VIA IRQ fixup for %s, from %d to %d\n",
-+		printk(KERN_INFO "PCI: VIA PIC IRQ fixup for %s, from %d to %d\n",
- 			pci_name(dev), irq, new_irq);
- 		udelay(15);	/* unknown if delay really needed */
- 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
- 	}
- }
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
-+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
- 
- /*
-  * VIA VT82C598 has its device ID settable and many BIOSes
+> 
+> > > The platform. By "electrical reset", I mean "dropping the #RST pin low
+> > > for 200mS". Only the platform can do this.
+> > Thanks for your explanation. I assume after the electrical reset, all device
+> > functions of the device slot will go back to the initial status before
+> > attaching their drivers.
+> 
+> Maybe. Depends on what yur BIOS does. On pSeries, I also need to
+> set up the adress BARs
+> 
+> > I found a problem of e1000 driver when testing its error handlers. After the NIC is resumed,
+> > its RX/TX packets numbers are crazy.
+> 
+> Hmm. There is a patch to prevent this from happening. I thought
+> it was applied a long time ago. e1000_update_stats() should include the
+> lines:
+> 
+>    if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
+>       return;
+> 
+> which is enough to prevent crazy stats on my machine.
+Thanks a lot!
+
+Yanmin

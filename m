@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWIFMtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWIFM6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWIFMtI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 08:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWIFMtI
+	id S1750880AbWIFM6l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 08:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWIFM6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 08:49:08 -0400
-Received: from yzordderrex.netnoteinc.com ([212.17.35.167]:49340 "EHLO
-	yzordderrex.lincor.com") by vger.kernel.org with ESMTP
-	id S1750826AbWIFMtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 08:49:01 -0400
-Message-ID: <44FEC3A4.1030108@draigBrady.com>
-Date: Wed, 06 Sep 2006 13:48:36 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Samuel Tardieu <sam@rfc1149.net>
-CC: linux-kernel@vger.kernel.org, wim@iguana.be
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com> <2006-09-06-13-29-46+trackit+sam@rfc1149.net> <44FEB5B6.10008@draigBrady.com> <2006-09-06-14-07-50+trackit+sam@rfc1149.net>
-In-Reply-To: <2006-09-06-14-07-50+trackit+sam@rfc1149.net>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Sep 2006 08:58:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:54159 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750874AbWIFM6k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 08:58:40 -0400
+Date: Wed, 6 Sep 2006 14:50:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org
+Subject: Re: [PATCH] FRV: Fix {dis,en}able_irq_lockdep_irqrestore compile error
+Message-ID: <20060906125014.GA3978@elte.hu>
+References: <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <5905.1157469663@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5905.1157469663@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4984]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Tardieu wrote:
-> On  6/09, Pádraig Brady wrote:
+
+* David Howells <dhowells@redhat.com> wrote:
+
+> Fix the lack of certain non-LOCKDEP stub functions in 
+> linux/interrupt.h and also provide FRV with LOCKDEP variants.
 > 
-> | So in the case the BIOS sets the watchdog to 4 mins
-> | for example the 2 drivers are a little different.
-> | 
-> | W83627HF resets to timeout seconds on module load
-> | W83697HG resets to timeout seconds on /dev/watchdog open
+> This is to be applied to -mm kernel since not all of the functions 
+> added exist in the main kernel.
 > 
-> Yes, I'm reluctant at changing anything set by the BIOS before the first
-> *use* of the module.
+> Signed-Off-By: David Howells <dhowells@redhat.com>
 
-Sure.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-> In particular, if the watchdog was not activated by
-> default in the BIOS, I'd prefer the box not to reboot just because the
-> module was loaded (maybe by mistake) if no daemon open /dev/watchdog
-> at least once.
-
-Of course. To clarify, the W83627HF watchdog does not enable
-the watchdog on load if the BIOS had not enabled it already.
-
-cheers,
-Pádraig.
+	Ingo

@@ -1,91 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWIFWkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWIFWkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWIFWkR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 18:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964769AbWIFWh1
+	id S964799AbWIFWkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 18:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWIFWkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 18:37:27 -0400
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:36242 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964778AbWIFWhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 18:37:16 -0400
-From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.18-rc6 06/10] Add kmemleak support for ARM
-Date: Wed, 06 Sep 2006 23:37:12 +0100
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060906223711.21550.48239.stgit@localhost.localdomain>
-In-Reply-To: <20060906223536.21550.55411.stgit@localhost.localdomain>
-References: <20060906223536.21550.55411.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 6 Sep 2006 18:40:16 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:6412 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964858AbWIFWj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 18:39:28 -0400
+Date: Wed, 6 Sep 2006 23:39:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Josef Whiter <jwhiter@redhat.com>
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFE: add io= option to 8250 serial console
+Message-ID: <20060906223922.GA28943@flint.arm.linux.org.uk>
+Mail-Followup-To: Josef Whiter <jwhiter@redhat.com>,
+	linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060906212236.GC6841@korben.rdu.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060906212236.GC6841@korben.rdu.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+On Wed, Sep 06, 2006 at 05:22:37PM -0400, Josef Whiter wrote:
+> This patch is against a recent git clone of Linus's tree.  This patch adds
+> the ability to set the iobase for the serial port being used when you
+> specify a serial device for the console on bootup, ie
+> 
+> console=ttyS0,io=0x3f8
 
-This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for ARM to be used with kmemleak.
+Have you looked at 8250_early.c already in the kernel?
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
+        console=        [KNL] Output console device and options.
 
- arch/arm/kernel/vmlinux.lds.S |    7 +++++++
- include/asm-arm/processor.h   |   12 ++++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
+                uart,io,<addr>[,options]
+                uart,mmio,<addr>[,options]
+                        Start an early, polled-mode console on the 8250/16550
+                        UART at the specified I/O port or MMIO address,
+                        switching to the matching ttyS device later.  The
+                        options are the same as for ttyS, above.
 
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 3ca574e..59976b8 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -67,6 +67,11 @@ #endif
- 		__per_cpu_start = .;
- 			*(.data.percpu)
- 		__per_cpu_end = .;
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+		__memleak_offsets_start = .;
-+			*(.init.memleak_offsets)
-+		__memleak_offsets_end = .;
-+#endif
- #ifndef CONFIG_XIP_KERNEL
- 		__init_begin = _stext;
- 		*(.init.data)
-@@ -115,6 +120,7 @@ #endif
- 
- 	.data : AT(__data_loc) {
- 		__data_start = .;	/* address in memory */
-+		_sdata = .;
- 
- 		/*
- 		 * first, the init task union, aligned
-@@ -165,6 +171,7 @@ #endif
- 		__bss_start = .;	/* BSS				*/
- 		*(.bss)
- 		*(COMMON)
-+		__bss_stop = .;
- 		_end = .;
- 	}
- 					/* Stabs debugging sections.	*/
-diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
-index 04f4d34..34a3bb3 100644
---- a/include/asm-arm/processor.h
-+++ b/include/asm-arm/processor.h
-@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
- 
- #endif
- 
-+#ifdef CONFIG_FRAME_POINTER
-+static inline unsigned long arch_call_address(void *frame)
-+{
-+	return *(unsigned long *)(frame - 4) - 4;
-+}
-+
-+static inline void *arch_prev_frame(void *frame)
-+{
-+	return *(void **)(frame - 12);
-+}
-+#endif
-+
- #endif
- 
- #endif /* __ASM_ARM_PROCESSOR_H */
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core
+

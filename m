@@ -1,100 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWIFR12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWIFRfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751772AbWIFR12 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 13:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWIFR12
+	id S1751785AbWIFRfr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 13:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWIFRfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 13:27:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18876 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751768AbWIFR11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 13:27:27 -0400
-Date: Wed, 6 Sep 2006 19:27:33 +0200
-From: Jan Kara <jack@suse.cz>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, sct@redhat.com,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-Message-ID: <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk> <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com> <20060901101801.7845bca2.akpm@osdl.org> <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com> <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 6 Sep 2006 13:35:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:40109 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751782AbWIFRfq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 13:35:46 -0400
+Subject: [PATCH] ext3_getblk should handle HOLE correctly
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>,
+       Will Simoneau <simoneau@ele.uri.edu>, cmm@us.ibm.com
+Content-Type: text/plain
+Date: Wed, 06 Sep 2006 10:39:06 -0700
+Message-Id: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2006-09-06 at 18:27 +0200, Jan Kara wrote:
-> > > But my debug clearly shows that we are clearing the buffer, while
-> > > we haven't actually submitted to ll_rw_block() code. (I added "track"
-> > > flag to bh and set it in journal_commit_transaction() when we add
-> > > them to wbuf[] and clear it in ll_rw_block() after submit. I checked
-> > > for this flag in journal_unmap_buffer() while clearing the buffer).
-> > > Here is what my debug shows:
-> > > 
-> > > buffer is tracked bh ffff8101686ea850 size 1024 
-> > > 
-> > > Call Trace:
-> > >  [<ffffffff8020b395>] show_trace+0xb5/0x370
-> > >  [<ffffffff8020b665>] dump_stack+0x15/0x20
-> > >  [<ffffffff8030d474>] journal_invalidatepage+0x314/0x3b0
-> >   I see just journal_invalidatepage() here. That is fine. It calls
-> > journal_unmap_buffer() which should do nothing return 0. If it does
-> > not it would be IMO bug.. If the buffer is really unmapped here, in what
-> > state it is (i.e. which list is it on?).
-> 
-> Okay.. here is the path its taking according to my debug ..
-> Remember, the issue is: after the buffer is cleaned - they are
-> still (left) attached to the page (since a page can have 4
-> buffer heads and we partially truncated the page). After
-> we clean up the buffers any subsequent call to set_page_dirty()
-> would end up marking *all* the buffers dirty. If ll_rw_block()
-> happens after this, we will run into the assert. If no 
-> set_page_dirty() happens before ll_rw_block() happens, things
-> would be fine - as the buffer won't be dirty and be skipped.
-  Yes, OK.
+Hi Andrew,
 
-> journal_unmap_buffer() 
-> {
-> .....
-> 	        } else {
->                 /* Good, the buffer belongs to the running transaction.
->                  * We are writing our own transaction's data, not any
->                  * previous one's, so it is safe to throw it away
->                  * (remember that we expect the filesystem to have set
->                  * i_size already for this truncate so recovery will not
->                  * expose the disk blocks we are discarding here.) */
->                 J_ASSERT_JH(jh, transaction == journal-
-> >j_running_transaction);
->                 may_free = __dispose_buffer(jh, transaction);
->         }
-> zap_buffer:
->         journal_put_journal_head(jh);
-> zap_buffer_no_jh:
->         spin_unlock(&journal->j_list_lock);
->         jbd_unlock_bh_state(bh);
->         spin_unlock(&journal->j_state_lock);
-> zap_buffer_unlocked:
->         clear_buffer_dirty(bh);
->         J_ASSERT_BH(bh, !buffer_jbddirty(bh));
->         clear_buffer_mapped(bh);
->         clear_buffer_req(bh);
->         clear_buffer_new(bh);
->         bh->b_bdev = NULL;
->         return may_free;
-> }
-  Ugh! Are you sure? For this path the buffer must be attached (only) to
-the running transaction. But then how the commit code comes to it?
-Somebody would have to even manage to refile the buffer from the
-committing transaction to the running one while the buffer is in wbuf[].
-Could you check whether someone does __journal_refile_buffer() on your
-marked buffers, please? Or whether we move buffer to BJ_Locked list in
-the write_out_data: loop? Thanks.
+Its been reported that ext3_getblk() is not doing the right thing
+and triggering following WARN():
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+ <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread
++0x26/0x2a
+ <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
+ <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
+ <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
+ <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
+ <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time
++0x52/0x6a
+ <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
+ <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup
++0xdf/0x266
+ <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
+ <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
+ <c0102a97> syscall_call+0x7/0xb 
+
+Looking at the code, it looks like its not handle HOLE correctly.
+It ends up returning -EIO. Here is the patch to fix it.
+
+If we really want to be paranoid, we can allow return values
+0 (HOLE), 1 (we asked for one block) and return -EIO for
+more than 1 block. But I really don't see a reason for
+doing it - all we need is the block# here. (doesn't matter
+how many blocks are mapped).
+
+Thanks,
+Badari
+
+ext3_get_blocks_handle() returns number of blocks it mapped.
+It returns 0 in case of HOLE. ext3_getblk() should handle
+HOLE properly (currently its dumping warning stack and
+returning -EIO).
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+Acked-by: Mingming Cao <cmm@us.ibm.com>
+---
+ fs/ext3/inode.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+Index: linux-2.6.18-rc5/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.18-rc5.orig/fs/ext3/inode.c	2006-08-27 20:41:48.000000000 -0700
++++ linux-2.6.18-rc5/fs/ext3/inode.c	2006-09-05 15:32:57.000000000 -0700
+@@ -1009,11 +1009,12 @@ struct buffer_head *ext3_getblk(handle_t
+ 	buffer_trace_init(&dummy.b_history);
+ 	err = ext3_get_blocks_handle(handle, inode, block, 1,
+ 					&dummy, create, 1);
+-	if (err == 1) {
++	/*
++	 * ext3_get_blocks_handle() returns number of blocks
++	 * mapped. 0 in case of a HOLE.
++	 */
++	if (err > 0) {
+ 		err = 0;
+-	} else if (err >= 0) {
+-		WARN_ON(1);
+-		err = -EIO;
+ 	}
+ 	*errp = err;
+ 	if (!err && buffer_mapped(&dummy)) {
+
+

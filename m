@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWIFKyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWIFK5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWIFKyj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 06:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWIFKyj
+	id S1750719AbWIFK5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 06:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWIFK5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 06:54:39 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:2084 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1750702AbWIFKyi (ORCPT
+	Wed, 6 Sep 2006 06:57:25 -0400
+Received: from mail.gmx.net ([213.165.64.20]:45532 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750719AbWIFK5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 06:54:38 -0400
-Date: Wed, 6 Sep 2006 12:57:56 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: Damon LaCrosse <arid@inbox.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 odd hd slow down
-Message-ID: <20060906105755.GZ14565@kernel.dk>
-References: <87r6ypuy3v.fsf@inbox.ru>
-Mime-Version: 1.0
+	Wed, 6 Sep 2006 06:57:24 -0400
+X-Authenticated: #2360897
+Date: Wed, 6 Sep 2006 12:57:21 +0200
+From: Bernhard Walle <bernhard.walle@gmx.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: hrtimers -- high-resolution clock subsystem
+Message-ID: <20060906105721.GI4266@mail1.bwalle.de>
+Mail-Followup-To: Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+References: <20060905150706.GB14242@mail1.bwalle.de> <1157526843.5714.3.camel@localhost>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87r6ypuy3v.fsf@inbox.ru>
+In-Reply-To: <1157526843.5714.3.camel@localhost>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06 2006, Damon LaCrosse wrote:
+Hello,
+
+* Thomas Gleixner <tglx@linutronix.de> [2006-09-06 09:14]:
+> On Tue, 2006-09-05 at 17:07 +0200, Bernhard Walle wrote:
+> > 
+> > ,----[ Documentation/hrtimers.txt]--
+> > | We used the high-resolution clock subsystem ontop of hrtimers to
+> > | verify the hrtimer implementation details in praxis
+> > `----
+> > 
+> > I didn't find any "high-resolution clock subsystem" in the internet as
+> > patch. Can you give me the point or did I got this sentence wrong?
+> > Thanks.
 > 
-> Hi all,
-> experimenting a little the 2.6 block device layer I detected under
-> some circumstances a net slowness in the disk throughput. Strangely
-> enough, in fact, my IDE disk reported a significant performance drop
-> off in correspondence of certain access patterns.
-> 
-> Following further investigations I was able to simulate this ill
-> behavior in the following piece of code, clearly showing a non
-> negligible hard-disk slow down when the step value is set greater than
-> 8. These result in fact far below the hard-disk real speed
-> (30~70MB/sec), as correctly measured instead in correspondence of low
-> STEP values (<8). In particular, with step of 512 or above, the
-> overall performance scored by the disk results below 2MB/sec.
+> http://www.tglx.de/projects/hrtimers
 
-You are effectively approaching seeky writes, I bet it's just the drive
-firmware biting you. Repeat the test on a different drive, and see if
-you see an identical pattern.
+Ah, sorry, I saw this site but I thought the patches are outdated
+because new kernels already include hrtimers. I was wrong and I
+applied the patches and it works. :)
 
-> At first I thought to a side-effect of the queue plug/unplug
-> mechanism: the scattered accesses involve the unplug timeout to each
-> bio. So, I added the BIO_RW_SYNC flag that - AFAIK - should force the
-> queue unplugging. Unfortunately nothing changes.
-> 
-> Now, as it is quite possible that I'm missing something, the question
-> is: is there an effective way of doing scattered disk accesses using
-> bios? In other words, how can I fix the following program in order to
-> get disk full speed for steps > 8?
 
-I don't think the io path has anything to do with this. Why are you
-expecting non-sequential writes to continue to be fast? They wont be.
-
--- 
-Jens Axboe
-
+Regards,
+  Bernhard

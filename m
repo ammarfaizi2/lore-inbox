@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWIGKTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWIGK2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWIGKTW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 06:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWIGKTV
+	id S1751368AbWIGK2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 06:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWIGK2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 06:19:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:6068 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751274AbWIGKTV (ORCPT
+	Thu, 7 Sep 2006 06:28:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18903 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751393AbWIGK2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 06:19:21 -0400
-Date: Thu, 7 Sep 2006 12:11:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: fixing wrong comment for find_idlest_cpu()
-Message-ID: <20060907101115.GB4125@elte.hu>
-References: <87d5a8jlgf.wl%takeuchi_satoru@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87d5a8jlgf.wl%takeuchi_satoru@jp.fujitsu.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 7 Sep 2006 06:28:22 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060906232045.GA9744@us.ibm.com> 
+References: <20060906232045.GA9744@us.ibm.com>  <20060904225419.GA4367@us.ibm.com> <20060830211203.GA12953@us.ibm.com> <20060825221615.GA11613@us.ibm.com> <20060824182044.GE17658@us.ibm.com> <20060824181722.GA17658@us.ibm.com> <22796.1156542677@warthog.cambridge.redhat.com> <27154.1156546746@warthog.cambridge.redhat.com> <10689.1157020231@warthog.cambridge.redhat.com> <8777.1157535885@warthog.cambridge.redhat.com> 
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4] eCryptfs: ino_t to u64 for filldir 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 07 Sep 2006 11:28:11 +0100
+Message-ID: <29962.1157624891@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com> wrote:
+Michael Halcrow <mhalcrow@us.ibm.com> wrote:
 
-> Fixing wrong comment for find_idlest_cpu().
-> 
-> Signed-off-by: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
+> How's this?
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Looks good.
 
-	Ingo
+Acked-By: David Howells <dhowells@redhat.com>

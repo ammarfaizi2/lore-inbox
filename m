@@ -1,82 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWIGHat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWIGH3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWIGHat (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 03:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWIGHat
+	id S1750950AbWIGH3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 03:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWIGH3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 03:30:49 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:56307 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750984AbWIGHar (ORCPT
+	Thu, 7 Sep 2006 03:29:19 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:16501 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750945AbWIGH3S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 03:30:47 -0400
-Date: Thu, 7 Sep 2006 09:31:11 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       avr32@atmel.com
-Subject: Re: [PATCH 05/26] Dynamic kernel command-line - avr32
-Message-ID: <20060907093111.1bf57c61@cad-250-152.norway.atmel.com>
-In-Reply-To: <200609040118.06291.alon.barlev@gmail.com>
-References: <200609040115.22856.alon.barlev@gmail.com>
-	<200609040118.06291.alon.barlev@gmail.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Sep 2006 03:29:18 -0400
+Message-ID: <44FFCA4D.9090202@openvz.org>
+Date: Thu, 07 Sep 2006 11:29:17 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: sekharan@us.ibm.com
+CC: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
+       Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+ memory)
+References: <44FD918A.7050501@sw.ru>	 <1157478392.3186.26.camel@localhost.localdomain>  <44FED3CA.7000005@sw.ru> <1157579641.31893.26.camel@linuxchandra>
+In-Reply-To: <1157579641.31893.26.camel@linuxchandra>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(trimming Cc list)
+Chandra Seetharaman wrote:
 
-On Mon, 4 Sep 2006 01:18:04 +0300
-Alon Bar-Lev <alon.barlev@gmail.com> wrote:
+[snip]
+>>> Will we need new user/kernel interfaces for cpu, i/o bandwidth, etc...?
+>>>       
+>> no. no new interfaces are required.
+>>     
+>
+> Good to know that. 
+>
+> Your CPU controller supports guarantee ?
+>   
+It does, but CPU controller is not so simple as memory one.
+> Do you have a i/o controller ?
+>
+>   
+>> BUT: I remind you the talks at OKS/OLS and in previous UBC discussions.
+>> It was noted that having a separate interfaces for CPU, I/O bandwidth
+>>     
+>
+> But, it will be lot simpler for the user to configure/use if they are
+> together. We should discuss this also.
+>   
+IMHO such unification may only imply that one syscall is used to pass
+configuration info into kernel.
+Each controller has specific configurating parameters different from the
+other ones. E.g. CPU controller must assign a "weight" to each group to
+share CPU time accordingly, but what is a "weight" for memory controller?
+IO may operate on "bandwidth" and it's not clear what is a "bandwidth" in
+Kb/sec for CPU controller and so on.
 
-> 
-> 1. Rename saved_command_line into boot_command_line.
-> 2. Set command_line as __initdata.
-
-Thanks. Seems to work fine with my setup.
-
-I should probably start using that parse_early_param() stuff, though.
-I'll update this patch if I do.
-
-Now, do I add a signed-off-by line here, or an acked-by?
-
-Haavard
-
-> Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
-> 
-> ---
-> 
-> diff -urNp linux-2.6.18-rc5-mm1.org/arch/avr32/kernel/setup.c
-> linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c ---
-> linux-2.6.18-rc5-mm1.org/arch/avr32/kernel/setup.c	2006-09-03
-> 18:56:48.000000000 +0300 +++
-> linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c	2006-09-03
-> 20:58:45.000000000 +0300 @@ -44,7 +44,7 @@ struct avr32_cpuinfo
-> boot_cpu_data = { }; EXPORT_SYMBOL(boot_cpu_data); 
-> -static char command_line[COMMAND_LINE_SIZE];
-> +static char __initdata command_line[COMMAND_LINE_SIZE];
->  
->  /*
->   * Should be more than enough, but if you have a _really_ complex
-> @@ -94,7 +94,7 @@ static unsigned long __initdata fbmem_si
->  
->  static void __init parse_cmdline_early(char **cmdline_p)
->  {
-> -	char *to = command_line, *from = saved_command_line;
-> +	char *to = command_line, *from = boot_command_line;
->  	int len = 0;
->  	char c = ' ';
->  
-> @@ -226,7 +226,7 @@ __tagtable(ATAG_MEM, parse_tag_mem);
->  
->  static int __init parse_tag_cmdline(struct tag *tag)
->  {
-> -	strlcpy(saved_command_line, tag->u.cmdline.cmdline,
-> COMMAND_LINE_SIZE);
-> +	strlcpy(boot_command_line, tag->u.cmdline.cmdline,
-> COMMAND_LINE_SIZE); return 0;
->  }
->  __tagtable(ATAG_CMDLINE, parse_tag_cmdline);
+[snip]
+>> The question is - whether web server is multithreaded or not...
+>> If it is not - then no problem here, you can change current
+>> context and new resources will be charged accordingly.
+>>
+>> And current BC code is _able_ to handle it with _minor_ changes.
+>> (One just need to save bc not on mm struct, but rather on vma struct
+>> and change mm->bc on set_bc_id()).
+>>
+>> However, no one (can some one from CKRM team please?) explained so far
+>> what to do with threads. Consider the following example.
+>>
+>> 1. Threaded web server spawns a child to serve a client.
+>> 2. child thread touches some pages and they are charged to child BC
+>>    (which differs from parent's one)
+>> 3. child exits, but since its mm is shared with parent, these pages
+>>    stay mapped and charged to child BC.
+>>
+>> So the question is:  what to do with these pages?
+>> - should we recharge them to another BC?
+>> - leave them charged?
+>>     
+>
+> Leave them charged. It will be charged to the appropriate UBC when they
+> touch it again.
+>   
+Do you mean that page must be re-charged each time someone touches it?

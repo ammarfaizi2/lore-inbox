@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWIGPIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWIGPPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWIGPIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbWIGPIL
+	id S1751817AbWIGPPt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWIGPPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:08:11 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:3213 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751789AbWIGPIH (ORCPT
+	Thu, 7 Sep 2006 11:15:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2507 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751817AbWIGPPs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:08:07 -0400
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-In-Reply-To: <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk>
-	 <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060901101801.7845bca2.akpm@osdl.org>
-	 <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906124719.GA11868@atrey.karlin.mff.cuni.cz>
-	 <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906153449.GC18281@atrey.karlin.mff.cuni.cz>
-	 <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906162723.GA14345@atrey.karlin.mff.cuni.cz>
-	 <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 08:11:17 -0700
-Message-Id: <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 7 Sep 2006 11:15:48 -0400
+Date: Thu, 7 Sep 2006 08:15:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.18-rc5-mm1: strange /proc/interrupts contents on HPC nx6325
+Message-Id: <20060907081528.e1fd8776.akpm@osdl.org>
+In-Reply-To: <20060907135105.GA3318@elte.hu>
+References: <200609062117.31125.rjw@sisk.pl>
+	<20060906201953.d96ee183.akpm@osdl.org>
+	<20060907135105.GA3318@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Sep 2006 15:51:05 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
->   Ugh! Are you sure? For this path the buffer must be attached (only) to
-> the running transaction. But then how the commit code comes to it?
-> Somebody would have to even manage to refile the buffer from the
-> committing transaction to the running one while the buffer is in wbuf[].
-> Could you check whether someone does __journal_refile_buffer() on your
-> marked buffers, please? Or whether we move buffer to BJ_Locked list in
-> the write_out_data: loop? Thanks.
 > 
-> 							
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > This is due to a gruesome hack (IMO) in the genirq code 
+> > (handle_irq_name()) which magically "knows" about the various types of 
+> > IRQ handler, but doesn't know about the MSI ones.  It should be 
+> > converted to a field in irq_desc, or a callback or something.
+> 
+> a field in irq_desc[] was frowned upon during initial genirq review, due 
+> to size reasons, so i removed it and replaced it with the hack.
 
-I added more debug in __journal_refile_buffer() to see if the marked
-buffers are getting refiled. I am able to reproduce the problem,
-but I don't see any debug including my original prints. (It looks as 
-if none of my debug code exists) - its really confusing. 
+irq_desc[] is already in the hundred-byte range.  I'm a bit surprised that
+another char* is worth sweating over.
 
-I will keep looking and get back to you.
+What's in irq_chip.name, btw?  "name for /proc/interrupts".  hmm.
 
-I may try Andrew's buffer debug patch - if I get desperate.
+> > I already had a whine about this then forgot about it, but it seems that
+> > code can't be changed by whining at it ;)
+> 
+> ;)
+> 
+> i think we could add a 'register handler name' API (or extend 
+> set_irq_handler() API), to pass in the name of handlers, and store it in 
+> a small array (instead of embedding it in irq_desc)? handle_irq_name() 
+> is not performance-critical.
 
-Thanks,
-Badari
-
+spose so.

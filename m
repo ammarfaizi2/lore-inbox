@@ -1,64 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWIGSFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWIGSFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161025AbWIGSFi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 14:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWIGSFi
+	id S1161040AbWIGSFv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 14:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWIGSFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 14:05:38 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:4257
-	"EHLO gwia-smtp.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1161025AbWIGSFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 14:05:37 -0400
-From: Jean Delvare <jdelvare@suse.de>
-Organization: SUSE
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-Date: Thu, 7 Sep 2006 20:07:24 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <200609071031.33855.jdelvare@suse.de> <m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
+	Thu, 7 Sep 2006 14:05:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24212 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161040AbWIGSFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 14:05:48 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] proc: Make the generation of the self symlink table driven.
+References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com>
+	<20060907101512.3e3a9604.akpm@osdl.org>
+Date: Thu, 07 Sep 2006 12:04:58 -0600
+In-Reply-To: <20060907101512.3e3a9604.akpm@osdl.org> (Andrew Morton's message
+	of "Thu, 7 Sep 2006 10:15:12 -0700")
+Message-ID: <m1hczjr1rp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609072007.25239.jdelvare@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 7 September 2006 15:57, Eric W. Biederman wrote:
-> Jean Delvare <jdelvare@suse.de> writes:
-> > I'll now apply Oleg's fix and see if things get better.
+Andrew Morton <akpm@osdl.org> writes:
 
-After 8 hours of stress testing on two machines, no crash and no freeze. 
-So Oleg's fix seems to do the trick. Thanks Oleg :)
-
-I'll keep the patches applied on both machines, even without stress tests 
-it is still better to make sure nothing bad happens in the long run.
-
-> > "My" test program forks 1000 children who sleep for 1 second then
-> > look for themselves in /proc, warn if they can't find themselves, and
-> > exit. So basically the idea is that the process list will shrink very
-> > rapidly at the same moment every child does readdir(/proc).
-> >
-> > I attached the test program, I take no credit (nor shame) for it, it
-> > was provided to me by IBM (possibly on behalf of one of their own
-> > customers) as a way to demonstrate and reproduce the original
-> > readdir(/proc) race bug.
+> On Wed, 06 Sep 2006 10:23:00 -0600
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
 >
-> Ok.  So whatever is creating lots of child threads that tripped you
-> up is probably peculiar to the environment on your laptop.
+>> 
+>> This patch generalizes the concept of files in /proc that are
+>> related to processes but live in the root directory of /proc
+>> 
+>> Ideally this would reuse infrastructure from the rest of the
+>> process specific parts of proc but unfortunately
+>> security_task_to_inode must not be called on files that
+>> are not strictly per process.  security_task_to_inode
+>> really needs to be reexamined as the security label can
+>> change in important places that we are not currently
+>> catching, but I'm not certain that simplifies this problem.
+>> 
+>> By at least matching the structure of the rest of proc
+>> we get more idiom reuse and it becomes easier to spot problems
+>> in the way things are put together.
+>> 
+>> Later things like /proc/mounts are likely to be moved into
+>> proc_base as well.  If union mounts are ever supported
+>> we may be able to make /proc a union mount, and properly
+>> split it into 2 filesystems.
+>> 
+>> ..
+>>
+>>  /*
+>> + * proc base
+>> + *
+>> + * These are the directory entries in the root directory of /proc
+>> + * that properly belong to the /proc filesystem, as they describe
+>> + * describe something that is process related.
+>> + */
+>> +static struct pid_entry proc_base_stuff[] = {
+>> +	NOD(PROC_TGID_INO, 	"self", S_IFLNK|S_IRWXUGO,
+>> +		&proc_self_inode_operations, NULL, {}),
+>> +	{}
+>> +};
+>
+> We could save a bunch of bytes here.
+>
+>> +	/* Lookup the directory entry */
+>> +	for (p = proc_base_stuff; p->name; p++) {
+>
+> By using ARRAY_SIZE here.
+>
+>> +	for (; nr < (ARRAY_SIZE(proc_base_stuff) - 1); filp->f_pos++, nr++) {
+>
+> like that does.
 
-There's nothing really special running on this laptop. Slackware 10.2 with 
-xterm, firefox, sylpheed, xchat, and that's about it. At least one of the 
-crashes I had yesterday happened when I was actively using firefox, I 
-can't tell for the other one.
+Agreed.   The problem is that I loose consistency with the other proc
+lookup methods.  If it wasn't for the call to security_task_inode I could use
+proc_pident_lookup.  Getting some common helpers is still a direction
+I want to pursue,  though not as much as I want to kill the hard
+coded inode numbers.
 
-The difference with the system where no problem was observed may be that 
-the laptop has a preemptive kernel, and the desktop hasn't.
+Now maybe that means I need to remove the trailing empty entry on
+all of the struct pid_entry candidates.
 
--- 
-Jean Delvare
+Another part of it is that I would like to convert from an array
+of pid_entries into a linked list, eventually so I can have subsystems
+that register their proc entries instead of having code that is riddled
+with ifdefs.
+
+Eric

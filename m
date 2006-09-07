@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWIGArr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWIGAzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161039AbWIGArr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 20:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWIGArr
+	id S1161042AbWIGAzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 20:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWIGAzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 20:47:47 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:41661 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161036AbWIGArq (ORCPT
+	Wed, 6 Sep 2006 20:55:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:22949 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161042AbWIGAzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 20:47:46 -0400
-Date: Thu, 7 Sep 2006 02:47:42 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] re-add -ffreestanding
-In-Reply-To: <20060907003758.GD25473@stusta.de>
-Message-ID: <Pine.LNX.4.64.0609070245100.6761@scrub.home>
-References: <20060830175727.GI18276@stusta.de> <200608302013.58122.ak@suse.de>
- <20060830183905.GB31594@flint.arm.linux.org.uk> <20060906223748.GC12157@stusta.de>
- <Pine.LNX.4.64.0609070115270.6761@scrub.home> <20060906235029.GC25473@stusta.de>
- <Pine.LNX.4.64.0609070202040.6761@scrub.home> <20060907003758.GD25473@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Sep 2006 20:55:35 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: what is the expected behaviour under extreme high load.
+Date: Thu, 7 Sep 2006 00:55:00 +0000 (UTC)
+Message-ID: <loom.20060907T025107-236@post.gmane.org>
+References: <6b4e42d10609061653p608a2947g1943b3d752855dfe@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 68.60.177.223 (Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1b2) Gecko/20060821 Firefox/2.0b2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Om Narasimhan <om.turyx <at> gmail.com> writes:
 
-On Thu, 7 Sep 2006, Adrian Bunk wrote:
-
-> > BS, even without it gcc can't make such assumption.
-> > There is not a single optimization, which would be invalid in a kernel 
-> > environment and would be "fixed" by this option, so please stop this 
-> > nonsense.
 > 
-> You are wrong.
+> Hi,
+> I am running a stress test on my SunFire 4600 (8x2core, 64G) using the
+> mem_test available from
+> http://carpanta.dc.fi.udc.es/~quintela/memtest. I am using SuSE
+> enterprise 9 SP3.
 > 
-> Section 5.1.2.2.2 of ISO/IEC 9899:1999 says:
-> In a hosted environment, a program may use all functions, macros, type 
-> definitions, and objects described in the library clause (clause 7).
-> 
-> Since a hosted environment means gcc+libc, it's therefore clear that gcc 
-> can assume the presence of a full libc if gcc isn't told that it's used 
-> as a freestanding environment.
+> I am wondering what is the expected behaviour of a machine under
+> extreme VM stress.
+> When I stress the system to the limits, it practically becomes
+> unresponsive. It runs for almost half an hour and then it crashes
+> because of a CPU lockup.
 
-Define "full libc".
-Explain what exactly -ffreestanding fixes, which is not valid for the 
-kernel.
+Lockup is certainly not the expected behavior. 
 
-byem Roman
+> Pid: 12756, comm: mtest Tainted: G   U   (2.6.5-7.244-smp-dbg )
+
+For one, that's an awfully old kernel that you are running and secondly if you
+have support, only SuSE is going to be able to help you with this problem since
+it's not a stock kernel.org kernel but a SuSE one. 
+
+Alternatively, you could run the latest stable kernel (http://kernel.org) and
+try to reproduce the problem.
+
+Hope that helps.
+
+Parag
+

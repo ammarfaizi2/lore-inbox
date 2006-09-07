@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751935AbWIGGEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751948AbWIGGRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751935AbWIGGEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 02:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWIGGEP
+	id S1751948AbWIGGRd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 02:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751950AbWIGGRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 02:04:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13486 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751935AbWIGGEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 02:04:15 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: piet@bluelane.com
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, fastboot@osdl.org
-Subject: Re: [PATCH] x86_64 kexec: Remove experimental mark of kexec
-References: <m1veo1vtev.fsf@ebiederm.dsl.xmission.com>
-	<m1k64hvsru.fsf@ebiederm.dsl.xmission.com>
-	<200609062122.14971.ak@suse.de>
-	<1157608031.14930.27.camel@piet2.bluelane.com>
-Date: Thu, 07 Sep 2006 00:03:21 -0600
-In-Reply-To: <1157608031.14930.27.camel@piet2.bluelane.com> (Piet Delaney's
-	message of "Wed, 06 Sep 2006 22:47:11 -0700")
-Message-ID: <m1odtsrz6e.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 02:17:32 -0400
+Received: from pat.uio.no ([129.240.10.4]:2951 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751947AbWIGGRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 02:17:31 -0400
+Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
+	sharing [try #13]
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, steved@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1157607018.5929.8.camel@raven.themaw.net>
+References: <1157546813.5541.8.camel@lade.trondhjem.org>
+	 <1157518718.3066.22.camel@raven.themaw.net>
+	 <1157458817.4133.29.camel@raven.themaw.net>
+	 <1157451611.4133.22.camel@raven.themaw.net>
+	 <1157436412.3915.26.camel@raven.themaw.net>
+	 <20060901195009.187af603.akpm@osdl.org>
+	 <20060831102127.8fb9a24b.akpm@osdl.org>
+	 <20060830135503.98f57ff3.akpm@osdl.org>
+	 <20060830125239.6504d71a.akpm@osdl.org>
+	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
+	 <27414.1156970238@warthog.cambridge.redhat.com>
+	 <9849.1157018310@warthog.cambridge.redhat.com>
+	 <9534.1157116114@warthog.cambridge.redhat.com>
+	 <20060901093451.87aa486d.akpm@osdl.org>
+	 <1157130044.5632.87.camel@localhost>
+	 <28945.1157370732@warthog.cambridge.redhat.com>
+	 <1157376295.3240.13.camel@raven.themaw.net>
+	 <1157421445.5510.13.camel@localhost>
+	 <1157424937.3002.4.camel@raven.themaw.net>
+	 <1157428241.5510.72.camel@localhost>
+	 <1157429030.3915.8.camel@raven.themaw.net>
+	 <1157432039.32412.37.camel@localhost>
+	 <3698.1157449249@warth! og.cambridge.redhat.com>
+	 <4987.1157452656@war! thog.cambridge.redhat.com>
+	 <11346.1157463522@warthog.cambridge.redhat.com>
+	 <8912.1157536306@warthog.cambridge.redhat.com>
+	 <15694.1157549082@warthog.cambridge.redhat.com>
+	 <1157607018.5929.8.camel@raven.themaw.net>
+Content-Type: text/plain
+Date: Thu, 07 Sep 2006 02:17:13 -0400
+Message-Id: <1157609833.5787.6.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.727, required 12,
+	autolearn=disabled, AWL 1.14, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piet Delaney <piet@bluelane.com> writes:
+On Thu, 2006-09-07 at 13:30 +0800, Ian Kent wrote:
+> On Wed, 2006-09-06 at 14:24 +0100, David Howells wrote:
+> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > 
+> > > It really doesn't matter whether there is a symlink or not. automounters
+> > > should _not_ be trying to create directories on any filesystem other
+> > > than the autofs filesystem itself.
+> > 
+> > Yes, I agree.
+> 
+> Not really.
+> 
+> What about multiple recursive bind mounts?
+> What about the initial directory for the autofs mount itself?
+> 
+> What about the case where a admin expects autofs to create these
+> directories for map entries that have multiple offsets.
+> 
+> As I've said before in version 5 I'm saying that it is a requirement
+> that the the directories already exist in this case but in version 4
+> people may have become accustomed to this behavior and right or wrong
+> this type of change shouldn't be made without warning to the users or
+> possibly not made at all.
 
-> On Wed, 2006-09-06 at 21:22 +0200, Andi Kleen wrote:
->> On Wednesday 06 September 2006 18:55, Eric W. Biederman wrote:
->> > 
->> > kexec has been marked experimental for a year now and all
->> > of the serious problems have been worked through.  So it
->> > is time (if not past time) to remove the experimental mark.
->> > 
->> 
->> Hmm, I personally have some doubts it is really not experimental
->> (not because of the kexec code itself, but because of all the other drivers
->> that still break)
->
-> What drivers does kexec break?
+What part of the phrase "security risk" are you failing to understand?
+If anybody out there is actually relying on having an automounter daemon
+that is running with root privileges try to create directories on remote
+servers on the basis of the output of the 'showmount' command, then they
+need saving from themselves.
 
-Kexec doesn't break any drivers.  kexec exposes bugs in driver initialization
-handling, when drivers on not robust.
-
-The normal kexec case should be quite simple to handle and because we cleanup
-just like a reboot, the difference is that we don't ask the BIOS to reset us
-first.
-
-The kexec on panic case is painful, because drivers in the original kernel are
-not stopped or shutdown, and so the secondary kernel gets to initialize drivers
-from an essentially random state.
-
-Eric

@@ -1,71 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWIGSlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751840AbWIGSpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751818AbWIGSlu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 14:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWIGSlu
+	id S1751840AbWIGSpT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 14:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWIGSpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 14:41:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52355 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751818AbWIGSlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 14:41:49 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-	<200609071031.33855.jdelvare@suse.de>
-	<m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
-	<200609072007.25239.jdelvare@suse.de>
-Date: Thu, 07 Sep 2006 12:40:46 -0600
-In-Reply-To: <200609072007.25239.jdelvare@suse.de> (Jean Delvare's message of
-	"Thu, 7 Sep 2006 20:07:24 +0200")
-Message-ID: <m1r6ynpljl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 14:45:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53150 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751837AbWIGSpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 14:45:16 -0400
+Date: Thu, 7 Sep 2006 11:45:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>,
+       Will Simoneau <simoneau@ele.uri.edu>, cmm@us.ibm.com
+Subject: Re: [PATCH] ext3_getblk should handle HOLE correctly
+Message-Id: <20060907114500.fe9fcf82.akpm@osdl.org>
+In-Reply-To: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
+References: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <jdelvare@suse.de> writes:
+On Wed, 06 Sep 2006 10:39:06 -0700
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-> On Thursday 7 September 2006 15:57, Eric W. Biederman wrote:
->> Jean Delvare <jdelvare@suse.de> writes:
->> > I'll now apply Oleg's fix and see if things get better.
->
-> After 8 hours of stress testing on two machines, no crash and no freeze. 
-> So Oleg's fix seems to do the trick. Thanks Oleg :)
->
-> I'll keep the patches applied on both machines, even without stress tests 
-> it is still better to make sure nothing bad happens in the long run.
->
->> > "My" test program forks 1000 children who sleep for 1 second then
->> > look for themselves in /proc, warn if they can't find themselves, and
->> > exit. So basically the idea is that the process list will shrink very
->> > rapidly at the same moment every child does readdir(/proc).
->> >
->> > I attached the test program, I take no credit (nor shame) for it, it
->> > was provided to me by IBM (possibly on behalf of one of their own
->> > customers) as a way to demonstrate and reproduce the original
->> > readdir(/proc) race bug.
->>
->> Ok.  So whatever is creating lots of child threads that tripped you
->> up is probably peculiar to the environment on your laptop.
->
-> There's nothing really special running on this laptop. Slackware 10.2 with 
-> xterm, firefox, sylpheed, xchat, and that's about it. At least one of the 
-> crashes I had yesterday happened when I was actively using firefox, I 
-> can't tell for the other one.
+> Hi Andrew,
+> 
+> Its been reported that ext3_getblk() is not doing the right thing
+> and triggering following WARN():
+> 
+> BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+>  <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread
+> +0x26/0x2a
+>  <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
+>  <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
+>  <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
+>  <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
+>  <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time
+> +0x52/0x6a
+>  <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
+>  <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup
+> +0xdf/0x266
+>  <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
+>  <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
+>  <c0102a97> syscall_call+0x7/0xb 
+> 
+> Looking at the code, it looks like its not handle HOLE correctly.
+> It ends up returning -EIO.
 
-Well firefox is threaded so that may be enough.  It takes a threaded
-program to be able to trigger it.
+Strange.  The fs should be spewing these warnings all over the place.  For
+some reason this code is hard to trigger.  Why??
 
-> The difference with the system where no problem was observed may be that 
-> the laptop has a preemptive kernel, and the desktop hasn't.
+> -	if (err == 1) {
+> +	/*
+> +	 * ext3_get_blocks_handle() returns number of blocks
+> +	 * mapped. 0 in case of a HOLE.
+> +	 */
+> +	if (err > 0) {
+>  		err = 0;
+> -	} else if (err >= 0) {
+> -		WARN_ON(1);
+> -		err = -EIO;
+>  	}
 
-I suspect that just has the potential to make the window bigger.
+That removes the warning if ext3_get_blocks_handle() returned a positive
+number greater than one.  And it looks like we still need debugging support
+in this area.
 
-Eric
+I reworked it like this:
+
+--- a/fs/ext3/inode.c~ext3_getblk-should-handle-hole-correctly
++++ a/fs/ext3/inode.c
+@@ -1010,11 +1010,14 @@ struct buffer_head *ext3_getblk(handle_t
+ 	buffer_trace_init(&dummy.b_history);
+ 	err = ext3_get_blocks_handle(handle, inode, block, 1,
+ 					&dummy, create, 1);
+-	if (err == 1) {
++	/*
++	 * ext3_get_blocks_handle() returns number of blocks
++	 * mapped. 0 in case of a HOLE.
++	 */
++	if (err > 0) {
++		if (err > 1)
++			WARN_ON(1);
+ 		err = 0;
+-	} else if (err >= 0) {
+-		WARN_ON(1);
+-		err = -EIO;
+ 	}
+ 	*errp = err;
+ 	if (!err && buffer_mapped(&dummy)) {
+_
+
+ie:
+
+	/*
+	 * ext3_get_blocks_handle() returns number of blocks
+	 * mapped. 0 in case of a HOLE.
+	 */
+	if (err > 0) {
+		if (err > 1)
+			WARN_ON(1);
+		err = 0;
+	}
+	*errp = err;
 

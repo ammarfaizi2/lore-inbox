@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWIGQVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWIGQVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWIGQVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 12:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWIGQVT
+	id S932263AbWIGQVg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 12:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWIGQVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 12:21:19 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:27637 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932260AbWIGQVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 12:21:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nkD7rXGtX5Fo2+kDkpvoP4MjnidF8hxxvVqU78XehyjhvH0MyQHxkkw3J1WW1Zf+95JpsZ5ycyHuNn5Z8xpJcdk5SAnrRh03kOJKZsWb6AL381D/mT3tjPuWk0qJiatJJpJudocrHBcYQr77rbdlLkZ6bZfcLuMOM7+SXDsCPjw=
-Message-ID: <9e0cf0bf0609070921k7a96f9f7x1605a66745feef9f@mail.gmail.com>
-Date: Thu, 7 Sep 2006 19:21:17 +0300
-From: "Alon Bar-Lev" <alon.barlev@gmail.com>
-To: "Haavard Skinnemoen" <hskinnemoen@atmel.com>
-Subject: Re: [PATCH 05/26] Dynamic kernel command-line - avr32
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       avr32@atmel.com
-In-Reply-To: <20060907093111.1bf57c61@cad-250-152.norway.atmel.com>
+	Thu, 7 Sep 2006 12:21:36 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:11863 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932261AbWIGQVe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 12:21:34 -0400
+Message-ID: <45004707.4030703@tls.msk.ru>
+Date: Thu, 07 Sep 2006 20:21:27 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: re-reading the partition table on a "busy" drive
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200609040115.22856.alon.barlev@gmail.com>
-	 <200609040118.06291.alon.barlev@gmail.com>
-	 <20060907093111.1bf57c61@cad-250-152.norway.atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/7/06, Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
-> (trimming Cc list)
->
-> On Mon, 4 Sep 2006 01:18:04 +0300
-> Alon Bar-Lev <alon.barlev@gmail.com> wrote:
->
-> >
-> > 1. Rename saved_command_line into boot_command_line.
-> > 2. Set command_line as __initdata.
->
-> Thanks. Seems to work fine with my setup.
->
-> I should probably start using that parse_early_param() stuff, though.
-> I'll update this patch if I do.
->
-> Now, do I add a signed-off-by line here, or an acked-by?
->
-> Haavard
+Currently, the kernel refuses to re-read partition table
+from a drive which has usage count > 0.  Motivation for
+this is pretty clear (to not mess up with already open
+devices/partitions/filesystems, if I got it right ;),
+but this also is pretty annoying -- in order to change
+unrelated, yet unused partitions on root drive, one has
+to reboot the machine.
 
+I wonder if it's possible to actually read the new partition
+table, compare it with previous, and apply changes IF they
+don't conflict with currently open partitions?  Say, if we
+have sda1 and sda2, sda1 is open/mounted, and new partition
+table does not have sda2, but sda1 is unchanged - it's pretty
+safe to apply new partition table, without affecting mounted
+sda1.  Ditto for adding new partitions.
 
-Thanks for checking the patch!!!
+Yes, a line should be drawn somewhere - say, if sda3 was
+mounted, and we removed unused sda2, but sda3 (which becomes
+sda2 with new table) is intact, we should not apply new
+table.
 
-Best Regards,
-Alon Bar-Lev.
+Is it possible to implement such a feature?  I mean, is it
+easy to know which *partitions* (subdevices?) of the whole
+device are currently in use, as opposed to the whole drive?
+
+Thanks.
+
+/mjt

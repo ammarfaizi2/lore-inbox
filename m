@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWIGNbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWIGNeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWIGNbi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 09:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWIGNbi
+	id S932101AbWIGNeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 09:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWIGNeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 09:31:38 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:25493 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932107AbWIGNbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 09:31:36 -0400
-Message-ID: <45001EE3.1070500@garzik.org>
-Date: Thu, 07 Sep 2006 09:30:11 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 7 Sep 2006 09:34:00 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:1245 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S932101AbWIGNeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 09:34:00 -0400
+Date: Thu, 7 Sep 2006 15:33:57 +0200
+From: Christian Leber <christian@leber.de>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.6.18-rc6: hda is allready "IN USE" when booting (non-deterministic)
+Message-ID: <20060907133357.GA30888@core>
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Tejun Heo <htejun@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org>
-In-Reply-To: <20060907130401.GO2558@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Thu, Sep 07, 2006 at 02:53:57PM +0200, Tejun Heo wrote:
->> The spec says that devices can put additional restriction on supported 
->> cacheline size (IIRC, the example was something like power of two >= or 
->> <= certain size) and should ignore (treat as zero) if unsupported value 
->> is written.  So, there might be need for more low level driver 
->> involvement which knows device restrictions, but I don't know whether 
->> such devices exist.
-> 
-> That's nothing we can do anything about.  The system cacheline size is
-> what it is.  If the device doesn't support it, we can't fall back to a
-> different size, it'll cause data corruption.  So we'll just continue on,
-> and devices which live up to the spec will act as if we hadn't
-> programmed a cache size.  For devices that don't, we'll have the quirk.
-> 
-> Arguably devices which don't support the real system cacheline size
-> would only get data corruption if they used MWI, so we only have to
-> prevent them from using MWI; they could use a different cacheline size
-> for MRM and MRL without causing data corruption.  But I don't think we
-> want to go down that route; do you?
+Hello,
 
-FWIW, there are definitely both ethernet and SATA PCI devices which only 
-allow a limited set of values in the cacheline size register... and that 
-limited set does not include some of the modern machines.
+i keep hitting this since 2.6.18-rc3, the imo relevant messages are:
 
-	Jeff
+ide0: I/O resource 0x3F6-0x3F6
+hda: ERROR, PORTS ALREADY IN USE
+ide0 ad 0x1f0-0x1f7,0x3f6 on irq 14
+hdb: HL-DT-STDVD-ROM GDR8081N, ATAPI CD/DVD-ROM drive
+ide1: I/O resource 0x376-0x376 not free
+ide0: ports already in use, skipping probe
+register_blkdev: cannot get major 3 for ide0
+
+the probablity for this is about 70%, so with some patience i can use
+the box, but that also means it's very odd.
+Between the tries i allways switch it completly off.
+
+It's a Dell Latitude C810 laptop with a Pentium 3m 1133 Mhz with Intel 82815
+chipset that has a ICH2M south-bridge.
+
+Unfortunally it's not a hardware defect, with <= 2.6.17 it allways
+works with imo the same config.
+for reference i dumped it here:
+http://debian.christian-leber.de/config-craptop-2.6.18-rc6
 
 
+Christian Leber
+
+-- 
+  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
+   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
 

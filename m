@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWIGESx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWIGEiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWIGESx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 00:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWIGESw
+	id S1161073AbWIGEiK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 00:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWIGEiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 00:18:52 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:58757 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964883AbWIGESw (ORCPT
+	Thu, 7 Sep 2006 00:38:10 -0400
+Received: from xenotime.net ([66.160.160.81]:41379 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161073AbWIGEiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 00:18:52 -0400
-Message-ID: <44FF9DA8.10007@garzik.org>
-Date: Thu, 07 Sep 2006 00:18:48 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Shaohua Li <shaohua.li@intel.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Tigran Aivazian <tigran@veritas.com>
-Subject: Re: [PATCH] x86 microcode: don't check the size
-References: <1157597227.2782.55.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1157597227.2782.55.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 7 Sep 2006 00:38:09 -0400
+Date: Wed, 6 Sep 2006 21:41:45 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [-mm patch] ACPI_SONY shouldn't default m
+Message-Id: <20060906214145.95403569.rdunlap@xenotime.net>
+In-Reply-To: <20060906203003.95ad130a.akpm@osdl.org>
+References: <20060901015818.42767813.akpm@osdl.org>
+	<20060906230700.GE12157@stusta.de>
+	<20060906203003.95ad130a.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li wrote:
-> IA32 manual says if micorcode update's size is 0, then the size is
-> default size (2048 bytes). But this doesn't suggest all microcode
-> update's size should be above 2048 bytes to me. We actually had a
-> microcode update whose size is 1024 bytes. The patch just removed the
-> check.
+On Wed, 6 Sep 2006 20:30:03 -0700 Andrew Morton wrote:
+
+> On Thu, 7 Sep 2006 01:07:00 +0200
+> Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+> > Drivers should default to n.
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > --- linux-2.6.18-rc5-mm1/drivers/acpi/Kconfig.old	2006-09-07 00:49:37.000000000 +0200
+> > +++ linux-2.6.18-rc5-mm1/drivers/acpi/Kconfig	2006-09-07 00:50:01.000000000 +0200
+> > @@ -251,7 +251,6 @@
+> >  config ACPI_SONY
+> >  	tristate "Sony Laptop Extras"
+> >  	depends on X86 && ACPI
+> > -	default m
+> 
+> Not this one - I need it on my Vaio and I get sick of the option vanishing.
+> Make it depend on CONFIG_AKPM?
 
-Why not explicitly check for zero, rather than removing the questionable 
-less-than test?  The default size logic hasn't disappeared...
+I'll ack that one.  :)
+otherwise I also agree with Adrian's patch...
 
-	Jeff
-
-
-
+---
+~Randy

@@ -1,164 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWIGJeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWIGJe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWIGJeA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWIGJeA
+	id S1751161AbWIGJe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWIGJe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:34:00 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:50908 "EHLO
-	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1750979AbWIGJd6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:33:58 -0400
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: [take17 0/4] kevent: Generic event handling mechanism.
-In-Reply-To: <1qwel34p2jrwe5.GA1898@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 7 Sep 2006 13:57:39 +0400
-Message-Id: <11576230591036@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Thu, 7 Sep 2006 05:34:59 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:23504 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751161AbWIGJe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:34:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=GNabVerw4MyYNkNvwTV3xY/8DMgK1jN/BZo6314o/ct7wz8JckFHl7TV2+eEBA3ayyORULNAZFJaP0KMF62hgQycLtDs5AofUhYU3wwbOSgAt0GpTQONZzBdhva0DFSkorvXYVXQDkEhzNNkbJsYZMqCxlL1qnBkVWpfzqHDyhY=
+Message-ID: <44FFE7AF.8010808@gmail.com>
+Date: Thu, 07 Sep 2006 11:34:39 +0200
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: =?UTF-8?B?IkouQS4gTWFnYWxsw7NuIg==?= <jamagallon@ono.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
+References: <20060901015818.42767813.akpm@osdl.org>	<20060904013443.797ba40b@werewolf.auna.net>	<20060903181226.58f9ea80.akpm@osdl.org>	<44FB929B.7080405@gmail.com> <20060905002600.51c5e73b@werewolf.auna.net>
+In-Reply-To: <20060905002600.51c5e73b@werewolf.auna.net>
+Content-Type: multipart/mixed;
+ boundary="------------000907000903010108080607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000907000903010108080607
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Generic event handling mechanism.
+J.A. Magallón wrote:
+> libata version 2.00 loaded.
+> ata_piix 0000:00:1f.1: version 2.00ac7
+> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
+> PCI: Setting latency timer of device 0000:00:1f.1 to 64
+> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
+> scsi0 : ata_piix
+> ata1.00: XXX class=3 is_ata=0 is_cfa=1
+> ata1.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
 
-Since number of comments has come mostly to zero, I freeze for some time kevent
-development (since resending practically the same patches into /dev/null 
-is not that interesting task) and switch to imeplementation of special tree, 
-which probably will be used with kevents instead of hash table.
+Magallón, does the attached patch fix the problem?
 
-Changes from 'take16' patchset:
- * misc cleanups (__read_mostly, const ...)
- * created special macro which is used for mmap size (number of pages) calculation
- * export kevent_socket_notify(), since it is used in network protocols which can be 
-	built as modules (IPv6 for example)
+Alan, it seems that 0x848a indicates CFA device iff the ID data is from 
+IDENTIFY DEVICE.  When the command is IDENTIFY PACKET DEVICE, 0x848a 
+seems to indicate a valid ATAPI device.
 
-Changes from 'take15' patchset:
- * converted kevent_timer to high-resolution timers, this forces timer API update at
-	http://linux-net.osdl.org/index.php/Kevent
- * use struct ukevent* instead of void * in syscalls (documentation has been updated)
- * added warning in kevent_add_ukevent() if ring has broken index (for testing)
+ From ATA8-ACS, 7.17 is IDENTIFY DEVICE.
 
-Changes from 'take14' patchset:
- * added kevent_wait()
-    This syscall waits until either timeout expires or at least one event
-    becomes ready. It also commits that @num events from @start are processed
-    by userspace and thus can be be removed or rearmed (depending on it's flags).
-    It can be used for commit events read by userspace through mmap interface.
-    Example userspace code (evtest.c) can be found on project's homepage.
- * added socket notifications (send/recv/accept)
+> 7.17.7.1 Word 0: General configuration
+> 
+> Devices that conform to this standard shall clear bit 15 to zero. If
+> bit 7 is set to one, the device is a removable media device. Bit 6 is
+> obsolete.
+> 
+> If bit 2 is set to one it indicates that the content of the IDENTIFY
+> DEVICE data is incomplete. This will occur if the device supports the
+> Power-up in Standby feature set and required data is contained on the
+> device media. In this case the content of at least word 0 and word 2
+> shall be valid.
+> 
+> Devices supporting the CFA feature set shall place the value 848Ah in
+                                                                ^^^^^
+> word 0. In this case, the above definitions for the bits in  word 0
+> are not valid.
 
-Changes from 'take13' patchset:
- * do not get lock aroung user data check in __kevent_search()
- * fail early if there were no registered callbacks for given type of kevent
- * trailing whitespace cleanup
+And, 7.18 is on IDENTIFY PACKET DEVICE.
 
-Changes from 'take12' patchset:
- * remove non-chardev interface for initialization
- * use pointer to kevent_mring instead of unsigned longs
- * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
- * simplified enqueue/dequeue callbacks and kevent initialization
- * use nanoseconds for timeout
- * put number of milliseconds into timer's return data
- * move some definitions into user-visible header
- * removed filenames from comments
+> 7.18.6.2 Word 0: General configuration
+> 
+> Bits (15:14) of word 0 indicate the type of device. Bit 15 shall be
+> set to one and bit 14 shall be cleared to zeroto indicate the device
+> implements the PACKET Command feature set.
+> 
+> Bits (12:8) of word 0 indicate the command packet set implemented by
+> the device. This value follows the peripheral device type value as
+> defined in SCSI Primary Commands, ANSI INCITS 301:1997.
+> 
+> Bit 7 if set to one indicates that the device has removable media.
+> 
+> Bits (6:5) of word 0 indicate the DRQ response time when a PACKET
+> command is received. A value of 00b indicates a maximum time of 3 ms
+> from receipt of PACKET to the setting of DRQ to one. A value of 10b 
+> indicates a maximum time of 50 μs from the receipt of PACKET to the
+> setting of DRQ to one. The value 11b is reserved.
+> 
+> If bit 2 is set to one it indicates that the content of the IDENTIFY
+> DEVICE data is incomplete. This will occur if the device supports the
+> Power-up in Standby feature set and required data is contained on the
+> device media. In this case the content of at least word 0 and word 2
+> shall be valid.
+> 
+> Bits (1:0) of word 0 indicate the packet size the device supports. A
+> value of 00b indicates that a 12-byte packet is supported; a value of
+> 01b indicates a 16 byte packet. The values 10b and 11b are reserved.
 
-Changes from 'take11' patchset:
- * include missing headers into patchset
- * some trivial code cleanups (use goto instead of if/else games and so on)
- * some whitespace cleanups
- * check for ready_callback() callback before main loop which should save us some ticks
+So, when the output is from IDENTIFY PACKET DEVICE, 0x848a doesn't have 
+any special meaning.  It indicates a valid write-once, removable media, 
+ATAPI device with 16bytes CDB.
 
-Changes from 'take10' patchset:
- * removed non-existent prototypes
- * added helper function for kevent_registered_callbacks
- * fixed 80 lines comments issues
- * added shared between userspace and kernelspace header instead of embedd them in one
- * core restructuring to remove forward declarations
- * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
- * use vm_insert_page() instead of remap_pfn_range()
+The attached patch makes sanity checking logic in ata_dev_read_id() 
+check for CFA only if IDENTIFY DEVICE is used.
 
-Changes from 'take9' patchset:
- * fixed ->nopage method
+Thanks.
 
-Changes from 'take8' patchset:
- * fixed mmap release bug
- * use module_init() instead of late_initcall()
- * use better structures for timer notifications
+-- 
+tejun
 
-Changes from 'take7' patchset:
- * new mmap interface (not tested, waiting for other changes to be acked)
-	- use nopage() method to dynamically substitue pages
-	- allocate new page for events only when new added kevent requres it
-	- do not use ugly index dereferencing, use structure instead
-	- reduced amount of data in the ring (id and flags), 
-		maximum 12 pages on x86 per kevent fd
+--------------000907000903010108080607
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="patch"
 
-Changes from 'take6' patchset:
- * a lot of comments!
- * do not use list poisoning for detection of the fact, that entry is in the list
- * return number of ready kevents even if copy*user() fails
- * strict check for number of kevents in syscall
- * use ARRAY_SIZE for array size calculation
- * changed superblock magic number
- * use SLAB_PANIC instead of direct panic() call
- * changed -E* return values
- * a lot of small cleanups and indent fixes
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvc2NzaS9saWJhdGEtY29yZS5jIGIvZHJpdmVycy9zY3Np
+L2xpYmF0YS1jb3JlLmMKaW5kZXggNzNkZDZjOC4uNDI3YjczYSAxMDA2NDQKLS0tIGEvZHJp
+dmVycy9zY3NpL2xpYmF0YS1jb3JlLmMKKysrIGIvZHJpdmVycy9zY3NpL2xpYmF0YS1jb3Jl
+LmMKQEAgLTEyNTYsMTAgKzEyNTYsMTUgQEAgaW50IGF0YV9kZXZfcmVhZF9pZChzdHJ1Y3Qg
+YXRhX2RldmljZSAqZAogCXN3YXBfYnVmX2xlMTYoaWQsIEFUQV9JRF9XT1JEUyk7CiAKIAkv
+KiBzYW5pdHkgY2hlY2sgKi8KLQlpZiAoKGNsYXNzID09IEFUQV9ERVZfQVRBKSAhPSAoYXRh
+X2lkX2lzX2F0YShpZCkgfCBhdGFfaWRfaXNfY2ZhKGlkKSkpIHsKLQkJcmMgPSAtRUlOVkFM
+OwotCQlyZWFzb24gPSAiZGV2aWNlIHJlcG9ydHMgaWxsZWdhbCB0eXBlIjsKLQkJZ290byBl
+cnJfb3V0OworCXJjID0gLUVJTlZBTDsKKwlyZWFzb24gPSAiZGV2aWNlIHJlcG9ydHMgaWxs
+ZWdhbCB0eXBlIjsKKworCWlmIChjbGFzcyA9PSBBVEFfREVWX0FUQSkgeworCQlpZiAoIWF0
+YV9pZF9pc19hdGEoaWQpICYmICFhdGFfaWRfaXNfY2ZhKGlkKSkKKwkJCWdvdG8gZXJyX291
+dDsKKwl9IGVsc2UgeworCQlpZiAoYXRhX2lkX2lzX2F0YShpZCkpCisJCQlnb3RvIGVycl9v
+dXQ7CiAJfQogCiAJaWYgKHBvc3RfcmVzZXQgJiYgY2xhc3MgPT0gQVRBX0RFVl9BVEEpIHsK
 
-Changes from 'take5' patchset:
- * removed compilation warnings about unused wariables when lockdep is not turned on
- * do not use internal socket structures, use appropriate (exported) wrappers instead
- * removed default 1 second timeout
- * removed AIO stuff from patchset
-
-Changes from 'take4' patchset:
- * use miscdevice instead of chardevice
- * comments fixes
-
-Changes from 'take3' patchset:
- * removed serializing mutex from kevent_user_wait()
- * moved storage list processing to RCU
- * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
-	to differentiate between various cases
- * remove kevent from storage if is marked as broken after callback
- * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
-
-Changes from 'take2' patchset:
- * split kevent_finish_user() to locked and unlocked variants
- * do not use KEVENT_STAT ifdefs, use inline functions instead
- * use array of callbacks of each type instead of each kevent callback initialization
- * changed name of ukevent guarding lock
- * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
- * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
- * various indent cleanups
- * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
- * mapped buffer (initial) implementation (no userspace yet)
-
-Changes from 'take1' patchset:
- - rebased against 2.6.18-git tree
- - removed ioctl controlling
- - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
-			unsigned int timeout, void __user *buf, unsigned flags)
- - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
-	initialization
- - use mutuxes instead of semaphores
- - added file descriptor check and return error if provided descriptor does not match
-	kevent file operations
- - various indent fixes
- - removed aio_sendfile() declarations.
-
-Thank you.
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
-
+--------------000907000903010108080607--

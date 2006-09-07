@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWIGIdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWIGIfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWIGIdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 04:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWIGIdL
+	id S1751147AbWIGIfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 04:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWIGIfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 04:33:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31377 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751125AbWIGIdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 04:33:07 -0400
-Date: Thu, 7 Sep 2006 04:32:44 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: sebastien.dugue@bull.net, arjan@infradead.org, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, pierre.peiffer@bull.net,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: NPTL mutex and the scheduling priority
-Message-ID: <20060907083244.GA12531@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686> <20060613.010628.41632745.anemo@mba.ocn.ne.jp> <20060907.171158.130239448.nemoto@toshiba-tops.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 04:35:20 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:32347 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751147AbWIGIfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 04:35:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cVuKFlUwWj4CVXY7C00MY5EXrS8M/LaRxB/ReaEgLvmzQByT7MS+fd4Hyp5GOGyyaNbMYYazAePnWk6ct8MmW4vRo17R8JNRRStdkFfv5H0LHvYcyBiYADvxm2yzKeL43KtkrY4JFI8M1SSRGd3bPcSvB52hZd+TTKmogYejYWg=
+Message-ID: <6bffcb0e0609070135i314f2740if067eeab342f29a2@mail.gmail.com>
+Date: Thu, 7 Sep 2006 10:35:17 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc6 00/10] Kernel memory leak detector 0.10
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0609070104v1b747f79v3b10238954f389cd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060907.171158.130239448.nemoto@toshiba-tops.co.jp>
-User-Agent: Mutt/1.4.1i
+References: <20060906223536.21550.55411.stgit@localhost.localdomain>
+	 <6bffcb0e0609061710t3519e42dl6138cadd5ff0d3fb@mail.gmail.com>
+	 <b0943d9e0609070104v1b747f79v3b10238954f389cd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 05:11:58PM +0900, Atsushi Nemoto wrote:
-> Three months after, I have tried kernel 2.6.18 with recent glibc.  I
-> got desired results for pthread_mutex_unlock and
-> pthread_cond_broadcast, with PI-mutex.
-> 
-> But pthread_cond_signal and sem_post still wakeup a thread in FIFO
-> order, as you can guess.
-> 
-> With the plist patch (applied by hand), I can get desired behavior.
-> Thank you.  But It seems the patch lacks reordering on priority
-> changes.
+On 07/09/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 07/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > I get a kernel panic
+> > http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.10/panic.jpg
+> >
+> > http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.10/kml-config
+>
+> Well, you set CONFIG_DEBUG_MEMLEAK_HASH_BITS to 32, this means that
+> kmemleak needs to allocate (sizeof(void*) * 2^32) which is 16GB of
+> RAM. I think a maximum of 20 should be enough (I got acceptable
+> results with 16 hash bits, the default value, and it seemed to do
+> better with 18).
 
-Yes, either something like the plist patch for FUTEX_WAKE etc. or, if that
-proves to be too slow for the usual case (non-RT threads), FIFO wakeup
-initially and conversion to plist wakeup whenever first waiter with realtime
-priority is added, is still needed.  That will cure e.g. non-PI
-pthread_mutex_unlock and sem_post.  For pthread_cond_{signal,broadcast} we
-need further kernel changes, so that the condvar's internal lock can be
-always a PI lock.
+CONFIG_DEBUG_MEMLEAK=y
+CONFIG_DEBUG_MEMLEAK_HASH_BITS=8
+CONFIG_DEBUG_MEMLEAK_TRACE_LENGTH=12
+CONFIG_DEBUG_MEMLEAK_PREINIT_OBJECTS=512
+# CONFIG_DEBUG_MEMLEAK_SECONDARY_ALIASES is not set
+# CONFIG_DEBUG_MEMLEAK_TASK_STACKS is not set
+# CONFIG_DEBUG_MEMLEAK_ORPHAN_FREEING is not set
+CONFIG_DEBUG_MEMLEAK_REPORTS_NR=100
+# CONFIG_DEBUG_KEEP_INIT is not set
+# CONFIG_DEBUG_MEMLEAK_TEST is not set
 
-> <off_topic>
-> BTW, If I tried to create a PI mutex on a kernel without PI futex
-> support, pthread_mutexattr_setprotocol(PTHREAD_PRIO_INHERIT) returned
-> 0 and pthread_mutex_init() returned ENOTSUP.  This is not a right
-> behavior according to the manual ...
-> </off_topic>
+I still get a panic
 
-Why?
-POSIX doesn't forbid ENOTSUP in pthread_mutex_init to my knowledge.
+>
+> --
+> Catalin
+>
 
-	Jakub
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

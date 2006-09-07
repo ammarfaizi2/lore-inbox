@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWIGPql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751811AbWIGPr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWIGPql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWIGPql
+	id S1751811AbWIGPr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWIGPr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:46:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:39592 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750879AbWIGPqk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:46:40 -0400
-Subject: Re: JFS - real deadlock and lockdep warning (2.6.18-rc5-mm1)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Mattia Dongili <malattia@linux.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <20060907153951.GB13103@inferi.kami.home>
-References: <20060905203309.GA3981@inferi.kami.home>
-	 <1157580028.8200.72.camel@kleikamp.austin.ibm.com>
-	 <20060907153951.GB13103@inferi.kami.home>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 10:46:36 -0500
-Message-Id: <1157643997.23883.4.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Thu, 7 Sep 2006 11:47:58 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:25446 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751811AbWIGPr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 11:47:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=LutaXgEj7Qv0EF6p5j8/ILwrkLuTTgNsSmEd6rT/ixIIQ7Wjx1aPehivqJTQqKjJuNi8qh+thTeT9a/O+xtFvODrqQyszv4YZYW1i+cAnrX1XjEoBTF3k6HOwrwZmqM6avk5uqmxFwih8NFWklGrvp1K3RWTJzmZCbmXyrtAEMk=
+Message-ID: <45003F1B.7000302@gmail.com>
+Date: Thu, 07 Sep 2006 17:47:39 +0200
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Matthew Wilcox <matthew@wil.cx>, Arjan van de Ven <arjan@infradead.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: question regarding cacheline size
+References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org> <45001C48.6050803@gmail.com> <20060907152147.GA17324@colo.lackof.org>
+In-Reply-To: <20060907152147.GA17324@colo.lackof.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-07 at 17:39 +0200, Mattia Dongili wrote:
-> On Wed, Sep 06, 2006 at 05:00:28PM -0500, Dave Kleikamp wrote:
-> [...]
-> > > I suspect JFS is guilty, anyway my HD has these partitions:
-> > 
-> > I haven't got around to instrumenting jfs properly with
-> > mutex_lock_nested(), so I know jfs doesn't run clean with lockdep
-> > enabled.  What that means is that these warnings don't necessarily point
-> > to a real problem, and on the other hand, lockdep hasn't been run
-> > correctly against jfs to prove that the mutex usage is safe.
-> > 
-> > That said, I'm not aware of any known problems in jfs resulting in a
-> > deadlock.  Unfortunately, without being able to use sysrq, I don't have
-> > any real good ideas for you off the top of my head to further track down
-> > the problem.
+Grant Grundler wrote:
+> On Thu, Sep 07, 2006 at 03:19:04PM +0200, Tejun Heo wrote:
+> ...
+>> For MWI, it will cause data corruption.  For READ LINE and MULTIPLE, I 
+>> think it would be okay.  The memory is prefetchable after all.
 > 
-> yup... don't know if it could put some light but simply doing
-> 
-> $ mv ~/.firefox ~/.firefox.old
-> $ cp ~/.firefox.old ~/.firefox
-> 
-> in order to allocate different inodes (right?) I can run Firefox
-> with my favourite skin (the one that was causing the hang before).
-> 
-> > I'm pretty busy this week, but I'll try to get the lockdep stuff right
-> > in jfs as soon as possible.  Who knows?  Maybe it will find a real
-> > locking problem.
-> 
-> I'll try to keep the filesystem as is to be able to test any fix/test
-> you'll propose (Eclipse still hangs the computer). Fortunately I have
-> one more spare partition where I can move /home.
+> Within the context of DMA API, memory is prefetchable by the device
+> for "streaming" transactions but not for "coherent" memory.
+> PCI subsystem has no way of knowing which transaction a device
+> will use for any particular type of memory access. Only the
+> driver can embed that knowledge.
 
-As long as you're going to try a different /home partition, why don't
-you format it as something other than jfs.  This way if you see the
-problem again, you can rule out jfs as the culprit.  Also, if jfs is the
-problem, you can avoid it.
+I think using larger cacheline value should be okay for both 
+prefetchable and non-prefetchable memory.  Using larger value tells the 
+device to be more conservative in issuing MRL, MRW or WMI.  As Russell 
+has pointed out, cacheline-wrapping access wouldn't work but I think 
+it's reasonable to expect for such device to be flexible about cacheline 
+config.
+
+>> Oh yeah, that's what I was trying to say, and I don't want to go down 
+>> that route.  So, I guess this one is settled.
+> 
+> hrm...if the driver can put a safe value in cachelinesize register
+> and NOT enable MWI, I can imagine a significant performance boost
+> if the device can use MRM or MRL. But IMHO it's up to the driver
+> writers (or other contributors) to figure that out.
+> 
+> Current API (pci_set_mwi()) ties enabling MRM/MRL with enabling MWI
+> and I don't see a really good reason for that. Only the converse
+> is true - enabling MWI requires setting cachelinesize.
+
+arch/i386/pci/common.c overrides cacheline size to min 32 regardless of 
+actual size.  So, we seem to be using larger cacheline size for MWI already.
+
+Jeff pointed out that there actually are devices which limit CLS config. 
+  IMHO, making PCI configure CLS automatically and provide helpers to 
+LLD to override it if necessary should cut it.
+
+Thanks.
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+tejun

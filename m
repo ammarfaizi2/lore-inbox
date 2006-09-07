@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWIGSVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWIGSUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWIGSVS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 14:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWIGSVS
+	id S1751019AbWIGSUq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 14:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWIGSUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 14:21:18 -0400
-Received: from code.and.org ([65.172.155.230]:9879 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id S1751023AbWIGSVQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 14:21:16 -0400
-To: David Madore <david.madore@ens.fr>
-Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-From: James Antill <james@and.org>
-References: <20060905212643.GA13613@clipper.ens.fr>
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 07 Sep 2006 14:21:15 -0400
-In-Reply-To: <20060905212643.GA13613@clipper.ens.fr> (David Madore's message of "Tue, 5 Sep 2006 23:26:43 +0200")
-Message-ID: <m3r6yn4jxg.fsf@code.and.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: james@mail.and.org
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-X-SA-Exim-Version: 4.2 (built Tue, 02 May 2006 07:36:10 -0400)
-X-SA-Exim-Scanned: Yes (on mail.and.org)
+	Thu, 7 Sep 2006 14:20:45 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10978 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751019AbWIGSUp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 14:20:45 -0400
+Subject: [Bug] [2.6.18-rc5-mm1] system no boot early death  x86_64
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: mel@csn.ul.ie, andrew <akpm@osdl.org>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 07 Sep 2006 11:20:41 -0700
+Message-Id: <1157653241.5653.37.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Madore <david.madore@ens.fr> writes:
-
-> Hi.
->
-> As we all know, capabilities under Linux are currently crippled to the
-> point of being useless.  Attached is a patch (against 2.6.18-rc6)
-> which attempts to make them work in a reasonably useful way and at the
-> same time not break anything.  On top of the "additional" capabilities
-> that lead up to root, it also adds "regular" capabilities which all
-> processes have by default and which can be removed from specifically
-> untrusted programs.
-
- Just a minor comment, can you break out the OPEN into at least
-OPEN_R, OPEN_NONFILE_W and OPEN_W (possibly OPEN_A, but I don't want
-that personally).
- The case I'm thinking about are network daemons that need to
-open+write to the syslog socket but only have read access elsewhere.
+Hello,
+  I was booting rc4-mm3.  With rc5-mm1 I am hanging early... Mel I don't
+know if this is related to your code but I will soon know. (I don't get
+your debug info in early console.)  
+  I was working on patches for the reserve based memory hot add path in
+srat.c (the initial error is fixed by Mels patches but there is more to
+do) and was just moving to rc5-mm1 to sync up and then more trouble.
+This is with reserve based hot-add not enabled at the command line. 
 
 
- Also there is much more than just bind9 using capabilities, the
-obvious ones that come to mind are NOATIME and AUDIT.
+Linux version 2.6.18-rc5-mm1-smp (root@elm3a153) (gcc version 4.1.0
+(SUSE Linux)) #2 SMP Wed Sep 6 21:04:22 EDT 2006
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 0000000000098400 (usable)
+ BIOS-e820: 0000000000098400 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000007ff85e00 (usable)
+ BIOS-e820: 000000007ff85e00 - 000000007ff98880 (ACPI data)
+ BIOS-e820: 000000007ff98880 - 0000000080000000 (reserved)
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 0000000470000000 (usable)
+ BIOS-e820: 0000001070000000 - 0000001160000000 (usable)
+end_pfn_map = 18219008
+kernel direct mapping tables up to 1160000000 @ 8000-4f000
+DMI 2.3 present.
+SRAT: PXM 0 -> APIC 0 -> Node 0
+SRAT: PXM 0 -> APIC 1 -> Node 0
+SRAT: PXM 0 -> APIC 2 -> Node 0
+SRAT: PXM 0 -> APIC 3 -> Node 0
+SRAT: PXM 0 -> APIC 38 -> Node 0
+SRAT: PXM 0 -> APIC 39 -> Node 0
+SRAT: PXM 0 -> APIC 36 -> Node 0
+SRAT: PXM 0 -> APIC 37 -> Node 0
+SRAT: PXM 1 -> APIC 64 -> Node 1
+SRAT: PXM 1 -> APIC 65 -> Node 1
+SRAT: PXM 1 -> APIC 66 -> Node 1
+SRAT: PXM 1 -> APIC 67 -> Node 1
+SRAT: PXM 1 -> APIC 102 -> Node 1
+SRAT: PXM 1 -> APIC 103 -> Node 1
+SRAT: PXM 1 -> APIC 100 -> Node 1
+SRAT: PXM 1 -> APIC 101 -> Node 1
+SRAT: Node 0 PXM 0 0-80000000
+SRAT: Node 0 PXM 0 0-470000000
+SRAT: Node 1 PXM 1 1070000000-1160000000
+Bootmem setup node 0 0000000000000000-0000000470000000
 
--- 
-James Antill -- james@and.org
-http://www.and.org/and-httpd
+
+

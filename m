@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWIGPAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751794AbWIGPCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751786AbWIGPAk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWIGPAk
+	id S1751794AbWIGPCg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWIGPCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:00:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63188 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751786AbWIGPAj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:00:39 -0400
-Date: Thu, 7 Sep 2006 09:58:23 -0500
-From: David Teigland <teigland@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Steven Whitehouse <swhiteho@redhat.com>, linux-kernel@vger.kernel.org,
-       Russell Cattelan <cattelan@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-Subject: Re: [PATCH 14/16] GFS2: The DLM interface module
-Message-ID: <20060907145823.GF7775@redhat.com>
-References: <1157031710.3384.811.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609051352110.24010@yvahk01.tjqt.qr>
+	Thu, 7 Sep 2006 11:02:36 -0400
+Received: from fremont.jonmasters.org ([64.71.152.22]:44044 "EHLO
+	fremont.jonmasters.org") by vger.kernel.org with ESMTP
+	id S1751794AbWIGPCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 11:02:35 -0400
+From: Jon Masters <jonathan@jonmasters.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org,
+       Victor Castro <victorhugo83@yahoo.com>
+In-Reply-To: <1157641826.30159.99.camel@aeonflux.holtmann.net>
+References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
+	 <1157441620.24916.5.camel@localhost>
+	 <508B6A67-CA5B-4A81-B868-BF8A03D78888@vhugo.net>
+	 <1157560971.5265.94.camel@perihelion>
+	 <1157641826.30159.99.camel@aeonflux.holtmann.net>
+Content-Type: text/plain
+Organization: World Organi[sz]ation Of Broken Dreams
+Date: Thu, 07 Sep 2006 16:01:25 +0100
+Message-Id: <1157641285.28216.18.camel@perihelion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0609051352110.24010@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 212.18.227.82
+X-SA-Exim-Mail-From: jonathan@jonmasters.org
+Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
+X-SA-Exim-Version: 4.2 (built Thu, 14 Apr 2005 16:52:54 +0000)
+X-SA-Exim-Scanned: Yes (on fremont.jonmasters.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 05, 2006 at 02:05:14PM +0200, Jan Engelhardt wrote:
+On Thu, 2006-09-07 at 17:10 +0200, Marcel Holtmann wrote:
+> Hi Jon,
 > 
-> >+int gdlm_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-> >+		  lm_lock_t **lockp)
-> >+{
-> >+	struct gdlm_lock *lp;
-> >+	int error;
-> >+
-> >+	error = gdlm_create_lp((struct gdlm_ls *) lockspace, name, &lp);
-> >+
-> >+	*lockp = (lm_lock_t *) lp;
+> > > > actually it has never been really a filename. It was a simple pattern
+> > > > that the initial hotplug script and later the udev script mapped  
+> > > > 1:1 to a filename on your filesystem. If you check the mailing list  
+> > > > archives of LKML and linux-hotplug you will see that I always resisted
+> > > > in allowing drivers to include a directory path in that call. A couple
+> > > > of people tried this and it is not what it was meant to be.
+> > 
+> > That's fine. I agree with the idea - *but* it strikes me that we don't
+> > really have a co-ordinated database of what module "patterns" map to
+> > what on-disk firmware, aside from hotplug/udev scripts. We need to
+> > co-ordinate this stuff a lot more. Or am I missing something? I'm happy
+> > to setup a database on the kerneltools.org wiki if that's useful...
 > 
-> This cast is alright in itself. Considering however that lm_lock_t is
-> currently typedef'ed to void, it looks a little different. (One _could_
-> get rid of it, but better not while it is called lm_lock_t. Leave as-is
-> for now.)
+> that is true, but it is actually not a problem of the kernel and your
+> proposed MODULE_FIRMWARE patch. However it might be a good idea to start
+> something like this. It will also help to see what is actually needed.
 
-Hi Jan,
+I reali[sz]e it's not a direct problem, but it does need fixing. I'll
+spend some time over the weekend and then send an update about that.
 
-I'm wondering what you might suggest instead of using the lm_lockspace_t,
-lm_lock_t, lm_fsdata_t typedefs.  These are opaque objects passed between
-gfs and the lock modules.  Could you give an example or point to some code
-that shows what you're thinking?
+Jon.
 
-Thanks,
-Dave
 

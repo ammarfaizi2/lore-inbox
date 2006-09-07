@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWIGQCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWIGQEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161019AbWIGQCN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 12:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWIGQCM
+	id S932241AbWIGQEV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 12:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWIGQEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 12:02:12 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:20891 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932241AbWIGQCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 12:02:08 -0400
-Subject: Re: [PATCH 10/21] block: elevator selection and pinning
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20060906134642.GC14565@kernel.dk>
-References: <20060906131630.793619000@chello.nl> >
-	 <20060906133954.673752000@chello.nl>  <20060906134642.GC14565@kernel.dk>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 18:01:29 +0200
-Message-Id: <1157644889.17799.35.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 7 Sep 2006 12:04:21 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:16025 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932241AbWIGQEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 12:04:20 -0400
+Message-ID: <450042F7.5080202@garzik.org>
+Date: Thu, 07 Sep 2006 12:04:07 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Tejun Heo <htejun@gmail.com>, Matthew Wilcox <matthew@wil.cx>,
+       Arjan van de Ven <arjan@infradead.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: question regarding cacheline size
+References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org> <45001C48.6050803@gmail.com> <20060907152147.GA17324@colo.lackof.org>
+In-Reply-To: <20060907152147.GA17324@colo.lackof.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 15:46 +0200, Jens Axboe wrote:
-> On Wed, Sep 06 2006, Peter Zijlstra wrote:
-> > Provide an block queue init function that allows to set an elevator. And a 
-> > function to pin the current elevator.
-> > 
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > Signed-off-by: Daniel Phillips <phillips@google.com>
-> > CC: Jens Axboe <axboe@suse.de>
-> > CC: Pavel Machek <pavel@ucw.cz>
-> 
-> Generally I don't think this is the right approach, as what you really
-> want to do is let the driver say "I want intelligent scheduling" or not.
-> The type of scheduler is policy that is left with the user, not the
-> driver.
+Grant Grundler wrote:
+> hrm...if the driver can put a safe value in cachelinesize register
+> and NOT enable MWI, I can imagine a significant performance boost
+> if the device can use MRM or MRL. But IMHO it's up to the driver
+> writers (or other contributors) to figure that out.
 
-True, and the only sane value here is NOOP, any other policy would not
-be a good value. With this in mind would you rather prefer a 'boolean'
-argument suggesting we use NOOP over the default scheduler?
+Yes.
 
-(The whole switch API was done so I could reset the policy from the
-iSCSI side of things without changing the regular SCSI code - however
-even that doesn't seem to work out, mnc suggested to do it in userspace,
-so that API can go too)
 
-Would you agree that this hint on intelligent scheduling could be used
-to set the initial policy, the user can always override when he
-disagrees.
+> Current API (pci_set_mwi()) ties enabling MRM/MRL with enabling MWI
+> and I don't see a really good reason for that. Only the converse
+> is true - enabling MWI requires setting cachelinesize.
 
-These network block devices like NBD, iSCSI and AoE often talk to
-virtual disks, any attempt to be smart is a waste of time.
+Correct, that's why it was done that way, when I wrote the API. 
+Enabling MWI required making sure the BIOS configured our CLS for us, 
+which was often not the case.  No reason why we can't do a
 
-> And this patch seems to do two things, and you don't explain what the
-> pinning is useful for at all.
+	pdev->set_cls = 1;
+	rc = pci_enable_device(pdev);
 
-It was a hack, and its gone now.
+or
+
+	rc = pci_set_cacheline_size(pdev);
+
+Regards,
+
+	Jeff
+
+
 

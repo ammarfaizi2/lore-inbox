@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWIGVxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751848AbWIGVyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751871AbWIGVxj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 17:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWIGVxj
+	id S1751848AbWIGVyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 17:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWIGVyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 17:53:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34517 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751851AbWIGVxi (ORCPT
+	Thu, 7 Sep 2006 17:54:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46805 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751848AbWIGVyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 17:53:38 -0400
-Date: Thu, 7 Sep 2006 14:50:36 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org
-Subject: Re: [patch 37/37] sky2: version 1.6.1
-Message-ID: <20060907145036.1f2a7bc4@localhost.localdomain>
-In-Reply-To: <20060907210346.GF29890@elf.ucw.cz>
-References: <20060906224631.999046890@quad.kroah.org>
-	<20060906225812.GL15922@kroah.com>
-	<20060907192528.GG8793@ucw.cz>
-	<20060907203426.GB556@suse.de>
-	<20060907210346.GF29890@elf.ucw.cz>
-X-Mailer: Sylpheed-Claws 2.1.1 (GTK+ 2.8.17; i486-pc-linux-gnu)
+	Thu, 7 Sep 2006 17:54:21 -0400
+Date: Thu, 7 Sep 2006 14:54:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Greg KH <greg@kroah.com>
+Subject: Re: Naughty ramdrives
+Message-Id: <20060907145412.db920bb5.akpm@osdl.org>
+In-Reply-To: <20060907205927.GA5193@martell.zuzino.mipt.ru>
+References: <20060907205927.GA5193@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006 23:03:46 +0200
-Pavel Machek <pavel@suse.cz> wrote:
+On Fri, 8 Sep 2006 00:59:27 +0400
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
 
-> Hi!
+> You'd laugh, but...
 > 
-> > > > -stable review patch.  If anyone has any objections, please let us know.
-> > > > 
-> > > > ------------------
-> > > > From: Stephen Hemminger <shemminger@osdl.org>
-> > > > 
-> > > > Since this code incorporates some of the fixes from 2.6.18, change
-> > > > the version number.
-> > > > 
-> > > > Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > > 
-> > > Not sure, one of 'stable' criteria is 'fixes bad bug'. What bug does
-> > > this fix?
-> > 
-> > The previous 5 patches changed this driver, so changing the version
-> > number of it is acceptable to me.
+> Summary:
 > 
-> Well... I agree that version change is understandable, but it will be
-> also surprising for the users, and stable rules were quite strict with
-> "must fix obvious bug"...
+> 	After loading and unloading rd.ko many times "ls -l /dev/ram*"
+> 	results are not persistent.
 > 
+> Steps to reproduce:
+> 
+> 	# while true; do modprobe rd && rmmod rd; done
+> 		[wait ~10 seconds]
+> 	^C
+> 	# modprobe rd
+> 
+> 	# ls -l /dev/ram*
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+> 	# ls -l /dev/ram*
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram13 -> rd/13
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+> 	# ls -l /dev/ram*
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram1 -> rd/1
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram11 -> rd/11
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram14 -> rd/14
+> 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram15 -> rd/15
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram3 -> rd/3
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram8 -> rd/8
+> 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram9 -> rd/9
+> 
+> Versions:
+> 
+> 	Linux 2.6.18-rc5
+> 	udev 087
 
-I get lots of bug reports which are from distro and other kernels
-that cherrypick code from stable. How am I supposed to know if it
-is a new or old problem?
+So I assume udev is still madly crunching on its message backlog while
+this is happening?
+
+If so, ug.
+
+> P.S.:
+> 
+> This was noticed while investigating #4899
+> http://bugme.osdl.org/show_bug.cgi?id=4899
+> where /dev/ram0 when opened, pins module indefinitely. It seems that
+> adding ->release() which undoes
+> 
+> 	inode = igrab(bdev->bd_inode);
+> 
+> should do the trick. Am I right?
+
+Looks right.
+
+I'm not sure that igrab() is needed though.  Probably bd_openers is
+sufficient.
+
+I'm also not sure that rd_open() needs to play with bd_openers. 
+fs/block_dev.c:do_open() already does that.
+

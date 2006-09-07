@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWIGVEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWIGVFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWIGVEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 17:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWIGVEK
+	id S1422669AbWIGVFm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 17:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWIGVFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 17:04:10 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6595 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932182AbWIGVEF (ORCPT
+	Thu, 7 Sep 2006 17:05:42 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:54709 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422669AbWIGVFk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 17:04:05 -0400
-Date: Thu, 7 Sep 2006 23:03:46 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [patch 37/37] sky2: version 1.6.1
-Message-ID: <20060907210346.GF29890@elf.ucw.cz>
-References: <20060906224631.999046890@quad.kroah.org> <20060906225812.GL15922@kroah.com> <20060907192528.GG8793@ucw.cz> <20060907203426.GB556@suse.de>
-MIME-Version: 1.0
+	Thu, 7 Sep 2006 17:05:40 -0400
+Date: Fri, 8 Sep 2006 02:35:19 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ankita@in.ibm.com, linux-kernel@vger.kernel.org, fernando@oss.ntt.co.jp
+Subject: Re: [RFC] Linux Kernel Dump Test Module
+Message-ID: <20060907210519.GA6770@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20060907135329.GA17937@in.ibm.com> <20060907134850.c05f3be2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060907203426.GB556@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060907134850.c05f3be2.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > -stable review patch.  If anyone has any objections, please let us know.
-> > > 
-> > > ------------------
-> > > From: Stephen Hemminger <shemminger@osdl.org>
-> > > 
-> > > Since this code incorporates some of the fixes from 2.6.18, change
-> > > the version number.
-> > > 
-> > > Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > Not sure, one of 'stable' criteria is 'fixes bad bug'. What bug does
-> > this fix?
+On Thu, Sep 07, 2006 at 01:48:50PM -0700, Andrew Morton wrote:
+> On Thu, 7 Sep 2006 19:23:29 +0530
+> Ankita Garg <ankita@in.ibm.com> wrote:
 > 
-> The previous 5 patches changed this driver, so changing the version
-> number of it is acceptable to me.
+> > Please find below a patch for a simple module to test Linux Kernel Dump 
+> > mechanism. This module uses jprobes to install/activate pre-defined crash
+> > points. At different crash points, various types of crashing scenarios 
+> > are created like a BUG(), panic(), exception, recursive loop and stack 
+> > overflow. The user can activate a crash point with specific type by
+> > providing parameters at the time of module insertion. Please see the file
+> > header for usage information. The module is based on the Linux Kernel
+> > Dump Test Tool by Fernando <http://lkdtt.sourceforge.net>.
+> > 
+> > This module could be merged with mainline. Jprobes is used here so that the 
+> > context in which crash point is hit, could be maintained. This implements
+> > all the crash points as done by LKDTT except the one in the middle of 
+> > tasklet_action(). 
+> 
+> "could be merged with mainline": why "could"?  What would be the
+> disadvantages of doing this?
+> 
+I don't see disadvantages, probably the usefulness is in doubt.
 
-Well... I agree that version change is understandable, but it will be
-also surprising for the users, and stable rules were quite strict with
-"must fix obvious bug"...
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> I think having test code like this in mainline is a good idea, particularly
+> for a subsystem like [kj]probes.
+> 
+Do you mean using [kj]probes? 
+
+> It's a bit regrettable that the code "knows" about particular not-exported,
+> arch-specific core kernel functions, but I guess those don't change very
+> often, so we won't be forever patching this module.
+> 
+Probes at the beginning of the routine instead of at some offset (the
+way it is already done), should reduce the rework burdon.
+
+The crashpoints are in core kernel internal routines but I donot see 
+any "arch-specific" functions selected. I think the module can be used for 
+any architecture with jprobe support.
+
+Thanks
+Maneesh

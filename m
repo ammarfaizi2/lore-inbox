@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWIGEiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWIGFSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbWIGEiK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 00:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWIGEiK
+	id S1751536AbWIGFSa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 01:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWIGFSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 00:38:10 -0400
-Received: from xenotime.net ([66.160.160.81]:41379 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161073AbWIGEiJ (ORCPT
+	Thu, 7 Sep 2006 01:18:30 -0400
+Received: from mga09.intel.com ([134.134.136.24]:10402 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1751536AbWIGFS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 00:38:09 -0400
-Date: Wed, 6 Sep 2006 21:41:45 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [-mm patch] ACPI_SONY shouldn't default m
-Message-Id: <20060906214145.95403569.rdunlap@xenotime.net>
-In-Reply-To: <20060906203003.95ad130a.akpm@osdl.org>
-References: <20060901015818.42767813.akpm@osdl.org>
-	<20060906230700.GE12157@stusta.de>
-	<20060906203003.95ad130a.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 7 Sep 2006 01:18:29 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,223,1154934000"; 
+   d="scan'208"; a="122306891:sNHT1436813525"
+Subject: Re: [PATCH] x86 microcode: don't check the size
+From: Shaohua Li <shaohua.li@intel.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Tigran Aivazian <tigran@veritas.com>
+In-Reply-To: <44FF9DA8.10007@garzik.org>
+References: <1157597227.2782.55.camel@sli10-desk.sh.intel.com>
+	 <44FF9DA8.10007@garzik.org>
+Content-Type: text/plain
+Date: Thu, 07 Sep 2006 13:14:37 +0800
+Message-Id: <1157606077.2782.58.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2006 20:30:03 -0700 Andrew Morton wrote:
-
-> On Thu, 7 Sep 2006 01:07:00 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > Drivers should default to n.
+On Thu, 2006-09-07 at 00:18 -0400, Jeff Garzik wrote:
+> Shaohua Li wrote:
+> > IA32 manual says if micorcode update's size is 0, then the size is
+> > default size (2048 bytes). But this doesn't suggest all microcode
+> > update's size should be above 2048 bytes to me. We actually had a
+> > microcode update whose size is 1024 bytes. The patch just removed the
+> > check.
 > > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-2.6.18-rc5-mm1/drivers/acpi/Kconfig.old	2006-09-07 00:49:37.000000000 +0200
-> > +++ linux-2.6.18-rc5-mm1/drivers/acpi/Kconfig	2006-09-07 00:50:01.000000000 +0200
-> > @@ -251,7 +251,6 @@
-> >  config ACPI_SONY
-> >  	tristate "Sony Laptop Extras"
-> >  	depends on X86 && ACPI
-> > -	default m
+> > Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 > 
-> Not this one - I need it on my Vaio and I get sick of the option vanishing.
-> Make it depend on CONFIG_AKPM?
+> Why not explicitly check for zero, rather than removing the questionable 
+> less-than test?  The default size logic hasn't disappeared...
+We just don't want the default size check. If the size is 0, we still
+need use default size. The patch is just for those whose size isn't 0
+but smaller than default size.
 
-I'll ack that one.  :)
-otherwise I also agree with Adrian's patch...
-
----
-~Randy
+Thanks,
+Shaohua

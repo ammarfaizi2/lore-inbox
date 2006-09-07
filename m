@@ -1,58 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWIGAzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbWIGBB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWIGAzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 20:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWIGAzg
+	id S1161054AbWIGBB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 21:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWIGBB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 20:55:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:22949 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161042AbWIGAzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 20:55:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: what is the expected behaviour under extreme high load.
-Date: Thu, 7 Sep 2006 00:55:00 +0000 (UTC)
-Message-ID: <loom.20060907T025107-236@post.gmane.org>
-References: <6b4e42d10609061653p608a2947g1943b3d752855dfe@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 68.60.177.223 (Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1b2) Gecko/20060821 Firefox/2.0b2)
+	Wed, 6 Sep 2006 21:01:29 -0400
+Received: from web36603.mail.mud.yahoo.com ([209.191.85.20]:48535 "HELO
+	web36603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161054AbWIGBB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 21:01:28 -0400
+Message-ID: <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Wed, 6 Sep 2006 18:01:27 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Cc: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20060907003210.GA5503@clipper.ens.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Om Narasimhan <om.turyx <at> gmail.com> writes:
 
-> 
-> Hi,
-> I am running a stress test on my SunFire 4600 (8x2core, 64G) using the
-> mem_test available from
-> http://carpanta.dc.fi.udc.es/~quintela/memtest. I am using SuSE
-> enterprise 9 SP3.
-> 
-> I am wondering what is the expected behaviour of a machine under
-> extreme VM stress.
-> When I stress the system to the limits, it practically becomes
-> unresponsive. It runs for almost half an hour and then it crashes
-> because of a CPU lockup.
 
-Lockup is certainly not the expected behavior. 
+--- David Madore <david.madore@ens.fr> wrote:
 
-> Pid: 12756, comm: mtest Tainted: G   U   (2.6.5-7.244-smp-dbg )
 
-For one, that's an awfully old kernel that you are running and secondly if you
-have support, only SuSE is going to be able to help you with this problem since
-it's not a stock kernel.org kernel but a SuSE one. 
+> I understand your point.  But if we want these
+> under-privileges to
+> follow the same inheritance rules as the
+> over-privileges provided by
+> capabilities (were it only to make things simpler to
+> comprehend),
+> doesn't it make sense to implement them in the same
+> framework?
 
-Alternatively, you could run the latest stable kernel (http://kernel.org) and
-try to reproduce the problem.
+I'm certainly not convinced that you'd
+want that. Think of all the programs that
+would have to be marked with CAP_FORK.
 
-Hope that helps.
+> Rather
+> than trying to reproduce the same rules in a
+> different part of the
+> kernel, causing code reduplication which would
+> eventually, inevitably,
+> fall out of sync...  I think it's easier for
+> everyone if under- and
+> over-privileges are treated in a uniform fashion.
 
-Parag
+This again assumes that you want to require
+that in general processes run with some
+capabilities.
 
+> Perhaps that's not
+> what POSIX intended, but I don't think "not what was
+> intended" is a
+> sufficient reason for backing away from something
+> that might be
+> useful.  Do you have a specific problem in mind?
+
+You betcha. (That's Minnisotan for "Yes indeed")
+
+In our TCSEC B1 (Old person speak for LSPP)
+evaluation we had to put way too much effort
+into explaining why certain operations that
+had nothing to do with the system security
+policy (e.g. compute resource limitations)
+required privilege. These operations had
+no security implications at all, but since
+they required privilege they were assumed to
+have dire consequences should they be abused.
+
+If you introduce an "underprivileged" process,
+you immediately relegate what are currently
+unprivileged processes to the realm of
+privileged processes. All of a sudden any
+process that does fork() requires additional
+scrutiny because it uses privilege. You
+won't convince any evaluator that there is a
+difference between "having a capability" and
+"not having lack of capability".
+
+On the other hand if you have "additional
+restrictions" available (as in an LSM) that
+are not part of the policy enforcement
+mechanism there should be no problems.
+
+> However, the suggestion makes sense: if I can't
+> convince the Powers
+> That Be that implementing under-privileges with
+> capabilities is a Good
+> Thing (and I can see that it will be a serious
+> problem), I'll try the
+> LSM approach.
+
+Further, you can assign any semantic that
+makes sense to you. Heaven knows, the POSIX
+calculation (from any of the DRAFTS) has
+proven to be contentious. Especially in the
+inheritence rules on exec.
+
+
+Casey Schaufler
+casey@schaufler-ca.com

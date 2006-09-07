@@ -1,87 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWIGCZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWIGC2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWIGCZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 22:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWIGCZ0
+	id S1422659AbWIGC2G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 22:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWIGC2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 22:25:26 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:35206 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1422658AbWIGCZZ (ORCPT
+	Wed, 6 Sep 2006 22:28:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52150 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422659AbWIGC2C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 22:25:25 -0400
-Date: Thu, 7 Sep 2006 04:23:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-ID: <20060907022303.GG25473@stusta.de>
-References: <200608302013.58122.ak@suse.de> <20060830183905.GB31594@flint.arm.linux.org.uk> <20060906223748.GC12157@stusta.de> <Pine.LNX.4.64.0609070115270.6761@scrub.home> <20060906235029.GC25473@stusta.de> <Pine.LNX.4.64.0609070202040.6761@scrub.home> <20060907003758.GD25473@stusta.de> <Pine.LNX.4.64.0609070245100.6761@scrub.home> <20060907010235.GE25473@stusta.de> <Pine.LNX.4.64.0609070313420.6761@scrub.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609070313420.6761@scrub.home>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 6 Sep 2006 22:28:02 -0400
+Date: Wed, 6 Sep 2006 19:21:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eranian@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/18] 2.6.17.9 perfmon2 patch for review: event sets and
+ multiplexing support
+Message-Id: <20060906192135.83fc4231.akpm@osdl.org>
+In-Reply-To: <20060906145031.GE13962@frankl.hpl.hp.com>
+References: <200608230805.k7N85x2H000432@frankl.hpl.hp.com>
+	<20060823155148.a2945c4e.akpm@osdl.org>
+	<20060906145031.GE13962@frankl.hpl.hp.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 03:23:31AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 7 Sep 2006, Adrian Bunk wrote:
-> 
-> > > Define "full libc".
+On Wed, 6 Sep 2006 07:50:31 -0700
+Stephane Eranian <eranian@hpl.hp.com> wrote:
+
+> > > +
+> > > +	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
+> > > +
+> > > +	new_set = kmem_cache_alloc(cachep, SLAB_ATOMIC);
 > > 
-> > Everything described in clause 7 of ISO/IEC 9899:1999.
-> 
-> Its behaviour is also defined by the environment, so what gcc can assume 
-> is rather limited and you have not shown a single example, that any such 
-> assumption would be invalid for the kernel.
-
-ISO/IEC 9899:1999 clause 7 defines the libc part of a hosted environment.
-
-> > > Explain what exactly -ffreestanding fixes, which is not valid for the 
-> > > kernel.
+> > SLAB_ATOMIC is unreliable.  Is it possible to use SLAB_KERNEL here?  If
+> > coms ecallers can sleep and others cannot then passing in the gfp_flags
+> > would permit improvement here.
 > > 
-> > It's simply correct since the kernel doesn't provide everything 
-> > described in clause 7 of ISO/IEC 9899:1999.
-> > 
-> > And it fixes compile errors caused by the fact that gcc is otherwise 
-> > allowed to replace calls to any standard C function with semantically 
-> > equivalent calls to other standard C functions - in a hosted environment 
-> > the latter are guaranteed to be present.
 > 
-> The kernel uses standard C, so your point is?
+> I made some changes and now I know I execute this part of the function
+> with interrupts disabled, holding only the perfmon context lock. I assume
+> SLAB_KERNEL means, we can sleep. I think I can make this change safely.
+> 
+> 
+> > 
+> > > +		if (ctx->flags.mapset) {
+> > > +			view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
+> > > +			view      = vmalloc(view_size);
+> > 
+> > vmalloc() sleeps, so this _could_ have used SLAB_ATOMIC.
+> > 
+> 
+> I am not sure I follow you here. Are you talking about eh kmem_cache_alloc()
+> above?
+> 
 
-A standard C freestanding environment or a standard C hosted environment?
+My logic was as follows:
 
-> You already got two NACKs from arch maintainers, why the hell are you 
-> still pushing this patch? The builtin functions are useful and you want to 
+a) vmalloc() can sleep
 
-The same people who justified removing -ffreestanding with the "it was 
-only added for x86-64, so dropping it should be safe" that has proven 
-wrong now put their arch maintainers hats on for NACKing reverting this 
-patch...
+b) Stephane at some time tested this conde with
+   CONFIG_DEBUG_SPINLOCK_SLEEP and didn't get sleep-while-atomic warnings out of
+   that vmalloc().
 
-> force arch maintainers to have to enable every single one manually and 
-> to maintain a list of these functions over multiple versions of gcc?
+c) Hence this code is never called under spinlock, or with local
+   interrupts disabled.
 
-It could be done per architecture or globally for some functions.
+d) Hence it is safe to convert the earlier SLAB_ATOMIC into SLAB_KERNEL.
 
-And it doesn't sound like a bad idea to check the current code and think 
-of what it does and what it should do -  many architecture specific 
-things (like much of include/asm-i386/string.h) seem to be more 
-historically than architecture specific.
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+If b) is false then it's the vmalloc() call which is incorrect, not the
+SLAB_ATOMIC.
 

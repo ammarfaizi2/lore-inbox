@@ -1,93 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWIGTDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751829AbWIGTG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWIGTDp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWIGTDp
+	id S1751829AbWIGTG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWIGTG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:03:45 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:38368 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751057AbWIGTDo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:03:44 -0400
+	Thu, 7 Sep 2006 15:06:28 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:7393 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1751827AbWIGTGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:06:24 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 0/8] Avoiding fragmentation with subzone groupings v25
-Date: Thu,  7 Sep 2006 20:03:42 +0100 (IST)
+Message-Id: <20060907190623.6166.75808.sendpatchset@skynet.skynet.ie>
+In-Reply-To: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
+References: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
+Subject: [PATCH 8/8] [DEBUG] Add statistics
+Date: Thu,  7 Sep 2006 20:06:23 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the latest version of anti-fragmentation based on sub-zones (previously
-called list-based anti-fragmentation) based on top of 2.6.18-rc5-mm1. In
-it's last release, it was decided that the scheme should be implemented with
-zones to avoid affecting the page allocator hot paths. However, at VM Summit,
-it was made clear that zones may not be the right answer either because zones
-have their own issues. Hence, this is a reintroduction of the first approach.
 
-The purpose of these patches is to reduce external fragmentation by grouping
-pages of related types together. The objective is that when page reclaim
-occurs, there is a greater chance that large contiguous pages will be
-free. Note that this is not a defragmentation which would get contiguous
-pages by moving pages around.
+This patch is strictly debug only. With static markers from SystemTap (what is
+the current story with these?) or any other type of static marking of probe
+points, this could be replaced by a relatively trivial script. Until such
+static probes exist, this patch outputs some information to /proc/buddyinfo
+that may help explain what went wrong if the anti-fragmentation strategy fails.
 
-This patch works by categorising allocations by their reclaimability;
 
-EasyReclaimable - These are userspace pages that are easily reclaimable. This
-	flag is set when it is known that the pages will be trivially reclaimed
-	by writing the page out to swap or syncing with backing storage
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+---
 
-KernelReclaimable - These are allocations for some kernel caches that are
-	reclaimable or allocations that are known to be very short-lived.
+ page_alloc.c |   20 ++++++++++++++++++++
+ vmstat.c     |   16 ++++++++++++++++
+ 2 files changed, 36 insertions(+)
 
-KernelNonReclaimable - These are pages that are allocated by the kernel that
-	are not trivially reclaimed. For example, the memory allocated for a
-	loaded module would be in this category. By default, allocations are
-	considered to be of this type
-
-Instead of having one MAX_ORDER-sized array of free lists in struct free_area,
-there is one for each type of reclaimability. Once a 2^MAX_ORDER block of
-pages is split for a type of allocation, it is added to the free-lists for
-that type, in effect reserving it. Hence, over time, pages of the different
-types can be clustered together. When a page is allocated, the page-flags
-are updated with a value indicating it's type of reclaimability so that it
-is placed on the correct list on free.
-
-When the preferred freelists are expired, the largest possible block is taken
-from an alternative list. Buddies that are split from that large block are
-placed on the preferred allocation-type freelists to mitigate fragmentation.
-
-This implementation gives best-effort for low fragmentation in all zones. To
-be effective, min_free_kbytes needs to be set to a value about 10% of physical
-memory (10% was found by experimentation, it may be workload dependant). To get
-that value lower, anti-fragmentation needs to be significantly more invasive
-so it's best to find out what sorts of workloads still cause fragmentation
-before taking further steps.
-
-Our tests show that about 60-70% of physical memory can be allocated on
-a desktop after a few days uptime. In benchmarks and stress tests, we are
-finding that 80% of memory is available as contiguous blocks at the end of
-the test. To compare, a standard kernel was getting < 1% of memory as large
-pages on a desktop and about 8-12% of memory as large pages at the end of
-stress tests.
-
-Performance tests are within 0.1% for kbuild on a number of test machines. aim9
-is usually within 1% except on x86_64 where aim9 results are unreliable.
-I have never been able to show it but it is possible the main allocator path
-is adversely affected by anti-fragmentation and it may be exposed by using
-differnet compilers or benchmarks. If any regressions are detected due to
-anti-fragmentation, it may be simply disabled via the kernel configuration
-and I'd appreciate a report detailing the regression and how to trigger it.
-
-Following this email are 8 patches.  They early patches introduce the split
-between user and kernel allocations.  Later we introduce a further split
-for kernel allocations, into KernRclm and KernNoRclm.  Note that although
-in early patches an additional page flag is consumed, later patches reuse
-the suspend bits, releasing this bit again.
-
-Comments?
--- 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-007_kernrclm/mm/page_alloc.c linux-2.6.18-rc5-mm1-009_stats/mm/page_alloc.c
+--- linux-2.6.18-rc5-mm1-007_kernrclm/mm/page_alloc.c	2006-09-04 18:45:50.000000000 +0100
++++ linux-2.6.18-rc5-mm1-009_stats/mm/page_alloc.c	2006-09-04 18:47:33.000000000 +0100
+@@ -56,6 +56,10 @@ unsigned long totalram_pages __read_most
+ unsigned long totalreserve_pages __read_mostly;
+ long nr_swap_pages;
+ int percpu_pagelist_fraction;
++int split_count[RCLM_TYPES];
++#ifdef CONFIG_PAGEALLOC_ANTIFRAG
++int fallback_counts[RCLM_TYPES];
++#endif
+ 
+ static void __free_pages_ok(struct page *page, unsigned int order);
+ 
+@@ -742,6 +746,12 @@ static struct page *__rmqueue_fallback(s
+ 					struct page, lru);
+ 			area->nr_free--;
+ 
++			/* Account for a MAX_ORDER block being split */
++			if (current_order == MAX_ORDER - 1 &&
++					order < MAX_ORDER - 1) {
++				split_count[start_rclmtype]++;
++			}
++
+ 			/* Remove the page from the freelists */
+ 			list_del(&page->lru);
+ 			rmv_page_order(page);
+@@ -754,6 +764,12 @@ static struct page *__rmqueue_fallback(s
+ 				move_freepages_block(zone, page,
+ 							start_rclmtype);
+ 
++			/* Account for fallbacks */
++			if (order < MAX_ORDER - 1 &&
++					current_order != MAX_ORDER - 1) {
++				fallback_counts[start_rclmtype]++;
++			}
++
+ 			return page;
+ 		}
+ 	}
+@@ -804,6 +820,10 @@ static struct page *__rmqueue(struct zon
+ 		rmv_page_order(page);
+ 		area->nr_free--;
+ 		zone->free_pages -= 1UL << order;
++
++		if (current_order == MAX_ORDER - 1 && order < MAX_ORDER - 1)
++			split_count[rclmtype]++;
++
+ 		expand(zone, page, order, current_order, area, rclmtype);
+ 		goto got_page;
+ 	}
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-007_kernrclm/mm/vmstat.c linux-2.6.18-rc5-mm1-009_stats/mm/vmstat.c
+--- linux-2.6.18-rc5-mm1-007_kernrclm/mm/vmstat.c	2006-09-04 18:39:39.000000000 +0100
++++ linux-2.6.18-rc5-mm1-009_stats/mm/vmstat.c	2006-09-04 18:47:33.000000000 +0100
+@@ -13,6 +13,11 @@
+ #include <linux/module.h>
+ #include <linux/cpu.h>
+ 
++#ifdef CONFIG_PAGEALLOC_ANTIFRAG
++extern int split_count[RCLM_TYPES];
++extern int fallback_counts[RCLM_TYPES];
++#endif
++
+ void __get_zone_counts(unsigned long *active, unsigned long *inactive,
+ 			unsigned long *free, struct pglist_data *pgdat)
+ {
+@@ -427,6 +432,17 @@ static int frag_show(struct seq_file *m,
+ 		spin_unlock_irqrestore(&zone->lock, flags);
+ 		seq_putc(m, '\n');
+ 	}
++#ifdef CONFIG_PAGEALLOC_ANTIFRAG
++	seq_printf(m, "Fallback counts\n");
++	seq_printf(m, "KernNoRclm: %8d\n", fallback_counts[RCLM_NORCLM]);
++	seq_printf(m, "KernRclm:   %8d\n", fallback_counts[RCLM_KERN]);
++	seq_printf(m, "EasyRclm:   %8d\n", fallback_counts[RCLM_EASY]);
++
++	seq_printf(m, "\nSplit counts\n");
++	seq_printf(m, "KernNoRclm: %8d\n", split_count[RCLM_NORCLM]);
++	seq_printf(m, "KernRclm:   %8d\n", split_count[RCLM_KERN]);
++	seq_printf(m, "EasyRclm:   %8d\n", split_count[RCLM_EASY]);
++#endif /* CONFIG_PAGEALLOC_ANTIFRAG */
+ 	return 0;
+ }
+ 

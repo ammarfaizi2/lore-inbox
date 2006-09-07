@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWIGNCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWIGNEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWIGNCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 09:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWIGNCP
+	id S1751788AbWIGNEF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 09:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbWIGNEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 09:02:15 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:14095 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751784AbWIGNCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 09:02:13 -0400
-Date: Thu, 7 Sep 2006 14:02:05 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Tejun Heo <htejun@gmail.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+	Thu, 7 Sep 2006 09:04:05 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:8148 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1751788AbWIGNEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 09:04:02 -0400
+Date: Thu, 7 Sep 2006 07:04:01 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-pci@atrey.karlin.mff.cuni.cz,
        Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: question regarding cacheline size
-Message-ID: <20060907130204.GB29532@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
-	Tejun Heo <htejun@gmail.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org>
-Mime-Version: 1.0
+Message-ID: <20060907130401.GO2558@parisc-linux.org>
+References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060907122311.GM2558@parisc-linux.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <45001665.9050509@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 06:23:11AM -0600, Matthew Wilcox wrote:
-> On Thu, Sep 07, 2006 at 01:07:56PM +0100, Russell King wrote:
-> > I've often wondered why we don't set the cache line size when we set the
-> > bus master bit - ISTR when I read the PCI spec (2.1 or 2.2) it implied
-> > that this should be set for bus master operations.
-> 
-> It's not required ... 3.2.1 of pci 2.3 says:
-> 
-> While Memory Write and Invalidate is the only command that requires
-> implementation of the Cacheline Size register, it is strongly suggested
-> the memory read commands use it as well. A bridge that prefetches is
-> responsible for any latent data not consumed by the master.
-> 
-> (obviously this is talking about requirements placed on the device, not
-> on the OS, but it'd behoove us to help the device out here).
-> 
-> It's also useful to implement it for slave devices.  PCI 2.3 has the
-> concept of cacheline wrap transactions -- eg with a cacheline size of
-> 0x10, it can transfer data to 0x108, then 0x10C, 0x100, 0x104, then
-> 0x118, etc
+On Thu, Sep 07, 2006 at 02:53:57PM +0200, Tejun Heo wrote:
+> The spec says that devices can put additional restriction on supported 
+> cacheline size (IIRC, the example was something like power of two >= or 
+> <= certain size) and should ignore (treat as zero) if unsupported value 
+> is written.  So, there might be need for more low level driver 
+> involvement which knows device restrictions, but I don't know whether 
+> such devices exist.
 
-As does v2.2 and v2.1.
+That's nothing we can do anything about.  The system cacheline size is
+what it is.  If the device doesn't support it, we can't fall back to a
+different size, it'll cause data corruption.  So we'll just continue on,
+and devices which live up to the spec will act as if we hadn't
+programmed a cache size.  For devices that don't, we'll have the quirk.
 
-> So I think we should redo the PCI subsystem to set cacheline size during
-> the buswalk rather than waiting for drivers to ask for it to be set.
-
-Agreed, and this is something I'm already doing on ARM in my
-pcibios_fixup_bus().
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Arguably devices which don't support the real system cacheline size
+would only get data corruption if they used MWI, so we only have to
+prevent them from using MWI; they could use a different cacheline size
+for MRM and MRL without causing data corruption.  But I don't think we
+want to go down that route; do you?

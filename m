@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWIGN7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWIGN6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWIGN7K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 09:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWIGN7K
+	id S1751767AbWIGN6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 09:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWIGN6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 09:59:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49345 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751773AbWIGN7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 09:59:08 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com>
-	<200609062312.57774.jdelvare@suse.de>
-	<m1zmdcty4i.fsf@ebiederm.dsl.xmission.com>
-	<200609071031.33855.jdelvare@suse.de>
-Date: Thu, 07 Sep 2006 07:57:52 -0600
-In-Reply-To: <200609071031.33855.jdelvare@suse.de> (Jean Delvare's message of
-	"Thu, 7 Sep 2006 10:31:33 +0200")
-Message-ID: <m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 7 Sep 2006 09:58:49 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49590 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751767AbWIGN6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 09:58:47 -0400
+Date: Thu, 7 Sep 2006 15:51:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.18-rc5-mm1: strange /proc/interrupts contents on HPC nx6325
+Message-ID: <20060907135105.GA3318@elte.hu>
+References: <200609062117.31125.rjw@sisk.pl> <20060906201953.d96ee183.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060906201953.d96ee183.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <jdelvare@suse.de> writes:
 
-> On Thursday 7 September 2006 00:43, Eric W. Biederman wrote:
->> Have you tested 2.6.18-rc6 without my patch?
->
-> Yes I did, it didn't crash after a couple hours. Of course it doesn't 
-> prove anything as the crash appears to be the result of a race.
->
-> I'll now apply Oleg's fix and see if things get better.
->
->> I guess the practical question is what was your test methodology to
->> reproduce this problem?  A couple of more people running the same
->> test on a few more machines might at least give us confidence in what
->> is going on.
->
-> "My" test program forks 1000 children who sleep for 1 second then look for 
-> themselves in /proc, warn if they can't find themselves, and exit. So 
-> basically the idea is that the process list will shrink very rapidly at 
-> the same moment every child does readdir(/proc).
->
-> I attached the test program, I take no credit (nor shame) for it, it was 
-> provided to me by IBM (possibly on behalf of one of their own customers) 
-> as a way to demonstrate and reproduce the original readdir(/proc) race 
-> bug.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Ok.  So whatever is creating lots of child threads that tripped you
-up is probably peculiar to the environment on your laptop.
+> This is due to a gruesome hack (IMO) in the genirq code 
+> (handle_irq_name()) which magically "knows" about the various types of 
+> IRQ handler, but doesn't know about the MSI ones.  It should be 
+> converted to a field in irq_desc, or a callback or something.
 
-Eric
+a field in irq_desc[] was frowned upon during initial genirq review, due 
+to size reasons, so i removed it and replaced it with the hack.
+
+> I already had a whine about this then forgot about it, but it seems that
+> code can't be changed by whining at it ;)
+
+;)
+
+i think we could add a 'register handler name' API (or extend 
+set_irq_handler() API), to pass in the name of handlers, and store it in 
+a small array (instead of embedding it in irq_desc)? handle_irq_name() 
+is not performance-critical.
+
+	Ingo

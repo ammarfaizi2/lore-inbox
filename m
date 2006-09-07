@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422688AbWIGWch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422689AbWIGWd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422688AbWIGWch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 18:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWIGWch
+	id S1422689AbWIGWd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 18:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWIGWd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 18:32:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:54959 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422688AbWIGWcg (ORCPT
+	Thu, 7 Sep 2006 18:33:26 -0400
+Received: from relay02.pair.com ([209.68.5.16]:25092 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1422689AbWIGWdZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 18:32:36 -0400
-Date: Fri, 8 Sep 2006 00:32:34 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Suresh B <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH] Fix longstanding load balancing bug in the scheduler.
-Message-ID: <20060907223234.GC28080@wotan.suse.de>
-References: <Pine.LNX.4.64.0609061634240.13322@schroedinger.engr.sgi.com> <20060907105801.GC3077@wotan.suse.de> <Pine.LNX.4.64.0609071016250.16674@schroedinger.engr.sgi.com> <20060907214753.GA28080@wotan.suse.de> <Pine.LNX.4.64.0609071511370.18416@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609071511370.18416@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 7 Sep 2006 18:33:25 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Thu, 7 Sep 2006 17:23:54 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Stuart MacDonald <stuartm@connecttech.com>
+cc: "'Chase Venters'" <chase.venters@clientec.com>,
+       "'Krzysztof Halasa'" <khc@pm.waw.pl>, ellis@spinics.net,
+       "'Willy Tarreau'" <w@1wt.eu>, linux-kernel@vger.kernel.org
+Subject: [OT] RE: bogofilter ate 3/5
+In-Reply-To: <08f301c6d2cb$ea2cdac0$294b82ce@stuartm>
+Message-ID: <Pine.LNX.4.64.0609071714060.31500@turbotaz.ourhouse>
+References: <08f301c6d2cb$ea2cdac0$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 03:20:32PM -0700, Christoph Lameter wrote:
-> On Thu, 7 Sep 2006, Nick Piggin wrote:
-> 
-> > How about if you have N/2 CPUs with lots of stuff on runqueues?
-> > Then the other N/2 will each be scanning N/2+1 runqueues... that's
-> > a lot of bus traffic going on which you probably don't want.
-> 
-> Then the load will likely be sitting on a runqueue and run 
-> much slower since it has to share cpus although many cpus are available 
-> to take new jobs. The scanning is very fast and it is certainly better 
-> than continuing to overload a single processor.
+On Thu, 7 Sep 2006, Stuart MacDonald wrote:
 
-But it is N^2... I thought SGI of all would hesitate to put such an
-algorithm into the scheduler ;)
+>> can turn all auto-response systems off completely.
+>
+> Yep. That's the growing up you were looking for earlier.
+>
+> It looks like we disagree on the method of change required. That's
+> life.
 
-> > A sched-domain is per-CPU as well. Why doesn't it work?
-> 
-> Lets say you store the latest set of pinned cpus encountered (I am not 
-> sure what cpu number would accomplish). The next time you have to 
-> reschedule the situation may be completely different and you would have
-> to revalidate the per cpu pinned cpu set. 
+Indeed. Let me make one final point then. If you think this issue is 
+important, you might start by asking the administrators of linux-kernel 
+and associated lists to toss majordomo away, because sending e-mail to 
+majordomo@vger.kernel.org (which is a published address, which will 
+respond via e-mail to every message it receives) is the only way to 
+subscribe to linux-kernel. (ie: There is no web form)
 
-Maybe you misunderstood, I'll explain below.
+You'll want to find all majordomo users and tell them to stop using the 
+program. Also users of ezmlm will be affected as well. And that's just the 
+start.
 
-> > Yes, it isn't going to be perfect, but it would at least work (which
-> > it doesn't now) without introducing that latency.
-> 
-> Could you tell us how this could work?
+In reality, there are probably hundreds of mailing list packages that 
+rightfully assume that there is nothing wrong with responding to inquiries 
+they receive via e-mail. And a significant number of these probably offer 
+no native web GUI, making them useless and evil in your new world.
 
-You keep track of a fallback CPU. Then, if balancing fails because all
-processes are pinned, you just try pulling from the fallback CPU. If
-that fails, set the fallback to the next CPU.
+I'd be willing to venture a guess that the majority of Internet mailing 
+lists have some form of an autoresponder associated with them. The SpamCop 
+folks don't seem to address this issue, nor does anyone else I've heard 
+this "no auto-responders" argument from, and nor have you.
 
-OTOH that still results in suboptimal scheduler, and now that I remember
-your workload, you had a small number of CPUs screwing up balancing for
-a big system. Hmm... so this may be not great for you.
+You don't have to defend SpamCop's short-sighted attitude. It would 
+probably be better to drop such a silly idea as the termination of all 
+auto-responders, because it will never, ever happen. There are too many 
+legitimate uses of this technology to eliminate it. But as you say, 
+we disagree, that is life...
 
-> 
-> > > This looks to me as a design flaw that would require either a major rework 
-> > > of the scheduler or (my favorite) a delegation of difficult (and 
-> > > computational complex and expensive) scheduler decisions to user space.
-> > 
-> > I'd be really happy to move this to userspace :)
-> 
-> Can we merge this patch and then I will try to move this as fast as 
-> possible to userspace?
+>
+> ..Stu
+>
+>
 
-I'd like to get an ack from Ingo, but otherwise OK I guess.
-
-> 
-> Ok then we need to do the following to address the current issue and to
-> open up the possibilities for future enhancements:
-> 
-> 1. Add a new field to /proc/<pid>/cpu that can be written to and that
->    forces the process to be moved to the corresponding cpu.
-> 
-> 2. Extend statistics in /proc/<pid>/ to allow the export of more scheduler
->    information and a special flag that is set if a process cannot be 
->    rescheduling. initially the user space scheduler may just poll this 
->   field.
-> 
-> 3. Optional: Some sort of notification mechanism that a user space 
->    scheduler helper could subscribe to. If a pinned tasks situation
->    is encountered then the notification passes the number of the
->    idle cpu.
-
-Hmm, how about
-
-1. Export SD information in /sys/
-2. Export runqueue load information there too
-3. One attribute in /sys/.../CPUn/ will be written to a CPU number m and
-   a count t, which will try to pull t tasks from CPUm to CPUn
-4. Another attribute would be the result of the last balance attempt
-   (eg. 'all pinned').
-
-?
-
+Thanks,
+Chase

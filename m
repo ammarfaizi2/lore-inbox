@@ -1,112 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWIGR4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWIGSFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422711AbWIGR4w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 13:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWIGR4w
+	id S1161025AbWIGSFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 14:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWIGSFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 13:56:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48299 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1422711AbWIGR4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 13:56:51 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/5] proc: Remove the hard coded inode numbers.
-References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com>
-	<m1k64hx8rx.fsf@ebiederm.dsl.xmission.com>
-	<m1fyf5x8ny.fsf_-_@ebiederm.dsl.xmission.com>
-	<20060907102214.4be99fff.akpm@osdl.org>
-Date: Thu, 07 Sep 2006 11:55:59 -0600
-In-Reply-To: <20060907102214.4be99fff.akpm@osdl.org> (Andrew Morton's message
-	of "Thu, 7 Sep 2006 10:22:14 -0700")
-Message-ID: <m1lkovr26o.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 7 Sep 2006 14:05:38 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:4257
+	"EHLO gwia-smtp.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1161025AbWIGSFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 14:05:37 -0400
+From: Jean Delvare <jdelvare@suse.de>
+Organization: SUSE
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] proc: readdir race fix (take 3)
+Date: Thu, 7 Sep 2006 20:07:24 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ak@suse.de
+References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <200609071031.33855.jdelvare@suse.de> <m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1wt8frd7j.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609072007.25239.jdelvare@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Thursday 7 September 2006 15:57, Eric W. Biederman wrote:
+> Jean Delvare <jdelvare@suse.de> writes:
+> > I'll now apply Oleg's fix and see if things get better.
 
-> On Wed, 06 Sep 2006 10:27:13 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+After 8 hours of stress testing on two machines, no crash and no freeze. 
+So Oleg's fix seems to do the trick. Thanks Oleg :)
+
+I'll keep the patches applied on both machines, even without stress tests 
+it is still better to make sure nothing bad happens in the long run.
+
+> > "My" test program forks 1000 children who sleep for 1 second then
+> > look for themselves in /proc, warn if they can't find themselves, and
+> > exit. So basically the idea is that the process list will shrink very
+> > rapidly at the same moment every child does readdir(/proc).
+> >
+> > I attached the test program, I take no credit (nor shame) for it, it
+> > was provided to me by IBM (possibly on behalf of one of their own
+> > customers) as a way to demonstrate and reproduce the original
+> > readdir(/proc) race bug.
 >
->> +static int proc_fill_cache(struct file *filp, void *dirent, filldir_t
-> filldir,
->> +	char *name, int len,
->> +	instantiate_t instantiate, struct task_struct *task, void *ptr)
->> +{
->> +	struct dentry *child, *dir = filp->f_dentry;
->> +	struct inode *inode;
->> +	struct qstr qname;
->> +	ino_t ino = 0;
->> +	unsigned type = DT_UNKNOWN;
->> +
->> +	qname.name = name;
->> +	qname.len  = len;
->> +	qname.hash = full_name_hash(name, len);
->> +
->> +	child = d_lookup(dir, &qname);
->> +	if (!child) {
->> +		struct dentry *new;
->> +		new = d_alloc(dir, &qname);
->> +		if (new) {
->> +			child = instantiate(dir->d_inode, new, task, ptr);
->> +			if (child)
->> +				dput(new);
->> +			else
->> +				child = new;
->> +		}
->> +	}
->> +	if (!child || IS_ERR(child) || !child->d_inode)
->> +		goto end_instantiate;
->> +	inode = child->d_inode;
->> +	if (inode) {
->> +		ino = inode->i_ino;
->> +		type = inode->i_mode >> 12;
->> +	}
->> +	dput(child);
->> +end_instantiate:
->> +	if (!ino)
->> +		ino = find_inode_number(dir, &qname);
->> +	if (!ino)
->> +		ino = 1;
->> +	return filldir(dirent, name, len, filp->f_pos, ino, type);
->> +}
->
-> The error handling in here looks rather absent.
+> Ok.  So whatever is creating lots of child threads that tripped you
+> up is probably peculiar to the environment on your laptop.
 
-Hey, thanks for the review.
+There's nothing really special running on this laptop. Slackware 10.2 with 
+xterm, firefox, sylpheed, xchat, and that's about it. At least one of the 
+crashes I had yesterday happened when I was actively using firefox, I 
+can't tell for the other one.
 
-I don't think so but a comment or two might be in order.
+The difference with the system where no problem was observed may be that 
+the laptop has a preemptive kernel, and the desktop hasn't.
 
-Calling filldir with the filename is the important part,
-and the only real error is if filldir fails.
-
-The rest of the logic is about populating and querying the
-dcache so we can find our real inode number, if every reasonable
-attempt to perform a dcache lookup fails I simply set the inode
-number to 1 and use that in filldir.  It's wrong but at least
-I report the file is there.
-
-If I can find the dentry I lookup the inode and the inode
-number and file type, and the dput the dentry.
-
-If I can't lookup the dentry I attempt to create it.
-instantiate will return a dentry or NULL if the dentry I preallocate
-for it is good enough.
-
-Is there something specific you are not seeing?
-
-Eric
-
-
-
-
-
-
-
-
-
-
+-- 
+Jean Delvare

@@ -1,270 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWIGG72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWIGHM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWIGG72 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 02:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWIGG72
+	id S1750929AbWIGHM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 03:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWIGHM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 02:59:28 -0400
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:30874 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1161066AbWIGEcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 00:32:18 -0400
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: [Problem] System hang when I run pounder and syscall test on kernel 2.6.18-rc5
-X-Mailer: Lotus Notes Release 7.0 August 18, 2005
-Message-ID: <OF9B5F5146.C2CBBAE0-ON482571E2.001911F0-482571E2.0018E74C@cn.ibm.com>
-From: Shu Qing Yang <yangshuq@cn.ibm.com>
-Date: Thu, 7 Sep 2006 12:35:09 +0800
-X-MIMETrack: Serialize by Router on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 09/07/2006 12:35:10,
-	Serialize complete at 09/07/2006 12:35:10
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 7 Sep 2006 03:12:28 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:53189 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750709AbWIGHM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 03:12:26 -0400
+Date: Thu, 7 Sep 2006 11:10:57 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take16 1/4] kevent: Core files.
+Message-ID: <20060907071057.GB31716@2ka.mipt.ru>
+References: <1157543723488@2ka.mipt.ru> <Pine.LNX.4.64.0609060824090.18512@turbotaz.ourhouse> <20060906140330.GA24057@2ka.mipt.ru> <Pine.LNX.4.64.0609060907560.18512@turbotaz.ourhouse>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609060907560.18512@turbotaz.ourhouse>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 07 Sep 2006 11:10:59 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem description:
-    I run pounder, scsi_debug on a machine. Then start 200 random syscall 
-test 
-simultaneously. Tens of minutes later, the system hang.
+On Wed, Sep 06, 2006 at 09:23:56AM -0500, Chase Venters (chase.venters@clientec.com) wrote:
+> On Wed, 6 Sep 2006, Evgeniy Polyakov wrote:
+> >>>+struct kevent_user
+> >>>+{
+> >>
+> >>These structure names get a little dicey (kevent, kevent_user, ukevent,
+> >>mukevent)... might there be slightly different names that could be
+> >>selected to better distinguish the purpose of each?
+> >
+> >Like what?
+> >ukevent means userspace_kevent, but ukevent is much smaller.
+> >mukevent is mapped userspace kevent, mukevent is again much smaller.
+> >
+> 
+> Hmm, well, kevent_user and ukevent are perhaps the only ones I'm concerned 
+> about. What about calling kevent_user a kevent_queue, kevent_fd or 
+> kevent_set?
 
-Hardware Environment
-    Cpu type :power5+
-Software Env:
-    kernel: 2.6.18-rc5
-    Base system: opensuse10
+kevent_user is kernel side representation of, guess what? Yes, kevent
+user :)
 
-Is the system (not just the application) hung?
-    Yes
+> >I decided to use queue length for mmaped buffer, using size of the
+> >mmapped buffer as queue length is possible too.
+> >But in any case it is very broken behaviour to introduce any kind of
+> >overflow and special marking for that - rt signals already have it, no
+> >need to create additional headache.
+> >
+> 
+> Hmm. The concern here is pinned memory, is it not? I'm trying to think of 
+> the best way to avoid compile-time limits. select() has a rather 
+> (infamous) compile-time limit of 1,024 thanks to libc (and thanks to the 
+> bit vector, a glass ceiling). Now, you'd be a fool to use select() on that 
+> many
+> fd's in modern code meant to run on modern UNIXes. But kevent is a new 
+> system, the grand unified event loop all of us userspace programmers have 
+> been begging for since many years ago. Glass ceilings tend to hurt when 
+> you run into them :)
+> 
+> Using the size of the memory mapped buffer as queue length sounds like a 
+> sane simplification.
 
-Did the system produce an OOPS message on the console?
-    No.
+Pinned memory is not the _main_ issue in a real world application - only
+if it is some kind of a DoS or really broken behaviour where tons of
+event queues are going to be created (like many epoll control
+descriptors).
+Memory mapped buffer actually can even not exist, if application is not
+going to use mmap interface.
 
-Is the system sitting in a debugger right now?
-    Yes, xmon and sysrq are on.
+> >>>+static int kevent_user_ring_init(struct kevent_user *u)
+> >>>+{
+> >>>+	int pnum;
+> >>>+
+> >>>+	pnum = ALIGN(KEVENT_MAX_EVENTS*sizeof(struct mukevent) +
+> >>>sizeof(unsigned int), PAGE_SIZE)/PAGE_SIZE;
+> >>
+> >>This calculation works with the current constants, but it comes up a page
+> >>short if, say, KEVENT_MAX_EVENTS were 4095. It also looks incorrect
+> >>visually since the 'sizeof(unsigned int)' is only factored in once (rather
+> >>than once per page). I suggest a static / inline __max_kevent_pages()
+> >>function that either does:
+> >>
+> >>return KEVENT_MAX_EVENTS / KEVENTS_ON_PAGE + 1;
+> >>
+> >>or
+> >>
+> >>int pnum = KEVENT_MAX_EVENTS / KEVENTS_ON_PAGE;
+> >>if (KEVENT_MAX_EVENTS % KEVENTS_ON_PAGE)
+> >>	pnum++;
+> >>return pnum;
+> >>
+> >>Both should be optimized away by the compiler and will give correct
+> >>answers regardless of the constant values.
+> >
+> >Above pnum calculation aligns number of mukevents to pages size with
+> >appropriate check for (unsigned int), although it is not stated in that
+> >comment (more clear commant can be found around KEVENTS_ON_PAGE).
+> >You propose esentially the same calcualtion in the seconds case, while
+> >first one requires additional page in some cases.
+> >
+> 
+> You are right about my first suggestion sometimes coming up a page extra. 
+> What I'm worried about is that the current ALIGN() based calculation comes 
+> up a page short if KEVENT_MAX_EVENTS is certain values (say 4095). This is 
+> because the "unsigned int index" is inside kevent_mring for every page, 
+> though the ALIGN() calculation just factors in room for one of them. In 
+> these boundary cases (KEVENT_MAX_EVENTS == 4095), your calculation thinks 
+> it can fit one last mukevent on a page because it didn't factor in room 
+> for "unsigned int index" at the start of every page; rather just for one 
+> page. In this case, the modulus should always come up non-zero, giving us 
+> the extra required page.
 
-Additional information:
-    I use 'sysrq + t' then force system into xmon. And get following 
-message:
-<4>Call Trace:.
-<4>[C000000046977160] [C000000046977200] 0xc000000046977200 (unreliable).
-<4>[C000000046977330] [C00000000000FF24] .__switch_to+0x12c/0x150.
-<4>[C0000000469773C0] [C00000000052D94C].schedule+0xa38/0xb84.
-<4>[C0000000469774C0] [C000000000179E0C].start_this_handle+0x32c/0x5c4.
-<4>[C0000000469775E0] [C00000000017A180] .journal_start+0xdc/0x130.
-<4>[C000000046977680] [C000000000170490] .ext3_journal_start_sb+0x58/0x78.
-<4>[C000000046977700] [C000000000169D14] .ext3_dirty_inode+0x38/0xec.
-<4>[C000000046977790] [C0000000000F7174] .__mark_inode_dirty+0x64/0x1d8.
-<4>[C000000046977830] [C0000000000EB674] .touch_atime+0xc8/0xe0.
-<4>[C0000000469778C0] [C00000000009B8EC] 
-.do_generic_mapping_read+0x470/0x4fc.
-<4>[C000000046977A10] 
-[C00000000009C4A4].__generic_file_aio_read+0x184/0x22c.
-<4>[C000000046977AE0] [C00000000009C640] .generic_file_aio_read+0x44/0x54.
-<4>[C000000046977B70] [C0000000000C874C] .do_sync_read+0xd4/0x130.
-<4>[C000000046977CF0] [C0000000000C9410] .vfs_read+0xd0/0x1b4.
-<4>[C000000046977D90] [C0000000000C98F0] .sys_read+0x4c/0x8c.
-<4>[C000000046977E30] [C00000000000871C] syscall_exit+0x0/0x40.
-<3>BUG: soft lockup detected on CPU#0!.
-<4>Call Trace:.
-<4>[C0000000228B3B90] [C00000000000F7F0] 
-.show_stack+0x68/0x1b0(unreliable).
-<4>[C0000000228B3C30] [C000000000094834] .softlockup_tick+0xec/0x124.
-<4>[C0000000228B3CD0] [C0000000000686DC] .run_local_timers+0x1c/0x30.
-<4>[C0000000228B3D50] [C000000000021AD4].timer_interrupt+0xa8/0x47c.
-<4>[C0000000228B3E30] [C0000000000034EC] decrementer_common+0xec/0x100.
-<3>BUG: softlockup detectedon CPU#3!.
-<4>Call Trace:.
-<4>[C000000033BEE620][C00000000000F7F0] .show_stack+0x68/0x1b0 
-(unreliable).
-<4>[C000000033BEE6C0] [C000000000094834].softlockup_tick+0xec/0x124.
-<4>[C000000033BEE760] [C0000000000686DC] .run_local_timers+0x1c/0x30.
-<4>[C000000033BEE7E0] [C000000000021AD4] .timer_interrupt+0xa8/0x47c.
-<4>[C000000033BEE8C0] [C0000000000034EC] decrementer_common+0xec/0x100.
-<4>--- Exception: 901 at .hpte_update+0x158/0x1d0.
-<4> LR = .page_referenced_one+0xd8/0x188.
-<4>[C000000033BEEBB0][C0000000000B4244] .page_check_address+0xcc/0x16c 
-(unreliable).
-<4>[C000000033BEEC50] [C0000000000B4418] .page_referenced_one+0xd8/0x188.
-<4>[C000000033BEED00] [C0000000000B5480] .page_referenced+0x90/0x180.
-<4>[C000000033BEEDB0] [C0000000000A6908] 
-.shrink_inactive_list+0x1d8/0xa0c.
-<4>[C000000033BEF020] [C0000000000A7248] .shrink_zone+0x10c/0x168.
-<4>[C000000033BEF0C0][C0000000000A7FE8] .try_to_free_pages+0x1c8/0x320.
-<4>[C000000033BEF1D0] [C0000000000A1954] .__alloc_pages+0x1ec/0x344.
-<4>[C000000033BEF2C0] [C00000000009DE34].find_or_create_page+0x8c/0x10c.
-<4>[C000000033BEF370] [C0000000000CBA78] .__getblk+0x130/0x2d0.
-<4>[C000000033BEF420] [C0000000001672F0] .ext3_getblk+0xd8/0x2b0.
-<4>[C000000033BEF520] [C00000000016CC54] .ext3_find_entry+0x344/0x608.
-<4>[C000000033BEF6C0] [C00000000016EB54] .ext3_lookup+0x44/0x178.
-<4>[C000000033BEF760] [C0000000000DB620].do_lookup+0xfc/0x22c.
-<4>[C000000033BEF820] [C0000000000DDD9C] .__link_path_walk+0xb60/0x121c.
-<4>[C000000033BEF8F0] [C0000000000DE4F4] .link_path_walk+0x9c/0x184.
-<4>[C000000033BEFA30] [C0000000000DEAB8] .do_path_lookup+0x304/0x398.
-<4>[C000000033BEFAE0] 
-[C0000000000DF728].__path_lookup_intent_open+0x70/0xd0.
-<4>[C000000033BEFB90] [C0000000000DF974] .open_namei+0x94/0x820.
-<4>[C000000033BEFC60] [C0000000000C6D20] .do_filp_open+0x38/0x70.
-<4>[C000000033BEFD80] [C0000000000C6DCC] .do_sys_open+0x74/0x130.
-<4>[C000000033BEFE30] [C00000000000871C]syscall_exit+0x0/0x40.
-<3>BUG: soft lockup detected on CPU#5!.
-<4>Call Trace:.
-<4>[C00000005AB73B90] [C00000000000F7F0] .show_stack+0x68/0x1b0 
-(unreliable).
-<4>[C00000005AB73C30] [C000000000094834] .softlockup_tick+0xec/0x124.
-<4>[C00000005AB73CD0] [C0000000000686DC] .run_local_timers+0x1c/0x30.
-<4>[C00000005AB73D50] [C000000000021AD4] .timer_interrupt+0xa8/0x47c.
-<4>[C00000005AB73E30] [C0000000000034EC]decrementer_common+0xec/0x100.
-<3>BUG: soft lockup detected on CPU#2!.
-<4>Call Trace:.
-<4>[C0000000228B7B90] [C00000000000F7F0] .show_stack+0x68/0x1b0 
-(unreliable).
-<4>[C0000000228B7C30] [C000000000094834] .softlockup_tick+0xec/0x124.
-<4>[C0000000228B7CD0] [C0000000000686DC].run_local_timers+0x1c/0x30.
-<4>[C0000000228B7D50] [C000000000021AD4] .timer_interrupt+0xa8/0x47c.
-<4>[C0000000228B7E30] [C0000000000034EC] decrementer_common+0xec/0x100.
-<3>BUG:soft lockup detected on CPU#4!.
-<4>Call Trace:.
-<4>[C0000000531FBB90] [C00000000000F7F0] .show_stack+0x68/0x1b0 
-(unreliable).
-<4>[C0000000531FBC30][C000000000094834] .softlockup_tick+0xec/0x124.
-<4>[C0000000531FBCD0] [C0000000000686DC] .run_local_timers+0x1c/0x30.
-<4>[C0000000531FBD50] [C000000000021AD4] .timer_interrupt+0xa8/0x47c.
-<4>[C0000000531FBE30][C0000000000034EC] decrementer_common+0xec/0x100.
+Comment about KEVENTS_ON_PAGE celarly says what must be taken into
+account when size is calculated, but you are right, I should use there
+better macros, which should take sizeof(struct kevent_mring).
+I will update it.
 
----------------------------
-3:mon> t
-[c00000000ffe3c30] c0000000002f122c .__handle_sysrq+0xf0/0x1cc
-[c00000000ffe3ce0] c0000000002f3658 .hvc_poll+0x198/0x2cc
-[c00000000ffe3dc0] c0000000002f37a0 .hvc_handle_interrupt+0x14/0x34
-[c00000000ffe3e40] c000000000094c04 .handle_IRQ_event+0x7c/0xf8
-[c00000000ffe3ef0] c000000000096b74 .handle_fasteoi_irq+0xe4/0x188
-[c00000000ffe3f90] c000000000025130 .call_handle_irq+0x1c/0x2c
-[c00000005b47bda0] c00000000000c78c .do_IRQ+0xf4/0x1a4
-[c00000005b47be30] c0000000000041ec hardware_interrupt_entry+0xc/0x10
---- Exception: 501 (Hardware Interrupt) at 0000000010002524
-SP (ffff99cea70) is in userspace
-3:mon> e
-cpu 0x3: Vector: 0  at [c00000000ffe3a30]
-    pc: c00000000004b134: .sysrq_handle_xmon+0x48/0x60
-    lr: c00000000004b134: .sysrq_handle_xmon+0x48/0x60
-    sp: c00000000ffe3ba0
-   msr: 8000000000001032
-  current = 0xc000000002e235f0
-  paca    = 0xc0000000006b4900
-    pid   = 16858, comm = waitpid13
-3:mon> r
-R00 = 0000000000000000   R16 = 0000000000000000
-R01 = c00000000ffe3ba0   R17 = 0000000000000000
-R02 = c000000000909c00   R18 = 0000000000000000
-R03 = c00000000ffe3a30   R19 = 0000000000000000
-R04 = c0000000009a4eb0   R20 = 0000000000000000
-R05 = c0000000009a4ee0   R21 = 0000000000000000
-R06 = c0000000008abec0   R22 = 0000000000000000
-R07 = c0000000008ac148   R23 = 8000000000001032
-R08 = c0000000008ac130   R24 = 8000000000001032
-R09 = c0000000008ac178   R25 = c0000000038dee70
-R10 = c0000000008ac160   R26 = 0000000000000000
-R11 = 0000000000000000   R27 = 0000000000000078
-R12 = c0000000009a4eb8   R28 = 0000000000000007
-R13 = c0000000006b4900   R29 = 0000000000000000
-R14 = 0000000000000000   R30 = c000000000780668
-R15 = 0000000000000000   R31 = c00000000ffe3a30
-pc  = c00000000004b134 .sysrq_handle_xmon+0x48/0x60
-lr  = c00000000004b134 .sysrq_handle_xmon+0x48/0x60
-msr = 8000000000001032   cr  = 28000428
-ctr = c00000000004f0e4   xer = 000000000000000f   trap =    0
-3:mon> c
-cpus stopped: 0-5
-3:mon> c0
-0:mon> e
-cpu 0x0: Vector: 501 (Hardware Interrupt) at [c0000000228b3ea0]
-    pc: 0000000010002524
-    lr: 0000000010002570
-    sp: ffff99cea70
-   msr: 800000000000d032
-  current = 0xc000000002e25770
-  paca    = 0xc0000000006b4300
-    pid   = 16866, comm = waitpid13
-0:mon> t
-SP (ffff99cea70) is in userspace
-0:mon> c1
-1:mon> e
-cpu 0x1: Vector: 501 (Hardware Interrupt) at [c000000059f89ed0]
-    pc: c0000000000a4780: .release_pages+0xac/0x260
-    lr: c0000000000a5138: .__pagevec_release+0x28/0x48
-    sp: c000000059f8a150
-   msr: 8000000000009032
-  current = 0xc00000005f2b66b0
-  paca    = 0xc0000000006b4500
-    pid   = 16704, comm = shmctl01
-1:mon> t
-[c000000059f8a280] c0000000000a5138 .__pagevec_release+0x28/0x48
-[c000000059f8a310] c0000000000a7074 .shrink_inactive_list+0x944/0xa0c
-[c000000059f8a580] c0000000000a7248 .shrink_zone+0x10c/0x168
-[c000000059f8a620] c0000000000a7fe8 .try_to_free_pages+0x1c8/0x320
-[c000000059f8a730] c0000000000a1954 .__alloc_pages+0x1ec/0x344
-[c000000059f8a820] c00000000009de34 .find_or_create_page+0x8c/0x10c
-[c000000059f8a8d0] c0000000000cba78 .__getblk+0x130/0x2d0
-[c000000059f8a980] c0000000000ce1e0 .__bread+0x20/0x124
-[c000000059f8aa10] c000000000166280 .ext3_get_branch+0xa4/0x158
-[c000000059f8aac0] c000000000166620 .ext3_get_blocks_handle+0xf8/0xcf0
-[c000000059f8aca0] c0000000001675cc .ext3_get_block+0x104/0x14c
-[c000000059f8ad50] c0000000000cef64 .block_read_full_page+0x12c/0x390
-[c000000059f8b220] c0000000000f81bc .do_mpage_readpage+0x5cc/0x63c
-[c000000059f8b720] c0000000000f882c .mpage_readpages+0xf0/0x1b4
-[c000000059f8b8c0] c000000000166450 .ext3_readpages+0x28/0x40
-[c000000059f8b940] c0000000000a3c10 .__do_page_cache_readahead+0x194/0x2f0
-[c000000059f8ba90] c00000000009e01c .filemap_nopage+0x168/0x460
-[c000000059f8bb60] c0000000000ace18 .__handle_mm_fault+0x544/0xee4
-[c000000059f8bc50] c00000000002db24 .do_page_fault+0x408/0x5e8
-[c000000059f8be30] c0000000000048e0 .handle_page_fault+0x20/0x54
---- Exception: 301 (Data Access) at 000004000000f4e0
-SP (ffffd36e400) is in userspace
-1:mon> c2
-2:mon> t
-SP (ffff99cea70) is in userspace
-2:mon> c4
-4:mon> t
-SP (ffff99cea70) is in userspace
-4:mon> e
-cpu 0x4: Vector: 501 (Hardware Interrupt) at [c0000000531fbea0]
-    pc: 0000000010002524
-    lr: 0000000010002570
-    sp: ffff99cea70
-   msr: 800000000000d032
-  current = 0xc000000022f7b9f0
-  paca    = 0xc0000000006b4b00
-    pid   = 16863, comm = waitpid13
-4:mon> c5
-5:mon> e
-cpu 0x5: Vector: 501 (Hardware Interrupt) at [c00000005ab73ea0]
-    pc: 0000000010002534
-    lr: 0000000010002570
-    sp: ffff99cea70
-   msr: 800000000000d032
-  current = 0xc00000001265b390
-  paca    = 0xc0000000006b4d00
-    pid   = 16862, comm = waitpid13
-5:mon> t
-SP (ffff99cea70) is in userspace
-5:mon> c2
-2:mon> e
-cpu 0x2: Vector: 501 (Hardware Interrupt) at [c0000000228b7ea0]
-    pc: 0000000010002524
-    lr: 0000000010002570
-    sp: ffff99cea70
-   msr: 800000000000d032
-  current = 0xc00000001b7daab0
-  paca    = 0xc0000000006b4700
-    pid   = 16867, comm = waitpid13
-2:mon> t
-SP (ffff99cea70) is in userspace
-2:mon>
-Best Regards,
+> >It is unused, but I'm still waiting on comments if we need
+> >kevent_get_events() at all - some people wanted to completely eliminate
+> >that function in favour of total mmap domination.
+> >
+> 
+> Interesting idea. It would certainly simplify the interface.
 
-Shu Qing Yang
----------------------------
-LTC Test, Linux Technology Center, China Systems & Technology Lab
+Only for those who really wants to use additional mmap interface.
+
+> >
+> >I have no strong opinion on how to behave in this situation.
+> >kevent can panic, can free cache, can go to infinite loop or screw up
+> >the hard drive. Everything is (almost) the same.
+> >
+> 
+> Obviously it's not a huge deal :)
+> 
+> If kevent is to screw up the hard drive, though, we must put in an 
+> exception for it to avoid my music directory.
+
+Care to send a patch for kernel command line? :)
 
 
+-- 
+	Evgeniy Polyakov

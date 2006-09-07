@@ -1,103 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWIGJ6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWIGKAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbWIGJ6V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWIGJ6U
+	id S1751311AbWIGKAu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 06:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWIGKAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:58:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5573 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751471AbWIGJ6Q (ORCPT
+	Thu, 7 Sep 2006 06:00:50 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:33380 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751311AbWIGKAt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:58:16 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157583693.22705.254.camel@localhost.localdomain> 
-References: <1157583693.22705.254.camel@localhost.localdomain>  <20060906125626.GA3718@elte.hu> <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com> <17274.1157553962@warthog.cambridge.redhat.com> 
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 07 Sep 2006 10:55:28 +0100
-Message-ID: <8934.1157622928@warthog.cambridge.redhat.com>
+	Thu, 7 Sep 2006 06:00:49 -0400
+Message-ID: <44FFEE5D.2050905@openvz.org>
+Date: Thu, 07 Sep 2006 14:03:09 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Mirkin <amirkin@sw.ru>, devel@openvz.org, mikpe@it.uu.se,
+       sam@ravnborg.org, bunk@stusta.de
+Subject: [PATCH] fail kernel compilation in case of unresolved symbols (v2)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+At stage 2 modpost utility is used to check modules.
+In case of unresolved symbols modpost only prints warning.
 
-> Well, genirq gives you more flexibility than the current mecanism so ...
+IMHO it is a good idea to fail compilation process in case of
+unresolved symbols (at least in modules coming with kernel),
+since usually such errors are left unnoticed, but kernel
+modules are broken.
 
-No, it doesn't because the FRV arch contains its own mechanism and I can do
-what ever I like in it.
+Changes from v1:
+- new option '-w' is added to modpost:
+  if option is specified, modpost only warns about unresolved symbols
+- modpost is called with '-w' for external modules in Makefile.modpost
 
-genirq's flexibility comes at a price.  Count the number of hooks in struct
-irq_chip and struct irq_desc together.
+Signed-Off-By: Andrey Mirkin <amirkin@sw.ru>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
-> If I understand correctly, you need to do scray stuff to figure out your
-> toplevel irq, which shound't be a problem with either mecanisms... 
+---
 
-Yeah.  I can't actually find out what source caused top-level IRQs.  I have to
-guess from looking at the IRQ priority and poking around in the hardware.  I
-got bitten that way too: at one point, I was peeking at the interrupt flag in
-the serial regs, only to realise this was causing the driver to go wrong
-because it cleared the interrupt requested flag in UART.
-
-Obviously I'd rather not use IRQ priorisation to help multiplex irqs, but
-unless I want a large polling set...
-
-> Now, if you have funky cascades, then you can always group them into a
-> virtual irq cascade line and have a special chained flow handler that
-> does all the "figuring out" off those... it's up to you. 
-
-You make it sound so easy, but it's not obvious how to do this, apart from
-installing interrupt handlers for the auxiliary PIC interrupts on the CPU and
-having those call back into __do_IRQ().  Chaining isn't mentioned in
-genericirq.tmpl.
-
-> In general, I found genirq allowed me to do more fancy stuff, and end up
-> with actually less hooks and indirect function calls on the path to a
-> given irq than before as you can use tailored flow handlers that do just
-> the right thing.
-
-My code in the FRV arch has fewer indirection calls than the genirq code
-simply because it doesn't require tables of operations.  I can trace through
-it with gdb and see them.
-
-I built all the stuff that genirq does in indirections directly into the
-handlers.  It certainly has fewer hooks.
-
-I attempted to convert it over to use genirq, and I came up with some numbers:
-
-The difference in kernel sizes:
-
-	   text    data     bss     dec     hex filename
-	1993023   77912  166964 2237899  2225cb vmlinux  [with genirq]
-	1986511   76016  167908 2230435  2208a3 vmlinux  [without genirq]
-
-The genirq subdir all wraps up into this:
-
-	  10908    3272      12   14192    3770 kernel/irq/built-in.o
-	   1548      64       4    1616     650 arch/frv/kernel/irq.o
-	---------------------------------------------------------------------
-	  12456    3336      16   15808    3dc0 total
-
-My FRV-specific IRQ handling wraps up into these:
-
-	    480     488       0     968     3c8 arch/frv/kernel/irq-mb93091.o
-	   4688      16     520    5224    1468 arch/frv/kernel/irq.o
-	   1576    1152      16    2744     ab8 arch/frv/kernel/irq-routing.o
-	---------------------------------------------------------------------
-	   6744    1656     536    8936    22e8 total
-
-There's a difference in BSS size in the main kernel that I can't account for,
-but basically genirq uses 6.3KB more code and 1.8KB more initialised data, but
-0.9KB less BSS.  Overall, about 7.2KB more memory.  I can shrink the BSS usage
-in the FRV specific version by reducing the amount of space in the IRQ sources
-table.
-
-So, again, why _should_ I use the generic IRQ stuff?  It's bigger and very
-probably slower than what I already have.
-
-David
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 0a64688..9c01886 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -58,6 +58,7 @@ quiet_cmd_modpost = MODPOST
+ 	$(if $(KBUILD_EXTMOD),-i,-o) $(kernelsymfile) \
+ 	$(if $(KBUILD_EXTMOD),-I $(modulesymfile)) \
+ 	$(if $(KBUILD_EXTMOD),-o $(modulesymfile)) \
++	$(if $(KBUILD_EXTMOD),-w) \
+ 	$(filter-out FORCE,$^)
+ 
+ PHONY += __modpost
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index dfde0e8..083a75e 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -23,6 +23,8 @@ int have_vmlinux = 0;
+ static int all_versions = 0;
+ /* If we are modposting external module set to 1 */
+ static int external_module = 0;
++/* Only warn about unresolved symbols */
++static int warn_unresolved = 0;
+ /* How a symbol is exported */
+ enum export {
+ 	export_plain,      export_unused,     export_gpl,
+@@ -1187,16 +1189,19 @@ static void add_header(struct buffer *b,
+ /**
+  * Record CRCs for unresolved symbols
+  **/
+-static void add_versions(struct buffer *b, struct module *mod)
++static int add_versions(struct buffer *b, struct module *mod)
+ {
+ 	struct symbol *s, *exp;
++	int err = 0;
+ 
+ 	for (s = mod->unres; s; s = s->next) {
+ 		exp = find_symbol(s->name);
+ 		if (!exp || exp->module == mod) {
+-			if (have_vmlinux && !s->weak)
++			if (have_vmlinux && !s->weak) {
+ 				warn("\"%s\" [%s.ko] undefined!\n",
+ 				     s->name, mod->name);
++				err = warn_unresolved ? 0 : 1;
++			}
+ 			continue;
+ 		}
+ 		s->module = exp->module;
+@@ -1205,7 +1210,7 @@ static void add_versions(struct buffer *
+ 	}
+ 
+ 	if (!modversions)
+-		return;
++		return err;
+ 
+ 	buf_printf(b, "\n");
+ 	buf_printf(b, "static const struct modversion_info ____versions[]\n");
+@@ -1225,6 +1230,8 @@ static void add_versions(struct buffer *
+ 	}
+ 
+ 	buf_printf(b, "};\n");
++
++	return err;
+ }
+ 
+ static void add_depends(struct buffer *b, struct module *mod,
+@@ -1402,8 +1409,9 @@ int main(int argc, char **argv)
+ 	char *kernel_read = NULL, *module_read = NULL;
+ 	char *dump_write = NULL;
+ 	int opt;
++	int err;
+ 
+-	while ((opt = getopt(argc, argv, "i:I:mo:a")) != -1) {
++	while ((opt = getopt(argc, argv, "i:I:mo:aw")) != -1) {
+ 		switch(opt) {
+ 			case 'i':
+ 				kernel_read = optarg;
+@@ -1421,6 +1429,9 @@ int main(int argc, char **argv)
+ 			case 'a':
+ 				all_versions = 1;
+ 				break;
++			case 'w':
++				warn_unresolved = 1;
++				break;
+ 			default:
+ 				exit(1);
+ 		}
+@@ -1441,6 +1452,8 @@ int main(int argc, char **argv)
+ 		check_exports(mod);
+ 	}
+ 
++	err = 0;
++
+ 	for (mod = modules; mod; mod = mod->next) {
+ 		if (mod->skip)
+ 			continue;
+@@ -1448,7 +1461,7 @@ int main(int argc, char **argv)
+ 		buf.pos = 0;
+ 
+ 		add_header(&buf, mod);
+-		add_versions(&buf, mod);
++		err |= add_versions(&buf, mod);
+ 		add_depends(&buf, mod, modules);
+ 		add_moddevtable(&buf, mod);
+ 		add_srcversion(&buf, mod);
+@@ -1460,5 +1473,5 @@ int main(int argc, char **argv)
+ 	if (dump_write)
+ 		write_dump(dump_write);
+ 
+-	return 0;
++	return err;
+ }

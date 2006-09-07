@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751905AbWIGXnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWIGXmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751905AbWIGXnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 19:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWIGXnJ
+	id S1751758AbWIGXmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 19:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWIGXmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 19:43:09 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:60563 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751873AbWIGXnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 19:43:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=bb35iJcFXBaCKt23q6mylB+jlMi25Y9TVmtmshFLpvpy4OokC5QgioJez+ZS7Kvba39tdf9Cb0i328rcF7bm2gpYzZmiRJTuLOdI6h0oI7V0cUg9+QsYN2Alq79YcZHnMCL1htvgKTmk76rBk0LSKxHjOnhRF5WIdmVGUO4HRmE=
-Message-ID: <4500AE5B.1070808@gmail.com>
-Date: Fri, 08 Sep 2006 01:42:19 +0200
-From: Tim Okrongli <j6cubic@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Panics on AMD X2/NVidiaMCP55Ultra
-References: <fa.5Ci7uSCK5S3sGLcqEDBk92xuBGc@ifi.uio.no> <4500A8B5.7040305@shaw.ca>
-In-Reply-To: <4500A8B5.7040305@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Thu, 7 Sep 2006 19:42:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37775 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751758AbWIGXmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 19:42:49 -0400
+Date: Thu, 7 Sep 2006 16:42:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       devel@openvz.org
+Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
+Message-Id: <20060907164207.16745087.akpm@osdl.org>
+In-Reply-To: <20060907200713.GB541@1wt.eu>
+References: <44FC193C.4080205@openvz.org>
+	<Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
+	<44FFF1A0.2060907@openvz.org>
+	<Pine.LNX.4.64.0609070816170.27779@g5.osdl.org>
+	<20060907200713.GB541@1wt.eu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> With no symbols in the stack trace this is not very useful. Do you 
-> have CONFIG_KALLSYMS enabled?
->
-Argh, forgot to cc my reply to someone else's question to the ML. The 
-problem could be traced to a faulty DIMM - by coincidence it was only 
-used while fscking; even during an attempted kernel rebuild no problems 
-arose (or rather: make ran into a different problem before it caused 
-RAM-related problems). That's why it took me so long (more than three 
-weeks and two mainboards, in fact) to figure out what it was.
+On Thu, 7 Sep 2006 22:07:14 +0200
+Willy Tarreau <w@1wt.eu> wrote:
 
-For the sake of completeness, I found out when I finally resorted to 
-installing Windows so I could at least test the GPU and the setup CD 
-kept bluescreening.
+> On Thu, Sep 07, 2006 at 08:17:04AM -0700, Linus Torvalds wrote:
+> > 
+> > 
+> > On Thu, 7 Sep 2006, Kirill Korotaev wrote:
+> > > 
+> > > Does the patch below looks better?
+> > 
+> > Yes. 
+> > 
+> > Apart from the whitespace corruption, that is.
+> > 
+> > I don't know how to get mozilla to not screw up whitespace.
+
+Me either.  I've had a bug report in the mozilla system for maybe four
+years concerning space-stuffing.  Occasionally it comes to life but afaict
+nothing ever changes.
+
+I expect it'd be pretty easy to undo the space-stuffing in git. 
+In extremis I just do s/^  /^ / and it works.  An automated solution would
+need to recognise the appropriate headers (Format=Flowed, iirc).
+
+> maybe by using it to download mutt or something saner ? :-)
+> 
+> More seriously, while we don't like email attachments because they make
+> it impossible to comment on a patch, maybe we should encourage people
+> with broken mailers to post small patches in both forms :
+>   - pure text for human review (spaces are not much of a problem here)
+>   - MIME to apply the patch.
+
+argh.  That means that email contains two copies of the patch.  So it
+applies with `patch --dry-run' then causes havoc with `patch'
 
 
-Sorry to needlessly bother you.

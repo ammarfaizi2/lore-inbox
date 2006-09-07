@@ -1,43 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWIGJmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWIGJwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWIGJmk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWIGJmk
+	id S1751467AbWIGJwr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWIGJwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:42:40 -0400
-Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:20696 "EHLO
-	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
-	id S1751267AbWIGJmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:42:39 -0400
-Date: Thu, 07 Sep 2006 18:42:35 +0900 (JST)
-Message-Id: <20060907.184235.15248417.nemoto@toshiba-tops.co.jp>
-To: schwab@suse.de
-Cc: jakub@redhat.com, sebastien.dugue@bull.net, arjan@infradead.org,
-       mingo@redhat.com, linux-kernel@vger.kernel.org, pierre.peiffer@bull.net,
-       drepper@redhat.com
-Subject: Re: NPTL mutex and the scheduling priority
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <je7j0grp8t.fsf@sykes.suse.de>
-References: <20060907083244.GA12531@devserv.devel.redhat.com>
-	<20060907.183013.55145698.nemoto@toshiba-tops.co.jp>
-	<je7j0grp8t.fsf@sykes.suse.de>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Thu, 7 Sep 2006 05:52:47 -0400
+Received: from z2.cat.iki.fi ([212.16.98.133]:9359 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S1751467AbWIGJwq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:52:46 -0400
+Date: Thu, 7 Sep 2006 12:52:44 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bogofilter ate 3/5
+Message-ID: <20060907095244.GW16047@mea-ext.zmailer.org>
+References: <200609061856.k86IuS61017253@no.spam> <Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Sep 2006 11:37:54 +0200, Andreas Schwab <schwab@suse.de> wrote:
-> > And ENOTSUP is not enumerated in ERRORS section of pthread_mutex_init.
+On Wed, Sep 06, 2006 at 02:15:46PM -0500, Chase Venters wrote:
+> On Wed, 6 Sep 2006, ellis@spinics.net wrote:
 > 
-> POSIX does not forbid additional error conditions, as long as the
-> described conditions are properly reported with the documented error
-> numbers.
+> >>OK, but doing something could simply consist in adding a header
+> >>that anyone is free to filter on or not.
+> >
+> >The problem with that is the post gets no indication that his
+> >mail has been filtered. The way it works now is the rejection
+> >happens at SMTP time and that causes the poster to see the
+> >problem. If people filtered on a header, you'd never know why you
+> >weren't getting a response.
+> 
+> How about this:
+> 
+> 1. Incoming mail from subscribers is accepted
+> 2. Incoming mail to honeypot addresses is trained as SPAM
+> 3. Incoming mail from non-subscribers is marked with X-Bogofilter:
+> 4. A handy Perl script subscribes to lkml, and for any message it gets 
+> with an X-Bogofilter: SPAM header, it sends a notification (rate-limited) 
+> to the message sender explaining that his message will be filtered as SPAM 
+> by some recipients, and inviting him to contact postmaster to resolve the 
+> issue, and additionally letting him know that notification is rate-limited 
+> and there is a website he can check to see the SUBJECTs of all messages 
+> filtered as SPAM on lkml (say for the last week or two) if he wants to try 
+> and correct the problem himself.
 
-Oh, I see the point.  Thank you.
 
----
-Atsushi Nemoto
+Actually...
+
+At front-door the bogofilter analyzes message for spam-signature
+and does classification.  It reports the class to SMTP receiver's
+content policy controller, that usually chooses to believe it.
+
+A number of recipient addresses are considered "filter free" and
+they do always get messages no matter what BF or other content filters
+consider the email.
+
+The SMTP receiver also recognizes diffs in texts (but only when
+unquoted) and exempts them of BF rulings (which sometimes do bite
+on diffs.)
+
+
+Honeypots train BF for SPAM.
+
+Majordomo has tons of 'TABOO' filters and any match at them
+trains BF also for SPAM.
+
+Any message that was successfully accepted to any list is
+trained as HAM.
+
+
+I am considering teaching the system to recognize VGER's lists
+specially, and to verify that sender is in the list, or at possible
+extra 'posters' list.  (Did I create one, or did I plan only ?)
+Anyway, if MAIL FROM address is at either, then message is again
+exempted of Bogofilter.
+
+
+Presently majordomo and front-end SMTP are not in any direct contact,
+and that kind of policy decissions are not made at SMTP input time.
+They are done silently a bit latter.
+
+I can move most of the Majordomo policy rules to front-end policy
+controller -- it is perl, after all  :-)
+
+
+> Thanks,
+> Chase
+
+/Matti Aarnio -- one of  <postmaster@vger.kernel.org>

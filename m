@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIGUtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWIGU7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWIGUtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 16:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWIGUtI
+	id S932170AbWIGU7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 16:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWIGU7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 16:49:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932070AbWIGUtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 16:49:03 -0400
-Date: Thu, 7 Sep 2006 13:48:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ankita@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, fernando@oss.ntt.co.jp, maneesh@in.ibm.com
-Subject: Re: [RFC] Linux Kernel Dump Test Module
-Message-Id: <20060907134850.c05f3be2.akpm@osdl.org>
-In-Reply-To: <20060907135329.GA17937@in.ibm.com>
-References: <20060907135329.GA17937@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 7 Sep 2006 16:59:40 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:11646 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932170AbWIGU7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 16:59:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=aBVgjU3iQhyabUw/Yv9awgZNi/1LzpQwlPeYM9B+mPK+AOf1nPxypCEakTDVeyoNVf7f1vbNEUWmEXHTZ6iiXmDCmG9JnYFuBf/HWFb4R7ynFgsj8a33Dc5kFbf912bkGsvxLd+cKpifGIl3+jnmvYa89D2NRC78G62eHDh5gtw=
+Date: Fri, 8 Sep 2006 00:59:27 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Naughty ramdrives
+Message-ID: <20060907205927.GA5193@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006 19:23:29 +0530
-Ankita Garg <ankita@in.ibm.com> wrote:
+You'd laugh, but...
 
-> Please find below a patch for a simple module to test Linux Kernel Dump 
-> mechanism. This module uses jprobes to install/activate pre-defined crash
-> points. At different crash points, various types of crashing scenarios 
-> are created like a BUG(), panic(), exception, recursive loop and stack 
-> overflow. The user can activate a crash point with specific type by
-> providing parameters at the time of module insertion. Please see the file
-> header for usage information. The module is based on the Linux Kernel
-> Dump Test Tool by Fernando <http://lkdtt.sourceforge.net>.
-> 
-> This module could be merged with mainline. Jprobes is used here so that the 
-> context in which crash point is hit, could be maintained. This implements
-> all the crash points as done by LKDTT except the one in the middle of 
-> tasklet_action(). 
+Summary:
 
-"could be merged with mainline": why "could"?  What would be the
-disadvantages of doing this?
+	After loading and unloading rd.ko many times "ls -l /dev/ram*"
+	results are not persistent.
 
-I think having test code like this in mainline is a good idea, particularly
-for a subsystem like [kj]probes.
+Steps to reproduce:
 
-It's a bit regrettable that the code "knows" about particular not-exported,
-arch-specific core kernel functions, but I guess those don't change very
-often, so we won't be forever patching this module.
+	# while true; do modprobe rd && rmmod rd; done
+		[wait ~10 seconds]
+	^C
+	# modprobe rd
 
+	# ls -l /dev/ram*
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+	# ls -l /dev/ram*
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram13 -> rd/13
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+	# ls -l /dev/ram*
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram1 -> rd/1
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram11 -> rd/11
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram14 -> rd/14
+	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram15 -> rd/15
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram3 -> rd/3
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram8 -> rd/8
+	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram9 -> rd/9
+
+Versions:
+
+	Linux 2.6.18-rc5
+	udev 087
+
+P.S.:
+
+This was noticed while investigating #4899
+http://bugme.osdl.org/show_bug.cgi?id=4899
+where /dev/ram0 when opened, pins module indefinitely. It seems that
+adding ->release() which undoes
+
+	inode = igrab(bdev->bd_inode);
+
+should do the trick. Am I right?
 

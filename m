@@ -1,62 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWIGTkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751862AbWIGT4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWIGTkr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWIGTkq
+	id S1751862AbWIGT4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWIGT4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:40:46 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:5742 "EHLO
-	asav10.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751270AbWIGTkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:40:46 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HABURAEWBT4lx
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Subject: Re: PATCH] usbtouchscreen: fix ITM data reading
-Date: Thu, 7 Sep 2006 15:40:42 -0400
-User-Agent: KMail/1.9.3
-Cc: Greg KH <gregkh@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>,
-       Kai Lindholm <megantti@gmail.com>
-References: <200609072125.53404.daniel.ritz-ml@swissonline.ch>
-In-Reply-To: <200609072125.53404.daniel.ritz-ml@swissonline.ch>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 7 Sep 2006 15:56:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28082 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751861AbWIGT4F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:56:05 -0400
+Date: Thu, 7 Sep 2006 12:55:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>,
+       Will Simoneau <simoneau@ele.uri.edu>, cmm@us.ibm.com
+Subject: Re: [PATCH] ext3_getblk should handle HOLE correctly
+Message-Id: <20060907125555.5bc44e33.akpm@osdl.org>
+In-Reply-To: <1157656947.7725.21.camel@dyn9047017100.beaverton.ibm.com>
+References: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
+	<20060907114500.fe9fcf82.akpm@osdl.org>
+	<1157656947.7725.21.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609071540.43474.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 September 2006 15:25, Daniel Ritz wrote:
-> before 2.6.19, please :)
-> 
-> [PATCH] usbtouchscreen: fix ITM data reading
-> 
-> From: Kai Lindhom <megantti@gmail.com>
-> Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
->
+On Thu, 07 Sep 2006 12:22:27 -0700
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
-
-Greg, will you push it through your tree?
- 
-> diff --git a/drivers/usb/input/usbtouchscreen.c b/drivers/usb/input/usbtouchscreen.c
-> index 3b175aa..a338bf4 100644
-> --- a/drivers/usb/input/usbtouchscreen.c
-> +++ b/drivers/usb/input/usbtouchscreen.c
-> @@ -286,7 +286,7 @@ #ifdef CONFIG_USB_TOUCHSCREEN_ITM
->  static int itm_read_data(unsigned char *pkt, int *x, int *y, int *touch, int *press)
->  {
->  	*x = ((pkt[0] & 0x1F) << 7) | (pkt[3] & 0x7F);
-> -	*x = ((pkt[1] & 0x1F) << 7) | (pkt[4] & 0x7F);
-> +	*y = ((pkt[1] & 0x1F) << 7) | (pkt[4] & 0x7F);
->  	*press = ((pkt[2] & 0x1F) << 7) | (pkt[5] & 0x7F);
->  	*touch = ~pkt[7] & 0x20;
->  
+> On Thu, 2006-09-07 at 11:45 -0700, Andrew Morton wrote:
+> > On Wed, 06 Sep 2006 10:39:06 -0700
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > 
+> > > Hi Andrew,
+> > > 
+> > > Its been reported that ext3_getblk() is not doing the right thing
+> > > and triggering following WARN():
+> > > 
+> > > BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
+> > >  <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread
+> > > +0x26/0x2a
+> > >  <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
+> > >  <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
+> > >  <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
+> > >  <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
+> > >  <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time
+> > > +0x52/0x6a
+> > >  <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
+> > >  <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup
+> > > +0xdf/0x266
+> > >  <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
+> > >  <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
+> > >  <c0102a97> syscall_call+0x7/0xb 
+> > > 
+> > > Looking at the code, it looks like its not handle HOLE correctly.
+> > > It ends up returning -EIO.
+> > 
+> > Strange.  The fs should be spewing these warnings all over the place.  For
+> > some reason this code is hard to trigger.  Why??
 > 
+> I guess - ext3_getblk() mostly used by ext3_bread() and most callers 
+> to it would be reading already allocated block.
 
--- 
-Dmitry
+OK.
+
+> > 
+> > > -	if (err == 1) {
+> > > +	/*
+> > > +	 * ext3_get_blocks_handle() returns number of blocks
+> > > +	 * mapped. 0 in case of a HOLE.
+> > > +	 */
+> > > +	if (err > 0) {
+> > >  		err = 0;
+> > > -	} else if (err >= 0) {
+> > > -		WARN_ON(1);
+> > > -		err = -EIO;
+> > >  	}
+> > 
+> > That removes the warning if ext3_get_blocks_handle() returned a positive
+> > number greater than one.  And it looks like we still need debugging support
+> > in this area.
+> 
+> I am not sure why we need it ? All we care about is one block. If
+> ext3_get_blocks_handle() returns more than one (which it shouldn't) -
+
+The operative part is "which it shouldn't".  This code is fairly fresh, and
+ext3 is paranoid.  Once it's all settled down then after a year or so we
+might decide that the debugging code is no longer needed.
+
+Then again, we have plenty of five-year-old assertions in there..
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWIGMBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWIGMCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWIGMBg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 08:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIGMBg
+	id S1751573AbWIGMCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 08:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWIGMCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 08:01:36 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:13931 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751004AbWIGMBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 08:01:36 -0400
-Date: Thu, 7 Sep 2006 14:01:33 +0200
+	Thu, 7 Sep 2006 08:02:08 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:1454 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751547AbWIGMCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 08:02:05 -0400
+Date: Thu, 7 Sep 2006 14:02:01 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [patch] s390: Kernel stack overflow handling.
-Message-ID: <20060907120133.GA6997@skybase>
+To: linux-kernel@vger.kernel.org, cborntra@de.ibm.com
+Subject: [patch] s390: fix typo in vmcp.
+Message-ID: <20060907120201.GB6997@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,39 +21,39 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-[S390] Kernel stack overflow handling.
+[S390] fix typo in vmcp.
 
-Substract the size of the initial stack frame from the correct
-register. Otherwise we will end up in a program check loop.
-Fix the offset into the save area as well.
+Fix comment typo in vmcp, it is z/VM and not v/VM.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/entry64.S |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/vmcp.c |    2 +-
+ drivers/s390/char/vmcp.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2006-09-07 12:39:04.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2006-09-07 12:39:25.000000000 +0200
-@@ -827,7 +827,7 @@ restart_go:
-  */
- stack_overflow:
- 	lg	%r15,__LC_PANIC_STACK	# change to panic stack
--	aghi	%r1,-SP_SIZE
-+	aghi	%r15,-SP_SIZE
- 	mvc	SP_PSW(16,%r15),0(%r12)	# move user PSW to stack
- 	stmg	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
- 	la	%r1,__LC_SAVE_AREA
-@@ -835,7 +835,7 @@ stack_overflow:
- 	je	0f
- 	chi	%r12,__LC_PGM_OLD_PSW
- 	je	0f
--	la	%r1,__LC_SAVE_AREA+16
-+	la	%r1,__LC_SAVE_AREA+32
- 0:	mvc	SP_R12(32,%r15),0(%r1)  # move %r12-%r15 to stack
-         xc      __SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15) # clear back chain
-         la      %r2,SP_PTREGS(%r15)	# load pt_regs
+diff -urpN linux-2.6/drivers/s390/char/vmcp.c linux-2.6-patched/drivers/s390/char/vmcp.c
+--- linux-2.6/drivers/s390/char/vmcp.c	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/vmcp.c	2006-09-07 12:39:26.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (C) 2004,2005 IBM Corporation
+- * Interface implementation for communication with the v/VM control program
++ * Interface implementation for communication with the z/VM control program
+  * Author(s): Christian Borntraeger <cborntra@de.ibm.com>
+  *
+  *
+diff -urpN linux-2.6/drivers/s390/char/vmcp.h linux-2.6-patched/drivers/s390/char/vmcp.h
+--- linux-2.6/drivers/s390/char/vmcp.h	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/vmcp.h	2006-09-07 12:39:26.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (C) 2004, 2005 IBM Corporation
+- * Interface implementation for communication with the v/VM control program
++ * Interface implementation for communication with the z/VM control program
+  * Version 1.0
+  * Author(s): Christian Borntraeger <cborntra@de.ibm.com>
+  *

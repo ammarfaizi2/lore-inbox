@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWIGPVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWIGPZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWIGPVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWIGPVv
+	id S932112AbWIGPZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWIGPZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:21:51 -0400
-Received: from colo.lackof.org ([198.49.126.79]:31107 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S932072AbWIGPVu (ORCPT
+	Thu, 7 Sep 2006 11:25:59 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:43724 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932092AbWIGPZ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:21:50 -0400
-Date: Thu, 7 Sep 2006 09:21:47 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Arjan van de Ven <arjan@infradead.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-Message-ID: <20060907152147.GA17324@colo.lackof.org>
-References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org> <45001C48.6050803@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 11:25:57 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+Date: Thu, 7 Sep 2006 09:25:49 -0600
+User-Agent: KMail/1.9.1
+Cc: kmannth@us.ibm.com, "Moore, Robert" <robert.moore@intel.com>,
+       Len Brown <lenb@kernel.org>, Mattia Dongili <malattia@linux.it>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       linux acpi <linux-acpi@vger.kernel.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4E38B52@orsmsx415.amr.corp.intel.com> <1157573069.5713.24.camel@keithlap> <1157594624.2782.45.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <1157594624.2782.45.camel@sli10-desk.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45001C48.6050803@gmail.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200609070925.50145.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 03:19:04PM +0200, Tejun Heo wrote:
-...
-> For MWI, it will cause data corruption.  For READ LINE and MULTIPLE, I 
-> think it would be okay.  The memory is prefetchable after all.
+On Wednesday 06 September 2006 20:03, Shaohua Li wrote:
+> On Thu, 2006-09-07 at 04:04 +0800, keith mannthey wrote:
+> > On Wed, 2006-09-06 at 11:59 -0700, Moore, Robert wrote: 
+> > > From one of the ACPI guys: 
+> > >  
+> > > > Get hid 
+> > > > Look for driver 
+> > > > If you find a match, load it 
+> > > > If no match, get CID 
+> > > > Look for driver 
+> > > > If you find a match, load it 
+> > > > If you did not find an hid or cid match, punt
+> > 
+> > I think this is what my patch is doing.
+> > 
+> > when looking for a driver: (acpi_bus_find_driver) 
+> > I check against the HID  
+> > return if found  
+> > Then I check against the CID 
+> > return if found 
+> > else 
+> > punt 
+> > 
+> > Any objections to pushing this into -mm and dropping the motherboard 
+> > change?
 
-Within the context of DMA API, memory is prefetchable by the device
-for "streaming" transactions but not for "coherent" memory.
-PCI subsystem has no way of knowing which transaction a device
-will use for any particular type of memory access. Only the
-driver can embed that knowledge.
+> I'd prefer not take this way. The ACPI driver model is already mess
+> enough, let's don't make it worse. We are converting the ACPI driver
+> model to Linux driver model, this will make the attempt difficult.
 
-> Anyways, this shouldn't be of too much problem and probably
-> can be handled by quirks if ever needed.
-> 
-> >Arguably devices which don't support the real system cacheline size
-> >would only get data corruption if they used MWI, so we only have to
-> >prevent them from using MWI; they could use a different cacheline size
-> >for MRM and MRL without causing data corruption.  But I don't think we
-> >want to go down that route; do you?
-> 
-> Oh yeah, that's what I was trying to say, and I don't want to go down 
-> that route.  So, I guess this one is settled.
+I see that driver_bind() and driver_probe_device() don't mesh well
+with the idea that multiple drivers might be able to claim a device,
+because there doesn't seem to be a way to prioritize one driver
+over another.  Is that the problem you're referring to?
 
-hrm...if the driver can put a safe value in cachelinesize register
-and NOT enable MWI, I can imagine a significant performance boost
-if the device can use MRM or MRL. But IMHO it's up to the driver
-writers (or other contributors) to figure that out.
+If we decide that "try HID first, then try CID" is the right thing,
+I think we should figure out how to make that work.  Maybe that
+means extending the driver model somehow.
 
-Current API (pci_set_mwi()) ties enabling MRM/MRL with enabling MWI
-and I don't see a really good reason for that. Only the converse
-is true - enabling MWI requires setting cachelinesize.
+> We can let the motherboard driver not bind to your device (say we didn't
+> register the motherboard driver, but just reserve the resource of the
+> deivce). Is it ok to you? (I remember Bjorn said he wants to reserve the
+> mem region of the device too).
 
-hth,
-grant
+My point was that ACPI tells us what resources the device uses,
+and we should reserve all of them so we accurately model the system.
+
+Reserving resources without registering the driver sounds like a hack
+to work around broken behavior elsewhere, so I don't think it's a
+good idea.
+
+Bjorn

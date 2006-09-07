@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWIGLGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751658AbWIGLIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWIGLGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 07:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWIGLGJ
+	id S1751658AbWIGLIw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 07:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWIGLIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 07:06:09 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:27881 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751531AbWIGLGI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 07:06:08 -0400
-Subject: Re: [patch 29/37] dvb-core: Proper handling ULE SNDU length of 0
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Ang Way Chuang <wcang@nrg.cs.usm.my>
-In-Reply-To: <20060906225740.GD15922@kroah.com>
-References: <20060906224631.999046890@quad.kroah.org>
-	 <20060906225740.GD15922@kroah.com>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 14:57:56 +0200
-Message-Id: <1157633876.30159.82.camel@aeonflux.holtmann.net>
+	Thu, 7 Sep 2006 07:08:52 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:24218 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751652AbWIGLIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 07:08:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=I2Pcgme4TWGXWm3+5MdJnBWTqZg6hecq6YG5POs2TLhvCgLRLvTz3GRYa7uNhDSYiMpFiekrC6QIwdtES48ZF2clb16MsHV306tO7iW0DKRBM8tVFUQBIO1MpiYxXgyt0XOxYgCmfRRhBGP1VCeZPnx+Dzg3CviOmfNGcqBCHJc=
+Date: Thu, 7 Sep 2006 15:08:46 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: [PATCH] optical /proc/ide/*/media
+Message-ID: <20060907110846.GB5470@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Sergey Vlasov reported that his "FUJITSU MCC3064AP, ATAPI OPTICAL drive"
+pops up as UNKNOWN in /proc/ide/*/media .
 
-> ULE (Unidirectional Lightweight Encapsulation RFC 4326) decapsulation
-> code has a bug that allows an attacker to send a malformed ULE packet
-> with SNDU length of 0 and bring down the receiving machine. This patch
-> fix the bug and has been tested on version 2.6.17.11. This bug is 100%
-> reproducible and the modified source code (GPL) used to produce this bug
-> will be posted on http://nrg.cs.usm.my/downloads.htm shortly.  The
-> kernel will produce a dump during CRC32 checking on faulty ULE packet.
+Closes #4145.
 
-the upstream code changed for 2.6.18. It has a different way of
-addressing this issue, but it also changes a lot of other stuff in the
-whole code. However it might be worth looking at it, because the
-upstream code might be still vulnerable.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Regards
+ drivers/ide/ide-proc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Marcel
-
+--- a/drivers/ide/ide-proc.c
++++ b/drivers/ide/ide-proc.c
+@@ -376,6 +376,8 @@ static int proc_ide_read_media
+ 				break;
+ 		case ide_floppy:media = "floppy\n";
+ 				break;
++		case ide_optical:media = "optical\n";
++				break;
+ 		default:	media = "UNKNOWN\n";
+ 				break;
+ 	}
 

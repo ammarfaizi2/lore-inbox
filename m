@@ -1,126 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWIGCUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWIGCZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWIGCUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 22:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWIGCTQ
+	id S1422658AbWIGCZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 22:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWIGCZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 22:19:16 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:56755 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422658AbWIGCTD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 22:19:03 -0400
-Date: Wed, 6 Sep 2006 20:19:01 -0600
-From: john stultz <johnstul@us.ibm.com>
-To: ak@suse.de
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Message-Id: <20060907021839.31476.9424.sendpatchset@localhost>
-In-Reply-To: <20060907021820.31476.17484.sendpatchset@localhost>
-References: <20060907021820.31476.17484.sendpatchset@localhost>
-Subject: [PATCH 3/6] x86_64: Remove apic_runs_main_timer
+	Wed, 6 Sep 2006 22:25:26 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:35206 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1422658AbWIGCZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 22:25:25 -0400
+Date: Thu, 7 Sep 2006 04:23:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] re-add -ffreestanding
+Message-ID: <20060907022303.GG25473@stusta.de>
+References: <200608302013.58122.ak@suse.de> <20060830183905.GB31594@flint.arm.linux.org.uk> <20060906223748.GC12157@stusta.de> <Pine.LNX.4.64.0609070115270.6761@scrub.home> <20060906235029.GC25473@stusta.de> <Pine.LNX.4.64.0609070202040.6761@scrub.home> <20060907003758.GD25473@stusta.de> <Pine.LNX.4.64.0609070245100.6761@scrub.home> <20060907010235.GE25473@stusta.de> <Pine.LNX.4.64.0609070313420.6761@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609070313420.6761@scrub.home>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part of the x86-64 cleanup for generic timekeeping. 
-Remove apic_runs_main_timer, on request from Andi, since it doesn't 
-work on many systems.
+On Thu, Sep 07, 2006 at 03:23:31AM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 7 Sep 2006, Adrian Bunk wrote:
+> 
+> > > Define "full libc".
+> > 
+> > Everything described in clause 7 of ISO/IEC 9899:1999.
+> 
+> Its behaviour is also defined by the environment, so what gcc can assume 
+> is rather limited and you have not shown a single example, that any such 
+> assumption would be invalid for the kernel.
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
+ISO/IEC 9899:1999 clause 7 defines the libc part of a hosted environment.
 
- arch/x86_64/kernel/apic.c |   30 +-----------------------------
- arch/x86_64/kernel/time.c |    2 --
- include/asm-x86_64/apic.h |    1 -
- 3 files changed, 1 insertion(+), 32 deletions(-)
+> > > Explain what exactly -ffreestanding fixes, which is not valid for the 
+> > > kernel.
+> > 
+> > It's simply correct since the kernel doesn't provide everything 
+> > described in clause 7 of ISO/IEC 9899:1999.
+> > 
+> > And it fixes compile errors caused by the fact that gcc is otherwise 
+> > allowed to replace calls to any standard C function with semantically 
+> > equivalent calls to other standard C functions - in a hosted environment 
+> > the latter are guaranteed to be present.
+> 
+> The kernel uses standard C, so your point is?
 
-linux-2.6.18-rc6_timeofday-arch-x86-64-part2_C6.patch
-============================================
-diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
-index 1b9e3d3..6173b2f 100644
---- a/arch/x86_64/kernel/apic.c
-+++ b/arch/x86_64/kernel/apic.c
-@@ -39,7 +39,6 @@
- #include <asm/hpet.h>
- 
- int apic_verbosity;
--int apic_runs_main_timer;
- int apic_calibrate_pmtmr __initdata;
- 
- int disable_apic_timer __initdata;
-@@ -747,16 +746,6 @@ static void setup_APIC_timer(unsigned in
- 		} while (c2 - c1 < 300);
- 	}
- 	__setup_APIC_LVTT(clocks);
--	/* Turn off PIT interrupt if we use APIC timer as main timer.
--	   Only works with the PM timer right now
--	   TBD fix it for HPET too. */
--	if (vxtime.mode == VXTIME_PMTMR &&
--		smp_processor_id() == boot_cpu_id &&
--		apic_runs_main_timer == 1 &&
--		!cpu_isset(boot_cpu_id, timer_interrupt_broadcast_ipi_mask)) {
--		stop_timer_interrupt();
--		apic_runs_main_timer++;
--	}
- 	local_irq_restore(flags);
- }
- 
-@@ -946,8 +935,6 @@ void smp_local_timer_interrupt(struct pt
- #ifdef CONFIG_SMP
- 	update_process_times(user_mode(regs));
- #endif
--	if (apic_runs_main_timer > 1 && smp_processor_id() == boot_cpu_id)
--		main_timer_handler(regs);
- 	/*
- 	 * We take the 'long' return path, and there every subsystem
- 	 * grabs the appropriate locks (kernel lock/ irq lock).
-@@ -1162,26 +1149,11 @@ static __init int setup_noapictimer(char
- 	return 1;
- } 
- 
--static __init int setup_apicmaintimer(char *str)
--{
--	apic_runs_main_timer = 1;
--	nohpet = 1;
--	return 1;
--}
--__setup("apicmaintimer", setup_apicmaintimer);
--
--static __init int setup_noapicmaintimer(char *str)
--{
--	apic_runs_main_timer = -1;
--	return 1;
--}
--__setup("noapicmaintimer", setup_noapicmaintimer);
--
- static __init int setup_apicpmtimer(char *s)
- {
- 	apic_calibrate_pmtmr = 1;
- 	notsc_setup(NULL);
--	return setup_apicmaintimer(NULL);
-+	return 1;
- }
- __setup("apicpmtimer", setup_apicpmtimer);
- 
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index da89e60..a4aef4e 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -469,8 +469,6 @@ void main_timer_handler(struct pt_regs *
- 
- static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
--	if (apic_runs_main_timer > 1)
--		return IRQ_HANDLED;
- 	main_timer_handler(regs);
- #ifdef CONFIG_X86_LOCAL_APIC
- 	if (using_apic_timer)
-diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
-index 9c96a0a..06fcdc2 100644
---- a/include/asm-x86_64/apic.h
-+++ b/include/asm-x86_64/apic.h
-@@ -16,7 +16,6 @@
- #define APIC_DEBUG   2
- 
- extern int apic_verbosity;
--extern int apic_runs_main_timer;
- 
- /*
-  * Define the default level of output to be very little
+A standard C freestanding environment or a standard C hosted environment?
+
+> You already got two NACKs from arch maintainers, why the hell are you 
+> still pushing this patch? The builtin functions are useful and you want to 
+
+The same people who justified removing -ffreestanding with the "it was 
+only added for x86-64, so dropping it should be safe" that has proven 
+wrong now put their arch maintainers hats on for NACKing reverting this 
+patch...
+
+> force arch maintainers to have to enable every single one manually and 
+> to maintain a list of these functions over multiple versions of gcc?
+
+It could be done per architecture or globally for some functions.
+
+And it doesn't sound like a bad idea to check the current code and think 
+of what it does and what it should do -  many architecture specific 
+things (like much of include/asm-i386/string.h) seem to be more 
+historically than architecture specific.
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

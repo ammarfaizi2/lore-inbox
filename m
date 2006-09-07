@@ -1,31 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWIGJCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWIGJEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWIGJCX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWIGJCX
+	id S1751316AbWIGJEc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWIGJEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:02:23 -0400
-Received: from srv1.iportent.com ([62.90.210.153]:15551 "EHLO iportent.com")
-	by vger.kernel.org with ESMTP id S1751246AbWIGJCV (ORCPT
+	Thu, 7 Sep 2006 05:04:32 -0400
+Received: from srv1.iportent.com ([62.90.210.153]:29887 "EHLO iportent.com")
+	by vger.kernel.org with ESMTP id S1751298AbWIGJEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:02:21 -0400
-Subject: [PATCH 2.6.18-rc1 2/2] dllink driver: porting v1.19 to linux
-	2.6.18-rc1
+	Thu, 7 Sep 2006 05:04:30 -0400
+Subject: [PATCH 2.6.18-rc6 2/2] dllink driver: porting v1.19 to linux
+	2.6.18-rc6
 From: Hayim Shaul <hayim@iportent.com>
 To: Jeff Garzik <jeff@garzik.org>
 Cc: netdev@vger.kernel.org, edward_peng@dlink.com.tw,
        linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Sep 2006 12:08:00 +0300
-Message-Id: <1157620080.2904.11.camel@localhost.localdomain>
+Date: Thu, 07 Sep 2006 12:10:09 +0300
+Message-Id: <1157620210.2904.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- drivers/net/dl2k.h.orig	2006-09-07 10:33:05.000000000 +0300
-+++ drivers/net/dl2k.h	2006-09-07 10:33:17.000000000 +0300
+Description:
+For DLink Fiber NIC, Linux 2.4.22 ships with driver version 1.19,
+whereas, Linux 2.6.x ship with driver version 1.17.
+
+The following patch upgrades the 2.6.x driver to include changes (and
+bug fixes done until 1.19b).
+
+These fixes are (copied from the driver):
+    1.18    2002/11/07  New tx scheme, adaptive tx_coalesce.
+                    Remove tx_coalesce option.
+    1.19    2003/12/16  Fix problem parsing the eeprom on big endian
+                    systems. (philt@4bridgeworks.com)
+
+Disclaimer:
+Since I returned my DLink NIC to the store I couldn't test it
+thoroughly. It seemed to work just as well as v1.17. However, both
+version made the NIC hang after a few minutes.
+
+
+
+--- drivers/net/dl2k.h.orig	2006-09-07 11:34:15.000000000 +0300
++++ drivers/net/dl2k.h	2006-09-07 11:34:25.000000000 +0300
 @@ -36,7 +36,7 @@
  #include <linux/spinlock.h>
  #include <linux/time.h>

@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWIGGke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWIGGoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWIGGke (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 02:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWIGGke
+	id S1750819AbWIGGoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 02:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWIGGoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 02:40:34 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:5288 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750819AbWIGGkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 02:40:33 -0400
-Date: Wed, 6 Sep 2006 23:40:29 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: serue@us.ibm.com, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] security: introduce fs caps
-Message-Id: <20060906234029.a4b74c6f.pj@sgi.com>
-In-Reply-To: <20060907012537.GA11138@sergelap.austin.ibm.com>
-References: <20060906182719.GB24670@sergelap.austin.ibm.com>
-	<20060906135113.00051e89.pj@sgi.com>
-	<20060907012537.GA11138@sergelap.austin.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Sep 2006 02:44:16 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:60085 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750819AbWIGGoP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 02:44:15 -0400
+Date: Thu, 7 Sep 2006 08:43:21 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Madore <david.madore@ens.fr>
+cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+In-Reply-To: <20060906222731.GA10675@clipper.ens.fr>
+Message-ID: <Pine.LNX.4.61.0609070839220.3853@yvahk01.tjqt.qr>
+References: <20060905212643.GA13613@clipper.ens.fr>
+ <20060906182531.GA24670@sergelap.austin.ibm.com> <20060906222731.GA10675@clipper.ens.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge wrote:
-> With SECURITY_FS_CAPABILITIES=y, what changes is that it is possible for
-> a binary to be marked as granting CAP_SYS_NICE to anyone running it.
 
-Nice explanation - it almost made sense to me.  Thanks.
+>> In the meantime, so long as you're adding some new capabilities, how
+>> about also splitting up a few like CAP_SYS_ADMIN?  Have you looked into
+>> it and decided none are really separable, i.e. any subset leads to the
+>> ability to get any other subset?
+>
+>I agree that splitting CAP_SYS_ADMIN might be worth while, but it
+>really looks like opening a worm can, so I didn't feel up to the
+>challenge there.  It might be a good idea to reserve some bits for
+>that possibility, however - I'm not sure how best to proceed.
 
-Sounds like this patch would slightly increase the situations
-under which a user task could do a cpuset attach_task on another
-user task ... if it had CAP_SYS_NICE, or some such, it could gain
-this attach_task ability that it had lacked on older kernels.
+Split it into read and write options, for a start. This is important in
+a sub-"root"-user environment as is currently created with my MultiAdm
+LSM, which, due to the broad spectrum CAP_SYS_ADMIN addresses, must
+give SYS_ADMIN to the subadmin (to be able to read restricted objects)
+and restrict it afterwards in all the LSM hooks (to not write to
+restricted objects).
 
-Sounds good to me.
+http://lkml.org/lkml/2006/5/1/105
+http://lkml.org/lkml/2006/5/1/110 <- important
 
-My concern would be more if an existing user configuration stopped
-working when these filesystem capabilities became available to them,
-due to some previously ok operation becoming illegal.
 
-As to exactly which CAP_SYS_* it is that has this power of
-allowing a cpuset attach_task, I don't think I really care.
-
-I'm happy.
-
+Jan Engelhardt
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

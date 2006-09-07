@@ -1,128 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWIGXqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751908AbWIGXti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751876AbWIGXqT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 19:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbWIGXqS
+	id S1751908AbWIGXti (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 19:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbWIGXti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 19:46:18 -0400
-Received: from god.demon.nl ([83.160.164.11]:24473 "EHLO god.dyndns.org")
-	by vger.kernel.org with ESMTP id S1751876AbWIGXqR (ORCPT
+	Thu, 7 Sep 2006 19:49:38 -0400
+Received: from mx1.suse.de ([195.135.220.2]:13752 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751908AbWIGXth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 19:46:17 -0400
-Date: Fri, 8 Sep 2006 01:46:14 +0200
-From: Henk Vergonet <Henk.Vergonet@gmail.com>
-To: gregkh@suse.de, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix unload oops and memory leak in yealink driver
-Message-ID: <20060907234614.GA31195@god.dyndns.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
+	Thu, 7 Sep 2006 19:49:37 -0400
+Date: Thu, 7 Sep 2006 16:49:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: Naughty ramdrives
+Message-ID: <20060907234924.GA13787@kroah.com>
+References: <20060907205927.GA5193@martell.zuzino.mipt.ru> <20060907145412.db920bb5.akpm@osdl.org> <20060907220852.GA5192@martell.zuzino.mipt.ru> <20060907152037.a4e1437b.akpm@osdl.org> <20060907230130.GA9289@kroah.com> <20060907162800.e92b5c7c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20060907162800.e92b5c7c.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 07, 2006 at 04:28:00PM -0700, Andrew Morton wrote:
+> On Thu, 7 Sep 2006 16:01:30 -0700
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > On Thu, Sep 07, 2006 at 03:20:37PM -0700, Andrew Morton wrote:
+> > > On Fri, 8 Sep 2006 02:08:53 +0400
+> > > Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> > > 
+> > > > > So I assume udev is still madly crunching on its message backlog while
+> > > > > this is happening?
+> > > > >
+> > > > > If so, ug.
+> > > > 
+> > > > OK. I'll let it stabilize, sorry.
+> > > 
+> > > You shouldn't have to.
+> > 
+> > You shouldn't have to what?  You purposefully add and remove a block
+> > driver as fast as is possible, creating a ton of new events and you
+> > expect userspace processing of those events to be able to keep up in
+> > real-time with it?
+> 
+> Absolutely.  sys_init_module() should not return until the device nodes
+> have stabilised.  There is no other sane interface the kernel can offer.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No, the module does not ever know that userspace is even _using_ udev,
+let alone care if it is finished or not.
 
-I hope we can schedule this for inclusion in 2.6.18 as many users have
-reported problems with kernel oops-en while unloading the driver.
+> ho hum.
+> 
+> Perhaps there's some hacklet we can put into modprobe, to allow it to peek
+> at the udev sequence numbering, wait until all the events which were
+> associated with this modprobe have been serviced?  Or maybe a standalone
+> tool?
+>
+> Say, just a loopback message: send it into the kernel, knowing that it will
+> be appended to the queue.  Wait until a reply comes, so you know that all
+> preceding events in the queue have been serviced?
 
-(tested on 2.6.18-rc6)
+Kay does have some thoughts as to this idea, but it's more like using
+the kernel to relay those "all done" events from udev back out to
+whoever wants to hear it.
 
-Description:
+> Or whatever.  Right now, there's no sane way to do
+> 
+> 	modprobe rd
+> 	mkfs /dev/ram0
+> 
+> so instead we could do
+> 
+> 	modprobe rd
+> 	/sbin/wait-for-udev-to-catch-up
+> 	mkfs /dev/ram0
+> 
+> Or something.
 
-This patch fixes a memory leak and a kernel oops when trying to unload
-the driver, due to an unbalanced cleanup.
-Thanks Ivar Jensen for spotting my mistake.
+That's why people are switching to event driven startup logic, which
+makes all of this not an issue anymore.  See
+	http://www.netsplit.com/blog/2006/09/01
+for one such example of a system that can handle the above situation
+just fine.
 
-Signed-off-by: Henk Vergonet <henk.vergonet@gmail.com>
+"normally", udev creates those device nodes just fine, and fast enough
+for your first example to work.  But if you don't want that, use
+'udevsettle', which will wait until udev is finished:
+	modprobe rd
+	/sbin/udevsettle
+	mkfs /dev/ram0
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="yealink.c.patch"
+It's in use already today by some startup scripts that don't want to
+switch over to being event driven.
 
---- linux-2.6.18-rc6/drivers/usb/input/yealink.c.orig	2006-09-07 23:49:18.000000000 +0200
-+++ linux-2.6.18-rc6/drivers/usb/input/yealink.c	2006-09-08 00:14:55.000000000 +0200
-@@ -1,7 +1,7 @@
- /*
-  * drivers/usb/input/yealink.c
-  *
-- * Copyright (c) 2005 Henk Vergonet <Henk.Vergonet@gmail.com>
-+ * Copyright (c) 2005,2006 Henk Vergonet <Henk.Vergonet@gmail.com>
-  *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as
-@@ -44,11 +44,11 @@
-  *   20050701 henk	sysfs write serialisation, fix potential unload races
-  *   20050801 henk	Added ringtone, restructure USB
-  *   20050816 henk	Merge 2.6.13-rc6
-+ *   20060830 henk	Proper urb cleanup cycle, thanks Ivan Jensen for
-+ *			pointing this out.
-  */
- 
- #include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/rwsem.h>
- #include <linux/usb/input.h>
-@@ -56,7 +56,7 @@
- #include "map_to_7segment.h"
- #include "yealink.h"
- 
--#define DRIVER_VERSION "yld-20051230"
-+#define DRIVER_VERSION "L20060906"
- #define DRIVER_AUTHOR "Henk Vergonet"
- #define DRIVER_DESC "Yealink phone driver"
- 
-@@ -197,8 +197,8 @@ static int setChar(struct yealink_dev *y
-  *       7      8      9
-  *       *      0      #
-  *
-- * The "up" and "down" keys, are symbolised by arrows on the button.
-- * The "pickup" and "hangup" keys are symbolised by a green and red phone
-+ * The "up" and "down" keys, are symbolized by arrows on the button.
-+ * The "pickup" and "hangup" keys are symbolized by a green and red phone
-  * on the button.
-  */
- static int map_p1k_to_key(int scancode)
-@@ -410,7 +410,7 @@ send_update:
- 
- /* Decide on how to handle responses
-  *
-- * The state transition diagram is somethhing like:
-+ * The state transition diagram is something like:
-  *
-  *          syncState<--+
-  *               |      |
-@@ -810,12 +810,9 @@ static int usb_cleanup(struct yealink_de
- 	if (yld == NULL)
- 		return err;
- 
--        if (yld->urb_irq) {
--		usb_kill_urb(yld->urb_irq);
--		usb_free_urb(yld->urb_irq);
--	}
--        if (yld->urb_ctl)
--		usb_free_urb(yld->urb_ctl);
-+	usb_kill_urb(yld->urb_irq);	/* parameter validation in core/urb */
-+	usb_kill_urb(yld->urb_ctl);	/* parameter validation in core/urb */
-+
-         if (yld->idev) {
- 		if (err)
- 			input_free_device(yld->idev);
-@@ -831,6 +828,9 @@ static int usb_cleanup(struct yealink_de
- 	if (yld->irq_data)
- 		usb_buffer_free(yld->udev, USB_PKT_LEN,
- 				yld->irq_data, yld->irq_dma);
-+
-+	usb_free_urb(yld->urb_irq);	/* parameter validation in core/urb */
-+	usb_free_urb(yld->urb_ctl);	/* parameter validation in core/urb */
- 	kfree(yld);
- 	return err;
- }
+thanks,
 
---RnlQjJ0d97Da+TV1--
+greg k-h

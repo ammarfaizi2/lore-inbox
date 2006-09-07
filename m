@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWIGRPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422627AbWIGRRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbWIGRPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 13:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWIGRPU
+	id S1422627AbWIGRRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 13:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWIGRRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 13:15:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2182 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161060AbWIGRPR (ORCPT
+	Thu, 7 Sep 2006 13:17:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43734 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161059AbWIGRRt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 13:15:17 -0400
-Date: Thu, 7 Sep 2006 10:15:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/5] proc: Make the generation of the self symlink table
- driven.
-Message-Id: <20060907101512.3e3a9604.akpm@osdl.org>
-In-Reply-To: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com>
-References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Sep 2006 13:17:49 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <44C9D0FE.9090004@garzik.org> 
+References: <44C9D0FE.9090004@garzik.org>  <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com> 
+To: Jeff Garzik <jeff@garzik.org>, trond.myklebust@fys.uio.no,
+       hch@infradead.org
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       steved@redhat.com, tburke@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: FS-Cache patches
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 07 Sep 2006 18:17:24 +0100
+Message-ID: <20397.1157649444@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Sep 2006 10:23:00 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Jeff Garzik <jeff@garzik.org> wrote:
 
+> I'm really looking forward to seeing this in the upstream kernel... thanks for
+> your continued work on this.
 > 
-> This patch generalizes the concept of files in /proc that are
-> related to processes but live in the root directory of /proc
-> 
-> Ideally this would reuse infrastructure from the rest of the
-> process specific parts of proc but unfortunately
-> security_task_to_inode must not be called on files that
-> are not strictly per process.  security_task_to_inode
-> really needs to be reexamined as the security label can
-> change in important places that we are not currently
-> catching, but I'm not certain that simplifies this problem.
-> 
-> By at least matching the structure of the rest of proc
-> we get more idiom reuse and it becomes easier to spot problems
-> in the way things are put together.
-> 
-> Later things like /proc/mounts are likely to be moved into
-> proc_base as well.  If union mounts are ever supported
-> we may be able to make /proc a union mount, and properly
-> split it into 2 filesystems.
-> 
-> ..
->
->  /*
-> + * proc base
-> + *
-> + * These are the directory entries in the root directory of /proc
-> + * that properly belong to the /proc filesystem, as they describe
-> + * describe something that is process related.
-> + */
-> +static struct pid_entry proc_base_stuff[] = {
-> +	NOD(PROC_TGID_INO, 	"self", S_IFLNK|S_IRWXUGO,
-> +		&proc_self_inode_operations, NULL, {}),
-> +	{}
-> +};
+> (Although I admit to not reviewing 100% of the code)
 
-We could save a bunch of bytes here.
+Could you find some time to spare to review them?  You can grab them from:
 
-> +	/* Lookup the directory entry */
-> +	for (p = proc_base_stuff; p->name; p++) {
+	http://people.redhat.com/~dhowells/nfs/nfs+fscache-14.tar.bz2
 
-By using ARRAY_SIZE here.
+Trond wants them to be reviewed by Christoph before accepting them, but I
+don't Christoph has the time.  So if I could get someone else to review them
+instead, maybe that'd satisfy him.
 
-> +	for (; nr < (ARRAY_SIZE(proc_base_stuff) - 1); filp->f_pos++, nr++) {
-
-like that does.
-
-
+David

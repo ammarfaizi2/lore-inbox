@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965287AbWIGBaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWIGB6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965287AbWIGBaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 21:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWIGBaF
+	id S1422639AbWIGB6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 21:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWIGB6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 21:30:05 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:18868 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S965287AbWIGBaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 21:30:00 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Date: Thu, 7 Sep 2006 01:29:46 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <ednsma$hbt$1@taverner.cs.berkeley.edu>
-References: <20060907003210.GA5503@clipper.ens.fr> <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1157592586 17789 128.32.168.222 (7 Sep 2006 01:29:46 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Thu, 7 Sep 2006 01:29:46 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Wed, 6 Sep 2006 21:58:14 -0400
+Received: from mga06.intel.com ([134.134.136.21]:20537 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422639AbWIGB6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 21:58:13 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,221,1154934000"; 
+   d="scan'208"; a="122227316:sNHT44130947"
+Subject: Re: pci error recovery procedure
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Yanmin Zhang <yanmin.zhang@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>
+In-Reply-To: <20060906200155.GL7139@austin.ibm.com>
+References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
+	 <20060831175001.GE8704@austin.ibm.com>
+	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
+	 <20060901212548.GS8704@austin.ibm.com>
+	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
+	 <1157360592.22705.46.camel@localhost.localdomain>
+	 <1157423528.20092.365.camel@ymzhang-perf.sh.intel.com>
+	 <20060905190115.GE7139@austin.ibm.com>
+	 <1157506016.20092.386.camel@ymzhang-perf.sh.intel.com>
+	 <20060906200155.GL7139@austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1157594179.20092.451.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 07 Sep 2006 09:56:19 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Casey Schaufler  wrote:
->In our TCSEC B1 (Old person speak for LSPP)
->evaluation we had to put way too much effort
->into explaining why certain operations that
->had nothing to do with the system security
->policy (e.g. compute resource limitations)
->required privilege. These operations had
->no security implications at all, but since
->they required privilege they were assumed to
->have dire consequences should they be abused.
+On Thu, 2006-09-07 at 04:01, Linas Vepstas wrote:
+> On Wed, Sep 06, 2006 at 09:26:56AM +0800, Zhang, Yanmin wrote:
+> > > > The
+> > > > error_detected of the drivers in the latest kernel who support err handlers
+> > > > always returns PCI_ERS_RESULT_NEED_RESET. They are typical examples.
+> > > 
+> > > Just because the current drivers do it this way does not mean that this is
+> > > the best way to do things.
+> >
+> > If it's not the best way, why did you choose to reset slot for e1000/e100/ipr
+> > error handlers? They are typical widely-used devices. To make it easier to
+> > add error handlers?
+> 
+> I did it that way just to get going, get something working. I do not
+> have hardware specs for any of these devices, and do not have much of 
+> an idea of what they are capable of;
+Yes, it's difficult to add fine-grained error handlers for guys who are not
+the driver developers.
 
-Well, this is sounding like a pretty weak argument.
+>  the recovery code I wrote is of
+> "brute force, hit it with a hammer"-nature.  Driver writers who 
+> know thier hardware well, and are interested in a more refined 
+> approach are encouraged to actualy use a more refined approach.
+I guess almost no driver developer is happy to spend lots of time to
+add refined steps. They would like to focus on normal process (for achievement
+feeling? :) ).
+In addition, if they use fine-grained steps in error handlers, all these
+steps might be rewritten when the device specs is upgraded. Fine-grained steps in
+error handlers are more difficut to debug.
 
-It sounds like what you are saying is the evaluators were not thinking
-straight when they gave you a hard time about your efforts to do a
-better job of implementing the principle of least privilege.  If I
-understand the gist of what you are saying correctly, you reduced the
-privilege on some processes, and the result was that they complained
-more loudly than if you had done nothing.  If so, that's pretty lame.
-That doesn't sound to me like the evaluators were thinking very clearly.
+It's impossible for you to develop error handlers for all device drivers.
 
-And if the evaluators don't really understand how to think clearly about
-security, why should we pay any attention to them, anyway?  I see no
-reason to design the Linux kernel around the whims of those who don't
-understand the technical issues.  Who cares about what the evaluators
-think, if they don't have their head screwed on straight?  Personally,
-I care more about technical merit than about pleasing folks who don't
-understand security.
+The error handlers look a little like suspend/resume. Of course, it's more
+complicated. If we could keep it as simple as suspend/resume, it's more welcomed.
+
+pci error shouldn't happen frequently. And when it happens, I think mostly it's
+an endpoint device instead of bridge. When it happens, if we choose always
+reset slot, performance could be degraded, but not too much. I just deduce, and 
+didn't test it on a machine with hundreds of devices.

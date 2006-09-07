@@ -1,61 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWIGJPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWIGJUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWIGJPe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIGJPe
+	id S1751381AbWIGJUm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIGJUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:15:34 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:46318 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S1751357AbWIGJPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:15:33 -0400
-Date: Thu, 7 Sep 2006 11:15:17 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.18-rc6
-Message-ID: <20060907091517.GA21728@aepfle.de>
-References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org> <20060905122656.GA3650@aepfle.de> <1157490066.3463.73.camel@mulgrave.il.steeleye.com> <20060906110147.GA12101@aepfle.de> <1157551480.3469.8.camel@mulgrave.il.steeleye.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1157551480.3469.8.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 7 Sep 2006 05:20:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37295 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751360AbWIGJUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:20:40 -0400
+Subject: Re: [PATCH 2.6.18-rc6 1/2] dllink driver: porting v1.19 to linux
+	2.6.18-rc6
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hayim Shaul <hayim@iportent.com>
+Cc: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       edward_peng@dlink.com.tw, linux-kernel@vger.kernel.org
+In-Reply-To: <1157620189.2904.16.camel@localhost.localdomain>
+References: <1157620189.2904.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 07 Sep 2006 11:19:55 +0200
+Message-Id: <1157620795.14882.16.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, James Bottomley wrote:
+> @@ -335,8 +374,9 @@
+>  #endif
+>  	/* Read eeprom */
+>  	for (i = 0; i < 128; i++) {
+> -		((u16 *) sromdata)[i] = le16_to_cpu (read_eeprom (ioaddr, i));
+> +		((u16 *) sromdata)[i] = cpu_to_le16 (read_eeprom (ioaddr, i));
+>  	}
+> +	psrom->crc = le32_to_cpu(psrom->crc);
 
-> On Wed, 2006-09-06 at 13:01 +0200, Olaf Hering wrote:
-> > This causes another machine check because it runs ahc_inb(ahc, SBLKCTL) again.
-> > With debug I get:
-> 
-> Exactly.  It's not a card state problem; the register simply doesn't
-> exist.  It looks like from the source code, it only exists on twin or U2
-> and above chipsets (i.e. those supporting LVD).
-> 
-> Try this patch, which should deduce the bus type for U and below without
-> resorting to the SBLKCTL register.
-> 
-> James
-> 
-> diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> index e5bb4d8..0b3c01a 100644
-> --- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> +++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> @@ -2539,15 +2539,23 @@ #endif
->  static void ahc_linux_get_signalling(struct Scsi_Host *shost)
->  {
->  	struct ahc_softc *ahc = *(struct ahc_softc **)shost->hostdata;
-> -	u8 mode = ahc_inb(ahc, SBLKCTL);
-> +	u8 mode;
+this looks wrong, the data comes from the hw as le, so le*_to_cpu()
+sounds the right direction
+
+> @@ -401,7 +441,7 @@
+>  	int i;
+>  	u16 macctrl;
+>  	
+> -	i = request_irq (dev->irq, &rio_interrupt, IRQF_SHARED, dev->name, dev);
+> +	i = request_irq (dev->irq, &rio_interrupt, SA_SHIRQ, dev->name, dev);
+>  	if (i)
+>  		return i;
+
+this is backing out a fix/conversion to the new API. Bad.
+
+
+>  	
+> @@ -434,9 +474,12 @@
+>  	writeb (0x30, ioaddr + RxDMABurstThresh);
+>  	writeb (0x30, ioaddr + RxDMAUrgentThresh);
+>  	writel (0x0007ffff, ioaddr + RmonStatMask);
+> +
+>  	/* clear statistics */
+>  	clear_stats (dev);
 >  
-> -	if (mode & ENAB40)
-> -		spi_signalling(shost) = SPI_SIGNAL_LVD;
-> -	else if (mode & ENAB20)
-> +	if (!(ahc->features & AHC_ULTRA2)) {
+> +	atomic_set(&np->tx_desc_lock, 0);
 
-This does not work: ahc_linux_get_signalling: f 56f6
+I'm quite scared by this naming; it suggests home-brew locking
 
-echo $(( 0x56f6 & 0x00002 )) gives 2, and the ahc_inb is called.
+>  	dev->trans_start = jiffies;
+> +	tasklet_enable(&np->tx_tasklet);
+> +	writew(DEFAULT_INTR, ioaddr + IntEnable);
+> +	return;
+
+this looks like a PCI posting bug
+
+
+> -rio_free_tx (struct net_device *dev, int irq) 
+> +rio_free_tx (struct net_device *dev) 
+>  {
+>  	struct netdev_private *np = netdev_priv(dev);
+>  	int entry = np->old_tx % TX_RING_SIZE;
+> -	int tx_use = 0;
+>  	unsigned long flag = 0;
+> +	int irq = in_interrupt();
+
+eeeeep
+
+> +
+> +	if (atomic_read(&np->tx_desc_lock))
+> +		return;
+> +	atomic_inc(&np->tx_desc_lock);
+
+and yes.. it is broken self made locking....
+there is a nice race between the _read and the _inc here.
+
+
+>  	
+>  	if (irq)
+>  		spin_lock(&np->tx_lock);
+>  	else
+>  		spin_lock_irqsave(&np->tx_lock, flag);
+
+double eeeep
+
+this is wrong to do with in_interrupt() as gating factor!
+Always doing the irqsave() is fine btw
+
+
+

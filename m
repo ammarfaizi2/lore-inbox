@@ -1,150 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWIGIaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWIGIbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWIGIaF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 04:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWIGIaF
+	id S1751124AbWIGIbP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 04:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWIGIbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 04:30:05 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:17360
-	"EHLO gwia-smtp.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751111AbWIGIaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 04:30:03 -0400
-From: Jean Delvare <jdelvare@suse.de>
-Organization: SUSE
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] proc: readdir race fix (take 3)
-Date: Thu, 7 Sep 2006 10:31:33 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@suse.de
-References: <20060825182943.697d9d81.kamezawa.hiroyu@jp.fujitsu.com> <200609062312.57774.jdelvare@suse.de> <m1zmdcty4i.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1zmdcty4i.fsf@ebiederm.dsl.xmission.com>
+	Thu, 7 Sep 2006 04:31:15 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:4497 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751124AbWIGIbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 04:31:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=WpgZPSl57kRUPnuM/jrvt3yuLyf9pOYxLl38HG5P2au9qwr382FtXikHhF/KsSTDVrgUpS6hrvyIHt5n6LrWvPZ7S1HdAoZis0pKcV0Xl8QfL28BaQmYLuutD4lUQHFhfGo9Ky1mRvymSJsfL1tHGaBa29BLVLZA8fzw/q+SxOY=
+Message-ID: <44FFD8C6.8080802@gmail.com>
+Date: Thu, 07 Sep 2006 10:31:02 +0200
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_lj9/ENxgP0zvx6j"
-Message-Id: <200609071031.33855.jdelvare@suse.de>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+CC: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: question regarding cacheline size
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_lj9/ENxgP0zvx6j
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hello,
 
-On Thursday 7 September 2006 00:43, Eric W. Biederman wrote:
-> Have you tested 2.6.18-rc6 without my patch?
+This is for PCMCIA (cardbus) version of Silicon Image 3124 SerialATA 
+controller.  When cacheline size is configured, the controller uses Read 
+Multiple commands.
 
-Yes I did, it didn't crash after a couple hours. Of course it doesn't 
-prove anything as the crash appears to be the result of a race.
+• Bit [07:00]: Cache Line Size (R/W). This bit field is used to specify 
+the system cacheline size in terms of 32-bit words. The SiI3124, when 
+initiating a read transaction, will issue the Read Multiple PCI command 
+if empty space in its FIFO is greater than the value programmed in this 
+register.
 
-I'll now apply Oleg's fix and see if things get better.
+As the BIOS doesn't run after hotplugging cardbus card, the cache line 
+isn't configured and the controller ends up having 0 cache line size and 
+always using Read command.  When that happens, write performance drops 
+hard - the throughput is < 2Mbytes/s.
 
-> I guess the practical question is what was your test methodology to
-> reproduce this problem?  A couple of more people running the same
-> test on a few more machines might at least give us confidence in what
-> is going on.
+http://thread.gmane.org/gmane.linux.ide/12908/focus=12908
 
-"My" test program forks 1000 children who sleep for 1 second then look for 
-themselves in /proc, warn if they can't find themselves, and exit. So 
-basically the idea is that the process list will shrink very rapidly at 
-the same moment every child does readdir(/proc).
+So, sata_sil24 driver has to program CLS if it's not already set, but 
+I'm not sure which number to punch in.  FWIW, sil3124 doesn't seem to 
+put restrictions on the values which can be used for CLS.  There are 
+several candidates...
 
-I attached the test program, I take no credit (nor shame) for it, it was 
-provided to me by IBM (possibly on behalf of one of their own customers) 
-as a way to demonstrate and reproduce the original readdir(/proc) race 
-bug.
+* L1_CACHE_BYTES / 4 : this is used by init routine in yenta_socket.c. 
+It seems to be a sane default but I'm not sure whether L1 cache line 
+size always coincides with the size as seen from PCI bus.
+
+* pci_cache_line_size in drivers/pci/pci.c : this is used for 
+pci_generic_prep_mwi() and can be overridden by arch specific code. 
+this seems more appropriate but is not exported.
+
+For all involved commands - memory read line, memory read multiple and 
+memory write and invalidate - a value larger than actual cacheline size 
+doesn't hurt but a smaller value may.
+
+I'm thinking of implementing a query function for pci_cache_line_size, 
+say, int pci_cacheline_size(struct pci_dev *pdev), and use it in the 
+device init routine.  Does this sound sane?
+
+Thanks.
 
 -- 
-Jean Delvare
-
---Boundary-00=_lj9/ENxgP0zvx6j
-Content-Type: text/x-csrc;
-  charset="iso-8859-1";
-  name="test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="test.c"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/param.h>
-#include <utmp.h>
-#include <pwd.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <syslog.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <ctype.h>
-
-#define NUM_CHILDREN 1000
-
-findme(i)
-int i;
-{
-	DIR * dir = NULL;
-	struct dirent *d;
-	int pid;
-	int mypid;
-
-	mypid = getpid();
-
-
-	if ((dir = opendir("/proc")) == (DIR *)0)
-	{
-		perror("failed to open /proc\n");
-		exit(1);
-	}
-
-	while((d = readdir(dir)) != (struct dirent *)0) {
-        	if ((pid = (pid_t)atoi(d->d_name)) == 0) continue;
-		if (pid==mypid) return(1);
-	}
-	printf("\nfailed to find myself: pid %d, iteration %d\n",mypid,i);
-	return(0);
-}
-
-fork_child(i)
-int i;
-{
-    int pid;
-
-    switch ((pid = fork())) {
-    case 0:   /* child */
-	sleep(1);
-	findme(i);
-	exit(0);
-	;;
-    case -1:  /* error */
-	perror("failed to fork\n");
-	exit(1);
-	;;
-    default:  /* parent */
-	;;
-   }
-	
-}
-
-
-main()
-{
-	int i;
-        (void)signal(SIGCHLD, SIG_IGN);
-
-
-	for (i=0; i<NUM_CHILDREN; i++)
-	{
-		fork_child(i);
-	}
-
-}
-
---Boundary-00=_lj9/ENxgP0zvx6j--
+tejun

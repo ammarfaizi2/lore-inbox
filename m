@@ -1,106 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWIGIoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWIGIwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWIGIoI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 04:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWIGIoI
+	id S1751131AbWIGIwk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 04:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWIGIwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 04:44:08 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:5048 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751094AbWIGIoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 04:44:03 -0400
-Message-ID: <44FFDC37.7030805@sw.ru>
-Date: Thu, 07 Sep 2006 12:45:43 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 7 Sep 2006 04:52:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:9560 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751131AbWIGIwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 04:52:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hEEXKdX20pPuYlOqyOqS2p0BKicGM4tjSG2K8cGV/P7Ohdsi+8iDvwfK9j0aktHSyOKx6cUmWeCxHLkXu8Vlxd7v00QUy0AZJQ49vFBx3H35ytXJu16xjkdn+Ad66h2eH8G5RSrtKToYFRle0Y0UtKe0eDVH1iZCY45TsamSoNs=
+Message-ID: <b0943d9e0609070152v59c60eev3bbad18cd6d01dad@mail.gmail.com>
+Date: Thu, 7 Sep 2006 09:52:38 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc6 00/10] Kernel memory leak detector 0.10
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0609070140lb8dbee7pbedc0b38dc5a68b1@mail.gmail.com>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, dev@openvz.org,
-       linux-ia64@vger.kernel.org,
-       Fernando Vazquez <fernando@intellilink.co.jp>
-Subject: Re: [patch 04/37] fix compilation error on IA64
-References: <20060906224631.999046890@quad.kroah.org> <20060906225512.GE15922@kroah.com>
-In-Reply-To: <20060906225512.GE15922@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060906223536.21550.55411.stgit@localhost.localdomain>
+	 <6bffcb0e0609061710t3519e42dl6138cadd5ff0d3fb@mail.gmail.com>
+	 <b0943d9e0609070104v1b747f79v3b10238954f389cd@mail.gmail.com>
+	 <6bffcb0e0609070135i314f2740if067eeab342f29a2@mail.gmail.com>
+	 <b0943d9e0609070137g5384b6dcp1ecff948661cd98@mail.gmail.com>
+	 <6bffcb0e0609070140lb8dbee7pbedc0b38dc5a68b1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+On 07/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 07/09/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > On 07/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > > CONFIG_DEBUG_MEMLEAK=y
+> > > CONFIG_DEBUG_MEMLEAK_HASH_BITS=8
 
-The patch from Fernando Vazquez is incomplete.
-The first hunk is from Fernando's patch which fixes IA64 compilation.
-But there are some archs which do not include asm-generic/mman.h
-and thus will have arch_mmap_check undefined.
+Have you tried 16? With 8, a negative argument is passed as order to
+__get_free_pages(). I'll modify kmemleak to cope with this.
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
-
---- a/include/asm-ia64/mman.h
-+++ b/include/asm-ia64/mman.h
-@@ -9,10 +9,12 @@
-  */
- 
- #ifdef __KERNEL__
-+#ifndef __ASSEMBLY__
- #define arch_mmap_check	ia64_map_check_rgn
- int ia64_map_check_rgn(unsigned long addr, unsigned long len,
- 		unsigned long flags);
- #endif
-+#endif
- 
- #include <asm-generic/mman.h>
- 
-diff --git a/include/asm-alpha/mman.h b/include/asm-alpha/mman.h
-index 5f24c75..51cf354 100644
---- a/include/asm-alpha/mman.h
-+++ b/include/asm-alpha/mman.h
-@@ -52,4 +52,10 @@ #define MADV_DOFORK	11		/* do inherit ac
- #define MAP_ANON	MAP_ANONYMOUS
- #define MAP_FILE	0
- 
-+#ifdef __KERNEL__
-+#ifndef arch_mmap_check
-+#define arch_mmap_check(addr, len, flags)	(0)
-+#endif
-+#endif
-+
- #endif /* __ALPHA_MMAN_H__ */
-diff --git a/include/asm-mips/mman.h b/include/asm-mips/mman.h
-index 046cf68..f19e858 100644
---- a/include/asm-mips/mman.h
-+++ b/include/asm-mips/mman.h
-@@ -75,4 +75,10 @@ #define MADV_DOFORK	11		/* do inherit ac
- #define MAP_ANON	MAP_ANONYMOUS
- #define MAP_FILE	0
- 
-+#ifdef __KERNEL__
-+#ifndef arch_mmap_check
-+#define arch_mmap_check(addr, len, flags)	(0)
-+#endif
-+#endif
-+
- #endif /* _ASM_MMAN_H */
-diff --git a/include/asm-parisc/mman.h b/include/asm-parisc/mman.h
-index 0ef15ee..9829b31 100644
---- a/include/asm-parisc/mman.h
-+++ b/include/asm-parisc/mman.h
-@@ -59,4 +59,10 @@ #define MAP_ANON	MAP_ANONYMOUS
- #define MAP_FILE	0
- #define MAP_VARIABLE	0
- 
-+#ifdef __KERNEL__
-+#ifndef arch_mmap_check
-+#define arch_mmap_check(addr, len, flags)	(0)
-+#endif
-+#endif
-+
- #endif /* __PARISC_MMAN_H__ */
-
-
+-- 
+Catalin

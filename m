@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWIGLLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWIGLLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751669AbWIGLLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 07:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWIGLLY
+	id S1751662AbWIGLLH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 07:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWIGLLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 07:11:24 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:59080 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1751666AbWIGLLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 07:11:21 -0400
-Date: Thu, 7 Sep 2006 05:11:20 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-Message-ID: <20060907111120.GL2558@parisc-linux.org>
-References: <44FFD8C6.8080802@gmail.com>
+	Thu, 7 Sep 2006 07:11:07 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:38919 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S1751662AbWIGLLE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 07:11:04 -0400
+Date: Thu, 7 Sep 2006 13:10:59 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6.18-rc6] ext3 memory leak
+Message-ID: <Pine.LNX.4.63.0609071300330.1700@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44FFD8C6.8080802@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 10:31:02AM +0200, Tejun Heo wrote:
-> As the BIOS doesn't run after hotplugging cardbus card, the cache line 
-> isn't configured and the controller ends up having 0 cache line size and 
-> always using Read command.  When that happens, write performance drops 
-> hard - the throughput is < 2Mbytes/s.
-> 
-> http://thread.gmane.org/gmane.linux.ide/12908/focus=12908
-> 
-> So, sata_sil24 driver has to program CLS if it's not already set, but 
-> I'm not sure which number to punch in.  FWIW, sil3124 doesn't seem to 
-> put restrictions on the values which can be used for CLS.  There are 
-> several candidates...
-> 
-> * L1_CACHE_BYTES / 4 : this is used by init routine in yenta_socket.c. 
-> It seems to be a sane default but I'm not sure whether L1 cache line 
-> size always coincides with the size as seen from PCI bus.
-> 
-> * pci_cache_line_size in drivers/pci/pci.c : this is used for 
-> pci_generic_prep_mwi() and can be overridden by arch specific code. 
-> this seems more appropriate but is not exported.
-> 
-> For all involved commands - memory read line, memory read multiple and 
-> memory write and invalidate - a value larger than actual cacheline size 
-> doesn't hurt but a smaller value may.
+Hi all,
 
-Just call pci_set_mwi(), that'll make sure the cache line size is set
-correctly.
+this looks like a serious problem to be fixed before 2.6.18 final and 
+backported to 2.6.17.*. Or a case of me misunderstanding something, in 
+which case, please, let me know.
+
+I've reported before in thread "[2.6.17.4] slabinfo.buffer_head increases" 
+a memory leak in ext3. Today I verified it is still present in 2.6.18-rc6.
+
+A short description: as long as write accesses are made on an ext3 
+filesystem /proc/slabinfo buffer_head increases unboundedly. This 
+behaviour is not observed with another journalling filesystems (e.g., 
+reiserfs), or if ext3 is mounted as ext2.
+
+As it seems serious enough to me I'm sending it to ext3 maintainers.
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

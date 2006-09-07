@@ -1,83 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWIGFaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751923AbWIGFrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751895AbWIGFaa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 01:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751894AbWIGFa3
+	id S1751923AbWIGFrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 01:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWIGFrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 01:30:29 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:5249 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751891AbWIGFa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 01:30:28 -0400
-X-Sasl-enc: W7w/EZxCc6EEcGfUD2XO4zF6p/LvLHzCvn/M7FHK77BZ 1157607026
-Subject: Re: [PATCH 0/7] Permit filesystem local caching and NFS superblock
-	sharing [try #13]
-From: Ian Kent <raven@themaw.net>
-To: David Howells <dhowells@redhat.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <15694.1157549082@warthog.cambridge.redhat.com>
-References: <1157546813.5541.8.camel@lade.trondhjem.org>
-	 <1157518718.3066.22.camel@raven.themaw.net>
-	 <1157458817.4133.29.camel@raven.themaw.net>
-	 <1157451611.4133.22.camel@raven.themaw.net>
-	 <1157436412.3915.26.camel@raven.themaw.net>
-	 <20060901195009.187af603.akpm@osdl.org>
-	 <20060831102127.8fb9a24b.akpm@osdl.org>
-	 <20060830135503.98f57ff3.akpm@osdl.org>
-	 <20060830125239.6504d71a.akpm@osdl.org>
-	 <20060830193153.12446.24095.stgit@warthog.cambridge.redhat.com>
-	 <27414.1156970238@warthog.cambridge.redhat.com>
-	 <9849.1157018310@warthog.cambridge.redhat.com>
-	 <9534.1157116114@warthog.cambridge.redhat.com>
-	 <20060901093451.87aa486d.akpm@osdl.org>
-	 <1157130044.5632.87.camel@localhost>
-	 <28945.1157370732@warthog.cambridge.redhat.com>
-	 <1157376295.3240.13.camel@raven.themaw.net>
-	 <1157421445.5510.13.camel@localhost>
-	 <1157424937.3002.4.camel@raven.themaw.net>
-	 <1157428241.5510.72.camel@localhost>
-	 <1157429030.3915.8.camel@raven.themaw.net>
-	 <1157432039.32412.37.camel@localhost>
-	 <3698.1157449249@warth! og.cambridge.redhat.com>
-	 <4987.1157452656@war! thog.cambridge.redhat.com>
-	 <11346.1157463522@warthog.cambridge.redhat.com>
-	 <8912.1157536306@warthog.cambridge.redhat.com>
-	 <15694.1157549082@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 13:30:18 +0800
-Message-Id: <1157607018.5929.8.camel@raven.themaw.net>
+	Thu, 7 Sep 2006 01:47:17 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:35391 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S1751923AbWIGFrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 01:47:16 -0400
+Subject: Re: [PATCH] x86_64 kexec: Remove experimental mark of kexec
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: Andi Kleen <ak@suse.de>
+Cc: Piet Delaney <piet@bluelane.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@osdl.org
+In-Reply-To: <200609062122.14971.ak@suse.de>
+References: <m1veo1vtev.fsf@ebiederm.dsl.xmission.com>
+	 <m1k64hvsru.fsf@ebiederm.dsl.xmission.com>  <200609062122.14971.ak@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-smH04EfIc5hifJ818ujJ"
+Organization: Blue Lane Technologies
+Date: Wed, 06 Sep 2006 22:47:11 -0700
+Message-Id: <1157608031.14930.27.camel@piet2.bluelane.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4-3mdk 
+X-OriginalArrivalTime: 07 Sep 2006 05:47:15.0357 (UTC) FILETIME=[129C2CD0:01C6D241]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 14:24 +0100, David Howells wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > It really doesn't matter whether there is a symlink or not. automounters
-> > should _not_ be trying to create directories on any filesystem other
-> > than the autofs filesystem itself.
-> 
-> Yes, I agree.
 
-Not really.
+--=-smH04EfIc5hifJ818ujJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What about multiple recursive bind mounts?
-What about the initial directory for the autofs mount itself?
+On Wed, 2006-09-06 at 21:22 +0200, Andi Kleen wrote:
+> On Wednesday 06 September 2006 18:55, Eric W. Biederman wrote:
+> >=20
+> > kexec has been marked experimental for a year now and all
+> > of the serious problems have been worked through.  So it
+> > is time (if not past time) to remove the experimental mark.
+> >=20
+>=20
+> Hmm, I personally have some doubts it is really not experimental
+> (not because of the kexec code itself, but because of all the other drive=
+rs
+> that still break)
 
-What about the case where a admin expects autofs to create these
-directories for map entries that have multiple offsets.
+What drivers does kexec break?
 
-As I've said before in version 5 I'm saying that it is a requirement
-that the the directories already exist in this case but in version 4
-people may have become accustomed to this behavior and right or wrong
-this type of change shouldn't be made without warning to the users or
-possibly not made at all.
+-piet
 
-Ian
+>=20
+> But applied for now.
+>=20
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+Piet Delaney                                    Phone: (408) 200-5256
+Blue Lane Technologies                          Fax:   (408) 200-5299
+10450 Bubb Rd.
+Cupertino, Ca. 95014                            Email: piet@bluelane.com
 
+--=-smH04EfIc5hifJ818ujJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD4DBQBE/7JfJICwm/rv3hoRAkcFAJdpuzJeKh15RxBZV3aSnqYS6RFcAJ4u8REn
+5nuUl9T2JcXi7uocMFgwFw==
+=neu3
+-----END PGP SIGNATURE-----
+
+--=-smH04EfIc5hifJ818ujJ--
 

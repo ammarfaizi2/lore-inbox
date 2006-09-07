@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWIGLzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWIGMBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWIGLzg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 07:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWIGLzg
+	id S1751004AbWIGMBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 08:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIGMBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 07:55:36 -0400
-Received: from khc.piap.pl ([195.187.100.11]:37853 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751481AbWIGLzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 07:55:36 -0400
-To: Chase Venters <chase.venters@clientec.com>
-Cc: ellis@spinics.net, w@1wt.eu (Willy Tarreau), linux-kernel@vger.kernel.org
-Subject: Re: bogofilter ate 3/5
-References: <200609061856.k86IuS61017253@no.spam>
-	<Pine.LNX.4.64.0609061409360.18840@turbotaz.ourhouse>
-	<m34pvkvhm0.fsf@defiant.localdomain>
-	<Pine.LNX.4.64.0609061658440.18840@turbotaz.ourhouse>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 07 Sep 2006 13:55:33 +0200
-In-Reply-To: <Pine.LNX.4.64.0609061658440.18840@turbotaz.ourhouse> (Chase Venters's message of "Wed, 6 Sep 2006 17:05:05 -0500 (CDT)")
-Message-ID: <m37j0fvqkq.fsf@defiant.localdomain>
+	Thu, 7 Sep 2006 08:01:36 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:13931 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751004AbWIGMBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 08:01:36 -0400
+Date: Thu, 7 Sep 2006 14:01:33 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [patch] s390: Kernel stack overflow handling.
+Message-ID: <20060907120133.GA6997@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters <chase.venters@clientec.com> writes:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-> You can check the From: or envelope sender against the subscriber
-> database. Forgery isn't a concern because we're not trying to stop
-> forgery with this method.
+[S390] Kernel stack overflow handling.
 
-That's the first problem.
+Substract the size of the initial stack frame from the correct
+register. Otherwise we will end up in a program check loop.
+Fix the offset into the save area as well.
 
-> The perl script behaves as an optional autoresponder. Autoresponders
-> would respond to spam as well (well, unless you put a spam filter in
-> front of them, but I assume that many don't).
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Yep. Sending their "responses" to innocent people, instead of spam
-senders. That's what many "antivirus" do.
+ arch/s390/kernel/entry64.S |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> Also note that a number of people (myself included, at work anyway)
-> have perl scripts that respond to all incoming mail and require a
-> reply cookie from original envelope senders. We do it because it
-> almost entirely prevents spam from arriving in our inboxes
-
-Sure. Don't you think is also prevents a lot of legitimate mail?
-Hope that all addresses you send mail to are automatically added
-to a white list? (I'm especially annoyed with people asking me for
-something, and then my answer bounces with "click somewhere"
-response).
--- 
-Krzysztof Halasa
+diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
+--- linux-2.6/arch/s390/kernel/entry64.S	2006-09-07 12:39:04.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/entry64.S	2006-09-07 12:39:25.000000000 +0200
+@@ -827,7 +827,7 @@ restart_go:
+  */
+ stack_overflow:
+ 	lg	%r15,__LC_PANIC_STACK	# change to panic stack
+-	aghi	%r1,-SP_SIZE
++	aghi	%r15,-SP_SIZE
+ 	mvc	SP_PSW(16,%r15),0(%r12)	# move user PSW to stack
+ 	stmg	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
+ 	la	%r1,__LC_SAVE_AREA
+@@ -835,7 +835,7 @@ stack_overflow:
+ 	je	0f
+ 	chi	%r12,__LC_PGM_OLD_PSW
+ 	je	0f
+-	la	%r1,__LC_SAVE_AREA+16
++	la	%r1,__LC_SAVE_AREA+32
+ 0:	mvc	SP_R12(32,%r15),0(%r1)  # move %r12-%r15 to stack
+         xc      __SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15) # clear back chain
+         la      %r2,SP_PTREGS(%r15)	# load pt_regs

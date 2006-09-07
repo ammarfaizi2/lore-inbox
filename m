@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751559AbWIGXAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWIGXBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751559AbWIGXAp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 19:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbWIGXAp
+	id S1422673AbWIGXBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 19:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422684AbWIGXBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 19:00:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62412 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751634AbWIGXAo (ORCPT
+	Thu, 7 Sep 2006 19:01:41 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:1944 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422673AbWIGXBk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 19:00:44 -0400
-Date: Fri, 8 Sep 2006 01:00:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060907230028.GB30916@elf.ucw.cz>
-References: <20060907173449.GA24013@clipper.ens.fr> <E1GLPhz-0001T9-00@calista.eckenfels.net>
+	Thu, 7 Sep 2006 19:01:40 -0400
+Date: Thu, 7 Sep 2006 16:01:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
+Subject: Re: Naughty ramdrives
+Message-ID: <20060907230130.GA9289@kroah.com>
+References: <20060907205927.GA5193@martell.zuzino.mipt.ru> <20060907145412.db920bb5.akpm@osdl.org> <20060907220852.GA5192@martell.zuzino.mipt.ru> <20060907152037.a4e1437b.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1GLPhz-0001T9-00@calista.eckenfels.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060907152037.a4e1437b.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 2006-09-07 21:38:43, Bernd Eckenfels wrote:
-> In article <20060907173449.GA24013@clipper.ens.fr> you wrote:
-> > They wouldn't have to be marked: capabilities are inherited by
-> > default, with my patch (as is the Unix tradition: euid=0 or {r,s}uid=0
-> > are preserved upon execve()), normal processes have CAP_FORK and just
-> > pass it on if you don't do something special to remove it.
+On Thu, Sep 07, 2006 at 03:20:37PM -0700, Andrew Morton wrote:
+> On Fri, 8 Sep 2006 02:08:53 +0400
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
 > 
-> The Problem with that is, that a program can be started with some priveldges
-> without knowing it. Traditional programs only check for uid=0 and in that
-> case refuse to do some things. A program might not expect to be able to do a
-> priveldged action with not being uid=0.
+> > > So I assume udev is still madly crunching on its message backlog while
+> > > this is happening?
+> > >
+> > > If so, ug.
+> > 
+> > OK. I'll let it stabilize, sorry.
+> 
+> You shouldn't have to.
 
-But that is not a problem.
+You shouldn't have to what?  You purposefully add and remove a block
+driver as fast as is possible, creating a ton of new events and you
+expect userspace processing of those events to be able to keep up in
+real-time with it?
 
-If attacker already has priviledge foo, he can just go use it. He does
-not have to exec() poor program not expecting to get priviledge foo,
-then abusing it.
+On the later versions of udev we are _way_ faster, we only listen to the
+netlink socket, no extra programs are spawned, but still, we can only
+work so fast :)
 
-...actually...
+My machine had no interactive response issues while this was happening,
+even with both processors being run at 100% cpu usage until I stoped the
+loop and then udev recovered a few seconds later.  This is even with
+HALD recieving all of these events from udev, remember it's not just
+udev in the event processing chain.
 
-...what you say is a problem. You are right that capabilities should
-be "sanitized" on every exec of suid/sgid program (not only suid
-root).
+thanks,
 
-Sanitized here means "all regular capabilities set, all others
-cleared".
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+greg k-h

@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWIGT5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751958AbWIGUFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWIGT5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWIGT5m
+	id S1751958AbWIGUFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 16:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751959AbWIGUFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:57:42 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:48006 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751837AbWIGT5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:57:41 -0400
-Date: Thu, 07 Sep 2006 15:37:47 -0400
-From: David Hollis <dhollis@davehollis.com>
-Subject: Re: [linux-usb-devel] [PATCH] driver for mcs7830 (aka DeLOCK) USB
-	ethernet adapter
-In-reply-to: <20060904064042.2E40719E185@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: arnd@arndb.de, support@moschip.com, supermihi@web.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-id: <1157657867.4388.5.camel@dhollis-lnx.sunera.com>
-MIME-version: 1.0
-X-Mailer: Evolution 2.7.92 (2.7.92-7.fc6)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-i0V1NeXxFqvnwGClenqc"
-References: <200608071500.55903.arnd.bergmann@de.ibm.com>
-	<200608202207.39709.arnd@arndb.de> <200609020338.54932.david-b@pacbell.net>
-	<200609021951.40470.arnd@arndb.de>
-	<20060904064042.2E40719E185@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	Thu, 7 Sep 2006 16:05:46 -0400
+Received: from code.and.org ([65.172.155.230]:42447 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id S1751958AbWIGUFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 16:05:45 -0400
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: David Madore <david.madore@ens.fr>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+From: James Antill <james@and.org>
+References: <20060905212643.GA13613@clipper.ens.fr>
+	<m3r6yn4jxg.fsf@code.and.org>
+	<ED485CED-AE69-466E-876C-2CC9DADC5576@mac.com>
+Content-Type: text/plain; charset=US-ASCII
+Date: Thu, 07 Sep 2006 16:05:40 -0400
+In-Reply-To: <ED485CED-AE69-466E-876C-2CC9DADC5576@mac.com> (Kyle Moffett's message of "Thu, 7 Sep 2006 14:33:56 -0400")
+Message-ID: <m3mz9b4f3f.fsf@code.and.org>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: james@mail.and.org
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+X-SA-Exim-Version: 4.2 (built Tue, 02 May 2006 07:36:10 -0400)
+X-SA-Exim-Scanned: Yes (on mail.and.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
---=-i0V1NeXxFqvnwGClenqc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Sep 07, 2006, at 14:21:15, James Antill wrote:
+>>
+>> Just a minor comment, can you break out the OPEN into at least
+>> OPEN_R, OPEN_NONFILE_W and OPEN_W (possibly OPEN_A, but I don't
+>> want that personally). The case I'm thinking about are network
+>> daemons that need to open+write to the syslog socket but only have
+>> read access elsewhere.
+>>
+>> Also there is much more than just bind9 using capabilities, the
+>> obvious ones that come to mind are NOATIME and AUDIT.
+>
+> To be honest, once you get to the point of having an OPEN_NONFILE_W
+> capability you should really just be using SELinux.
 
-On Sun, 2006-09-03 at 23:40 -0700, David Brownell wrote:
+ Actually, I got confused ... I forgot that you have to connect() to
+/dev/log and can't just open() it[1] ... so just having open_r and
+open_w separated would be enough. Which you'll hopefully agree would
+be nice to have outside of SELinux policy (noting that SELinux doesn't
+let you limit open calls, as such, only read+write -- although it's
+mostly the same).
 
->=20
-> > Going through the ethtool operations, I think that it should be
-> > possible to implement a few of them, including ETHTOOL_GREGS,
-> > ETHTOOL_GEEPROM, ETHTOOL_SEEPROM, ETHTOOL_NWAY_RST and ETHTOOL_GPERMADD=
-R.
-> > Do you think these should be done?
->=20
-> I've not got much use for those, but maybe the netdev folk would
-> care.  That's probably not enough to hold up any merge.
 
-Definitely not showstoppers, but nice touches just to ensure that all
-things work as expected.  The ones of most importance as I see it are
-the get/set_settings ones, which you can just pass-thru to the
-mii_ethtool_Xset() calls and get_drvinfo().  All others are somewhat
-optional and do vary from device to device.
+[1] Although, if we ever fix open... :)
 
---=20
-David Hollis <dhollis@davehollis.com>
-
---=-i0V1NeXxFqvnwGClenqc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFAHULxasLqOyGHncRAvjPAKCMwOM2EBBZW1iam58PLgu9GENgUwCdF4eZ
-mm81gRDXm6Qd2SBQjKpa4JQ=
-=8ERE
------END PGP SIGNATURE-----
-
---=-i0V1NeXxFqvnwGClenqc--
-
+-- 
+James Antill -- james@and.org
+http://www.and.org/and-httpd

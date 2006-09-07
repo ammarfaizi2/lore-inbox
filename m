@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751794AbWIGPCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWIGPIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751794AbWIGPCg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWIGPCg
+	id S1751789AbWIGPIL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbWIGPIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:02:36 -0400
-Received: from fremont.jonmasters.org ([64.71.152.22]:44044 "EHLO
-	fremont.jonmasters.org") by vger.kernel.org with ESMTP
-	id S1751794AbWIGPCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:02:35 -0400
-From: Jon Masters <jonathan@jonmasters.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org,
-       Victor Castro <victorhugo83@yahoo.com>
-In-Reply-To: <1157641826.30159.99.camel@aeonflux.holtmann.net>
-References: <CB81ECDC-0B48-4BE4-B9C0-C1CDBEC0F739@vhugo.net>
-	 <1157441620.24916.5.camel@localhost>
-	 <508B6A67-CA5B-4A81-B868-BF8A03D78888@vhugo.net>
-	 <1157560971.5265.94.camel@perihelion>
-	 <1157641826.30159.99.camel@aeonflux.holtmann.net>
+	Thu, 7 Sep 2006 11:08:11 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:3213 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751789AbWIGPIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 11:08:07 -0400
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+In-Reply-To: <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0609011652420.24650@hermes-2.csi.cam.ac.uk>
+	 <1157128342.30578.14.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060901101801.7845bca2.akpm@osdl.org>
+	 <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906124719.GA11868@atrey.karlin.mff.cuni.cz>
+	 <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906153449.GC18281@atrey.karlin.mff.cuni.cz>
+	 <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906162723.GA14345@atrey.karlin.mff.cuni.cz>
+	 <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain
-Organization: World Organi[sz]ation Of Broken Dreams
-Date: Thu, 07 Sep 2006 16:01:25 +0100
-Message-Id: <1157641285.28216.18.camel@perihelion>
+Date: Thu, 07 Sep 2006 08:11:17 -0700
+Message-Id: <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 212.18.227.82
-X-SA-Exim-Mail-From: jonathan@jonmasters.org
-Subject: Re: [PATCH][RFC] request_firmware examples and MODULE_FIRMWARE
-X-SA-Exim-Version: 4.2 (built Thu, 14 Apr 2005 16:52:54 +0000)
-X-SA-Exim-Scanned: Yes (on fremont.jonmasters.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-07 at 17:10 +0200, Marcel Holtmann wrote:
-> Hi Jon,
+
+>   Ugh! Are you sure? For this path the buffer must be attached (only) to
+> the running transaction. But then how the commit code comes to it?
+> Somebody would have to even manage to refile the buffer from the
+> committing transaction to the running one while the buffer is in wbuf[].
+> Could you check whether someone does __journal_refile_buffer() on your
+> marked buffers, please? Or whether we move buffer to BJ_Locked list in
+> the write_out_data: loop? Thanks.
 > 
-> > > > actually it has never been really a filename. It was a simple pattern
-> > > > that the initial hotplug script and later the udev script mapped  
-> > > > 1:1 to a filename on your filesystem. If you check the mailing list  
-> > > > archives of LKML and linux-hotplug you will see that I always resisted
-> > > > in allowing drivers to include a directory path in that call. A couple
-> > > > of people tried this and it is not what it was meant to be.
-> > 
-> > That's fine. I agree with the idea - *but* it strikes me that we don't
-> > really have a co-ordinated database of what module "patterns" map to
-> > what on-disk firmware, aside from hotplug/udev scripts. We need to
-> > co-ordinate this stuff a lot more. Or am I missing something? I'm happy
-> > to setup a database on the kerneltools.org wiki if that's useful...
-> 
-> that is true, but it is actually not a problem of the kernel and your
-> proposed MODULE_FIRMWARE patch. However it might be a good idea to start
-> something like this. It will also help to see what is actually needed.
+> 							
 
-I reali[sz]e it's not a direct problem, but it does need fixing. I'll
-spend some time over the weekend and then send an update about that.
+I added more debug in __journal_refile_buffer() to see if the marked
+buffers are getting refiled. I am able to reproduce the problem,
+but I don't see any debug including my original prints. (It looks as 
+if none of my debug code exists) - its really confusing. 
 
-Jon.
+I will keep looking and get back to you.
 
+I may try Andrew's buffer debug patch - if I get desperate.
+
+Thanks,
+Badari
 

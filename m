@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751865AbWIGT0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWIGT0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751865AbWIGT0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWIGT0Q
+	id S1751864AbWIGT0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWIGT0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:26:16 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52745 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751864AbWIGT0O
+	Thu, 7 Sep 2006 15:26:25 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54025 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751864AbWIGT0X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:26:14 -0400
-Date: Thu, 7 Sep 2006 19:22:34 +0000
+	Thu, 7 Sep 2006 15:26:23 -0400
+Date: Thu, 7 Sep 2006 19:25:28 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Om Narasimhan <om.turyx@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what is the expected behaviour under extreme high load.
-Message-ID: <20060907192234.GF8793@ucw.cz>
-References: <6b4e42d10609061653p608a2947g1943b3d752855dfe@mail.gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [patch 37/37] sky2: version 1.6.1
+Message-ID: <20060907192528.GG8793@ucw.cz>
+References: <20060906224631.999046890@quad.kroah.org> <20060906225812.GL15922@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6b4e42d10609061653p608a2947g1943b3d752855dfe@mail.gmail.com>
+In-Reply-To: <20060906225812.GL15922@kroah.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed 06-09-06 15:58:12, Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> 
+> ------------------
+> From: Stephen Hemminger <shemminger@osdl.org>
+> 
+> Since this code incorporates some of the fixes from 2.6.18, change
+> the version number.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-> I am running a stress test on my SunFire 4600 (8x2core, 
-> 64G) using the
-> mem_test available from
-> http://carpanta.dc.fi.udc.es/~quintela/memtest. I am 
-> using SuSE
-> enterprise 9 SP3.
+Not sure, one of 'stable' criteria is 'fixes bad bug'. What bug does
+this fix?
 
-Try running w/o watchdog.
-
-> I am wondering what is the expected behaviour of a 
-> machine under
-> extreme VM stress.
-> When I stress the system to the limits, it practically 
-> becomes
-> unresponsive. It runs for almost half an hour and then 
-> it crashes
-> because of a CPU lockup.
-
-> Any pointers from where I can start debugging this issue?
-
-Try vanilla kernel, first...
-
+							Pavel
 -- 
 Thanks for all the (sleeping) penguins.

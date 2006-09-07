@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWIGRdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbWIGRev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751779AbWIGRdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 13:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWIGRdU
+	id S1422671AbWIGRev (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 13:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWIGRev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 13:33:20 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:23470 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751779AbWIGRdS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 13:33:18 -0400
-Subject: Re: 2.6.18-rc5-mm1
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Maciej Rutecki <maciej.rutecki@gmail.com>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux acpi <linux-acpi@vger.kernel.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060906200824.4f74f221.akpm@osdl.org>
-References: <20060901015818.42767813.akpm@osdl.org>
-	 <44F86282.9010809@gmail.com> <200609051016.40468.bjorn.helgaas@hp.com>
-	 <44FEFD6F.4020203@gmail.com>  <20060906200824.4f74f221.akpm@osdl.org>
-Content-Type: text/plain; charset=utf-8
-Organization: Linux Technology Center IBM
-Date: Thu, 07 Sep 2006 10:33:14 -0700
-Message-Id: <1157650394.5653.21.camel@keithlap>
+	Thu, 7 Sep 2006 13:34:51 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:10508 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1422671AbWIGReu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 13:34:50 -0400
+Date: Thu, 7 Sep 2006 19:34:49 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060907173449.GA24013@clipper.ens.fr>
+References: <20060907003210.GA5503@clipper.ens.fr> <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Thu, 07 Sep 2006 19:34:49 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 20:08 -0700, Andrew Morton wrote:
-> On Wed, 06 Sep 2006 18:55:11 +0200
-> Maciej Rutecki <maciej.rutecki@gmail.com> wrote:
+On Thu, Sep 07, 2006 at 01:01:48AM +0000, Casey Schaufler wrote:
+> --- David Madore <david.madore@ens.fr> wrote:
+> > doesn't it make sense to implement them in the same
+> > framework?
 > 
-> > Bjorn Helgaas napisał(a):
-> > > 
-> > > This ACPI "unknown exception code" problem is the same one reported here:
-> > >   http://www.mail-archive.com/linux-acpi%40vger.kernel.org/msg02873.html
-> > > 
-> > > Basically, we just need to revert this:
-> > >   http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-fix.patch
-> > > 
-> > Thanks it works.
-> > 
+> I'm certainly not convinced that you'd
+> want that. Think of all the programs that
+> would have to be marked with CAP_FORK.
+
+They wouldn't have to be marked: capabilities are inherited by
+default, with my patch (as is the Unix tradition: euid=0 or {r,s}uid=0
+are preserved upon execve()), normal processes have CAP_FORK and just
+pass it on if you don't do something special to remove it.
+
+> > Rather
+> > than trying to reproduce the same rules in a
+> > different part of the
+> > kernel, causing code reduplication which would
+> > eventually, inevitably,
+> > fall out of sync...  I think it's easier for
+> > everyone if under- and
+> > over-privileges are treated in a uniform fashion.
 > 
-> So...  should I drop that patch?
+> This again assumes that you want to require
+> that in general processes run with some
+> capabilities.
 
-Yes please drop this patch.  
-  I dislike breaking my boxes functionality without a consensus for the
-right fix is but it appears to be breaking others.  The discussion about
-what the right fix is ongoing with no definitive direction. At a minimum
-this patch will need to be updated. 
+Yes.  In general, processes have all "regular" capabilities, and they
+are inherited normally.
 
-Thanks,
-  Keith 
-
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

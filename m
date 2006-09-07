@@ -1,109 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWIGJUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWIGJab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWIGJUm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIGJUl
+	id S1751326AbWIGJab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIGJab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:20:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37295 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751360AbWIGJUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:20:40 -0400
-Subject: Re: [PATCH 2.6.18-rc6 1/2] dllink driver: porting v1.19 to linux
-	2.6.18-rc6
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hayim Shaul <hayim@iportent.com>
-Cc: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       edward_peng@dlink.com.tw, linux-kernel@vger.kernel.org
-In-Reply-To: <1157620189.2904.16.camel@localhost.localdomain>
-References: <1157620189.2904.16.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 07 Sep 2006 11:19:55 +0200
-Message-Id: <1157620795.14882.16.camel@laptopd505.fenrus.org>
+	Thu, 7 Sep 2006 05:30:31 -0400
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:31409 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S1751326AbWIGJaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:30:30 -0400
+Date: Thu, 07 Sep 2006 18:30:13 +0900 (JST)
+Message-Id: <20060907.183013.55145698.nemoto@toshiba-tops.co.jp>
+To: jakub@redhat.com
+Cc: sebastien.dugue@bull.net, arjan@infradead.org, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, pierre.peiffer@bull.net,
+       drepper@redhat.com
+Subject: Re: NPTL mutex and the scheduling priority
+From: Atsushi Nemoto <nemoto@toshiba-tops.co.jp>
+In-Reply-To: <20060907083244.GA12531@devserv.devel.redhat.com>
+References: <20060613.010628.41632745.anemo@mba.ocn.ne.jp>
+	<20060907.171158.130239448.nemoto@toshiba-tops.co.jp>
+	<20060907083244.GA12531@devserv.devel.redhat.com>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+Organization: TOSHIBA Personal Computer System Corporation
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> @@ -335,8 +374,9 @@
->  #endif
->  	/* Read eeprom */
->  	for (i = 0; i < 128; i++) {
-> -		((u16 *) sromdata)[i] = le16_to_cpu (read_eeprom (ioaddr, i));
-> +		((u16 *) sromdata)[i] = cpu_to_le16 (read_eeprom (ioaddr, i));
->  	}
-> +	psrom->crc = le32_to_cpu(psrom->crc);
+On Thu, 7 Sep 2006 04:32:44 -0400, Jakub Jelinek <jakub@redhat.com> wrote:
+> > But pthread_cond_signal and sem_post still wakeup a thread in FIFO
+> > order, as you can guess.
+> > 
+> > With the plist patch (applied by hand), I can get desired behavior.
+> > Thank you.  But It seems the patch lacks reordering on priority
+> > changes.
+> 
+> Yes, either something like the plist patch for FUTEX_WAKE etc. or, if that
+> proves to be too slow for the usual case (non-RT threads), FIFO wakeup
+> initially and conversion to plist wakeup whenever first waiter with realtime
+> priority is added, is still needed.  That will cure e.g. non-PI
+> pthread_mutex_unlock and sem_post.  For pthread_cond_{signal,broadcast} we
+> need further kernel changes, so that the condvar's internal lock can be
+> always a PI lock.
 
-this looks wrong, the data comes from the hw as le, so le*_to_cpu()
-sounds the right direction
+Thank you, I'll stay tuned.
 
-> @@ -401,7 +441,7 @@
->  	int i;
->  	u16 macctrl;
->  	
-> -	i = request_irq (dev->irq, &rio_interrupt, IRQF_SHARED, dev->name, dev);
-> +	i = request_irq (dev->irq, &rio_interrupt, SA_SHIRQ, dev->name, dev);
->  	if (i)
->  		return i;
+> > <off_topic>
+> > BTW, If I tried to create a PI mutex on a kernel without PI futex
+> > support, pthread_mutexattr_setprotocol(PTHREAD_PRIO_INHERIT) returned
+> > 0 and pthread_mutex_init() returned ENOTSUP.  This is not a right
+> > behavior according to the manual ...
+> > </off_topic>
+> 
+> Why?
+> POSIX doesn't forbid ENOTSUP in pthread_mutex_init to my knowledge.
 
-this is backing out a fix/conversion to the new API. Bad.
+http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutexattr_setprotocol.html
+http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutex_init.html
 
+>From ERRORS section of pthread_mutexattr_setprotocol:
 
->  	
-> @@ -434,9 +474,12 @@
->  	writeb (0x30, ioaddr + RxDMABurstThresh);
->  	writeb (0x30, ioaddr + RxDMAUrgentThresh);
->  	writel (0x0007ffff, ioaddr + RmonStatMask);
-> +
->  	/* clear statistics */
->  	clear_stats (dev);
->  
-> +	atomic_set(&np->tx_desc_lock, 0);
+	The pthread_mutexattr_setprotocol() function shall fail if:
+	[ENOTSUP]
+	    The value specified by protocol is an unsupported value. 
 
-I'm quite scared by this naming; it suggests home-brew locking
+And ENOTSUP is not enumerated in ERRORS section of pthread_mutex_init.
 
->  	dev->trans_start = jiffies;
-> +	tasklet_enable(&np->tx_tasklet);
-> +	writew(DEFAULT_INTR, ioaddr + IntEnable);
-> +	return;
-
-this looks like a PCI posting bug
-
-
-> -rio_free_tx (struct net_device *dev, int irq) 
-> +rio_free_tx (struct net_device *dev) 
->  {
->  	struct netdev_private *np = netdev_priv(dev);
->  	int entry = np->old_tx % TX_RING_SIZE;
-> -	int tx_use = 0;
->  	unsigned long flag = 0;
-> +	int irq = in_interrupt();
-
-eeeeep
-
-> +
-> +	if (atomic_read(&np->tx_desc_lock))
-> +		return;
-> +	atomic_inc(&np->tx_desc_lock);
-
-and yes.. it is broken self made locking....
-there is a nice race between the _read and the _inc here.
-
-
->  	
->  	if (irq)
->  		spin_lock(&np->tx_lock);
->  	else
->  		spin_lock_irqsave(&np->tx_lock, flag);
-
-double eeeep
-
-this is wrong to do with in_interrupt() as gating factor!
-Always doing the irqsave() is fine btw
-
-
-
+---
+Atsushi Nemoto

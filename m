@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWIGT0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWIGT0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751864AbWIGT0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWIGT0Z
+	id S1751109AbWIGT0n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWIGT0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:26:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54025 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751864AbWIGT0X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:26:23 -0400
-Date: Thu, 7 Sep 2006 19:25:28 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [patch 37/37] sky2: version 1.6.1
-Message-ID: <20060907192528.GG8793@ucw.cz>
-References: <20060906224631.999046890@quad.kroah.org> <20060906225812.GL15922@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 15:26:40 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:5540 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1751867AbWIGT0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:26:36 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Greg KH <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: PATCH] usbtouchscreen: fix ITM data reading
+Date: Thu, 7 Sep 2006 21:25:51 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-usb" <linux-usb-devel@lists.sourceforge.net>,
+       "Kai Lindholm" <megantti@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060906225812.GL15922@kroah.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200609072125.53404.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-08.tornado.cablecom.ch 1378;
+	Body=5 Fuz1=5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 06-09-06 15:58:12, Greg KH wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
-> 
-> ------------------
-> From: Stephen Hemminger <shemminger@osdl.org>
-> 
-> Since this code incorporates some of the fixes from 2.6.18, change
-> the version number.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+before 2.6.19, please :)
 
-Not sure, one of 'stable' criteria is 'fixes bad bug'. What bug does
-this fix?
+[PATCH] usbtouchscreen: fix ITM data reading
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+From: Kai Lindhom <megantti@gmail.com>
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+
+diff --git a/drivers/usb/input/usbtouchscreen.c b/drivers/usb/input/usbtouchscreen.c
+index 3b175aa..a338bf4 100644
+--- a/drivers/usb/input/usbtouchscreen.c
++++ b/drivers/usb/input/usbtouchscreen.c
+@@ -286,7 +286,7 @@ #ifdef CONFIG_USB_TOUCHSCREEN_ITM
+ static int itm_read_data(unsigned char *pkt, int *x, int *y, int *touch, int *press)
+ {
+ 	*x = ((pkt[0] & 0x1F) << 7) | (pkt[3] & 0x7F);
+-	*x = ((pkt[1] & 0x1F) << 7) | (pkt[4] & 0x7F);
++	*y = ((pkt[1] & 0x1F) << 7) | (pkt[4] & 0x7F);
+ 	*press = ((pkt[2] & 0x1F) << 7) | (pkt[5] & 0x7F);
+ 	*touch = ~pkt[7] & 0x20;
+ 

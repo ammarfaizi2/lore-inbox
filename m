@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWIGK1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWIGK3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWIGK1n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 06:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWIGK1n
+	id S1751393AbWIGK3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 06:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIGK3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 06:27:43 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46344 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751356AbWIGK1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 06:27:42 -0400
-Date: Thu, 7 Sep 2006 12:27:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
-       linux-arch@vger.kernel.org
+	Thu, 7 Sep 2006 06:29:13 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:50625 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751393AbWIGK3L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 06:29:11 -0400
+Date: Thu, 7 Sep 2006 12:25:54 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-ID: <20060907102740.GH25473@stusta.de>
-References: <20060830175727.GI18276@stusta.de> <200608302013.58122.ak@suse.de> <20060830183905.GB31594@flint.arm.linux.org.uk> <20060906223748.GC12157@stusta.de> <20060907063049.GA15029@flint.arm.linux.org.uk>
+In-Reply-To: <20060907022303.GG25473@stusta.de>
+Message-ID: <Pine.LNX.4.64.0609071214421.6761@scrub.home>
+References: <200608302013.58122.ak@suse.de> <20060830183905.GB31594@flint.arm.linux.org.uk>
+ <20060906223748.GC12157@stusta.de> <Pine.LNX.4.64.0609070115270.6761@scrub.home>
+ <20060906235029.GC25473@stusta.de> <Pine.LNX.4.64.0609070202040.6761@scrub.home>
+ <20060907003758.GD25473@stusta.de> <Pine.LNX.4.64.0609070245100.6761@scrub.home>
+ <20060907010235.GE25473@stusta.de> <Pine.LNX.4.64.0609070313420.6761@scrub.home>
+ <20060907022303.GG25473@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060907063049.GA15029@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 07:30:49AM +0100, Russell King wrote:
->...
-> ... and maybe you should copy linux-arch with architecture-wide changes
-> so that all architecture maintainers are aware of what you're trying to
-> do?
->...
+Hi,
 
-Andis patch "x86_64: Don't define string functions to builtin" (sic) 
-that removed -ffreestanding for all architectures except i386 and that 
-broke at least two architectures was neither sent to linux-arch nor to 
-linux-kernel.
+On Thu, 7 Sep 2006, Adrian Bunk wrote:
 
-And I'm getting bashed for sendind a patch to revert it "only" to 
-linux-kernel...
+> > > > Define "full libc".
+> > > 
+> > > Everything described in clause 7 of ISO/IEC 9899:1999.
+> > 
+> > Its behaviour is also defined by the environment, so what gcc can assume 
+> > is rather limited and you have not shown a single example, that any such 
+> > assumption would be invalid for the kernel.
+> 
+> ISO/IEC 9899:1999 clause 7 defines the libc part of a hosted environment.
 
-> Russell King
+Which is a problem for the kernel exactly how?
+BTW the standard specifies the minimum requirements for a libc, so talking 
+about "full libc" is ambiguous at best.
 
-cu
-Adrian
-(who has just deleted all his cross compilers for getting rid of all 
- these troubles)
+> > The kernel uses standard C, so your point is?
+> 
+> A standard C freestanding environment or a standard C hosted environment?
 
--- 
+As far as gcc is concerned it's a hosted environment, where we provide 
+only what we actually use, but anything we do provide is compliant.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> > You already got two NACKs from arch maintainers, why the hell are you 
+> > still pushing this patch? The builtin functions are useful and you want to 
+> 
+> The same people who justified removing -ffreestanding with the "it was 
+> only added for x86-64, so dropping it should be safe" that has proven 
+> wrong now put their arch maintainers hats on for NACKing reverting this 
+> patch...
 
+And you keep ignoring there might be better solutions...
+
+> > force arch maintainers to have to enable every single one manually and 
+> > to maintain a list of these functions over multiple versions of gcc?
+> 
+> It could be done per architecture or globally for some functions.
+> 
+> And it doesn't sound like a bad idea to check the current code and think 
+> of what it does and what it should do -  many architecture specific 
+> things (like much of include/asm-i386/string.h) seem to be more 
+> historically than architecture specific.
+
+We're happy to hear about it, once you've done this.
+
+bye, Roman

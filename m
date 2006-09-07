@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWIGQer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWIGQjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWIGQer (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 12:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWIGQer
+	id S1161016AbWIGQjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 12:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWIGQjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 12:34:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7656 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932152AbWIGQep (ORCPT
+	Thu, 7 Sep 2006 12:39:23 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:48047 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161016AbWIGQjW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 12:34:45 -0400
-Date: Thu, 7 Sep 2006 09:34:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-Cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc6] ext3 memory leak
-Message-Id: <20060907093417.54d2adf1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.63.0609071657490.1700@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0609071300330.1700@pcgl.dsa-ac.de>
-	<Pine.LNX.4.63.0609071657490.1700@pcgl.dsa-ac.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Sep 2006 12:39:22 -0400
+Date: Thu, 7 Sep 2006 18:35:22 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Teigland <teigland@redhat.com>
+cc: Steven Whitehouse <swhiteho@redhat.com>, linux-kernel@vger.kernel.org,
+       Russell Cattelan <cattelan@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 14/16] GFS2: The DLM interface module
+In-Reply-To: <20060907145823.GF7775@redhat.com>
+Message-ID: <Pine.LNX.4.61.0609071832330.24855@yvahk01.tjqt.qr>
+References: <1157031710.3384.811.camel@quoit.chygwyn.com>
+ <Pine.LNX.4.61.0609051352110.24010@yvahk01.tjqt.qr> <20060907145823.GF7775@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006 17:21:35 +0200 (CEST)
-Guennadi Liakhovetski <gl@dsa-ac.de> wrote:
+Hi David,
 
-> On Thu, 7 Sep 2006, Guennadi Liakhovetski wrote:
-> 
-> > I've reported before in thread "[2.6.17.4] slabinfo.buffer_head increases" a 
-> > memory leak in ext3. Today I verified it is still present in 2.6.18-rc6.
-> 
-> No, sorry, I cannot seem to reproduce it under -rc6. It seems to stabilize 
-> eventually. But it doesn't under -rc2. I looked through all commits to 
-> ext3 code between -rc2 and -rc6 and I don't see any obvious reasons why a 
-> memory leak may have been fixed. Unless somebody can sched some light on 
-> this, I'll try to upgrade the problematic system to -rc6 tomorrow.
-> 
-> Just to be quite sure - this cannot (or is very unlikely to) be a libc 
-> bug, right?
-> 
 
-It is expected that in this situation the number of buffer_head objects will
-be approximately equal to the number of pagecache pages.  So once the pagecache
-has grown to consume all available memory and the kernel starts to perform pagecache
-reclaim, the buffer_head count should stabilise.
+>> >+int gdlm_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
+>> >+		  lm_lock_t **lockp)
+>>
+>> [lm_lock_t is]
+>> currently typedef'ed to void [...]. (One _could_
+>> get rid of it, but better not while it is called lm_lock_t. Leave as-is
+>> for now.)
+>
+>I'm wondering what you might suggest instead of using the lm_lockspace_t,
+>lm_lock_t, lm_fsdata_t typedefs.  These are opaque objects passed between
+>gfs and the lock modules.  Could you give an example or point to some code
+>that shows what you're thinking?
+
+What I was thinking about:
+int gdlm_get_lock(void *lockspace, struct lm_lockname *name, void **lockp)
+
+
+Jan Engelhardt
+-- 

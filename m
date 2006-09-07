@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWIGWGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWIGWI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751893AbWIGWGM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 18:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWIGWGM
+	id S1751904AbWIGWI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 18:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWIGWI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 18:06:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:60587 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751893AbWIGWGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 18:06:11 -0400
-Date: Thu, 7 Sep 2006 15:05:59 -0700
-From: Greg KH <greg@kroah.com>
+	Thu, 7 Sep 2006 18:08:59 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:42605 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751904AbWIGWI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 18:08:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=P4lEZ0lJZxPBZkR9/8zVcmujnGieynxlFs5MjNfpNf39nbJ75IoViI9Ttdvmbr2pOYmzeLQtGOyIausPYmHSqIGdSUxHUhA6MbfaspoFXrSLWNmItJXvJVZxQHIsUbz5+B+ODEAaNcEX9Upuiv/tcGruyArtDxxthJccsNa0YQk=
+Date: Fri, 8 Sep 2006 02:08:53 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>, Greg KH <greg@kroah.com>
 Subject: Re: Naughty ramdrives
-Message-ID: <20060907220559.GA29771@kroah.com>
+Message-ID: <20060907220852.GA5192@martell.zuzino.mipt.ru>
 References: <20060907205927.GA5193@martell.zuzino.mipt.ru> <20060907145412.db920bb5.akpm@osdl.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20060907145412.db920bb5.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 02:54:12PM -0700, Andrew Morton wrote:
-> On Fri, 8 Sep 2006 00:59:27 +0400
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> 
-> > You'd laugh, but...
-> > 
-> > Summary:
-> > 
-> > 	After loading and unloading rd.ko many times "ls -l /dev/ram*"
-> > 	results are not persistent.
-> > 
-> > Steps to reproduce:
-> > 
-> > 	# while true; do modprobe rd && rmmod rd; done
-> > 		[wait ~10 seconds]
-> > 	^C
-> > 	# modprobe rd
-> > 
-> > 	# ls -l /dev/ram*
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
-> > 	# ls -l /dev/ram*
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram13 -> rd/13
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
-> > 	# ls -l /dev/ram*
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram1 -> rd/1
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram11 -> rd/11
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram14 -> rd/14
-> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram15 -> rd/15
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram3 -> rd/3
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram8 -> rd/8
-> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram9 -> rd/9
-> > 
-> > Versions:
-> > 
-> > 	Linux 2.6.18-rc5
-> > 	udev 087
-> 
 > So I assume udev is still madly crunching on its message backlog while
 > this is happening?
-
-It shouldn't be, this should not take that long.  Run 'udevmonitor' to
-see what udev is doing at the moment to verify this or not.
-
+>
 > If so, ug.
 
-I agree.  What distro is this?
+OK. I'll let it stabilize, sorry.
 
-I just tested this on my box running Gentoo and a newer version of udev
-(099), and it worked just fine.  It took a while for udev to catch back
-up with the flood of events, but it did and everything was fine.  No
-harm done in the end.
+> > This was noticed while investigating #4899
+> > http://bugme.osdl.org/show_bug.cgi?id=4899
+> > where /dev/ram0 when opened, pins module indefinitely. It seems that
+> > adding ->release() which undoes
+> >
+> > 	inode = igrab(bdev->bd_inode);
+> >
+> > should do the trick. Am I right?
 
-thanks,
+> Looks right.
+>
+> I'm not sure that igrab() is needed though.  Probably bd_openers is
+> sufficient.
+>
+> I'm also not sure that rd_open() needs to play with bd_openers.
+> fs/block_dev.c:do_open() already does that.
 
-greg k-h
+Maybe start with closing open/open race?
+That's what drivers/char/raw.c does...
+------------------------------------------------
+[PATCH 1/2] rd: protect rd_bdev[] with mutex
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ drivers/block/rd.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/block/rd.c
++++ b/drivers/block/rd.c
+@@ -56,6 +56,7 @@ #include <linux/buffer_head.h>		/* for i
+ #include <linux/backing-dev.h>
+ #include <linux/blkpg.h>
+ #include <linux/writeback.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -63,6 +64,7 @@ #include <asm/uaccess.h>
+  */
+ 
+ static struct gendisk *rd_disks[CONFIG_BLK_DEV_RAM_COUNT];
++static DEFINE_MUTEX(rd_mutex);
+ static struct block_device *rd_bdev[CONFIG_BLK_DEV_RAM_COUNT];/* Protected device data */
+ static struct request_queue *rd_queue[CONFIG_BLK_DEV_RAM_COUNT];
+ 
+@@ -343,6 +345,7 @@ static int rd_open(struct inode *inode, 
+ {
+ 	unsigned unit = iminor(inode);
+ 
++	mutex_lock(&rd_mutex);
+ 	if (rd_bdev[unit] == NULL) {
+ 		struct block_device *bdev = inode->i_bdev;
+ 		struct address_space *mapping;
+@@ -382,6 +385,7 @@ static int rd_open(struct inode *inode, 
+ 		gfp_mask |= __GFP_HIGH;
+ 		mapping_set_gfp_mask(mapping, gfp_mask);
+ 	}
++	mutex_unlock(&rd_mutex);
+ 
+ 	return 0;
+ }
+

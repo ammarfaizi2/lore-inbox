@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbWIGAKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWIGALx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbWIGAKp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 20:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWIGAKp
+	id S1161014AbWIGALx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 20:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbWIGALx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 20:10:45 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:29366 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161012AbWIGAKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 20:10:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Oik4ZiOo8407EGAkRRzoM+hY8g8KzIC7Enwf8+OebH53+PLmi/daitfyzlyfxfZQnCfWfLvdukdy8BgkcmHRfsSX8Cas2YykFKaMNFjTrXu/7djwvAL4Wu5zRkt0LcdsKz8LjIhcrz+P4D1oF+G3YKgWIQ+Uyn6uv2BOuOYN018=
-Message-ID: <6bffcb0e0609061710t3519e42dl6138cadd5ff0d3fb@mail.gmail.com>
-Date: Thu, 7 Sep 2006 02:10:43 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc6 00/10] Kernel memory leak detector 0.10
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060906223536.21550.55411.stgit@localhost.localdomain>
+	Wed, 6 Sep 2006 20:11:53 -0400
+Received: from web36607.mail.mud.yahoo.com ([209.191.85.24]:402 "HELO
+	web36607.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161014AbWIGALw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 20:11:52 -0400
+Message-ID: <20060907001151.48122.qmail@web36607.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Wed, 6 Sep 2006 17:11:51 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060906132623.GA15665@clipper.ens.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060906223536.21550.55411.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
 
-On 07/09/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> This is a new version (0.10) of the kernel memory leak detector. See
-> the Documentation/kmemleak.txt file for a more detailed
-> description. The patches are downloadable from (the whole patch or the
-> broken-out series):
->
-> http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.18-rc6-kmemleak-0.10.bz2
+--- David Madore <david.madore@ens.fr> wrote:
 
-I get a kernel panic
-http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.10/panic.jpg
+> ... (one merely needs to do
+> something about
+> the new bunch of capabilities I've introduced, but
+> it should be easy
+> to hack something which makes sure no programs are
+> surprised or
+> broken).
 
-http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.10/kml-config
+You have not introduced new capabilities
+so much as you've introduced a new layer of
+policy, that being things that unprivileged
+processes can do but that "underprivileged"
+processes cannot. I personally think that
+this would make a spiffy LSM, but I don't
+buy it as an extension of the POSIX (draft)
+capability mechanism. Why? Because the
+capability mechanism deals with providing
+controls over the abilty to violate the
+traditional Unix security policy, as
+implemented in Linux. Adding "negative"
+privilege might not be a bad idea, but
+it is outside the scope of capabilities
+AND there is a mechanism (LSM) explicity
+in place for adding such restrictions.
 
-Regards,
-Michal
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)
+
+Casey Schaufler
+casey@schaufler-ca.com

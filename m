@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWIGPPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWIGPRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWIGPPt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 11:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWIGPPt
+	id S1751822AbWIGPRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 11:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWIGPRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 11:15:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2507 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751817AbWIGPPs (ORCPT
+	Thu, 7 Sep 2006 11:17:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32715 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751818AbWIGPRr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 11:15:48 -0400
-Date: Thu, 7 Sep 2006 08:15:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.18-rc5-mm1: strange /proc/interrupts contents on HPC nx6325
-Message-Id: <20060907081528.e1fd8776.akpm@osdl.org>
-In-Reply-To: <20060907135105.GA3318@elte.hu>
-References: <200609062117.31125.rjw@sisk.pl>
-	<20060906201953.d96ee183.akpm@osdl.org>
-	<20060907135105.GA3318@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Sep 2006 11:17:47 -0400
+Date: Thu, 7 Sep 2006 08:17:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kirill Korotaev <dev@openvz.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       devel@openvz.org
+Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
+In-Reply-To: <44FFF1A0.2060907@openvz.org>
+Message-ID: <Pine.LNX.4.64.0609070816170.27779@g5.osdl.org>
+References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
+ <44FFF1A0.2060907@openvz.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006 15:51:05 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > This is due to a gruesome hack (IMO) in the genirq code 
-> > (handle_irq_name()) which magically "knows" about the various types of 
-> > IRQ handler, but doesn't know about the MSI ones.  It should be 
-> > converted to a field in irq_desc, or a callback or something.
-> 
-> a field in irq_desc[] was frowned upon during initial genirq review, due 
-> to size reasons, so i removed it and replaced it with the hack.
 
-irq_desc[] is already in the hundred-byte range.  I'm a bit surprised that
-another char* is worth sweating over.
-
-What's in irq_chip.name, btw?  "name for /proc/interrupts".  hmm.
-
-> > I already had a whine about this then forgot about it, but it seems that
-> > code can't be changed by whining at it ;)
+On Thu, 7 Sep 2006, Kirill Korotaev wrote:
 > 
-> ;)
-> 
-> i think we could add a 'register handler name' API (or extend 
-> set_irq_handler() API), to pass in the name of handlers, and store it in 
-> a small array (instead of embedding it in irq_desc)? handle_irq_name() 
-> is not performance-critical.
+> Does the patch below looks better?
 
-spose so.
+Yes. 
+
+Apart from the whitespace corruption, that is.
+
+I don't know how to get mozilla to not screw up whitespace.
+
+		Linus

@@ -1,83 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751845AbWIGTQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWIGTRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751845AbWIGTQD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWIGTQB
+	id S1751842AbWIGTRG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWIGTRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:16:01 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:45576 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S1751440AbWIGTP7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:15:59 -0400
-Message-ID: <45006FEE.7020407@domdv.de>
-Date: Thu, 07 Sep 2006 21:15:58 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Len Brown <lenb@kernel.org>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [2.6.17.8] noapic and /proc/acpi/event
-References: <45006A6F.8030801@domdv.de> <200609071505.49820.len.brown@intel.com>
-In-Reply-To: <200609071505.49820.len.brown@intel.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Thu, 7 Sep 2006 15:17:05 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:40832 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751842AbWIGTRB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:17:01 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
+       Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <44FFCA4D.9090202@openvz.org>
+References: <44FD918A.7050501@sw.ru>
+	 <1157478392.3186.26.camel@localhost.localdomain>  <44FED3CA.7000005@sw.ru>
+	 <1157579641.31893.26.camel@linuxchandra>  <44FFCA4D.9090202@openvz.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 07 Sep 2006 12:16:56 -0700
+Message-Id: <1157656616.19884.34.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> On Thursday 07 September 2006 14:52, Andreas Steinmetz wrote:
+On Thu, 2006-09-07 at 11:29 +0400, Pavel Emelianov wrote:
+> Chandra Seetharaman wrote:
 > 
->>I do have a problem with a new laptop (Acer Ferrari 4006):
->>
->>It does suspend either to disk or to ram only when I do boot with
->>"noapic". So far, so good.
-> 
-> 
-> Well no, that isn't so good either.  You shouldn't need "noapic"
-> for anything, either normal operation or suspend/resume.
-> 
-> Do ACPI events work properly w/o noapic if you don't suspend/resume?
-> 
+> [snip]
+> >>> Will we need new user/kernel interfaces for cpu, i/o bandwidth, etc...?
+> >>>       
+> >> no. no new interfaces are required.
+> >>     
+> >
+> > Good to know that. 
+> >
+> > Your CPU controller supports guarantee ?
+> >   
+> It does, but CPU controller is not so simple as memory one.
 
-Yes, they do, that's how I tested.
+Hmm... the reason I asked is that the UBC infrastructure doesn't provide
+guarantee support and Kirill mentioned there is no changes required to
+UBC if you have to move your CPU controller to be under UBC.
 
-> You should be able to kill acpid, and cat /proc/acpi/event
-> and open/close your lid and watch events appear --
-> same for power button.
-> You should also be able to see the acpi line in /proc/interrupts
-> increment for each of these events.
-> 
-> 
->>If, however, I do boot with "noapic" no events are delivered to
->>/proc/acpi/event so lid switch and power button can't be used to suspend
->>anymore.
-> 
-> 
-> Does noapic work properly before the suspend?
-> (test the same way as w/o noapic above)
-> 
+>From your reply it does look like you need to make some changes (add
+guarantee support) to UBC, if you want to move the CPU controller to be
+under UBC.
 
-No events, no ACPI interrupts.
-
+> > Do you have a i/o controller ?
+> >
+> >   
+> >> BUT: I remind you the talks at OKS/OLS and in previous UBC discussions.
+> >> It was noted that having a separate interfaces for CPU, I/O bandwidth
+> >>     
+> >
+> > But, it will be lot simpler for the user to configure/use if they are
+> > together. We should discuss this also.
+> >   
+> IMHO such unification may only imply that one syscall is used to pass
+> configuration info into kernel.
+> Each controller has specific configurating parameters different from the
+> other ones. E.g. CPU controller must assign a "weight" to each group to
+> share CPU time accordingly, but what is a "weight" for memory controller?
+> IO may operate on "bandwidth" and it's not clear what is a "bandwidth" in
+> Kb/sec for CPU controller and so on.
 > 
->>The strange thing is, that at least in /proc/acpi/button/lid/LID/state I
->>can view the lid switch state.
-> 
-> 
-> The problem with your system is that it isn't getting ACPI interrupts.
-> The lid state in /proc is immune to that problem because when
-> you read that file Linux asks the hardware for its state on demand.
-> 
+> [snip]
+> >> The question is - whether web server is multithreaded or not...
+> >> If it is not - then no problem here, you can change current
+> >> context and new resources will be charged accordingly.
+> >>
+> >> And current BC code is _able_ to handle it with _minor_ changes.
+> >> (One just need to save bc not on mm struct, but rather on vma struct
+> >> and change mm->bc on set_bc_id()).
+> >>
+> >> However, no one (can some one from CKRM team please?) explained so far
+> >> what to do with threads. Consider the following example.
+> >>
+> >> 1. Threaded web server spawns a child to serve a client.
+> >> 2. child thread touches some pages and they are charged to child BC
+> >>    (which differs from parent's one)
+> >> 3. child exits, but since its mm is shared with parent, these pages
+> >>    stay mapped and charged to child BC.
+> >>
+> >> So the question is:  what to do with these pages?
+> >> - should we recharge them to another BC?
+> >> - leave them charged?
+> >>     
+> >
+> > Leave them charged. It will be charged to the appropriate UBC when they
+> > touch it again.
+> >   
+> Do you mean that page must be re-charged each time someone touches it?
 
-I see.
-
-> cheers,
-> -Len
->  
-
+What I meant is that to leave them charged, and if when they are
+ummapped and mapped later, charge it to the appropriate BC.
 
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

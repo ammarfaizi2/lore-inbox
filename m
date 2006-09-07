@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWIGWDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWIGWGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWIGWDx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 18:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWIGWDw
+	id S1751893AbWIGWGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 18:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWIGWGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 18:03:52 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:37800 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751637AbWIGWDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 18:03:52 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Tim Okrongli <j6cubic@gmail.com>
-Subject: Re: Panics on AMD X2/NVidiaMCP55Ultra
-Date: Fri, 8 Sep 2006 00:03:34 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <450069ED.8060201@gmail.com>
-In-Reply-To: <450069ED.8060201@gmail.com>
+	Thu, 7 Sep 2006 18:06:12 -0400
+Received: from mail.suse.de ([195.135.220.2]:60587 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751893AbWIGWGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 18:06:11 -0400
+Date: Thu, 7 Sep 2006 15:05:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
+Subject: Re: Naughty ramdrives
+Message-ID: <20060907220559.GA29771@kroah.com>
+References: <20060907205927.GA5193@martell.zuzino.mipt.ru> <20060907145412.db920bb5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1492752.9EWqqFZckQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609080003.35360.prakash@punnoor.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060907145412.db920bb5.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1492752.9EWqqFZckQ
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Sep 07, 2006 at 02:54:12PM -0700, Andrew Morton wrote:
+> On Fri, 8 Sep 2006 00:59:27 +0400
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> 
+> > You'd laugh, but...
+> > 
+> > Summary:
+> > 
+> > 	After loading and unloading rd.ko many times "ls -l /dev/ram*"
+> > 	results are not persistent.
+> > 
+> > Steps to reproduce:
+> > 
+> > 	# while true; do modprobe rd && rmmod rd; done
+> > 		[wait ~10 seconds]
+> > 	^C
+> > 	# modprobe rd
+> > 
+> > 	# ls -l /dev/ram*
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+> > 	# ls -l /dev/ram*
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram13 -> rd/13
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram6 -> rd/6
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+> > 	# ls -l /dev/ram*
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram0 -> rd/0
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram1 -> rd/1
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram11 -> rd/11
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram12 -> rd/12
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram14 -> rd/14
+> > 	lrwxrwxrwx 1 root root 5 Sep  8 00:35 /dev/ram15 -> rd/15
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram3 -> rd/3
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram7 -> rd/7
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram8 -> rd/8
+> > 	lrwxrwxrwx 1 root root 4 Sep  8 00:35 /dev/ram9 -> rd/9
+> > 
+> > Versions:
+> > 
+> > 	Linux 2.6.18-rc5
+> > 	udev 087
+> 
+> So I assume udev is still madly crunching on its message backlog while
+> this is happening?
 
-Am Donnerstag 07 September 2006 20:50 schrieb Tim Okrongli:
-> [1.] One line summary of the problem:
-> I receive kernel panics while fscking my SATA HDD
+It shouldn't be, this should not take that long.  Run 'udevmonitor' to
+see what udev is doing at the moment to verify this or not.
 
-Are you in APIC mode? If yes, could you try again with noapic?
+> If so, ug.
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+I agree.  What distro is this?
 
---nextPart1492752.9EWqqFZckQ
-Content-Type: application/pgp-signature
+I just tested this on my box running Gentoo and a newer version of udev
+(099), and it worked just fine.  It took a while for udev to catch back
+up with the flood of events, but it did and everything was fine.  No
+harm done in the end.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+thanks,
 
-iD8DBQBFAJc3xU2n/+9+t5gRAoIUAJ0fqAaR3Hih5tq+k0UtHlPbAsQkiACg8UkD
-hCb+DmDNDqTbaK81nta/9/8=
-=jZp5
------END PGP SIGNATURE-----
-
---nextPart1492752.9EWqqFZckQ--
+greg k-h

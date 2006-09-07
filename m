@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751530AbWIGK5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWIGLG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751530AbWIGK5z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 06:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWIGK5z
+	id S1751656AbWIGLG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 07:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbWIGLG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 06:57:55 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:61135 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751494AbWIGK5y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 06:57:54 -0400
-Date: Thu, 7 Sep 2006 12:52:37 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Hayim Shaul <hayim@iportent.com>, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, edward_peng@dlink.com.tw,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc6 1/2] dllink driver: porting v1.19 to linux 2.6.18-rc6
-Message-ID: <20060907105237.GA21270@electric-eye.fr.zoreil.com>
-References: <1157620189.2904.16.camel@localhost.localdomain> <1157620795.14882.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Sep 2006 07:06:57 -0400
+Received: from natreg.rzone.de ([81.169.145.183]:46056 "EHLO natreg.rzone.de")
+	by vger.kernel.org with ESMTP id S1751656AbWIGLGz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 07:06:55 -0400
+Date: Thu, 7 Sep 2006 13:05:13 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Mirkin <amirkin@sw.ru>, devel@openvz.org, mikpe@it.uu.se,
+       sam@ravnborg.org, bunk@stusta.de
+Subject: Re: [PATCH] fail kernel compilation in case of unresolved symbols (v2)
+Message-ID: <20060907110513.GA22319@aepfle.de>
+References: <44FFEE5D.2050905@openvz.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1157620795.14882.16.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <44FFEE5D.2050905@openvz.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> :
-[...]
-> >  	dev->trans_start = jiffies;
-> > +	tasklet_enable(&np->tx_tasklet);
-> > +	writew(DEFAULT_INTR, ioaddr + IntEnable);
-> > +	return;
+On Thu, Sep 07, Kirill Korotaev wrote:
+
+> At stage 2 modpost utility is used to check modules.
+> In case of unresolved symbols modpost only prints warning.
 > 
-> this looks like a PCI posting bug
+> IMHO it is a good idea to fail compilation process in case of
+> unresolved symbols (at least in modules coming with kernel),
+> since usually such errors are left unnoticed, but kernel
+> modules are broken.
 
-Btw tx_tasklet is introduced in the relevant struct in patch #2.
-Patch #1 will not compile.
+It clearly depends on the context. An unimportant dvb module may have
+unresolved symbols, but the drivers for your root filesystem should
+rather not have unresolved symbols.
 
--- 
-Ueimor
+Better leave the current default, your patch seems to turn an unresolved
+symbol with "unknown importance" into a hard error.

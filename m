@@ -1,261 +1,588 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWIGTEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751720AbWIGTGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWIGTEs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWIGTEs
+	id S1751720AbWIGTGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWIGTGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:04:48 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:49632 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751363AbWIGTEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:04:44 -0400
+	Thu, 7 Sep 2006 15:06:09 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:4577 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1751720AbWIGTGE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:06:04 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060907190442.6166.90028.sendpatchset@skynet.skynet.ie>
+Message-Id: <20060907190603.6166.63743.sendpatchset@skynet.skynet.ie>
 In-Reply-To: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
 References: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 3/8] Split the per-cpu lists into kernel and user parts
-Date: Thu,  7 Sep 2006 20:04:42 +0100 (IST)
+Subject: [PATCH 7/8] Introduce the RCLM_KERN allocation type
+Date: Thu,  7 Sep 2006 20:06:03 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The freelists for each allocation type can slowly become fragmented due to
-the per-cpu list. Consider what happens when the following happens
+Some kernel allocations are easily reclaimable such as inode caches and
+these reclaimable kernel allocations are by far the most common type of
+kernel allocation. This patch marks those type of allocations explicitly
+and tries to group them together.
 
-1. A 2^(MAX_ORDER-1) list is reserved for __GFP_EASYRCLM pages
-2. An order-0 page is allocated from the newly reserved block
-3. The page is freed and placed on the per-cpu list
-4. alloc_page() is called with GFP_KERNEL as the gfp_mask
-5. The per-cpu list is used to satisfy the allocation
-
-This results in a kernel page is in the middle of a RCLM_EASY region. This
-means that over long periods of the time, the anti-fragmentation scheme
-slowly degrades to the standard allocator.
-
-This patch divides the per-cpu lists into RCLM_TYPES number of lists.
-
+As another page bit would normally be required, it was decided to reuse the
+suspend-related page bits and make anti-fragmentation and software suspend
+mutually exclusive. More details are in the patch.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
 ---
 
- include/linux/mmzone.h |   16 +++++++++--
- mm/page_alloc.c        |   63 +++++++++++++++++++++++++++-----------------
- mm/vmstat.c            |    4 +-
- 3 files changed, 56 insertions(+), 27 deletions(-)
+ arch/x86_64/kernel/e820.c  |    8 +++++
+ fs/buffer.c                |    5 +--
+ fs/dcache.c                |    3 +
+ fs/ext2/super.c            |    3 +
+ fs/ext3/super.c            |    3 +
+ fs/jbd/journal.c           |    6 ++-
+ fs/jbd/revoke.c            |    6 ++-
+ fs/ntfs/inode.c            |    6 ++-
+ fs/reiserfs/super.c        |    3 +
+ include/linux/gfp.h        |   10 +++---
+ include/linux/mmzone.h     |    5 +--
+ include/linux/page-flags.h |   60 +++++++++++++++++++++++++++++++------
+ init/Kconfig               |    1 
+ lib/radix-tree.c           |    6 ++-
+ mm/page_alloc.c            |   64 ++++++++++++++++++++++++++--------------
+ mm/shmem.c                 |    8 +++--
+ net/core/skbuff.c          |    1 
+ 17 files changed, 144 insertions(+), 54 deletions(-)
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-002_fragcore/include/linux/mmzone.h linux-2.6.18-rc5-mm1-003_percpu/include/linux/mmzone.h
---- linux-2.6.18-rc5-mm1-002_fragcore/include/linux/mmzone.h	2006-09-04 18:37:59.000000000 +0100
-+++ linux-2.6.18-rc5-mm1-003_percpu/include/linux/mmzone.h	2006-09-04 18:39:39.000000000 +0100
-@@ -28,6 +28,8 @@
- #define RCLM_EASY   1
- #define RCLM_TYPES  2
- 
-+#define for_each_rclmtype(type) \
-+	for (type = 0; type < RCLM_TYPES; type++)
- #define for_each_rclmtype_order(type, order) \
- 	for (order = 0; order < MAX_ORDER; order++) \
- 		for (type = 0; type < RCLM_TYPES; type++)
-@@ -77,10 +79,10 @@ enum zone_stat_item {
- 	NR_VM_ZONE_STAT_ITEMS };
- 
- struct per_cpu_pages {
--	int count;		/* number of pages in the list */
-+	int counts[RCLM_TYPES];	/* number of pages in the list */
- 	int high;		/* high watermark, emptying needed */
- 	int batch;		/* chunk size for buddy add/remove */
--	struct list_head list;	/* the list of pages */
-+	struct list_head list[RCLM_TYPES];	/* the list of pages */
- };
- 
- struct per_cpu_pageset {
-@@ -91,6 +93,16 @@ struct per_cpu_pageset {
- #endif
- } ____cacheline_aligned_in_smp;
- 
-+static inline int pcp_count(struct per_cpu_pages *pcp)
-+{
-+	int rclmtype, count = 0;
-+
-+	for_each_rclmtype(rclmtype)
-+		count += pcp->counts[rclmtype];
-+
-+	return count;
-+}
-+
- #ifdef CONFIG_NUMA
- #define zone_pcp(__z, __cpu) ((__z)->pageset[(__cpu)])
- #else
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-002_fragcore/mm/page_alloc.c linux-2.6.18-rc5-mm1-003_percpu/mm/page_alloc.c
---- linux-2.6.18-rc5-mm1-002_fragcore/mm/page_alloc.c	2006-09-04 18:37:59.000000000 +0100
-+++ linux-2.6.18-rc5-mm1-003_percpu/mm/page_alloc.c	2006-09-04 18:39:39.000000000 +0100
-@@ -745,7 +745,7 @@ static int rmqueue_bulk(struct zone *zon
-  */
- void drain_node_pages(int nodeid)
- {
--	int i;
-+	int i, pindex;
- 	enum zone_type z;
- 	unsigned long flags;
- 
-@@ -761,10 +761,14 @@ void drain_node_pages(int nodeid)
- 			struct per_cpu_pages *pcp;
- 
- 			pcp = &pset->pcp[i];
--			if (pcp->count) {
-+			if (pcp_count(pcp)) {
- 				local_irq_save(flags);
--				free_pages_bulk(zone, pcp->count, &pcp->list, 0);
--				pcp->count = 0;
-+				for_each_rclmtype(pindex) {
-+					free_pages_bulk(zone,
-+							pcp->counts[pindex],
-+							&pcp->list[pindex], 0);
-+					pcp->counts[pindex] = 0;
-+				}
- 				local_irq_restore(flags);
- 			}
- 		}
-@@ -777,7 +781,7 @@ static void __drain_pages(unsigned int c
- {
- 	unsigned long flags;
- 	struct zone *zone;
--	int i;
-+	int i, pindex;
- 
- 	for_each_zone(zone) {
- 		struct per_cpu_pageset *pset;
-@@ -788,8 +792,13 @@ static void __drain_pages(unsigned int c
- 
- 			pcp = &pset->pcp[i];
- 			local_irq_save(flags);
--			free_pages_bulk(zone, pcp->count, &pcp->list, 0);
--			pcp->count = 0;
-+			for_each_rclmtype(pindex) {
-+				free_pages_bulk(zone,
-+						pcp->counts[pindex],
-+						&pcp->list[pindex], 0);
-+
-+				pcp->counts[pindex] = 0;
-+			}
- 			local_irq_restore(flags);
- 		}
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/arch/x86_64/kernel/e820.c linux-2.6.18-rc5-mm1-007_kernrclm/arch/x86_64/kernel/e820.c
+--- linux-2.6.18-rc5-mm1-006_movefree/arch/x86_64/kernel/e820.c	2006-09-04 18:34:30.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/arch/x86_64/kernel/e820.c	2006-09-04 18:45:50.000000000 +0100
+@@ -235,6 +235,13 @@ e820_register_active_regions(int nid, un
  	}
-@@ -851,6 +860,7 @@ void drain_local_pages(void)
- static void fastcall free_hot_cold_page(struct page *page, int cold)
- {
- 	struct zone *zone = page_zone(page);
-+	int pindex = get_pageblock_type(page);
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
- 
-@@ -866,11 +876,11 @@ static void fastcall free_hot_cold_page(
- 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
- 	local_irq_save(flags);
- 	__count_vm_event(PGFREE);
--	list_add(&page->lru, &pcp->list);
--	pcp->count++;
--	if (pcp->count >= pcp->high) {
--		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
--		pcp->count -= pcp->batch;
-+	list_add(&page->lru, &pcp->list[pindex]);
-+	pcp->counts[pindex]++;
-+	if (pcp->counts[pindex] >= pcp->high) {
-+		free_pages_bulk(zone, pcp->batch, &pcp->list[pindex], 0);
-+		pcp->counts[pindex] -= pcp->batch;
- 	}
- 	local_irq_restore(flags);
- 	put_cpu();
-@@ -916,6 +926,7 @@ static struct page *buffered_rmqueue(str
- 	struct page *page;
- 	int cold = !!(gfp_flags & __GFP_COLD);
- 	int cpu;
-+	int rclmtype = gfpflags_to_rclmtype(gfp_flags);
- 
- again:
- 	cpu  = get_cpu();
-@@ -924,15 +935,15 @@ again:
- 
- 		pcp = &zone_pcp(zone, cpu)->pcp[cold];
- 		local_irq_save(flags);
--		if (!pcp->count) {
--			pcp->count += rmqueue_bulk(zone, 0,
--				pcp->batch, &pcp->list, gfp_flags);
--			if (unlikely(!pcp->count))
-+		if (!pcp->counts[rclmtype]) {
-+			pcp->counts[rclmtype] += rmqueue_bulk(zone, 0,
-+				pcp->batch, &pcp->list[rclmtype], gfp_flags);
-+			if (unlikely(!pcp->counts[rclmtype]))
- 				goto failed;
- 		}
--		page = list_entry(pcp->list.next, struct page, lru);
-+		page = list_entry(pcp->list[rclmtype].next, struct page, lru);
- 		list_del(&page->lru);
--		pcp->count--;
-+		pcp->counts[rclmtype]--;
- 	} else {
- 		spin_lock_irqsave(&zone->lock, flags);
- 		page = __rmqueue(zone, order, gfp_flags);
-@@ -1480,7 +1491,7 @@ void show_free_areas(void)
- 					temperature ? "cold" : "hot",
- 					pageset->pcp[temperature].high,
- 					pageset->pcp[temperature].batch,
--					pageset->pcp[temperature].count);
-+					pcp_count(&pageset->pcp[temperature]));
- 		}
- 	}
- 
-@@ -1921,20 +1932,26 @@ static int __cpuinit zone_batchsize(stru
- inline void setup_pageset(struct per_cpu_pageset *p, unsigned long batch)
- {
- 	struct per_cpu_pages *pcp;
-+	int rclmtype;
- 
- 	memset(p, 0, sizeof(*p));
- 
- 	pcp = &p->pcp[0];		/* hot */
--	pcp->count = 0;
-+	for_each_rclmtype(rclmtype) {
-+		pcp->counts[rclmtype] = 0;
-+		INIT_LIST_HEAD(&pcp->list[rclmtype]);
-+	}
- 	pcp->high = 6 * batch;
- 	pcp->batch = max(1UL, 1 * batch);
--	INIT_LIST_HEAD(&pcp->list);
-+	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
- 
- 	pcp = &p->pcp[1];		/* cold*/
--	pcp->count = 0;
-+	for_each_rclmtype(rclmtype) {
-+		pcp->counts[rclmtype] = 0;
-+		INIT_LIST_HEAD(&pcp->list[rclmtype]);
-+	}
- 	pcp->high = 2 * batch;
- 	pcp->batch = max(1UL, batch/2);
--	INIT_LIST_HEAD(&pcp->list);
  }
  
- /*
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-002_fragcore/mm/vmstat.c linux-2.6.18-rc5-mm1-003_percpu/mm/vmstat.c
---- linux-2.6.18-rc5-mm1-002_fragcore/mm/vmstat.c	2006-09-04 18:34:33.000000000 +0100
-+++ linux-2.6.18-rc5-mm1-003_percpu/mm/vmstat.c	2006-09-04 18:39:39.000000000 +0100
-@@ -562,7 +562,7 @@ static int zoneinfo_show(struct seq_file
++#ifdef CONFIG_PAGEALLOC_ANTIFRAG
++static void __init
++e820_mark_nosave_range(unsigned long start, unsigned long end)
++{
++	printk("Nosave not set when anti-frag is enabled");
++}
++#else
+ /* Mark pages corresponding to given address range as nosave */
+ static void __init
+ e820_mark_nosave_range(unsigned long start, unsigned long end)
+@@ -250,6 +257,7 @@ e820_mark_nosave_range(unsigned long sta
+ 		if (pfn_valid(pfn))
+ 			SetPageNosave(pfn_to_page(pfn));
+ }
++#endif
  
- 			pageset = zone_pcp(zone, i);
- 			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
--				if (pageset->pcp[j].count)
-+				if (pcp_count(&pageset->pcp[j]))
- 					break;
- 			}
- 			if (j == ARRAY_SIZE(pageset->pcp))
-@@ -574,7 +574,7 @@ static int zoneinfo_show(struct seq_file
- 					   "\n              high:  %i"
- 					   "\n              batch: %i",
- 					   i, j,
--					   pageset->pcp[j].count,
-+					   pcp_count(&pageset->pcp[j]),
- 					   pageset->pcp[j].high,
- 					   pageset->pcp[j].batch);
- 			}
+ /*
+  * Find the ranges of physical addresses that do not correspond to
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/buffer.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/buffer.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/buffer.c	2006-09-04 18:36:09.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/buffer.c	2006-09-04 18:45:50.000000000 +0100
+@@ -2642,7 +2642,7 @@ int submit_bh(int rw, struct buffer_head
+ 	 * from here on down, it's all bio -- do the initial mapping,
+ 	 * submit_bio -> generic_make_request may further map this bio around
+ 	 */
+-	bio = bio_alloc(GFP_NOIO, 1);
++	bio = bio_alloc(set_rclmflags(GFP_NOIO, __GFP_EASYRCLM), 1);
+ 
+ 	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
+ 	bio->bi_bdev = bh->b_bdev;
+@@ -2922,7 +2922,8 @@ static void recalc_bh_state(void)
+ 	
+ struct buffer_head *alloc_buffer_head(gfp_t gfp_flags)
+ {
+-	struct buffer_head *ret = kmem_cache_alloc(bh_cachep, gfp_flags);
++	struct buffer_head *ret = kmem_cache_alloc(bh_cachep,
++				set_rclmflags(gfp_flags, __GFP_KERNRCLM));
+ 	if (ret) {
+ 		get_cpu_var(bh_accounting).nr++;
+ 		recalc_bh_state();
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/dcache.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/dcache.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/dcache.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/dcache.c	2006-09-04 18:45:50.000000000 +0100
+@@ -853,7 +853,8 @@ struct dentry *d_alloc(struct dentry * p
+ 	struct dentry *dentry;
+ 	char *dname;
+ 
+-	dentry = kmem_cache_alloc(dentry_cache, GFP_KERNEL); 
++	dentry = kmem_cache_alloc(dentry_cache,
++				set_rclmflags(GFP_KERNEL, __GFP_KERNRCLM));
+ 	if (!dentry)
+ 		return NULL;
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/ext2/super.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/ext2/super.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/ext2/super.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/ext2/super.c	2006-09-04 18:45:50.000000000 +0100
+@@ -140,7 +140,8 @@ static kmem_cache_t * ext2_inode_cachep;
+ static struct inode *ext2_alloc_inode(struct super_block *sb)
+ {
+ 	struct ext2_inode_info *ei;
+-	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, SLAB_KERNEL);
++	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep,
++				set_rclmflags(SLAB_KERNEL, __GFP_KERNRCLM));
+ 	if (!ei)
+ 		return NULL;
+ #ifdef CONFIG_EXT2_FS_POSIX_ACL
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/ext3/super.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/ext3/super.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/ext3/super.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/ext3/super.c	2006-09-04 18:45:50.000000000 +0100
+@@ -444,7 +444,8 @@ static struct inode *ext3_alloc_inode(st
+ {
+ 	struct ext3_inode_info *ei;
+ 
+-	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
++	ei = kmem_cache_alloc(ext3_inode_cachep,
++				set_rclmflags(SLAB_NOFS, __GFP_KERNRCLM));
+ 	if (!ei)
+ 		return NULL;
+ #ifdef CONFIG_EXT3_FS_POSIX_ACL
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/jbd/journal.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/jbd/journal.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/jbd/journal.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/jbd/journal.c	2006-09-04 18:45:50.000000000 +0100
+@@ -1735,7 +1735,8 @@ static struct journal_head *journal_allo
+ #ifdef CONFIG_JBD_DEBUG
+ 	atomic_inc(&nr_journal_heads);
+ #endif
+-	ret = kmem_cache_alloc(journal_head_cache, GFP_NOFS);
++	ret = kmem_cache_alloc(journal_head_cache,
++				set_rclmflags(GFP_NOFS, __GFP_KERNRCLM));
+ 	if (ret == 0) {
+ 		jbd_debug(1, "out of memory for journal_head\n");
+ 		if (time_after(jiffies, last_warning + 5*HZ)) {
+@@ -1745,7 +1746,8 @@ static struct journal_head *journal_allo
+ 		}
+ 		while (ret == 0) {
+ 			yield();
+-			ret = kmem_cache_alloc(journal_head_cache, GFP_NOFS);
++			ret = kmem_cache_alloc(journal_head_cache,
++				set_rclmflags(GFP_NOFS, __GFP_KERNRCLM));
+ 		}
+ 	}
+ 	return ret;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/jbd/revoke.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/jbd/revoke.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/jbd/revoke.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/jbd/revoke.c	2006-09-04 18:45:50.000000000 +0100
+@@ -206,7 +206,8 @@ int journal_init_revoke(journal_t *journ
+ 	while((tmp >>= 1UL) != 0UL)
+ 		shift++;
+ 
+-	journal->j_revoke_table[0] = kmem_cache_alloc(revoke_table_cache, GFP_KERNEL);
++	journal->j_revoke_table[0] = kmem_cache_alloc(revoke_table_cache,
++				set_rclmflags(GFP_KERNEL, __GFP_KERNRCLM));
+ 	if (!journal->j_revoke_table[0])
+ 		return -ENOMEM;
+ 	journal->j_revoke = journal->j_revoke_table[0];
+@@ -229,7 +230,8 @@ int journal_init_revoke(journal_t *journ
+ 	for (tmp = 0; tmp < hash_size; tmp++)
+ 		INIT_LIST_HEAD(&journal->j_revoke->hash_table[tmp]);
+ 
+-	journal->j_revoke_table[1] = kmem_cache_alloc(revoke_table_cache, GFP_KERNEL);
++	journal->j_revoke_table[1] = kmem_cache_alloc(revoke_table_cache,
++				set_rclmflags(GFP_KERNEL, __GFP_KERNRCLM));
+ 	if (!journal->j_revoke_table[1]) {
+ 		kfree(journal->j_revoke_table[0]->hash_table);
+ 		kmem_cache_free(revoke_table_cache, journal->j_revoke_table[0]);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/ntfs/inode.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/ntfs/inode.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/ntfs/inode.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/ntfs/inode.c	2006-09-04 18:45:50.000000000 +0100
+@@ -324,7 +324,8 @@ struct inode *ntfs_alloc_big_inode(struc
+ 	ntfs_inode *ni;
+ 
+ 	ntfs_debug("Entering.");
+-	ni = kmem_cache_alloc(ntfs_big_inode_cache, SLAB_NOFS);
++	ni = kmem_cache_alloc(ntfs_big_inode_cache,
++				set_rclmflags(SLAB_NOFS, __GFP_KERNRCLM));
+ 	if (likely(ni != NULL)) {
+ 		ni->state = 0;
+ 		return VFS_I(ni);
+@@ -349,7 +350,8 @@ static inline ntfs_inode *ntfs_alloc_ext
+ 	ntfs_inode *ni;
+ 
+ 	ntfs_debug("Entering.");
+-	ni = kmem_cache_alloc(ntfs_inode_cache, SLAB_NOFS);
++	ni = kmem_cache_alloc(ntfs_inode_cache,
++				set_rclmflags(SLAB_NOFS, __GFP_KERNRCLM));
+ 	if (likely(ni != NULL)) {
+ 		ni->state = 0;
+ 		return ni;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/fs/reiserfs/super.c linux-2.6.18-rc5-mm1-007_kernrclm/fs/reiserfs/super.c
+--- linux-2.6.18-rc5-mm1-006_movefree/fs/reiserfs/super.c	2006-09-04 18:34:32.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/fs/reiserfs/super.c	2006-09-04 18:45:50.000000000 +0100
+@@ -496,7 +496,8 @@ static struct inode *reiserfs_alloc_inod
+ {
+ 	struct reiserfs_inode_info *ei;
+ 	ei = (struct reiserfs_inode_info *)
+-	    kmem_cache_alloc(reiserfs_inode_cachep, SLAB_KERNEL);
++	    kmem_cache_alloc(reiserfs_inode_cachep,
++			    	set_rclmflags(SLAB_KERNEL, __GFP_KERNRCLM));
+ 	if (!ei)
+ 		return NULL;
+ 	return &ei->vfs_inode;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/include/linux/gfp.h linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/gfp.h
+--- linux-2.6.18-rc5-mm1-006_movefree/include/linux/gfp.h	2006-09-04 18:36:09.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/gfp.h	2006-09-04 18:45:50.000000000 +0100
+@@ -46,9 +46,10 @@ struct vm_area_struct;
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+ #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
+ #define __GFP_THISNODE	((__force gfp_t)0x40000u)/* No fallback, no policies */
+-#define __GFP_EASYRCLM	((__force gfp_t)0x80000u) /* Easily reclaimed page */
++#define __GFP_KERNRCLM	((__force gfp_t)0x80000u) /* Kernel reclaimable page */
++#define __GFP_EASYRCLM	((__force gfp_t)0x100000u) /* Easily reclaimed page */
+ 
+-#define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
++#define __GFP_BITS_SHIFT 21	/* Room for 21 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
+ 
+ /* if you forget to add the bitmask here kernel will crash, period */
+@@ -56,10 +57,10 @@ struct vm_area_struct;
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+ 			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE|\
+-			__GFP_EASYRCLM)
++			__GFP_KERNRCLM|__GFP_EASYRCLM)
+ 
+ /* This mask makes up all the RCLM-related flags */
+-#define GFP_RECLAIM_MASK (__GFP_EASYRCLM)
++#define GFP_RECLAIM_MASK (__GFP_KERNRCLM|__GFP_EASYRCLM)
+ 
+ /* This equals 0, but use constants in case they ever change */
+ #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+@@ -100,6 +101,7 @@ static inline enum zone_type gfp_zone(gf
+ 
+ static inline gfp_t set_rclmflags(gfp_t gfp, gfp_t reclaim_flags)
+ {
++	BUG_ON((gfp & GFP_RECLAIM_MASK) == GFP_RECLAIM_MASK);
+ 	return (gfp & ~(GFP_RECLAIM_MASK)) | reclaim_flags;
+ }
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/include/linux/mmzone.h linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/mmzone.h
+--- linux-2.6.18-rc5-mm1-006_movefree/include/linux/mmzone.h	2006-09-04 18:39:39.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/mmzone.h	2006-09-04 18:45:50.000000000 +0100
+@@ -25,8 +25,9 @@
+ #define MAX_ORDER_NR_PAGES (1 << (MAX_ORDER - 1))
+ 
+ #define RCLM_NORCLM 0
+-#define RCLM_EASY   1
+-#define RCLM_TYPES  2
++#define RCLM_KERN   1
++#define RCLM_EASY   2
++#define RCLM_TYPES  3
+ 
+ #define for_each_rclmtype(type) \
+ 	for (type = 0; type < RCLM_TYPES; type++)
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/include/linux/page-flags.h linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/page-flags.h
+--- linux-2.6.18-rc5-mm1-006_movefree/include/linux/page-flags.h	2006-09-04 18:37:59.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/include/linux/page-flags.h	2006-09-04 18:45:50.000000000 +0100
+@@ -82,18 +82,37 @@
+ #define PG_private		11	/* If pagecache, has fs-private data */
+ 
+ #define PG_writeback		12	/* Page is under writeback */
+-#define PG_nosave		13	/* Used for system suspend/resume */
+ #define PG_compound		14	/* Part of a compound page */
+ #define PG_swapcache		15	/* Swap page: swp_entry_t in private */
+ 
+ #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
+ #define PG_reclaim		17	/* To be reclaimed asap */
+-#define PG_nosave_free		18	/* Used for system suspend/resume */
+ #define PG_buddy		19	/* Page is free, on buddy lists */
+ 
+ #define PG_readahead		20	/* Reminder to do readahead */
+-#define PG_easyrclm		21	/* Page is an easy reclaim block */
+ 
++/*
++ * As anti-fragmentation requires two flags, it was best to reuse the suspend
++ * flags and make anti-fragmentation depend on !SOFTWARE_SUSPEND. This works
++ * on the assumption that machines being suspended do not really care about
++ * large contiguous allocations. There are two alternatives to where the
++ * anti-fragmentation falgs could be stored
++ *
++ * 1. Use the lower two bits of page->lru and remove direct references to
++ *    page->lru
++ * 2. Use the page->flags of the struct page backing the page storing the
++ *    mem_map
++ *
++ * The first option may be difficult to read. The second option would require
++ * an additional cache line
++ */
++#ifndef CONFIG_PAGEALLOC_ANTIFRAG
++#define PG_nosave		13	/* Used for system suspend/resume */
++#define PG_nosave_free		18	/* Free, should not be written */
++#else
++#define PG_kernrclm		13	/* Page is a kernel reclaim block */
++#define PG_easyrclm		18	/* Page is an easy reclaim block */
++#endif
+ 
+ #if (BITS_PER_LONG > 32)
+ /*
+@@ -212,6 +231,7 @@
+ 		ret;							\
+ 	})
+ 
++#ifndef CONFIG_PAGEALLOC_ANTIFRAG
+ #define PageNosave(page)	test_bit(PG_nosave, &(page)->flags)
+ #define SetPageNosave(page)	set_bit(PG_nosave, &(page)->flags)
+ #define TestSetPageNosave(page)	test_and_set_bit(PG_nosave, &(page)->flags)
+@@ -222,6 +242,34 @@
+ #define SetPageNosaveFree(page)	set_bit(PG_nosave_free, &(page)->flags)
+ #define ClearPageNosaveFree(page)		clear_bit(PG_nosave_free, &(page)->flags)
+ 
++#define PageKernRclm(page)	(0)
++#define SetPageKernRclm(page)	do {} while (0)
++#define ClearPageKernRclm(page)	do {} while (0)
++#define __SetPageKernRclm(page)	do {} while (0)
++#define __ClearPageKernRclm(page) do {} while (0)
++
++#define PageEasyRclm(page)	(0)
++#define SetPageEasyRclm(page)	do {} while (0)
++#define ClearPageEasyRclm(page)	do {} while (0)
++#define __SetPageEasyRclm(page)	do {} while (0)
++#define __ClearPageEasyRclm(page) do {} while (0)
++
++#else
++
++#define PageKernRclm(page)	test_bit(PG_kernrclm, &(page)->flags)
++#define SetPageKernRclm(page)	set_bit(PG_kernrclm, &(page)->flags)
++#define ClearPageKernRclm(page)	clear_bit(PG_kernrclm, &(page)->flags)
++#define __SetPageKernRclm(page)	__set_bit(PG_kernrclm, &(page)->flags)
++#define __ClearPageKernRclm(page) __clear_bit(PG_kernrclm, &(page)->flags)
++
++#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
++#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
++#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
++#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
++#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
++#endif /* CONFIG_PAGEALLOC_ANTIFRAG */
++
++
+ #define PageBuddy(page)		test_bit(PG_buddy, &(page)->flags)
+ #define __SetPageBuddy(page)	__set_bit(PG_buddy, &(page)->flags)
+ #define __ClearPageBuddy(page)	__clear_bit(PG_buddy, &(page)->flags)
+@@ -255,12 +303,6 @@
+ #define SetPageReadahead(page)	set_bit(PG_readahead, &(page)->flags)
+ #define TestClearPageReadahead(page) test_and_clear_bit(PG_readahead, &(page)->flags)
+ 
+-#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
+-#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
+-#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
+-#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
+-#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
+-
+ struct page;	/* forward declaration */
+ 
+ int test_clear_page_dirty(struct page *page);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/init/Kconfig linux-2.6.18-rc5-mm1-007_kernrclm/init/Kconfig
+--- linux-2.6.18-rc5-mm1-006_movefree/init/Kconfig	2006-09-04 18:41:13.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/init/Kconfig	2006-09-04 18:45:50.000000000 +0100
+@@ -491,6 +491,7 @@ config PAGEALLOC_ANTIFRAG
+ 	  you are interested in working with large pages, say Y and set
+ 	  /proc/sys/vm/min_free_bytes to be 10% of physical memory. Otherwise
+  	  say N
++	depends on !SOFTWARE_SUSPEND
+ 
+ menu "Loadable module support"
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/lib/radix-tree.c linux-2.6.18-rc5-mm1-007_kernrclm/lib/radix-tree.c
+--- linux-2.6.18-rc5-mm1-006_movefree/lib/radix-tree.c	2006-09-04 18:34:33.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/lib/radix-tree.c	2006-09-04 18:45:50.000000000 +0100
+@@ -93,7 +93,8 @@ radix_tree_node_alloc(struct radix_tree_
+ 	struct radix_tree_node *ret;
+ 	gfp_t gfp_mask = root_gfp_mask(root);
+ 
+-	ret = kmem_cache_alloc(radix_tree_node_cachep, gfp_mask);
++	ret = kmem_cache_alloc(radix_tree_node_cachep,
++					set_rclmflags(gfp_mask, __GFP_KERNRCLM));
+ 	if (ret == NULL && !(gfp_mask & __GFP_WAIT)) {
+ 		struct radix_tree_preload *rtp;
+ 
+@@ -137,7 +138,8 @@ int radix_tree_preload(gfp_t gfp_mask)
+ 	rtp = &__get_cpu_var(radix_tree_preloads);
+ 	while (rtp->nr < ARRAY_SIZE(rtp->nodes)) {
+ 		preempt_enable();
+-		node = kmem_cache_alloc(radix_tree_node_cachep, gfp_mask);
++		node = kmem_cache_alloc(radix_tree_node_cachep,
++					set_rclmflags(gfp_mask, __GFP_KERNRCLM));
+ 		if (node == NULL)
+ 			goto out;
+ 		preempt_disable();
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/mm/page_alloc.c linux-2.6.18-rc5-mm1-007_kernrclm/mm/page_alloc.c
+--- linux-2.6.18-rc5-mm1-006_movefree/mm/page_alloc.c	2006-09-04 18:44:14.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/mm/page_alloc.c	2006-09-04 18:45:50.000000000 +0100
+@@ -136,12 +136,16 @@ static unsigned long __initdata dma_rese
+ #ifdef CONFIG_PAGEALLOC_ANTIFRAG
+ static inline int get_pageblock_type(struct page *page)
+ {
+-	return (PageEasyRclm(page) != 0);
++	return ((PageEasyRclm(page) != 0) << 1) | (PageKernRclm(page) != 0);
+ }
+ 
+ static inline int gfpflags_to_rclmtype(unsigned long gfp_flags)
+ {
+-	return ((gfp_flags & __GFP_EASYRCLM) != 0);
++	gfp_t badflags = (__GFP_EASYRCLM | __GFP_KERNRCLM);
++	WARN_ON((gfp_flags & badflags) == badflags);
++
++	return (((gfp_flags & __GFP_EASYRCLM) != 0) << 1) |
++		((gfp_flags & __GFP_KERNRCLM) != 0);
+ }
+ #else
+ static inline int get_pageblock_type(struct page *page)
+@@ -431,6 +435,7 @@ static inline void __free_one_page(struc
+ 
+ 	page_idx = page_to_pfn(page) & ((1 << MAX_ORDER) - 1);
+ 	__SetPageEasyRclm(page);
++	__ClearPageKernRclm(page);
+ 
+ 	VM_BUG_ON(page_idx & (order_size - 1));
+ 	VM_BUG_ON(bad_range(zone, page));
+@@ -707,6 +712,12 @@ int move_freepages_block(struct zone *zo
+ 	return move_freepages(zone, start_page, end_page, rclmtype);
+ }
+ 
++static int fallbacks[RCLM_TYPES][RCLM_TYPES] = {
++	{ RCLM_NORCLM, RCLM_KERN,   RCLM_EASY  }, /* RCLM_NORCLM Fallback */
++	{ RCLM_KERN,   RCLM_NORCLM, RCLM_EASY  }, /* RCLM_KERN Fallback */
++	{ RCLM_EASY,   RCLM_KERN,   RCLM_NORCLM}  /* RCLM_EASY Fallback */
++};
++
+ /* Remove an element from the buddy allocator from the fallback list */
+ static struct page *__rmqueue_fallback(struct zone *zone, int order,
+ 							gfp_t gfp_flags)
+@@ -715,30 +726,36 @@ static struct page *__rmqueue_fallback(s
+ 	int current_order;
+ 	struct page *page;
+ 	int start_rclmtype = gfpflags_to_rclmtype(gfp_flags);
+-	int rclmtype = !start_rclmtype;
++	int rclmtype, i;
+ 
+ 	/* Find the largest possible block of pages in the other list */
+ 	for (current_order = MAX_ORDER-1; current_order >= order;
+ 						--current_order) {
+-		area = &(zone->free_area[current_order]);
+- 		if (list_empty(&area->free_list[rclmtype]))
+- 			continue;
++		for (i = 0; i < RCLM_TYPES; i++) {
++			rclmtype = fallbacks[start_rclmtype][i];
+ 
+-		page = list_entry(area->free_list[rclmtype].next,
+-					struct page, lru);
+-		area->nr_free--;
++			area = &(zone->free_area[current_order]);
++			if (list_empty(&area->free_list[rclmtype]))
++				continue;
+ 
+-		/* Remove the page from the freelists */
+-		list_del(&page->lru);
+-		rmv_page_order(page);
+-		zone->free_pages -= 1UL << order;
+-		expand(zone, page, order, current_order, area, rclmtype);
++			page = list_entry(area->free_list[rclmtype].next,
++					struct page, lru);
++			area->nr_free--;
+ 
+-		/* Move free pages between lists if stealing a large block */
+-		if (current_order > MAX_ORDER / 2)
+-			move_freepages_block(zone, page, start_rclmtype);
++			/* Remove the page from the freelists */
++			list_del(&page->lru);
++			rmv_page_order(page);
++			zone->free_pages -= 1UL << order;
++			expand(zone, page, order, current_order, area,
++							start_rclmtype);
++
++			/* Move free pages between lists for large blocks */
++			if (current_order >= MAX_ORDER / 2)
++				move_freepages_block(zone, page,
++							start_rclmtype);
+ 
+-		return page;
++			return page;
++		}
+ 	}
+ 
+ 	return NULL;
+@@ -794,9 +811,12 @@ static struct page *__rmqueue(struct zon
+ 	page = __rmqueue_fallback(zone, order, gfp_flags);
+ 
+ got_page:
+-	if (unlikely(rclmtype == RCLM_NORCLM) && page)
++	if (unlikely(rclmtype != RCLM_EASY) && page)
+ 		__ClearPageEasyRclm(page);
+ 
++	if (rclmtype == RCLM_KERN && page)
++		SetPageKernRclm(page);
++
+ 	return page;
+ }
+ 
+@@ -891,7 +911,7 @@ static void __drain_pages(unsigned int c
+ }
+ #endif /* CONFIG_DRAIN_PERCPU_PAGES */
+ 
+-#ifdef CONFIG_PM
++#ifdef CONFIG_SOFTWARE_SUSPEND
+ void mark_free_pages(struct zone *zone)
+ {
+ 	unsigned long pfn, max_zone_pfn;
+@@ -2052,7 +2072,7 @@ inline void setup_pageset(struct per_cpu
+ 		pcp->counts[rclmtype] = 0;
+ 		INIT_LIST_HEAD(&pcp->list[rclmtype]);
+ 	}
+-	pcp->high = 6 * batch;
++	pcp->high = 3 * batch;
+ 	pcp->batch = max(1UL, 1 * batch);
+ 	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
+ 
+@@ -2061,7 +2081,7 @@ inline void setup_pageset(struct per_cpu
+ 		pcp->counts[rclmtype] = 0;
+ 		INIT_LIST_HEAD(&pcp->list[rclmtype]);
+ 	}
+-	pcp->high = 2 * batch;
++	pcp->high = batch;
+ 	pcp->batch = max(1UL, batch/2);
+ }
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/mm/shmem.c linux-2.6.18-rc5-mm1-007_kernrclm/mm/shmem.c
+--- linux-2.6.18-rc5-mm1-006_movefree/mm/shmem.c	2006-09-04 18:34:33.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/mm/shmem.c	2006-09-04 18:45:50.000000000 +0100
+@@ -91,7 +91,8 @@ static inline struct page *shmem_dir_all
+ 	 * BLOCKS_PER_PAGE on indirect pages, assume PAGE_CACHE_SIZE:
+ 	 * might be reconsidered if it ever diverges from PAGE_SIZE.
+ 	 */
+-	return alloc_pages(gfp_mask, PAGE_CACHE_SHIFT-PAGE_SHIFT);
++	return alloc_pages(set_rclmflags(gfp_mask, __GFP_KERNRCLM),
++						PAGE_CACHE_SHIFT-PAGE_SHIFT);
+ }
+ 
+ static inline void shmem_dir_free(struct page *page)
+@@ -968,7 +969,8 @@ shmem_alloc_page(gfp_t gfp, struct shmem
+ 	pvma.vm_policy = mpol_shared_policy_lookup(&info->policy, idx);
+ 	pvma.vm_pgoff = idx;
+ 	pvma.vm_end = PAGE_SIZE;
+-	page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
++	page = alloc_page_vma(set_rclmflags(gfp | __GFP_ZERO, __GFP_KERNRCLM),
++								&pvma, 0);
+ 	mpol_free(pvma.vm_policy);
+ 	return page;
+ }
+@@ -988,7 +990,7 @@ shmem_swapin(struct shmem_inode_info *in
+ static inline struct page *
+ shmem_alloc_page(gfp_t gfp,struct shmem_inode_info *info, unsigned long idx)
+ {
+-	return alloc_page(gfp | __GFP_ZERO);
++	return alloc_page(set_rclmflags(gfp | __GFP_ZERO, __GFP_KERNRCLM));
+ }
+ #endif
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc5-mm1-006_movefree/net/core/skbuff.c linux-2.6.18-rc5-mm1-007_kernrclm/net/core/skbuff.c
+--- linux-2.6.18-rc5-mm1-006_movefree/net/core/skbuff.c	2006-09-04 18:34:33.000000000 +0100
++++ linux-2.6.18-rc5-mm1-007_kernrclm/net/core/skbuff.c	2006-09-04 18:45:50.000000000 +0100
+@@ -148,6 +148,7 @@ struct sk_buff *__alloc_skb(unsigned int
+ 	u8 *data;
+ 
+ 	cache = fclone ? skbuff_fclone_cache : skbuff_head_cache;
++	gfp_mask |= __GFP_KERNRCLM;
+ 
+ 	/* Get the HEAD */
+ 	skb = kmem_cache_alloc(cache, gfp_mask & ~__GFP_DMA);

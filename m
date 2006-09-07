@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWIGCu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751804AbWIGDAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWIGCu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 22:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWIGCu6
+	id S1751804AbWIGDAv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 23:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWIGDAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 22:50:58 -0400
-Received: from mga02.intel.com ([134.134.136.20]:49587 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1750709AbWIGCu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 22:50:56 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,221,1154934000"; 
-   d="scan'208"; a="122248355:sNHT22672958"
-Subject: [PATCH] x86 microcode: don't check the size
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Tigran Aivazian <tigran@veritas.com>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 10:47:07 +0800
-Message-Id: <1157597227.2782.55.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 23:00:51 -0400
+Received: from web36713.mail.mud.yahoo.com ([209.191.85.47]:27231 "HELO
+	web36713.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751804AbWIGDAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 23:00:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=f91OQzIXyvlv9HGSwLs40wQoJWdMRazz9uagPl+ofkR0oluU+IW7l7TqiZj4uUN9txbQpXo7FBD0LeXrv90jHxlt6qVDPfyE/fDlnOyslY1OnkWjANZmCyAco3iUyxj6e6hLG4SF+fGl/1H6CZIJztCcFw4yEMR6iISxMI7zAIw=  ;
+Message-ID: <20060907030049.35159.qmail@web36713.mail.mud.yahoo.com>
+Date: Wed, 6 Sep 2006 20:00:49 -0700 (PDT)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44FE5668.4090000@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IA32 manual says if micorcode update's size is 0, then the size is
-default size (2048 bytes). But this doesn't suggest all microcode
-update's size should be above 2048 bytes to me. We actually had a
-microcode update whose size is 1024 bytes. The patch just removed the
-check.
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+As a temporal work-around to the timeout problem I've put the following in:
+1. All data timeout values are multiplied by a fudge factor of 10 (this is still lower latency
+than waiting for a software fall-back).
+2. I've added a module option to disable hardware data timeout at all. This is how TI does it too
+- command timeout is set to 64 clocks are data timeouts (if any) are captured by the slow software
+handler. Card removal is signalled by its own interrupt, so the wait for data in this case will be
+aborted anyway.
+I haven't checked out your patch yet.
 
----
- work/src/linux-2.6.18-rc5-mm1/arch/i386/kernel/microcode.c |   14 ++-----------
- 1 files changed, 3 insertions(+), 11 deletions(-)
+For a written blocks I'm now reporting the BUSY de-assert count rather than block counter value. I
+hope this is a good idea.
 
-Index: root/work/src/linux-2.6.18-rc5-mm1/arch/i386/kernel/microcode.c
-===================================================================
---- root.orig/work/src/linux-2.6.18-rc5-mm1/arch/i386/kernel/microcode.c	2006-09-06 06:51:03.000000000 +0800
-+++ root/work/src/linux-2.6.18-rc5-mm1/arch/i386/kernel/microcode.c	2006-09-06 08:20:35.000000000 +0800
-@@ -187,8 +187,7 @@ static int microcode_sanity_check(void *
- 
- 	total_size = get_totalsize(mc_header);
- 	data_size = get_datasize(mc_header);
--	if ((data_size + MC_HEADER_SIZE > total_size)
--		|| (data_size < DEFAULT_UCODE_DATASIZE)) {
-+	if (data_size + MC_HEADER_SIZE > total_size) {
- 		printk(KERN_ERR "microcode: error! "
- 			"Bad data size in microcode data file\n");
- 		return -EINVAL;
-@@ -365,8 +364,7 @@ static long get_next_ucode(void **mc, lo
- 		return -EFAULT;
- 	}
- 	total_size = get_totalsize(&mc_header);
--	if ((offset + total_size > user_buffer_size)
--		|| (total_size < DEFAULT_UCODE_TOTALSIZE)) {
-+	if (offset + total_size > user_buffer_size) {
- 		printk(KERN_ERR "microcode: error! Bad total size in microcode "
- 				"data file\n");
- 		return -EINVAL;
-@@ -432,11 +430,6 @@ static ssize_t microcode_write (struct f
- {
- 	ssize_t ret;
- 
--	if (len < DEFAULT_UCODE_TOTALSIZE) {
--		printk(KERN_ERR "microcode: not enough data\n"); 
--		return -EINVAL;
--	}
--
- 	if ((len >> PAGE_SHIFT) > num_physpages) {
- 		printk(KERN_ERR "microcode: too much data (max %ld pages)\n", num_physpages);
- 		return -EINVAL;
-@@ -508,8 +501,7 @@ static long get_next_ucode_from_buffer(v
- 	mc_header = (microcode_header_t *)(buf + offset);
- 	total_size = get_totalsize(mc_header);
- 
--	if ((offset + total_size > size)
--		|| (total_size < DEFAULT_UCODE_TOTALSIZE)) {
-+	if (offset + total_size > size) {
- 		printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
- 		return -EINVAL;
- 	}
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

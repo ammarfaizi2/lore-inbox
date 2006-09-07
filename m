@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751862AbWIGT4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWIGT5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751862AbWIGT4J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 15:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWIGT4I
+	id S1751837AbWIGT5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 15:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWIGT5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 15:56:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28082 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751861AbWIGT4F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 15:56:05 -0400
-Date: Thu, 7 Sep 2006 12:55:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>,
-       Will Simoneau <simoneau@ele.uri.edu>, cmm@us.ibm.com
-Subject: Re: [PATCH] ext3_getblk should handle HOLE correctly
-Message-Id: <20060907125555.5bc44e33.akpm@osdl.org>
-In-Reply-To: <1157656947.7725.21.camel@dyn9047017100.beaverton.ibm.com>
-References: <1157564346.23501.49.camel@dyn9047017100.beaverton.ibm.com>
-	<20060907114500.fe9fcf82.akpm@osdl.org>
-	<1157656947.7725.21.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Sep 2006 15:57:42 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:48006 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751837AbWIGT5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 15:57:41 -0400
+Date: Thu, 07 Sep 2006 15:37:47 -0400
+From: David Hollis <dhollis@davehollis.com>
+Subject: Re: [linux-usb-devel] [PATCH] driver for mcs7830 (aka DeLOCK) USB
+	ethernet adapter
+In-reply-to: <20060904064042.2E40719E185@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: arnd@arndb.de, support@moschip.com, supermihi@web.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-id: <1157657867.4388.5.camel@dhollis-lnx.sunera.com>
+MIME-version: 1.0
+X-Mailer: Evolution 2.7.92 (2.7.92-7.fc6)
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="=-i0V1NeXxFqvnwGClenqc"
+References: <200608071500.55903.arnd.bergmann@de.ibm.com>
+	<200608202207.39709.arnd@arndb.de> <200609020338.54932.david-b@pacbell.net>
+	<200609021951.40470.arnd@arndb.de>
+	<20060904064042.2E40719E185@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Sep 2006 12:22:27 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-> On Thu, 2006-09-07 at 11:45 -0700, Andrew Morton wrote:
-> > On Wed, 06 Sep 2006 10:39:06 -0700
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > 
-> > > Hi Andrew,
-> > > 
-> > > Its been reported that ext3_getblk() is not doing the right thing
-> > > and triggering following WARN():
-> > > 
-> > > BUG: warning at fs/ext3/inode.c:1016/ext3_getblk()
-> > >  <c01c5140> ext3_getblk+0x98/0x2a6  <c03b2806> md_wakeup_thread
-> > > +0x26/0x2a
-> > >  <c01c536d> ext3_bread+0x1f/0x88  <c01cedf9> ext3_quota_read+0x136/0x1ae
-> > >  <c018b683> v1_read_dqblk+0x61/0xac  <c0188f32> dquot_acquire+0xf6/0x107
-> > >  <c01ceaba> ext3_acquire_dquot+0x46/0x68  <c01897d4> dqget+0x155/0x1e7
-> > >  <c018a97b> dquot_transfer+0x3e0/0x3e9  <c016fe52> dput+0x23/0x13e
-> > >  <c01c7986> ext3_setattr+0xc3/0x240  <c0120f66> current_fs_time
-> > > +0x52/0x6a
-> > >  <c017320e> notify_change+0x2bd/0x30d  <c0159246> chown_common+0x9c/0xc5
-> > >  <c02a222c> strncpy_from_user+0x3b/0x68  <c0167fe6> do_path_lookup
-> > > +0xdf/0x266
-> > >  <c016841b> __user_walk_fd+0x44/0x5a  <c01592b9> sys_chown+0x4a/0x55
-> > >  <c015a43c> vfs_write+0xe7/0x13c  <c01695d4> sys_mkdir+0x1f/0x23
-> > >  <c0102a97> syscall_call+0x7/0xb 
-> > > 
-> > > Looking at the code, it looks like its not handle HOLE correctly.
-> > > It ends up returning -EIO.
-> > 
-> > Strange.  The fs should be spewing these warnings all over the place.  For
-> > some reason this code is hard to trigger.  Why??
-> 
-> I guess - ext3_getblk() mostly used by ext3_bread() and most callers 
-> to it would be reading already allocated block.
+--=-i0V1NeXxFqvnwGClenqc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-OK.
+On Sun, 2006-09-03 at 23:40 -0700, David Brownell wrote:
 
-> > 
-> > > -	if (err == 1) {
-> > > +	/*
-> > > +	 * ext3_get_blocks_handle() returns number of blocks
-> > > +	 * mapped. 0 in case of a HOLE.
-> > > +	 */
-> > > +	if (err > 0) {
-> > >  		err = 0;
-> > > -	} else if (err >= 0) {
-> > > -		WARN_ON(1);
-> > > -		err = -EIO;
-> > >  	}
-> > 
-> > That removes the warning if ext3_get_blocks_handle() returned a positive
-> > number greater than one.  And it looks like we still need debugging support
-> > in this area.
-> 
-> I am not sure why we need it ? All we care about is one block. If
-> ext3_get_blocks_handle() returns more than one (which it shouldn't) -
+>=20
+> > Going through the ethtool operations, I think that it should be
+> > possible to implement a few of them, including ETHTOOL_GREGS,
+> > ETHTOOL_GEEPROM, ETHTOOL_SEEPROM, ETHTOOL_NWAY_RST and ETHTOOL_GPERMADD=
+R.
+> > Do you think these should be done?
+>=20
+> I've not got much use for those, but maybe the netdev folk would
+> care.  That's probably not enough to hold up any merge.
 
-The operative part is "which it shouldn't".  This code is fairly fresh, and
-ext3 is paranoid.  Once it's all settled down then after a year or so we
-might decide that the debugging code is no longer needed.
+Definitely not showstoppers, but nice touches just to ensure that all
+things work as expected.  The ones of most importance as I see it are
+the get/set_settings ones, which you can just pass-thru to the
+mii_ethtool_Xset() calls and get_drvinfo().  All others are somewhat
+optional and do vary from device to device.
 
-Then again, we have plenty of five-year-old assertions in there..
+--=20
+David Hollis <dhollis@davehollis.com>
+
+--=-i0V1NeXxFqvnwGClenqc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFAHULxasLqOyGHncRAvjPAKCMwOM2EBBZW1iam58PLgu9GENgUwCdF4eZ
+mm81gRDXm6Qd2SBQjKpa4JQ=
+=8ERE
+-----END PGP SIGNATURE-----
+
+--=-i0V1NeXxFqvnwGClenqc--
 

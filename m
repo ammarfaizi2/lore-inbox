@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWIGNTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWIGNZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751844AbWIGNTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 09:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751845AbWIGNTT
+	id S932096AbWIGNZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 09:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWIGNZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 09:19:19 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:46480 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751844AbWIGNTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 09:19:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=A2d6IUMGaqwAGVY4gc8Ws71xTk//y3tU8v2e5BODIMJGVPHwzAZtYHmhqKUL+08EPOEzGjCqHPhsZYG9JLR57o7CAUAOM1+3XpvpkdvD9dLKquCK5h25JNYIrBqi/z/wMC6OI8h2uWAS26qG9/7PyP4xYLv6yzgeDdUhP+rgs3Y=
-Message-ID: <45001C48.6050803@gmail.com>
-Date: Thu, 07 Sep 2006 15:19:04 +0200
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Thu, 7 Sep 2006 09:25:16 -0400
+Received: from yzordderrex.netnoteinc.com ([212.17.35.167]:47053 "EHLO
+	yzordderrex.lincor.com") by vger.kernel.org with ESMTP
+	id S932096AbWIGNZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 09:25:14 -0400
+Message-ID: <45001D90.3010601@draigBrady.com>
+Date: Thu, 07 Sep 2006 14:24:32 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org>
-In-Reply-To: <20060907130401.GO2558@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Samuel Tardieu <sam@rfc1149.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com> <2006-09-06-13-29-46+trackit+sam@rfc1149.net> <44FEB5B6.10008@draigBrady.com> <2006-09-06-14-07-50+trackit+sam@rfc1149.net> <20060906194149.GA2386@infomag.infomag.iguana.be> <2006-09-07-11-57-00+trackit+sam@rfc1149.net>
+In-Reply-To: <2006-09-07-11-57-00+trackit+sam@rfc1149.net>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Thu, Sep 07, 2006 at 02:53:57PM +0200, Tejun Heo wrote:
->> The spec says that devices can put additional restriction on supported 
->> cacheline size (IIRC, the example was something like power of two >= or 
->> <= certain size) and should ignore (treat as zero) if unsupported value 
->> is written.  So, there might be need for more low level driver 
->> involvement which knows device restrictions, but I don't know whether 
->> such devices exist.
-> 
-> That's nothing we can do anything about.  The system cacheline size is
-> what it is.  If the device doesn't support it, we can't fall back to a
-> different size, it'll cause data corruption.  So we'll just continue on,
-> and devices which live up to the spec will act as if we hadn't
-> programmed a cache size.  For devices that don't, we'll have the quirk.
+Samuel Tardieu wrote:
+> Ah, we did duplicate work then, too bad I didn't notice it first :)
 
-For MWI, it will cause data corruption.  For READ LINE and MULTIPLE, I 
-think it would be okay.  The memory is prefetchable after all.  Anyways, 
-this shouldn't be of too much problem and probably can be handled by 
-quirks if ever needed.
+[snip valid points]
 
-> Arguably devices which don't support the real system cacheline size
-> would only get data corruption if they used MWI, so we only have to
-> prevent them from using MWI; they could use a different cacheline size
-> for MRM and MRL without causing data corruption.  But I don't think we
-> want to go down that route; do you?
+> I suggest that you use the following patch instead. It is my patch
+> renamed as w83697hf_wdt (it covers hf and hg variants) with the
+> following three modifications: I added Marcus Junker copyright with mine,
+> as he beats me by a few days, I disable the watchdog until it is
+> first used, and I set the default address to 0x2e to make it compatible
+> with Marcus' original patch.
 
-Oh yeah, that's what I was trying to say, and I don't want to go down 
-that route.  So, I guess this one is settled.
+I concur.
 
-Thanks.
+Pádraig.
 
--- 
-tejun
+p.s. Wim, mail to your address is bouncing

@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWIGOls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWIGOvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWIGOls (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 10:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWIGOls
+	id S1751781AbWIGOvU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 10:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWIGOvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 10:41:48 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:25797 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751769AbWIGOlr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 10:41:47 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: ioread64()?
-Date: Thu, 7 Sep 2006 16:41:42 +0200
-User-Agent: KMail/1.9.4
+	Thu, 7 Sep 2006 10:51:20 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:64395 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751781AbWIGOvT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 10:51:19 -0400
+Message-ID: <450031E6.7010603@drzeus.cx>
+Date: Thu, 07 Sep 2006 16:51:18 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1844968.iQVMoVHDUQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-kernel@vger.kernel.org
+Subject: Re: [MMC] Fix SD timeout calculation
+References: <20060618123432.15915.71389.stgit@poseidon.drzeus.cx> <20060907125840.GA6015@dyn-67.arm.linux.org.uk>
+In-Reply-To: <20060907125840.GA6015@dyn-67.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609071641.48513.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1844968.iQVMoVHDUQ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Russell King wrote:
+> On Sun, Jun 18, 2006 at 02:34:37PM +0200, Pierre Ossman wrote:
+>> Secure Digital cards use a different algorithm to calculate the timeout
+>> for data transfers. Using the MMC one works often, but not always.
+> 
+> Applied, thanks.
+> 
+> I'm wondering about this cleanup though - both the timeout calculations
+> appear to be identical, so making this a library function seems to be
+> the right way to go... unless you know different?
+> 
 
-Hi,
+Shouldn't be a problem.
 
-I'm looking for a way to access 64 or 128 bit of device space in a single=20
-access. For smaller accesses I use ioread32() and friends. But which way=20
-should I do it for the next bigger accesses? Casting the iospace to somethi=
-ng=20
-like u64* looks very suspicious to me. Any better ideas?
+Acked-by: Pierre Ossman <drzeus@drzeus.cx>
 
-Greetings,
-
-Eike
-
---nextPart1844968.iQVMoVHDUQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFAC+sXKSJPmm5/E4RAkOwAKCVXa/oXpL+/TgYPM2BJ9qEsZEjeQCeOt2S
-TU8SiEx5S+VMjnpY6pOEXOk=
-=wLNm
------END PGP SIGNATURE-----
-
---nextPart1844968.iQVMoVHDUQ--

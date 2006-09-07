@@ -1,74 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWIGJab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWIGJeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWIGJab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIGJab
+	id S1751092AbWIGJeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWIGJeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:30:31 -0400
-Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:31409 "EHLO
-	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
-	id S1751326AbWIGJaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:30:30 -0400
-Date: Thu, 07 Sep 2006 18:30:13 +0900 (JST)
-Message-Id: <20060907.183013.55145698.nemoto@toshiba-tops.co.jp>
-To: jakub@redhat.com
-Cc: sebastien.dugue@bull.net, arjan@infradead.org, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, pierre.peiffer@bull.net,
-       drepper@redhat.com
-Subject: Re: NPTL mutex and the scheduling priority
-From: Atsushi Nemoto <nemoto@toshiba-tops.co.jp>
-In-Reply-To: <20060907083244.GA12531@devserv.devel.redhat.com>
-References: <20060613.010628.41632745.anemo@mba.ocn.ne.jp>
-	<20060907.171158.130239448.nemoto@toshiba-tops.co.jp>
-	<20060907083244.GA12531@devserv.devel.redhat.com>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-Organization: TOSHIBA Personal Computer System Corporation
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Thu, 7 Sep 2006 05:34:00 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:50908 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1750979AbWIGJd6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:33:58 -0400
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: [take17 0/4] kevent: Generic event handling mechanism.
+In-Reply-To: <1qwel34p2jrwe5.GA1898@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 7 Sep 2006 13:57:39 +0400
+Message-Id: <11576230591036@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006 04:32:44 -0400, Jakub Jelinek <jakub@redhat.com> wrote:
-> > But pthread_cond_signal and sem_post still wakeup a thread in FIFO
-> > order, as you can guess.
-> > 
-> > With the plist patch (applied by hand), I can get desired behavior.
-> > Thank you.  But It seems the patch lacks reordering on priority
-> > changes.
-> 
-> Yes, either something like the plist patch for FUTEX_WAKE etc. or, if that
-> proves to be too slow for the usual case (non-RT threads), FIFO wakeup
-> initially and conversion to plist wakeup whenever first waiter with realtime
-> priority is added, is still needed.  That will cure e.g. non-PI
-> pthread_mutex_unlock and sem_post.  For pthread_cond_{signal,broadcast} we
-> need further kernel changes, so that the condvar's internal lock can be
-> always a PI lock.
 
-Thank you, I'll stay tuned.
+Generic event handling mechanism.
 
-> > <off_topic>
-> > BTW, If I tried to create a PI mutex on a kernel without PI futex
-> > support, pthread_mutexattr_setprotocol(PTHREAD_PRIO_INHERIT) returned
-> > 0 and pthread_mutex_init() returned ENOTSUP.  This is not a right
-> > behavior according to the manual ...
-> > </off_topic>
-> 
-> Why?
-> POSIX doesn't forbid ENOTSUP in pthread_mutex_init to my knowledge.
+Since number of comments has come mostly to zero, I freeze for some time kevent
+development (since resending practically the same patches into /dev/null 
+is not that interesting task) and switch to imeplementation of special tree, 
+which probably will be used with kevents instead of hash table.
 
-http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutexattr_setprotocol.html
-http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutex_init.html
+Changes from 'take16' patchset:
+ * misc cleanups (__read_mostly, const ...)
+ * created special macro which is used for mmap size (number of pages) calculation
+ * export kevent_socket_notify(), since it is used in network protocols which can be 
+	built as modules (IPv6 for example)
 
->From ERRORS section of pthread_mutexattr_setprotocol:
+Changes from 'take15' patchset:
+ * converted kevent_timer to high-resolution timers, this forces timer API update at
+	http://linux-net.osdl.org/index.php/Kevent
+ * use struct ukevent* instead of void * in syscalls (documentation has been updated)
+ * added warning in kevent_add_ukevent() if ring has broken index (for testing)
 
-	The pthread_mutexattr_setprotocol() function shall fail if:
-	[ENOTSUP]
-	    The value specified by protocol is an unsupported value. 
+Changes from 'take14' patchset:
+ * added kevent_wait()
+    This syscall waits until either timeout expires or at least one event
+    becomes ready. It also commits that @num events from @start are processed
+    by userspace and thus can be be removed or rearmed (depending on it's flags).
+    It can be used for commit events read by userspace through mmap interface.
+    Example userspace code (evtest.c) can be found on project's homepage.
+ * added socket notifications (send/recv/accept)
 
-And ENOTSUP is not enumerated in ERRORS section of pthread_mutex_init.
+Changes from 'take13' patchset:
+ * do not get lock aroung user data check in __kevent_search()
+ * fail early if there were no registered callbacks for given type of kevent
+ * trailing whitespace cleanup
 
----
-Atsushi Nemoto
+Changes from 'take12' patchset:
+ * remove non-chardev interface for initialization
+ * use pointer to kevent_mring instead of unsigned longs
+ * use aligned 64bit type in raw user data (can be used by high-res timer if needed)
+ * simplified enqueue/dequeue callbacks and kevent initialization
+ * use nanoseconds for timeout
+ * put number of milliseconds into timer's return data
+ * move some definitions into user-visible header
+ * removed filenames from comments
+
+Changes from 'take11' patchset:
+ * include missing headers into patchset
+ * some trivial code cleanups (use goto instead of if/else games and so on)
+ * some whitespace cleanups
+ * check for ready_callback() callback before main loop which should save us some ticks
+
+Changes from 'take10' patchset:
+ * removed non-existent prototypes
+ * added helper function for kevent_registered_callbacks
+ * fixed 80 lines comments issues
+ * added shared between userspace and kernelspace header instead of embedd them in one
+ * core restructuring to remove forward declarations
+ * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
+ * use vm_insert_page() instead of remap_pfn_range()
+
+Changes from 'take9' patchset:
+ * fixed ->nopage method
+
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
+
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
+
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+

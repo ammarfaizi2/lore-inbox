@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWIGRYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWIGR0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422651AbWIGRYn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 13:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWIGRYn
+	id S1422654AbWIGR0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 13:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422666AbWIGR0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 13:24:43 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5090 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422651AbWIGRYm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 13:24:42 -0400
-Date: Thu, 7 Sep 2006 10:24:26 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <npiggin@suse.de>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix longstanding load balancing bug in the scheduler.
-In-Reply-To: <20060907105801.GC3077@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0609071016250.16674@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0609061634240.13322@schroedinger.engr.sgi.com>
- <20060907105801.GC3077@wotan.suse.de>
+	Thu, 7 Sep 2006 13:26:25 -0400
+Received: from qb-out-0506.google.com ([72.14.204.233]:3051 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1422654AbWIGR0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 13:26:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=DfcwTBJUVoc+rObEJLK44Ykn+OKlrl383d6dHo8uNlkM1yiplKlrFiPW46pDaoQl8DgS3O7Bs0HwgggG6JJ4omMVAgt4ovYUC5gzF6WIoUPvqFXh8xRZgoUQpe4c439uKhi6O9g7LyJ8j4KT01pwkeNuDh7+o8Yd3QeXDaF1jcQ=
+Message-ID: <45005657.8000509@gmail.com>
+Date: Thu, 07 Sep 2006 11:26:47 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+CC: Samuel Tardieu <sam@rfc1149.net>, linux-kernel@vger.kernel.org,
+       wim@iguana.be, Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com>
+In-Reply-To: <44FEAD7E.6010201@draigBrady.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm... Some more comments
+Pádraig Brady wrote:
+> Is W83697HG a good name?
+>   
 
-On Thu, 7 Sep 2006, Nick Piggin wrote:
 
-> So what I worry about with this approach is that it can really blow
-> out the latency of a balancing operation. Say you have N-1 CPUs with
-> lots of stuff locked on their runqueues.
+could you add a suffix, say _watchdog ?
 
-Right but that situation is rare and the performance is certainly
-better if the unpinned processes are not all running on the same 
-processor.
+the name youve got is confusingly close to the convention used in 
+drivers/hwmon
 
-> The solution I envisage is to do a "rotor" approach. For example
-> the last attempted CPU could be stored in the starving CPU's sd...
-> and it will subsequently try another one.
+ ls hwmon/w*.c
+hwmon/w83627ehf.c  hwmon/w83627hf.c  hwmon/w83781d.c  hwmon/w83791d.c  
+hwmon/w83792d.c  hwmon/w83l785ts.c
 
-That wont work since the notion of "pinned" is relative to a cpu.
-A process may be pinned to a group of processors. It will only appear to 
-be pinned for cpus outside that set of processors!
-
-What good does storing a processor number do if the processes can change 
-dynamically and so may the pinning of processors. We are dealing with
-a set of processes. Each of those may be pinned to a set of processors.
-
-> I've been hot and cold on such an implementation for a while: on one
-> hand it is a real problem we have; OTOH I was hoping that the domain
-> balancing might be better generalised. But I increasingly don't
-> think we should let perfect stand in the way of good... ;)
-
-I think we should fix the problem ASAP. Lets do this fix and then we can 
-think about other solutions. You already had lots of time to think about
-the rotor.
-
-This looks to me as a design flaw that would require either a major rework 
-of the scheduler or (my favorite) a delegation of difficult (and 
-computational complex and expensive) scheduler decisions to user space.

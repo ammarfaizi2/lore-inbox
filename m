@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWIGLPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWIGLUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751685AbWIGLPe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 07:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWIGLPd
+	id S1751702AbWIGLUf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 07:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWIGLUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 07:15:33 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:33001 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751685AbWIGLPc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 07:15:32 -0400
-Subject: Re: [stable] [PATCH] IA64,sparc: local DoS with corrupted ELFs
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, "David S. Miller" <davem@davemloft.net>,
-       devel@openvz.org, xemul@openvz.org
-In-Reply-To: <20060906192511.GA14579@kroah.com>
-References: <44FC193C.4080205@openvz.org>
-	 <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
-	 <20060906182733.GJ2558@parisc-linux.org> <20060906184509.GA15942@kroah.com>
-	 <20060906191215.GK2558@parisc-linux.org> <20060906192511.GA14579@kroah.com>
-Content-Type: text/plain
-Date: Thu, 07 Sep 2006 15:11:42 +0200
-Message-Id: <1157634702.30159.89.camel@aeonflux.holtmann.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 7 Sep 2006 07:20:35 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:11301 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751697AbWIGLUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 07:20:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ogiM/jn8S1MhSwBuUqthjerpHjom4n7HibSAx+GErDrwRCwgu0f3B4gRVMcUM6jLtjdy8KYZ1SwGX/8eC09y6Rh+r2SKVDKCz9bSePMXyIlcxRP2TL8u2CtyCMC+ZuQusH+PAd8sVGNblK/B9LzC2cRwIhab4nfKlgKvXC1iVQU=
+Message-ID: <45000076.4070005@gmail.com>
+Date: Thu, 07 Sep 2006 13:20:22 +0200
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: question regarding cacheline size
+References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org>
+In-Reply-To: <20060907111120.GL2558@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Matthew Wilcox wrote:
+> Just call pci_set_mwi(), that'll make sure the cache line size is set
+> correctly.
 
-> > > Yes, but the -stable developers don't build for those arches, that's why
-> > > it was missed here.
-> > 
-> > What's the easiest way to get coverage here?  Sending a parisc
-> > workstation or server to someone?  Giving accounts to some/all of the
-> > stable team?  Finding someone who cares about parisc to join the stable
-> > team?
-> 
-> How about: Someone from that arch trying out the -stable release
-> canidates to make sure it doesn't break anything on their arches /
-> favorite machine?
+Sounds simple enough.  Just two small worries though.
 
-this won't work for security hot-fixes, because you basically don't do a
-release candidate for them. We should think about this, too.
+* It has an apparent side effect of setting PCI_COMMAND_INVALIDATE, 
+which should be okay in sil3124's case.
 
-Regards
+* The controller might have some restrictions on configurable cache line 
+size.  This is the same for MWI, so I guess this problem is just imaginary.
 
-Marcel
+For the time being, I'll go with pci_set_mwi() but IMHO it would be 
+better to have a pci helper for this purpose - 
+pci_config_cacheline_size() or something.
 
+Thanks.
 
+-- 
+tejun

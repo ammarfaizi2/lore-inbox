@@ -1,136 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWIGJe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWIGJgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWIGJe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 05:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWIGJe7
+	id S1751215AbWIGJgG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 05:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWIGJgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 05:34:59 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:23504 "EHLO
+	Thu, 7 Sep 2006 05:36:06 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:26066 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751161AbWIGJe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 05:34:58 -0400
+	id S1751212AbWIGJfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 05:35:53 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=GNabVerw4MyYNkNvwTV3xY/8DMgK1jN/BZo6314o/ct7wz8JckFHl7TV2+eEBA3ayyORULNAZFJaP0KMF62hgQycLtDs5AofUhYU3wwbOSgAt0GpTQONZzBdhva0DFSkorvXYVXQDkEhzNNkbJsYZMqCxlL1qnBkVWpfzqHDyhY=
-Message-ID: <44FFE7AF.8010808@gmail.com>
-Date: Thu, 07 Sep 2006 11:34:39 +0200
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ARsXObci9++lobuxTlrRQxVxGIG3+BbZewIrYpOIOIO0p91LG5xZNoAnp2CNJtKgZaH8qAIV46HhBZnC41QtR3ZwBuPQh37WKd1SYSOkjS9Oozdu3Mt8KmBpOM51N41uJ0CPTgXYDEf3VNfNAzJV+IzEJqQoyvkv43uSjhe3olg=
+Message-ID: <6bffcb0e0609070235v6309595fgecb1880eb3185841@mail.gmail.com>
+Date: Thu, 7 Sep 2006 11:35:50 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc6 00/10] Kernel memory leak detector 0.10
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0609070210p661a2cd6k5683d0956aaab5fe@mail.gmail.com>
 MIME-Version: 1.0
-To: =?UTF-8?B?IkouQS4gTWFnYWxsw7NuIg==?= <jamagallon@ono.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
-References: <20060901015818.42767813.akpm@osdl.org>	<20060904013443.797ba40b@werewolf.auna.net>	<20060903181226.58f9ea80.akpm@osdl.org>	<44FB929B.7080405@gmail.com> <20060905002600.51c5e73b@werewolf.auna.net>
-In-Reply-To: <20060905002600.51c5e73b@werewolf.auna.net>
-Content-Type: multipart/mixed;
- boundary="------------000907000903010108080607"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060906223536.21550.55411.stgit@localhost.localdomain>
+	 <6bffcb0e0609061710t3519e42dl6138cadd5ff0d3fb@mail.gmail.com>
+	 <b0943d9e0609070104v1b747f79v3b10238954f389cd@mail.gmail.com>
+	 <6bffcb0e0609070135i314f2740if067eeab342f29a2@mail.gmail.com>
+	 <b0943d9e0609070137g5384b6dcp1ecff948661cd98@mail.gmail.com>
+	 <6bffcb0e0609070140lb8dbee7pbedc0b38dc5a68b1@mail.gmail.com>
+	 <b0943d9e0609070152v59c60eev3bbad18cd6d01dad@mail.gmail.com>
+	 <6bffcb0e0609070205i27c19d3cq9fa0fc6961f28fa3@mail.gmail.com>
+	 <b0943d9e0609070210p661a2cd6k5683d0956aaab5fe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000907000903010108080607
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+On 07/09/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 07/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > On 07/09/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > > Have you tried 16?
+> >
+> > No, I haven't.
 
-J.A. Magallón wrote:
-> libata version 2.00 loaded.
-> ata_piix 0000:00:1f.1: version 2.00ac7
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.1 to 64
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-> scsi0 : ata_piix
-> ata1.00: XXX class=3 is_ata=0 is_cfa=1
-> ata1.00: failed to IDENTIFY (device reports illegal type, err_mask=0x0)
+With DEBUG_MEMLEAK_HASH_BITS=16 system woks fine.
 
-Magallón, does the attached patch fix the problem?
+>
+> 8 hash bits would lead to a really slow hash table lookup since you
+> would only have 256 entries and it uses linked lists to deal with
+> collisions (you may have tens of thousands of pointers to be stored in
+> the hash). Anyway, I attach a patch which allows you to set small
+> values but it is highly unrecommended.
 
-Alan, it seems that 0x848a indicates CFA device iff the ID data is from 
-IDENTIFY DEVICE.  When the command is IDENTIFY PACKET DEVICE, 0x848a 
-seems to indicate a valid ATAPI device.
+How about documeting maxial "safe" values?
 
- From ATA8-ACS, 7.17 is IDENTIFY DEVICE.
+Something like
+"If you have X MB/GB of RAM memory you can set Y
+X   | Y
+256 MB | 25
+512 MB | 26
+1GB | 27
+2GB | 28
+4GB | 29"
 
-> 7.17.7.1 Word 0: General configuration
-> 
-> Devices that conform to this standard shall clear bit 15 to zero. If
-> bit 7 is set to one, the device is a removable media device. Bit 6 is
-> obsolete.
-> 
-> If bit 2 is set to one it indicates that the content of the IDENTIFY
-> DEVICE data is incomplete. This will occur if the device supports the
-> Power-up in Standby feature set and required data is contained on the
-> device media. In this case the content of at least word 0 and word 2
-> shall be valid.
-> 
-> Devices supporting the CFA feature set shall place the value 848Ah in
-                                                                ^^^^^
-> word 0. In this case, the above definitions for the bits in  word 0
-> are not valid.
+>
+> --
+> Catalin
+>
 
-And, 7.18 is on IDENTIFY PACKET DEVICE.
-
-> 7.18.6.2 Word 0: General configuration
-> 
-> Bits (15:14) of word 0 indicate the type of device. Bit 15 shall be
-> set to one and bit 14 shall be cleared to zeroto indicate the device
-> implements the PACKET Command feature set.
-> 
-> Bits (12:8) of word 0 indicate the command packet set implemented by
-> the device. This value follows the peripheral device type value as
-> defined in SCSI Primary Commands, ANSI INCITS 301:1997.
-> 
-> Bit 7 if set to one indicates that the device has removable media.
-> 
-> Bits (6:5) of word 0 indicate the DRQ response time when a PACKET
-> command is received. A value of 00b indicates a maximum time of 3 ms
-> from receipt of PACKET to the setting of DRQ to one. A value of 10b 
-> indicates a maximum time of 50 μs from the receipt of PACKET to the
-> setting of DRQ to one. The value 11b is reserved.
-> 
-> If bit 2 is set to one it indicates that the content of the IDENTIFY
-> DEVICE data is incomplete. This will occur if the device supports the
-> Power-up in Standby feature set and required data is contained on the
-> device media. In this case the content of at least word 0 and word 2
-> shall be valid.
-> 
-> Bits (1:0) of word 0 indicate the packet size the device supports. A
-> value of 00b indicates that a 12-byte packet is supported; a value of
-> 01b indicates a 16 byte packet. The values 10b and 11b are reserved.
-
-So, when the output is from IDENTIFY PACKET DEVICE, 0x848a doesn't have 
-any special meaning.  It indicates a valid write-once, removable media, 
-ATAPI device with 16bytes CDB.
-
-The attached patch makes sanity checking logic in ata_dev_read_id() 
-check for CFA only if IDENTIFY DEVICE is used.
-
-Thanks.
+Regards,
+Michal
 
 -- 
-tejun
-
---------------000907000903010108080607
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="patch"
-
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvc2NzaS9saWJhdGEtY29yZS5jIGIvZHJpdmVycy9zY3Np
-L2xpYmF0YS1jb3JlLmMKaW5kZXggNzNkZDZjOC4uNDI3YjczYSAxMDA2NDQKLS0tIGEvZHJp
-dmVycy9zY3NpL2xpYmF0YS1jb3JlLmMKKysrIGIvZHJpdmVycy9zY3NpL2xpYmF0YS1jb3Jl
-LmMKQEAgLTEyNTYsMTAgKzEyNTYsMTUgQEAgaW50IGF0YV9kZXZfcmVhZF9pZChzdHJ1Y3Qg
-YXRhX2RldmljZSAqZAogCXN3YXBfYnVmX2xlMTYoaWQsIEFUQV9JRF9XT1JEUyk7CiAKIAkv
-KiBzYW5pdHkgY2hlY2sgKi8KLQlpZiAoKGNsYXNzID09IEFUQV9ERVZfQVRBKSAhPSAoYXRh
-X2lkX2lzX2F0YShpZCkgfCBhdGFfaWRfaXNfY2ZhKGlkKSkpIHsKLQkJcmMgPSAtRUlOVkFM
-OwotCQlyZWFzb24gPSAiZGV2aWNlIHJlcG9ydHMgaWxsZWdhbCB0eXBlIjsKLQkJZ290byBl
-cnJfb3V0OworCXJjID0gLUVJTlZBTDsKKwlyZWFzb24gPSAiZGV2aWNlIHJlcG9ydHMgaWxs
-ZWdhbCB0eXBlIjsKKworCWlmIChjbGFzcyA9PSBBVEFfREVWX0FUQSkgeworCQlpZiAoIWF0
-YV9pZF9pc19hdGEoaWQpICYmICFhdGFfaWRfaXNfY2ZhKGlkKSkKKwkJCWdvdG8gZXJyX291
-dDsKKwl9IGVsc2UgeworCQlpZiAoYXRhX2lkX2lzX2F0YShpZCkpCisJCQlnb3RvIGVycl9v
-dXQ7CiAJfQogCiAJaWYgKHBvc3RfcmVzZXQgJiYgY2xhc3MgPT0gQVRBX0RFVl9BVEEpIHsK
-
---------------000907000903010108080607--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

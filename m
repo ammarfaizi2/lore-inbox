@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWIGQEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWIGQL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWIGQEV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 12:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWIGQEV
+	id S932231AbWIGQL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 12:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWIGQL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 12:04:21 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:16025 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932241AbWIGQEU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 12:04:20 -0400
-Message-ID: <450042F7.5080202@garzik.org>
-Date: Thu, 07 Sep 2006 12:04:07 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 7 Sep 2006 12:11:56 -0400
+Received: from aa002msr.fastwebnet.it ([85.18.95.65]:18925 "EHLO
+	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932231AbWIGQL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 12:11:56 -0400
+Date: Thu, 7 Sep 2006 18:10:53 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: JFS - real deadlock and lockdep warning (2.6.18-rc5-mm1)
+Message-ID: <20060907161053.GE13103@inferi.kami.home>
+Mail-Followup-To: Dave Kleikamp <shaggy@austin.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	akpm@osdl.org
+References: <20060905203309.GA3981@inferi.kami.home> <1157580028.8200.72.camel@kleikamp.austin.ibm.com> <20060907153951.GB13103@inferi.kami.home> <1157643997.23883.4.camel@kleikamp.austin.ibm.com>
 MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: Tejun Heo <htejun@gmail.com>, Matthew Wilcox <matthew@wil.cx>,
-       Arjan van de Ven <arjan@infradead.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-References: <44FFD8C6.8080802@gmail.com> <20060907111120.GL2558@parisc-linux.org> <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org> <45001C48.6050803@gmail.com> <20060907152147.GA17324@colo.lackof.org>
-In-Reply-To: <20060907152147.GA17324@colo.lackof.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157643997.23883.4.camel@kleikamp.austin.ibm.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.18-rc5-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> hrm...if the driver can put a safe value in cachelinesize register
-> and NOT enable MWI, I can imagine a significant performance boost
-> if the device can use MRM or MRL. But IMHO it's up to the driver
-> writers (or other contributors) to figure that out.
+On Thu, Sep 07, 2006 at 10:46:36AM -0500, Dave Kleikamp wrote:
+> On Thu, 2006-09-07 at 17:39 +0200, Mattia Dongili wrote:
+[...]
+> > one more spare partition where I can move /home.
+> 
+> As long as you're going to try a different /home partition, why don't
+> you format it as something other than jfs.  This way if you see the
 
-Yes.
-
-
-> Current API (pci_set_mwi()) ties enabling MRM/MRL with enabling MWI
-> and I don't see a really good reason for that. Only the converse
-> is true - enabling MWI requires setting cachelinesize.
-
-Correct, that's why it was done that way, when I wrote the API. 
-Enabling MWI required making sure the BIOS configured our CLS for us, 
-which was often not the case.  No reason why we can't do a
-
-	pdev->set_cls = 1;
-	rc = pci_enable_device(pdev);
-
-or
-
-	rc = pci_set_cacheline_size(pdev);
-
-Regards,
-
-	Jeff
-
-
-
+yeah, of course ;)
+Thanks
+-- 
+mattia
+:wq!

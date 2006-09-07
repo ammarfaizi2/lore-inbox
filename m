@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWIGCQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWIGCSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422648AbWIGCQe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 22:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWIGCQe
+	id S1422653AbWIGCSq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 22:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWIGCSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 22:16:34 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:27546 "EHLO
-	asav14.insightbb.com") by vger.kernel.org with ESMTP
-	id S1422648AbWIGCQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 22:16:33 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AT0KAE4d/0SBT4lwLA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Darren Salt <linux@youmustbejoking.demon.co.uk>
-Subject: Re: Touchpad sometimes detected twice
-Date: Wed, 6 Sep 2006 22:16:30 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <4E623F81FD%linux@youmustbejoking.demon.co.uk>
-In-Reply-To: <4E623F81FD%linux@youmustbejoking.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609062216.30904.dtor@insightbb.com>
+	Wed, 6 Sep 2006 22:18:46 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:10687 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422653AbWIGCSp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 22:18:45 -0400
+Date: Wed, 6 Sep 2006 20:18:43 -0600
+From: john stultz <johnstul@us.ibm.com>
+To: ak@suse.de
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Message-Id: <20060907021820.31476.17484.sendpatchset@localhost>
+Subject: [PATCH 0/6] x86_64: Generic timekeeping for x86_64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 September 2006 14:56, Darren Salt wrote:
-> Sometimes, the touchpad on my (new) laptop is detected twice. This can cause
-> problems with udev: there may or may not be links in /dev/input/by-*, and if
-> present, the links may be broken.
-> 
-> Config etc. attached.
-> 
+Hey Andi,
+	Just wanted to send this second pass on the x86_64 generic 
+timekeeping conversion. It includes a number of changes you suggested, 
+however its possible I missed a few things. I've made sure the patchset 
+compiles at each stage, and atleast w/ the box I was using it booted 
+each step as well.
 
-Hmm, you could try booting with i8042.nomux. Does this laptop have external
-PS/2 ports?
+Still on the TODO:
+o See about merging i386/x86-64 hpet.c (maybe driver/char/hpet.c as 
+well?)
+o 64bit hpet (should be trivial)
+o Further cleanups
 
--- 
-Dmitry
+If anyone else is interested here, my full timekeeping tree can be 
+found here: http://sr71.net/~jstultz/tod/
+
+New in the current C6 release:
+o x86-64 cleanups
+o arch-trivial patch that converts arches w/o inter-tick resolution
+o ia64 fixups by Peter Keilty
+
+Let me know if you have any thoughts or comments!
+
+thanks again!
+-john

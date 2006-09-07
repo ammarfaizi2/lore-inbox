@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWIGB6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWIGCHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422639AbWIGB6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 21:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWIGB6O
+	id S1422645AbWIGCHh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 22:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422641AbWIGCHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 21:58:14 -0400
-Received: from mga06.intel.com ([134.134.136.21]:20537 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1422639AbWIGB6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 21:58:13 -0400
+	Wed, 6 Sep 2006 22:07:37 -0400
+Received: from mga09.intel.com ([134.134.136.24]:18722 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1422637AbWIGCHf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Sep 2006 22:07:35 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.08,221,1154934000"; 
-   d="scan'208"; a="122227316:sNHT44130947"
-Subject: Re: pci error recovery procedure
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Yanmin Zhang <yanmin.zhang@intel.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-In-Reply-To: <20060906200155.GL7139@austin.ibm.com>
-References: <1157008212.20092.36.camel@ymzhang-perf.sh.intel.com>
-	 <20060831175001.GE8704@austin.ibm.com>
-	 <1157081629.20092.167.camel@ymzhang-perf.sh.intel.com>
-	 <20060901212548.GS8704@austin.ibm.com>
-	 <1157348850.20092.304.camel@ymzhang-perf.sh.intel.com>
-	 <1157360592.22705.46.camel@localhost.localdomain>
-	 <1157423528.20092.365.camel@ymzhang-perf.sh.intel.com>
-	 <20060905190115.GE7139@austin.ibm.com>
-	 <1157506016.20092.386.camel@ymzhang-perf.sh.intel.com>
-	 <20060906200155.GL7139@austin.ibm.com>
+   d="scan'208"; a="122231524:sNHT50644279"
+Subject: RE: one more ACPI Error (utglobal-0125): Unknown exception
+	code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+From: Shaohua Li <shaohua.li@intel.com>
+To: kmannth@us.ibm.com
+Cc: "Moore, Robert" <robert.moore@intel.com>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <lenb@kernel.org>,
+       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux acpi <linux-acpi@vger.kernel.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1157573069.5713.24.camel@keithlap>
+References: <B28E9812BAF6E2498B7EC5C427F293A4E38B52@orsmsx415.amr.corp.intel.com>
+	 <1157573069.5713.24.camel@keithlap>
 Content-Type: text/plain
-Message-Id: <1157594179.20092.451.camel@ymzhang-perf.sh.intel.com>
+Date: Thu, 07 Sep 2006 10:03:44 +0800
+Message-Id: <1157594624.2782.45.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 07 Sep 2006 09:56:19 +0800
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-07 at 04:01, Linas Vepstas wrote:
-> On Wed, Sep 06, 2006 at 09:26:56AM +0800, Zhang, Yanmin wrote:
-> > > > The
-> > > > error_detected of the drivers in the latest kernel who support err handlers
-> > > > always returns PCI_ERS_RESULT_NEED_RESET. They are typical examples.
-> > > 
-> > > Just because the current drivers do it this way does not mean that this is
-> > > the best way to do things.
-> >
-> > If it's not the best way, why did you choose to reset slot for e1000/e100/ipr
-> > error handlers? They are typical widely-used devices. To make it easier to
-> > add error handlers?
+On Thu, 2006-09-07 at 04:04 +0800, keith mannthey wrote:
+> On Wed, 2006-09-06 at 11:59 -0700, Moore, Robert wrote: 
+> > From one of the ACPI guys: 
+> >  
+> > > Get hid 
+> > > Look for driver 
+> > > If you find a match, load it 
+> > > If no match, get CID 
+> > > Look for driver 
+> > > If you find a match, load it 
+> > > If you did not find an hid or cid match, punt
 > 
-> I did it that way just to get going, get something working. I do not
-> have hardware specs for any of these devices, and do not have much of 
-> an idea of what they are capable of;
-Yes, it's difficult to add fine-grained error handlers for guys who are not
-the driver developers.
+> I think this is what my patch is doing.
+> 
+> when looking for a driver: (acpi_bus_find_driver) 
+> I check against the HID  
+> return if found  
+> Then I check against the CID 
+> return if found 
+> else 
+> punt 
+> 
+> Any objections to pushing this into -mm and dropping the motherboard 
+> change?
+I'd prefer not take this way. The ACPI driver model is already mess
+enough, let's don't make it worse. We are converting the ACPI driver
+model to Linux driver model, this will make the attempt difficult.
 
->  the recovery code I wrote is of
-> "brute force, hit it with a hammer"-nature.  Driver writers who 
-> know thier hardware well, and are interested in a more refined 
-> approach are encouraged to actualy use a more refined approach.
-I guess almost no driver developer is happy to spend lots of time to
-add refined steps. They would like to focus on normal process (for achievement
-feeling? :) ).
-In addition, if they use fine-grained steps in error handlers, all these
-steps might be rewritten when the device specs is upgraded. Fine-grained steps in
-error handlers are more difficut to debug.
+We can let the motherboard driver not bind to your device (say we didn't
+register the motherboard driver, but just reserve the resource of the
+deivce). Is it ok to you? (I remember Bjorn said he wants to reserve the
+mem region of the device too).
 
-It's impossible for you to develop error handlers for all device drivers.
-
-The error handlers look a little like suspend/resume. Of course, it's more
-complicated. If we could keep it as simple as suspend/resume, it's more welcomed.
-
-pci error shouldn't happen frequently. And when it happens, I think mostly it's
-an endpoint device instead of bridge. When it happens, if we choose always
-reset slot, performance could be degraded, but not too much. I just deduce, and 
-didn't test it on a machine with hundreds of devices.
+Thanks,
+Shaohua

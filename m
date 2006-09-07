@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWIGK3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWIGKha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWIGK3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 06:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIGK3N
+	id S1751401AbWIGKha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 06:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWIGKha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 06:29:13 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:50625 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751393AbWIGK3L (ORCPT
+	Thu, 7 Sep 2006 06:37:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35513 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751012AbWIGKh3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 06:29:11 -0400
-Date: Thu, 7 Sep 2006 12:25:54 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] re-add -ffreestanding
-In-Reply-To: <20060907022303.GG25473@stusta.de>
-Message-ID: <Pine.LNX.4.64.0609071214421.6761@scrub.home>
-References: <200608302013.58122.ak@suse.de> <20060830183905.GB31594@flint.arm.linux.org.uk>
- <20060906223748.GC12157@stusta.de> <Pine.LNX.4.64.0609070115270.6761@scrub.home>
- <20060906235029.GC25473@stusta.de> <Pine.LNX.4.64.0609070202040.6761@scrub.home>
- <20060907003758.GD25473@stusta.de> <Pine.LNX.4.64.0609070245100.6761@scrub.home>
- <20060907010235.GE25473@stusta.de> <Pine.LNX.4.64.0609070313420.6761@scrub.home>
- <20060907022303.GG25473@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Sep 2006 06:37:29 -0400
+Date: Thu, 7 Sep 2006 12:26:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj
+Message-ID: <20060907102621.GC4125@elte.hu>
+References: <20060906125626.GA3718@elte.hu> <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com> <17274.1157553962@warthog.cambridge.redhat.com> <8934.1157622928@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8934.1157622928@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 7 Sep 2006, Adrian Bunk wrote:
+* David Howells <dhowells@redhat.com> wrote:
 
-> > > > Define "full libc".
-> > > 
-> > > Everything described in clause 7 of ISO/IEC 9899:1999.
-> > 
-> > Its behaviour is also defined by the environment, so what gcc can assume 
-> > is rather limited and you have not shown a single example, that any such 
-> > assumption would be invalid for the kernel.
+> The genirq subdir all wraps up into this:
 > 
-> ISO/IEC 9899:1999 clause 7 defines the libc part of a hosted environment.
+> 	  10908    3272      12   14192    3770 kernel/irq/built-in.o
+> 	   1548      64       4    1616     650 arch/frv/kernel/irq.o
+> 	---------------------------------------------------------------------
+> 	  12456    3336      16   15808    3dc0 total
 
-Which is a problem for the kernel exactly how?
-BTW the standard specifies the minimum requirements for a libc, so talking 
-about "full libc" is ambiguous at best.
+hm, could you take a look at why that difference happens? Do you make 
+use of __do_IRQ()? Do you make use of all the various flow handlers that 
+are offered in handle.c? Could you #ifdef out all the functions that are 
+unused? The kernel build process doesnt remove them and i havent (yet) 
+put them into a library.
 
-> > The kernel uses standard C, so your point is?
-> 
-> A standard C freestanding environment or a standard C hosted environment?
+Could you please send us the patch that genirq-ifies FRV?
 
-As far as gcc is concerned it's a hosted environment, where we provide 
-only what we actually use, but anything we do provide is compliant.
+> So, again, why _should_ I use the generic IRQ stuff? [...]
 
-> > You already got two NACKs from arch maintainers, why the hell are you 
-> > still pushing this patch? The builtin functions are useful and you want to 
-> 
-> The same people who justified removing -ffreestanding with the "it was 
-> only added for x86-64, so dropping it should be safe" that has proven 
-> wrong now put their arch maintainers hats on for NACKing reverting this 
-> patch...
+To have shared code between architectures? To make generic API updates 
+easier for all of us? To have less cruft in interrupt.h? To not having 
+to add last-minute patches to v2.6.18 because some arch defines its own 
+IRQ prototypes and a difficult generic feature like irqtrace breaks? To 
+get new IRQ subsystem features for free like preemptible irqs, irqpoll 
+or SHIRQ debugging?
 
-And you keep ignoring there might be better solutions...
+the same "why should we share code" argument could be made for the VFS 
+too. Sharing code has a (small) price most of the time, but it's also 
+very much worth it. I think the size increases you are seeing are 
+artificial and most of it is not caused by the indirections. If they 
+were caused by the indirections i'd probably agree with you.
 
-> > force arch maintainers to have to enable every single one manually and 
-> > to maintain a list of these functions over multiple versions of gcc?
-> 
-> It could be done per architecture or globally for some functions.
-> 
-> And it doesn't sound like a bad idea to check the current code and think 
-> of what it does and what it should do -  many architecture specific 
-> things (like much of include/asm-i386/string.h) seem to be more 
-> historically than architecture specific.
+if your argument were true every arch should run its whole Linux kernel 
+in arch/frv, with zero sharing with anyone else. There's always a lot of 
+'unnecessary' stuff all around the kernel that is just a hindrance for 
+FRV. In reality what makes us stronger is to work together. I dont for a 
+minute say that we should overdo code sharing - if it's not possible 
+then it must not be forced, but just the pure fact of "more 
+indirections" or "what does this bring me _now_" isnt a good enough 
+reason i believe - it simply makes _future_ changes easier.
 
-We're happy to hear about it, once you've done this.
-
-bye, Roman
+	Ingo

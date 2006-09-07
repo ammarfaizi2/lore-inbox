@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWIGDJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbWIGDJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbWIGDJG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Sep 2006 23:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWIGDJF
+	id S1751807AbWIGDJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Sep 2006 23:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWIGDJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Sep 2006 23:09:05 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:48359 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751807AbWIGDJE (ORCPT
+	Wed, 6 Sep 2006 23:09:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31937 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751807AbWIGDJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Sep 2006 23:09:04 -0400
-Message-ID: <44FF8D40.2040504@in.ibm.com>
-Date: Thu, 07 Sep 2006 08:38:48 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: sekharan@us.ibm.com
-Cc: Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru>  <44FF1EE4.3060005@in.ibm.com> <1157580371.31893.36.camel@linuxchandra>
-In-Reply-To: <1157580371.31893.36.camel@linuxchandra>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Sep 2006 23:09:13 -0400
+Date: Wed, 6 Sep 2006 20:08:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Maciej Rutecki <maciej.rutecki@gmail.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, Keith Mannthey <kmannth@us.ibm.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: 2.6.18-rc5-mm1
+Message-Id: <20060906200824.4f74f221.akpm@osdl.org>
+In-Reply-To: <44FEFD6F.4020203@gmail.com>
+References: <20060901015818.42767813.akpm@osdl.org>
+	<44F86282.9010809@gmail.com>
+	<200609051016.40468.bjorn.helgaas@hp.com>
+	<44FEFD6F.4020203@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> On Thu, 2006-09-07 at 00:47 +0530, Balbir Singh wrote:
+On Wed, 06 Sep 2006 18:55:11 +0200
+Maciej Rutecki <maciej.rutecki@gmail.com> wrote:
+
+> Bjorn Helgaas napisał(a):
+> > 
+> > This ACPI "unknown exception code" problem is the same one reported here:
+> >   http://www.mail-archive.com/linux-acpi%40vger.kernel.org/msg02873.html
+> > 
+> > Basically, we just need to revert this:
+> >   http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-fix.patch
+> > 
+> Thanks it works.
 > 
-> <snip>
->> Some not quite so urgent ones - like support for guarantees. I think this can
-> 
-> IMO, guarantee support should be considered to be part of the
-> infrastructure. Controller functionalities/implementation will be
-> different with/without guarantee support. In other words, adding
-> guarantee feature later will cause re-implementations.
 
-Thanks for pointing this out. Thats what I implied in the comment below.
-
-> 
->> be worked out as we make progress.
->>
->>> I agree with these requirements and lets move into this direction.
->>> But moving so far can't be done without accepting:
->>> 1. core functionality
->>> 2. accounting
->>>
->> Some of the core functionality might be a limiting factor for the requirements.
->> Lets agree on the requirements, I think its a great step forward and then
->> build the core functionality with these requirements in mind.
->>
->>> Thanks,
->>> Kirill
->>>
-
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+So...  should I drop that patch?

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWIHPef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWIHPgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWIHPef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 11:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWIHPef
+	id S1750837AbWIHPgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 11:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWIHPgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 11:34:35 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:57552 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750813AbWIHPed
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 11:34:33 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
-	memory)
-From: Dave Hansen <haveblue@us.ibm.com>
+	Fri, 8 Sep 2006 11:36:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11999 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750837AbWIHPgx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 11:36:53 -0400
+Date: Fri, 8 Sep 2006 08:35:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Kirill Korotaev <dev@sw.ru>
-Cc: balbir@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+cc: Kirill Korotaev <dev@openvz.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>
-In-Reply-To: <44FEC7E4.7030708@sw.ru>
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru>
-Content-Type: text/plain
-Date: Fri, 08 Sep 2006 08:33:53 -0700
-Message-Id: <1157729633.26324.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       devel@openvz.org
+Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
+In-Reply-To: <4501891D.5090607@sw.ru>
+Message-ID: <Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
+References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
+ <44FFF1A0.2060907@openvz.org> <Pine.LNX.4.64.0609070816170.27779@g5.osdl.org>
+ <4501891D.5090607@sw.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-06 at 17:06 +0400, Kirill Korotaev wrote:
-> It was discussed multiple times already.
-> The key problem here is the objects which do not _belong_ to tasks. 
 
-Heh.  The original CKRM patches didn't have a strong binding to tasks.
-They took it away to make them more mergeable. ;)
 
--- Dave
+On Fri, 8 Sep 2006, Kirill Korotaev wrote:
+> 
+> I even checked the email myself and the only difference between "good"
+> patches and mine is that mine has "format=flowed" in
+> Content-Type: text/plain; charset=us-ascii; format=flowed
+> 
+> It looks like some mailers replace TABs with spaces when format=flowed
+> is specified. So are you sure that the problem is in mozilla?
 
+Hey, what do you know? Good call. I can actually just "S"ave the message 
+to a file, and it is a perfectly fine patch. But when I view it in my mail 
+reader, your "format=flowed" means that it _shows_ it as being corrupted 
+(ie word wrapping and missing spaces at the beginning of lines).
+
+Will apply, thanks. It would be better if your mailer didn't lie about the 
+format though (treating the text as "flowed" definitely isn't right, and 
+some mail gateways might actually find it meaningful, for all I know).
+
+		Linus

@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWIHQqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWIHQrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWIHQqF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 12:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWIHQqF
+	id S1751001AbWIHQrN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 12:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWIHQrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 12:46:05 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41436 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750847AbWIHQqC (ORCPT
+	Fri, 8 Sep 2006 12:47:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31617 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750891AbWIHQrM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 12:46:02 -0400
-Date: Fri, 8 Sep 2006 09:45:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-Message-ID: <20060908164551.GA491@kroah.com>
-References: <20060908031422.GA4549@lists.us.dell.com> <20060908155639.GJ28592@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908155639.GJ28592@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 8 Sep 2006 12:47:12 -0400
+Date: Fri, 8 Sep 2006 09:46:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 1/2] own header file for struct page.
+Message-Id: <20060908094616.48849a7a.akpm@osdl.org>
+In-Reply-To: <20060908111716.GA6913@osiris.boeblingen.de.ibm.com>
+References: <20060908111716.GA6913@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 11:56:39AM -0400, Dave Jones wrote:
-> On Thu, Sep 07, 2006 at 10:14:22PM -0500, Matt Domsch wrote:
->  > Problem:
->  > New Dell PowerEdge servers have 2 embedded ethernet ports, which are
->  > labeled NIC1 and NIC2 on the chassis, in the BIOS setup screens, and
->  > in the printed documentation.  Assuming no other add-in ethernet ports
->  > in the system, Linux 2.4 kernels name these eth0 and eth1
->  > respectively.  Many people have come to expect this naming.  Linux 2.6
->  > kernels name these eth1 and eth0 respectively (backwards from
->  > expectations).  I also have reports that various Sun and HP servers
->  > have similar behavior.
->  
-> This came up years back when 2.6 was something new, and the answer
-> then was 'bind the interface to the MAC address'.
+On Fri, 8 Sep 2006 13:17:16 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-It came up then?  I don't recall it, if so, I hope I didn't say that...
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> This moves the definition of struct page from mm.h to its own header file
+> page.h.
+> This is a prereq to fix SetPageUptodate which is broken on s390:
+> 
+> #define SetPageUptodate(_page)
+>        do {
+>                struct page *__page = (_page);
+>                if (!test_and_set_bit(PG_uptodate, &__page->flags))
+>                        page_test_and_clear_dirty(_page);
+>        } while (0)
+> 
+> _page gets used twice in this macro which can cause subtle bugs. Using
+> __page for the page_test_and_clear_dirty call doesn't work since it
+> causes yet another problem with the page_test_and_clear_dirty macro as
+> well.
+> In order to get of all these problems caused by macros it seems to
+> be a good idea to get rid of them and convert them to static inline
+> functions. Because of header file include order it's necessary to have a
+> seperate header file for the struct page definition.
+> 
 
-We should fix this, it's obviously a regression.  Thanks a lot Matt for
-tracking this down and fixing it.
+hmm.
 
-> Whilst your patch will fix the case that's currently broken (2.4->2.6),
-> doesn't it offer equal possibility to break existing setups when people move
-> from <=2.6.18 -> 2.6.19 ?
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6/include/linux/page.h	2006-09-08 13:10:23.000000000 +0200
 
-It might, but I'll take that heat, we do have a command line option that
-returns the functionality to the "broken" way.
+We have asm/page.h, and one would expect that a <linux/page.h> would be
+related to <asm/page.h> in the usual fashion.  But it isn't.
 
-Let's see what happens in the next -mm.
+Can we think of a different filename? page-struct.h, maybe? pageframe.h?
 
-thanks,
+> +#ifndef CONFIG_DISCONTIGMEM
+> +/* The array of struct pages - for discontigmem use pgdat->lmem_map */
+> +extern struct page *mem_map;
+> +#endif
 
-greg k-h
+Am surprised to see this declaration in this file.

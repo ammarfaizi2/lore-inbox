@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWIHHNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWIHHWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751881AbWIHHNh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWIHHNh
+	id S1751681AbWIHHWs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbWIHHWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:13:37 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:62870 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751881AbWIHHNg (ORCPT
+	Fri, 8 Sep 2006 03:22:48 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:30884 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751681AbWIHHWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:13:36 -0400
-Date: Fri, 8 Sep 2006 09:13:16 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Victor Hugo <victor@vhugo.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] e-mail clients
-In-Reply-To: <4500B2FB.8050805@vhugo.net>
-Message-ID: <Pine.LNX.4.61.0609080912270.22545@yvahk01.tjqt.qr>
-References: <4500B2FB.8050805@vhugo.net>
+	Fri, 8 Sep 2006 03:22:46 -0400
+Message-ID: <45011A47.1020407@openvz.org>
+Date: Fri, 08 Sep 2006 11:22:47 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: sekharan@us.ibm.com
+CC: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
+       Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+ memory)
+References: <44FD918A.7050501@sw.ru>	 <1157478392.3186.26.camel@localhost.localdomain>  <44FED3CA.7000005@sw.ru>	 <1157579641.31893.26.camel@linuxchandra>  <44FFCA4D.9090202@openvz.org> <1157656616.19884.34.camel@linuxchandra>
+In-Reply-To: <1157656616.19884.34.camel@linuxchandra>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chandra Seetharaman wrote:
+
+[snip]
+>>>> The question is - whether web server is multithreaded or not...
+>>>> If it is not - then no problem here, you can change current
+>>>> context and new resources will be charged accordingly.
+>>>>
+>>>> And current BC code is _able_ to handle it with _minor_ changes.
+>>>> (One just need to save bc not on mm struct, but rather on vma struct
+>>>> and change mm->bc on set_bc_id()).
+>>>>
+>>>> However, no one (can some one from CKRM team please?) explained so far
+>>>> what to do with threads. Consider the following example.
+>>>>
+>>>> 1. Threaded web server spawns a child to serve a client.
+>>>> 2. child thread touches some pages and they are charged to child BC
+>>>>    (which differs from parent's one)
+>>>> 3. child exits, but since its mm is shared with parent, these pages
+>>>>    stay mapped and charged to child BC.
+>>>>
+>>>> So the question is:  what to do with these pages?
+>>>> - should we recharge them to another BC?
+>>>> - leave them charged?
+>>>>     
+>>>>         
+>>> Leave them charged. It will be charged to the appropriate UBC when they
+>>> touch it again.
+>>>   
+>>>       
+>> Do you mean that page must be re-charged each time someone touches it?
+>>     
 >
-> As I've learned--most web-clients have a hard time sending text only e-mail
-> without
-> wrapping every single line (not very good for patches).  Any suggestions about
-> which client to use on lkml?? Pine?? Mutt??
-
-pine does the job.
-
-> Thunderbird?? Telnet??
-
-Thunderbird is said to not by default, and that you need to set some 
-option first.
-
-Telnet is something very different.
-
-
-
-Jan Engelhardt
--- 
+> What I meant is that to leave them charged, and if when they are
+> ummapped and mapped later, charge it to the appropriate BC.
+>   
+In this case multithreaded apache that tries to serve each domain in
+separate BC will fill the memory with BC-s, held by pages allocated
+and mapped in threads.

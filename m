@@ -1,93 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWIHOZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWIHOfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWIHOZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 10:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWIHOZJ
+	id S1750779AbWIHOfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 10:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWIHOfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 10:25:09 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:10406 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750746AbWIHOZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 10:25:08 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc6-mm1
-Date: Fri, 8 Sep 2006 16:26:42 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <20060908011317.6cb0495a.akpm@osdl.org>
-In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
+	Fri, 8 Sep 2006 10:35:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:46293 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750758AbWIHOfc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 10:35:32 -0400
+Message-ID: <45017FAA.1070203@us.ibm.com>
+Date: Fri, 08 Sep 2006 07:35:22 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Kara <jack@suse.cz>
+CC: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+References: <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com> <20060906172733.GC14345@atrey.karlin.mff.cuni.cz> <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com> <20060907223048.GD22549@atrey.karlin.mff.cuni.cz> <4500F2B2.4010204@us.ibm.com> <20060908082531.GA28397@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060908082531.GA28397@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609081626.43262.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 8 September 2006 10:13, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+Jan Kara wrote:
+>   Hi,
+>
+>   
+>> Jan Kara wrote:
+>>     
+>>>  I've been looking more at the code and I have revived my patch fixing
+>>> this part of the code. I've mildly tested the patch. Could you also give
+>>> it a try? Thanks.
+>>>
+>>> 								Honza
+>>>  
+>>> ------------------------------------------------------------------------
+>>>
+>>> Original commit code assumes, that when a buffer on BJ_SyncData list is 
+>>> locked,
+>>> it is being written to disk. But this is not true and hence it can lead to 
+>>> a
+>>> potential data loss on crash. Also the code didn't count with the fact that
+>>> journal_dirty_data() can steal buffers from committing transaction and 
+>>> hence
+>>> could write buffers that no longer belong to the committing transaction.
+>>> Finally it could possibly happen that we tried writing out one buffer 
+>>> several
+>>> times.
+>>>
+>>> The patch below tries to solve these problems by a complete rewrite of the 
+>>> data
+>>> commit code. We go through buffers on t_sync_datalist, lock buffers needing
+>>> write out and store them in an array. Buffers are also immediately refiled 
+>>> to
+>>> BJ_Locked list or unfiled (if the write out is completed). When the array 
+>>> is
+>>> full or we have to block on buffer lock, we submit all accumulated buffers 
+>>> for
+>>> IO.
+>>>
+>>> Signed-off-by: Jan Kara <jack@suse.cz>
+>>>
+>>>  
+>>>       
+>> I have been running 4+ hours with this patch and seems to work fine. I 
+>> haven't hit any
+>> assert yet :)
+>>
+>> I will let it run till tomorrow. I will let you know, how it goes.
+>>     
+>   Great, thanks. BTW: Do you have any performance tests handy? The
+> changes are big enough to cause some unexpected performance regressions,
+> livelocks... If you don't have anything ready, I can setup and run
+> something myself.  Just that I don't like this testing too much ;).
+>   
+Tests are still running fine.
 
-ohci_hcd doesn't work after a resume from disk on HPC nx6325, worked on
-2.6.18-rc5-mm1.
+I don't have any performance tests handy. We have some automated tests I 
+can schedule
+to run to verify the stability aspects.
 
-It helps if I rmmod and modprobe it after the resume.
+Thanks,
+Badari
 
-Here's the relevant part of the dmesg output:
-
-usb usb1: resuming
- usbdev1.1_ep00: PM: resume from 0, parent usb1 still 1
-hub 1-0:1.0: PM: resume from 0, parent usb1 still 1
-hub 1-0:1.0: resuming
- usbdev1.1: PM: resume from 0, parent usb1 still 1
-usb usb2: resuming
-usb usb2: root hub lost power or was reset
- usbdev2.1_ep00: PM: resume from 0, parent usb2 still 1
-hub 2-0:1.0: PM: resume from 0, parent usb2 still 1
-hub 2-0:1.0: resuming
- usbdev2.1: PM: resume from 0, parent usb2 still 1
-usb usb3: resuming
-usb usb3: root hub lost power or was reset
- usbdev3.1_ep00: PM: resume from 0, parent usb3 still 1
-hub 3-0:1.0: PM: resume from 0, parent usb3 still 1
-hub 3-0:1.0: resuming
- usbdev3.1: PM: resume from 0, parent usb3 still 1
-usb 2-2: PM: resume from 1, parent usb2 still 1
-usb 2-2: resuming
- usbdev2.2_ep00: PM: resume from 0, parent 2-2 still 1
-hci_usb 2-2:1.0: PM: resume from 1, parent 2-2 still 1
-hci_usb 2-2:1.0: resuming
- usbdev2.2_ep81: PM: resume from 0, parent 2-2:1.0 still 1
- usbdev2.2_ep82: PM: resume from 0, parent 2-2:1.0 still 1
- usbdev2.2_ep02: PM: resume from 0, parent 2-2:1.0 still 1
-hci_usb 2-2:1.1: PM: resume from 1, parent 2-2 still 1
-hci_usb 2-2:1.1: resuming
-usb 2-2:1.2: PM: resume from 1, parent 2-2 still 1
-usb 2-2:1.2: resuming
- usbdev2.2_ep84: PM: resume from 0, parent 2-2:1.2 still 1
- usbdev2.2_ep04: PM: resume from 0, parent 2-2:1.2 still 1
-usb 2-2:1.3: PM: resume from 1, parent 2-2 still 1
-usb 2-2:1.3: resuming
- usbdev2.2: PM: resume from 0, parent 2-2 still 1
-platform bluetooth: resuming
-usb 3-1: PM: resume from 1, parent usb3 still 1
-usb 3-1: resuming
- usbdev3.2_ep00: PM: resume from 0, parent 3-1 still 1
-usb 3-1:1.0: PM: resume from 1, parent 3-1 still 1
-usb 3-1:1.0: resuming
- usbdev3.2_ep81: PM: resume from 0, parent 3-1:1.0 still 1
- usbdev3.2_ep02: PM: resume from 0, parent 3-1:1.0 still 1
- usbdev3.2: PM: resume from 0, parent 3-1 still 1
-usb 3-4: PM: resume from 1, parent usb3 still 1
-usb 3-4: resuming
- usbdev3.3_ep00: PM: resume from 0, parent 3-4 still 1
-usbhid 3-4:1.0: PM: resume from 1, parent 3-4 still 1
-usbhid 3-4:1.0: resuming
- usbdev3.3_ep81: PM: resume from 0, parent 3-4:1.0 still 1
- usbdev3.3: PM: resume from 0, parent 3-4 still 1
- usbdev2.2_ep83: PM: resume from 0, parent 2-2:1.1 still 1
- usbdev2.2_ep03: PM: resume from 0, parent 2-2:1.1 still 1
- hci0: PM: resume from 0, parent 2-2:1.0 still 1

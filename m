@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWIHXhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWIHXtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWIHXhr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 19:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWIHXhr
+	id S1751297AbWIHXtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 19:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWIHXtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 19:37:47 -0400
-Received: from fmmailgate02.web.de ([217.72.192.227]:35246 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP
-	id S1751290AbWIHXhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 19:37:46 -0400
-Message-ID: <4501FE9E.70608@web.de>
-Date: Sat, 09 Sep 2006 01:37:02 +0200
-From: Jan Kiszka <jan.kiszka@web.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: Auke Kok <auke-jan.h.kok@intel.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: e100 fails, eepro100 works
-References: <450172F2.50308@web.de> <45018F76.5080403@intel.com>
-In-Reply-To: <45018F76.5080403@intel.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig74A7B79D98563A6609FE1083"
+	Fri, 8 Sep 2006 19:49:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60140 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751297AbWIHXtO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 19:49:14 -0400
+Date: Fri, 8 Sep 2006 16:49:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/10] check pr_debug() arguments
+Message-Id: <20060908164908.abb98076.akpm@osdl.org>
+In-Reply-To: <20060908225529.9340.75338.sendpatchset@kaori.pdx.zabbo.net>
+References: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>
+	<20060908225529.9340.75338.sendpatchset@kaori.pdx.zabbo.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig74A7B79D98563A6609FE1083
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Fri,  8 Sep 2006 15:55:29 -0700 (PDT)
+Zach Brown <zach.brown@oracle.com> wrote:
 
-Auke Kok wrote:
-> Can you include a full `dmesg` and `lcpci -vv -s 00:12.0` ?
->=20
-> Also you're using 3.5.10-k2, can you try the current git tree version
-> instead? I can send you the e100.c if wanted.
+> check pr_debug() arguments
+> 
+> When DEBUG isn't defined pr_debug() is defined away as an empty macro.  By
+> throwing away the arguments we allow completely incorrect code to build.
+> 
+> Instead let's make it an empty inline which checks arguments and mark it so gcc
+> can check the format specification.
 
-Yes, please, to make sure that we'll really discuss the same version.
-Will then try to collect the additional information on Monday.
+Desirable.
 
-Jan
+> This results in a seemingly insignificant code size increase.  A x86-64
+> allyesconfig:
+> 
+>    text    data     bss     dec     hex filename
+> 25354768        7191098 4854720 37400586        23ab00a vmlinux.before
+> 25354945        7191138 4854720 37400803        23ab0e3 vmlinux
+
+Which would indicate that we might have expressions-with-side-effects
+inside pr_debug() statements somewhere, which is risky.  I wonder where?
+
+It looks like the version of gcc which you used is correctly discarding the
+pr_debug() format string.  gcc hasn't always done that, and there's a risk
+of bloatiness on older gccs.  I checked gcc-3.3.2/x86 and it does the right
+thing, so...
+
+btw, what's up with aio.c using a combination of pr_debug() and dprintk(),
+and a combination of `#ifdef DEBUG' and `#if DEBUG > 1'?  Confusing.
 
 
---------------enig74A7B79D98563A6609FE1083
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
-
-iD8DBQFFAf6eniDOoMHTA+kRAiX7AJ9bK3NOxXNP2nJDsjPBH168UG11agCfcD2h
-I1EFWd8Phvxww4bGniQ/pW4=
-=GLo8
------END PGP SIGNATURE-----
-
---------------enig74A7B79D98563A6609FE1083--
+It would be nice to have a single way of doing developer-debug in-tree.  We
+have 182(!) different definitions of dprintk().  Please nobody cc me on that
+discussion though ;)

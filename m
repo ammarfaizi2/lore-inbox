@@ -1,47 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWIHTKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWIHTKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWIHTKK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 15:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWIHTKK
+	id S1751072AbWIHTKu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 15:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWIHTKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 15:10:10 -0400
-Received: from quechua.inka.de ([193.197.184.2]:14560 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1751049AbWIHTKI (ORCPT
+	Fri, 8 Sep 2006 15:10:50 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:1514 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751072AbWIHTKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 15:10:08 -0400
-Date: Fri, 8 Sep 2006 21:10:04 +0200
-From: Bernd Eckenfels <be-mail2006@lina.inka.de>
-To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060908191004.GA15106@lina.inka.de>
-References: <20060907173449.GA24013@clipper.ens.fr> <E1GLPhz-0001T9-00@calista.eckenfels.net> <20060907230028.GB30916@elf.ucw.cz> <20060908012201.GA14280@lina.inka.de> <20060908143946.GD17680@elf.ucw.cz>
+	Fri, 8 Sep 2006 15:10:48 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+In-Reply-To: <45011B2A.6000102@openvz.org>
+References: <44FD918A.7050501@sw.ru>
+	 <1157478392.3186.26.camel@localhost.localdomain> <44FED3CA.7000005@sw.ru>
+	 <1157579641.31893.26.camel@linuxchandra> <44FFCA4D.9090202@openvz.org>
+	 <1157657355.19884.44.camel@linuxchandra>  <45011B2A.6000102@openvz.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 08 Sep 2006 12:10:41 -0700
+Message-Id: <1157742641.19884.52.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060908143946.GD17680@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 04:39:47PM +0200, Pavel Machek wrote:
-> Well, then mistake was running that daemon with elevated priviledges
-> in the first place.
+On Fri, 2006-09-08 at 11:26 +0400, Pavel Emelianov wrote:
+> Chandra Seetharaman wrote:
+> > On Thu, 2006-09-07 at 11:29 +0400, Pavel Emelianov wrote:
+> > <snip>
+> >
+> >   
+> >>>> BUT: I remind you the talks at OKS/OLS and in previous UBC discussions.
+> >>>> It was noted that having a separate interfaces for CPU, I/O bandwidth
+> >>>>     
+> >>>>         
+> >>> But, it will be lot simpler for the user to configure/use if they are
+> >>> together. We should discuss this also.
+> >>>   
+> >>>       
+> >> IMHO such unification may only imply that one syscall is used to pass
+> >> configuration info into kernel.
+> >> Each controller has specific configurating parameters different from the
+> >> other ones. E.g. CPU controller must assign a "weight" to each group to
+> >> share CPU time accordingly, but what is a "weight" for memory controller?
+> >> IO may operate on "bandwidth" and it's not clear what is a "bandwidth" in
+> >> Kb/sec for CPU controller and so on.
+> >>     
+> >
+> > CKRM/RG handles this by eliminating the units from the interface and
+> > abstracting them to be "shares". Each resource controller converts the
+> > shares to its own units and handles properly. 
+> >   
+> That's what I'm talking about - common syscall/ioct/etc and each controller
+> parses its input itself. That's OK for us.
 
-there are workers out there which expect to be started priveldged, do
-something (bind, suid, ...) and then drop priveledges. If those check if the
-drop is needed based on the euid...
-
-Of course this can be solved better, however i remeber that those cases are
-the ones where compatibility means any priveledge -> euid = 0.
-
-Anyway, I think there is something like that in the proposed patch, so it
-looks good.
-
-Gruss
-Bernd
+Yes, we can eliminate the "units"(KBs, cycles/ticks, pages etc.,) from
+the interface and use a (unitless) number to specify the amount of
+resource a resource group/container uses.
+> 
+> [snip]
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 -- 
-  (OO)     -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )    ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o   1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+49721151516129
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

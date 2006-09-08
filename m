@@ -1,168 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWIHKkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWIHKqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWIHKkI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 06:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWIHKkH
+	id S1750784AbWIHKqL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 06:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWIHKqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 06:40:07 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:62114 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1750730AbWIHKkG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 06:40:06 -0400
-Date: Fri, 8 Sep 2006 11:40:03 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: keith mannthey <kmannth@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, andrew <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [Bug] [2.6.18-rc5-mm1] system no boot early death  x86_64
-In-Reply-To: <1157675335.5653.66.camel@keithlap>
-Message-ID: <Pine.LNX.4.64.0609081134520.7094@skynet.skynet.ie>
-References: <1157653241.5653.37.camel@keithlap> <1157675335.5653.66.camel@keithlap>
+	Fri, 8 Sep 2006 06:46:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64933 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750784AbWIHKqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 06:46:09 -0400
+Date: Fri, 8 Sep 2006 12:45:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bernd Eckenfels <be-mail2006@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060908104550.GA920@elf.ucw.cz>
+References: <20060907173449.GA24013@clipper.ens.fr> <E1GLPhz-0001T9-00@calista.eckenfels.net> <20060907230028.GB30916@elf.ucw.cz> <20060908012201.GA14280@lina.inka.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060908012201.GA14280@lina.inka.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006, keith mannthey wrote:
+Hi!
 
-> On Thu, 2006-09-07 at 11:20 -0700, keith mannthey wrote:
->> Hello,
->>   I was booting rc4-mm3.  With rc5-mm1 I am hanging early... Mel I don't
->> know if this is related to your code but I will soon know. (I don't get
->> your debug info in early console.)
->>   I was working on patches for the reserve based memory hot add path in
->> srat.c (the initial error is fixed by Mels patches but there is more to
->> do)
+> > If attacker already has priviledge foo, he can just go use it. He does
+> > not have to exec() poor program not expecting to get priviledge foo,
+> > then abusing it.
+> 
+> It is not about attackers. It is about normal usage. If you spawn a program,
+> it might behave wrong since it does not know that it is priveledged. For
+> example a network daemon might start a child process which interacts with
+> the user, and forgets to drop priveldges for it.
 
-That is some good news at least.
+Ok, something like that is possible, at least it is not a security
+problem.
 
-> and was just moving to rc5-mm1 to sync up and then more trouble.
->> This is with reserve based hot-add not enabled at the command line.
->
->
-> Well this isn't fully adding up but here is what I found.
->
-> If I drop
-> x86_64-mm-drop-640k-reservation.patch
-> x86_64-mm-remove-e820-fallback.patch
-> and
-> x86_64-mm-remove-e820-fallback-fix.patch
->
-> I build and boot.  All files in the series upto x86_64-mm-drop-640k-
-> reservation.patch work just fine.  Dropping this patch makes things
-> better. The e820 patches were removed to make the rest of the series
-> apply.
->
+> > Sanitized here means "all regular capabilities set, all others
+> > cleared".
+> 
+> Yes, however I thought this was exactly what the patch is not doing?
 
-I am having trouble reproducing this. However, I recently got access to a 
-machine similar to yours. I can say that sometimes the stability of 
-2.6.18-rc4-mm3 and 2.6.18-rc5-mm1 was totally useless (but the symptons 
-different to yours) and the box would easily crash for reasons I could not 
-pin down. As stability problems had been reported on the machine earlier 
-by other users, I was inclined to blame the hardware. Now I'm not sure.
-
-> It is not clear what changes would cause me to die setting up the
-> bootmem allocator on my first node...
->
-
-Unless your machine really has something special in the low 640K that is 
-required and bad things happen if it's written to at a bad time.
-
-> I know x86_64-mm-drop-640k-reservation.patch has been around for a
-> while.
->
-> any ideas?
->
-
-None so far, I'll keep hitting the machine I have to see if I can find 
-something more useful but I'm not very optimistic I'll pin it down.
-
-> Thanks,
->  Keith
->
-> (from a working boot)
->
-> disabling early console
-> Linux version 2.6.18-rc5-mm1-smp (root@elm3a153) (gcc version 4.1.0
-> (SUSE Linux)) #13 SMP Thu Sep 7 19:15:00 EDT 2006
-> BIOS-provided physical RAM map:
-> BIOS-e820: 0000000000000000 - 0000000000098400 (usable)
-> BIOS-e820: 0000000000098400 - 00000000000a0000 (reserved)
-> BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-> BIOS-e820: 0000000000100000 - 000000007ff85e00 (usable)
-> BIOS-e820: 000000007ff85e00 - 000000007ff98880 (ACPI data)
-> BIOS-e820: 000000007ff98880 - 0000000080000000 (reserved)
-> BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-> BIOS-e820: 0000000100000000 - 0000000470000000 (usable)
-> BIOS-e820: 0000001070000000 - 0000001160000000 (usable)
-> Entering add_active_range(0, 0, 152) 0 entries of 3200 used
-> Entering add_active_range(0, 256, 524165) 1 entries of 3200 used
-> Entering add_active_range(0, 1048576, 4653056) 2 entries of 3200 used
-> Entering add_active_range(0, 17235968, 18219008) 3 entries of 3200 used
-> end_pfn_map = 18219008
-> DMI 2.3 present.
-> ACPI: RSDP (v000 IBM                                   ) @
-> 0x00000000000fdcf0
-> ACPI: RSDT (v001 IBM    EXA01ZEU 0x00001000 IBM  0x45444f43) @
-> 0x000000007ff98800
-> ACPI: FADT (v001 IBM    EXA01ZEU 0x00001000 IBM  0x45444f43) @
-> 0x000000007ff98780
-> ACPI: MADT (v001 IBM    EXA01ZEU 0x00001000 IBM  0x45444f43) @
-> 0x000000007ff98600
-> ACPI: SRAT (v001 IBM    EXA01ZEU 0x00001000 IBM  0x45444f43) @
-> 0x000000007ff983c0
-> ACPI: HPET (v001 IBM    EXA01ZEU 0x00001000 IBM  0x45444f43) @
-> 0x000000007ff98380
-> ACPI: SSDT (v001 IBM    VIGSSDT0 0x00001000 INTL 0x20030122) @
-> 0x000000007ff90780
-> ACPI: SSDT (v001 IBM    VIGSSDT1 0x00001000 INTL 0x20030122) @
-> 0x000000007ff88bc0
-> ACPI: DSDT (v001 IBM    EXA01ZEU 0x00001000 INTL 0x20030122) @
-> 0x0000000000000000
-> SRAT: PXM 0 -> APIC 0 -> Node 0
-> SRAT: PXM 0 -> APIC 1 -> Node 0
-> SRAT: PXM 0 -> APIC 2 -> Node 0
-> SRAT: PXM 0 -> APIC 3 -> Node 0
-> SRAT: PXM 0 -> APIC 38 -> Node 0
-> SRAT: PXM 0 -> APIC 39 -> Node 0
-> SRAT: PXM 0 -> APIC 36 -> Node 0
-> SRAT: PXM 0 -> APIC 37 -> Node 0
-> SRAT: PXM 1 -> APIC 64 -> Node 1
-> SRAT: PXM 1 -> APIC 65 -> Node 1
-> SRAT: PXM 1 -> APIC 66 -> Node 1
-> SRAT: PXM 1 -> APIC 67 -> Node 1
-> SRAT: PXM 1 -> APIC 102 -> Node 1
-> SRAT: PXM 1 -> APIC 103 -> Node 1
-> SRAT: PXM 1 -> APIC 100 -> Node 1
-> SRAT: PXM 1 -> APIC 101 -> Node 1
-> SRAT: Node 0 PXM 0 0-80000000
-> Entering add_active_range(0, 0, 152) 0 entries of 3200 used
-> Entering add_active_range(0, 256, 524165) 1 entries of 3200 used
-> SRAT: Node 0 PXM 0 0-470000000
-> Entering add_active_range(0, 0, 152) 2 entries of 3200 used
-> Entering add_active_range(0, 256, 524165) 2 entries of 3200 used
-> Entering add_active_range(0, 1048576, 4653056) 2 entries of 3200 used
-> SRAT: Node 1 PXM 1 1070000000-1160000000
-> Entering add_active_range(1, 17235968, 18219008) 3 entries of 3200 used
-> NUMA: Using 36 for the hash shift.
-> Bootmem setup node 0 0000000000000000-0000000470000000
-> Bootmem setup node 1 0000001070000000-0000001160000000
-> Zone PFN ranges:
->  DMA             0 ->     4096
->  DMA32        4096 ->  1048576
->  Normal    1048576 -> 18219008
-> early_node_map[4] active PFN ranges
->    0:        0 ->      152
->    0:      256 ->   524165
->    0:  1048576 ->  4653056
->    1: 17235968 -> 18219008
-> On node 0 totalpages: 4128541
->
->
->
-
+Yep, it needs to be fixed ;-).
+								Pavel
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIHQGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWIHQGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWIHQGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 12:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWIHQGP
+	id S1750835AbWIHQGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 12:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWIHQGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 12:06:15 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:33919 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750827AbWIHQGO (ORCPT
+	Fri, 8 Sep 2006 12:06:54 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:55813 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1750827AbWIHQGx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 12:06:14 -0400
-Message-ID: <450195B2.8000004@sw.ru>
-Date: Fri, 08 Sep 2006 20:09:22 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 8 Sep 2006 12:06:53 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [RFC] e-mail clients
+Date: Fri, 8 Sep 2006 18:06:49 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <4500B2FB.8050805@vhugo.net> <200609081454.40522.hpj@urpla.net> <200609080918.47693.gene.heskett@verizon.net>
+In-Reply-To: <200609080918.47693.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
-       devel@openvz.org
-Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
-References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org> <44FFF1A0.2060907@openvz.org> <Pine.LNX.4.64.0609070816170.27779@g5.osdl.org> <4501891D.5090607@sw.ru> <Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609081806.50087.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 8 Sep 2006, Kirill Korotaev wrote:
-> 
->>I even checked the email myself and the only difference between "good"
->>patches and mine is that mine has "format=flowed" in
->>Content-Type: text/plain; charset=us-ascii; format=flowed
->>
->>It looks like some mailers replace TABs with spaces when format=flowed
->>is specified. So are you sure that the problem is in mozilla?
-> 
-> 
-> Hey, what do you know? Good call. I can actually just "S"ave the message 
-> to a file, and it is a perfectly fine patch. But when I view it in my mail 
-> reader, your "format=flowed" means that it _shows_ it as being corrupted 
-> (ie word wrapping and missing spaces at the beginning of lines).
-Oh, I finally found how to tune Mozilla and fix it:
+On Friday 08 September 2006 15:18, Gene Heskett wrote:
+> On Friday 08 September 2006 08:54, Hans-Peter Jansen wrote:
+> >Am Freitag, 8. September 2006 10:24 schrieb Jesper Juhl:
+> >> On 08/09/06, Victor Hugo <victor@vhugo.net> wrote:
+> >> > As I've learned--most web-clients have a hard time sending text
+> >> > only e-mail without
+> >> > wrapping every single line (not very good for patches).  Any
+> >> > suggestions about which client to use on lkml?? Pine?? Mutt??
+> >> > Thunderbird?? Telnet??
+> >>
+> >> I personally use both 'pine' and 'kmail' and they both work perfectly
+> >> for sending patches.
+> >
+> >With kmail, you have control over line breaks with Option -> Wrap lines,
+> >which is useful for e.g. pasted syslog data, but remember to enable it
+> >before writing the message, since you have to manually add line breaks
+> >for the entered text too.
+> >
+> >Inlined patches should be added via Message -> Insert File to preserve
+> >line breaks and white space.
+>
+> But be sure and turn word wrapping off before inserting the file, or
+> pasting (usually bad I might add).  And my version of kmail wraps the
+> whole document if the wrapping is turned back on, as it is now.  Which
+> makes it rather frustrating.
 
-One need to edit defaults/pref/mailnews.js file to have:
-pref("mailnews.send_plaintext_flowed", false); // RFC 2646=======
-pref("mailnews.display.disable_format_flowed_support", true);
+To workaround this, I first type the message with wordwrapping on, then close 
+the message window and let it save the message to Drafts. Then repoen the 
+message from Drafts, turn off wordwrap and insert the patch using 
+Message->Insert File. It's not great but still better than Thunderbird.
 
-This makes Mozilla to send emails w/o "format=flowed".
+>
+> >Pete
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks a lot for your patience :)
-
-Kirill
+-- 
+Ondrej Zary

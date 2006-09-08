@@ -1,86 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWIHWvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWIHWyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWIHWvX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 18:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWIHWvX
+	id S1751234AbWIHWyk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 18:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWIHWyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 18:51:23 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:21261 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S1751171AbWIHWvW (ORCPT
+	Fri, 8 Sep 2006 18:54:40 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:15243 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751236AbWIHWyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 18:51:22 -0400
-Date: Sat, 9 Sep 2006 00:51:18 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060908225118.GB877@clipper.ens.fr>
-References: <20060907003210.GA5503@clipper.ens.fr> <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com> <20060907173449.GA24013@clipper.ens.fr> <20060907225429.GA30916@elf.ucw.cz> <20060908041034.GB24135@clipper.ens.fr> <20060908105238.GB920@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908105238.GB920@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sat, 09 Sep 2006 00:51:18 +0200 (CEST)
+	Fri, 8 Sep 2006 18:54:39 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Message-Id: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>
+Subject: [PATCH 0/10] introduction: check pr_debug() arguments
+Date: Fri,  8 Sep 2006 15:54:38 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 12:52:39PM +0200, Pavel Machek wrote:
-> Well, you claim it is as safe as possible, and it is not quite. 
+introduction: check pr_debug() arguments
 
-I claim "safe enough". :-)
+I was recently frustrated when I broke the arguments to a pr_debug() call and
+the bug went unnoticed until I defined DEBUG.  I poked around a bit and found
+that I wasn't alone in breaking pr_debug() arguments.
 
-> I can bet someone will get the fork() case wrong:
-> 
-> f = fork();
-> kill(f);
-> 
-> fork will return -1, and kill will kill _all_ the processes.
+Instead of having pr_debug() hide broken arguments when DEBUG isn't defined,
+let's make it an empty inline and have gcc check it's format specifier.
 
-Someone who writes code like that deserves to get all his processes
-killed. :-p fork() can fail for a million reasons, some of which, on
-most systems, can be provoked by a malicious attacker (such as filling
-all available process slots).
+What follows are the patches that fix up the existing bad pr_debug() calls.
+The worst flat out get syntax wrong or reference non-existant symbols.
 
-> If you can find another uid to hijack, that other uid has bad
-> problems. And I do not think you'll commonly find another uid to
-> hijack.
+With those out of the way, the final patch makes the change to pr_debug().  The
+net result doesn't affect a allyesconfig x86-64 build.  My apologies to other
+builds that will be exposed to broken pr_debug() arguments.  What a great
+opportunity to fix them!
 
-How about another gid, then?  Should we reset all caps on sgid exec?
-
-Ultimately a compromise is to be reached between security and
-flexibility...  The problem is, I don't know who should make the
-decision.
-
-> And there are easier ways to get out of jail with your proposed
-> capabilities: you do not restrict ptrace, so you can just ptrace any
-> other process with same uid, and hijack it.
-
-That's true.  The restrictions on process killing (which Serge
-introduced) should probably be applied to ptrace() also.
-
-> (You probably want to introduce CAP_REG_PTRACE).
-
-Good idea.  I did, in version 0.4.2.
-
-> Or just remove CAP_REG_XUID_EXEC when removing any other CAP_REG...?
-
-Doable, but ugly (or so I think): there are many paths that set
-caps...  A simpler solution would be to remove the test on
-CAP_REG_SXID and instead test on all regular caps simultaneously.
-Still, I really don't like the idea.
-
-> It is not too bad; you'll usually not want restricted programs to exec
-> anything setuid... (Do you have example where
-> restricted-but-should-be-able-to-setuid-exec makes sense?)
-
-Well, I could imagine that a paranoid sysadmin might want some users'
-processes to run without this or that capability (perhaps
-CAP_REG_PTRACE or some other yet-to-be-defined capability).  This
-doesn't mean that they shouldn't be able to run a game which runs sgid
-in order to write the score file.
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+- z

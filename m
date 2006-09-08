@@ -1,80 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWIHVQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWIHVWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWIHVQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 17:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWIHVQj
+	id S1751267AbWIHVWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 17:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWIHVWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 17:16:39 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:8022 "EHLO
+	Fri, 8 Sep 2006 17:22:10 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:45399 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751260AbWIHVQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 17:16:38 -0400
+	id S1751264AbWIHVWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 17:22:07 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=BSdZ8LZWved0PLoGod/dj7CusXDgb05zO8b2lt7lnPdlnGWQpOPx0DdT4pzBMpsWY
-	xIp8QODCwp2vemzAk048A==
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
-	memory)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <4501A7DD.8040305@watson.ibm.com>
-References: <44FD918A.7050501@sw.ru>
-	 <1157478392.3186.26.camel@localhost.localdomain>
-	 <1157501878.11268.77.camel@galaxy.corp.google.com>
-	 <1157729450.26324.44.camel@localhost.localdomain>
-	 <1157735437.1214.32.camel@galaxy.corp.google.com>
-	 <4501A7DD.8040305@watson.ibm.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Fri, 08 Sep 2006 14:15:35 -0700
-Message-Id: <1157750135.1214.94.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=lvbApR1deq4/DDHZ/khpT30fESn2A2TsnSZtVop/CIKjNAVWpQTbsMMTjNGOjn6La
+	eG5EhfbR8KOZXLCygxhTA==
+Message-ID: <4501DEF5.8010300@google.com>
+Date: Fri, 08 Sep 2006 14:21:57 -0700
+From: Edward Falk <efalk@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Proper /proc/pid/cmdline behavior when command line is corrupt?
+References: <mailman.3.1157626801.14788.linux-kernel-daily-digest@lists.us.dell.com> <4500D1E6.7020805@google.com> <Pine.LNX.4.61.0609080919130.22545@yvahk01.tjqt.qr> <4501A583.2050500@google.com> <Pine.LNX.4.61.0609082124350.30707@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0609082124350.30707@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 13:26 -0400, Shailabh Nagar wrote:
-
-> Also maintenability, licensing, blah, blah.
-> Replicating the software stack for each service level one
-> wishes to provide, if avoidable as it seems to be, isn't such a good idea.
-> Same sort of reasoning for why containers make sense compared to Xen/VMWare
-> instances.
+Jan Engelhardt wrote:
 > 
-
-Having a container per service level seems like an okay thing to me.
-
-> Memory resources, by their very nature, will be tougher to account when a
-> single database/app server services multiple clients and we can essentially
-> give up on that (taking the approach that only limited recharging can ever
-> be achieved). 
-
-What exactly you mean by limited recharging?  
-
-As said earlier, if there is big shared segment on a server then that
-can be charged to any single container.  And in this case moving a task
-to different container may not fetch anything useful from memory
-accounting pov.
-
-> But cpu atleast is easy to charge correctly and since that will
-> also indirectly influence the requests for memory & I/O, its useful to allow
-> middleware to change the accounting base for a thread/task.
+> http://www.x86-64.org/documentation/abi.pdf#search=%22argv%20envp%20x86%20ABI%22
+> page 29 figure 3.9 lists the data block in question as "Information
+> block, including argument strings, environment strings, auxiliary
+> information", but does not specify it further, like how it is laid out.
 > 
+> What it does mention is "argument pointers" (aka argv[N]) and their
+> exact position. In fact, right below the figure is the explanation:
+> "Argument strings, environment strings, and the auxiliary information
+> appear in no specific order within the information block and they need
+> not be compactly allocated."
 
-That is not true.   It depends on IO size, memory foot print etc. etc.
-You can move a task to different container, but it will not be cheap.
+...
 
--rohit
+Thank you for sending me that document.  It seems that the bottom line 
+is that the environment-follows-the-commandline assumption is *not* 
+valid for future kernels, and may well not be valid for other 
+architectures either.
+
+I would suggest that for an application to overwrite the end of its own 
+commandline buffer is undefined behavior.*
+
+I'd also further suggest that the current implementation of 
+proc_pid_cmdline() is essentially _guessing_ that the user has 
+overwritten the end of the buffer and also guessing that the extra data 
+can be found in the environment buffer.
+
+Further, if a terminating nul still can't be found in the leading part 
+of the environment buffer, proc_pid_cmdline() arbitrarily truncates the 
+return value at the one-page mark with no attempt to insert a 
+terminating nul.  It seems to me that if we accept that it's ok to 
+arbitrarily truncate the return value, then a better choice of 
+truncation point would be the end of the commandline buffer.
+
+In addition, since the code is looking for missing data in the 
+environment buffer, we can reasonably assume that the user has 
+inadvertantly and hopelessly corrupted their own environment.  I submit 
+that in this case, all bets are off and it doesn't really matter *what* 
+we do at this point -- the results are undefined and can't possibly be 
+correct.
 
 
+> What that means for your future patch:
+> 
+> The way how the arg and env strings are laid out are, as far as I can 
+> tell, defined in fs/binfmt_elf.c:create_elf_tables(). And 
+> proc_pid_cmdline() depends on this layout, yes. However, since the 
+> layout is not used anywhere outside the kernel (so says the PDF), there 
+> should not be a problem. If you modify the layout, make sure it is 
+> consistent within the kernel. It is unspecified for userspace, and a 
+> user program accessing this area nonetheless is doing so at its own risk.
+
+Thank you for pointing this out.  I'm not planning to change the layout, 
+but perhaps a comment should be added to create_elf_tables() warning 
+that proc_pid_cmdline() will need to be modified if the layout is ever 
+modified.
+
+Anyway; does anybody know why the original code was done this way, or of 
+any applications that depend on that behavior?
+
+
+> Hope this helps.
+
+Immensely.  Thank you.
+
+	-ed falk
+
+
+*Actually, by the looks of things, for a process to write to its own 
+commandline buffer *at all* is undefined behavior, since the spec makes 
+no guarantees of the layout of the information block.

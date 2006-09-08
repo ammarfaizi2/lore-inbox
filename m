@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWIHVlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWIHVpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWIHVlw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 17:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWIHVlw
+	id S1751141AbWIHVpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 17:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWIHVpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 17:41:52 -0400
-Received: from gate.crashing.org ([63.228.1.57]:5001 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751194AbWIHVlu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 17:41:50 -0400
-Subject: Re: TG3 data corruption (TSO ?)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Michael Chan <mchan@broadcom.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1551EAE59135BE47B544934E30FC4FC093FB19@NT-IRVA-0751.brcm.ad.broadcom.com>
-References: <1551EAE59135BE47B544934E30FC4FC093FB19@NT-IRVA-0751.brcm.ad.broadcom.com>
+	Fri, 8 Sep 2006 17:45:09 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:48479 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751141AbWIHVpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 17:45:07 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=gca9927MKMkRAQDju0UcJ9+EJPaSY3FpM3xswZ84uHchjxL5D2sV6tvZ9uc3LcT3P
+	NUs4/Cr03DY7mh7eP9Amg==
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	memory)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: sekharan@us.ibm.com
+Cc: Pavel Emelianov <xemul@openvz.org>, Rik van Riel <riel@redhat.com>,
+       Srivatsa <vatsa@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1157743424.19884.65.camel@linuxchandra>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra>  <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
 Content-Type: text/plain
-Date: Sat, 09 Sep 2006 07:41:29 +1000
-Message-Id: <1157751689.31071.97.camel@localhost.localdomain>
+Organization: Google Inc
+Date: Fri, 08 Sep 2006 14:43:54 -0700
+Message-Id: <1157751834.1214.112.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-09-08 at 12:23 -0700, Chandra Seetharaman wrote:
+> On Fri, 2006-09-08 at 11:33 +0400, Pavel Emelianov wrote:
+> > Chandra Seetharaman wrote:
+> > > On Thu, 2006-09-07 at 00:47 +0530, Balbir Singh wrote:
+> > >
+> > > <snip>
+> > >> Some not quite so urgent ones - like support for guarantees. I think
+> > >> this can
+> > >
+> > > IMO, guarantee support should be considered to be part of the
+> > > infrastructure. Controller functionalities/implementation will be
+> > > different with/without guarantee support. In other words, adding
+> > > guarantee feature later will cause re-implementations.
+> > I'm afraid we have different understandings of what a "guarantee" is.
+> > Don't we?
+> 
+> may be (I am not sure :), lets get it clarified.
+>  
+> > Guarantee may be one of
+> > 
+> >   1. container will be able to touch that number of pages
+> >   2. container will be able to sys_mmap() that number of pages
+> >   3. container will not be killed unless it touches that number of pages
+> >   4. anything else
+> 
+> I would say (1) with slight modification
+>    "container will be able to touch _at least_ that number of pages"
+> 
 
-> Please send me lspci and tg3 probing output so that I know what
-> tg3 hardware you're using.  I also want to look at the tcpdump or
-> ethereal on the mirrored port that shows the packet being corrupted.
+Does this scheme support running of tasks outside of containers on the
+same platform where you have tasks running inside containers.  If so
+then how will you ensure processes running out side any container will
+not leave less than the total guaranteed memory to different containers.
 
-Hi Michael !
 
-It's the dual controller of an Apple Quad G5, thus afaik in an HT2000
-chip:
 
-0001:05:04.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5780 Gigabit Ethernet (rev 03)
-        Subsystem: Apple Computer Inc. Unknown device 0085
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (16000ns min)
-        Interrupt: pin A routed to IRQ 66
-        Region 0: Memory at fa530000 (64-bit, non-prefetchable) [size=64K]
-        Region 2: Memory at fa520000 (64-bit, non-prefetchable) [size=64K]
-        Capabilities: [40] PCI-X non-bridge device
-                Command: DPERE- ERO- RBC=512 OST=1
-                Status: Dev=05:04.0 64bit+ 133MHz+ SCD- USC- DC=simple DMMRBC=2048 DMOST=1 DMCRS=16 RSCEM- 266MHz- 533MHz-
-        Capabilities: [48] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable+ DSel=0 DScale=1 PME-
-        Capabilities: [50] Vital Product Data
-        Capabilities: [58] Message Signalled Interrupts: Mask- 64bit+ Queue=0/3 Enable-
-                Address: 00011aa5c8ce4904  Data: 18d8
-
-0001:05:04.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5780 Gigabit Ethernet (rev 03)
-        Subsystem: Apple Computer Inc. Unknown device 0085
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 16 (16000ns min), Cache Line Size: 64 bytes
-        Interrupt: pin B routed to IRQ 67
-        Region 0: Memory at fa510000 (64-bit, non-prefetchable) [size=64K]
-        Region 2: Memory at fa500000 (64-bit, non-prefetchable) [size=64K]
-        Capabilities: [40] PCI-X non-bridge device
-                Command: DPERE- ERO+ RBC=512 OST=1
-                Status: Dev=05:04.1 64bit+ 133MHz+ SCD- USC- DC=simple DMMRBC=2048 DMOST=1 DMCRS=16 RSCEM- 266MHz- 533MHz-
-        Capabilities: [48] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-        Capabilities: [50] Vital Product Data
-        Capabilities: [58] Message Signalled Interrupts: Mask- 64bit+ Queue=0/3 Enable-
-                Address: 4e001a0002804460  Data: 00a2
-
-And the dmesg bits:
-
-tg3.c:v3.65 (August 07, 2006)
-eth0: Tigon3 [partno(BCM95780) rev 8003 PHY(5780)] (PCIX:133MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:51:65:e6:90
-eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
-eth0: dma_rwctrl[76144000] dma_mask[40-bit]
-eth1: Tigon3 [partno(BCM95780) rev 8003 PHY(5780)] (PCIX:133MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:51:65:e6:91
-eth1: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
-eth1: dma_rwctrl[76144000] dma_mask[40-bit]
-
-As for the tcpdump output, well, I have a 3Gb file for now :) I need to do a bit of surgery on it to
-get only the interesting part. I'll try to do that later today (but it may have to wait for monday).
-
-Cheers,
-Ben.
-
+-rohit
 

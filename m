@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWIHLIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWIHLOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWIHLIe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 07:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWIHLIe
+	id S1750816AbWIHLOB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 07:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIHLOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 07:08:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:14208 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750802AbWIHLId (ORCPT
+	Fri, 8 Sep 2006 07:14:01 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:12193 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750804AbWIHLOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 07:08:33 -0400
-Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <10720.1157711152@warthog.cambridge.redhat.com>
-References: <1157669602.22705.326.camel@localhost.localdomain>
-	 <1157583693.22705.254.camel@localhost.localdomain>
-	 <20060906125626.GA3718@elte.hu> <20060906094301.GA8694@elte.hu>
-	 <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de>
-	 <20060901015818.42767813.akpm@osdl.org>
-	 <6260.1157470557@warthog.cambridge.redhat.com>
-	 <8430.1157534853@warthog.cambridge.redhat.com>
-	 <13982.1157545856@warthog.cambridge.redhat.com>
-	 <17274.1157553962@warthog.cambridge.redhat.com>
-	 <8934.1157622928@warthog.cambridge.redhat.com>
-	 <10720.1157711152@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Fri, 08 Sep 2006 21:05:05 +1000
-Message-Id: <1157713505.31071.84.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Sep 2006 07:14:00 -0400
+Date: Fri, 8 Sep 2006 20:13:44 +0900
+From: Horms <horms@verge.net.au>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kcore elf note namesz field fix
+Message-ID: <20060908111342.GA25522@verge.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060905193222.GA29478@in.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 11:25 +0100, David Howells wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > No, you do a chain handler. Look at how I do it in
-> > arch/powerpc/platform/pseries/setup.c for example. It's actually
-> > trivial. You install a special flow handler (which means that there is
-> > very little overhead, almost none, from the toplevel irq to the chained
-> > irq). You can _also_ if you want just install an IRQ handler for the
-> > cascaded controller and call generic_handle_irq (rather than __do_IRQ)
-> > from it, but that has more overhead. A chained handler completely
-> > relaces the flow handler for the cascade, and thus, if you don't need
-> > all of the nits and bits of the other flow handlers for your cascade,
-> > you can speed things up by hooking at that level.
-> 
-> Please update Documentation/DocBook/genericirq.tmpl.  That doesn't mention it.
+[ This is a repost, I mucked up the headers the first time around ]
 
-I must admit I haven't read the documentation :) I looked at the
-code/patches when genirq was posted and did my powerpc implementation
-based on my understanding of the code and discussions with Thomas and
-Ingo. I'll have a look at the doc next week and see if I can improve it.
+On Tue, 5 Sep 2006 15:32:22 -0400, Vivek Goyal wrote:
+> 
+> 
+> 
+> o As per ELF specifications, it looks like that elf note "namesz" field contains
+>  the length of "name" including the size of null character. And 
+>  currently we are filling "namesz" without taking into the consideration
+>  the null character size.
+> 
+> o Kexec-tools performs this check deligently hence I ran into the issue
+>  while trying to open /proc/kcore in kexec-tools for some info.
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 
-Cheers,
-Ben.
+That is in keeping with my reading of pages 2-4 and 2-5
+of version 1.1 of the specification (is there a later version?)
+
+Acked: Simon Horman <horms@verge.net.au>
+
+> ---
+> 
+> fs/proc/kcore.c |    4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff -puN fs/proc/kcore.c~kcore-elf-note-namesz-fix fs/proc/kcore.c
+> --- linux-2.6.18-rc3-1M/fs/proc/kcore.c~kcore-elf-note-namesz-fix	2006-08-31 16:10:41.000000000 -0400
+> +++ linux-2.6.18-rc3-1M-root/fs/proc/kcore.c	2006-08-31 16:10:41.000000000 -0400
+> @@ -100,7 +100,7 @@ static int notesize(struct memelfnote *e
+> 	int sz;
+> 
+> 	sz = sizeof(struct elf_note);
+> -	sz += roundup(strlen(en->name), 4);
+> +	sz += roundup((strlen(en->name) + 1), 4);
+> 	sz += roundup(en->datasz, 4);
+> 
+> 	return sz;
+> @@ -116,7 +116,7 @@ static char *storenote(struct memelfnote
+> 
+> #define DUMP_WRITE(addr,nr) do { memcpy(bufp,addr,nr); bufp += nr; } while(0)
+> 
+> -	en.n_namesz = strlen(men->name);
+> +	en.n_namesz = strlen(men->name) + 1;
+> 	en.n_descsz = men->datasz;
+> 	en.n_type = men->type;
+> 
+> _
 
 

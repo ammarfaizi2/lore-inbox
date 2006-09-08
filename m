@@ -1,89 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWIHOfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWIHOkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWIHOfe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 10:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWIHOfd
+	id S1750762AbWIHOkt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 10:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWIHOkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 10:35:33 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:46293 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750758AbWIHOfc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 10:35:32 -0400
-Message-ID: <45017FAA.1070203@us.ibm.com>
-Date: Fri, 08 Sep 2006 07:35:22 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Fri, 8 Sep 2006 10:40:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10122 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750762AbWIHOks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 10:40:48 -0400
+Date: Fri, 8 Sep 2006 16:39:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bernd Eckenfels <be-mail2006@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060908143946.GD17680@elf.ucw.cz>
+References: <20060907173449.GA24013@clipper.ens.fr> <E1GLPhz-0001T9-00@calista.eckenfels.net> <20060907230028.GB30916@elf.ucw.cz> <20060908012201.GA14280@lina.inka.de>
 MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-References: <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com> <20060906172733.GC14345@atrey.karlin.mff.cuni.cz> <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com> <20060907223048.GD22549@atrey.karlin.mff.cuni.cz> <4500F2B2.4010204@us.ibm.com> <20060908082531.GA28397@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060908082531.GA28397@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060908012201.GA14280@lina.inka.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara wrote:
->   Hi,
->
->   
->> Jan Kara wrote:
->>     
->>>  I've been looking more at the code and I have revived my patch fixing
->>> this part of the code. I've mildly tested the patch. Could you also give
->>> it a try? Thanks.
->>>
->>> 								Honza
->>>  
->>> ------------------------------------------------------------------------
->>>
->>> Original commit code assumes, that when a buffer on BJ_SyncData list is 
->>> locked,
->>> it is being written to disk. But this is not true and hence it can lead to 
->>> a
->>> potential data loss on crash. Also the code didn't count with the fact that
->>> journal_dirty_data() can steal buffers from committing transaction and 
->>> hence
->>> could write buffers that no longer belong to the committing transaction.
->>> Finally it could possibly happen that we tried writing out one buffer 
->>> several
->>> times.
->>>
->>> The patch below tries to solve these problems by a complete rewrite of the 
->>> data
->>> commit code. We go through buffers on t_sync_datalist, lock buffers needing
->>> write out and store them in an array. Buffers are also immediately refiled 
->>> to
->>> BJ_Locked list or unfiled (if the write out is completed). When the array 
->>> is
->>> full or we have to block on buffer lock, we submit all accumulated buffers 
->>> for
->>> IO.
->>>
->>> Signed-off-by: Jan Kara <jack@suse.cz>
->>>
->>>  
->>>       
->> I have been running 4+ hours with this patch and seems to work fine. I 
->> haven't hit any
->> assert yet :)
->>
->> I will let it run till tomorrow. I will let you know, how it goes.
->>     
->   Great, thanks. BTW: Do you have any performance tests handy? The
-> changes are big enough to cause some unexpected performance regressions,
-> livelocks... If you don't have anything ready, I can setup and run
-> something myself.  Just that I don't like this testing too much ;).
->   
-Tests are still running fine.
+On Fri 2006-09-08 03:22:01, Bernd Eckenfels wrote:
+> On Fri, Sep 08, 2006 at 01:00:28AM +0200, Pavel Machek wrote:
+> > If attacker already has priviledge foo, he can just go use it. He does
+> > not have to exec() poor program not expecting to get priviledge foo,
+> > then abusing it.
+> 
+> It is not about attackers. It is about normal usage. If you spawn a program,
+> it might behave wrong since it does not know that it is priveledged. For
+> example a network daemon might start a child process which interacts with
+> the user, and forgets to drop priveldges for it.
 
-I don't have any performance tests handy. We have some automated tests I 
-can schedule
-to run to verify the stability aspects.
-
-Thanks,
-Badari
-
+Well, then mistake was running that daemon with elevated priviledges
+in the first place.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWIHTH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWIHTKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWIHTH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 15:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWIHTH2
+	id S1751049AbWIHTKK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 15:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWIHTKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 15:07:28 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:51402 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751041AbWIHTH0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 15:07:26 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
-	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
-       Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <45011A47.1020407@openvz.org>
-References: <44FD918A.7050501@sw.ru>
-	 <1157478392.3186.26.camel@localhost.localdomain>  <44FED3CA.7000005@sw.ru>
-	 <1157579641.31893.26.camel@linuxchandra>  <44FFCA4D.9090202@openvz.org>
-	 <1157656616.19884.34.camel@linuxchandra>  <45011A47.1020407@openvz.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 08 Sep 2006 12:07:22 -0700
-Message-Id: <1157742442.19884.47.camel@linuxchandra>
+	Fri, 8 Sep 2006 15:10:10 -0400
+Received: from quechua.inka.de ([193.197.184.2]:14560 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751049AbWIHTKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 15:10:08 -0400
+Date: Fri, 8 Sep 2006 21:10:04 +0200
+From: Bernd Eckenfels <be-mail2006@lina.inka.de>
+To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060908191004.GA15106@lina.inka.de>
+References: <20060907173449.GA24013@clipper.ens.fr> <E1GLPhz-0001T9-00@calista.eckenfels.net> <20060907230028.GB30916@elf.ucw.cz> <20060908012201.GA14280@lina.inka.de> <20060908143946.GD17680@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060908143946.GD17680@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 11:22 +0400, Pavel Emelianov wrote:
-> Chandra Seetharaman wrote:
-> 
-> [snip]
-> >>>> The question is - whether web server is multithreaded or not...
-> >>>> If it is not - then no problem here, you can change current
-> >>>> context and new resources will be charged accordingly.
-> >>>>
-> >>>> And current BC code is _able_ to handle it with _minor_ changes.
-> >>>> (One just need to save bc not on mm struct, but rather on vma struct
-> >>>> and change mm->bc on set_bc_id()).
-> >>>>
-> >>>> However, no one (can some one from CKRM team please?) explained so far
-> >>>> what to do with threads. Consider the following example.
-> >>>>
-> >>>> 1. Threaded web server spawns a child to serve a client.
-> >>>> 2. child thread touches some pages and they are charged to child BC
-> >>>>    (which differs from parent's one)
-> >>>> 3. child exits, but since its mm is shared with parent, these pages
-> >>>>    stay mapped and charged to child BC.
-> >>>>
-> >>>> So the question is:  what to do with these pages?
-> >>>> - should we recharge them to another BC?
-> >>>> - leave them charged?
-> >>>>     
-> >>>>         
-> >>> Leave them charged. It will be charged to the appropriate UBC when they
-> >>> touch it again.
-> >>>   
-> >>>       
-> >> Do you mean that page must be re-charged each time someone touches it?
-> >>     
-> >
-> > What I meant is that to leave them charged, and if when they are
-> > ummapped and mapped later, charge it to the appropriate BC.
-> >   
-> In this case multithreaded apache that tries to serve each domain in
-> separate BC will fill the memory with BC-s, held by pages allocated
-> and mapped in threads.
+On Fri, Sep 08, 2006 at 04:39:47PM +0200, Pavel Machek wrote:
+> Well, then mistake was running that daemon with elevated priviledges
+> in the first place.
 
-I do not understand how the memory will be filled with BCs. Can you
-explain, please.
+there are workers out there which expect to be started priveldged, do
+something (bind, suid, ...) and then drop priveledges. If those check if the
+drop is needed based on the euid...
+
+Of course this can be solved better, however i remeber that those cases are
+the ones where compatibility means any priveledge -> euid = 0.
+
+Anyway, I think there is something like that in the proposed patch, so it
+looks good.
+
+Gruss
+Bernd
 -- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+  (OO)     -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )    ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o   1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+49721151516129
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

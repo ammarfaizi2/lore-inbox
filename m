@@ -1,121 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWIHLkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWIHLu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWIHLkB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 07:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWIHLkB
+	id S1750812AbWIHLu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 07:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWIHLu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 07:40:01 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:11221 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1750821AbWIHLkA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 07:40:00 -0400
-Date: Fri, 8 Sep 2006 15:39:30 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, josht@us.ibm.com
-Subject: Re: [PATCH] simplify/improve rcu batch tuning
-Message-ID: <20060908113930.GB250@oleg>
-References: <20060903163419.GA235@oleg> <20060907203727.GE1293@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060907203727.GE1293@us.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 8 Sep 2006 07:50:29 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:12041 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750812AbWIHLu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 07:50:28 -0400
+Message-ID: <450158E5.4090303@shadowen.org>
+Date: Fri, 08 Sep 2006 12:49:57 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.18-rc6-mm1
+References: <20060908011317.6cb0495a.akpm@osdl.org>
+In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/07, Paul E. McKenney wrote:
->
-> Some thoughts for testing...
->
-> 1.	Modify rcutorture.c to keep all the rcutorture kernel threads
-> 	off of at least one CPU.  Run a CPU-bound user process on that
-> 	CPU.  Compare the rate a which grace periods progress in
-> 	the following three situations:
->
-> 	a.	With your patch.
->
-> 	b.	With stock kernel.
->
-> 	c.	With the function disabled (e.g., use the
-> 		not-CONFIG_SMP version of force_quiescent_state()).
->
-> 	You would expect to see fast grace-period progress for (a) and
-> 	(b), slow for (c).
->
-> 2.	As above, but have another process generating lots of
-> 	RCU callbacks, for example, by opening and closing lots
-> 	of files, creating and deleting lots of files with long
-> 	randomly selected names, thrashing the route cache, or
-> 	whatever.
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> 
+> - autofs4 mounting of NFS is still sick.
+> 
+> 
+> 
+> Boilerplate:
+> 
+> - See the `hot-fixes' directory for any important updates to this patchset.
+> 
+> - To fetch an -mm tree using git, use (for example)
+> 
+>   git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
+> 
+> - -mm kernel commit activity can be reviewed by subscribing to the
+>   mm-commits mailing list.
+> 
+>         echo "subscribe mm-commits" | mail majordomo@vger.kernel.org
+> 
+> - If you hit a bug in -mm and it is not obvious which patch caused it, it is
+>   most valuable if you can perform a bisection search to identify which patch
+>   introduced the bug.  Instructions for this process are at
+> 
+>         http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+> 
+>   But beware that this process takes some time (around ten rebuilds and
+>   reboots), so consider reporting the bug first and if we cannot immediately
+>   identify the faulty patch, then perform the bisection search.
+> 
+> - When reporting bugs, please try to Cc: the relevant maintainer and mailing
+>   list on any email.
+> 
+> - Semi-daily snapshots of the -mm lineup are uploaded to
+>   ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/ and are announced on
+>   the mm-commits list.
+> 
+> 
+>  origin.patch
+>  git-acpi.patch
+>  git-alsa.patch
+>  git-agpgart.patch
+>  git-arm.patch
+>  git-block.patch
+>  git-cifs.patch
+>  git-cpufreq.patch
+>  git-drm.patch
+>  git-dvb.patch
+>  git-geode.patch
+>  git-gfs2.patch
+>  git-ia64.patch
+>  git-ieee1394.patch
+>  git-infiniband.patch
+>  git-input.patch
+>  git-intelfb.patch
+>  git-kbuild.patch
+>  git-libata-all.patch
+>  git-lxdialog.patch
+>  git-mmc.patch
+>  git-mtd.patch
+>  git-netdev-all.patch
+>  git-net.patch
+>  git-nfs.patch
+>  git-ocfs2.patch
+>  git-parisc.patch
+>  git-pcmcia.patch
+>  git-powerpc.patch
+>  git-r8169.patch
+>  git-s390.patch
+>  git-scsi-misc.patch
 
-Thanks for review and suggestions. I'll try to run these tests next week.
-Afaics, it is enough to just do
+Seems that -mm fails to compile when CONFIG_MODULES is set but
+CONFIG_MODULE_UNLOAD is not.
 
-	for (;;) close(open(...))
+   LD      .tmp_vmlinux1
+  drivers/built-in.o(.text+0x47724): In function `scsi_device_put':
+  drivers/scsi/scsi.c:887: undefined reference to `module_refcount'
 
-for '2.'.
+Config fragment:
+  CONFIG_MODULES=y
+  # CONFIG_MODULE_UNLOAD is not set
+  # CONFIG_MODULE_SRCVERSION_ALL is not set
 
-> > @@ -86,8 +83,8 @@ static void force_quiescent_state(struct
-> >  	int cpu;
-> >  	cpumask_t cpumask;
-> >  	set_need_resched();
->
-> Not that it makes a big difference, but why is the above
-> set_need_resched() not in the body of the following "if" statement?
-> It used to be important, because it could prevent additional IPIs in
-> the same grace period, but since the current code will only send one
-> IPI per grace period, it seems like it can safely be tucked under the
-> "if" statement.
+This seems to be caused by changes in the scsi-misc git tree, from the
+changes in the two commits below:
 
-I think there was another reason to do set_need_resched() unconditionally,
-but this is only my guess. We are sending IPIs to speedup the flashing of
-callbacks we already have in the queue. But set_need_resched() tries to
-suppress current process from adding new callbacks (not that it is perfect,
-though). Consider the 'for (;;) close(open(...))' loop.
+  [SCSI] sd: fix cache flushing on module removal
+				(and individual device removal)
+  [SCSI] fix up non-modular SCSI
 
-Actually I think it also makes sense to do tasklet_schedule(rcu_tasklet)
-in call_rcu(), this way we can detect that we need to start the next batch
-earlier.
+  85b6c720b0931101c8bcc3a5abdc2b8514b0fb4b
+  f479ab87936563a286b8aa0e39003c40fa31c6da
 
-> > -	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-> > -		rdp->last_rs_qlen = rdp->qlen;
-> > +	if (unlikely(!rcp->signaled)) {
-> > +		rcp->signaled = 1;
-> >  		/*
-> >  		 * Don't send IPI to itself. With irqs disabled,
-> >  		 * rdp->cpu is the current cpu.
-> > @@ -297,6 +294,7 @@ static void rcu_start_batch(struct rcu_c
-> >  		smp_mb();
-> >  		cpus_andnot(rcp->cpumask, cpu_online_map, nohz_cpu_mask);
-> >
-> > +		rcp->signaled = 0;
->
-> Would it make sense to invoke force_quiescent_state() here in the
-> case that rdp->qlen is still large?  The disadvantage is that qlen
-> still counts the number of callbacks that are already slated for
-> invocation.
+It looks very much like module_refcount is really not meant to be an
+external interface, cirtainly its not available in all module
+'load/unload modes'.
 
-This is not easy to do. rcu_start_batch() is "global", we need
-to scan all per-cpu 'struct rcu_data' and check it's ->qlen.
-
->              Another approach would be to check rdp->qlen and
-> rcp->signaled in rcu_do_batch(), but only once rdp->donlist goes
-> NULL.
-
-Agree. Probably we don't need to check !rdp->donlist, it should be
-empty after rcu_do_batch() invocation when ->qlen > qhimark, because
-in that case ->blimit == INT_MAX.
-
-But first I'd like to do a couple of other cleanups here, I'll send
-the patches on weekend.
-
-Thanks!
-
-Oleg.
-
+-apw

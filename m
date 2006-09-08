@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIHHgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWIHHjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWIHHgu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWIHHgu
+	id S1750711AbWIHHjI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIHHjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:36:50 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:64492 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750706AbWIHHgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:36:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cfp5yTbCD0l3dqpZnFBvvzrZg03sUHlxaa/9EMcRxk4TGab8pEwhkrcgvdqkeu8i5ja4Ah5+SCuOtIWnvGTREVV4b0Zgxi7cfdi4Yjiqdg3WVPq8/p3PLMe2Xs67YvO1KBbwUbNuz/90QOIqxSnQdYO5Rcjc7Yq+LP8aov3GGMc=
-Message-ID: <24c1515f0609080036m21ffcef0ob576b5709e5ec6ce@mail.gmail.com>
-Date: Fri, 8 Sep 2006 10:36:48 +0300
-From: "Janne Karhunen" <janne.karhunen@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: debugging a deadlock
+	Fri, 8 Sep 2006 03:39:08 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:18701 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S1750711AbWIHHjE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 03:39:04 -0400
+Date: Fri, 8 Sep 2006 09:38:59 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc6] ext3 memory leak
+In-Reply-To: <20060907093417.54d2adf1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.63.0609080933390.1700@pcgl.dsa-ac.de>
+References: <Pine.LNX.4.63.0609071300330.1700@pcgl.dsa-ac.de>
+ <Pine.LNX.4.63.0609071657490.1700@pcgl.dsa-ac.de> <20060907093417.54d2adf1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 7 Sep 2006, Andrew Morton wrote:
 
-Sometimes you have to do strange things such as trying to debug occasional
-deadlock of a system that has been in use for long, long time. So please, no
-nasty comments about outdated system with no soft lock-up detection and
-such :/
+> It is expected that in this situation the number of buffer_head objects will
+> be approximately equal to the number of pagecache pages.  So once the pagecache
+> has grown to consume all available memory and the kernel starts to perform pagecache
+> reclaim, the buffer_head count should stabilise.
 
-Anyhoo, it appears to be infinite semaphore wait. By modifying the semaphores
-to dump stack on LONG wait I managed to get a stack trace. Looks like this:
+Ok, thanks that's exactly what I had to know - makes sense now.
 
-kernel:    [printk+340/384] [printk+340/384] [show_trace+203/240]
-[show_trace+203/240] [show_stack+113/120] [show_registers+223/324]
-kernel:    [__down+147/276] [__down_failed+8/12]
-[stext_lock+13538/52069] [error_code+16/64] [system_call+66/76]
+Sorry for a false alarm.
 
-Umm, this error_code thing is beyond my current knowledge. What's this?
-Some sort of assembly-glued exception handling? Any ideas how to figure
-out which semaphore this is?
-
-
--- 
-// Janne
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIHHyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWIHH4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWIHHyk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWIHHyk
+	id S1750765AbWIHH4k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWIHH4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:54:40 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:50143 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750825AbWIHHyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:54:40 -0400
-Subject: Re: [PATCH 2/8] Split the free lists into kernel and user parts
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060907190422.6166.49758.sendpatchset@skynet.skynet.ie>
-References: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
-	 <20060907190422.6166.49758.sendpatchset@skynet.skynet.ie>
-Content-Type: text/plain
-Date: Fri, 08 Sep 2006 09:54:00 +0200
-Message-Id: <1157702040.17799.40.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 8 Sep 2006 03:56:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:56744 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750765AbWIHH4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 03:56:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=WDSMse4Okt450VWsSelpauK+B7aHOTOKM8V0o8wKUF5TpNjM0i+pSmQNqRXyfyhqyHTMkrM87hVGkzk9ZEJhzpi5x5f7gp5It74FIzTgT6XgACfwPwZrMdFfw4YyEau1FKQX0Dul79p0wD/K2sFka16fh8BeS5ZCBhUe2L5xDoE=
+Message-ID: <45012222.20205@gmail.com>
+Date: Fri, 08 Sep 2006 09:56:18 +0200
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "J.A. Magallon" <jamagallon@ono.com>
+Subject: Re: [PATCH libata-dev#upstream-fixes] libata: ignore CFA signature
+ while sanity-checking an ATAPI device
+References: <20060901015818.42767813.akpm@osdl.org>	<20060904013443.797ba40b@werewolf.auna.net>	<20060903181226.58f9ea80.akpm@osdl.org>	<44FB929B.7080405@gmail.com>	<20060905002600.51c5e73b@werewolf.auna.net>	<44FFE7AF.8010808@gmail.com>	<20060907131327.494fd1c2@werewolf.auna.net>	<20060907113224.GA21853@htj.dyndns.org> <20060907132707.38e63155.akpm@osdl.org> <4500893D.6090907@pobox.com>
+In-Reply-To: <4500893D.6090907@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mel,
+Jeff Garzik wrote:
+> Andrew Morton wrote:
+>> You mean 2.6.18, yes?
+> 
+> Actually, it looks like it should indeed be 2.6.19 (libata #upstream), 
+> not 2.6.18 (libata #upstream-fixes).  Alan's "add compactflash support" 
+> patch isn't in 2.6.18-rc.
+> 
+> So, this should -not- be sent for 2.6.18.
 
-Looking good, some small nits follow.
+Hello,
 
-On Thu, 2006-09-07 at 20:04 +0100, Mel Gorman wrote:
+Yes, I meant .18.  Jeff, this should be fixed before 2.6.18 is released. 
+  It's not the question of whether CFA support is implemented or not. 
+We're sanity-checking in 2.6.18-rcX anyway and it's the sanity checking 
+which is causing problem.  What seems to have happened is...
 
-> +#define for_each_rclmtype_order(type, order) \
-> +	for (order = 0; order < MAX_ORDER; order++) \
-> +		for (type = 0; type < RCLM_TYPES; type++)
+1. CFA support is implemented
+2. CFA check was added (backported) to upstream-fixes, but it was incorrect.
 
-It seems odd to me that you have the for loops in reverse order of the
-arguments.
+So, we need to do one of two things.
 
-> +static inline int get_pageblock_type(struct page *page)
-> +{
-> +	return (PageEasyRclm(page) != 0);
-> +}
+* apply this patch to 2.6.18-rcX
+* remove ata_id_is_cfa() check altogether
 
-I find the naming a little odd, I would have suspected something like:
-get_page_blocktype() or thereabout since you're getting a page
-attribute.
-
-> +static inline int gfpflags_to_rclmtype(unsigned long gfp_flags)
-> +{
-> +	return ((gfp_flags & __GFP_EASYRCLM) != 0);
-> +}
-
-gfp_t argument?
-
-
+-- 
+tejun

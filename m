@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752045AbWIHC2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752051AbWIHCdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752045AbWIHC2G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 22:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752043AbWIHC2G
+	id S1752051AbWIHCdy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 22:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752052AbWIHCdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 22:28:06 -0400
-Received: from ccerelrim02.cce.hp.com ([161.114.21.23]:56869 "EHLO
-	ccerelrim02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1752039AbWIHC2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 22:28:02 -0400
-Message-ID: <4132.24.9.204.52.1157682479.squirrel@mail.cce.hp.com>
-In-Reply-To: <1157677028.2782.64.camel@sli10-desk.sh.intel.com>
-References: <B28E9812BAF6E2498B7EC5C427F293A4E38B52@orsmsx415.amr.corp.intel.com>
-    <1157573069.5713.24.camel@keithlap>
-    <1157594624.2782.45.camel@sli10-desk.sh.intel.com>
-    <200609070925.50145.bjorn.helgaas@hp.com>
-    <1157677028.2782.64.camel@sli10-desk.sh.intel.com>
-Date: Thu, 7 Sep 2006 20:27:59 -0600 (MDT)
-Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception 
-     code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-From: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-To: "Shaohua Li" <shaohua.li@intel.com>
-Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, kmannth@us.ibm.com,
-       "Moore, Robert" <robert.moore@intel.com>, "Len Brown" <lenb@kernel.org>,
-       "Mattia Dongili" <malattia@linux.it>, "Andrew Morton" <akpm@osdl.org>,
-       "lkml" <linux-kernel@vger.kernel.org>,
-       "linux acpi" <linux-acpi@vger.kernel.org>,
-       "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: SquirrelMail/1.4.8
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-PMX-Version: 5.1.2.240295, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.9.7.185944
+	Thu, 7 Sep 2006 22:33:53 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24960 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752051AbWIHCdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 22:33:53 -0400
+Date: Fri, 8 Sep 2006 12:33:39 +1000
+From: David Chinner <dgc@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, xfs@oss.sgi.com
+Subject: Re: Wrong free space reported for XFS filesystem
+Message-ID: <20060908023339.GF10950339@melbourne.sgi.com>
+References: <9a8748490609060154ye8730b0n16e23524010a35e4@mail.gmail.com> <20060906230238.GJ5737019@melbourne.sgi.com> <9a8748490609070717q6ed9111ckdc3de025dc44938b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490609070717q6ed9111ckdc3de025dc44938b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2006-09-07 at 09:25 -0600, Bjorn Helgaas wrote:
->> If we decide that "try HID first, then try CID" is the right thing,
->> I think we should figure out how to make that work.  Maybe that
->> means extending the driver model somehow.
-> Don't think it's easy, especially no other bus needs it I guess.
+On Thu, Sep 07, 2006 at 04:17:53PM +0200, Jesper Juhl wrote:
+> On 07/09/06, David Chinner <dgc@sgi.com> wrote:
+> >On Wed, Sep 06, 2006 at 10:54:34AM +0200, Jesper Juhl wrote:
+> >> For your information;
+> >>
+> >> I've been running a bunch of benchmarks on a 250GB XFS filesystem.
+> >> After the benchmarks had run for a few hours and almost filled up the
+> >> fs, I removed all the files and did a "df -h" with interresting
+> >> results :
+.....
+> >So the in-core accounting has underflowed by a small amount but the
+> >on disk accounting is correct.
+> >
+> >We've had a few reports of this that I know of over the past
+> >couple of years, but we've never managed to find a reproducable
+> >test case for it.
+> >Can you describe what benchmark you were runnin, wht kernel you were
+> >using
+> 
+> The kernel is 2.6.18-rc6 SMP
 
-I agree it's probably not easy, but I think having the right
-semantics is more important than fitting cleanly into the
-driver model.  But I know that without code, I'm just venting
-hot air, not contributing to a solution.
+Ok, so it's a current problem....
 
-How's the ACPI driver model integration going, anyway?  I seem
-to recall some patches a while back, but I don't think they're
-in the tree yet.
+> >and whether any of the tests hit  an ENOSPC condition?
+> >
+> That I don't know.
+> 
+> The script I was running is this one :
 
-> Do we really need the memory hotplug device returns pnp0c01/pnp0c02?
-> What's the purpose?
+<snip>
 
-I don't know.  But I think Keith already determined that a BIOS change
-is not likely.  I hate to ask for BIOS changes like this because it
-feels like asking them to avoid broken things in Linux.
+That doesn't really narrow down the scope at all. All that script
+tells me is that problem is <waves hands> somewhere inside XFS....  :/
+Can you try to isolate which of the loads is causing the problem?
 
+That being said, this looks like a good stress load - I'll pass it
+onto our QA folks...
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

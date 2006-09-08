@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWIHDOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752061AbWIHDS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752060AbWIHDOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 23:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752061AbWIHDOY
+	id S1752061AbWIHDS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 23:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWIHDS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 23:14:24 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:57535 "EHLO
+	Thu, 7 Sep 2006 23:18:29 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:27661 "EHLO
 	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1752060AbWIHDOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 23:14:23 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=yPdIENkGhpB93WJR3JgmyzMraerBYaKrxbE51yLUYxFpUV7pfhomeXYfN8kKUTjBBaJ6iZeYE/FcZXHYhtX+knpsEbEtls2azfNnw+1rz31hy1w2uIBOQyYLc3OzxpG6;
+	id S1752061AbWIHDS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Sep 2006 23:18:27 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=deLsjg3J6K93Dz4ZyS7YsyaHlTILP/wqrnxDXylB2FKL9OECat0XaBWLpnlAWLZaNXPzeUKYToEscdsYw807ZH0yNC+EE32B7qUiitHVEss+rPDdteyIFUpz8hV0a15s;
 X-IronPort-AV: i="4.08,227,1154926800"; 
-   d="scan'208"; a="76386590:sNHT25636554"
-Date: Thu, 7 Sep 2006 22:14:22 -0500
+   d="scan'208"; a="76388018:sNHT39026808"
+Date: Thu, 7 Sep 2006 22:18:28 -0500
 From: Matt Domsch <Matt_Domsch@dell.com>
 To: linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-Message-ID: <20060908031422.GA4549@lists.us.dell.com>
+Message-ID: <20060908031828.GB4549@lists.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,6 +25,7 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(added signed-off-by...)
 Problem:
 New Dell PowerEdge servers have 2 embedded ethernet ports, which are
 labeled NIC1 and NIC2 on the chassis, in the BIOS setup screens, and
@@ -103,6 +104,8 @@ that's both safe and appropriate in this instance.
 
 Thanks,
 Matt
+
+Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
 
 -- 
 Matt Domsch

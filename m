@@ -1,310 +1,283 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752117AbWIHEQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752156AbWIHEWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752117AbWIHEQN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 00:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752114AbWIHEQN
+	id S1752156AbWIHEWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 00:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752153AbWIHEWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 00:16:13 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:15031 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1752117AbWIHEQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 00:16:11 -0400
-To: cmm@us.ibm.com, adilger@clusterfs.com, johann.lombardi@bull.net
-Cc: linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RFC][4/4] ext4: fix rec_len overflow
-Message-Id: <20060908131604sho@rifu.tnes.nec.co.jp>
+	Fri, 8 Sep 2006 00:22:09 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:2056 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1752156AbWIHEWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 00:22:07 -0400
+Date: Fri, 8 Sep 2006 06:22:05 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: [PATCH] new capability patch, version 0.4.2 (now with fs support), part 1/4
+Message-ID: <20060908042205.GD24135@clipper.ens.fr>
 Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: sho@tnes.nec.co.jp
-Date: Fri, 8 Sep 2006 13:16:04 +0900
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Fri, 08 Sep 2006 06:22:06 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  [4/4]  ext4: fix rec_len overflow
-         - prevent rec_len from overflow with 64KB blocksize
+Here's the new version (0.4.2) of my capabilities patch,
+part 1/4 (increases capability sets to 64 bits).
 
+Explanations are on <URL: http://www.madore.org/~david/linux/newcaps/ >.
 
-Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
----
-diff -upNr -X linux-2.6.18-rc4-mingming/Documentation/dontdiff linux-2.6.18-rc4-mingming/fs/ext4/dir.c linux-2.6.18-rc4-mingming-tnes-no_compile/fs/ext4/dir.c
---- linux-2.6.18-rc4-mingming/fs/ext4/dir.c	2006-08-29 16:28:53.000000000 +0900
-+++ linux-2.6.18-rc4-mingming-tnes-no_compile/fs/ext4/dir.c	2006-09-04 11:15:16.000000000 +0900
-@@ -98,12 +98,11 @@ static int ext4_readdir(struct file * fi
- 	unsigned long offset;
- 	int i, stored;
- 	struct ext4_dir_entry_2 *de;
--	struct super_block *sb;
- 	int err;
- 	struct inode *inode = filp->f_dentry->d_inode;
-+	struct super_block *sb = inode->i_sb;
- 	int ret = 0;
--
--	sb = inode->i_sb;
-+	unsigned tail = sb->s_blocksize;
+ fs/open.c                  |    3 ++-
+ fs/proc/array.c            |    6 +++---
+ include/linux/capability.h |   30 +++++++++++++++++++-----------
+ kernel/capability.c        |   44 +++++++++++++++++++++++++++++++++++---------
+ security/commoncap.c       |   16 +++++++++++-----
+ security/dummy.c           |    6 +++---
+ 6 files changed, 73 insertions(+), 32 deletions(-)
+
+diff --git a/fs/open.c b/fs/open.c
+index 303f06d..e58a525 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -515,7 +515,8 @@ asmlinkage long sys_faccessat(int dfd, c
+ 	 * but we cannot because user_path_walk can sleep.
+ 	 */
+ 	if (current->uid)
+-		cap_clear(current->cap_effective);
++		current->cap_effective = cap_intersect(current->cap_effective,
++						       CAP_REGULAR_SET);
+ 	else
+ 		current->cap_effective = current->cap_permitted;
  
- #ifdef CONFIG_EXT4_INDEX
- 	if (EXT4_HAS_COMPAT_FEATURE(inode->i_sb,
-@@ -159,8 +158,11 @@ revalidate:
- 		 * readdir(2), then we might be pointing to an invalid
- 		 * dirent right now.  Scan from the start of the block
- 		 * to make sure. */
-+		if (tail >  EXT4_DIR_MAX_REC_LEN) {
-+			tail = EXT4_DIR_MAX_REC_LEN;
-+		}
- 		if (filp->f_version != inode->i_version) {
--			for (i = 0; i < sb->s_blocksize && i < offset; ) {
-+			for (i = 0; i < tail && i < offset; ) {
- 				de = (struct ext4_dir_entry_2 *)
- 					(bh->b_data + i);
- 				/* It's too expensive to do a full
-@@ -181,7 +183,7 @@ revalidate:
- 		}
+diff --git a/fs/proc/array.c b/fs/proc/array.c
+index 0b615d6..6724fc2 100644
+--- a/fs/proc/array.c
++++ b/fs/proc/array.c
+@@ -285,9 +285,9 @@ static inline char * task_sig(struct tas
  
- 		while (!error && filp->f_pos < inode->i_size
--		       && offset < sb->s_blocksize) {
-+		       && offset < tail) {
- 			de = (struct ext4_dir_entry_2 *) (bh->b_data + offset);
- 			if (!ext4_check_dir_entry ("ext4_readdir", inode, de,
- 						   bh, offset)) {
-@@ -217,6 +219,7 @@ revalidate:
- 			}
- 			filp->f_pos += le16_to_cpu(de->rec_len);
- 		}
-+		filp->f_pos = EXT4_DIR_ADJUST_TAIL_OFFS(filp->f_pos, sb->s_blocksize);
- 		offset = 0;
- 		brelse (bh);
- 	}
-diff -upNr -X linux-2.6.18-rc4-mingming/Documentation/dontdiff linux-2.6.18-rc4-mingming/fs/ext4/namei.c linux-2.6.18-rc4-mingming-tnes-no_compile/fs/ext4/namei.c
---- linux-2.6.18-rc4-mingming/fs/ext4/namei.c	2006-08-29 16:28:47.000000000 +0900
-+++ linux-2.6.18-rc4-mingming-tnes-no_compile/fs/ext4/namei.c	2006-09-04 11:15:16.000000000 +0900
-@@ -262,9 +262,13 @@ static struct stats dx_show_leaf(struct 
- 	unsigned names = 0, space = 0;
- 	char *base = (char *) de;
- 	struct dx_hash_info h = *hinfo;
-+	unsigned tail = size;
- 
- 	printk("names: ");
--	while ((char *) de < base + size)
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
-+	while ((char *) de < base + tail)
- 	{
- 		if (de->inode)
- 		{
-@@ -668,8 +672,12 @@ static int dx_make_map (struct ext4_dir_
- 	int count = 0;
- 	char *base = (char *) de;
- 	struct dx_hash_info h = *hinfo;
-+	unsigned tail = size;
- 
--	while ((char *) de < base + size)
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
-+	while ((char *) de < base + tail)
- 	{
- 		if (de->name_len && de->inode) {
- 			ext4fs_dirhash(de->name, de->name_len, &h);
-@@ -766,9 +774,13 @@ static inline int search_dirblock(struct
- 	int de_len;
- 	const char *name = dentry->d_name.name;
- 	int namelen = dentry->d_name.len;
-+	unsigned tail = dir->i_sb->s_blocksize;
- 
- 	de = (struct ext4_dir_entry_2 *) bh->b_data;
--	dlimit = bh->b_data + dir->i_sb->s_blocksize;
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
-+	dlimit = bh->b_data + tail;
- 	while ((char *) de < dlimit) {
- 		/* this code is executed quadratically often */
- 		/* do minimal checking `by hand' */
-@@ -1084,6 +1096,9 @@ static struct ext4_dir_entry_2* dx_pack_
- 	unsigned rec_len = 0;
- 
- 	prev = to = de;
-+	if (size > EXT4_DIR_MAX_REC_LEN) {
-+		size = EXT4_DIR_MAX_REC_LEN;
-+	}
- 	while ((char*)de < base + size) {
- 		next = (struct ext4_dir_entry_2 *) ((char *) de +
- 						    le16_to_cpu(de->rec_len));
-@@ -1154,8 +1169,15 @@ static struct ext4_dir_entry_2 *do_split
- 	/* Fancy dance to stay within two buffers */
- 	de2 = dx_move_dirents(data1, data2, map + split, count - split);
- 	de = dx_pack_dirents(data1,blocksize);
--	de->rec_len = cpu_to_le16(data1 + blocksize - (char *) de);
--	de2->rec_len = cpu_to_le16(data2 + blocksize - (char *) de2);
-+	if (blocksize < EXT4_DIR_MAX_REC_LEN) {
-+		de->rec_len = cpu_to_le16(data1 + blocksize - (char *) de);
-+		de2->rec_len = cpu_to_le16(data2 + blocksize - (char *) de2);
-+	} else {
-+		de->rec_len = cpu_to_le16(data1 + EXT4_DIR_MAX_REC_LEN -
-+							(char *) de);
-+		de2->rec_len = cpu_to_le16(data2 + EXT4_DIR_MAX_REC_LEN -
-+							(char *) de2);
-+	}
- 	dxtrace(dx_show_leaf (hinfo, (struct ext4_dir_entry_2 *) data1, blocksize, 1));
- 	dxtrace(dx_show_leaf (hinfo, (struct ext4_dir_entry_2 *) data2, blocksize, 1));
- 
-@@ -1202,11 +1224,15 @@ static int add_dirent_to_buf(handle_t *h
- 	unsigned short	reclen;
- 	int		nlen, rlen, err;
- 	char		*top;
-+	unsigned        tail = dir->i_sb->s_blocksize;
- 
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
- 	reclen = EXT4_DIR_REC_LEN(namelen);
- 	if (!de) {
- 		de = (struct ext4_dir_entry_2 *)bh->b_data;
--		top = bh->b_data + dir->i_sb->s_blocksize - reclen;
-+		top = bh->b_data + tail - reclen;
- 		while ((char *) de <= top) {
- 			if (!ext4_check_dir_entry("ext4_add_entry", dir, de,
- 						  bh, offset)) {
-@@ -1320,13 +1346,21 @@ static int make_indexed_dir(handle_t *ha
- 	/* The 0th block becomes the root, move the dirents out */
- 	fde = &root->dotdot;
- 	de = (struct ext4_dir_entry_2 *)((char *)fde + le16_to_cpu(fde->rec_len));
--	len = ((char *) root) + blocksize - (char *) de;
-+	if (blocksize < EXT4_DIR_MAX_REC_LEN) {
-+		len = ((char *) root) + blocksize - (char *) de;
-+	} else {
-+		len = ((char *) root) + EXT4_DIR_MAX_REC_LEN - (char *) de;
-+	}
- 	memcpy (data1, de, len);
- 	de = (struct ext4_dir_entry_2 *) data1;
- 	top = data1 + len;
- 	while ((char *)(de2=(void*)de+le16_to_cpu(de->rec_len)) < top)
- 		de = de2;
--	de->rec_len = cpu_to_le16(data1 + blocksize - (char *) de);
-+	if (blocksize < EXT4_DIR_MAX_REC_LEN) {
-+		de->rec_len = cpu_to_le16(data1 + blocksize - (char *) de);
-+	} else {
-+		de->rec_len = cpu_to_le16(data1 + EXT4_DIR_MAX_REC_LEN - (char *) de);
-+	}
- 	/* Initialize the root; the dot dirents already exist */
- 	de = (struct ext4_dir_entry_2 *) (&root->dotdot);
- 	de->rec_len = cpu_to_le16(blocksize - EXT4_DIR_REC_LEN(2));
-@@ -1416,7 +1450,11 @@ static int ext4_add_entry (handle_t *han
- 		return retval;
- 	de = (struct ext4_dir_entry_2 *) bh->b_data;
- 	de->inode = 0;
--	de->rec_len = cpu_to_le16(blocksize);
-+	if (blocksize < EXT4_DIR_MAX_REC_LEN) {
-+		de->rec_len = cpu_to_le16(blocksize);
-+	} else {
-+		de->rec_len = cpu_to_le16(EXT4_DIR_MAX_REC_LEN);
-+	}
- 	return add_dirent_to_buf(handle, dentry, inode, de, bh);
- }
- 
-@@ -1480,7 +1518,12 @@ static int ext4_dx_add_entry(handle_t *h
- 			goto cleanup;
- 		node2 = (struct dx_node *)(bh2->b_data);
- 		entries2 = node2->entries;
--		node2->fake.rec_len = cpu_to_le16(sb->s_blocksize);
-+		if (sb->s_blocksize < EXT4_DIR_MAX_REC_LEN) {
-+			node2->fake.rec_len = cpu_to_le16(sb->s_blocksize);
-+		} else {
-+			node2->fake.rec_len =
-+				cpu_to_le16(EXT4_DIR_MAX_REC_LEN);
-+		}
- 		node2->fake.inode = 0;
- 		BUFFER_TRACE(frame->bh, "get_write_access");
- 		err = ext4_journal_get_write_access(handle, frame->bh);
-@@ -1568,11 +1611,15 @@ static int ext4_delete_entry (handle_t *
+ static inline char *task_cap(struct task_struct *p, char *buffer)
  {
- 	struct ext4_dir_entry_2 * de, * pde;
- 	int i;
-+	unsigned tail = bh->b_size;
+-    return buffer + sprintf(buffer, "CapInh:\t%016x\n"
+-			    "CapPrm:\t%016x\n"
+-			    "CapEff:\t%016x\n",
++    return buffer + sprintf(buffer, "CapInh:\t%016llx\n"
++			    "CapPrm:\t%016llx\n"
++			    "CapEff:\t%016llx\n",
+ 			    cap_t(p->cap_inheritable),
+ 			    cap_t(p->cap_permitted),
+ 			    cap_t(p->cap_effective));
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index 6548b35..e4f6065 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -27,7 +27,8 @@ #include <linux/compiler.h>
+    library since the draft standard requires the use of malloc/free
+    etc.. */
+  
+-#define _LINUX_CAPABILITY_VERSION  0x19980330
++#define _LINUX_CAPABILITY_VERSION  0x20060903
++#define _LINUX_CAPABILITY_OLD_VERSION  0x19980330
  
- 	i = 0;
- 	pde = NULL;
- 	de = (struct ext4_dir_entry_2 *) bh->b_data;
--	while (i < bh->b_size) {
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
-+	while (i < tail) {
- 		if (!ext4_check_dir_entry("ext4_delete_entry", dir, de, bh, i))
- 			return -EIO;
- 		if (de == de_del)  {
-@@ -1747,7 +1794,11 @@ retry:
- 	de = (struct ext4_dir_entry_2 *)
- 			((char *) de + le16_to_cpu(de->rec_len));
- 	de->inode = cpu_to_le32(dir->i_ino);
--	de->rec_len = cpu_to_le16(inode->i_sb->s_blocksize-EXT4_DIR_REC_LEN(1));
-+	if (inode->i_sb->s_blocksize < EXT4_DIR_MAX_REC_LEN) {
-+		de->rec_len = cpu_to_le16(inode->i_sb->s_blocksize-EXT4_DIR_REC_LEN(1));
-+	} else  {   
-+		de->rec_len = cpu_to_le16(EXT4_DIR_MAX_REC_LEN-EXT4_DIR_REC_LEN(1));
-+	}
- 	de->name_len = 2;
- 	strcpy (de->name, "..");
- 	ext4_set_de_type(dir->i_sb, de, S_IFDIR);
-@@ -1782,10 +1833,10 @@ static int empty_dir (struct inode * ino
- 	unsigned long offset;
- 	struct buffer_head * bh;
- 	struct ext4_dir_entry_2 * de, * de1;
--	struct super_block * sb;
-+	struct super_block * sb = inode->i_sb;
- 	int err = 0;
-+	unsigned tail = sb->s_blocksize;
+ typedef struct __user_cap_header_struct {
+ 	__u32 version;
+@@ -35,10 +36,16 @@ typedef struct __user_cap_header_struct 
+ } __user *cap_user_header_t;
+  
+ typedef struct __user_cap_data_struct {
++        __u64 effective;
++        __u64 permitted;
++        __u64 inheritable;
++} __user *cap_user_data_t;
++ 
++typedef struct __user_cap_data_old_struct {
+         __u32 effective;
+         __u32 permitted;
+         __u32 inheritable;
+-} __user *cap_user_data_t;
++} __user *cap_user_data_old_t;
+   
+ #ifdef __KERNEL__
  
--	sb = inode->i_sb;
- 	if (inode->i_size < EXT4_DIR_REC_LEN(1) + EXT4_DIR_REC_LEN(2) ||
- 	    !(bh = ext4_bread (NULL, inode, 0, 0, &err))) {
- 		if (err)
-@@ -1812,11 +1863,17 @@ static int empty_dir (struct inode * ino
+@@ -50,12 +57,12 @@ #include <asm/current.h>
+ #ifdef STRICT_CAP_T_TYPECHECKS
+ 
+ typedef struct kernel_cap_struct {
+-	__u32 cap;
++	__u64 cap;
+ } kernel_cap_t;
+ 
+ #else
+ 
+-typedef __u32 kernel_cap_t;
++typedef __u64 kernel_cap_t;
+ 
+ #endif
+   
+@@ -310,12 +317,13 @@ #define cap_t(x) (x)
+ 
+ #endif
+ 
+-#define CAP_EMPTY_SET       to_cap_t(0)
+-#define CAP_FULL_SET        to_cap_t(~0)
+-#define CAP_INIT_EFF_SET    to_cap_t(~0 & ~CAP_TO_MASK(CAP_SETPCAP))
+-#define CAP_INIT_INH_SET    to_cap_t(0)
++#define CAP_EMPTY_SET       to_cap_t(0ULL)
++#define CAP_FULL_SET        to_cap_t(~0ULL)
++#define CAP_REGULAR_SET     to_cap_t(0xffffffff00000000ULL)
++#define CAP_INIT_EFF_SET    to_cap_t(~0ULL)
++#define CAP_INIT_INH_SET    to_cap_t(~0ULL)
+ 
+-#define CAP_TO_MASK(x) (1 << (x))
++#define CAP_TO_MASK(x) (1ULL << (x))
+ #define cap_raise(c, flag)   (cap_t(c) |=  CAP_TO_MASK(flag))
+ #define cap_lower(c, flag)   (cap_t(c) &= ~CAP_TO_MASK(flag))
+ #define cap_raised(c, flag)  (cap_t(c) & CAP_TO_MASK(flag))
+@@ -351,8 +359,8 @@ static inline kernel_cap_t cap_invert(ke
+ #define cap_isclear(c)       (!cap_t(c))
+ #define cap_issubset(a,set)  (!(cap_t(a) & ~cap_t(set)))
+ 
+-#define cap_clear(c)         do { cap_t(c) =  0; } while(0)
+-#define cap_set_full(c)      do { cap_t(c) = ~0; } while(0)
++#define cap_clear(c)         do { cap_t(c) =  0ULL; } while(0)
++#define cap_set_full(c)      do { cap_t(c) = ~0ULL; } while(0)
+ #define cap_mask(c,mask)     do { cap_t(c) &= cap_t(mask); } while(0)
+ 
+ #define cap_is_fs_cap(c)     (CAP_TO_MASK(c) & CAP_FS_MASK)
+diff --git a/kernel/capability.c b/kernel/capability.c
+index c7685ad..1233b1e 100644
+--- a/kernel/capability.c
++++ b/kernel/capability.c
+@@ -52,7 +52,8 @@ asmlinkage long sys_capget(cap_user_head
+      if (get_user(version, &header->version))
+ 	     return -EFAULT;
+ 
+-     if (version != _LINUX_CAPABILITY_VERSION) {
++     if (version != _LINUX_CAPABILITY_VERSION
++	 && version != _LINUX_CAPABILITY_OLD_VERSION) {
+ 	     if (put_user(_LINUX_CAPABILITY_VERSION, &header->version))
+ 		     return -EFAULT; 
+              return -EINVAL;
+@@ -82,8 +83,18 @@ out:
+      read_unlock(&tasklist_lock); 
+      spin_unlock(&task_capability_lock);
+ 
+-     if (!ret && copy_to_user(dataptr, &data, sizeof data))
+-          return -EFAULT; 
++     if (!ret) {
++	     if (version == _LINUX_CAPABILITY_OLD_VERSION) {
++		     struct __user_cap_data_old_struct data_old;
++		     data_old.effective = data_old.effective & 0xffffffffULL;
++		     data_old.permitted = data_old.permitted & 0xffffffffULL;
++		     data_old.inheritable = data_old.inheritable & 0xffffffffULL;
++		     if (copy_to_user(dataptr, &data_old, sizeof data_old))
++			     return -EFAULT;
++	     } else
++		     if (copy_to_user(dataptr, &data, sizeof data))
++			     return -EFAULT;
++     }
+ 
+      return ret;
+ }
+@@ -179,7 +190,8 @@ asmlinkage long sys_capset(cap_user_head
+      if (get_user(version, &header->version))
+ 	     return -EFAULT; 
+ 
+-     if (version != _LINUX_CAPABILITY_VERSION) {
++     if (version != _LINUX_CAPABILITY_VERSION
++	 && version != _LINUX_CAPABILITY_OLD_VERSION) {
+ 	     if (put_user(_LINUX_CAPABILITY_VERSION, &header->version))
+ 		     return -EFAULT; 
+              return -EINVAL;
+@@ -191,10 +203,23 @@ asmlinkage long sys_capset(cap_user_head
+      if (pid && pid != current->pid && !capable(CAP_SETPCAP))
+              return -EPERM;
+ 
+-     if (copy_from_user(&effective, &data->effective, sizeof(effective)) ||
+-	 copy_from_user(&inheritable, &data->inheritable, sizeof(inheritable)) ||
+-	 copy_from_user(&permitted, &data->permitted, sizeof(permitted)))
+-	     return -EFAULT; 
++     if (version == _LINUX_CAPABILITY_OLD_VERSION) {
++	     const cap_user_data_old_t data2 = (void *)data;
++	     __u32 w;
++	     if (copy_from_user(&w, &data2->effective, sizeof(w)))
++		     return -EFAULT;
++	     effective = (__u64)w | 0xffffffff00000000ULL;
++	     if (copy_from_user(&w, &data2->inheritable, sizeof(w)))
++		     return -EFAULT;
++	     inheritable = (__u64)w | 0xffffffff00000000ULL;
++	     if (copy_from_user(&w, &data2->permitted, sizeof(w)))
++		     return -EFAULT;
++	     permitted = (__u64)w | 0xffffffff00000000ULL;
++     } else
++	     if (copy_from_user(&effective, &data->effective, sizeof(effective)) ||
++		 copy_from_user(&inheritable, &data->inheritable, sizeof(inheritable)) ||
++		 copy_from_user(&permitted, &data->permitted, sizeof(permitted)))
++		     return -EFAULT; 
+ 
+      spin_lock(&task_capability_lock);
+      read_lock(&tasklist_lock);
+@@ -237,7 +262,8 @@ out:
+ int __capable(struct task_struct *t, int cap)
+ {
+ 	if (security_capable(t, cap) == 0) {
+-		t->flags |= PF_SUPERPRIV;
++		if (!cap_raised(CAP_REGULAR_SET, cap))
++			t->flags |= PF_SUPERPRIV;
  		return 1;
  	}
- 	offset = le16_to_cpu(de->rec_len) + le16_to_cpu(de1->rec_len);
-+	if (offset == EXT4_DIR_MAX_REC_LEN) {
-+		offset += sb->s_blocksize - EXT4_DIR_MAX_REC_LEN;
-+	}
- 	de = (struct ext4_dir_entry_2 *)
- 			((char *) de1 + le16_to_cpu(de1->rec_len));
-+	if (tail > EXT4_DIR_MAX_REC_LEN) {
-+		tail = EXT4_DIR_MAX_REC_LEN;
-+	}
- 	while (offset < inode->i_size ) {
- 		if (!bh ||
--			(void *) de >= (void *) (bh->b_data+sb->s_blocksize)) {
-+			(void *) de >= (void *) (bh->b_data + tail)) {
- 			err = 0;
- 			brelse (bh);
- 			bh = ext4_bread (NULL, inode,
-@@ -1843,6 +1900,7 @@ static int empty_dir (struct inode * ino
- 			return 0;
- 		}
- 		offset += le16_to_cpu(de->rec_len);
-+		offset = EXT4_DIR_ADJUST_TAIL_OFFS(offset, sb->s_blocksize);
- 		de = (struct ext4_dir_entry_2 *)
- 				((char *) de + le16_to_cpu(de->rec_len));
+ 	return 0;
+diff --git a/security/commoncap.c b/security/commoncap.c
+index f50fc29..91dc53d 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -244,13 +244,19 @@ static inline void cap_emulate_setxuid (
+ 					int old_suid)
+ {
+ 	if ((old_ruid == 0 || old_euid == 0 || old_suid == 0) &&
+-	    (current->uid != 0 && current->euid != 0 && current->suid != 0) &&
+-	    !current->keep_capabilities) {
+-		cap_clear (current->cap_permitted);
+-		cap_clear (current->cap_effective);
++	    (current->uid != 0 && current->euid != 0 && current->suid != 0)) {
++		if (!current->keep_capabilities) {
++			current->cap_permitted
++				= cap_intersect (current->cap_permitted,
++						 CAP_REGULAR_SET);
++			current->cap_effective
++				= cap_intersect (current->cap_effective,
++						 CAP_REGULAR_SET);
++		}
  	}
-diff -upNr -X linux-2.6.18-rc4-mingming/Documentation/dontdiff linux-2.6.18-rc4-mingming/include/linux/ext4_fs.h linux-2.6.18-rc4-mingming-tnes-no_compile/include/linux/ext4_fs.h
---- linux-2.6.18-rc4-mingming/include/linux/ext4_fs.h	2006-08-29 16:29:05.000000000 +0900
-+++ linux-2.6.18-rc4-mingming-tnes-no_compile/include/linux/ext4_fs.h	2006-09-04 11:27:13.000000000 +0900
-@@ -727,6 +727,15 @@ struct ext4_dir_entry_2 {
- #define EXT4_DIR_ROUND			(EXT4_DIR_PAD - 1)
- #define EXT4_DIR_REC_LEN(name_len)	(((name_len) + 8 + EXT4_DIR_ROUND) & \
- 					 ~EXT4_DIR_ROUND)
-+#define	EXT4_DIR_MAX_REC_LEN		65532
-+
-+/*
-+ * Align a tail offset to the end of a directory block
-+ */
-+#define EXT4_DIR_ADJUST_TAIL_OFFS(offs, bsize) \
-+	((((offs) & ((bsize) -1)) == EXT4_DIR_MAX_REC_LEN) ? \
-+	((offs) + (bsize) - EXT4_DIR_MAX_REC_LEN):(offs))
-+
- /*
-  * Hash Tree Directory indexing
-  * (c) Daniel Phillips, 2001
+ 	if (old_euid == 0 && current->euid != 0) {
+-		cap_clear (current->cap_effective);
++		current->cap_effective = cap_intersect (current->cap_effective,
++							CAP_REGULAR_SET);
+ 	}
+ 	if (old_euid != 0 && current->euid == 0) {
+ 		current->cap_effective = current->cap_permitted;
+diff --git a/security/dummy.c b/security/dummy.c
+index 58c6d39..572a15b 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -37,11 +37,11 @@ static int dummy_ptrace (struct task_str
+ static int dummy_capget (struct task_struct *target, kernel_cap_t * effective,
+ 			 kernel_cap_t * inheritable, kernel_cap_t * permitted)
+ {
+-	*effective = *inheritable = *permitted = 0;
++	*effective = *inheritable = *permitted = CAP_REGULAR_SET;
+ 	if (!issecure(SECURE_NOROOT)) {
+ 		if (target->euid == 0) {
+-			*permitted |= (~0 & ~CAP_FS_MASK);
+-			*effective |= (~0 & ~CAP_TO_MASK(CAP_SETPCAP) & ~CAP_FS_MASK);
++			*permitted |= (CAP_FULL_SET & ~CAP_FS_MASK);
++			*effective |= (CAP_FULL_SET & ~CAP_TO_MASK(CAP_SETPCAP) & ~CAP_FS_MASK);
+ 		}
+ 		if (target->fsuid == 0) {
+ 			*permitted |= CAP_FS_MASK;
+
+
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

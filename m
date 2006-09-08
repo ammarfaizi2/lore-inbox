@@ -1,81 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752181AbWIHEeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752174AbWIHEg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752181AbWIHEeD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 00:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752176AbWIHEd6
+	id S1752174AbWIHEg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 00:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752172AbWIHEg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 00:33:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:17574 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752174AbWIHEd4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 00:33:56 -0400
-Message-ID: <4500F2B2.4010204@us.ibm.com>
-Date: Thu, 07 Sep 2006 21:33:54 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-References: <20060901101801.7845bca2.akpm@osdl.org> <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com> <20060906124719.GA11868@atrey.karlin.mff.cuni.cz> <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com> <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com> <20060906172733.GC14345@atrey.karlin.mff.cuni.cz> <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com> <20060907223048.GD22549@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060907223048.GD22549@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Sep 2006 00:36:58 -0400
+Received: from 1wt.eu ([62.212.114.60]:21522 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1752114AbWIHEg4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 00:36:56 -0400
+Date: Fri, 8 Sep 2006 06:34:12 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       devel@openvz.org
+Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
+Message-ID: <20060908043412.GA7470@1wt.eu>
+References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org> <44FFF1A0.2060907@openvz.org> <Pine.LNX.4.64.0609070816170.27779@g5.osdl.org> <20060907200713.GB541@1wt.eu> <20060907164207.16745087.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060907164207.16745087.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara wrote:
->>>   Ugh! Are you sure? For this path the buffer must be attached (only) to
->>> the running transaction. But then how the commit code comes to it?
->>> Somebody would have to even manage to refile the buffer from the
->>> committing transaction to the running one while the buffer is in wbuf[].
->>> Could you check whether someone does __journal_refile_buffer() on your
->>> marked buffers, please? Or whether we move buffer to BJ_Locked list in
->>> the write_out_data: loop? Thanks.
->>>
->>> 							
->>>       
->> I added more debug in __journal_refile_buffer() to see if the marked
->> buffers are getting refiled. I am able to reproduce the problem,
->> but I don't see any debug including my original prints. (It looks as 
->> if none of my debug code exists) - its really confusing. 
->>
->> I will keep looking and get back to you.
->>     
->   I've been looking more at the code and I have revived my patch fixing
-> this part of the code. I've mildly tested the patch. Could you also give
-> it a try? Thanks.
->
-> 								Honza
->   
-> ------------------------------------------------------------------------
->
-> Original commit code assumes, that when a buffer on BJ_SyncData list is locked,
-> it is being written to disk. But this is not true and hence it can lead to a
-> potential data loss on crash. Also the code didn't count with the fact that
-> journal_dirty_data() can steal buffers from committing transaction and hence
-> could write buffers that no longer belong to the committing transaction.
-> Finally it could possibly happen that we tried writing out one buffer several
-> times.
->
-> The patch below tries to solve these problems by a complete rewrite of the data
-> commit code. We go through buffers on t_sync_datalist, lock buffers needing
-> write out and store them in an array. Buffers are also immediately refiled to
-> BJ_Locked list or unfiled (if the write out is completed). When the array is
-> full or we have to block on buffer lock, we submit all accumulated buffers for
-> IO.
->
-> Signed-off-by: Jan Kara <jack@suse.cz>
->
->   
-I have been running 4+ hours with this patch and seems to work fine. I 
-haven't hit any
-assert yet :)
+On Thu, Sep 07, 2006 at 04:42:07PM -0700, Andrew Morton wrote:
+> On Thu, 7 Sep 2006 22:07:14 +0200
+> Willy Tarreau <w@1wt.eu> wrote:
+> 
+> > On Thu, Sep 07, 2006 at 08:17:04AM -0700, Linus Torvalds wrote:
+> > > 
+> > > 
+> > > On Thu, 7 Sep 2006, Kirill Korotaev wrote:
+> > > > 
+> > > > Does the patch below looks better?
+> > > 
+> > > Yes. 
+> > > 
+> > > Apart from the whitespace corruption, that is.
+> > > 
+> > > I don't know how to get mozilla to not screw up whitespace.
+> 
+> Me either.  I've had a bug report in the mozilla system for maybe four
+> years concerning space-stuffing.  Occasionally it comes to life but afaict
+> nothing ever changes.
+> 
+> I expect it'd be pretty easy to undo the space-stuffing in git. 
 
-I will let it run till tomorrow. I will let you know, how it goes.
+Perhaps, but it should not be up to the versionning system to decide to
+change the contents of the patches which get merged. Otherwise, we will
+not be able to trust it as much as today.
 
-Thanks,
-Badari
+> In extremis I just do s/^  /^ / and it works.  An automated solution would
+> need to recognise the appropriate headers (Format=Flowed, iirc).
+
+perhaps for this case, but then what will prevent us from trying to
+implement dirtier features such as line un-wrapping ?
+
+> > maybe by using it to download mutt or something saner ? :-)
+> > 
+> > More seriously, while we don't like email attachments because they make
+> > it impossible to comment on a patch, maybe we should encourage people
+> > with broken mailers to post small patches in both forms :
+> >   - pure text for human review (spaces are not much of a problem here)
+> >   - MIME to apply the patch.
+> 
+> argh.  That means that email contains two copies of the patch.  So it
+> applies with `patch --dry-run' then causes havoc with `patch'
+
+except if the text version is mangled in order not to be detected as
+a patch. I suspect that inserting a space in front of "---" is enough
+for patch not to find it. Don't get me wrong, I know this is dirty.
+But as long as some people will use broken mailers, we'll get broken
+patches. Some people occasionnaly switch to attachments stating they
+have broken mailers, and others even post links to their patches,
+which is annoying for potential reviewers. If we could give them
+strict rules on how to proceed when they have such problems, it would
+make the job easier for others.
+
+willy
 

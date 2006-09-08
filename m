@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWIHJZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWIHJf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWIHJZa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 05:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWIHJZa
+	id S1750742AbWIHJf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 05:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWIHJf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 05:25:30 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:2720 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1750736AbWIHJZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 05:25:28 -0400
-From: Horms <horms@verge.net.au>
-To: vgoyal@in.ibm.com
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org
-User-Agent: tin/1.8.2-20060425 ("Shillay") (UNIX) (Linux/2.6.17-2-686 (i686))
-Message-Id: <20060908092524.E06FD34042@koto.vergenet.net>
-Date: Fri,  8 Sep 2006 18:25:24 +0900 (JST)
+	Fri, 8 Sep 2006 05:35:26 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:6382 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750742AbWIHJf0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 05:35:26 -0400
+Subject: Re: [stable] [patch 29/37] dvb-core: Proper handling ULE SNDU
+	length of 0
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Greg KH <greg@kroah.com>
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
+       Ang Way Chuang <wcang@nrg.cs.usm.my>,
+       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20060907153947.GB29602@kroah.com>
+References: <20060906224631.999046890@quad.kroah.org>
+	 <20060906225740.GD15922@kroah.com>
+	 <1157633876.30159.82.camel@aeonflux.holtmann.net>
+	 <20060907153947.GB29602@kroah.com>
+Content-Type: text/plain
+Date: Fri, 08 Sep 2006 13:31:13 +0200
+Message-Id: <1157715073.4128.6.camel@aeonflux.holtmann.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: [PATCH] Kcore elf note namesz field fix
-In-Reply-To: <20060905193222.GA29478@in.ibm.com>
-X-Newsgroups: gmane.linux.kernel,gmane.comp.boot-loaders.fastboot.general
+Hi Greg,
 
-On Tue, 5 Sep 2006 15:32:22 -0400, Vivek Goyal wrote:
+> > > ULE (Unidirectional Lightweight Encapsulation RFC 4326) decapsulation
+> > > code has a bug that allows an attacker to send a malformed ULE packet
+> > > with SNDU length of 0 and bring down the receiving machine. This patch
+> > > fix the bug and has been tested on version 2.6.17.11. This bug is 100%
+> > > reproducible and the modified source code (GPL) used to produce this bug
+> > > will be posted on http://nrg.cs.usm.my/downloads.htm shortly.  The
+> > > kernel will produce a dump during CRC32 checking on faulty ULE packet.
+> > 
+> > the upstream code changed for 2.6.18. It has a different way of
+> > addressing this issue, but it also changes a lot of other stuff in the
+> > whole code. However it might be worth looking at it, because the
+> > upstream code might be still vulnerable.
 > 
-> 
-> 
-> o As per ELF specifications, it looks like that elf note "namesz" field contains
->  the length of "name" including the size of null character. And 
->  currently we are filling "namesz" without taking into the consideration
->  the null character size.
-> 
-> o Kexec-tools performs this check deligently hence I ran into the issue
->  while trying to open /proc/kcore in kexec-tools for some info.
-> 
-> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> So we should not take this patch for 2.6.17.y?  Do you have a different
+> patch we should use instead?
 
-That is in keeping with my reading of pages 2-4 and 2-5
-of version 1.1 of the specification (is there a later version?)
+I have no idea. I don't have any DVB hardware for testing at hand. The
+patch looks sane and seems to fix this problem. However for upstream we
+can't apply it and upstream might not be vulnerable, because of the
+updated version. If upstream is not vulnerable, I would prefer we go
+with the upstream version. Anyway, not my call to make.
 
-Acked: Simon Horman <horms@verge.net.au>
+Regards
 
-> ---
-> 
-> fs/proc/kcore.c |    4 ++--
-> 1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff -puN fs/proc/kcore.c~kcore-elf-note-namesz-fix fs/proc/kcore.c
-> --- linux-2.6.18-rc3-1M/fs/proc/kcore.c~kcore-elf-note-namesz-fix	2006-08-31 16:10:41.000000000 -0400
-> +++ linux-2.6.18-rc3-1M-root/fs/proc/kcore.c	2006-08-31 16:10:41.000000000 -0400
-> @@ -100,7 +100,7 @@ static int notesize(struct memelfnote *e
-> 	int sz;
-> 
-> 	sz = sizeof(struct elf_note);
-> -	sz += roundup(strlen(en->name), 4);
-> +	sz += roundup((strlen(en->name) + 1), 4);
-> 	sz += roundup(en->datasz, 4);
-> 
-> 	return sz;
-> @@ -116,7 +116,7 @@ static char *storenote(struct memelfnote
-> 
-> #define DUMP_WRITE(addr,nr) do { memcpy(bufp,addr,nr); bufp += nr; } while(0)
-> 
-> -	en.n_namesz = strlen(men->name);
-> +	en.n_namesz = strlen(men->name) + 1;
-> 	en.n_descsz = men->datasz;
-> 	en.n_type = men->type;
-> 
-> _
+Marcel
+
 

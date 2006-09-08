@@ -1,40 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWIHJtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWIHKIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWIHJtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 05:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWIHJtw
+	id S1750770AbWIHKIK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 06:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWIHKIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 05:49:52 -0400
-Received: from anyanka.rfc1149.net ([81.56.47.149]:54223 "EHLO
-	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S1750754AbWIHJtw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 05:49:52 -0400
-Date: Fri, 8 Sep 2006 11:49:48 +0200
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <44FEAD7E.6010201@draigBrady.com> <2006-09-06-13-29-46+trackit+sam@rfc1149.net> <44FEB5B6.10008@draigBrady.com> <2006-09-06-14-07-50+trackit+sam@rfc1149.net> <20060906194149.GA2386@infomag.infomag.iguana.be> <2006-09-07-11-57-00+trackit+sam@rfc1149.net> <2006-09-07-18-44-52+trackit+sam@rfc1149.net> <45013506.1090500@draigBrady.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 8 Sep 2006 06:08:09 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:14564 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750770AbWIHKIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 06:08:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=aUZxnCmnDjWFxLV4OVcIUUfFwHMdFRQt76YszefITfSTtQm2oNDyk8tQLHx5naVYZvXp1sI7/l8xZyhvXclOlqdBRbSUXbcuopQeFnyLfCrwnAOZdw1izgZot2Rpoghv9O4HDEM/AHgmE4bZ3KTQ/7jNRJIjb4mC0T4BRBtAncw=
+Date: Fri, 8 Sep 2006 12:07:22 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc6-mm1
+Message-ID: <20060908120722.GA1121@slug>
+References: <20060908011317.6cb0495a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45013506.1090500@draigBrady.com>
-User-Agent: Mutt/1.5.11
-From: Samuel Tardieu <sam@rfc1149.net>
-Organization: RFC 1149 (see http://www.rfc1149.net/)
-X-WWW: http://www.rfc1149.net/sam
-X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
-X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
-Message-Id: <2006-09-08-11-49-49+trackit+sam@rfc1149.net>
+In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8/09, Pádraig Brady wrote:
+On Fri, Sep 08, 2006 at 01:13:17AM -0700, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> 
+Hi,
 
-| Personally I don't agree with disabling the watchdog on load.
-| If it is already started from the BIOS or GRUB for example,
-| there will be a large window of time/logic that is not protected.
+2.6.18-rc6-mm1 fails to build on x86 with !CONFIG_SMP with the following
+message:
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  CC      arch/i386/kernel/cpu/common.o
+arch/i386/kernel/cpu/common.c: In function `init_gdt':
+arch/i386/kernel/cpu/common.c:667: warning: implicit declaration of function `early_smp_processor_id'
+  LD      arch/i386/kernel/cpu/built-in.o
+  LD      arch/i386/kernel/built-in.o
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function `init_gdt':
+arch/i386/kernel/cpu/common.c:667: undefined reference to `early_smp_processor_id'
+arch/i386/kernel/built-in.o: In function `cpu_init':
+arch/i386/kernel/cpu/common.c:737: undefined reference to `early_smp_processor_id'
+make: *** [.tmp_vmlinux1] Error 1
 
-Not necessarily: you are free to load the module only when you are ready
-to run the controlling program.
+We need to include <asm/smp.h> to define early_smp_processor_id().
 
+Regards,
+Frederik
+
+
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+
+--- arch/i386/kernel/cpu/common.c~	2006-09-08 11:57:09.000000000 +0200
++++ arch/i386/kernel/cpu/common.c	2006-09-08 11:57:24.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include <asm/mmu_context.h>
+ #include <asm/mtrr.h>
+ #include <asm/mce.h>
++#include <asm/smp.h>
+ #ifdef CONFIG_X86_LOCAL_APIC
+ #include <asm/mpspec.h>
+ #include <asm/apic.h>

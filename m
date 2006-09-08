@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWIHU0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWIHUoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWIHU0K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 16:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWIHU0K
+	id S1751218AbWIHUoc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 16:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWIHUoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 16:26:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35289 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751209AbWIHU0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 16:26:08 -0400
-Date: Fri, 8 Sep 2006 16:33:10 -0400
-From: Dave Jones <davej@redhat.com>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, len.brown@intel.com
-Subject: Re: patch [0/2]: acpi: add generic removable drive bay support
-Message-ID: <20060908203310.GM28592@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-	Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, len.brown@intel.com
-References: <20060907161305.67804d14.kristen.c.accardi@intel.com> <20060908195842.GA17220@srcf.ucam.org> <20060908132123.16137ea3.kristen.c.accardi@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908132123.16137ea3.kristen.c.accardi@intel.com>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 8 Sep 2006 16:44:32 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:28947 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751218AbWIHUob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 16:44:31 -0400
+Date: Fri, 8 Sep 2006 16:44:30 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1
+In-Reply-To: <200609081626.43262.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.44L0.0609081636310.7953-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 01:21:23PM -0700, Kristen Carlson Accardi wrote:
- > On Fri, 8 Sep 2006 20:58:42 +0100
- > Matthew Garrett <mjg59@srcf.ucam.org> wrote:
- > 
- > > On Thu, Sep 07, 2006 at 04:13:05PM -0700, Kristen Carlson Accardi wrote:
- > > 
- > > Firstly, thanks for this - I wrote some related code a while ago. A 
- > > couple of questions...
- > > 
- > > > can then be used by udev to unmount or rescan depending on the event.  It will
- > > > create a proc entry under /proc/acpi/bay for "eject" and for "status".  Writing 
- > > 
- > > Do we really want it under /proc? It would seem to make more sense for 
- > > it to be under /sys.
- > 
- > I agree - this is under proc because this is an acpi driver, and the acpi
- > subsystem is still using the /proc fs for driver/user space interface. I
- > thought I would just conform to their standard.
+On Fri, 8 Sep 2006, Andrew Morton wrote:
 
-It's my understanding from talking with Len that he'd like to see /proc/acpi/
-go away over time, so adding more to it seems to be at odds with that goal.
- 
-	Dave
+> Alan, is this likely to be due to your USB PM changes?
+
+It's possible.  Most of those changes are innocuous.  They add routines
+that don't get used until a later patch.  However one of them might be
+responsible.
+
+
+On Fri, 8 Sep 2006, Rafael J. Wysocki wrote:
+
+> On Friday, 8 September 2006 10:13, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> 
+> ohci_hcd doesn't work after a resume from disk on HPC nx6325, worked on
+> 2.6.18-rc5-mm1.
+> 
+> It helps if I rmmod and modprobe it after the resume.
+
+This patch affects OHCI.  You can try reverting it, to see if that makes 
+any difference.  It probably should have been left out of -mm, since it 
+interacts pretty strongly with some later USB PM patches that did get left 
+out.
+
+	gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
+
+> Here's the relevant part of the dmesg output:
+> 
+> usb usb1: resuming
+>  usbdev1.1_ep00: PM: resume from 0, parent usb1 still 1
+> hub 1-0:1.0: PM: resume from 0, parent usb1 still 1
+> hub 1-0:1.0: resuming
+>  usbdev1.1: PM: resume from 0, parent usb1 still 1
+
+If reverting that patch doesn't help, please post the relevant dmesg log 
+after setting CONFIG_USB_DEBUG.
+
+Alan Stern
+

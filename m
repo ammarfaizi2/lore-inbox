@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWIHRoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWIHRsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWIHRoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWIHRoT
+	id S1751011AbWIHRsN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 13:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWIHRsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:44:19 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:54964 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1750897AbWIHRoT convert rfc822-to-8bit (ORCPT
+	Fri, 8 Sep 2006 13:48:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52881 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751003AbWIHRsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:44:19 -0400
-X-IronPort-AV: i="4.09,134,1157353200"; 
-   d="scan'208"; a="340468011:sNHT29413204"
-X-Mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: dprobe and kprobe support for ppc-32 bi arch.
-Date: Fri, 8 Sep 2006 10:44:17 -0700
-Message-ID: <F795765B112E7344AF36AA911279641502D19BA2@xmb-sjc-212.amer.cisco.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: dprobe and kprobe support for ppc-32 bi arch.
-Thread-Index: AcbTbmhofLlbdQYcSxO8Ae9ln4Gp/w==
-From: "Bizhan Gholikhamseh \(bgholikh\)" <bgholikh@cisco.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Sep 2006 17:44:18.0198 (UTC) FILETIME=[68A27B60:01C6D36E]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=bgholikh@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Fri, 8 Sep 2006 13:48:06 -0400
+Date: Fri, 8 Sep 2006 10:47:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: "Miles Lane" <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.18-rc4-mm3 -- ACPI Error (utglobal-0125): Unknown exception
+ code: 0xFFFFFFEA [20060707]
+Message-Id: <20060908104745.bff2449a.akpm@osdl.org>
+In-Reply-To: <200609081010.58186.bjorn.helgaas@hp.com>
+References: <a44ae5cd0608262356j29c0234cl198fb207bcad383d@mail.gmail.com>
+	<a44ae5cd0608270927w62216a00i70966f1e8a190878@mail.gmail.com>
+	<a44ae5cd0609072025i136f9a04ib01ba9c01f332b29@mail.gmail.com>
+	<200609081010.58186.bjorn.helgaas@hp.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I understand dprobe and kprobe is integrated with linux 2.6 version. I
-can not find the ppc 32 bit support. Am I missing something? 
-Where can I get the patch for ppc 32-bit if it exist?
- 
-Thanks,
-Bizhan
+On Fri, 8 Sep 2006 10:10:57 -0600
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+
+> On Thursday 07 September 2006 21:25, Miles Lane wrote:
+> > Ping...
+> > 
+> > I just reproduced this ACPI error with 2.6.18-rc5-mm1 + all hotfixes +
+> > a crypto patch from Herbert + two nodemgr patched from Stefan + a max
+> > trace depth patch from Ingo.
+> > 
+> > Any additional debug information needed?  Any progress?
+> 
+> We identified the patch that causes the ACPI unknown exception,
+> and I think Andrew will be removing it from the next -mm release.
+> 
+> If you want to try reverting it yourself, here's the patch:
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm3/broken-out/hot-add-mem-x86_64-acpi-motherboard-fix.patch
+
+Yes, that was omitted from rc6-mm1.

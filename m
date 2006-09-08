@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWIHN20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWIHNeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWIHN20 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 09:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWIHN2Z
+	id S1751104AbWIHNeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 09:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWIHNeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 09:28:25 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41858 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751103AbWIHN2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 09:28:25 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] proc: Make the generation of the self symlink table driven.
-References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com>
-	<20060907101512.3e3a9604.akpm@osdl.org>
-	<Pine.LNX.4.61.0609080906380.22545@yvahk01.tjqt.qr>
-	<m11wqmmxfw.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61.0609081507330.20566@yvahk01.tjqt.qr>
-Date: Fri, 08 Sep 2006 07:27:22 -0600
-In-Reply-To: <Pine.LNX.4.61.0609081507330.20566@yvahk01.tjqt.qr> (Jan
-	Engelhardt's message of "Fri, 8 Sep 2006 15:08:48 +0200 (MEST)")
-Message-ID: <m1fyf2lc91.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 8 Sep 2006 09:34:16 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:604 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751104AbWIHNeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 09:34:15 -0400
+Message-ID: <4501714F.9030709@tls.msk.ru>
+Date: Fri, 08 Sep 2006 17:34:07 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Oleg Verych <olecom@flower.upol.cz>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: re-reading the partition table on a "busy" drive
+References: <45004707.4030703@tls.msk.ru> <450105C0.2010603@flower.upol.cz> <Pine.LNX.4.61.0609080857090.30219@yvahk01.tjqt.qr> <20060908135858.GB14370@flower.upol.cz>
+In-Reply-To: <20060908135858.GB14370@flower.upol.cz>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+Oleg Verych wrote:
+[]
+> My anwser to this question: if it's so "pretty annoying", just let it be
+> "yes, do as i said !", not more and not less, just most ;).
 
->>>>> +	for (; nr < (ARRAY_SIZE(proc_base_stuff) - 1); filp->f_pos++, nr++) {
->>>>
->>> Also works without the () around ARRAY_SIZE(..)-1
->>
->>Sure.  But I don't really trust C precedence (because it is wrong)
->
-> Wrong? In mathematics, "a < (b - 1)" also is equivalent to "a < b - 1".
+Well, this whole question is already moot, as pointed out by Olaf.
+Because kernel already supports add/delete single partition ioctls,
+which is sufficient.  For my needs I already wrote a tiny hack which
+compares /proc/partitions with the output of `sfdisk -d' and re-adds
+anything which changed.  It should be possible to do the same with
+parted instead of {sf,cf,f}disk without using that hack, but hell,
+all those fdisks (parted included) sucks badly, each in its own way,
+so all are being used for different parts of the task, including the
+hack ;)
 
-In mathematics < is not an operation that yields a result in
-the domain of integers.  So  "(a < b) - 1" is impossible.
+Thanks.
 
-Regardless this isn't a case where the C precedence is wrong.
-"a < b | 1" is an example of C getting the precedence wrong.
-
-Having to remember where C is wrong and in what circumstances is
-harder than just putting in parenthesis.
-
-Eric
+/mjt

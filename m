@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752075AbWIHEAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752080AbWIHEFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752075AbWIHEAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 00:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWIHEAV
+	id S1752080AbWIHEFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 00:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752078AbWIHEFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 00:00:21 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:47878 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S1752075AbWIHEAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 00:00:20 -0400
-Date: Fri, 8 Sep 2006 06:00:06 +0200
-From: David Madore <david.madore@ens.fr>
-To: James Antill <james@and.org>
-Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060908040006.GA24135@clipper.ens.fr>
-References: <20060905212643.GA13613@clipper.ens.fr> <m3r6yn4jxg.fsf@code.and.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Sep 2006 00:05:20 -0400
+Received: from sd-green-bigip-98.dreamhost.com ([208.97.132.98]:56520 "EHLO
+	postalmail-a3.dreamhost.com") by vger.kernel.org with ESMTP
+	id S1752076AbWIHEFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 00:05:19 -0400
+From: shaw@vranix.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take17 1/4] kevent: Core files.
+Date: Thu, 7 Sep 2006 21:05:16 -0700
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+References: <1157623151215@2ka.mipt.ru>
+In-Reply-To: <1157623151215@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3r6yn4jxg.fsf@code.and.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Fri, 08 Sep 2006 06:00:08 +0200 (CEST)
+Message-Id: <200609072105.16061.shaw@vranix.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 02:21:15PM -0400, James Antill wrote:
->  Just a minor comment, can you break out the OPEN into at least
-> OPEN_R, OPEN_NONFILE_W and OPEN_W (possibly OPEN_A, but I don't want
-> that personally).
+> +static int __devinit kevent_user_init(void)
+> +{
+> +	int err = 0;
+> +
+> +	kevent_cache = kmem_cache_create("kevent_cache",
+> +			sizeof(struct kevent), 0, SLAB_PANIC, NULL, NULL);
+> +
+> +	err = misc_register(&kevent_miscdev);
+> +	if (err) {
+> +		printk(KERN_ERR "Failed to register kevent miscdev: err=%d.\n", err);
+> +		goto err_out_exit;
+> +	}
+> +
+> +	printk("KEVENT subsystem has been successfully registered.\n");
+> +
+> +	return 0;
+> +
+> +err_out_exit:
+> +	kmem_cache_destroy(kevent_cache);
+> +	return err;
+> +}
 
-Version 0.4.2 of the patch, which I'm about to post to the list, adds
-a CAP_REG_WRITE capability that is supposed to prevent any write
-operation to the filesystem.
+It's probably best to treat kmem_cache_create like a black box and check for 
+it returning null.
 
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Thanks,
+Shaw

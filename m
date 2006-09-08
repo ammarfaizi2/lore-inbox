@@ -1,49 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWIHMy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWIHM7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbWIHMy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 08:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWIHMy7
+	id S1751043AbWIHM7B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 08:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWIHM7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 08:54:59 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:62444 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750961AbWIHMy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 08:54:58 -0400
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] e-mail clients
-Date: Fri, 8 Sep 2006 14:54:39 +0200
-User-Agent: KMail/1.9.4
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>, "Victor Hugo" <victor@vhugo.net>
-References: <4500B2FB.8050805@vhugo.net> <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
-In-Reply-To: <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
+	Fri, 8 Sep 2006 08:59:01 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:47771 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1751033AbWIHM7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 08:59:00 -0400
+Message-ID: <45016909.4080908@linuxtv.org>
+Date: Fri, 08 Sep 2006 08:58:49 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Ang Way Chuang <wcang@nrg.cs.usm.my>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+Subject: Re: [patch 29/37] dvb-core: Proper handling ULE SNDU length of 0
+References: <20060906224631.999046890@quad.kroah.org> <20060906225740.GD15922@kroah.com>
+In-Reply-To: <20060906225740.GD15922@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609081454.40522.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:18d01dd0a2a377f0376b761557b5e99a
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 8. September 2006 10:24 schrieb Jesper Juhl:
-> On 08/09/06, Victor Hugo <victor@vhugo.net> wrote:
-> > As I've learned--most web-clients have a hard time sending text
-> > only e-mail without
-> > wrapping every single line (not very good for patches).  Any
-> > suggestions about which client to use on lkml?? Pine?? Mutt??
-> > Thunderbird?? Telnet??
->
-> I personally use both 'pine' and 'kmail' and they both work perfectly
-> for sending patches.
+Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 
-With kmail, you have control over line breaks with Option -> Wrap lines, 
-which is useful for e.g. pasted syslog data, but remember to enable it 
-before writing the message, since you have to manually add line breaks 
-for the entered text too.
+Greg,
 
-Inlined patches should be added via Message -> Insert File to preserve 
-line breaks and white space.
+Can we hold off on this until the 2.6.17.13 review cycle?  This patch
+has not been sent to the linux-dvb mailing list, it has not been
+reviewed or tested except for the Author and Marcel.
 
-Pete
+Please also add me to the cc list for the stable patches review.
+
+DVB maintainers,
+
+Marcel expressed some concerns about this patch on LKML, see thread:
+
+http://lkml.org/lkml/2006/9/6/314
+
+He says that the code in our mercurial tree, and in 2.6.18-rcX does this
+in a much nicer way, but that it involves some major changes.  If this
+patch seems acceptable, then we can apply it for 2.6.17.y, and the
+larger, more appropriate change will be seen when 2.6.18 gets released.
+
+I, myself, do not know enough about the internals of dvb_net ... but I
+think that we should agree to this patch before it gets applied to -stable
+
+Regards,
+
+Mike Krufky
+
+
+> 
+> ------------------
+> From: Ang Way Chuang <wcang@nrg.cs.usm.my>
+> 
+> ULE (Unidirectional Lightweight Encapsulation RFC 4326) decapsulation
+> code has a bug that allows an attacker to send a malformed ULE packet
+> with SNDU length of 0 and bring down the receiving machine. This patch
+> fix the bug and has been tested on version 2.6.17.11. This bug is 100%
+> reproducible and the modified source code (GPL) used to produce this bug
+> will be posted on http://nrg.cs.usm.my/downloads.htm shortly.  The
+> kernel will produce a dump during CRC32 checking on faulty ULE packet.
+> 
+> 
+> Signed-off-by: Ang Way Chuang <wcang@nrg.cs.usm.my>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+>  drivers/media/dvb/dvb-core/dvb_net.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.6.17.11.orig/drivers/media/dvb/dvb-core/dvb_net.c
+> +++ linux-2.6.17.11/drivers/media/dvb/dvb-core/dvb_net.c
+> @@ -492,7 +492,8 @@ static void dvb_net_ule( struct net_devi
+>  				} else
+>  					priv->ule_dbit = 0;
+>  
+> -				if (priv->ule_sndu_len > 32763) {
+> +				if (priv->ule_sndu_len > 32763 ||
+> +				    priv->ule_sndu_len < ((priv->ule_dbit) ? 4 : 4 + ETH_ALEN)) {
+>  					printk(KERN_WARNING "%lu: Invalid ULE SNDU length %u. "
+>  					       "Resyncing.\n", priv->ts_count, priv->ule_sndu_len);
+>  					priv->ule_sndu_len = 0;
+> 
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWIHRI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWIHRKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWIHRI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIHRI0
+	id S1750738AbWIHRKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 13:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWIHRKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:08:26 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:5022 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750745AbWIHRGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:06:19 -0400
+	Fri, 8 Sep 2006 13:10:10 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:18853 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750738AbWIHRKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 13:10:07 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=DwNDeDfvt1FN80m132N7alA6Uv5tljfab6nWeFpkNkE8V4e91CZ5aLNLw0rVP2xOe9GCZ4bfGOAMIbab56Gze0rq7j4iwupe1JX0Po0w7Za9RtP/LHd6pClCYuaydNvffHmIEGJg/HGPB1hJdwIP/me++ofiMdg0yXU5snbXHdA=
-Message-ID: <653402b90609081006ia158ba1y3f71e2b2e04f94f3@mail.gmail.com>
-Date: Fri, 8 Sep 2006 19:06:18 +0200
+        b=Z6T382y4FhkGEXmv2f+Y62fiG1FHIVY9YKfi8v50+h58lGC8GYZoOJVIj1ENTCys4394/6PsdMlN2UW9SLvqbXhGZGCO+bec4eDYhcq++Kxd0NaGo267nBSLX7j231ESnhhVXc0NMmCBmaiOI/t2rAVSxndByeKx1UYAOyv9EVg=
+Message-ID: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
+Date: Fri, 8 Sep 2006 19:10:06 +0200
 From: "Miguel Ojeda" <maxextreme@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: New Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
+Subject: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit

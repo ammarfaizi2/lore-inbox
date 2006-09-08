@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWIHW4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWIHW5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWIHW4x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 18:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWIHW4k
+	id S1751258AbWIHW5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 18:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWIHWzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 18:56:40 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:38313 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751250AbWIHW4f (ORCPT
+	Fri, 8 Sep 2006 18:55:12 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:17547 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751238AbWIHWy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 18:56:35 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1
-Date: Sat, 9 Sep 2006 00:57:48 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609081636310.7953-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0609081636310.7953-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609090057.49518.rjw@sisk.pl>
+	Fri, 8 Sep 2006 18:54:59 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Message-Id: <20060908225458.9340.81041.sendpatchset@kaori.pdx.zabbo.net>
+In-Reply-To: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>
+References: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>
+Subject: [PATCH 4/10] sysfs: use size_t length modifier in pr_debug format arguments
+Date: Fri,  8 Sep 2006 15:54:58 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 8 September 2006 22:44, Alan Stern wrote:
-> On Fri, 8 Sep 2006, Andrew Morton wrote:
-> 
-> > Alan, is this likely to be due to your USB PM changes?
-> 
-> It's possible.  Most of those changes are innocuous.  They add routines
-> that don't get used until a later patch.  However one of them might be
-> responsible.
+sysfs: use size_t length modifier in pr_debug format arguments
 
-Well, after recompiling the kernel for several times (because of a different
-problem) I'm no longer able to reproduce the problem.
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
 
-Sorry for the noise.
+ fs/sysfs/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Index: 2.6.18-rc6-debug-args/fs/sysfs/file.c
+===================================================================
+--- 2.6.18-rc6-debug-args.orig/fs/sysfs/file.c
++++ 2.6.18-rc6-debug-args/fs/sysfs/file.c
+@@ -157,8 +157,8 @@ sysfs_read_file(struct file *file, char 
+ 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+ 			goto out;
+ 	}
+-	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
+-		 __FUNCTION__,count,*ppos,buffer->page);
++	pr_debug("%s: count = %zd, ppos = %lld, buf = %s\n",
++		 __FUNCTION__, count, *ppos, buffer->page);
+ 	retval = flush_read_buffer(buffer,buf,count,ppos);
+ out:
+ 	up(&buffer->sem);

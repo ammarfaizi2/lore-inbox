@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWIHKbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWIHK2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWIHKbP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 06:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWIHKbP
+	id S1750716AbWIHK2I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 06:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWIHK2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 06:31:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:718 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750719AbWIHKbN (ORCPT
+	Fri, 8 Sep 2006 06:28:08 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:43684 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750716AbWIHK2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 06:31:13 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157669602.22705.326.camel@localhost.localdomain> 
-References: <1157669602.22705.326.camel@localhost.localdomain>  <1157583693.22705.254.camel@localhost.localdomain> <20060906125626.GA3718@elte.hu> <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com> <17274.1157553962@warthog.cambridge.redhat.com> <8934.1157622928@warthog.cambridge.redhat.com> 
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 08 Sep 2006 11:25:52 +0100
-Message-ID: <10720.1157711152@warthog.cambridge.redhat.com>
+	Fri, 8 Sep 2006 06:28:05 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: [RFC] e-mail clients
+Date: Fri, 8 Sep 2006 12:29:51 +0200
+User-Agent: KMail/1.9.1
+Cc: "Victor Hugo" <victor@vhugo.net>, linux-kernel@vger.kernel.org
+References: <4500B2FB.8050805@vhugo.net> <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
+In-Reply-To: <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609081229.52011.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Friday, 8 September 2006 10:24, Jesper Juhl wrote:
+> On 08/09/06, Victor Hugo <victor@vhugo.net> wrote:
+> >
+> >
+> > As I've learned--most web-clients have a hard time sending text only
+> > e-mail without
+> > wrapping every single line (not very good for patches).  Any suggestions
+> > about which client to use on lkml?? Pine?? Mutt??
+> > Thunderbird?? Telnet??
+> >
+> I personally use both 'pine' and 'kmail' and they both work perfectly
+> for sending patches.
 
-> No, you do a chain handler. Look at how I do it in
-> arch/powerpc/platform/pseries/setup.c for example. It's actually
-> trivial. You install a special flow handler (which means that there is
-> very little overhead, almost none, from the toplevel irq to the chained
-> irq). You can _also_ if you want just install an IRQ handler for the
-> cascaded controller and call generic_handle_irq (rather than __do_IRQ)
-> from it, but that has more overhead. A chained handler completely
-> relaces the flow handler for the cascade, and thus, if you don't need
-> all of the nits and bits of the other flow handlers for your cascade,
-> you can speed things up by hooking at that level.
-
-Please update Documentation/DocBook/genericirq.tmpl.  That doesn't mention it.
-
-David
+Confirmed.

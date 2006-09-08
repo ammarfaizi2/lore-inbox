@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWIHRLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWIHRNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWIHRLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWIHRLr
+	id S1750789AbWIHRNw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 13:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWIHRNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:11:47 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:27899 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750705AbWIHRLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:11:46 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=XkKauxpDdXmRQhqfo455M2ceE6c5O1zN/U9MuqMQGOHwQqX2p+xy72gCTWZSeuL2F
-	MTbgBScph8QiAut2TS1Eg==
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
-	memory)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+	Fri, 8 Sep 2006 13:13:52 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:48222 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750789AbWIHRNv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 13:13:51 -0400
+Message-ID: <4501A5B5.8050801@openvz.org>
+Date: Fri, 08 Sep 2006 21:17:41 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Hugh Dickins <hugh@veritas.com>
-In-Reply-To: <1157729450.26324.44.camel@localhost.localdomain>
-References: <44FD918A.7050501@sw.ru>
-	 <1157478392.3186.26.camel@localhost.localdomain>
-	 <1157501878.11268.77.camel@galaxy.corp.google.com>
-	 <1157729450.26324.44.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Fri, 08 Sep 2006 10:10:37 -0700
-Message-Id: <1157735437.1214.32.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+       devel@openvz.org
+Subject: [PATCH] add a note about "format=flowed" when sending patches
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 08:30 -0700, Dave Hansen wrote:
-> On Tue, 2006-09-05 at 17:17 -0700, Rohit Seth wrote:
-> > I'm wondering why not have different processes to serve different
-> > domains on the same physical server...particularly when they have
-> > different database to work on.
-> 
-> This is largely because this is I think how it is done today, and it has
-> a lot of disadvantages.
+add a note about "format=flowed" when sending patches
+and explain how to fix mozilla. Thunderbird has the similar
+options.
 
-If it has lot of disadvantages then we should try to avoid that
-mechanism.  Though I think it is okay to allow processes to be moved
-around with the clear expectation that it is a very heavy operation (as
-I think at least all the anon pages should be moved too along with task)
-and should not be generally done.
-
->   They also want to be able to account for
-> traffic on the same database.  Think of a large web hosting environment
-> where you charged everyone (hundreds or thousands of users) by CPU and
-> I/O bandwidth used at all levels of a given transaction.
-> 
-> > Is the amount of memory that you save by
-> > having a single copy that much useful that you are even okay to
-> > serialize the whole operation (What would happen, while the request for
-> > foo.com is getting worked on, there is another request for
-> > foo_bar.com...does it need to wait for foo.com request to get done
-> > before it can be served).
-> 
-> Let's put it this way.  Enterprise databases can be memory pigs.  It
-> isn't feasible to run hundreds or thousands of copies on each machine.  
-> 
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
 
-The extra cost is probably the stack and private data segment...yes
-there could be trade offs there depending on how big these segments are.
-Though if there are big shared segments then that can be charged to a
-single container.
-
-Thanks,
--rohit
+--- ./Documentation/SubmittingPatches.xdoc	2006-09-01 13:12:05.000000000 +0400
++++ ./Documentation/SubmittingPatches	2006-09-08 21:11:44.000000000 +0400
+@@ -209,6 +209,19 @@ Exception:  If your mailer is mangling p
+ you to re-send them using MIME.
+ 
+ 
++WARNING: Some mailers like Mozilla send your messages with
++---- message header ----
++Content-Type: text/plain; charset=us-ascii; format=flowed
++---- message header ----
++The problem is that "format=flowed" makes some of the mailers
++on receiving side to replace TABs with spaces and do similar
++changes. Thus the patches from you can look corrupted.
++
++To fix this just make your mozilla defaults/pref/mailnews.js file to look like:
++pref("mailnews.send_plaintext_flowed", false); // RFC 2646=======
++pref("mailnews.display.disable_format_flowed_support", true);
++
++
+ 
+ 7) E-mail size.
+ 
 

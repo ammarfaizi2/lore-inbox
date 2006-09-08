@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWIHAHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbWIHAKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751918AbWIHAHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Sep 2006 20:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751919AbWIHAHJ
+	id S1751747AbWIHAKc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Sep 2006 20:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWIHAKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Sep 2006 20:07:09 -0400
-Received: from mailfe06.tele2.fr ([212.247.154.172]:53205 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1751918AbWIHAHG (ORCPT
+	Thu, 7 Sep 2006 20:10:31 -0400
+Received: from main.gmane.org ([80.91.229.2]:63178 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751747AbWIHAKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Sep 2006 20:07:06 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Fri, 8 Sep 2006 02:06:02 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] no SA_NODEFER on sparc?
-Message-ID: <20060908000602.GJ8569@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 7 Sep 2006 20:10:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: David Abrahams <dave@boost-consulting.com>
+Subject: prepatching errors
+Date: Thu, 07 Sep 2006 20:01:52 -0400
+Message-ID: <87k64fz0nj.fsf@pereiro.peloton>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 216-15-125-177.c3-0.smr-ubr3.sbo-smr.ma.cable.rcn.com
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/23.0.0 (gnu/linux)
+Cancel-Lock: sha1:NuYcyizI/cO6B5JKcm2ri7WCz+A=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-I noticed that the sparc arch misses a definition for SA_NODEFER. Is
-that on purpose?  If not, here is a patch for fixing this.
+I'm trying to apply the 2.6.18-rc6 prepatch (from
+http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.18-rc6.bz2)
+to the 2.6.17.11 sources (from
+http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.11.tar.bz2) using
 
-Add SA_NODEFER, deprecating linuxish SA_NOMASK.
+  patch -p1 < ~/patch-2.6.18-rc6
 
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+and I'm seeing various error messages, e.g.:
 
-diff --git a/include/asm-sparc/signal.h b/include/asm-sparc/signal.h
-index d03a21c..5484f65 100644
---- a/include/asm-sparc/signal.h
-+++ b/include/asm-sparc/signal.h
-@@ -133,16 +133,19 @@ #define _SV_IGNCHILD  8u    /* Do not se
-  * the sigaction structure as a stack pointer. This is now possible due to
-  * the changes in signal handling. LBT 010493.
-  * SA_RESTART flag to get restarting signals (which were the default long ago)
-+ * SA_NOMASK is the historical Linux name for the Single Unix name NODEFER.
-  */
- #define SA_NOCLDSTOP	_SV_IGNCHILD
- #define SA_STACK	_SV_SSTACK
- #define SA_ONSTACK	_SV_SSTACK
- #define SA_RESTART	_SV_INTR
- #define SA_ONESHOT	_SV_RESET
--#define SA_NOMASK	0x20u
-+#define SA_NODEFER	0x20u
- #define SA_NOCLDWAIT	0x100u
- #define SA_SIGINFO	0x200u
- 
-+#define SA_NOMASK	SA_NODEFER
-+
- #define SIG_BLOCK          0x01	/* for blocking signals */
- #define SIG_UNBLOCK        0x02	/* for unblocking signals */
- #define SIG_SETMASK        0x04	/* for setting the signal mask */
-diff --git a/include/asm-sparc64/signal.h b/include/asm-sparc64/signal.h
-index 9968871..f40f2bc 100644
---- a/include/asm-sparc64/signal.h
-+++ b/include/asm-sparc64/signal.h
-@@ -134,16 +134,18 @@ #define _SV_IGNCHILD  8u    /* Do not se
-  * the sigaction structure as a stack pointer. This is now possible due to
-  * the changes in signal handling. LBT 010493.
-  * SA_RESTART flag to get restarting signals (which were the default long ago)
-+ * SA_NOMASK is the historical Linux name for the Single Unix name NODEFER.
-  */
- #define SA_NOCLDSTOP	_SV_IGNCHILD
- #define SA_STACK	_SV_SSTACK
- #define SA_ONSTACK	_SV_SSTACK
- #define SA_RESTART	_SV_INTR
- #define SA_ONESHOT	_SV_RESET
--#define SA_NOMASK	0x20u
-+#define SA_NODEFER	0x20u
- #define SA_NOCLDWAIT    0x100u
- #define SA_SIGINFO      0x200u
- 
-+#define SA_NOMASK	SA_NODEFER
- 
- #define SIG_BLOCK          0x01	/* for blocking signals */
- #define SIG_UNBLOCK        0x02	/* for unblocking signals */
+  patching file Makefile
+  Hunk #1 FAILED at 1.
+  1 out of 39 hunks FAILED -- saving rejects to file Makefile.rej
+
+  ...
+
+  patching file arch/um/kernel/time_kern.c
+  Reversed (or previously applied) patch detected!  Assume -R? [n] 
+  Apply anyway? [n] 
+  Skipping patch.
+  1 out of 1 hunk ignored -- saving rejects to file arch/um/kernel/time_kern.c.rej
+
+Am I doing something wrong?  Is this normal?
+
+I'm downloading the 2.6.17.11 tarball again just in case I've confused
+something, but I've been untaring the raw material from a file I have
+called linux-2.6.17.11.tar.bz2, so it seems unlikely.
+
+Any advice appreciated!
+
+Thanks,
+
+-- 
+Dave Abrahams
+Boost Consulting
+www.boost-consulting.com
+

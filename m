@@ -1,72 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWIHRRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWIHR06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWIHRRK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWIHRRK
+	id S1750908AbWIHR06 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 13:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWIHR06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:17:10 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:25085 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750806AbWIHRRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:17:09 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=PyWgyJLiz1bz/GcX1EQSix7Wq1aCqnkZ0qzKSMlnwu7LJ8BK7j8Pmvfsy9kA3VcPr
-	c9jGS989RTImOqtok6uGA==
-Message-ID: <4501A583.2050500@google.com>
-Date: Fri, 08 Sep 2006 10:16:51 -0700
-From: Edward Falk <efalk@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
+	Fri, 8 Sep 2006 13:26:58 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:21135 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750907AbWIHR05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 13:26:57 -0400
+Message-ID: <4501A7DD.8040305@watson.ibm.com>
+Date: Fri, 08 Sep 2006 13:26:53 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Proper /proc/pid/cmdline behavior when command line is corrupt?
-References: <mailman.3.1157626801.14788.linux-kernel-daily-digest@lists.us.dell.com> <4500D1E6.7020805@google.com> <Pine.LNX.4.61.0609080919130.22545@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0609080919130.22545@yvahk01.tjqt.qr>
+To: rohitseth@google.com
+CC: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Hugh Dickins <hugh@veritas.com>, Matt Helsley <matthltc@us.ibm.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<1157478392.3186.26.camel@localhost.localdomain>	<1157501878.11268.77.camel@galaxy.corp.google.com>	<1157729450.26324.44.camel@localhost.localdomain> <1157735437.1214.32.camel@galaxy.corp.google.com>
+In-Reply-To: <1157735437.1214.32.camel@galaxy.corp.google.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> Hi Edward,
-
->>that the environment buffer is assumed to immediately follow the
->>command line buffer.
+Rohit Seth wrote:
+> On Fri, 2006-09-08 at 08:30 -0700, Dave Hansen wrote:
+>> On Tue, 2006-09-05 at 17:17 -0700, Rohit Seth wrote:
+>>> I'm wondering why not have different processes to serve different
+>>> domains on the same physical server...particularly when they have
+>>> different database to work on.
+>> This is largely because this is I think how it is done today, and it has
+>> a lot of disadvantages.
+> 
+> If it has lot of disadvantages then we should try to avoid that
+> mechanism.  Though I think it is okay to allow processes to be moved
+> around with the clear expectation that it is a very heavy operation (as
+> I think at least all the anon pages should be moved too along with task)
+> and should not be generally done.
+> 
+>>   They also want to be able to account for
+>> traffic on the same database.  Think of a large web hosting environment
+>> where you charged everyone (hundreds or thousands of users) by CPU and
+>> I/O bandwidth used at all levels of a given transaction.
+>>
+>>> Is the amount of memory that you save by
+>>> having a single copy that much useful that you are even okay to
+>>> serialize the whole operation (What would happen, while the request for
+>>> foo.com is getting worked on, there is another request for
+>>> foo_bar.com...does it need to wait for foo.com request to get done
+>>> before it can be served).
+>> Let's put it this way.  Enterprise databases can be memory pigs.  It
+>> isn't feasible to run hundreds or thousands of copies on each machine.  
+>>
 > 
 > 
-> The environment buffer is not assumed to be there, it is _known_ to come right
-> after the argument string, because that is how the kernel sets it up on execve
-> (for x86 at least).
+> The extra cost is probably the stack and private data segment...
 
-Is that in a spec somewhere?  Otherwise, I would argue that it isn't 
-_known_ to come right after the argument string, it just _happens_ to 
-come right after the argument string.  This could change in future kernels.
+Also maintenability, licensing, blah, blah.
+Replicating the software stack for each service level one
+wishes to provide, if avoidable as it seems to be, isn't such a good idea.
+Same sort of reasoning for why containers make sense compared to Xen/VMWare
+instances.
 
+Memory resources, by their very nature, will be tougher to account when a
+single database/app server services multiple clients and we can essentially
+give up on that (taking the approach that only limited recharging can ever
+be achieved). But cpu atleast is easy to charge correctly and since that will
+also indirectly influence the requests for memory & I/O, its useful to allow
+middleware to change the accounting base for a thread/task.
 
+--Shailabh
 
->>I'm currently working on a patch that removes the one page limit on
->>the returned command line buffer but I'm not convinced I should
->>retain this behavior.
+> yes
+> there could be trade offs there depending on how big these segments are.
+> Though if there are big shared segments then that can be charged to a
+> single container.
+
+> 
+> Thanks,
+> -rohit
 > 
 > 
-> I think yes. proc_pid_cmdline() has these lines:
-> 
-> 	len = mm->arg_end - mm->arg_start
->   *	if (len > PAGE_SIZE)
->   *		len = PAGE_SIZE;
-> 	res = access_process_vm(task, mm->arg_start, buffer, len, 0);
-> 
-> 
-> and @buffer is allocated in the caller as only one page:
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 
-True, but that's an arbitrary limitation which I'm in the process of 
-removing.  I have a new version of proc_pid_cmdline() which will return 
-the entire commandline buffer no matter what its length.  If the 
-grab-more-data-from-environment-buffer behavior is actually broken, I'd 
-rather not propagate it to the new code.
-
-	-ed falk

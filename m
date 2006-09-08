@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWIHRGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWIHRI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWIHRGv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWIHRGv
+	id S1750745AbWIHRI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 13:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIHRI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:06:51 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:64178 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750819AbWIHRGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:06:50 -0400
+	Fri, 8 Sep 2006 13:08:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:5022 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750745AbWIHRGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 13:06:19 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=N/v82TWHCHj+/sqbkkJZCdcqqZXwH8BGE1bEj1nxHh42LLGTL7MCfvngmKcnDT6axqOcXLhIFKCIx0WlLlFSYeX/l/53dxTCHe/9vHiZJCL889QJpitd0IFjrPjNG/nHD9OR0uHWei7eNqLgpao9iVX8ERTzkBM60czbZqVngD4=
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take17 1/4] kevent: Core files.
-Date: Fri, 8 Sep 2006 10:06:38 -0700
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-References: <1157623151215@2ka.mipt.ru> <200609072105.16061.shaw@vranix.com> <20060908063808.GA28736@2ka.mipt.ru>
-In-Reply-To: <20060908063808.GA28736@2ka.mipt.ru>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=DwNDeDfvt1FN80m132N7alA6Uv5tljfab6nWeFpkNkE8V4e91CZ5aLNLw0rVP2xOe9GCZ4bfGOAMIbab56Gze0rq7j4iwupe1JX0Po0w7Za9RtP/LHd6pClCYuaydNvffHmIEGJg/HGPB1hJdwIP/me++ofiMdg0yXU5snbXHdA=
+Message-ID: <653402b90609081006ia158ba1y3f71e2b2e04f94f3@mail.gmail.com>
+Date: Fri, 8 Sep 2006 19:06:18 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: New Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609081006.38101.shaw@vranix.com>
-From: shawvrana@gmail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I stand corrected.
+Hi,
 
-On Thursday 07 September 2006 23:38, Evgeniy Polyakov wrote:
-> On Thu, Sep 07, 2006 at 09:05:16PM -0700, shaw@vranix.com (shaw@vranix.com) 
-wrote:
-> > > +static int __devinit kevent_user_init(void)
-> > > +{
-> > > +	int err = 0;
-> > > +
-> > > +	kevent_cache = kmem_cache_create("kevent_cache",
-> > > +			sizeof(struct kevent), 0, SLAB_PANIC, NULL, NULL);
-> > > +
-> > > +	err = misc_register(&kevent_miscdev);
-> > > +	if (err) {
-> > > +		printk(KERN_ERR "Failed to register kevent miscdev: err=%d.\n",
-> > > err); +		goto err_out_exit;
-> > > +	}
-> > > +
-> > > +	printk("KEVENT subsystem has been successfully registered.\n");
-> > > +
-> > > +	return 0;
-> > > +
-> > > +err_out_exit:
-> > > +	kmem_cache_destroy(kevent_cache);
-> > > +	return err;
-> > > +}
-> >
-> > It's probably best to treat kmem_cache_create like a black box and check
-> > for it returning null.
->
-> It can not return NULL, it will panic instead since I use SLAB_PANIC
-> flag.
->
-> > Thanks,
-> > Shaw
+I have just finished a driver for the cfag12864b Crystalfontz 128x64
+2-color Graphic LCD Series. You can check them at:
+http://www.crystalfontz.com/products/12864b/
+
+The drivers use the parallel port (data & control). Although the
+company doesn't recommend it, they say the cfag12864b works fine that
+way. The (unofficial) wiring is described at:
+http://liquid-mp3.schijf.org/schematics/wiring_CFAG12864BTMIV.gif The
+wiring as seen is used by Windows programs like LCDStudio, so although
+it isn't official, it's the most popular, so I wrote the driver
+expecting that wiring.
+
+The driver works fine, the interface is easy (I think) and I have done
+as many tests as I could. I have tried it on some computers, some
+different kernel versions with two different LCDs and works well on
+all configurations.
+
+Because this kind of driver is unusual and I'm a newbie device driver
+writer, I would like to receive some answers/help/suggestions:
+
+1. The cfag12864b has two ks0108 controllers. Each one share the same
+wiring, so you have to set one bit to tell the cfag12864b which
+controller are you talking to. So I wrote a small driver for the
+ks0108 controller, and then a more general cfag12864b driver which
+depends on the ks0108 driver. This way, other programmers could use
+the ks0108 driver and easily write more Graphic LCD drivers which uses
+the same controller, instead of rewriting all the code: "Do one thing
+and do it well.". I thought it was the right way to approach the
+problem. Was it?
+
+2. The driver right now is requesting ports using request_region at
+init time. I know there are the parport_pc, parport and lp drivers. I
+set the port as a module parameter, so you can change it easily. That
+way, you can load both parport and cfag12864b modules. Still, I'm not
+sure if it is the right approach. Should I use the parport interface
+to request and use the ports, or leave the driver as is?
+
+3. The module uses a external script to create the neccesary devices.
+By now, I have just one device, some like /dev/cfag12864b0 where you
+can write, and it will be printed on the screen. Although I have tried
+to simplify it as much as possible, still you have to know the way the
+LCD is going to print the data you send. Just reading the driver
+documentation or doing two or three "echo hello > /dev/cfag12864b0"
+you can figure out how your user-space application should write the
+device. Still, I wrote a example function application that reads a
+128x64 boolean matrix and writes a 1024 bytes vector (128*64/8)
+properly that you can send to the device. I can easily write a new
+device, like /dev/cfag12864b0matrix where you can write the 128x64
+matrix directly, without worrying anything else. But, on the other
+side, although it is simpler, I think it is worse, because you have to
+wait until you receive all the boolean matrix before the driver can
+start converting it to the cfag12864b format. If this makes no sense,
+please tell me, I will explain it further.
+
+4. I would like to release the driver to the public, GPL'ed. Has it
+any possibility to enter in the mainstream kernel? Who can review it?
+...?
+
+It is my first attempt to write an useful Linux device driver, so I
+expect this won't be a lame :-)
+
+Thank you,
+
+          Miguel Ojeda

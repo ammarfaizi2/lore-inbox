@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWIHV0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWIHV2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWIHV0G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 17:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWIHV0G
+	id S1751163AbWIHV2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 17:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWIHV2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 17:26:06 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:16389 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751206AbWIHV0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 17:26:03 -0400
-Date: Fri, 8 Sep 2006 17:26:01 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Oliver Neukum <oliver@neukum.org>
-cc: paulmck@us.ibm.com, David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-In-Reply-To: <200609082230.22225.oliver@neukum.org>
-Message-ID: <Pine.LNX.4.44L0.0609081723350.7953-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Sep 2006 17:28:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:206 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751163AbWIHV2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 17:28:19 -0400
+Subject: Re: [PATCH -rt] use SA_NODELAY for XScale PMU interrupts
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kevin Hilman <khilman@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4501C2FE.40109@mvista.com>
+References: <4501C2FE.40109@mvista.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 08 Sep 2006 23:27:49 +0200
+Message-Id: <1157750869.30730.137.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Sep 2006, Oliver Neukum wrote:
-
-> It seems you are correct.
-> Therefore the correct code on CPU 1 would be:
+On Fri, 2006-09-08 at 12:22 -0700, Kevin Hilman wrote:
+> In the XScale oprofile support, the performance monitoring unit (PMU)
+> triggers interrupts and the ISR reads out the performance data.  These
+> ISRs are currently set to SA_INTERRUPT.  In order to get accurate
+> performance and profiling data under PREEMPT_RT, these should use
+> SA_NODELAY.  The functions called by this ISR are limited to
+> drivers/oprofile functions.
 > 
-> y = -1;
-> b = 1;
-> //mb();
-> //x = a;
-> while (y < 0) relax();
-> 
-> mb();
-> x = a;
-> 
-> assert(x==1 || y==1);   //???
-> 
-> And yes, it is confusing. I've been forced to change my mind twice.
+> Patch against 2.6.18-rt8
 
-Again you have misunderstood.  The original code was _not_ incorrect.  I 
-was asking: Given the code as stated, would the assertion ever fail?
 
-The code _was_ correct for my purposes, namely, to illustrate a technical 
-point about the behavior of memory barriers.
+hmm I thought the SA_ flags were deprecated ???
 
-Alan
 

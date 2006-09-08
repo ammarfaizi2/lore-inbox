@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWIHHJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWIHHNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751878AbWIHHJR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWIHHJR
+	id S1751881AbWIHHNh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWIHHNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:09:17 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:36480 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751878AbWIHHJQ (ORCPT
+	Fri, 8 Sep 2006 03:13:37 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:62870 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751881AbWIHHNg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:09:16 -0400
-Date: Fri, 8 Sep 2006 09:07:01 +0200 (MEST)
+	Fri, 8 Sep 2006 03:13:36 -0400
+Date: Fri, 8 Sep 2006 09:13:16 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] proc: Make the generation of the self symlink table
- driven.
-In-Reply-To: <20060907101512.3e3a9604.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0609080906380.22545@yvahk01.tjqt.qr>
-References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com> <20060907101512.3e3a9604.akpm@osdl.org>
+To: Victor Hugo <victor@vhugo.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] e-mail clients
+In-Reply-To: <4500B2FB.8050805@vhugo.net>
+Message-ID: <Pine.LNX.4.61.0609080912270.22545@yvahk01.tjqt.qr>
+References: <4500B2FB.8050805@vhugo.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Report: Content analysis: 0.0 points, 6.0 required
@@ -25,25 +24,20 @@ X-Spam-Report: Content analysis: 0.0 points, 6.0 required
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> As I've learned--most web-clients have a hard time sending text only e-mail
+> without
+> wrapping every single line (not very good for patches).  Any suggestions about
+> which client to use on lkml?? Pine?? Mutt??
 
->> +static struct pid_entry proc_base_stuff[] = {
->> +	NOD(PROC_TGID_INO, 	"self", S_IFLNK|S_IRWXUGO,
->> +		&proc_self_inode_operations, NULL, {}),
->> +	{}
->> +};
->
->We could save a bunch of bytes here.
->
->> +	/* Lookup the directory entry */
->> +	for (p = proc_base_stuff; p->name; p++) {
->
->By using ARRAY_SIZE here.
->
->> +	for (; nr < (ARRAY_SIZE(proc_base_stuff) - 1); filp->f_pos++, nr++) {
->
->like that does.
+pine does the job.
 
-Also works without the () around ARRAY_SIZE(..)-1
+> Thunderbird?? Telnet??
+
+Thunderbird is said to not by default, and that you need to set some 
+option first.
+
+Telnet is something very different.
 
 
 

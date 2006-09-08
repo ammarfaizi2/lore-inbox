@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWIHHjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIHHyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWIHHjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIHHjI
+	id S1750825AbWIHHyk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWIHHyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:39:08 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:18701 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S1750711AbWIHHjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:39:04 -0400
-Date: Fri, 8 Sep 2006 09:38:59 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc6] ext3 memory leak
-In-Reply-To: <20060907093417.54d2adf1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.63.0609080933390.1700@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0609071300330.1700@pcgl.dsa-ac.de>
- <Pine.LNX.4.63.0609071657490.1700@pcgl.dsa-ac.de> <20060907093417.54d2adf1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 8 Sep 2006 03:54:40 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:50143 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750825AbWIHHyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 03:54:40 -0400
+Subject: Re: [PATCH 2/8] Split the free lists into kernel and user parts
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060907190422.6166.49758.sendpatchset@skynet.skynet.ie>
+References: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie>
+	 <20060907190422.6166.49758.sendpatchset@skynet.skynet.ie>
+Content-Type: text/plain
+Date: Fri, 08 Sep 2006 09:54:00 +0200
+Message-Id: <1157702040.17799.40.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Sep 2006, Andrew Morton wrote:
+Hi Mel,
 
-> It is expected that in this situation the number of buffer_head objects will
-> be approximately equal to the number of pagecache pages.  So once the pagecache
-> has grown to consume all available memory and the kernel starts to perform pagecache
-> reclaim, the buffer_head count should stabilise.
+Looking good, some small nits follow.
 
-Ok, thanks that's exactly what I had to know - makes sense now.
+On Thu, 2006-09-07 at 20:04 +0100, Mel Gorman wrote:
 
-Sorry for a false alarm.
+> +#define for_each_rclmtype_order(type, order) \
+> +	for (order = 0; order < MAX_ORDER; order++) \
+> +		for (type = 0; type < RCLM_TYPES; type++)
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+It seems odd to me that you have the for loops in reverse order of the
+arguments.
+
+> +static inline int get_pageblock_type(struct page *page)
+> +{
+> +	return (PageEasyRclm(page) != 0);
+> +}
+
+I find the naming a little odd, I would have suspected something like:
+get_page_blocktype() or thereabout since you're getting a page
+attribute.
+
+> +static inline int gfpflags_to_rclmtype(unsigned long gfp_flags)
+> +{
+> +	return ((gfp_flags & __GFP_EASYRCLM) != 0);
+> +}
+
+gfp_t argument?
+
+

@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWIHQGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWIHQIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWIHQGy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 12:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWIHQGy
+	id S1750826AbWIHQIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 12:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWIHQIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 12:06:54 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:55813 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1750827AbWIHQGx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 12:06:53 -0400
-From: Ondrej Zary <linux@rainbow-software.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [RFC] e-mail clients
-Date: Fri, 8 Sep 2006 18:06:49 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <4500B2FB.8050805@vhugo.net> <200609081454.40522.hpj@urpla.net> <200609080918.47693.gene.heskett@verizon.net>
-In-Reply-To: <200609080918.47693.gene.heskett@verizon.net>
+	Fri, 8 Sep 2006 12:08:16 -0400
+Received: from web36612.mail.mud.yahoo.com ([209.191.85.29]:62303 "HELO
+	web36612.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750826AbWIHQIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 12:08:15 -0400
+Message-ID: <20060908160814.64210.qmail@web36612.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Fri, 8 Sep 2006 09:08:14 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20060908104550.GA920@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609081806.50087.linux@rainbow-software.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 September 2006 15:18, Gene Heskett wrote:
-> On Friday 08 September 2006 08:54, Hans-Peter Jansen wrote:
-> >Am Freitag, 8. September 2006 10:24 schrieb Jesper Juhl:
-> >> On 08/09/06, Victor Hugo <victor@vhugo.net> wrote:
-> >> > As I've learned--most web-clients have a hard time sending text
-> >> > only e-mail without
-> >> > wrapping every single line (not very good for patches).  Any
-> >> > suggestions about which client to use on lkml?? Pine?? Mutt??
-> >> > Thunderbird?? Telnet??
-> >>
-> >> I personally use both 'pine' and 'kmail' and they both work perfectly
-> >> for sending patches.
-> >
-> >With kmail, you have control over line breaks with Option -> Wrap lines,
-> >which is useful for e.g. pasted syslog data, but remember to enable it
-> >before writing the message, since you have to manually add line breaks
-> >for the entered text too.
-> >
-> >Inlined patches should be added via Message -> Insert File to preserve
-> >line breaks and white space.
->
-> But be sure and turn word wrapping off before inserting the file, or
-> pasting (usually bad I might add).  And my version of kmail wraps the
-> whole document if the wrapping is turned back on, as it is now.  Which
-> makes it rather frustrating.
 
-To workaround this, I first type the message with wordwrapping on, then close 
-the message window and let it save the message to Drafts. Then repoen the 
-message from Drafts, turn off wordwrap and insert the patch using 
-Message->Insert File. It's not great but still better than Thunderbird.
 
->
-> >Pete
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Ondrej Zary
+There is lots of talk regarding the interaction
+between setuid and capabilities. While the
+current semanitics that lack file system
+support include (of necessity) interaction
+the intent of the POSIX scheme completely
+divorces the setuid mechanism from the
+capability scheme. The intention on a system
+that supports file system capabilities is
+that the setuid bit is a ignored in the
+capability calculation, allowing for a system
+on which root is just another user. The
+capability inheritance machanism is
+complicated, but that is in support of
+the ability to mark a program with a limited
+set of privilege so that setuid root need
+not be used.
+
+Does anyone need a pointer to the POSIX
+draft document? They include extensive if
+somewhat disjointed rationale sections.
+
+http://wt.tuxomania.net/publications/posix.1e/download.html
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com

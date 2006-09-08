@@ -1,180 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWIHLSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWIHLdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWIHLSq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 07:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIHLSq
+	id S1750818AbWIHLdu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 07:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWIHLdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 07:18:46 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:26700 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750810AbWIHLSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 07:18:45 -0400
-Date: Fri, 8 Sep 2006 13:18:02 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/2] convert s390 page handling macros to functions.
-Message-ID: <20060908111802.GB6913@osiris.boeblingen.de.ibm.com>
+	Fri, 8 Sep 2006 07:33:50 -0400
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:11668 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1750818AbWIHLds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 07:33:48 -0400
+In-Reply-To: <20060907191434.0682c7e4.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+Subject: Re: [Problem] System hang when I run pounder and syscall test on kernel
+ 2.6.18-rc5
+X-Mailer: Lotus Notes Release 7.0 August 18, 2005
+Message-ID: <OFDEF165C1.4EC97DB2-ON482571E3.003A211D-482571E3.003F7CC6@cn.ibm.com>
+From: Shu Qing Yang <yangshuq@cn.ibm.com>
+Date: Fri, 8 Sep 2006 19:36:40 +0800
+X-MIMETrack: Serialize by Router on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 09/08/2006 19:36:49,
+	Serialize complete at 09/08/2006 19:36:49
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
- 
-[patch 2/2] convert s390 page handling macros to functions.
+Andrew Morton <akpm@osdl.org> wrote on 2006-09-08 10:14:34:
 
-Convert s390 page handling macros to functions. In particular this fixes a
-problem with s390's SetPageUptodate macro which uses its input parameter
-twice which again can cause subtle bugs.
- 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
---- 
+> On Thu, 7 Sep 2006 12:35:09 +0800
+> Shu Qing Yang <yangshuq@cn.ibm.com> wrote:
+> 
+> > Problem description:
+> >     I run pounder, scsi_debug on a machine. Then start 200 random 
+syscall 
+> > test 
+> > simultaneously. Tens of minutes later, the system hang.
+> 
+> What is "pounder" and from where can it be obtained?
+> 
+Thanks for your reply.
 
- include/asm-s390/pgtable.h |   85 +++++++++++++++++++++------------------------
- include/linux/page-flags.h |   11 ++---
- 2 files changed, 46 insertions(+), 50 deletions(-)
+Pounder is part of ltp and locate in LTPROOT/testcases/pounder21. 
+It is a suit of test cases including mem_alloc, random_syscall, bonnie++, 
+etc.
 
-Index: linux-2.6/include/linux/page-flags.h
-===================================================================
---- linux-2.6.orig/include/linux/page-flags.h	2006-09-08 13:09:43.000000000 +0200
-+++ linux-2.6/include/linux/page-flags.h	2006-09-08 13:10:51.000000000 +0200
-@@ -123,12 +123,11 @@
+> Running two tests at the same time complicates things.  The next step
+> should be to determine whether it is reproducible.  If it is, then see 
+if
+> it is reproducible with just one test running (presumably pounder?)
+> 
+Running multiple cases simultaneously is to stress kernel more. And 
+because of
+lack of machine resource I have no chance to reproduce it.
+
+> It would be helpful to provide sufficient information to give others a
+> chance of reproducing it: amount of memory, method for configuring the
+> scsi-debug "disks", method for invoking pounder, etc.
+> 
+The machine belongs to IBM p-Series with power5+ cpu and 2GB memory.
+Run LTPROOT/testscript/ltp-scsi_debug.sh and 
+LTPROOT/testscript/pounder21/pounder directly.
+No extra parameters.   The command to load scsi_debug module is: 
+modprobe scsi_debug max_luns=2 num_tgts=2 add_host=2 dev_size_mb=20
+
+> > Hardware Environment
+> >     Cpu type :power5+
+> > Software Env:
+> >     kernel: 2.6.18-rc5
+> >     Base system: opensuse10
+> > 
+> > Is the system (not just the application) hung?
+> >     Yes
+> > 
+> > Did the system produce an OOPS message on the console?
+> >     No.
+> > 
+> > Is the system sitting in a debugger right now?
+> >     Yes, xmon and sysrq are on.
+> > 
+> > Additional information:
+> >     I use 'sysrq + t' then force system into xmon. And get following 
+> > message:
+> 
+> Trace is a bit confusing.  Ben (who is being shy) thinks it's this:
+> 
+> > 0:mon> c1
+> > 1:mon> e
+> > cpu 0x1: Vector: 501 (Hardware Interrupt) at [c000000059f89ed0]
+> >     pc: c0000000000a4780: .release_pages+0xac/0x260
+> >     lr: c0000000000a5138: .__pagevec_release+0x28/0x48
+> >     sp: c000000059f8a150
+> >    msr: 8000000000009032
+> >   current = 0xc00000005f2b66b0
+> >   paca    = 0xc0000000006b4500
+> >     pid   = 16704, comm = shmctl01
+> > 1:mon> t
+> > [c000000059f8a280] c0000000000a5138 .__pagevec_release+0x28/0x48
+> > [c000000059f8a310] c0000000000a7074 .shrink_inactive_list+0x944/0xa0c
+> > [c000000059f8a580] c0000000000a7248 .shrink_zone+0x10c/0x168
+> > [c000000059f8a620] c0000000000a7fe8 .try_to_free_pages+0x1c8/0x320
+> > [c000000059f8a730] c0000000000a1954 .__alloc_pages+0x1ec/0x344
+> > [c000000059f8a820] c00000000009de34 .find_or_create_page+0x8c/0x10c
+> > [c000000059f8a8d0] c0000000000cba78 .__getblk+0x130/0x2d0
+> > [c000000059f8a980] c0000000000ce1e0 .__bread+0x20/0x124
+> > [c000000059f8aa10] c000000000166280 .ext3_get_branch+0xa4/0x158
+> > [c000000059f8aac0] c000000000166620 .ext3_get_blocks_handle+0xf8/0xcf0
+> > [c000000059f8aca0] c0000000001675cc .ext3_get_block+0x104/0x14c
+> > [c000000059f8ad50] c0000000000cef64 .block_read_full_page+0x12c/0x390
+> > [c000000059f8b220] c0000000000f81bc .do_mpage_readpage+0x5cc/0x63c
+> > [c000000059f8b720] c0000000000f882c .mpage_readpages+0xf0/0x1b4
+> > [c000000059f8b8c0] c000000000166450 .ext3_readpages+0x28/0x40
+> > [c000000059f8b940] c0000000000a3c10 
+.__do_page_cache_readahead+0x194/0x2f0
+> > [c000000059f8ba90] c00000000009e01c .filemap_nopage+0x168/0x460
+> > [c000000059f8bb60] c0000000000ace18 .__handle_mm_fault+0x544/0xee4
+> > [c000000059f8bc50] c00000000002db24 .do_page_fault+0x408/0x5e8
+> > [c000000059f8be30] c0000000000048e0 .handle_page_fault+0x20/0x54
+> 
+> Which indicates that a CPU is stuck in page reclaim.
+> 
+> As a memory management/VM problem is suspected, a sysrq-M trace would be
+> useful.  That'll tell us whether the machine has exhausted physical 
+memory
+> and/or swapspace.
+> 
+I can not excute sysrq command now. But I can get memory allocation 
+information from xmon, 
+which indicates your guess may be right.
+
+1:mon> mi
+Mem-info:
+DMA per-cpu:
+cpu 0 hot: high 6, batch 1 used:5
+cpu 0 cold: high 2, batch 1 used:1
+cpu 1 hot: high 6, batch 1 used:5
+cpu 1 cold: high 2, batch 1 used:1
+cpu 2 hot: high 6, batch 1 used:5
+cpu 2 cold: high 2, batch 1 used:1
+cpu 3 hot: high 6, batch 1 used:3
+cpu 3 cold: high 2, batch 1 used:1
+cpu 4 hot: high 6, batch 1 used:5
+cpu 4 cold: high 2, batch 1 used:1
+cpu 5 hot: high 6, batch 1 used:4
+cpu 5 cold: high 2, batch 1 used:0
+DMA32 per-cpu: empty
+Normal per-cpu: empty
+HighMem per-cpu: empty
+Free pages:        6976kB (0kB HighMem)
+Active:6141 inactive:11012 dirty:4742 writeback:0 unstable:0 free:109 
+slab:11925 mapped:7 pagetables:7061
+DMA free:6976kB min:5760kB low:7168kB high:8640kB active:393024kB 
+inactive:704768kB present:2097152kB pages_scanned:5172 all_unreclaimable? 
+no
+lowmem_reserve[]: 0 0 0 0
+DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+HighMem free:0kB min:2048kB low:2048kB high:2048kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+DMA: 19*64kB 1*128kB 2*256kB 0*512kB 1*1024kB 0*2048kB 1*4096kB 0*8192kB 
+0*16384kB = 6976kB
+DMA32: empty
+Normal: empty
+HighMem: empty
+Swap cache: add 439156, delete 439156, find 50391/101032, race 26+79
+Free swap  = 0kB
+Total swap = 855552kB
+Free swap:            0kB
+32768 pages of RAM
+408 reserved pages
+6834 pages shared
+0 pages swap cached
  
- #define PageUptodate(page)	test_bit(PG_uptodate, &(page)->flags)
- #ifdef CONFIG_S390
--#define SetPageUptodate(_page) \
--	do {								      \
--		struct page *__page = (_page);				      \
--		if (!test_and_set_bit(PG_uptodate, &__page->flags))	      \
--			page_test_and_clear_dirty(_page);		      \
--	} while (0)
-+static inline void SetPageUptodate(struct page *page)
-+{
-+	if (!test_and_set_bit(PG_uptodate, &page->flags))
-+		page_test_and_clear_dirty(page);
-+}
- #else
- #define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags)
- #endif
-Index: linux-2.6/include/asm-s390/pgtable.h
-===================================================================
---- linux-2.6.orig/include/asm-s390/pgtable.h	2006-09-08 13:09:43.000000000 +0200
-+++ linux-2.6/include/asm-s390/pgtable.h	2006-09-08 13:10:51.000000000 +0200
-@@ -33,7 +33,7 @@
- #ifndef __ASSEMBLY__
- #include <asm/bug.h>
- #include <asm/processor.h>
--#include <linux/threads.h>
-+#include <linux/page.h>
- 
- struct vm_area_struct; /* forward declaration (include/linux/mm.h) */
- struct mm_struct;
-@@ -604,30 +604,31 @@
-  * should therefore only be called if it is not mapped in any
-  * address space.
-  */
--#define page_test_and_clear_dirty(_page)				  \
--({									  \
--	struct page *__page = (_page);					  \
--	unsigned long __physpage = __pa((__page-mem_map) << PAGE_SHIFT);  \
--	int __skey = page_get_storage_key(__physpage);			  \
--	if (__skey & _PAGE_CHANGED)					  \
--		page_set_storage_key(__physpage, __skey & ~_PAGE_CHANGED);\
--	(__skey & _PAGE_CHANGED);					  \
--})
-+static inline int page_test_and_clear_dirty(struct page *page)
-+{
-+	unsigned long physpage = __pa((page - mem_map) << PAGE_SHIFT);
-+	int skey = page_get_storage_key(physpage);
-+
-+	if (skey & _PAGE_CHANGED)
-+		page_set_storage_key(physpage, skey & ~_PAGE_CHANGED);
-+	return skey & _PAGE_CHANGED;
-+}
- 
- /*
-  * Test and clear referenced bit in storage key.
-  */
--#define page_test_and_clear_young(page)					  \
--({									  \
--	struct page *__page = (page);					  \
--	unsigned long __physpage = __pa((__page-mem_map) << PAGE_SHIFT);  \
--	int __ccode;							  \
--	asm volatile ("rrbe 0,%1\n\t"					  \
--		      "ipm  %0\n\t"					  \
--		      "srl  %0,28\n\t" 					  \
--                      : "=d" (__ccode) : "a" (__physpage) : "cc" );	  \
--	(__ccode & 2);							  \
--})
-+static inline int page_test_and_clear_young(struct page *page)
-+{
-+	unsigned long physpage = __pa((page - mem_map) << PAGE_SHIFT);
-+	int ccode;
-+
-+	asm volatile (
-+		"rrbe 0,%1\n"
-+		"ipm  %0\n"
-+		"srl  %0,28\n"
-+		: "=d" (ccode) : "a" (physpage) : "cc" );
-+	return ccode & 2;
-+}
- 
- /*
-  * Conversion functions: convert a page and protection to a page entry,
-@@ -640,32 +641,28 @@
- 	return __pte;
- }
- 
--#define mk_pte(pg, pgprot)                                                \
--({                                                                        \
--	struct page *__page = (pg);                                       \
--	pgprot_t __pgprot = (pgprot);					  \
--	unsigned long __physpage = __pa((__page-mem_map) << PAGE_SHIFT);  \
--	pte_t __pte = mk_pte_phys(__physpage, __pgprot);                  \
--	__pte;                                                            \
--})
--
--#define pfn_pte(pfn, pgprot)                                              \
--({                                                                        \
--	pgprot_t __pgprot = (pgprot);					  \
--	unsigned long __physpage = __pa((pfn) << PAGE_SHIFT);             \
--	pte_t __pte = mk_pte_phys(__physpage, __pgprot);                  \
--	__pte;                                                            \
--})
-+static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
-+{
-+	unsigned long physpage = __pa((page - mem_map) << PAGE_SHIFT);
-+
-+	return mk_pte_phys(physpage, pgprot);
-+}
-+
-+static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
-+{
-+	unsigned long physpage = __pa((pfn) << PAGE_SHIFT);
-+
-+	return mk_pte_phys(physpage, pgprot);
-+}
- 
- #ifdef __s390x__
- 
--#define pfn_pmd(pfn, pgprot)                                              \
--({                                                                        \
--	pgprot_t __pgprot = (pgprot);                                     \
--	unsigned long __physpage = __pa((pfn) << PAGE_SHIFT);             \
--	pmd_t __pmd = __pmd(__physpage + pgprot_val(__pgprot));           \
--	__pmd;                                                            \
--})
-+static inline pmd_t pfn_pmd(unsigned long pfn, pgprot_t pgprot)
-+{
-+	unsigned long physpage = __pa((pfn) << PAGE_SHIFT);
-+
-+	return __pmd(physpage + pgprot_val(pgprot));
-+}
- 
- #endif /* __s390x__ */
- 
+

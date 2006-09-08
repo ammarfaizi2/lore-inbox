@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWIHPdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWIHPbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWIHPdL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 11:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWIHPdK
+	id S1750758AbWIHPbL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 11:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWIHPbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 11:33:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18883 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750766AbWIHPdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 11:33:09 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/3] FRV: Mark __do_IRQ() deprecated
-Date: Fri, 08 Sep 2006 16:32:42 +0100
-To: torvalds@osdl.org, akpm@osdl.org, mingo@elte.hu, benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org, dhowells@redhat.com
-Message-Id: <20060908153242.21015.66379.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060908153236.21015.56106.stgit@warthog.cambridge.redhat.com>
-References: <20060908153236.21015.56106.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 8 Sep 2006 11:31:11 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:29580 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750758AbWIHPbK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 11:31:10 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	memory)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: rohitseth@google.com
+Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>
+In-Reply-To: <1157501878.11268.77.camel@galaxy.corp.google.com>
+References: <44FD918A.7050501@sw.ru>
+	 <1157478392.3186.26.camel@localhost.localdomain>
+	 <1157501878.11268.77.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Date: Fri, 08 Sep 2006 08:30:50 -0700
+Message-Id: <1157729450.26324.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Tue, 2006-09-05 at 17:17 -0700, Rohit Seth wrote:
+> I'm wondering why not have different processes to serve different
+> domains on the same physical server...particularly when they have
+> different database to work on.
 
-Mark __do_IRQ() as being deprecated (as Ben Herrenschmidt says it is).
+This is largely because this is I think how it is done today, and it has
+a lot of disadvantages.  They also want to be able to account for
+traffic on the same database.  Think of a large web hosting environment
+where you charged everyone (hundreds or thousands of users) by CPU and
+I/O bandwidth used at all levels of a given transaction.
 
-Rename the real __do_IRQ() to __do_IRQ_deprecated() and wrap this in an inline
-function called __do_IRQ() that is deprecated to prevent generic_handle_irq()
-from giving deprecation warnings on every file.
+> Is the amount of memory that you save by
+> having a single copy that much useful that you are even okay to
+> serialize the whole operation (What would happen, while the request for
+> foo.com is getting worked on, there is another request for
+> foo_bar.com...does it need to wait for foo.com request to get done
+> before it can be served).
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Let's put it this way.  Enterprise databases can be memory pigs.  It
+isn't feasible to run hundreds or thousands of copies on each machine.  
 
- include/linux/irq.h |   11 +++++++++--
- kernel/irq/handle.c |    6 ++++--
- 2 files changed, 13 insertions(+), 4 deletions(-)
+-- Dave
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 48d3cb3..83bf988 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -319,9 +319,16 @@ handle_irq_name(void fastcall (*handle)(
- /*
-  * Monolithic do_IRQ implementation.
-  * (is an explicit fastcall, because i386 4KSTACKS calls it from assembly)
-+ * - This is obsolete; generic_handle_irq() should be used instead.
-  */
- #ifndef CONFIG_GENERIC_HARDIRQS_NO__DO_IRQ
--extern fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs);
-+extern fastcall unsigned int __do_IRQ_deprecated(unsigned int irq, struct pt_regs *regs);
-+
-+static inline __deprecated fastcall
-+unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs)
-+{
-+	return __do_IRQ_deprecated(irq, regs);
-+}
- #endif
- 
- /*
-@@ -340,7 +347,7 @@ #else
- 	if (likely(desc->handle_irq))
- 		desc->handle_irq(irq, desc, regs);
- 	else
--		__do_IRQ(irq, regs);
-+		__do_IRQ_deprecated(irq, regs);
- #endif
- }
- 
-diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
-index 2e9e800..f3b1615 100644
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -151,7 +151,7 @@ irqreturn_t handle_IRQ_event(unsigned in
- 
- #ifndef CONFIG_GENERIC_HARDIRQS_NO__DO_IRQ
- /**
-- * __do_IRQ - original all in one highlevel IRQ handler
-+ * __do_IRQ_deprecated - original all in one highlevel IRQ handler
-  * @irq:	the interrupt number
-  * @regs:	pointer to a register structure
-  *
-@@ -161,8 +161,10 @@ #ifndef CONFIG_GENERIC_HARDIRQS_NO__DO_I
-  *
-  * This is the original x86 implementation which is used for every
-  * interrupt type.
-+ *
-+ * This is obsolete; generic_handle_irq() should be used instead.
-  */
--fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs)
-+fastcall unsigned int __do_IRQ_deprecated(unsigned int irq, struct pt_regs *regs)
- {
- 	struct irq_desc *desc = irq_desc + irq;
- 	struct irqaction *action;

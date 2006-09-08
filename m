@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWIHJTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWIHJUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWIHJTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 05:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWIHJTh
+	id S1750715AbWIHJUT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 05:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIHJUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 05:19:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52386 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750748AbWIHJTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 05:19:35 -0400
-Subject: Re: [PATCH 14/16] GFS2: The DLM interface module
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
-       Russell Cattelan <cattelan@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0609071832330.24855@yvahk01.tjqt.qr>
-References: <1157031710.3384.811.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609051352110.24010@yvahk01.tjqt.qr>
-	 <20060907145823.GF7775@redhat.com>
-	 <Pine.LNX.4.61.0609071832330.24855@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 08 Sep 2006 10:26:18 +0100
-Message-Id: <1157707578.11901.13.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Sep 2006 05:20:19 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:65181 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1750719AbWIHJUR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 05:20:17 -0400
+Date: Fri, 8 Sep 2006 10:20:16 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/8] Split the free lists into kernel and user parts
+In-Reply-To: <1157702040.17799.40.camel@lappy>
+Message-ID: <Pine.LNX.4.64.0609081019040.7094@skynet.skynet.ie>
+References: <20060907190342.6166.49732.sendpatchset@skynet.skynet.ie> 
+ <20060907190422.6166.49758.sendpatchset@skynet.skynet.ie>
+ <1157702040.17799.40.camel@lappy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 8 Sep 2006, Peter Zijlstra wrote:
 
-On Thu, 2006-09-07 at 18:35 +0200, Jan Engelhardt wrote:
-> Hi David,
-> 
-> 
-> >> >+int gdlm_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-> >> >+		  lm_lock_t **lockp)
-> >>
-> >> [lm_lock_t is]
-> >> currently typedef'ed to void [...]. (One _could_
-> >> get rid of it, but better not while it is called lm_lock_t. Leave as-is
-> >> for now.)
-> >
-> >I'm wondering what you might suggest instead of using the lm_lockspace_t,
-> >lm_lock_t, lm_fsdata_t typedefs.  These are opaque objects passed between
-> >gfs and the lock modules.  Could you give an example or point to some code
-> >that shows what you're thinking?
-> 
-> What I was thinking about:
-> int gdlm_get_lock(void *lockspace, struct lm_lockname *name, void **lockp)
-> 
-> 
-> Jan Engelhardt
+> Hi Mel,
+>
+> Looking good, some small nits follow.
+>
+> On Thu, 2006-09-07 at 20:04 +0100, Mel Gorman wrote:
+>
+>> +#define for_each_rclmtype_order(type, order) \
+>> +	for (order = 0; order < MAX_ORDER; order++) \
+>> +		for (type = 0; type < RCLM_TYPES; type++)
+>
+> It seems odd to me that you have the for loops in reverse order of the
+> arguments.
+>
 
-I've had a bash at this and the results are here:
-http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=commitdiff;h=9b47c11d1cbedcba685c9bd90c73fd41acdfab0e
+I'll fix that.
 
-Let me know if thats ok,
+>> +static inline int get_pageblock_type(struct page *page)
+>> +{
+>> +	return (PageEasyRclm(page) != 0);
+>> +}
+>
+> I find the naming a little odd, I would have suspected something like:
+> get_page_blocktype() or thereabout since you're getting a page
+> attribute.
+>
 
-Steve.
+This is a throwback from an early version when I used a bitmap that used 
+one bit per MAX_ORDER_NR_PAGES block of pages. Many pages in a block 
+shared one bit - hence get_pageblock_type(). The name is now stupid. I'll 
+fix it.
 
+>> +static inline int gfpflags_to_rclmtype(unsigned long gfp_flags)
+>> +{
+>> +	return ((gfp_flags & __GFP_EASYRCLM) != 0);
+>> +}
+>
+> gfp_t argument?
+>
 
+doh, yes, it should be gfp_t
+
+Thanks
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

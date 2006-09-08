@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWIHSlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWIHSlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWIHSlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 14:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWIHSlH
+	id S1750771AbWIHSlf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 14:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWIHSlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 14:41:07 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35462 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750793AbWIHSlE (ORCPT
+	Fri, 8 Sep 2006 14:41:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62623 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750771AbWIHSle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 14:41:04 -0400
-Date: Fri, 8 Sep 2006 11:40:51 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, npiggin@suse.de,
-       mingo@elte.hu
-Subject: Re: [PATCH] Fix longstanding load balancing bug in the scheduler.
-In-Reply-To: <20060908103529.A9121@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0609081135590.23089@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0609061634240.13322@schroedinger.engr.sgi.com>
- <20060908103529.A9121@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Sep 2006 14:41:34 -0400
+Date: Fri, 8 Sep 2006 11:41:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] linear reclaim core
+Message-Id: <20060908114114.87612de3.akpm@osdl.org>
+In-Reply-To: <20060908122718.GA1662@shadowen.org>
+References: <exportbomb.1157718286@pinky>
+	<20060908122718.GA1662@shadowen.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Sep 2006, Siddha, Suresh B wrote:
+On Fri, 8 Sep 2006 13:27:18 +0100
+Andy Whitcroft <apw@shadowen.org> wrote:
 
-> > +#endif
-> > +}
+> When we are out of memory of a suitable size we enter reclaim.
+> The current reclaim algorithm targets pages in LRU order, which
+> is great for fairness but highly unsuitable if you desire pages at
+> higher orders.  To get pages of higher order we must shoot down a
+> very high proportion of memory; >95% in a lot of cases.
 > 
-> Is there a reason why this is not made inline?
-
-Just did not think of it.
-
-> > +			struct rq *rq;
-> > +
-> > +			if (!cpu_isset(i, *cpus))
-> > +				continue;
+> This patch introduces an alternative algorithm used when requesting
+> higher order allocations.  Here we look at memory in ranges at the
+> order requested.  We make a quick pass to see if all pages in that
+> area are likely to be reclaimed, only then do we apply reclaim to
+> the pages in the area.
 > 
-> In normal conditions can we make this "cpus" argument NULL and only set/use it
-> when we run into pinned condition? That will atleast avoid unnecessary memory
-> test bit operations in the normal case.
+> Testing in combination with fragmentation avoidance shows
+> significantly improved chances of a successful allocation at
+> higher order.
 
-The balancing operation is not that frequent and having to treat a special 
-case in the callers would make code more complicated and likely offset the
-gains in this function.
+I bet it does.
 
-Fix up the declaration of cpu_of()
+I'm somewhat surprised at the implementation.  Would it not be sufficient
+to do this within shrink_inactive_list()?  Something along the lines of:
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+- Pick tail page off LRU.
 
-Index: linux-2.6.18-rc5-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.18-rc5-mm1.orig/kernel/sched.c	2006-09-08 11:38:35.852594785 -0700
-+++ linux-2.6.18-rc5-mm1/kernel/sched.c	2006-09-08 11:39:29.182308471 -0700
-@@ -269,7 +269,7 @@ struct rq {
- 
- static DEFINE_PER_CPU(struct rq, runqueues);
- 
--int cpu_of(struct rq *rq)
-+static inline int cpu_of(struct rq *rq)
- {
- #ifdef CONFIG_SMP
- 	return rq->cpu;
+- For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
+
+  - If they're all PageLRU and !PageActive, add them all to page_list for
+    possible reclaim
+
+And, in shrink_active_list:
+
+- Pick tail page off LRU
+
+- For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
+
+  If they're all PageLRU, put all the active pages in this block onto
+  l_hold for possible deactivation.
+
+
+Maybe all that can be done in isolate_lru_pages().
+
 

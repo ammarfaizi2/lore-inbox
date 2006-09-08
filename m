@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWIHTKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWIHTNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWIHTKu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 15:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWIHTKu
+	id S1751047AbWIHTNW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 15:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWIHTNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 15:10:50 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:1514 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751072AbWIHTKs (ORCPT
+	Fri, 8 Sep 2006 15:13:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751047AbWIHTNW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 15:10:48 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
-	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-In-Reply-To: <45011B2A.6000102@openvz.org>
-References: <44FD918A.7050501@sw.ru>
-	 <1157478392.3186.26.camel@localhost.localdomain> <44FED3CA.7000005@sw.ru>
-	 <1157579641.31893.26.camel@linuxchandra> <44FFCA4D.9090202@openvz.org>
-	 <1157657355.19884.44.camel@linuxchandra>  <45011B2A.6000102@openvz.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 08 Sep 2006 12:10:41 -0700
-Message-Id: <1157742641.19884.52.camel@linuxchandra>
+	Fri, 8 Sep 2006 15:13:22 -0400
+Date: Fri, 8 Sep 2006 12:13:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Brandon Philips <brandon@ifup.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
+Message-Id: <20060908121319.11a5dbb0.akpm@osdl.org>
+In-Reply-To: <20060908174437.GA5926@plankton.ifup.org>
+References: <20060908174437.GA5926@plankton.ifup.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 11:26 +0400, Pavel Emelianov wrote:
-> Chandra Seetharaman wrote:
-> > On Thu, 2006-09-07 at 11:29 +0400, Pavel Emelianov wrote:
-> > <snip>
-> >
-> >   
-> >>>> BUT: I remind you the talks at OKS/OLS and in previous UBC discussions.
-> >>>> It was noted that having a separate interfaces for CPU, I/O bandwidth
-> >>>>     
-> >>>>         
-> >>> But, it will be lot simpler for the user to configure/use if they are
-> >>> together. We should discuss this also.
-> >>>   
-> >>>       
-> >> IMHO such unification may only imply that one syscall is used to pass
-> >> configuration info into kernel.
-> >> Each controller has specific configurating parameters different from the
-> >> other ones. E.g. CPU controller must assign a "weight" to each group to
-> >> share CPU time accordingly, but what is a "weight" for memory controller?
-> >> IO may operate on "bandwidth" and it's not clear what is a "bandwidth" in
-> >> Kb/sec for CPU controller and so on.
-> >>     
-> >
-> > CKRM/RG handles this by eliminating the units from the interface and
-> > abstracting them to be "shares". Each resource controller converts the
-> > shares to its own units and handles properly. 
-> >   
-> That's what I'm talking about - common syscall/ioct/etc and each controller
-> parses its input itself. That's OK for us.
+On Fri, 8 Sep 2006 12:44:37 -0500
+Brandon Philips <brandon@ifup.org> wrote:
 
-Yes, we can eliminate the "units"(KBs, cycles/ticks, pages etc.,) from
-the interface and use a (unitless) number to specify the amount of
-resource a resource group/container uses.
+> Under both 2.6.18-rc6-mm1 and 2.6.18-rc5-mm1 my Thinkpad X60s[1] crashes
+> almost immediatly on boot with the following stack trace (typed by
+> hand):
 > 
-> [snip]
+> Code: Bad EIP value.
+> EIP: [<00000000>] run_init_process+0x3feffc9c/0x19 SS:ESP 0068:c0345f74
+>  <0>Kernel panic - not syncing: Fatal exception in interrupt
+>  BUG: warning at arch/i386/kernel.smp.c:547/smp_call_function()
+>  [<c01107e8>] smp_call_function+0x50/0x101
+>  [<c01172c2>] bug_spinlocks+0x3d/0x46
+>  [<c01108a9>] smp_send_stop+0x10/0x1b
+>  [<c0110a20>] stop_this_cpu+0x0/0x2e
+>  [<c011eefe>] panic+0x4d/0xe7
+>  [<c0104072>] die+0x26e/0x2a3
+>  [<c011772f>] do_page_fault+0x43d/0x50a
+>  [<c01172f2>] do_page_fault+0x0/0x50a
+>  [<c02a7a8f>] error_code+0x3f/0x44
+>  [<c01100d8>] acpi_copy_wakeup_routine+0x78/0x9a
+>  [<c01051ae>] do_IRQ+0x53/0x65
+>  [<c01036bf>] common_interrupt+0x23/0x28
+>  [<f883e714>] acpi_processor_idle+0x1f4/0x3b0 [processor]
+>  [<c0101c0e>] cpu_idle+0x9e/0xb7
+>  [<c034a711>] start_kernel+0x367/0x36d
+
+Looks like we have an IRQ handler which is screwed up.
+
+> 2.6.18-rc4-mm3 boots ok.
 > 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+> I will try and bisect the problem later tonight-
+>
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Thanks.  First, try disabling CONFIG_PCI_MSI.

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWIHNeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWIHNe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWIHNeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 09:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWIHNeQ
+	id S1751105AbWIHNe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 09:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWIHNe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 09:34:16 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:604 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751104AbWIHNeP (ORCPT
+	Fri, 8 Sep 2006 09:34:58 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:19900 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751105AbWIHNe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 09:34:15 -0400
-Message-ID: <4501714F.9030709@tls.msk.ru>
-Date: Fri, 08 Sep 2006 17:34:07 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Fri, 8 Sep 2006 09:34:57 -0400
+Message-ID: <4501717F.1070807@garzik.org>
+Date: Fri, 08 Sep 2006 09:34:55 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Oleg Verych <olecom@flower.upol.cz>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: re-reading the partition table on a "busy" drive
-References: <45004707.4030703@tls.msk.ru> <450105C0.2010603@flower.upol.cz> <Pine.LNX.4.61.0609080857090.30219@yvahk01.tjqt.qr> <20060908135858.GB14370@flower.upol.cz>
-In-Reply-To: <20060908135858.GB14370@flower.upol.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG in sata_mv
+References: <Pine.LNX.4.61.0609081327010.3319@filestore.ivimey.org>
+In-Reply-To: <Pine.LNX.4.61.0609081327010.3319@filestore.ivimey.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Verych wrote:
-[]
-> My anwser to this question: if it's so "pretty annoying", just let it be
-> "yes, do as i said !", not more and not less, just most ;).
+Ruth Ivimey-Cook wrote:
+> Folks,
+> 
+> In the interests of reporting bugs, I've attached the following dmesg 
+> output, containing 2 bugs. I've inlined the start of each below:
+> 
+> BUG: warning at drivers/scsi/sata_mv.c:1919/__msleep() (Not tainted)
+>  <f8876660> __mv_phy_reset+0xeb/0x3a7 [sata_mv]  <c04c9784> 
+> __freed_request+0x1f/0x6f
+>  <f8877cce> mv_interrupt+0x209/0x310 [sata_mv]  <c043db72> 
+> handle_IRQ_event+0x23/0x4c
+>  <c043dc17> __do_IRQ+0x7c/0xd1  <c0405035> do_IRQ+0x63/0x80
 
-Well, this whole question is already moot, as pointed out by Olaf.
-Because kernel already supports add/delete single partition ioctls,
-which is sufficient.  For my needs I already wrote a tiny hack which
-compares /proc/partitions with the output of `sfdisk -d' and re-adds
-anything which changed.  It should be possible to do the same with
-parted instead of {sf,cf,f}disk without using that hack, but hell,
-all those fdisks (parted included) sucks badly, each in its own way,
-so all are being used for different parts of the task, including the
-hack ;)
+The latest version of sata_mv shouldn't have this problem...
 
-Thanks.
+	Jeff
 
-/mjt
+
+

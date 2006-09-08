@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWIHWsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWIHWso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWIHWsH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 18:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWIHWsH
+	id S1751120AbWIHWso (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 18:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWIHWso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 18:48:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1799 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750712AbWIHWsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 18:48:04 -0400
-Date: Fri, 8 Sep 2006 22:47:52 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Metathronius Galabant <m.galabant@googlemail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: top displaying 50% si time and 50% idle on idle machine
-Message-ID: <20060908224752.GK8793@ucw.cz>
-References: <1b270aae0609071108h22bc10b0v5d2227abfc66c53c@mail.gmail.com> <20060907175323.57a5c6b0.akpm@osdl.org> <1b270aae0609081403u11b76ae9v72ad933475a2319f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1b270aae0609081403u11b76ae9v72ad933475a2319f@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 8 Sep 2006 18:48:44 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:23084 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751120AbWIHWsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 18:48:43 -0400
+Message-ID: <4501F348.7000208@mvista.com>
+Date: Fri, 08 Sep 2006 15:48:40 -0700
+From: Kevin Hilman <khilman@mvista.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rt] use SA_NODELAY for XScale PMU interrupts
+References: <4501C2FE.40109@mvista.com> <1157750869.30730.137.camel@laptopd505.fenrus.org>
+In-Reply-To: <1157750869.30730.137.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 50.0% id,  0.0% 
-> >>wa,  0.0% hi, 50.0%si
+Arjan van de Ven wrote:
+> On Fri, 2006-09-08 at 12:22 -0700, Kevin Hilman wrote:
+>> In the XScale oprofile support, the performance monitoring unit (PMU)
+>> triggers interrupts and the ISR reads out the performance data.  These
+>> ISRs are currently set to SA_INTERRUPT.  In order to get accurate
+>> performance and profiling data under PREEMPT_RT, these should use
+>> SA_NODELAY.  The functions called by this ISR are limited to
+>> drivers/oprofile functions.
+>>
+>> Patch against 2.6.18-rt8
 > 
-> >Do `ps aux', look for a process stuck in D state.
+> hmm I thought the SA_ flags were deprecated ???
 > 
-> The issue that startled me: there is _NO_ process in a D 
-> state!
-> BTW what means si? (interrupt service time? google 
-> didn't find anything)
 
-'soft interrupt' probably. try disconnecting network.
+Sorry, although I said 2.6.18-rt8, the patch is against 2.6.17-rt8,
+where the SA_ flags are still used.
 
-						Pavel
+Kevin
 
--- 
-Thanks for all the (sleeping) penguins.
+

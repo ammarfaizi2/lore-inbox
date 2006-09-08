@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWIHTyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWIHT4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWIHTyV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 15:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWIHTyV
+	id S1751138AbWIHT4T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 15:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWIHT4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 15:54:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52912 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751124AbWIHTyU (ORCPT
+	Fri, 8 Sep 2006 15:56:18 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:2055 "EHLO mms1.broadcom.com")
+	by vger.kernel.org with ESMTP id S1751122AbWIHT4R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 15:54:20 -0400
-Date: Fri, 8 Sep 2006 12:50:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Brandon Philips <brandon@ifup.org>
-Cc: linux-kernel@vger.kernel.org, Brice Goglin <brice@myri.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Robert Love <rml@novell.com>
-Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
-Message-Id: <20060908125053.c31b76e9.akpm@osdl.org>
-In-Reply-To: <20060908194300.GA5901@plankton.ifup.org>
-References: <20060908174437.GA5926@plankton.ifup.org>
-	<20060908121319.11a5dbb0.akpm@osdl.org>
-	<20060908194300.GA5901@plankton.ifup.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Sep 2006 15:56:17 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
+Subject: Re: TG3 data corruption (TSO ?)
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Segher Boessenkool" <segher@kernel.crashing.org>
+cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
+References: <1551EAE59135BE47B544934E30FC4FC093FB19@NT-IRVA-0751.brcm.ad.broadcom.com>
+ <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
+Date: Fri, 08 Sep 2006 12:54:16 -0700
+Message-ID: <1157745256.5344.8.camel@rh4>
+MIME-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006090807; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413031303230332E34353031433934422E303034442D412D;
+ ENG=IBF; TS=20060908195610; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006090807_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 691F155F3CC5747514-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Sep 2006 14:43:00 -0500
-Brandon Philips <brandon@ifup.org> wrote:
+On Fri, 2006-09-08 at 21:29 +0200, Segher Boessenkool wrote:
 
-> On 12:13 Fri 08 Sep 2006, Andrew Morton wrote:
-> > On Fri, 8 Sep 2006 12:44:37 -0500
-> > Brandon Philips <brandon@ifup.org> wrote:
-> > > 2.6.18-rc4-mm3 boots ok.
-> > > 
-> > > I will try and bisect the problem later tonight-
-> > 
-> > Thanks.  First, try disabling CONFIG_PCI_MSI.
+> I've got a patch that seems so solve the problem, it needs more testing
+> though (maybe Ben can do this :-) ).  The problem is that there should
+> be quite a few wmb()'s in the code that are just not there; adding some
+> to tg3_set_txd() seems to fix the immediate problem but more is needed
+> (and I don't see why those should be needed, unless tg3_set_txd() is
+> updating a life ring entry in place or something like that).
 > 
-> With CONFIG_PCI_MSI disabled the system boots.  
-
-OK, thanks.
-
-So likely candidates are:
-
-- Brice's MSI changes
-
-- The conversion of i386 to use the genirq code
-
-- Eric's MSI/genirq changes
-
-or a combination of the above.  Or something else.
-
-<adds ccs, steps back expectantly>
-
-> However, udev seems to very upset about network device names:
+> More testing is needed, but the problem is definitely the lack of memory
+> ordering.
 > 
-> [udevd:3951]: Changing netdevice name from [eth1_temp] to [eth0]
-> 
-> That showed up a few hundred times.  I am running version 093 so I will
-> try updating that later.
-
-That's OK - it's a debug patch which was added to help us work out why one
-or two people's net device names are getting trashed.  In fact we tracked
-it down to some silliness in NetworkMonitor, regarding which certain parties
-have yet to respond, iirc.
+Oh, we know about this.  The powerpc writel() used to have memory
+barriers in 2.4 kernels but not any more in 2.6 kernels.  Red Hat's
+version of tg3 has extra wmb()'s to fix this problem.  David doesn't
+think that the upstream version of tg3 should have these wmb()'s, and
+the problem should instead be fixed in powerpc's writel().
 

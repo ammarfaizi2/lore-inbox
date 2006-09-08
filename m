@@ -1,99 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWIHRzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWIHSEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWIHRzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 13:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWIHRzE
+	id S1751107AbWIHSEX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 14:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWIHSEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 13:55:04 -0400
-Received: from mxsf16.cluster1.charter.net ([209.225.28.216]:11449 "EHLO
-	mxsf16.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750823AbWIHRy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 13:54:59 -0400
-X-IronPort-AV: i="4.09,134,1157342400"; 
-   d="scan'208"; a="1667950738:sNHT790181910"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Sep 2006 14:04:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1687 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751107AbWIHSEX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 14:04:23 -0400
+Date: Fri, 8 Sep 2006 11:04:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.18-rc6-mm1
+Message-Id: <20060908110402.fd23e756.akpm@osdl.org>
+In-Reply-To: <4501ABB7.6030203@s5r6.in-berlin.de>
+References: <20060908011317.6cb0495a.akpm@osdl.org>
+	<4501ABB7.6030203@s5r6.in-berlin.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17665.44656.416523.331809@smtp.charter.net>
-Date: Fri, 8 Sep 2006 13:54:56 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: "John Stoffel" <john@stoffel.org>, Andrew Morton <akpm@osdl.org>,
-       "Miles Lane" <miles.lane@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.18-rc4-mm3 -- ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
-In-Reply-To: <200609081009.01662.bjorn.helgaas@hp.com>
-References: <a44ae5cd0608262356j29c0234cl198fb207bcad383d@mail.gmail.com>
-	<20060827001437.ec4f7a7a.akpm@osdl.org>
-	<17649.47572.627874.371564@stoffel.org>
-	<200609081009.01662.bjorn.helgaas@hp.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Bjorn" == Bjorn Helgaas <bjorn.helgaas@hp.com> writes:
+On Fri, 08 Sep 2006 19:43:19 +0200
+Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-Bjorn> On Sunday 27 August 2006 09:27, John Stoffel wrote:
->> >>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
->> 
-Andrew> On Sat, 26 Aug 2006 23:56:09 -0700
-Andrew> "Miles Lane" <miles.lane@gmail.com> wrote:
->> 
->> >> PCI: Using ACPI for IRQ routing
->> >> PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
->> >> ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
->> >> [dump_trace+100/418] dump_trace+0x64/0x1a2
->> >> [show_trace_log_lvl+18/37] show_trace_log_lvl+0x12/0x25
->> >> [show_trace+13/16] show_trace+0xd/0x10
->> >> [dump_stack+23/25] dump_stack+0x17/0x19
->> >> [acpi_format_exception+162/175] acpi_format_exception+0xa2/0xaf
->> >> [acpi_ut_status_exit+43/88] acpi_ut_status_exit+0x2b/0x58
->> >> [acpi_walk_resources+269/281] acpi_walk_resources+0x10d/0x119
->> >> [acpi_motherboard_add+34/52] acpi_motherboard_add+0x22/0x34
->> >> [acpi_bus_driver_init+42/122] acpi_bus_driver_init+0x2a/0x7a
->> >> [acpi_bus_register_driver+137/248] acpi_bus_register_driver+0x89/0xf8
->> >> [acpi_motherboard_init+23/249] acpi_motherboard_init+0x17/0xf9
->> >> [init+136/512] init+0x88/0x200
->> >> [kernel_thread_helper+7/16] kernel_thread_helper+0x7/0x10
->> >> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> ...
+> > +nommu-move-the-fallback-arch_vma_name-to-a-sensible-place.patch
+> ...
+> 
+> I get
+> 
+> 	kernel/signal.c:2742: warning: weak declaration of
+> 	'arch_vma_name' after first use results in unspecified behavior
+> 
+> on X86_32, gcc 3.4.1-4mdk.
+> 
+> nommu-move-the-fallback-arch_vma_name-to-a-sensible-place.patch moves
+> arch_vma_name() into kernel/signal.c, near its end.
+> 
+> vdso-improve-print_fatal_signals-support-by-adding-memory-maps.patch
+> inserts a call to arch_vma_name() into kernel/signal.c, in the first
+> half of signal.c.
 
->> Thanks Andrew.  I just tried doing this with 2.6.18-rc4-mm3 and it
->> hung again.  I also tried booting with irqpoll and pci=routeirq but it
->> made no difference at all.  I got the following with irqpoll:
->> 
->> irq 17: nobody cared (try booting with the "irqpoll" option)
->> [<c013e834>] __report_bad_irq+0x24/0x90
->> [<c013eab8>] note_interrupt+0x218/0x250
->> [<c013dd43>] handle_IRQ_event+0x33/0x70
->> [<c013f3ea>] handle_fasteoi_irq+0xca/0xe0
->> [<c013f320>] handle_fasteoi_irq+0x0/0xe0
->> [<c01059dd>] do_IRQ+0x8d/0xf0
->> [<c0554250>] unknown_bootoption+0x0/0x270
->> [<c01039da>] common_interrupt+0x1a/0x20
->> [<c0101c40>] default_idle+0x0/0x60
->> [<c0554250>] unknown_bootoption+0x0/0x270
->> [<c0101c71>] default_idle+0x31/0x60
->> [<c0101d0c>] cpu_idle+0x6c/0x90
->> [<c05547b9>] start_kernel+0x2f9/0x400
->> [<c0554250>] unknown_bootoption+0x0/0x270
->> =======================
->> handlers:
->> [<c0303890>] (ata_interrupt+0x0/0x190)
->> [<c03115b0>] (usb_hcd_irq+0x0/0x60)
->> Disabling IRQ #17
+Thanks.   Does this fix it?
 
-Bjorn> Let's disentangle these two issues.  The ACPI unknown exception in
-Bjorn> the acpi_motherboard_init() path is understood and being resolved.
+--- a/include/linux/mm.h~nommu-move-the-fallback-arch_vma_name-to-a-sensible-place-fix
++++ a/include/linux/mm.h
+@@ -1266,7 +1266,7 @@ void drop_slab(void);
+ extern int randomize_va_space;
+ #endif
+ 
+-const char *arch_vma_name(struct vm_area_struct *vma);
++__attribute__((weak)) const char *arch_vma_name(struct vm_area_struct *vma);
+ 
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_MM_H */
+_
 
-Ok, let me know when you've got a proposed patch and I'd be happy to
-test it out for you.  I thought it might be related since it mentions
-IRQs and my timeout problem was/is IRQ related possibly.
-
-Bjorn> Your boot hang/IRQ problem is something completely different.
-
-Yeah, it looks to be a problem with the new ata/hpt366 driver not
-setting up my HPT302 Rev 1 chipset properly on a PCI card.  
-
-Thanks for looking it over,
-John

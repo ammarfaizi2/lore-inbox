@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWIHHGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWIHHJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751896AbWIHHGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWIHHGS
+	id S1751878AbWIHHJR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 03:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWIHHJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:06:18 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:46620 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751896AbWIHHGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:06:17 -0400
-Date: Fri, 8 Sep 2006 15:00:11 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: Don Mullis <dwm@meer.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [patch 6/6] process filtering for fault-injection capabilities
-Message-ID: <20060908070011.GA8889@miraclelinux.com>
-References: <1157696997.9460.99.camel@localhost.localdomain>
+	Fri, 8 Sep 2006 03:09:17 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:36480 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751878AbWIHHJQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 03:09:16 -0400
+Date: Fri, 8 Sep 2006 09:07:01 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] proc: Make the generation of the self symlink table
+ driven.
+In-Reply-To: <20060907101512.3e3a9604.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0609080906380.22545@yvahk01.tjqt.qr>
+References: <m1odttx8uz.fsf@ebiederm.dsl.xmission.com> <20060907101512.3e3a9604.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157696997.9460.99.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 11:29:57PM -0700, Don Mullis wrote:
 
-> 1) Reorder kernel command line args alphabetically -- lets
-> output of `ls /debug/failslab` serve as a handy reminder
-> of the arg bindings.
-> 
-> 2) Rename a variable to agree with the /debug file name.
+>> +static struct pid_entry proc_base_stuff[] = {
+>> +	NOD(PROC_TGID_INO, 	"self", S_IFLNK|S_IRWXUGO,
+>> +		&proc_self_inode_operations, NULL, {}),
+>> +	{}
+>> +};
+>
+>We could save a bunch of bytes here.
+>
+>> +	/* Lookup the directory entry */
+>> +	for (p = proc_base_stuff; p->name; p++) {
+>
+>By using ARRAY_SIZE here.
+>
+>> +	for (; nr < (ARRAY_SIZE(proc_base_stuff) - 1); filp->f_pos++, nr++) {
+>
+>like that does.
 
-Yes. this kernel command line was confusing.
-This change makes it better.
+Also works without the () around ARRAY_SIZE(..)-1
 
-Now I'm writing the filter which allow failing only for a specific
-module by using unwinding kernel stacks API.
 
-Then I'll send next version with your fixes.
 
+Jan Engelhardt
+-- 

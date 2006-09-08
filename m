@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWIHXtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWIHXyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWIHXtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 19:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWIHXtQ
+	id S1751298AbWIHXyd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 19:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWIHXyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 19:49:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60140 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751297AbWIHXtO (ORCPT
+	Fri, 8 Sep 2006 19:54:33 -0400
+Received: from mail.gmx.de ([213.165.64.20]:28113 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751298AbWIHXyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 19:49:14 -0400
-Date: Fri, 8 Sep 2006 16:49:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/10] check pr_debug() arguments
-Message-Id: <20060908164908.abb98076.akpm@osdl.org>
-In-Reply-To: <20060908225529.9340.75338.sendpatchset@kaori.pdx.zabbo.net>
-References: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>
-	<20060908225529.9340.75338.sendpatchset@kaori.pdx.zabbo.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 8 Sep 2006 19:54:32 -0400
+X-Authenticated: #24128601
+Date: Sat, 9 Sep 2006 01:53:21 +0200
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17.2 doesn't compile: "In function `dm_put':: undefined reference to `idr_replace'" with gcc 4.1.1
+Message-ID: <20060908235321.GA365@section_eight>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri,  8 Sep 2006 15:55:29 -0700 (PDT)
-Zach Brown <zach.brown@oracle.com> wrote:
+Hi all,
 
-> check pr_debug() arguments
-> 
-> When DEBUG isn't defined pr_debug() is defined away as an empty macro.  By
-> throwing away the arguments we allow completely incorrect code to build.
-> 
-> Instead let's make it an empty inline which checks arguments and mark it so gcc
-> can check the format specification.
+just wanted to be the first to mention this :-)
 
-Desirable.
+I use dm-crypt (luks), 2.6.17.11 compiled fine.
 
-> This results in a seemingly insignificant code size increase.  A x86-64
-> allyesconfig:
-> 
->    text    data     bss     dec     hex filename
-> 25354768        7191098 4854720 37400586        23ab00a vmlinux.before
-> 25354945        7191138 4854720 37400803        23ab0e3 vmlinux
+  AS      arch/i386/lib/putuser.o
+  CC      arch/i386/lib/strstr.o
+  CC      arch/i386/lib/usercopy.o
+  AR      arch/i386/lib/lib.a
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `dm_put':
+: undefined reference to `idr_replace'
+drivers/built-in.o: In function `create_aux':
+dm.c:(.text+0x99e6e): undefined reference to `idr_replace'
+make: *** [.tmp_vmlinux1] Error 1
 
-Which would indicate that we might have expressions-with-side-effects
-inside pr_debug() statements somewhere, which is risky.  I wonder where?
+section_eight scripts # ./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-It looks like the version of gcc which you used is correctly discarding the
-pr_debug() format string.  gcc hasn't always done that, and there's a risk
-of bloatiness on older gccs.  I checked gcc-3.3.2/x86 and it does the right
-thing, so...
+Linux section_eight 2.6.17.11 #1 Wed Sep 6 14:40:42 CEST 2006 i686 AMD
+Sempron(tm)   2400+ GNU/Linux
 
-btw, what's up with aio.c using a combination of pr_debug() and dprintk(),
-and a combination of `#ifdef DEBUG' and `#if DEBUG > 1'?  Confusing.
+Gnu C                  4.1.1
+Gnu make               3.80
+binutils               2.16.1
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.39
+Linux C Library        > libc.2.4
+Dynamic linker (ldd)   2.4
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.94
+udev                   087
+Modules Loaded         rt61 lirc_serial lirc_dev
 
+It's the first time a kernel doesn't compile for me :) Keep up the good
+work!
 
-It would be nice to have a single way of doing developer-debug in-tree.  We
-have 182(!) different definitions of dprintk().  Please nobody cc me on that
-discussion though ;)
+Cheers
+Sebastian

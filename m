@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWIHPnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWIHPoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWIHPnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 11:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWIHPnp
+	id S1750870AbWIHPoB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 11:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWIHPoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 11:43:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41419 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750853AbWIHPno (ORCPT
+	Fri, 8 Sep 2006 11:44:01 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62123 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750866AbWIHPoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 11:43:44 -0400
-Date: Fri, 8 Sep 2006 11:49:45 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+	Fri, 8 Sep 2006 11:44:00 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	memory)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: sekharan@us.ibm.com, balbir@in.ibm.com, Kirill Korotaev <dev@sw.ru>,
+       Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
        devel@openvz.org
-Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
-Message-ID: <20060908154945.GI28592@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
-	Kirill Korotaev <dev@openvz.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Fernando Vazquez <fernando@oss.ntt.co.jp>,
-	"David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
-	linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
-	devel@openvz.org
-References: <44FC193C.4080205@openvz.org> <Pine.LNX.4.64.0609061120430.27779@g5.osdl.org> <44FFF1A0.2060907@openvz.org> <Pine.LNX.4.64.0609070816170.27779@g5.osdl.org> <4501891D.5090607@sw.ru> <Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
+In-Reply-To: <45011CAC.2040502@openvz.org>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru>  <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra>  <45011CAC.2040502@openvz.org>
+Content-Type: text/plain
+Date: Fri, 08 Sep 2006 08:43:41 -0700
+Message-Id: <1157730221.26324.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 08:35:03AM -0700, Linus Torvalds wrote:
- > 
- > 
- > On Fri, 8 Sep 2006, Kirill Korotaev wrote:
- > > 
- > > I even checked the email myself and the only difference between "good"
- > > patches and mine is that mine has "format=flowed" in
- > > Content-Type: text/plain; charset=us-ascii; format=flowed
- > > 
- > > It looks like some mailers replace TABs with spaces when format=flowed
- > > is specified. So are you sure that the problem is in mozilla?
- > 
- > Hey, what do you know? Good call. I can actually just "S"ave the message 
- > to a file, and it is a perfectly fine patch. But when I view it in my mail 
- > reader, your "format=flowed" means that it _shows_ it as being corrupted 
- > (ie word wrapping and missing spaces at the beginning of lines).
- > 
- > Will apply, thanks. It would be better if your mailer didn't lie about the 
- > format though (treating the text as "flowed" definitely isn't right, and 
- > some mail gateways might actually find it meaningful, for all I know).
+On Fri, 2006-09-08 at 11:33 +0400, Pavel Emelianov wrote:
+> I'm afraid we have different understandings of what a "guarantee" is.
 
-I got bitten by this myself a while ago. Since then I added this
-hack to my .procmailrc
+It appears so.
 
-:0fw
-| /usr/bin/perl -pe 's/^(Content-Type: .*)format=flowed/\1format=flawed/'
+> Don't we?
+> Guarantee may be one of
+> 
+>   1. container will be able to touch that number of pages
+>   2. container will be able to sys_mmap() that number of pages
+>   3. container will not be killed unless it touches that number of pages
 
-now I see patches as they were intended..
+A "death sentence" guarantee?  I like it. :)
 
-	Dave
+>   4. anything else
+> 
+> Let's decide what kind of a guarantee we want.
+
+I think of it as: "I will be allowed to use this many total pages, and
+they are guaranteed not to fail."  (1), I think.  The sum of all of the
+system's guarantees must be less than or equal to the amount of free
+memory on the machine.  
+
+If we knew to which NUMA node the memory was going to go, we might as
+well take the pages out of the allocator.
+
+-- Dave
+

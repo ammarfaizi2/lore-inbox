@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWIHMRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWIHMWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbWIHMRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 08:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWIHMRJ
+	id S1750933AbWIHMWk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 08:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWIHMWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 08:17:09 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:7887 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750904AbWIHMRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 08:17:07 -0400
-Date: Fri, 8 Sep 2006 14:16:26 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch -mm] s390: fix save_stack_trace
-Message-ID: <20060908121626.GC6913@osiris.boeblingen.de.ibm.com>
-References: <20060908011317.6cb0495a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Fri, 8 Sep 2006 08:22:40 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:61964 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750930AbWIHMWk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 08:22:40 -0400
+Date: Fri, 8 Sep 2006 14:22:49 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Jim Cromie <jim.cromie@gmail.com>
+Cc: =?ISO-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+       Samuel Tardieu <sam@rfc1149.net>, linux-kernel@vger.kernel.org,
+       wim@iguana.be
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+Message-Id: <20060908142249.f84ca41a.khali@linux-fr.org>
+In-Reply-To: <45005657.8000509@gmail.com>
+References: <87fyf5jnkj.fsf@willow.rfc1149.net>
+	<44FEAD7E.6010201@draigBrady.com>
+	<45005657.8000509@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Pádraig Brady wrote:
+> > Is W83697HG a good name?
+> >   
+> 
+> 
+> could you add a suffix, say _watchdog ?
+> 
+> the name youve got is confusingly close to the convention used in 
+> drivers/hwmon
+> 
+>  ls hwmon/w*.c
+> hwmon/w83627ehf.c  hwmon/w83627hf.c  hwmon/w83781d.c  hwmon/w83791d.c  
+> hwmon/w83792d.c  hwmon/w83l785ts.c
 
-x86_64-mm-stacktrace-cleanup.patch reverses the logic in s390's
-save_stack_trace incorrectly. Fix this.
+I second Jim's suggestion. Given the name of the other Winbond watchdog
+drivers:
 
-Cc: Andi Kleen <ak@suse.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+char/watchdog/w83627hf_wdt.c 
+char/watchdog/w83977f_wdt.c
+char/watchdog/w83877f_wdt.c
 
- arch/s390/kernel/stacktrace.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+I'd suggest w83697hf_wdt.c. The W83697HG if the lead-free version of
+the older W83697HF and they are otherwise the same chip. BTW I see that
+there's already a driver for the W83627HF watchdog. Given the
+similarities between the W83627HF and the W83697HF, it might make sense
+to add support for the latter directly in the w83627hf_wdt driver,
+rather than writing a brand new one.
 
-Index: linux-2.6.17/arch/s390/kernel/stacktrace.c
-===================================================================
---- linux-2.6.17.orig/arch/s390/kernel/stacktrace.c	2006-09-08 13:44:44.000000000 +0200
-+++ linux-2.6.17/arch/s390/kernel/stacktrace.c	2006-09-08 14:00:36.000000000 +0200
-@@ -70,12 +70,12 @@
- 	sp = save_context_stack(trace, &trace->skip, sp,
- 				S390_lowcore.panic_stack - PAGE_SIZE,
- 				S390_lowcore.panic_stack);
--	if ((sp != orig_sp) && trace->all_contexts)
-+	if ((sp != orig_sp) && !trace->all_contexts)
- 		return;
- 	sp = save_context_stack(trace, &trace->skip, sp,
- 				S390_lowcore.async_stack - ASYNC_SIZE,
- 				S390_lowcore.async_stack);
--	if ((sp != orig_sp) && trace->all_contexts)
-+	if ((sp != orig_sp) && !trace->all_contexts)
- 		return;
- 	if (task)
- 		save_context_stack(trace, &trace->skip, sp,
-@@ -85,5 +85,4 @@
- 		save_context_stack(trace, &trace->skip, sp,
- 				   S390_lowcore.thread_info,
- 				   S390_lowcore.thread_info + THREAD_SIZE);
--	return;
- }
+-- 
+Jean Delvare

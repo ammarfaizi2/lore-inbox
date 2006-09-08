@@ -1,76 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWIHH4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWIHINj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWIHH4z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 03:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWIHH4y
+	id S1750990AbWIHINj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 04:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWIHIN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 03:56:54 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:20648 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750715AbWIHH4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 03:56:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OIu/hgx5tLWJMWqQkZAoNBleyQND5Ems8x2bTZzXuhoQn0fMoP6znjquqfll6z0ZCY71mTeSBVkR/VOsClj/35qFfHoGvTDxuW814CbN4pTEQJswGnmlfFtKOSYBHMUsKndEjXaNUok593xRPpZeiIPLab/dfT0aoM9NznL3eKA=
-Message-ID: <a44ae5cd0609080056m61b43318tfe5b0034ef3081f@mail.gmail.com>
-Date: Fri, 8 Sep 2006 00:56:51 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: 2.6.18-rc5-git1 + "ieee1394: nodemgr" patches -- BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
-Cc: LKML <linux-kernel@vger.kernel.org>, linux1394-devel@lists.sourceforge.net
-In-Reply-To: <450119D1.7070504@s5r6.in-berlin.de>
+	Fri, 8 Sep 2006 04:13:26 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:10978 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750980AbWIHINY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 04:13:24 -0400
+Date: Fri, 8 Sep 2006 10:11:52 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Edward Falk <efalk@google.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Proper /proc/pid/cmdline behavior when command line is corrupt?
+In-Reply-To: <4500D1E6.7020805@google.com>
+Message-ID: <Pine.LNX.4.61.0609080919130.22545@yvahk01.tjqt.qr>
+References: <mailman.3.1157626801.14788.linux-kernel-daily-digest@lists.us.dell.com>
+ <4500D1E6.7020805@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0609071821h515753f5wdd3ceecc39434e91@mail.gmail.com>
-	 <450119D1.7070504@s5r6.in-berlin.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> Miles Lane wrote:
-> ...
-> > Things went pretty well, until I ran
-> > "pccardctl eject" and then popped out the Firewire card.
-> ...
-> > BUG: unable to handle kernel NULL pointer dereference at virtual
-> > address 00000000
-> ...
-> > EIP is at dv1394_remove_host+0x17/0xad [dv1394]
-> ...
-> > Call Trace:
-> > [<f91788c2>] __unregister_host+0x17/0x79 [ieee1394]
-> > [<f9178945>] highlevel_remove_host+0x21/0x42 [ieee1394]
-> > [<f9177e65>] hpsb_remove_host+0x37/0x56 [ieee1394]
-> > [<f912c9f2>] ohci1394_pci_remove+0x41/0x1cd [ohci1394]
-> > [<c10c5d24>] pci_device_remove+0x16/0x28
-> > [<c111dcbd>] __device_release_driver+0x5a/0x72
-> > [<c111de8f>] device_release_driver+0x1b/0x29
-> > [<c111d705>] bus_remove_device+0x78/0x8a
-> > [<c111c8a7>] device_del+0xe9/0x11a
-> > [<c111c8e0>] device_unregister+0x8/0x10
-> > [<c10c3ee5>] pci_remove_bus_device+0x39/0xcf
-> > [<c10c3f95>] pci_remove_behind_bridge+0x1a/0x2d
-> > [<f910d5ae>] socket_shutdown+0x89/0xdd [pcmcia_core]
-> > [<f910d675>] pcmcia_eject_card+0x56/0x65 [pcmcia_core]
-> ...
->
-> Looks like the last word on
-> http://bugzilla.kernel.org/show_bug.cgi?id=2228 isn't spoken. Maybe the
-> bug can be fixed in dv1394 itself, or maybe we need to rework the
-> ieee1394 core's *_remove_host sequence.
->
-> Checking the 1394 driver stack's conduct during card hot-ejection is in
-> my long-term to-do list. Hopefully someone else can look at it sooner.
-> But I suggest you open a new bugzilla bug so we don't lose track.
->
-> I suppose the temporary workaround is to unload dv1394 before card ejection.
+Hi Edward,
 
-Thanks,
 
-I created the bug report:  http://bugzilla.kernel.org/show_bug.cgi?id=7121
+> there's a few lines of code in fs/proc/base.c:proc_pid_cmdline() that
+> I'm unable to make sense of.  There are a few lines that check the
+> returned buffer to see if it's properly nul-terminated.  If not, the
+> code assumes the user has overwritten and corrupted the command line
+> buffer.
+>
+> The next step is to search for the first embedded nul, and truncate
+> the buffer at that point.
+>
+> If no embedded nul is found, enough data is copied from the user's
+> environment to fill the buffer.  Another search for an embedded nul
+> is then made.
+>
+> Does anybody know what on earth this code is trying to accomplish? 
+> Is this the intended behavior?  The best I can guess is that the user
+> is assumed to have overwritten the end of the command line buffer and
+> that the environment buffer is assumed to immediately follow the
+> command line buffer.
 
-Best wishes,
-        Miles
+The environment buffer is not assumed to be there, it is _known_ to come right
+after the argument string, because that is how the kernel sets it up on execve
+(for x86 at least). GDB verifies this:
+
+(gdb) b main
+(gdb) r 123
+(gdb) p *argv[0]@3072
+$3 = "/dev/shm/a.out\000123\000LESSKEY=/etc/lesskey.bin\000GREP_COLOR=1
+\000MANPATH=/usr/local/man:/usr/share/man:/usr/X11R6/man:/opt/gnome/sha
+re/man\000INFODIR=/usr/local/info:/usr/share/info:/usr/info\000NNTPSERV
+ER=news\000SSH"...
+
+$3 = "/dev/shm/a.out\000123\000LESSKEY=/etc/lesskey.bin\000GREP_COLOR=1
+      ^                 ^      ^                           ^
+      argv[0]           argv[1]envp[0]                     envp[1]
+\000MANPATH=/usr/local/man:/usr/share/man:/usr/X11R6/man:/opt/gnome/sha
+re/man\000INFODIR=/usr/local/info:/usr/share/info:/usr/info\000NNTPSERV
+ER=news\000SSH"...
+
+As you can see above, libc will set up the ARGV and ENVP arrays with
+pointers to the respective strings. Writing over the end of the ENVP
+string will cause
+
+  - a segfault in the user program
+  - a "cannot access that memory" in GDB
+  - more bad things, if done in kernelspace
+
+
+> I'm currently working on a patch that removes the one page limit on
+> the returned command line buffer but I'm not convinced I should
+> retain this behavior.
+
+I think yes. proc_pid_cmdline() has these lines:
+
+	len = mm->arg_end - mm->arg_start
+  *	if (len > PAGE_SIZE)
+  *		len = PAGE_SIZE;
+	res = access_process_vm(task, mm->arg_start, buffer, len, 0);
+
+
+and @buffer is allocated in the caller as only one page:
+
+
+static ssize_t proc_info_read(struct file * file, char __user * buf,            
+                          size_t count, loff_t *ppos)                           
+{                                                                               
+	...
+        if (!(page = __get_free_page(GFP_KERNEL)))
+                return -ENOMEM;
+	length = PROC_I(inode)->op.proc_read(task, (char*)page);                
+	...
+}
+
+
+> Is it possible that there's any code out there
+> that depends on this behavior.  It would help if I knew why it was
+> done this way.
+
+
+
+
+Jan Engelhardt
+-- 

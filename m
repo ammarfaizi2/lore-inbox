@@ -1,102 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWIHWSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWIHWV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWIHWSI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 18:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWIHWSI
+	id S1750843AbWIHWV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 18:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWIHWV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 18:18:08 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:17179 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751129AbWIHWSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 18:18:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=dPbM3Ja+2fuIFkj11Afrkg7QPWjMqSfINsry0S4ET+eMIpd1VRrJ6JghIkfh31P4q9hAVWBE1CCMBEuYLhuSPXCohWNkc3uUaW/kMpypCDUj/udWmLyuwRcQ9dWUS1l0r65WgsqTayrBdoMZQSPewZPScItpOW452j+ejcK+2SA=
-Date: Sat, 9 Sep 2006 02:17:56 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC:PATCH 002/002] EXT3: Fix sparse warnings
-Message-ID: <20060908221756.GB5192@martell.zuzino.mipt.ru>
-References: <20060908213914.11498.3272.sendpatchset@kleikamp.austin.ibm.com> <20060908213927.11498.18166.sendpatchset@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908213927.11498.18166.sendpatchset@kleikamp.austin.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 8 Sep 2006 18:21:56 -0400
+Received: from jaguar.it.wsu.edu ([134.121.0.73]:25295 "EHLO jaguar.it.wsu.edu")
+	by vger.kernel.org with ESMTP id S1750843AbWIHWVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 18:21:55 -0400
+Message-ID: <4501EDA5.5020406@sandall.us>
+Date: Fri, 08 Sep 2006 15:24:37 -0700
+From: Eric Sandall <eric@sandall.us>
+Organization: Source Mage GNU/Linux
+User-Agent: Mail/News 1.5.0.4 (X11/20060905)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend to ram with 2.6 kernels
+References: <44FF8586.8090800@sandall.us> <20060907193333.GI8793@ucw.cz>
+In-Reply-To: <20060907193333.GI8793@ucw.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 03:39:30PM -0600, Dave Kleikamp wrote:
-> EXT3: Fix sparse warnings
+Pavel Machek wrote:
+> On Wed 06-09-06 19:35:50, Eric Sandall wrote:
+>> Hello LKML,
+>>
+>> I am having a problem with suspend-to-ram (have been for a while, but
+>> suspend-to-disk has been working fine for me, so I never really bothered
+>> to report it until now).
+>>
+>> Suspend-to-disk and resuming from it works fine (using `echo -n disk >
+>> /sys/power/state`).
+>>
+>> Suspend-to-ram works fine (using `echo -n mem > /sys/power/state`), but
+>> resuming does not. When I lift up the lid of my laptop (Dell Inspiron
+>> 5100) it seems to power back up (the power light changes from blinking
+>> to solid), but my screen stays blank and keys such as capslock do not
+>> toggle their LED.
+> 
+> See suspend.sf.net, use provided s2ram program.
 
-> --- linux001/fs/ext3/resize.c
-> +++ linux002/fs/ext3/resize.c
+Thanks! The key (mentioned in the documentation there) is to disable
+framebuffer (ATI video card). First time I've had suspend-to-RAM working
+on this machine. ;)
 
-> @@ -380,7 +380,7 @@ static int add_new_gdb(handle_t *handle,
->  	struct buffer_head *dind;
->  	int gdbackups;
->  	struct ext3_iloc iloc;
-> -	__u32 *data;
-> +	__le32 *data;
->  	int err;
->  
->  	if (test_opt(sb, DEBUG))
-> @@ -410,14 +410,14 @@ static int add_new_gdb(handle_t *handle,
->  		goto exit_bh;
->  	}
->  
-> -	data = EXT3_I(inode)->i_data + EXT3_DIND_BLOCK;
-> +	data = (__le32 *)(EXT3_I(inode)->i_data + EXT3_DIND_BLOCK);
+Suspending works with `s2ram -f`, no other options needed, from X.
 
-Why cast is needed? i_data is __le32 * already.
+# s2ram -i
+This machine can be identified by:
+    sys_vendor   = "Dell Computer Corporation"
+    sys_product  = "Inspiron 5100                   "
+    sys_version  = ""
+    bios_version = "A23"
 
-> -	data = (__u32 *)dind->b_data;
-> +	data = (__le32 *)dind->b_data;
->  	if (le32_to_cpu(data[gdb_num % EXT3_ADDR_PER_BLOCK(sb)]) != gdblock) {
->  		ext3_warning(sb, __FUNCTION__,
->  			     "new group %u GDT block "E3FSBLK" not reserved",
-> @@ -519,7 +519,7 @@ static int reserve_backup_gdb(handle_t *
->  	struct buffer_head *dind;
->  	struct ext3_iloc iloc;
->  	ext3_fsblk_t blk;
-> -	__u32 *data, *end;
-> +	__le32 *data, *end;
->  	int gdbackups = 0;
->  	int res, i;
->  	int err;
-> @@ -528,7 +528,7 @@ static int reserve_backup_gdb(handle_t *
->  	if (!primary)
->  		return -ENOMEM;
->
-> -	data = EXT3_I(inode)->i_data + EXT3_DIND_BLOCK;
-> +	data = (__le32 *)(EXT3_I(inode)->i_data + EXT3_DIND_BLOCK);
+Though you may want to rename the /usr/sbin/suspend command to something
+other than 'suspend' as, at least for me, it is a shell command which
+puts the current shell in the background.
 
-Ditto.
+The HOWTO *does* mention:
+[Warning: some shells have "suspend" built in command, so specifing
+exact path like ./suspend is more important than usual.]
 
-> --- linux001/fs/ext3/super.c
-> +++ linux002/fs/ext3/super.c
-> @@ -2330,13 +2330,14 @@ static int ext3_remount (struct super_bl
->  
->  			ext3_mark_recovery_complete(sb, es);
->  		} else {
-> -			__le32 ret;
-> -			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> +			int ret;
-> +			__le32 ret_le;
-> +			if ((ret_le = EXT3_HAS_RO_COMPAT_FEATURE(sb,
->  					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
->  				printk(KERN_WARNING "EXT3-fs: %s: couldn't "
->  				       "remount RDWR because of unsupported "
->  				       "optional features (%x).\n",
-> -				       sb->s_id, le32_to_cpu(ret));
-> +				       sb->s_id, le32_to_cpu(ret_le));
->  				err = -EROFS;
->  				goto restore_opts;
->  			}
+Though I still believe it'd be a good idea to pick a non-conflicting name.
 
-Get rid of "err = ret;" assignment below. It would be cleaner than
-introducing new var.
+-sandalle
+
+-- 
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+
 

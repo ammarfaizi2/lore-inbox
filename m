@@ -1,79 +1,259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWIHS30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWIHSby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWIHS30 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 14:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWIHS30
+	id S1751169AbWIHSby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 14:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWIHSby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 14:29:26 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:2709 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751162AbWIHS3Y (ORCPT
+	Fri, 8 Sep 2006 14:31:54 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:47110 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1751169AbWIHSbw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 14:29:24 -0400
-Message-ID: <4501B5F0.9050802@in.ibm.com>
-Date: Fri, 08 Sep 2006 23:56:56 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Pavel Emelianov <xemul@openvz.org>, Rik van Riel <riel@redhat.com>,
-       Srivatsa <vatsa@in.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sekharan@us.ibm.com, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Andi Kleen <ak@suse.de>, Kirill Korotaev <dev@sw.ru>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru>  <44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org> <1157730221.26324.52.camel@localhost.localdomain>
-In-Reply-To: <1157730221.26324.52.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Sep 2006 14:31:52 -0400
+Date: Fri, 8 Sep 2006 20:31:50 +0200
+From: David Madore <david.madore@ens.fr>
+To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: [PATCH 3/4] security: capabilities patch (version 0.4.3), part 3/4: introduce new capabilities
+Message-ID: <20060908183150.GC2659@clipper.ens.fr>
+References: <20060908182157.GA2659@clipper.ens.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060908182157.GA2659@clipper.ens.fr>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Fri, 08 Sep 2006 20:31:50 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Fri, 2006-09-08 at 11:33 +0400, Pavel Emelianov wrote:
->> I'm afraid we have different understandings of what a "guarantee" is.
-> 
-> It appears so.
-> 
->> Don't we?
->> Guarantee may be one of
->>
->>   1. container will be able to touch that number of pages
->>   2. container will be able to sys_mmap() that number of pages
->>   3. container will not be killed unless it touches that number of pages
-> 
-> A "death sentence" guarantee?  I like it. :)
-> 
->>   4. anything else
->>
->> Let's decide what kind of a guarantee we want.
 
-I think of guarantees w.r.t resources as the lower limit on the resource.
-Guarantees and limits can be thought of as the range (guarantee, limit]
-for the usage of the resource.
+Introduce six new "regular" (=on-by-default) capabilities:
 
-> 
-> I think of it as: "I will be allowed to use this many total pages, and
-> they are guaranteed not to fail."  (1), I think.  The sum of all of the
-> system's guarantees must be less than or equal to the amount of free
-> memory on the machine.  
-> 
+ * CAP_REG_FORK, CAP_REG_OPEN, CAP_REG_EXEC allow access to the
+   fork(), open() and exec() syscalls,
 
-Yes, totally agree.
+ * CAP_REG_SXID allows privilege gain on suid/sgid exec,
 
-> If we knew to which NUMA node the memory was going to go, we might as
-> well take the pages out of the allocator.
-> 
-> -- Dave
-> 
--- 
+ * CAP_REG_WRITE controls any write-access to the filesystem,
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+ * CAP_REG_PTRACE allows ptrace().
+
+See <URL: http://www.madore.org/~david/linux/newcaps/ > for more
+detailed explanations.
+
+Signed-off-by: David A. Madore <david.madore@ens.fr>
+
+---
+ fs/exec.c                  |    7 +++++--
+ fs/namei.c                 |    2 +-
+ fs/open.c                  |   26 ++++++++++++++++++++------
+ fs/xattr.c                 |    3 ++-
+ include/linux/capability.h |   23 +++++++++++++++++++++++
+ kernel/fork.c              |    2 ++
+ kernel/ptrace.c            |    2 ++
+ 7 files changed, 55 insertions(+), 10 deletions(-)
+
+diff --git a/fs/exec.c b/fs/exec.c
+index e4d0a2c..1cb5e34 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -930,7 +930,7 @@ int prepare_binprm(struct linux_binprm *
+ 
+ 	if(!(bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID)) {
+ 		/* Set-uid? */
+-		if (mode & S_ISUID) {
++		if (mode & S_ISUID && capable(CAP_REG_SXID)) {
+ 			bprm->is_suid = 1;
+ 			current->personality &= ~PER_CLEAR_ON_SETID;
+ 			bprm->e_uid = inode->i_uid;
+@@ -942,7 +942,8 @@ int prepare_binprm(struct linux_binprm *
+ 		 * is a candidate for mandatory locking, not a setgid
+ 		 * executable.
+ 		 */
+-		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP)) {
++		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP)
++		    && capable(CAP_REG_SXID)) {
+ 			bprm->is_sgid = 1;
+ 			current->personality &= ~PER_CLEAR_ON_SETID;
+ 			bprm->e_gid = inode->i_gid;
+@@ -1137,6 +1138,8 @@ int do_execve(char * filename,
+ 	int retval;
+ 	int i;
+ 
++	if (!capable(CAP_REG_EXEC))
++		return -EPERM;
+ 	retval = -ENOMEM;
+ 	bprm = kzalloc(sizeof(*bprm), GFP_KERNEL);
+ 	if (!bprm)
+diff --git a/fs/namei.c b/fs/namei.c
+index 432d6bc..69a3bae 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -242,7 +242,7 @@ int permission(struct inode *inode, int 
+ 		/*
+ 		 * Nobody gets write access to an immutable file.
+ 		 */
+-		if (IS_IMMUTABLE(inode))
++		if (IS_IMMUTABLE(inode) || !capable(CAP_REG_WRITE))
+ 			return -EACCES;
+ 	}
+ 
+diff --git a/fs/open.c b/fs/open.c
+index e58a525..77a12ba 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -253,7 +253,7 @@ static long do_sys_truncate(const char _
+ 		goto dput_and_out;
+ 
+ 	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode) || !capable(CAP_REG_WRITE))
+ 		goto dput_and_out;
+ 
+ 	/*
+@@ -382,6 +382,10 @@ asmlinkage long sys_utime(char __user * 
+ 	if (IS_RDONLY(inode))
+ 		goto dput_and_out;
+ 
++	error = -EPERM;
++	if (!capable(CAP_REG_WRITE))
++		goto dput_and_out;
++
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
+@@ -439,6 +443,10 @@ long do_utimes(int dfd, char __user *fil
+ 	if (IS_RDONLY(inode))
+ 		goto dput_and_out;
+ 
++	error = -EPERM;
++	if (!capable(CAP_REG_WRITE))
++		goto dput_and_out;
++
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
+@@ -640,7 +648,7 @@ asmlinkage long sys_fchmod(unsigned int 
+ 	if (IS_RDONLY(inode))
+ 		goto out_putf;
+ 	err = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode) || !capable(CAP_REG_WRITE))
+ 		goto out_putf;
+ 	mutex_lock(&inode->i_mutex);
+ 	if (mode == (mode_t) -1)
+@@ -674,7 +682,7 @@ asmlinkage long sys_fchmodat(int dfd, co
+ 		goto dput_and_out;
+ 
+ 	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode) || !capable(CAP_REG_WRITE))
+ 		goto dput_and_out;
+ 
+ 	mutex_lock(&inode->i_mutex);
+@@ -711,7 +719,7 @@ static int chown_common(struct dentry * 
+ 	if (IS_RDONLY(inode))
+ 		goto out;
+ 	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode) || !capable(CAP_REG_WRITE))
+ 		goto out;
+ 	newattrs.ia_valid =  ATTR_CTIME;
+ 	if (user != (uid_t) -1) {
+@@ -1105,7 +1113,10 @@ asmlinkage long sys_open(const char __us
+ 	if (force_o_largefile())
+ 		flags |= O_LARGEFILE;
+ 
+-	ret = do_sys_open(AT_FDCWD, filename, flags, mode);
++	if (capable(CAP_REG_OPEN))
++		ret = do_sys_open(AT_FDCWD, filename, flags, mode);
++	else
++		ret = -EPERM;
+ 	/* avoid REGPARM breakage on x86: */
+ 	prevent_tail_call(ret);
+ 	return ret;
+@@ -1120,7 +1131,10 @@ asmlinkage long sys_openat(int dfd, cons
+ 	if (force_o_largefile())
+ 		flags |= O_LARGEFILE;
+ 
+-	ret = do_sys_open(dfd, filename, flags, mode);
++	if (capable(CAP_REG_OPEN))
++		ret = do_sys_open(dfd, filename, flags, mode);
++	else
++		ret = -EPERM;
+ 	/* avoid REGPARM breakage on x86: */
+ 	prevent_tail_call(ret);
+ 	return ret;
+diff --git a/fs/xattr.c b/fs/xattr.c
+index c32f15b..33b70ce 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -35,7 +35,8 @@ xattr_permission(struct inode *inode, co
+ 	if (mask & MAY_WRITE) {
+ 		if (IS_RDONLY(inode))
+ 			return -EROFS;
+-		if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++		if (IS_IMMUTABLE(inode) || IS_APPEND(inode)
++		    || !capable(CAP_REG_WRITE))
+ 			return -EPERM;
+ 	}
+ 
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index aa00b60..efc268e 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -295,6 +295,29 @@ #define CAP_AUDIT_WRITE      29
+ 
+ #define CAP_AUDIT_CONTROL    30
+ 
++
++/**
++ ** Regular capabilities (normally possessed by all processes).
++ **/
++
++/* Can fork() */
++#define CAP_REG_FORK         32
++
++/* Can open() */
++#define CAP_REG_OPEN         33
++
++/* Can exec() */
++#define CAP_REG_EXEC         34
++
++/* Might gain permissions on exec() */
++#define CAP_REG_SXID         35
++
++/* Perform write access to the filesystem */
++#define CAP_REG_WRITE        36
++
++/* Can use ptrace() */
++#define CAP_REG_PTRACE       37
++
+ #ifdef __KERNEL__
+ /* 
+  * Bounding set
+diff --git a/kernel/fork.c b/kernel/fork.c
+index f9b014e..20f559f 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1347,6 +1347,8 @@ long do_fork(unsigned long clone_flags,
+ 	struct pid *pid = alloc_pid();
+ 	long nr;
+ 
++	if (!capable(CAP_REG_FORK))
++		return -EPERM;
+ 	if (!pid)
+ 		return -EAGAIN;
+ 	nr = pid->nr;
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index 9a111f7..093307d 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -132,6 +132,8 @@ static int may_attach(struct task_struct
+ 	/* Don't let security modules deny introspection */
+ 	if (task == current)
+ 		return 0;
++	if (!capable(CAP_REG_PTRACE))
++		return -EPERM;
+ 	if (((current->uid != task->euid) ||
+ 	     (current->uid != task->suid) ||
+ 	     (current->uid != task->uid) ||

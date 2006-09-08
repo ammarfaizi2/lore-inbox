@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWIHMb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWIHMy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWIHMb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 08:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWIHMb5
+	id S1751015AbWIHMy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 08:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWIHMy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 08:31:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42153 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750964AbWIHMbz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 08:31:55 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157669602.22705.326.camel@localhost.localdomain> 
-References: <1157669602.22705.326.camel@localhost.localdomain>  <1157583693.22705.254.camel@localhost.localdomain> <20060906125626.GA3718@elte.hu> <20060906094301.GA8694@elte.hu> <1157507203.2222.11.camel@localhost> <20060905132530.GD9173@stusta.de> <20060901015818.42767813.akpm@osdl.org> <6260.1157470557@warthog.cambridge.redhat.com> <8430.1157534853@warthog.cambridge.redhat.com> <13982.1157545856@warthog.cambridge.redhat.com> <17274.1157553962@warthog.cambridge.redhat.com> <8934.1157622928@warthog.cambridge.redhat.com> 
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] FRV: do_gettimeofday() should no longer use tickadj 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 08 Sep 2006 13:29:52 +0100
-Message-ID: <21606.1157718592@warthog.cambridge.redhat.com>
+	Fri, 8 Sep 2006 08:54:59 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:62444 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750961AbWIHMy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 08:54:58 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] e-mail clients
+Date: Fri, 8 Sep 2006 14:54:39 +0200
+User-Agent: KMail/1.9.4
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>, "Victor Hugo" <victor@vhugo.net>
+References: <4500B2FB.8050805@vhugo.net> <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
+In-Reply-To: <9a8748490609080124q5b32d325l1c251d3e2d800f1d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609081454.40522.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Am Freitag, 8. September 2006 10:24 schrieb Jesper Juhl:
+> On 08/09/06, Victor Hugo <victor@vhugo.net> wrote:
+> > As I've learned--most web-clients have a hard time sending text
+> > only e-mail without
+> > wrapping every single line (not very good for patches).  Any
+> > suggestions about which client to use on lkml?? Pine?? Mutt??
+> > Thunderbird?? Telnet??
+>
+> I personally use both 'pine' and 'kmail' and they both work perfectly
+> for sending patches.
 
-> > > Now, if you have funky cascades, then you can always group them into a
-> > > virtual irq cascade line and have a special chained flow handler that
-> > > does all the "figuring out" off those... it's up to you. 
-> > 
-> > You make it sound so easy, but it's not obvious how to do this, apart from
-> > installing interrupt handlers for the auxiliary PIC interrupts on the CPU and
-> > having those call back into __do_IRQ().  Chaining isn't mentioned in
-> > genericirq.tmpl.
-> 
-> No, you do a chain handler. Look at how I do it in
-> arch/powerpc/platform/pseries/setup.c for example. It's actually
-> trivial. You install a special flow handler (which means that there is
-> very little overhead, almost none, from the toplevel irq to the chained
-> irq). You can _also_ if you want just install an IRQ handler for the
-> cascaded controller and call generic_handle_irq (rather than __do_IRQ)
-> from it, but that has more overhead. A chained handler completely
-> relaces the flow handler for the cascade, and thus, if you don't need
-> all of the nits and bits of the other flow handlers for your cascade,
-> you can speed things up by hooking at that level.
+With kmail, you have control over line breaks with Option -> Wrap lines, 
+which is useful for e.g. pasted syslog data, but remember to enable it 
+before writing the message, since you have to manually add line breaks 
+for the entered text too.
 
-But funky cascading using chained flow handlers doesn't work if the cascade
-must share an IRQ with some other device, right?
+Inlined patches should be added via Message -> Insert File to preserve 
+line breaks and white space.
 
-David
+Pete

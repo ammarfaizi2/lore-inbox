@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWIIOXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWIIOhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWIIOXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 10:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWIIOXx
+	id S932219AbWIIOhx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 10:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWIIOhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 10:23:53 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14011 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932199AbWIIOXw
+	Sat, 9 Sep 2006 10:37:53 -0400
+Received: from stine.vestdata.no ([217.149.127.10]:38882 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP id S932219AbWIIOhw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 10:23:52 -0400
-Subject: Re: Lost DVD-RW [Was Re: 2.6.18-rc5-mm1]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: "\"J.A." =?ISO-8859-1?Q?Magall=F3n=22?= <jamagallon@ono.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <44FFE7AF.8010808@gmail.com>
-References: <20060901015818.42767813.akpm@osdl.org>
-	 <20060904013443.797ba40b@werewolf.auna.net>
-	 <20060903181226.58f9ea80.akpm@osdl.org>	<44FB929B.7080405@gmail.com>
-	 <20060905002600.51c5e73b@werewolf.auna.net>  <44FFE7AF.8010808@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 09 Sep 2006 15:46:43 +0100
-Message-Id: <1157813203.6877.18.camel@localhost.localdomain>
+	Sat, 9 Sep 2006 10:37:52 -0400
+Date: Sat, 9 Sep 2006 16:37:44 +0200
+From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+Message-ID: <20060909143744.GZ16876@vestdata.no>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
+X-Zet.no-MailScanner-Information: Please contact the ISP for more information
+X-Zet.no-MailScanner: Found to be clean
+X-MailScanner-From: ragnark@stine.vestdata.no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-09-07 am 11:34 +0200, ysgrifennodd Tejun Heo:
-> Alan, it seems that 0x848a indicates CFA device iff the ID data is from 
-> IDENTIFY DEVICE.  When the command is IDENTIFY PACKET DEVICE, 0x848a 
-> seems to indicate a valid ATAPI device.
+[ I'm not subscribed. Please CC me on replies ]
 
-Apparently so - thats a detail I didn't know about.
+> Solution:
+> 
+> The solution can come in multiple steps.
+> 
+> Suggested fix #1: kernel
+> Patch below sorts the two device lists into breadth-first ordering to
+> maintain compatibility with 2.4 kernels.  It also overloads the
+> 'pci=nosort' option to disable the breadth-first sort (and on i386 it
+> continues to disable the pcibios_find_device sort as well).
 
-Acked-by: Alan Cox <alan@redhat.com>
+As far as I understand it's difficult to argue that sorting the devices
+one way is more "correct" than the other, so your argument is basically:
+1) Compability with 2.4
+2) Consistency with BIOS and external labels.
 
-Alan
+Both are important, but the problem is
+1) Compability with 2.4 means breaking compability with previous
+   2.6 kernels. And 2.6 has been out long enough that it's more
+   important than 2.4.
+2) There is also hardware where the 2.6 behaviour is consistent with
+   BIOS and external labels where 2.4 is not.
 
+An _option_ to enable 2.4 compatible device ordering on the other hand
+would have just advantages, no disadvantages.
+
+
+-- 
+Ragnar Kjørstad
+Software Engineer
+Scali - http://www.scali.com
+Scaling the Linux Datacenter

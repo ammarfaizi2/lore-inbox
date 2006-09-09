@@ -1,175 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWIJCmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbWIJDoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbWIJCmK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 22:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWIJCmK
+	id S965177AbWIJDoW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 23:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWIJDoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 22:42:10 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:7949 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S965093AbWIJCmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 22:42:09 -0400
-Message-ID: <45037B5F.1080509@shadowen.org>
-Date: Sun, 10 Sep 2006 03:41:35 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Sat, 9 Sep 2006 23:44:21 -0400
+Received: from thunk.org ([69.25.196.29]:22681 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S965177AbWIJDoU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 23:44:20 -0400
+Date: Sat, 9 Sep 2006 19:18:05 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: David Madore <david.madore@ens.fr>
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060909231805.GC24906@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	David Madore <david.madore@ens.fr>,
+	Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+References: <20060905212643.GA13613@clipper.ens.fr> <20060906002730.23586.qmail@web36609.mail.mud.yahoo.com> <20060906100610.GA16395@clipper.ens.fr> <20060906132623.GA15665@clipper.ens.fr>
 MIME-Version: 1.0
-To: kmannth@us.ibm.com
-CC: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] patch[1/1] i386 numa kva conversion to use bootmem reserve
-References: <1150871711.8518.61.camel@keithlap>
-In-Reply-To: <1150871711.8518.61.camel@keithlap>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060906132623.GA15665@clipper.ens.fr>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-keith mannthey wrote:
-> Hello,
->   I the current i386 numa the numa_kva (the area used to remap node
-> local data in lowmem) space is acquired by adjusting the end of low
-> memroy during boot. 
-> 
-> (from setup_memory)
-> reserve_pages = calculate_numa_remap_pages();
-> (then)
-> system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
-> 
-> The problem this is that initrds can be trampled over (the kva can
-> adjust system_max_low_pfn into the initrd area) This results in kernel
-> throwing away the intird and a failed boot.  This is a long standing
-> issue. (It has been like this at least for the last few years). 
-> 
-> This patch keeps the numa kva code from adjusting the end of memory and
-> coverts it is just use the reserve_bootmem call to reserve the large
-> amount of space needed for the numa_kva. It is mindful of initrds when
-> present. 
-> 
-> This patch was built against 2.6.17-rc1 originally but applies and boots
-> against 2.6.17 just fine.  I have only test this against the summit
-> subarch (I don't have other i386 numa hw). 
-> 
-> all feedback welcome!
-> 
-> Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff -urN linux-2.6.17/arch/i386/kernel/setup.c linux-2.6.17-work/arch/i386/kernel/setup.c
-> --- linux-2.6.17/arch/i386/kernel/setup.c	2006-06-17 18:49:35.000000000 -0700
-> +++ linux-2.6.17-work/arch/i386/kernel/setup.c	2006-06-20 23:04:37.000000000 -0700
-> @@ -1210,6 +1210,9 @@
->  extern void zone_sizes_init(void);
->  #endif /* !CONFIG_NEED_MULTIPLE_NODES */
->  
-> +#ifdef CONFIG_NUMA
-> +extern void numa_kva_reserve(void);
-> +#endif
->  void __init setup_bootmem_allocator(void)
->  {
->  	unsigned long bootmap_size;
-> @@ -1265,7 +1268,9 @@
->  	 */
->  	find_smp_config();
->  #endif
-> -
-> +#ifdef CONFIG_NUMA
-> +	numa_kva_reserve();
-> +#endif 
->  #ifdef CONFIG_BLK_DEV_INITRD
->  	if (LOADER_TYPE && INITRD_START) {
->  		if (INITRD_START + INITRD_SIZE <= (max_low_pfn << PAGE_SHIFT)) {
-> diff -urN linux-2.6.17/arch/i386/mm/discontig.c linux-2.6.17-work/arch/i386/mm/discontig.c
-> --- linux-2.6.17/arch/i386/mm/discontig.c	2006-06-17 18:49:35.000000000 -0700
-> +++ linux-2.6.17-work/arch/i386/mm/discontig.c	2006-06-20 23:11:49.000000000 -0700
-> @@ -118,7 +118,8 @@
->  
->  void *node_remap_end_vaddr[MAX_NUMNODES];
->  void *node_remap_alloc_vaddr[MAX_NUMNODES];
-> -
-> +static unsigned long kva_start_pfn;
-> +static unsigned long kva_pages;
->  /*
->   * FLAT - support for basic PC memory model with discontig enabled, essentially
->   *        a single node with all available processors in it with a flat
-> @@ -287,7 +288,6 @@
->  {
->  	int nid;
->  	unsigned long system_start_pfn, system_max_low_pfn;
-> -	unsigned long reserve_pages;
->  
->  	/*
->  	 * When mapping a NUMA machine we allocate the node_mem_map arrays
-> @@ -299,14 +299,23 @@
->  	find_max_pfn();
->  	get_memcfg_numa();
->  
-> -	reserve_pages = calculate_numa_remap_pages();
-> +	kva_pages = calculate_numa_remap_pages();
->  
->  	/* partially used pages are not usable - thus round upwards */
->  	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
->  
-> -	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
-> -	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
-> -			reserve_pages, max_low_pfn + reserve_pages);
-> +	kva_start_pfn = find_max_low_pfn() - kva_pages;
-> +
-> +#ifdef CONFIG_BLK_DEV_INITRD
-> +	/* Numa kva area is below the initrd */
-> +	if (LOADER_TYPE && INITRD_START) 
-> +		kva_start_pfn = PFN_DOWN(INITRD_START)  - kva_pages;
-> +#endif 
-> +	kva_start_pfn -= kva_start_pfn & (PTRS_PER_PTE-1);
-> +
-> +	system_max_low_pfn = max_low_pfn = find_max_low_pfn();
-> +	printk("kva_start_pfn ~ %ld find_max_low_pfn() ~ %ld\n", 
-> +		kva_start_pfn, max_low_pfn);
->  	printk("max_pfn = %ld\n", max_pfn);
->  #ifdef CONFIG_HIGHMEM
->  	highstart_pfn = highend_pfn = max_pfn;
-> @@ -324,7 +333,7 @@
->  			(ulong) pfn_to_kaddr(max_low_pfn));
->  	for_each_online_node(nid) {
->  		node_remap_start_vaddr[nid] = pfn_to_kaddr(
-> -				highstart_pfn + node_remap_offset[nid]);
-> +				kva_start_pfn + node_remap_offset[nid]);
->  		/* Init the node remap allocator */
->  		node_remap_end_vaddr[nid] = node_remap_start_vaddr[nid] +
->  			(node_remap_size[nid] * PAGE_SIZE);
-> @@ -339,7 +348,6 @@
->  	}
->  	printk("High memory starts at vaddr %08lx\n",
->  			(ulong) pfn_to_kaddr(highstart_pfn));
-> -	vmalloc_earlyreserve = reserve_pages * PAGE_SIZE;
->  	for_each_online_node(nid)
->  		find_max_pfn_node(nid);
->  
-> @@ -349,6 +357,12 @@
->  	return max_low_pfn;
->  }
->  
-> +void __init numa_kva_reserve (void) 
-> +{
-> +	reserve_bootmem(PFN_PHYS(kva_start_pfn),PFN_PHYS(kva_pages));
-> +
-> +}
-> +
->  void __init zone_sizes_init(void)
->  {
->  	int nid;
+On Wed, Sep 06, 2006 at 03:26:23PM +0200, David Madore wrote:
+> I emphasize that the filesystem support patch described above, alone,
+> will *not* solve the inheritability problem (as my patch does), since
+> unmarked executables continue to inherit no caps at all.  With my
+> patch, they behave as though they had a full inheritable set,
+> something which is required if we want to make something useful of
+> capabilities on non-caps-aware programs.
 
-The primary reason that the mem_map is cut from the end of ZONE_NORMAL
-is so that memory that would back that stolen KVA gets pushed out into
-ZONE_HIGHMEM, the boundary between them is moved down.  By using
-reserve_bootmem we will mark the pages which are currently backing the
-KVA you are 'reusing' as reserved and prevent their release; we pay
-double for the mem_map.
+This is what scares me about your proposal.  I consider it a *feature*
+that unmarked executables inherit no capabilities, since many programs
+were written without consideration about whether or not they might be
+safe to run without privileges.  So the default of not allowing an
+executable to inherit capabilities is in line of the the classic
+security principle of "least privileges".   
 
-If the initrd's are falling into this space, can we not allocate some
-bootmem for those and move them out of our way?  As filesystem images
-they are essentially location neutral so this should be safe?
+I agree it may be less convenient for a system administrator who is
+used root, cd'ing to a colleagues source tree, su'ing to root, and who
+then types "make" to compile a program, expecting it to work since
+root privileges imply the ability to override filesystem discretionary
+access control --- and then to be rudely surprised when this doesn't
+work in a capabilities-enabled system.  However, I would claim this is
+the correct behaviour!  Would you really want some random operator
+running random Makefiles for some random program downloaded from the
+Internet?  As root?  So as far as I am concerned, forcing make, cc,
+et. al. to not inherit capabilities is a Good Thing.
 
--apw
+Now, perhaps some system owners have a different idea of how they want
+to run, and believe want to trade off more convenience for less
+security.  That's fine, but please don't disable the high security
+mode for the rest of us.  What I would suggest is that perhaps the
+filesystem capabilities patch can be extended to either to allow the
+filesystem superblock define (a) what the default inheritance
+capability mask should be when creating a new file, and (b) what the
+default inheritance capability for that filesystem should be in the
+absence of an explicit capability record.  Both of these should be
+overrideable by a mount option, but for convenience's sake it would be
+convenient to be able to set these values in the superblock.
+
+
+As far as negative capabilities, I feel rather strongly these should
+not be separated into separate capability masks.  They can use the
+same framework, sure, but I think the system will be much safer if
+they use a different set of masks.  Otherwise, there can be a whole
+class of mistakes caused by people and applications getting confused
+over which bit positions indicate privileges, and which indicate
+negative privileges.  If you use a separate mask, this avoids this
+problem.
+
+
+The other reason why it may not be such a hot idea to mess with the
+inheritance formulas is compatibility with other Unix systems that
+have implemented capabilities following the last Posix draft.  In
+particular, Sun has recently included the Trusted Solaris into the
+base Solaris offering and into Open Solaris, and has been plugging
+them pretty heavily.  It would be unfortunate if Solaris and Linux had
+gratuitously different semantics for how the capabilities API's work.
+It could easily cause security problems in both directions --- when
+trying to port a program written for Linux to Solaris, and vice versa.
+
+The solution is to _extend_ the capabilities system: for example, by
+adding default inheritance masks to cater for system administrators
+who value convenience more than security, and to add new bitmasks for
+negative privileges/capabilities.
+
+Regards,
+
+					- Ted

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIIH05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWIIIQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWIIH05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 03:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIIH04
+	id S932351AbWIIIQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 04:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWIIIQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 03:26:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27790 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751365AbWIIH04 (ORCPT
+	Sat, 9 Sep 2006 04:16:38 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:64473 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932351AbWIIIQh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 03:26:56 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, segher@kernel.crashing.org, davem@davemloft.net
-In-Reply-To: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
-	 <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Sat, 09 Sep 2006 17:24:41 +1000
-Message-Id: <1157786681.31071.168.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Sep 2006 04:16:37 -0400
+Date: Sat, 9 Sep 2006 10:16:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Lederhofer <matled@gmx.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG/PATCH] make deb-pkg: optionally use fakeroot
+In-Reply-To: <20060908185316.GA20352@moooo.ath.cx>
+Message-ID: <Pine.LNX.4.61.0609091015350.30551@yvahk01.tjqt.qr>
+References: <20060908185316.GA20352@moooo.ath.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I suspect the best thing at this point is to move the sync in writeX()
-> before the store, as you suggest, and add an "eieio" before the load
-> in readX().  That does mean that we are then relying on driver writers
-> putting in the mmiowb() between a writeX() and a spin_unlock, but at
-> least that is documented.
+>diff --git a/scripts/package/Makefile b/scripts/package/Makefile
+>index 7c434e0..d77e21a 100644
+>--- a/scripts/package/Makefile
+>+++ b/scripts/package/Makefile
+>@@ -72,7 +72,7 @@ # Deb target
+> # ---------------------------------------------------------------------------
+> deb-pkg: FORCE
+> 	$(MAKE) KBUILD_SRC=
+>-	$(CONFIG_SHELL) $(srctree)/scripts/package/builddeb
+>+	$(FAKEROOT) $(CONFIG_SHELL) $(srctree)/scripts/package/builddeb
 
-Well, why keep the sync in writel then ? Isn't it agreed that the driver
-should use an explicit barrier ? Or did I misunderstand Linus ?
-
-Ben.
+Why are distribution-specific things/objects/targets even included?
 
 
+
+Jan Engelhardt
+-- 

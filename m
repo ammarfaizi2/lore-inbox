@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWIISf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWIISqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWIISf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 14:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWIISf3
+	id S1751368AbWIISqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 14:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWIISqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 14:35:29 -0400
-Received: from anyanka.rfc1149.net ([81.56.47.149]:50682 "EHLO
-	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S1751364AbWIISf1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 14:35:27 -0400
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jim Cromie <jim.cromie@gmail.com>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <20060909220256.d4486a4f.vsu@altlinux.ru>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-Date: 09 Sep 2006 20:35:19 +0200
-In-Reply-To: <20060909220256.d4486a4f.vsu@altlinux.ru>
+	Sat, 9 Sep 2006 14:46:45 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:30989 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751368AbWIISqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 14:46:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TM2HGzSMDtwLIv3iZlY0FTVg3PWFHDRTxvPHkYhf+xAXbO3ZydYIiKIaqZX6nrDrdF8UBT39r5nXF5CzSQRL7zVN0qY+L9lUU8rsatjpM4Uf+jjK9D11IXg7f8enAsr592AznTdy+ZGzIGHqv7Pov4p4wwtQ/b7B/jnt1+X2dqk=
+Message-ID: <29495f1d0609091146s4afbc37by15b6d90b6a140459@mail.gmail.com>
+Date: Sat, 9 Sep 2006 11:46:43 -0700
+From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
+Cc: "Miguel Ojeda" <maxextreme@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1157818217.6877.56.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: Samuel Tardieu <sam@rfc1149.net>
-Organization: RFC 1149 (see http://www.rfc1149.net/)
-Content-Transfer-Encoding: 8bit
-X-WWW: http://www.rfc1149.net/sam
-X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
-X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
-Message-Id: <2006-09-09-20-35-21+trackit+sam@rfc1149.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
+	 <1157818217.6877.56.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Sergey" == Sergey Vlasov <vsu@altlinux.ru> writes:
+On 9/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Gwe, 2006-09-08 am 19:10 +0200, ysgrifennodd Miguel Ojeda:
+<snip>
+> > 4. I would like to release the driver to the public, GPL'ed. Has it
+> > any possibility to enter in the mainstream kernel? Who can review it?
+> > ...?
+>
+> A good place to start is kernelnewbies.org, and when you are happy with
+> it post it somewhere for more general review.
 
-Sergey> Actually the situation is worse.  This driver pokes at SuperIO
-Sergey> configuration registers, which are shared by all logical
-Sergey> devices of the SuperIO chip.
+You may also find it useful to post to kernel-mentors:
+kernel-mentors@selenic.com (archived at:
+http://www.selenic.com/pipermail/kernel-mentors/). It was created with
+this kind of thing in mind, no?
 
-Exactly (this is something we discussed on a French
-mailing-list). However, in our case (dedibox.fr hardware), that was
-not an issue because we only use single-core boards, no other parts
-of the SuperIO are used at the same time and every existing code sets
-the logical device number to use each time it needs to access it.
-
-Also note that this situation exists with any Winbond SuperIO already
-in the kernel, this is not specific to this one.
-
-A SuperIO subsystem would be the cleanest solution IMO, even if at the
-beginning it only provides lock/unlock functionality. Then it could be
-extended as to factor common operation (selecting a logical device and
-reading/writing registers) and to allow access to the device from
-userland.
-
-On an unrelated subject, the whole watchdog subsystem would benefit
-from a refactoring; the code looking for a 'V' in a write() operation
-is present at least 35 times.
-
-  Sam
--- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
-
+Thanks,
+Nish

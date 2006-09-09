@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWIIDCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWIIDDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWIIDCh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 23:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWIIDCh
+	id S932097AbWIIDDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 23:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWIIDDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 23:02:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:55698 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932093AbWIIDCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 23:02:36 -0400
+	Fri, 8 Sep 2006 23:03:33 -0400
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:62142 "EHLO
+	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S932094AbWIIDDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 23:03:32 -0400
+Message-ID: <45022EF8.2020005@lwfinger.net>
+Date: Fri, 08 Sep 2006 22:03:20 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: HELP - NETDEV WATCHDOG tx timeouts
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-Date: Sat, 9 Sep 2006 13:02:27 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, akpm@osdl.org,
-       segher@kernel.crashing.org, davem@davemloft.net
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-In-Reply-To: <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
-References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+In the bcm43xx driver, the code snippet shown below has a problem. When the synchronize_net 
+statement is included, once every 200-300 passes through the code, the system will report a NETDEV 
+WATCHDOG tx timeout for bcm43xx, even when the watchdog timeout is set to 30 sec. When the 
+synchronize statement is removed, there are no errors, Except for lo, this is the only active 
+network device on the system.
 
-> I don't think anyting but a few SCSI drivers that are used on some ia64 
-> boxes use mmiowb(). And it's currently a no-op not only on x86 but also on 
+Is there something wrong with this structure? How can synchronize_net take that long?
 
-The examples in Documentation/memory-barriers.txt and
-Documentation/DocBook/deviceiobook.tmpl only seem to say that mmiowb
-is needed between a writel and a spin_unlock.
+Thanks, Larry
 
-> powerpc. Probably because it's defined to be a barrier between _two_ MMIO 
-> operations, while we should probably have things like
-> 
->  a)
-> 	.. regular mem store ..
-> 	mem_to_io_barrier();
-> 	.. IOMEM store ..
-> 
->  b)
-> 	.. IOMEM store ..
-> 	io_to_mem_barrier();
-> 	.. regular mem store ..
-> 
-> although it's quite possible that (a) never makes any sense at all.
+==============
 
-Do you mean (b) never makes sense?  (a) is the classic scenario for a
-device doing DMA to read a descriptor we've just constructed.
-
-> That said, it's also entirely possible that what you _should_ do is to 
-> just make sure that the	"sync" is always _before_ the IO op. But that 
-> would require that you have one before an IO load too. Do you? I'm too 
-> lazy to check.
-
-Not at present; readX() have no barrier before the load.  They have a
-barrier after the load that waits for the data to arrive before
-allowing any following instructions to execute.
-
-> (Keeping it inside a spinlock, I don't know. Spinlocks aren't _supposed_ 
-> to order IO, so I don't _think_ that's necessarily an argument for doing 
-> so. So your rationale seems strange. Even on x86, a spinlock release by 
-> _no_ means would mean that an IO write would be "done").
-
-Well, it's about ordering between multiple CPUs rather than the write
-being "done".  I think the powerpc readX/writeX got to their current
-form before the ia64 guys invented mmiowb().
-
-I suspect the best thing at this point is to move the sync in writeX()
-before the store, as you suggest, and add an "eieio" before the load
-in readX().  That does mean that we are then relying on driver writers
-putting in the mmiowb() between a writeX() and a spin_unlock, but at
-least that is documented.
-
-Paul.
+        mutex_lock(...);
+        netif_stop_queue(net_device);
+        synchronize_net();               <================ problem ?
+        spin_lock_irqsave(.....);
+...... do some stuff on the hardware
+        disable interrupts on device
+        spin_unlock_irqrestore(.......);
+        synchronize irq top/bottom halves
+...... lengthy processing here
+        spin_lock_irqsave(.....);
+        tasklet_enable(.....);
+        enable interrupts
+...... more stuff with the hardware
+        netif_wake_queue(net_device);
+        spin_unlock_irqrestore(...);
+        mutex_unlock(...);

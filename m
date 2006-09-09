@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWIIOhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWIIOkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWIIOhx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 10:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWIIOhx
+	id S932224AbWIIOkf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 10:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWIIOke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 10:37:53 -0400
-Received: from stine.vestdata.no ([217.149.127.10]:38882 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP id S932219AbWIIOhw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 10:37:52 -0400
-Date: Sat, 9 Sep 2006 16:37:44 +0200
-From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-Message-ID: <20060909143744.GZ16876@vestdata.no>
+	Sat, 9 Sep 2006 10:40:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44704 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932224AbWIIOke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 10:40:34 -0400
+Date: Sat, 9 Sep 2006 10:47:39 -0400
+From: Dave Jones <davej@redhat.com>
+To: Thiago Galesi <thiagogalesi@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Cpufreq not working in 2.6.18-rc6
+Message-ID: <20060909144739.GS28592@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Thiago Galesi <thiagogalesi@gmail.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <82ecf08e0609090722p1ded935dm794d569278d60122@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
-X-Zet.no-MailScanner-Information: Please contact the ISP for more information
-X-Zet.no-MailScanner: Found to be clean
-X-MailScanner-From: ragnark@stine.vestdata.no
+In-Reply-To: <82ecf08e0609090722p1ded935dm794d569278d60122@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ I'm not subscribed. Please CC me on replies ]
+On Sat, Sep 09, 2006 at 11:22:02AM -0300, Thiago Galesi wrote:
+ > Hello
+ > 
+ > Cpufreq is not working for me in 2.6.18-rc6 (as it worked flawlessly
+ > in 2.6.17.7 and earlier versions)
+ > 
+ > I cannot insmod powernow-k7, it only shows (in dmesg):
+ > 
+ > powernow: PowerNOW! Technology present. Can scale: frequency and voltage.
+ > 
+ > But then insmod fails with EBUSY (or better: init_module(0x804b018,
+ > 11352, "")       = -1 EBUSY (Device or resource busy))
+ > 
+ > I traced this to cpufreq_register_driver returning -0x16
+ > 
+ > I disabled APM for this kernel, previous kernel version had APM
+ > enabled (AFAIK, shouldn't be relevant; ACPI is enabled)
+ > 
+ > I tried to enable APM only to discover it does not work to compile APM
+ > as a module :/ (complains about default_idle and machine_real_restart
+ > being "unknown symbols")
+ > 
+ > ...
+ >
+ > CONFIG_X86_POWERNOW_K7_ACPI=y
+ > ..
+ > CONFIG_ACPI_PROCESSOR=m
 
-> Solution:
-> 
-> The solution can come in multiple steps.
-> 
-> Suggested fix #1: kernel
-> Patch below sorts the two device lists into breadth-first ordering to
-> maintain compatibility with 2.4 kernels.  It also overloads the
-> 'pci=nosort' option to disable the breadth-first sort (and on i386 it
-> continues to disable the pcibios_find_device sort as well).
+Does it start working again if you change ACPI_PROCESSOR=y ?
 
-As far as I understand it's difficult to argue that sorting the devices
-one way is more "correct" than the other, so your argument is basically:
-1) Compability with 2.4
-2) Consistency with BIOS and external labels.
+	Dave
 
-Both are important, but the problem is
-1) Compability with 2.4 means breaking compability with previous
-   2.6 kernels. And 2.6 has been out long enough that it's more
-   important than 2.4.
-2) There is also hardware where the 2.6 behaviour is consistent with
-   BIOS and external labels where 2.4 is not.
-
-An _option_ to enable 2.4 compatible device ordering on the other hand
-would have just advantages, no disadvantages.
-
-
--- 
-Ragnar Kjørstad
-Software Engineer
-Scali - http://www.scali.com
-Scaling the Linux Datacenter

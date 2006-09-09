@@ -1,112 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWIIIPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWIIISb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWIIIPi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 04:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWIIIPi
+	id S932353AbWIIISb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 04:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWIIISb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 04:15:38 -0400
-Received: from gw.goop.org ([64.81.55.164]:21467 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932350AbWIIIPh (ORCPT
+	Sat, 9 Sep 2006 04:18:31 -0400
+Received: from ns1.suse.de ([195.135.220.2]:45284 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932353AbWIIIS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 04:15:37 -0400
-Message-ID: <45027822.2010906@goop.org>
-Date: Sat, 09 Sep 2006 01:15:30 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+	Sat, 9 Sep 2006 04:18:29 -0400
+Date: Sat, 9 Sep 2006 01:18:16 -0700
+From: Greg KH <gregkh@suse.de>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: State of the Linux PCI Subsystem for 2.6.18-rc6
+Message-ID: <20060909081816.GA13058@kroah.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386-pda updates
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updates to i386-pda:
+Here's a summary of the current state of the Linux PCI subsystem, as of
+2.6.18-rc6.
 
-- fix typo
-- add a self-pointer to the PDA, so that finding its
-  linear address is easy
-- add type checking to PDA write operations
-- add byte-sized read/writes to the PDA
+If the information in here is incorrect, or anyone knows of any
+outstanding issues not listed here, please let me know.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+List of outstanding regressions from 2.6.17:
+	- none known.
 
----
- arch/i386/kernel/cpu/common.c |    4 +++-
- include/asm-i386/pda.h        |   19 +++++++++++++++++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+List of outstanding regressions from older kernel versions:
+	- none known.
 
-diff -r 69614542c834 arch/i386/kernel/cpu/common.c
---- a/arch/i386/kernel/cpu/common.c	Fri Sep 08 16:53:26 2006 -0700
-+++ b/arch/i386/kernel/cpu/common.c	Sat Sep 09 00:19:48 2006 -0700
-@@ -588,7 +588,7 @@ void __init early_cpu_init(void)
- #endif
- }
- 
--/* Make sure %gs it initialized properly in idle threads */
-+/* Make sure %gs is initialized properly in idle threads */
- struct pt_regs * __devinit idle_regs(struct pt_regs *regs)
- {
- 	memset(regs, 0, sizeof(struct pt_regs));
-@@ -648,6 +648,8 @@ static __cpuinit void pda_init(int cpu, 
- 
- 	memset(pda, 0, sizeof(*pda));
- 
-+	pda->_pda = pda;
-+
- 	pda->cpu_number = cpu;
- 	pda->pcurrent = curr;
- 
-diff -r 69614542c834 include/asm-i386/pda.h
---- a/include/asm-i386/pda.h	Fri Sep 08 16:53:26 2006 -0700
-+++ b/include/asm-i386/pda.h	Sat Sep 09 00:19:48 2006 -0700
-@@ -3,6 +3,8 @@
- 
- struct i386_pda
- {
-+	struct i386_pda *_pda;		/* pointer to self */
-+
- 	struct task_struct *pcurrent;	/* current process */
- 	int cpu_number;
- };
-@@ -20,7 +22,14 @@ extern struct i386_pda _proxy_pda;
- #define pda_to_op(op,field,val)						\
- 	do {								\
- 		typedef typeof(_proxy_pda.field) T__;			\
-+		if (0) { T__ tmp__; tmp__ = (val); }			\
- 		switch (sizeof(_proxy_pda.field)) {			\
-+		case 1:							\
-+			asm(op "b %1,%%gs:%c2"				\
-+			    : "+m" (_proxy_pda.field)			\
-+			    :"ri" ((T__)val),				\
-+			     "i"(pda_offset(field)));			\
-+			break;						\
- 		case 2:							\
- 			asm(op "w %1,%%gs:%c2"				\
- 			    : "+m" (_proxy_pda.field)			\
-@@ -41,6 +50,12 @@ extern struct i386_pda _proxy_pda;
- 	({								\
- 		typeof(_proxy_pda.field) ret__;				\
- 		switch (sizeof(_proxy_pda.field)) {			\
-+		case 1:							\
-+			asm(op "b %%gs:%c1,%0"				\
-+			    : "=r" (ret__)				\
-+			    : "i" (pda_offset(field)),			\
-+			      "m" (_proxy_pda.field));			\
-+			break;						\
- 		case 2:							\
- 			asm(op "w %%gs:%c1,%0"				\
- 			    : "=r" (ret__)				\
-@@ -57,6 +72,10 @@ extern struct i386_pda _proxy_pda;
- 		}							\
- 		ret__; })
- 
-+/* Return a pointer to a pda field */
-+#define pda_addr(field)							\
-+	((typeof(_proxy_pda.field) *)((unsigned char *)read_pda(_pda) + \
-+				      pda_offset(field)))
- 
- #define read_pda(field) pda_from_op("mov",field)
- #define write_pda(field,val) pda_to_op("mov",field,val)
+
+If interested, the list of all currently open PCI bugs can be seen at:
+    http://bugzilla.kernel.org/showdependencytree.cgi?id=5829&hide_resolved=1
+
+
+Future patches that are currently in my quilt tree (as found at
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/
+) for the PCI subsystem are as follows.  All of these will be submitted
+for inclusion into 2.6.19, except as noted:
+
+	- MSI rework currently being tested out in the -mm tree.
+	- PCI Express AER implementation.
+	- few minor PCI Hotplug driver fixes and cleanups.
+	- resource minor tweak.
+	- PCI sort device lists in breadth-first to fix the regression
+	  of PCI device order from the 2.4 kernel tree.  This can be
+	  disabled by a command line option if anyone is wed to the old
+	  2.6 buggy way.
+
+Note that there are some PCI API changes that happen in my driver tree.
+See that status report for details on those changes (nothing was done to
+break anything, only new stuff was added.)
+
+No other new PCI driver API changes are pending that I am aware of.  The
+PCI sort order change will affect some people's userspace ordering of
+network devices, restoring it to the proper 2.4 ordering.  It was never
+intended that this be broken, and since no one has noticed this for the
+past 3 years, it was not broken in a severe way.
+
+thanks,
+
+greg k-h
 

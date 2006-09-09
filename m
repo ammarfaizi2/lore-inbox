@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWIIVex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWIIVo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWIIVex (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 17:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIIVex
+	id S1751395AbWIIVo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 17:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWIIVo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 17:34:53 -0400
-Received: from smtp111.iad.emailsrvr.com ([207.97.245.111]:11994 "EHLO
-	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1751386AbWIIVew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 17:34:52 -0400
-Message-ID: <45033370.8040005@gentoo.org>
-Date: Sat, 09 Sep 2006 17:34:40 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+	Sat, 9 Sep 2006 17:44:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:15494 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751395AbWIIVo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 17:44:57 -0400
+From: Andi Kleen <ak@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 0/6] x86_64: Generic timekeeping for x86_64
+Date: Sat, 9 Sep 2006 22:30:49 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060907021820.31476.17484.sendpatchset@localhost>
+In-Reply-To: <20060907021820.31476.17484.sendpatchset@localhost>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
-       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
-       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
-       vsu@altlinux.ru, liste@jordet.net
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org> <1157817836.6877.52.camel@localhost.localdomain>
-In-Reply-To: <1157817836.6877.52.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609092230.49943.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> If they are on the V-Bus then the IRQ number controls routing if they
-> are on the PCI bus the IRQ line controls routing as normal.
+On Thursday 07 September 2006 04:18, john stultz wrote:
+> Hey Andi,
+> 	Just wanted to send this second pass on the x86_64 generic
+> timekeeping conversion. It includes a number of changes you suggested,
+> however its possible I missed a few things. I've made sure the patchset
+> compiles at each stage, and atleast w/ the box I was using it booted
+> each step as well.
 
-OK, so per your last mail, most VIA devices start on the PCI bus and 
-then later are migrated onto the V-bus.
+Looks all reasonable from a quick look.
+I assume it will clash with the recent patch to remove wall_jiffies use,
+but that should be easy to fix.
 
-Devices on the PCI bus need to be quirked (in some circumstances), as 
-when they are on the PCI bus they use the IRQ line for routing, and the 
-IRQ line is what the quirk actually modifies.
+How does the performance of the user space gettimeofday look
+compared to the old code in TSC mode?
 
-V-bus devices do not need the quirk because IRQ routing there is handled 
-by IRQ number alone.
+BTW I got some experimental code to put clock_gettime into
+user space too, but that can be later merged I guess.
 
-Is the above correct?
-
-I did some searching and couldn't find anything out about the V-bus, I 
-assume that is some VIA-specific thing.
-
-
-That aside, it appears we were talking about different situations in the 
-earlier email. We have 3 device classes:
-
-- Internal PCI bus devices
-- Internal V-bus devices
-- External PCI card devices
-
-I was talking about the corner case where we quirk an external-PCI-card 
-device when it is plugged into a mainboard which happens to be based on 
-a VIA chipset, whereas you were objecting to the fact that my patch 
-quirks both internal-PCI-bus and internal-V-bus devices (but only one of 
-those classes needs to be quirked). Is that correct?
-
-
-Final question for now, are you saying that the current quirk in 
-mainline only quirks devices which are in the internal-PCI-bus class? 
-i.e. all of the following are *not* available in internal-V-bus form?
-
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0,
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1,
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, 
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, 
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686,
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4,
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
-
-Thanks.
-Daniel
+-Andi
+ 

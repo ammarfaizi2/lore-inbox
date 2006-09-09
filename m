@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWIIDQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWIID3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWIIDQO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 23:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWIIDQO
+	id S932106AbWIID3m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 23:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWIID3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 23:16:14 -0400
-Received: from ns2.suse.de ([195.135.220.15]:131 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932104AbWIIDQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 23:16:14 -0400
-Date: Fri, 8 Sep 2006 20:16:02 -0700
-From: Greg KH <gregkh@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org, jeffm@suse.de
-Subject: Re: Linux 2.6.17.12
-Message-ID: <20060909031602.GA25541@suse.de>
-References: <20060908220741.GA26950@kroah.com> <45022333.6030605@eyal.emu.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45022333.6030605@eyal.emu.id.au>
+	Fri, 8 Sep 2006 23:29:42 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.4.196]:40182 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S932106AbWIID3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 23:29:41 -0400
+Date: Fri, 08 Sep 2006 23:29:39 -0400
+From: Nick Orlov <bugfixer@list.ru>
+Subject: netdevice name corruption is still present in 2.6.18-rc6-mm1
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux-netdev <linux-netdev@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Mail-followup-to: linux-kernel <linux-kernel@vger.kernel.org>,
+ linux-netdev <linux-netdev@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Message-id: <20060909032939.GA3087@nickolas.homeunix.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 12:13:07PM +1000, Eyal Lebedinsky wrote:
-> Greg KH wrote:
-> > We (the -stable team) are announcing the release of the 2.6.17.12 kernel.
-> 
-> A quick report, will investigate later:
-> 
-> WARNING: /lib/modules/2.6.17.12/kernel/drivers/md/dm-mod.ko needs unknown symbol idr_replace
-> 
-> I did not change my config throughout the series.
+Andrew,
 
-Oh nevermind, I need another patch from Jeff that adds idr_replace(),
-sorry about that, I'll go dig it up from the proper git tree...
+I would like to confirm that issue with netdevice name corruption
+is still present in 2.6.18-rc6-mm1 and extremely easy to reproduce
+(at least on my system) with 100% hit rate.
 
-thanks,
+All I have to do is 'sudo /etc/init.d/networking stop'. And here we go:
 
-greg k-h
+Sep  8 22:50:11 nickolas kernel: [events/1:7]: Changing netdevice name from [ath0] to [\200^C^BÂ\206]
+
+Does not look like an userspace issue at all...
+
+Last kernel which is known to be working (for me) is 2.6.18-rc1-mm2.
+Sorry, I now that a lot of things had changed since then,
+but I was somewhat busy last couple of months...
+
+Please let me know if I can help somehow to debug it.
+
+Thank you,
+	Nick Orlov.
+
+P.S. I admit that I'm using "binary only atheros driver" which makes
+this report a lot less legit. But seems like people experiencing the
+very same issue w/o any closed-source drivers loaded...
+
+P.P.S I don't even have NetworkManager executable on my system
+(Debian unstable updated on daily basis), so NetworkManager have
+nothing to do with it.
+
+-- 
+With best wishes,
+	Nick Orlov.
+

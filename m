@@ -1,63 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWIIXnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWIIXrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWIIXnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 19:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWIIXnu
+	id S965016AbWIIXrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 19:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWIIXrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 19:43:50 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:50531 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965019AbWIIXnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 19:43:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=o65zV3u2WUD6WVhfznsDpr1kYZEynkqfDtY9iKTIDylCAwsHFTA0IirTtcFbat9fBWDFQ1CDqBTF5k1GGON9tNnmngPG/GUUS5Q5IfzUythOPHXFa3hEuxg6ucXS3BHHvIhXVuV8KxtpW3xgsWcOF0lJvvdjHPi0f1wD5x6nXhY=
-Message-ID: <653402b90609091643j780b116bva15e857959353585@mail.gmail.com>
-Date: Sun, 10 Sep 2006 01:43:48 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1157846186.6877.82.camel@localhost.localdomain>
+	Sat, 9 Sep 2006 19:47:51 -0400
+Received: from mxsf21.cluster1.charter.net ([209.225.28.221]:32410 "EHLO
+	mxsf21.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S965016AbWIIXrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 19:47:49 -0400
+X-IronPort-AV: i="4.09,137,1157342400"; 
+   d="scan'208"; a="670832982:sNHT6250271400"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
-	 <1157818217.6877.56.camel@localhost.localdomain>
-	 <653402b90609091614p371dc60ub7c52d0910cf106@mail.gmail.com>
-	 <1157846186.6877.82.camel@localhost.localdomain>
+Message-ID: <17667.21152.289262.612141@smtp.charter.net>
+Date: Sat, 9 Sep 2006 19:47:44 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       "Miles Lane" <miles.lane@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.18-rc4-mm3 -- ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
+In-Reply-To: <17665.44656.416523.331809@smtp.charter.net>
+References: <a44ae5cd0608262356j29c0234cl198fb207bcad383d@mail.gmail.com>
+	<20060827001437.ec4f7a7a.akpm@osdl.org>
+	<17649.47572.627874.371564@stoffel.org>
+	<200609081009.01662.bjorn.helgaas@hp.com>
+	<17665.44656.416523.331809@smtp.charter.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Sul, 2006-09-10 am 01:14 +0200, ysgrifennodd Miguel Ojeda:
-> > parport_register_device() "The PARPORT_DEV_EXCL flag is for preventing
-> > port sharing, and so should only be used when sharing the port with
-> > other device drivers is impossible and would lead to incorrect
-> > behaviour. Use it sparingly!"
->
-> This is the one you want. It's there for things like parallel port
-> quickcams.
+>>>>> "John" == John Stoffel <john@stoffel.org> writes:
 
->
-> > Ok, easier that way. In fact, the conversion function takes just 20
-> > lines... I can provide it as an example with the driver. Is the
-> > Documentation/* the right place?
->
-> If its only 20 lines why not, in fact if its that short it might be fine
-> in kernel too.
->
+>>>>> "Bjorn" == Bjorn Helgaas <bjorn.helgaas@hp.com> writes:
+Bjorn> On Sunday 27 August 2006 09:27, John Stoffel wrote:
+>>> >>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+>>> 
+Andrew> On Sat, 26 Aug 2006 23:56:09 -0700
+Andrew> "Miles Lane" <miles.lane@gmail.com> wrote:
+>>> 
+>>> >> PCI: Using ACPI for IRQ routing
+>>> >> PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+>>> >> ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
+>>> >> [dump_trace+100/418] dump_trace+0x64/0x1a2
+>>> >> [show_trace_log_lvl+18/37] show_trace_log_lvl+0x12/0x25
+>>> >> [show_trace+13/16] show_trace+0xd/0x10
+>>> >> [dump_stack+23/25] dump_stack+0x17/0x19
+>>> >> [acpi_format_exception+162/175] acpi_format_exception+0xa2/0xaf
+>>> >> [acpi_ut_status_exit+43/88] acpi_ut_status_exit+0x2b/0x58
+>>> >> [acpi_walk_resources+269/281] acpi_walk_resources+0x10d/0x119
+>>> >> [acpi_motherboard_add+34/52] acpi_motherboard_add+0x22/0x34
+>>> >> [acpi_bus_driver_init+42/122] acpi_bus_driver_init+0x2a/0x7a
+>>> >> [acpi_bus_register_driver+137/248] acpi_bus_register_driver+0x89/0xf8
+>>> >> [acpi_motherboard_init+23/249] acpi_motherboard_init+0x17/0xf9
+>>> >> [init+136/512] init+0x88/0x200
+>>> >> [kernel_thread_helper+7/16] kernel_thread_helper+0x7/0x10
+>>> >> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
 
-Fast and clear! Thank you so much.
+>>> Thanks Andrew.  I just tried doing this with 2.6.18-rc4-mm3 and it
+>>> hung again.  I also tried booting with irqpoll and pci=routeirq but it
+>>> made no difference at all.  I got the following with irqpoll:
+>>> 
+>>> irq 17: nobody cared (try booting with the "irqpoll" option)
+>>> [<c013e834>] __report_bad_irq+0x24/0x90
+>>> [<c013eab8>] note_interrupt+0x218/0x250
+>>> [<c013dd43>] handle_IRQ_event+0x33/0x70
+>>> [<c013f3ea>] handle_fasteoi_irq+0xca/0xe0
+>>> [<c013f320>] handle_fasteoi_irq+0x0/0xe0
+>>> [<c01059dd>] do_IRQ+0x8d/0xf0
+>>> [<c0554250>] unknown_bootoption+0x0/0x270
+>>> [<c01039da>] common_interrupt+0x1a/0x20
+>>> [<c0101c40>] default_idle+0x0/0x60
+>>> [<c0554250>] unknown_bootoption+0x0/0x270
+>>> [<c0101c71>] default_idle+0x31/0x60
+>>> [<c0101d0c>] cpu_idle+0x6c/0x90
+>>> [<c05547b9>] start_kernel+0x2f9/0x400
+>>> [<c0554250>] unknown_bootoption+0x0/0x270
+>>> =======================
+>>> handlers:
+>>> [<c0303890>] (ata_interrupt+0x0/0x190)
+>>> [<c03115b0>] (usb_hcd_irq+0x0/0x60)
+>>> Disabling IRQ #17
 
-Just a last question: The conversion function, should I code it as a
-"exported function" via ioctl (copying the boolean matrix to kernel
-space, converting it and sending it back to user space), or as a
-second special device (like /dev/cfag..matrix)?
+Bjorn> Let's disentangle these two issues.  The ACPI unknown exception in
+Bjorn> the acpi_motherboard_init() path is understood and being resolved.
 
-Because of the problems I explained of waiting for all the matrix to
-start converting and sending it, I think the first option is better:
-The user-space program can ask for the conversion via ioctl and then
-send it to the normal device it whenever it wants.
+Bjorn, just to let you know, when booting 2.6.18-rc6-mm1, I don't get
+this oops any more.  Thanks for your fix!
+
+John

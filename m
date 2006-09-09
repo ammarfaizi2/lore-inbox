@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWIIXah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWIIXdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWIIXah (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 19:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWIIXag
+	id S965014AbWIIXdS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 19:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWIIXdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 19:30:36 -0400
-Received: from gw.goop.org ([64.81.55.164]:15758 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S965013AbWIIXag (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 19:30:36 -0400
-Message-ID: <45034E97.9090109@goop.org>
-Date: Sat, 09 Sep 2006 16:30:31 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386-pda updates
-References: <45027822.2010906@goop.org> <20060909155257.GA50136@muc.de>
-In-Reply-To: <20060909155257.GA50136@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 9 Sep 2006 19:33:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37555 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965014AbWIIXdR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 19:33:17 -0400
+Subject: Re: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miguel Ojeda <maxextreme@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <653402b90609091614p371dc60ub7c52d0910cf106@mail.gmail.com>
+References: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
+	 <1157818217.6877.56.camel@localhost.localdomain>
+	 <653402b90609091614p371dc60ub7c52d0910cf106@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 10 Sep 2006 00:56:26 +0100
+Message-Id: <1157846186.6877.82.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> @@ -20,7 +22,14 @@ extern struct i386_pda _proxy_pda;
->> #define pda_to_op(op,field,val)					 \
->> 	do {								\
->> 		typedef typeof(_proxy_pda.field) T__;			\
->> +		if (0) { T__ tmp__; tmp__ = (val); }			\
->>     
->
-> Merged into original patch
->   
-BTW, do you mean you already had this in i386, or that you folded it 
-into the existing patch?  I don't think I had sent out my version of 
-this before.
+Ar Sul, 2006-09-10 am 01:14 +0200, ysgrifennodd Miguel Ojeda:
+> parport_register_device() "The PARPORT_DEV_EXCL flag is for preventing
+> port sharing, and so should only be used when sharing the port with
+> other device drivers is impossible and would lead to incorrect
+> behaviour. Use it sparingly!"
 
-    J
+This is the one you want. It's there for things like parallel port
+quickcams.
+
+> Ok, easier that way. In fact, the conversion function takes just 20
+> lines... I can provide it as an example with the driver. Is the
+> Documentation/* the right place?
+
+If its only 20 lines why not, in fact if its that short it might be fine
+in kernel too.
+
+

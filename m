@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIIJFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWIIJV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWIIJFf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 05:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIIJFf
+	id S932128AbWIIJV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 05:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWIIJV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 05:05:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:52189 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751399AbWIIJFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 05:05:34 -0400
-Message-ID: <450283D5.1020404@garzik.org>
-Date: Sat, 09 Sep 2006 05:05:25 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Matt Domsch <Matt_Domsch@dell.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org>
-In-Reply-To: <20060908112035.f7a83983.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 9 Sep 2006 05:21:57 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23994
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751082AbWIIJVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 05:21:55 -0400
+Date: Sat, 09 Sep 2006 02:22:28 -0700 (PDT)
+Message-Id: <20060909.022228.41644790.davem@davemloft.net>
+To: benh@kernel.crashing.org
+Cc: mchan@broadcom.com, segher@kernel.crashing.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: TG3 data corruption (TSO ?)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1157751962.31071.102.camel@localhost.localdomain>
+References: <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
+	<1157745256.5344.8.camel@rh4>
+	<1157751962.31071.102.camel@localhost.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wanted to note what Martin Mares just raised in the thread "State of 
-the Linux PCI Subsystem for 2.6.18-rc6":
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Sat, 09 Sep 2006 07:46:02 +1000
 
-> Changing the device order in the middle of the 2.6 cycle doesn't sound
-> like a sane idea to me. Many people have changed their systems' configuration
-> to adapt to the 2.6 ordering and this patch would break their setups.
-> I have seen many such examples in my vicinity.
-> 
-> I believe that not breaking existing 2.6 setups is much more important
-> than keeping compatibility with 2.4 kernels, especially when the problem
-> is discovered after more than 2 years after release of the first 2.6.
+> I don't think that in general, you have ordering guarantees between
+> cacheable and non-cacheable stores unless you use explicit barriers.
 
+In fact, on most systems you absolutely do have ordering between
+MMIO and memory accesses.
 
-I'm not siding with either Martin or Matt explicitly, just noting that 
-there are good arguments for both sides.
+So you are making an extremely poor engineering decision
+by trying to fixup all the drivers to match PowerPC's
+semantics.  I think a smart engineer would decrease his
+debugging burdon, by matching his platform's MMIO accessors
+such that it matches what other platforms do and therefore
+inheriting the testing coverage provided by all platforms.
 
-	Jeff
-
-
-
+Otherwise you will be hunting down these kinds of memory
+barrier issues forever.

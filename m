@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWIIISv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWIIIje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWIIISv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 04:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWIIISv
+	id S932371AbWIIIje (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 04:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWIIIje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 04:18:51 -0400
-Received: from cantor.suse.de ([195.135.220.2]:46308 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932355AbWIIISb (ORCPT
+	Sat, 9 Sep 2006 04:39:34 -0400
+Received: from [88.208.93.65] ([88.208.93.65]:28943 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S932371AbWIIIjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 04:18:31 -0400
-Date: Sat, 9 Sep 2006 01:18:18 -0700
-From: Greg KH <gregkh@suse.de>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: State of the Linux USB Subsystem for 2.6.18-rc6
-Message-ID: <20060909081818.GA13055@kroah.com>
-MIME-Version: 1.0
+	Sat, 9 Sep 2006 04:39:33 -0400
+Date: Sat, 9 Sep 2006 10:39:32 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Greg KH <gregkh@suse.de>
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: State of the Linux PCI Subsystem for 2.6.18-rc6
+Message-ID: <mj+md-20060909.082546.5026.albireo@ucw.cz>
+References: <20060909081816.GA13058@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060909081816.GA13058@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a summary of the current state of the Linux USB subsystem, as of
-2.6.18-rc6.
+Hi Greg!
 
-If the information in here is incorrect, or anyone knows of any
-outstanding issues not listed here, please let me know.
+> No other new PCI driver API changes are pending that I am aware of.  The
+> PCI sort order change will affect some people's userspace ordering of
+> network devices, restoring it to the proper 2.4 ordering.  It was never
+> intended that this be broken, and since no one has noticed this for the
+> past 3 years, it was not broken in a severe way.
 
-List of outstanding regressions from 2.6.17:
-	- none known.
+Changing the device order in the middle of the 2.6 cycle doesn't sound
+like a sane idea to me. Many people have changed their systems' configuration
+to adapt to the 2.6 ordering and this patch would break their setups.
+I have seen many such examples in my vicinity.
 
-List of outstanding regressions from older kernel versions:
-	- none known.
+I believe that not breaking existing 2.6 setups is much more important
+than keeping compatibility with 2.4 kernels, especially when the problem
+is discovered after more than 2 years after release of the first 2.6.
 
-There are a few outstanding patches waiting for Linus to pull from at:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-as per a previous email message to him.
-
-If interested, the list of all currently open USB bugs can be seen at:
-    http://bugzilla.kernel.org/showdependencytree.cgi?id=5089&hide_resolved=1
-
-
-Future patches that are currently in my quilt tree (as found at
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/
-) for the USB subsystem are as follows.  All of these will be submitted
-for inclusion into 2.6.19, except as noted:
-
-	- USB core reworks to get suspend working better for the USB
-	  core and drivers.
-	- Initial framework for USB autosuspend (final patches enabling
-	  this are not included as they caused problems on my machines,
-	  they might be reworked and make it into 2.6.19 depending on
-	  the issues involved).
-	- OHCI changes to avoid root hub polling (this makes
-	  dynamic-tick mechanisms work much better and takes USB off of
-	  the list of the worse offenders of timer ticks in the kernel.)
-	- helper functions for detecting usb endpoints instead of having
-	  to remember those crazy bit fields all the time.  All drivers
-	  are converted to use them, fixing a few bugs in the process.
-	- some wireless USB infrastructure patches to make the future
-	  wireless driver merge easier.
-	- __must_check fixes to enable the whole USB subsystem to build
-	  without compiler warnings anymore.
-	- a number of new drivers:
-		- aircable bluetoot dongle driver
-		- adutux driver
-		- vibrator driver
-		- moschip 7840 usb-serial driver
-		- moschip 7720 usb-serial driver (not ready for 2.6.19)
-		- serqt usb-serial driver (not ready for 2.6.19)
-	- ability to multi-thread the USB probe process.  Probably not
-	  going to go into 2.6.19 as Alan Stern has come up with a
-	  better way to do this.  I just need to integrate it into the
-	  tree sometime in the near future.
-	- other minor bugfixes that are not really critical or too big
-	  to go into 2.6.18 at this period of time.
-
-No new USB driver API changes are pending that I am aware of.
-
-
-thanks,
-
-greg k-h
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+How do I type 'for i in *.dvi ; do xdvi $i ; done' in a GUI?

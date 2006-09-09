@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWIIVbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWIIVex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWIIVbW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 17:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIIVbW
+	id S1751386AbWIIVex (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 17:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIIVex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 17:31:22 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:55684 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751390AbWIIVbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 17:31:21 -0400
-Date: Sat, 9 Sep 2006 14:30:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Maier <balagi@justmail.de>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       "petero2@telia.com" <petero2@telia.com>
-Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue handling fix
-Message-ID: <20060909213054.GC19188@kroah.com>
-References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com> <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com> <op.tfmh56j9iudtyh@master>
+	Sat, 9 Sep 2006 17:34:53 -0400
+Received: from smtp111.iad.emailsrvr.com ([207.97.245.111]:11994 "EHLO
+	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S1751386AbWIIVew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 17:34:52 -0400
+Message-ID: <45033370.8040005@gentoo.org>
+Date: Sat, 09 Sep 2006 17:34:40 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <op.tfmh56j9iudtyh@master>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
+       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
+       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
+       vsu@altlinux.ru, liste@jordet.net
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org> <1157817836.6877.52.camel@localhost.localdomain>
+In-Reply-To: <1157817836.6877.52.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 08:11:56PM +0200, Thomas Maier wrote:
-> Hello,
-> 
-> >> +    write_queue_size  (r)  Contains the size of the bio write
-> >> +                           queue.
-> ...
-> >> +    mapped_to              Symbolic link to mapped block device
-> >> +                           in the /sys/block tree.
-> >
-> > Shouldn't this whole thing be in /sys/class/ instead of /sys/block/ ?
-> 
-> Don't know. I thought, the pktcdvd is a block driver, so put
-> the control files into /sys/block ..
-> Is /sys/class better? If yes, where to put it?
+Alan Cox wrote:
+> If they are on the V-Bus then the IRQ number controls routing if they
+> are on the PCI bus the IRQ line controls routing as normal.
 
-Use /sys/class/pktcdvd/ and use struct device instead of struct
-class_device, so I don't have to convert the code later :)
+OK, so per your last mail, most VIA devices start on the PCI bus and 
+then later are migrated onto the V-bus.
 
-> > On Fri, Sep 08, 2006 at 05:40:11PM -0400, Phillip Susi wrote:
-> >> Greg KH wrote:
-> >> >On Fri, Sep 08, 2006 at 07:55:08PM +0200, Thomas Maier wrote:
-> >> >>+/sys/block/pktcdvd/<pktdevname>/packet/
-> >> >>+    statistic         (r)  Show device statistic. One line with
-> >> >>+                           5 values in following order:
-> >> >>+                              packets-started
-> >> >>+                              packets-end
-> >> >>+                              written in kB
-> >> >>+                              read gather in kB
-> >> >>+                              read in kB
-> >> >
-> >> >Please no.  One value per file is the sysfs rule.
-> >> >
-> >>
-> >> Except in cases like this where you want to read the status of the
-> >> device at a given point in time, and you can't do that unless you grab
-> >> all the values at once.
-> >
-> > Then don't use sysfs for that.  And is something like this as critical
-> > to get that kind of information all in one atomic chunk?  It seems
-> > merely to be informational.
-> 
-> The "statistic" and "info" files are only for information purpose.
+Devices on the PCI bus need to be quirked (in some circumstances), as 
+when they are on the PCI bus they use the IRQ line for routing, and the 
+IRQ line is what the quirk actually modifies.
 
-Then please split them up into individual files.
+V-bus devices do not need the quirk because IRQ routing there is handled 
+by IRQ number alone.
 
-> Into /proc ? No. (i read somewhere /proc should only contain process
-> information in future)
+Is the above correct?
 
-Exactly.
+I did some searching and couldn't find anything out about the V-bus, I 
+assume that is some VIA-specific thing.
 
-> In debugfs? Hmm, this files should be infos that users should be able
-> to read, no debug output.
 
-Ok, then multiple files please.
+That aside, it appears we were talking about different situations in the 
+earlier email. We have 3 device classes:
 
-> Is it ok, if i split the "statistic" into 5 files, and put the "info"
-> into debugfs ?
+- Internal PCI bus devices
+- Internal V-bus devices
+- External PCI card devices
 
-Yes, that would be fine.
+I was talking about the corner case where we quirk an external-PCI-card 
+device when it is plugged into a mainboard which happens to be based on 
+a VIA chipset, whereas you were objecting to the fact that my patch 
+quirks both internal-PCI-bus and internal-V-bus devices (but only one of 
+those classes needs to be quirked). Is that correct?
 
-thanks,
 
-greg k-h
+Final question for now, are you saying that the current quirk in 
+mainline only quirks devices which are in the internal-PCI-bus class? 
+i.e. all of the following are *not* available in internal-V-bus form?
+
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0,
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1,
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, 
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, 
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686,
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4,
+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
+
+Thanks.
+Daniel

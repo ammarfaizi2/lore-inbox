@@ -1,87 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWIISD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWIISEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWIISD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 14:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWIISD2
+	id S964774AbWIISEM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 14:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWIISEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 14:03:28 -0400
-Received: from master.altlinux.org ([62.118.250.235]:27408 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1751344AbWIISD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 14:03:28 -0400
-Date: Sat, 9 Sep 2006 22:02:56 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Samuel Tardieu <sam@rfc1149.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jim Cromie <jim.cromie@gmail.com>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-Message-Id: <20060909220256.d4486a4f.vsu@altlinux.ru>
-In-Reply-To: <1157815525.6877.43.camel@localhost.localdomain>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net>
-	<1157815525.6877.43.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.2; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__9_Sep_2006_22_02_56_+0400_NSXKHhk/DXANwO_i"
+	Sat, 9 Sep 2006 14:04:12 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:5301 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1751349AbWIISEK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 14:04:10 -0400
+Date: Sat, 09 Sep 2006 20:11:56 +0200
+To: "Greg KH" <greg@kroah.com>, "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue handling fix
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Cc: linux-kernel@vger.kernel.org, "petero2@telia.com" <petero2@telia.com>
+Content-Type: text/plain; charset=iso-8859-15
+MIME-Version: 1.0
+References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com> <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <op.tfmh56j9iudtyh@master>
+In-Reply-To: <20060908220129.GB20018@kroah.com>
+User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sat__9_Sep_2006_22_02_56_+0400_NSXKHhk/DXANwO_i
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello,
 
-On Sat, 09 Sep 2006 16:25:25 +0100 Alan Cox wrote:
+>> +    write_queue_size  (r)  Contains the size of the bio write
+>> +                           queue.
+...
+>> +    mapped_to              Symbolic link to mapped block device
+>> +                           in the /sys/block tree.
+>
+> Shouldn't this whole thing be in /sys/class/ instead of /sys/block/ ?
 
-> Ar Mer, 2006-09-06 am 12:29 +0200, ysgrifennodd Samuel Tardieu:
-> > +static unsigned char
-> > +w83697hg_get_reg(unsigned char reg)
-> > +{
-> > +	outb_p(reg, W83697HG_EFIR);
-> > +	return inb_p(W83697HG_EFDR);
-> > +}
->=20
-> No kernel level locking anywhere in the driver. Yet you could have two
-> people accessing it at once.
+Don't know. I thought, the pktcdvd is a block driver, so put
+the control files into /sys/block ..
+Is /sys/class better? If yes, where to put it?
 
-Actually the situation is worse.  This driver pokes at SuperIO
-configuration registers, which are shared by all logical devices of the
-SuperIO chip.  There are other drivers which touch these registers -
-e.g., drivers/hwmon/w83627hf.c handles the hardware monitor part of this
-chip; many other hwmon drivers handle other SuperIO devices.  Hardware
-monitor drivers access the SuperIO config during initialization and do
-not request that port region, therefore loading hwmon drivers when
-w83697hf_wdt is loaded can lead to conflicts.
+> On Fri, Sep 08, 2006 at 05:40:11PM -0400, Phillip Susi wrote:
+>> Greg KH wrote:
+>> >On Fri, Sep 08, 2006 at 07:55:08PM +0200, Thomas Maier wrote:
+>> >>+/sys/block/pktcdvd/<pktdevname>/packet/
+>> >>+    statistic         (r)  Show device statistic. One line with
+>> >>+                           5 values in following order:
+>> >>+                              packets-started
+>> >>+                              packets-end
+>> >>+                              written in kB
+>> >>+                              read gather in kB
+>> >>+                              read in kB
+>> >
+>> >Please no.  One value per file is the sysfs rule.
+>> >
+>>
+>> Except in cases like this where you want to read the status of the
+>> device at a given point in time, and you can't do that unless you grab
+>> all the values at once.
+>
+> Then don't use sysfs for that.  And is something like this as critical
+> to get that kind of information all in one atomic chunk?  It seems
+> merely to be informational.
 
-More places which seem to touch SuperIO config:
+The "statistic" and "info" files are only for information purpose.
+Into /proc ? No. (i read somewhere /proc should only contain process
+information in future)
+In debugfs? Hmm, this files should be infos that users should be able
+to read, no debug output.
 
-  - drivers/parport/parport_pc.c
-  - drivers/net/irda/nsc-ircc.c
-  - drivers/net/irda/smsc-ircc2.c
-  - drivers/net/irda/via-ircc.h
+Is it ok, if i split the "statistic" into 5 files, and put the "info"
+into debugfs ?
 
-I can find at least two attempts to fix the SuperIO problem:
-
-  - a SuperIO subsystem proposed by Evgeniy Polyakov (cc'd);
-
-  - a simple SuperIO locks coordinator proposed by Jim Cromie (also
-    cc'd; http://thread.gmane.org/gmane.linux.drivers.sensors/10052 -
-    can't find actual patches).
-
-However, the mainline kernel still does not have anything for proper
-SuperIO access locking.
-
---Signature=_Sat__9_Sep_2006_22_02_56_+0400_NSXKHhk/DXANwO_i
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFAwHVW82GfkQfsqIRAmjJAKCGt1QmZCyHuGgS34pcGoFX9hx7TQCfTVho
-XCLl+OWLAfxQZuEe6QI3E3c=
-=HcGX
------END PGP SIGNATURE-----
-
---Signature=_Sat__9_Sep_2006_22_02_56_+0400_NSXKHhk/DXANwO_i--
+-Thomas Maier

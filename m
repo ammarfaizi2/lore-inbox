@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWIIEP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWIIElh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWIIEP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 00:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWIIEP2
+	id S932138AbWIIElh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 00:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWIIElh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 00:15:28 -0400
-Received: from mail.suse.de ([195.135.220.2]:61387 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932139AbWIIEP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 00:15:28 -0400
-Date: Fri, 8 Sep 2006 21:14:45 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>
-Subject: Re: Fwd: [-stable patch] pci_ids.h: add some VIA IDE identifiers
-Message-ID: <20060909041445.GA9254@suse.de>
-References: <20060909001925.GB1032@redhat.com> <20060909031020.GA17712@suse.de> <20060909034638.GA16816@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060909034638.GA16816@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 9 Sep 2006 00:41:37 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:63125 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S932138AbWIIElg
+	(ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 00:41:36 -0400
+Message-Id: <200609090437.k894bJFr019043@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm3 crypto issues with encrypted disks
+In-Reply-To: Your message of "Wed, 06 Sep 2006 16:15:53 +1000."
+             <20060906061553.GA20723@gondor.apana.org.au>
+From: Valdis.Kletnieks@vt.edu
+References: <200609041602.k84G2SYc005390@turing-police.cc.vt.edu>
+            <20060906061553.GA20723@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1157776630_12358P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 09 Sep 2006 00:37:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 11:46:38PM -0400, Dave Jones wrote:
-> On Fri, Sep 08, 2006 at 08:10:20PM -0700, Greg KH wrote:
->  > On Fri, Sep 08, 2006 at 08:19:25PM -0400, Dave Jones wrote:
->  > > This never made it into 2.6.17.12
->  > > Without it, this happens..
->  > > 
->  > > drivers/ide/pci/via82cxxx.c:85: error: 'PCI_DEVICE_ID_VIA_8237A' undeclared here (not in a function)
->  > 
->  > Doh!  Sorry about that, I forgot to do a run with 'make allmodconfig'
->  > this time around, and it shows :(
->  > 
->  > .13 will be out shortly...
-> 
-> Might want to throw this in too, which removes a new warning that appeared in 2.6.17.12
-> warning about implicit declaration of idr_remove
+--==_Exmh_1157776630_12358P
+Content-Type: text/plain; charset=us-ascii
 
-That would not have worked, idr_remove wasn't even in the tree :(
+On Wed, 06 Sep 2006 16:15:53 +1000, Herbert Xu said:
+>
+> Thanks for the report!  I set the wrong default when I changed the
+> cryptoloop init code.  This patch should fix the problem.
 
-I should have fixed it now, thanks.
+> -		mode = "ecb";
+> +		mode = "cbc";
 
-greg k-h
+Confirming that this does indeed fix it, thanks.
+
+--==_Exmh_1157776630_12358P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFAkT2cC3lWbTT17ARAopIAKDvXUCusIm+K33G6aCJ1fxAcKCcuACgzBwK
+I1/3p4TR76iVcNsho9WPR84=
+=qXVD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1157776630_12358P--

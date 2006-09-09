@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWIINoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWIIOAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWIINoW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 09:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWIINoW
+	id S932189AbWIIOAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 10:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWIIOAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 09:44:22 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:12004 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932179AbWIINoV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 09:44:21 -0400
-Message-ID: <4502C52F.9080900@garzik.org>
-Date: Sat, 09 Sep 2006 09:44:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] linux/magic.h for magic numbers
-References: <20060909110245.GA9617@havoc.gtf.org> <Pine.LNX.4.63.0609091453200.29522@alpha.polcom.net> <4502C086.2080302@garzik.org> <20060909133334.GB17085@uranus.ravnborg.org>
-In-Reply-To: <20060909133334.GB17085@uranus.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 9 Sep 2006 10:00:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28640 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932189AbWIIOAS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 10:00:18 -0400
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
+       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
+       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
+       vsu@altlinux.ru, liste@jordet.net
+In-Reply-To: <20060907223313.1770B7B40A0@zog.reactivated.net>
+References: <20060907223313.1770B7B40A0@zog.reactivated.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Sat, 09 Sep 2006 15:20:41 +0100
+Message-Id: <1157811641.6877.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> But do we want one common set of magic numbers or do we try to divide it
-> up per subssystem. The lattter approach are used for many other purposes
-> so why not for magics too?
-> Or in other word magic.h => fs_magic.h
+Ar Iau, 2006-09-07 am 23:33 +0100, ysgrifennodd Daniel Drake:
+> There is still a downside to this patch: if the user inserts a VIA PCI card
+> into a VIA-based motherboard, in some circumstances the quirk will also run on
+> the VIA PCI card. This corner case is hard to avoid.
 
-It's a fair question.  I would say, let need dictate the rename.
+NAK
 
-linux/poison.h covers many subsystems.  And even across the entire 
-kernel, we don't often add magic numbers...
+This is not a "corner case"
 
-	Jeff
+Very large numbers of VIA mainboards ship with some of the VIA devices
+built in and some of them on the PCI bus. In fact they generally start
+shipped on the board as PCI devices and migrate over time.
 
+You know from the northbridge which devices are internal and which are
+external.
+
+Alan
 

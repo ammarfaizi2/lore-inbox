@@ -1,69 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWIIGgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWIIHXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWIIGgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 02:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWIIGgL
+	id S1751345AbWIIHXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 03:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWIIHXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 02:36:11 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:17892 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751139AbWIIGgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 02:36:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=NqxCifLjFcZnlV1a+HitIwLLroQ+AMis6IVGNAv4K/LQN/0OcO/UyAdMIMHHYJ2JB87pR6I8j/fqHCzSacWGXskS6IOepx5b1LBcLP96UoUZV7lSVqZJ2wGwxg+Z5HHavPUeG+i6+We1OLNy/Pgm/j663yKQ0ZO9iHaJNGbNso0=
-Date: Sat, 9 Sep 2006 08:35:23 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, arjanv@infradead.org
-Subject: lockdep warning in check_flags()
-Message-ID: <20060909083523.GG1121@slug>
-References: <20060908011317.6cb0495a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Sat, 9 Sep 2006 03:23:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24462 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751345AbWIIHXr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 03:23:47 -0400
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, segher@kernel.crashing.org, davem@davemloft.net
+In-Reply-To: <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
+References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
+Content-Type: text/plain
+Date: Sat, 09 Sep 2006 17:23:20 +1000
+Message-Id: <1157786600.31071.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 01:13:17AM -0700, Andrew Morton wrote:
+On Fri, 2006-09-08 at 19:42 -0700, Linus Torvalds wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> On Sat, 9 Sep 2006, Paul Mackerras wrote:
+> > 
+> > Do you have an opinion about whether the MMIO write in writel() should
+> > be ordered with respect to preceding writes to normal memory?
 > 
-Lockdep issues the following warning:
+> It shouldn't. It's too expensive.
 
-[   16.835268] Freeing unused kernel memory: 260k freed
-[   16.842715] Write protecting the kernel read-only data: 432k
-[   17.796518] BUG: warning at kernel/lockdep.c:2359/check_flags()
-[   17.804117]  [<c0104436>] dump_trace+0x1f3/0x22a
-[   17.811514]  [<c0104493>] show_trace_log_lvl+0x26/0x3c
-[   17.818984]  [<c0104b58>] show_trace+0x1b/0x1d
-[   17.826397]  [<c0104c43>] dump_stack+0x24/0x26
-[   17.833856]  [<c013775e>] check_flags+0x1e4/0x2b1
-[   17.841400]  [<c013a9e2>] lock_acquire+0x21/0x7a
-[   17.848977]  [<c0135a50>] down_write+0x50/0x69
-[   17.856557]  [<c01640d4>] sys_brk+0x23/0xe7
-[   17.864105]  [<c01031f6>] sysenter_past_esp+0x5f/0x99
-[   17.871556]  [<b7faf410>] 0xb7faf410
-[   17.878831]  =======================
-[   17.885839] irq event stamp: 8318
-[   17.892746] hardirqs last  enabled at (8317): [<c01032c8>] restore_nocheck+0x12/0x15
-[   17.906778] hardirqs last disabled at (8318): [<c0103203>] sysenter_past_esp+0x6c/0x99
-[   17.921481] softirqs last  enabled at (7128): [<c0123cd1>] __do_softirq+0xe9/0xfa
-[   17.936962] softirqs last disabled at (7121): [<c0123d3e>] do_softirq+0x5c/0x60
+That's a releif ! I was worried we would have to add a second sync in
+there... In fact, we might even be able to remove the one we have right
+now (replace it with a more lighweight eieio) if we start using mmiowb
+(see below)
 
-I've replaced the DEBUG_LOCKS_WARN_ON by a BUG, and it appears that the
-user space program calling sys_brk is hotplug.
-This is 100% reproducible, it happens at (nearly) the same time, at each
-boot.
-The lspci, .config and dmesg are available at
-http://fdeweerdt.free.fr/lockdep_warning
-I'm going to try to bisect sysenter_past_esp by instering some
-TRACE_IRQS_ON between the beginning of the routine and the actual syscall
-to see when the irq enabling is missed.
+>  The fact that PC's have nice memory 
+> consistency models means that most of the testing is going to be with the 
+> PC memory ordering, but the same way we have "smp_wmb()" (which is also a 
+> no-op on x86) we should probably have a "mmiowb()" there.
+> 
+> Gaah. Right now, mmiowb() is actually broken on x86 (it's an empty define, 
+> so it may cause compiler warnings about statements with no effects or 
+> something).
+> 
+> I don't think anyting but a few SCSI drivers that are used on some ia64 
+> boxes use mmiowb(). And it's currently a no-op not only on x86 but also on 
+> powerpc. Probably because it's defined to be a barrier between _two_ MMIO 
+> operations, while we should probably have things like
+
+The problem is that very few people have any clear idea of what mmiowb
+is :) In fact, what you described is not the definition of mmiowb
+according to Jesse (who, iirc, added it in the first place on ia64). It
+was defined as a way to order MMIO vs. MMIO from 2 different nodes. In
+fact, it's actually a barrier between MMIO and spin_unlock, preventing
+MMIO's from leaking outside of the lock, and thus MMIOs from 2 locked
+sections on 2 CPUs from getting mixed together.
+
+However, I'm very happy to define mmiowb() as an almighty barrier for
+all sort of stores between all domains (it would be the same instruction
+in both case on powerpc anyway, a sync).
+
+If we start requiring mmiowb() to prevent MMIO writes from leaking out
+of locks, then we can even remove the sync we have in our MMIO stores
+(writel etc...) and replace it with a more lightweight eieio that will
+only order vs. other MMIO operations (especially loads). That would need
+quite a bit of driver auditing... but we would get back a few nice
+percent of performance on heavy IO traffic that we lost due to those
+barriers.
+
+>  a)
+> 	.. regular mem store ..
+> 	mem_to_io_barrier();
+> 	.. IOMEM store ..
+> 
+>  b)
+> 	.. IOMEM store ..
+> 	io_to_mem_barrier();
+> 	.. regular mem store ..
+> 
+> although it's quite possible that (a) never makes any sense at all.
+
+I quite like mem_to_io_* (barrier/rb/wb) and io_to_mem_* in fact :) That
+is probably more talkative to device driver writers and would allow more
+fine grained barriers. As Segher mentioned in another thread on this
+issue (see his mail titled "A modest proposal" (Ho hum) [was: Re: TG3
+data corruption (TSO ?)]" sent to lkml earlier today), the naming of
+barrier could be improved based on when to use them to make things
+clearer to device writers, while providing archs a more fine grained
+approach.
+
+> That said, it's also entirely possible that what you _should_ do is to 
+> just make sure that the	"sync" is always _before_ the IO op. But that 
+> would require that you have one before an IO load too. Do you? I'm too 
+> lazy to check.
+
+We need a sync after the store to prevent them from leaking out of
+spinlocks. The problem is locks are in the coherent domain, MMIO isn't,
+and on PowerPC, only strong barriers can order between those two. So
+either we have a sync after the store (performance hit on IOs), in the
+spin_unlock() (performance hit on anybody using spinlocks) ... or we
+move the problem to mmiowb() but that means fixing the load of drivers
+that don't use it properly and better document it.
+
+> (Keeping it inside a spinlock, I don't know. Spinlocks aren't _supposed_ 
+> to order IO, so I don't _think_ that's necessarily an argument for doing 
+> so. So your rationale seems strange. Even on x86, a spinlock release by 
+> _no_ means would mean that an IO write would be "done").
+
+No, but they should guarantee that stores done within the lock remain
+ordered between processors. Example:
+
+Processor A     Processor B
+
+ lock           lock
+ write A        write C
+ write B        write D
+ unlock         unlock
+
+It's important that on the target bus, what is emited is ABCD or CDAB,
+that is the 2 locked pairs remain consistent, and not ACBD or something
+like that.
+
+Ben.
 
 
-Thanks,
-Frederik

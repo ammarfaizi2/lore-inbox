@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWIIDyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWIIEP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWIIDyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 23:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWIIDyQ
+	id S932139AbWIIEP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 00:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWIIEP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 23:54:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34486 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932127AbWIIDyP (ORCPT
+	Sat, 9 Sep 2006 00:15:28 -0400
+Received: from mail.suse.de ([195.135.220.2]:61387 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932139AbWIIEP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 23:54:15 -0400
-Date: Fri, 8 Sep 2006 20:54:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, akpm@osdl.org,
-       segher@kernel.crashing.org, davem@davemloft.net
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-In-Reply-To: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0609082052550.27779@g5.osdl.org>
-References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org> <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
+	Sat, 9 Sep 2006 00:15:28 -0400
+Date: Fri, 8 Sep 2006 21:14:45 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>
+Subject: Re: Fwd: [-stable patch] pci_ids.h: add some VIA IDE identifiers
+Message-ID: <20060909041445.GA9254@suse.de>
+References: <20060909001925.GB1032@redhat.com> <20060909031020.GA17712@suse.de> <20060909034638.GA16816@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060909034638.GA16816@redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 9 Sep 2006, Paul Mackerras wrote:
-> > 
-> > although it's quite possible that (a) never makes any sense at all.
+On Fri, Sep 08, 2006 at 11:46:38PM -0400, Dave Jones wrote:
+> On Fri, Sep 08, 2006 at 08:10:20PM -0700, Greg KH wrote:
+>  > On Fri, Sep 08, 2006 at 08:19:25PM -0400, Dave Jones wrote:
+>  > > This never made it into 2.6.17.12
+>  > > Without it, this happens..
+>  > > 
+>  > > drivers/ide/pci/via82cxxx.c:85: error: 'PCI_DEVICE_ID_VIA_8237A' undeclared here (not in a function)
+>  > 
+>  > Doh!  Sorry about that, I forgot to do a run with 'make allmodconfig'
+>  > this time around, and it shows :(
+>  > 
+>  > .13 will be out shortly...
 > 
-> Do you mean (b) never makes sense?
+> Might want to throw this in too, which removes a new warning that appeared in 2.6.17.12
+> warning about implicit declaration of idr_remove
 
-Yes.
+That would not have worked, idr_remove wasn't even in the tree :(
 
-> I suspect the best thing at this point is to move the sync in writeX()
-> before the store, as you suggest, and add an "eieio" before the load
-> in readX().  That does mean that we are then relying on driver writers
-> putting in the mmiowb() between a writeX() and a spin_unlock, but at
-> least that is documented.
+I should have fixed it now, thanks.
 
-Yeah, that sounds reasonable.
-
-		Linus
+greg k-h

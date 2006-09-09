@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWIIDdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWIIDph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWIIDdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 23:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWIIDdM
+	id S932121AbWIIDph (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 23:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWIIDpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 23:33:12 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:23430 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932109AbWIIDdM (ORCPT
+	Fri, 8 Sep 2006 23:45:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2521 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932121AbWIIDpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 23:33:12 -0400
-Date: Fri, 8 Sep 2006 20:33:00 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
-Subject: Linux 2.6.17.13
-Message-ID: <20060909033300.GA8960@kroah.com>
-MIME-Version: 1.0
+	Fri, 8 Sep 2006 23:45:36 -0400
+Date: Fri, 8 Sep 2006 23:46:38 -0400
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>
+Subject: Re: Fwd: [-stable patch] pci_ids.h: add some VIA IDE identifiers
+Message-ID: <20060909034638.GA16816@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+	Adrian Bunk <bunk@stusta.de>
+References: <20060909001925.GB1032@redhat.com> <20060909031020.GA17712@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060909031020.GA17712@suse.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.17.13 kernel.
+On Fri, Sep 08, 2006 at 08:10:20PM -0700, Greg KH wrote:
+ > On Fri, Sep 08, 2006 at 08:19:25PM -0400, Dave Jones wrote:
+ > > This never made it into 2.6.17.12
+ > > Without it, this happens..
+ > > 
+ > > drivers/ide/pci/via82cxxx.c:85: error: 'PCI_DEVICE_ID_VIA_8237A' undeclared here (not in a function)
+ > 
+ > Doh!  Sorry about that, I forgot to do a run with 'make allmodconfig'
+ > this time around, and it shows :(
+ > 
+ > .13 will be out shortly...
 
-This fixes two build errors with the 2.6.17.12 release.  If you aren't
-experiencing them, there is no need to upgrade.  We are very sorry for
-for the mistakes that happened with the .12 release, and those
-responsible have been sacked.
+Might want to throw this in too, which removes a new warning that appeared in 2.6.17.12
+warning about implicit declaration of idr_remove
 
-I'll also be replying to this message with a copy of the patch between
-2.6.17.12 and 2.6.17.13, as it is small enough to do so.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-The updated 2.6.17.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.17.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
-
-thanks,
-
-greg k-h
-
---------
-
- Makefile                |    2 +-
- include/linux/idr.h     |    1 +
- include/linux/pci_ids.h |    5 ++++-
- lib/idr.c               |   43 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 49 insertions(+), 2 deletions(-)
-
-Summary of changes from v2.6.17.12 to v2.6.17.13
-================================================
-
-Alan Cox:
-      pci_ids.h: add some VIA IDE identifiers
-
-Greg Kroah-Hartman:
-      Linux 2.6.17.13
-
-Jeff Mahoney:
-      lib: add idr_replace
+--- linux-2.6.17.noarch/drivers/md/dm.c~	2006-09-08 23:37:08.000000000 -0400
++++ linux-2.6.17.noarch/drivers/md/dm.c	2006-09-08 23:37:16.000000000 -0400
+@@ -20,6 +20,7 @@
+ #include <linux/idr.h>
+ #include <linux/hdreg.h>
+ #include <linux/blktrace_api.h>
++#include <linux/idr.h>
+ 
+ static const char *_name = DM_NAME;
+ 
 

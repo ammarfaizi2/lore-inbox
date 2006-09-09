@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWIIN2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWIINoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWIIN2n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 09:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWIIN2n
+	id S932185AbWIINoW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 09:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWIINoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 09:28:43 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:4293 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S932178AbWIIN2m (ORCPT
+	Sat, 9 Sep 2006 09:44:22 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:12004 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932179AbWIINoV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 09:28:42 -0400
-Date: Sat, 9 Sep 2006 15:33:34 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
+	Sat, 9 Sep 2006 09:44:21 -0400
+Message-ID: <4502C52F.9080900@garzik.org>
+Date: Sat, 09 Sep 2006 09:44:15 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
        linux-fsdevel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [PATCH] linux/magic.h for magic numbers
-Message-ID: <20060909133334.GB17085@uranus.ravnborg.org>
-References: <20060909110245.GA9617@havoc.gtf.org> <Pine.LNX.4.63.0609091453200.29522@alpha.polcom.net> <4502C086.2080302@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4502C086.2080302@garzik.org>
-User-Agent: Mutt/1.4.2.1i
+References: <20060909110245.GA9617@havoc.gtf.org> <Pine.LNX.4.63.0609091453200.29522@alpha.polcom.net> <4502C086.2080302@garzik.org> <20060909133334.GB17085@uranus.ravnborg.org>
+In-Reply-To: <20060909133334.GB17085@uranus.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 09:24:22AM -0400, Jeff Garzik wrote:
-> Grzegorz Kulewski wrote:
-> >On Sat, 9 Sep 2006, Jeff Garzik wrote:
-> >>An IRC discussion sparked a memory:  most filesystems really don't
-> >>need to put anything at all in include/linux.  Excluding API-ish
-> >>filesystems like procfs, just about the only filesystem symbols that
-> >>get exported outside of __KERNEL__ are the *_SUPER_MAGIC symbols,
-> >>and similar symbols.
-> >>
-> >>After seeing the useful attributes of linux/poison.h, I propose a
-> >>similar linux/magic.h.
-> >
-> >But... if some patch changes this file (like adding new magic symbol) it 
-> >will cause large part of the kernel to rebuild without any good reason. No?
-> 
-> No :)
-> 
-> * The days when linux/fs.h included individual filesystem headers is 
-> long gone.  Only the filesystems themselves typically include the 
-> linux/foo_fs*.h files these days.
+Sam Ravnborg wrote:
+> But do we want one common set of magic numbers or do we try to divide it
+> up per subssystem. The lattter approach are used for many other purposes
+> so why not for magics too?
+> Or in other word magic.h => fs_magic.h
 
-But do we want one common set of magic numbers or do we try to divide it
-up per subssystem. The lattter approach are used for many other purposes
-so why not for magics too?
-Or in other word magic.h => fs_magic.h
+It's a fair question.  I would say, let need dictate the rename.
 
-	Sam
+linux/poison.h covers many subsystems.  And even across the entire 
+kernel, we don't often add magic numbers...
+
+	Jeff
+
+

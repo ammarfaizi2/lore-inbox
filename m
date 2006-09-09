@@ -1,165 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWIIS1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWIISew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWIIS1o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 14:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWIIS1n
+	id S1751362AbWIISew (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 14:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWIISew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 14:27:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10628 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751361AbWIIS1n convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 14:27:43 -0400
-Date: Sat, 9 Sep 2006 11:27:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Magnus =?ISO-8859-1?B?TeTkdHTk?= <novell@kiruna.se>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: 2.6.18-rc6-mm1
-Message-Id: <20060909112724.a214197b.akpm@osdl.org>
-In-Reply-To: <200609091445.32744.novell@kiruna.se>
-References: <200609091445.32744.novell@kiruna.se>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 9 Sep 2006 14:34:52 -0400
+Received: from mga01.intel.com ([192.55.52.88]:12878 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1751362AbWIISew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 14:34:52 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,136,1157353200"; 
+   d="scan'208"; a="128041283:sNHT17686844"
+Message-ID: <4503091C.1050501@intel.com>
+Date: Sat, 09 Sep 2006 11:34:04 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, akpm@osdl.org, segher@kernel.crashing.org,
+       davem@davemloft.net
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Sep 2006 14:45:32 +0200
-Magnus M‰‰tt‰ <novell@kiruna.se> wrote:
+Linus Torvalds wrote:
+> 
+> On Sat, 9 Sep 2006, Paul Mackerras wrote:
+>> Do you have an opinion about whether the MMIO write in writel() should
+>> be ordered with respect to preceding writes to normal memory?
+> 
+> It shouldn't. It's too expensive. The fact that PC's have nice memory 
+> consistency models means that most of the testing is going to be with the 
+> PC memory ordering, but the same way we have "smp_wmb()" (which is also a 
+> no-op on x86) we should probably have a "mmiowb()" there.
+> 
+> Gaah. Right now, mmiowb() is actually broken on x86 (it's an empty define, 
+> so it may cause compiler warnings about statements with no effects or 
+> something).
+> 
+> I don't think anyting but a few SCSI drivers that are used on some ia64 
+> boxes use mmiowb(). And it's currently a no-op not only on x86 but also on 
+> powerpc. Probably because it's defined to be a barrier between _two_ MMIO 
+> operations, while we should probably have things like
 
-> Hi Andrew,
-> 
-> Sorry, forgot to CC lkml when I sent the first one.
-> 
-> Andrew Morton wrote:
-> > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
-> > 
-> > - autofs4 mounting of NFS is still sick.
-> 
-> I got this oops on my machine when I ran df on another one which have 
-> mounted a few NFS shares from my machine. I got 5 more pretty much 
-> identical ones within 10 seconds after the first one (haven't seen 
-> any more after these though). Also, dmesg is filled with, about a 
-> gazillion of these:
-> [15164.017991] RPC request reserved 9136 but used 9268
-> [15164.037431] RPC request reserved 9136 but used 9268
-> [15164.052988] RPC request reserved 9136 but used 9268
-> 
-> Files are also getting corrupted when transfered from my machine, but 
-> using my machine as client works fine.
+it seems to be a growing virus with network drivers too. bnx2, s2io, tg3 and 
+bcm43xx (which has like 40 of them) are already resorting to it. We're even 
+planning on putting one in to e1000.
 
-OK, so the NFS server isn't happy.
+I'm not sure what bcm43xx chip will work with IA64, or if people actually have 
+itanium laptops(!) or MIPS, but for e1000 it definately fixes ordering problems 
+on IA64.
 
-> oops here:
-> 
-> Error (regular_file): read_ksyms stat /proc/ksyms failed
+Auke
 
-You don't need to run ksymoops at all in 2.6 - simply enable
-CONFIG_KALLSYMS and the kernel does the rest.
-
-> No modules in ksyms, skipping objects
-> No ksyms, skipping lsmod
-> BUG: unable to handle kernel NULL pointer dereference at virtual 
-> address 00000000
-> c04ad300
-> *pde = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<c04ad300>]    Tainted: P      VLI
-
-What caused the taint?
-
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00210212   (2.6.18-rc6-mm1 #1)
-> eax: 00000000   ebx: e5299000   ecx: 00000000   edx: e8843620
-> esi: e5299070   edi: ffff84de   ebp: e52a0fb0   esp: e52a0f70
-> ds: 007b   es: 007b   ss: 0068
-> Stack: 00200046 eb499aa0 00000001 eb499a84 00000000 e52a0f9c c04eaa1b 
-> eb499a84
->        00000001 e8843620 e529904c e52a0fb0 c012d70b 00000002 ffff84de 
-> ffff84de
->        e52a0fe0 c02784ba e5299000 e52a0fc4 00000000 fffffeff ffffffff 
-> fffffef8
-> Call Trace:
->  [<c01041bf>] show_trace_log_lvl+0x2f/0x50
->  [<c01042a7>] show_stack_log_lvl+0x97/0xc0
->  [<c0104532>] show_registers+0x1f2/0x2a0
->  [<c01047dd>] die+0x12d/0x240
->  [<c011735c>] do_page_fault+0x3ac/0x650
->  [<c04eaeef>] error_code+0x3f/0x44
->  [<c02784ba>] nfsd+0x18a/0x2b0
->  [<c0103fb7>] kernel_thread_helper+0x7/0x10
-> Code: 89 45 e8 8b 52 28 83 c6 70 89 55 e4 8b 40 04 83 f8 17 0f 86 6d 
-> 04 00 00 8b 5d 08 8b 83 9c 04 00 00 c7 83 a0 04 00 00 01 00 00 00 
-> <8b> 00 89 04 24 e8 06 d4 ca ff c7 46 04 00 00 00 00 89 c1 89 43
-> 
-> 
-> >>EIP; c04ad300 <svc_process+40/6a0>   <=====
-> 
-> Trace; c01041bf <show_trace_log_lvl+2f/50>
-> Trace; c01042a7 <show_stack_log_lvl+97/c0>
-> Trace; c0104532 <show_registers+1f2/2a0>
-> Trace; c01047dd <die+12d/240>
-> Trace; c011735c <do_page_fault+3ac/650>
-> Trace; c04eaeef <error_code+3f/44>
-> Trace; c02784ba <nfsd+18a/2b0>
-> Trace; c0103fb7 <kernel_thread_helper+7/10>
-> 
-> This architecture has variable length instructions, decoding before 
-> eip
-> is unreliable, take these instructions with a pinch of salt.
-> 
-> Code;  c04ad2d5 <svc_process+15/6a0>
-> 00000000 <_EIP>:
-> Code;  c04ad2d5 <svc_process+15/6a0>
->    0:   89 45 e8                  mov    %eax,0xffffffe8(%ebp)
-> Code;  c04ad2d8 <svc_process+18/6a0>
->    3:   8b 52 28                  mov    0x28(%edx),%edx
-> Code;  c04ad2db <svc_process+1b/6a0>
->    6:   83 c6 70                  add    $0x70,%esi
-> Code;  c04ad2de <svc_process+1e/6a0>
->    9:   89 55 e4                  mov    %edx,0xffffffe4(%ebp)
-> Code;  c04ad2e1 <svc_process+21/6a0>
->    c:   8b 40 04                  mov    0x4(%eax),%eax
-> Code;  c04ad2e4 <svc_process+24/6a0>
->    f:   83 f8 17                  cmp    $0x17,%eax
-> Code;  c04ad2e7 <svc_process+27/6a0>
->   12:   0f 86 6d 04 00 00         jbe    485 <_EIP+0x485>
-> Code;  c04ad2ed <svc_process+2d/6a0>
->   18:   8b 5d 08                  mov    0x8(%ebp),%ebx
-> Code;  c04ad2f0 <svc_process+30/6a0>
->   1b:   8b 83 9c 04 00 00         mov    0x49c(%ebx),%eax
-> Code;  c04ad2f6 <svc_process+36/6a0>
->   21:   c7 83 a0 04 00 00 01      movl   $0x1,0x4a0(%ebx)
-> Code;  c04ad2fd <svc_process+3d/6a0>
->   28:   00 00 00 
-> 
-> This decode from eip onwards should be reliable
-> 
-> Code;  c04ad300 <svc_process+40/6a0>
-> 00000000 <_EIP>:
-> Code;  c04ad300 <svc_process+40/6a0>   <=====
->    0:   8b 00                     mov    (%eax),%eax   <=====
-> Code;  c04ad302 <svc_process+42/6a0>
->    2:   89 04 24                  mov    %eax,(%esp)
-> Code;  c04ad305 <svc_process+45/6a0>
->    5:   e8 06 d4 ca ff            call   ffcad410 <_EIP+0xffcad410>
-> Code;  c04ad30a <svc_process+4a/6a0>
->    a:   c7 46 04 00 00 00 00      movl   $0x0,0x4(%esi)
-> Code;  c04ad311 <svc_process+51/6a0>
->   11:   89 c1                     mov    %eax,%ecx
-> Code;  c04ad313 <svc_process+53/6a0>
->   13:   89                        .byte 0x89
-> Code;  c04ad314 <svc_process+54/6a0>
->   14:   43                        inc    %ebx
-> 
-> EIP: [<c04ad300>] svc_process+0x40/0x6a0 SS:ESP 0068:e52a0f70
-> Warning (Oops_read): Code line not seen, dumping what data is 
-> available
-> 
-> 
-> >>EIP; c04ad300 <svc_process+40/6a0>   <=====
-> 
-> 
-> 2 warnings and 1 error issued.  Results may not be reliable.

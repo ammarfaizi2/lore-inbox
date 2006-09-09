@@ -1,39 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWIIQsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWIIRS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWIIQsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 12:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWIIQsw
+	id S1751329AbWIIRS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 13:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWIIRS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 12:48:52 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:26597 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932285AbWIIQsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 12:48:51 -0400
-Subject: Re: [PATCH -mm] scsi: compile error on module_refcount
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1157819464.8721.24.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-References: <20060909162635.746696000@mvista.com>
-	 <1157819464.8721.24.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Sat, 09 Sep 2006 11:48:41 -0500
-Message-Id: <1157820521.3462.11.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Sat, 9 Sep 2006 13:18:26 -0400
+Received: from fmmailgate03.web.de ([217.72.192.234]:965 "EHLO
+	fmmailgate03.web.de") by vger.kernel.org with ESMTP
+	id S1751330AbWIIRSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 13:18:25 -0400
+Message-ID: <4502F7A9.70200@web.de>
+Date: Sat, 09 Sep 2006 19:19:37 +0200
+From: "jens m. noedler" <noedler@web.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: gregkh@suse.de
+Subject: [PATCH -rc6] [resend] Documentation/ABI: devfs is not obsolete, but
+ removed!
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the patch.
+Hi everybody, Greg, Linus,
 
-On Sat, 2006-09-09 at 09:31 -0700, Daniel Walker wrote
-> Cc: linux-kernel@vger.kernel.org
+This little patch just moves the devfs entry from ABI/obsolete to
+ABI/removed and adds the comment, that devfs was removed in 2.6.18.
 
-for future reference, SCSI patches should go to
-linux-scsi@vger.kernel.org, since most people who read and review them
-don't actually subscribe to lkml.
+The patch was first send on 3. Sep 2006 to the LKML but nobody picked
+it up, so here is the second chance. :-) 
 
-James
+The patch is against linus' current git tree and it would be nice to 
+see it in the final 2.6.18 kernel.
+
+Kind regards, Jens
 
 
+Signed-off-by: jens m. noedler <noedler@web.de>
+
+---
+
+diff --git a/Documentation/ABI/obsolete/devfs b/Documentation/ABI/obsolete/devfs
+deleted file mode 100644
+index b8b8739..0000000
+--- a/Documentation/ABI/obsolete/devfs
++++ /dev/null
+@@ -1,13 +0,0 @@
+-What:		devfs
+-Date:		July 2005
+-Contact:	Greg Kroah-Hartman <gregkh@suse.de>
+-Description:
+-	devfs has been unmaintained for a number of years, has unfixable
+-	races, contains a naming policy within the kernel that is
+-	against the LSB, and can be replaced by using udev.
+-	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
+-	along with the the assorted devfs function calls throughout the
+-	kernel tree.
+-
+-Users:
+-
+diff --git a/Documentation/ABI/removed/devfs b/Documentation/ABI/removed/devfs
+new file mode 100644
+index 0000000..e360fa9
+--- /dev/null
++++ b/Documentation/ABI/removed/devfs
+@@ -0,0 +1,12 @@
++What:		devfs
++Date:		July 2005 (scheduled), finally removed in kernel v2.6.18
++Contact:	Greg Kroah-Hartman <gregkh@suse.de>
++Description:
++	devfs has been unmaintained for a number of years, has unfixable
++	races, contains a naming policy within the kernel that is
++	against the LSB, and can be replaced by using udev.
++	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
++	along with the the assorted devfs function calls throughout the
++	kernel tree.
++
++Users:
+
+
+
+-- 
+jens m. noedler
+  noedler@web.de
+  pgp: 0x9f0920bb
+  http://noedler.de

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWIIPfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWIIPhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWIIPfd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 11:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIIPfc
+	id S964771AbWIIPhX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 11:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIIPhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 11:35:32 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8619 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932271AbWIIPfb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 11:35:31 -0400
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Samuel Tardieu <sam@rfc1149.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2006-09-09-17-18-13+trackit+sam@rfc1149.net>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net>
-	 <1157815525.6877.43.camel@localhost.localdomain>
-	 <2006-09-09-17-18-13+trackit+sam@rfc1149.net>
+	Sat, 9 Sep 2006 11:37:23 -0400
+Received: from outmx021.isp.belgacom.be ([195.238.4.202]:61607 "EHLO
+	outmx021.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S932273AbWIIPhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 11:37:20 -0400
+Subject: [PATCH] alim15x3.c: M5229 (rev c8) support for DMA cd-writer
+From: Michael De Backer <micdb@skynet.be>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org, akpm@osdl.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 09 Sep 2006 16:58:42 +0100
-Message-Id: <1157817522.6877.46.camel@localhost.localdomain>
+Date: Sat, 09 Sep 2006 17:37:01 +0200
+Message-Id: <1157816221.5998.51.camel@mws.local.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-09-09 am 17:18 +0200, ysgrifennodd Samuel Tardieu:
-> On  9/09, Alan Cox wrote:
-> 
-> | No kernel level locking anywhere in the driver. Yet you could have two
-> | people accessing it at once.
-> 
-> The device can be open only by one client at a time, this is checked in
-> open(), as was done in most other watchdog drivers.
+From: Michael De Backer <micdb@skynet.be>
 
-This is insufficient. Many watchdog drivers are broken here but that's
-no excuse to continue the problem because people will copy the errror
-(as I suspect you did)
+Configuration bits are not set properly for DMA on some chipset
+revisions. It has already been corrected for M5229 (rev c7) but not for
+M5229 (rev c8). This leads to the bug described at
+http://bugzilla.kernel.org/show_bug.cgi?id=5786 (lost interrupt + ide
+bus hangs).
 
-	fd = open("/dev/watchdog", O_RDWR);
-	switch(fork())
-	{
+Signed-off-by: Michael De Backer <micdb@skynet.be>
+---
+This has been tested on ASUS A8R32-MVP motherboard (M5229 c8) with
+2.6.18-rc6, 2.6.18-rc6-mm1, 2.6.18-rc5-mm1, 2.6.17.10 and two different
+cd-writers. It completely solves the problem. 
 
-.. one open, two users, two processes, two CPUs
+The following patch is against the 2.6.18-rc6 or 2.6.18-rc6-mm1 kernel:
 
+--- linux/drivers/ide/pci/alim15x3.c.orig       2006-09-09
+16:07:07.000000000 +0200
++++ linux/drivers/ide/pci/alim15x3.c    2006-09-09 16:08:25.000000000
++0200
+@@ -730,7 +730,7 @@ static unsigned int __devinit ata66_ali1
 
-> | > +	default:
-> | > +		return -ENOIOCTLCMD;
-> | 
-> | Should be -ENOTTY
-> 
-> We have 44 instances of ENOIOCTLCMD in other watchdog drivers
-> and zero instances of ENOTTY. Should we change all the instances, adopt
-> what has been done or just change the new ones?
-
--ENOIOCTLCMD should never be returned to userspace. An unknown ioctl
-returns -ENOTTY. -ENOIOCTLCMD is an internal magic value used with
-helper layers to tell the helper layer "I don't handle this, use your
-own handler"
-
-
+	if(m5229_revision <= 0x20)
+		tmpbyte = (tmpbyte & (~0x02)) | 0x01;
+-       else if (m5229_revision == 0xc7)
++       else if (m5229_revision == 0xc7 || 0xc8)
+		tmpbyte |= 0x03;
+	else
+		tmpbyte |= 0x01;
 

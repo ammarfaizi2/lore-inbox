@@ -1,40 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWIJKkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWIJKkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWIJKkh (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750755AbWIJKkh (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Sep 2006 06:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWIJKke
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWIJKkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:40:34 -0400
-Received: from ext-103.mv.fabric7.com ([68.120.107.103]:1691 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S965032AbWIJAOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 20:14:19 -0400
-From: "Misha Tomushev" <misha@fabric7.com>
-To: <jgarzik@pobox.com>
-Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] VIOC: New Network Device Driver
-Date: Thu, 14 Sep 2006 17:15:21 -0700
-Message-ID: <000501c6d85c$08a352f0$8301a8c0@calvados>
+	Sun, 10 Sep 2006 06:40:36 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:1427 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932177AbWIINXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 09:23:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mykSD3js1W3H/7HRWA0kDuB4zf6KFzSZIZYk6y/zc3/ad2u394vO/SB7x8KBxgCMoFp2a+PVoy2FbtWy8A/QWqLBWApWH1ZW9y2KpE6Qt6gI9aa0O90pGw5vPTS05/ulmOWoNtm2PvFi3Bh/nQqNJnioSvvqk6ZwREKqj4JDxVc=
+Message-ID: <e5bfff550609090623t6c51e23bh9101a5a78db9ef64@mail.gmail.com>
+Date: Sat, 9 Sep 2006 15:23:49 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: "Git Mailing List" <git@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE qgit-1.5]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-OriginalArrivalTime: 10 Sep 2006 00:14:19.0023 (UTC) FILETIME=[0F06C1F0:01C6D46E]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VIOC Device Driver provides a standard device interface to the internal
-fabric interconnected network used on servers designed and built by
-Fabric 7 Systems.
+This is qgit-1.5
 
-The patch can be found at ftp.fabric7.com/VIOC.
-
+With qgit you will be able to browse revision histories, view patch content
+and changed files, graphically following different development branches.
 
 
-Misha Tomushev
+FEATURES
 
+ - View revisions, diffs, files history, files annotation, archive tree.
+
+ - Commit changes visually cherry picking modified files.
+
+ - Apply or format patch series from selected commits, drag and
+   drop commits between two instances of qgit.
+
+ - Associate commands sequences, scripts and anything else executable
+   to a custom action. Actions can be run from menu and corresponding
+   output is grabbed by a terminal window.
+
+ - qgit implements a GUI for the most common StGIT commands like push/pop
+   and apply/format patches. You can also create new patches or refresh
+   current top one using the same semantics of git commit, i.e. cherry
+   picking single modified files.
+
+
+NEW IN THIS RELEASE
+
+Multi tab support and source highlighter are the cool new features.
+
+Multi tab allows the user to open many patch or file view tabs, each
+linked on a different revision.
+
+If GNU Source-highlight (http://www.gnu.org/software/src-highlite/) is
+installed and in PATH then it is possible to toggle source code highlight
+pressing the Color text tool button in file viewer. Please refer to
+Source-highlight site for the list of supported languages and additional
+documentation.
+
+Some bugs squashed too. Not a lot though...qgit-1.4 has been a
+very stable release ;-)
+
+Finally, some performance tweaking.
+
+
+Please note that you will need git 1.4.0 or newer.
+
+
+DOWNLOAD
+
+Tarball is
+http://prdownloads.sourceforge.net/qgit/qgit-1.5.tar.bz2?download
+
+Git archive is
+git://git.kernel.org/pub/scm/qgit/qgit.git
+
+See http://digilander.libero.it/mcostalba/ for detailed download information.
+
+
+INSTALLATION
+
+git 1.4.0 or better is required.
+
+To install from tarball:
+
+./configure
+make
+make install-strip
+
+To install from git archive:
+
+autoreconf -i
+./configure
+make
+make install-strip
+
+Or check the shipped README for detailed information.
+
+
+CHANGELOG from 1.4
+
+- use GNU Source-highlight external tool with file viewer
+
+- show file rename/copy info on patch and file list views
+
+- show the currently checked-out head in bold font
+
+- show stat info at the beginning of patch view also for merges
+
+- added support for multi tab patch viewers aka 'view patch in a new tab'
+
+- added support for multi tab file viewers aka 'view file in a new tab'
+
+- improve size compression of revision's files saved data
+
+- disable 'close tab' button if current tab is the main view
+
+- replace "git-" commands with "git ". Most git commands are now built-in
+
+- other small fixes and some performance tweaks
+
+
+For a complete changelog see shipped ChangeLog file or git repository
+revision's history
+
+	Marco

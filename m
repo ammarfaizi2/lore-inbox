@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWIIDLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWIIDNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWIIDLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 23:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWIIDLG
+	id S932102AbWIIDNR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 23:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWIIDNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 23:11:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:63617 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932098AbWIIDLE (ORCPT
+	Fri, 8 Sep 2006 23:13:16 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51330 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932102AbWIIDNP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 23:11:04 -0400
-Date: Fri, 8 Sep 2006 20:10:20 -0700
+	Fri, 8 Sep 2006 23:13:15 -0400
+Date: Fri, 8 Sep 2006 20:13:03 -0700
 From: Greg KH <gregkh@suse.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>
-Subject: Re: Fwd: [-stable patch] pci_ids.h: add some VIA IDE identifiers
-Message-ID: <20060909031020.GA17712@suse.de>
-References: <20060909001925.GB1032@redhat.com>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17.12
+Message-ID: <20060909031303.GB17712@suse.de>
+References: <20060908220741.GA26950@kroah.com> <45022333.6030605@eyal.emu.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060909001925.GB1032@redhat.com>
+In-Reply-To: <45022333.6030605@eyal.emu.id.au>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 08, 2006 at 08:19:25PM -0400, Dave Jones wrote:
-> This never made it into 2.6.17.12
-> Without it, this happens..
+On Sat, Sep 09, 2006 at 12:13:07PM +1000, Eyal Lebedinsky wrote:
+> Greg KH wrote:
+> > We (the -stable team) are announcing the release of the 2.6.17.12 kernel.
 > 
-> drivers/ide/pci/via82cxxx.c:85: error: 'PCI_DEVICE_ID_VIA_8237A' undeclared here (not in a function)
+> A quick report, will investigate later:
+> 
+> WARNING: /lib/modules/2.6.17.12/kernel/drivers/md/dm-mod.ko needs unknown symbol idr_replace
+> 
+> I did not change my config throughout the series.
 
-Doh!  Sorry about that, I forgot to do a run with 'make allmodconfig'
-this time around, and it shows :(
-
-.13 will be out shortly...
+Can you send me your .config?
 
 thanks,
 

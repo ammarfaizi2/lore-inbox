@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWIILZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIIL1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWIILZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 07:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWIILZi
+	id S932070AbWIIL1p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 07:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWIIL1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 07:25:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50320 "EHLO
+	Sat, 9 Sep 2006 07:27:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:18837 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751319AbWIILZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 07:25:37 -0400
-Subject: [PATCH] [2/6] Remove <asm/timex.h> from user export
+	id S932070AbWIIL1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 07:27:44 -0400
+Subject: [PATCH] [3/6] Move inclusion of <linux/linkage.h> in
+	<asm-i386/signal.h>
 From: David Woodhouse <dwmw2@infradead.org>
 To: torvalds@osdl.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 In-Reply-To: <1157800733.2977.40.camel@pmac.infradead.org>
 References: <1157800733.2977.40.camel@pmac.infradead.org>
 Content-Type: text/plain
-Date: Sat, 09 Sep 2006 12:24:55 +0100
-Message-Id: <1157801095.2977.48.camel@pmac.infradead.org>
+Date: Sat, 09 Sep 2006 12:27:22 +0100
+Message-Id: <1157801242.2977.53.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -27,51 +28,34 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's useful stuff in <linux/timex.h> but <asm/timex.h> has nothing
-for userspace. Stop exporting it, and include it only from within the
-existing #ifdef __KERNEL__ part of <linux/timex.h>
-
-This fixes a 'make headers_check' failure on i386 because
-asm-i386/timex.h includes both asm-i386/tsc.h and asm-i386/processor.h,
-neither of which are exported to userspace. It's not entirely clear
-_why_ it includes either of these, but it does.
+Because <linux/linkage.h> doesn't exist in userspace, it should be only
+included from within #ifdef __KERNEL__. Move the corresponding #include
 
 Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
-diff --git a/include/asm-generic/Kbuild.asm b/include/asm-generic/Kbuild.asm
-index 6b16dda..c00de60 100644
---- a/include/asm-generic/Kbuild.asm
-+++ b/include/asm-generic/Kbuild.asm
-@@ -2,7 +2,7 @@ unifdef-y += a.out.h auxvec.h byteorder.
- 	ioctls.h ipcbuf.h mman.h msgbuf.h param.h poll.h		\
- 	posix_types.h ptrace.h resource.h sembuf.h shmbuf.h shmparam.h	\
- 	sigcontext.h siginfo.h signal.h socket.h sockios.h stat.h	\
--	statfs.h termbits.h termios.h timex.h types.h unistd.h user.h
-+	statfs.h termbits.h termios.h types.h unistd.h user.h
+diff --git a/include/asm-i386/signal.h b/include/asm-i386/signal.h
+index 3824a50..c3e8ade 100644
+--- a/include/asm-i386/signal.h
++++ b/include/asm-i386/signal.h
+@@ -2,7 +2,6 @@ #ifndef _ASMi386_SIGNAL_H
+ #define _ASMi386_SIGNAL_H
  
- # These probably shouldn't be exported
- unifdef-y += elf.h page.h
-diff --git a/include/linux/timex.h b/include/linux/timex.h
-index 19bb653..d543d38 100644
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -57,7 +57,6 @@ #include <linux/compiler.h>
+ #include <linux/types.h>
+-#include <linux/linkage.h>
  #include <linux/time.h>
+ #include <linux/compiler.h>
  
- #include <asm/param.h>
--#include <asm/timex.h>
- 
- /*
-  * SHIFT_KG and SHIFT_KF establish the damping of the PLL and are chosen
-@@ -191,6 +190,8 @@ #define TIME_ERROR	5	/* clock not synchr
- #define TIME_BAD	TIME_ERROR /* bw compat */
+@@ -10,6 +9,9 @@ #include <linux/compiler.h>
+ struct siginfo;
  
  #ifdef __KERNEL__
-+#include <asm/timex.h>
 +
- /*
-  * kernel variables
-  * Note: maximum error = NTP synch distance = dispersion + delay / 2;
++#include <linux/linkage.h>
++
+ /* Most things should be clean enough to redefine this at will, if care
+    is taken to make libc match.  */
+ 
+
 
 
 -- 

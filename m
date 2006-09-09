@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWIIPN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWIIPSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWIIPN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 11:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWIIPN5
+	id S932235AbWIIPSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 11:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWIIPSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 11:13:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:20212 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932258AbWIIPN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 11:13:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cWFEdTTi2M6RKFsl+BjAKdTva1fAQtGZx9t18wis+IXZPAsHYx4PzwBCWrcR54aNVdjJjd3O3fIeUmZeHotYl81pV+CF8wz9tXlUig9UBhyHcbKgdmHV/urok+M5I9Ztl8dAHWJ6wIvEGAEJG6gXRLWYWUm+SbJnj3FbudfAFz8=
-Message-ID: <82ecf08e0609090813g4889b659sfcb90e005cb42c14@mail.gmail.com>
-Date: Sat, 9 Sep 2006 12:13:54 -0300
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "Dave Jones" <davej@redhat.com>, "Thiago Galesi" <thiagogalesi@gmail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Cpufreq not working in 2.6.18-rc6
-In-Reply-To: <20060909144739.GS28592@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Sep 2006 11:18:23 -0400
+Received: from anyanka.rfc1149.net ([81.56.47.149]:24557 "EHLO
+	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S932235AbWIIPSW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 11:18:22 -0400
+Date: Sat, 9 Sep 2006 17:18:13 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <82ecf08e0609090722p1ded935dm794d569278d60122@mail.gmail.com>
-	 <20060909144739.GS28592@redhat.com>
+In-Reply-To: <1157815525.6877.43.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: Samuel Tardieu <sam@rfc1149.net>
+Organization: RFC 1149 (see http://www.rfc1149.net/)
+Content-Transfer-Encoding: 8bit
+X-WWW: http://www.rfc1149.net/sam
+X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
+X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
+Message-Id: <2006-09-09-17-18-13+trackit+sam@rfc1149.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  >
->  > CONFIG_X86_POWERNOW_K7_ACPI=y
->  > ..
->  > CONFIG_ACPI_PROCESSOR=m
->
-> Does it start working again if you change ACPI_PROCESSOR=y ?
+On  9/09, Alan Cox wrote:
 
-No. nothing changes
+| No kernel level locking anywhere in the driver. Yet you could have two
+| people accessing it at once.
 
--- 
--
-Thiago Galesi
+The device can be open only by one client at a time, this is checked in
+open(), as was done in most other watchdog drivers.
+
+| > +wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
+| > +	  unsigned long arg)
+| > +{
+| > +	default:
+| > +		return -ENOIOCTLCMD;
+| 
+| Should be -ENOTTY
+
+We have 44 instances of ENOIOCTLCMD in other watchdog drivers
+and zero instances of ENOTTY. Should we change all the instances, adopt
+what has been done or just change the new ones?
+
+| > +	printk(KERN_INFO PFX "Looking for W83697HG at address 0x%x\n", wdt_io);
+| 
+| KERN_DEBUG
+
+Fixed in my copy.
+
+  Sam
+

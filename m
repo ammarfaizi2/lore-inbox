@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWIIBlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWIIBur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWIIBlr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 21:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWIIBlr
+	id S1751312AbWIIBur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 21:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWIIBur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 21:41:47 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:11970 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751305AbWIIBlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 21:41:46 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: "Scott J. Harmon" <harmon@ksu.edu>
-Cc: Grant Coady <gcoady.lk@gmail.com>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.17.12
-Date: Sat, 09 Sep 2006 11:41:42 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <6o64g2ljb8k27tgsjiov2td87vv4pmf6ib@4ax.com>
-References: <20060908220741.GA26950@kroah.com> <6p14g2lcrt4mn7somaifh0sl5fqemdc5q5@4ax.com> <45021744.1010705@ksu.edu>
-In-Reply-To: <45021744.1010705@ksu.edu>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Sep 2006 21:50:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17051 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751312AbWIIBur (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 21:50:47 -0400
+Date: Fri, 8 Sep 2006 18:50:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC 1/2] kmemdup: introduce
+Message-Id: <20060908185043.05bd4796.akpm@osdl.org>
+In-Reply-To: <20060909013555.GC5192@martell.zuzino.mipt.ru>
+References: <20060909013555.GC5192@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Sep 2006 20:22:12 -0500, "Scott J. Harmon" <harmon@ksu.edu> wrote:
+On Sat, 9 Sep 2006 05:35:55 +0400
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
 
->Same here.  Unfortunately I am away from that machine and don't have the
->.config here.  I can get it later if needed.
+> P.S.: No idea why kstrdup() and kzalloc() use _____________kmalloc(),
 
-See: "Fwd: [-stable patch] pci_ids.h: add some VIA IDE identifiers"
-thread for the missing patch <http://lkml.org/lkml/2006/9/8/290>.
-
-Grant.
+It's all to do with slab debugging and __kmalloc_track_caller(): we want
+to record the _caller_ of kstrdup() within the slab object rather than kstrdup()
+itself.

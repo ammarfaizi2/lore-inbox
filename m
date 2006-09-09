@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWIIPhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWIIPiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWIIPhX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 11:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIIPhX
+	id S932272AbWIIPiO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 11:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWIIPiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 11:37:23 -0400
-Received: from outmx021.isp.belgacom.be ([195.238.4.202]:61607 "EHLO
-	outmx021.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S932273AbWIIPhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 11:37:20 -0400
-Subject: [PATCH] alim15x3.c: M5229 (rev c8) support for DMA cd-writer
-From: Michael De Backer <micdb@skynet.be>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org, akpm@osdl.org
-Content-Type: text/plain
-Date: Sat, 09 Sep 2006 17:37:01 +0200
-Message-Id: <1157816221.5998.51.camel@mws.local.net>
+	Sat, 9 Sep 2006 11:38:14 -0400
+Received: from anyanka.rfc1149.net ([81.56.47.149]:25077 "EHLO
+	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S932272AbWIIPiN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 11:38:13 -0400
+Date: Sat, 9 Sep 2006 17:38:12 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <2006-09-09-17-18-13+trackit+sam@rfc1149.net> <1157817522.6877.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157817522.6877.46.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: Samuel Tardieu <sam@rfc1149.net>
+Organization: RFC 1149 (see http://www.rfc1149.net/)
+Content-Transfer-Encoding: 8bit
+X-WWW: http://www.rfc1149.net/sam
+X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
+X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
+Message-Id: <2006-09-09-17-38-12+trackit+sam@rfc1149.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael De Backer <micdb@skynet.be>
+On  9/09, Alan Cox wrote:
 
-Configuration bits are not set properly for DMA on some chipset
-revisions. It has already been corrected for M5229 (rev c7) but not for
-M5229 (rev c8). This leads to the bug described at
-http://bugzilla.kernel.org/show_bug.cgi?id=5786 (lost interrupt + ide
-bus hangs).
+| This is insufficient. Many watchdog drivers are broken here but that's
+| no excuse to continue the problem because people will copy the errror
+| (as I suspect you did)
+| 
+| 	fd = open("/dev/watchdog", O_RDWR);
+| 	switch(fork())
+| 	{
+| 
+| .. one open, two users, two processes, two CPUs
 
-Signed-off-by: Michael De Backer <micdb@skynet.be>
----
-This has been tested on ASUS A8R32-MVP motherboard (M5229 c8) with
-2.6.18-rc6, 2.6.18-rc6-mm1, 2.6.18-rc5-mm1, 2.6.17.10 and two different
-cd-writers. It completely solves the problem. 
-
-The following patch is against the 2.6.18-rc6 or 2.6.18-rc6-mm1 kernel:
-
---- linux/drivers/ide/pci/alim15x3.c.orig       2006-09-09
-16:07:07.000000000 +0200
-+++ linux/drivers/ide/pci/alim15x3.c    2006-09-09 16:08:25.000000000
-+0200
-@@ -730,7 +730,7 @@ static unsigned int __devinit ata66_ali1
-
-	if(m5229_revision <= 0x20)
-		tmpbyte = (tmpbyte & (~0x02)) | 0x01;
--       else if (m5229_revision == 0xc7)
-+       else if (m5229_revision == 0xc7 || 0xc8)
-		tmpbyte |= 0x03;
-	else
-		tmpbyte |= 0x01;
+Right. Thanks for the review, will fix.
 

@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWIIFZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWIIF0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWIIFZM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 01:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWIIFZM
+	id S932150AbWIIF0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 01:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWIIF0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 01:25:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42183 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932148AbWIIFZK (ORCPT
+	Sat, 9 Sep 2006 01:26:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57799 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932150AbWIIF0P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 01:25:10 -0400
-Date: Fri, 8 Sep 2006 22:21:41 -0700
+	Sat, 9 Sep 2006 01:26:15 -0400
+Date: Fri, 8 Sep 2006 22:26:09 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Brandon Philips <brandon@ifup.org>, linux-kernel@vger.kernel.org,
-       Brice Goglin <brice@myri.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       Robert Love <rml@novell.com>
-Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
-Message-Id: <20060908222141.564e3b2a.akpm@osdl.org>
-In-Reply-To: <m1slj1iurx.fsf@ebiederm.dsl.xmission.com>
-References: <20060908174437.GA5926@plankton.ifup.org>
-	<20060908121319.11a5dbb0.akpm@osdl.org>
-	<20060908194300.GA5901@plankton.ifup.org>
-	<20060908125053.c31b76e9.akpm@osdl.org>
-	<m1slj1iurx.fsf@ebiederm.dsl.xmission.com>
+To: Nick Orlov <bugfixer@list.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-netdev <linux-netdev@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: netdevice name corruption is still present in 2.6.18-rc6-mm1
+Message-Id: <20060908222609.20745379.akpm@osdl.org>
+In-Reply-To: <20060909032939.GA3087@nickolas.homeunix.com>
+References: <20060909032939.GA3087@nickolas.homeunix.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Sep 2006 21:27:46 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Fri, 08 Sep 2006 23:29:39 -0400
+Nick Orlov <bugfixer@list.ru> wrote:
 
-> Andrew Morton <akpm@osdl.org> writes:
+> Andrew,
 > 
-> > On Fri, 8 Sep 2006 14:43:00 -0500
-> > Brandon Philips <brandon@ifup.org> wrote:
-> >
-> >> On 12:13 Fri 08 Sep 2006, Andrew Morton wrote:
-> >> > On Fri, 8 Sep 2006 12:44:37 -0500
-> >> > Brandon Philips <brandon@ifup.org> wrote:
-> >> > > 2.6.18-rc4-mm3 boots ok.
-> >> > > 
-> >> > > I will try and bisect the problem later tonight-
-> >> > 
-> >> > Thanks.  First, try disabling CONFIG_PCI_MSI.
-> >> 
-> >> With CONFIG_PCI_MSI disabled the system boots.  
-> >
-> > OK, thanks.
-> >
-> > So likely candidates are:
-> >
-> > - Brice's MSI changes
-> >
-> > - The conversion of i386 to use the genirq code
-> >
-> > - Eric's MSI/genirq changes
-> >
-> > or a combination of the above.  Or something else.
-> >
-> > <adds ccs, steps back expectantly>
+> I would like to confirm that issue with netdevice name corruption
+> is still present in 2.6.18-rc6-mm1 and extremely easy to reproduce
+> (at least on my system) with 100% hit rate.
 > 
-> Thanks for the heads up.
+> All I have to do is 'sudo /etc/init.d/networking stop'. And here we go:
 > 
-> There was another panic reported last -mm tree I believe as well.
+> Sep  8 22:50:11 nickolas kernel: [events/1:7]: Changing netdevice name from [ath0] to [\200^C^Bб\206]
+> 
+> Does not look like an userspace issue at all...
+> 
+> Last kernel which is known to be working (for me) is 2.6.18-rc1-mm2.
+> Sorry, I now that a lot of things had changed since then,
+> but I was somewhat busy last couple of months...
+> 
+> Please let me know if I can help somehow to debug it.
+> 
+> Thank you,
+> 	Nick Orlov.
+> 
+> P.S. I admit that I'm using "binary only atheros driver" which makes
+> this report a lot less legit. But seems like people experiencing the
+> very same issue w/o any closed-source drivers loaded...
+> 
+> P.P.S I don't even have NetworkManager executable on my system
+> (Debian unstable updated on daily basis), so NetworkManager have
+> nothing to do with it.
 > 
 
-Yes, there were a couple such reports.  The MSI patches in Greg's tree were
-blamed and rc6-mm1 has a revamped version.  Whether they were sufficiently
-revamped we do not know.
+No idea what's happened here then.  That was with Dave's patch applied:
+
+From: David Miller <davem@davemloft.net>
+
+A debugging patch like this one should help figure out the culprit.
+
+If we don't see the gibberish netdevice name printed in the kernel
+logs, then likely something is corrupting the netdevice structure or
+the memory holding the name.
+
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ net/core/dev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff -puN net/core/dev.c~dev_change_name-debug net/core/dev.c
+--- a/net/core/dev.c~dev_change_name-debug
++++ a/net/core/dev.c
+@@ -738,6 +738,11 @@ int dev_change_name(struct net_device *d
+ 
+ 	if (!dev_valid_name(newname))
+ 		return -EINVAL;
++#if 1
++	printk("[%s:%d]: Changing netdevice name from [%s] to [%s]\n",
++	       current->comm, current->pid,
++	       dev->name, newname);
++#endif
+ 
+ 	if (strchr(newname, '%')) {
+ 		err = dev_alloc_name(dev, newname);
+_
 

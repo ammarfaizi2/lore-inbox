@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWIITRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWIIT1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWIITRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 15:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWIITRM
+	id S964806AbWIIT1I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 15:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWIIT1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 15:17:12 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57746 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964808AbWIITRL (ORCPT
+	Sat, 9 Sep 2006 15:27:08 -0400
+Received: from mx6.mail.ru ([194.67.23.26]:33072 "EHLO mx6.mail.ru")
+	by vger.kernel.org with ESMTP id S964806AbWIIT1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 15:17:11 -0400
-Date: Sat, 9 Sep 2006 21:16:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Eric Sandall <eric@sandall.us>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend to ram with 2.6 kernels
-Message-ID: <20060909191654.GC2561@elf.ucw.cz>
-References: <44FF8586.8090800@sandall.us> <20060907193333.GI8793@ucw.cz> <4501EDA5.5020406@sandall.us>
+	Sat, 9 Sep 2006 15:27:05 -0400
+From: Lefti <lefti@bk.ru>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_EDD=[ym] kernel doesn't start booting
+Date: Sat, 9 Sep 2006 21:26:56 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4501EDA5.5020406@sandall.us>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200609092126.56607.lefti@bk.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
+I have kernel with CONFIG_EDD=m and boot stops after "Loading /bzImage ..... 
+Ready", message "Uncompressing Linux" isn't showed. If i unset this option, 
+kernel boots fine.
+I boot it on dual pentium pro (via pxelinux (netboot)).
 
-> >> I am having a problem with suspend-to-ram (have been for a while, but
-> >> suspend-to-disk has been working fine for me, so I never really bothered
-> >> to report it until now).
-> >>
-> >> Suspend-to-disk and resuming from it works fine (using `echo -n disk >
-> >> /sys/power/state`).
-> >>
-> >> Suspend-to-ram works fine (using `echo -n mem > /sys/power/state`), but
-> >> resuming does not. When I lift up the lid of my laptop (Dell Inspiron
-> >> 5100) it seems to power back up (the power light changes from blinking
-> >> to solid), but my screen stays blank and keys such as capslock do not
-> >> toggle their LED.
-> > 
-> > See suspend.sf.net, use provided s2ram program.
-> 
-> Thanks! The key (mentioned in the documentation there) is to disable
-> framebuffer (ATI video card). First time I've had suspend-to-RAM working
-> on this machine. ;)
+lspci
+0000:00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
+0000:00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 
+01)
+0000:00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
 
-I'm glad it works.
-
-> Though you may want to rename the /usr/sbin/suspend command to something
-> other than 'suspend' as, at least for me, it is a shell command which
-> puts the current shell in the background.
-> 
-> The HOWTO *does* mention:
-> [Warning: some shells have "suspend" built in command, so specifing
-> exact path like ./suspend is more important than usual.]
-> 
-> Though I still believe it'd be a good idea to pick a non-conflicting name.
-
-We thought about it, but was too lazy to rename, and suspend should
-probably be called from script/powersaved/something, anyway.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+0000:00:00.0 0600: 8086:1237 (rev 02)
+0000:00:07.0 0601: 8086:7000 (rev 01)
+0000:00:07.1 0101: 8086:7010

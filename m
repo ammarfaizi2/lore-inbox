@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWIIRTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWIIRzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWIIRTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 13:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWIIRTM
+	id S1751341AbWIIRzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 13:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWIIRzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 13:19:12 -0400
-Received: from cinke.fazekas.hu ([195.199.244.225]:14469 "EHLO
-	cinke.fazekas.hu") by vger.kernel.org with ESMTP id S1751331AbWIIRTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 13:19:10 -0400
-Date: Sat, 9 Sep 2006 19:19:03 +0200 (CEST)
-From: Marton Balint <cus@fazekas.hu>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: Driver_data is probably zero in serverworks IDE driver
-Message-ID: <Pine.LNX.4.61.0609091840170.30278@cinke.fazekas.hu>
+	Sat, 9 Sep 2006 13:55:40 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:132 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1751341AbWIIRzj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 13:55:39 -0400
+Date: Sat, 09 Sep 2006 20:03:28 +0200
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue handling fix
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Cc: linux-kernel@vger.kernel.org, "petero2@telia.com" <petero2@telia.com>
+Content-Type: text/plain; charset=iso-8859-15
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <op.tfkmp60biudtyh@master> <4501BC2B.5040204@cfl.rr.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <op.tfmhr2driudtyh@master>
+In-Reply-To: <4501BC2B.5040204@cfl.rr.com>
+User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-I have a ServerWorks CSB6 IDE controller, and with kernel 2.6.18-rc6 it is 
-detected as OSB4. I think this happens because the driver_data in the 
-pci_device_id table is zero for every device that uses the ServerWorks 
-driver.
+> Thomas Maier wrote:
+>> Hello
+>>
+>> (3th try with fixed inline patch)
+>>
+>> This is a patch for the packet writing driver pktcdvd.
+>> It adds a sysfs interface to the driver and a bio write
+>> queue "congestion" handling.
+>>
+>
+> Why does pktcdvd need to handle congestion?
 
-Please take a look at commit f201f5046ddaeeccb036bdf6848549bf5cb51bb1.
-This commit introduced the usage of the PCI_DEVICE macro, but this macro 
-does not set class and class_mask so I think now we set .class instead of 
-.driver_data. The drivers that are also affected by this commit may 
-have similar problems.
+> Doesn't it get blocked when
+> trying to send down bios to the underlying device if it's queue is
+> congested?
 
-Marton
+Yes, that is right.
+
+But the pktcdvd driver has an internal queue for *incoming* bio write request
+(over own make_request function), and this queue size was unlimited!
+Since the underlying (DVD writer in my case) can not process as much
+write packets as fast as new bio write requests are passed to the driver,
+the bio write queue size increases and increases and increases ;)
+Esp if you are write huge files. In my case, i wrote about 2G on data
+(using rsync for backup purpose) onto DVDRAM, with some huge files
+(about 300 MB). The bio write queue size raised over 200000 and more
+and at the end, the kernel said: ups, no more memory available, i
+let something fail.
+
+-Thomas Maier
+

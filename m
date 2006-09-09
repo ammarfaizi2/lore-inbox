@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWIIBAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWIIBWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWIIBAF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 21:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWIIBAF
+	id S1751285AbWIIBWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 21:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIIBWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 21:00:05 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:5263 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S1751266AbWIIBAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 21:00:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Date: Sat, 9 Sep 2006 00:59:50 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <edt3m6$9kn$1@taverner.cs.berkeley.edu>
-References: <20060907003210.GA5503@clipper.ens.fr> <20060907173449.GA24013@clipper.ens.fr> <20060907225429.GA30916@elf.ucw.cz> <20060908041034.GB24135@clipper.ens.fr>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1157763590 9879 128.32.168.222 (9 Sep 2006 00:59:50 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Sat, 9 Sep 2006 00:59:50 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Fri, 8 Sep 2006 21:22:54 -0400
+Received: from flpi102.sbcis.sbc.com ([207.115.20.71]:9935 "EHLO
+	flpi102.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S1751285AbWIIBWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Sep 2006 21:22:53 -0400
+X-ORBL: [68.95.116.149]
+Message-ID: <45021744.1010705@ksu.edu>
+Date: Fri, 08 Sep 2006 20:22:12 -0500
+From: "Scott J. Harmon" <harmon@ksu.edu>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060727)
+MIME-Version: 1.0
+To: Grant Coady <gcoady.lk@gmail.com>
+CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.17.12
+References: <20060908220741.GA26950@kroah.com> <6p14g2lcrt4mn7somaifh0sl5fqemdc5q5@4ax.com>
+In-Reply-To: <6p14g2lcrt4mn7somaifh0sl5fqemdc5q5@4ax.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Madore  wrote:
->On Fri, Sep 08, 2006 at 12:54:29AM +0200, Pavel Machek wrote:
->>		      Alternatively disallow suid/sgid-anything exec
->> when all "usual" capabilities are not present.
->
->This is probably too stringent: remove any trivial capability
->whatsoever and you lose a rather important ability.
+Grant Coady wrote:
+> On Fri, 8 Sep 2006 15:07:41 -0700, Greg KH <gregkh@suse.de> wrote:
+> 
+>> We (the -stable team) are announcing the release of the 2.6.17.12 kernel.
+> 
+> I get this compile error:
+> 
+>   CC      drivers/ide/pci/via82cxxx.o
+> drivers/ide/pci/via82cxxx.c:85: error: `PCI_DEVICE_ID_VIA_8237A' undeclared here (not in a function)
+> drivers/ide/pci/via82cxxx.c:85: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:85: error: (near initialization for `via_isa_bridges[3].id')
+> drivers/ide/pci/via82cxxx.c:85: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:85: error: (near initialization for `via_isa_bridges[3]')
+> drivers/ide/pci/via82cxxx.c:86: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:86: error: (near initialization for `via_isa_bridges[4]')
+> drivers/ide/pci/via82cxxx.c:87: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:87: error: (near initialization for `via_isa_bridges[5]')
+> drivers/ide/pci/via82cxxx.c:88: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:88: error: (near initialization for `via_isa_bridges[6]')
+> drivers/ide/pci/via82cxxx.c:89: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:89: error: (near initialization for `via_isa_bridges[7]')
+> drivers/ide/pci/via82cxxx.c:90: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:90: error: (near initialization for `via_isa_bridges[8]')
+> drivers/ide/pci/via82cxxx.c:91: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:91: error: (near initialization for `via_isa_bridges[9]')
+> drivers/ide/pci/via82cxxx.c:92: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:92: error: (near initialization for `via_isa_bridges[10]')
+> drivers/ide/pci/via82cxxx.c:93: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:93: error: (near initialization for `via_isa_bridges[11]')
+> drivers/ide/pci/via82cxxx.c:94: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:94: error: (near initialization for `via_isa_bridges[12]')
+> drivers/ide/pci/via82cxxx.c:95: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:95: error: (near initialization for `via_isa_bridges[13]')
+> drivers/ide/pci/via82cxxx.c:96: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:96: error: (near initialization for `via_isa_bridges[14]')
+> drivers/ide/pci/via82cxxx.c:97: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:97: error: (near initialization for `via_isa_bridges[15]')
+> drivers/ide/pci/via82cxxx.c:98: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:98: error: (near initialization for `via_isa_bridges[16]')
+> drivers/ide/pci/via82cxxx.c:99: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:99: error: (near initialization for `via_isa_bridges[17]')
+> drivers/ide/pci/via82cxxx.c:100: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:100: error: (near initialization for `via_isa_bridges[18]')
+> drivers/ide/pci/via82cxxx.c:101: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:101: error: (near initialization for `via_isa_bridges[19]')
+> drivers/ide/pci/via82cxxx.c:102: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:102: error: (near initialization for `via_isa_bridges[20]')
+> drivers/ide/pci/via82cxxx.c:103: error: initializer element is not constant
+> drivers/ide/pci/via82cxxx.c:103: error: (near initialization for `via_isa_bridges[21]')
+> make[3]: *** [drivers/ide/pci/via82cxxx.o] Error 1
+> make[2]: *** [drivers/ide/pci] Error 2
+> make[1]: *** [drivers/ide] Error 2
+> make: *** [drivers] Error 2
+> 
+> Tried twice, 5 of 6 targets okay, 1 of 6 not so good.
+> 
+> Grant.
 
-This might not be so terrible.  At least, I'm not sure I'd rule it
-out at this point -- it seems like it might be worth considering.
+Same here.  Unfortunately I am away from that machine and don't have the
+.config here.  I can get it later if needed.
 
-First of all, if you have intentionally created an underprivileged
-process, it seems almost reasonable to think that you might not want
-that process to be able to exec anything that is suid/sgid.
+Thanks,
 
-Second, there are very few programs out there that are sgid or
-suid-to-something-other-than-root.  On my FC5 machine, the ones I can spot
-are ssh-agent, locate, screen, sendmail, postfix, a bunch of games, and a
-few other random programs that are probably very rarely used.  I'm having
-a hard time imagining a use case where I'd want an underprivileged daemon
-to be able to exec one of those programs.  Normally, if I'm running
-one of those programs, I'm probably doing it from a command-line shell
-(which will have full user privileges) or some other environment that
-is running with full user privileges (e.g., startup scripts or login
-scripts, in the case of ssh-agent).
+Scott.
+-- 
+"Computer Science is no more about computers than astronomy is about
+telescopes." - Edsger Dijkstra

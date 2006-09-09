@@ -1,382 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWIIXJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWIIXOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbWIIXJj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 19:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWIIXJi
+	id S964996AbWIIXOg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 19:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWIIXOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 19:09:38 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:1957 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S964994AbWIIXJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 19:09:37 -0400
-Subject: Re: [PATCH 2/2] block: convert bsg, scsi_ioctl and cdrom to new
-	blk_rq_map_user fns
-From: Mike Christie <michaelc@cs.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, axboe@suse.de
-In-Reply-To: <1157835222.4543.11.camel@max>
-References: <1157835222.4543.11.camel@max>
-Content-Type: text/plain
-Date: Sat, 09 Sep 2006 18:09:45 -0400
-Message-Id: <1157839785.5281.4.camel@max>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Sat, 9 Sep 2006 19:14:36 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:33306 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964996AbWIIXOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 19:14:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fKf228NwhDMlnXor/PmCaUT+m/BZEr9KCPs9K+KYLB2cEoiwBR9iEx3TAzWfYeLTWADNlhQX+kF/yPPEGZNK3Kg8pFcyUepKkbI8KIaBjXopUt5NYvyYGg3d4VrKdVQn2yPdxdHCoLftUlSaMM8j9qmYnCWbbB/lHnraiac/xIo=
+Message-ID: <653402b90609091614p371dc60ub7c52d0910cf106@mail.gmail.com>
+Date: Sun, 10 Sep 2006 01:14:34 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1157818217.6877.56.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
+	 <1157818217.6877.56.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-09 at 16:53 -0400, Mike Christie wrote:
-> This patch just converts bsg, scsi_ioctl and cdrom to
-> the new functions. There is not really much of a change
-> for scsi_ioctl and cdrom. The block layer functions
-> handle things like bounce buffers, and bio unmapping accounting
-> for them now.
-> 
-> The bsg change is larger since I based the blk layer functions
-> on it and the scsi lib code, so there are lots of deletions.
-> There were also a couple of bugs that got fixes as a result
-> of using the blk layer API:
-> - If the hdr iovec_count = 0, then the request was not getting
-> freed because blk_unmap_sghdr_rq thought blk_rq_unmap_user
-> would free the request which it does not.
-> - blk_unmap_sghdr_rq would always call bio_unmap_user, even if
-> bio_copy_user was used. This was causing all types of weird bugs
-> like slab corruption.
-> 
-> I have tested the copy and map code with scsi_ioctl.c with large
-> requests having multiple bios. I have not tested bsg or cdrom.
-> And High Mem is not tested well. I am not sure how to force high
-> mem pages to be used for the mapping. Was there a proc or module
-> param that can be used?
-> 
-> Patch was made over Jens's block tree and the bsg branch
-> 
-> Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
+On 9/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> The parport interface exists precisely to generalise these uses of the
+> parport.
+
+I have read the parport documentation (The Linux 2.4 Parallel Port
+Subsystem), and they state that parport shares the port with other
+devices using a standard (IEEE 1284). Here is where the problem comes:
+
+Because the wiring of the LCD is completely practical (the parport was
+used because it has many output lines that are enough for taking with
+the LCD), it doesn't follow any kind of standard (like answering ACKs
+and so on), so I am not sure the LCD is going to work well with the
+parport driver and its "special signals" it sends to the data port. I
+will check it.
+
+Anyway, I have also thought this: If you load the cfag12864b driver
+before parport, both will be fine: The LCD driver will use the port it
+needs, and the parport will take care of all the others left. I have
+already tried it and it works fine. cfag12864b requests 0x378 for
+example, and then parport requests all the others, forgetting 0x378.
+
+Still, I have found there is a flag in parport that is used to prevent
+port just for one device:
+
+parport_register_device() "The PARPORT_DEV_EXCL flag is for preventing
+port sharing, and so should only be used when sharing the port with
+other device drivers is impossible and would lead to incorrect
+behaviour. Use it sparingly!"
+
+I don't know what would be better, if use the parport interface and
+such flag, or load my driver before parport requesting the port
+directly with request_region. What do you think?
 
 
-That patch was bad. As you can probably tell, I was trying to use git
-and was hand editing the patch at the same time. The patch below fixes
-the compile errors found in the previous patch.
+> You usually want format conversion done in user space as it is more
+> flexible that way. X has all the right framework for this so you could
+> even have fun with X11 on it ;)
 
-Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
-
-diff --git a/block/bsg.c b/block/bsg.c
-index cf48a81..d3f53f8 100644
---- a/block/bsg.c
-+++ b/block/bsg.c
-@@ -70,11 +70,6 @@ #define BSG_CMDS_MASK		(BSG_CMDS_PER_LON
- #define BSG_CMDS_BYTES		(PAGE_SIZE * (1 << BSG_CMDS_PAGE_ORDER))
- #define BSG_CMDS		(BSG_CMDS_BYTES / sizeof(struct bsg_command))
- 
--/*
-- * arbitrary limit, mapping bio's will reveal true device limit
-- */
--#define BSG_MAX_VECS		(128)
--
- #undef BSG_DEBUG
- 
- #ifdef BSG_DEBUG
-@@ -107,7 +102,6 @@ struct bsg_command {
- 	struct bsg_device *bd;
- 	struct list_head list;
- 	struct request *rq;
--	struct bio *bio;
- 	int err;
- 	struct sg_io_hdr hdr;
- 	struct sg_io_hdr __user *uhdr;
-@@ -251,8 +245,6 @@ bsg_validate_sghdr(request_queue_t *q, s
- 		return -EINVAL;
- 	if (hdr->cmd_len > BLK_MAX_CDB)
- 		return -EINVAL;
--	if (hdr->iovec_count > BSG_MAX_VECS)
--		return -EINVAL;
- 	if (hdr->dxfer_len > (q->max_sectors << 9))
- 		return -EIO;
- 
-@@ -282,12 +274,12 @@ bsg_validate_sghdr(request_queue_t *q, s
-  * each segment to a bio and string multiple bio's to the request
-  */
- static struct request *
--bsg_map_hdr(request_queue_t *q, int rw, struct sg_io_hdr *hdr)
-+bsg_map_hdr(struct bsg_device *bd, int rw, struct sg_io_hdr *hdr)
- {
-+	request_queue_t *q = bd->queue;
- 	struct sg_iovec iov;
- 	struct sg_iovec __user *u_iov;
- 	struct request *rq;
--	struct bio *bio;
- 	int ret, i = 0;
- 
- 	dprintk("map hdr %p/%d/%d\n", hdr->dxferp, hdr->dxfer_len,
-@@ -301,6 +293,12 @@ bsg_map_hdr(request_queue_t *q, int rw, 
- 	 * map scatter-gather elements seperately and string them to request
- 	 */
- 	rq = blk_get_request(q, rw, GFP_KERNEL);
-+	ret = blk_fill_sghdr_rq(q, rq, hdr, test_bit(BSG_F_WRITE_PERM,
-+				&bd->flags));
-+	if (ret) {
-+		blk_put_request(rq);
-+		return ERR_PTR(ret);
-+	}
- 
- 	if (!hdr->iovec_count) {
- 		ret = blk_rq_map_user(q, rq, hdr->dxferp, hdr->dxfer_len);
-@@ -310,9 +308,6 @@ bsg_map_hdr(request_queue_t *q, int rw, 
- 
- 	u_iov = hdr->dxferp;
- 	for (ret = 0, i = 0; i < hdr->iovec_count; i++, u_iov++) {
--		int to_vm = rw == READ;
--		unsigned long uaddr;
--
- 		if (copy_from_user(&iov, u_iov, sizeof(iov))) {
- 			ret = -EFAULT;
- 			break;
-@@ -323,57 +318,9 @@ bsg_map_hdr(request_queue_t *q, int rw, 
- 			break;
- 		}
- 
--		uaddr = (unsigned long) iov.iov_base;
--		if (!(uaddr & queue_dma_alignment(q))
--		    && !(iov.iov_len & queue_dma_alignment(q)))
--			bio = bio_map_user(q, NULL, uaddr, iov.iov_len, to_vm);
--		else
--			bio = bio_copy_user(q, uaddr, iov.iov_len, to_vm);
--
--		if (IS_ERR(bio)) {
--			ret = PTR_ERR(bio);
--			bio = NULL;
-+		ret = blk_rq_map_user(q, rq, iov.iov_base, iov.iov_len);
-+		if (ret)
- 			break;
--		}
--
--		dprintk("bsg: adding segment %d\n", i);
--
--		if (rq->bio) {
--			/*
--			 * for most (all? don't know of any) queues we could
--			 * skip grabbing the queue lock here. only drivers with
--			 * funky private ->back_merge_fn() function could be
--			 * problematic.
--			 */
--			spin_lock_irq(q->queue_lock);
--			ret = q->back_merge_fn(q, rq, bio);
--			spin_unlock_irq(q->queue_lock);
--
--			rq->biotail->bi_next = bio;
--			rq->biotail = bio;
--
--			/*
--			 * break after adding bio, so we don't have to special
--			 * case the cleanup too much
--			 */
--			if (!ret) {
--				ret = -EINVAL;
--				break;
--			}
--
--			/*
--			 * merged ok, update state
--			 */
--			rq->nr_sectors += bio_sectors(bio);
--			rq->hard_nr_sectors = rq->nr_sectors;
--			rq->data_len += bio->bi_size;
--		} else {
--			/*
--			 * first bio, setup rq state
--			 */
--			blk_rq_bio_prep(q, rq, bio);
--		}
--		ret = 0;
- 	}
- 
- 	/*
-@@ -399,8 +346,8 @@ static void bsg_rq_end_io(struct request
- 	struct bsg_device *bd = bc->bd;
- 	unsigned long flags;
- 
--	dprintk("%s: finished rq %p bio %p, bc %p offset %ld stat %d\n",
--			bd->name, rq, bc, bc->bio, bc - bd->cmd_map, uptodate);
-+	dprintk("%s: finished rq %p, bc %p offset %ld stat %d\n",
-+			bd->name, rq, bc, bc - bd->cmd_map, uptodate);
- 
- 	bc->hdr.duration = jiffies_to_msecs(jiffies - bc->hdr.duration);
- 
-@@ -424,7 +371,6 @@ static void bsg_add_command(struct bsg_d
- 	 * add bc command to busy queue and submit rq for io
- 	 */
- 	bc->rq = rq;
--	bc->bio = rq->bio;
- 	bc->hdr.duration = jiffies;
- 	spin_lock_irq(&bd->lock);
- 	list_add_tail(&bc->list, &bd->busy_list);
-@@ -529,7 +475,7 @@ static int bsg_complete_all_commands(str
- 			break;
- 		}
- 
--		tret = blk_complete_sghdr_rq(bc->rq, &bc->hdr, bc->bio);
-+		tret = blk_complete_sghdr_rq(bc->rq, &bc->hdr);
- 		if (!ret)
- 			ret = tret;
- 
-@@ -565,7 +511,7 @@ __bsg_read(char __user *buf, size_t coun
- 		 * after completing the request. so do that here,
- 		 * bsg_complete_work() cannot do that for us
- 		 */
--		ret = blk_complete_sghdr_rq(bc->rq, &bc->hdr, bc->bio);
-+		ret = blk_complete_sghdr_rq(bc->rq, &bc->hdr);
- 
- 		if (copy_to_user(buf, (char *) &bc->hdr, sizeof(bc->hdr)))
- 			ret = -EFAULT;
-@@ -767,17 +713,13 @@ static ssize_t __bsg_write(struct bsg_de
- 		/*
- 		 * get a request, fill in the blanks, and add to request queue
- 		 */
--		rq = bsg_map_hdr(q, rw, &bc->hdr);
-+		rq = bsg_map_hdr(bd, rw, &bc->hdr);
- 		if (IS_ERR(rq)) {
- 			ret = PTR_ERR(rq);
- 			rq = NULL;
- 			break;
- 		}
- 
--		ret = blk_fill_sghdr_rq(q, rq, &bc->hdr, test_bit(BSG_F_WRITE_PERM, &bd->flags));
--		if (ret)
--			break;
--
- 		bsg_add_command(bd, q, bc, rq);
- 		bc = NULL;
- 		rq = NULL;
-diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
-index 9426b54..afd4630 100644
---- a/block/scsi_ioctl.c
-+++ b/block/scsi_ioctl.c
-@@ -246,24 +246,16 @@ EXPORT_SYMBOL_GPL(blk_fill_sghdr_rq);
-  */
- int blk_unmap_sghdr_rq(struct request *rq, struct sg_io_hdr *hdr)
- {
--	struct bio *bio = rq->bio;
--
- 	/*
- 	 * also releases request
- 	 */
--	if (!hdr->iovec_count)
--		return blk_rq_unmap_user(bio, hdr->dxfer_len);
--
--	rq_for_each_bio(bio, rq)
--		bio_unmap_user(bio);
--
-+	blk_rq_unmap_user(rq);
- 	blk_put_request(rq);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(blk_unmap_sghdr_rq);
- 
--int blk_complete_sghdr_rq(struct request *rq, struct sg_io_hdr *hdr,
--			  struct bio *bio)
-+int blk_complete_sghdr_rq(struct request *rq, struct sg_io_hdr *hdr)
- {
- 	int r, ret = 0;
- 
-@@ -290,7 +282,6 @@ int blk_complete_sghdr_rq(struct request
- 			ret = -EFAULT;
- 	}
- 
--	rq->bio = bio;
- 	r = blk_unmap_sghdr_rq(rq, hdr);
- 	if (ret)
- 		r = ret;
-@@ -305,7 +296,6 @@ static int sg_io(struct file *file, requ
- 	unsigned long start_time;
- 	int writing = 0, ret = 0, has_write_perm = 0;
- 	struct request *rq;
--	struct bio *bio;
- 	char sense[SCSI_SENSE_BUFFERSIZE];
- 
- 	if (hdr->interface_id != 'S')
-@@ -332,6 +322,14 @@ static int sg_io(struct file *file, requ
- 	if (!rq)
- 		return -ENOMEM;
- 
-+	if (file)
-+		has_write_perm = file->f_mode & FMODE_WRITE;
-+
-+	if (blk_fill_sghdr_rq(q, rq, hdr, has_write_perm)) {
-+		blk_put_request(rq);
-+		return -EFAULT;
-+	}
-+
- 	if (hdr->iovec_count) {
- 		const int size = sizeof(struct sg_iovec) * hdr->iovec_count;
- 		struct sg_iovec *iov;
-@@ -348,7 +346,8 @@ static int sg_io(struct file *file, requ
- 			goto out;
- 		}
- 
--		ret = blk_rq_map_user_iov(q, rq, iov, hdr->iovec_count);
-+		ret = blk_rq_map_user_iov(q, rq, iov, hdr->iovec_count,
-+					  hdr->dxfer_len);
- 		kfree(iov);
- 	} else if (hdr->dxfer_len)
- 		ret = blk_rq_map_user(q, rq, hdr->dxferp, hdr->dxfer_len);
-@@ -356,17 +355,6 @@ static int sg_io(struct file *file, requ
- 	if (ret)
- 		goto out;
- 
--	if (file)
--		has_write_perm = file->f_mode & FMODE_WRITE;
--
--	bio = rq->bio;
--
--	if (blk_fill_sghdr_rq(q, rq, hdr, has_write_perm)) {
--		blk_rq_unmap_user(bio, hdr->dxfer_len);
--		blk_put_request(rq);
--		return -EFAULT;
--	}
--
- 	memset(sense, 0, sizeof(sense));
- 	rq->sense = sense;
- 	rq->sense_len = 0;
-@@ -383,7 +371,7 @@ static int sg_io(struct file *file, requ
- 
- 	hdr->duration = ((jiffies - start_time) * 1000) / HZ;
- 
--	return blk_complete_sghdr_rq(rq, hdr, bio);
-+	return blk_complete_sghdr_rq(rq, hdr);
- out:
- 	blk_put_request(rq);
- 	return ret;
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index b38c84a..5991263 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -2090,7 +2090,6 @@ static int cdrom_read_cdda_bpc(struct cd
- {
- 	request_queue_t *q = cdi->disk->queue;
- 	struct request *rq;
--	struct bio *bio;
- 	unsigned int len;
- 	int nr, ret = 0;
- 
-@@ -2131,10 +2130,6 @@ static int cdrom_read_cdda_bpc(struct cd
- 		rq->cmd_len = 12;
- 		rq->cmd_type = REQ_TYPE_BLOCK_PC;
- 		rq->timeout = 60 * HZ;
--		bio = rq->bio;
--
--		if (rq->bio)
--			blk_queue_bounce(q, &rq->bio);
- 
- 		if (blk_execute_rq(q, cdi->disk, rq, 0)) {
- 			struct request_sense *s = rq->sense;
-@@ -2142,7 +2137,7 @@ static int cdrom_read_cdda_bpc(struct cd
- 			cdi->last_sense = s->sense_key;
- 		}
- 
--		if (blk_rq_unmap_user(bio, len))
-+		if (blk_rq_unmap_user(rq))
- 			ret = -EFAULT;
- 
- 		if (ret)
+Ok, easier that way. In fact, the conversion function takes just 20
+lines... I can provide it as an example with the driver. Is the
+Documentation/* the right place?
 
 
+> A good place to start is kernelnewbies.org, and when you are happy with
+> it post it somewhere for more general review.
+
+
+I have checked it out and I have talked a little bit at
+#kernelnewbies, and they told me also to check the
+Documentation/Sending*.
+
+I will send it to review to somewhere (still I don't know exactly to
+whom, I thought this was the right place) and then to akpm, as
+Doc/Sending* states.
+
+
+Thank you for your time.
+
+       Miguel Ojeda

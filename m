@@ -1,47 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWIIJhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWIIJzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWIIJhc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 05:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWIIJhc
+	id S1751060AbWIIJzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 05:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWIIJzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 05:37:32 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16547
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750798AbWIIJha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 05:37:30 -0400
-Date: Sat, 09 Sep 2006 02:38:03 -0700 (PDT)
-Message-Id: <20060909.023803.104047454.davem@davemloft.net>
-To: benh@kernel.crashing.org
-Cc: torvalds@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, segher@kernel.crashing.org
+	Sat, 9 Sep 2006 05:55:31 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42462 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751032AbWIIJza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 05:55:30 -0400
+Message-ID: <45028F87.7040603@garzik.org>
+Date: Sat, 09 Sep 2006 05:55:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, akpm@osdl.org, segher@kernel.crashing.org
 Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1157786600.31071.166.camel@localhost.localdomain>
-References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>
-	<1157786600.31071.166.camel@localhost.localdomain>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0609081928570.27779@g5.osdl.org>	<17666.11971.416250.857749@cargo.ozlabs.ibm.com> <20060909.023405.71099525.davem@davemloft.net>
+In-Reply-To: <20060909.023405.71099525.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.4 (---)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.4 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Date: Sat, 09 Sep 2006 17:23:20 +1000
+David Miller wrote:
+> From: Paul Mackerras <paulus@samba.org>
+> Date: Sat, 9 Sep 2006 13:02:27 +1000
+> 
+>> I suspect the best thing at this point is to move the sync in writeX()
+>> before the store, as you suggest, and add an "eieio" before the load
+>> in readX().  That does mean that we are then relying on driver writers
+>> putting in the mmiowb() between a writeX() and a spin_unlock, but at
+>> least that is documented.
+> 
+> I think not matching what PC systems do is, at least from one
+> perspective, a very bad engineering decision for 2 reasons.
+> 
+> 1) You will be chasing down these kinds of problems forever,
+>    you will fix tg3 today, but tomorrow it will be another driver
+>    for which you will invest weeks of delicate debugging that
+>    could have been spent on much more useful coding
+> 
+> 2) Driver authors will not get these memory barriers right,
+>    you can say they will because it will be "documented" but
+>    that does not change reality which is that driver folks
+>    will get simple interfaces right but these memory barriers
+>    are relatively advanced concepts, which they thus will get
+>    wrong half the time
+> 
+> Sure it's more expensive, but at least on sparc64 I'd much rather
+> spend my time working on more interesting things than "today's
+> missing memory barrier" :-)
+> 
+> I also don't want to see all of these memory barriers crapping up our
+> drivers.  I do a MMIO, then I access a descriptor, or vice versa, then
+> those should be ordered because they are both technically accesses to
+> "physical device state".  Having to say this explicitly seems really
+> the wrong thing to do, at least to me.
 
-> I quite like mem_to_io_* (barrier/rb/wb) and io_to_mem_* in fact :) That
-> is probably more talkative to device driver writers and would allow more
-> fine grained barriers.
+Agreed.
 
-I firmly believe that the average driver person is not going
-to be able to get these things right, even if you document it
-in big bold letters in some Documentation/*.txt file.
+As (I think) BenH mentioned in another email, the normal way Linux 
+handles these interfaces is for the primary API (readX, writeX) to be 
+strongly ordered, strongly coherent, etc.  And then there is a relaxed 
+version without barriers and syncs, for the smart guys who know what 
+they're doing.  We used do this for fbdev drivers, I dunno what happened 
+to that interface.
 
-This is like the Alpha OSF outb() interface for kernel drivers
-that had something like 8 arguments.
+We want to make it tough for driver writers to screw up, unless they are 
+really trying...
 
-And even if you define these things, and people start using it,
-only PowerPC and a few other systems (I guess IA64) will ever
-notice when this stuff is done wrong.  That's really not a good
-plan from a testing coverage point of view.
+	Jeff
+
+

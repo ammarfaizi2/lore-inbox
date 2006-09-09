@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWIIQbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWIIQoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWIIQbI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 12:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWIIQbI
+	id S932176AbWIIQoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 12:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWIIQoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 12:31:08 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:4429 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S964800AbWIIQbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 12:31:05 -0400
-Subject: Re: [PATCH -mm] scsi: compile error on module_refcount
-From: Daniel Walker <dwalker@mvista.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
-In-Reply-To: <20060909162635.746696000@mvista.com>
-References: <20060909162635.746696000@mvista.com>
-Content-Type: text/plain
-Date: Sat, 09 Sep 2006 09:31:03 -0700
-Message-Id: <1157819464.8721.24.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	Sat, 9 Sep 2006 12:44:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40660 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932176AbWIIQoE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 12:44:04 -0400
+Date: Sat, 9 Sep 2006 12:51:05 -0400
+From: Dave Jones <davej@redhat.com>
+To: Reinaldo Carvalho <reinaldow@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: agpgart v0.101 problem AMD K8 NorthBridge
+Message-ID: <20060909165105.GA4743@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Reinaldo Carvalho <reinaldow@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <ec36785a0609090811m5ded669alc5e1bf361ca37b4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ec36785a0609090811m5ded669alc5e1bf361ca37b4@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-09 at 09:26 -0700, dwalker@mvista.com wrote:
-> Fixes the following compile error,
-> 
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x8e1f9): In function `scsi_device_put':
-> drivers/scsi/scsi.c:887: undefined reference to `module_refcount'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> There are only two users of module_refcount() outside of kernel/module.c
-> and the other one uses ifdef's similar to this.
-> 
+On Sat, Sep 09, 2006 at 12:11:48PM -0300, Reinaldo Carvalho wrote:
+ > agpgart detect incorrect aperture size (is set to 128Mb)
+ > ..
+ > 0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+ > 90: 01 00 00 00 70 10 00 00 00 d2 1f 00 00 00 00 00
+       ^^
+This means 32MB.
+If your BIOS is claiming its 128MB, it's either wrong, or programming
+something else (possibly the on-chipset GART [which we don't use] instead
+of the on-CPU GART)
 
-of course,
+ > and X crash when use nvidia driver (any version). kernel 2.6.17
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
-
+No idea, and sadly, on probably only nvidia will be able to diagnose this.
+ 
+	Dave

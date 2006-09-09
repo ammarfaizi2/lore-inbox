@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWIIWUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWIIW1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWIIWUR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 18:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWIIWUQ
+	id S964980AbWIIW1S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 18:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWIIW1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 18:20:16 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:18900 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S964973AbWIIWUO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 18:20:14 -0400
-Date: Sun, 10 Sep 2006 02:20:02 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jean Delvare <jdelvare@suse.de>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] proc: drop tasklist lock in task_state()
-Message-ID: <20060909222002.GA152@oleg>
+	Sat, 9 Sep 2006 18:27:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:46528 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964980AbWIIW1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 18:27:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=rJrFZHbPoT58mZtlVczOK16FaOjajSHqy36qzsNDjXnlWlBxpkP1wDdl0rcrII2+cgZd7HxN2bwA9FeZ1TV+WQ1GOzYAl46ueaFOq5vwd2nKJahOSJhy/Ye5nhwXWdcI0ndtoL25yVX5p5twpRMOdrkpAbBtLtAAOUM3zhzkYvM=
+Date: Sun, 10 Sep 2006 02:27:18 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Samuel Tardieu <sam@rfc1149.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+       Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: add support for w83697hg chip
+Message-ID: <20060909222718.GB5192@martell.zuzino.mipt.ru>
+References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <2006-09-09-17-18-13+trackit+sam@rfc1149.net> <1157817522.6877.46.camel@localhost.localdomain> <2006-09-09-17-38-12+trackit+sam@rfc1149.net> <2006-09-09-18-28-44+trackit+sam@rfc1149.net> <20060909214941.GA5192@martell.zuzino.mipt.ru> <2006-09-10-00-11-56+trackit+sam@rfc1149.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <2006-09-10-00-11-56+trackit+sam@rfc1149.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-task_state() needs tasklist_lock to protect ->parent/->real_parent.
-However task->parent points to nowhere only when the actions below
-happen in order
+On Sun, Sep 10, 2006 at 12:11:56AM +0200, Samuel Tardieu wrote:
+> | > +static int w83697hf_init(void)
+> |
+> | Can be __init?
+>
+> Nope, wdt_init is __init.
 
-	1) release_task(task)		
-	2) release_task(task->parent)
-	3) a grace period passed
-
-But 3) implies that the memory ops from 1) should be finished, so
-pid_alive() can't be true in such a case.
-
-Otherwise, we don't care if ->parent/->real_parent changes under us.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- rc6-mm1/fs/proc/array.c~3_tstate	2006-09-09 22:48:30.000000000 +0400
-+++ rc6-mm1/fs/proc/array.c	2006-09-10 01:15:10.000000000 +0400
-@@ -162,7 +162,7 @@ static inline char * task_state(struct t
- 	int g;
- 	struct fdtable *fdt = NULL;
- 
--	read_lock(&tasklist_lock);
-+	rcu_read_lock();
- 	buffer += sprintf(buffer,
- 		"State:\t%s\n"
- 		"SleepAVG:\t%lu%%\n"
-@@ -174,14 +174,13 @@ static inline char * task_state(struct t
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
- 		(p->sleep_avg/1024)*100/(1020000000/1024),
--	       	p->tgid,
--		p->pid, pid_alive(p) ? p->group_leader->real_parent->tgid : 0,
--		pid_alive(p) && p->ptrace ? p->parent->pid : 0,
-+	       	p->tgid, p->pid,
-+	       	pid_alive(p) ? rcu_dereference(p->real_parent)->tgid : 0,
-+		pid_alive(p) && p->ptrace ? rcu_dereference(p->parent)->pid : 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
--	read_unlock(&tasklist_lock);
-+
- 	task_lock(p);
--	rcu_read_lock();
- 	if (p->files)
- 		fdt = files_fdtable(p->files);
- 	buffer += sprintf(buffer,
+Functions called only from __init functions can be marked as __init. ;-)
 

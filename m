@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWIIBur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWIICEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWIIBur (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Sep 2006 21:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWIIBur
+	id S1750993AbWIICEO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Sep 2006 22:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWIICEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Sep 2006 21:50:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17051 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751312AbWIIBur (ORCPT
+	Fri, 8 Sep 2006 22:04:14 -0400
+Received: from ozlabs.org ([203.10.76.45]:32143 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750993AbWIICEN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Sep 2006 21:50:47 -0400
-Date: Fri, 8 Sep 2006 18:50:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] kmemdup: introduce
-Message-Id: <20060908185043.05bd4796.akpm@osdl.org>
-In-Reply-To: <20060909013555.GC5192@martell.zuzino.mipt.ru>
-References: <20060909013555.GC5192@martell.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Sep 2006 22:04:13 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17666.8433.533221.866510@cargo.ozlabs.ibm.com>
+Date: Sat, 9 Sep 2006 12:03:29 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, akpm@osdl.org,
+       segher@kernel.crashing.org, davem@davemloft.net
+Subject: Opinion on ordering of writel vs. stores to RAM
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Sep 2006 05:35:55 +0400
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
+Linus,
 
-> P.S.: No idea why kstrdup() and kzalloc() use _____________kmalloc(),
+An issue has come up in the tg3 ethernet driver, where we are seeing
+data corruption on ppc64 machines that is attributable to a lack of
+ordering between writes to normal RAM and writes to an MMIO register.
+Basically the driver does writes to RAM and then a writel to an MMIO
+register to trigger DMA, and occasionally the device then reads old
+values from memory.
 
-It's all to do with slab debugging and __kmalloc_track_caller(): we want
-to record the _caller_ of kstrdup() within the slab object rather than kstrdup()
-itself.
+Do you have an opinion about whether the MMIO write in writel() should
+be ordered with respect to preceding writes to normal memory?
+
+Currently we have a sync instruction after the store in writel() but
+not one before.  The sync after is to keep the writel inside
+spinlocked regions and to ensure that the store is ordered with
+respect to the load in readl() and friends.
+
+Paul.

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWIIPlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWIIPrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWIIPlu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 11:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWIIPlu
+	id S964784AbWIIPrM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 11:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWIIPrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 11:41:50 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60035 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932273AbWIIPlu
+	Sat, 9 Sep 2006 11:47:11 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51346 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964784AbWIIPrK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 11:41:50 -0400
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+	Sat, 9 Sep 2006 11:47:10 -0400
+Subject: Re: Driver - cfag12864b Crystalfontz 128x64 2-color Graphic LCD
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
-       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
-       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
-       vsu@altlinux.ru, liste@jordet.net
-In-Reply-To: <4502D35E.8020802@gentoo.org>
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>
-	 <1157811641.6877.5.camel@localhost.localdomain>
-	 <4502D35E.8020802@gentoo.org>
+To: Miguel Ojeda <maxextreme@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
+References: <653402b90609081010k19598ce7ta1f64f3060ad4700@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 09 Sep 2006 17:03:55 +0100
-Message-Id: <1157817836.6877.52.camel@localhost.localdomain>
+Date: Sat, 09 Sep 2006 17:10:17 +0100
+Message-Id: <1157818217.6877.56.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-09-09 am 10:44 -0400, ysgrifennodd Daniel Drake:
-> Alan Cox wrote:
-> > Very large numbers of VIA mainboards ship with some of the VIA devices
-> > built in and some of them on the PCI bus. 
-> 
-> What's the difference between "built in" and "on the PCI bus"? Both 
-> types are physically a part of the mainboard, and need to be quirked, right?
+Ar Gwe, 2006-09-08 am 19:10 +0200, ysgrifennodd Miguel Ojeda:
+> sure if it is the right approach. Should I use the parport interface
+> to request and use the ports, or leave the driver as is?
 
-No.
+The parport interface exists precisely to generalise these uses of the
+parport.
 
-If they are on the V-Bus then the IRQ number controls routing if they
-are on the PCI bus the IRQ line controls routing as normal.
+> wait until you receive all the boolean matrix before the driver can
+> start converting it to the cfag12864b format. If this makes no sense,
+> please tell me, I will explain it further.
 
+You usually want format conversion done in user space as it is more
+flexible that way. X has all the right framework for this so you could
+even have fun with X11 on it ;)
+
+> 4. I would like to release the driver to the public, GPL'ed. Has it
+> any possibility to enter in the mainstream kernel? Who can review it?
+> ...?
+
+A good place to start is kernelnewbies.org, and when you are happy with
+it post it somewhere for more general review.
+
+Alan
 

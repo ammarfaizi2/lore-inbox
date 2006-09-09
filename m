@@ -1,107 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWIIJEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIIJFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWIIJEx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 05:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWIIJEx
+	id S1751399AbWIIJFf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 05:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIIJFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 05:04:53 -0400
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:10764 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751394AbWIIJEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 05:04:52 -0400
-Date: Sat, 9 Sep 2006 11:04:49 +0200
-From: thunder7@xs4all.nl
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc6-mm1
-Message-ID: <20060909090449.GA16579@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20060908011317.6cb0495a.akpm@osdl.org> <20060908193041.GA18966@amd64.of.nowhere> <20060908124411.aa96fb7b.akpm@osdl.org>
+	Sat, 9 Sep 2006 05:05:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:52189 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751399AbWIIJFe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 05:05:34 -0400
+Message-ID: <450283D5.1020404@garzik.org>
+Date: Sat, 09 Sep 2006 05:05:25 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060908124411.aa96fb7b.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Andrew Morton <akpm@osdl.org>
+CC: Matt Domsch <Matt_Domsch@dell.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org>
+In-Reply-To: <20060908112035.f7a83983.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Fri, Sep 08, 2006 at 12:44:11PM -0700
-> On Fri, 8 Sep 2006 21:30:41 +0200
-> thunder7@xs4all.nl wrote:
-> 
-> > From: Andrew Morton <akpm@osdl.org>
-> > Date: Fri, Sep 08, 2006 at 01:13:17AM -0700
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
-> > > 
-> > This throws an oops on my IBM Thinkpad T23 notebook. Some parts scroll
-> > off the screen, but the visible stack trace goes like this:
-> > 
-> We'd really need to see that trace, please.  netconsole is worth setting
-> up, if you have another machine on the LAN.
-> 
-Well, I've learned that built-in framebuffers initialize _before_ the
-network stack is up, so that didn't help. Rebuilding savagefb as a
-module gave me:
+I wanted to note what Martin Mares just raised in the thread "State of 
+the Linux PCI Subsystem for 2.6.18-rc6":
 
-hub 3-0:1.0: 2 ports detected
-savagefb: mapped io at f8980000
-savagefb: probed videoram:  16384k
-savagefb: Detected current MCLK value of 71591 kHz
-savagefb: 1024x768 TFT LCD panel detected and active
-savagefb: Limiting video mode to 1024x768
-savagefb: mapped framebuffer at f8a80000, pbase == e8000000
-BUG: unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
- f8831013
- *pde = 00000000
- Oops: 0000 [#1]
- 4K_STACKS PREEMPT 
- last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_governor
- Modules linked in: savagefb fb_ddc cfbimgblt uhci_hcd usbcore
- CPU:    0
- EIP:    0060:[<f8831013>]    Not tainted VLI
- EFLAGS: 00010286   (2.6.18-rc6-mm1 #6) 
- EIP is at fb_ddc_read+0x13/0x1c4 [fb_ddc]
- eax: f7faf250   ebx: 00000000   ecx: f7faf244   edx: f7faf244
- esi: 00000000   edi: f7faf008   ebp: f7fbed98   esp: f7fbed68
- ds: 007b   es: 007b   ss: 0068
- Process modprobe (pid: 1776, ti=f7fbe000 task=f7fbdab0
- task.ti=f7fbe000)
- Stack: 00000001 f7faf244 00004988 01000000 f7faf000 f9a6d9e0 f7fbede8 00000000 
-        f7faf244 f7faf208 f7faf000 f7faf008 f7fbedb0 f8846af9 f7faf250 f7faf208 
-        f7faf000 f7faf008 f7fbede8 f884667c f7faf000 f7faf6b0 f7fbedd0 c01ebe91 
- Call Trace:
- [<c01039eb>] show_trace_log_lvl+0x15/0x28
- [<c0103a8a>] show_stack_log_lvl+0x8c/0x97
- [<c0103e48>] show_registers+0x188/0x21c
- [<c0104085>] die+0x1a9/0x283
- [<c0113bb5>] do_page_fault+0x3ed/0x4bf
- [<c03421df>] error_code+0x3f/0x44
- [<f8846af9>] savagefb_probe_i2c_connector+0x18/0x66 [savagefb]
- [<f884667c>] savagefb_probe+0x484/0x672 [savagefb]
- [<c01f6722>] pci_device_probe+0x3a/0x61
- [<c0269ecb>] really_probe+0x37/0xb0
- [<c0269fbc>] driver_probe_device+0x78/0x84
- [<c026a06a>] __driver_attach+0x38/0x60
- [<c026992a>] bus_for_each_dev+0x42/0x69
- [<c0269df7>] driver_attach+0x16/0x18
- [<c0269491>] bus_add_driver+0x66/0x179
- [<c026a2f7>] driver_register+0x77/0x7c
- [<c01f68bf>] __pci_register_driver+0x5e/0x7e
- [<f882d02e>] savagefb_init+0x2e/0x36 [savagefb]
- [<c0132158>] sys_init_module+0x1274/0x1443
- [<c0102dd8>] syscall_call+0x7/0xb
- =======================
- Code: <ff> 33 ff 53 08 6a 00 ff 33 ff 53 08 c7 45 d4 00 00 00 00 83 c4 10 6a 00 31 ff ff 33 ff 53 04 6a 
- EIP: [<f8831013>] fb_ddc_read+0x13/0x1c4 [fb_ddc] SS:ESP 0068:f7fbed68
+> Changing the device order in the middle of the 2.6 cycle doesn't sound
+> like a sane idea to me. Many people have changed their systems' configuration
+> to adapt to the 2.6 ordering and this patch would break their setups.
+> I have seen many such examples in my vicinity.
+> 
+> I believe that not breaking existing 2.6 setups is much more important
+> than keeping compatibility with 2.4 kernels, especially when the problem
+> is discovered after more than 2 years after release of the first 2.6.
 
-Hope this helps,
-Jurriaan
--- 
-"Besides," she added with a shrug, "strategy and tactics are anathema
-to the Apocalypse."
-        Steven Erikson - Deadhouse Gates
-Debian (Unstable) GNU/Linux 2.6.18-rc4-mm3 4423 bogomips load 0.31
+
+I'm not siding with either Martin or Matt explicitly, just noting that 
+there are good arguments for both sides.
+
+	Jeff
+
+
+

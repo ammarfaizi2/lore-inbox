@@ -1,39 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWIIKIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWIIKWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbWIIKIW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 06:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWIIKIW
+	id S1751151AbWIIKWt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 06:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWIIKWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 06:08:22 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52708
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750921AbWIIKIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 06:08:21 -0400
-Date: Sat, 09 Sep 2006 03:08:54 -0700 (PDT)
-Message-Id: <20060909.030854.78720744.davem@davemloft.net>
-To: jeff@garzik.org
-Cc: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org, akpm@osdl.org, segher@kernel.crashing.org
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <45028F87.7040603@garzik.org>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	<20060909.023405.71099525.davem@davemloft.net>
-	<45028F87.7040603@garzik.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 9 Sep 2006 06:22:49 -0400
+Received: from 1wt.eu ([62.212.114.60]:26386 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751151AbWIIKWs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Sep 2006 06:22:48 -0400
+Date: Sat, 9 Sep 2006 12:19:27 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kaber@trash.net
+Subject: Re: Oops after 30 days of uptime
+Message-ID: <20060909101927.GA12986@1wt.eu>
+References: <200609011852.39572.linux@rainbow-software.org> <20060909052036.GD541@1wt.eu> <200609091215.26617.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609091215.26617.linux@rainbow-software.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Garzik <jeff@garzik.org>
-Date: Sat, 09 Sep 2006 05:55:19 -0400
+On Sat, Sep 09, 2006 at 12:15:25PM +0200, Ondrej Zary wrote:
+> On Saturday 09 September 2006 07:20, you wrote:
+> > On Fri, Sep 01, 2006 at 06:52:39PM +0200, Ondrej Zary wrote:
+> > > Hello,
+> > > my home router crashed after about a month. It does this sometimes but
+> > > this time I was able to capture the oops. Here is the result of running
+> > > ksymoops on it (took a photo of the screen and then manually converted to
+> > > plain-text). Does it look like a bug or something other?
+> >
+> > I have another problem with your oops. It looks like you used a /proc/ksyms
+> > from another running kernel. The symbol decoding does not match the code.
+> > For instance, in the disassembled code, you'll see that two functions are
+> > indicated for the same sequence of instructions (init_or_cleanup then
+> > ip_conntrack_protocol_register). And the difference does not look like a
+> > small offset, since neither of those functions seem to produce comparable
+> > code here.
+> 
+> Sorry, it's the first time I tried to use ksymoops (was reporting only 2.6 
+> oopses before) and I probably screwed up. The problem is that there is 
+> no /proc/ksyms (maybe because CONFIG_MODULES is disabled?):
+> 
+> root@router:~# ls -l /proc/k*
+> -r-------- 1 root root 33558528 2006-09-09 11:58 /proc/kcore
+> -r-------- 1 root root        0 2006-09-07 14:32 /proc/kmsg
 
-> As (I think) BenH mentioned in another email, the normal way Linux 
-> handles these interfaces is for the primary API (readX, writeX) to be 
-> strongly ordered, strongly coherent, etc.  And then there is a relaxed 
-> version without barriers and syncs, for the smart guys who know what 
-> they're doing
+Yes, that's very likely the reason.
 
-Indeed, I think that is the way to handle this.
+> I also didn't have the System.map file but found it in the tree on my desktop 
+> machine (where that kernel was compiled) - haven't touched that directory 
+> since the kernel compile so it should be correct one.
+
+This is strange, because as I said, the symbols do not seem to match the
+dumped data. If you still have your directory intact, could you please
+send me offlist (or put at some URL) your System.map and vmlinux (not
+bzImage) ? Please gzip them BTW.
+
+> > You should backup the /proc/ksyms from your currently running kernel, and
+> > reuse it to decode the next oops when it occurs. BTW, could you provide
+> > the full config file and tell us what version of GCC you're using ? Maybe
+> > we can try to find the same code sequence in a module and identify it
+> > without waiting for further oops.
+> 
+> I've used GCC 2.95.3. Attached is dmesg and config file.
+
+Thanks, this can constitute a good starting point.
+
+Regards,
+Willy
+

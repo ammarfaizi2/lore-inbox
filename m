@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965285AbWIJGb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWIJHwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965285AbWIJGb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 02:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWIJGb0
+	id S1750749AbWIJHwv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 03:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWIJHwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 02:31:26 -0400
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:60687 "EHLO
-	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
-	id S965285AbWIJGbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 02:31:25 -0400
-Date: Sun, 10 Sep 2006 08:30:58 +0200
-From: thunder7@xs4all.nl
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       "Antonino A. Daplas" <adaplas@pol.net>
-Subject: Re: 2.6.18-rc6-mm1
-Message-ID: <20060910063058.GA9516@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20060908011317.6cb0495a.akpm@osdl.org> <20060908193041.GA18966@amd64.of.nowhere> <20060908124411.aa96fb7b.akpm@osdl.org> <20060909090449.GA16579@amd64.of.nowhere> <20060909083140.adfa878e.akpm@osdl.org> <20060910000245.e9df3fea.khali@linux-fr.org>
+	Sun, 10 Sep 2006 03:52:51 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:31530 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750749AbWIJHwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 03:52:51 -0400
+Date: Sun, 10 Sep 2006 09:51:54 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 1/2] own header file for struct page.
+Message-ID: <20060910075154.GA8354@osiris.ibm.com>
+References: <20060908111716.GA6913@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0609092248400.6762@scrub.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060910000245.e9df3fea.khali@linux-fr.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0609092248400.6762@scrub.home>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jean Delvare <khali@linux-fr.org>
-Date: Sun, Sep 10, 2006 at 12:02:45AM +0200
-> Hi Andrew, Jurriaan, Antonino,
+> > In order to get of all these problems caused by macros it seems to
+> > be a good idea to get rid of them and convert them to static inline
+> > functions. Because of header file include order it's necessary to have a
+> > seperate header file for the struct page definition.
+> > 
+> > Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> > Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > ---
+> > 
+> > Patches are against git tree as of today. Better ideas welcome of course.
+> > 
+> >  include/linux/mm.h   |   64 --------------------------------------------
+> >  include/linux/page.h |   74 +++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 75 insertions(+), 63 deletions(-)
 > 
-> So my guess is that Jurriaan's graphics adapter is supported by the
-> savagefb driver, but the driver doesn't create an i2c bus for it
-> (either because the hardware doesn't have it, or we simply have no
-> support.) Jurriaan, please confirm that your adapter is not one of
-> Savage4, Savage2000, ProSavagePM, ProSavage8.
+> To avoid the explosion in number of small header files each containing a 
+> single definition, it would be better to generally split between the 
+> definitions and implementations, so IMO mm_types.h with all the structures 
+> and defines from mm.h would be better.
 
-lspci calls it 'S3 Inc. SuperSavage IX/C SDR (rev 05)' 
-
-> 
-> If my analysis is correct, the following patch should fix the problem.
-> It can probably be optimized/cleaned up, but I'll leave that to
-> Antonino. Jurriaan, can you please apply this patch on top of
-> 2.6.18-rc6-mm1 and report success or failure?
-
-This patch fixes my problems, rc6-mm1 boots without problems even with
-the savagefb driver builtin.
-
-Thanks,
-Jurriaan
--- 
-Genius untempered by ethics is a deadly commodity.
-	Iain Irvine - A Shadow on the Glass
-Debian (Unstable) GNU/Linux 2.6.18-rc4-mm3 4423 bogomips load 0.04
+That could be done, but I wouldn't know where to start and where to end.
+Moving simply all definitions to mm_types.h doesn't seem to be a good
+solution. E.g. having something like "struct shrinker" in mm_types.h
+seems to be rather pointless IMHO.
+Maybe we can simply leave it by just taking the struct page definition
+out for now?

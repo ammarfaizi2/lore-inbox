@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWIJTGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWIJTNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWIJTGP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 15:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWIJTGP
+	id S932523AbWIJTNA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 15:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWIJTM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 15:06:15 -0400
-Received: from smtp131.iad.emailsrvr.com ([207.97.245.131]:30856 "EHLO
-	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S932508AbWIJTGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 15:06:14 -0400
-Message-ID: <4504621E.5090202@gentoo.org>
-Date: Sun, 10 Sep 2006 15:06:06 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
-       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
-       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
-       vsu@altlinux.ru, liste@jordet.net
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org>	 <1157817836.6877.52.camel@localhost.localdomain>	 <45033370.8040005@gentoo.org>	 <1157848272.6877.108.camel@localhost.localdomain>	 <450436F1.8070203@gentoo.org> <1157906395.23085.18.camel@localhost.localdomain>
-In-Reply-To: <1157906395.23085.18.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 10 Sep 2006 15:12:59 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7345 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932523AbWIJTM6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 15:12:58 -0400
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: David Miller <davem@davemloft.net>, jeff@garzik.org, paulus@samba.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, akpm@osdl.org, segher@kernel.crashing.org
+In-Reply-To: <200609101018.06930.jbarnes@virtuousgeek.org>
+References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
+	 <45028F87.7040603@garzik.org>
+	 <20060909.030854.78720744.davem@davemloft.net>
+	 <200609101018.06930.jbarnes@virtuousgeek.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 10 Sep 2006 20:35:19 +0100
+Message-Id: <1157916919.23085.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Basically we are going around in circles inventing new random
-> hypothetical rule sets that may or may not fix the problem. You can do
-> this for years, in fact we *have* been doing this for years.
-> 
-> The detailed stuff I posted by digging over all the docs should be
-> enough to figure out WTF is actually going on and fix the stuff
-> properly. 
+Ar Sul, 2006-09-10 am 10:18 -0700, ysgrifennodd Jesse Barnes:
+> We already have readX_relaxed, but that's for PIO vs. DMA ordering, not 
+> PIO vs. PIO.  To distinguish from that case maybe writeX_weak or 
+> writeX_nobarrier would make sense?
 
-OK - I'll try and figure out what is going on in Stian's case. Thanks 
-for the info.
+We have existing users of the format "__foo" for unlocked or un-ordered
+foo. __readl seems fairly natural and its shorter to write than
+_nobarriermaybesyncsafterlockbutnotwithmmio()
 
-Daniel
+Alan
+

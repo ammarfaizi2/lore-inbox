@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWIJLVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWIJL27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWIJLVY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 07:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWIJLVY
+	id S1750898AbWIJL27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 07:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWIJL27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 07:21:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60093 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750875AbWIJLVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 07:21:23 -0400
-Subject: Re: [PATCH RFC]: New termios take 2
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <1157886908.22571.11.camel@localhost.localdomain>
-References: <1157472883.9018.79.camel@localhost.localdomain>
-	 <1157885180.2977.133.camel@pmac.infradead.org>
-	 <1157886908.22571.11.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 12:20:40 +0100
-Message-Id: <1157887240.2977.147.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Sun, 10 Sep 2006 07:28:59 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:32464 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750898AbWIJL26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 07:28:58 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4503F673.30808@s5r6.in-berlin.de>
+Date: Sun, 10 Sep 2006 13:26:43 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Domsch <Matt_Domsch@dell.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org> <450283D5.1020404@garzik.org> <20060909121134.GC4277@ucw.cz>
+In-Reply-To: <20060909121134.GC4277@ucw.cz>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 12:15 +0100, Alan Cox wrote:
-> Kernel headers are not intended for user space. In this case the struct
-> termios presented by glibc already differs from the termios presented by
-> the kernel so the problem doesn't arise at all.
+Pavel Machek wrote:
+> I agree with martin here. 'Lets break all the machines where people
+> are currently using 2.6.x, for benefit of people currently running
+> 2.4.x' is *very* bad idea.
 
-Please note that we are moving away from the mindless repetition of that
-phrase, and moving towards a system where we actually _mean_ it.
-
-If you really don't want asm/term{bit,io}s.h to be visible in userspace,
-then the way to express that is to provide a patch to
-include/asm-generic/Kbuild which removes them from the export.
-
-I don't think I agree -- I think these files _do_ provide part of the
-kernel<->user ABI and should be kept. You're right that userspace in
-_general_ shouldn't be touching them -- as I said, it's only really the
-C libraries that are important here. As long as _they_ get it right when
-built against the headers with your changes, we're fine.
-
-But I don't think it's realistic to suggest that C libraries should be
-built without access to our asm/term{bit,io}s.h at all. However, I'm
-only really responsible for the new export _mechanism_ -- I'm not going
-to impose policy except when people like Andi do stupid things and
-sneakily send private patches to undo fixes I've already made.
-
-So if you want to unexport those headers and make sure the C libraries
-work like that, please do go ahead -- but don't just _say_ it, _do_ it
--- and please do make sure that at _least_ glibc still builds
-afterwards.
-
+Small correction: Not all but "only" setups which rely on device
+ordering instead of persistent unique device properties are affected.
 -- 
-dwmw2
-
+Stefan Richter
+-=====-=-==- =--= -=-=-
+http://arcgraph.de/sr/

@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWIJKaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWIJKhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWIJKaM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 06:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWIJKaM
+	id S1750751AbWIJKhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWIJKhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:30:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61656 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750717AbWIJKaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 06:30:10 -0400
-Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Laurent Riffard <laurent.riffard@free.fr>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-In-Reply-To: <200609101032.17429.ak@suse.de>
-References: <20060908011317.6cb0495a.akpm@osdl.org>
-	 <4503DC64.9070007@free.fr>  <200609101032.17429.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: Intel International BV
-Date: Sun, 10 Sep 2006 12:29:57 +0200
-Message-Id: <1157884197.17849.125.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 10 Sep 2006 06:37:16 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:29509 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750751AbWIJKhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 06:37:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I/igxxEms+uSolWh84vvo56p5+hoGQuGEtW4awwoRQBdovo8j0mt+itDmgK63hxtIdm4Q+HXT+Kpd+3470jKH8/Bb3IX+jr3aN1rqE5Wzf1w5SUahE/92jhYjXUes0/kpAEd0hDs0MStnpqwZ23NsSKwrlJ4oD+/+v77uep01Vc=
+Message-ID: <a2ebde260609100337xda27723geae84190d90293c1@mail.gmail.com>
+Date: Sun, 10 Sep 2006 18:37:12 +0800
+From: "Dong Feng" <middle.fengdong@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Timer Selection
+In-Reply-To: <a2ebde260609100334v65bf5e4fx754e3b00576bfb9f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a2ebde260609100334v65bf5e4fx754e3b00576bfb9f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 10:32 +0200, Andi Kleen wrote:
-> On Sunday 10 September 2006 11:35, Laurent Riffard wrote:
-> > Le 08.09.2006 10:13, Andrew Morton a écrit :
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/
-> > >2.6.18-rc6-mm1/
-> >
-> > Hello,
-> >
-> > This kernel won't boot here: it starts a GPFs loop on
-> > early boot. I attached a screenshot of the first GPF
-> > (pause_on_oops=120 helped).
-> 
-> 
-> It's lockdep's fault. This patch should fix it:
-> 
-> In general from my experience lockdep seems to be a dependency nightmare.
-> It uses far too much infrastructure far too early. Should we always disable
-> lockdep very early (before interrupts are turned on) instead? (early 
-> everything is single threaded and will never have problems with lock 
-> ordering)
+In i386 architecture, there are five timers as candidates in the
+selection of "cur_timer." I feel among the five only two types can be
+used as Kernel base timer, HPET and PIT. Kernel base timer is the
+timer trigger timer_interrupt() periodically. Namely, the timer
+installed on IRQ 0 in i386 architecture.
 
-lockdep starts somewhere in the middle; I doubt it's the only thing that
-assumes that current is valid at that point.
->  /*
-> - * Remove the lock to the list of currently held locks in a
-> + * Remove the lock to the list of early_current()ly held locks in a
->   * potentially non-nested (out of order) manner. This is a
->   * relatively rare operation, as all the unlock APIs default
->   * to nested mode (which uses lock_release()):
-> @@ -2227,7 +2231,7 @@ lock_release_non_nested(struct task_stru
->  	int i;
->  
->  	/*
-> -	 * Check whether the lock exists in the current stack
-> +	 * Check whether the lock exists in the early_current() stack
->  	 * of held locks:
->  	 */
+Is the above understanding correct? Particularly I want to confirm
+which timers can be used as Kernel base timer.
 
-??
+Thanks.
 
-
+Feng,Dong

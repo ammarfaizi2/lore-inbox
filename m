@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWIJOel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWIJOe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWIJOel (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 10:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWIJOel
+	id S932208AbWIJOe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 10:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIJOe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 10:34:41 -0400
-Received: from homer.mvista.com ([63.81.120.158]:60668 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932206AbWIJOek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 10:34:40 -0400
-Subject: Re: [PATCH 2/3] FRV: Permit __do_IRQ() to be dispensed with
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-In-Reply-To: <20060909051211.GA6922@elte.hu>
-References: <20060908153236.21015.56106.stgit@warthog.cambridge.redhat.com>
-	 <20060908153240.21015.67367.stgit@warthog.cambridge.redhat.com>
-	 <20060909051211.GA6922@elte.hu>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 07:34:37 -0700
-Message-Id: <1157898878.3516.2.camel@c-67-169-176-11.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 10 Sep 2006 10:34:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:26579 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932208AbWIJOey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 10:34:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RGmxO27uvZ6CRzY94I8BDYo2MG2ON/MBbhyEhcEgj5AxXh7gvxXiZACdbIxXRyMuWWgT1wEyiDBZ6+j3NddOvQNUoxe0Gz5Zn/Nvy4Vtes7lDPkRkqvdqUPgAA5xXF5+J7Aup1VwndPW9nhbsf5RaxHgPwZH+rv6I/GWvKzr2gw=
+Message-ID: <82ecf08e0609100734w4c0faaf9yffce5b67d5aeaedd@mail.gmail.com>
+Date: Sun, 10 Sep 2006 11:34:52 -0300
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, "Thiago Galesi" <thiagogalesi@gmail.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Cpufreq not working in 2.6.18-rc6
+In-Reply-To: <82ecf08e0609090813g4889b659sfcb90e005cb42c14@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <82ecf08e0609090722p1ded935dm794d569278d60122@mail.gmail.com>
+	 <20060909144739.GS28592@redhat.com>
+	 <82ecf08e0609090813g4889b659sfcb90e005cb42c14@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-09 at 07:12 +0200, Ingo Molnar wrote:
+Ok, apparently it is my fault...
 
-> The real solution would be to use gcc -ffunction-sections plus ld 
-> --gc-sections to automatically get rid of unused global functions, at 
-> link time. I'm wondering how hard it would be to enhance kbuild to do 
-> that - x86_64 already uses -ffunction-sections (if CONFIG_REORDER), so 
-> the big question is how usable is ld --gc-sections. Such a feature would 
-> be quite important for embedded systems (and for RAM footprint in 
-> general) as it would save a significant amount of .text and .data.
+I traced the failure to
 
-A patch to do this was submitted already by Marcelo Tosatti ..
+if (cpufreq_driver) {
+                spin_unlock_irqrestore(&cpufreq_driver_lock, flags);
+                return -EBUSY;
+        }
 
-http://lkml.org/lkml/2006/6/4/169
+(cpufreq_register_driver in drivers/cpufreq/cpufreq.c)
 
-Daniel
+Turns out I was modprobing acpi-cpufreq before modprobing cpufreq-k7.
+This worked in previous kernels and apparently, not in this one.
 
+If I do not modprobe acpi-cpufreq, it works.
+
+Thiago
+
+On 9/9/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
+> >  >
+> >  > CONFIG_X86_POWERNOW_K7_ACPI=y
+> >  > ..
+> >  > CONFIG_ACPI_PROCESSOR=m
+> >
+> > Does it start working again if you change ACPI_PROCESSOR=y ?
+>
+> No. nothing changes
+>
+> --
+> -
+> Thiago Galesi
+>

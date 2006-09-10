@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWIJGSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965285AbWIJGb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965281AbWIJGSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 02:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965282AbWIJGSa
+	id S965285AbWIJGb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 02:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWIJGb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 02:18:30 -0400
-Received: from colin.muc.de ([193.149.48.1]:39175 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S965281AbWIJGSa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 02:18:30 -0400
-Date: 10 Sep 2006 08:18:28 +0200
-Date: Sun, 10 Sep 2006 08:18:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386-pda updates
-Message-ID: <20060910061828.GB12564@muc.de>
-References: <45027822.2010906@goop.org> <20060909155257.GA50136@muc.de> <45034E97.9090109@goop.org>
-Mime-Version: 1.0
+	Sun, 10 Sep 2006 02:31:26 -0400
+Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:60687 "EHLO
+	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
+	id S965285AbWIJGbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 02:31:25 -0400
+Date: Sun, 10 Sep 2006 08:30:58 +0200
+From: thunder7@xs4all.nl
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jurriaan <thunder7@xs4all.nl>,
+       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       "Antonino A. Daplas" <adaplas@pol.net>
+Subject: Re: 2.6.18-rc6-mm1
+Message-ID: <20060910063058.GA9516@amd64.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20060908011317.6cb0495a.akpm@osdl.org> <20060908193041.GA18966@amd64.of.nowhere> <20060908124411.aa96fb7b.akpm@osdl.org> <20060909090449.GA16579@amd64.of.nowhere> <20060909083140.adfa878e.akpm@osdl.org> <20060910000245.e9df3fea.khali@linux-fr.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45034E97.9090109@goop.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060910000245.e9df3fea.khali@linux-fr.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 04:30:31PM -0700, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> >>@@ -20,7 +22,14 @@ extern struct i386_pda _proxy_pda;
-> >>#define pda_to_op(op,field,val)					 \
-> >>	do {								\
-> >>		typedef typeof(_proxy_pda.field) T__;			\
-> >>+		if (0) { T__ tmp__; tmp__ = (val); }			\
-> >>    
-> >
-> >Merged into original patch
-> >  
-> BTW, do you mean you already had this in i386, or that you folded it 
-> into the existing patch?  I don't think I had sent out my version of 
-> this before.
+From: Jean Delvare <khali@linux-fr.org>
+Date: Sun, Sep 10, 2006 at 12:02:45AM +0200
+> Hi Andrew, Jurriaan, Antonino,
+> 
+> So my guess is that Jurriaan's graphics adapter is supported by the
+> savagefb driver, but the driver doesn't create an i2c bus for it
+> (either because the hardware doesn't have it, or we simply have no
+> support.) Jurriaan, please confirm that your adapter is not one of
+> Savage4, Savage2000, ProSavagePM, ProSavage8.
 
-I folded it into the existing patch.
+lspci calls it 'S3 Inc. SuperSavage IX/C SDR (rev 05)' 
 
--Andi
+> 
+> If my analysis is correct, the following patch should fix the problem.
+> It can probably be optimized/cleaned up, but I'll leave that to
+> Antonino. Jurriaan, can you please apply this patch on top of
+> 2.6.18-rc6-mm1 and report success or failure?
+
+This patch fixes my problems, rc6-mm1 boots without problems even with
+the savagefb driver builtin.
+
+Thanks,
+Jurriaan
+-- 
+Genius untempered by ethics is a deadly commodity.
+	Iain Irvine - A Shadow on the Glass
+Debian (Unstable) GNU/Linux 2.6.18-rc4-mm3 4423 bogomips load 0.04

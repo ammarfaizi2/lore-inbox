@@ -1,336 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWIJNqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWIJOJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWIJNqU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 09:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWIJNqT
+	id S932190AbWIJOJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 10:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWIJOJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 09:46:19 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:64775 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S932177AbWIJNqR (ORCPT
+	Sun, 10 Sep 2006 10:09:59 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10181 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932190AbWIJOJ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 09:46:17 -0400
-Date: Sun, 10 Sep 2006 15:46:16 +0200
-From: David Madore <david.madore@ens.fr>
-To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: [PATCH 4/4] security: capabilities patch (version 0.4.4), part 4/4: add filesystem support
-Message-ID: <20060910134616.GE12086@clipper.ens.fr>
-References: <20060910133759.GA12086@clipper.ens.fr>
+	Sun, 10 Sep 2006 10:09:58 -0400
+Date: Sun, 10 Sep 2006 16:02:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
+Message-ID: <20060910140214.GA1578@elte.hu>
+References: <20060908011317.6cb0495a.akpm@osdl.org> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <200609101555.52211.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060910133759.GA12086@clipper.ens.fr>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 15:46:16 +0200 (CEST)
+In-Reply-To: <200609101555.52211.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add filesystem support for capabilities.  This is controlled by the
-security.capability extended attribute.
 
-Originally a merge from <URL: http://lkml.org/lkml/2006/9/6/229 >.
+* Andi Kleen <ak@suse.de> wrote:
 
-Notes:
+> > ugh, "having a working current" is "so much infrastructure" ??
+> 
+> Together with stacktrace the infrastructure needed is quite 
+> considerable.
 
- * mounting nosuid deactivates the permitted ("forced") set of
-   capabilities on executables, similarly if no CAP_REG_SXID.
+Having the ability to produce a backtrace _anywhere within the kernel_ 
+is a pretty fundamental thing too. So IMO the problems with stacktrace 
+were the stack dumping code's weaknesses, independent of lockdep, and 
+they would have triggered in one way or another as well. Not that i 
+think that doing a dwarf unwinder is simple - and you certainly did a 
+great job with it. Now with stacktrace we do have a pretty powerful 
+infrastructure to do transparent execution tracing: for example the 
+page-tracing code could be changed to use stacktrace.
 
-See <URL: http://www.madore.org/~david/linux/newcaps/ > for more
-detailed explanations.
+> > the i686 PDA patches introduce tons of early_current() uses. While i
+> > like the new PDA code, its bootstrap (like x86_64's PDA bootstrap) is
+> > too fragile in my opinion, and it will regularly hit instrumenting
+> > patches.
+> 
+> Or the instrumentation patches just always need to check some global 
+> variable. Maybe system_state could be extended or something.
 
-Signed-off-by: David A. Madore <david.madore@ens.fr>
+maybe, but i find that unrobust too. Example: i debugged many 
+early-bootup hangs via the use of an early_printk() based function 
+execution tracer (a feature of the latency tracing patchset) - the lack 
+of working 'current' would hit that code too.
 
----
- include/linux/capability.h |    3 +
- include/linux/security.h   |   10 ++-
- security/Kconfig           |   10 +++
- security/capability.c      |    4 +
- security/commoncap.c       |  154 ++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 177 insertions(+), 4 deletions(-)
+Yes, it can all be worked around, but the fundamental weakness IMO is 
+that we dont have a working 'current' in all situations.
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index efc268e..428ccc5 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -295,6 +295,9 @@ #define CAP_AUDIT_WRITE      29
- 
- #define CAP_AUDIT_CONTROL    30
- 
-+/* Number of low (=system, =additional) caps */
-+#define CAP_NUMCAPS_SYS	     30
-+
- 
- /**
-  ** Regular capabilities (normally possessed by all processes).
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 6bc2aad..265ab00 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -51,6 +51,10 @@ extern int cap_inode_setxattr(struct den
- extern int cap_inode_removexattr(struct dentry *dentry, char *name);
- extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
- extern void cap_task_reparent_to_init (struct task_struct *p);
-+extern int cap_task_kill(struct task_struct *p, struct siginfo *info, int sig, u32 secid);
-+extern int cap_task_setscheduler (struct task_struct *p, int policy, struct sched_param *lp);
-+extern int cap_task_setioprio (struct task_struct *p, int ioprio);
-+extern int cap_task_setnice (struct task_struct *p, int nice);
- extern int cap_syslog (int type);
- extern int cap_vm_enough_memory (long pages);
- 
-@@ -2544,12 +2548,12 @@ static inline int security_task_setgroup
- 
- static inline int security_task_setnice (struct task_struct *p, int nice)
- {
--	return 0;
-+	return cap_task_setnice(p, nice);
- }
- 
- static inline int security_task_setioprio (struct task_struct *p, int ioprio)
- {
--	return 0;
-+	return cap_task_setioprio(p, ioprio);
- }
- 
- static inline int security_task_getioprio (struct task_struct *p)
-@@ -2584,7 +2588,7 @@ static inline int security_task_kill (st
- 				      struct siginfo *info, int sig,
- 				      u32 secid)
- {
--	return 0;
-+	return cap_task_kill(p, info, sig, secid);
- }
- 
- static inline int security_task_wait (struct task_struct *p)
-diff --git a/security/Kconfig b/security/Kconfig
-index 67785df..ce2bac7 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -80,6 +80,16 @@ config SECURITY_CAPABILITIES
- 	  This enables the "default" Linux capabilities functionality.
- 	  If you are unsure how to answer this question, answer Y.
- 
-+config SECURITY_FS_CAPABILITIES
-+	bool "Filesystem Capabilities"
-+	depends on SECURITY_CAPABILITIES
-+	default n
-+	help
-+	  This enables filesystem capabilities, allowing you to give
-+	  binaries a subset of root's powers without using setuid 0.
-+
-+	  If in doubt, answer N.
-+
- config SECURITY_ROOTPLUG
- 	tristate "Root Plug Support"
- 	depends on USB && SECURITY
-diff --git a/security/capability.c b/security/capability.c
-index b868e7e..14cb592 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -40,6 +40,10 @@ static struct security_operations capabi
- 	.inode_setxattr =		cap_inode_setxattr,
- 	.inode_removexattr =		cap_inode_removexattr,
- 
-+	.task_kill =			cap_task_kill,
-+	.task_setscheduler =		cap_task_setscheduler,
-+	.task_setioprio =		cap_task_setioprio,
-+	.task_setnice =			cap_task_setnice,
- 	.task_post_setuid =		cap_task_post_setuid,
- 	.task_reparent_to_init =	cap_task_reparent_to_init,
- 
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 291a4bd..1988efc 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -24,6 +24,7 @@ #include <linux/netlink.h>
- #include <linux/ptrace.h>
- #include <linux/xattr.h>
- #include <linux/hugetlb.h>
-+#include <linux/mount.h>
- 
- int cap_netlink_send(struct sock *sk, struct sk_buff *skb)
- {
-@@ -112,11 +113,55 @@ void cap_capset_set (struct task_struct 
- 	target->cap_permitted = *permitted;
- }
- 
-+#define XATTR_CAPS_SUFFIX "capability"
-+#define XATTR_NAME_CAPS XATTR_SECURITY_PREFIX XATTR_CAPS_SUFFIX
-+struct vfs_cap_data_struct {
-+	__u32 version;
-+	__u32 effective;
-+	__u32 permitted;
-+	__u32 inheritable;
-+};
-+
-+static inline void convert_to_le(struct vfs_cap_data_struct *cap)
-+{
-+	cap->version = le32_to_cpu(cap->version);
-+	cap->effective = le32_to_cpu(cap->effective);
-+	cap->permitted = le32_to_cpu(cap->permitted);
-+	cap->inheritable = le32_to_cpu(cap->inheritable);
-+}
-+
-+static int check_cap_sanity(struct vfs_cap_data_struct *cap)
-+{
-+	int i;
-+
-+	if (cap->version != _LINUX_CAPABILITY_OLD_VERSION)
-+		return -EPERM;
-+
-+	for (i=CAP_NUMCAPS_SYS; i<sizeof(cap->effective); i++) {
-+		if (cap->effective & CAP_TO_MASK(i))
-+			return -EPERM;
-+	}
-+	for (i=CAP_NUMCAPS_SYS; i<sizeof(cap->permitted); i++) {
-+		if (cap->permitted & CAP_TO_MASK(i))
-+			return -EPERM;
-+	}
-+	for (i=CAP_NUMCAPS_SYS; i<sizeof(cap->inheritable); i++) {
-+		if (cap->inheritable & CAP_TO_MASK(i))
-+			return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
- int cap_bprm_set_security (struct linux_binprm *bprm)
- {
-+	struct dentry *dentry;
-+	ssize_t rc;
-+	struct vfs_cap_data_struct cap_struct;
-+	struct inode *inode;
-+
- 	/* Copied from fs/exec.c:prepare_binprm. */
- 
--	/* We don't have VFS support for capabilities yet */
- 	cap_set_full (bprm->cap_inheritable);
- 	cap_clear (bprm->cap_permitted);
- 	cap_set_full (bprm->cap_effective);
-@@ -152,6 +197,53 @@ int cap_bprm_set_security (struct linux_
- 		}
- 	}
- 
-+#ifdef CONFIG_SECURITY_FS_CAPABILITIES
-+	/* Locate any VFS capabilities: */
-+
-+	dentry = dget(bprm->file->f_dentry);
-+	inode = dentry->d_inode;
-+	if (!inode->i_op || !inode->i_op->getxattr) {
-+		dput(dentry);
-+		return 0;
-+	}
-+
-+	rc = inode->i_op->getxattr(dentry, XATTR_NAME_CAPS, &cap_struct,
-+						sizeof(cap_struct));
-+	dput(dentry);
-+
-+	if (rc == -ENODATA)
-+		return 0;
-+
-+	if (rc < 0) {
-+		printk(KERN_NOTICE "%s: Error (%ld) getting xattr\n",
-+				__FUNCTION__, (long int)rc);
-+		return rc;
-+	}
-+
-+	if (rc != sizeof(cap_struct)) {
-+		printk(KERN_NOTICE "%s: got wrong size for getxattr (%ld)\n",
-+					__FUNCTION__, (long int)rc);
-+		return -EPERM;
-+	}
-+	
-+	convert_to_le(&cap_struct);
-+	if (check_cap_sanity(&cap_struct))
-+		return -EPERM;
-+
-+	bprm->cap_effective = cap_combine (cap_intersect (bprm->cap_effective,
-+							  CAP_REGULAR_SET),
-+					   to_cap_t(cap_struct.effective));
-+	bprm->cap_permitted = cap_combine (cap_intersect (bprm->cap_permitted,
-+							  CAP_REGULAR_SET),
-+					   to_cap_t(cap_struct.permitted));
-+	if (!(bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID)
-+	    || !capable(CAP_REG_SXID)) /* Don't allow to gain privileges! */
-+		cap_clear (bprm->cap_permitted);
-+	bprm->cap_inheritable = cap_combine (cap_intersect (bprm->cap_inheritable,
-+							    CAP_REGULAR_SET),
-+					     to_cap_t(cap_struct.inheritable));
-+
-+#endif
- 	return 0;
- }
- 
-@@ -340,6 +432,62 @@ int cap_task_post_setuid (uid_t old_ruid
- 	return 0;
- }
- 
-+/*
-+ * Rationale: code calling task_setscheduler, task_setioprio, and
-+ * task_setnice, assumes that
-+ *   . if capable(cap_sys_nice), then those actions should be allowed
-+ *   . if not capable(cap_sys_nice), but acting on your own processes,
-+ *   	then those actions should be allowed
-+ * This is insufficient now since you can call code without suid, but
-+ * yet with increased caps.
-+ * So we check for increased caps on the target process.
-+ */
-+static inline int cap_safe_nice(struct task_struct *p)
-+{
-+	if (!cap_issubset(p->cap_permitted, current->cap_permitted) &&
-+	    !__capable(current, CAP_SYS_NICE))
-+		return -EPERM;
-+	return 0;
-+}
-+
-+int cap_task_setscheduler (struct task_struct *p, int policy,
-+			   struct sched_param *lp)
-+{
-+	return cap_safe_nice(p);
-+}
-+
-+int cap_task_setioprio (struct task_struct *p, int ioprio)
-+{
-+	return cap_safe_nice(p);
-+}
-+
-+int cap_task_setnice (struct task_struct *p, int nice)
-+{
-+	return cap_safe_nice(p);
-+}
-+
-+int cap_task_kill(struct task_struct *p, struct siginfo *info,
-+				int sig, u32 secid)
-+{
-+	if (info != SEND_SIG_NOINFO && (is_si_special(info) || SI_FROMKERNEL(info)))
-+		return 0;
-+
-+	if (secid)
-+		/*
-+		 * Signal sent as a particular user.
-+		 * Capabilities are ignored.  May be wrong, but it's the
-+		 * only thing we can do at the moment.
-+		 * Used only by usb drivers?
-+		 */
-+		return 0;
-+	if (capable(CAP_KILL))
-+		return 0;
-+	if (cap_issubset(p->cap_permitted, current->cap_permitted))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
- void cap_task_reparent_to_init (struct task_struct *p)
- {
- 	p->cap_effective = CAP_INIT_EFF_SET;
-@@ -377,6 +525,10 @@ EXPORT_SYMBOL(cap_bprm_secureexec);
- EXPORT_SYMBOL(cap_inode_setxattr);
- EXPORT_SYMBOL(cap_inode_removexattr);
- EXPORT_SYMBOL(cap_task_post_setuid);
-+EXPORT_SYMBOL(cap_task_kill);
-+EXPORT_SYMBOL(cap_task_setscheduler);
-+EXPORT_SYMBOL(cap_task_setioprio);
-+EXPORT_SYMBOL(cap_task_setnice);
- EXPORT_SYMBOL(cap_task_reparent_to_init);
- EXPORT_SYMBOL(cap_syslog);
- EXPORT_SYMBOL(cap_vm_enough_memory);
+> > should be moved into 32-bit early boot userspace code (like
+> > compressed/misc.c) and it will thus not depend on any kernel
+> > infrastructure.
+> 
+> Ok I guess it would make sense to add a i386_start_kernel to i386 and 
+> initialize the boot PDA there. I would also move early_cpu_init into 
+> there because that also avoids quite some mess later.
+
+yes. And move all of this _outside_ the normal kernel build process, so 
+that whatever ad-hoc or less ad-hoc instrumentation is added (be that 
+PROFILE_UNLIKELY, function tracing, 'get_current' based hacks, irqtrace, 
+lockdep or whatever) it wont be included in that code. That gets rid of
+most of the dependency and bootstrap problems. It's hard enough already
+to debug early boot code.
+
+	Ingo

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWIJOe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWIJPIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWIJOe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 10:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIJOe4
+	id S932213AbWIJPIS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 11:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWIJPIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 10:34:56 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:26579 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932208AbWIJOey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 10:34:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RGmxO27uvZ6CRzY94I8BDYo2MG2ON/MBbhyEhcEgj5AxXh7gvxXiZACdbIxXRyMuWWgT1wEyiDBZ6+j3NddOvQNUoxe0Gz5Zn/Nvy4Vtes7lDPkRkqvdqUPgAA5xXF5+J7Aup1VwndPW9nhbsf5RaxHgPwZH+rv6I/GWvKzr2gw=
-Message-ID: <82ecf08e0609100734w4c0faaf9yffce5b67d5aeaedd@mail.gmail.com>
-Date: Sun, 10 Sep 2006 11:34:52 -0300
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "Dave Jones" <davej@redhat.com>, "Thiago Galesi" <thiagogalesi@gmail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Cpufreq not working in 2.6.18-rc6
-In-Reply-To: <82ecf08e0609090813g4889b659sfcb90e005cb42c14@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Sep 2006 11:08:18 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:3236 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S932213AbWIJPIR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 11:08:17 -0400
+Date: Sun, 10 Sep 2006 19:08:20 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: rcu_do_batch: rcu_data->qlen is not irq safe
+Message-ID: <20060910150820.GA7433@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <82ecf08e0609090722p1ded935dm794d569278d60122@mail.gmail.com>
-	 <20060909144739.GS28592@redhat.com>
-	 <82ecf08e0609090813g4889b659sfcb90e005cb42c14@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, apparently it is my fault...
+rcu_do_batch() decrements rdp->qlen with irqs enabled.
+This is not good, it can also be modified by call_rcu()
+from interrupt.
 
-I traced the failure to
+So, is it worth fixing? The problem is mostly theoretical.
 
-if (cpufreq_driver) {
-                spin_unlock_irqrestore(&cpufreq_driver_lock, flags);
-                return -EBUSY;
-        }
+If yes, is it ok to use local_t ? Iirc, the were some
+problems with local_t on some arches. Sometimes it is
+just atomic_t ...
 
-(cpufreq_register_driver in drivers/cpufreq/cpufreq.c)
+Otherwise, we can update ->qlen after the main loop,
 
-Turns out I was modprobing acpi-cpufreq before modprobing cpufreq-k7.
-This worked in previous kernels and apparently, not in this one.
+	local_irq_disable();
+	rdp->qlen -= count;
+	local_irq_enable();
 
-If I do not modprobe acpi-cpufreq, it works.
+What dou you think?
 
-Thiago
+Oleg.
 
-On 9/9/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
-> >  >
-> >  > CONFIG_X86_POWERNOW_K7_ACPI=y
-> >  > ..
-> >  > CONFIG_ACPI_PROCESSOR=m
-> >
-> > Does it start working again if you change ACPI_PROCESSOR=y ?
->
-> No. nothing changes
->
-> --
-> -
-> Thiago Galesi
->

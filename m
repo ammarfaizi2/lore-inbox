@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWIJQCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIJQJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWIJQCE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 12:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWIJQCD
+	id S932279AbWIJQJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 12:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWIJQJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 12:02:03 -0400
-Received: from smtp121.iad.emailsrvr.com ([207.97.245.121]:34496 "EHLO
-	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S932271AbWIJQCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 12:02:02 -0400
-Message-ID: <450436F1.8070203@gentoo.org>
-Date: Sun, 10 Sep 2006 12:01:53 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
-MIME-Version: 1.0
+	Sun, 10 Sep 2006 12:09:56 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:47120 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S932269AbWIJQJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 12:09:55 -0400
+Date: Sun, 10 Sep 2006 18:09:54 +0200
+From: David Madore <david.madore@ens.fr>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
-       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
-       linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
-       vsu@altlinux.ru, liste@jordet.net
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org>	 <1157817836.6877.52.camel@localhost.localdomain>	 <45033370.8040005@gentoo.org> <1157848272.6877.108.camel@localhost.localdomain>
-In-Reply-To: <1157848272.6877.108.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060910160953.GA6430@clipper.ens.fr>
+References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1157905393.23085.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 18:09:54 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, sorry but I'm still having trouble understanding which aspect of 
-my patch you are objecting to. I think I probably misinterpreted one of 
-your earlier comments.
+On Sun, Sep 10, 2006 at 05:23:13PM +0100, Alan Cox wrote:
+> CAP_REG_EXEC seems meaningless, I can do the same with mmap by hand for
+> most types of binary execution except setuid (which is separate it
+> seems)
 
-My patch included this comment:
+Actually I meant those caps to be more of a proof of concept than as a
+really useful set, so I have nothing against CAP_REG_EXEC being
+deleted.  However, it still performs one (small) function even in the
+absence of suid/sgid executables: you can execute files with omde --x
+which you can't do with mmap().  (Also, I'm not 100% sure the kernel
+doesn't do some magic things on exec(), perhaps some magic forms of
+accounting or whatever, which you couldn't do with mmap().)
 
-> There is still a downside to this patch: if the user inserts a VIA
-> PCI card into a VIA-based motherboard, in some circumstances the
-> quirk will also run on
-> the VIA PCI card. This corner case is hard to avoid.
+> Given the capability model is accepted as inferior to things like
+> SELinux policies why do we actually want to fix this anyway. It's
+> unfortunate we can't discard the existing capabilities model (which has
+> flaws) as well really.
 
-To which you replied:
+Can a non-root user create limited-rights processes without assistance
+from the sysadmin, under SElinux?  I was under the impression that it
+wasn't the case.  Also, SElinux is immensely more difficult to
+understand and operate with than a mere set of capabilities: and I
+think that simplicity is (sometimes) of value.
 
-> NAK
-> 
-> This is not a "corner case"
-> 
-> Very large numbers of VIA mainboards ship with some of the VIA devices
-> built in and some of them on the PCI bus. In fact they generally start
-> shipped on the board as PCI devices and migrate over time.
-
-and later followed up with:
-
-> If they are on the V-Bus then the IRQ number controls routing if they
-> are on the PCI bus the IRQ line controls routing as normal.
-
-The scenario you are talking about there (internal devices on PCI bus vs 
-V-bus) is different from the one I was talking about (external VIA-based 
-PCI cards going into PCI slots on a VIA-based motherboard).
-
-Regardless of that I tried to piece together what I thought you might be 
-trying to say, in order to understand the NAK:
-
-> OK, so per your last mail, most VIA devices start on the PCI bus and
-> then later are migrated onto the V-bus.
-> 
-> Devices on the PCI bus need to be quirked (in some circumstances), as
-> when they are on the PCI bus they use the IRQ line for routing, and
-> the IRQ line is what the quirk actually modifies.
-> 
-> V-bus devices do not need the quirk because IRQ routing there is
-> handled by IRQ number alone.
-> 
-> Is the above correct?
-
-And then you replied:
-
-> I've no idea. 
-
-Can you clarify?
-
-Thanks.
-Daniel
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

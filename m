@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWIJTYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWIJTZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWIJTYa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 15:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWIJTYa
+	id S932553AbWIJTZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 15:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWIJTZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 15:24:30 -0400
-Received: from bbr254.neoplus.adsl.tpnet.pl ([83.27.207.254]:43929 "EHLO
-	Jerry.zjeby.dyndns.org") by vger.kernel.org with ESMTP
-	id S932550AbWIJTY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 15:24:29 -0400
-Date: Sun, 10 Sep 2006 21:24:15 +0200 (CEST)
-From: curious <curious@zjeby.dyndns.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: swsusp problem
-In-Reply-To: <200609101133.32931.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.63.0609102123080.2685@Jerry.zjeby.dyndns.org>
-References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org>
- <200609101133.32931.rjw@sisk.pl>
+	Sun, 10 Sep 2006 15:25:28 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:22759 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S932553AbWIJTZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 15:25:26 -0400
+Date: Sun, 10 Sep 2006 21:33:16 +0200
+To: "Kay Sievers" <kay.sievers@vrfy.org>, "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue handling fix
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
+       "petero2@telia.com" <petero2@telia.com>
+Content-Type: text/plain; charset=iso-8859-15
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com> <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com> <op.tfmh56j9iudtyh@master> <20060909213054.GC19188@kroah.com> <1157842406.7592.12.camel@pim.off.vrfy.org>
+Content-Transfer-Encoding: 7bit
+Message-ID: <op.tfoglqsiiudtyh@master>
+In-Reply-To: <1157842406.7592.12.camel@pim.off.vrfy.org>
+User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Sun, 10 Sep 2006, Rafael J. Wysocki wrote:
+> Is this always device specific, or also driver global information? Is
+> pktcdvd always on a block device? Maybe you just want them to be a group
+> of attributes in the block device directory where they belong to, like:
+>   /sys/block/sr0/pktcdvd/info
+>   /sys/block/sr0/pktcdvd/write_queue_size
+>   /sys/block/sr0/pktcdvd/...
+>
+> Does that make sense? We should avoid messing around with symlinks
+> pointing to other devices, if not absolutely needed. We should also not
+> create a new device type, just for adding properties to an existing one,
+> especially if there is not some kind of "device stacking". The
+> "mapped_to" link to the parent device looks like a wild hack to me, we
+> should avoid.
 
-> Hi,
->
-> On Sunday, 10 September 2006 02:13, curious wrote:
->> hello.
->> i write because swsuspend don't work for me.
->> i try to echo disk > /sys/power/state
->> and just nothing happens, i have blinking cursor and machine freezes.
->>
->> when i enabled debug i got :
->> stopping tasks: ========|
->> Shrinking memory... done (2684 pages freed)
->> swsusp: Need to copy 1454 pages
->> swsusp: critical section/: done (1454 pages copied)
->>
->> .... and machine just sits there , doing nothing.
->> after reboot it boots like usual.
->>
->> machine is Ts30M Viglen Dossier 486 SM
->> kernel is 2.6.18-rc5
->> here is config : http://zjeby.dyndns.org:8242/viglen.config
->
-> Could you boot the kernel with the init=/bin/bash command line argument
-> and do the following:
->
-> # mount /proc
-> # mount /sys
-> # echo 8 > /proc/sys/kernel/printk
-> # swapon -a
-> # echo disk > /sys/power/state
->
-> and see what happens?
+The pktcdvd driver creates new block devices using a "struct gendisk"
+that creates the /sys/block/pktcdvd[0-7]/ entries (alloc_disk() -> add_disk()).
 
-same thing , except page count is different ofcourse.
+Since the files like write_queue_size are per pktcdvd device and belong to
+this device, they should be below the /sys/block/pktcdvd[0-7]/ directory,
+not below the e.g. /sys/block/sr0/ .
+
+The pktcdvd driver can only be mapped to block devices, as i know.
+
+-Thomas Maier
 

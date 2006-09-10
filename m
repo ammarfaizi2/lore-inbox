@@ -1,250 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWIJRJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWIJRI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWIJRJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 13:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWIJRJa
+	id S932310AbWIJRI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 13:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWIJRI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 13:09:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:49126 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932312AbWIJRJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 13:09:06 -0400
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 4/6] V4L/DVB (4605): Fixes an issue with V4L1 and make
-	headers-install
-Date: Sun, 10 Sep 2006 14:06:45 -0300
-Message-id: <20060910170645.PS6958300004@infradead.org>
-In-Reply-To: <20060910170419.PS3030230000@infradead.org>
-References: <20060910170419.PS3030230000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92-1mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 10 Sep 2006 13:08:56 -0400
+Received: from cable-static-233-101.eblcom.ch ([213.188.233.101]:64786 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S932310AbWIJRIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 13:08:54 -0400
+Date: Sun, 10 Sep 2006 19:08:37 +0200
+From: Nico Schottelius <nico-kernel20060910@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.17.13 Uninitialized variable / printf timing
+Message-ID: <20060910170837.GA18697@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel20060910@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.17.6-hydrogenium
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-V4L1 support should be disabled when no CONFIG_VIDEO_V4L1_COMPAT is defined,
-to allow checking for broken V4L2 ports. This is very important during the
-migration phase for V4L2 API.
-However, userspace apps should be capable of using both APIs, since they need
-to test at runtime, via VIDIOCGCAP ioctl, if V4L1 is supported. So, when
-__KERNEL__ is not defined, those ioctls and corresponding structs should be
-visible.
-This patch also removes the obsolete defines HAVE_V4L1 and HAVE_V4L2, that
-where causing some confusion, and were replaced by CONFIG_VIDEO_V4L1_COMPAT
-and CONFIG_VIDEO_V4L2.
+Hello!
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+When booting 2.6.17.13 on my Geode, kprintf enabled with timing output,
+it looks a bit strange (the first 24 lines):
 
- drivers/media/Kconfig              |    2 +-
- drivers/media/video/zoran.h        |    2 +-
- drivers/media/video/zoran_driver.c |   22 +++++++++++-----------
- include/linux/videodev.h           |    3 +--
- include/linux/videodev2.h          |    2 --
- include/media/v4l2-dev.h           |    7 ++++---
- 6 files changed, 18 insertions(+), 20 deletions(-)
+---------------------------------------------------------------------------=
+-----
 
-diff --git a/drivers/media/Kconfig b/drivers/media/Kconfig
-index ef52e6d..ed4aa4e 100644
---- a/drivers/media/Kconfig
-+++ b/drivers/media/Kconfig
-@@ -53,7 +53,7 @@ config VIDEO_V4L1_COMPAT
- 	  If you are unsure as to whether this is required, answer Y.
- 
- config VIDEO_V4L2
--	tristate
-+	bool
- 	default y
- 
- source "drivers/media/video/Kconfig"
-diff --git a/drivers/media/video/zoran.h b/drivers/media/video/zoran.h
-index ffcda95..8fb4a34 100644
---- a/drivers/media/video/zoran.h
-+++ b/drivers/media/video/zoran.h
-@@ -267,7 +267,7 @@ struct zoran_v4l_settings {
- };
- 
- /* whoops, this one is undeclared if !v4l2 */
--#ifndef HAVE_V4L2
-+#ifndef CONFIG_VIDEO_V4L2
- struct v4l2_jpegcompression {
- 	int quality;
- 	int APPn;
-diff --git a/drivers/media/video/zoran_driver.c b/drivers/media/video/zoran_driver.c
-index d9a5876..5f90db2 100644
---- a/drivers/media/video/zoran_driver.c
-+++ b/drivers/media/video/zoran_driver.c
-@@ -86,7 +86,7 @@ #include "zoran.h"
- #include "zoran_device.h"
- #include "zoran_card.h"
- 
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 	/* we declare some card type definitions here, they mean
- 	 * the same as the v4l1 ZORAN_VID_TYPE above, except it's v4l2 */
- #define ZORAN_V4L2_VID_FLAGS ( \
-@@ -103,7 +103,7 @@ const struct zoran_format zoran_formats[
- 	{
- 		.name = "15-bit RGB",
- 		.palette = VIDEO_PALETTE_RGB555,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- #ifdef __LITTLE_ENDIAN
- 		.fourcc = V4L2_PIX_FMT_RGB555,
- #else
-@@ -117,7 +117,7 @@ #endif
- 	}, {
- 		.name = "16-bit RGB",
- 		.palette = VIDEO_PALETTE_RGB565,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- #ifdef __LITTLE_ENDIAN
- 		.fourcc = V4L2_PIX_FMT_RGB565,
- #else
-@@ -131,7 +131,7 @@ #endif
- 	}, {
- 		.name = "24-bit RGB",
- 		.palette = VIDEO_PALETTE_RGB24,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- #ifdef __LITTLE_ENDIAN
- 		.fourcc = V4L2_PIX_FMT_BGR24,
- #else
-@@ -145,7 +145,7 @@ #endif
- 	}, {
- 		.name = "32-bit RGB",
- 		.palette = VIDEO_PALETTE_RGB32,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- #ifdef __LITTLE_ENDIAN
- 		.fourcc = V4L2_PIX_FMT_BGR32,
- #else
-@@ -159,7 +159,7 @@ #endif
- 	}, {
- 		.name = "4:2:2, packed, YUYV",
- 		.palette = VIDEO_PALETTE_YUV422,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 		.fourcc = V4L2_PIX_FMT_YUYV,
- 		.colorspace = V4L2_COLORSPACE_SMPTE170M,
- #endif
-@@ -169,7 +169,7 @@ #endif
- 	}, {
- 		.name = "Hardware-encoded Motion-JPEG",
- 		.palette = -1,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 		.fourcc = V4L2_PIX_FMT_MJPEG,
- 		.colorspace = V4L2_COLORSPACE_SMPTE170M,
- #endif
-@@ -210,7 +210,7 @@ static int lock_norm = 0;	/* 1=Don't cha
- module_param(lock_norm, int, 0);
- MODULE_PARM_DESC(lock_norm, "Users can't change norm");
- 
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 	/* small helper function for calculating buffersizes for v4l2
- 	 * we calculate the nearest higher power-of-two, which
- 	 * will be the recommended buffersize */
-@@ -1761,7 +1761,7 @@ setup_overlay (struct file *file,
- 	return wait_grab_pending(zr);
- }
- 
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 	/* get the status of a buffer in the clients buffer queue */
- static int
- zoran_v4l2_buffer_status (struct file        *file,
-@@ -2676,7 +2676,7 @@ zoran_do_ioctl (struct inode *inode,
- 	}
- 		break;
- 
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 
- 		/* The new video4linux2 capture interface - much nicer than video4linux1, since
- 		 * it allows for integrating the JPEG capturing calls inside standard v4l2
-@@ -4689,7 +4689,7 @@ static struct file_operations zoran_fops
- struct video_device zoran_template __devinitdata = {
- 	.name = ZORAN_NAME,
- 	.type = ZORAN_VID_TYPE,
--#ifdef HAVE_V4L2
-+#ifdef CONFIG_VIDEO_V4L2
- 	.type2 = ZORAN_V4L2_VID_FLAGS,
- #endif
- 	.hardware = ZORAN_HARDWARE,
-diff --git a/include/linux/videodev.h b/include/linux/videodev.h
-index 518c7a3..8dba97a 100644
---- a/include/linux/videodev.h
-+++ b/include/linux/videodev.h
-@@ -14,8 +14,7 @@ #define __LINUX_VIDEODEV_H
- 
- #include <linux/videodev2.h>
- 
--#ifdef CONFIG_VIDEO_V4L1_COMPAT
--#define HAVE_V4L1 1
-+#if defined(CONFIG_VIDEO_V4L1_COMPAT) || !defined (__KERNEL__)
- 
- struct video_capability
- {
-diff --git a/include/linux/videodev2.h b/include/linux/videodev2.h
-index b714695..e3715d7 100644
---- a/include/linux/videodev2.h
-+++ b/include/linux/videodev2.h
-@@ -22,8 +22,6 @@ #define __user
- #endif
- #include <linux/types.h>
- 
--#define HAVE_V4L2 1
--
- /*
-  * Common stuff for both V4L1 and V4L2
-  * Moved from videodev.h
-diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
-index 600d61d..810462f 100644
---- a/include/media/v4l2-dev.h
-+++ b/include/media/v4l2-dev.h
-@@ -194,7 +194,7 @@ struct video_device
- 
- 
- 	int (*vidioc_overlay) (struct file *file, void *fh, unsigned int i);
--#ifdef HAVE_V4L1
-+#ifdef CONFIG_VIDEO_V4L1_COMPAT
- 			/* buffer type is struct vidio_mbuf * */
- 	int (*vidiocgmbuf)  (struct file *file, void *fh, struct video_mbuf *p);
- #endif
-@@ -335,7 +335,7 @@ extern int video_usercopy(struct inode *
- 				      unsigned int cmd, void *arg));
- 
- 
--#ifdef HAVE_V4L1
-+#ifdef CONFIG_VIDEO_V4L1_COMPAT
- #include <linux/mm.h>
- 
- extern struct video_device* video_devdata(struct file*);
-@@ -357,6 +357,8 @@ video_device_remove_file(struct video_de
- 	class_device_remove_file(&vfd->class_dev, attr);
- }
- 
-+#endif /* CONFIG_VIDEO_V4L1_COMPAT */
-+
- #ifdef OBSOLETE_OWNER /* to be removed soon */
- /* helper functions to access driver private data. */
- static inline void *video_get_drvdata(struct video_device *dev)
-@@ -372,6 +374,5 @@ #endif
- 
- extern int video_exclusive_open(struct inode *inode, struct file *file);
- extern int video_exclusive_release(struct inode *inode, struct file *file);
--#endif /* HAVE_V4L1 */
- 
- #endif /* _V4L2_DEV_H */
+  Booting 'Zwerg - 2.6.17.13'
+               =20
+root (hd0,1)   =20
+ Filesystem type is jfs, partition type 0x83
+kernel /usr/src/linux-2.6.17.13/arch/i386/boot/bzImage root=3D/dev/hda2
+console=3Dt
+tyS0,38400     =20
+   [Linux-bzImage, setup=3D0x1400, size=3D0x10afff]
+               =20
+[42949372.960000] Linux version 2.6.17.13-zwerg (root@buche) (gcc
+version 4.1.2 20060613 (prerelease) (Debian 4.1.1-5)) #1 Sun Sep 10
+16:15:23 UTC 2006
+[42949372.960000] BIOS-provided physical RAM map:
+[42949372.960000]  BIOS-e820: 0000000000000000 - 000000000009fc00
+(usable)
+[42949372.960000]  BIOS-e820: 000000000009fc00 - 00000000000a0000
+(reserved)
+[42949372.960000]  BIOS-e820: 00000000000f0000 - 0000000000100000
+(reserved)
+[42949372.960000]  BIOS-e820: 0000000000100000 - 0000000008000000
+(usable)
+[42949372.960000]  BIOS-e820: 00000000fff0000 - 0000000100000000
+(reserved)
+[42949372.960000] 128MB LOWMEM available.
+[42949372.960000] DMI not present or invalid.
+[42949372.960000] ACPI: Unable to locate RSDP
+[42949372.960000] Allocating PCI resources starting at 10000000 (gap:
+08000000:f7f00000)
+[42949372.960000] Built 1 zonelists
+[42949372.960000] Kernel command line: root=3D/dev/hda2
+console=3DttyS0,38400
+[42949372.960000] No local APIC present or hardware disabled
+[42949372.960000] Initializing CPU#0
+[42949372.960000] PID hash table entries: 1024 (order: 10, 4096 bytes)
+[    0.000000] Detected 266.663 MHz processor.
+[   20.718339] Using tsc for high-res timesource
+[   20.718638] Console: colour dummy device 80x25
+[   21.045363] Dentry cache hash table entries: 16384 (order: 4, 65536
+bytes)
+[   21.067257] Inode-cache hash table entries: 8192 (order: 3, 32768
+bytes)
+[   21.129713] Memory: 127256k/131072k available 333k kernel code, 3420k
+reserved, 498k data, 124k init, 0k highmem)
+[   21.161087] Checking if this processor honours the WP bit even in
+supervisor mode... Ok.
+[   21.328007] Calibrating delay using timer specific routine.. 534.16
+BogoMIPS (lpj=3D2670830)
+[   21.353474] Mount-cache hash table entries: 512
+[   21.368758] CPU: NSC Unknown stepping 01
+[   21.380743] Checking 'hlt' instruction... OK.
+[   21.394059] SMP alternatives: switching to UP code
+[   21.408503] Freeing SMP alternatives: 0k freed
+[...]
+---------------------------------------------------------------------------=
+-----
 
+Just wanted to ask whether this is ...
+   a) wanted
+   b) not yet seen
+   c) nothing one should care about
+
+Nico
+
+--=20
+``...if there's one thing about Linux users, they're do-ers, not whiners.''
+(A quotation of Andy Patrizio I completely agree with)
+
+--+HP7ph2BbKc20aGI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iQIVAwUBRQRGlLOTBMvCUbrlAQLYfg/+Mq06bYizlUPZedAGagfdUbZ+dzhm5ReL
+wPmlCZzRuj3rRe/feale/xzRzx4WZZI/7rC2+MIBnGqOommfXdcq8uj+hzBTEtc6
+0baXe/y2PlZD4qPRDb9FsnxjIUTgj9d8kdyBVkcckdPjshvTZfZQXloBreJv3ASS
+EcFkXqjF4ueaS3SqBGcjyF2cChNLSv+8MlMaHUVpORJnm2+eXDxcyT7Yzn2aYHDD
+4frG18Je1XHd097uf/Oi25xAhuZ5EDESHWIBznJ8hpX1D5oF2m8vwq2M6Ob+lvlU
+Q67Jsr/oP/IyUIGt30si/Q+ij/Cc5zRSvsQtZemuOQHkQxW92K5x7vbEOypgHxMs
+XVi+j4++JIMYYwTSkmWLUGAANM2i2ySPF6cxE/tQcJX1DQwxRR0KkdSWa6QhGir2
+6XmkPyWU2q7363Zch4DUa4Bbz4lIA3vuzyZL9DgBNWWA5kHlVcReY5yGh2kiAFaP
+s2s6tlfRCPSiIHAmDd+rbdSJbmDoEMxbQD8F7IDtAxt8ZoAnlMHrbGF3X44HZR61
+xaU3xD/AH4YLXzZ4CNAtFOt+blDTqTbsVQbFViU9hoq5oAvTHvZEb6iRsOOnktm6
+yWGCUtt0Kbmiuex5GtqRmKzqI7MJaz95DTDfiujLn6Y/4PN9krdRVI5CGD2/cBwB
+Sl59hwu5WHM=
+=o4/d
+-----END PGP SIGNATURE-----
+
+--+HP7ph2BbKc20aGI--

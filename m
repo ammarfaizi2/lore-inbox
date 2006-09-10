@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965262AbWIJFfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWIJGSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965262AbWIJFfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 01:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWIJFfs
+	id S965281AbWIJGSa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 02:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965282AbWIJGSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 01:35:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39337 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965262AbWIJFfs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 01:35:48 -0400
-Date: Sat, 9 Sep 2006 22:35:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Magnus =?ISO-8859-1?B?TeTkdHTk?= <novell@kiruna.se>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: 2.6.18-rc6-mm1
-Message-Id: <20060909223533.0bdcdc3f.akpm@osdl.org>
-In-Reply-To: <200609100237.51822.novell@kiruna.se>
-References: <200609091445.32744.novell@kiruna.se>
-	<20060909112724.a214197b.akpm@osdl.org>
-	<200609100237.51822.novell@kiruna.se>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 10 Sep 2006 02:18:30 -0400
+Received: from colin.muc.de ([193.149.48.1]:39175 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S965281AbWIJGSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 02:18:30 -0400
+Date: 10 Sep 2006 08:18:28 +0200
+Date: Sun, 10 Sep 2006 08:18:28 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386-pda updates
+Message-ID: <20060910061828.GB12564@muc.de>
+References: <45027822.2010906@goop.org> <20060909155257.GA50136@muc.de> <45034E97.9090109@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45034E97.9090109@goop.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Sep 2006 02:37:51 +0200
-Magnus M‰‰tt‰ <novell@kiruna.se> wrote:
-
-> > > EIP:    0060:[<c04ad300>]    Tainted: P      VLI
+On Sat, Sep 09, 2006 at 04:30:31PM -0700, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> >>@@ -20,7 +22,14 @@ extern struct i386_pda _proxy_pda;
+> >>#define pda_to_op(op,field,val)					 \
+> >>	do {								\
+> >>		typedef typeof(_proxy_pda.field) T__;			\
+> >>+		if (0) { T__ tmp__; tmp__ = (val); }			\
+> >>    
 > >
-> > What caused the taint?
-> 
-> I was pretty sure it was listed somewhere, but I guess it wasn't.
-> nvidia graphics module, I can try without it tomorrow if needed.
-> 
+> >Merged into original patch
+> >  
+> BTW, do you mean you already had this in i386, or that you folded it 
+> into the existing patch?  I don't think I had sent out my version of 
+> this before.
 
-That would be appreciated thanks.
+I folded it into the existing patch.
 
-But first you'd need to ensure that it's a repeatable oops.  If
-it's not, the removing the nvidia driver won't tell us if the nvidia
-driver caused it.  (It almost certainly didn't).
+-Andi

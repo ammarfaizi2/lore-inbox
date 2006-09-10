@@ -1,247 +1,263 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWIJObs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWIJOcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWIJObs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 10:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWIJObs
+	id S932204AbWIJOcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 10:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIJOcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 10:31:48 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:47518 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932203AbWIJObp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 10:31:45 -0400
-Subject: Re: [RFC:PATCH 002/002] EXT3: Fix sparse warnings
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060908221756.GB5192@martell.zuzino.mipt.ru>
-References: <20060908213914.11498.3272.sendpatchset@kleikamp.austin.ibm.com>
-	 <20060908213927.11498.18166.sendpatchset@kleikamp.austin.ibm.com>
-	 <20060908221756.GB5192@martell.zuzino.mipt.ru>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 09:31:38 -0500
-Message-Id: <1157898698.15217.5.camel@kleikamp.austin.ibm.com>
+	Sun, 10 Sep 2006 10:32:17 -0400
+Received: from rekin26.go2.pl ([193.17.41.76]:26752 "EHLO rekin22.go2.pl")
+	by vger.kernel.org with ESMTP id S932204AbWIJOcO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 10:32:14 -0400
+Subject: =?UTF-8?Q?problem=20with=20OWN=20bit=20when=20writting=20driver=20?=
+	=?UTF-8?Q?for=20rtl8139=3F?=
+From: =?UTF-8?Q?mwitosz-linux?= <mwitosz-linux@o2.pl>
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Message-ID: <231c973f.7ffabfd8.450421ed.620bc@o2.pl>
+Date: Sun, 10 Sep 2006 16:32:13 +0200
+X-Originator: 213.102.147.249
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-The new patch below can replace ext3-fix-sparse-warnings.patch.
+hi, everybody
+my name is Mariusz, I am newbie to linux kernel, 
+For several weeks I have been writing kernel driver for network card based on 
+rtl8139c chip. 
 
-On Sat, 2006-09-09 at 02:17 +0400, Alexey Dobriyan wrote:
-> On Fri, Sep 08, 2006 at 03:39:30PM -0600, Dave Kleikamp wrote:
-> > EXT3: Fix sparse warnings
-> 
-> > --- linux001/fs/ext3/resize.c
-> > +++ linux002/fs/ext3/resize.c
-> 
-> > @@ -380,7 +380,7 @@ static int add_new_gdb(handle_t *handle,
-> >  	struct buffer_head *dind;
-> >  	int gdbackups;
-> >  	struct ext3_iloc iloc;
-> > -	__u32 *data;
-> > +	__le32 *data;
-> >  	int err;
-> >  
-> >  	if (test_opt(sb, DEBUG))
-> > @@ -410,14 +410,14 @@ static int add_new_gdb(handle_t *handle,
-> >  		goto exit_bh;
-> >  	}
-> >  
-> > -	data = EXT3_I(inode)->i_data + EXT3_DIND_BLOCK;
-> > +	data = (__le32 *)(EXT3_I(inode)->i_data + EXT3_DIND_BLOCK);
-> 
-> Why cast is needed? i_data is __le32 * already.
+I have some problems with DMA, i suppose.
 
-You're right.  I didn't realize fixing the declaration was enough.
+there is a bit in Transmit Status Descriptor of RTL8139c which after clearing(It must be cleared to 
+start transmit operation) shouldb be placed in 1 state - which according to RTL8139 specification means that 
+DMA copy from memory to internal RTL fifo has finished.
 
-> > -	data = (__u32 *)dind->b_data;
-> > +	data = (__le32 *)dind->b_data;
-> >  	if (le32_to_cpu(data[gdb_num % EXT3_ADDR_PER_BLOCK(sb)]) != gdblock) {
-> >  		ext3_warning(sb, __FUNCTION__,
-> >  			     "new group %u GDT block "E3FSBLK" not reserved",
-> > @@ -519,7 +519,7 @@ static int reserve_backup_gdb(handle_t *
-> >  	struct buffer_head *dind;
-> >  	struct ext3_iloc iloc;
-> >  	ext3_fsblk_t blk;
-> > -	__u32 *data, *end;
-> > +	__le32 *data, *end;
-> >  	int gdbackups = 0;
-> >  	int res, i;
-> >  	int err;
-> > @@ -528,7 +528,7 @@ static int reserve_backup_gdb(handle_t *
-> >  	if (!primary)
-> >  		return -ENOMEM;
-> >
-> > -	data = EXT3_I(inode)->i_data + EXT3_DIND_BLOCK;
-> > +	data = (__le32 *)(EXT3_I(inode)->i_data + EXT3_DIND_BLOCK);
-> 
-> Ditto.
+The problem is: rtl doesn't clear this bit
 
-Agreed.
+I use  pci_map_single to map address of packet buffer to dma capable memory, then cpu_to_le32 to get physicall
+address of this buffer. 
 
-> > --- linux001/fs/ext3/super.c
-> > +++ linux002/fs/ext3/super.c
-> > @@ -2330,13 +2330,14 @@ static int ext3_remount (struct super_bl
-> >  
-> >  			ext3_mark_recovery_complete(sb, es);
-> >  		} else {
-> > -			__le32 ret;
-> > -			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> > +			int ret;
-> > +			__le32 ret_le;
-> > +			if ((ret_le = EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> >  					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
-> >  				printk(KERN_WARNING "EXT3-fs: %s: couldn't "
-> >  				       "remount RDWR because of unsupported "
-> >  				       "optional features (%x).\n",
-> > -				       sb->s_id, le32_to_cpu(ret));
-> > +				       sb->s_id, le32_to_cpu(ret_le));
-> >  				err = -EROFS;
-> >  				goto restore_opts;
-> >  			}
-> 
-> Get rid of "err = ret;" assignment below. It would be cleaner than
-> introducing new var.
+Do you have any idea what may work wrong?
 
-Agreed.
+here is transmit part of my driver:
 
-Here's a leaner patch.
-===========================================================================
-EXT3: Fix sparse warnings
+/**function called by kernel when kernel wat to transmit packet which is 
+   located in socket buffer structure skb
+   @param skb:  socket buffer structure with packet to transmit
+   @param netdev: device used to send this packet 
+*/
+int rtl_tx(struct sk_buff *skb, struct net_device *netdev){
+	int len;
+	char *data, shortpkt[ETH_ZLEN];
+	struct rtl_private_data *priv; 
+	
+	//get private data pointer
+	priv = netdev_priv(netdev);
 
-Fixing up some endian-ness warnings in preparation to clone ext4 from ext3.
+	//if the length of this packet is below 64 bytes, expand it to 64 bytes 
+	//by padding
+	data = skb->data;
+	len = skb->len;
+	if(len < ETH_ZLEN){
+		memset(shortpkt, 0, ETH_ZLEN);
+		memcpy(shortpkt, skb->data, skb->len);
+		len = ETH_ZLEN;
+		data = shortpkt;
+	}
 
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+	//save skb for freeing when this packet will be transmited
+	priv->skb = skb;
 
----
-diff -Nurp linux001/fs/ext3/resize.c linux002/fs/ext3/resize.c
---- linux001/fs/ext3/resize.c	2006-09-08 07:24:23.000000000 -0500
-+++ linux002/fs/ext3/resize.c	2006-09-10 09:22:10.000000000 -0500
-@@ -336,7 +336,7 @@ static int verify_reserved_gdb(struct su
- 	unsigned five = 5;
- 	unsigned seven = 7;
- 	unsigned grp;
--	__u32 *p = (__u32 *)primary->b_data;
-+	__le32 *p = (__le32 *)primary->b_data;
- 	int gdbackups = 0;
- 
- 	while ((grp = ext3_list_backups(sb, &three, &five, &seven)) < end) {
-@@ -380,7 +380,7 @@ static int add_new_gdb(handle_t *handle,
- 	struct buffer_head *dind;
- 	int gdbackups;
- 	struct ext3_iloc iloc;
--	__u32 *data;
-+	__le32 *data;
- 	int err;
- 
- 	if (test_opt(sb, DEBUG))
-@@ -417,7 +417,7 @@ static int add_new_gdb(handle_t *handle,
- 		goto exit_bh;
- 	}
- 
--	data = (__u32 *)dind->b_data;
-+	data = (__le32 *)dind->b_data;
- 	if (le32_to_cpu(data[gdb_num % EXT3_ADDR_PER_BLOCK(sb)]) != gdblock) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "new group %u GDT block "E3FSBLK" not reserved",
-@@ -519,7 +519,7 @@ static int reserve_backup_gdb(handle_t *
- 	struct buffer_head *dind;
- 	struct ext3_iloc iloc;
- 	ext3_fsblk_t blk;
--	__u32 *data, *end;
-+	__le32 *data, *end;
- 	int gdbackups = 0;
- 	int res, i;
- 	int err;
-@@ -536,8 +536,8 @@ static int reserve_backup_gdb(handle_t *
- 	}
- 
- 	blk = EXT3_SB(sb)->s_sbh->b_blocknr + 1 + EXT3_SB(sb)->s_gdb_count;
--	data = (__u32 *)dind->b_data + EXT3_SB(sb)->s_gdb_count;
--	end = (__u32 *)dind->b_data + EXT3_ADDR_PER_BLOCK(sb);
-+	data = (__le32 *)dind->b_data + EXT3_SB(sb)->s_gdb_count;
-+	end = (__le32 *)dind->b_data + EXT3_ADDR_PER_BLOCK(sb);
- 
- 	/* Get each reserved primary GDT block and verify it holds backups */
- 	for (res = 0; res < reserved_gdb; res++, blk++) {
-@@ -545,7 +545,8 @@ static int reserve_backup_gdb(handle_t *
- 			ext3_warning(sb, __FUNCTION__,
- 				     "reserved block "E3FSBLK
- 				     " not at offset %ld",
--				     blk, (long)(data - (__u32 *)dind->b_data));
-+				     blk,
-+				     (long)(data - (__le32 *)dind->b_data));
- 			err = -EINVAL;
- 			goto exit_bh;
- 		}
-@@ -560,7 +561,7 @@ static int reserve_backup_gdb(handle_t *
- 			goto exit_bh;
- 		}
- 		if (++data >= end)
--			data = (__u32 *)dind->b_data;
-+			data = (__le32 *)dind->b_data;
- 	}
- 
- 	for (i = 0; i < reserved_gdb; i++) {
-@@ -584,7 +585,7 @@ static int reserve_backup_gdb(handle_t *
- 	blk = input->group * EXT3_BLOCKS_PER_GROUP(sb);
- 	for (i = 0; i < reserved_gdb; i++) {
- 		int err2;
--		data = (__u32 *)primary[i]->b_data;
-+		data = (__le32 *)primary[i]->b_data;
- 		/* printk("reserving backup %lu[%u] = %lu\n",
- 		       primary[i]->b_blocknr, gdbackups,
- 		       blk + primary[i]->b_blocknr); */
-@@ -689,7 +690,7 @@ exit_err:
- 			     "can't update backup for group %d (err %d), "
- 			     "forcing fsck on next reboot", group, err);
- 		sbi->s_mount_state &= ~EXT3_VALID_FS;
--		sbi->s_es->s_state &= ~cpu_to_le16(EXT3_VALID_FS);
-+		sbi->s_es->s_state &= cpu_to_le16(~EXT3_VALID_FS);
- 		mark_buffer_dirty(sbi->s_sbh);
- 	}
- }
-diff -Nurp linux001/fs/ext3/super.c linux002/fs/ext3/super.c
---- linux001/fs/ext3/super.c	2006-09-08 16:25:07.000000000 -0500
-+++ linux002/fs/ext3/super.c	2006-09-10 09:19:37.000000000 -0500
-@@ -2348,10 +2348,8 @@ static int ext3_remount (struct super_bl
- 			 */
- 			ext3_clear_journal_err(sb, es);
- 			sbi->s_mount_state = le16_to_cpu(es->s_state);
--			if ((ret = ext3_group_extend(sb, es, n_blocks_count))) {
--				err = ret;
-+			if ((err = ext3_group_extend(sb, es, n_blocks_count)))
- 				goto restore_opts;
--			}
- 			if (!ext3_setup_super (sb, es, 0))
- 				sb->s_flags &= ~MS_RDONLY;
- 		}
-diff -Nurp linux001/fs/jbd/journal.c linux002/fs/jbd/journal.c
---- linux001/fs/jbd/journal.c	2006-09-08 16:25:07.000000000 -0500
-+++ linux002/fs/jbd/journal.c	2006-09-08 16:25:07.000000000 -0500
-@@ -1094,7 +1094,7 @@ int journal_load(journal_t *journal)
- 	/*
- 	 * Create a slab for this blocksize
- 	 */
--	err = journal_create_jbd_slab(cpu_to_be32(sb->s_blocksize));
-+	err = journal_create_jbd_slab(be32_to_cpu(sb->s_blocksize));
- 	if (err)
- 		return err;
- 
-diff -Nurp linux001/include/linux/ext3_fs.h linux002/include/linux/ext3_fs.h
---- linux001/include/linux/ext3_fs.h	2006-09-08 16:25:07.000000000 -0500
-+++ linux002/include/linux/ext3_fs.h	2006-09-08 16:25:07.000000000 -0500
-@@ -481,7 +481,7 @@ struct ext3_super_block {
- 	 */
- 	__u8	s_prealloc_blocks;	/* Nr of blocks to try to preallocate*/
- 	__u8	s_prealloc_dir_blocks;	/* Nr to preallocate for dirs */
--	__u16	s_reserved_gdt_blocks;	/* Per group desc for online growth */
-+	__le16	s_reserved_gdt_blocks;	/* Per group desc for online growth */
- 	/*
- 	 * Journaling support valid if EXT3_FEATURE_COMPAT_HAS_JOURNAL set.
- 	 */
+	
+	//finaly transmit this packet
+	udelay(500);
+	rtl_hw_tx(data, len, netdev, skb);
+
+	return 0;
+};
 
 
+/**transmit data from packet
+   @param data: buffer with packet
+   @param len: lenth of this packet
+   @param netdev: network device used to transmit this packet
+*/
+int rtl_hw_tx(char *data, int len, struct net_device *netdev, struct sk_buff *skb){
+	unsigned char td;
+	u32 physical_addr;
+	unsigned int physical_addr_len;
+	//void *base_ptr;
+	u32 io_base;
+	struct rtl_private_data *priv;
+	unsigned int dword;
+	//u32 ertx;
+	int i;
+	u16 word;
+	bool assigned;
+	dma_addr_t mapping;
+	int result;
+	int j;
+	
+	
+	//KDEBUG("@PACKET IS --------------------------------------------------------------\n");
+	//show_packet(data, len);
+	//KDEBUG("@PACKET IS --------------------------------------------------------------\n");
+
+	KDEBUG("@rtl_hw_tx: new packet to transmit \n");	
+
+	priv = netdev_priv(netdev);
+	//base_ptr = priv->base_ptr;
+	io_base = priv->io_base;
+	
+	//wait for available free transmit descriptor
+	assigned = false;
+	//while(true){
+	for(i=0; i<1000; i++){
+
+		if( !is_empty( &descriptors ) ){
+		//there is no available transmit descriptor 
+
+			assigned = true;
+			break;
+		}
+	}
+
+	if( !assigned) {
+		KERROR("@rtl_hw_txt: no available desriptor \n");
+		return 1;
+	}
+
+	//free transmit descriptor found, get it!
+	dequeue(&descriptors, &td);
+
+	spin_lock_irq(&priv->lock);
+
+
+	//skb_copy_and_csum_dev(skb, priv->tx_buff[td]);
+	//dev_kfree_skb(skb);
+
+
+	
+	//get physical address of data buffer
+	//physical_addr = __pa(data);
+	mapping = pci_map_single(priv->pcidev, data, len, PCI_DMA_TODEVICE);
+	if(mapping == NULL){
+		KERROR("MAPPING null \n");
+	}
+		
+	KDEBUG("@rtl_hw_tx: mapping is %d \n", mapping);
+	physical_addr = cpu_to_le32(mapping);
+
+	
+	//KDEBUG("@rtl_hw_tx: compare: %ld ... %ld \n", physical_addr, __pa(data));
+
+
+	//set physical_address of this packet in tsad register
+	outl(physical_addr, io_base + tsad[td]);
+	//outl(priv->dma_buff[td], io_base + tsad[td]);
+	//iowrite32(physical_addr, base_ptr + tsad[td]);
+	//outl(physical_addr, io_ba
+
+
+	//early transmit threshlog
+	//ertx = 2;
+	//ertx = ertx << TSD_ERTHX_OFS;	
+	
+	//set size of transmited data
+	physical_addr_len = len;
+	KINFO("@rtl_hw_tx: physical_addr_len is %x \n", physical_addr_len);
+
+	dword = inl(io_base + tsd[td]);
+	KINFO("@rtl_hw_tx: current tsd is %x \n", dword);
+
+	dword = dword & ~(TSD_SIZE | TSD_ERTHX);
+	physical_addr_len = physical_addr_len & TSD_SIZE;
+	dword = dword | (physical_addr_len);
+	KINFO("@rtl_hw_tx: new tsd is %x \n", dword);
+
+	outl(dword, io_base + tsd[td]);
+	dword = inl(io_base + tsd[td]);
+	KINFO("@rtl_hw_tx: written tsd is %x \n", dword);
+
+	//save skb buffer pointer for future use
+	//skbs[td]= priv->skb;
+
+	priv->x = 0;
+	//clear own bit to start transmision
+	KINFO("@rtl_hw_tx: before clearing OWN: %x \n", dword);
+	
+	word = inw(io_base+ IMR);		
+	dword = inl(io_base + tsd[td]);
+	 KDEBUG("@-----------IMR-------------: %x \n", word);
+	 KDEBUG("@-----------TSD: %d %x-------------:  \n", td, dword);
+
+	netdev->trans_start = jiffies; 
+
+	dword = dword & ~TSD_OWN;
+	outl(dword, io_base + tsd[td]);
+
+	//dword = inl(io_base + tsd[td]);
+	//KINFO("@rtl_hw_tx: after clearing OWN: %x \n", dword);
+
+	for(j=0; j<500; j++){
+	word = inw(io_base + ISR);
+	dword = inl(io_base + tsd[td]);
+	KINFO("@rtl_hw_tx: ISR is %x  TSD is %x \n", word, dword);
+	udelay(10000);
+	}
+
+	spin_unlock_irq(&priv->lock);
+	return 0;
+}
+
+
+
+and here is output from kernel
+
+klogd 1.4.1#17.2, log source = /proc/kmsg started.
+Cannot find map file.
+No module symbols loaded - kernel modules not enabled.
+
+<7>kobject rtl: registering. parent: <NULL>, set: module
+<7>DEBUG __________________________module rtlmodule loaded___________________________ 
+<7>DEBUG @register_as_network_device: New pci_dev to register as net_device 
+<6>ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKB] -> GSI 11 (level, low) -> IRQ 11
+<7>DEBUG @register_as_network_device: Device Enabled 
+<7>DEBUG @register_as_network_device: pci_set_dma_mask ok 
+<7>DEBUG @register_as_network_device: request region ok 
+<7>DEBUG @register_as_network_device: IOAR is e001 
+<7>PCI: Enabling bus mastering for device 0000:00:09.0
+<7>DEBUG @ether_dev_init: New net_device registered 
+<7>DEBUG @init_hardware: initializing hardware 
+<7>DEBUG @init_hardware: reseting rtl8139 
+<3>ERROR @init_hardware: NOT RESET 
+<7>DEBUG @init_hardware: enabling transmiter and receiver 
+<7>DEBUG @init_hardware: TCR is 74400600 
+<7>DEBUG @create_transmit_descriptors: creating 4 transmit descriptors 
+<7>DEBUG @create_transmit_descriptors: queue initialized 
+<7>DEBUG @create_transmit_descriptors: 4 transmit descriptors enqueued 
+<7>DEBUG @create TSD is 2000 
+<7>DEBUG @create TSD is 2000 
+<7>DEBUG @create TSD is 2000 
+<7>DEBUG @create TSD is 2000 
+<7>DEBUG @create ISR is 0 
+<7>DEBUG @init_software: found irq for this device: 11 
+<7>kobject eth1: registering. parent: net, set: class_obj
+<7>DEBUG @register_as_network_device: netdev registered 
+<7>DEBUG @rtlinit: New device found 
+<7>DEBUG @ether_dev_open: interface is going up 
+<7>DEBUG @ether_dev_open: setting mac address to 0:e:2e:80:2d:de 
+<7>DEBUG @ether_dev_open: mac addres set properly 
+<7>DEBUG @ether_dev_open: irq successfuly requested 
+<7>DEBUG @ether_dev_open: setting interrupt mask register: 49260 
+<7>DEBUG @ether_dev_open: queue stared 
+tx: ISR is 0  TSD is 3c 
+<6>INFO @rtl_hw_tx: ISR is 0  TSD is 3c 
+<6>INFO @rtl_hw_tx: ISR is 0  TSD is 3c 
+...
+...
+<6>INFO @rtl_hw_tx: ISR is 0  TSD is 3c 
+
+best regards, 
+Mariusz Witosz

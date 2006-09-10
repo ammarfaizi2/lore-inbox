@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWIJNlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWIJNnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWIJNlH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 09:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWIJNlH
+	id S932167AbWIJNnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 09:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWIJNnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 09:41:07 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:8452 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S932165AbWIJNlD (ORCPT
+	Sun, 10 Sep 2006 09:43:00 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:22021 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S932133AbWIJNm7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 09:41:03 -0400
-Date: Sun, 10 Sep 2006 15:41:02 +0200
+	Sun, 10 Sep 2006 09:42:59 -0400
+Date: Sun, 10 Sep 2006 15:42:57 +0200
 From: David Madore <david.madore@ens.fr>
 To: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
        LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: [PATCH 2/4] security: capabilities patch (version 0.4.4), part 2/4: change inheritance semantics
-Message-ID: <20060910134102.GB12086@clipper.ens.fr>
+Subject: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060910134257.GC12086@clipper.ens.fr>
 References: <20060910133759.GA12086@clipper.ens.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20060910133759.GA12086@clipper.ens.fr>
 User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 15:41:02 +0200 (CEST)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 15:42:57 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Make capabilities inheritable by default.  The following remarks
-apply:
+Introduce six new "regular" (=on-by-default) capabilities:
 
- * executables are assumed by default to have a full set of
-   "inheritable" (allowed) and "effective" capabilities,
+ * CAP_REG_FORK, CAP_REG_OPEN, CAP_REG_EXEC allow access to the
+   fork(), open() and exec() syscalls,
 
- * w.r.t. capabilities(7)-documented behavior, inheritance of the
-   effective bits is changed (use P(eff) rather than F(eff) in half
-   of the formula),
+ * CAP_REG_SXID allows privilege gain on suid/sgid exec,
 
- * also, inheritance of the inheritable set is based on the new
-   permitted set rather than on the old inheritable.
+ * CAP_REG_WRITE controls any write-access to the filesystem,
 
-Capability sets are now sanitized upon suid/sgid exec (even non-root).
+ * CAP_REG_PTRACE allows ptrace().
 
 See <URL: http://www.madore.org/~david/linux/newcaps/ > for more
 detailed explanations.

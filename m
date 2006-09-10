@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWIJKrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWIJKu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWIJKrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 06:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWIJKrF
+	id S1750857AbWIJKu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWIJKu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:47:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42718 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750820AbWIJKrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 06:47:02 -0400
-Subject: Re: [PATCH RFC]: New termios take 2
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <1157472883.9018.79.camel@localhost.localdomain>
-References: <1157472883.9018.79.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 11:46:20 +0100
-Message-Id: <1157885180.2977.133.camel@pmac.infradead.org>
+	Sun, 10 Sep 2006 06:50:26 -0400
+Received: from lug-owl.de ([195.71.106.12]:42921 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750856AbWIJKuY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 06:50:24 -0400
+Date: Sun, 10 Sep 2006 12:50:23 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Misha Tomushev <misha@fabric7.com>
+Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIOC: New Network Device Driver
+Message-ID: <20060910105023.GK14477@lug-owl.de>
+Mail-Followup-To: Misha Tomushev <misha@fabric7.com>,
+	jgarzik@pobox.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <000501c6d85c$08a352f0$8301a8c0@calvados>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pMCBjikF2xGw87uL"
+Content-Disposition: inline
+In-Reply-To: <000501c6d85c$08a352f0$8301a8c0@calvados>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-05 at 17:14 +0100, Alan Cox wrote:
-> +
-> +#define TCGETS2                _IOR('T',0x2A, struct termios)
-> +#define TCSETS2                _IOW('T',0x2B, struct termios)
-> +#define TCSETSW2       _IOW('T',0x2C, struct termios)
-> +#define TCSETSF2       _IOW('T',0x2D, struct termios)
 
-So existing code compiled against this will be using the new 'struct
-termios' but the old TCGETS. Should we rename the existing ioctl to 
-TCGETS_OLD, and have TCGETS be the new one?
+--pMCBjikF2xGw87uL
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I suppose to a large extent it doesn't really matter as long as existing
-C libraries happen to get it right -- and since the new structure only
-has the new field added, the discrepancy shouldn't matter _too_ much.
-But still...
+On Thu, 2006-09-14 17:15:21 -0700, Misha Tomushev <misha@fabric7.com> wrote:
+> VIOC Device Driver provides a standard device interface to the internal
+> fabric interconnected network used on servers designed and built by
+> Fabric 7 Systems.
+>=20
+> The patch can be found at ftp.fabric7.com/VIOC.
 
--- 
-dwmw2
+To get the driver into upstream kernel sources, you'd post it in
+reviewable pieces to the list.
 
+Thanks, JBG
+
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+ Signature of:                    Don't believe in miracles: Rely on them!
+ the second  :
+
+--pMCBjikF2xGw87uL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFA+3vHb1edYOZ4bsRAiTgAJ9oRPBYzXhFJ/OuV8fxhWCxFn4wRQCfTsKJ
+QariFbsLD3/P01c8xqfdl7s=
+=3Dqt
+-----END PGP SIGNATURE-----
+
+--pMCBjikF2xGw87uL--

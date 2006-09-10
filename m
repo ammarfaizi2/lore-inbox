@@ -1,99 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWIJT0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWIJT1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWIJT0u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 15:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWIJT0u
+	id S932509AbWIJT1l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 15:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWIJT1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 15:26:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46036 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932551AbWIJT0t (ORCPT
+	Sun, 10 Sep 2006 15:27:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47060 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932509AbWIJT1k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 15:26:49 -0400
-Date: Sun, 10 Sep 2006 21:26:25 +0200
+	Sun, 10 Sep 2006 15:27:40 -0400
+Date: Sun, 10 Sep 2006 21:27:16 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Problems with STR
-Message-ID: <20060910192625.GA5308@elf.ucw.cz>
-References: <20050928212955.GH2506@elf.ucw.cz> <20050929180249.AE766E9E4D@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <20050929181206.GO1990@elf.ucw.cz> <200608312310.20851.david-b@pacbell.net> <20060906103806.GB4987@atrey.karlin.mff.cuni.cz> <20060906153343.6D89719FEC1@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20060907220718.GH29890@elf.ucw.cz> <20060910150323.5DE2019FFB5@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+To: curious <curious@zjeby.dyndns.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: swsusp problem
+Message-ID: <20060910192716.GB5308@elf.ucw.cz>
+References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org> <200609101133.32931.rjw@sisk.pl> <Pine.LNX.4.63.0609102123080.2685@Jerry.zjeby.dyndns.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060910150323.5DE2019FFB5@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+In-Reply-To: <Pine.LNX.4.63.0609102123080.2685@Jerry.zjeby.dyndns.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 2006-09-10 08:03:23, David Brownell wrote:
-> > From pavel@suse.cz  Thu Sep  7 15:10:51 2006
-> > Date: Fri, 8 Sep 2006 00:07:18 +0200
-> > From: Pavel Machek <pavel@suse.cz>
-> > To: David Brownell <david-b@pacbell.net>
-> > Subject: Re: [linux-pm] Problems with PM_FREEZE
-> >
-> > Hi!
-> >
-> > > > > Just for the record, I tried those tricks and no success on either
-> > > > > the NF3 or NF2 boxes.  And the NF3 ran into 's2ram' problems,
-> > > > > it seems vbetool etc don't work in 64bit mode yet ...
-> > > >
-> > > > Any chance to try it in 32-bit mode? Recovery cd, or something?
-> > > 
-> > > Not for a few weeks, but that wouldn't have affected the NF2 ...
-> >
-> > Ok, can you do bugreport on bugzilla.kernel.org?
+On Sun 2006-09-10 21:24:15, curious wrote:
 > 
-> You mean, like bugid 6906?
-
-Ahha, okay, feel free to Cc me on suspend bugs.
-
-> > Is the resume (with minimal modules, init=/bin/bash, no acpi_sleep=
-> > parameter) completely broken, or is just the video dead?
+> On Sun, 10 Sep 2006, Rafael J. Wysocki wrote:
 > 
-> Completely broken.
+> >Hi,
+> >
+> >On Sunday, 10 September 2006 02:13, curious wrote:
+> >>hello.
+> >>i write because swsuspend don't work for me.
+> >>i try to echo disk > /sys/power/state
+> >>and just nothing happens, i have blinking cursor and machine freezes.
+> >>
+> >>when i enabled debug i got :
+> >>stopping tasks: ========|
+> >>Shrinking memory... done (2684 pages freed)
+> >>swsusp: Need to copy 1454 pages
+> >>swsusp: critical section/: done (1454 pages copied)
+> >>
+> >>.... and machine just sits there , doing nothing.
+> >>after reboot it boots like usual.
+> >>
+> >>machine is Ts30M Viglen Dossier 486 SM
+> >>kernel is 2.6.18-rc5
+> >>here is config : http://zjeby.dyndns.org:8242/viglen.config
+> >
+> >Could you boot the kernel with the init=/bin/bash command line argument
+> >and do the following:
+> >
+> ># mount /proc
+> ># mount /sys
+> ># echo 8 > /proc/sys/kernel/printk
+> ># swapon -a
+> ># echo disk > /sys/power/state
+> >
+> >and see what happens?
+> 
+> same thing , except page count is different ofcourse.
 
-Ok, this is beeping patch. It would be interesting to know what result
-you get if you attempt to resume from S3 with this applied.
-
-diff --git a/arch/i386/kernel/acpi/wakeup.S b/arch/i386/kernel/acpi/wakeup.S
-index b781b38..88d4cba 100644
---- a/arch/i386/kernel/acpi/wakeup.S
-+++ b/arch/i386/kernel/acpi/wakeup.S
-@@ -11,7 +11,22 @@
- #
- # If physical address of wakeup_code is 0x12345, BIOS should call us with
- # cs = 0x1234, eip = 0x05
--# 
-+#
-+
-+#define BEEP \
-+	inb	$97, %al; 	\
-+	outb	%al, $0x80; 	\
-+	movb	$3, %al; 	\
-+	outb	%al, $97; 	\
-+	outb	%al, $0x80; 	\
-+	movb	$-74, %al; 	\
-+	outb	%al, $67; 	\
-+	outb	%al, $0x80; 	\
-+	movb	$-119, %al; 	\
-+	outb	%al, $66; 	\
-+	outb	%al, $0x80; 	\
-+	movb	$15, %al; 	\
-+	outb	%al, $66;
- 
- ALIGN
- 	.align	4096
-@@ -20,6 +35,7 @@ wakeup_code:
- 	wakeup_code_start = .
- 	.code16
- 
-+	BEEP
-  	movw	$0xb800, %ax
- 	movw	%ax,%fs
- 	movw	$0x0e00 + 'L', %fs:(0x10)
-
-
+What kind of machine is that? What cpu? Really 486?
+								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

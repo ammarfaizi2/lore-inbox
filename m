@@ -1,131 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWIJKNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWIJKXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWIJKNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 06:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWIJKNm
+	id S1750704AbWIJKXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIJKXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:13:42 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:8463 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S1750844AbWIJKNl (ORCPT
+	Sun, 10 Sep 2006 06:23:06 -0400
+Received: from novell.stoldgods.nu ([83.150.147.20]:54936 "EHLO
+	novell.stoldgods.nu") by vger.kernel.org with ESMTP
+	id S1750704AbWIJKXD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 06:13:41 -0400
-Date: Sun, 10 Sep 2006 12:13:38 +0200
-From: David Madore <david.madore@ens.fr>
-To: Theodore Tso <tytso@mit.edu>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060910101338.GA5865@clipper.ens.fr>
-References: <20060905212643.GA13613@clipper.ens.fr> <20060906002730.23586.qmail@web36609.mail.mud.yahoo.com> <20060906100610.GA16395@clipper.ens.fr> <20060906132623.GA15665@clipper.ens.fr> <20060909231805.GC24906@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Sep 2006 06:23:03 -0400
+From: Magnus =?iso-8859-1?q?M=E4=E4tt=E4?= <novell@kiruna.se>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc6-mm1
+Date: Sun, 10 Sep 2006 12:22:54 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
+References: <200609091445.32744.novell@kiruna.se> <200609100237.51822.novell@kiruna.se> <20060909223533.0bdcdc3f.akpm@osdl.org>
+In-Reply-To: <20060909223533.0bdcdc3f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060909231805.GC24906@thunk.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 12:13:39 +0200 (CEST)
+Message-Id: <200609101222.55217.novell@kiruna.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 07:18:05PM -0400, Theodore Tso wrote:
-> This is what scares me about your proposal.  I consider it a *feature*
-> that unmarked executables inherit no capabilities, since many programs
-> were written without consideration about whether or not they might be
-> safe to run without privileges.  So the default of not allowing an
-> executable to inherit capabilities is in line of the the classic
-> security principle of "least privileges".   
+On Sunday 10 September 2006 07:35, Andrew Morton wrote:
+> On Sun, 10 Sep 2006 02:37:51 +0200
+> Magnus M‰‰tt‰ <novell@kiruna.se> wrote:
 > 
-> I agree it may be less convenient for a system administrator who is
-> used root, cd'ing to a colleagues source tree, su'ing to root, and who
-> then types "make" to compile a program, expecting it to work since
-> root privileges imply the ability to override filesystem discretionary
-> access control --- and then to be rudely surprised when this doesn't
-> work in a capabilities-enabled system.  However, I would claim this is
-> the correct behaviour!  Would you really want some random operator
-> running random Makefiles for some random program downloaded from the
-> Internet?  As root?  So as far as I am concerned, forcing make, cc,
-> et. al. to not inherit capabilities is a Good Thing.
+> > > > EIP:    0060:[<c04ad300>]    Tainted: P      VLI
+> > >
+> > > What caused the taint?
+> > 
+> > I was pretty sure it was listed somewhere, but I guess it wasn't.
+> > nvidia graphics module, I can try without it tomorrow if needed.
+> > 
+> 
+> That would be appreciated thanks.
+> 
+> But first you'd need to ensure that it's a repeatable oops.  If
+> it's not, the removing the nvidia driver won't tell us if the nvidia
+> driver caused it.  (It almost certainly didn't).
 
-But root privileges *are* inherited under Unix.  Always.  That's a
-historic fact and you can't change it.  How would you explain that a
-full set of capabilities gets inherited if a subset does not?  This
-can only lead to crazy semantics (you need a special hack for root)
-and it will mean that capabilities are almost entirely useless (as
-they are now: they are almost unused because they are basically
-useless) - if it is impossibly difficult to work with a subset of all
-capabilities, people will use all of them, i.e., work as root as they
-do now, and you have gained nothing.
+Forgot to mention that I had this (well, I'm not 100% it was exactly the
+same) oops with 2.6.18-rc5-mm1.
 
-Maybe I should have emphasized the following fact about my patch: when
-you switch-user from root with something like setresuid(uid,uid,uid),
-the permitted/effective sets can remain unaltered if the program has
-requested it (using prctl(PR_SET_KEEPCAPS)), but the inheritable set
-is always cleared.  Hence, if you want capabilities to be inheritable,
-you have to request it explicitly.  Someone who asks that knows what
-he is doing, and should be given it.
+Here is the oops with an untainted kernel:
 
-> Now, perhaps some system owners have a different idea of how they want
-> to run, and believe want to trade off more convenience for less
-> security.  That's fine, but please don't disable the high security
-> mode for the rest of us.  What I would suggest is that perhaps the
-> filesystem capabilities patch can be extended to either to allow the
-> filesystem superblock define (a) what the default inheritance
-> capability mask should be when creating a new file, and (b) what the
-> default inheritance capability for that filesystem should be in the
-> absence of an explicit capability record.  Both of these should be
-> overrideable by a mount option, but for convenience's sake it would be
-> convenient to be able to set these values in the superblock.
+[  161.078154] BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+[  161.104908]  printing eip:
+[  161.133157] c04ad300
+[  161.158755] *pde = 00000000
+[  161.186042] Oops: 0000 [#2]
+[  161.212933] 4K_STACKS PREEMPT
+[  161.240791] last sysfs file: /class/input/input1/name
+[  161.274954] Modules linked in: snd_seq_midi snd_seq_oss ipaq usbserial eeprom snd_seq_dummy snd_pcm_oss snd_mixer_oss snd_emu10k1_synth snd_emux_synth snd_seq_virmidi snd_seq_midi_event snd_seq_midi_emul snd_seq snd_emu10k1 snd_rawmidi snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_page_alloc snd_util_mem snd_hwdep psmouse
+[  161.428307] CPU:    0
+[  161.428308] EIP:    0060:[<c04ad300>]    Not tainted VLI
+[  161.428310] EFLAGS: 00010216   (2.6.18-rc6-mm1 #1)
+[  161.531660] EIP is at svc_process+0x40/0x6a0
+[  161.566957] eax: 00000000   ebx: eaf8c000   ecx: 00000000   edx: ead74d40
+[  161.610544] esi: eaf8c070   edi: ffff5225   ebp: eaf93fb0   esp: eaf93f70
+[  161.654260] ds: 007b   es: 007b   ss: 0068
+[  161.689932] Process nfsd (pid: 4655, ti=eaf93000 task=eaf9caa0 task.ti=eaf93000)
+[  161.712308] Stack: 00000046 eeedefe0 00000001 eeedefc4 00000000 eaf93f9c c04eaa1b eeedefc4
+[  161.762411]        00000001 ead74d40 eaf8c04c eaf93fb0 c012d70b 00000000 ffff5226 ffff5225
+[  161.812643]        eaf93fe0 c02784ba eaf8c000 eaf93fc4 00000000 fffffeff ffffffff fffffef8
+[  161.862772] Call Trace:
+[  161.917732]  [<c01041bf>] show_trace_log_lvl+0x2f/0x50
+[  161.956879]  [<c01042a7>] show_stack_log_lvl+0x97/0xc0
+[  161.995482]  [<c0104532>] show_registers+0x1f2/0x2a0
+[  162.033228]  [<c01047dd>] die+0x12d/0x240
+[  162.067860]  [<c011735c>] do_page_fault+0x3ac/0x650
+[  162.104983]  [<c04eaeef>] error_code+0x3f/0x44
+[  162.140705]  [<c02784ba>] nfsd+0x18a/0x2b0
+[  162.175232]  [<c0103fb7>] kernel_thread_helper+0x7/0x10
+[  162.213210]  =======================
+[  162.246050] Code: 89 45 e8 8b 52 28 83 c6 70 89 55 e4 8b 40 04 83 f8 17 0f 86 6d 04 00 00 8b 5d 08 8b 83 9c 04 00 00 c7 83 a0 04 00 00 01 00 00 00 <8b> 00 89 04 24 e8 06 d4 ca ff c7 46 04 00 00 00 00 89 c1 89 43
+[  162.354045] EIP: [<c04ad300>] svc_process+0x40/0x6a0 SS:ESP 0068:eaf93f70
 
-The superblock is not an option, because there are too many filesystem
-types out there.  A sysctl or securebit (although changing the latter
-is not implemented for now), on the other hand, would be feasible.
-But very messy: first, it means putting back the root hack (need to
-specially inherit the full set of permitted, resp. effective
-capabilities when {r,s,e}uid==0, resp. euid==0), and second, it means
-that nobody will understand the whole picture of when and how
-capabilities are inherited.  (Having a rule that nobody understands is
-a sure way of getting lousy security: one thing that people *do*
-understand under Unix is how/that root privileges are inherited - let
-capabilities follow that general rule.)
 
-> As far as negative capabilities, I feel rather strongly these should
-> not be separated into separate capability masks.  They can use the
-> same framework, sure, but I think the system will be much safer if
-> they use a different set of masks.  Otherwise, there can be a whole
-> class of mistakes caused by people and applications getting confused
-> over which bit positions indicate privileges, and which indicate
-> negative privileges.  If you use a separate mask, this avoids this
-> problem.
+And oops #1 just in case it's not unrelated (and the BUG just after it):
+[  105.928488] BUG: unable to handle kernel paging request at virtual address b79505a0
+[  105.928503]  printing eip:
+[  105.928506] c013d14c
+[  105.928509] *pde = 2d268067
+[  105.928511] *pte = 00000000
+[  105.928518] Oops: 0000 [#1]
+[  105.952628] 4K_STACKS PREEMPT
+[  105.977498] last sysfs file: /class/input/input1/name
+[  106.008548] Modules linked in: snd_seq_midi snd_seq_oss ipaq usbserial eeprom snd_seq_dummy snd_pcm_oss snd_mixer_oss snd_emu10k1_synth snd_emux_synth snd_seq_virmidi snd_seq_midi_event snd_seq_midi_emul snd_seq snd_emu10k1 snd_rawmidi snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_page_alloc snd_util_mem snd_hwdep psmouse
+[  106.150657] CPU:    0
+[  106.150658] EIP:    0060:[<c013d14c>]    Not tainted VLI
+[  106.150660] EFLAGS: 00010002   (2.6.18-rc6-mm1 #1)
+[  106.241322] EIP is at trace_hardirqs_on+0x1c/0x150
+[  106.273081] eax: 00000001   ebx: b794fba0   ecx: b794f2e0   edx: b7f61410
+[  106.310907] esi: 00000008   edi: b7c08ff4   ebp: eee0dfa4   esp: eee0df8c
+[  106.348781] ds: 007b   es: 007b   ss: 0068
+[  106.378378] Process icecast (pid: 4446, ti=eee0d000 task=ee9d0050 task.ti=eee0d000)
+[  106.401560] Stack: eee0df9c 00000046 00000000 00000000 00000000 00000008 00000000 c01033ba
+[  106.445119]        b7f61410 b794f2e0 00000000 00000000 b794f3b0 00000000 00000008 b7c08ff4
+[  106.489043]        b794f388 00000000 0000007b 0000007b 00000033 000000af b7f61410 00000073
+[  106.533124] Call Trace:
+[  106.576870]  [<c01041bf>] show_trace_log_lvl+0x2f/0x50
+[  106.610486]  [<c01042a7>] show_stack_log_lvl+0x97/0xc0
+[  106.643976]  [<c0104532>] show_registers+0x1f2/0x2a0
+[  106.676895]  [<c01047dd>] die+0x12d/0x240
+[  106.707110]  [<c011735c>] do_page_fault+0x3ac/0x650
+[  106.740133]  [<c04eaeef>] error_code+0x3f/0x44
+[  106.771908]  [<c01033ba>] sysenter_past_esp+0x93/0x99
+[  106.805629]  =======================
+[  106.834887] Code: c7 05 94 9a 8b c0 01 00 00 00 89 e5 c9 c3 90 55 89 e5 56 53 83 ec 10 a1 a0 29 63 c0 65 8b 1d 00 00 00 00 85 c0 0f 84 89 00 00 00 <8b> b3 00 0a 00 00 85 f6 75 7f 8b 0d 94 9a 8b c0 85 c9 0f 84 96
 
-That would mean duplicating a lot of code.
-
-> The other reason why it may not be such a hot idea to mess with the
-> inheritance formulas is compatibility with other Unix systems that
-> have implemented capabilities following the last Posix draft.  In
-> particular, Sun has recently included the Trusted Solaris into the
-> base Solaris offering and into Open Solaris, and has been plugging
-> them pretty heavily.  It would be unfortunate if Solaris and Linux had
-> gratuitously different semantics for how the capabilities API's work.
-> It could easily cause security problems in both directions --- when
-> trying to port a program written for Linux to Solaris, and vice versa.
-
-It is a fact that POSIX got us into a deep mess by their lack of
-foresight: because they couldn't agree on a standard, now everyone has
-a different idea of how things should be done.  Linux and Solaris
-already have different semantics in this respect, and both are
-different from any POSIX draft or from Irix.  I don't think we can
-"fix" the mess in this respect, now, no matter how.
-
-The value of my proposal is that it makes root inheritance a normal
-case of capability inheritance, so the normal rules of Unix apply.
-
-> The solution is to _extend_ the capabilities system: for example, by
-> adding default inheritance masks to cater for system administrators
-> who value convenience more than security, and to add new bitmasks for
-> negative privileges/capabilities.
-
-Unfortunately, I believe this is impossible to do in a way that will
-seem even remotely acceptable.
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+[  106.978502]  <3>BUG: sleeping function called from invalid context at kernel/rwsem.c:20
+[  107.023854] in_atomic():0, irqs_disabled():1
+[  107.058071]  [<c01041bf>] show_trace_log_lvl+0x2f/0x50
+[  107.095140]  [<c0104207>] show_trace+0x27/0x30
+[  107.129851]  [<c0104334>] dump_stack+0x24/0x30
+[  107.164377]  [<c011d442>] __might_sleep+0xa2/0xc0
+[  107.199995]  [<c013949e>] down_read+0x1e/0x60
+[  107.234807]  [<c012e9b7>] blocking_notifier_call_chain+0x17/0x50
+[  107.275150]  [<c0121881>] profile_task_exit+0x21/0x30
+[  107.312713]  [<c012327b>] do_exit+0x1b/0x520
+[  107.348071]  [<c01048e5>] die+0x235/0x240
+[  107.382754]  [<c011735c>] do_page_fault+0x3ac/0x650
+[  107.419931]  [<c04eaeef>] error_code+0x3f/0x44
+[  107.455575]  [<c01033ba>] sysenter_past_esp+0x93/0x99
+[  107.492825]  =======================

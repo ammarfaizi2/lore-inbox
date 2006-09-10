@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWIJSD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWIJSO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWIJSD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 14:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWIJSD7
+	id S932346AbWIJSO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 14:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWIJSO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 14:03:59 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:6315
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932347AbWIJSD6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 14:03:58 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-Date: Sun, 10 Sep 2006 20:02:43 +0200
-User-Agent: KMail/1.9.4
-References: <17666.8433.533221.866510@cargo.ozlabs.ibm.com> <200609101935.09993.mb@bu3sch.de> <Pine.LNX.4.64.0609101045280.27779@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609101045280.27779@g5.osdl.org>
-Cc: Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, segher@kernel.crashing.org, davem@davemloft.net,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 10 Sep 2006 14:14:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24463 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932346AbWIJSO1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 14:14:27 -0400
+Date: Sun, 10 Sep 2006 11:12:49 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Containers <containers@lists.osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] usb: Fixup usb so it uses struct pid
+Message-Id: <20060910111249.c2e9c5f2.zaitcev@redhat.com>
+In-Reply-To: <m1hczgfi3h.fsf@ebiederm.dsl.xmission.com>
+References: <m1hczgfi3h.fsf@ebiederm.dsl.xmission.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.2; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609102002.43889.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 September 2006 19:49, Linus Torvalds wrote:
-> 
-> On Sun, 10 Sep 2006, Michael Buesch wrote:
-> > > 
-> > > That's what IRIX had.  It would let us get rid of mmiowb and avoid doing 
-> > > a full sync in writeX, so may be the best option.
-> > 
-> > Last time I suggested that, people did not want it.
-> 
-> I would personally _much_ rather have a separate mmiowb() and a regular 
-> spinlock, than add a magic new spinlock.
+On Sat, 09 Sep 2006 22:42:10 -0600, ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Yeah, as far as I remember it was you who rejected it. ;)
-But I second your statement because of the practical issues below.
+> The problem by remember a user space process by it's pid it is
+> possible that the process will exit, pid wrap around will occur and a
+> different process will appear in it's place.
 
-> Of course, mmiowb() itself is not a great name, and we could/should 
-> probably rename it to make it more obvious what the hell it is.
-> 
-> > There is one little problem in practice with something
-> > like spin_unlock_io().
-> > 
-> > spin_lock_io(&lock);
-> > foovalue = new_foovalue;
-> > if (device_is_fooing)
-> > 	writel(foovalue, REGISTER);
-> > spin_unlock_io(&lock);
-> > 
-> > That would be an unneccessary sync in case device is not fooing.
-> > In contrast to the explicit version:
-> > 
-> > spin_lock(&lock);
-> > foovalue = new_foovalue;
-> > if (device_is_fooing) {
-> > 	writel(foovalue, REGISTER);
-> > 	mmiowb();
-> > }
-> > spin_unlock(&lock);
-> 
-> I think this is even more important when the actual IO is done somewhere 
-> totally different from the locking. It's really confusing if you have a 
-> "spin_unlock_io()" just because some routine you called wanted it.
-> 
-> But more importantly, I don't want to have "spin_unlock_io[_xyzzy]()", 
-> where "xyzzy()" is all the irq/irqrestore/bh variations. It's just not 
-> worth it. We already have enough variations on spinlocks, but at least 
-> right now they are all in the "same category", ie it's all about what the 
-> context of the _locking_ is, and at least the lock matches the unlock, and 
-> there are no separate rules.
-> 
-> 			Linus
-> 
+... which is completely all right in this case. We used to have an
+implementation which tried to hold onto the task_struct and that sucked.
+It is only possible for the task to disappear without notifying devio
+under very special conditions only, which involve forking with parent
+exiting. In other words, even a buggy application won't trigger this
+without deliberately trying. And when it happens, uid checks make sure
+that other users are not affected.
 
--- 
-Greetings Michael.
+>  Holding a reference
+> to a struct pid avoid that problem, and paves the way
+> for implementing a pid namespace.
+
+That may be useful.
+
+The patch itself seems straightforward if we can trust your struct
+pid thingies. If OpenVZ people approve, I don't mind.
+
+-- Pete

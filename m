@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWIJKlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWIJKn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWIJKlR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 06:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWIJKlR
+	id S1750722AbWIJKn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWIJKn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:41:17 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:46597 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S1750720AbWIJKlP (ORCPT
+	Sun, 10 Sep 2006 06:43:28 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:9994 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1750722AbWIJKn2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 06:41:15 -0400
-Date: Sun, 10 Sep 2006 12:41:05 +0200
-From: David Madore <david.madore@ens.fr>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060910104105.GB5865@clipper.ens.fr>
-References: <20060907003210.GA5503@clipper.ens.fr> <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com> <20060907173449.GA24013@clipper.ens.fr> <20060907225429.GA30916@elf.ucw.cz> <20060908041034.GB24135@clipper.ens.fr> <20060908105238.GB920@elf.ucw.cz> <20060908225118.GB877@clipper.ens.fr> <20060909114037.GA4277@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Sep 2006 06:43:28 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: Oops after 30 days of uptime
+Date: Sun, 10 Sep 2006 12:43:25 +0200
+User-Agent: KMail/1.9.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kaber@trash.net
+References: <200609011852.39572.linux@rainbow-software.org> <200609091338.56539.linux@rainbow-software.org> <20060910082649.GA20814@1wt.eu>
+In-Reply-To: <20060910082649.GA20814@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060909114037.GA4277@ucw.cz>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 12:41:05 +0200 (CEST)
+Message-Id: <200609101243.25772.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 11:40:38AM +0000, Pavel Machek wrote:
-> > > If you can find another uid to hijack, that other uid has bad
-> > > problems. And I do not think you'll commonly find another uid to
-> > > hijack.
-> > 
-> > How about another gid, then?  Should we reset all caps on sgid exec?
-> 
-> Yes. Any setuid/setgid exec is a security barrier, and weird (or new)
-> semantics may not cross that barrier.
+On Sunday 10 September 2006 10:26, Willy Tarreau wrote:
+> Hi Ondrej,
+>
+> OK, I've analysed your oops with your kernel. My conclusions are that you
+> have a hardware problem (most probably the CPU), because you've hit an
+> impossible case :
+>
+> ip_nat_cheat_check() pushed the size of the data (8) on the stack, followed
+> by the pointer to the data, then called csum_partial() :
+>
+> c01e657f:       6a 08                   push   $0x8
+> c01e6581:       52                      push   %edx
+> c01e6582:       e8 a5 85 00 00          call   c01eeb2c <csum_partial>
+>
+> In csum_partial(), ECX is filled with the size (8) and ESI with the data
+> pointer (0xc0227ce8) :
+>
+> c01eeb32:       8b 4c 24 10             mov    0x10(%esp),%ecx
+> c01eeb36:       8b 74 24 0c             mov    0xc(%esp),%esi
+>
+> Then, the size is divided by 32 to count how many 32 bytes blocks can be
+> read at a time. If the size is lower than 32, the code branches to a
+> special location which reads 1 word at a time :
+>
+> c01eeb78:       89 ca                   mov    %ecx,%edx
+> c01eeb7a:       c1 e9 05                shr    $0x5,%ecx
+> c01eeb7d:       74 32                   je     c01eebb1 <csum_partial+0x85>
+>
+> Your oops comes from a few instructions below. The branch has not been
+> taken while it should have because (8 >> 5) == 0. You can also see from EDX
+> in the oops that it really was 0x8 when copied from ECX. The rest is pretty
+> obvious. The data are read 32 bytes at a time after ESI, and ECX is
+> decreased by 1 every 32 bytes. When ESI+0x18 reaches an unmapped area
+> (0xc2000000), you get the oops, and ECX = 0xfff113e8 as in your oops.
+>
+> Given that the failing instruction is the most common conditionnal jump, it
+> is very fortunate that your system can work 30 days before crashing. I
+> think that your CPU might be running too hot and might get wrong results
+> during branch prediction. It's also possible that you have a poor power
+> supply. However, I'm pretty sure that this is not a RAM problem.
 
-Right, so what I was saying was: if you reset all regular caps on sgid
-exec, anyone can trivially reset all regular caps by creating a sgid
-program (users are always members of a great many groups so "finding
-another gid to hijack" is trivial).  So CAP_REG_SXID needs to be off
-all the time, so we lose again.
+Thank you very much for the analysis. Good that it's not a kernel bug.
+The CPU is 33MHz UMC GreenCPU which does not run hot even without a heatsink. 
+It's powered directly from 5V so it might be the power supply.
 
-But I'll make this a securebit ("unsanitized sxid"), with the behavior
-you advertise as default (0).
-
-> > Ultimately a compromise is to be reached between security and
-> > flexibility...  The problem is, I don't know who should make the
-> > decision.
-> 
-> Go for security here. (Normally, consensus on the list is needed for
-> merging the patch).
-
-I am now completely convinced the patch will never be merged. :-(
-Linux will have useless caps forever...
+> Best regards,
+> Willy
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Ondrej Zary

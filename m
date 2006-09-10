@@ -1,91 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWIJRLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWIJRJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWIJRLK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 13:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWIJRKx
+	id S932312AbWIJRJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 13:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWIJRJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 13:10:53 -0400
-Received: from smtp.cce.hp.com ([161.114.21.24]:1913 "EHLO
-	ccerelrim03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932323AbWIJRK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 13:10:28 -0400
-From: "Bob Picco" <bob.picco@hp.com>
-Date: Sun, 10 Sep 2006 13:10:24 -0400
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Bob Picco <bob.picco@hp.com>, akpm@osdl.org, mel@csn.ul.ie,
-       tony.luck@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ia64 specific for Sizing zones and holes in an architecture independent
-Message-ID: <20060910171024.GE3708@localhost>
-References: <20060829101247.GF10680@localhost> <4503644D.9070307@shadowen.org>
+	Sun, 10 Sep 2006 13:09:56 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54246 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932320AbWIJRJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 13:09:50 -0400
+Message-Id: <20060910170419.PS3030230000@infradead.org>
+Date: Sun, 10 Sep 2006 14:04:19 -0300
+From: mchehab@infradead.org
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+Subject: [PATCH 0/6] V4L/DVB updates
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4503644D.9070307@shadowen.org>
-User-Agent: Mutt/1.5.11
-X-PMX-Version: 5.2.0.264296, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.9.10.94943
+X-Mailer: Evolution 2.7.92-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Wihitcroft wrote:	[Sat Sep 09 2006, 09:03:09PM EDT]
-> Bob Picco wrote:
-> > Andrew,
-> > 
-> > Mel's latest V9 regressed slightly for ia64 FLATMEM+VIRTUAL_MEM_MAP. When 
-> > the largest hole is greater than LARGE_GAP, vmem_map is allocated before 
-> > free_area_init_nodes; resultant crash follows. Rather than complicate
-> > alloc_node_mem_map just for this ia64 case, add an adjustment to node_mem_map
-> > which is later negated by alloc_node_mem_map.
-> > 
-> > Previous to V9, the mem_map adjustment was done in the scope where allocation
-> > is achieved in alloc_node_mem_map. The current code is more appropriate but
-> > unfortunately caused an issue for ia64.
-> > 
-> > Please add this to the next -mm.
-> > 
-> > thanks,
-> > 
-> > bob
-> > 
-> > Acked-by: Mel Gorman <mel@csn.ul.ie>
-> > Signed-off-by: Bob Picco <bob.picco@hp.com>
-> > 
-> >  arch/ia64/mm/contig.c |    7 ++++++-
-> >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > 
-> > Index: linux-2.6.18-rc4-mm3/arch/ia64/mm/contig.c
-> > ===================================================================
-> > --- linux-2.6.18-rc4-mm3.orig/arch/ia64/mm/contig.c	2006-08-28 13:10:00.000000000 -0400
-> > +++ linux-2.6.18-rc4-mm3/arch/ia64/mm/contig.c	2006-08-28 18:18:54.000000000 -0400
-> > @@ -252,7 +252,12 @@ paging_init (void)
-> >  		vmem_map = (struct page *) vmalloc_end;
-> >  		efi_memmap_walk(create_mem_map_page_table, NULL);
-> >  
-> > -		NODE_DATA(0)->node_mem_map = vmem_map;
-> > +		/*
-> > +		 * alloc_node_mem_map makes an adjustment for mem_map
-> > +		 * which isn't compatible with vmem_map.
-> > +		 */
-> 
-> Bob, which adjustment is this that is incompatible?  Is it the one in
-> the final stanza, the FLATMEM mem_map instantiation?  This one?
-Andy, yes this is the one.
-> 
-> #ifdef CONFIG_ARCH_POPULATES_NODE_MAP
->                 if (page_to_pfn(mem_map) != pgdat->node_start_pfn)
->                         mem_map -= pgdat->node_start_pfn;
-> #endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
-> 
-> -apw
-bob
-> 
-> > +		NODE_DATA(0)->node_mem_map = vmem_map +
-> > +			find_min_pfn_with_active_regions();
-> >  		free_area_init_nodes(max_zone_pfns);
-> >  
-> >  		printk("Virtual mem_map starts at 0x%p\n", mem_map);
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Linus,
+
+Please pull these from master branch at:
+        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+
+It contains the following stuff fixes:
+
+   - Fix compilation when V4L1 support is not present
+   - Restore tuner_ymec_tvf66t5_b_dff_pal_ranges[] to fix UHF switch functionality
+   - Fix an error when loading bttv driver on PV M4900.
+   - Fixes an issue with V4L1 and make headers-install
+   - i2c deps fix on DVB
+   - Fix I2C dependencies for saa7146 modules
+
+Basically, we have one trivial fix for tuner, one OOPS fix and several 
+fixes at the building system.
+
+Cheers,
+Mauro.
+
+V4L/DVB development is hosted at http://linuxtv.org
+---
+
+ drivers/media/Kconfig                  |    2 +
+ drivers/media/common/saa7146_video.c   |    2 +
+ drivers/media/dvb/b2c2/Kconfig         |    1 +
+ drivers/media/dvb/bt8xx/Kconfig        |    1 +
+ drivers/media/dvb/dvb-usb/Kconfig      |    1 +
+ drivers/media/dvb/frontends/Kconfig    |   60 +++++++++++++++++---------------
+ drivers/media/dvb/frontends/Makefile   |    2 +
+ drivers/media/dvb/pluto2/Kconfig       |    1 +
+ drivers/media/dvb/ttpci/Kconfig        |    5 +++
+ drivers/media/dvb/ttusb-budget/Kconfig |    3 +-
+ drivers/media/video/Kconfig            |    8 ++--
+ drivers/media/video/bt8xx/bttv-input.c |    1 +
+ drivers/media/video/cx88/Kconfig       |    1 +
+ drivers/media/video/saa7134/Kconfig    |    1 +
+ drivers/media/video/tuner-types.c      |   10 ++++-
+ drivers/media/video/zoran.h            |    2 +
+ drivers/media/video/zoran_driver.c     |   22 ++++++------
+ include/linux/videodev.h               |    3 +-
+ include/linux/videodev2.h              |    2 -
+ include/media/v4l2-dev.h               |    7 ++--
+ 20 files changed, 79 insertions(+), 56 deletions(-)
+

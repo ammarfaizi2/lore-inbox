@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWIJW4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWIJXDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWIJW4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 18:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWIJW4Y
+	id S964802AbWIJXDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 19:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWIJXDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 18:56:24 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61964 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964793AbWIJW4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 18:56:23 -0400
-Date: Mon, 11 Sep 2006 00:56:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.29-rc2
-Message-ID: <20060910225622.GB4672@stusta.de>
+	Sun, 10 Sep 2006 19:03:53 -0400
+Received: from gw.goop.org ([64.81.55.164]:24472 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S964802AbWIJXDx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 19:03:53 -0400
+Message-ID: <450499D3.5010903@goop.org>
+Date: Sun, 10 Sep 2006 16:03:47 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Andrew Morton <akpm@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
+References: <20060908011317.6cb0495a.akpm@osdl.org>	<200609101032.17429.ak@suse.de>	<20060910115722.GA15356@elte.hu>	<200609101334.34867.ak@suse.de>	<20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org>
+In-Reply-To: <20060910093307.a011b16f.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are still several patches pending - they will go into 2.6.16.30.
+Andrew Morton wrote:
+> I must say that having an unreliable early-current is going to be quite a
+> pita for evermore.  Things like mcount-based tricks and
+> basic-block-profiling-based tricks, for example.
+>
+> Is it really going to be too messy to fake up some statically-defined gdt
+> which points at init_task, install that before we call any C at all?
 
-Security fixes since 2.6.16.28:
-- CVE-2006-3468: NFS over ext3 DoS
-- NFS over ext2 DoS
-- ipv6: oops triggerable by any user
+That's on my TODO list - make %gs set correctly before hitting C code, 
+and get rid of all the early_* stuff.  I had already encountered a 
+PDA-related oops with lockdep enabled, and addressed it.
 
+It's pretty easy to solve in general for the boot CPU, but its a bit 
+more tricky to handle for secondary CPUs.
 
-Patch location:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
+Laurent, could you resend your original oops?  It doesn't seem to have 
+appeared on lkml.
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+In the meantime, I'll work on a proper fix for this.
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.29-rc1:
-
-Adrian Bunk:
-      Linux 2.6.16.29-rc2
-
-Neil Brown:
-      Have ext2 reject file handles with bad inode numbers early.
-
-
- Makefile        |    2 +-
- fs/ext2/super.c |   41 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 42 insertions(+), 1 deletion(-)
-
+    J

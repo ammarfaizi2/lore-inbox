@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWIJSkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWIJTGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWIJSkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 14:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWIJSkO
+	id S932508AbWIJTGP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 15:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWIJTGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 14:40:14 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:661 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932425AbWIJSkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 14:40:12 -0400
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-From: Lee Revell <rlrevell@joe-job.com>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
-       akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
-       jeff@garzik.org, cw@f00f.org, bjorn.helgaas@hp.com,
+	Sun, 10 Sep 2006 15:06:15 -0400
+Received: from smtp131.iad.emailsrvr.com ([207.97.245.131]:30856 "EHLO
+	smtp141.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S932508AbWIJTGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 15:06:14 -0400
+Message-ID: <4504621E.5090202@gentoo.org>
+Date: Sun, 10 Sep 2006 15:06:06 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, torvalds@osdl.org, sergio@sergiomb.no-ip.org,
+       jeff@garzik.org, greg@kroah.com, cw@f00f.org, bjorn.helgaas@hp.com,
        linux-kernel@vger.kernel.org, harmon@ksu.edu, len.brown@intel.com,
        vsu@altlinux.ru, liste@jordet.net
-In-Reply-To: <20060910002112.GA20672@kroah.com>
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>
-	 <1157811641.6877.5.camel@localhost.localdomain>
-	 <4502D35E.8020802@gentoo.org>
-	 <1157817836.6877.52.camel@localhost.localdomain>
-	 <45033370.8040005@gentoo.org>
-	 <1157848272.6877.108.camel@localhost.localdomain>
-	 <20060910002112.GA20672@kroah.com>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 14:40:46 -0400
-Message-Id: <1157913647.5076.174.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org>	 <1157817836.6877.52.camel@localhost.localdomain>	 <45033370.8040005@gentoo.org>	 <1157848272.6877.108.camel@localhost.localdomain>	 <450436F1.8070203@gentoo.org> <1157906395.23085.18.camel@localhost.localdomain>
+In-Reply-To: <1157906395.23085.18.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-09 at 17:21 -0700, Greg KH wrote:
-> On Sun, Sep 10, 2006 at 01:31:12AM +0100, Alan Cox wrote:
-> > VIA have always told me that "ACPI handles this" and we don't need
-> > quirks. Various chips have different IRQ routing logic and it's all a
-> > bit weird if we don't use ACPI and/or BIOS routing.
+Alan Cox wrote:
+> Basically we are going around in circles inventing new random
+> hypothetical rule sets that may or may not fix the problem. You can do
+> this for years, in fact we *have* been doing this for years.
 > 
-> So why isn't acpi handling all of this for us?  Do people not want to
-> use acpi for some reason?
+> The detailed stuff I posted by digging over all the docs should be
+> enough to figure out WTF is actually going on and fix the stuff
+> properly. 
 
-Some applications such as realtime audio and probably gaming require
-ACPI to be disabled, as it causes horrible latency problems.  This
-applies equally to Linux and Windows.
+OK - I'll try and figure out what is going on in Stian's case. Thanks 
+for the info.
 
-Lee
-
+Daniel

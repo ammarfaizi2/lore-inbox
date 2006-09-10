@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWIJW1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWIJWd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWIJW1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 18:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIJW1Q
+	id S932202AbWIJWd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 18:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWIJWd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 18:27:16 -0400
-Received: from soundwarez.org ([217.160.171.123]:12680 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S932137AbWIJW1P (ORCPT
+	Sun, 10 Sep 2006 18:33:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3484 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932169AbWIJWd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 18:27:15 -0400
-Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue
-	handling fix
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: balagi@justmail.de
-Cc: Greg KH <greg@kroah.com>, Phillip Susi <psusi@cfl.rr.com>,
-       linux-kernel@vger.kernel.org, "petero2@telia.com" <petero2@telia.com>
-In-Reply-To: <op.tfoglqsiiudtyh@master>
-References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com>
-	 <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com>
-	 <op.tfmh56j9iudtyh@master> <20060909213054.GC19188@kroah.com>
-	 <1157842406.7592.12.camel@pim.off.vrfy.org>  <op.tfoglqsiiudtyh@master>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 00:25:46 +0200
-Message-Id: <1157927146.26962.13.camel@min.off.vrfy.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Sep 2006 18:33:26 -0400
+Date: Mon, 11 Sep 2006 00:33:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: io-apic breaks suspend unless acpi_skip_timer_override
+Message-ID: <20060910223308.GA1691@elf.ucw.cz>
+References: <20060910141533.GA6594@srcf.ucam.org> <20060910205803.GA1966@elf.ucw.cz> <20060910212045.GA9278@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060910212045.GA9278@srcf.ucam.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 21:33 +0200, Thomas Maier wrote:
-> Hello,
+On Sun 2006-09-10 22:20:45, Matthew Garrett wrote:
+> On Sun, Sep 10, 2006 at 10:58:03PM +0200, Pavel Machek wrote:
 > 
-> > Is this always device specific, or also driver global information? Is
-> > pktcdvd always on a block device? Maybe you just want them to be a group
-> > of attributes in the block device directory where they belong to, like:
-> >   /sys/block/sr0/pktcdvd/info
-> >   /sys/block/sr0/pktcdvd/write_queue_size
-> >   /sys/block/sr0/pktcdvd/...
-> >
-> > Does that make sense? We should avoid messing around with symlinks
-> > pointing to other devices, if not absolutely needed. We should also not
-> > create a new device type, just for adding properties to an existing one,
-> > especially if there is not some kind of "device stacking". The
-> > "mapped_to" link to the parent device looks like a wild hack to me, we
-> > should avoid.
+> > Do you mean suspend-to-RAM? Can you try beeping patch?
 > 
-> The pktcdvd driver creates new block devices using a "struct gendisk"
-> that creates the /sys/block/pktcdvd[0-7]/ entries (alloc_disk() -> add_disk()).
-> 
-> Since the files like write_queue_size are per pktcdvd device and belong to
-> this device, they should be below the /sys/block/pktcdvd[0-7]/ directory,
-> not below the e.g. /sys/block/sr0/ .
+> Yes, suspend to RAM. I'll look at trying to work out where it blows up, 
+> though I suspect it's successfully getting back into C code.
 
-So the pktcdvd device have their own device nodes, userspace talks to?
-
-Kay
-
+If you are back in C, that should be easy. Just serial console or
+something... :-).
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

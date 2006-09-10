@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWIJNHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWIJNI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWIJNHd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 09:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWIJNHc
+	id S932119AbWIJNI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 09:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWIJNI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 09:07:32 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:19941 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932117AbWIJNHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 09:07:12 -0400
-Subject: Re: [PATCH RFC]: New termios take 2
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <1157891081.23085.1.camel@localhost.localdomain>
-References: <1157472883.9018.79.camel@localhost.localdomain>
-	 <1157885180.2977.133.camel@pmac.infradead.org>
-	 <1157886908.22571.11.camel@localhost.localdomain>
-	 <1157887240.2977.147.camel@pmac.infradead.org>
-	 <1157891081.23085.1.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 14:06:29 +0100
-Message-Id: <1157893589.2977.162.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 10 Sep 2006 09:08:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52181 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932119AbWIJNI0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 09:08:26 -0400
+Date: Sun, 10 Sep 2006 06:02:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Matt Domsch <Matt_Domsch@dell.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+Message-ID: <20060910130236.GB6968@kroah.com>
+References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org> <450283D5.1020404@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <450283D5.1020404@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 13:24 +0100, Alan Cox wrote:
-> glibc needs them, nobody else does.
+On Sat, Sep 09, 2006 at 05:05:25AM -0400, Jeff Garzik wrote:
+> I wanted to note what Martin Mares just raised in the thread "State of 
+> the Linux PCI Subsystem for 2.6.18-rc6":
 > 
-> The point I was trying to make is that user space (except glibc) does
-> not use them. glibc presents a different struct termios to them already,
-> and it always includes c_ispeed/c_ospeed.
+> >Changing the device order in the middle of the 2.6 cycle doesn't sound
+> >like a sane idea to me. Many people have changed their systems' 
+> >configuration
+> >to adapt to the 2.6 ordering and this patch would break their setups.
+> >I have seen many such examples in my vicinity.
+> >
+> >I believe that not breaking existing 2.6 setups is much more important
+> >than keeping compatibility with 2.4 kernels, especially when the problem
+> >is discovered after more than 2 years after release of the first 2.6.
+> 
+> 
+> I'm not siding with either Martin or Matt explicitly, just noting that 
+> there are good arguments for both sides.
 
-That's not the point. The question is what glibc's _implementation_ uses
-for doing the ioctls. It has to have _some_ definition of the kernel's
-version of the structure.
+I agree, there are.
 
-In fact it seems to have its own 'kernel_termios.h' which is an old copy
-of our headers. So in that case, we really can drop <asm/termios.h> from
-the export -- as least as far as glibc is concerned. I'm not sure about
-other C libraries.
+But I know we explicitly tried to keep 2.4 compability in 2.6 for this
+very thing.  And the fact that almost no one has reported having
+problems with it, leads me to believe that the sorting order isn't as
+broken as you might think.  Some machines, like the ones that Matt wrote
+this patch for, need this change, but for all others, it's not really
+needed.
 
-On the other hand, the kind of change you're making is an example of why
-we might want glibc to be using a _sanely_ exported copy of our headers
-directly, rather than an out-of-date version of its own. But that's a
-policy decision I'll leave to you. 
+Let's let this sit in -mm for a bit to see if anyone notices any
+problems.
 
-If you want to declare that asm/termios.h isn't to be exported even for
-glibc builds then please drop all __KERNEL__ from it and remove it from
-include/asm-generic/Kbuild.asm so that it isn't exported.
+thanks,
 
--- 
-dwmw2
-
+greg k-h

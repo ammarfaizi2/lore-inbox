@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbWIJBNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWIJBR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbWIJBNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Sep 2006 21:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWIJBN3
+	id S965076AbWIJBR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Sep 2006 21:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWIJBR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Sep 2006 21:13:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22205 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965065AbWIJBN2 (ORCPT
+	Sat, 9 Sep 2006 21:17:57 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3735 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965073AbWIJBR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 21:13:28 -0400
-Date: Sat, 9 Sep 2006 21:20:29 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Reserve a boot-loader ID number for Xen
-Message-ID: <20060910012029.GA26959@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <45035472.8000506@goop.org>
+	Sat, 9 Sep 2006 21:17:56 -0400
+Subject: Re: TG3 data corruption (TSO ?)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Miller <davem@davemloft.net>, mchan@broadcom.com,
+       segher@kernel.crashing.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, paulus@samba.org
+In-Reply-To: <1157848698.6877.113.camel@localhost.localdomain>
+References: <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
+	 <1157745256.5344.8.camel@rh4>
+	 <1157751962.31071.102.camel@localhost.localdomain>
+	 <20060909.022228.41644790.davem@davemloft.net>
+	 <1157841367.31071.182.camel@localhost.localdomain>
+	 <1157848698.6877.113.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 10 Sep 2006 11:17:32 +1000
+Message-Id: <1157851052.31071.187.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45035472.8000506@goop.org>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 04:55:30PM -0700, Jeremy Fitzhardinge wrote:
 
- > @@ -181,6 +181,7 @@ filled out, however:
- >  	5  ELILO
- >  	7  GRuB
- >  	8  U-BOOT
- > +	9  Xen
- >  
- >  	Please contact <hpa@zytor.com> if you need a bootloader ID
- >  	value assigned.
- > ===================================================================
- > --- a/Documentation/i386/zero-page.txt
- > +++ b/Documentation/i386/zero-page.txt
- > @@ -63,6 +63,10 @@ 0x210	char		LOADER_TYPE, = 0, old one
- >  				2 for bootsect-loader
- >  				3 for SYSLINUX
- >  				4 for ETHERBOOT
- > +				5 for ELILO
- > +				7 for GRuB
- > +				8 for U-BOOT
- > +				9 for Xen
- >  				V = version
- >  0x211	char		loadflags:
+> > semantics. At least what is implemented currently on PowerPC is the
+> > __raw_* versions which not only have no barriers at all (they don't even
+> > order between MMIOs, for example, readl might cross writel), and do no
+> > endian swap. Quite a mess of semantics if you ask me... Then there has
+> 
+> __writel/__readl seems more in keeping for just not locking.
 
-Is there a reason 6 has been skipped ?
+Not locking... you mean not ordering I suppose. Ok, so the question is
+no ordering at all (that is even between MMIO read/writes, thus a
+__readl can cross a __writel), or just no ordering between MMIO and
+cacheable storage ?
 
-	Dave
+It's an important difference and both have their use. For example, on
+PowerPC, if I completely remove barriers, I get the first semantic and I
+get the ability to write combine on non-cacheable storage as a benefit
+(provided we add an ioremap_wc or such, as the Guarded bit we set on
+normal non-cacheable space does also prevent write combining on most
+implementations). However, if I keep at least ordering between MMIOs,
+then I leave an eieio in there, which is not nearly as expensive than a
+full sync but will not order cacheable cs. non-cacheable. However, it
+will also prevent write combine as far as I remember.
+
+Ben.
+
 

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWIJL27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWIJMB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWIJL27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 07:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWIJL27
+	id S1750945AbWIJMB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 08:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWIJMB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 07:28:59 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:32464 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750898AbWIJL26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 07:28:58 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4503F673.30808@s5r6.in-berlin.de>
-Date: Sun, 10 Sep 2006 13:26:43 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Domsch <Matt_Domsch@dell.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org> <450283D5.1020404@garzik.org> <20060909121134.GC4277@ucw.cz>
-In-Reply-To: <20060909121134.GC4277@ucw.cz>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 10 Sep 2006 08:01:29 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62173 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750899AbWIJMB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 08:01:28 -0400
+Subject: Re: [PATCH RFC]: New termios take 2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+In-Reply-To: <1157887240.2977.147.camel@pmac.infradead.org>
+References: <1157472883.9018.79.camel@localhost.localdomain>
+	 <1157885180.2977.133.camel@pmac.infradead.org>
+	 <1157886908.22571.11.camel@localhost.localdomain>
+	 <1157887240.2977.147.camel@pmac.infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 10 Sep 2006 13:24:41 +0100
+Message-Id: <1157891081.23085.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> I agree with martin here. 'Lets break all the machines where people
-> are currently using 2.6.x, for benefit of people currently running
-> 2.4.x' is *very* bad idea.
+Ar Sul, 2006-09-10 am 12:20 +0100, ysgrifennodd David Woodhouse:
+> But I don't think it's realistic to suggest that C libraries should be
+> built without access to our asm/term{bit,io}s.h at all. However, I'm
+> only really responsible for the new export _mechanism_ -- I'm not going
+> to impose policy except when people like Andi do stupid things and
+> sneakily send private patches to undo fixes I've already made.
 
-Small correction: Not all but "only" setups which rely on device
-ordering instead of persistent unique device properties are affected.
--- 
-Stefan Richter
--=====-=-==- =--= -=-=-
-http://arcgraph.de/sr/
+glibc needs them, nobody else does.
+
+The point I was trying to make is that user space (except glibc) does
+not use them. glibc presents a different struct termios to them already,
+and it always includes c_ispeed/c_ospeed.
+
+Alan
+

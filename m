@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWIJMFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWIJMGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWIJMFK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 08:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWIJMFK
+	id S1750937AbWIJMGj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 08:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWIJMGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 08:05:10 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:54664 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750734AbWIJMFI (ORCPT
+	Sun, 10 Sep 2006 08:06:39 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:215 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750899AbWIJMGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 08:05:08 -0400
-Date: Sun, 10 Sep 2006 13:57:23 +0200
+	Sun, 10 Sep 2006 08:06:38 -0400
+Date: Sun, 10 Sep 2006 13:58:24 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Laurent Riffard <laurent.riffard@free.fr>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
-Message-ID: <20060910115722.GA15356@elte.hu>
-References: <20060908011317.6cb0495a.akpm@osdl.org> <4503DC64.9070007@free.fr> <200609101032.17429.ak@suse.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.18-rc5-mm1 + all hotfixes + nodemgr patches -- INFO: trying to register non-static key (the code is fine but needs lockdep annotation).
+Message-ID: <20060910115824.GB15356@elte.hu>
+References: <a44ae5cd0609072006p627fb127g62949c62a5bfc6c2@mail.gmail.com> <tkrat.ae0a49a0374e41e2@s5r6.in-berlin.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609101032.17429.ak@suse.de>
+In-Reply-To: <tkrat.ae0a49a0374e41e2@s5r6.in-berlin.de>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.9
 X-ELTE-SpamLevel: 
@@ -38,32 +37,21 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andi Kleen <ak@suse.de> wrote:
+* Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-> > This kernel won't boot here: it starts a GPFs loop on
-> > early boot. I attached a screenshot of the first GPF
-> > (pause_on_oops=120 helped).
+> > INFO: trying to register non-static key.
+> > the code is fine but needs lockdep annotation.
+> > turning off the locking correctness validator.
+
+> From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> Subject: SCSI: lockdep annotation in scsi_send_eh_cmnd
 > 
-> It's lockdep's fault. This patch should fix it:
+> Fixup for lockdep enabled kernels: Annotate an on-stack completion.
+> 
+> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-Well, it's also x86_64's fault: why does it call into a generic C 
-function (x86_64_start_kernel()) without having a full CPU state up and 
-running? i686 doesnt do it, never did.
+thanks.
 
-We had frequent breakages due to this property of the x86_64 arch code 
-(many more than this single incident with lockdep), tracing and all 
-sorts of other instrumentation (including earlier versions of lockdep) 
-was hit by it again and again.
-
-Basically, non-atomic setup of basic architecture state _is_ going to be 
-a nightmare, lockdep or not, especially if it uses common infrastructure 
-like 'current', spin_lock() or even something as simple as C functions. 
-(for example the stack-footprint tracer was once hit by this weakness of 
-the x86_64 code)
-
-> Hackish patch to fix lockdep with PDA current
-
-hm, this is ugly beyond words. Do you have a config i could try which 
-exhibits this problem? I'm sure there is a better solution.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
 	Ingo

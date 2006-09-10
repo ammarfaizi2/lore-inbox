@@ -1,55 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWIJTZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWIJT0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbWIJTZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 15:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWIJTZ2
+	id S932551AbWIJT0u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 15:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWIJT0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 15:25:28 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:22759 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S932553AbWIJTZ0 (ORCPT
+	Sun, 10 Sep 2006 15:26:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46036 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932551AbWIJT0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 15:25:26 -0400
-Date: Sun, 10 Sep 2006 21:33:16 +0200
-To: "Kay Sievers" <kay.sievers@vrfy.org>, "Greg KH" <greg@kroah.com>
-Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue handling fix
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
-Cc: "Phillip Susi" <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       "petero2@telia.com" <petero2@telia.com>
-Content-Type: text/plain; charset=iso-8859-15
+	Sun, 10 Sep 2006 15:26:49 -0400
+Date: Sun, 10 Sep 2006 21:26:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Problems with STR
+Message-ID: <20060910192625.GA5308@elf.ucw.cz>
+References: <20050928212955.GH2506@elf.ucw.cz> <20050929180249.AE766E9E4D@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <20050929181206.GO1990@elf.ucw.cz> <200608312310.20851.david-b@pacbell.net> <20060906103806.GB4987@atrey.karlin.mff.cuni.cz> <20060906153343.6D89719FEC1@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20060907220718.GH29890@elf.ucw.cz> <20060910150323.5DE2019FFB5@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 MIME-Version: 1.0
-References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com> <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com> <op.tfmh56j9iudtyh@master> <20060909213054.GC19188@kroah.com> <1157842406.7592.12.camel@pim.off.vrfy.org>
-Content-Transfer-Encoding: 7bit
-Message-ID: <op.tfoglqsiiudtyh@master>
-In-Reply-To: <1157842406.7592.12.camel@pim.off.vrfy.org>
-User-Agent: Opera Mail/9.00 (Win32)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060910150323.5DE2019FFB5@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun 2006-09-10 08:03:23, David Brownell wrote:
+> > From pavel@suse.cz  Thu Sep  7 15:10:51 2006
+> > Date: Fri, 8 Sep 2006 00:07:18 +0200
+> > From: Pavel Machek <pavel@suse.cz>
+> > To: David Brownell <david-b@pacbell.net>
+> > Subject: Re: [linux-pm] Problems with PM_FREEZE
+> >
+> > Hi!
+> >
+> > > > > Just for the record, I tried those tricks and no success on either
+> > > > > the NF3 or NF2 boxes.  And the NF3 ran into 's2ram' problems,
+> > > > > it seems vbetool etc don't work in 64bit mode yet ...
+> > > >
+> > > > Any chance to try it in 32-bit mode? Recovery cd, or something?
+> > > 
+> > > Not for a few weeks, but that wouldn't have affected the NF2 ...
+> >
+> > Ok, can you do bugreport on bugzilla.kernel.org?
+> 
+> You mean, like bugid 6906?
 
-> Is this always device specific, or also driver global information? Is
-> pktcdvd always on a block device? Maybe you just want them to be a group
-> of attributes in the block device directory where they belong to, like:
->   /sys/block/sr0/pktcdvd/info
->   /sys/block/sr0/pktcdvd/write_queue_size
->   /sys/block/sr0/pktcdvd/...
->
-> Does that make sense? We should avoid messing around with symlinks
-> pointing to other devices, if not absolutely needed. We should also not
-> create a new device type, just for adding properties to an existing one,
-> especially if there is not some kind of "device stacking". The
-> "mapped_to" link to the parent device looks like a wild hack to me, we
-> should avoid.
+Ahha, okay, feel free to Cc me on suspend bugs.
 
-The pktcdvd driver creates new block devices using a "struct gendisk"
-that creates the /sys/block/pktcdvd[0-7]/ entries (alloc_disk() -> add_disk()).
+> > Is the resume (with minimal modules, init=/bin/bash, no acpi_sleep=
+> > parameter) completely broken, or is just the video dead?
+> 
+> Completely broken.
 
-Since the files like write_queue_size are per pktcdvd device and belong to
-this device, they should be below the /sys/block/pktcdvd[0-7]/ directory,
-not below the e.g. /sys/block/sr0/ .
+Ok, this is beeping patch. It would be interesting to know what result
+you get if you attempt to resume from S3 with this applied.
 
-The pktcdvd driver can only be mapped to block devices, as i know.
+diff --git a/arch/i386/kernel/acpi/wakeup.S b/arch/i386/kernel/acpi/wakeup.S
+index b781b38..88d4cba 100644
+--- a/arch/i386/kernel/acpi/wakeup.S
++++ b/arch/i386/kernel/acpi/wakeup.S
+@@ -11,7 +11,22 @@
+ #
+ # If physical address of wakeup_code is 0x12345, BIOS should call us with
+ # cs = 0x1234, eip = 0x05
+-# 
++#
++
++#define BEEP \
++	inb	$97, %al; 	\
++	outb	%al, $0x80; 	\
++	movb	$3, %al; 	\
++	outb	%al, $97; 	\
++	outb	%al, $0x80; 	\
++	movb	$-74, %al; 	\
++	outb	%al, $67; 	\
++	outb	%al, $0x80; 	\
++	movb	$-119, %al; 	\
++	outb	%al, $66; 	\
++	outb	%al, $0x80; 	\
++	movb	$15, %al; 	\
++	outb	%al, $66;
+ 
+ ALIGN
+ 	.align	4096
+@@ -20,6 +35,7 @@ wakeup_code:
+ 	wakeup_code_start = .
+ 	.code16
+ 
++	BEEP
+  	movw	$0xb800, %ax
+ 	movw	%ax,%fs
+ 	movw	$0x0e00 + 'L', %fs:(0x10)
 
--Thomas Maier
 
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

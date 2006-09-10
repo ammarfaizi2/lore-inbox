@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWIJWYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWIJW1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWIJWYx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 18:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWIJWYw
+	id S932137AbWIJW1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 18:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIJW1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 18:24:52 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:15325 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S932113AbWIJWYv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 18:24:51 -0400
-Date: Mon, 11 Sep 2006 00:21:09 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Misha Tomushev <misha@fabric7.com>, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VIOC: New Network Device Driver
-Message-ID: <20060910222109.GA22386@electric-eye.fr.zoreil.com>
-References: <000501c6d85c$08a352f0$8301a8c0@calvados> <200609102339.25621.arnd@arndb.de>
+	Sun, 10 Sep 2006 18:27:16 -0400
+Received: from soundwarez.org ([217.160.171.123]:12680 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S932137AbWIJW1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 18:27:15 -0400
+Subject: Re: [PATCH] pktcdvd: added sysfs interface + bio write queue
+	handling fix
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: balagi@justmail.de
+Cc: Greg KH <greg@kroah.com>, Phillip Susi <psusi@cfl.rr.com>,
+       linux-kernel@vger.kernel.org, "petero2@telia.com" <petero2@telia.com>
+In-Reply-To: <op.tfoglqsiiudtyh@master>
+References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com>
+	 <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com>
+	 <op.tfmh56j9iudtyh@master> <20060909213054.GC19188@kroah.com>
+	 <1157842406.7592.12.camel@pim.off.vrfy.org>  <op.tfoglqsiiudtyh@master>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 00:25:46 +0200
+Message-Id: <1157927146.26962.13.camel@min.off.vrfy.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609102339.25621.arnd@arndb.de>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann <arnd@arndb.de> :
-[...]
-> A few comments on coding style:
+On Sun, 2006-09-10 at 21:33 +0200, Thomas Maier wrote:
+> Hello,
+> 
+> > Is this always device specific, or also driver global information? Is
+> > pktcdvd always on a block device? Maybe you just want them to be a group
+> > of attributes in the block device directory where they belong to, like:
+> >   /sys/block/sr0/pktcdvd/info
+> >   /sys/block/sr0/pktcdvd/write_queue_size
+> >   /sys/block/sr0/pktcdvd/...
+> >
+> > Does that make sense? We should avoid messing around with symlinks
+> > pointing to other devices, if not absolutely needed. We should also not
+> > create a new device type, just for adding properties to an existing one,
+> > especially if there is not some kind of "device stacking". The
+> > "mapped_to" link to the parent device looks like a wild hack to me, we
+> > should avoid.
+> 
+> The pktcdvd driver creates new block devices using a "struct gendisk"
+> that creates the /sys/block/pktcdvd[0-7]/ entries (alloc_disk() -> add_disk()).
+> 
+> Since the files like write_queue_size are per pktcdvd device and belong to
+> this device, they should be below the /sys/block/pktcdvd[0-7]/ directory,
+> not below the e.g. /sys/block/sr0/ .
 
-Add:
-- use netdev_priv()
-- use DMA_{32/64}_BIT_MASK in place of private #define
-- turn some define into enum ?
+So the pktcdvd device have their own device nodes, userspace talks to?
 
--- 
-Ueimor
+Kay
+

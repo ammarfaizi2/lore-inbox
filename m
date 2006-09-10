@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWIJQdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWIJQov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWIJQdd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 12:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWIJQdd
+	id S932303AbWIJQov (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 12:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWIJQov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 12:33:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26802 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932299AbWIJQdc (ORCPT
+	Sun, 10 Sep 2006 12:44:51 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37013 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932303AbWIJQou (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 12:33:32 -0400
-Date: Sun, 10 Sep 2006 09:33:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Laurent Riffard <laurent.riffard@free.fr>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
-Message-Id: <20060910093307.a011b16f.akpm@osdl.org>
-In-Reply-To: <20060910132614.GA29423@elte.hu>
-References: <20060908011317.6cb0495a.akpm@osdl.org>
-	<200609101032.17429.ak@suse.de>
-	<20060910115722.GA15356@elte.hu>
-	<200609101334.34867.ak@suse.de>
-	<20060910132614.GA29423@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 10 Sep 2006 12:44:50 -0400
+Message-ID: <450440EF.9050103@garzik.org>
+Date: Sun, 10 Sep 2006 12:44:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Daniel Drake <dsd@gentoo.org>, akpm@osdl.org, torvalds@osdl.org,
+       sergio@sergiomb.no-ip.org, greg@kroah.com, cw@f00f.org,
+       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org, harmon@ksu.edu,
+       len.brown@intel.com, vsu@altlinux.ru, liste@jordet.net
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org>	 <1157817836.6877.52.camel@localhost.localdomain>	 <45033370.8040005@gentoo.org>	 <1157848272.6877.108.camel@localhost.localdomain>	 <450436F1.8070203@gentoo.org> <1157906395.23085.18.camel@localhost.localdomain>
+In-Reply-To: <1157906395.23085.18.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Sep 2006 15:26:14 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Alan Cox wrote:
+> The detailed stuff I posted by digging over all the docs should be
+> enough to figure out WTF is actually going on and fix the stuff
+> properly. 
 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > > Basically, non-atomic setup of basic architecture state _is_ going to be
-> > > a nightmare, lockdep or not, especially if it uses common infrastructure
-> > > like 'current', spin_lock() or even something as simple as C functions.
-> > > (for example the stack-footprint tracer was once hit by this weakness of
-> > > the x86_64 code)
-> > 
-> > I disagree with that.  The nightmare is putting stuff that needs so 
-> > much infrastructure into the most basic operations.
-> 
-> ugh, "having a working current" is "so much infrastructure" ?? Lockdep 
-> uses a very low amount of infrastructure, considering its complexity: it 
-> has its own allocator, uses raw spinlocks, raw irq flags ops, it 
-> basically implements its own infrastructure for everything. Being able 
-> to access a per-task data area (current) is a quite fundamental thing 
-> for kernel code.
+FWIW, older VIA docs are also posted at 
+http://gkernel.sourceforge.net/specs/via/
 
-I must say that having an unreliable early-current is going to be quite a
-pita for evermore.  Things like mcount-based tricks and
-basic-block-profiling-based tricks, for example.
+	Jeff
 
-Is it really going to be too messy to fake up some statically-defined gdt
-which points at init_task, install that before we call any C at all?
+

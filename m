@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWIJJeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWIJJkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWIJJeY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 05:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIJJeY
+	id S1750842AbWIJJkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 05:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWIJJkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 05:34:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24329 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750814AbWIJJeX
+	Sun, 10 Sep 2006 05:40:15 -0400
+Received: from stinky.trash.net ([213.144.137.162]:48285 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1750817AbWIJJkN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 05:34:23 -0400
-Date: Sat, 9 Sep 2006 12:11:34 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-Message-ID: <20060909121134.GC4277@ucw.cz>
-References: <20060908031422.GA4549@lists.us.dell.com> <20060908112035.f7a83983.akpm@osdl.org> <450283D5.1020404@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450283D5.1020404@garzik.org>
-User-Agent: Mutt/1.5.9i
+	Sun, 10 Sep 2006 05:40:13 -0400
+Message-ID: <4503DD7B.1070003@trash.net>
+Date: Sun, 10 Sep 2006 11:40:11 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: Nick Orlov <bugfixer@list.ru>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Netdev List <netdev@vger.kernel.org>
+Subject: Re: netdevice name corruption is still present in 2.6.18-rc6-mm1
+References: <20060909032939.GA3087@nickolas.homeunix.com> <20060910020707.GA3160@nickolas.homeunix.com>
+In-Reply-To: <20060910020707.GA3160@nickolas.homeunix.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------080005000809040506090404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------080005000809040506090404
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-> I wanted to note what Martin Mares just raised in the 
-> thread "State of the Linux PCI Subsystem for 2.6.18-rc6":
+Nick Orlov wrote:
+> On Fri, Sep 08, 2006 at 11:29:39PM -0400, Nick Orlov wrote:
 > 
-> >Changing the device order in the middle of the 2.6 
-> >cycle doesn't sound
-> >like a sane idea to me. Many people have changed their 
-> >systems' configuration
-> >to adapt to the 2.6 ordering and this patch would break 
-> >their setups.
-> >I have seen many such examples in my vicinity.
-> >
-> >I believe that not breaking existing 2.6 setups is much 
-> >more important
-> >than keeping compatibility with 2.4 kernels, especially 
-> >when the problem
-> >is discovered after more than 2 years after release of 
-> >the first 2.6.
+>>I would like to confirm that issue with netdevice name corruption
+>>is still present in 2.6.18-rc6-mm1 and extremely easy to reproduce
+>>(at least on my system) with 100% hit rate.
+>>
+>>All I have to do is 'sudo /etc/init.d/networking stop'. And here we go:
+>>
+>>Sep  8 22:50:11 nickolas kernel: [events/1:7]: Changing netdevice name from [ath0] to [\200^C^Bб\206]
+>>
 > 
 > 
-> I'm not siding with either Martin or Matt explicitly, 
-> just noting that there are good arguments for both sides.
+> Confirmed: Patrick's patch fixes the issue for me.
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=115777959918268&w=2)
 
-I agree with martin here. 'Lets break all the machines where people
-are currently using 2.6.x, for benefit of people currently running
-2.4.x' is *very* bad idea.
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+
+Thanks Nick. Dave, please apply the attached patch to net-2.6.19, it
+fixes the netdevice name corruption reported by multiple people.
+
+
+--------------080005000809040506090404
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="x"
+
+W1JUTkVUTElOS106IEZpeCBuZXRkZXZpY2UgbmFtZSBjb3JydXB0aW9uCgpXaGVuIGNoYW5n
+aW5nIGEgZGV2aWNlIGJ5IGlmaW5kZXggd2l0aG91dCBpbmNsdWRpbmcgYSBJRkxBX0lGTkFN
+RQphdHRyaWJ1dGUsIHRoZSBpZm5hbWUgdmFyaWFibGUgY29udGFpbnMgcmFuZG9tIGdhcmJh
+Z2UgYW5kIGlzIHVzZWQKdG8gY2hhbmdlIHRoZSBkZXZpY2UgbmFtZS4KClNpZ25lZC1vZmYt
+Ynk6IFBhdHJpY2sgTWNIYXJkeSA8a2FiZXJAdHJhc2gubmV0PgoKLS0tCmNvbW1pdCBiYzM0
+MTdmNjc5YzAzNWU0Mjk2Y2QzNGY2YTU1ZDZiOTIxNTc2NGZjCnRyZWUgZTQzZjUyNDAyZDc5
+NTYwY2JlZDczYTc2OWY0ZGVmM2U3NjFlN2EwMwpwYXJlbnQgNmRkYmQwMmViNjE1MzJmOWFm
+NGYyODkxMmEwOTcxN2FiOGM3MWQ4YQphdXRob3IgUGF0cmljayBNY0hhcmR5IDxrYWJlckB0
+cmFzaC5uZXQ+IFNhdCwgMDkgU2VwIDIwMDYgMTY6MTg6MTIgKzAyMDAKY29tbWl0dGVyIFBh
+dHJpY2sgTWNIYXJkeSA8a2FiZXJAdHJhc2gubmV0PiBTYXQsIDA5IFNlcCAyMDA2IDE2OjE4
+OjEyICswMjAwCgogbmV0L2NvcmUvcnRuZXRsaW5rLmMgfCAgICAyICsrCiAxIGZpbGVzIGNo
+YW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9u
+ZXQvY29yZS9ydG5ldGxpbmsuYyBiL25ldC9jb3JlL3J0bmV0bGluay5jCmluZGV4IDYzYjg4
+MmEuLmQ4ZTI1ZTAgMTAwNjQ0Ci0tLSBhL25ldC9jb3JlL3J0bmV0bGluay5jCisrKyBiL25l
+dC9jb3JlL3J0bmV0bGluay5jCkBAIC0zOTQsNiArMzk0LDggQEAgc3RhdGljIGludCBydG5s
+X3NldGxpbmsoc3RydWN0IHNrX2J1ZmYgKgogCiAJaWYgKHRiW0lGTEFfSUZOQU1FXSkKIAkJ
+bmxhX3N0cmxjcHkoaWZuYW1lLCB0YltJRkxBX0lGTkFNRV0sIElGTkFNU0laKTsKKwllbHNl
+CisJCWlmbmFtZVswXSA9ICdcMCc7CiAKIAllcnIgPSAtRUlOVkFMOwogCWlmbSA9IG5sbXNn
+X2RhdGEobmxoKTsK
+--------------080005000809040506090404--

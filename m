@@ -1,43 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWIJQov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWIJQs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWIJQov (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 12:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWIJQov
+	id S932304AbWIJQs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 12:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWIJQs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 12:44:51 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:37013 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932303AbWIJQou (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 12:44:50 -0400
-Message-ID: <450440EF.9050103@garzik.org>
-Date: Sun, 10 Sep 2006 12:44:31 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Sun, 10 Sep 2006 12:48:26 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:26346 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932304AbWIJQs0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 12:48:26 -0400
+Message-ID: <45044169.8000609@web.de>
+Date: Sun, 10 Sep 2006 18:46:33 +0200
+From: "jens m. noedler" <noedler@web.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Daniel Drake <dsd@gentoo.org>, akpm@osdl.org, torvalds@osdl.org,
-       sergio@sergiomb.no-ip.org, greg@kroah.com, cw@f00f.org,
-       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org, harmon@ksu.edu,
-       len.brown@intel.com, vsu@altlinux.ru, liste@jordet.net
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>	 <1157811641.6877.5.camel@localhost.localdomain>	 <4502D35E.8020802@gentoo.org>	 <1157817836.6877.52.camel@localhost.localdomain>	 <45033370.8040005@gentoo.org>	 <1157848272.6877.108.camel@localhost.localdomain>	 <450436F1.8070203@gentoo.org> <1157906395.23085.18.camel@localhost.localdomain>
-In-Reply-To: <1157906395.23085.18.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rc6] [resend] Documentation/ABI: devfs is not obsolete,
+ but removed!
+References: <4502F7A9.70200@web.de> <45030245.9080005@tls.msk.ru> <20060909220230.GA19539@suse.de> <4503C807.5040403@tls.msk.ru>
+In-Reply-To: <4503C807.5040403@tls.msk.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> The detailed stuff I posted by digging over all the docs should be
-> enough to figure out WTF is actually going on and fix the stuff
-> properly. 
+Hello,
 
-FWIW, older VIA docs are also posted at 
-http://gkernel.sourceforge.net/specs/via/
+Michael Tokarev wrote at 09/10/2006 10:08 AM:
 
-	Jeff
+> Greg KH wrote:
+>> On Sat, Sep 09, 2006 at 10:04:53PM +0400, Michael Tokarev wrote:
+>>> jens m. noedler wrote:
+>>>> Hi everybody, Greg, Linus,
+>>>>
+>>>> This little patch just moves the devfs entry from ABI/obsolete to
+>>>> ABI/removed and adds the comment, that devfs was removed in 2.6.18.
+>>>>
+>>> []
+>>>> +	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
+>>>> +	along with the the assorted devfs function calls throughout the
+>>>> +	kernel tree.
+>>> So, will the files be removed at some point, or has them been removed
+>>> already? :)
+>> They are already removed.
+> 
+> I know they're gone. I was just pointing out that the patch is wrong,
+> as it claims the files *will* be removed.
+
+OK. I replaced "will be removed" with "were removed". And here is an 
+updated patch against linus' current git tree.
+
+Kind regards, Jens
 
 
+Signed-off-by: jens m. noedler <noedler@web.de>
+
+---
+
+diff --git a/Documentation/ABI/obsolete/devfs b/Documentation/ABI/obsolete/devfs
+deleted file mode 100644
+index b8b8739..0000000
+--- a/Documentation/ABI/obsolete/devfs
++++ /dev/null
+@@ -1,13 +0,0 @@
+-What:		devfs
+-Date:		July 2005
+-Contact:	Greg Kroah-Hartman <gregkh@suse.de>
+-Description:
+-	devfs has been unmaintained for a number of years, has unfixable
+-	races, contains a naming policy within the kernel that is
+-	against the LSB, and can be replaced by using udev.
+-	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
+-	along with the the assorted devfs function calls throughout the
+-	kernel tree.
+-
+-Users:
+-
+diff --git a/Documentation/ABI/removed/devfs b/Documentation/ABI/removed/devfs
+new file mode 100644
+index 0000000..8195c4e
+--- /dev/null
++++ b/Documentation/ABI/removed/devfs
+@@ -0,0 +1,12 @@
++What:		devfs
++Date:		July 2005 (scheduled), finally removed in kernel v2.6.18
++Contact:	Greg Kroah-Hartman <gregkh@suse.de>
++Description:
++	devfs has been unmaintained for a number of years, has unfixable
++	races, contains a naming policy within the kernel that is
++	against the LSB, and can be replaced by using udev.
++	The files fs/devfs/*, include/linux/devfs_fs*.h were removed,
++	along with the the assorted devfs function calls throughout the
++	kernel tree.
++
++Users:
+
+
+-- 
+jens m. noedler
+  noedler@web.de
+  pgp: 0x9f0920bb
+  http://noedler.de

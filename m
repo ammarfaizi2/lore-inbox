@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWIJIIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWIJIbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWIJIIp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 04:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWIJIIp
+	id S1750795AbWIJIbW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 04:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIJIbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 04:08:45 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:57181 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1750781AbWIJIIo (ORCPT
+	Sun, 10 Sep 2006 04:31:22 -0400
+Received: from 1wt.eu ([62.212.114.60]:28946 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750795AbWIJIbV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 04:08:44 -0400
-Message-ID: <4503C807.5040403@tls.msk.ru>
-Date: Sun, 10 Sep 2006 12:08:39 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: "jens m. noedler" <noedler@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -rc6] [resend] Documentation/ABI: devfs is not obsolete,
- but removed!
-References: <4502F7A9.70200@web.de> <45030245.9080005@tls.msk.ru> <20060909220230.GA19539@suse.de>
-In-Reply-To: <20060909220230.GA19539@suse.de>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Sep 2006 04:31:21 -0400
+Date: Sun, 10 Sep 2006 10:26:49 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kaber@trash.net
+Subject: Re: Oops after 30 days of uptime
+Message-ID: <20060910082649.GA20814@1wt.eu>
+References: <200609011852.39572.linux@rainbow-software.org> <20060909101927.GA12986@1wt.eu> <200609091243.39220.linux@rainbow-software.org> <200609091338.56539.linux@rainbow-software.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609091338.56539.linux@rainbow-software.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sat, Sep 09, 2006 at 10:04:53PM +0400, Michael Tokarev wrote:
->> jens m. noedler wrote:
->>> Hi everybody, Greg, Linus,
->>>
->>> This little patch just moves the devfs entry from ABI/obsolete to
->>> ABI/removed and adds the comment, that devfs was removed in 2.6.18.
->>>
->> []
->>> +	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
->>> +	along with the the assorted devfs function calls throughout the
->>> +	kernel tree.
->> So, will the files be removed at some point, or has them been removed
->> already? :)
-> 
-> They are already removed.
+Hi Ondrej,
 
-I know they're gone. I was just pointing out that the patch is wrong,
-as it claims the files *will* be removed.
+OK, I've analysed your oops with your kernel. My conclusions are that you
+have a hardware problem (most probably the CPU), because you've hit an
+impossible case :
 
-/mjt
+ip_nat_cheat_check() pushed the size of the data (8) on the stack, followed
+by the pointer to the data, then called csum_partial() :
+
+c01e657f:       6a 08                   push   $0x8
+c01e6581:       52                      push   %edx
+c01e6582:       e8 a5 85 00 00          call   c01eeb2c <csum_partial>
+
+In csum_partial(), ECX is filled with the size (8) and ESI with the data
+pointer (0xc0227ce8) :
+
+c01eeb32:       8b 4c 24 10             mov    0x10(%esp),%ecx
+c01eeb36:       8b 74 24 0c             mov    0xc(%esp),%esi
+
+Then, the size is divided by 32 to count how many 32 bytes blocks can be read
+at a time. If the size is lower than 32, the code branches to a special
+location which reads 1 word at a time :
+
+c01eeb78:       89 ca                   mov    %ecx,%edx
+c01eeb7a:       c1 e9 05                shr    $0x5,%ecx
+c01eeb7d:       74 32                   je     c01eebb1 <csum_partial+0x85>
+
+Your oops comes from a few instructions below. The branch has not been taken
+while it should have because (8 >> 5) == 0. You can also see from EDX in the
+oops that it really was 0x8 when copied from ECX. The rest is pretty obvious.
+The data are read 32 bytes at a time after ESI, and ECX is decreased by 1
+every 32 bytes. When ESI+0x18 reaches an unmapped area (0xc2000000), you get
+the oops, and ECX = 0xfff113e8 as in your oops.
+
+Given that the failing instruction is the most common conditionnal jump, it
+is very fortunate that your system can work 30 days before crashing. I think
+that your CPU might be running too hot and might get wrong results during
+branch prediction. It's also possible that you have a poor power supply.
+However, I'm pretty sure that this is not a RAM problem.
+
+Best regards,
+Willy
+

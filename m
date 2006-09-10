@@ -1,227 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWIJJwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWIJKB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWIJJwW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 05:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWIJJwW
+	id S932076AbWIJKB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWIJKB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 05:52:22 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:59583 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932072AbWIJJwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 05:52:21 -0400
-Subject: Re: [PATCH 5/5] linear reclaim core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060908114114.87612de3.akpm@osdl.org>
-References: <exportbomb.1157718286@pinky>
-	 <20060908122718.GA1662@shadowen.org>
-	 <20060908114114.87612de3.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 10 Sep 2006 11:51:37 +0200
-Message-Id: <1157881898.1303.2.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 10 Sep 2006 06:01:58 -0400
+Received: from mailfe04.tele2.fr ([212.247.154.108]:10149 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S932076AbWIJKB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 06:01:57 -0400
+X-T2-Posting-ID: C+rpYiNZ2NzjjSrGUeFwNg==
+X-Cloudmark-Score: 0.000000 []
+From: Simon MORIN <simon-morin@laposte.net>
+To: linux-kernel@vger.kernel.org
+Subject: DMA activation problem on Intel ICH7 82801GBM/GHMA
+Date: Sun, 10 Sep 2006 12:01:52 +0200
+User-Agent: KMail/1.9.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609101201.52167.simon-morin@laposte.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-08 at 11:41 -0700, Andrew Morton wrote:
+Hello !
 
-> - Pick tail page off LRU.
-> 
-> - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
-> 
->   - If they're all PageLRU and !PageActive, add them all to page_list for
->     possible reclaim
-> 
-> And, in shrink_active_list:
-> 
-> - Pick tail page off LRU
-> 
-> - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
-> 
->   If they're all PageLRU, put all the active pages in this block onto
->   l_hold for possible deactivation.
-> 
-> 
-> Maybe all that can be done in isolate_lru_pages().
+I have installed Gentoo Linux on my Acer Aspire 9410 laptop (Core Duo).
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- fs/buffer.c          |    2 -
- include/linux/swap.h |    2 -
- mm/page_alloc.c      |    2 -
- mm/vmscan.c          |   70 ++++++++++++++++++++++++++++++++++++---------------
- 4 files changed, 53 insertions(+), 23 deletions(-)
+The hard drive and the cdrom are PATA devices and activating DMA on them seems 
+to be impossible. The IDE controller is an Intel 82801GBM/GHM (ICH7 Family).
 
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c	2006-07-22 00:11:00.000000000 +0200
-+++ linux-2.6/mm/vmscan.c	2006-09-10 11:47:05.000000000 +0200
-@@ -62,6 +62,8 @@ struct scan_control {
- 	int swap_cluster_max;
- 
- 	int swappiness;
-+
-+	int order;
- };
- 
- /*
-@@ -590,35 +592,62 @@ keep:
-  *
-  * returns how many pages were moved onto *@dst.
-  */
-+int __isolate_lru_page(struct page *page, int active)
-+{
-+	int ret = -EINVAL;
-+
-+	if (PageLRU(page) && (PageActive(page) == active)) {
-+		ret = -EBUSY;
-+		if (likely(get_page_unless_zero(page))) {
-+			/*
-+			 * Be careful not to clear PageLRU until after we're
-+			 * sure the page is not being freed elsewhere -- the
-+			 * page release code relies on it.
-+			 */
-+			ClearPageLRU(page);
-+			ret = 0;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
- static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
- 		struct list_head *src, struct list_head *dst,
--		unsigned long *scanned)
-+		unsigned long *scanned, int order)
- {
- 	unsigned long nr_taken = 0;
- 	struct page *page;
--	unsigned long scan;
-+	unsigned long scan, pfn, base_pfn;
-+	int active;
- 
--	for (scan = 0; scan < nr_to_scan && !list_empty(src); scan++) {
--		struct list_head *target;
-+	for (scan = 0; scan < nr_to_scan && !list_empty(src);) {
- 		page = lru_to_page(src);
- 		prefetchw_prev_lru_page(page, src, flags);
- 
- 		BUG_ON(!PageLRU(page));
- 
--		list_del(&page->lru);
--		target = src;
--		if (likely(get_page_unless_zero(page))) {
--			/*
--			 * Be careful not to clear PageLRU until after we're
--			 * sure the page is not being freed elsewhere -- the
--			 * page release code relies on it.
--			 */
--			ClearPageLRU(page);
--			target = dst;
-+		active = PageActive(page);
-+		pfn = page_to_pfn(page);
-+		base_pfn = pfn &= ~((1 << order) - 1);
-+		for (; pfn < (base_pfn + (1 << order)) && pfn_valid(pfn); pfn++) {
-+			struct page *tmp = pfn_to_page(pfn);
-+			int ret;
-+
-+			BUG_ON(!tmp);
-+
-+			ret = __isolate_lru_page(tmp, active);
-+			scan++;
-+			if (ret) {
-+				if (ret == -EBUSY) {
-+					/* else it is being freed elsewhere */
-+					list_move(&tmp->lru, src);
-+				}
-+				break;
-+			} else
-+				list_move(&tmp->lru, dst);
- 			nr_taken++;
--		} /* else it is being freed elsewhere */
--
--		list_add(&page->lru, target);
-+		}
- 	}
- 
- 	*scanned = scan;
-@@ -649,7 +678,7 @@ static unsigned long shrink_inactive_lis
- 
- 		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
- 					     &zone->inactive_list,
--					     &page_list, &nr_scan);
-+					     &page_list, &nr_scan, sc->order);
- 		zone->nr_inactive -= nr_taken;
- 		zone->pages_scanned += nr_scan;
- 		spin_unlock_irq(&zone->lru_lock);
-@@ -771,7 +800,7 @@ static void shrink_active_list(unsigned 
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
- 	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
--				    &l_hold, &pgscanned);
-+				    &l_hold, &pgscanned, sc->order);
- 	zone->pages_scanned += pgscanned;
- 	zone->nr_active -= pgmoved;
- 	spin_unlock_irq(&zone->lru_lock);
-@@ -959,7 +988,7 @@ static unsigned long shrink_zones(int pr
-  * holds filesystem locks which prevent writeout this might not work, and the
-  * allocation attempt will fail.
-  */
--unsigned long try_to_free_pages(struct zone **zones, gfp_t gfp_mask)
-+unsigned long try_to_free_pages(struct zone **zones, int order, gfp_t gfp_mask)
- {
- 	int priority;
- 	int ret = 0;
-@@ -974,6 +1003,7 @@ unsigned long try_to_free_pages(struct z
- 		.swap_cluster_max = SWAP_CLUSTER_MAX,
- 		.may_swap = 1,
- 		.swappiness = vm_swappiness,
-+		.order = order,
- 	};
- 
- 	count_vm_event(ALLOCSTALL);
-Index: linux-2.6/fs/buffer.c
-===================================================================
---- linux-2.6.orig/fs/buffer.c	2006-09-08 18:13:56.000000000 +0200
-+++ linux-2.6/fs/buffer.c	2006-09-09 23:55:21.000000000 +0200
-@@ -498,7 +498,7 @@ static void free_more_memory(void)
- 	for_each_online_pgdat(pgdat) {
- 		zones = pgdat->node_zonelists[gfp_zone(GFP_NOFS)].zones;
- 		if (*zones)
--			try_to_free_pages(zones, GFP_NOFS);
-+			try_to_free_pages(zones, 0, GFP_NOFS);
- 	}
- }
- 
-Index: linux-2.6/include/linux/swap.h
-===================================================================
---- linux-2.6.orig/include/linux/swap.h	2006-09-08 18:13:56.000000000 +0200
-+++ linux-2.6/include/linux/swap.h	2006-09-09 23:53:56.000000000 +0200
-@@ -181,7 +181,7 @@ extern int rotate_reclaimable_page(struc
- extern void swap_setup(void);
- 
- /* linux/mm/vmscan.c */
--extern unsigned long try_to_free_pages(struct zone **, gfp_t);
-+extern unsigned long try_to_free_pages(struct zone **, int, gfp_t);
- extern unsigned long shrink_all_memory(unsigned long nr_pages);
- extern int vm_swappiness;
- extern int remove_mapping(struct address_space *mapping, struct page *page);
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c	2006-09-08 18:13:57.000000000 +0200
-+++ linux-2.6/mm/page_alloc.c	2006-09-09 23:55:04.000000000 +0200
-@@ -1000,7 +1000,7 @@ rebalance:
- 	reclaim_state.reclaimed_slab = 0;
- 	p->reclaim_state = &reclaim_state;
- 
--	did_some_progress = try_to_free_pages(zonelist->zones, gfp_mask);
-+	did_some_progress = try_to_free_pages(zonelist->zones, order, gfp_mask);
- 
- 	p->reclaim_state = NULL;
- 	p->flags &= ~PF_MEMALLOC;
+I checked the option "Intel PIIXn chipsets support" (CONFIG_BLK_DEV_PIIX=y) 
+in "ATA/ATAPI/MFM/RLL" but it doesn't recognise the chipset (nothing appear 
+about this in dmesg), so I can only use the generic ide driver. 
+
+When I run hdparm as root,  it shows me this :
+
+> hdparm -d1 /dev/sda
+/dev/sda:
+    setting using_dma to 1 (on)
+    HDIO_SET_DMA failed: Invalid argument
 
 
+If I try the SATA driver for this chipset (CONFIG_SCSI_ATA_PIIX), the chipset 
+is recognised as show in the dmesg listing below but no drives is detected 
+(it is normal, I don't have any SATA drives).
+
+----- dmesg information shown when loading SATA driver
+libata version 2.00 loaded.
+ata_piix 0000:00:1f.2: version 2.00
+ata_piix 0000:00:1f.2: MAP [ XX XX XX XX ]
+ata_piix 0000:00:1f.2: invalid MAP value 1
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 19
+ata: 0x1f0 IDE port busy
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0x18B8 irq 15
+scsi0 : ata_piix
+ata1: SATA port has no device.
+ATA: abnormal status 0x7F on port 0x177
+-----------------------------------------------------------------------------
+
+I also try to enable both drivers but this does nothing for the DMA.
+
+Kernel version is 2.6.17
+
+----- My lspci :
+00:00.0 Host bridge: Intel Corporation Mobile Memory Controller Hub (rev 03)
+00:01.0 PCI bridge: Intel Corporation Mobile PCI Express Graphics Port (rev 
+03)
+00:1b.0 Class 0403: Intel Corporation 82801G (ICH7 Family) High Definition 
+Audio Controller (rev 02)
+00:1c.0 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 1 
+(rev 02)
+00:1c.1 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 2 
+(rev 02)
+00:1c.2 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 3 
+(rev 02)
+00:1c.3 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 4 
+(rev 02)
+00:1d.0 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #1 
+(rev 02)
+00:1d.1 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #2 
+(rev 02)
+00:1d.2 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #3 
+(rev 02)
+00:1d.3 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #4 
+(rev 02)
+00:1d.7 USB Controller: Intel Corporation 82801G (ICH7 Family) USB2 EHCI 
+Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev e2)
+00:1f.0 ISA bridge: Intel Corporation 82801GBM (ICH7-M) LPC Interface Bridge 
+(rev 02)
+00:1f.2 IDE interface: Intel Corporation 82801GBM/GHM (ICH7 Family) Serial ATA 
+Storage Controllers cc=IDE (rev 02)
+00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 
+02)
+01:00.0 VGA compatible controller: nVidia Corporation Unknown device 01d7 (rev 
+a1)
+02:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. Unknown device 
+8168 (rev 01)
+05:00.0 Network controller: Intel Corporation Unknown device 4222 (rev 02)
+0a:06.0 CardBus bridge: Texas Instruments Unknown device 8039
+0a:06.2 Mass storage controller: Texas Instruments Unknown device 803b
+0a:06.3 Class 0805: Texas Instruments Unknown device 803c
+------------------
+
+Best regards and thank you for any help
+
+Simon MORIN

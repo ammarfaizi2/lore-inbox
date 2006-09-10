@@ -1,132 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWIJKkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWIJKlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWIJKkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 06:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWIJKkg
+	id S1750720AbWIJKlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 06:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWIJKlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 06:40:36 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:1427 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932177AbWIINXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Sep 2006 09:23:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=mykSD3js1W3H/7HRWA0kDuB4zf6KFzSZIZYk6y/zc3/ad2u394vO/SB7x8KBxgCMoFp2a+PVoy2FbtWy8A/QWqLBWApWH1ZW9y2KpE6Qt6gI9aa0O90pGw5vPTS05/ulmOWoNtm2PvFi3Bh/nQqNJnioSvvqk6ZwREKqj4JDxVc=
-Message-ID: <e5bfff550609090623t6c51e23bh9101a5a78db9ef64@mail.gmail.com>
-Date: Sat, 9 Sep 2006 15:23:49 +0200
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: "Git Mailing List" <git@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE qgit-1.5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Sep 2006 06:41:17 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:46597 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1750720AbWIJKlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 06:41:15 -0400
+Date: Sun, 10 Sep 2006 12:41:05 +0200
+From: David Madore <david.madore@ens.fr>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
+Message-ID: <20060910104105.GB5865@clipper.ens.fr>
+References: <20060907003210.GA5503@clipper.ens.fr> <20060907010127.9028.qmail@web36603.mail.mud.yahoo.com> <20060907173449.GA24013@clipper.ens.fr> <20060907225429.GA30916@elf.ucw.cz> <20060908041034.GB24135@clipper.ens.fr> <20060908105238.GB920@elf.ucw.cz> <20060908225118.GB877@clipper.ens.fr> <20060909114037.GA4277@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060909114037.GA4277@ucw.cz>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 10 Sep 2006 12:41:05 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is qgit-1.5
+On Sat, Sep 09, 2006 at 11:40:38AM +0000, Pavel Machek wrote:
+> > > If you can find another uid to hijack, that other uid has bad
+> > > problems. And I do not think you'll commonly find another uid to
+> > > hijack.
+> > 
+> > How about another gid, then?  Should we reset all caps on sgid exec?
+> 
+> Yes. Any setuid/setgid exec is a security barrier, and weird (or new)
+> semantics may not cross that barrier.
 
-With qgit you will be able to browse revision histories, view patch content
-and changed files, graphically following different development branches.
+Right, so what I was saying was: if you reset all regular caps on sgid
+exec, anyone can trivially reset all regular caps by creating a sgid
+program (users are always members of a great many groups so "finding
+another gid to hijack" is trivial).  So CAP_REG_SXID needs to be off
+all the time, so we lose again.
 
+But I'll make this a securebit ("unsanitized sxid"), with the behavior
+you advertise as default (0).
 
-FEATURES
+> > Ultimately a compromise is to be reached between security and
+> > flexibility...  The problem is, I don't know who should make the
+> > decision.
+> 
+> Go for security here. (Normally, consensus on the list is needed for
+> merging the patch).
 
- - View revisions, diffs, files history, files annotation, archive tree.
+I am now completely convinced the patch will never be merged. :-(
+Linux will have useless caps forever...
 
- - Commit changes visually cherry picking modified files.
-
- - Apply or format patch series from selected commits, drag and
-   drop commits between two instances of qgit.
-
- - Associate commands sequences, scripts and anything else executable
-   to a custom action. Actions can be run from menu and corresponding
-   output is grabbed by a terminal window.
-
- - qgit implements a GUI for the most common StGIT commands like push/pop
-   and apply/format patches. You can also create new patches or refresh
-   current top one using the same semantics of git commit, i.e. cherry
-   picking single modified files.
-
-
-NEW IN THIS RELEASE
-
-Multi tab support and source highlighter are the cool new features.
-
-Multi tab allows the user to open many patch or file view tabs, each
-linked on a different revision.
-
-If GNU Source-highlight (http://www.gnu.org/software/src-highlite/) is
-installed and in PATH then it is possible to toggle source code highlight
-pressing the Color text tool button in file viewer. Please refer to
-Source-highlight site for the list of supported languages and additional
-documentation.
-
-Some bugs squashed too. Not a lot though...qgit-1.4 has been a
-very stable release ;-)
-
-Finally, some performance tweaking.
-
-
-Please note that you will need git 1.4.0 or newer.
-
-
-DOWNLOAD
-
-Tarball is
-http://prdownloads.sourceforge.net/qgit/qgit-1.5.tar.bz2?download
-
-Git archive is
-git://git.kernel.org/pub/scm/qgit/qgit.git
-
-See http://digilander.libero.it/mcostalba/ for detailed download information.
-
-
-INSTALLATION
-
-git 1.4.0 or better is required.
-
-To install from tarball:
-
-./configure
-make
-make install-strip
-
-To install from git archive:
-
-autoreconf -i
-./configure
-make
-make install-strip
-
-Or check the shipped README for detailed information.
-
-
-CHANGELOG from 1.4
-
-- use GNU Source-highlight external tool with file viewer
-
-- show file rename/copy info on patch and file list views
-
-- show the currently checked-out head in bold font
-
-- show stat info at the beginning of patch view also for merges
-
-- added support for multi tab patch viewers aka 'view patch in a new tab'
-
-- added support for multi tab file viewers aka 'view file in a new tab'
-
-- improve size compression of revision's files saved data
-
-- disable 'close tab' button if current tab is the main view
-
-- replace "git-" commands with "git ". Most git commands are now built-in
-
-- other small fixes and some performance tweaks
-
-
-For a complete changelog see shipped ChangeLog file or git repository
-revision's history
-
-	Marco
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

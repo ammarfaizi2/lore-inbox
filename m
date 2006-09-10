@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWIJJet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWIJJdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWIJJet (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 05:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWIJJet
+	id S1750791AbWIJJdU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 05:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWIJJdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 05:34:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24841 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750807AbWIJJer
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 05:34:47 -0400
-Date: Sat, 9 Sep 2006 11:59:54 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: David Madore <david.madore@ens.fr>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: patch to make Linux capabilities into something useful (v 0.3.1)
-Message-ID: <20060909115954.GB4277@ucw.cz>
-References: <20060908225118.GB877@clipper.ens.fr> <20060909001113.97649.qmail@web36612.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Sep 2006 05:33:20 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:43185 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750791AbWIJJdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 05:33:20 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: curious <curious@zjeby.dyndns.org>
+Subject: Re: swsusp problem
+Date: Sun, 10 Sep 2006 11:33:32 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org>
+In-Reply-To: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060909001113.97649.qmail@web36612.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200609101133.32931.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > Well, I could imagine that a paranoid sysadmin might
-> > want some users'
-> > processes to run without this or that capability
-> > (perhaps
-> > CAP_REG_PTRACE or some other yet-to-be-defined
-> > capability).  This
-> > doesn't mean that they shouldn't be able to run a
-> > game which runs sgid
-> > in order to write the score file.
+On Sunday, 10 September 2006 02:13, curious wrote:
+> hello.
+> i write because swsuspend don't work for me.
+> i try to echo disk > /sys/power/state
+> and just nothing happens, i have blinking cursor and machine freezes.
 > 
-> A likely scenario might be the 3rd party program
-> that you really are sure about trusting. You
-> give it a capability set that has nothing in it
-> (hence runs without capability regardless of
-> the capabilities of the parent). That's part
-> of the rationale behind the POSIX scheme, that
-> some programs you just don't want to ever run
-> privileged, period. But POSIX only deals with
-> going "above" base, which is why I like the
-> notion of your "underprivileged" scheme as a
-> seperate addition.
+> when i enabled debug i got :
+> stopping tasks: ========|
+> Shrinking memory... done (2684 pages freed)
+> swsusp: Need to copy 1454 pages
+> swsusp: critical section/: done (1454 pages copied)
+> 
+> .... and machine just sits there , doing nothing.
+> after reboot it boots like usual.
+> 
+> machine is Ts30M Viglen Dossier 486 SM
+> kernel is 2.6.18-rc5
+> here is config : http://zjeby.dyndns.org:8242/viglen.config
 
-Well, in kernel above-priviledge and below-priviledge makes sense to
-be handled by same code. You can always create interface you prefer in
-glibc...
-						Pavel
+Could you boot the kernel with the init=/bin/bash command line argument
+and do the following:
+
+# mount /proc
+# mount /sys
+# echo 8 > /proc/sys/kernel/printk
+# swapon -a
+# echo disk > /sys/power/state
+
+and see what happens?
+
+Rafael
+
 
 -- 
-Thanks for all the (sleeping) penguins.
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

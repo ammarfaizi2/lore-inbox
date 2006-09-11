@@ -1,195 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWIKSue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWIKTBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWIKSue (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIKSue
+	id S964948AbWIKTBi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 15:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWIKTBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:50:34 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:61348 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964926AbWIKSuc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:50:32 -0400
-Subject: Re: [RFC] patch[1/1] i386 numa kva conversion to use bootmem
-	reserve
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <45037B5F.1080509@shadowen.org>
-References: <1150871711.8518.61.camel@keithlap>
-	 <45037B5F.1080509@shadowen.org>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Mon, 11 Sep 2006 11:50:28 -0700
-Message-Id: <1158000628.5755.48.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 11 Sep 2006 15:01:37 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:43130 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964948AbWIKTBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 15:01:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=txGCnvquOWLoO44MtC7JZw3f/Bi7Eg69sSDDb/cmv/Fmqz280M4R7F+Fgdn0uNcjWerlFa6P6/6l+1nj6shtdk/MrQTXfvn+TNCY4M1B9tHIV3qhSzIuYgBiVOId5I8JQZRilv/iK/CDCF5JaL0oM4B6NCoDhqX1CVSFHVCvdBc=
+Message-ID: <d120d5000609111201x6d901d2do5d3c2eb934930e4f@mail.gmail.com>
+Date: Mon, 11 Sep 2006 15:01:35 -0400
+From: "Dmitry Torokhov" <dtor@insightbb.com>
+To: "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: Re: [RFC] OLPC tablet input driver, take two.
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Marcelo Tosatti" <mtosatti@redhat.com>
+In-Reply-To: <20060911182733.GR4181@aehallh.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060829073339.GA4181@aehallh.com>
+	 <20060910201036.GD4187@aehallh.com>
+	 <200609101819.32176.dtor@insightbb.com>
+	 <20060911182733.GR4181@aehallh.com>
+X-Google-Sender-Auth: 1145a741c9a65c62
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 03:41 +0100, Andy Whitcroft wrote:
-> keith mannthey wrote:
-> > Hello,
-> >   I the current i386 numa the numa_kva (the area used to remap node
-> > local data in lowmem) space is acquired by adjusting the end of low
-> > memroy during boot. 
-> > 
-> > (from setup_memory)
-> > reserve_pages = calculate_numa_remap_pages();
-> > (then)
-> > system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
-> > 
-> > The problem this is that initrds can be trampled over (the kva can
-> > adjust system_max_low_pfn into the initrd area) This results in kernel
-> > throwing away the intird and a failed boot.  This is a long standing
-> > issue. (It has been like this at least for the last few years). 
-> > 
-> > This patch keeps the numa kva code from adjusting the end of memory and
-> > coverts it is just use the reserve_bootmem call to reserve the large
-> > amount of space needed for the numa_kva. It is mindful of initrds when
-> > present. 
-> > 
-> > This patch was built against 2.6.17-rc1 originally but applies and boots
-> > against 2.6.17 just fine.  I have only test this against the summit
-> > subarch (I don't have other i386 numa hw). 
-> > 
-> > all feedback welcome!
-> > 
-> > Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
-> > 
-> > 
-> > ------------------------------------------------------------------------
-> > 
-> > diff -urN linux-2.6.17/arch/i386/kernel/setup.c linux-2.6.17-work/arch/i386/kernel/setup.c
-> > --- linux-2.6.17/arch/i386/kernel/setup.c	2006-06-17 18:49:35.000000000 -0700
-> > +++ linux-2.6.17-work/arch/i386/kernel/setup.c	2006-06-20 23:04:37.000000000 -0700
-> > @@ -1210,6 +1210,9 @@
-> >  extern void zone_sizes_init(void);
-> >  #endif /* !CONFIG_NEED_MULTIPLE_NODES */
-> >  
-> > +#ifdef CONFIG_NUMA
-> > +extern void numa_kva_reserve(void);
-> > +#endif
-> >  void __init setup_bootmem_allocator(void)
-> >  {
-> >  	unsigned long bootmap_size;
-> > @@ -1265,7 +1268,9 @@
-> >  	 */
-> >  	find_smp_config();
-> >  #endif
-> > -
-> > +#ifdef CONFIG_NUMA
-> > +	numa_kva_reserve();
-> > +#endif 
-> >  #ifdef CONFIG_BLK_DEV_INITRD
-> >  	if (LOADER_TYPE && INITRD_START) {
-> >  		if (INITRD_START + INITRD_SIZE <= (max_low_pfn << PAGE_SHIFT)) {
-> > diff -urN linux-2.6.17/arch/i386/mm/discontig.c linux-2.6.17-work/arch/i386/mm/discontig.c
-> > --- linux-2.6.17/arch/i386/mm/discontig.c	2006-06-17 18:49:35.000000000 -0700
-> > +++ linux-2.6.17-work/arch/i386/mm/discontig.c	2006-06-20 23:11:49.000000000 -0700
-> > @@ -118,7 +118,8 @@
-> >  
-> >  void *node_remap_end_vaddr[MAX_NUMNODES];
-> >  void *node_remap_alloc_vaddr[MAX_NUMNODES];
-> > -
-> > +static unsigned long kva_start_pfn;
-> > +static unsigned long kva_pages;
-> >  /*
-> >   * FLAT - support for basic PC memory model with discontig enabled, essentially
-> >   *        a single node with all available processors in it with a flat
-> > @@ -287,7 +288,6 @@
-> >  {
-> >  	int nid;
-> >  	unsigned long system_start_pfn, system_max_low_pfn;
-> > -	unsigned long reserve_pages;
-> >  
-> >  	/*
-> >  	 * When mapping a NUMA machine we allocate the node_mem_map arrays
-> > @@ -299,14 +299,23 @@
-> >  	find_max_pfn();
-> >  	get_memcfg_numa();
-> >  
-> > -	reserve_pages = calculate_numa_remap_pages();
-> > +	kva_pages = calculate_numa_remap_pages();
-> >  
-> >  	/* partially used pages are not usable - thus round upwards */
-> >  	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
-> >  
-> > -	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
-> > -	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
-> > -			reserve_pages, max_low_pfn + reserve_pages);
-> > +	kva_start_pfn = find_max_low_pfn() - kva_pages;
-> > +
-> > +#ifdef CONFIG_BLK_DEV_INITRD
-> > +	/* Numa kva area is below the initrd */
-> > +	if (LOADER_TYPE && INITRD_START) 
-> > +		kva_start_pfn = PFN_DOWN(INITRD_START)  - kva_pages;
-> > +#endif 
-> > +	kva_start_pfn -= kva_start_pfn & (PTRS_PER_PTE-1);
-> > +
-> > +	system_max_low_pfn = max_low_pfn = find_max_low_pfn();
-> > +	printk("kva_start_pfn ~ %ld find_max_low_pfn() ~ %ld\n", 
-> > +		kva_start_pfn, max_low_pfn);
-> >  	printk("max_pfn = %ld\n", max_pfn);
-> >  #ifdef CONFIG_HIGHMEM
-> >  	highstart_pfn = highend_pfn = max_pfn;
-> > @@ -324,7 +333,7 @@
-> >  			(ulong) pfn_to_kaddr(max_low_pfn));
-> >  	for_each_online_node(nid) {
-> >  		node_remap_start_vaddr[nid] = pfn_to_kaddr(
-> > -				highstart_pfn + node_remap_offset[nid]);
-> > +				kva_start_pfn + node_remap_offset[nid]);
-> >  		/* Init the node remap allocator */
-> >  		node_remap_end_vaddr[nid] = node_remap_start_vaddr[nid] +
-> >  			(node_remap_size[nid] * PAGE_SIZE);
-> > @@ -339,7 +348,6 @@
-> >  	}
-> >  	printk("High memory starts at vaddr %08lx\n",
-> >  			(ulong) pfn_to_kaddr(highstart_pfn));
-> > -	vmalloc_earlyreserve = reserve_pages * PAGE_SIZE;
-> >  	for_each_online_node(nid)
-> >  		find_max_pfn_node(nid);
-> >  
-> > @@ -349,6 +357,12 @@
-> >  	return max_low_pfn;
-> >  }
-> >  
-> > +void __init numa_kva_reserve (void) 
-> > +{
-> > +	reserve_bootmem(PFN_PHYS(kva_start_pfn),PFN_PHYS(kva_pages));
-> > +
-> > +}
-> > +
-> >  void __init zone_sizes_init(void)
-> >  {
-> >  	int nid;
-> 
-> The primary reason that the mem_map is cut from the end of ZONE_NORMAL
-> is so that memory that would back that stolen KVA gets pushed out into
-> ZONE_HIGHMEM, the boundary between them is moved down.  By using
-> reserve_bootmem we will mark the pages which are currently backing the
-> KVA you are 'reusing' as reserved and prevent their release; we pay
-> double for the mem_map.
+On 9/11/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> On Sun, Sep 10, 2006 at 06:19:31PM -0400, Dmitry Torokhov wrote:
+> > >
+> > > @@ -616,6 +617,15 @@ static int psmouse_extensions(struct psm
+> > >   */
+> > >                     max_proto = PSMOUSE_IMEX;
+> > >             }
+> > > +           ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+> >
+> > Do we have to do 2nd reset here? Plus logic seems a bit fuzzy here -
+> > if ALPS is detected but initizliztion fails it will start OLPC detection
+> > which is probably not what you wanted...
+>
+> Reset is _probably_ not necessary, I'll verify.
+>
+> However the logic is the same as for all the others, if init succeeds,
+> it returns PSMOUSE_ALPS, if it doesn't then it continues on to the next,
+> which happens to be olpc, admittedly it would be more obvious that it's
+> doing the same thing if it was in its own if, but.
 
-Perhaps just freeing the reserve pages and remapping them at an
-appropriate time could accomplish this?  Sorry I don't know the KVA
-"freeing" path can you describe it a little more?  When are these pages
-returned to the system?  It was my understanding that that KVA pages
-were lost (the original wayu shrinks ZONE_NORMAL and creates a hole
-between the zones).
+Not exactly. We have 2 types of protocols - some have only detect,
+others have both detect and init. For protocols that have both detect
+and init we expect detect to reliably identify whether the device is
+of given type or not and once detect succeeds we do not try to probe
+for other speciality protocols. For example if alps_detect succeeds
+but alps_init fails we won't try Genius detection (we will only try
+standard imex, exps and bare) and we should not try OLPC detection
+either.
 
-> If the initrd's are falling into this space, can we not allocate some
-> bootmem for those and move them out of our way?  As filesystem images
-> they are essentially location neutral so this should be safe?
-
-AFAIK bootloaders choose where map initrds.  Grub seems to put it around
-the top of ZONE_NORMAL but it is pretty free to map it where it wants. I
-suppose INITRD_START INITRD_END and all that could be dynamic and moved
-around a bit but it seems a little messy. I would rather see the special
-case (i386 numa the rare beast it is) jump thought a few extra hoops
-than to muck with the initrd code. 
-  
-Thanks,
-  Keith 
-
+-- 
+Dmitry

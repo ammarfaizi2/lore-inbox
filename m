@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWIKTQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWIKTWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWIKTQB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 15:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWIKTQB
+	id S964938AbWIKTWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 15:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWIKTWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 15:16:01 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:17149 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964969AbWIKTQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 15:16:00 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Misha Tomushev" <misha@fabric7.com>
-Subject: Re: [PATCH] VIOC: New Network Device Driver
-Date: Mon, 11 Sep 2006 21:15:52 +0200
-User-Agent: KMail/1.9.1
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <003c01c6d5cb$e00fd850$7501a8c0@ZINLAPTOP>
-In-Reply-To: <003c01c6d5cb$e00fd850$7501a8c0@ZINLAPTOP>
+	Mon, 11 Sep 2006 15:22:17 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:9132 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964938AbWIKTWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 15:22:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cJva9N/4Q5UVnSAgD5ckwLMfxwj0fpnJgM6giz/hb9e6lJEpA22wuX7MKF8QefbpKRxKmjN+/fzy9/qDjj5REP3tzk/xh+52qdvnFKT7zxBirXHEU+ZivpcBOD+kihH6vnjfp9IUX05OVNBTkmxqb71iRlsJ5Zgbaq/+QraqcFc=
+Message-ID: <9a8748490609111222w2dd313e3hc64cb36bca7f646a@mail.gmail.com>
+Date: Mon, 11 Sep 2006 21:22:15 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, "Jesper Juhl" <jesper.juhl@gmail.com>,
+       linux-kernel@vger.kernel.org, "Rickard Faith" <faith@redhat.com>
+Subject: Re: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
+In-Reply-To: <20060911160328.GJ4743@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609112115.53520.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+References: <200609111715.17080.jesper.juhl@gmail.com>
+	 <20060911160328.GJ4743@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 September 2006 19:58, Misha Tomushev wrote:
-> The descriptor clean-up does not contribute anything to the performance
-> of the driver, it just replenishes the memory pools. It almost does not
-> need interrupts. Why would we want to add more cycles to the receive
-> logic, when driver is doing useful work for something that can run
-> almost at any time?
+On 11/09/06, Dave Jones <davej@redhat.com> wrote:
+> On Mon, Sep 11, 2006 at 05:15:16PM +0200, Jesper Juhl wrote:
+>  >
+>  > kauditd_thread() is being used in a call to kthread_run(). kthread_run() expects
+>  > a function returning 'int' which is also how kauditd_thread() is declared. Unfortunately
+>  > kauditd_thread() neglects to return a value which results in this complaint from gcc :
+>  >
+>  >   kernel/audit.c:372: warning: no return statement in function returning non-void
+>  >
+>  > Easily fixed by just adding a 'return 0;' to kauditd_thread().
+>
+> Which will never be reached.
 
-It can run at almost any time, just not in the interrupt context,
-where it needs to schedule the tx softirq first.
+True, and gcc even seems to optimize it out, since the size of audit.o
+doesn't change with the patch applied... So, it does no harm and it
+silences the warning - so why not?
+I guess one could add a small /* never reached */ comment...
 
-Also, the number of tx interrupts you get is a tradeoff between
-causing overhead of calling the interrupt handler and stalling
-sockets that are waiting for space to become free after transmission.
-By using ->poll for it, you can avoid tx interrupts completely
-most of the time and free skbs immediately when data comes in.
 
-	Arnd <><
+> Does marking the function NORET_TYPE
+> also silence the warning?
+>
+
+Nope :(
+
+This is with gcc 4.1.1 btw.
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

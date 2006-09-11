@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWIKMD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWIKMcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWIKMD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 08:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWIKMD1
+	id S1751438AbWIKMcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 08:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWIKMcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 08:03:27 -0400
-Received: from tresys.irides.com ([216.250.243.126]:36721 "HELO
-	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
-	id S1751320AbWIKMD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 08:03:26 -0400
-Message-ID: <4505508A.1060105@gentoo.org>
-Date: Mon, 11 Sep 2006 08:03:22 -0400
-From: Joshua Brindle <method@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Mon, 11 Sep 2006 08:32:14 -0400
+Received: from pc1.pod.cz ([213.155.227.146]:48793 "EHLO pc11.op.pod.cz")
+	by vger.kernel.org with ESMTP id S1751439AbWIKMcN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 08:32:13 -0400
+Date: Mon, 11 Sep 2006 14:32:09 +0200
+From: Vitezslav Samel <samel@mail.cz>
+To: Metathronius Galabant <m.galabant@googlemail.com>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: top displaying 50% si time and 50% idle on idle machine
+Message-ID: <20060911123209.GA29119@pc11.op.pod.cz>
+Mail-Followup-To: Metathronius Galabant <m.galabant@googlemail.com>,
+	Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <1b270aae0609071108h22bc10b0v5d2227abfc66c53c@mail.gmail.com> <20060907175323.57a5c6b0.akpm@osdl.org> <1b270aae0609081403u11b76ae9v72ad933475a2319f@mail.gmail.com> <20060908224752.GK8793@ucw.cz> <1b270aae0609110405r183748d2y753c0e846229f1d0@mail.gmail.com> <1b270aae0609110449m2f71495cna78a6cb17e7ca649@mail.gmail.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: David Madore <david.madore@ens.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part
- 3/4: introduce new capabilities
-References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <20060910160953.GA6430@clipper.ens.fr> <Pine.LNX.4.64.0609110402250.15565@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0609110402250.15565@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0636-3, 09/08/2006), Outbound message
-X-Antivirus-Status: Clean
-X-OriginalArrivalTime: 11 Sep 2006 12:03:26.0068 (UTC) FILETIME=[49745B40:01C6D59A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1b270aae0609110449m2f71495cna78a6cb17e7ca649@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Sun, 10 Sep 2006, David Madore wrote:
->
->   
->> Can a non-root user create limited-rights processes without assistance
->> from the sysadmin, under SElinux?
->>     
->
-> SELinux uses a restrictive model, where privileges can only be removed, 
-> not added.
->
->   
-I think he was asking if a non-admin user can create processes of less 
-privilege without becoming root. The answer is yes, however, it is 
-policy driven. Users will have numerous 'derived' types that are less 
-privilege than, for example, their interactive shell. For example, 
-user_irc_t or user_evolution_t. The transitions will happen when the 
-user runs irc or evolution and those apps will be limited to the rights 
-they require. These are fine grained though, and mandatory. These 
-capabilities are so course grained I just can't see anyone ever using them.
+On Mon, Sep 11, 2006 at 01:49:57PM +0200, Metathronius Galabant wrote:
+> >>>>>Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 50.0% id,  0.0%
+> >>>>>wa,  0.0% hi, 50.0%si
+> >
+> >>> BTW what means si? (interrupt service time? google
+> >>> didn't find anything)
+> >
+> >> 'soft interrupt' probably. try disconnecting network.
+> >
+> >The cause has been found. The timer of that machine is seriously
+> >broken, 1 second is approximately 500ms long.
+> >It is a HP DL360 G4 and I configured the kernel without ACPI or
+> >similar. Maybe there are some strange BIOS power management schemes
+> >active. I will look deeper into the problem and report back.
+> >A broken timer is _very_ strange to me (I didn't encounter that in the
+> >last 12 years w/ custom kernels).
+
+  Try 2.6.18-rc6, there is a fix included (see Changelog:
+"[PATCH] x86: increase MAX_MP_BUSSES on default arch")
+
+	Cheers,
+		Vita

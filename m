@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWIKFya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWIKFy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWIKFya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWIKFya
+	id S964889AbWIKFy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWIKFy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:54:30 -0400
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:6788 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964893AbWIKFy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:54:28 -0400
-Date: Mon, 11 Sep 2006 01:51:26 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Menuconfig won't draw lines on my terminal?
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Roman Zippel <zippel@linux-m68k.org>
-Message-ID: <200609110152_MC3-1-CAD7-1E87@compuserve.com>
+	Mon, 11 Sep 2006 01:54:26 -0400
+Received: from ns2.suse.de ([195.135.220.15]:14546 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964889AbWIKFyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 01:54:25 -0400
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: Split multi-line printk in oops output.
+Date: Mon, 11 Sep 2006 07:44:15 +0200
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060911030721.GA4733@redhat.com>
+In-Reply-To: <20060911030721.GA4733@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200609110744.15450.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using PuTTY as SSH client, I get ASCII chars instead of lines when
-I use menuconfig:
 
- Linux Kernel v2.6.18-rc6 Configuration
- qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
-  lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq Linux Kernel Configuration qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk
-  x  Arrow keys navigate the menu.  <Enter> selects submenus --->.  Highlighted letters are     x
-  x  hotkeys.  Pressing <Y> includes, <N> excludes, <M> modularizes features.  Press <Esc><Esc> x
-  x  to exit, <?> for Help, </> for Search.  Legend: [*] built-in  [ ] excluded  <M> module     x
-  x  < > module capable                                                                         x
-  x lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk x
-  x x             Code maturity level options  --->                                           x x
-  x x             General setup  --->                                                         x x
-  x x             Loadable module support  --->                                               x x
+>  	print_modules();
+> -	printk(KERN_EMERG "CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\n"
+> -			"EFLAGS: %08lx   (%s %.*s) \n",
+> -		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
+> -		print_tainted(), regs->eflags, system_utsname.release,
+> +	printk(KERN_EMERG "CPU:    %d\n", smp_processor_id());
+> +	printk(KERN_EMERG "EIP:    %04x:[<%08lx>]    %s VLI\n",
+> +		0xffff & regs->xcs, regs->eip, print_tainted());
+> +	printk(KERN_EMERG "EFLAGS: %08lx   (%s %.*s)\n",
 
+Still only using a single printk would be slightly safer
 
-This happens on both Fedora Core 2 and 5.  Midnight Commander draws lines,
-so I know the characters are in the font.
-
--- 
-Chuck
-
+-Andi

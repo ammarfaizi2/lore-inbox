@@ -1,109 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWIKW5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWIKW73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWIKW5o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 18:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWIKW5o
+	id S932308AbWIKW73 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 18:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWIKW73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 18:57:44 -0400
-Received: from gate.crashing.org ([63.228.1.57]:40628 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932307AbWIKW5n (ORCPT
+	Mon, 11 Sep 2006 18:59:29 -0400
+Received: from smtp.ono.com ([62.42.230.12]:36451 "EHLO resmta03.ono.com")
+	by vger.kernel.org with ESMTP id S932308AbWIKW72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 18:57:43 -0400
-Subject: Re: [RFC] MMIO accessors & barriers documentation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>
-In-Reply-To: <4505DB10.7080807@pobox.com>
-References: <1157947414.31071.386.camel@localhost.localdomain>
-	 <200609111139.35344.jbarnes@virtuousgeek.org>
-	 <1158011129.3879.69.camel@localhost.localdomain>
-	 <4505DB10.7080807@pobox.com>
-Content-Type: text/plain
-Date: Tue, 12 Sep 2006 08:56:34 +1000
-Message-Id: <1158015394.3879.82.camel@localhost.localdomain>
+	Mon, 11 Sep 2006 18:59:28 -0400
+Date: Tue, 12 Sep 2006 00:59:27 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: libata sr0 not automounted
+Message-ID: <20060912005927.73f9a19c@werewolf.auna.net>
+X-Mailer: Sylpheed-Claws 2.4.0cvs172 (GTK+ 2.10.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 17:54 -0400, Jeff Garzik wrote:
-> Benjamin Herrenschmidt wrote:
-> > Ah ? What about the comment in e1000 saying that it needs a wmb()
-> > between descriptor updates in memory and the mmio to kick them ? That
-> > would typically be a memory_to_io_wb(). Or are your MMIOs ordered cs.
-> > your cacheable stores ?
-> 
-> That's likely just following existing practice found in many network 
-> drivers.  The following two design patterns have been copied across a 
-> great many network drivers:
+Hi...
 
-Well, I was mentioning that one specifically because this comment:
+My 2 ATA cd-roms, drived with libata, are not auto-mounted in gnome.
+How can I debug this ?
+Can I se if the kernel sends the correct events ?
 
-        /* Force memory writes to complete before letting h/w
-         * know there are new descriptors to fetch.  (Only
-         * applicable for weak-ordered memory model archs,
-         * such as IA-64). */
+udevmonitor says this when a zip disk is inserted and ejected:
 
-Which made me ask wether, ia64 was or was not ordering memory store
-followed by MMIO store, that is does ia64 -current- accessors provide
-rule #2 (memory W + MMIO W) currently or not and would it benefit from
-not having to provide it with my new partially relaxed accessors ?
+werewolf:/home/magallon# udevmonitor
+udevmonitor prints the received event from the kernel [UEVENT]
+and the event which udev sends out after rule processing [UDEV]
 
-> 1) When in a loop, reading through a DMA ring, put an "rmb()" at the top 
-> of the loop, to ensure that the compiler does not optimize out all 
-> memory loads after the first.
+UEVENT[1158015418.725812] add@/block/sda/sda1
+UDEV  [1158015419.262449] add@/block/sda/sda1
+UEVENT[1158015420.057831] mount@/block/sda/sda1
+UDEV  [1158015420.058905] mount@/block/sda/sda1
+UEVENT[1158015428.923382] umount@/block/sda/sda1
+UDEV  [1158015428.924473] umount@/block/sda/sda1
 
-and rmb is heavy handed for a compiler barrier :) what you might need on
-some platforms is an rmb between the MMIO read of whatever status/index
-register and the following memory reads of descriptors, and you may want
-an rmb in case where it matters if the chip has been changing a value
-behind your back (which it generally doesn't) but that's pretty much
-it.... 
+It says nothing when I insert a CD in the readers.
 
-> 2) Use "wmb()" to ensure that just-written-to memory is visible to a PCI 
-> device that will be reading said memory region via DMA.
+Any idea ?
+Should it generate an event for sr0 ?
 
-That will definitely help on PowerPC with our current accessors which
-are mostly ordered except for that rule #2 I mentioned above.
+TIA
 
-> I don't claim that either of these is correct, just that's existing 
-> practice, perhaps in some case perpetuated by my own arch ignorance.
-
-No worries :) That's also why I'm trying to describe precisely what
-semantics are provided by the MMIO accessors with real world examples in
-a way that is not arch dependant. The 4 "rules" I've listed in the first
-part are precisely what should be needed for drivers, then I list the
-accessors and what rules they are guaranteed to comply with, then I list
-the barriers allowing to implement those ordering rules when the
-accessors don't.
-
-> So, in a perfect world where I was designing my own API, I would create 
-> two new API functions:
-> 
-> prepare_to_read_dma_memory()
-> 	and
-> make_memory_writes_visible_to_dmaing_devices()
->
-> and leave the existing APIs untouched.  Those are the two fundamental 
-> operations that are needed.
-
-Well, the argument currently is to make writel and readl imply the above
-barriers by making them fully ordered (and slow on some platforms) and
-so also provide more weakly ordered routines along with barriers for
-people who know what they do. The above 2 barriers are what I've called
-io_to_memory_rb() and memory_to_io_wb() (actually,
-prepare_to_read_dma_memory() by itself doesn't really make much sense.
-It does in conjunction with an MMIO read to flush DMA buffers, in which
-case the barrier provides an ordering guarantee that the memory reads
-will only be performed after the MMIO read has fully completed).
-
-Ben.
-
-
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam09 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT

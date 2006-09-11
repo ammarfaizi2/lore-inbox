@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWIKQAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWIKQBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWIKQAG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 12:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWIKQAG
+	id S964912AbWIKQBb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 12:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWIKQBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 12:00:06 -0400
-Received: from web36614.mail.mud.yahoo.com ([209.191.85.31]:55139 "HELO
-	web36614.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964947AbWIKQAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 12:00:04 -0400
-Message-ID: <20060911160002.78419.qmail@web36614.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Mon, 11 Sep 2006 09:00:02 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: capability inheritance (was: Re: patch to make Linux capabilities into something useful (v 0.3.1))
-To: David Madore <david.madore@ens.fr>
-Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060910142540.GA19804@clipper.ens.fr>
+	Mon, 11 Sep 2006 12:01:31 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:13985 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S964912AbWIKQBa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 12:01:30 -0400
+Date: Mon, 11 Sep 2006 17:52:39 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       Daniel Quinlan <quinlan@pathname.com>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Prevent legacy io access on pmac
+Message-ID: <20060911155239.GA25534@aepfle.de>
+References: <20060911115354.GA23884@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060911115354.GA23884@aepfle.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 11, Olaf Hering wrote:
 
-
---- David Madore <david.madore@ens.fr> wrote:
-
-> I can see no way of reconciling the POSIX rules with
-> sane Unix behavior.
-
-While one strives to maintain the decorum of
-friendly debate, "Them's fighting words"*.
-
-Have you read the POSIX DRAFT rationale section?
-Have you read any of the DRAFT, for that matter?
-
-Breaking privilege apart from UID==0 and the
-setuid mechanism while allowing a system that
-could still work without requiring programs
-to be rewritten took quite a while. The DRAFT
-versions don't differ that greatly after about
-DRAFT 12. The scheme has been implemented
-several times.
-
-> Hence I can only give up if someone
-> insists that the POSIX
-> draft should be adhered to.
 > 
-> (Just in case someone were tempted to get away with
-> a handwaving such
-> as "just follow the POSIX rules except for suid
-> root...", let that
-> someone please try to come up with a full
-> description of the rules
-> which breaks nothing, and he will understand that
-> it's not at all easy.)
+> The ppc32 common config runs also on PReP/CHRP, which uses PC style IO
+> devices.  The probing is bogus, it crashes or floods dmesg.
+> 
+> ppc can boot one single binary on prep, chrp and pmac boards.
+> ppc64 can boot one single binary on pseries and G5 boards.
+> pmac has no legacy io, probing for PC style legacy hardware leads to a
+> hard crash:
 
-The relationship between setuid and file based
-capabilitiy sets is straitforward. There is
-none. If your system supports root or capability
-(like Irix) or strictly capability (like Trix)
-the calculation is identical. There is a full
-descrition of the rules in the DRAFT. If you
-have questions about it, I'd be happy to dust
-off my copy to help you understand it.
-
-----
-* Yosemite Sam in "High Diving Hare", 1949
-
-Casey Schaufler
-casey@schaufler-ca.com
+drivers/input/touchscreen/mk712.c pokes at 0x262 and other IO ports.
+A comment in the driver suggests that it is only used on Gateway
+computers. Should the driver be X86 only?

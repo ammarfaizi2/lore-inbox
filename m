@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWIKMcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWIKMpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWIKMcO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 08:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWIKMcO
+	id S964790AbWIKMpS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 08:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWIKMpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 08:32:14 -0400
-Received: from pc1.pod.cz ([213.155.227.146]:48793 "EHLO pc11.op.pod.cz")
-	by vger.kernel.org with ESMTP id S1751439AbWIKMcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 08:32:13 -0400
-Date: Mon, 11 Sep 2006 14:32:09 +0200
-From: Vitezslav Samel <samel@mail.cz>
-To: Metathronius Galabant <m.galabant@googlemail.com>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: top displaying 50% si time and 50% idle on idle machine
-Message-ID: <20060911123209.GA29119@pc11.op.pod.cz>
-Mail-Followup-To: Metathronius Galabant <m.galabant@googlemail.com>,
-	Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <1b270aae0609071108h22bc10b0v5d2227abfc66c53c@mail.gmail.com> <20060907175323.57a5c6b0.akpm@osdl.org> <1b270aae0609081403u11b76ae9v72ad933475a2319f@mail.gmail.com> <20060908224752.GK8793@ucw.cz> <1b270aae0609110405r183748d2y753c0e846229f1d0@mail.gmail.com> <1b270aae0609110449m2f71495cna78a6cb17e7ca649@mail.gmail.com>
+	Mon, 11 Sep 2006 08:45:18 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:32959 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964790AbWIKMpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 08:45:16 -0400
+Date: Mon, 11 Sep 2006 08:41:03 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Cache line size
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       John Richard Moser <nigelenki@comcast.net>
+Message-ID: <200609110842_MC3-1-CAD5-5E83@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1b270aae0609110449m2f71495cna78a6cb17e7ca649@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 01:49:57PM +0200, Metathronius Galabant wrote:
-> >>>>>Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 50.0% id,  0.0%
-> >>>>>wa,  0.0% hi, 50.0%si
-> >
-> >>> BTW what means si? (interrupt service time? google
-> >>> didn't find anything)
-> >
-> >> 'soft interrupt' probably. try disconnecting network.
-> >
-> >The cause has been found. The timer of that machine is seriously
-> >broken, 1 second is approximately 500ms long.
-> >It is a HP DL360 G4 and I configured the kernel without ACPI or
-> >similar. Maybe there are some strange BIOS power management schemes
-> >active. I will look deeper into the problem and report back.
-> >A broken timer is _very_ strange to me (I didn't encounter that in the
-> >last 12 years w/ custom kernels).
+In-Reply-To: <20060911053144.GB18727@redhat.com>
 
-  Try 2.6.18-rc6, there is a fix included (see Changelog:
-"[PATCH] x86: increase MAX_MP_BUSSES on default arch")
+On Mon, 11 Sep 2006 01:31:44 -0400, Dave Jones wrote:
 
-	Cheers,
-		Vita
+> > > Is there a way for the Linux Kernel to know the cache line size of the
+> > > CPU it's on, besides #define X86_CACHE_LINE_SZ 32 or whatnot?
+> > 
+> > /sys/devices/system/cpu/cpu<N>/cache
+>
+> Hmm..
+>
+> $ find /sys/ -name cache
+> $
+>
+> That's on 2.6.18rc6.  Is this some -mm only feature?
+
+Looks like it's only there on Intel CPUs with CPUID level >= 0x00000004
+and AMD CPUs with extended CPUID level >= 0x80000006, like this one:
+
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 72
+
+It's not there on:
+
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 6
+
+Oh well...  
+
+-- 
+Chuck
+

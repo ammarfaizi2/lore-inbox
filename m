@@ -1,211 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWIKS1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWIKSaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWIKS1i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWIKS1i
+	id S932276AbWIKSaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 14:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWIKSaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:27:38 -0400
-Received: from spock.bluecherry.net ([66.138.159.248]:46984 "EHLO
-	spock.bluecherry.net") by vger.kernel.org with ESMTP
-	id S932294AbWIKS1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:27:37 -0400
-Date: Mon, 11 Sep 2006 14:27:33 -0400
-From: "Zephaniah E. Hull" <warp@aehallh.com>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [RFC] OLPC tablet input driver, take two.
-Message-ID: <20060911182733.GR4181@aehallh.com>
-Mail-Followup-To: Dmitry Torokhov <dtor@insightbb.com>,
-	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <mtosatti@redhat.com>
-References: <20060829073339.GA4181@aehallh.com> <20060910201036.GD4187@aehallh.com> <200609101819.32176.dtor@insightbb.com>
+	Mon, 11 Sep 2006 14:30:10 -0400
+Received: from soloth.lewis.org ([69.28.69.2]:2727 "EHLO soloth.lewis.org")
+	by vger.kernel.org with ESMTP id S932276AbWIKSaI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 14:30:08 -0400
+Date: Mon, 11 Sep 2006 14:29:58 -0400 (EDT)
+From: Jon Lewis <jlewis@remove2reply.lewis.org>
+X-X-Sender: jlewis@soloth.lewis.org
+To: Perego Paolo Franco <p.perego@reply.it>, linux-kernel@vger.kernel.org
+cc: Hadmut Danisch <hadmut@danisch.de>, bugtraq@securityfocus.com
+Subject: Re: R: Linux kernel source archive vulnerable
+In-Reply-To: <D432C2F98B6D1B4BAE47F2770FEFD6B612B8B7@to1mbxs02.replynet.prv>
+Message-ID: <Pine.LNX.4.61.0609111334460.2498@soloth.lewis.org>
+References: <20060907182304.GA10686@danisch.de>
+ <D432C2F98B6D1B4BAE47F2770FEFD6B612B8B7@to1mbxs02.replynet.prv>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VnOTrGv5LmZxna7m"
-Content-Disposition: inline
-In-Reply-To: <200609101819.32176.dtor@insightbb.com>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-milter-ns-Report: remove2reply.lewis.org; NS 31954 ns1.atlantic.net. [209.208.0.7]; NS 31954 ns2.atlantic.net. [209.208.42.140]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Sep 2006, Perego Paolo Franco wrote:
 
---VnOTrGv5LmZxna7m
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Anyway just few considerations:
+> 2) a good sysadmin is aware that /usr/src is NOT supposed to be world 
+> writable
 
-On Sun, Sep 10, 2006 at 06:19:31PM -0400, Dmitry Torokhov wrote:
-> On Sunday 10 September 2006 16:10, Zephaniah E. Hull wrote:
-> > Take two, with most of the items people commented about addressed.
-> > 
-> 
-> Hi Zephaniah,
-> 
-> I have couple more comments/requests:
-> 
-> > 
-> > +
-> > +	if (gs_down) {
-> > +		input_report_abs(dev2, ABS_X, gx);
-> > +		input_report_abs(dev2, ABS_Y, gy);
-> > +	}
-> > +	input_report_abs(dev2, ABS_PRESSURE, gz);
-> > +
-> > +	if (pt_down) {
-> > +		input_report_abs(dev, ABS_X, px);
-> > +		input_report_abs(dev, ABS_Y, py);
-> > +	}
-> > +
-> > +	input_sync(dev);
-> 
-> Please add input_sync(dev2);
+Ownership/permissions on /usr/src are irrelevant.  For some reason (bug in 
+how they're being checked out of git, I assume), the latest kernel source 
+tar files have all files and directories world writable.  This is not how 
+it's been in the past and is not how it should be.
 
-Whoops, bizarrely it still worked, but fixed.
-> 
-> > +}
-> > +
-> > +static psmouse_ret_t olpc_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-> > +{
-> > +	struct olpc_data *priv = psmouse->private;
-> > +	psmouse_ret_t ret = PSMOUSE_BAD_DATA;
-> > +
-> > +	if ((psmouse->packet[0] & priv->i->mask0) != priv->i->byte0) {
-> > +		ret = PSMOUSE_BAD_DATA;
-> 
-> It looks like you can kill "ret = PSMOUSE_BAD_DATA" assignments since you
-> initialize ret with it.
+The change happened between 2.6.13.3 and 2.6.13.4.
 
-Done.
-> 
-> > +		goto out;
-> > +	}
-> > +
-> > +	/* Bytes 2 - 9 should have 0 in the highest bit */
-> > +	if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 9 &&
-> > +		(psmouse->packet[psmouse->pktcnt - 1] & 0x80)) {
-> > +	    ret = PSMOUSE_BAD_DATA;
-> > +	    goto out;
-> > +	}
-> 
-> I'd like to have standard identation throughout the driver (and input
-> sybsystem in general).
+$ tar -tvjf /var/ftp/pub/Linux/ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.3.tar.bz2 | less
+tar: Record size = 8 blocks
+drwxr-xr-x git/git           0 2005-10-03 19:27:35 linux-2.6.13.3/
+-rw-r--r-- git/git       18691 2005-10-03 19:27:35 linux-2.6.13.3/COPYING
+-rw-r--r-- git/git       89317 2005-10-03 19:27:35 linux-2.6.13.3/CREDITS
+drwxr-xr-x git/git           0 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/
+-rw-r--r-- git/git       10244 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/00-INDEX
+-rw-r--r-- git/git        3699 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/BUG-HUNTING
+-rw-r--r-- git/git       13072 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/Changes
+-rw-r--r-- git/git       15351 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/CodingStyle
+-rw-r--r-- git/git       20407 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/DMA-API.txt
+-rw-r--r-- git/git       31996 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/DMA-mapping.txt
+drwxr-xr-x git/git           0 2005-10-03 19:27:35 linux-2.6.13.3/Documentation/DocBook/
 
-Whoops, fixed.
->  
-> > +
-> > +#ifndef _OLPC_H
-> > +#define _OLPC_H
-> > +
-> > +int olpc_detect(struct psmouse *psmouse, int set_properties);
-> > +int olpc_init(struct psmouse *psmouse);
-> > +
-> > +struct olpc_model_info {
-> > +        unsigned char signature[3];
-> > +        unsigned char byte0, mask0;
-> > +        unsigned char flags;
-> > +};
-> 
-> Hard TABs for identation please.
+$ tar -tvjf /var/ftp/pub/Linux/ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.4.tar.bz2 | less
+tar: Record size = 8 blocks
+drwxr-xr-x git/git           0 2005-10-10 14:54:29 linux-2.6.13.4/
+-rw-rw-rw- git/git       18691 2005-10-10 14:54:29 linux-2.6.13.4/COPYING
+-rw-rw-rw- git/git       89317 2005-10-10 14:54:29 linux-2.6.13.4/CREDITS
+drwxrwxrwx git/git           0 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/
+-rw-rw-rw- git/git       10244 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/00-INDEX
+-rw-rw-rw- git/git        3699 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/BUG-HUNTING
+-rw-rw-rw- git/git       13072 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/Changes
+-rw-rw-rw- git/git       15351 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/CodingStyle
+-rw-rw-rw- git/git       20407 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/DMA-API.txt
+-rw-rw-rw- git/git       31996 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/DMA-mapping.txt
+drwxrwxrwx git/git           0 2005-10-10 14:54:29 linux-2.6.13.4/Documentation/DocBook/
 
-Done.
-> 
-> > +
-> > +struct olpc_data {
-> > +	struct input_dev *dev2;		/* Relative device */
-> > +	char name[32];			/* Name */
-> > +	char phys[32];			/* Phys */
-> > +	const struct olpc_model_info *i;/* Info */
-> > +};
-> > +
-> > +
-> > +#endif
-> > diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> > index 8bc9f51..20060b0 100644
-> > --- a/drivers/input/mouse/psmouse-base.c
-> > +++ b/drivers/input/mouse/psmouse-base.c
-> > @@ -26,6 +26,7 @@
-> >  #include "synaptics.h"
-> >  #include "logips2pp.h"
-> >  #include "alps.h"
-> > +#include "olpc.h"
-> >  #include "lifebook.h"
-> >  #include "trackpoint.h"
-> >  
-> > @@ -616,6 +617,15 @@ static int psmouse_extensions(struct psm
-> >   */
-> >  			max_proto = PSMOUSE_IMEX;
-> >  		}
-> > +		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-> 
-> Do we have to do 2nd reset here? Plus logic seems a bit fuzzy here -
-> if ALPS is detected but initizliztion fails it will start OLPC detection
-> which is probably not what you wanted...
+In the very latest, even the source tree's root is 777.
 
-Reset is _probably_ not necessary, I'll verify.
+$ tar -tvjf /var/ftp/pub/Linux/ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.13.tar.bz2 | less
+tar: Record size = 8 blocks
+drwxrwxrwx git/git           0 2006-09-08 23:23:25 linux-2.6.17.13/
+-rw-rw-rw- git/git         462 2006-09-08 23:23:25 linux-2.6.17.13/.gitignore
+-rw-rw-rw- git/git       18693 2006-09-08 23:23:25 linux-2.6.17.13/COPYING
+-rw-rw-rw- git/git       89536 2006-09-08 23:23:25 linux-2.6.17.13/CREDITS
+drwxrwxrwx git/git           0 2006-09-08 23:23:25 linux-2.6.17.13/Documentation/
+-rw-rw-rw- git/git       10581 2006-09-08 23:23:25 linux-2.6.17.13/Documentation/00-INDEX
+-rw-rw-rw- git/git        7249 2006-09-08 23:23:25 linux-2.6.17.13/Documentation/BUG-HUNTING
+-rw-rw-rw- git/git       11655 2006-09-08 23:23:25 linux-2.6.17.13/Documentation/Changes
 
-However the logic is the same as for all the others, if init succeeds,
-it returns PSMOUSE_ALPS, if it doesn't then it continues on to the next,
-which happens to be olpc, admittedly it would be more obvious that it's
-doing the same thing if it was in its own if, but.
->  
-> > +		if (olpc_detect(psmouse, set_properties) == 0) {
-> > +			if (!set_properties || olpc_init(psmouse) == 0)
-> > +				return PSMOUSE_OLPC;
-> > +/*
-> > + * Init failed, try basic relative protocols
-> > + */
-> > +			max_proto = PSMOUSE_IMEX;
-> > +		}
-> >  	}
-> >  
-> >  	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse, set_properties) == 0)
-> > @@ -726,6 +736,13 @@ static struct psmouse_protocol psmouse_p
-> >  		.detect		= trackpoint_detect,
-> >  	},
-> >  	{
-> > +		.type		= PSMOUSE_OLPC,
-> > +		.name		= "OLPC",
-> > +		.alias		= "olpc",
-> > +		.maxproto	= 1,
-> 
-> Do not set maxproto on speciality protocols. It is meant to limit highest
-> version of standard protocols to be probed/used by a device.
-
-Fixed.
-
-
-Thanks a ton, I have some extra testing to do and then I'll send out a
-fixed copy.
-
-Zephaniah E. Hull.
-> 
-> -- 
-> Dmitry
-> 
-
--- 
-	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
-
-"I am ecstatic that some moron re-invented a 1995 windows fuckup."
-        -- Alan Cox
-
---VnOTrGv5LmZxna7m
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFBaqVRFMAi+ZaeAERAnQkAJ9Kjvq5BvE1IwT9RTY0WhnfjDxGegCgw6P/
-G3OJUIBJzVZKi6jK4iImlps=
-=US9r
------END PGP SIGNATURE-----
-
---VnOTrGv5LmZxna7m--
+----------------------------------------------------------------------
+  Jon Lewis                   |  I route
+  Senior Network Engineer     |  therefore you are
+  Atlantic Net                |
+_________ http://www.lewis.org/~jlewis/pgp for PGP public key_________

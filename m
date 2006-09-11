@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWIKJkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWIKJl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWIKJkF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 05:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWIKJkF
+	id S932100AbWIKJl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 05:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWIKJlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 05:40:05 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:20497 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932155AbWIKJkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 05:40:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=A5pjC37SVkBAxprTIkM21Y0wu3DxiLxm6DZNYCHgf8I7Bnbw8+fmW6aTOtVGTX4IRGOp53lFnurUpXzvZSs/uz2pxpJaJjCUHVldcNOurCeISWZI+aqKl5LvhqoKfr4bZMVCasgfvhNG34gw6PUZqiRmWlPaavAZAbo7SFgr250=
-Message-ID: <d4f1333a0609110240n3904e5a9g4359c338004008ae@mail.gmail.com>
-Date: Mon, 11 Sep 2006 04:40:03 -0500
-From: "Travis H." <solinym@gmail.com>
+	Mon, 11 Sep 2006 05:41:55 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:4075 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932100AbWIKJlz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 05:41:55 -0400
+Date: Mon, 11 Sep 2006 11:41:43 +0200
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
 To: linux-kernel@vger.kernel.org
-Subject: design of screen-locks for text-mode sessions
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Cc: linux-aio@kvack.org, drepper@redhat.com, suparna@in.ibm.com,
+       pbadari@us.ibm.com, zach.brown@oracle.com, hch@infradead.org,
+       johnpol@2ka.mipt.ru, davem@davemloft.net, sebastien.dugue@bull.net
+Subject: [PATCH AIO 0/2] AIO completion notification and listio support
+Message-ID: <20060911114143.0af786ce@frecb000686>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/09/2006 11:47:28,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/09/2006 11:47:31,
+	Serialize complete at 11/09/2006 11:47:31
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy!
 
-This may diverge away from kernelspace, and if so I'll take the discussion
-off-list with interested parties.  In the meantime, I was wondering what people
-thought about the best design for locking text-mode console sessions.  It's a
-checkbox on some regulatory compliance list, I think for the PCI specs (that's
-credit cards, not the bus) and I'm sort of surprised there isn't an easy-to-find
-package for this.
+  Here is a rework of the patches adding support for AIO completion
+notification as well as listio support.
 
-If you think this belongs somewhere else, please recommend the location
-to me.  One public response will be sufficient to let me know this is
-inappropriate.
-I know all the solutions might not be in kernelspace, but there are
-some system-level interactions that require a deeper understanding of
-kernel tty handling and login sequence than most lists can offer.
+  Notification is now modeled after the posix-timer code as per Ulrich
+suggestion.
 
-I'm thinking that the easiest solution might be an expect script that
-sits between
-mingetty and login, so it can learn the username and password, and later on
-has a timeout that stops passing data to the spawned login/shell.  However,
-what I worry about is the vagaries of signal handling and other tricks that
-might be required to ensure that this solution isn't bypassed.  It
-also is somewhat
-unfriendly to non-conventional login methods (I assume there are many options
-with PAM other than username/password).
+  Sébastien.
 
-Am I correct in assuming that login execs the shell, as opposed to
-hanging around
-after authentication?
 
-To my mind, the solution would have these requirements:
-Can detect keyboard inactivity in that console more than a configurable minimum.
-Can't be bypassed.
-Can require re-authentication after the inactivity timeout.
+-----------------------------------------------------
 
-Nice-to-have:
-Works with any authentication method.
-Portable.
-Userspace > LKM > kernel recompile
-Few changes to a stock RHEL install required to make it happen.
--- 
-"If you're not part of the solution, you're part of the precipitate."
-Unix "guru" for rent or hire -><- http://www.lightconsulting.com/~travis/
-GPG fingerprint: 9D3F 395A DAC5 5CCC 9066  151D 0A6B 4098 0C55 1484
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+
+  mailto:sebastien.dugue@bull.net
+
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+                   http://sourceforge.net/projects/paiol
+  
+-----------------------------------------------------

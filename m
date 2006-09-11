@@ -1,92 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWIKAe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWIKAlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWIKAe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 20:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWIKAe3
+	id S964841AbWIKAlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 20:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIKAk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 20:34:29 -0400
-Received: from outbound-mail-27.bluehost.com ([67.138.240.193]:26792 "HELO
-	outbound-mail-27.bluehost.com") by vger.kernel.org with SMTP
-	id S964851AbWIKAe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 20:34:28 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-Date: Sun, 10 Sep 2006 17:34:06 -0700
-User-Agent: KMail/1.9.3
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com> <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org> <1157933531.31071.274.camel@localhost.localdomain>
-In-Reply-To: <1157933531.31071.274.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609101734.06839.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.169.58.76 authed with jbarnes@virtuousgeek.org}
+	Sun, 10 Sep 2006 20:40:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13743 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964841AbWIKAk7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 20:40:59 -0400
+Date: Sun, 10 Sep 2006 17:40:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?B?SvZybg==?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] linear reclaim core
+Message-Id: <20060910174051.0c14a3b8.akpm@osdl.org>
+In-Reply-To: <20060910234509.GB10482@wohnheim.fh-wedel.de>
+References: <exportbomb.1157718286@pinky>
+	<20060908122718.GA1662@shadowen.org>
+	<20060908114114.87612de3.akpm@osdl.org>
+	<20060910234509.GB10482@wohnheim.fh-wedel.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, September 10, 2006 5:12 pm, Benjamin Herrenschmidt wrote:
-> Ok, so we have two different proposals here...
->
-> Maybe we should cast a vote ? :)
->
->  * Option A:
->
->  - writel/readl are fully synchronous (minus mmiowb for spinlocks)
->  - we provide __writel/__readl with some barriers with relaxed
-> ordering between memory and MMIO (though still _precise_ semantics,
-> not arch specific)
->
->  * Option B:
->
->  - The driver decides at ioremap time wether it wants a fully ordered
-> mapping or not using
->    a "special" version of ioremap (with flags ?)
->  - writel/readl() behave differently depending on the mapping
->  - __writel/__readl might exist but are architecture specific
-> (ahem... still to be debated)
->
-> The former seems easier to me to implement. The later might indeed be
-> a bit easier for drivers writers, I'm not 100% convinced tho. The
-> later means stuffing special tokens in the returned address from
-> ioremap and testing for them in writel. However, the later is also
-> what we need for write combining (at least for PowerPC, maybe for
-> other archs, wether a mapping can write combine has to be decided by
-> using flags in the page table, thus has to be done at ioremap time.
-> (*)
+On Mon, 11 Sep 2006 01:45:09 +0200
+Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-Yeah, write combining is a good point.  After all these years we *still* 
-don't have a good in-kernel interface for changing memory mapped 
-attributes, so adding a 'flags' argument to ioremap might be a good 
-idea (cached, uncached, write combine are the three variants I can 
-think of off the top of my head).
+> On Fri, 8 September 2006 11:41:14 -0700, Andrew Morton wrote:
+> > 
+> > I'm somewhat surprised at the implementation.  Would it not be sufficient
+> > to do this within shrink_inactive_list()?  Something along the lines of:
+> > 
+> > - Pick tail page off LRU.
+> > 
+> > - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
+> > 
+> >   - If they're all PageLRU and !PageActive, add them all to page_list for
+> >     possible reclaim
+> > 
+> > And, in shrink_active_list:
+> > 
+> > - Pick tail page off LRU
+> > 
+> > - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
+> > 
+> >   If they're all PageLRU, put all the active pages in this block onto
+> >   l_hold for possible deactivation.
+> 
+> Hmm.  Trying to shoot holes into your approach, I find two potential
+> problems:
+> A) With sufficient fragmentation, all inactive pages have one active
+> neighbour, so shrink_inactive_list() will never find a cluster of the
+> required order.
 
-But doing MMIO ordering this way seems somewhat expensive since it means 
-extra checks in the readX/writeX routines, which are normally very 
-fast.
+Nope.  If the clump of pages has a mix of active and inactive, the above
+design would cause the active ones to be deactivated, so now the entire
+clump is eligible for treatment by shrink_inactive_list().
 
-So I guess I'm saying we should have both.
-  - existing readX/writeX routines are defined to be strongly ordered
-  - new MMIO accessors are added with weak semantics (not sure I like
-    the __ naming though, driver authors will have to continually refer
-    to documentation to figure out what they mean) along with new
-    barrier macros to synchronize things appropriately
-  - flags argument to ioremap for cached, uncached, write combine
-    attributes (this implies some TLB flushing and other arch specific
-    state flushing, also needed for proper PAT support)
+> B) With some likelihood, shrink_active_list() will pick neighbours
+> which happen to be rather hot pages.  They get freed, only to get
+> paged in again within little more than rotational latency.
 
-Oh, and all MMIO accessors are *documented* with strongly defined 
-semantics. :)
+Maybe.  Careful benchmarking and carefully-designed microbenchmarks are, as
+always, needed.
 
-If we go this route though, can I request that we don't introduce any 
-performance regressions in drivers currently using mmiowb()?  I.e. 
-they'll be converted over to the new accessor routines when they become 
-available along with the new barrier macros?
+Bear in mind that simply moving the pages to the inactive list isn't enough
+to get them reclaimed: we still do various forms of page aging and the
+pages can still be preserved due to that.  IOW, we have several different
+forms of page aging, one of which is LRU-ordering.  The above design
+compromises just one of those aging steps.
 
-Thanks,
-Jesse
+I'd be more concerned about higher-order atomic allocations.  If this thing
+is to work I suspect we'll need per-zone, per-order watermarks and kswapd
+will need to maintain those.
+
+> How about something like:
+> 1. Free 1<<order pages from the inactive list.
+> 2. Pick a page cluster of requested order.
+> 3. Move all pages from the cluster to the just freed pages.
+
+Don't think in terms of "freeing".  Think in terms of "scanning".  A lot of
+page reclaim's balancing tricks are cast in terms of pages-scanned,
+slabs-scanned, etc.
+

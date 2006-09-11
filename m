@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWIKFv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWIKFvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbWIKFv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWIKFv5
+	id S964885AbWIKFvv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWIKFvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:51:57 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:43977 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964887AbWIKFv4 (ORCPT
+	Mon, 11 Sep 2006 01:51:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:47576 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964885AbWIKFvu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:51:56 -0400
-Date: Mon, 11 Sep 2006 09:50:53 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Samuel Tardieu <sam@rfc1149.net>,
-       Jim Cromie <jim.cromie@gmail.com>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-Message-ID: <20060911055053.GB18907@2ka.mipt.ru>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <20060909220256.d4486a4f.vsu@altlinux.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 11 Sep 2006 01:51:50 -0400
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] i386-PDA, lockdep: fix %gs restore
+Date: Mon, 11 Sep 2006 07:41:26 +0200
+User-Agent: KMail/1.9.1
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+References: <20060908011317.6cb0495a.akpm@osdl.org> <450499D3.5010903@goop.org> <20060911052527.GA12301@elte.hu>
+In-Reply-To: <20060911052527.GA12301@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060909220256.d4486a4f.vsu@altlinux.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 11 Sep 2006 09:50:55 +0400 (MSD)
+Message-Id: <200609110741.27284.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Monday 11 September 2006 07:25, Ingo Molnar wrote:
+> Jeremy,
+>
+> could you back out Andi's patch and try the patch below, does it fix the
+> crash too?
 
-On Sat, Sep 09, 2006 at 10:02:56PM +0400, Sergey Vlasov (vsu@altlinux.ru) wrote:
-> I can find at least two attempts to fix the SuperIO problem:
-> 
->   - a SuperIO subsystem proposed by Evgeniy Polyakov (cc'd);
-> 
->   - a simple SuperIO locks coordinator proposed by Jim Cromie (also
->     cc'd; http://thread.gmane.org/gmane.linux.drivers.sensors/10052 -
->     can't find actual patches).
-> 
-> However, the mainline kernel still does not have anything for proper
-> SuperIO access locking.
+iirc the crash was long before any system calls could be called
+(except maybe kernel_thread/clone, but for that %gs doesn't change)
 
-I created SuperIO subsystem for soekris board initially.
-Later it was extended to support scx200/scx100 gpio (for w1 subsytem).
-There is support for acb(i2c) bus, GPIO, and some stub for other
-elements in pc8736x superIO chip.
-But I was told those days (about at least 1.5 years ago) in lm_sensors 
-mail list that splitting all that functionality into separated modules 
-is the way to go.
-
-As far as I recall pc8736x GPIO was added recently.
-
-Here is one of the implementations posted to lm_sensors@:
-http://archives.andrew.net.au/lm-sensors/msg27895.html
-
-And here is my drawing board with image of how it looks (just for pure
-interest) in my mind :) :
-http://tservice.net.ru/~s0mbre/old/?section=gallery&item=superio_design
-
--- 
-	Evgeniy Polyakov
+-Andi

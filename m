@@ -1,102 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWIKAet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWIKAe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbWIKAet (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 20:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIKAet
+	id S964851AbWIKAe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 20:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWIKAe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 20:34:49 -0400
-Received: from sccrmhc15.comcast.net ([63.240.77.85]:61149 "EHLO
-	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S964855AbWIKAes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 20:34:48 -0400
-Message-ID: <4504AF26.9040807@comcast.net>
-Date: Sun, 10 Sep 2006 20:34:46 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Sun, 10 Sep 2006 20:34:29 -0400
+Received: from outbound-mail-27.bluehost.com ([67.138.240.193]:26792 "HELO
+	outbound-mail-27.bluehost.com") by vger.kernel.org with SMTP
+	id S964851AbWIKAe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 20:34:28 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+Date: Sun, 10 Sep 2006 17:34:06 -0700
+User-Agent: KMail/1.9.3
+Cc: Segher Boessenkool <segher@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
+       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com> <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org> <1157933531.31071.274.camel@localhost.localdomain>
+In-Reply-To: <1157933531.31071.274.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Cache line size
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609101734.06839.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 67.169.58.76 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sunday, September 10, 2006 5:12 pm, Benjamin Herrenschmidt wrote:
+> Ok, so we have two different proposals here...
+>
+> Maybe we should cast a vote ? :)
+>
+>  * Option A:
+>
+>  - writel/readl are fully synchronous (minus mmiowb for spinlocks)
+>  - we provide __writel/__readl with some barriers with relaxed
+> ordering between memory and MMIO (though still _precise_ semantics,
+> not arch specific)
+>
+>  * Option B:
+>
+>  - The driver decides at ioremap time wether it wants a fully ordered
+> mapping or not using
+>    a "special" version of ioremap (with flags ?)
+>  - writel/readl() behave differently depending on the mapping
+>  - __writel/__readl might exist but are architecture specific
+> (ahem... still to be debated)
+>
+> The former seems easier to me to implement. The later might indeed be
+> a bit easier for drivers writers, I'm not 100% convinced tho. The
+> later means stuffing special tokens in the returned address from
+> ioremap and testing for them in writel. However, the later is also
+> what we need for write combining (at least for PowerPC, maybe for
+> other archs, wether a mapping can write combine has to be decided by
+> using flags in the page table, thus has to be done at ioremap time.
+> (*)
 
-Is there a way for the Linux Kernel to know the cache line size of the
-CPU it's on, besides #define X86_CACHE_LINE_SZ 32 or whatnot?  I am
-looking in /proc/cpuinfo trying to determine how to run caching
-optimizations and interested in this information and its implications.
-It may also be useful if I can get this information at run time in
-application code.
+Yeah, write combining is a good point.  After all these years we *still* 
+don't have a good in-kernel interface for changing memory mapped 
+attributes, so adding a 'flags' argument to ioremap might be a good 
+idea (cached, uncached, write combine are the three variants I can 
+think of off the top of my head).
 
+But doing MMIO ordering this way seems somewhat expensive since it means 
+extra checks in the readX/writeX routines, which are normally very 
+fast.
 
+So I guess I'm saying we should have both.
+  - existing readX/writeX routines are defined to be strongly ordered
+  - new MMIO accessors are added with weak semantics (not sure I like
+    the __ naming though, driver authors will have to continually refer
+    to documentation to figure out what they mean) along with new
+    barrier macros to synchronize things appropriately
+  - flags argument to ioremap for cached, uncached, write combine
+    attributes (this implies some TLB flushing and other arch specific
+    state flushing, also needed for proper PAT support)
 
-For the curious (those of you who don't care, stop reading; those who
-are going to tell me I shouldn't care about these numbers, keep reading
-anyway), I am trying to avoid false sharing in a memory allocator,
-mainly by bitmapping cache lines on top of the 16 byte block bitmap per
-thread.
+Oh, and all MMIO accessors are *documented* with strongly defined 
+semantics. :)
 
-In many cases I avoid segment sharing altogether.  Segments suffering
-from lack of use are returned to the global scope for other threads; but
-so are segments in terminated threads.  Threads needing more space try
-to retrieve their own segments; when this is not possible, they retrieve
-segments from terminated threads.  When both of these options fails,
-segments owned by active threads set in the global scope are adopted.
+If we go this route though, can I request that we don't introduce any 
+performance regressions in drivers currently using mmiowb()?  I.e. 
+they'll be converted over to the new accessor routines when they become 
+available along with the new barrier macros?
 
-When segments are shared, there is the potential that the same cache
-line may be allocated in different threads, possibly leading to
-concurrent access to the same cache line on different CPUs in an SMP
-environment.  To avoid this, each active thread with any allocations in
-a shared segment will keep a bitmap of its own used cache lines, and
-overlay that bitmap onto the master cache line bitmap for the segment.
-
-Cache lines in use but not by the current thread will not be used by the
-current thread for allocations.  Whenever a thread terminates, it
-removes all cache lines it holds from use in the master cache line
-bitmap; false sharing cannot occur if there is no thread to share with,
-so overlapping cache lines with the dead thread is not an issue (and not
-technically possible).
-
-Diagram:
-
-Bitmap:  |x|x| |x|x| | | |x|x|  16 byte blocks
-CLnBMP:  | X | X | X |   |   |  32 byte cache lines
-T1CLnB:  | X |   | X |   |   |  Cache lines from Thread 1
-T2CLnB:  |   | X |   |   |   |  Cache lines from Thread 2
-                      ^   ^--Used by dead thread
-                      |--Unused
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRQSvJAs1xW0HCTEFAQIAqg/+MPRPOIJyJAjofYY6vihj+2+THCKEXUL8
-wdWbxSixKSi12RWK3YJhlDI4TjeSfke4QU5CwC80msb4tKnMouS6oWqauWMLHOqG
-ky1b4I57IAB94Jol2ydyUd87GhNShQWpwACnH5+e6bdm4qUCtY62mDRH3DcEC+Vr
-yAtNVClXQjOvHBkhDaraHZQVXXa4ucOPgLr4eyVutxOMDQQ2Rf8wOGHvSIFMkEK3
-qTledtIOrTfvMEpB75peT2+1cS08ku90j+as3+IyDIPviRBuF5goO6JcH3XJFBlE
-Yqord1i44PZdsQHPK68W7x+Pglof3yGw1VEmB2/UTf3J+n2FMh+NxEdrxeq1pyKJ
-MljokFb8u6czjN/g10xGj/JvJKhV/9k2xwcs0SRPR0CHavrKCpO4QdvOQOMalqZ9
-dzPKQHMiLJliTRsDAD9gVhplMODFEbGaiHDmjccuDtyFs8TtxgMc0wQArzJu9SSO
-YZOszWMXpR9HbE3P1KKctQuD4h2T2wdUnR2Rc49Upoo8TdtOAMJgabx9jlPlt5IZ
-uZrUiBx+gC5ac2UhrI2shOJBUYc4h5OG3zFZ4b4UJ97kz2v50V8FCYzqENMDhfQQ
-8VHLd2LDDdhBGKKKUTWboYFV/NlJBiWpxzhOfEz8wg9llmYIMIY+iGdGRqBzkCkf
-xUyVeiEgSFE=
-=+Y7F
------END PGP SIGNATURE-----
+Thanks,
+Jesse

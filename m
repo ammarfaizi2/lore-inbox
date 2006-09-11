@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWIKPvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWIKP4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWIKPvp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWIKPvp
+	id S964918AbWIKP4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 11:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWIKP4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:51:45 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:59843 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751313AbWIKPvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:51:44 -0400
-Date: Mon, 11 Sep 2006 11:49:33 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [PATCH 14/21] uml: enable scsi and add iscsi config
-Message-ID: <20060911154933.GC4443@ccure.user-mode-linux.org>
-References: <20060906131630.793619000@chello.nl>> <20060906133955.337828000@chello.nl>
+	Mon, 11 Sep 2006 11:56:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57804 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964918AbWIKP4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 11:56:18 -0400
+Date: Mon, 11 Sep 2006 12:03:28 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Rickard Faith <faith@redhat.com>
+Subject: Re: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
+Message-ID: <20060911160328.GJ4743@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+	Rickard Faith <faith@redhat.com>
+References: <200609111715.17080.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060906133955.337828000@chello.nl>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200609111715.17080.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 03:16:44PM +0200, Peter Zijlstra wrote:
-> Enable iSCSI on UML, dunno why SCSI was deemed broken, it works like a charm.
+On Mon, Sep 11, 2006 at 05:15:16PM +0200, Jesper Juhl wrote:
+ > 
+ > kauditd_thread() is being used in a call to kthread_run(). kthread_run() expects
+ > a function returning 'int' which is also how kauditd_thread() is declared. Unfortunately
+ > kauditd_thread() neglects to return a value which results in this complaint from gcc :
+ > 
+ >   kernel/audit.c:372: warning: no return statement in function returning non-void
+ > 
+ > Easily fixed by just adding a 'return 0;' to kauditd_thread().
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+Which will never be reached.  Does marking the function NORET_TYPE
+also silence the warning?
 
-Although it would be nice if we didn't have to copy bits of Kconfig files
-to do this.
-
-				Jeff
+	Dave

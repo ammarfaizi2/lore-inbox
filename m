@@ -1,51 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWIKJq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWIKJrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWIKJq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 05:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWIKJq0
+	id S932191AbWIKJrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 05:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWIKJrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 05:46:26 -0400
-Received: from ns2.suse.de ([195.135.220.15]:15085 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932179AbWIKJqZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 05:46:25 -0400
-Date: Mon, 11 Sep 2006 11:46:07 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ACPI mailing list <linux-acpi@vger.kernel.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: x60 - spontaneous thermal shutdown
-Message-ID: <20060911094607.GA14095@suse.de>
-References: <20060904214059.GA1702@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 11 Sep 2006 05:47:09 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6808 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932191AbWIKJrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 05:47:06 -0400
+Date: Mon, 11 Sep 2006 11:46:42 +0200
+From: Jan Kara <jack@suse.cz>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       sct@redhat.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+Message-ID: <20060911094641.GA3336@atrey.karlin.mff.cuni.cz>
+References: <20060906153449.GC18281@atrey.karlin.mff.cuni.cz> <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com> <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com> <20060906172733.GC14345@atrey.karlin.mff.cuni.cz> <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com> <20060907223048.GD22549@atrey.karlin.mff.cuni.cz> <4500F2B2.4010204@us.ibm.com> <20060908082531.GA28397@atrey.karlin.mff.cuni.cz> <45017FAA.1070203@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060904214059.GA1702@elf.ucw.cz>
-X-Operating-System: openSUSE 10.2 (i586) Alpha4, Kernel 2.6.18-rc5-git6-2-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45017FAA.1070203@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 04, 2006 at 11:40:59PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> x60 shut down after quite a while of uptime, in period of quite heavy
-> load:
-> 
-> Sep  4 23:33:01 amd kernel: ACPI: Critical trip point
-> Sep  4 23:33:01 amd kernel: Critical temperature reached (128 C), shutting down.
-> Sep  4 23:33:01 amd shutdown[32585]: shutting down for system halt
-> Sep  4 23:34:42 amd init: Switching to runlevel: 0
-> 
-> I do not think cpu reached 128C, as I still have my machine... Did
-> anyone else see that?
+  Hi,
 
-my usual suspect: use ec_intr=0. I have seen this rather often on HP machines.
-I attributed it to "communication problems with embedded controller" and
-ec_intr=0 seemed to help somehow. But then, this was some kernel versions
-ago and i did not encounter it recently.
+> >>>Original commit code assumes, that when a buffer on BJ_SyncData list is 
+> >>>locked,
+> >>>it is being written to disk. But this is not true and hence it can lead 
+> >>>to a
+> >>>potential data loss on crash. Also the code didn't count with the fact 
+> >>>that
+> >>>journal_dirty_data() can steal buffers from committing transaction and 
+> >>>hence
+> >>>could write buffers that no longer belong to the committing transaction.
+> >>>Finally it could possibly happen that we tried writing out one buffer 
+> >>>several
+> >>>times.
+> >>>
+> >>>The patch below tries to solve these problems by a complete rewrite of 
+> >>>the data
+> >>>commit code. We go through buffers on t_sync_datalist, lock buffers 
+> >>>needing
+> >>>write out and store them in an array. Buffers are also immediately 
+> >>>refiled to
+> >>>BJ_Locked list or unfiled (if the write out is completed). When the 
+> >>>array is
+> >>>full or we have to block on buffer lock, we submit all accumulated 
+> >>>buffers for
+> >>>IO.
+> >>>
+> >>>Signed-off-by: Jan Kara <jack@suse.cz>
+> >>>
+> >>> 
+> >>>      
+> >>I have been running 4+ hours with this patch and seems to work fine. I 
+> >>haven't hit any
+> >>assert yet :)
+> >>
+> >>I will let it run till tomorrow. I will let you know, how it goes.
+> >>    
+> >  Great, thanks. BTW: Do you have any performance tests handy? The
+> >changes are big enough to cause some unexpected performance regressions,
+> >livelocks... If you don't have anything ready, I can setup and run
+> >something myself.  Just that I don't like this testing too much ;).
+> >  
+> Tests are still running fine.
+> 
+> I don't have any performance tests handy. We have some automated tests I 
+> can schedule to run to verify the stability aspects.
+  OK. I've run IOZONE rewrite throughput test on my computer with
+iozone -t 10 -i 0 -s 10M -e
+  2.6.18-rc6 and the same kernel + my patch seem to give almost the same
+results. The strange thing was that both in vanilla and patched kernel there
+were several runs where a write througput (when iozone was creating the file)
+was suddenly 10% of the usual value (18MB/s vs. 2MB/s). The rewrite numbers
+were always fine. Maybe that has something to do with block allocation
+code. Anyway, it is not a regression of my patch so unless your test
+finds some problem I think the patch should be ready for inclusion into
+-mm...
+
+								Honza
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

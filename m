@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWIKQfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWIKQi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWIKQfP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 12:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWIKQfP
+	id S965034AbWIKQi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 12:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWIKQi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 12:35:15 -0400
-Received: from smtp5-g19.free.fr ([212.27.42.35]:961 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S964893AbWIKQfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 12:35:14 -0400
-Message-ID: <45059039.2010001@free.fr>
-Date: Mon, 11 Sep 2006 18:35:05 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.5) Gecko/20060405 SeaMonkey/1.0.3
+	Mon, 11 Sep 2006 12:38:28 -0400
+Received: from maggie.spheresystems.co.uk ([82.71.70.17]:59823 "EHLO
+	maggie.spheresystems.co.uk") by vger.kernel.org with ESMTP
+	id S965034AbWIKQi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 12:38:27 -0400
+From: Andrew Bird <ajb@spheresystems.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Spinlock debugging
+Date: Mon, 11 Sep 2006 17:38:21 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200609111632.27484.ajb@spheresystems.co.uk> <1157992570.23085.169.camel@localhost.localdomain>
+In-Reply-To: <1157992570.23085.169.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: [patch] i386-PDA, lockdep: fix %gs restore
-References: <20060908011317.6cb0495a.akpm@osdl.org> <200609101032.17429.ak@suse.de> <20060910115722.GA15356@elte.hu> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org> <450499D3.5010903@goop.org> <20060911052527.GA12301@elte.hu> <20060911054620.GA15053@elte.hu>
-In-Reply-To: <20060911054620.GA15053@elte.hu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609111738.21818.ajb@spheresystems.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Le 11.09.2006 07:46, Ingo Molnar a écrit :
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
->> Jeremy,
-> 
-> Laurent that is ...
-> 
->> could you back out Andi's patch and try the patch below, does it fix the 
->> crash too?
-
-Sorry for the late answer, I had to go to work ;-).
-
-So 2.6.18-rc6-mm1 + hotfixes + Ingo's "i386-PDA, lockdep: fix %gs restore" 
-does work well.
+Alan
+	Yes, I have low_latency set for kernels lower than 2.6.17. I'm currently 
+testing using 2.6.15. When you mention 'write method for flow control' do you 
+mean for software XON/XOFF etc?
+	On a more generic note, is the spinlock debug output read as a stack and what 
+do the '=======' line breaks signify, looping?
 
 Thanks
--- 
-laurent
+
+
+Andrew
+
+On Monday 11 September 2006 17:36, Alan Cox wrote:
+> Ar Llu, 2006-09-11 am 16:32 +0100, ysgrifennodd Andrew Bird (Sphere
+>
+> Systems):
+> > will be lost. But if I comment out the line that tells the tty layer that
+> > it's implemented, I end up with a BUG - spinlock recursion. Can anybody
+> > tell me how to interpret the output?
+>
+> Looks like your driver calls flush_to_ldisc with low latency set and
+> then can't handle the flush_to_ldisc causing n_tty to call back into the
+> write method for flow control.
+>
+> Alan

@@ -1,73 +1,272 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWIKUwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWIKVFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWIKUwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 16:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWIKUwe
+	id S965024AbWIKVFw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 17:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbWIKVFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 16:52:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64220 "EHLO
+	Mon, 11 Sep 2006 17:05:52 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40158 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964943AbWIKUwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 16:52:33 -0400
-Date: Mon, 11 Sep 2006 22:52:12 +0200
+	id S965024AbWIKVFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 17:05:51 -0400
+Date: Mon, 11 Sep 2006 23:05:30 +0200
 From: Jan Kara <jack@suse.cz>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
-Message-ID: <20060911205212.GC23475@atrey.karlin.mff.cuni.cz>
-References: <20060906162723.GA14345@atrey.karlin.mff.cuni.cz> <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com> <20060906172733.GC14345@atrey.karlin.mff.cuni.cz> <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com> <20060907223048.GD22549@atrey.karlin.mff.cuni.cz> <4500F2B2.4010204@us.ibm.com> <20060908082531.GA28397@atrey.karlin.mff.cuni.cz> <45017FAA.1070203@us.ibm.com> <20060911094641.GA3336@atrey.karlin.mff.cuni.cz> <1158007528.30318.12.camel@dyn9047017100.beaverton.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Badari Pulavarty <pbadari@us.ibm.com>
+Subject: [PATCH] Fix commit of ordered data buffers
+Message-ID: <20060911210530.GA28445@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="iFRdW5/EC4oqxDHL"
 Content-Disposition: inline
-In-Reply-To: <1158007528.30318.12.camel@dyn9047017100.beaverton.ibm.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2006-09-11 at 11:46 +0200, Jan Kara wrote:
-> ...
-> > > 
-> > > I don't have any performance tests handy. We have some automated tests I 
-> > > can schedule to run to verify the stability aspects.
-> >   OK. I've run IOZONE rewrite throughput test on my computer with
-> > iozone -t 10 -i 0 -s 10M -e
-> >   2.6.18-rc6 and the same kernel + my patch seem to give almost the same
-> > results. The strange thing was that both in vanilla and patched kernel there
-> > were several runs where a write througput (when iozone was creating the file)
-> > was suddenly 10% of the usual value (18MB/s vs. 2MB/s). The rewrite numbers
-> > were always fine. Maybe that has something to do with block allocation
-> > code. Anyway, it is not a regression of my patch so unless your test
-> > finds some problem I think the patch should be ready for inclusion into
-> > -mm...
-> 
-> Your patch seems to be working fine. I haven't found any major
-> regression yet. 
-> 
-> I spent lot of time trying to reproduce the problem with buffer-debug
-> Andrew sent out - I really wanted to get to bottom of whats really
-> happening here (since your patch made it go away).
-> 
-> Yes. Your theory is correct. journal_dirty_data() is moving the
-> buffer-head from commited transaction to current one and
-> journal_unmap_buffer() is discarding and cleaning up the buffer-head.
-> Later set_page_dirty() dirties the buffer-head there by causing
-> BUG() in submit_bh().
-> 
-> Here is the buffer-trace-debug output to confirm it. I can sleep better
-> now :) Now we can figure out, if your fix is the right one or not ..
-  OK, good to hear :). My patch should be prone at least to this problem
-(I'm not saying it could not have introduced any other ;). It locks the
-buffer and if it needed to drop JBD spin locks, it also checks whether
-the buffer remained in the BJ_SyncData list. Hence if the
-journal_dirty_data() steals the buffer while we are locking it we find
-that out and forget about the buffer. Once the buffer is locked,
-journal_dirty_data() won't touch it.
-  I guess the patch is good enough to send it to Andrew...
+
+--iFRdW5/EC4oqxDHL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+  Hi Andrew,
+
+  here is the patch that came out of the thread "set_page_buffer_dirty
+should skip unmapped buffers". It fixes several flaws in the code
+writing out ordered data buffers during commit. It definitely fixed the
+problem Badari was seeing with fsx-linux test.  Could you include it
+into -mm? Since there are quite complex interactions with other JBD code
+and the locking is kind of ugly, I'd leave it in -mm for a while whether
+some bug does not emerge ;). Thanks.
 
 								Honza
 
 -- 
 Jan Kara <jack@suse.cz>
 SuSE CR Labs
+
+--iFRdW5/EC4oqxDHL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="jbd-2.6.18-rc6-1-orderedwrite.diff"
+
+Original commit code assumes, that when a buffer on BJ_SyncData list is locked,
+it is being written to disk. But this is not true and hence it can lead to a
+potential data loss on crash. Also the code didn't count with the fact that
+journal_dirty_data() can steal buffers from committing transaction and hence
+could write buffers that no longer belong to the committing transaction.
+Finally it could possibly happen that we tried writing out one buffer several
+times.
+
+The patch below tries to solve these problems by a complete rewrite of the data
+commit code. We go through buffers on t_sync_datalist, lock buffers needing
+write out and store them in an array. Buffers are also immediately refiled to
+BJ_Locked list or unfiled (if the write out is completed). When the array is
+full or we have to block on buffer lock, we submit all accumulated buffers for
+IO.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.18-rc6/fs/jbd/commit.c linux-2.6.18-rc6-1-orderedwrite/fs/jbd/commit.c
+--- linux-2.6.18-rc6/fs/jbd/commit.c	2006-09-06 18:20:48.000000000 +0200
++++ linux-2.6.18-rc6-1-orderedwrite/fs/jbd/commit.c	2006-09-08 01:05:35.000000000 +0200
+@@ -160,6 +160,117 @@ static int journal_write_commit_record(j
+ 	return (ret == -EIO);
+ }
+ 
++void journal_do_submit_data(struct buffer_head **wbuf, int bufs)
++{
++	int i;
++
++	for (i = 0; i < bufs; i++) {
++		wbuf[i]->b_end_io = end_buffer_write_sync;
++		/* We use-up our safety reference in submit_bh() */
++		submit_bh(WRITE, wbuf[i]);
++	}
++}
++
++/*
++ *  Submit all the data buffers to disk
++ */
++static void journal_submit_data_buffers(journal_t *journal,
++				transaction_t *commit_transaction)
++{
++	struct journal_head *jh;
++	struct buffer_head *bh;
++	int locked;
++	int bufs = 0;
++	struct buffer_head **wbuf = journal->j_wbuf;
++
++	/*
++	 * Whenever we unlock the journal and sleep, things can get added
++	 * onto ->t_sync_datalist, so we have to keep looping back to
++	 * write_out_data until we *know* that the list is empty.
++	 *
++	 * Cleanup any flushed data buffers from the data list.  Even in
++	 * abort mode, we want to flush this out as soon as possible.
++	 */
++write_out_data:
++	cond_resched();
++	spin_lock(&journal->j_list_lock);
++
++	while (commit_transaction->t_sync_datalist) {
++		jh = commit_transaction->t_sync_datalist;
++		bh = jh2bh(jh);
++		locked = 0;
++
++		/* Get reference just to make sure buffer does not disappear
++		 * when we are forced to drop various locks */
++		get_bh(bh);
++		/* If the buffer is dirty, we need to submit IO and hence
++		 * we need the buffer lock. We try to lock the buffer without
++		 * blocking. If we fail, we need to drop j_list_lock and do
++		 * blocking lock_buffer().
++		 */
++		if (buffer_dirty(bh)) {
++			if (test_set_buffer_locked(bh)) {
++				BUFFER_TRACE(bh, "needs blocking lock");
++				spin_unlock(&journal->j_list_lock);
++				/* Write out all data to prevent deadlocks */
++				journal_do_submit_data(wbuf, bufs);
++				bufs = 0;
++				lock_buffer(bh);
++				spin_lock(&journal->j_list_lock);
++			}
++			locked = 1;
++		}
++		/* We have to get bh_state lock. Again out of order, sigh. */
++		if (!inverted_lock(journal, bh)) {
++			jbd_lock_bh_state(bh);
++			spin_lock(&journal->j_list_lock);
++		}
++		/* Someone already cleaned up the buffer? */
++		if (!buffer_jbd(bh)
++			|| jh->b_transaction != commit_transaction
++			|| jh->b_jlist != BJ_SyncData) {
++			jbd_unlock_bh_state(bh);
++			if (locked)
++				unlock_buffer(bh);
++			BUFFER_TRACE(bh, "already cleaned up");
++			put_bh(bh);
++			continue;
++		}
++		if (locked && test_clear_buffer_dirty(bh)) {
++			BUFFER_TRACE(bh, "needs writeout, adding to array");
++			wbuf[bufs++] = bh;
++			__journal_file_buffer(jh, commit_transaction,
++						BJ_Locked);
++			jbd_unlock_bh_state(bh);
++			if (bufs == journal->j_wbufsize) {
++				spin_unlock(&journal->j_list_lock);
++				journal_do_submit_data(wbuf, bufs);
++				bufs = 0;
++				goto write_out_data;
++			}
++		}
++		else {
++			BUFFER_TRACE(bh, "writeout complete: unfile");
++			__journal_unfile_buffer(jh);
++			jbd_unlock_bh_state(bh);
++			if (locked)
++				unlock_buffer(bh);
++			journal_remove_journal_head(bh);
++			/* Once for our safety reference, once for
++			 * journal_remove_journal_head() */
++			put_bh(bh);
++			put_bh(bh);
++		}
++
++		if (lock_need_resched(&journal->j_list_lock)) {
++			spin_unlock(&journal->j_list_lock);
++			goto write_out_data;
++		}
++	}
++	spin_unlock(&journal->j_list_lock);
++	journal_do_submit_data(wbuf, bufs);
++}
++
+ /*
+  * journal_commit_transaction
+  *
+@@ -313,80 +424,13 @@ void journal_commit_transaction(journal_
+ 	 * Now start flushing things to disk, in the order they appear
+ 	 * on the transaction lists.  Data blocks go first.
+ 	 */
+-
+ 	err = 0;
+-	/*
+-	 * Whenever we unlock the journal and sleep, things can get added
+-	 * onto ->t_sync_datalist, so we have to keep looping back to
+-	 * write_out_data until we *know* that the list is empty.
+-	 */
+-	bufs = 0;
+-	/*
+-	 * Cleanup any flushed data buffers from the data list.  Even in
+-	 * abort mode, we want to flush this out as soon as possible.
+-	 */
+-write_out_data:
+-	cond_resched();
+-	spin_lock(&journal->j_list_lock);
+-
+-	while (commit_transaction->t_sync_datalist) {
+-		struct buffer_head *bh;
+-
+-		jh = commit_transaction->t_sync_datalist;
+-		commit_transaction->t_sync_datalist = jh->b_tnext;
+-		bh = jh2bh(jh);
+-		if (buffer_locked(bh)) {
+-			BUFFER_TRACE(bh, "locked");
+-			if (!inverted_lock(journal, bh))
+-				goto write_out_data;
+-			__journal_temp_unlink_buffer(jh);
+-			__journal_file_buffer(jh, commit_transaction,
+-						BJ_Locked);
+-			jbd_unlock_bh_state(bh);
+-			if (lock_need_resched(&journal->j_list_lock)) {
+-				spin_unlock(&journal->j_list_lock);
+-				goto write_out_data;
+-			}
+-		} else {
+-			if (buffer_dirty(bh)) {
+-				BUFFER_TRACE(bh, "start journal writeout");
+-				get_bh(bh);
+-				wbuf[bufs++] = bh;
+-				if (bufs == journal->j_wbufsize) {
+-					jbd_debug(2, "submit %d writes\n",
+-							bufs);
+-					spin_unlock(&journal->j_list_lock);
+-					ll_rw_block(SWRITE, bufs, wbuf);
+-					journal_brelse_array(wbuf, bufs);
+-					bufs = 0;
+-					goto write_out_data;
+-				}
+-			} else {
+-				BUFFER_TRACE(bh, "writeout complete: unfile");
+-				if (!inverted_lock(journal, bh))
+-					goto write_out_data;
+-				__journal_unfile_buffer(jh);
+-				jbd_unlock_bh_state(bh);
+-				journal_remove_journal_head(bh);
+-				put_bh(bh);
+-				if (lock_need_resched(&journal->j_list_lock)) {
+-					spin_unlock(&journal->j_list_lock);
+-					goto write_out_data;
+-				}
+-			}
+-		}
+-	}
+-
+-	if (bufs) {
+-		spin_unlock(&journal->j_list_lock);
+-		ll_rw_block(SWRITE, bufs, wbuf);
+-		journal_brelse_array(wbuf, bufs);
+-		spin_lock(&journal->j_list_lock);
+-	}
++	journal_submit_data_buffers(journal, commit_transaction);
+ 
+ 	/*
+ 	 * Wait for all previously submitted IO to complete.
+ 	 */
++	spin_lock(&journal->j_list_lock);
+ 	while (commit_transaction->t_locked_list) {
+ 		struct buffer_head *bh;
+ 
+
+--iFRdW5/EC4oqxDHL--

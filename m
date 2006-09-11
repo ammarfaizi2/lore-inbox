@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWIKVSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWIKVT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbWIKVSe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 17:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWIKVSe
+	id S965053AbWIKVT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 17:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWIKVT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 17:18:34 -0400
-Received: from ns2.suse.de ([195.135.220.15]:26069 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965050AbWIKVSd (ORCPT
+	Mon, 11 Sep 2006 17:19:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41926 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965053AbWIKVTy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 17:18:33 -0400
-From: Andi Kleen <ak@suse.de>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: io-apic - no timer ticks after resume on IXP200
-Date: Mon, 11 Sep 2006 22:02:50 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <20060910141533.GA6594@srcf.ucam.org> <200609110746.58548.ak@suse.de> <20060911110530.GA15320@srcf.ucam.org>
-In-Reply-To: <20060911110530.GA15320@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 11 Sep 2006 17:19:54 -0400
+Subject: Re: 2.6.18-rc6-mm1
+From: Mark Haverkamp <markh@osdl.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
+References: <20060908011317.6cb0495a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 14:19:52 -0700
+Message-Id: <1158009592.10005.24.camel@markh3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609112202.50756.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 September 2006 13:05, Matthew Garrett wrote:
-> On Mon, Sep 11, 2006 at 07:46:58AM +0200, Andi Kleen wrote:
-> > You forgot to mention on which kernel version you're seeing this?
-> > In particular did it work in some kernel version and then stop in
-> > another?
->
-> Oops, sorry. I'm using 2.6.17.11, but the problem appears to persist in
-> the latest 2.6.18-rc. 
+On Fri, 2006-09-08 at 01:13 -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+> 
 
-And did it work with a earlier kernel?
+compiling a kernel with allnoconfig produces the following error:
 
--Andi
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CHK     include/linux/compile.h
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+mm/built-in.o: In function `writeback_congestion_end':
+(.text+0x5d3b): undefined reference to `blk_congestion_end'
+make: *** [.tmp_vmlinux1] Error 1
+
+The problem is that the block layer isn't configured and this is where
+the blk_congestion_end symbol comes from.
+
+This comes from the git-nfs.patch.
+
+
+-- 
+Mark Haverkamp <markh@osdl.org>
 

@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWIKClg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWIKCjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbWIKClg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 22:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWIKClg
+	id S1751070AbWIKCjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 22:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWIKCjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 22:41:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62403 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751075AbWIKClf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 22:41:35 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Containers <containers@lists.osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] vt: Rework the console spawning variables.
-References: <m1mz98fj16.fsf@ebiederm.dsl.xmission.com>
-	<20060910142942.GA7384@oleg>
-	<m18xkreb42.fsf@ebiederm.dsl.xmission.com> <20060910203324.GA121@oleg>
-	<m1slizcouy.fsf@ebiederm.dsl.xmission.com> <20060911010534.GA108@oleg>
-Date: Sun, 10 Sep 2006 20:40:29 -0600
-In-Reply-To: <20060911010534.GA108@oleg> (Oleg Nesterov's message of "Mon, 11
-	Sep 2006 05:05:34 +0400")
-Message-ID: <m17j0bcehu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 10 Sep 2006 22:39:11 -0400
+Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:19155 "EHLO
+	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751059AbWIKCjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 22:39:10 -0400
+Date: Sun, 10 Sep 2006 22:34:33 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.18-rc6-mm1
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200609102237_MC3-1-CAD6-7C3@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
 
-> On 09/10, Eric W. Biederman wrote:
->>
->> Ok.  I think I see the where the confusion is.  We were looking
->> at different parts of the puzzle.  But I we need to resolve this
->> to make certain I didn't do something clever and racy.
->
-> Yes, I think we misunderstood each other :)
->
->> As for the rest of your suggestion it would not be hard to be able to
->> follow a struct pid pointer in an rcu safe way, and we do in the pid
->> hash table.  In other contexts so far I always have other variables
->> that need to be updated in concert, so there isn't a point in coming
->> up with a lockless implementation.  I believe vt_pid is the only
->> case that I have run across where this is a problem and I have
->> at least preliminary patches for every place where signals are
->> sent.
->> 
->> Updating this old code is painful.
->
-> No, no, we shouldn't change the old code, it is fine.
->
-So what happens when:
-cpu0:                         cpu1:
-kill_pid(vt_pid,....)         fn_SAK()->vc_reset()->put_pid(xchg(&vt_pid, NULL))
+On Fri, 8 Sep 2006 01:13:17 -0700, Andrew Morton wrote:
 
-Can't kill_pid dereference vt_pid after put_pid is called?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
 
-It's a microscopic window, and requires the user to attempt a vt switch
-and a sak simultaneously but I think it is there.
+$ cd 2.6.18-rc6-mm1
+$ tar xjf 2.6.18-rc6-mm1-broken-out.tar.bz2
+$ mv broken-out patches
+$ quilt push -a
+...
+Applying patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch
+patching file drivers/ide/ide.c
+Hunk #2 FAILED at 1221.
+1 out of 2 hunks FAILED -- rejects in file drivers/ide/ide.c
+patching file drivers/pci/pci.c
+Patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch does not apply (enforce with -f)
 
-Eric
+
+git-block.patch (applied earlier) has this:
+
+--- a/drivers/ide/ide.c
++++ b/drivers/ide/ide.c
+@@ -1217,9 +1217,9 @@ static int generic_ide_suspend(struct de
+        memset(&rq, 0, sizeof(rq));
+        memset(&rqpm, 0, sizeof(rqpm));
+        memset(&args, 0, sizeof(args));
+-       rq.flags = REQ_PM_SUSPEND;
++       rq.cmd_type = REQ_TYPE_PM_SUSPEND;
+        rq.special = &args;
+-       rq.end_io_data = &rqpm;                       <=================
++       rq.data = &rqpm;                              <=================
+        rqpm.pm_step = ide_pm_state_start_suspend;
+        rqpm.pm_state = state.event;
+
+
+which conflicts with this chunk in the failing patch:
+
+@@ -1221,7 +1221,9 @@ static int generic_ide_suspend(struct de
+        rq.special = &args;
+        rq.end_io_data = &rqpm;                       <=================
+        rqpm.pm_step = ide_pm_state_start_suspend;
+-       rqpm.pm_state = state.event;
++       if (mesg.event == PM_EVENT_PRETHAW)
++               mesg.event = PM_EVENT_FREEZE;
++       rqpm.pm_state = mesg.event;
+
+        return ide_do_drive_cmd(drive, &rq, ide_wait);
+ }
+
+
+I fixed that, but then...
+
+Applying patch git-gfs2.patch
+patching file CREDITS
+patching file Documentation/filesystems/gfs2.txt
+patching file MAINTAINERS
+patching file fs/Kconfig
+Hunk #1 succeeded at 325 (offset 2 lines).
+Hunk #2 FAILED at 1933.
+1 out of 2 hunks FAILED -- rejects in file fs/Kconfig
+
+-- 
+Chuck
+

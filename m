@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWIKIkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWIKIp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWIKIkH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 04:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWIKIkH
+	id S1751272AbWIKIp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 04:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWIKIp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 04:40:07 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49578 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751270AbWIKIkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 04:40:05 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       David Miller <davem@davemloft.net>, jeff@garzik.org, paulus@samba.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1157933531.31071.274.camel@localhost.localdomain>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <45028F87.7040603@garzik.org>
-	 <20060909.030854.78720744.davem@davemloft.net>
-	 <200609101018.06930.jbarnes@virtuousgeek.org>
-	 <1157916919.23085.24.camel@localhost.localdomain>
-	 <1157923513.31071.256.camel@localhost.localdomain>
-	 <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org>
-	 <1157933531.31071.274.camel@localhost.localdomain>
+	Mon, 11 Sep 2006 04:45:59 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:36836 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751272AbWIKIp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 04:45:58 -0400
+Subject: Re: 2.6.18-rc6-mm1 -
+	x86_64-mm-lockdep-dont-force-framepointer.patch
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Andi Kleen <ak@suse.de>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200609091539.00489.ak@suse.de>
+References: <20060908011317.6cb0495a.akpm@osdl.org>
+	 <20060908122327.GD6913@osiris.boeblingen.de.ibm.com>
+	 <200609091539.00489.ak@suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 11 Sep 2006 10:02:52 +0100
-Message-Id: <1157965372.23085.87.camel@localhost.localdomain>
+Organization: IBM Corporation
+Date: Mon, 11 Sep 2006 10:45:54 +0200
+Message-Id: <1157964354.14122.8.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-11 am 10:12 +1000, ysgrifennodd Benjamin Herrenschmidt:
->  - writel/readl are fully synchronous (minus mmiowb for spinlocks)
->  - we provide __writel/__readl with some barriers with relaxed ordering
-> between memory and MMIO (though still _precise_ semantics, not arch
-> specific)
-
-I'd rather they were less precise than your later proposal but that
-reflects the uses I'm considering perhaps.
-
->  * Option B:
+On Sat, 2006-09-09 at 15:39 +0200, Andi Kleen wrote:
+> > This patch affects all architecture. I'd like to keep the "select
+> > FRAME_POINTER" for s390, since we don't support dwarf2.
 > 
->  - The driver decides at ioremap time wether it wants a fully ordered
-> mapping or not using
+> Perhaps you should port the unwinder then?  I know you use it 
+> in userland.
 
-That is expensive because writel/readl end up full of if() while at the
-moment they are often 1 instruction.
+I have thought about porting the porting the unwinder but it is quite
+some effort. Especially the CFI unwind annotations in entry.S are hairy.
+
+> > So this patch should be dropped.
+> 
+> I changed it now to add a if !X86 so it should be ok now
+
+Thanks.
+
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
 
 

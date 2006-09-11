@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWIKXSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWIKXSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965113AbWIKXSz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 19:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWIKXSx
+	id S965115AbWIKXSw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 19:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWIKXSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 19:18:53 -0400
-Received: from mga03.intel.com ([143.182.124.21]:44215 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S965113AbWIKXSu (ORCPT
+	Mon, 11 Sep 2006 19:18:51 -0400
+Received: from mga03.intel.com ([143.182.124.21]:40122 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S965102AbWIKXSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 19:18:50 -0400
+	Mon, 11 Sep 2006 19:18:39 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,147,1157353200"; 
-   d="scan'208"; a="114947171:sNHT33253857"
+   d="scan'208"; a="114947122:sNHT44377942"
 From: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 14/19] dmaengine: add dma_sync_wait
-Date: Mon, 11 Sep 2006 16:18:49 -0700
+Subject: [PATCH 12/19] dmaengine: dma_async_memcpy_err for DMA engines that do not support memcpy
+Date: Mon, 11 Sep 2006 16:18:39 -0700
 To: neilb@suse.de, linux-raid@vger.kernel.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, christopher.leech@intel.com
-Message-Id: <20060911231849.4737.90803.stgit@dwillia2-linux.ch.intel.com>
+Message-Id: <20060911231838.4737.6812.stgit@dwillia2-linux.ch.intel.com>
 In-Reply-To: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
 References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -28,35 +28,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Dan Williams <dan.j.williams@intel.com>
 
-dma_sync_wait is a common routine to live wait for a dma operation to
-complete.
+Default virtual function that returns an error if the user attempts a
+memcpy operation.  An XOR engine is an example of a DMA engine that does
+not support memcpy.
 
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
 
- include/linux/dmaengine.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ drivers/dma/dmaengine.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
-index 9fd6cbd..0a70c9e 100644
---- a/include/linux/dmaengine.h
-+++ b/include/linux/dmaengine.h
-@@ -750,6 +750,18 @@ static inline void dma_async_unmap_singl
- 	chan->device->unmap_single(chan, handle, size, direction);
+diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
+index fe62237..33ad690 100644
+--- a/drivers/dma/dmaengine.c
++++ b/drivers/dma/dmaengine.c
+@@ -593,6 +593,18 @@ void dma_async_device_unregister(struct 
  }
  
-+static inline enum dma_status dma_sync_wait(struct dma_chan *chan,
-+						dma_cookie_t cookie)
+ /**
++ * dma_async_do_memcpy_err - default function for dma devices that
++ *	do not support memcpy
++ */
++dma_cookie_t dma_async_do_memcpy_err(struct dma_chan *chan,
++		union dmaengine_addr dest, unsigned int dest_off,
++		union dmaengine_addr src, unsigned int src_off,
++                size_t len, unsigned long flags)
 +{
-+	enum dma_status status;
-+	dma_async_issue_pending(chan);
-+	do {
-+		status = dma_async_operation_complete(chan, cookie, NULL, NULL);
-+	} while (status == DMA_IN_PROGRESS);
-+
-+	return status;
++	return -ENXIO;
 +}
 +
- /* --- DMA device --- */
- 
- int dma_async_device_register(struct dma_device *device);
++/**
+  * dma_async_do_xor_err - default function for dma devices that
+  *	do not support xor
+  */
+@@ -642,6 +654,7 @@ EXPORT_SYMBOL_GPL(dma_async_issue_pendin
+ EXPORT_SYMBOL_GPL(dma_async_device_register);
+ EXPORT_SYMBOL_GPL(dma_async_device_unregister);
+ EXPORT_SYMBOL_GPL(dma_chan_cleanup);
++EXPORT_SYMBOL_GPL(dma_async_do_memcpy_err);
+ EXPORT_SYMBOL_GPL(dma_async_do_xor_err);
+ EXPORT_SYMBOL_GPL(dma_async_do_memset_err);
+ EXPORT_SYMBOL_GPL(dma_async_chan_init);

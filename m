@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWIKW21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWIKWe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbWIKW21 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 18:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWIKW21
+	id S932175AbWIKWe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 18:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWIKWe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 18:28:27 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:56328 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S965082AbWIKW21 (ORCPT
+	Mon, 11 Sep 2006 18:34:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932175AbWIKWe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 18:28:27 -0400
-Message-ID: <4505E304.7000302@domdv.de>
-Date: Tue, 12 Sep 2006 00:28:20 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Pavel Machek <pavel@suse.cz>, Eric Sandall <eric@sandall.us>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend to ram with 2.6 kernels
-References: <44FF8586.8090800@sandall.us> <20060907193333.GI8793@ucw.cz> <450536D0.4020705@domdv.de> <200609112227.15572.rjw@sisk.pl>
-In-Reply-To: <200609112227.15572.rjw@sisk.pl>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 11 Sep 2006 18:34:57 -0400
+Date: Mon, 11 Sep 2006 15:31:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vgter.kernel.org
+Subject: Re: [PATCH 1/2] cciss: version update, new hw
+Message-Id: <20060911153140.3f2433a9.akpm@osdl.org>
+In-Reply-To: <20060911213126.GA6867@beardog.cca.cpqcorp.net>
+References: <20060911213126.GA6867@beardog.cca.cpqcorp.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Monday, 11 September 2006 12:13, Andreas Steinmetz wrote:
-> 
->>Pavel Machek wrote:
->>
->>>See suspend.sf.net, use provided s2ram program.
->>
->>Which,in my case (Acer Ferrari 4006), only works with "noapic" and
->>"radeon" not loaded.
->>Without "noapic" the system doesn't resume at all (same symptoms),
-> 
-> 
-> Have you tried with ec_intr=0?
-> 
+On Mon, 11 Sep 2006 16:31:26 -0500
+"Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
 
-Nope,
-but the hint from this thread was good: s2ram works with
-"acpi_skip_timer_override" and probably "enable_timer_pin_1" (I have to
-try without this one, yet). Radeon, however, remains as a problem.
+> This patch adds support for new hardware and bumps the version to 3.6.10. It
+> seems there were several changes introduced including soft_irq. I decided
+> to bump the major number to reflect these changes. Since we're still 
+> supporting older vendor kernels I need some way differenciate between kernel
+> versions <=2.6.10 and newer kernels >=2.6.16. 
+> I hate to send this in -rc6 but it seems like 2.6.18 is having a tough time
+> getting out the gate. Please consider this for inclusion.
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Adding a new device ID is a bit of a no-brainer - in fact bumping the
+version number seems more risky than adding a device ID.
+
+I'd be OK with a 2.6.18 merge, and shall send it into Linus unless Jens
+nacks it, or gets there first.
+

@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWIKP4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWIKQAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWIKP4T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWIKP4T
+	id S964951AbWIKQAG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 12:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWIKQAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:56:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57804 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964918AbWIKP4S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:56:18 -0400
-Date: Mon, 11 Sep 2006 12:03:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Rickard Faith <faith@redhat.com>
-Subject: Re: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
-Message-ID: <20060911160328.GJ4743@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-	Rickard Faith <faith@redhat.com>
-References: <200609111715.17080.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609111715.17080.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.2.2i
+	Mon, 11 Sep 2006 12:00:06 -0400
+Received: from web36614.mail.mud.yahoo.com ([209.191.85.31]:55139 "HELO
+	web36614.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964947AbWIKQAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 12:00:04 -0400
+Message-ID: <20060911160002.78419.qmail@web36614.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Mon, 11 Sep 2006 09:00:02 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: capability inheritance (was: Re: patch to make Linux capabilities into something useful (v 0.3.1))
+To: David Madore <david.madore@ens.fr>
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060910142540.GA19804@clipper.ens.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 05:15:16PM +0200, Jesper Juhl wrote:
- > 
- > kauditd_thread() is being used in a call to kthread_run(). kthread_run() expects
- > a function returning 'int' which is also how kauditd_thread() is declared. Unfortunately
- > kauditd_thread() neglects to return a value which results in this complaint from gcc :
- > 
- >   kernel/audit.c:372: warning: no return statement in function returning non-void
- > 
- > Easily fixed by just adding a 'return 0;' to kauditd_thread().
 
-Which will never be reached.  Does marking the function NORET_TYPE
-also silence the warning?
 
-	Dave
+--- David Madore <david.madore@ens.fr> wrote:
+
+> I can see no way of reconciling the POSIX rules with
+> sane Unix behavior.
+
+While one strives to maintain the decorum of
+friendly debate, "Them's fighting words"*.
+
+Have you read the POSIX DRAFT rationale section?
+Have you read any of the DRAFT, for that matter?
+
+Breaking privilege apart from UID==0 and the
+setuid mechanism while allowing a system that
+could still work without requiring programs
+to be rewritten took quite a while. The DRAFT
+versions don't differ that greatly after about
+DRAFT 12. The scheme has been implemented
+several times.
+
+> Hence I can only give up if someone
+> insists that the POSIX
+> draft should be adhered to.
+> 
+> (Just in case someone were tempted to get away with
+> a handwaving such
+> as "just follow the POSIX rules except for suid
+> root...", let that
+> someone please try to come up with a full
+> description of the rules
+> which breaks nothing, and he will understand that
+> it's not at all easy.)
+
+The relationship between setuid and file based
+capabilitiy sets is straitforward. There is
+none. If your system supports root or capability
+(like Irix) or strictly capability (like Trix)
+the calculation is identical. There is a full
+descrition of the rules in the DRAFT. If you
+have questions about it, I'd be happy to dust
+off my copy to help you understand it.
+
+----
+* Yosemite Sam in "High Diving Hare", 1949
+
+Casey Schaufler
+casey@schaufler-ca.com

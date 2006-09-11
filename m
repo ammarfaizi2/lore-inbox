@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWIKFdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWIKFd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWIKFdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWIKFdJ
+	id S964878AbWIKFd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWIKFd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:33:09 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9696 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964867AbWIKFdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:33:07 -0400
-Date: Mon, 11 Sep 2006 07:25:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Laurent Riffard <laurent.riffard@free.fr>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: [patch] i386-PDA, lockdep: fix %gs restore
-Message-ID: <20060911052527.GA12301@elte.hu>
-References: <20060908011317.6cb0495a.akpm@osdl.org> <200609101032.17429.ak@suse.de> <20060910115722.GA15356@elte.hu> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org> <450499D3.5010903@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450499D3.5010903@goop.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 11 Sep 2006 01:33:56 -0400
+Received: from mms3.broadcom.com ([216.31.210.19]:6918 "EHLO MMS3.broadcom.com")
+	by vger.kernel.org with ESMTP id S964857AbWIKFdy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 01:33:54 -0400
+X-Server-Uuid: 450F6D01-B290-425C-84F8-E170B39A25C9
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: Re: TG3 data corruption (TSO ?)
+Date: Sun, 10 Sep 2006 22:33:45 -0700
+Message-ID: <1551EAE59135BE47B544934E30FC4FC093FB2C@NT-IRVA-0751.brcm.ad.broadcom.com>
+In-Reply-To: <1157952348.31071.411.camel@localhost.localdomain>
+Thread-Topic: TG3 data corruption (TSO ?)
+thread-index: AcbVYsZ3gVT3paQqRlygFT4TWr+BcwAAHI0Q
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+cc: "Segher Boessenkool" <segher@kernel.crashing.org>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+X-TMWD-Spam-Summary: TS=20060911053346; SEV=2.0.2; DFV=A2006091101;
+ IFV=2.0.4,4.0-8; RPD=4.00.0004; ENG=IBF;
+ RPDID=303030312E30413031303230322E34353034463339432E303032422D422D306A7671374D75736C6841666147687761704E7344673D3D;
+ CAT=NONE; CON=NONE
+X-MMS-Spam-Filter-ID: A2006091101_4.00.0004_4.0-8
+X-WSS-ID: 691A2AB0230451041-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt wrote:
 
-Jeremy,
+> I've done:
+> 
+> #define tw32_rx_mbox(reg, val)	do { wmb();
+tp->write32_rx_mbox(tp, reg, val); } while(0)
+> #define tw32_tx_mbox(reg, val)	do { wmb();
+tp->write32_tx_mbox(tp, reg, val); } while(0)
+> 
 
-could you back out Andi's patch and try the patch below, does it fix the 
-crash too?
+That should do it.
 
-	Ingo
+I think we need those tcpdump after all.  Can you send it to me?
 
---------------->
-Subject: [patch] i386-PDA, lockdep: fix %gs restore
-From: Ingo Molnar <mingo@elte.hu>
-
-in the syscall exit path the %gs selector has to be restored _after_ the
-last kernel function has been called. If lockdep is enabled then this
-kernel function is TRACE_IRQS_ON.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
----
- arch/i386/kernel/entry.S |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux/arch/i386/kernel/entry.S
-===================================================================
---- linux.orig/arch/i386/kernel/entry.S
-+++ linux/arch/i386/kernel/entry.S
-@@ -326,11 +326,12 @@ sysenter_past_esp:
- 	testw $_TIF_ALLWORK_MASK, %cx
- 	jne syscall_exit_work
- /* if something modifies registers it must also disable sysexit */
--1:	mov  PT_GS(%esp), %gs
-+1:
-+	TRACE_IRQS_ON
-+	mov  PT_GS(%esp), %gs
- 	movl PT_EIP(%esp), %edx
- 	movl PT_OLDESP(%esp), %ecx
- 	xorl %ebp,%ebp
--	TRACE_IRQS_ON
- 	ENABLE_INTERRUPTS_SYSEXIT
- 	CFI_ENDPROC
- .pushsection .fixup,"ax";	\

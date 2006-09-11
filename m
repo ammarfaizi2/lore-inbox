@@ -1,116 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWIKBg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWIKBtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWIKBg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 21:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWIKBg2
+	id S932110AbWIKBtY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 21:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIKBtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 21:36:28 -0400
-Received: from gate.crashing.org ([63.228.1.57]:39842 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932172AbWIKBg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 21:36:27 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
+	Sun, 10 Sep 2006 21:49:24 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:63702 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932110AbWIKBtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 21:49:23 -0400
+In-Reply-To: <1157937023.31071.289.camel@localhost.localdomain>
+References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com> <1157916919.23085.24.camel@localhost.localdomain> <1157923513.31071.256.camel@localhost.localdomain> <200609101725.49234.jbarnes@virtuousgeek.org> <0828ADEB-0F0E-49FC-82BE-CFA15B7D3829@kernel.crashing.org> <1157937023.31071.289.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <21EFB791-B046-4EE0-8D93-8D0BA37C1D46@kernel.crashing.org>
 Cc: Jesse Barnes <jbarnes@virtuousgeek.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
        jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
        linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <2486D031-097B-45C6-AC47-D8745844C5A3@kernel.crashing.org>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org>
-	 <1157933531.31071.274.camel@localhost.localdomain>
-	 <200609101734.06839.jbarnes@virtuousgeek.org>
-	 <2486D031-097B-45C6-AC47-D8745844C5A3@kernel.crashing.org>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 11:35:54 +1000
-Message-Id: <1157938555.31071.300.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+Date: Mon, 11 Sep 2006 03:48:47 +0200
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What exactly will "weak" mean?  If it's weak enough to please all
-> architectures and busses, it'll be so weak that you'll need 2**N
-> (with a big N) different barriers.
+>> Hence my proposal of calling it pci_cpu_to_cpu_barrier() -- what it
+>> orders is accesses from separate CPUs.  Oh, and it's bus-specific,
+>> of course.
+>
+> I disagree on that one, as I disagree on Jesse terminology too :)
+>
+> Ordering between stores issued by different CPUs has no meaning
+> whatsoever unless you have locks. That is you have some kind of
+> synchronisation primitive between the 2 CPUs.
 
-Which is why I proposed a precise semantic: weak MMIO vs. main meory but
-strong between MMIOs on the same CPU. Which, in PowerPC language
-translates into no barrier in __writel and eieio,load,twi,isync on
-__readl (maybe even a second eieio, I have think about it)
- 
-> >   - flags argument to ioremap
-> 
-> ioremap is a bad name anyway, if we'll change the API, change the
-> name as well (and it's a bad idea to keep the same name but make it
-> mean something different, anyway).
+And that's exactly what mmiowb() does right now -- it makes sure
+the I/O ends up at some I/O hub that will keep the accesses in
+order, before it allows the current CPU to continue.
 
-We already have a new API with a nicer name, pci_iomap, to use with the
-new "ioread/iowrite" accessors that Linus defined a while ago. Problem:
+> Outside of that, the
+> concept of ordering doesn't make any sense.
+>
+> Thus the problem is really only of MMIO stores leaking out of locks,
+> thus it's really a MMIO vs. lock barrier, and it's a lot easier to
+> understand that way imho.
 
- - It's a unifed PIO/MMIO interface, thus there is some added overhead
-to calls compared to a simple MMIO-only writel/readl. Though your
-proposal would add a similar overhead to writel/readl, so maybe we can
-consolidate all of these ...
+MMIO-as-seen-by-its-target vs. whatever-the-cpus-that-originated-those-
+I/Os-think-the-order-is, sure.
 
- - It doesn't have a flags arguemnt. But then, there are few enough
-users that this can be easily fixed (at least more easily than ioremap)
+The CPU running the "mmiowb()" needs to make sure that the mmiowb()
+finished before it allows another CPU to run code that does I/O to the
+same device.  I thought (most of) this was automatic in Linux (except
+for the difference between a CPU doing the access, and the I/O device
+seeing it, which is what mmiowb() is meant to solve)?  Or are
+we just safe from all kinds of similar issues, because driver code
+tends to run under interrupt locks?
 
- - It has few users :) Thus lots of drivers will need heavy conversion.
+Aaaaaaaanyway...  the question of what to call mmiowb() and what its
+exact semantics would become, is a bit of a side issue right now, let's
+discuss it later...
 
-But that's a good point to remember about the existence of this "other"
-MMIO/PIO access API. Because adding a whole lot of __* version of those
-calls in addition to the MMIO only readX/writeX will be a mess and tend
-to favor your option of just having a flag passed at map time for the
-sake of simplicity.
 
-> > Oh, and all MMIO accessors are *documented* with strongly defined
-> > semantics. :)
-> 
-> Not sure what this means?  Document them in all-caps?  :-)
-> 
-> > If we go this route though, can I request that we don't introduce any
-> > performance regressions in drivers currently using mmiowb()?  I.e.
-> > they'll be converted over to the new accessor routines when they  
-> > become
-> > available along with the new barrier macros?
-> 
-> In my proposal at least, those drivers won't lose any performance
-> (except for a conditional on their I/O cookie, which is a trivial
-> performance loss compared to the cost of the I/O /an sich/); they
-> won't need any changes either, except for some renaming.  Drivers
-> _not_ using it might get a performance loss though, because they
-> will be forced to run with every-I/O-ordered semantics; they will
-> suddenly start to work *correctly* though.
-
-As I wrote in my "vote" email, I have no strong preference at this
-point, though I must admit that the fact that your proposal makes the
-driver conversion trivial and ends up, imho, easier for driver writers
-(and possibly more flexible for archs) makes it appealing. The "only"
-problem is the possibly added overhead of a test in readl/writel. I
-don't know wether that's relevant enough to justify not going your way
-though. Only platforms like ia64 and powerpc will need that test (thus
-no performance regression on x86), it might be worth a bit of
-benchmarking here to see wether the added test has any real impact on
-performances.
-
-Note that nothing prevents us from adding _both_ proposals. It may sound
-a bit weird but at the end of the day, if writel/readl are defined as
-being strongly ordered, as per Option A, adding a test to make them
-optionally -not- strongly ordered based on a cooke in the address won't
-hurt much.
-
-In which case, we end up with those 3 cases:
-
- - slow case: normal ioremap, readl/writel strongly ordered
- - faster case : "special" ioremap, readl/writel faster
- - even faster case : __readl/__writel (save a test from the above)
-
-I mean that having both options at once is possible. Wether it's
-something we want to do is a different matter as it might be considered
-as adding confusion.
- 
-Ben.
-
+Segher
 

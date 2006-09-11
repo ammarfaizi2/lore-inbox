@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWIKOKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWIKORa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWIKOKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 10:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWIKOKZ
+	id S1751201AbWIKORa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 10:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWIKORa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 10:10:25 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:33469 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750776AbWIKOKY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 10:10:24 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: x60 - spontaneous thermal shutdown
-Date: Mon, 11 Sep 2006 16:10:36 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <20060904214059.GA1702@elf.ucw.cz> <20060911094607.GA14095@suse.de>
-In-Reply-To: <20060911094607.GA14095@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 11 Sep 2006 10:17:30 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:46764 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751201AbWIKOR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 10:17:29 -0400
+In-Reply-To: <20060911.062144.74719116.davem@davemloft.net>
+References: <20060909.030854.78720744.davem@davemloft.net> <200609101018.06930.jbarnes@virtuousgeek.org> <D680AFCF-11EC-48AD-BBC2-B92521DF442A@kernel.crashing.org> <20060911.062144.74719116.davem@davemloft.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8DA3BCBF-0F19-4CF0-B22E-91E57E7CB033@kernel.crashing.org>
+Cc: jbarnes@virtuousgeek.org, jeff@garzik.org, paulus@samba.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, akpm@osdl.org
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609111610.37514.rjw@sisk.pl>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+Date: Mon, 11 Sep 2006 16:17:18 +0200
+To: David Miller <davem@davemloft.net>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 11 September 2006 11:46, Stefan Seyfried wrote:
-> On Mon, Sep 04, 2006 at 11:40:59PM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > x60 shut down after quite a while of uptime, in period of quite heavy
-> > load:
-> > 
-> > Sep  4 23:33:01 amd kernel: ACPI: Critical trip point
-> > Sep  4 23:33:01 amd kernel: Critical temperature reached (128 C), shutting down.
-> > Sep  4 23:33:01 amd shutdown[32585]: shutting down for system halt
-> > Sep  4 23:34:42 amd init: Switching to runlevel: 0
-> > 
-> > I do not think cpu reached 128C, as I still have my machine... Did
-> > anyone else see that?
-> 
-> my usual suspect: use ec_intr=0.
+>> Why not just keep writel() etc. for *both* purposes; the address  
+>> cookie
+>> it gets as input can distinguish between the required behaviours for
+>> different kinds of I/Os; it will have to be setup by the arch- 
+>> specific
+>> __ioremap() or similar.
+>
+> This doesn't work when the I/O semantics are encoded into the
+> instruction, not some virual mapping PTE bits.  We'll have to use
+> a conditional or whatever in that case, which is silly.
 
-Is this a kernel command line parameter?
+Why is this "silly"?  Slowing down I/O accessors by a tiny little
+bit isn't expensive, certainly not when compared to the cost of
+having to do big-hammer synchronisation all over the place all the
+time, like we need to do in the "all busses are strongly ordered
+wrt to every other agent in the system" case.
 
-I'm having some suspend/resume related problems on HPC 6325 now, and they
-seem to be related to the embedded controller.
+Archs that _do_ implement only one set of ordering rules for every
+bus, i.e. use the lowest common denominator on everything, do not
+need such a conditional either of course -- only archs that want to
+_gain_ performance.
 
-Greetings,
-Rafael
+There's plenty of other scenario's where such a conditional is
+needed already btw, for example when some host bridges don't implement
+PCI memory space as memory-mapped, but via an address+data register
+(and yeah you can call such hardware "silly", and I certainly won't
+disagree, but...)
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Segher
+

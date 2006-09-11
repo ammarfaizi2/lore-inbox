@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWIKNtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWIKNyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWIKNtH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 09:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWIKNtH
+	id S1750855AbWIKNyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 09:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIKNyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 09:49:07 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:36787 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750776AbWIKNtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 09:49:03 -0400
-Message-ID: <4505694D.5020304@garzik.org>
-Date: Mon, 11 Sep 2006 09:49:01 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: What's in libata-dev.git
-References: <20060911132250.GA5178@havoc.gtf.org> <45056627.7030202@ru.mvista.com> <450566A2.1090009@garzik.org> <450568F3.3020005@ru.mvista.com>
-In-Reply-To: <450568F3.3020005@ru.mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 11 Sep 2006 09:54:32 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:47257 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750707AbWIKNyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 09:54:31 -0400
+In-Reply-To: <1157953925.31071.413.camel@localhost.localdomain>
+References: <1551EAE59135BE47B544934E30FC4FC093FB2C@NT-IRVA-0751.brcm.ad.broadcom.com> <1157953925.31071.413.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <15531494-BB50-49B3-B2A8-7E51AB3DDBF9@kernel.crashing.org>
+Cc: Michael Chan <mchan@broadcom.com>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: TG3 data corruption (TSO ?)
+Date: Mon, 11 Sep 2006 15:54:24 +0200
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergei Shtylyov wrote:
->    It's not likely I'll be able to try it. But I'm absolutely sure that 
-> drive aborted the read commands with the sector count of 0 (i.e. 256 
-> actually). The exact model was IBM DHEA-34331.
->    255 sectors actually seems more safe bet.
+>>> #define tw32_rx_mbox(reg, val)	do { wmb();
+>> tp->write32_rx_mbox(tp, reg, val); } while(0)
+>>> #define tw32_tx_mbox(reg, val)	do { wmb();
+>> tp->write32_tx_mbox(tp, reg, val); } while(0)
+>>>
+>>
+>> That should do it.
+>>
+>> I think we need those tcpdump after all.  Can you send it to me?
+>
+> Looks like adding a sync to writel does fix it though... I'm trying to
+> figure out which specific writel in the driver makes a difference.  
+> I'll
+> then look into slicing those tcpdumps.
 
-This sort of thing should be handled by quirks, depending on the 
-controller and drive.
+Adding a PowerPC "sync" to every writel() will slow down things by
+so much that it could well just hide the problem, not solve it...
 
-That's why I was asking for testing, to see if the current code already 
-handles this.
+Michael, we see this problem only with TSO on, and then the failure
+we see is bad data being sent out, with the correct header (but the
+header is constructed by the tg3 in this case, so no surprise).
 
-	Jeff
+I'm theorizing that this same failure can happen with TSO off as well,
+but the header sent on the wire will be bogus as well as the data,
+so the receiving NIC won't pick it up.  tcpdump probably won't see
+it either...  will need a low-level ethernet analyser.
 
+
+Segher
 

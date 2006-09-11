@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWIKPdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWIKPeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWIKPdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWIKPdL
+	id S1751306AbWIKPeF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 11:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWIKPeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:33:11 -0400
-Received: from relay2.ptmail.sapo.pt ([212.55.154.22]:32204 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S1751296AbWIKPdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:33:09 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Stian Jordet <liste@jordet.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
-       akpm@osdl.org, torvalds@osdl.org, jeff@garzik.org, greg@kroah.com,
-       cw@f00f.org, bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       harmon@ksu.edu, len.brown@intel.com, vsu@altlinux.ru
-In-Reply-To: <1157916102.21295.9.camel@localhost.localdomain>
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>
-	 <1157811641.6877.5.camel@localhost.localdomain>
-	 <4502D35E.8020802@gentoo.org>
-	 <1157817836.6877.52.camel@localhost.localdomain>
-	 <45033370.8040005@gentoo.org>
-	 <1157848272.6877.108.camel@localhost.localdomain>
-	 <450436F1.8070203@gentoo.org>
-	 <1157906395.23085.18.camel@localhost.localdomain>
-	 <4504621E.5090202@gentoo.org>
-	 <1157917308.23085.26.camel@localhost.localdomain>
-	 <1157916102.21295.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 11 Sep 2006 16:33:29 +0100
-Message-Id: <1157988809.13889.5.camel@localhost.localdomain>
+	Mon, 11 Sep 2006 11:34:05 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:14342 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751306AbWIKPeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 11:34:02 -0400
+Subject: Re: [PATCH 2/3] FRV: Permit __do_IRQ() to be dispensed with
+From: Daniel Walker <dwalker@mvista.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org, akpm@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+In-Reply-To: <7359.1157968022@warthog.cambridge.redhat.com>
+References: <20060909051211.GA6922@elte.hu>
+	 <20060908153236.21015.56106.stgit@warthog.cambridge.redhat.com>
+	 <20060908153240.21015.67367.stgit@warthog.cambridge.redhat.com>
+	 <7359.1157968022@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 08:33:57 -0700
+Message-Id: <1157988838.3516.7.camel@c-67-169-176-11.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 21:21 +0200, Stian Jordet wrote:
-> On søn, 2006-09-10 at 20:41 +0100, Alan Cox wrote:
-> > Feel free to cc me the lspci data and partial diagnostics and I'll try
-> > and help too.
+On Mon, 2006-09-11 at 10:47 +0100, David Howells wrote:
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Attached is lspci -xxx and dmesg from 2.6.18-rc6.
-> http://bugzilla.kernel.org/show_bug.cgi?id=2874 has some further
-> information about this (stupid) motherboard. Anything else you need?
+> > The real solution would be to use gcc -ffunction-sections plus ld 
+> > --gc-sections to automatically get rid of unused global functions, at 
+> > link time.
 > 
-> If anyone can help me with this, I'll promise to send the hero some
-> boxes of Norwegian beer!
+> It's easy.  It's already possible with FRV.  Just add the attached patch and
+> enable the new option.  However, you also need to compile without debugging
+> code, otherwise it has little effect.  I think stabs links bring stuff in or
+> something.
 > 
-> 
-Hi, this isn't the case of one USB with IO-APIC-level on legacy
-interrupts ? 
- 11:       5333       5326   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3
 
-if it is , was resolved with this [PATCH V3] VIA IRQ quirk behaviour change ? 
+It's a wide spread problem so I think something more generic is
+appropriate.
 
-Thanks,
---
-Sérgio M. B. 
+Does the code in Marcelo's patch make sense for FRV, or vis-versa?
+
+Daniel
 

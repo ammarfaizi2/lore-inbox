@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWIKFBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWIKFC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWIKFBl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWIKFBl
+	id S932108AbWIKFC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWIKFC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:01:41 -0400
-Received: from rex.snapgear.com ([203.143.235.140]:52655 "EHLO
-	cyberguard.com.au") by vger.kernel.org with ESMTP id S932105AbWIKFBl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:01:41 -0400
-Message-ID: <4504EDAC.9050900@snapgear.com>
-Date: Mon, 11 Sep 2006 15:01:32 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 11 Sep 2006 01:02:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34211 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932108AbWIKFC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 01:02:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] vt: Rework the console spawning variables.
+References: <m1mz98fj16.fsf@ebiederm.dsl.xmission.com>
+	<20060910142942.GA7384@oleg>
+	<m18xkreb42.fsf@ebiederm.dsl.xmission.com> <20060910203324.GA121@oleg>
+	<m1slizcouy.fsf@ebiederm.dsl.xmission.com> <20060911010534.GA108@oleg>
+	<m17j0bcehu.fsf@ebiederm.dsl.xmission.com>
+	<20060911025940.GA7216@oleg>
+Date: Sun, 10 Sep 2006 23:01:58 -0600
+In-Reply-To: <20060911025940.GA7216@oleg> (Oleg Nesterov's message of "Mon, 11
+	Sep 2006 06:59:40 +0400")
+Message-ID: <m1lkoratdl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gerg@uclinux.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] arch/m68knommu/kernel/setup.c should always #include
- <asm/pgtable.h>
-References: <20060904221158.GA9173@stusta.de>
-In-Reply-To: <20060904221158.GA9173@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-Adrian Bunk wrote:
-> This patch fixes the following compile error with 
-> CONFIG_BLK_DEV_INITRD=n and -Werror-implicit-function-declaration:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      arch/m68knommu/kernel/setup.o
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c: In function 'setup_arch':
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c:268: error: implicit declaration of function 'paging_init'
-> make[2]: *** [arch/m68knommu/kernel/setup.o] Error 1
-> 
-> <--  snip  -->
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> On 09/10, Eric W. Biederman wrote:
+>>
+>> Oleg Nesterov <oleg@tv-sign.ru> writes:
+>> 
+>> > On 09/10, Eric W. Biederman wrote:
+>> >>
+>> >> Updating this old code is painful.
+>> >
+>> > No, no, we shouldn't change the old code, it is fine.
+>> >
+>> So what happens when:
+>> cpu0:                         cpu1:
+>> kill_pid(vt_pid,....)  fn_SAK()->vc_reset()->put_pid(xchg(&vt_pid, NULL))
+>> 
+>> Can't kill_pid dereference vt_pid after put_pid is called?
+>
+> Ah, I didn't consider that patch as 'old code', sorry :)
 
-Thanks, I'll push that.
+What I meant was that updating code that predates SMP support is painful.
+When you said everything was ok. I was confused.
 
-Regards
-Greg
+> I don't understand drivers/char/vt*, but surely put_pid(xchg()) can't work.
+> Again, unless we have a lock to serialize access to ->vt_pid, but in that
+> case we don't need xchg().
 
+Ok.  So we are in violent agreement then, my patch was wrong.
 
+The xchg half works.  For taking and putting a reference it is fine, you
+just can't use that reference for anything safely.
 
-> --- linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c.old	2006-09-05 00:07:42.000000000 +0200
-> +++ linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c	2006-09-05 00:08:20.000000000 +0200
-> @@ -36,10 +36,7 @@
->  #include <asm/setup.h>
->  #include <asm/irq.h>
->  #include <asm/machdep.h>
-> -
-> -#ifdef CONFIG_BLK_DEV_INITRD
->  #include <asm/pgtable.h>
-> -#endif
->  
->  unsigned long memory_start;
->  unsigned long memory_end;
-> 
-> 
+So I need to come up with a new patch that gets it's locking correct,
+in the fn_SAK case.
 
--- 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a Secure Computing Company      PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+Eric

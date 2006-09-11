@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWIKExo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWIKFAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWIKExo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 00:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWIKExo
+	id S1751152AbWIKFAp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIKFAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 00:53:44 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56228 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932094AbWIKExn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 00:53:43 -0400
-Subject: Re: TG3 data corruption (TSO ?)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Michael Chan <mchan@broadcom.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1157745256.5344.8.camel@rh4>
-References: <1551EAE59135BE47B544934E30FC4FC093FB19@NT-IRVA-0751.brcm.ad.broadcom.com>
-	 <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
-	 <1157745256.5344.8.camel@rh4>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 14:53:30 +1000
-Message-Id: <1157950410.31071.402.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Sep 2006 01:00:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32931 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751152AbWIKFAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 01:00:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
+References: <20060911022535.GA7095@oleg>
+	<m1venvawbi.fsf@ebiederm.dsl.xmission.com>
+	<20060911043751.GA7320@oleg>
+Date: Sun, 10 Sep 2006 22:59:37 -0600
+In-Reply-To: <20060911043751.GA7320@oleg> (Oleg Nesterov's message of "Mon, 11
+	Sep 2006 08:37:51 +0400")
+Message-ID: <m1mz97athi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> Oh, we know about this.  The powerpc writel() used to have memory
-> barriers in 2.4 kernels but not any more in 2.6 kernels.  Red Hat's
-> version of tg3 has extra wmb()'s to fix this problem.  David doesn't
-> think that the upstream version of tg3 should have these wmb()'s, and
-> the problem should instead be fixed in powerpc's writel().
+> On 09/10, Eric W. Biederman wrote:
+>> 
+>> As for the functions can we build them in all 4 varieties.
+>> struct pid *get_task_pid(struct task *);
+>> struct pid *get_task_tgid(struct task *);
+>> struct pid *get_task_pgrp(struct task *);
+>> struct pid *get_task_session(struct task *);
+>
+> Something like the patch below?
 
-I've added a wmb() in tw32_rx_mbox() and tw32_tx_mbox() and can still
-reproduce the problem. I've also done a 2 days run without TSO enabled
-without a failure (my test program normally fails after a couple of
-minutes).
+Yes something like that.  Although it doesn't provide for the 
+get_task_tgid case, and your patch only get_task_pid.
 
-Thus, do you see any other code path in the driver where a
-synchronisation might be missing ? Is there any case where the chip
-might use data in memory before it has been told to do so  with a
-mailbox write ? (There are no "OWN" bits that I can see in the
-descriptors, thus I doubt it will use a transmit descriptor that is
-half-built before the store to the mailbox allows using it) but who
-knows....
+>> Either that or we can just drop in some rcu_read_lock() rcu_read_unlock()
+>> into the call sites.
+>
+> Possible. I don't have a strong opinion, please feel free to send
+> a different patch.
 
-That leads to the question that there might be an unrelated bug in the
-driver. Segher thinks we might be overriding "live" descriptors, though
-I haven't seen how yet. It seems to be TSO specific tho... maybe some
-missing smp synchronisation in the driver itself or a problem when the
-TX ring is full ?
+I just might.  Coming up with an idiom that is hard to get wrong,
+is desirable here, or at least with an idiom that is consistent.
 
-I don't have the chip docs and I'm not familiar with the driver, so I'll
-keep looking, but advice is welcome. I'll also see if I can reproduce
-with some other TSO capable card, in case the problem is in the kernel
-TSO code and not in the driver.
+I need to sleep on it before I can answer which way we handle that.
+The pain with a new idiom is that I will have to update all of the
+users so all of the examples in the kernel are consistent.
 
-Cheers,
-Ben.
+I might just need to do that anyway, but...
 
 
+Eric

@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWIKVc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWIKVee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWIKVc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 17:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWIKVc6
+	id S1750976AbWIKVee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 17:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWIKVee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 17:32:58 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15795 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750820AbWIKVc5 (ORCPT
+	Mon, 11 Sep 2006 17:34:34 -0400
+Received: from gate.crashing.org ([63.228.1.57]:17843 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750785AbWIKVee (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 17:32:57 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
+	Mon, 11 Sep 2006 17:34:34 -0400
+Subject: Re: [RFC] MMIO accessors & barriers documentation
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, segher@kernel.crashing.org
-In-Reply-To: <200609111108.18138.jbarnes@virtuousgeek.org>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <200609101725.49234.jbarnes@virtuousgeek.org>
-	 <1157936412.31071.282.camel@localhost.localdomain>
-	 <200609111108.18138.jbarnes@virtuousgeek.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>
+In-Reply-To: <1157995595.23085.194.camel@localhost.localdomain>
+References: <1157947414.31071.386.camel@localhost.localdomain>
+	 <1157965071.23085.84.camel@localhost.localdomain>
+	 <1157966269.3879.23.camel@localhost.localdomain>
+	 <1157969261.23085.108.camel@localhost.localdomain>
+	 <1157968778.3879.41.camel@localhost.localdomain>
+	 <1157995595.23085.194.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 12 Sep 2006 07:32:10 +1000
-Message-Id: <1158010331.3879.56.camel@localhost.localdomain>
+Date: Tue, 12 Sep 2006 07:29:58 +1000
+Message-Id: <1158010198.3879.52.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 11:08 -0700, Jesse Barnes wrote:
-> On Sunday, September 10, 2006 6:00 pm, Benjamin Herrenschmidt wrote:
-> > > If we accept this, I don't think we're much better off than we are
-> > > currently (not that I have a problem with that).  That is, many
-> > > drivers
-> > > would still need to be fixed up.
-> >
-> > Not necessarily if you introduce the trick of doing the mmiowb() in
-> > spin_unlock when a per-cpu flag has been set previously by writel... not
-> > sure if it's worth tho.
+On Mon, 2006-09-11 at 18:26 +0100, Alan Cox wrote:
+> Ar Llu, 2006-09-11 am 19:59 +1000, ysgrifennodd Benjamin Herrenschmidt:
+> > Ok, so we would define ordering on the first and last accesses (being
+> > the first and last in ascending addresses order) and leave it free to
+> > the implementation to do what it wants in between. Is that ok ?
 > 
-> True, though again this would add a branch to writeX.
-
-No, it adds a cacheable store to writeX and a branch to spin_unlock
-
-> Sure, that's where one would typically use it, but it really is a memory 
-> barrier...
-
-I prefer having separate semantics for it so people understand it better
-but I may be wrong :)
-
-> That's because it *is* a barrier.  I don't think it's any harder to understand 
-> then regular memory barriers for example.  It's just that you'd typically use 
-> it in conjunction with locks to ensure proper device access.
-
-That's why I prefer defining it as a MMIO + lock barrier.
-
-> Ok, that's fine, though I think you'd only want the very weak semantics (as 
-> provided by your __raw* routines) on write combined memory typically?
-
-Well, that and memory with no side effects (like frame buffers)
-
-> > I'm very much against your terminology. It's -not- an IO to IO barrier.
-> > It's an IO to lock barrier. Really. IO to IO is something else. ordering
-> > of IOs between CPUs has absolutely no meaning outside of the context of
-> > locked regions in any case.
+> Not sure you can go that far. I'd stick to "_fromio/_toio" transfer
+> blocks of data efficiently between host and bus addresses. The
+> guarantees are the same as readl/writel respectively with respect to the
+> start and end of the transfer.
 > 
-> But it *is* MMIO vs. MMIO.  There's confusion because your __raw* routines 
-> don't even guarantee same CPU ordering, while mmiowb() is solely intended for 
-> inter-CPU ordering.
-> 
-> But as you say, the most common (maybe only) use model for it is to make sure 
-> critical sections protecting device access behave correctly, so I don't have 
-> a problem tying it to locks somehow.
+> [How do you define start and end addresses with memcpy_fromio(foo, bar,
+> 4) for example ]
 
-Ben.
+Ok. So they behave like a writel or a readl globally respective to other
+accesses but there is no guarantee in order or size of the individual
+transfers making them up.
+
+Ben
 
 

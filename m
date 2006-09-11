@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWIKRVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWIKRXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWIKRVp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 13:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWIKRVp
+	id S1751235AbWIKRXf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 13:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWIKRXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 13:21:45 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:3818 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751202AbWIKRVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 13:21:44 -0400
-In-Reply-To: <20060911162059.GA1496@us.ibm.com>
-References: <200609090049.20416.oliver@neukum.org> <Pine.LNX.4.44L0.0609082216070.8541-100000@netrider.rowland.org> <20060911162059.GA1496@us.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <52D5A4D1-ACE2-4D55-A01D-135FEC606B85@kernel.crashing.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>,
-       David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
+	Mon, 11 Sep 2006 13:23:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27859 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751235AbWIKRXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 13:23:34 -0400
+Date: Mon, 11 Sep 2006 10:23:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc6-mm1
+Message-Id: <20060911102328.861a64b3.akpm@osdl.org>
+In-Reply-To: <200609110842_MC3-1-CAD5-5E82@compuserve.com>
+References: <200609110842_MC3-1-CAD5-5E82@compuserve.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: Uses for memory barriers
-Date: Mon, 11 Sep 2006 19:21:22 +0200
-To: paulmck@us.ibm.com
-X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.	All stores to a given single memory location will be perceived
-> 	as having occurred in the same order by all CPUs.
+On Mon, 11 Sep 2006 08:41:02 -0400
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-All CPUs that _do_ see two stores to the same memory location happening,
-will see them occurring in the same order -- not all CPUs seeing a
-later store will necessarily see the earlier stores.
+> In-Reply-To: <20060910221421.1aeac3c9.akpm@osdl.org>
+> 
+> On Sun, 10 Sep 2006 22:14:21 -0700, Andrew Morton wrote:
+> 
+> > > Patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch does not apply (enforce with -f)
+> >
+> > It works for me - I expect your tree is out of sync.
+> 
+> Well something is out of sync but I don't think it's me.
 
+Beats me, sorry.
 
-Segher
+wget ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.18-rc6.tar.bz2
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/2.6.18-rc6-mm1-broken-out.tar.gz
+box:/home/akpm> mkdir aa
+box:/home/akpm> cd aa
+box:/home/akpm/aa> tar xfj ../linux-2.6.18-rc6.tar.bz2 
+box:/home/akpm/aa> cd linux-2.6.18-rc6 
+box:/home/akpm/aa/linux-2.6.18-rc6> tar xfz ../../2.6.18-rc6-mm1-broken-out.tar.gz
+box:/home/akpm/aa/linux-2.6.18-rc6> mv broken-out patches
+box:/home/akpm/aa/linux-2.6.18-rc6> quilt push -a > /dev/null
+box:/home/akpm/aa/linux-2.6.18-rc6> quilt applied | wc -l
+1835
 
+box:/home/akpm/aa/linux-2.6.18-rc6> quilt --version
+0.45

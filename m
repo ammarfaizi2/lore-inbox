@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWIKBE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWIKBFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWIKBE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 21:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIKBE0
+	id S932158AbWIKBFo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 21:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWIKBFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 21:04:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:16546 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750731AbWIKBEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 21:04:25 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <200609101734.06839.jbarnes@virtuousgeek.org>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org>
-	 <1157933531.31071.274.camel@localhost.localdomain>
-	 <200609101734.06839.jbarnes@virtuousgeek.org>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 11:04:04 +1000
-Message-Id: <1157936644.31071.286.camel@localhost.localdomain>
+	Sun, 10 Sep 2006 21:05:44 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:62434 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S932158AbWIKBFo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 21:05:44 -0400
+Date: Mon, 11 Sep 2006 05:05:34 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] vt: Rework the console spawning variables.
+Message-ID: <20060911010534.GA108@oleg>
+References: <m1mz98fj16.fsf@ebiederm.dsl.xmission.com> <20060910142942.GA7384@oleg> <m18xkreb42.fsf@ebiederm.dsl.xmission.com> <20060910203324.GA121@oleg> <m1slizcouy.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1slizcouy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 09/10, Eric W. Biederman wrote:
+>
+> Ok.  I think I see the where the confusion is.  We were looking
+> at different parts of the puzzle.  But I we need to resolve this
+> to make certain I didn't do something clever and racy.
 
-> If we go this route though, can I request that we don't introduce any 
-> performance regressions in drivers currently using mmiowb()?  I.e. 
-> they'll be converted over to the new accessor routines when they become 
-> available along with the new barrier macros?
+Yes, I think we misunderstood each other :)
 
-There are few enough of them, I've grep'ed, so that should be doable.
-The segher mentioned in favor of his approach (option B -> ioremap
-flags) that doing a test in writeX/readX is very cheap compared to the
-cost of IOs in general and would make driver conversion easier: you
-don't have to change a single occurence of writel/readl : just add the
-necessary barriers and change the ioremap call. Thus I tend to agree
-that his approach makes it easier from a driver writer point of view.
+> As for the rest of your suggestion it would not be hard to be able to
+> follow a struct pid pointer in an rcu safe way, and we do in the pid
+> hash table.  In other contexts so far I always have other variables
+> that need to be updated in concert, so there isn't a point in coming
+> up with a lockless implementation.  I believe vt_pid is the only
+> case that I have run across where this is a problem and I have
+> at least preliminary patches for every place where signals are
+> sent.
+> 
+> Updating this old code is painful.
 
-Now, I don't have a strong preference myself, which is why I asked for a
-vote here. So far, I could your vote for A :)
+No, no, we shouldn't change the old code, it is fine.
 
-Ben.
+Just in case, to avoid any possible confusion.
+
+put_pid(pid) has the following restrictions. The caller should ensure
+that any other possible reference to this pid "owns" it (did get_pid()).
+
+So we can add a new helper, put_pid_rcu(). It is ok if this pid is used
+in parallel under rcu_read_lock() without bumping pid->count. Contrary,
+the only restriction those users must not call get_pid(pid).
+
+But yes, you are right, I don't see an immediate usage of put_pid_rcu().
+
+Oleg.
 
 

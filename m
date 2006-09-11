@@ -1,31 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWIKKNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWIKKRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWIKKNe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 06:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWIKKNe
+	id S1750739AbWIKKRr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 06:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIKKRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 06:13:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58013 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751354AbWIKKNd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 06:13:33 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1157891081.23085.1.camel@localhost.localdomain> 
-References: <1157891081.23085.1.camel@localhost.localdomain>  <1157472883.9018.79.camel@localhost.localdomain> <1157885180.2977.133.camel@pmac.infradead.org> <1157886908.22571.11.camel@localhost.localdomain> <1157887240.2977.147.camel@pmac.infradead.org> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH RFC]: New termios take 2 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 11 Sep 2006 11:13:24 +0100
-Message-ID: <8398.1157969604@warthog.cambridge.redhat.com>
+	Mon, 11 Sep 2006 06:17:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11998 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750739AbWIKKRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 06:17:46 -0400
+Subject: Re: missing request_region in pnpbios_probe_system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060911095759.GA23339@aepfle.de>
+References: <20060911095759.GA23339@aepfle.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 11 Sep 2006 11:41:03 +0100
+Message-Id: <1157971263.23085.123.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Ar Llu, 2006-09-11 am 11:57 +0200, ysgrifennodd Olaf Hering:
+> Does anyone know why pnpbios_probe_system() does no request_region()
+> before it reads from 0xf0000 to 0xffff0?
 
-> glibc needs them, nobody else does.
+It's the system ROM. It's not a private resource.
 
-And uClibc, though that's a glibc equivalent.
-
-David

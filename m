@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWIKSaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWIKSg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWIKSaU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWIKSaT
+	id S964837AbWIKSg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 14:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWIKSg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:30:19 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:32202 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S932288AbWIKSaS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:30:18 -0400
-Date: Mon, 11 Sep 2006 22:29:56 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] proc: bye bye tasklist_lock
-Message-ID: <20060911182956.GA246@oleg>
-References: <20060909221839.GA141@oleg> <200609111319.42132.jdelvare@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609111319.42132.jdelvare@suse.de>
-User-Agent: Mutt/1.5.11
+	Mon, 11 Sep 2006 14:36:58 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:38617 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964837AbWIKSg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 14:36:58 -0400
+Message-ID: <4505ACBC.9050505@oracle.com>
+Date: Mon, 11 Sep 2006 11:36:44 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/10] check pr_debug() arguments
+References: <20060908225438.9340.69862.sendpatchset@kaori.pdx.zabbo.net>	<20060908225529.9340.75338.sendpatchset@kaori.pdx.zabbo.net> <20060908164908.abb98076.akpm@osdl.org>
+In-Reply-To: <20060908164908.abb98076.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/11, Jean Delvare wrote:
-> Hi Oleg,
-> 
-> On Sunday 10 September 2006 00:18, Oleg Nesterov wrote:
-> > fs/proc/ does not use tasklist_lock anymore.
-> >
-> > These patches are simple enough and do not depend on each other.
-> > The only problem I don't know how to really test them.
-> 
-> Just to make sure I understand what it is all about: Is there a relation 
-> between this patchset and the recent patch from Eric fixing the 
-> readdir(/proc) race?
 
-No, they are not related. This series doesn't fix bugs, just
-removes tasklist_lock from fs/proc/ entirely.
+>> This results in a seemingly insignificant code size increase.  A x86-64
+>> allyesconfig:
+>>
+>>    text    data     bss     dec     hex filename
+>> 25354768        7191098 4854720 37400586        23ab00a vmlinux.before
+>> 25354945        7191138 4854720 37400803        23ab0e3 vmlinux
+> 
+> Which would indicate that we might have expressions-with-side-effects
+> inside pr_debug() statements somewhere, which is risky.  I wonder where?
 
-Oleg.
+I browsed through some of the functions that bloat-o-meter reported an
+increase for.  Some seemed reasonable as they used things like current
+or AFFS_I() in arguments.  Others seemed pretty mysterious as they
+didn't have obvious pr_debug() calls.
+
+$ uname -m ; gcc --version
+x86_64
+gcc (GCC) 4.1.1 20060525 (Red Hat 4.1.1-1)
+
+> btw, what's up with aio.c using a combination of pr_debug() and dprintk(),
+> and a combination of `#ifdef DEBUG' and `#if DEBUG > 1'?  Confusing.
+
+I'm not sure how it got that way but I don't think anyone will object to
+simplifying it.  I'll spend those 5 minutes :).
+
+> It would be nice to have a single way of doing developer-debug in-tree.  We
+> have 182(!) different definitions of dprintk().  Please nobody cc me on that
+> discussion though ;)
+
+Agreed, on both counts :).
+
+- z
 

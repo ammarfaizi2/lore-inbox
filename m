@@ -1,107 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWIKBAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWIKBE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWIKBAm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 21:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWIKBAm
+	id S932087AbWIKBE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 21:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIKBE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 21:00:42 -0400
-Received: from gate.crashing.org ([63.228.1.57]:11938 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964870AbWIKBAl (ORCPT
+	Sun, 10 Sep 2006 21:04:26 -0400
+Received: from gate.crashing.org ([63.228.1.57]:16546 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750731AbWIKBEZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 21:00:41 -0400
+	Sun, 10 Sep 2006 21:04:25 -0400
 Subject: Re: Opinion on ordering of writel vs. stores to RAM
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
+Cc: Segher Boessenkool <segher@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
        jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, segher@kernel.crashing.org
-In-Reply-To: <200609101725.49234.jbarnes@virtuousgeek.org>
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <200609101734.06839.jbarnes@virtuousgeek.org>
 References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <1157916919.23085.24.camel@localhost.localdomain>
-	 <1157923513.31071.256.camel@localhost.localdomain>
-	 <200609101725.49234.jbarnes@virtuousgeek.org>
+	 <0F623199-9152-46B3-8CC3-6FFCDD8AF705@kernel.crashing.org>
+	 <1157933531.31071.274.camel@localhost.localdomain>
+	 <200609101734.06839.jbarnes@virtuousgeek.org>
 Content-Type: text/plain
-Date: Mon, 11 Sep 2006 11:00:12 +1000
-Message-Id: <1157936412.31071.282.camel@localhost.localdomain>
+Date: Mon, 11 Sep 2006 11:04:04 +1000
+Message-Id: <1157936644.31071.286.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If we accept this, I don't think we're much better off than we are 
-> currently (not that I have a problem with that).  That is, many
-> drivers 
-> would still need to be fixed up.
 
-Not necessarily if you introduce the trick of doing the mmiowb() in
-spin_unlock when a per-cpu flag has been set previously by writel... not
-sure if it's worth tho.
+> If we go this route though, can I request that we don't introduce any 
+> performance regressions in drivers currently using mmiowb()?  I.e. 
+> they'll be converted over to the new accessor routines when they become 
+> available along with the new barrier macros?
 
-> >  - __writel/__readl are totally relaxed between mem and IO, though
-> > they still guarantee ordering between MMIO and MMIO. That
-> guaranteed,
-> > on powerpc, can be acheived by putting most of the burden in
-> > __readl(), thus letting __writel() alone to still allow for write
-> > combining. We still need to verify wether those semantics are
-> > realistic on other out-of-order platforms. Jesse ?
-> 
-> Depends on what you mean by "ordered between MMIO and MMIO".
-> mmiowb() 
-> was initially introduced to allow ordering of writes between CPUs,
-> and 
-> really didn't say anything about memory vs. I/O, so the semantics you 
-> describe here would also be different (and more expensive) than what
-> we 
-> have now.
+There are few enough of them, I've grep'ed, so that should be doable.
+The segher mentioned in favor of his approach (option B -> ioremap
+flags) that doing a test in writeX/readX is very cheap compared to the
+cost of IOs in general and would make driver conversion easier: you
+don't have to change a single occurence of writel/readl : just add the
+necessary barriers and change the ioremap call. Thus I tend to agree
+that his approach makes it easier from a driver writer point of view.
 
-No. What I mean is that two consecutive MMIO writes on the same CPU stay
-in order, and reads can't cross writes. The relaxed versions would still
-require mmiowb() (or another name) for synchronisation against
-spinlocks. As I told you before, I much prefer to sync of mmiowb() as a
-sync with locks than a sync with "other MMIOs on anotehr CPU" since that
-doesn't mean anything outside of the context of a lock.
+Now, I don't have a strong preference myself, which is why I asked for a
+vote here. So far, I could your vote for A :)
 
-> This is what mmiowb() is supposed to be, though only for writes.
-> I.e. 
-> two writes from different CPUs may arrive out of order if you don't
-> use 
-> mmiowb() carefully.  Do you also need a mmiorb() macro or just a 
-> stronger mmiob()?
-
-No, you misunderstand me. That's the main problem with mmiowb() and
-that's why it's so not clear to so many people: the way you keep
-presenting it as synchronizing MMIO vs. MMIO. I think it's a lot more
-clear if you present it as synchronizing MMIOs with locks. MMIO vs. MMIO
-is anohter matter. It's wether consecutive MMIO writes can be
-re-ordered, wether MMIO loads can cross a write (either because the load
-is performed late, only when the value is actually used, or because the
-load can be exucuted before a preceeding write). That's what current
-__raw_* versions on PowerPC will allow, in addition to not doing endian
-swap. My proposal was that __writel/__readl, however, would keep MMIO
-vs. MMIO ordering (wouldn't allow that sort of re-ordering), however,
-they wouldn't order vs. spinlock (would still require mmiowb) nor vs.
-main memory (cacheable storage).
-
-> >  - In order to provide explicit ordering with memory for the above,
-> > we introduce mem_to_io_barrier() and io_to_mem_barrier(). It's still
-> > unclear
-> > wether to include mmiowb() as an equivalent here, that is wether the
-> > spinlock
-> > case has to be special cased vs. io_to_mem_barrier(). I need to get
-> > Jesse input
-> > on that one.
-> 
-> mmiowb() could be written as io_to_io_write_barrier() if we wanted to be 
-> extra verbose.  AIUI it's the same thing as smb_wmb() but for MMIO 
-> space.
-
-I'm very much against your terminology. It's -not- an IO to IO barrier.
-It's an IO to lock barrier. Really. IO to IO is something else. ordering
-of IOs between CPUs has absolutely no meaning outside of the context of
-locked regions in any case.
-
-Cheers,
 Ben.
 
 

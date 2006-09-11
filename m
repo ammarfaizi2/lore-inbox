@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWIKFAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWIKFBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWIKFAp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIKFAp
+	id S932105AbWIKFBl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWIKFBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:00:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32931 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751152AbWIKFAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:00:44 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
-References: <20060911022535.GA7095@oleg>
-	<m1venvawbi.fsf@ebiederm.dsl.xmission.com>
-	<20060911043751.GA7320@oleg>
-Date: Sun, 10 Sep 2006 22:59:37 -0600
-In-Reply-To: <20060911043751.GA7320@oleg> (Oleg Nesterov's message of "Mon, 11
-	Sep 2006 08:37:51 +0400")
-Message-ID: <m1mz97athi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 11 Sep 2006 01:01:41 -0400
+Received: from rex.snapgear.com ([203.143.235.140]:52655 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S932105AbWIKFBl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 01:01:41 -0400
+Message-ID: <4504EDAC.9050900@snapgear.com>
+Date: Mon, 11 Sep 2006 15:01:32 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Adrian Bunk <bunk@stusta.de>
+Cc: gerg@uclinux.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] arch/m68knommu/kernel/setup.c should always #include
+ <asm/pgtable.h>
+References: <20060904221158.GA9173@stusta.de>
+In-Reply-To: <20060904221158.GA9173@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+Hi Adrian,
 
-> On 09/10, Eric W. Biederman wrote:
->> 
->> As for the functions can we build them in all 4 varieties.
->> struct pid *get_task_pid(struct task *);
->> struct pid *get_task_tgid(struct task *);
->> struct pid *get_task_pgrp(struct task *);
->> struct pid *get_task_session(struct task *);
->
-> Something like the patch below?
+Adrian Bunk wrote:
+> This patch fixes the following compile error with 
+> CONFIG_BLK_DEV_INITRD=n and -Werror-implicit-function-declaration:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      arch/m68knommu/kernel/setup.o
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c: In function 'setup_arch':
+> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c:268: error: implicit declaration of function 'paging_init'
+> make[2]: *** [arch/m68knommu/kernel/setup.o] Error 1
+> 
+> <--  snip  -->
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Yes something like that.  Although it doesn't provide for the 
-get_task_tgid case, and your patch only get_task_pid.
+Thanks, I'll push that.
 
->> Either that or we can just drop in some rcu_read_lock() rcu_read_unlock()
->> into the call sites.
->
-> Possible. I don't have a strong opinion, please feel free to send
-> a different patch.
-
-I just might.  Coming up with an idiom that is hard to get wrong,
-is desirable here, or at least with an idiom that is consistent.
-
-I need to sleep on it before I can answer which way we handle that.
-The pain with a new idiom is that I will have to update all of the
-users so all of the examples in the kernel are consistent.
-
-I might just need to do that anyway, but...
+Regards
+Greg
 
 
-Eric
+
+> --- linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c.old	2006-09-05 00:07:42.000000000 +0200
+> +++ linux-2.6.18-rc5-mm1/arch/m68knommu/kernel/setup.c	2006-09-05 00:08:20.000000000 +0200
+> @@ -36,10 +36,7 @@
+>  #include <asm/setup.h>
+>  #include <asm/irq.h>
+>  #include <asm/machdep.h>
+> -
+> -#ifdef CONFIG_BLK_DEV_INITRD
+>  #include <asm/pgtable.h>
+> -#endif
+>  
+>  unsigned long memory_start;
+>  unsigned long memory_end;
+> 
+> 
+
+-- 
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a Secure Computing Company      PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

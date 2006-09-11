@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWIKWxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWIKW4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWIKWxz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 18:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWIKWxz
+	id S932292AbWIKW4X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 18:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWIKW4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 18:53:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:37076 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932277AbWIKWxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 18:53:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NUKq4ja6xmih+zhfk6WrD6pngHC45hk5VAX6i+/oZCqYSVWoh234sGFe40Ni+cbMnGLbo6G95IdQcJdTCmuZRlZ18ceGJV99BFrfyxGiDJOC3Ok0dyD2oqn7mUWFk2Pu/BMZRu2sS0u3o5dga+ZX+UM4DJEgJoqgnntA4NdBzEI=
-Message-ID: <87f94c370609111553m102cc128tf30058e5fff9e887@mail.gmail.com>
-Date: Mon, 11 Sep 2006 18:53:51 -0400
-From: "Greg Freemyer" <greg.freemyer@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: What's in libata-dev.git
-Cc: "Jens Axboe" <axboe@kernel.dk>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Jens Axboe" <axboe@suse.de>, "Jeff Garzik" <jeff@garzik.org>,
-       "Sergei Shtylyov" <sshtylyov@ru.mvista.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <1158015636.23085.218.camel@localhost.localdomain>
+	Mon, 11 Sep 2006 18:56:22 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8423 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932292AbWIKW4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 18:56:22 -0400
+Date: Tue, 12 Sep 2006 00:56:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: Matthew Locke <matt@nomadgs.com>, Greg KH <greg@kroah.com>,
+       Amit Kucheria <amit.kucheria@nokia.com>,
+       pm list <linux-pm@lists.osdl.org>, Mark Gross <mgross@linux.intel.com>,
+       Preece Scott-PREECE <scott.preece@motorola.com>,
+       Igor Stoppa <igor.stoppa@nokia.com>
+Subject: cpufreq terminally broken [was Re: community PM requirements/issues and PowerOP]
+Message-ID: <20060911225617.GB13474@elf.ucw.cz>
+References: <450516E8.9010403@gmail.com> <20060911082025.GD1898@elf.ucw.cz> <b0623b9bb79afacc77cddc6e39c96b62@nomadgs.com> <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060911132250.GA5178@havoc.gtf.org> <450566A2.1090009@garzik.org>
-	 <450568F3.3020005@ru.mvista.com>
-	 <1157986974.23085.147.camel@localhost.localdomain>
-	 <45057651.8000404@garzik.org>
-	 <1157988513.23085.159.camel@localhost.localdomain>
-	 <20060911153706.GE4955@suse.de>
-	 <Pine.LNX.4.64.0609110850380.27779@g5.osdl.org>
-	 <20060911195106.GA6775@kernel.dk>
-	 <1158015636.23085.218.camel@localhost.localdomain>
+In-Reply-To: <4505DDA6.8080603@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/11/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-09-11 am 21:51 +0200, ysgrifennodd Jens Axboe:
-> > Well, as I said, I don't think we ever saw a case that was demonstrably
-> > due to the 256 sector issue. And I really don't think it is as obscure a
-> > fact that people seem to think it is.
->
-> One of the ones I've got saved here is this thread. Paul goes on to
-> demonstrate that changing the 255<->256 limit makes 2.0/2.2/2.4 break or
-> not break.
->
-<snip>
+Hi!
 
-The whole thread is at http://lkml.org/lkml/2001/3/18/29
+Just for the record... this goes out to the lkml. This discussion was
+internal for way too long. (for interested lkml readers, I'm sure
+linux-pm mailing list has public archive somewhere).
 
-Greg
+On Tue 2006-09-12 02:05:26, Eugeny S. Mints wrote:
+> Pavel Machek wrote:
+> >>>>- PowerOP is only one layer (towards the bottom) in a power management 
+> >>>>solution.
+> >>>>- PowerOP does *not* replace cpufreq
+> >>>PowerOP provides userland interface for changing processor
+> >>>frequency. That's bad -- duplicate interface.
+> >>Basically the biggest problem with cpufreq interface is that cpufreq has 
+> >>"chose
+> >>predefined closest to a given frequency" functionality implemented in the
+> >>kernel while there is _no_ any reason to have this functionality 
+> >>implemented in
+> >>the kernel if we have sysfs interface exported by PowerOP in place - you 
+> >>just
+> >
+> >No, there is reason to keep that in kernel -- so that cpufreq
+> >userspace interface can be kept, and so that resulting kernel<->user
+> >interface is not ugly.
+> Cpuferq defines cpufreq_frequency_table structure in arch independent 
+> header while it's arch dependent data structure. A lot of code is built 
+> around this invalid basic brick and therefore is invalid: cpufreq tables, 
+> interface with cpu freq drivers, etc. Notion of transition latency as it 
+> defined by cpufreq is wrong because it's not a function of cpu type but 
+> function of current and next operating point. no runtime control on 
+> operating points set. it's always the same set of operating points for all 
+> system cpus in smp case and no way to define different sets or track any 
+> dependencies in case say multi core cpus. insufficient kernel<->user space 
+> interface to handle embedded requirements and no way to extend it within 
+> current design. Shall I continue?  Why should then anyone want to keep 
+> cpufreq userspace interface just due to keep it?
+
+Yes, please continue. I do not think we can just rip cpufreq interface
+out of kernel, and I do not think it is as broken as you claim it
+is. Ripping interface out of kernel takes years.
+
+I'm sure cpufreq_frequency_table could be moved to asm/ header if you
+felt strongly about that.
+
+I believe we need to fix cpufreq if it is broken for embedded
+cases.
+								Pavel
 -- 
-Greg Freemyer
-The Norcross Group
-Forensics for the 21st Century
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWIKVyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWIKWAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWIKVyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 17:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWIKVyc
+	id S965007AbWIKWAr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 18:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWIKWAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 17:54:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:63425 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964974AbWIKVyb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 17:54:31 -0400
-Message-ID: <4505DB10.7080807@pobox.com>
-Date: Mon, 11 Sep 2006 17:54:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 11 Sep 2006 18:00:47 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:45542 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S965007AbWIKWAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 18:00:46 -0400
+Date: Mon, 11 Sep 2006 17:56:26 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.18-rc6-mm1
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200609111759_MC3-1-CAE8-1802@compuserve.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [RFC] MMIO accessors & barriers documentation
-References: <1157947414.31071.386.camel@localhost.localdomain>	 <200609111139.35344.jbarnes@virtuousgeek.org> <1158011129.3879.69.camel@localhost.localdomain>
-In-Reply-To: <1158011129.3879.69.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> Ah ? What about the comment in e1000 saying that it needs a wmb()
-> between descriptor updates in memory and the mmio to kick them ? That
-> would typically be a memory_to_io_wb(). Or are your MMIOs ordered cs.
-> your cacheable stores ?
+In-Reply-To: <20060911102328.861a64b3.akpm@osdl.org>
 
-That's likely just following existing practice found in many network 
-drivers.  The following two design patterns have been copied across a 
-great many network drivers:
+On Mon, 11 Sep 2006 10:23:28 -0700, Andrew Morton wrote:
 
-1) When in a loop, reading through a DMA ring, put an "rmb()" at the top 
-of the loop, to ensure that the compiler does not optimize out all 
-memory loads after the first.
+> wget ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.18-rc6.tar.bz2
+> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/2.6.18-rc6-mm1-broken-out.tar.gz
+> box:/home/akpm> mkdir aa
+> box:/home/akpm> cd aa
+> box:/home/akpm/aa> tar xfj ../linux-2.6.18-rc6.tar.bz2 
+> box:/home/akpm/aa> cd linux-2.6.18-rc6 
+> box:/home/akpm/aa/linux-2.6.18-rc6> tar xfz ../../2.6.18-rc6-mm1-broken-out.tar.gz
+> box:/home/akpm/aa/linux-2.6.18-rc6> mv broken-out patches
+> box:/home/akpm/aa/linux-2.6.18-rc6> quilt push -a > /dev/null
+> box:/home/akpm/aa/linux-2.6.18-rc6> quilt applied | wc -l
+> 1835
 
-2) Use "wmb()" to ensure that just-written-to memory is visible to a PCI 
-device that will be reading said memory region via DMA.
+I found the problem:
 
-I don't claim that either of these is correct, just that's existing 
-practice, perhaps in some case perpetuated by my own arch ignorance.
+$ set | fgrep QUILT
+QUILT_DIFF_OPTS=-p
+QUILT_PATCH_OPTS=--fuzz=0
+                 ^^^^^^^^
 
-So, in a perfect world where I was designing my own API, I would create 
-two new API functions:
+Your patchset does have conflicts -- you're just ignoring them
+by accepting fuzz (and patch hunks can even end up being applied
+at the wrong place.)
 
-prepare_to_read_dma_memory()
-	and
-make_memory_writes_visible_to_dmaing_devices()
-
-and leave the existing APIs untouched.  Those are the two fundamental 
-operations that are needed.
-
-	Jeff
-
+-- 
+Chuck
 

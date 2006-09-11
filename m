@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWIKPY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWIKP3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWIKPY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWIKPY0
+	id S1751295AbWIKP3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 11:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWIKP3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:24:26 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:57526 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964881AbWIKPYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:24:25 -0400
-Message-ID: <45057FA3.4000509@garzik.org>
-Date: Mon, 11 Sep 2006 11:24:19 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: What's in libata-dev.git
-References: <20060911132250.GA5178@havoc.gtf.org> <45056627.7030202@ru.mvista.com> <450566A2.1090009@garzik.org> <450568F3.3020005@ru.mvista.com> <4505694D.5020304@garzik.org> <Pine.LNX.4.64.0609110749410.27779@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609110749410.27779@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Mon, 11 Sep 2006 11:29:10 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:25795 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751295AbWIKP3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 11:29:09 -0400
+Date: Mon, 11 Sep 2006 11:27:39 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: i.r.wezeman@hetnet.nl, user-mode-linux-devel@lists.sourceforge.net,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [uml-devel] Re: Partial fix! - Was: Re: [BUG report] UML linux-2.6 latest BK doesn't compile
+Message-ID: <20060911152739.GA4443@ccure.user-mode-linux.org>
+References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk> <200503132106.35599.blaisorblade@yahoo.it> <EBD0B8CF381E8B44BB99E8EA137E27C0021AD010@CPEXBE-EML06.kpnsp.local> <200609091131.36909.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609091131.36909.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> It's not even like you'd get magically higher performance by using 256 
-> sectors, so there's simply no win from living dangerously. Only losses.
+On Sat, Sep 09, 2006 at 11:31:36AM +0200, Blaisorblade wrote:
+> On Saturday 09 September 2006 00:25, i.r.wezeman@hetnet.nl wrote:
+> > Hi there.
+> > 
+> > I got a error undefined reference to `__bb_init_func' when
+> > compiling uml with kernel 2.6.17.6, gcc 4.1.1 and glibc-2.4
 
-It's easy enough to change.  Does this mean you want drivers/ide changed 
-too?  It's apparently been living dangerously for years and years.
+Happens to me with -rc6.
 
-	Jeff
+> Try removing from arch/um/kernel/gmon_syms.c these 2 lines:
+> 
+> extern void __bb_init_func(void *);
+> EXPORT_SYMBOL(__bb_init_func);
 
+And this seems to fix it.
 
+> Better yet, try if adding the weak attribute like below fixes 
+> the problem:
+> 
+> extern void __bb_init_func(void *) __attribute__((weak));
+> EXPORT_SYMBOL(__bb_init_func);
+
+And this fixes it even better.
+
+				Jeff

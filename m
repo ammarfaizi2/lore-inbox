@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWIKGSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWIKGvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWIKGSK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 02:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWIKGSK
+	id S1750713AbWIKGvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 02:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWIKGvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 02:18:10 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:30596 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964913AbWIKGSJ (ORCPT
+	Mon, 11 Sep 2006 02:51:15 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:32519 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1750713AbWIKGvP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 02:18:09 -0400
-Date: Mon, 11 Sep 2006 08:16:28 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Menuconfig won't draw lines on my terminal?
-In-Reply-To: <200609110152_MC3-1-CAD7-1E87@compuserve.com>
-Message-ID: <Pine.LNX.4.61.0609110815260.14570@yvahk01.tjqt.qr>
-References: <200609110152_MC3-1-CAD7-1E87@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 11 Sep 2006 02:51:15 -0400
+Date: Mon, 11 Sep 2006 08:51:11 +0200
+From: David Madore <david.madore@ens.fr>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060911065111.GA4850@clipper.ens.fr>
+References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <450451DB.5040104@gentoo.org> <20060910200337.GA24123@clipper.ens.fr> <Pine.LNX.4.61.0609110807250.14570@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609110807250.14570@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Mon, 11 Sep 2006 08:51:11 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 11, 2006 at 08:10:17AM +0200, Jan Engelhardt wrote:
+> You cannot reasonable run a program without CAP_REG_OPEN, because 
+> ld.so, libc.so and libdl.so all may load a ton of required files 
+> underneath you.
 
->Using PuTTY as SSH client, I get ASCII chars instead of lines when
->I use menuconfig:
+A program might quite conceivably drop CAP_REG_OPEN willingly once
+it's started, or the administrator might use capset() on it once it's
+running.  But, again, this cap is mostly a proof of concept: the
+really useful ones are CAP_REG_WRITE and CAP_REG_SXID.
 
-Have you set your locale correctly? Have you set up PUTTY correctly?
-(Works For Me)
-
-
->This happens on both Fedora Core 2 and 5.  Midnight Commander draws lines,
->so I know the characters are in the font.
-
-MC uses SLang, others use ncurses. Check $TERM and compare with your 
-putty configuration.
-
-
-
-Jan Engelhardt
 -- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

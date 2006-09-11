@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWIKSrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWIKSt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWIKSrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWIKSrO
+	id S964923AbWIKSt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 14:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWIKSt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:47:14 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:14302 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964914AbWIKSrN
+	Mon, 11 Sep 2006 14:49:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:63206 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964923AbWIKStz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:47:13 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+	Mon, 11 Sep 2006 14:49:55 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
 	memory)
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 Reply-To: sekharan@us.ibm.com
 To: Pavel Emelianov <xemul@openvz.org>
-Cc: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+Cc: balbir@in.ibm.com, Dave Hansen <haveblue@us.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
        Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
        Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
        Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-In-Reply-To: <450509EE.9010809@openvz.org>
-References: <44FD918A.7050501@sw.ru>
-	 <1157478392.3186.26.camel@localhost.localdomain> <44FED3CA.7000005@sw.ru>
-	 <1157579641.31893.26.camel@linuxchandra> <44FFCA4D.9090202@openvz.org>
-	 <1157656616.19884.34.camel@linuxchandra> <45011A47.1020407@openvz.org>
-	 <1157742442.19884.47.camel@linuxchandra>  <450509EE.9010809@openvz.org>
+In-Reply-To: <45051AC7.2000607@openvz.org>
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>
+	 <1157730221.26324.52.camel@localhost.localdomain>
+	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
+	 <4505161E.1040401@in.ibm.com>  <45051AC7.2000607@openvz.org>
 Content-Type: text/plain
 Organization: IBM
-Date: Mon, 11 Sep 2006 11:47:09 -0700
-Message-Id: <1158000429.6029.30.camel@linuxchandra>
+Date: Mon, 11 Sep 2006 11:49:50 -0700
+Message-Id: <1158000590.6029.33.camel@linuxchandra>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 11:02 +0400, Pavel Emelianov wrote:
+On Mon, 2006-09-11 at 12:13 +0400, Pavel Emelianov wrote:
+
 <snip>
-
-> >> In this case multithreaded apache that tries to serve each domain in
-> >> separate BC will fill the memory with BC-s, held by pages allocated
-> >> and mapped in threads.
-> >>     
 > >
-> > I do not understand how the memory will be filled with BCs. Can you
-> > explain, please.
-> >   
-> Sure. At the beginning I have one task with one BC. Then
-> 1. A thread is spawned and new BC is created;
+> > Don't start the new container or change the guarantees of the existing
+> > ones
+> > to accommodate this one :) The QoS design (done by the administrator)
+> > should
+> > take care of such use-cases. It would be perfectly ok to have a container
+> > that does not care about guarantees to set their guarantee to 0 and set
+> > their limit to the desired value. As Chandra has been stating we need two
+> > parameters (guarantee, limit), either can be optional, but not both.
+> If I set up 9 groups to have 100Mb limit then I have 100Mb assured (on
+> 1Gb node)
+> for the 10th one exactly. And I do not have to set up any guarantee as
+> it won't affect
+> anything. So what a guarantee parameter is needed for?
 
-You do not have to create a new BC for each new thread, just associate
-the thread to an existing appropriate BC.
+I do not think it is that simple since
+ - there is typically more than one class I want to set guarantee to
+ - I will not able to use both limit and guarantee
+ - Implementation will not be work-conserving.
 
-> 2. New thread touches a new page (e.g. maps a new file) which is charged
-> to new BC
->     (and this means that this BC's must stay in memory till page is
-> uncharged);
-> 3. Thread exits after serving the request, but since it's mm is shared
-> with parent
->     all the touched pages stay resident and, thus, the new BC is still
-> pinned in memory.
-> Steps 1-3 are done multiple times for new pages (new files).
-> Remember that we're discussing the case when pages are not recharged.
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+Also, How would you configure the following in your model ?
+
+5 classes: Class A(10, 40), Class B(20, 100), Class C (30, 100), Class D
+(5, 100), Class E(15, 50); (class_name(guarantee, limit))
+
+"Limit only" approach works for DoS prevention. But for providing QoS
+you would need guarantee.
 -- 
 
 ----------------------------------------------------------------------

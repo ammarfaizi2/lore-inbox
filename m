@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWIKPsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWIKPvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWIKPsm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWIKPsm
+	id S964910AbWIKPvG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 11:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWIKPvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:48:42 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:45754 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1751160AbWIKPsm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:48:42 -0400
-Date: Mon, 11 Sep 2006 19:48:33 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, containers@lists.osdl.org
-Subject: Re: [patch -mm] update mq_notify to use a struct pid
-Message-ID: <20060911154833.GB82@oleg>
-References: <45019CC3.2030709@fr.ibm.com> <m18xktkbli.fsf@ebiederm.dsl.xmission.com> <450537B6.1020509@fr.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450537B6.1020509@fr.ibm.com>
-User-Agent: Mutt/1.5.11
+	Mon, 11 Sep 2006 11:51:06 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:41399 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751313AbWIKPvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 11:51:03 -0400
+Message-ID: <450585DF.1080500@garzik.org>
+Date: Mon, 11 Sep 2006 11:50:55 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: What's in libata-dev.git
+References: <20060911132250.GA5178@havoc.gtf.org> <45056627.7030202@ru.mvista.com> <450566A2.1090009@garzik.org> <450568F3.3020005@ru.mvista.com> <1157986974.23085.147.camel@localhost.localdomain> <45057651.8000404@garzik.org> <1157988513.23085.159.camel@localhost.localdomain> <20060911153706.GE4955@suse.de>
+In-Reply-To: <20060911153706.GE4955@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/11, Cedric Le Goater wrote:
->
-> Eric W. Biederman wrote:
-> > Cedric Le Goater <clg@fr.ibm.com> writes:
-> > 
-> >> message queues can signal a process waiting for a message.
-> >>
-> >> this patch replaces the pid_t value with a struct pid to avoid pid wrap
-> >> around problems.
-> >>
-> >> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-> >> Cc: Eric Biederman <ebiederm@xmission.com>
-> >> Cc: Andrew Morton <akpm@osdl.org>
-> >> Cc: containers@lists.osdl.org
-> > 
-> > Signed-off-by: Eric Biederman <ebiederm@xmission.com>
-> > 
-> > I was just about to send out this patch in a couple more hours.
+Jens Axboe wrote:
+> On Mon, Sep 11 2006, Alan Cox wrote:
+>> We could perhaps do it by ATA version - 255 for ATA < 3 256 for ATA 3+,
 > 
-> Well, you did the same with the usb/devio.c and friends :)
-> 
-> > So expect the fact we wrote the same code is a good sign :)
-> 
-> How does oleg feel about it ? I've seen some long thread on possible race
-> conditions with put_pid() and solutions with rcu. I didn't quite get all of
-> it ... it will need another run for me.
+> Might be sane, yep.
 
-I assume you are talking about this patch:
-	http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115773820415171
 
-I think it's ok, info->notify_owner is always used under info->lock.
+Since we're doing this just for paranoia, and nobody can actually 
+produce a problem case, it's safer just to hardcode 255 for all cases, 
+than try to come up with a hueristic that won't be exercised for another 
+decade...
 
-This is simple. If, for example, mqueue_read_file() didn't take info->lock,
-then we have a problem: pid_nr() may read a freed memory in case when
-__do_notify()->put_pid() happens at the same time.
+Most new disks are lba48 anyway.  (should we use 65535 there too???)
 
-In this context info->notify_owner is a usual refcounted object, no special
-attention is needed.
+	Jeff
 
-Oleg.
 

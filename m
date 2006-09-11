@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWIKRXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWIKRZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbWIKRXf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 13:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWIKRXf
+	id S1751271AbWIKRZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 13:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWIKRZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 13:23:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27859 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751235AbWIKRXe (ORCPT
+	Mon, 11 Sep 2006 13:25:16 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50316 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751261AbWIKRZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 13:23:34 -0400
-Date: Mon, 11 Sep 2006 10:23:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc6-mm1
-Message-Id: <20060911102328.861a64b3.akpm@osdl.org>
-In-Reply-To: <200609110842_MC3-1-CAD5-5E82@compuserve.com>
-References: <200609110842_MC3-1-CAD5-5E82@compuserve.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 11 Sep 2006 13:25:14 -0400
+Subject: Re: [PATCH] vt: Make vt_pid a struct pid (making it pid wrap
+	around safe).
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Containers <containers@lists.osdl.org>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <m1u03fevvz.fsf@ebiederm.dsl.xmission.com>
+References: <m1u03fevvz.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 10:24:50 -0700
+Message-Id: <1157995490.26324.106.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Sep 2006 08:41:02 -0400
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
-
-> In-Reply-To: <20060910221421.1aeac3c9.akpm@osdl.org>
+On Sun, 2006-09-10 at 06:41 -0600, Eric W. Biederman wrote:
 > 
-> On Sun, 10 Sep 2006 22:14:21 -0700, Andrew Morton wrote:
-> 
-> > > Patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch does not apply (enforce with -f)
-> >
-> > It works for me - I expect your tree is out of sync.
-> 
-> Well something is out of sync but I don't think it's me.
+> -               vc->vt_pid = current->pid;
+> +               put_pid(xchg(&vc->vt_pid, get_pid(task_pid(current)))); 
 
-Beats me, sorry.
+Would it make any sense to have a get_current_pid()?  It might reduce
+the horribly confusing number of parenthesis there.
 
-wget ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.18-rc6.tar.bz2
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/2.6.18-rc6-mm1-broken-out.tar.gz
-box:/home/akpm> mkdir aa
-box:/home/akpm> cd aa
-box:/home/akpm/aa> tar xfj ../linux-2.6.18-rc6.tar.bz2 
-box:/home/akpm/aa> cd linux-2.6.18-rc6 
-box:/home/akpm/aa/linux-2.6.18-rc6> tar xfz ../../2.6.18-rc6-mm1-broken-out.tar.gz
-box:/home/akpm/aa/linux-2.6.18-rc6> mv broken-out patches
-box:/home/akpm/aa/linux-2.6.18-rc6> quilt push -a > /dev/null
-box:/home/akpm/aa/linux-2.6.18-rc6> quilt applied | wc -l
-1835
+-- Dave
 
-box:/home/akpm/aa/linux-2.6.18-rc6> quilt --version
-0.45

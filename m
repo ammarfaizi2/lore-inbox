@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWIKCjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWIKC7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWIKCjL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 22:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWIKCjL
+	id S932214AbWIKC7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 22:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWIKC7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 22:39:11 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:19155 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751059AbWIKCjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 22:39:10 -0400
-Date: Sun, 10 Sep 2006 22:34:33 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.18-rc6-mm1
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200609102237_MC3-1-CAD6-7C3@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sun, 10 Sep 2006 22:59:44 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:19133 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S932214AbWIKC7o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 22:59:44 -0400
+Date: Mon, 11 Sep 2006 06:59:40 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] vt: Rework the console spawning variables.
+Message-ID: <20060911025940.GA7216@oleg>
+References: <m1mz98fj16.fsf@ebiederm.dsl.xmission.com> <20060910142942.GA7384@oleg> <m18xkreb42.fsf@ebiederm.dsl.xmission.com> <20060910203324.GA121@oleg> <m1slizcouy.fsf@ebiederm.dsl.xmission.com> <20060911010534.GA108@oleg> <m17j0bcehu.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <m17j0bcehu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060908011317.6cb0495a.akpm@osdl.org>
+On 09/10, Eric W. Biederman wrote:
+>
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > On 09/10, Eric W. Biederman wrote:
+> >>
+> >> Updating this old code is painful.
+> >
+> > No, no, we shouldn't change the old code, it is fine.
+> >
+> So what happens when:
+> cpu0:                         cpu1:
+> kill_pid(vt_pid,....)         fn_SAK()->vc_reset()->put_pid(xchg(&vt_pid, NULL))
+> 
+> Can't kill_pid dereference vt_pid after put_pid is called?
 
-On Fri, 8 Sep 2006 01:13:17 -0700, Andrew Morton wrote:
+Ah, I didn't consider that patch as 'old code', sorry :)
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm1/
+I don't understand drivers/char/vt*, but surely put_pid(xchg()) can't work.
+Again, unless we have a lock to serialize access to ->vt_pid, but in that
+case we don't need xchg().
 
-$ cd 2.6.18-rc6-mm1
-$ tar xjf 2.6.18-rc6-mm1-broken-out.tar.bz2
-$ mv broken-out patches
-$ quilt push -a
-...
-Applying patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch
-patching file drivers/ide/ide.c
-Hunk #2 FAILED at 1221.
-1 out of 2 hunks FAILED -- rejects in file drivers/ide/ide.c
-patching file drivers/pci/pci.c
-Patch gregkh-driver-pm-pci-and-ide-handle-pm_event_prethaw.patch does not apply (enforce with -f)
-
-
-git-block.patch (applied earlier) has this:
-
---- a/drivers/ide/ide.c
-+++ b/drivers/ide/ide.c
-@@ -1217,9 +1217,9 @@ static int generic_ide_suspend(struct de
-        memset(&rq, 0, sizeof(rq));
-        memset(&rqpm, 0, sizeof(rqpm));
-        memset(&args, 0, sizeof(args));
--       rq.flags = REQ_PM_SUSPEND;
-+       rq.cmd_type = REQ_TYPE_PM_SUSPEND;
-        rq.special = &args;
--       rq.end_io_data = &rqpm;                       <=================
-+       rq.data = &rqpm;                              <=================
-        rqpm.pm_step = ide_pm_state_start_suspend;
-        rqpm.pm_state = state.event;
-
-
-which conflicts with this chunk in the failing patch:
-
-@@ -1221,7 +1221,9 @@ static int generic_ide_suspend(struct de
-        rq.special = &args;
-        rq.end_io_data = &rqpm;                       <=================
-        rqpm.pm_step = ide_pm_state_start_suspend;
--       rqpm.pm_state = state.event;
-+       if (mesg.event == PM_EVENT_PRETHAW)
-+               mesg.event = PM_EVENT_FREEZE;
-+       rqpm.pm_state = mesg.event;
-
-        return ide_do_drive_cmd(drive, &rq, ide_wait);
- }
-
-
-I fixed that, but then...
-
-Applying patch git-gfs2.patch
-patching file CREDITS
-patching file Documentation/filesystems/gfs2.txt
-patching file MAINTAINERS
-patching file fs/Kconfig
-Hunk #1 succeeded at 325 (offset 2 lines).
-Hunk #2 FAILED at 1933.
-1 out of 2 hunks FAILED -- rejects in file fs/Kconfig
-
--- 
-Chuck
+Oleg.
 

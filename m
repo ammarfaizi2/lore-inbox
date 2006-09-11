@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWIKF0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWIKF0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWIKF0E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWIKF0E
+	id S964860AbWIKF0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWIKF0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:26:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:14501 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964847AbWIKF0B (ORCPT
+	Mon, 11 Sep 2006 01:26:10 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37001 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964865AbWIKF0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:26:01 -0400
-Subject: Re: TG3 data corruption (TSO ?)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Michael Chan <mchan@broadcom.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1551EAE59135BE47B544934E30FC4FC093FB2B@NT-IRVA-0751.brcm.ad.broadcom.com>
-References: <1551EAE59135BE47B544934E30FC4FC093FB2B@NT-IRVA-0751.brcm.ad.broadcom.com>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 15:25:48 +1000
-Message-Id: <1157952348.31071.411.camel@localhost.localdomain>
+	Mon, 11 Sep 2006 01:26:04 -0400
+Date: Mon, 11 Sep 2006 07:18:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
+Message-ID: <20060911051823.GA11269@elte.hu>
+References: <20060908011317.6cb0495a.akpm@osdl.org> <200609101032.17429.ak@suse.de> <20060910115722.GA15356@elte.hu> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org> <450499D3.5010903@goop.org> <4504F257.7020306@free.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4504F257.7020306@free.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-10 at 22:18 -0700, Michael Chan wrote:
-> Benjamin Herrenschmidt wrote:
-> 
-> > I've added a wmb() in tw32_rx_mbox() and tw32_tx_mbox() and can still
-> > reproduce the problem. I've also done a 2 days run without TSO enabled
-> > without a failure (my test program normally fails after a couple of
-> > minutes).
-> > 
-> 
-> Hi Ben,
-> 
-> The code is a bit tricky.  It uses function pointers for the various
-> register read/write methods.  For the 5780, I believe it will be
-> assigned a simple writel() and not tg3_write32_tx_mbox().  Can you
-> double check to make sure you have actually added the wmb()?
-> 
-> It's probably easiest to just add the wmb() in tg3_xmit_dma_bug()
-> before the tw32_tx_mbox().
 
-I've done:
+btw., i dont think it's the early-bootup behavior of lockdep that causes 
+your oops. I think %gs somehow ended up being invalid upon pagefault 
+entry, well after bootup. Not sure why. Andi's patch just papers over 
+this i believe.
 
-#define tw32_rx_mbox(reg, val)	do { wmb(); tp->write32_rx_mbox(tp, reg, val); } while(0)
-#define tw32_tx_mbox(reg, val)	do { wmb(); tp->write32_tx_mbox(tp, reg, val); } while(0)
+ah ... found it meanwhile: in the syscall exit path the PDA patches 
+restore the userspace %gs too early, trace_hardirqs_on() is called 
+_after_ the restoring of %gs. Will send a patch in a few minutes.
 
-Cheers,
-Ben.
-
-
+	Ingo

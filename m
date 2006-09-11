@@ -1,71 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWIKLt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWIKLzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWIKLt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 07:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWIKLt7
+	id S1751214AbWIKLzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 07:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWIKLzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 07:49:59 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:20786 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751200AbWIKLt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 07:49:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QqBnRnzi8TDoFonH92x7swhAwQ8yLug5HDnLNk5gj4Y0NmThRrcQg5Wb2NWG30WHp4YR6leEJrvOxmuMj6bnn9MKzaovZy0tiesGBRDs9a3jVPrtS1j3bixzzWWfNLpoTh6mZAI935eNorAgLk+G1HaPaEDn6ASmlQtaA0ZW+KQ=
-Message-ID: <1b270aae0609110449m2f71495cna78a6cb17e7ca649@mail.gmail.com>
-Date: Mon, 11 Sep 2006 13:49:57 +0200
-From: "Metathronius Galabant" <m.galabant@googlemail.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: top displaying 50% si time and 50% idle on idle machine
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1b270aae0609110405r183748d2y753c0e846229f1d0@mail.gmail.com>
+	Mon, 11 Sep 2006 07:55:07 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:2187 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S1751214AbWIKLzG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 07:55:06 -0400
+Date: Mon, 11 Sep 2006 13:53:54 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: [PATCH] Prevent legacy io access on pmac
+Message-ID: <20060911115354.GA23884@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <1b270aae0609071108h22bc10b0v5d2227abfc66c53c@mail.gmail.com>
-	 <20060907175323.57a5c6b0.akpm@osdl.org>
-	 <1b270aae0609081403u11b76ae9v72ad933475a2319f@mail.gmail.com>
-	 <20060908224752.GK8793@ucw.cz>
-	 <1b270aae0609110405r183748d2y753c0e846229f1d0@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>>Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 50.0% id,  0.0%
-> >>>>wa,  0.0% hi, 50.0%si
->
-> >> BTW what means si? (interrupt service time? google
-> >> didn't find anything)
->
-> > 'soft interrupt' probably. try disconnecting network.
->
-> The cause has been found. The timer of that machine is seriously
-> broken, 1 second is approximately 500ms long.
-> It is a HP DL360 G4 and I configured the kernel without ACPI or
-> similar. Maybe there are some strange BIOS power management schemes
-> active. I will look deeper into the problem and report back.
-> A broken timer is _very_ strange to me (I didn't encounter that in the
-> last 12 years w/ custom kernels).
 
-Power management was completely switched off, so that was not the cause.
-Instead, please have a look the this dmesg outputs:
+The ppc32 common config runs also on PReP/CHRP, which uses PC style IO
+devices.  The probing is bogus, it crashes or floods dmesg.
 
-not working (no ACPI):
+ppc can boot one single binary on prep, chrp and pmac boards.
+ppc64 can boot one single binary on pseries and G5 boards.
+pmac has no legacy io, probing for PC style legacy hardware leads to a
+hard crash:
 
-ENABLING IO-APIC IRQs
-unknown bus type 32. (repeated MULTIPLE TIMES!)
-..TIMER: vector=0x31 apic1=-1 pin1=-1 apic2=-1 pin2=-1
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... works.
+* add check for parport_pc, exit on pmac.
+32bit chrp has no ->check_legacy_ioport, the probe is always called.
+64bit chrp has check_legacy_ioport, check for a "parallel" node
+
+* add check for isapnp, only PReP boards may have real ISA slots.
+32bit PReP will have no ->check_legacy_ioport, the probe is always called.
+
+* update code in i8042_platform_init. Run ->check_legacy_ioport first, always
+call request_region. No functional change. Remove whitespace before i8042_reset init.
 
 
-working (ACPI + processor support):
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
 
-ENABLING IO-APIC IRQs
-..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
+---
+ arch/powerpc/platforms/pseries/setup.c |    6 ++++++
+ drivers/input/serio/i8042-io.h         |   13 +++++--------
+ drivers/parport/parport_pc.c           |    4 ++++
+ drivers/pnp/pnpbios/core.c             |    8 ++++++++
+ include/asm-powerpc/io.h               |    2 ++
+ 5 files changed, 25 insertions(+), 8 deletions(-)
 
-Can this be considered as a kernel-bug?
-
-Thanks for the help,
-M.
+Index: linux-2.6.18-rc6/arch/powerpc/platforms/pseries/setup.c
+===================================================================
+--- linux-2.6.18-rc6.orig/arch/powerpc/platforms/pseries/setup.c
++++ linux-2.6.18-rc6/arch/powerpc/platforms/pseries/setup.c
+@@ -401,6 +401,12 @@ static int pSeries_check_legacy_ioport(u
+ 			return -ENODEV;
+ 		of_node_put(np);
+ 		break;
++	case PARALLEL_BASE:
++		np = of_find_node_by_type(NULL, "parallel");
++		if (np == NULL)
++			return -ENODEV;
++		of_node_put(np);
++		break;
+ 	}
+ 	return 0;
+ }
+Index: linux-2.6.18-rc6/drivers/input/serio/i8042-io.h
+===================================================================
+--- linux-2.6.18-rc6.orig/drivers/input/serio/i8042-io.h
++++ linux-2.6.18-rc6/drivers/input/serio/i8042-io.h
+@@ -67,25 +67,22 @@ static inline int i8042_platform_init(vo
+  * On some platforms touching the i8042 data register region can do really
+  * bad things. Because of this the region is always reserved on such boxes.
+  */
+-#if !defined(__sh__) && !defined(__alpha__) && !defined(__mips__) && !defined(CONFIG_PPC_MERGE)
+-	if (!request_region(I8042_DATA_REG, 16, "i8042"))
+-		return -EBUSY;
+-#endif
+-
+-        i8042_reset = 1;
+-
+ #if defined(CONFIG_PPC_MERGE)
+ 	if (check_legacy_ioport(I8042_DATA_REG))
+ 		return -EBUSY;
++#endif
++#if !defined(__sh__) && !defined(__alpha__) && !defined(__mips__)
+ 	if (!request_region(I8042_DATA_REG, 16, "i8042"))
+ 		return -EBUSY;
+ #endif
++
++	i8042_reset = 1;
+ 	return 0;
+ }
+ 
+ static inline void i8042_platform_exit(void)
+ {
+-#if !defined(__sh__) && !defined(__alpha__) && !defined(CONFIG_PPC64)
++#if !defined(__sh__) && !defined(__alpha__)
+ 	release_region(I8042_DATA_REG, 16);
+ #endif
+ }
+Index: linux-2.6.18-rc6/drivers/parport/parport_pc.c
+===================================================================
+--- linux-2.6.18-rc6.orig/drivers/parport/parport_pc.c
++++ linux-2.6.18-rc6/drivers/parport/parport_pc.c
+@@ -3374,6 +3374,10 @@ __setup("parport_init_mode=",parport_ini
+ 
+ static int __init parport_pc_init(void)
+ {
++#if defined(CONFIG_PPC_MERGE)
++	if (check_legacy_ioport(PARALLEL_BASE))
++		return -EBUSY;
++#endif
+ 	if (parse_parport_params())
+ 		return -EINVAL;
+ 
+Index: linux-2.6.18-rc6/include/asm-powerpc/io.h
+===================================================================
+--- linux-2.6.18-rc6.orig/include/asm-powerpc/io.h
++++ linux-2.6.18-rc6/include/asm-powerpc/io.h
+@@ -11,6 +11,8 @@
+ 
+ /* Check of existence of legacy devices */
+ extern int check_legacy_ioport(unsigned long base_port);
++#define PARALLEL_BASE	0x378
++#define PNPBIOS_BASE	0xf000	/* only relevant for PReP */
+ 
+ #ifndef CONFIG_PPC64
+ #include <asm-ppc/io.h>
+Index: linux-2.6.18-rc6/drivers/pnp/pnpbios/core.c
+===================================================================
+--- linux-2.6.18-rc6.orig/drivers/pnp/pnpbios/core.c
++++ linux-2.6.18-rc6/drivers/pnp/pnpbios/core.c
+@@ -526,6 +526,10 @@ static int __init pnpbios_init(void)
+ {
+ 	int ret;
+ 
++#if defined(CONFIG_PPC_MERGE)
++	if (check_legacy_ioport(PNPBIOS_BASE))
++		return -ENODEV;
++#endif
+ 	if (pnpbios_disabled || dmi_check_system(pnpbios_dmi_table)) {
+ 		printk(KERN_INFO "PnPBIOS: Disabled\n");
+ 		return -ENODEV;
+@@ -575,6 +579,10 @@ subsys_initcall(pnpbios_init);
+ 
+ static int __init pnpbios_thread_init(void)
+ {
++#if defined(CONFIG_PPC_MERGE)
++	if (check_legacy_ioport(PNPBIOS_BASE))
++		return 0;
++#endif
+ 	if (pnpbios_disabled)
+ 		return 0;
+ #ifdef CONFIG_HOTPLUG

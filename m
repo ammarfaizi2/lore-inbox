@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWIKR47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWIKR6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWIKR47 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 13:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWIKR47
+	id S1751340AbWIKR6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 13:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWIKR6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 13:56:59 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27529 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751336AbWIKR46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 13:56:58 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: Brandon Philips <brandon@ifup.org>, linux-kernel@vger.kernel.org,
-       Brice Goglin <brice@myri.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       Robert Love <rml@novell.com>
-Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
-References: <20060908174437.GA5926@plankton.ifup.org>
-	<20060908121319.11a5dbb0.akpm@osdl.org>
-	<20060908194300.GA5901@plankton.ifup.org>
-	<20060908125053.c31b76e9.akpm@osdl.org>
-	<20060911021400.GA6163@plankton.ifup.org>
-	<20060911095106.2a7d6d95.akpm@osdl.org>
-Date: Mon, 11 Sep 2006 11:55:32 -0600
-In-Reply-To: <20060911095106.2a7d6d95.akpm@osdl.org> (Andrew Morton's message
-	of "Mon, 11 Sep 2006 09:51:06 -0700")
-Message-ID: <m1ac569tkb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 11 Sep 2006 13:58:25 -0400
+Received: from ext-103.mv.fabric7.com ([68.120.107.103]:43934 "EHLO
+	corp.fabric7.com") by vger.kernel.org with ESMTP id S1751311AbWIKR6Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 13:58:24 -0400
+From: "Misha Tomushev" <misha@fabric7.com>
+To: "'Arnd Bergmann'" <arnd@arndb.de>
+Cc: <jgarzik@pobox.com>, <netdev@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] VIOC: New Network Device Driver
+Date: Mon, 11 Sep 2006 10:58:23 -0700
+Message-ID: <003c01c6d5cb$e00fd850$7501a8c0@ZINLAPTOP>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <200609102339.25621.arnd@arndb.de>
+Importance: Normal
+X-OriginalArrivalTime: 11 Sep 2006 17:58:23.0917 (UTC) FILETIME=[DFF635D0:01C6D5CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> OK, thanks.
+
+-----Original Message-----
+From: Arnd Bergmann [mailto:arnd@arndb.de] 
+Sent: Sunday, September 10, 2006 2:39 PM
+To: Misha Tomushev
+Cc: jgarzik@pobox.com; netdev@vger.kernel.org;
+linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIOC: New Network Device Driver
+
+Am Friday 15 September 2006 02:15 schrieb Misha Tomushev:
+> VIOC Device Driver provides a standard device interface to the
+internal
+> fabric interconnected network used on servers designed and built by
+> Fabric 7 Systems.
 >
-> I don't think this necessarily tells us where the bug lies.  It could be
-> some pre-existing thing in MSI, or it could be added by Bryce's changes. 
-> Or by Eric's.  Or, of course, by
-> genirq-convert-the-i386-architecture-to-irq-chips.patch.
->
-> There doesn't seem to be a lot of movement on this and we want to get the
-> x86 genirq conversion into 2.6.19.  Could be that we end up having to merge
-> known-buggy stuff into mainline and crash enough computers to irritate
-> someone into fixing it.  Rather sad.
+> The patch can be found at ftp.fabric7.com/VIOC.
 
-My planning to take a good hard look at it, in a bit.
-Since it was failing in do_IRQ with a page fault something is obviously being
-left as NULL, so this should be quite easy to track down once we look
-closely.
+We recently had a discussion about tx descriptor cleanup in general.
+It would probably be more efficient to call vnic_clean_txq from the
+vioc_rx_poll() function. To do that, your tx interrupt handler
+should disable the tx interrupt line and call netif_rx_schedule,
+like you do for the receive interrupts.
 
-I'm very suspicious that this failure started happening in just
-the last two -mm releases.  That seems to implicate Bryce's work,
-but if it is just about enabling MSI he should not have touched
-the code path where the failure happened.
+The descriptor clean-up does not contribute anything to the performance
+of the driver, it just replenishes the memory pools. It almost does not
+need interrupts. Why would we want to add more cycles to the receive
+logic, when driver is doing useful work for something that can run
+almost at any time? 
 
-Also I noticed a little while ago that I didn't quite take the
-msi code far enough.  In particular the generic code still does some
-apic accesses which doesn't make any sense at all for architectures
-like ppc.
-
-I'm currently sitting on a queue of 30 about 99% complete struct pid
-conversions, that I just need to review one last time and then send
-out to get merged, hopefully I can get the rest of these patches sent
-out in the next day or two, so I can focus on irq issues for a bit.
-
-Eric

@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWIKIhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWIKIfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWIKIhh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 04:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWIKIhg
+	id S1751263AbWIKIfK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 04:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWIKIfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 04:37:36 -0400
-Received: from ns.suse.de ([195.135.220.2]:31106 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751269AbWIKIhg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 04:37:36 -0400
-Date: Mon, 11 Sep 2006 10:37:34 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [PATCH] Fix longstanding load balancing bug in the scheduler.
-Message-ID: <20060911083734.GA25953@wotan.suse.de>
-References: <Pine.LNX.4.64.0609061634240.13322@schroedinger.engr.sgi.com> <20060908103529.A9121@unix-os.sc.intel.com> <Pine.LNX.4.64.0609081135590.23089@schroedinger.engr.sgi.com> <20060908130028.A9446@unix-os.sc.intel.com> <Pine.LNX.4.64.0609081316580.24016@schroedinger.engr.sgi.com> <20060908170352.C9446@unix-os.sc.intel.com> <Pine.LNX.4.64.0609082222330.25269@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0609091252070.26746@schroedinger.engr.sgi.com>
+	Mon, 11 Sep 2006 04:35:09 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3296 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751263AbWIKIfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 04:35:07 -0400
+Subject: Re: [RFC] MMIO accessors & barriers documentation
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>
+In-Reply-To: <1157947414.31071.386.camel@localhost.localdomain>
+References: <1157947414.31071.386.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 11 Sep 2006 09:57:51 +0100
+Message-Id: <1157965071.23085.84.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609091252070.26746@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 12:56:16PM -0700, Christoph Lameter wrote:
-> On Fri, 8 Sep 2006, Christoph Lameter wrote:
-> 
-> > > one or more, it is unnecessary for the common case.
-> > 
-> > The common case is an arch with much less cpus. The maxinum on i386
-> > f.e. is 255 meaning 8 bytes. That fits in the cacheline that is already
-> > used for the stack frame of the calling function. 
-> 
-> Ughh. Wrong. 255 cpus require 32 bytes. System rarely have that 
-> much. If you configure a kernel with less than 32 cpus then this will be 
-> one word on the stack.
-> 
-> Also note that the patch restricts the search to online cpus. The 
-> scheduler will check offline cpus without this patch. That may actually 
-> result in speed improvements since the cachelines from offline cpus are
-> no longer brought in during the search for the busiest group / cpu.
+Ar Llu, 2006-09-11 am 14:03 +1000, ysgrifennodd Benjamin Herrenschmidt:
+> be interleaved when reaching the host PCI controller (and thus the
 
-This should not be the case. The sched-domain structure should always
-reflect the online CPUs only (see our hotplug cpu handler), and if you
-find otherwise then that would be a bug.
+"a host PCI controller". The semantics with multiple independant PCI
+busses are otherwise evil.
+
+>  1- {read,write}{b,w,l,q} : Those accessors provide all MMIO ordering
+> requirements. They are thus called "fully ordered". That is #1, #2 and
+> #4 for writes and #1 and #3 for reads. 
+
+#4 may be incredibly expensive on NUMA boxes.
+
+>  3- memcpy_to_io, memcpy_from_io: #1 semantics apply (all MMIO loads or
+> stores are performed in order to each other). #2+#4 (stores) or #3
+
+What is "in order" here. "In ascending order of address" would be
+tighter.
+
+>  1- __{read,write}{b,w,l,q} : Those accessors provide only ordering rule
+> #1. That is, MMIOs are ordered vs. each other as issued by one CPU.
+> Barriers are required to ensure ordering vs. memory and vs. locks (see
+> "Barriers" section). 
+
+"Except where the underlying device is marked as cachable or
+prefetchable"
+
+Q2:
+> coherency domain. If we decide not to, then an explicit barrier will
+> still be needed in most drivers before spin_unlock(). This is the
+> current mmiowb() barrier that I'm proposing to rename (section * III *).
+
+I think we need mmiowb() still anyway (for __writel etc)
+
+> If we decide to not enforce rule #4 for ordered accessors, and thus
+> require the barrier before spin_unlock, the above trick, could still be
+> implemented as a debug option to "detect" the lack of appropriate
+> barriers.
+
+This I think is an excellent idea.
+
+> [* Question 3] If we decide that accessors of Class 1 do not provide rule
+> #4, then this barrier is to be used for all classes of accessors, except
+> maybe PIO which should always be fully ordered.
+
+On x86 PIO (outb/inb) etc are always ordered and always stall until the
+cycle completes on the device.
+
+> [* Question 5] Should we document the rules for memory-memory barriers
+> here as well ? (and give examples, like live updating of a network
+> driver ring descriptor entry)
+> 
+
+Update the existing docs
+
 

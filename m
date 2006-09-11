@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWIKHeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWIKHiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWIKHeE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 03:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWIKHeE
+	id S1750974AbWIKHiN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 03:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWIKHiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 03:34:04 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:44998 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750910AbWIKHeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 03:34:02 -0400
-Date: Mon, 11 Sep 2006 09:33:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] linear reclaim core
-Message-ID: <20060911073325.GA25255@wohnheim.fh-wedel.de>
-References: <exportbomb.1157718286@pinky> <20060908122718.GA1662@shadowen.org> <20060908114114.87612de3.akpm@osdl.org> <20060910234509.GB10482@wohnheim.fh-wedel.de> <20060910174051.0c14a3b8.akpm@osdl.org>
+	Mon, 11 Sep 2006 03:38:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3233 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750969AbWIKHiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 03:38:12 -0400
+Date: Mon, 11 Sep 2006 09:29:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
+Message-ID: <20060911072959.GA2322@elte.hu>
+References: <20060908011317.6cb0495a.akpm@osdl.org> <200609101032.17429.ak@suse.de> <20060910115722.GA15356@elte.hu> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org> <450499D3.5010903@goop.org> <20060911051028.GA10084@elte.hu> <450510E0.8080906@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060910174051.0c14a3b8.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <450510E0.8080906@goop.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 September 2006 17:40:51 -0700, Andrew Morton wrote:
->
-> > A) With sufficient fragmentation, all inactive pages have one active
-> > neighbour, so shrink_inactive_list() will never find a cluster of the
-> > required order.
+
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> Ingo Molnar wrote:
+> >another thing about i386-pda: why did you pick the %gs selector to store 
+> >the PDA in? %fs would be a better choice because %gs is used by glibc so 
+> >the saving/restoring of %fs would likely be near zero-cycles cost. 
+> >(instead of the current 9 cycles for saving/restoring %gs)
 > 
-> Nope.  If the clump of pages has a mix of active and inactive, the above
-> design would cause the active ones to be deactivated, so now the entire
-> clump is eligible for treatment by shrink_inactive_list().
+> Why would saving/restoring %fs be quicker? [...]
 
-Ok?  More reading seems necessary before I can follow you here...
+because userspace does not use it normally, while with %gs we'd switch 
+between glibc's descriptor [which must be shadowed by the CPU] and the 
+kernel's descriptor [which must be shadowed by the CPU too] - hence 
+causing a constant reloading of the shadow register.
 
-> Bear in mind that simply moving the pages to the inactive list isn't enough
-> to get them reclaimed: we still do various forms of page aging and the
-> pages can still be preserved due to that.  IOW, we have several different
-> forms of page aging, one of which is LRU-ordering.  The above design
-> compromises just one of those aging steps.
-
-Are these different forms of page aging described in written form
-somewhere?
-
-> I'd be more concerned about higher-order atomic allocations.  If this thing
-> is to work I suspect we'll need per-zone, per-order watermarks and kswapd
-> will need to maintain those.
-
-Or simply declare higher-order atomic allocations to be undesired?
-Not sure how many of those we have that make sense.
-
-> Don't think in terms of "freeing".  Think in terms of "scanning".  A lot of
-> page reclaim's balancing tricks are cast in terms of pages-scanned,
-> slabs-scanned, etc.
-
-There is a related problem I'm sure you are aware of.  Trying to
-shrink the dentry_cache or the various foofs_inode_caches we remove
-tons of objects before a full slab (in most cases a page) is free and
-can be returned.  ext3_inode_cache has 8 objects per slab,
-dentry_cache has 29.  That's the equivalent of an order-3 or order-5
-page allocation in terms of inefficiency.
-
-And having just started thinking about the problem, my envisioned
-solution looks fairly similar to Andy's work for high-order
-allocations here.  Except that I cannot think in terms of "scanning",
-afaict.
-
-Jörn
-
--- 
-Anything that can go wrong, will.
--- Finagle's Law
+	Ingo

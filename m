@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWIKFYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWIKF0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWIKFYt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 01:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWIKFYs
+	id S964847AbWIKF0E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 01:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWIKF0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 01:24:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26579 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964828AbWIKFYs (ORCPT
+	Mon, 11 Sep 2006 01:26:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:14501 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964847AbWIKF0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 01:24:48 -0400
-Date: Mon, 11 Sep 2006 01:31:44 -0400
-From: Dave Jones <davej@redhat.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cache line size
-Message-ID: <20060911053144.GB18727@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	John Richard Moser <nigelenki@comcast.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200609110100_MC3-1-CAD3-E525@compuserve.com>
+	Mon, 11 Sep 2006 01:26:01 -0400
+Subject: Re: TG3 data corruption (TSO ?)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Chan <mchan@broadcom.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1551EAE59135BE47B544934E30FC4FC093FB2B@NT-IRVA-0751.brcm.ad.broadcom.com>
+References: <1551EAE59135BE47B544934E30FC4FC093FB2B@NT-IRVA-0751.brcm.ad.broadcom.com>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 15:25:48 +1000
+Message-Id: <1157952348.31071.411.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609110100_MC3-1-CAD3-E525@compuserve.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 12:58:43AM -0400, Chuck Ebbert wrote:
- > > Is there a way for the Linux Kernel to know the cache line size of the
- > > CPU it's on, besides #define X86_CACHE_LINE_SZ 32 or whatnot?
- > 
- > /sys/devices/system/cpu/cpu<N>/cache
+On Sun, 2006-09-10 at 22:18 -0700, Michael Chan wrote:
+> Benjamin Herrenschmidt wrote:
+> 
+> > I've added a wmb() in tw32_rx_mbox() and tw32_tx_mbox() and can still
+> > reproduce the problem. I've also done a 2 days run without TSO enabled
+> > without a failure (my test program normally fails after a couple of
+> > minutes).
+> > 
+> 
+> Hi Ben,
+> 
+> The code is a bit tricky.  It uses function pointers for the various
+> register read/write methods.  For the 5780, I believe it will be
+> assigned a simple writel() and not tg3_write32_tx_mbox().  Can you
+> double check to make sure you have actually added the wmb()?
+> 
+> It's probably easiest to just add the wmb() in tg3_xmit_dma_bug()
+> before the tw32_tx_mbox().
 
-Hmm..
+I've done:
 
-$ find /sys/ -name cache
-$
+#define tw32_rx_mbox(reg, val)	do { wmb(); tp->write32_rx_mbox(tp, reg, val); } while(0)
+#define tw32_tx_mbox(reg, val)	do { wmb(); tp->write32_tx_mbox(tp, reg, val); } while(0)
 
-That's on 2.6.18rc6.  Is this some -mm only feature?
+Cheers,
+Ben.
 
-	Dave
+

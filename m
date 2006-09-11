@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWIKSMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWIKSZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWIKSMf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWIKSMf
+	id S932293AbWIKSZO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 14:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWIKSZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:12:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33805 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932238AbWIKSMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:12:34 -0400
-Date: Mon, 11 Sep 2006 20:12:30 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Fix 2.6.18-rc6 IDE breakage, add missing ident needed for	current VIA boards
-Message-ID: <20060911181230.GC32694@stusta.de>
-References: <1157982307.23085.140.camel@localhost.localdomain> <45056544.8070303@pobox.com> <1157986765.23085.144.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157986765.23085.144.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 11 Sep 2006 14:25:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:16341 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932293AbWIKSZM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 14:25:12 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added
+	user	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: rohitseth@google.com
+Cc: Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1157751834.1214.112.camel@galaxy.corp.google.com>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 11 Sep 2006 11:25:07 -0700
+Message-Id: <1157999107.6029.7.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 03:59:24PM +0100, Alan Cox wrote:
-> Ar Llu, 2006-09-11 am 09:31 -0400, ysgrifennodd Jeff Garzik:
->...
-> > For the second:
-> > * the sata_via PCI ID has been queued for 2.6.19 for quite a while.  I 
-> > don't see a hugely pressing need for it to be in 2.6.18, but it's not a 
-> > big deal to me.
+On Fri, 2006-09-08 at 14:43 -0700, Rohit Seth wrote:
+<snip>
+
+> > > Guarantee may be one of
+> > > 
+> > >   1. container will be able to touch that number of pages
+> > >   2. container will be able to sys_mmap() that number of pages
+> > >   3. container will not be killed unless it touches that number of pages
+> > >   4. anything else
+> > 
+> > I would say (1) with slight modification
+> >    "container will be able to touch _at least_ that number of pages"
+> > 
 > 
-> Many of the current VIA mainboards have that ID so I would say its
-> pressing as it is "out there", and if 2.6.19 is another 2 months away...
+> Does this scheme support running of tasks outside of containers on the
+> same platform where you have tasks running inside containers.  If so
+> then how will you ensure processes running out side any container will
+> not leave less than the total guaranteed memory to different containers.
+> 
 
-Unless I missed the reason why kernel releases will suddenly become more 
-frequent, it's another 3 months away...
+There could be a default container which doesn't have any guarantee or
+limit. When you create containers and assign guarantees to each of them
+make sure that you leave some amount of resource unassigned. That
+unassigned resources can be used by the default container or can be used
+by containers that want more than their guarantee (and less than their
+limit). This is how CKRM/RG handles this issue.
 
-cu
-Adrian
-
+ 
+> 
+> 
+> -rohit
+> 
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 -- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
 

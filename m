@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWIKTzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWIKT72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWIKTzc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 15:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWIKTzc
+	id S965010AbWIKT72 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 15:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWIKT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 15:55:32 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:53862 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932278AbWIKTzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 15:55:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iroHlQzTocdoGDnZ7SpIse2LeSpj+FiGsygpdvcVO5wPGOiZMJSErOQlp3Kr6x9mGlol4LGBz84Px8O99JJkyCcGMtt3abZ32jrWs+wk5lgz+PW7JVGfm+tahPo65wBuxZf2W9ZbzHTcIWL+oWMmb/oNqOBZH4Yh/jftFdKf8gk=
-Message-ID: <9a8748490609111255w2961d34bo63fb0db7d0d4190a@mail.gmail.com>
-Date: Mon, 11 Sep 2006 21:55:30 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Marc Perkel" <marc@perkel.com>
-Subject: Re: Segfault Error - what does this mean?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4505B788.1030803@perkel.com>
+	Mon, 11 Sep 2006 15:59:28 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:52636 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S965010AbWIKT72 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 15:59:28 -0400
+Date: Mon, 11 Sep 2006 22:07:23 +0200
+To: "Greg KH" <greg@kroah.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] class.c: added class_create_attrs() function
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Content-Type: text/plain; charset=US-ASCII
+Message-ID: <op.tfqcrka5iudtyh@master>
+User-Agent: Opera Mail/9.00 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4505B788.1030803@perkel.com>
+References: <op.tfkmp60biudtyh@master> <20060908210042.GA6877@kroah.com> <4501E33B.50204@cfl.rr.com> <20060908220129.GB20018@kroah.com> <op.tfmh56j9iudtyh@master> <20060909213054.GC19188@kroah.com>
+In-Reply-To: <20060909213054.GC19188@kroah.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/09/06, Marc Perkel <marc@perkel.com> wrote:
-> Just put a new server online trying out the new AMD AM2 processor. I compiled a custom kernel because the regular Fedora Core kernels aren't yet compatible with my Asus M2NPV-VM motherboard using the nVidia chipset.
->
-> I compiled 2.6.18rc6 and got segfault errors. So I tried the 2.6.17.13 kernel and same thing. About every 20 minutes or so I get one of these.
->
-> Sep 11 12:05:18 pascal kernel: exim[19840]: segfault at 0000000000000000 rip 0000003f53e73ee0 rsp 00007fff9e561d18 error 4
->
-> At one point the server locked up. Before I put it online I did several days of memory testing with no errors. I believe the Exim code is solid as it has been running flawlessly on all my other servers.
->
-> It's probably hardware or some incompatibility but I'm not sure where to start looking. Trying to understand what this error means. What is Error 4? How do I track this down?
->
+Hello,
 
-Hi, I don't have a solution to your problem unfortunately, just want
-to give you a bit of advice.
+this is a patch based on linux 2.6.18-rc6.
+It adds a class_create_attrs() function in
+drivers/base/class.c .
+This new function works similar to class_create(),
+but also allows to create the class attribute files
+(if any) during class creation.
 
-1) Try searching the archives and google a bit for info before posting
-(and when you do post, make it clear that you've done so). As it turns
-out this problem has surfaced before and there are several
-interresting threads on the subject - here are a few I found (there
-are others) :
-http://lkml.org/lkml/2005/9/8/4
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2005-06/3234.html
-http://www.mhonarc.org/archive/html/procmail/2006-06/msg00140.html
-
-2) If you find previous posts related to your problem you'll often see
-requests for specific info in them (like Andi asking "... catch a
-crash in gdb and type x/i $pc what do you see?" in
-http://lkml.org/lkml/2005/9/8/17 ). Try to provide such info in your
-initial post - it'll greatly enhance your chances of getting useful
-replies (and/or getting the bug fixed).
-
-3) Please read the REPORTING-BUGS document in the root of the kernel
-source dir and provide the info it outlines - usually saves a bunch of
-ping-pong mails back and forth asking for more info.
-
-4) Try to add people who may have an insight into the problem to Cc: -
-looking at previous threads on the subject and finding the people who
-have previously shown an interrest is usually a good starting point.
-The right people may miss your report if you only send to LKML.
+-Thomas Maier
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+diff -urpN linux-2.6.18-rc6/drivers/base/class.c patch/drivers/base/class.c
+--- linux-2.6.18-rc6/drivers/base/class.c	2006-09-11 21:45:12.000000000 +0200
++++ patch/drivers/base/class.c	2006-09-11 21:52:06.000000000 +0200
+@@ -199,6 +199,18 @@ static int class_device_create_uevent(st
+   */
+  struct class *class_create(struct module *owner, char *name)
+  {
++	return class_create_attrs(owner, name, NULL);
++}
++/**
++ * class_create_attrs - similar to class_create(), but can also
++ * create class attribute files on class creation.
++ * @owner: pointer to the module that is to "own" this struct class
++ * @name: pointer to a string for the name of this class.
++ * @cls_attrs: pointer to a class_attribute array.
++ */
++struct class *class_create_attrs(struct module *owner, char *name,
++				struct class_attribute *cls_attrs)
++{
+  	struct class *cls;
+  	int retval;
+
+@@ -212,6 +224,7 @@ struct class *class_create(struct module
+  	cls->owner = owner;
+  	cls->class_release = class_create_release;
+  	cls->release = class_device_create_release;
++	cls->class_attrs = cls_attrs;
+
+  	retval = class_register(cls);
+  	if (retval)
+@@ -900,6 +913,7 @@ EXPORT_SYMBOL_GPL(class_remove_file);
+  EXPORT_SYMBOL_GPL(class_register);
+  EXPORT_SYMBOL_GPL(class_unregister);
+  EXPORT_SYMBOL_GPL(class_create);
++EXPORT_SYMBOL_GPL(class_create_attrs);
+  EXPORT_SYMBOL_GPL(class_destroy);
+
+  EXPORT_SYMBOL_GPL(class_device_register);
+diff -urpN linux-2.6.18-rc6/include/linux/device.h patch/include/linux/device.h
+--- linux-2.6.18-rc6/include/linux/device.h	2006-09-11 21:53:10.000000000 +0200
++++ patch/include/linux/device.h	2006-09-11 21:54:21.000000000 +0200
+@@ -272,6 +272,8 @@ extern int class_interface_register(stru
+  extern void class_interface_unregister(struct class_interface *);
+
+  extern struct class *class_create(struct module *owner, char *name);
++extern struct class *class_create_attrs(struct module *owner, char *name,
++					struct class_attribute *cls_attrs);
+  extern void class_destroy(struct class *cls);
+  extern struct class_device *class_device_create(struct class *cls,
+  						struct class_device *parent,

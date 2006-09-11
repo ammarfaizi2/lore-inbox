@@ -1,90 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWIKAlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWIKAzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWIKAlA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 20:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIKAk7
+	id S964866AbWIKAzc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 20:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWIKAzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 20:40:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13743 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964841AbWIKAk7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 20:40:59 -0400
-Date: Sun, 10 Sep 2006 17:40:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?SvZybg==?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] linear reclaim core
-Message-Id: <20060910174051.0c14a3b8.akpm@osdl.org>
-In-Reply-To: <20060910234509.GB10482@wohnheim.fh-wedel.de>
-References: <exportbomb.1157718286@pinky>
-	<20060908122718.GA1662@shadowen.org>
-	<20060908114114.87612de3.akpm@osdl.org>
-	<20060910234509.GB10482@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 10 Sep 2006 20:55:32 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:12997 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964866AbWIKAzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 20:55:31 -0400
+In-Reply-To: <200609101725.49234.jbarnes@virtuousgeek.org>
+References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com> <1157916919.23085.24.camel@localhost.localdomain> <1157923513.31071.256.camel@localhost.localdomain> <200609101725.49234.jbarnes@virtuousgeek.org>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0828ADEB-0F0E-49FC-82BE-CFA15B7D3829@kernel.crashing.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
+       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+Date: Mon, 11 Sep 2006 02:54:29 +0200
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Sep 2006 01:45:09 +0200
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+>>  - writel/readl become totally ordered (including vs. memory).
+>> Basically x86-like. Expensive (very expensive even on some
+>> architectures) but also very safe.
+>
+> This approach will minimize driver changes, and would imply the  
+> removal
+> of some existing mmiowb() and wmb() macros.
 
-> On Fri, 8 September 2006 11:41:14 -0700, Andrew Morton wrote:
-> > 
-> > I'm somewhat surprised at the implementation.  Would it not be sufficient
-> > to do this within shrink_inactive_list()?  Something along the lines of:
-> > 
-> > - Pick tail page off LRU.
-> > 
-> > - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
-> > 
-> >   - If they're all PageLRU and !PageActive, add them all to page_list for
-> >     possible reclaim
-> > 
-> > And, in shrink_active_list:
-> > 
-> > - Pick tail page off LRU
-> > 
-> > - For all "neighbour" pages (alignment == 1<<order, count == 1<<order)
-> > 
-> >   If they're all PageLRU, put all the active pages in this block onto
-> >   l_hold for possible deactivation.
-> 
-> Hmm.  Trying to shoot holes into your approach, I find two potential
-> problems:
-> A) With sufficient fragmentation, all inactive pages have one active
-> neighbour, so shrink_inactive_list() will never find a cluster of the
-> required order.
+Like I tried to explain already, in my competing approach, no drivers
+would need changes either.  And you could remove those macro's (or
+their more-verbosely-saying-what-their-doing, preferably bus-specific
+as well) as well -- but you'll face the wrath of those who care about
+performance of those drivers on non-x86 platforms.
 
-Nope.  If the clump of pages has a mix of active and inactive, the above
-design would cause the active ones to be deactivated, so now the entire
-clump is eligible for treatment by shrink_inactive_list().
+> This is what mmiowb() is supposed to be, though only for writes.  I.e.
+> two writes from different CPUs may arrive out of order if you don't  
+> use
+> mmiowb() carefully.  Do you also need a mmiorb() macro or just a
+> stronger mmiob()?
 
-> B) With some likelihood, shrink_active_list() will pick neighbours
-> which happen to be rather hot pages.  They get freed, only to get
-> paged in again within little more than rotational latency.
+I'd name this barrier pci_cpu_to_cpu_barrier() -- what it is supposed
+to do is order I/O accesses from the same device driver to the same
+device, from different CPUs.  The same driver is never concurrently
+running on more than one CPU right now, which is a fine model.
 
-Maybe.  Careful benchmarking and carefully-designed microbenchmarks are, as
-always, needed.
+I include "pci_" in the name, so that we can distinguish between
+different bus types, which after all have different ordering rules.
+PCI is a very common bus type of course, which explains why there
+is mmiowb() and no ..rb() -- this is simply not needed on PCI
+(PCI MMIO reads are _always_ slow -- non-posted accesses, in PCI
+terminology).
 
-Bear in mind that simply moving the pages to the inactive list isn't enough
-to get them reclaimed: we still do various forms of page aging and the
-pages can still be preserved due to that.  IOW, we have several different
-forms of page aging, one of which is LRU-ordering.  The above design
-compromises just one of those aging steps.
+> mmiowb() could be written as io_to_io_write_barrier() if we wanted  
+> to be
+> extra verbose.  AIUI it's the same thing as smb_wmb() but for MMIO
+> space.
 
-I'd be more concerned about higher-order atomic allocations.  If this thing
-is to work I suspect we'll need per-zone, per-order watermarks and kswapd
-will need to maintain those.
+Except that "main-memory" ("coherent domain") accesses are always
+atomic as far as this ordering is concerned -- starting a transaction
+and having its result are not separately observable.  For I/O this
+is different -- the whole point of mmiowb() was that although without
+it the device drivers _start_ the transactions in the right order just
+fine, the order the I/O adapters see them might be different (because
+there are multiple paths from different CPUs to the same I/O adapter, or
+whatnot).
 
-> How about something like:
-> 1. Free 1<<order pages from the inactive list.
-> 2. Pick a page cluster of requested order.
-> 3. Move all pages from the cluster to the just freed pages.
+Hence my proposal of calling it pci_cpu_to_cpu_barrier() -- what it
+orders is accesses from separate CPUs.  Oh, and it's bus-specific,
+of course.
 
-Don't think in terms of "freeing".  Think in terms of "scanning".  A lot of
-page reclaim's balancing tricks are cast in terms of pages-scanned,
-slabs-scanned, etc.
+
+Segher
 

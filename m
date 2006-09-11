@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWIKUYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWIKU1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbWIKUYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 16:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWIKUYo
+	id S965015AbWIKU1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 16:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWIKU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 16:24:44 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:58409 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S964926AbWIKUYn (ORCPT
+	Mon, 11 Sep 2006 16:27:12 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:8640 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965015AbWIKU1M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 16:24:43 -0400
-Date: Mon, 11 Sep 2006 22:23:00 +0200
-From: Jens Axboe <axboe@kernel.dk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: What's in libata-dev.git
-Message-ID: <20060911202300.GD10409@kernel.dk>
-References: <45056627.7030202@ru.mvista.com> <450566A2.1090009@garzik.org> <450568F3.3020005@ru.mvista.com> <1157986974.23085.147.camel@localhost.localdomain> <45057651.8000404@garzik.org> <1157988513.23085.159.camel@localhost.localdomain> <20060911153706.GE4955@suse.de> <450585DF.1080500@garzik.org> <20060911200112.GA10409@kernel.dk> <4505C3BF.8070601@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Sep 2006 16:27:12 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andreas Steinmetz <ast@domdv.de>
+Subject: Re: Suspend to ram with 2.6 kernels
+Date: Mon, 11 Sep 2006 22:27:15 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Eric Sandall <eric@sandall.us>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <44FF8586.8090800@sandall.us> <20060907193333.GI8793@ucw.cz> <450536D0.4020705@domdv.de>
+In-Reply-To: <450536D0.4020705@domdv.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4505C3BF.8070601@garzik.org>
+Message-Id: <200609112227.15572.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11 2006, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Mon, Sep 11 2006, Jeff Garzik wrote:
-> >>Jens Axboe wrote:
-> >>>On Mon, Sep 11 2006, Alan Cox wrote:
-> >>>>We could perhaps do it by ATA version - 255 for ATA < 3 256 for ATA 3+,
-> >>>Might be sane, yep.
-> >>
-> >>Since we're doing this just for paranoia, and nobody can actually 
-> >>produce a problem case, it's safer just to hardcode 255 for all cases, 
-> >>than try to come up with a hueristic that won't be exercised for another 
-> >>decade...
-> >
-> >If it's a real problem, yes I agree. If it's just hand waving, then no.
-> >The fact that 2.4 and 2.6 has been using 256 for ages really tells me
-> >that no one has been affected by this. The SUSE bugzilla certainly
-> >hasn't seen any entries on it either.
-> >
-> >>Most new disks are lba48 anyway.  (should we use 65535 there too???)
-> >
-> >Heh, good question. Given that the limit is so high, we might as well
-> >just use 65535. It's not nearly as sensitive as the lba28 case.
+On Monday, 11 September 2006 12:13, Andreas Steinmetz wrote:
+> Pavel Machek wrote:
+> > See suspend.sf.net, use provided s2ram program.
 > 
-> Well, I _do_ think it's just hand waving, but OTOH I don't see much harm 
-> in using 255.  Contiguous 256-sector reads and writes have gotta be 
-> pretty rare.  But that's just a hand-waving guess too ;-)
+> Which,in my case (Acer Ferrari 4006), only works with "noapic" and
+> "radeon" not loaded.
+> Without "noapic" the system doesn't resume at all (same symptoms),
 
-Just check the default read-ahead size - it's 256 sectors. It's really
-not that rare. The read-ahead case can be made a little more clever (and
-it really should be), but still. I did some numbers on this when I wrote
-the fcache code, and just a regular boot does generate some really big
-requests. Big writes are trivial.
+Have you tried with ec_intr=0?
 
-248 sector contig requests will in reality be just as fast as 256, I'm
-more concerned about the alignment aspect of it. ATA does hit platter
-speed fairly quickly. When I last measured a few months ago, for
-sequential reads you are already there at 16 sectors (again rounded to
-actual observed io in real life, raw it was around 6KiB). The really
-nasty case is cache set to write through, there you really want every
-milimeter of extra io size to get the performance up on writes.
+Rafael
+
 
 -- 
-Jens Axboe
-
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

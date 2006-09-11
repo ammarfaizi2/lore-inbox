@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWIKH5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWIKH4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWIKH5q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 03:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIKH5p
+	id S1751191AbWIKH4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 03:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWIKH4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 03:57:45 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:44482 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751199AbWIKH5o (ORCPT
+	Mon, 11 Sep 2006 03:56:19 -0400
+Received: from gw.goop.org ([64.81.55.164]:29848 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751191AbWIKH4T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 03:57:44 -0400
-Message-ID: <4505161E.1040401@in.ibm.com>
-Date: Mon, 11 Sep 2006 13:24:06 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Mon, 11 Sep 2006 03:56:19 -0400
+Message-ID: <4505169C.3010507@goop.org>
+Date: Mon, 11 Sep 2006 00:56:12 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       Srivatsa <vatsa@in.ibm.com>, sekharan@us.ibm.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	<1157730221.26324.52.camel@localhost.localdomain>	<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
-In-Reply-To: <450508BB.7020609@openvz.org>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: 2.6.18-rc6-mm1: GPF loop on early boot
+References: <200609101032.17429.ak@suse.de> <20060910115722.GA15356@elte.hu> <200609101334.34867.ak@suse.de> <20060910132614.GA29423@elte.hu> <20060910093307.a011b16f.akpm@osdl.org> <450499D3.5010903@goop.org> <20060911051028.GA10084@elte.hu> <450510E0.8080906@goop.org> <20060911072959.GA2322@elte.hu> <45051330.5050205@goop.org> <20060911073809.GB3188@elte.hu>
+In-Reply-To: <20060911073809.GB3188@elte.hu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
->> Dave Hansen wrote:
->>> On Fri, 2006-09-08 at 11:33 +0400, Pavel Emelianov wrote:
->>>> I'm afraid we have different understandings of what a "guarantee" is.
->>> It appears so.
->>>
->>>> Don't we?
->>>> Guarantee may be one of
->>>>
->>>>   1. container will be able to touch that number of pages
->>>>   2. container will be able to sys_mmap() that number of pages
->>>>   3. container will not be killed unless it touches that number of
->>>> pages
->>> A "death sentence" guarantee?  I like it. :)
->>>
->>>>   4. anything else
->>>>
->>>> Let's decide what kind of a guarantee we want.
->> I think of guarantees w.r.t resources as the lower limit on the resource.
->> Guarantees and limits can be thought of as the range (guarantee, limit]
->> for the usage of the resource.
->>
->>> I think of it as: "I will be allowed to use this many total pages, and
->>> they are guaranteed not to fail."  (1), I think.  The sum of all of the
->>> system's guarantees must be less than or equal to the amount of free
->>> memory on the machine. 
->> Yes, totally agree.
-> 
-> Such a guarantee is really a limit and this limit is even harder than
-> BC's one :)
-> 
-> E.g. I have a node with 1Gb of ram and 10 containers with 100Mb
-> guarantee each.
-> I want to start one more. What shall I do not to break guarantees?
+Ingo Molnar wrote:
+> btw., what's the connection of %gs based PDA to Xen and 
+> paravirtualization in general - %esp based current is just as 
+> Xen-friendly, or am i wrong? I guess there must be some connection, 
+> given that you are working on this ;)
+>   
 
-Don't start the new container or change the guarantees of the existing ones
-to accommodate this one :) The QoS design (done by the administrator) should
-take care of such use-cases. It would be perfectly ok to have a container
-that does not care about guarantees to set their guarantee to 0 and set
-their limit to the desired value. As Chandra has been stating we need two
-parameters (guarantee, limit), either can be optional, but not both.
+Yep.  The goal is to put the Xen VCPU structure into the PDA, so that it 
+can be easily accessed.  At present, masking events (ie, cli), is 
+something along the lines of
 
+    xen_shared_info->vcpu[smp_processor_id()].mask = 1
 
-> 
->>> If we knew to which NUMA node the memory was going to go, we might as
->>> well take the pages out of the allocator.
->>>
->>> -- Dave
->>>
+which comes out to something like 20 bytes of code, and is probably too 
+awkward to inline.  If the vcpu is in the PDA, it would come out to:
 
+    movb $1, %gs:xen_vcpu_mask
 
--- 
+which has the added benefit of not needing a register.
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Even without modifying Xen to allow us to place the VCPU structure, 
+putting a VCPU pointer into the PDA helps a lot:
+
+    mov %gs:xen_vcpu, %eax
+    movb $1, mask(%eax)
+
+    J

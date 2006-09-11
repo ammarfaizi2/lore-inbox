@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWIKNbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWIKNde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWIKNbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 09:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWIKNbz
+	id S932343AbWIKNde (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 09:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWIKNde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 09:31:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:435 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932334AbWIKNby (ORCPT
+	Mon, 11 Sep 2006 09:33:34 -0400
+Received: from h155.mvista.com ([63.81.120.155]:50738 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S932336AbWIKNdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 09:31:54 -0400
-Message-ID: <45056544.8070303@pobox.com>
-Date: Mon, 11 Sep 2006 09:31:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 11 Sep 2006 09:33:33 -0400
+Message-ID: <45056627.7030202@ru.mvista.com>
+Date: Mon, 11 Sep 2006 17:35:35 +0400
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Fix 2.6.18-rc6 IDE breakage, add missing ident needed
- for	current VIA boards
-References: <1157982307.23085.140.camel@localhost.localdomain>
-In-Reply-To: <1157982307.23085.140.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: What's in libata-dev.git
+References: <20060911132250.GA5178@havoc.gtf.org>
+In-Reply-To: <20060911132250.GA5178@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ok Linus this should do the trick and is tested on the chipsets I have.
-> There are two patches here. The first reverses the broken PCI_DEVICE
-> conversion back to the old format. The second adds a missing PCI ID so 
-> you can actually boot 2.6.18 on 2 month old VIA motherboards (right now only
-> 2.6.18-mm works).
+Hello.
 
-Two totally separate issues should be two totally separate patches.
+Jeff Garzik wrote:
+> The following libata changes are queued for 2.6.19:
+> 
+> General
+> -------
+> * Increase lba28 max sectors from 200 to 256
 
-For the first:
-* just add the missing zeroes.  No need to revert PCI_DEVICE() usage.
+[...]
 
-For the second:
-* the sata_via PCI ID has been queued for 2.6.19 for quite a while.  I 
-don't see a hugely pressing need for it to be in 2.6.18, but it's not a 
-big deal to me.
+> Jeff Garzik:
+[...]
+>       [ATA] Increase lba48 max-sectors from 200 to 256.
 
-	Jeff
+    So was it for LBA28 or for LBA48?
+    As for LBA28, it might be quite dangerous. Particularly, I know that IBM 
+drives used to mistreated 256 as 0 in the past (bumped into that on a 8-year 
+old drive which is still alive though).
 
-
+WBR, Sergei

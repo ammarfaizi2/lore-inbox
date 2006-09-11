@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWIKXVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWIKXV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWIKXVF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 19:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWIKXUv
+	id S965124AbWIKXV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 19:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbWIKXUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 19:20:51 -0400
+	Mon, 11 Sep 2006 19:20:45 -0400
 Received: from mga01.intel.com ([192.55.52.88]:44816 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S964966AbWIKXUK (ORCPT
+	by vger.kernel.org with ESMTP id S965047AbWIKXUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 19:20:10 -0400
+	Mon, 11 Sep 2006 19:20:14 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,147,1157353200"; 
-   d="scan'208"; a="128869912:sNHT491145683"
+   d="scan'208"; a="128869936:sNHT1186297406"
 From: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 17/19] iop3xx: define IOP3XX_REG_ADDR[32|16|8] and clean up DMA/AAU defs
-Date: Mon, 11 Sep 2006 16:19:05 -0700
+Subject: [PATCH 19/19] iop3xx: IOP 32x and 33x support for the iop-adma driver
+Date: Mon, 11 Sep 2006 16:19:15 -0700
 To: neilb@suse.de, linux-raid@vger.kernel.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, christopher.leech@intel.com
-Message-Id: <20060911231905.4737.15667.stgit@dwillia2-linux.ch.intel.com>
+Message-Id: <20060911231915.4737.64633.stgit@dwillia2-linux.ch.intel.com>
 In-Reply-To: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
 References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -28,510 +28,1324 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Dan Williams <dan.j.williams@intel.com>
 
-Also brings the iop3xx registers in line with the format of the iop13xx
-register definitions.
+Adds the platform device definitions and the architecture specific support
+routines (i.e. register initialization and descriptor formats) for the
+iop-adma driver.
+
+Changelog:
+* add support for > 1k zero sum buffer sizes
+* added dma/aau platform devices to iq80321 and iq80332 setup
+* fixed the calculation in iop_desc_is_aligned
+* support xor buffer sizes larger than 16MB
+* fix places where software descriptors are assumed to be contiguous, only
+hardware descriptors are contiguous
+* iop32x does not support hardware zero sum, add software emulation support
+for up to a PAGE_SIZE buffer size
+* added raid5 dma driver support functions
 
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
 
- include/asm-arm/arch-iop32x/entry-macro.S |    2 
- include/asm-arm/arch-iop32x/iop32x.h      |   14 +
- include/asm-arm/arch-iop33x/entry-macro.S |    2 
- include/asm-arm/arch-iop33x/iop33x.h      |   38 ++-
- include/asm-arm/hardware/iop3xx.h         |  347 +++++++++++++----------------
- 5 files changed, 188 insertions(+), 215 deletions(-)
+ arch/arm/mach-iop32x/iq80321.c         |  141 +++++
+ arch/arm/mach-iop33x/iq80331.c         |    9 
+ arch/arm/mach-iop33x/iq80332.c         |    8 
+ arch/arm/mach-iop33x/setup.c           |  132 +++++
+ include/asm-arm/arch-iop32x/adma.h     |    5 
+ include/asm-arm/arch-iop33x/adma.h     |    5 
+ include/asm-arm/hardware/iop3xx-adma.h |  901 ++++++++++++++++++++++++++++++++
+ 7 files changed, 1201 insertions(+), 0 deletions(-)
 
-diff --git a/include/asm-arm/arch-iop32x/entry-macro.S b/include/asm-arm/arch-iop32x/entry-macro.S
-index 1500cbb..f357be4 100644
---- a/include/asm-arm/arch-iop32x/entry-macro.S
-+++ b/include/asm-arm/arch-iop32x/entry-macro.S
-@@ -13,7 +13,7 @@ #include <asm/arch/iop32x.h>
- 		.endm
- 
- 		.macro	get_irqnr_and_base, irqnr, irqstat, base, tmp
--		ldr	\base, =IOP3XX_REG_ADDR(0x07D8)
-+		ldr	\base, =0xfeffe7d8
- 		ldr	\irqstat, [\base]		@ Read IINTSRC
- 		cmp	\irqstat, #0
- 		clzne	\irqnr, \irqstat
-diff --git a/include/asm-arm/arch-iop32x/iop32x.h b/include/asm-arm/arch-iop32x/iop32x.h
-index 15b4d6a..904a14d 100644
---- a/include/asm-arm/arch-iop32x/iop32x.h
-+++ b/include/asm-arm/arch-iop32x/iop32x.h
-@@ -19,16 +19,18 @@ #define __IOP32X_H
-  * Peripherals that are shared between the iop32x and iop33x but
-  * located at different addresses.
-  */
--#define IOP3XX_GPIO_REG(reg)	(IOP3XX_PERIPHERAL_VIRT_BASE + 0x07c0 + (reg))
--#define IOP3XX_TIMER_REG(reg)	(IOP3XX_PERIPHERAL_VIRT_BASE + 0x07e0 + (reg))
-+#define IOP3XX_GPIO_REG32(reg)	 (volatile u32 *)(IOP3XX_PERIPHERAL_VIRT_BASE +\
-+						  0x07c0 + (reg))
-+#define IOP3XX_TIMER_REG32(reg) (volatile u32 *)(IOP3XX_PERIPHERAL_VIRT_BASE +\
-+						  0x07e0 + (reg))
- 
- #include <asm/hardware/iop3xx.h>
- 
- /* Interrupt Controller  */
--#define IOP32X_INTCTL		(volatile u32 *)IOP3XX_REG_ADDR(0x07d0)
--#define IOP32X_INTSTR		(volatile u32 *)IOP3XX_REG_ADDR(0x07d4)
--#define IOP32X_IINTSRC		(volatile u32 *)IOP3XX_REG_ADDR(0x07d8)
--#define IOP32X_FINTSRC		(volatile u32 *)IOP3XX_REG_ADDR(0x07dc)
-+#define IOP32X_INTCTL		IOP3XX_REG_ADDR32(0x07d0)
-+#define IOP32X_INTSTR		IOP3XX_REG_ADDR32(0x07d4)
-+#define IOP32X_IINTSRC		IOP3XX_REG_ADDR32(0x07d8)
-+#define IOP32X_FINTSRC		IOP3XX_REG_ADDR32(0x07dc)
- 
- 
- #endif
-diff --git a/include/asm-arm/arch-iop33x/entry-macro.S b/include/asm-arm/arch-iop33x/entry-macro.S
-index 92b7917..eb207d2 100644
---- a/include/asm-arm/arch-iop33x/entry-macro.S
-+++ b/include/asm-arm/arch-iop33x/entry-macro.S
-@@ -13,7 +13,7 @@ #include <asm/arch/iop33x.h>
- 		.endm
- 
- 		.macro	get_irqnr_and_base, irqnr, irqstat, base, tmp
--		ldr	\base, =IOP3XX_REG_ADDR(0x07C8)
-+		ldr	\base, =0xfeffe7c8
- 		ldr	\irqstat, [\base]		@ Read IINTVEC
- 		cmp	\irqstat, #0
- 		ldreq	\irqstat, [\base]		@ erratum 63 workaround
-diff --git a/include/asm-arm/arch-iop33x/iop33x.h b/include/asm-arm/arch-iop33x/iop33x.h
-index 9b38fde..c171383 100644
---- a/include/asm-arm/arch-iop33x/iop33x.h
-+++ b/include/asm-arm/arch-iop33x/iop33x.h
-@@ -18,28 +18,30 @@ #define __IOP33X_H
-  * Peripherals that are shared between the iop32x and iop33x but
-  * located at different addresses.
-  */
--#define IOP3XX_GPIO_REG(reg)	(IOP3XX_PERIPHERAL_VIRT_BASE + 0x1780 + (reg))
--#define IOP3XX_TIMER_REG(reg)	(IOP3XX_PERIPHERAL_VIRT_BASE + 0x07d0 + (reg))
-+#define IOP3XX_GPIO_REG32(reg)	 (volatile u32 *)(IOP3XX_PERIPHERAL_VIRT_BASE +\
-+						  0x1780 + (reg))
-+#define IOP3XX_TIMER_REG32(reg) (volatile u32 *)(IOP3XX_PERIPHERAL_VIRT_BASE +\
-+						  0x07d0 + (reg))
- 
- #include <asm/hardware/iop3xx.h>
- 
- /* Interrupt Controller  */
--#define IOP33X_INTCTL0		(volatile u32 *)IOP3XX_REG_ADDR(0x0790)
--#define IOP33X_INTCTL1		(volatile u32 *)IOP3XX_REG_ADDR(0x0794)
--#define IOP33X_INTSTR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0798)
--#define IOP33X_INTSTR1		(volatile u32 *)IOP3XX_REG_ADDR(0x079c)
--#define IOP33X_IINTSRC0		(volatile u32 *)IOP3XX_REG_ADDR(0x07a0)
--#define IOP33X_IINTSRC1		(volatile u32 *)IOP3XX_REG_ADDR(0x07a4)
--#define IOP33X_FINTSRC0		(volatile u32 *)IOP3XX_REG_ADDR(0x07a8)
--#define IOP33X_FINTSRC1		(volatile u32 *)IOP3XX_REG_ADDR(0x07ac)
--#define IOP33X_IPR0		(volatile u32 *)IOP3XX_REG_ADDR(0x07b0)
--#define IOP33X_IPR1		(volatile u32 *)IOP3XX_REG_ADDR(0x07b4)
--#define IOP33X_IPR2		(volatile u32 *)IOP3XX_REG_ADDR(0x07b8)
--#define IOP33X_IPR3		(volatile u32 *)IOP3XX_REG_ADDR(0x07bc)
--#define IOP33X_INTBASE		(volatile u32 *)IOP3XX_REG_ADDR(0x07c0)
--#define IOP33X_INTSIZE		(volatile u32 *)IOP3XX_REG_ADDR(0x07c4)
--#define IOP33X_IINTVEC		(volatile u32 *)IOP3XX_REG_ADDR(0x07c8)
--#define IOP33X_FINTVEC		(volatile u32 *)IOP3XX_REG_ADDR(0x07cc)
-+#define IOP33X_INTCTL0		IOP3XX_REG_ADDR32(0x0790)
-+#define IOP33X_INTCTL1		IOP3XX_REG_ADDR32(0x0794)
-+#define IOP33X_INTSTR0		IOP3XX_REG_ADDR32(0x0798)
-+#define IOP33X_INTSTR1		IOP3XX_REG_ADDR32(0x079c)
-+#define IOP33X_IINTSRC0	IOP3XX_REG_ADDR32(0x07a0)
-+#define IOP33X_IINTSRC1	IOP3XX_REG_ADDR32(0x07a4)
-+#define IOP33X_FINTSRC0	IOP3XX_REG_ADDR32(0x07a8)
-+#define IOP33X_FINTSRC1	IOP3XX_REG_ADDR32(0x07ac)
-+#define IOP33X_IPR0		IOP3XX_REG_ADDR32(0x07b0)
-+#define IOP33X_IPR1		IOP3XX_REG_ADDR32(0x07b4)
-+#define IOP33X_IPR2		IOP3XX_REG_ADDR32(0x07b8)
-+#define IOP33X_IPR3		IOP3XX_REG_ADDR32(0x07bc)
-+#define IOP33X_INTBASE		IOP3XX_REG_ADDR32(0x07c0)
-+#define IOP33X_INTSIZE		IOP3XX_REG_ADDR32(0x07c4)
-+#define IOP33X_IINTVEC		IOP3XX_REG_ADDR32(0x07c8)
-+#define IOP33X_FINTVEC		IOP3XX_REG_ADDR32(0x07cc)
- 
- /* UARTs  */
- #define IOP33X_UART0_PHYS	(IOP3XX_PERIPHERAL_PHYS_BASE + 0x1700)
-diff --git a/include/asm-arm/hardware/iop3xx.h b/include/asm-arm/hardware/iop3xx.h
-index b5c12ef..295789a 100644
---- a/include/asm-arm/hardware/iop3xx.h
-+++ b/include/asm-arm/hardware/iop3xx.h
-@@ -34,153 +34,166 @@ #endif
- /*
-  * IOP3XX processor registers
-  */
--#define IOP3XX_PERIPHERAL_PHYS_BASE	0xffffe000
--#define IOP3XX_PERIPHERAL_VIRT_BASE	0xfeffe000
--#define IOP3XX_PERIPHERAL_SIZE		0x00002000
--#define IOP3XX_REG_ADDR(reg)		(IOP3XX_PERIPHERAL_VIRT_BASE + (reg))
-+#define IOP3XX_PERIPHERAL_PHYS_BASE 0xffffe000
-+#define IOP3XX_PERIPHERAL_VIRT_BASE 0xfeffe000
-+#define IOP3XX_PERIPHERAL_SIZE	     0x00002000
-+#define IOP3XX_REG_ADDR32(reg)	     (volatile u32 *)(IOP3XX_PERIPHERAL_VIRT_BASE + (reg))
-+#define IOP3XX_REG_ADDR16(reg)	     (volatile u16 *)(IOP3XX_PERIPHERAL_VIRT_BASE + (reg))
-+#define IOP3XX_REG_ADDR8(reg)	     (volatile u8 *)(IOP3XX_PERIPHERAL_VIRT_BASE + (reg))
- 
- /* Address Translation Unit  */
--#define IOP3XX_ATUVID		(volatile u16 *)IOP3XX_REG_ADDR(0x0100)
--#define IOP3XX_ATUDID		(volatile u16 *)IOP3XX_REG_ADDR(0x0102)
--#define IOP3XX_ATUCMD		(volatile u16 *)IOP3XX_REG_ADDR(0x0104)
--#define IOP3XX_ATUSR		(volatile u16 *)IOP3XX_REG_ADDR(0x0106)
--#define IOP3XX_ATURID		(volatile u8  *)IOP3XX_REG_ADDR(0x0108)
--#define IOP3XX_ATUCCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0109)
--#define IOP3XX_ATUCLSR		(volatile u8  *)IOP3XX_REG_ADDR(0x010c)
--#define IOP3XX_ATULT		(volatile u8  *)IOP3XX_REG_ADDR(0x010d)
--#define IOP3XX_ATUHTR		(volatile u8  *)IOP3XX_REG_ADDR(0x010e)
--#define IOP3XX_ATUBIST		(volatile u8  *)IOP3XX_REG_ADDR(0x010f)
--#define IOP3XX_IABAR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0110)
--#define IOP3XX_IAUBAR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0114)
--#define IOP3XX_IABAR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0118)
--#define IOP3XX_IAUBAR1		(volatile u32 *)IOP3XX_REG_ADDR(0x011c)
--#define IOP3XX_IABAR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0120)
--#define IOP3XX_IAUBAR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0124)
--#define IOP3XX_ASVIR		(volatile u16 *)IOP3XX_REG_ADDR(0x012c)
--#define IOP3XX_ASIR		(volatile u16 *)IOP3XX_REG_ADDR(0x012e)
--#define IOP3XX_ERBAR		(volatile u32 *)IOP3XX_REG_ADDR(0x0130)
--#define IOP3XX_ATUILR		(volatile u8  *)IOP3XX_REG_ADDR(0x013c)
--#define IOP3XX_ATUIPR		(volatile u8  *)IOP3XX_REG_ADDR(0x013d)
--#define IOP3XX_ATUMGNT		(volatile u8  *)IOP3XX_REG_ADDR(0x013e)
--#define IOP3XX_ATUMLAT		(volatile u8  *)IOP3XX_REG_ADDR(0x013f)
--#define IOP3XX_IALR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0140)
--#define IOP3XX_IATVR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0144)
--#define IOP3XX_ERLR		(volatile u32 *)IOP3XX_REG_ADDR(0x0148)
--#define IOP3XX_ERTVR		(volatile u32 *)IOP3XX_REG_ADDR(0x014c)
--#define IOP3XX_IALR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0150)
--#define IOP3XX_IALR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0154)
--#define IOP3XX_IATVR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0158)
--#define IOP3XX_OIOWTVR		(volatile u32 *)IOP3XX_REG_ADDR(0x015c)
--#define IOP3XX_OMWTVR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0160)
--#define IOP3XX_OUMWTVR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0164)
--#define IOP3XX_OMWTVR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0168)
--#define IOP3XX_OUMWTVR1		(volatile u32 *)IOP3XX_REG_ADDR(0x016c)
--#define IOP3XX_OUDWTVR		(volatile u32 *)IOP3XX_REG_ADDR(0x0178)
--#define IOP3XX_ATUCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0180)
--#define IOP3XX_PCSR		(volatile u32 *)IOP3XX_REG_ADDR(0x0184)
--#define IOP3XX_ATUISR		(volatile u32 *)IOP3XX_REG_ADDR(0x0188)
--#define IOP3XX_ATUIMR		(volatile u32 *)IOP3XX_REG_ADDR(0x018c)
--#define IOP3XX_IABAR3		(volatile u32 *)IOP3XX_REG_ADDR(0x0190)
--#define IOP3XX_IAUBAR3		(volatile u32 *)IOP3XX_REG_ADDR(0x0194)
--#define IOP3XX_IALR3		(volatile u32 *)IOP3XX_REG_ADDR(0x0198)
--#define IOP3XX_IATVR3		(volatile u32 *)IOP3XX_REG_ADDR(0x019c)
--#define IOP3XX_OCCAR		(volatile u32 *)IOP3XX_REG_ADDR(0x01a4)
--#define IOP3XX_OCCDR		(volatile u32 *)IOP3XX_REG_ADDR(0x01ac)
--#define IOP3XX_PDSCR		(volatile u32 *)IOP3XX_REG_ADDR(0x01bc)
--#define IOP3XX_PMCAPID		(volatile u8  *)IOP3XX_REG_ADDR(0x01c0)
--#define IOP3XX_PMNEXT		(volatile u8  *)IOP3XX_REG_ADDR(0x01c1)
--#define IOP3XX_APMCR		(volatile u16 *)IOP3XX_REG_ADDR(0x01c2)
--#define IOP3XX_APMCSR		(volatile u16 *)IOP3XX_REG_ADDR(0x01c4)
--#define IOP3XX_PCIXCAPID	(volatile u8  *)IOP3XX_REG_ADDR(0x01e0)
--#define IOP3XX_PCIXNEXT		(volatile u8  *)IOP3XX_REG_ADDR(0x01e1)
--#define IOP3XX_PCIXCMD		(volatile u16 *)IOP3XX_REG_ADDR(0x01e2)
--#define IOP3XX_PCIXSR		(volatile u32 *)IOP3XX_REG_ADDR(0x01e4)
--#define IOP3XX_PCIIRSR		(volatile u32 *)IOP3XX_REG_ADDR(0x01ec)
-+#define IOP3XX_ATUVID		IOP3XX_REG_ADDR16(0x0100)
-+#define IOP3XX_ATUDID		IOP3XX_REG_ADDR16(0x0102)
-+#define IOP3XX_ATUCMD		IOP3XX_REG_ADDR16(0x0104)
-+#define IOP3XX_ATUSR		IOP3XX_REG_ADDR16(0x0106)
-+#define IOP3XX_ATURID		IOP3XX_REG_ADDR8(0x0108)
-+#define IOP3XX_ATUCCR		IOP3XX_REG_ADDR32(0x0109)
-+#define IOP3XX_ATUCLSR		IOP3XX_REG_ADDR8(0x010c)
-+#define IOP3XX_ATULT		IOP3XX_REG_ADDR8(0x010d)
-+#define IOP3XX_ATUHTR		IOP3XX_REG_ADDR8(0x010e)
-+#define IOP3XX_ATUBIST		IOP3XX_REG_ADDR8(0x010f)
-+#define IOP3XX_IABAR0		IOP3XX_REG_ADDR32(0x0110)
-+#define IOP3XX_IAUBAR0		IOP3XX_REG_ADDR32(0x0114)
-+#define IOP3XX_IABAR1		IOP3XX_REG_ADDR32(0x0118)
-+#define IOP3XX_IAUBAR1		IOP3XX_REG_ADDR32(0x011c)
-+#define IOP3XX_IABAR2		IOP3XX_REG_ADDR32(0x0120)
-+#define IOP3XX_IAUBAR2		IOP3XX_REG_ADDR32(0x0124)
-+#define IOP3XX_ASVIR		IOP3XX_REG_ADDR16(0x012c)
-+#define IOP3XX_ASIR		IOP3XX_REG_ADDR16(0x012e)
-+#define IOP3XX_ERBAR		IOP3XX_REG_ADDR32(0x0130)
-+#define IOP3XX_ATUILR		IOP3XX_REG_ADDR8(0x013c)
-+#define IOP3XX_ATUIPR		IOP3XX_REG_ADDR8(0x013d)
-+#define IOP3XX_ATUMGNT		IOP3XX_REG_ADDR8(0x013e)
-+#define IOP3XX_ATUMLAT		IOP3XX_REG_ADDR8(0x013f)
-+#define IOP3XX_IALR0		IOP3XX_REG_ADDR32(0x0140)
-+#define IOP3XX_IATVR0		IOP3XX_REG_ADDR32(0x0144)
-+#define IOP3XX_ERLR		IOP3XX_REG_ADDR32(0x0148)
-+#define IOP3XX_ERTVR		IOP3XX_REG_ADDR32(0x014c)
-+#define IOP3XX_IALR1		IOP3XX_REG_ADDR32(0x0150)
-+#define IOP3XX_IALR2		IOP3XX_REG_ADDR32(0x0154)
-+#define IOP3XX_IATVR2		IOP3XX_REG_ADDR32(0x0158)
-+#define IOP3XX_OIOWTVR		IOP3XX_REG_ADDR32(0x015c)
-+#define IOP3XX_OMWTVR0		IOP3XX_REG_ADDR32(0x0160)
-+#define IOP3XX_OUMWTVR0	IOP3XX_REG_ADDR32(0x0164)
-+#define IOP3XX_OMWTVR1		IOP3XX_REG_ADDR32(0x0168)
-+#define IOP3XX_OUMWTVR1	IOP3XX_REG_ADDR32(0x016c)
-+#define IOP3XX_OUDWTVR		IOP3XX_REG_ADDR32(0x0178)
-+#define IOP3XX_ATUCR		IOP3XX_REG_ADDR32(0x0180)
-+#define IOP3XX_PCSR		IOP3XX_REG_ADDR32(0x0184)
-+#define IOP3XX_ATUISR		IOP3XX_REG_ADDR32(0x0188)
-+#define IOP3XX_ATUIMR		IOP3XX_REG_ADDR32(0x018c)
-+#define IOP3XX_IABAR3		IOP3XX_REG_ADDR32(0x0190)
-+#define IOP3XX_IAUBAR3		IOP3XX_REG_ADDR32(0x0194)
-+#define IOP3XX_IALR3		IOP3XX_REG_ADDR32(0x0198)
-+#define IOP3XX_IATVR3		IOP3XX_REG_ADDR32(0x019c)
-+#define IOP3XX_OCCAR		IOP3XX_REG_ADDR32(0x01a4)
-+#define IOP3XX_OCCDR		IOP3XX_REG_ADDR32(0x01ac)
-+#define IOP3XX_PDSCR		IOP3XX_REG_ADDR32(0x01bc)
-+#define IOP3XX_PMCAPID		IOP3XX_REG_ADDR8(0x01c0)
-+#define IOP3XX_PMNEXT		IOP3XX_REG_ADDR8(0x01c1)
-+#define IOP3XX_APMCR		IOP3XX_REG_ADDR16(0x01c2)
-+#define IOP3XX_APMCSR		IOP3XX_REG_ADDR16(0x01c4)
-+#define IOP3XX_PCIXCAPID	IOP3XX_REG_ADDR8(0x01e0)
-+#define IOP3XX_PCIXNEXT	IOP3XX_REG_ADDR8(0x01e1)
-+#define IOP3XX_PCIXCMD		IOP3XX_REG_ADDR16(0x01e2)
-+#define IOP3XX_PCIXSR		IOP3XX_REG_ADDR32(0x01e4)
-+#define IOP3XX_PCIIRSR		IOP3XX_REG_ADDR32(0x01ec)
- 
- /* Messaging Unit  */
--#define IOP3XX_IMR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0310)
--#define IOP3XX_IMR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0314)
--#define IOP3XX_OMR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0318)
--#define IOP3XX_OMR1		(volatile u32 *)IOP3XX_REG_ADDR(0x031c)
--#define IOP3XX_IDR		(volatile u32 *)IOP3XX_REG_ADDR(0x0320)
--#define IOP3XX_IISR		(volatile u32 *)IOP3XX_REG_ADDR(0x0324)
--#define IOP3XX_IIMR		(volatile u32 *)IOP3XX_REG_ADDR(0x0328)
--#define IOP3XX_ODR		(volatile u32 *)IOP3XX_REG_ADDR(0x032c)
--#define IOP3XX_OISR		(volatile u32 *)IOP3XX_REG_ADDR(0x0330)
--#define IOP3XX_OIMR		(volatile u32 *)IOP3XX_REG_ADDR(0x0334)
--#define IOP3XX_MUCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0350)
--#define IOP3XX_QBAR		(volatile u32 *)IOP3XX_REG_ADDR(0x0354)
--#define IOP3XX_IFHPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0360)
--#define IOP3XX_IFTPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0364)
--#define IOP3XX_IPHPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0368)
--#define IOP3XX_IPTPR		(volatile u32 *)IOP3XX_REG_ADDR(0x036c)
--#define IOP3XX_OFHPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0370)
--#define IOP3XX_OFTPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0374)
--#define IOP3XX_OPHPR		(volatile u32 *)IOP3XX_REG_ADDR(0x0378)
--#define IOP3XX_OPTPR		(volatile u32 *)IOP3XX_REG_ADDR(0x037c)
--#define IOP3XX_IAR		(volatile u32 *)IOP3XX_REG_ADDR(0x0380)
-+#define IOP3XX_IMR0		IOP3XX_REG_ADDR32(0x0310)
-+#define IOP3XX_IMR1		IOP3XX_REG_ADDR32(0x0314)
-+#define IOP3XX_OMR0		IOP3XX_REG_ADDR32(0x0318)
-+#define IOP3XX_OMR1		IOP3XX_REG_ADDR32(0x031c)
-+#define IOP3XX_IDR		IOP3XX_REG_ADDR32(0x0320)
-+#define IOP3XX_IISR		IOP3XX_REG_ADDR32(0x0324)
-+#define IOP3XX_IIMR		IOP3XX_REG_ADDR32(0x0328)
-+#define IOP3XX_ODR		IOP3XX_REG_ADDR32(0x032c)
-+#define IOP3XX_OISR		IOP3XX_REG_ADDR32(0x0330)
-+#define IOP3XX_OIMR		IOP3XX_REG_ADDR32(0x0334)
-+#define IOP3XX_MUCR		IOP3XX_REG_ADDR32(0x0350)
-+#define IOP3XX_QBAR		IOP3XX_REG_ADDR32(0x0354)
-+#define IOP3XX_IFHPR		IOP3XX_REG_ADDR32(0x0360)
-+#define IOP3XX_IFTPR		IOP3XX_REG_ADDR32(0x0364)
-+#define IOP3XX_IPHPR		IOP3XX_REG_ADDR32(0x0368)
-+#define IOP3XX_IPTPR		IOP3XX_REG_ADDR32(0x036c)
-+#define IOP3XX_OFHPR		IOP3XX_REG_ADDR32(0x0370)
-+#define IOP3XX_OFTPR		IOP3XX_REG_ADDR32(0x0374)
-+#define IOP3XX_OPHPR		IOP3XX_REG_ADDR32(0x0378)
-+#define IOP3XX_OPTPR		IOP3XX_REG_ADDR32(0x037c)
-+#define IOP3XX_IAR		IOP3XX_REG_ADDR32(0x0380)
- 
--/* DMA Controller  */
--#define IOP3XX_DMA0_CCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0400)
--#define IOP3XX_DMA0_CSR		(volatile u32 *)IOP3XX_REG_ADDR(0x0404)
--#define IOP3XX_DMA0_DAR		(volatile u32 *)IOP3XX_REG_ADDR(0x040c)
--#define IOP3XX_DMA0_NDAR	(volatile u32 *)IOP3XX_REG_ADDR(0x0410)
--#define IOP3XX_DMA0_PADR	(volatile u32 *)IOP3XX_REG_ADDR(0x0414)
--#define IOP3XX_DMA0_PUADR	(volatile u32 *)IOP3XX_REG_ADDR(0x0418)
--#define IOP3XX_DMA0_LADR	(volatile u32 *)IOP3XX_REG_ADDR(0x041c)
--#define IOP3XX_DMA0_BCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0420)
--#define IOP3XX_DMA0_DCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0424)
--#define IOP3XX_DMA1_CCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0440)
--#define IOP3XX_DMA1_CSR		(volatile u32 *)IOP3XX_REG_ADDR(0x0444)
--#define IOP3XX_DMA1_DAR		(volatile u32 *)IOP3XX_REG_ADDR(0x044c)
--#define IOP3XX_DMA1_NDAR	(volatile u32 *)IOP3XX_REG_ADDR(0x0450)
--#define IOP3XX_DMA1_PADR	(volatile u32 *)IOP3XX_REG_ADDR(0x0454)
--#define IOP3XX_DMA1_PUADR	(volatile u32 *)IOP3XX_REG_ADDR(0x0458)
--#define IOP3XX_DMA1_LADR	(volatile u32 *)IOP3XX_REG_ADDR(0x045c)
--#define IOP3XX_DMA1_BCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0460)
--#define IOP3XX_DMA1_DCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0464)
-+/* DMA Controllers  */
-+#define IOP3XX_DMA_OFFSET(chan, ofs) 	IOP3XX_REG_ADDR32((chan << 6) + (ofs))
-+
-+#define IOP3XX_DMA_CCR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0400)
-+#define IOP3XX_DMA_CSR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0404)
-+#define IOP3XX_DMA_DAR(chan)		IOP3XX_DMA_OFFSET(chan, 0x040c)
-+#define IOP3XX_DMA_NDAR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0410)
-+#define IOP3XX_DMA_PADR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0414)
-+#define IOP3XX_DMA_PUADR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0418)
-+#define IOP3XX_DMA_LADR(chan)		IOP3XX_DMA_OFFSET(chan, 0x041c)
-+#define IOP3XX_DMA_BCR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0420)
-+#define IOP3XX_DMA_DCR(chan)		IOP3XX_DMA_OFFSET(chan, 0x0424)
-+
-+/* Application accelerator unit  */
-+#define IOP3XX_AAU_ACR		IOP3XX_REG_ADDR32(0x0800)
-+#define IOP3XX_AAU_ASR		IOP3XX_REG_ADDR32(0x0804)
-+#define IOP3XX_AAU_ADAR	IOP3XX_REG_ADDR32(0x0808)
-+#define IOP3XX_AAU_ANDAR	IOP3XX_REG_ADDR32(0x080c)
-+#define IOP3XX_AAU_SAR(src)	IOP3XX_REG_ADDR32(0x0810 + ((src) << 2))
-+#define IOP3XX_AAU_DAR		IOP3XX_REG_ADDR32(0x0820)
-+#define IOP3XX_AAU_ABCR	IOP3XX_REG_ADDR32(0x0824)
-+#define IOP3XX_AAU_ADCR	IOP3XX_REG_ADDR32(0x0828)
-+#define IOP3XX_AAU_SAR_EDCR(src_edc) IOP3XX_REG_ADDR32(0x082c + ((src_edc - 4) << 2))
-+#define IOP3XX_AAU_EDCR0_IDX	8
-+#define IOP3XX_AAU_EDCR1_IDX	17
-+#define IOP3XX_AAU_EDCR2_IDX	26
-+
-+#define IOP3XX_DMA0_ID 0
-+#define IOP3XX_DMA1_ID 1
-+#define IOP3XX_AAU_ID 2
- 
- /* Peripheral bus interface  */
--#define IOP3XX_PBCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0680)
--#define IOP3XX_PBISR		(volatile u32 *)IOP3XX_REG_ADDR(0x0684)
--#define IOP3XX_PBBAR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0688)
--#define IOP3XX_PBLR0		(volatile u32 *)IOP3XX_REG_ADDR(0x068c)
--#define IOP3XX_PBBAR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0690)
--#define IOP3XX_PBLR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0694)
--#define IOP3XX_PBBAR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0698)
--#define IOP3XX_PBLR2		(volatile u32 *)IOP3XX_REG_ADDR(0x069c)
--#define IOP3XX_PBBAR3		(volatile u32 *)IOP3XX_REG_ADDR(0x06a0)
--#define IOP3XX_PBLR3		(volatile u32 *)IOP3XX_REG_ADDR(0x06a4)
--#define IOP3XX_PBBAR4		(volatile u32 *)IOP3XX_REG_ADDR(0x06a8)
--#define IOP3XX_PBLR4		(volatile u32 *)IOP3XX_REG_ADDR(0x06ac)
--#define IOP3XX_PBBAR5		(volatile u32 *)IOP3XX_REG_ADDR(0x06b0)
--#define IOP3XX_PBLR5		(volatile u32 *)IOP3XX_REG_ADDR(0x06b4)
--#define IOP3XX_PMBR0		(volatile u32 *)IOP3XX_REG_ADDR(0x06c0)
--#define IOP3XX_PMBR1		(volatile u32 *)IOP3XX_REG_ADDR(0x06e0)
--#define IOP3XX_PMBR2		(volatile u32 *)IOP3XX_REG_ADDR(0x06e4)
-+#define IOP3XX_PBCR		IOP3XX_REG_ADDR32(0x0680)
-+#define IOP3XX_PBISR		IOP3XX_REG_ADDR32(0x0684)
-+#define IOP3XX_PBBAR0		IOP3XX_REG_ADDR32(0x0688)
-+#define IOP3XX_PBLR0		IOP3XX_REG_ADDR32(0x068c)
-+#define IOP3XX_PBBAR1		IOP3XX_REG_ADDR32(0x0690)
-+#define IOP3XX_PBLR1		IOP3XX_REG_ADDR32(0x0694)
-+#define IOP3XX_PBBAR2		IOP3XX_REG_ADDR32(0x0698)
-+#define IOP3XX_PBLR2		IOP3XX_REG_ADDR32(0x069c)
-+#define IOP3XX_PBBAR3		IOP3XX_REG_ADDR32(0x06a0)
-+#define IOP3XX_PBLR3		IOP3XX_REG_ADDR32(0x06a4)
-+#define IOP3XX_PBBAR4		IOP3XX_REG_ADDR32(0x06a8)
-+#define IOP3XX_PBLR4		IOP3XX_REG_ADDR32(0x06ac)
-+#define IOP3XX_PBBAR5		IOP3XX_REG_ADDR32(0x06b0)
-+#define IOP3XX_PBLR5		IOP3XX_REG_ADDR32(0x06b4)
-+#define IOP3XX_PMBR0		IOP3XX_REG_ADDR32(0x06c0)
-+#define IOP3XX_PMBR1		IOP3XX_REG_ADDR32(0x06e0)
-+#define IOP3XX_PMBR2		IOP3XX_REG_ADDR32(0x06e4)
- 
- /* Peripheral performance monitoring unit  */
--#define IOP3XX_GTMR		(volatile u32 *)IOP3XX_REG_ADDR(0x0700)
--#define IOP3XX_ESR		(volatile u32 *)IOP3XX_REG_ADDR(0x0704)
--#define IOP3XX_EMISR		(volatile u32 *)IOP3XX_REG_ADDR(0x0708)
--#define IOP3XX_GTSR		(volatile u32 *)IOP3XX_REG_ADDR(0x0710)
-+#define IOP3XX_GTMR		IOP3XX_REG_ADDR32(0x0700)
-+#define IOP3XX_ESR		IOP3XX_REG_ADDR32(0x0704)
-+#define IOP3XX_EMISR		IOP3XX_REG_ADDR32(0x0708)
-+#define IOP3XX_GTSR		IOP3XX_REG_ADDR32(0x0710)
- /* PERCR0 DOESN'T EXIST - index from 1! */
--#define IOP3XX_PERCR0		(volatile u32 *)IOP3XX_REG_ADDR(0x0710)
-+#define IOP3XX_PERCR0		IOP3XX_REG_ADDR32(0x0710)
- 
- /* General Purpose I/O  */
--#define IOP3XX_GPOE		(volatile u32 *)IOP3XX_GPIO_REG(0x0004)
--#define IOP3XX_GPID		(volatile u32 *)IOP3XX_GPIO_REG(0x0008)
--#define IOP3XX_GPOD		(volatile u32 *)IOP3XX_GPIO_REG(0x000c)
-+#define IOP3XX_GPOE		IOP3XX_GPIO_REG32(0x0004)
-+#define IOP3XX_GPID		IOP3XX_GPIO_REG32(0x0008)
-+#define IOP3XX_GPOD		IOP3XX_GPIO_REG32(0x000c)
- 
- /* Timers  */
--#define IOP3XX_TU_TMR0		(volatile u32 *)IOP3XX_TIMER_REG(0x0000)
--#define IOP3XX_TU_TMR1		(volatile u32 *)IOP3XX_TIMER_REG(0x0004)
--#define IOP3XX_TU_TCR0		(volatile u32 *)IOP3XX_TIMER_REG(0x0008)
--#define IOP3XX_TU_TCR1		(volatile u32 *)IOP3XX_TIMER_REG(0x000c)
--#define IOP3XX_TU_TRR0		(volatile u32 *)IOP3XX_TIMER_REG(0x0010)
--#define IOP3XX_TU_TRR1		(volatile u32 *)IOP3XX_TIMER_REG(0x0014)
--#define IOP3XX_TU_TISR		(volatile u32 *)IOP3XX_TIMER_REG(0x0018)
--#define IOP3XX_TU_WDTCR		(volatile u32 *)IOP3XX_TIMER_REG(0x001c)
-+#define IOP3XX_TU_TMR0		IOP3XX_TIMER_REG32(0x0000)
-+#define IOP3XX_TU_TMR1		IOP3XX_TIMER_REG32(0x0004)
-+#define IOP3XX_TU_TCR0		IOP3XX_TIMER_REG32(0x0008)
-+#define IOP3XX_TU_TCR1		IOP3XX_TIMER_REG32(0x000c)
-+#define IOP3XX_TU_TRR0		IOP3XX_TIMER_REG32(0x0010)
-+#define IOP3XX_TU_TRR1		IOP3XX_TIMER_REG32(0x0014)
-+#define IOP3XX_TU_TISR		IOP3XX_TIMER_REG32(0x0018)
-+#define IOP3XX_TU_WDTCR		IOP3XX_TIMER_REG32(0x001c)
- #define IOP3XX_TMR_TC		0x01
- #define IOP3XX_TMR_EN		0x02
- #define IOP3XX_TMR_RELOAD	0x04
-@@ -190,69 +203,25 @@ #define IOP3XX_TMR_RATIO_4_1	0x10
- #define IOP3XX_TMR_RATIO_8_1	0x20
- #define IOP3XX_TMR_RATIO_16_1	0x30
- 
--/* Application accelerator unit  */
--#define IOP3XX_AAU_ACR		(volatile u32 *)IOP3XX_REG_ADDR(0x0800)
--#define IOP3XX_AAU_ASR		(volatile u32 *)IOP3XX_REG_ADDR(0x0804)
--#define IOP3XX_AAU_ADAR		(volatile u32 *)IOP3XX_REG_ADDR(0x0808)
--#define IOP3XX_AAU_ANDAR	(volatile u32 *)IOP3XX_REG_ADDR(0x080c)
--#define IOP3XX_AAU_SAR1		(volatile u32 *)IOP3XX_REG_ADDR(0x0810)
--#define IOP3XX_AAU_SAR2		(volatile u32 *)IOP3XX_REG_ADDR(0x0814)
--#define IOP3XX_AAU_SAR3		(volatile u32 *)IOP3XX_REG_ADDR(0x0818)
--#define IOP3XX_AAU_SAR4		(volatile u32 *)IOP3XX_REG_ADDR(0x081c)
--#define IOP3XX_AAU_DAR		(volatile u32 *)IOP3XX_REG_ADDR(0x0820)
--#define IOP3XX_AAU_ABCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0824)
--#define IOP3XX_AAU_ADCR		(volatile u32 *)IOP3XX_REG_ADDR(0x0828)
--#define IOP3XX_AAU_SAR5		(volatile u32 *)IOP3XX_REG_ADDR(0x082c)
--#define IOP3XX_AAU_SAR6		(volatile u32 *)IOP3XX_REG_ADDR(0x0830)
--#define IOP3XX_AAU_SAR7		(volatile u32 *)IOP3XX_REG_ADDR(0x0834)
--#define IOP3XX_AAU_SAR8		(volatile u32 *)IOP3XX_REG_ADDR(0x0838)
--#define IOP3XX_AAU_EDCR0	(volatile u32 *)IOP3XX_REG_ADDR(0x083c)
--#define IOP3XX_AAU_SAR9		(volatile u32 *)IOP3XX_REG_ADDR(0x0840)
--#define IOP3XX_AAU_SAR10	(volatile u32 *)IOP3XX_REG_ADDR(0x0844)
--#define IOP3XX_AAU_SAR11	(volatile u32 *)IOP3XX_REG_ADDR(0x0848)
--#define IOP3XX_AAU_SAR12	(volatile u32 *)IOP3XX_REG_ADDR(0x084c)
--#define IOP3XX_AAU_SAR13	(volatile u32 *)IOP3XX_REG_ADDR(0x0850)
--#define IOP3XX_AAU_SAR14	(volatile u32 *)IOP3XX_REG_ADDR(0x0854)
--#define IOP3XX_AAU_SAR15	(volatile u32 *)IOP3XX_REG_ADDR(0x0858)
--#define IOP3XX_AAU_SAR16	(volatile u32 *)IOP3XX_REG_ADDR(0x085c)
--#define IOP3XX_AAU_EDCR1	(volatile u32 *)IOP3XX_REG_ADDR(0x0860)
--#define IOP3XX_AAU_SAR17	(volatile u32 *)IOP3XX_REG_ADDR(0x0864)
--#define IOP3XX_AAU_SAR18	(volatile u32 *)IOP3XX_REG_ADDR(0x0868)
--#define IOP3XX_AAU_SAR19	(volatile u32 *)IOP3XX_REG_ADDR(0x086c)
--#define IOP3XX_AAU_SAR20	(volatile u32 *)IOP3XX_REG_ADDR(0x0870)
--#define IOP3XX_AAU_SAR21	(volatile u32 *)IOP3XX_REG_ADDR(0x0874)
--#define IOP3XX_AAU_SAR22	(volatile u32 *)IOP3XX_REG_ADDR(0x0878)
--#define IOP3XX_AAU_SAR23	(volatile u32 *)IOP3XX_REG_ADDR(0x087c)
--#define IOP3XX_AAU_SAR24	(volatile u32 *)IOP3XX_REG_ADDR(0x0880)
--#define IOP3XX_AAU_EDCR2	(volatile u32 *)IOP3XX_REG_ADDR(0x0884)
--#define IOP3XX_AAU_SAR25	(volatile u32 *)IOP3XX_REG_ADDR(0x0888)
--#define IOP3XX_AAU_SAR26	(volatile u32 *)IOP3XX_REG_ADDR(0x088c)
--#define IOP3XX_AAU_SAR27	(volatile u32 *)IOP3XX_REG_ADDR(0x0890)
--#define IOP3XX_AAU_SAR28	(volatile u32 *)IOP3XX_REG_ADDR(0x0894)
--#define IOP3XX_AAU_SAR29	(volatile u32 *)IOP3XX_REG_ADDR(0x0898)
--#define IOP3XX_AAU_SAR30	(volatile u32 *)IOP3XX_REG_ADDR(0x089c)
--#define IOP3XX_AAU_SAR31	(volatile u32 *)IOP3XX_REG_ADDR(0x08a0)
--#define IOP3XX_AAU_SAR32	(volatile u32 *)IOP3XX_REG_ADDR(0x08a4)
--
- /* I2C bus interface unit  */
--#define IOP3XX_ICR0		(volatile u32 *)IOP3XX_REG_ADDR(0x1680)
--#define IOP3XX_ISR0		(volatile u32 *)IOP3XX_REG_ADDR(0x1684)
--#define IOP3XX_ISAR0		(volatile u32 *)IOP3XX_REG_ADDR(0x1688)
--#define IOP3XX_IDBR0		(volatile u32 *)IOP3XX_REG_ADDR(0x168c)
--#define IOP3XX_IBMR0		(volatile u32 *)IOP3XX_REG_ADDR(0x1694)
--#define IOP3XX_ICR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16a0)
--#define IOP3XX_ISR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16a4)
--#define IOP3XX_ISAR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16a8)
--#define IOP3XX_IDBR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16ac)
--#define IOP3XX_IBMR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16b4)
-+#define IOP3XX_ICR0		IOP3XX_REG_ADDR32(0x1680)
-+#define IOP3XX_ISR0		IOP3XX_REG_ADDR32(0x1684)
-+#define IOP3XX_ISAR0		IOP3XX_REG_ADDR32(0x1688)
-+#define IOP3XX_IDBR0		IOP3XX_REG_ADDR32(0x168c)
-+#define IOP3XX_IBMR0		IOP3XX_REG_ADDR32(0x1694)
-+#define IOP3XX_ICR1		IOP3XX_REG_ADDR32(0x16a0)
-+#define IOP3XX_ISR1		IOP3XX_REG_ADDR32(0x16a4)
-+#define IOP3XX_ISAR1		IOP3XX_REG_ADDR32(0x16a8)
-+#define IOP3XX_IDBR1		IOP3XX_REG_ADDR32(0x16ac)
-+#define IOP3XX_IBMR1		IOP3XX_REG_ADDR32(0x16b4)
- 
+diff --git a/arch/arm/mach-iop32x/iq80321.c b/arch/arm/mach-iop32x/iq80321.c
+index cdd2265..79d6514 100644
+--- a/arch/arm/mach-iop32x/iq80321.c
++++ b/arch/arm/mach-iop32x/iq80321.c
+@@ -33,6 +33,9 @@ #include <asm/mach/time.h>
+ #include <asm/mach-types.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
++#ifdef CONFIG_DMA_ENGINE
++#include <asm/hardware/iop_adma.h>
++#endif
  
  /*
-  * IOP3XX I/O and Mem space regions for PCI autoconfiguration
-  */
- #define IOP3XX_PCI_MEM_WINDOW_SIZE	0x04000000
--#define IOP3XX_PCI_LOWER_MEM_PA		0x80000000
--#define IOP3XX_PCI_LOWER_MEM_BA		(*IOP3XX_OMWTVR0)
-+#define IOP3XX_PCI_LOWER_MEM_PA	0x80000000
-+#define IOP3XX_PCI_LOWER_MEM_BA	(*IOP3XX_OMWTVR0)
+  * IQ80321 timer tick configuration.
+@@ -170,12 +173,150 @@ static struct platform_device iq80321_se
+ 	.resource	= &iq80321_uart_resource,
+ };
  
- #define IOP3XX_PCI_IO_WINDOW_SIZE	0x00010000
- #define IOP3XX_PCI_LOWER_IO_PA		0x90000000
++#ifdef CONFIG_DMA_ENGINE
++/* AAU and DMA Channels */
++static struct resource iop3xx_dma_0_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_DMA_CCR(0),
++		.end = ((unsigned long) IOP3XX_DMA_DCR(0)) + 4,
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP32X_DMA0_EOT,
++		.end = IRQ_IOP32X_DMA0_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP32X_DMA0_EOC,
++		.end = IRQ_IOP32X_DMA0_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP32X_DMA0_ERR,
++		.end = IRQ_IOP32X_DMA0_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++static struct resource iop3xx_dma_1_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_DMA_CCR(1),
++		.end = ((unsigned long) IOP3XX_DMA_DCR(1)) + 4,
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP32X_DMA1_EOT,
++		.end = IRQ_IOP32X_DMA1_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP32X_DMA1_EOC,
++		.end = IRQ_IOP32X_DMA1_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP32X_DMA1_ERR,
++		.end = IRQ_IOP32X_DMA1_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++
++static struct resource iop3xx_aau_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_AAU_ACR,
++		.end = (unsigned long) IOP3XX_AAU_SAR_EDCR(32),
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP32X_AA_EOT,
++		.end = IRQ_IOP32X_AA_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP32X_AA_EOC,
++		.end = IRQ_IOP32X_AA_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP32X_AA_ERR,
++		.end = IRQ_IOP32X_AA_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++static u64 iop3xx_adma_dmamask = DMA_32BIT_MASK;
++
++static struct iop_adma_platform_data iop3xx_dma_0_data = {
++	.hw_id = IOP3XX_DMA0_ID,
++	.capabilities =	DMA_MEMCPY | DMA_MEMCPY_CRC32C,
++	.pool_size = PAGE_SIZE,
++};
++
++static struct iop_adma_platform_data iop3xx_dma_1_data = {
++	.hw_id = IOP3XX_DMA1_ID,
++	.capabilities =	DMA_MEMCPY | DMA_MEMCPY_CRC32C,
++	.pool_size = PAGE_SIZE,
++};
++
++static struct iop_adma_platform_data iop3xx_aau_data = {
++	.hw_id = IOP3XX_AAU_ID,
++	.capabilities =	DMA_XOR | DMA_ZERO_SUM | DMA_MEMSET,
++	.pool_size = 3 * PAGE_SIZE,
++};
++
++struct platform_device iop3xx_dma_0_channel = {
++	.name = "IOP-ADMA",
++	.id = 0,
++	.num_resources = 4,
++	.resource = iop3xx_dma_0_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_dma_0_data,
++	},
++};
++
++struct platform_device iop3xx_dma_1_channel = {
++	.name = "IOP-ADMA",
++	.id = 1,
++	.num_resources = 4,
++	.resource = iop3xx_dma_1_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_dma_1_data,
++	},
++};
++
++struct platform_device iop3xx_aau_channel = {
++	.name = "IOP-ADMA",
++	.id = 2,
++	.num_resources = 4,
++	.resource = iop3xx_aau_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_aau_data,
++	},
++};
++#endif /* CONFIG_DMA_ENGINE */
++
++extern struct platform_device iop3xx_dma_0_channel;
++extern struct platform_device iop3xx_dma_1_channel;
++extern struct platform_device iop3xx_aau_channel;
+ static void __init iq80321_init_machine(void)
+ {
+ 	platform_device_register(&iop3xx_i2c0_device);
+ 	platform_device_register(&iop3xx_i2c1_device);
+ 	platform_device_register(&iq80321_flash_device);
+ 	platform_device_register(&iq80321_serial_device);
++	#ifdef CONFIG_DMA_ENGINE
++	platform_device_register(&iop3xx_dma_0_channel);
++	platform_device_register(&iop3xx_dma_1_channel);
++	platform_device_register(&iop3xx_aau_channel);
++	#endif
++
+ }
+ 
+ MACHINE_START(IQ80321, "Intel IQ80321")
+diff --git a/arch/arm/mach-iop33x/iq80331.c b/arch/arm/mach-iop33x/iq80331.c
+index 3807000..34bedc6 100644
+--- a/arch/arm/mach-iop33x/iq80331.c
++++ b/arch/arm/mach-iop33x/iq80331.c
+@@ -122,6 +122,10 @@ static struct platform_device iq80331_fl
+ 	.resource	= &iq80331_flash_resource,
+ };
+ 
++
++extern struct platform_device iop3xx_dma_0_channel;
++extern struct platform_device iop3xx_dma_1_channel;
++extern struct platform_device iop3xx_aau_channel;
+ static void __init iq80331_init_machine(void)
+ {
+ 	platform_device_register(&iop3xx_i2c0_device);
+@@ -129,6 +133,11 @@ static void __init iq80331_init_machine(
+ 	platform_device_register(&iop33x_uart0_device);
+ 	platform_device_register(&iop33x_uart1_device);
+ 	platform_device_register(&iq80331_flash_device);
++	#ifdef CONFIG_DMA_ENGINE
++	platform_device_register(&iop3xx_dma_0_channel);
++	platform_device_register(&iop3xx_dma_1_channel);
++	platform_device_register(&iop3xx_aau_channel);
++	#endif
+ }
+ 
+ MACHINE_START(IQ80331, "Intel IQ80331")
+diff --git a/arch/arm/mach-iop33x/iq80332.c b/arch/arm/mach-iop33x/iq80332.c
+index 8780d55..ed36016 100644
+--- a/arch/arm/mach-iop33x/iq80332.c
++++ b/arch/arm/mach-iop33x/iq80332.c
+@@ -129,6 +129,9 @@ static struct platform_device iq80332_fl
+ 	.resource	= &iq80332_flash_resource,
+ };
+ 
++extern struct platform_device iop3xx_dma_0_channel;
++extern struct platform_device iop3xx_dma_1_channel;
++extern struct platform_device iop3xx_aau_channel;
+ static void __init iq80332_init_machine(void)
+ {
+ 	platform_device_register(&iop3xx_i2c0_device);
+@@ -136,6 +139,11 @@ static void __init iq80332_init_machine(
+ 	platform_device_register(&iop33x_uart0_device);
+ 	platform_device_register(&iop33x_uart1_device);
+ 	platform_device_register(&iq80332_flash_device);
++	#ifdef CONFIG_DMA_ENGINE
++	platform_device_register(&iop3xx_dma_0_channel);
++	platform_device_register(&iop3xx_dma_1_channel);
++	platform_device_register(&iop3xx_aau_channel);
++	#endif
+ }
+ 
+ MACHINE_START(IQ80332, "Intel IQ80332")
+diff --git a/arch/arm/mach-iop33x/setup.c b/arch/arm/mach-iop33x/setup.c
+index e72face..fbdb998 100644
+--- a/arch/arm/mach-iop33x/setup.c
++++ b/arch/arm/mach-iop33x/setup.c
+@@ -28,6 +28,9 @@ #include <asm/hardware.h>
+ #include <asm/hardware/iop3xx.h>
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
++#include <linux/dmaengine.h>
++#include <linux/dma-mapping.h>
++#include <asm/hardware/iop_adma.h>
+ 
+ #define IOP33X_UART_XTAL 33334000
+ 
+@@ -103,3 +106,132 @@ struct platform_device iop33x_uart1_devi
+ 	.num_resources	= 2,
+ 	.resource	= iop33x_uart1_resources,
+ };
++
++#ifdef CONFIG_DMA_ENGINE
++/* AAU and DMA Channels */
++static struct resource iop3xx_dma_0_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_DMA_CCR(0),
++		.end = ((unsigned long) IOP3XX_DMA_DCR(0)) + 4,
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP33X_DMA0_EOT,
++		.end = IRQ_IOP33X_DMA0_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP33X_DMA0_EOC,
++		.end = IRQ_IOP33X_DMA0_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP33X_DMA0_ERR,
++		.end = IRQ_IOP33X_DMA0_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++static struct resource iop3xx_dma_1_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_DMA_CCR(1),
++		.end = ((unsigned long) IOP3XX_DMA_DCR(1)) + 4,
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP33X_DMA1_EOT,
++		.end = IRQ_IOP33X_DMA1_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP33X_DMA1_EOC,
++		.end = IRQ_IOP33X_DMA1_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP33X_DMA1_ERR,
++		.end = IRQ_IOP33X_DMA1_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++
++static struct resource iop3xx_aau_resources[] = {
++	[0] = {
++		.start = (unsigned long) IOP3XX_AAU_ACR,
++		.end = (unsigned long) IOP3XX_AAU_SAR_EDCR(32),
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_IOP33X_AA_EOT,
++		.end = IRQ_IOP33X_AA_EOT,
++		.flags = IORESOURCE_IRQ
++	},
++	[2] = {
++		.start = IRQ_IOP33X_AA_EOC,
++		.end = IRQ_IOP33X_AA_EOC,
++		.flags = IORESOURCE_IRQ
++	},
++	[3] = {
++		.start = IRQ_IOP33X_AA_ERR,
++		.end = IRQ_IOP33X_AA_ERR,
++		.flags = IORESOURCE_IRQ
++	}
++};
++
++static u64 iop3xx_adma_dmamask = DMA_32BIT_MASK;
++
++static struct iop_adma_platform_data iop3xx_dma_0_data = {
++	.hw_id = IOP3XX_DMA0_ID,
++	.capabilities =	DMA_MEMCPY | DMA_MEMCPY_CRC32C,
++	.pool_size = PAGE_SIZE,
++};
++
++static struct iop_adma_platform_data iop3xx_dma_1_data = {
++	.hw_id = IOP3XX_DMA1_ID,
++	.capabilities =	DMA_MEMCPY | DMA_MEMCPY_CRC32C,
++	.pool_size = PAGE_SIZE,
++};
++
++static struct iop_adma_platform_data iop3xx_aau_data = {
++	.hw_id = IOP3XX_AAU_ID,
++	.capabilities =	DMA_XOR | DMA_ZERO_SUM | DMA_MEMSET,
++	.pool_size = 3 * PAGE_SIZE,
++};
++
++struct platform_device iop3xx_dma_0_channel = {
++	.name = "IOP-ADMA",
++	.id = 0,
++	.num_resources = 4,
++	.resource = iop3xx_dma_0_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_dma_0_data,
++	},
++};
++
++struct platform_device iop3xx_dma_1_channel = {
++	.name = "IOP-ADMA",
++	.id = 1,
++	.num_resources = 4,
++	.resource = iop3xx_dma_1_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_dma_1_data,
++	},
++};
++
++struct platform_device iop3xx_aau_channel = {
++	.name = "IOP-ADMA",
++	.id = 2,
++	.num_resources = 4,
++	.resource = iop3xx_aau_resources,
++	.dev = {
++		.dma_mask = &iop3xx_adma_dmamask,
++		.coherent_dma_mask = DMA_64BIT_MASK,
++		.platform_data = (void *) &iop3xx_aau_data,
++	},
++};
++#endif /* CONFIG_DMA_ENGINE */
+diff --git a/include/asm-arm/arch-iop32x/adma.h b/include/asm-arm/arch-iop32x/adma.h
+new file mode 100644
+index 0000000..5ed9203
+--- /dev/null
++++ b/include/asm-arm/arch-iop32x/adma.h
+@@ -0,0 +1,5 @@
++#ifndef IOP32X_ADMA_H
++#define IOP32X_ADMA_H
++#include <asm/hardware/iop3xx-adma.h>
++#endif
++
+diff --git a/include/asm-arm/arch-iop33x/adma.h b/include/asm-arm/arch-iop33x/adma.h
+new file mode 100644
+index 0000000..4b92f79
+--- /dev/null
++++ b/include/asm-arm/arch-iop33x/adma.h
+@@ -0,0 +1,5 @@
++#ifndef IOP33X_ADMA_H
++#define IOP33X_ADMA_H
++#include <asm/hardware/iop3xx-adma.h>
++#endif
++
+diff --git a/include/asm-arm/hardware/iop3xx-adma.h b/include/asm-arm/hardware/iop3xx-adma.h
+new file mode 100644
+index 0000000..34624b6
+--- /dev/null
++++ b/include/asm-arm/hardware/iop3xx-adma.h
+@@ -0,0 +1,901 @@
++/*
++ * Copyright(c) 2006 Intel Corporation. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc., 59
++ * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ *
++ * The full GNU General Public License is included in this distribution in the
++ * file called COPYING.
++ */
++#ifndef _IOP3XX_ADMA_H
++#define _IOP3XX_ADMA_H
++#include <linux/types.h>
++#include <asm/hardware.h>
++#include <asm/hardware/iop_adma.h>
++
++struct iop3xx_aau_desc_ctrl {
++	unsigned int int_en:1;
++	unsigned int blk1_cmd_ctrl:3;
++	unsigned int blk2_cmd_ctrl:3;
++	unsigned int blk3_cmd_ctrl:3;
++	unsigned int blk4_cmd_ctrl:3;
++	unsigned int blk5_cmd_ctrl:3;
++	unsigned int blk6_cmd_ctrl:3;
++	unsigned int blk7_cmd_ctrl:3;
++	unsigned int blk8_cmd_ctrl:3;
++	unsigned int blk_ctrl:2;
++	unsigned int dual_xor_en:1;
++	unsigned int tx_complete:1;
++	unsigned int zero_result_err:1;
++	unsigned int zero_result_en:1;
++	unsigned int dest_write_en:1;
++};
++
++struct iop3xx_aau_e_desc_ctrl {
++	unsigned int reserved:1;
++	unsigned int blk1_cmd_ctrl:3;
++	unsigned int blk2_cmd_ctrl:3;
++	unsigned int blk3_cmd_ctrl:3;
++	unsigned int blk4_cmd_ctrl:3;
++	unsigned int blk5_cmd_ctrl:3;
++	unsigned int blk6_cmd_ctrl:3;
++	unsigned int blk7_cmd_ctrl:3;
++	unsigned int blk8_cmd_ctrl:3;
++	unsigned int reserved2:7;
++};
++
++struct iop3xx_dma_desc_ctrl {
++	unsigned int pci_transaction:4;
++	unsigned int int_en:1;
++	unsigned int dac_cycle_en:1;
++	unsigned int mem_to_mem_en:1;
++	unsigned int crc_data_tx_en:1;
++	unsigned int crc_gen_en:1;
++	unsigned int crc_seed_dis:1;
++	unsigned int reserved:21;
++	unsigned int crc_tx_complete:1;
++};
++
++struct iop3xx_desc_dma {
++	u32 next_desc;
++	union {
++		u32 pci_src_addr;
++		u32 pci_dest_addr;
++		u32 src_addr;
++	};
++	union {
++		u32 upper_pci_src_addr;
++		u32 upper_pci_dest_addr;
++	};
++	union {
++		u32 local_pci_src_addr;
++		u32 local_pci_dest_addr;
++		u32 dest_addr;
++	};
++	u32 byte_count;
++	union {
++		u32 desc_ctrl;
++		struct iop3xx_dma_desc_ctrl desc_ctrl_field;
++	};
++	u32 crc_addr;		
++};
++
++struct iop3xx_desc_aau {
++	u32 next_desc;
++	u32 src[4];
++	u32 dest_addr;
++	u32 byte_count;
++	union {
++		u32 desc_ctrl;
++		struct iop3xx_aau_desc_ctrl desc_ctrl_field;
++	};
++	union {
++		u32 src_addr;
++		u32 e_desc_ctrl;
++		struct iop3xx_aau_e_desc_ctrl e_desc_ctrl_field;
++	} src_edc[31];
++};
++
++
++struct iop3xx_aau_gfmr {
++	unsigned int gfmr1:8;
++	unsigned int gfmr2:8;
++	unsigned int gfmr3:8;
++	unsigned int gfmr4:8;
++};
++
++struct iop3xx_desc_pq_xor {
++	u32 next_desc;
++	u32 src[3];
++	union {
++		u32 data_mult1;
++		struct iop3xx_aau_gfmr data_mult1_field;
++	};
++	u32 dest_addr;
++	u32 byte_count;
++	union {
++		u32 desc_ctrl;
++		struct iop3xx_aau_desc_ctrl desc_ctrl_field;
++	};
++	union {
++		u32 src_addr;
++		u32 e_desc_ctrl;
++		struct iop3xx_aau_e_desc_ctrl e_desc_ctrl_field;
++		u32 data_multiplier;
++		struct iop3xx_aau_gfmr data_mult_field;
++		u32 reserved;
++	} src_edc_gfmr[19];
++};
++
++struct iop3xx_desc_dual_xor {
++	u32 next_desc;
++	u32 src0_addr;
++	u32 src1_addr;
++	u32 h_src_addr;
++	u32 d_src_addr;
++	u32 h_dest_addr;
++	u32 byte_count;
++	union {
++		u32 desc_ctrl;
++		struct iop3xx_aau_desc_ctrl desc_ctrl_field;
++	};
++	u32 d_dest_addr;
++};
++
++union iop3xx_desc {
++	struct iop3xx_desc_aau *aau;
++	struct iop3xx_desc_dma *dma;
++	struct iop3xx_desc_pq_xor *pq_xor;
++	struct iop3xx_desc_dual_xor *dual_xor;
++	void *ptr;
++};
++
++static inline u32 iop_chan_get_current_descriptor(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return *IOP3XX_DMA_DAR(id);
++	case IOP3XX_AAU_ID:
++		return *IOP3XX_AAU_ADAR;
++	default:
++		BUG();
++	}
++	return 0;
++}
++
++static inline void iop_chan_set_next_descriptor(struct iop_adma_chan *chan,
++						u32 next_desc_addr)
++{
++	int id = chan->device->id;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		*IOP3XX_DMA_NDAR(id) = next_desc_addr;
++		break;
++	case IOP3XX_AAU_ID:
++		*IOP3XX_AAU_ANDAR = next_desc_addr;
++		break;
++	}
++
++}
++
++#define IOP3XX_ADMA_STATUS_BUSY (1 << 10)
++#define IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT (1024)
++#define IOP_ADMA_XOR_MAX_BYTE_COUNT (16 * 1024 * 1024)
++
++static int iop_chan_is_busy(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++	int busy;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		busy = (*IOP3XX_DMA_CSR(id) & IOP3XX_ADMA_STATUS_BUSY) ? 1 : 0;
++		break;
++	case IOP3XX_AAU_ID:
++		busy = (*IOP3XX_AAU_ASR & IOP3XX_ADMA_STATUS_BUSY) ? 1 : 0;
++		break;
++	default:
++		busy = 0;
++		BUG();
++	}
++
++	return busy;
++}
++
++static inline int iop_desc_is_aligned(struct iop_adma_desc_slot *desc,
++					int num_slots)
++{
++	/* num_slots will only ever be 1, 2, 4, or 8 */
++	return (desc->idx & (num_slots - 1)) ? 0 : 1;
++}
++
++/* to do: support large (i.e. > hw max) buffer sizes */
++static inline int iop_chan_memcpy_slot_count(size_t len, int *slots_per_op)
++{
++	*slots_per_op = 1;
++	return 1;
++}
++
++/* to do: support large (i.e. > hw max) buffer sizes */
++static inline int iop_chan_memset_slot_count(size_t len, int *slots_per_op)
++{
++	*slots_per_op = 1;
++	return 1;
++}
++
++static inline int iop3xx_aau_xor_slot_count(size_t len, int src_cnt,
++					int *slots_per_op)
++{
++	const static int slot_count_table[] = { 0,
++					        1, 1, 1, 1, /* 01 - 04 */
++					        2, 2, 2, 2, /* 05 - 08 */
++					        4, 4, 4, 4, /* 09 - 12 */
++					        4, 4, 4, 4, /* 13 - 16 */
++					        8, 8, 8, 8, /* 17 - 20 */
++					        8, 8, 8, 8, /* 21 - 24 */
++					        8, 8, 8, 8, /* 25 - 28 */
++					        8, 8, 8, 8, /* 29 - 32 */
++					      };
++	*slots_per_op = slot_count_table[src_cnt];
++	return *slots_per_op;
++}
++
++static inline int iop_chan_xor_slot_count(size_t len, int src_cnt,
++						int *slots_per_op)
++{
++	int slot_cnt = iop3xx_aau_xor_slot_count(len, src_cnt, slots_per_op);
++
++	if (len <= IOP_ADMA_XOR_MAX_BYTE_COUNT)
++		return slot_cnt;
++
++	len -= IOP_ADMA_XOR_MAX_BYTE_COUNT;
++	while (len > IOP_ADMA_XOR_MAX_BYTE_COUNT) {
++		len -= IOP_ADMA_XOR_MAX_BYTE_COUNT;
++		slot_cnt += *slots_per_op;
++	}
++
++	if (len)
++		slot_cnt += *slots_per_op;
++
++	return slot_cnt;
++}
++
++/* zero sum on iop3xx is limited to 1k at a time so it requires multiple
++ * descriptors
++ */
++static inline int iop_chan_zero_sum_slot_count(size_t len, int src_cnt,
++						int *slots_per_op)
++{
++	int slot_cnt = iop3xx_aau_xor_slot_count(len, src_cnt, slots_per_op);
++
++	if (len <= IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT)
++		return slot_cnt;
++
++	len -= IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT;
++	while (len > IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT) {
++		len -= IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT;
++		slot_cnt += *slots_per_op;
++	}
++
++	if (len)
++		slot_cnt += *slots_per_op;
++
++	return slot_cnt;
++}
++
++static inline u32 iop_desc_get_dest_addr(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return hw_desc.dma->dest_addr;
++	case IOP3XX_AAU_ID:
++		return hw_desc.aau->dest_addr;
++	default:
++		BUG();
++	}
++	return 0;
++}
++
++static inline u32 iop_desc_get_byte_count(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return hw_desc.dma->byte_count;
++	case IOP3XX_AAU_ID:
++		return hw_desc.aau->byte_count;
++	default:
++		BUG();
++	}
++	return 0;
++}
++
++static inline int iop3xx_src_edc_idx(int src_idx)
++{
++	const static int src_edc_idx_table[] = { 0, 0, 0, 0,
++						 0, 1, 2, 3,
++						 5, 6, 7, 8,
++						 9, 10, 11, 12,
++						 14, 15, 16, 17,
++						 18, 19, 20, 21,
++						 23, 24, 25, 26,
++						 27, 28, 29, 30,
++					       };
++
++	return src_edc_idx_table[src_idx];
++}
++
++static inline u32 iop_desc_get_src_addr(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan,
++					int src_idx)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return hw_desc.dma->src_addr;
++	case IOP3XX_AAU_ID:
++		break;
++	default:
++		BUG();
++	}
++
++	if (src_idx < 4)
++		return hw_desc.aau->src[src_idx];
++	else
++		return hw_desc.aau->src_edc[iop3xx_src_edc_idx(src_idx)].src_addr;
++}
++
++static inline void iop3xx_aau_desc_set_src_addr(struct iop3xx_desc_aau *hw_desc,
++					int src_idx, dma_addr_t addr)
++{
++	if (src_idx < 4)
++		hw_desc->src[src_idx] = addr;
++	else
++		hw_desc->src_edc[iop3xx_src_edc_idx(src_idx)].src_addr = addr;
++}
++
++static inline void iop_desc_init_memcpy(struct iop_adma_desc_slot *desc)
++{
++	struct iop3xx_desc_dma *hw_desc = desc->hw_desc;
++	union {
++		u32 value;
++		struct iop3xx_dma_desc_ctrl field;
++	} u_desc_ctrl;
++
++	desc->src_cnt = 1;
++	u_desc_ctrl.value = 0;
++	u_desc_ctrl.field.mem_to_mem_en = 1;
++	u_desc_ctrl.field.pci_transaction = 0xe; /* memory read block */
++	hw_desc->desc_ctrl = u_desc_ctrl.value;
++	hw_desc->upper_pci_src_addr = 0;
++	hw_desc->crc_addr = 0;
++	hw_desc->next_desc = 0;
++}
++
++static inline void iop_desc_init_memset(struct iop_adma_desc_slot *desc)
++{
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc;
++	union {
++		u32 value;
++		struct iop3xx_aau_desc_ctrl field;
++	} u_desc_ctrl;
++
++	desc->src_cnt = 1;
++	u_desc_ctrl.value = 0;
++	u_desc_ctrl.field.blk1_cmd_ctrl = 0x2; /* memory block fill */
++	u_desc_ctrl.field.dest_write_en = 1;
++	hw_desc->desc_ctrl = u_desc_ctrl.value;
++	hw_desc->next_desc = 0;
++}
++
++static inline u32 iop3xx_desc_init_xor(struct iop3xx_desc_aau *hw_desc,
++				int src_cnt)
++{
++	int i, shift;
++	u32 edcr;
++	union {
++		u32 value;
++		struct iop3xx_aau_desc_ctrl field;
++	} u_desc_ctrl;
++
++	u_desc_ctrl.value = 0;
++	switch (src_cnt) {
++	case 25 ... 32:
++		u_desc_ctrl.field.blk_ctrl = 0x3; /* use EDCR[2:0] */
++		edcr = 0;
++		shift = 1;
++		for (i = 24; i < src_cnt; i++) {
++			edcr |= (1 << shift);
++			shift += 3;
++		}
++		hw_desc->src_edc[IOP3XX_AAU_EDCR2_IDX].e_desc_ctrl = edcr;
++		src_cnt = 24;
++		/* fall through */
++	case 17 ... 24:
++		if (!u_desc_ctrl.field.blk_ctrl) {
++			hw_desc->src_edc[IOP3XX_AAU_EDCR2_IDX].e_desc_ctrl = 0;
++			u_desc_ctrl.field.blk_ctrl = 0x3; /* use EDCR[2:0] */
++		}
++		edcr = 0;
++		shift = 1;
++		for (i = 16; i < src_cnt; i++) {
++			edcr |= (1 << shift);
++			shift += 3;
++		}
++		hw_desc->src_edc[IOP3XX_AAU_EDCR1_IDX].e_desc_ctrl = edcr;
++		src_cnt = 16;
++		/* fall through */
++	case 9 ... 16:
++		if (!u_desc_ctrl.field.blk_ctrl)
++			u_desc_ctrl.field.blk_ctrl = 0x2; /* use EDCR0 */
++		edcr = 0;
++		shift = 1;
++		for (i = 8; i < src_cnt; i++) {
++			edcr |= (1 << shift);
++			shift += 3;
++		}
++		hw_desc->src_edc[IOP3XX_AAU_EDCR0_IDX].e_desc_ctrl = edcr;
++		src_cnt = 8;
++		/* fall through */
++	case 2 ... 8:
++		shift = 1;
++		for (i = 0; i < src_cnt; i++) {
++			u_desc_ctrl.value |= (1 << shift);
++			shift += 3;
++		}
++
++		if (!u_desc_ctrl.field.blk_ctrl && src_cnt > 4)
++			u_desc_ctrl.field.blk_ctrl = 0x1; /* use mini-desc */
++	}
++
++	u_desc_ctrl.field.dest_write_en = 1;
++	u_desc_ctrl.field.blk1_cmd_ctrl = 0x7; /* direct fill */
++	hw_desc->desc_ctrl = u_desc_ctrl.value;
++	hw_desc->next_desc = 0;
++
++	return u_desc_ctrl.value;
++}
++
++static inline void iop_desc_init_xor(struct iop_adma_desc_slot *desc,
++				int src_cnt)
++{
++	desc->src_cnt = src_cnt;
++	iop3xx_desc_init_xor(desc->hw_desc, src_cnt);
++}
++
++/* return the number of operations */
++static inline int iop_desc_init_zero_sum(struct iop_adma_desc_slot *desc,
++					int src_cnt,
++					int slot_cnt,
++					int slots_per_op)
++{
++	struct iop3xx_desc_aau *hw_desc, *prev_hw_desc, *iter;
++	union {
++		u32 value;
++		struct iop3xx_aau_desc_ctrl field;
++	} u_desc_ctrl;
++	int i = 0, j = 0;
++	hw_desc = desc->hw_desc;
++	desc->src_cnt = src_cnt;
++
++	do {
++		iter = iop_hw_desc_slot_idx(hw_desc, i);
++		u_desc_ctrl.value = iop3xx_desc_init_xor(iter, src_cnt);
++		u_desc_ctrl.field.dest_write_en = 0;
++		u_desc_ctrl.field.zero_result_en = 1;
++		/* for the subsequent descriptors preserve the store queue
++		 * and chain them together
++		 */
++		if (i) {
++			prev_hw_desc = iop_hw_desc_slot_idx(hw_desc, i - slots_per_op);
++			prev_hw_desc->next_desc = (u32) (desc->phys + (i << 5));
++		}
++		iter->desc_ctrl = u_desc_ctrl.value;
++		slot_cnt -= slots_per_op;
++		i += slots_per_op;
++		j++;
++	} while (slot_cnt);
++
++	return j;
++}
++
++static inline void iop_desc_init_null_xor(struct iop_adma_desc_slot *desc,
++				int src_cnt)
++{
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc;
++	union {
++		u32 value;
++		struct iop3xx_aau_desc_ctrl field;
++	} u_desc_ctrl;
++
++	u_desc_ctrl.value = 0;
++	switch (src_cnt) {
++	case 25 ... 32:
++		u_desc_ctrl.field.blk_ctrl = 0x3; /* use EDCR[2:0] */
++		hw_desc->src_edc[IOP3XX_AAU_EDCR2_IDX].e_desc_ctrl = 0;
++		/* fall through */
++	case 17 ... 24:
++		if (!u_desc_ctrl.field.blk_ctrl) {
++			hw_desc->src_edc[IOP3XX_AAU_EDCR2_IDX].e_desc_ctrl = 0;
++			u_desc_ctrl.field.blk_ctrl = 0x3; /* use EDCR[2:0] */
++		}
++		hw_desc->src_edc[IOP3XX_AAU_EDCR1_IDX].e_desc_ctrl = 0;
++		/* fall through */
++	case 9 ... 16:
++		if (!u_desc_ctrl.field.blk_ctrl)
++			u_desc_ctrl.field.blk_ctrl = 0x2; /* use EDCR0 */
++		hw_desc->src_edc[IOP3XX_AAU_EDCR0_IDX].e_desc_ctrl = 0;
++		/* fall through */
++	case 1 ... 8:
++		if (!u_desc_ctrl.field.blk_ctrl && src_cnt > 4)
++			u_desc_ctrl.field.blk_ctrl = 0x1; /* use mini-desc */
++	}
++
++	desc->src_cnt = src_cnt;
++	u_desc_ctrl.field.dest_write_en = 0;
++	hw_desc->desc_ctrl = u_desc_ctrl.value;
++	hw_desc->next_desc = 0;
++}
++
++static inline void iop_desc_set_byte_count(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan,
++					u32 byte_count)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		hw_desc.dma->byte_count = byte_count;
++		break;
++	case IOP3XX_AAU_ID:
++		hw_desc.aau->byte_count = byte_count;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_desc_set_zero_sum_byte_count(struct iop_adma_desc_slot *desc,
++					u32 len,
++					int slots_per_op)
++{
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc, *iter;
++	int i = 0;
++
++	if (len <= IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT) {
++		hw_desc->byte_count = len;
++	} else {
++		do {
++			iter = iop_hw_desc_slot_idx(hw_desc, i);
++			iter->byte_count = IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT;
++			len -= IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT;
++			i += slots_per_op;
++		} while (len > IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT);
++
++		if (len) {
++			iter = iop_hw_desc_slot_idx(hw_desc, i);
++			iter->byte_count = len;
++		}
++	}
++}
++
++static inline void iop_desc_set_dest_addr(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan,
++					dma_addr_t addr)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		hw_desc.dma->dest_addr = addr;
++		break;
++	case IOP3XX_AAU_ID:
++		hw_desc.aau->dest_addr = addr;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_desc_set_memcpy_src_addr(struct iop_adma_desc_slot *desc,
++					dma_addr_t addr, int slot_cnt,
++					int slots_per_op)
++{
++	struct iop3xx_desc_dma *hw_desc = desc->hw_desc;
++	hw_desc->src_addr = addr;
++}
++
++static inline void iop_desc_set_zero_sum_src_addr(struct iop_adma_desc_slot *desc,
++					int src_idx, dma_addr_t addr, int slot_cnt,
++					int slots_per_op)
++{
++
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc, *iter;
++	int i = 0;
++
++	do {
++		iter = iop_hw_desc_slot_idx(hw_desc, i);
++		iop3xx_aau_desc_set_src_addr(iter, src_idx, addr);
++		slot_cnt -= slots_per_op;
++		i += slots_per_op;
++		addr += IOP_ADMA_ZERO_SUM_MAX_BYTE_COUNT;
++	} while (slot_cnt);
++}
++
++static inline void iop_desc_set_xor_src_addr(struct iop_adma_desc_slot *desc,
++					int src_idx, dma_addr_t addr, int slot_cnt,
++					int slots_per_op)
++{
++
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc, *iter;
++	int i = 0;
++
++	do {
++		iter = iop_hw_desc_slot_idx(hw_desc, i);
++		iop3xx_aau_desc_set_src_addr(iter, src_idx, addr);
++		slot_cnt -= slots_per_op;
++		i += slots_per_op;
++		addr += IOP_ADMA_XOR_MAX_BYTE_COUNT;
++	} while (slot_cnt);
++}
++
++static inline void iop_desc_set_next_desc(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan,
++					u32 next_desc_addr)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		BUG_ON(hw_desc.dma->next_desc);
++		hw_desc.dma->next_desc = next_desc_addr;
++		break;
++	case IOP3XX_AAU_ID:
++		BUG_ON(hw_desc.aau->next_desc);
++		hw_desc.aau->next_desc = next_desc_addr;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline u32 iop_desc_get_next_desc(struct iop_adma_desc_slot *desc,
++					struct iop_adma_chan *chan)
++{
++	union iop3xx_desc hw_desc = { .ptr = desc->hw_desc, };
++
++	switch (chan->device->id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return hw_desc.dma->next_desc;
++	case IOP3XX_AAU_ID:
++		return hw_desc.aau->next_desc;
++	default:
++		BUG();
++	}
++
++	return 0;
++}
++
++static inline void iop_desc_set_block_fill_val(struct iop_adma_desc_slot *desc,
++						u32 val)
++{
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc;
++	hw_desc->src[0] = val;
++}
++
++#ifndef CONFIG_ARCH_IOP32X
++static inline int iop_desc_get_zero_result(struct iop_adma_desc_slot *desc)
++{
++	struct iop3xx_desc_aau *hw_desc = desc->hw_desc;
++	struct iop3xx_aau_desc_ctrl desc_ctrl = hw_desc->desc_ctrl_field;
++
++	BUG_ON(!(desc_ctrl.tx_complete && desc_ctrl.zero_result_en));
++	return desc_ctrl.zero_result_err;
++}
++#else
++extern char iop32x_zero_result_buffer[PAGE_SIZE];
++static inline int iop_desc_get_zero_result(struct iop_adma_desc_slot *desc)
++{
++	int i;
++
++	consistent_sync(iop32x_zero_result_buffer,
++			sizeof(iop32x_zero_result_buffer),
++			DMA_FROM_DEVICE);
++
++	for (i = 0; i < sizeof(iop32x_zero_result_buffer)/sizeof(u32); i++)
++		if (((u32 *) iop32x_zero_result_buffer)[i])
++			return 1;
++		else if ((i & 0x7) == 0) /* prefetch the next cache line */
++			prefetch(((u32 *) iop32x_zero_result_buffer) + 8);
++
++	return 0;
++}
++#endif
++
++static inline void iop_chan_append(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++	/* drain write buffer so ADMA can see updated descriptor */
++	asm volatile ("mcr p15, 0, r1, c7, c10, 4" : : : "%r1");
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		*IOP3XX_DMA_CCR(id) |= 0x2;
++		break;
++	case IOP3XX_AAU_ID:
++		*IOP3XX_AAU_ACR |= 0x2;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_chan_clear_status(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++	u32 status;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		status = *IOP3XX_DMA_CSR(id);
++		*IOP3XX_DMA_CSR(id) = status;
++		break;
++	case IOP3XX_AAU_ID:
++		status = *IOP3XX_AAU_ASR;
++		*IOP3XX_AAU_ASR = status;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline u32 iop_chan_get_status(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		return *IOP3XX_DMA_CSR(id);
++	case IOP3XX_AAU_ID:
++		return *IOP3XX_AAU_ASR;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_chan_disable(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		*IOP3XX_DMA_CCR(id) &= ~0x1;
++		break;
++	case IOP3XX_AAU_ID:
++		*IOP3XX_AAU_ACR &= ~0x1;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_chan_enable(struct iop_adma_chan *chan)
++{
++	int id = chan->device->id;
++
++	/* drain write buffer */
++	asm volatile ("mcr p15, 0, r1, c7, c10, 4" : : : "%r1");
++
++	switch (id) {
++	case IOP3XX_DMA0_ID:
++	case IOP3XX_DMA1_ID:
++		*IOP3XX_DMA_CCR(id) |= 0x1;
++		break;
++	case IOP3XX_AAU_ID:
++		*IOP3XX_AAU_ACR |= 0x1;
++		break;
++	default:
++		BUG();
++	}
++}
++
++static inline void iop_raid5_dma_chan_request(struct dma_client *client)
++{
++	dma_async_client_chan_request(client, 2, DMA_MEMCPY);
++	dma_async_client_chan_request(client, 1, DMA_XOR | DMA_ZERO_SUM);
++}
++
++static inline struct dma_chan *iop_raid5_dma_next_channel(struct dma_client *client)
++{
++	static struct dma_chan_client_ref *chan_ref = NULL;
++	static int req_idx = -1;
++	static struct dma_req *req[2];
++	
++	if (unlikely(req_idx < 0)) {
++		req[0] = &client->req[0];
++		req[1] = &client->req[1];
++	} 
++	
++	if (++req_idx > 1)
++		req_idx = 0;
++
++	spin_lock(&client->lock);
++	if (unlikely(list_empty(&req[req_idx]->channels)))
++		chan_ref = NULL;
++	else if (!chan_ref || chan_ref->req_node.next == &req[req_idx]->channels)
++		chan_ref = list_entry(req[req_idx]->channels.next, typeof(*chan_ref),
++					req_node);
++	else
++		chan_ref = list_entry(chan_ref->req_node.next,
++					typeof(*chan_ref), req_node);
++	spin_unlock(&client->lock);
++
++	return chan_ref ? chan_ref->chan : NULL;
++}
++
++static inline struct dma_chan *iop_raid5_dma_check_channel(struct dma_chan *chan,
++						dma_cookie_t cookie,
++						struct dma_client *client,
++						unsigned long capabilities)
++{
++	struct dma_chan_client_ref *chan_ref;
++
++	if ((chan->device->capabilities & capabilities) == capabilities)
++		return chan;
++	else if (dma_async_operation_complete(chan,
++					      cookie,
++					      NULL,
++					      NULL) == DMA_SUCCESS) {
++		/* dma channels on req[0] */
++		if (capabilities & (DMA_MEMCPY | DMA_MEMCPY_CRC32C))
++			chan_ref = list_entry(client->req[0].channels.next,
++						typeof(*chan_ref),
++						req_node);
++		/* aau channel on req[1] */
++		else
++			chan_ref = list_entry(client->req[1].channels.next,
++						typeof(*chan_ref),
++						req_node);
++		/* switch to the new channel */
++		dma_chan_put(chan);
++		dma_chan_get(chan_ref->chan);
++
++		return chan_ref->chan;
++	} else
++		return NULL;
++}
++#endif /* _IOP3XX_ADMA_H */

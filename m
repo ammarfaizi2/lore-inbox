@@ -1,118 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWIKEh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWIKExo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWIKEh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 00:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWIKEh4
+	id S932112AbWIKExo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 00:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWIKExo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 00:37:56 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:44997 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1751147AbWIKEhz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 00:37:55 -0400
-Date: Mon, 11 Sep 2006 08:37:51 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
-Message-ID: <20060911043751.GA7320@oleg>
-References: <20060911022535.GA7095@oleg> <m1venvawbi.fsf@ebiederm.dsl.xmission.com>
+	Mon, 11 Sep 2006 00:53:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:56228 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932094AbWIKExn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 00:53:43 -0400
+Subject: Re: TG3 data corruption (TSO ?)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Chan <mchan@broadcom.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1157745256.5344.8.camel@rh4>
+References: <1551EAE59135BE47B544934E30FC4FC093FB19@NT-IRVA-0751.brcm.ad.broadcom.com>
+	 <9EAEC3B2-260E-444E-BCA1-3C9806340F65@kernel.crashing.org>
+	 <1157745256.5344.8.camel@rh4>
+Content-Type: text/plain
+Date: Mon, 11 Sep 2006 14:53:30 +1000
+Message-Id: <1157950410.31071.402.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1venvawbi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/10, Eric W. Biederman wrote:
-> 
-> As for the functions can we build them in all 4 varieties.
-> struct pid *get_task_pid(struct task *);
-> struct pid *get_task_tgid(struct task *);
-> struct pid *get_task_pgrp(struct task *);
-> struct pid *get_task_session(struct task *);
 
-Something like the patch below?
+> Oh, we know about this.  The powerpc writel() used to have memory
+> barriers in 2.4 kernels but not any more in 2.6 kernels.  Red Hat's
+> version of tg3 has extra wmb()'s to fix this problem.  David doesn't
+> think that the upstream version of tg3 should have these wmb()'s, and
+> the problem should instead be fixed in powerpc's writel().
 
-> Either that or we can just drop in some rcu_read_lock() rcu_read_unlock()
-> into the call sites.
+I've added a wmb() in tw32_rx_mbox() and tw32_tx_mbox() and can still
+reproduce the problem. I've also done a 2 days run without TSO enabled
+without a failure (my test program normally fails after a couple of
+minutes).
 
-Possible. I don't have a strong opinion, please feel free to send
-a different patch.
+Thus, do you see any other code path in the driver where a
+synchronisation might be missing ? Is there any case where the chip
+might use data in memory before it has been told to do so  with a
+mailbox write ? (There are no "OWN" bits that I can see in the
+descriptors, thus I doubt it will use a transmit descriptor that is
+half-built before the store to the mailbox allows using it) but who
+knows....
 
-[PATCH] introduce get_task_pid() to fix unsafe get_pid()
+That leads to the question that there might be an unrelated bug in the
+driver. Segher thinks we might be overriding "live" descriptors, though
+I haven't seen how yet. It seems to be TSO specific tho... maybe some
+missing smp synchronisation in the driver itself or a problem when the
+TX ring is full ?
 
-proc_pid_make_inode:
+I don't have the chip docs and I'm not familiar with the driver, so I'll
+keep looking, but advice is welcome. I'll also see if I can reproduce
+with some other TSO capable card, in case the problem is in the kernel
+TSO code and not in the driver.
 
-	ei->pid = get_pid(task_pid(task));
+Cheers,
+Ben.
 
-I think this is not safe. get_pid() can be preempted after checking
-"pid != NULL". Then the task exits, does detach_pid(), and RCU frees
-the pid.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- rc6-mm1/include/linux/pid.h~1_tgp	2006-09-09 22:34:50.000000000 +0400
-+++ rc6-mm1/include/linux/pid.h	2006-09-11 08:24:15.000000000 +0400
-@@ -68,6 +68,8 @@ extern struct task_struct *FASTCALL(pid_
- extern struct task_struct *FASTCALL(get_pid_task(struct pid *pid,
- 						enum pid_type));
- 
-+extern struct pid *__get_task_pid(struct task_struct *task, enum pid_type type);
-+
- /*
-  * attach_pid() and detach_pid() must be called with the tasklist_lock
-  * write-held.
---- rc6-mm1/kernel/pid.c~1_tgp	2006-09-09 22:34:50.000000000 +0400
-+++ rc6-mm1/kernel/pid.c	2006-09-11 08:24:21.000000000 +0400
-@@ -305,6 +305,15 @@ struct task_struct *find_task_by_pid_typ
- 
- EXPORT_SYMBOL(find_task_by_pid_type);
- 
-+struct pid *__get_task_pid(struct task_struct *task, enum pid_type type)
-+{
-+	struct pid *pid;
-+	rcu_read_lock();
-+	pid = get_pid(task->pids[type].pid);
-+	rcu_read_unlock();
-+	return pid;
-+}
-+
- struct task_struct *fastcall get_pid_task(struct pid *pid, enum pid_type type)
- {
- 	struct task_struct *result;
---- rc6-mm1/include/linux/sched.h~1_tgp	2006-09-09 22:34:50.000000000 +0400
-+++ rc6-mm1/include/linux/sched.h	2006-09-11 08:26:29.000000000 +0400
-@@ -1073,6 +1073,11 @@ static inline struct pid *task_session(s
- 	return task->group_leader->pids[PIDTYPE_SID].pid;
- }
- 
-+static inline struct pid *get_task_pid(struct task_struct *task)
-+{
-+	return __get_task_pid(task, PIDTYPE_PID);
-+}
-+
- /**
-  * pid_alive - check that a task structure is not stale
-  * @p: Task structure to be checked.
---- rc6-mm1/fs/proc/base.c~1_tgp	2006-09-09 22:34:49.000000000 +0400
-+++ rc6-mm1/fs/proc/base.c	2006-09-11 08:27:12.000000000 +0400
-@@ -958,7 +958,7 @@ static struct inode *proc_pid_make_inode
- 	/*
- 	 * grab the reference to task.
- 	 */
--	ei->pid = get_pid(task_pid(task));
-+	ei->pid = get_task_pid(task);
- 	if (!ei->pid)
- 		goto out_unlock;
- 
-@@ -1665,7 +1665,7 @@ static struct dentry *proc_base_instanti
- 	/*
- 	 * grab the reference to the task.
- 	 */
--	ei->pid = get_pid(task_pid(task));
-+	ei->pid = get_task_pid(task);
- 	if (!ei->pid)
- 		goto out_iput;
- 
 

@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWIKDyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWIKD7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWIKDyT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 23:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWIKDyT
+	id S1750817AbWIKD7a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 23:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWIKD7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 23:54:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17572 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750809AbWIKDyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 23:54:18 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <21EFB791-B046-4EE0-8D93-8D0BA37C1D46@kernel.crashing.org>
-References: <17666.11971.416250.857749@cargo.ozlabs.ibm.com>
-	 <1157916919.23085.24.camel@localhost.localdomain>
-	 <1157923513.31071.256.camel@localhost.localdomain>
-	 <200609101725.49234.jbarnes@virtuousgeek.org>
-	 <0828ADEB-0F0E-49FC-82BE-CFA15B7D3829@kernel.crashing.org>
-	 <1157937023.31071.289.camel@localhost.localdomain>
-	 <21EFB791-B046-4EE0-8D93-8D0BA37C1D46@kernel.crashing.org>
-Content-Type: text/plain
-Date: Mon, 11 Sep 2006 13:53:37 +1000
-Message-Id: <1157946817.31071.381.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Sep 2006 23:59:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35292 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750817AbWIKD73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 23:59:29 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
+References: <20060911022535.GA7095@oleg>
+Date: Sun, 10 Sep 2006 21:58:25 -0600
+In-Reply-To: <20060911022535.GA7095@oleg> (Oleg Nesterov's message of "Mon, 11
+	Sep 2006 06:25:35 +0400")
+Message-ID: <m1venvawbi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 03:48 +0200, Segher Boessenkool wrote:
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> > Ordering between stores issued by different CPUs has no meaning
-> > whatsoever unless you have locks. That is you have some kind of
-> > synchronisation primitive between the 2 CPUs.
-> 
-> And that's exactly what mmiowb() does right now -- it makes sure
-> the I/O ends up at some I/O hub that will keep the accesses in
-> order, before it allows the current CPU to continue.
+> (COMPILE TESTED, needs an ack from Eric)
+>
+> proc_pid_make_inode:
+>
+> 	ei->pid = get_pid(task_pid(task));
+>
+> I think this is not safe. get_pid() can be preempted after checking
+> "pid != NULL". Then the task exits, does detach_pid(), and RCU frees
+> the pid.
 
-No. mmiowb isn't itself a synchronisation primitive between CPUs. It's a
-barrier. The lock enclosing the MMIOs is the synchronisation primitive.
-mmiowb() makes it actually work with MMIOs since otherwise, MMIO stores
-might "leak" out of the lock.
+Ugh.  I had forgotten that the pid of a task gets freed even if you
+hold a reference to the task struct.  So the preemption case looks possible.
 
-There is no concept of ordering between a flow of stores from 2 CPUs.
-There is no "before" or "after" (or rather, they aren't defined) unless
-you create a common "t0" reference, in which case you can indeed say
-wether a given store on a given side is before or after this "t0".
+Your technique to handle this problem looks fine.
 
-This common reference can only excist if code on -both- sides actually
-implement it, that is, it has to appear somewhere in the program to have
-any meaning.
+As for the functions can we build them in all 4 varieties.
+struct pid *get_task_pid(struct task *);
+struct pid *get_task_tgid(struct task *);
+struct pid *get_task_pgrp(struct task *);
+struct pid *get_task_session(struct task *);
 
-mmiowb() doesn't do that. The spinlock does. That's the referene. That's
-what crates a concept of "before" and "after" (or rather "inside" or
-"outside"). mmiowb() is merely an implementation detail to make this
-actually work when MMIOs are involved.
- 
-> Aaaaaaaanyway...  the question of what to call mmiowb() and what its
-> exact semantics would become, is a bit of a side issue right now, let's
-> discuss it later...
+Functions without a flag are less error prone to use, and clearer to read.
 
-See my proposed document with explicit semantics.
+Either that or we can just drop in some rcu_read_lock() rcu_read_unlock()
+into the call sites.
 
-Ben.
-
-
+Eric

@@ -1,80 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWIKSt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWIKSue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWIKSt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 14:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWIKSt4
+	id S964930AbWIKSue (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 14:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIKSue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 14:49:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:63206 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964923AbWIKStz
+	Mon, 11 Sep 2006 14:50:34 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:61348 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964926AbWIKSuc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 14:49:55 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
-	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: balbir@in.ibm.com, Dave Hansen <haveblue@us.ibm.com>,
-       Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-In-Reply-To: <45051AC7.2000607@openvz.org>
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>
-	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>
-	 <1157730221.26324.52.camel@localhost.localdomain>
-	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
-	 <4505161E.1040401@in.ibm.com>  <45051AC7.2000607@openvz.org>
+	Mon, 11 Sep 2006 14:50:32 -0400
+Subject: Re: [RFC] patch[1/1] i386 numa kva conversion to use bootmem
+	reserve
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <45037B5F.1080509@shadowen.org>
+References: <1150871711.8518.61.camel@keithlap>
+	 <45037B5F.1080509@shadowen.org>
 Content-Type: text/plain
-Organization: IBM
-Date: Mon, 11 Sep 2006 11:49:50 -0700
-Message-Id: <1158000590.6029.33.camel@linuxchandra>
+Organization: Linux Technology Center IBM
+Date: Mon, 11 Sep 2006 11:50:28 -0700
+Message-Id: <1158000628.5755.48.camel@keithlap>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 12:13 +0400, Pavel Emelianov wrote:
+On Sun, 2006-09-10 at 03:41 +0100, Andy Whitcroft wrote:
+> keith mannthey wrote:
+> > Hello,
+> >   I the current i386 numa the numa_kva (the area used to remap node
+> > local data in lowmem) space is acquired by adjusting the end of low
+> > memroy during boot. 
+> > 
+> > (from setup_memory)
+> > reserve_pages = calculate_numa_remap_pages();
+> > (then)
+> > system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
+> > 
+> > The problem this is that initrds can be trampled over (the kva can
+> > adjust system_max_low_pfn into the initrd area) This results in kernel
+> > throwing away the intird and a failed boot.  This is a long standing
+> > issue. (It has been like this at least for the last few years). 
+> > 
+> > This patch keeps the numa kva code from adjusting the end of memory and
+> > coverts it is just use the reserve_bootmem call to reserve the large
+> > amount of space needed for the numa_kva. It is mindful of initrds when
+> > present. 
+> > 
+> > This patch was built against 2.6.17-rc1 originally but applies and boots
+> > against 2.6.17 just fine.  I have only test this against the summit
+> > subarch (I don't have other i386 numa hw). 
+> > 
+> > all feedback welcome!
+> > 
+> > Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
+> > 
+> > 
+> > ------------------------------------------------------------------------
+> > 
+> > diff -urN linux-2.6.17/arch/i386/kernel/setup.c linux-2.6.17-work/arch/i386/kernel/setup.c
+> > --- linux-2.6.17/arch/i386/kernel/setup.c	2006-06-17 18:49:35.000000000 -0700
+> > +++ linux-2.6.17-work/arch/i386/kernel/setup.c	2006-06-20 23:04:37.000000000 -0700
+> > @@ -1210,6 +1210,9 @@
+> >  extern void zone_sizes_init(void);
+> >  #endif /* !CONFIG_NEED_MULTIPLE_NODES */
+> >  
+> > +#ifdef CONFIG_NUMA
+> > +extern void numa_kva_reserve(void);
+> > +#endif
+> >  void __init setup_bootmem_allocator(void)
+> >  {
+> >  	unsigned long bootmap_size;
+> > @@ -1265,7 +1268,9 @@
+> >  	 */
+> >  	find_smp_config();
+> >  #endif
+> > -
+> > +#ifdef CONFIG_NUMA
+> > +	numa_kva_reserve();
+> > +#endif 
+> >  #ifdef CONFIG_BLK_DEV_INITRD
+> >  	if (LOADER_TYPE && INITRD_START) {
+> >  		if (INITRD_START + INITRD_SIZE <= (max_low_pfn << PAGE_SHIFT)) {
+> > diff -urN linux-2.6.17/arch/i386/mm/discontig.c linux-2.6.17-work/arch/i386/mm/discontig.c
+> > --- linux-2.6.17/arch/i386/mm/discontig.c	2006-06-17 18:49:35.000000000 -0700
+> > +++ linux-2.6.17-work/arch/i386/mm/discontig.c	2006-06-20 23:11:49.000000000 -0700
+> > @@ -118,7 +118,8 @@
+> >  
+> >  void *node_remap_end_vaddr[MAX_NUMNODES];
+> >  void *node_remap_alloc_vaddr[MAX_NUMNODES];
+> > -
+> > +static unsigned long kva_start_pfn;
+> > +static unsigned long kva_pages;
+> >  /*
+> >   * FLAT - support for basic PC memory model with discontig enabled, essentially
+> >   *        a single node with all available processors in it with a flat
+> > @@ -287,7 +288,6 @@
+> >  {
+> >  	int nid;
+> >  	unsigned long system_start_pfn, system_max_low_pfn;
+> > -	unsigned long reserve_pages;
+> >  
+> >  	/*
+> >  	 * When mapping a NUMA machine we allocate the node_mem_map arrays
+> > @@ -299,14 +299,23 @@
+> >  	find_max_pfn();
+> >  	get_memcfg_numa();
+> >  
+> > -	reserve_pages = calculate_numa_remap_pages();
+> > +	kva_pages = calculate_numa_remap_pages();
+> >  
+> >  	/* partially used pages are not usable - thus round upwards */
+> >  	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
+> >  
+> > -	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
+> > -	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
+> > -			reserve_pages, max_low_pfn + reserve_pages);
+> > +	kva_start_pfn = find_max_low_pfn() - kva_pages;
+> > +
+> > +#ifdef CONFIG_BLK_DEV_INITRD
+> > +	/* Numa kva area is below the initrd */
+> > +	if (LOADER_TYPE && INITRD_START) 
+> > +		kva_start_pfn = PFN_DOWN(INITRD_START)  - kva_pages;
+> > +#endif 
+> > +	kva_start_pfn -= kva_start_pfn & (PTRS_PER_PTE-1);
+> > +
+> > +	system_max_low_pfn = max_low_pfn = find_max_low_pfn();
+> > +	printk("kva_start_pfn ~ %ld find_max_low_pfn() ~ %ld\n", 
+> > +		kva_start_pfn, max_low_pfn);
+> >  	printk("max_pfn = %ld\n", max_pfn);
+> >  #ifdef CONFIG_HIGHMEM
+> >  	highstart_pfn = highend_pfn = max_pfn;
+> > @@ -324,7 +333,7 @@
+> >  			(ulong) pfn_to_kaddr(max_low_pfn));
+> >  	for_each_online_node(nid) {
+> >  		node_remap_start_vaddr[nid] = pfn_to_kaddr(
+> > -				highstart_pfn + node_remap_offset[nid]);
+> > +				kva_start_pfn + node_remap_offset[nid]);
+> >  		/* Init the node remap allocator */
+> >  		node_remap_end_vaddr[nid] = node_remap_start_vaddr[nid] +
+> >  			(node_remap_size[nid] * PAGE_SIZE);
+> > @@ -339,7 +348,6 @@
+> >  	}
+> >  	printk("High memory starts at vaddr %08lx\n",
+> >  			(ulong) pfn_to_kaddr(highstart_pfn));
+> > -	vmalloc_earlyreserve = reserve_pages * PAGE_SIZE;
+> >  	for_each_online_node(nid)
+> >  		find_max_pfn_node(nid);
+> >  
+> > @@ -349,6 +357,12 @@
+> >  	return max_low_pfn;
+> >  }
+> >  
+> > +void __init numa_kva_reserve (void) 
+> > +{
+> > +	reserve_bootmem(PFN_PHYS(kva_start_pfn),PFN_PHYS(kva_pages));
+> > +
+> > +}
+> > +
+> >  void __init zone_sizes_init(void)
+> >  {
+> >  	int nid;
+> 
+> The primary reason that the mem_map is cut from the end of ZONE_NORMAL
+> is so that memory that would back that stolen KVA gets pushed out into
+> ZONE_HIGHMEM, the boundary between them is moved down.  By using
+> reserve_bootmem we will mark the pages which are currently backing the
+> KVA you are 'reusing' as reserved and prevent their release; we pay
+> double for the mem_map.
 
-<snip>
-> >
-> > Don't start the new container or change the guarantees of the existing
-> > ones
-> > to accommodate this one :) The QoS design (done by the administrator)
-> > should
-> > take care of such use-cases. It would be perfectly ok to have a container
-> > that does not care about guarantees to set their guarantee to 0 and set
-> > their limit to the desired value. As Chandra has been stating we need two
-> > parameters (guarantee, limit), either can be optional, but not both.
-> If I set up 9 groups to have 100Mb limit then I have 100Mb assured (on
-> 1Gb node)
-> for the 10th one exactly. And I do not have to set up any guarantee as
-> it won't affect
-> anything. So what a guarantee parameter is needed for?
+Perhaps just freeing the reserve pages and remapping them at an
+appropriate time could accomplish this?  Sorry I don't know the KVA
+"freeing" path can you describe it a little more?  When are these pages
+returned to the system?  It was my understanding that that KVA pages
+were lost (the original wayu shrinks ZONE_NORMAL and creates a hole
+between the zones).
 
-I do not think it is that simple since
- - there is typically more than one class I want to set guarantee to
- - I will not able to use both limit and guarantee
- - Implementation will not be work-conserving.
+> If the initrd's are falling into this space, can we not allocate some
+> bootmem for those and move them out of our way?  As filesystem images
+> they are essentially location neutral so this should be safe?
 
-Also, How would you configure the following in your model ?
-
-5 classes: Class A(10, 40), Class B(20, 100), Class C (30, 100), Class D
-(5, 100), Class E(15, 50); (class_name(guarantee, limit))
-
-"Limit only" approach works for DoS prevention. But for providing QoS
-you would need guarantee.
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
+AFAIK bootloaders choose where map initrds.  Grub seems to put it around
+the top of ZONE_NORMAL but it is pretty free to map it where it wants. I
+suppose INITRD_START INITRD_END and all that could be dynamic and moved
+around a bit but it seems a little messy. I would rather see the special
+case (i386 numa the rare beast it is) jump thought a few extra hoops
+than to muck with the initrd code. 
+  
+Thanks,
+  Keith 
 

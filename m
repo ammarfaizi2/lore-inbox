@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWIKOZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWIKOik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWIKOZl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 10:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWIKOZl
+	id S1751259AbWIKOik (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 10:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWIKOik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 10:25:41 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24437 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751225AbWIKOZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 10:25:40 -0400
-Date: Mon, 11 Sep 2006 08:24:57 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: hangs during boot - EHCI: BIOS handoff failed (BIOS bug ?)
-In-reply-to: <fa.Fym684Cw28LDPMZvqq5aPswjUq4@ifi.uio.no>
-To: Christian Volk <christian.volk@netcom.eu>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <450571B9.6070101@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-15; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.Fym684Cw28LDPMZvqq5aPswjUq4@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Mon, 11 Sep 2006 10:38:40 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63165 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751259AbWIKOij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 10:38:39 -0400
+Subject: Re: PATCH: Fix 2.6.18-rc6 IDE breakage, add missing ident needed
+	for	current VIA boards
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <45056544.8070303@pobox.com>
+References: <1157982307.23085.140.camel@localhost.localdomain>
+	 <45056544.8070303@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 11 Sep 2006 15:59:24 +0100
+Message-Id: <1157986765.23085.144.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Volk wrote:
-> I have a 5-6 seconds delay while booting the 2.6.17.8 Kernel with only 
-> EHCI support on a Jetway J7F2WE1G5-OC-PB motherboard.
-> What exactly does the error during bootprocess mean?
-> 
-> Bios
-> USB 2.0 Support = enabled
-> USB Device Legacy Support = All On
-> 
-> 
-> bootlog
-> ...
-> 0000:00:10.4 EHCI: BIOS handoff
-> 0000:00:10.4 EHCI: BIOS handoff failed (BIOS bug ?) 01010001
+Ar Llu, 2006-09-11 am 09:31 -0400, ysgrifennodd Jeff Garzik:
+> For the first:
+> * just add the missing zeroes.  No need to revert PCI_DEVICE() usage.
 
-It means that the EHCI driver was unable to take control of the USB 
-controller away from the BIOS. Try upgrading the BIOS or disabling USB 
-legacy in the BIOS and see if that helps.
+Safer to revert thats all
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> For the second:
+> * the sata_via PCI ID has been queued for 2.6.19 for quite a while.  I 
+> don't see a hugely pressing need for it to be in 2.6.18, but it's not a 
+> big deal to me.
+
+Many of the current VIA mainboards have that ID so I would say its
+pressing as it is "out there", and if 2.6.19 is another 2 months away...
 

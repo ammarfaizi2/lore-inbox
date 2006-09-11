@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWIKCNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWIKCZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWIKCNu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Sep 2006 22:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWIKCNu
+	id S1751029AbWIKCZl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Sep 2006 22:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWIKCZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Sep 2006 22:13:50 -0400
-Received: from ns2.osuosl.org ([140.211.166.131]:51584 "EHLO ns2.osuosl.org")
-	by vger.kernel.org with ESMTP id S1750780AbWIKCNt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Sep 2006 22:13:49 -0400
-Date: Sun, 10 Sep 2006 21:14:00 -0500
-From: Brandon Philips <brandon@ifup.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Brice Goglin <brice@myri.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Robert Love <rml@novell.com>
-Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
-Message-ID: <20060911021400.GA6163@plankton.ifup.org>
-References: <20060908174437.GA5926@plankton.ifup.org> <20060908121319.11a5dbb0.akpm@osdl.org> <20060908194300.GA5901@plankton.ifup.org> <20060908125053.c31b76e9.akpm@osdl.org>
-MIME-Version: 1.0
+	Sun, 10 Sep 2006 22:25:41 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:60088 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1751029AbWIKCZk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Sep 2006 22:25:40 -0400
+Date: Mon, 11 Sep 2006 06:25:35 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
+Message-ID: <20060911022535.GA7095@oleg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060908125053.c31b76e9.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12:50 Fri 08 Sep 2006, Andrew Morton wrote:
-> On Fri, 8 Sep 2006 14:43:00 -0500
-> Brandon Philips <brandon@ifup.org> wrote:
-> > On 12:13 Fri 08 Sep 2006, Andrew Morton wrote:
-> > > On Fri, 8 Sep 2006 12:44:37 -0500
-> > > Brandon Philips <brandon@ifup.org> wrote:
-> > > > 2.6.18-rc4-mm3 boots ok.
-> > > > 
-> > > > I will try and bisect the problem later tonight-
-> > > 
-> > > Thanks.  First, try disabling CONFIG_PCI_MSI.
-> > 
-> > With CONFIG_PCI_MSI disabled the system boots.  
-> 
-> OK, thanks.
-> 
-> So likely candidates are:
-> 
-> - The conversion of i386 to use the genirq code
+(COMPILE TESTED, needs an ack from Eric)
 
-genirq-convert-the-i386-architecture-to-irq-chips.patch is causing the
-Kernel panic.
+proc_pid_make_inode:
 
-Thanks,
+	ei->pid = get_pid(task_pid(task));
 
-	Brandon
+I think this is not safe. get_pid() can be preempted after checking
+"pid != NULL". Then the task exits, does detach_pid(), and RCU frees
+the pid.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- rc6-mm1/include/linux/pid.h~1_tgp	2006-09-09 22:34:50.000000000 +0400
++++ rc6-mm1/include/linux/pid.h	2006-09-11 05:46:14.000000000 +0400
+@@ -68,6 +68,8 @@ extern struct task_struct *FASTCALL(pid_
+ extern struct task_struct *FASTCALL(get_pid_task(struct pid *pid,
+ 						enum pid_type));
+ 
++extern struct pid *get_task_pid(struct task_struct *task, enum pid_type type);
++
+ /*
+  * attach_pid() and detach_pid() must be called with the tasklist_lock
+  * write-held.
+--- rc6-mm1/kernel/pid.c~1_tgp	2006-09-09 22:34:50.000000000 +0400
++++ rc6-mm1/kernel/pid.c	2006-09-11 05:39:23.000000000 +0400
+@@ -305,6 +305,15 @@ struct task_struct *find_task_by_pid_typ
+ 
+ EXPORT_SYMBOL(find_task_by_pid_type);
+ 
++struct pid *get_task_pid(struct task_struct *task, enum pid_type type)
++{
++	struct pid *pid;
++	rcu_read_lock();
++	pid = get_pid(task->pids[type].pid);
++	rcu_read_unlock();
++	return pid;
++}
++
+ struct task_struct *fastcall get_pid_task(struct pid *pid, enum pid_type type)
+ {
+ 	struct task_struct *result;
+--- rc6-mm1/fs/proc/base.c~1_tgp	2006-09-09 22:34:49.000000000 +0400
++++ rc6-mm1/fs/proc/base.c	2006-09-11 05:56:19.000000000 +0400
+@@ -958,7 +958,7 @@ static struct inode *proc_pid_make_inode
+ 	/*
+ 	 * grab the reference to task.
+ 	 */
+-	ei->pid = get_pid(task_pid(task));
++	ei->pid = get_task_pid(task, PIDTYPE_PID);
+ 	if (!ei->pid)
+ 		goto out_unlock;
+ 
+@@ -1665,7 +1665,7 @@ static struct dentry *proc_base_instanti
+ 	/*
+ 	 * grab the reference to the task.
+ 	 */
+-	ei->pid = get_pid(task_pid(task));
++	ei->pid = get_task_pid(task, PIDTYPE_PID);
+ 	if (!ei->pid)
+ 		goto out_iput;
+ 
 

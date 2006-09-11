@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWIKKYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWIKKei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWIKKYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 06:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWIKKYf
+	id S1750725AbWIKKei (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 06:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIKKei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 06:24:35 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:64932 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932136AbWIKKYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 06:24:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Tb/QYn1LmRFCnpMd/6JXi0XF8G9Vd0I98UC1dud0AgkrbpxxyEikkkaMp6mk6Q4S85sPOGqxr74IWLGhugoP2/pplFUOVSUVxTkYJ/kJjX2spYonuLsPRAKF7sffvtXBxAhhJUoQEgGT6oXBkuUXuaHJVkeg4T8PNbifP2cLAU4=
-Message-ID: <4505394F.6060806@gmail.com>
-Date: Mon, 11 Sep 2006 12:24:15 +0200
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Mon, 11 Sep 2006 06:34:38 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:60057 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750725AbWIKKei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 06:34:38 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Thomas Richter <thor@mail.math.tu-berlin.de>
+Subject: Re: Sensors on Asus M2N SLI Deluxe
+Date: Mon, 11 Sep 2006 12:34:25 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200609110927.k8B9RJfH019016@mersenne.math.TU-Berlin.DE>
+In-Reply-To: <200609110927.k8B9RJfH019016@mersenne.math.TU-Berlin.DE>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: SATA powersave patches
-References: <20060908110346.GC920@elf.ucw.cz> <45015767.1090002@gmail.com> <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz>
-In-Reply-To: <20060910224815.GC1691@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2107832.2zzQJ15rBk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609111234.25413.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Pavel Machek.
+--nextPart2107832.2zzQJ15rBk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Pavel Machek wrote:
-> Thanks... I got it to work (on 2 the old tree, I was not able to
-> forward-port it), but power savings were not too big (~0.1W, maybe).
-> 
-> I'm getting huge (~1W) savings by powering down SATA controller, as in
-> ahci_pci_device_suspend().
+Am Montag 11 September 2006 11:27 schrieb Thomas Richter:
+> Hi folks,
+>
+> aparently the 2.6.17.8 kernel or rather the lm_sensors package which is
+> part of this kernel does not recognize the on-board chips of this
+> motherboard correctly.
 
-Yeah, it only turns off SATA PHY, so it doesn't result in huge saving. 
-IIRC, it was somewhere around 5 percent on my notebook w/ static 
-linksave mode (turning PHY off on empty port).  But link powersaving 
-introduces virtually no recognizable delay, so it's nice to have.
+Take a look into lm_sensors ml. Some patches have been posted, which work w=
+ell=20
+for me with 2.6.18rc. (I have a slightly different mobo, but I guess the sa=
+me=20
+it87 derivative is used on yours.) The will probably go into 2.6.19, IIRC.
 
-Can you check if there is any difference between [D/H]IPS and static? 
-ICH6M on my notebook can't do DIPS/HIPS, so I couldn't compare them 
-against static.
+Cheers,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-> It would be great to be able to power SATA
-> controller down, then power it back up when it is needed... I tried
-> following hack, but could not get it to work. Any ideas?
+--nextPart2107832.2zzQJ15rBk
+Content-Type: application/pgp-signature
 
-1. One way to do it would be by dynamic power management.  It would be 
-nice to have wake-up mechanism at the block layer.  Idle timer can run 
-in the block layer or it can be implemented in the userland.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-ATM, this implies that the attached devices are powered down too 
-(spindown).  As spinning up takes quite some time, we can implement 
-another level of dynamic PM w/ shorter delay to wake up - drives are not 
-spinned down but controllers are powered down completely.
+iD8DBQBFBTuxxU2n/+9+t5gRAq3GAKDj4+tOVexfn7xsPiWc3RIhkJMsWgCeL2gE
+19LEqwQJ+Miq3T2ONa7w4tU=
+=aw8c
+-----END PGP SIGNATURE-----
 
-In any case, channel reset and following revalidation are necessary on 
-wake up - if the device is still spinning, this shouldn't take too long 
-but it will introduce noticeable delay - probably under or around a sec.
-
-2. Another hacky way would be implementing it as an extension of link 
-powersaving.  I don't think this is a good idea tho.  Waking up a 
-controller usually involves link reset which in turn requires 
-revalidation and reconfiguration of attached device, which should be 
-done from exception handler.
-
-The reason why your hack doesn't work is probably this reason.  You need 
-to pass the command to EH and tell it to perform full wake-up sequence 
-and retry the command.
-
-So, I think option #1 is the way to go - implementing leveled dynamic 
-power management infrastructure and adding support in the block layer. 
-What do you think?
-
-Thanks.
-
--- 
-tejun
+--nextPart2107832.2zzQJ15rBk--

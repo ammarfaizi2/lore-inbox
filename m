@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWIKPNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWIKPPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWIKPNW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 11:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWIKPNV
+	id S964849AbWIKPPe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 11:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWIKPPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 11:13:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:18858 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964843AbWIKPNT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 11:13:19 -0400
-Date: Mon, 11 Sep 2006 17:13:03 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: x60 - spontaneous thermal shutdown
-Message-ID: <20060911151303.GD17655@suse.de>
-References: <20060904214059.GA1702@elf.ucw.cz> <20060911094607.GA14095@suse.de> <200609111610.37514.rjw@sisk.pl>
+	Mon, 11 Sep 2006 11:15:34 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:860 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964849AbWIKPPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 11:15:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=dOThHgngam2VcRrnifJ+jnnmsyv1Cp5EXUkNvf7GcOdkhh5jAdEzMRZQL38dBARQjiyf7Vxs2F9G1Hqn0q7IwF0wXnccY1be2a4K/V6WsOwHHhC+COAZ0BF4OmO+CA7oTdaICHSLYNvyK+K90d2q+JD+O59Rfd78xTg2/T7rGCA=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
+Date: Mon, 11 Sep 2006 17:15:16 +0200
+User-Agent: KMail/1.9.4
+Cc: jesper.juhl@gmail.com, Rickard Faith <faith@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200609111610.37514.rjw@sisk.pl>
-X-Operating-System: openSUSE 10.2 (i586) Alpha4, Kernel 2.6.18-rc5-git6-2-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609111715.17080.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 04:10:36PM +0200, Rafael J. Wysocki wrote:
-> On Monday, 11 September 2006 11:46, Stefan Seyfried wrote:
-> > On Mon, Sep 04, 2006 at 11:40:59PM +0200, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > x60 shut down after quite a while of uptime, in period of quite heavy
-> > > load:
-> > > 
-> > > Sep  4 23:33:01 amd kernel: ACPI: Critical trip point
-> > > Sep  4 23:33:01 amd kernel: Critical temperature reached (128 C), shutting down.
-> > > Sep  4 23:33:01 amd shutdown[32585]: shutting down for system halt
-> > > Sep  4 23:34:42 amd init: Switching to runlevel: 0
-> > > 
-> > > I do not think cpu reached 128C, as I still have my machine... Did
-> > > anyone else see that?
-> > 
-> > my usual suspect: use ec_intr=0.
-> 
-> Is this a kernel command line parameter?
 
-yes.
+kauditd_thread() is being used in a call to kthread_run(). kthread_run() expects
+a function returning 'int' which is also how kauditd_thread() is declared. Unfortunately
+kauditd_thread() neglects to return a value which results in this complaint from gcc :
 
-seife@susi:~> dmesg | grep "^ACPI: EC"
-ACPI: EC polling mode.
-seife@susi:~> cat /proc/cmdline
-root=/dev/hda5 vga=0x317 sysrq=yes resume=/dev/hda1  splash=silent showopts ec_intr=0
+  kernel/audit.c:372: warning: no return statement in function returning non-void
 
-with ec_intr=1 (default), you'll get "ACPI: EC interrupt mode."
+Easily fixed by just adding a 'return 0;' to kauditd_thread().
 
-> I'm having some suspend/resume related problems on HPC 6325 now, and they
-> seem to be related to the embedded controller.
 
-Well, polling mode is always on my "things to try"-list for those unspecified
-ACPI failures :-)
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ kernel/audit.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-2.6.18-rc6-git3-orig/kernel/audit.c	2006-09-11 10:46:11.092786000 +0200
++++ linux-2.6.18-rc6-git3/kernel/audit.c	2006-09-11 17:08:00.888216381 +0200
+@@ -369,6 +369,7 @@ static int kauditd_thread(void *dummy)
+ 			remove_wait_queue(&kauditd_wait, &wait);
+ 		}
+ 	}
++	return 0;
+ }
+ 
+ int audit_send_list(void *_dest)
+
+
+

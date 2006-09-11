@@ -1,59 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWIKEWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWIKEh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWIKEWz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 00:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWIKEWz
+	id S1751147AbWIKEh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 00:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWIKEh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 00:22:55 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:16521 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751084AbWIKEWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 00:22:55 -0400
-Date: Mon, 11 Sep 2006 06:22:01 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 2/2] convert s390 page handling macros to functions v3
-Message-ID: <20060911042201.GA8379@osiris.ibm.com>
-References: <20060908111716.GA6913@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0609092248400.6762@scrub.home> <20060910130832.GB12084@osiris.ibm.com> <1157905518.26324.83.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Mon, 11 Sep 2006 00:37:56 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:44997 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1751147AbWIKEhz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 00:37:55 -0400
+Date: Mon, 11 Sep 2006 08:37:51 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce get_task_pid() to fix unsafe get_pid()
+Message-ID: <20060911043751.GA7320@oleg>
+References: <20060911022535.GA7095@oleg> <m1venvawbi.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1157905518.26324.83.camel@localhost.localdomain>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <m1venvawbi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 10, 2006 at 09:25:18AM -0700, Dave Hansen wrote:
-> On Sun, 2006-09-10 at 15:08 +0200, Heiko Carstens wrote:
-> > 
-> > +static inline int page_test_and_clear_dirty(struct page *page)
-> > +{
-> > +       unsigned long physpage = __pa((page - mem_map) << PAGE_SHIFT);
-> > +       int skey = page_get_storage_key(physpage); 
+On 09/10, Eric W. Biederman wrote:
 > 
-> This has nothing to do with your patch at all, but why is 'page -
-> mem_map' being open-coded here?
+> As for the functions can we build them in all 4 varieties.
+> struct pid *get_task_pid(struct task *);
+> struct pid *get_task_tgid(struct task *);
+> struct pid *get_task_pgrp(struct task *);
+> struct pid *get_task_session(struct task *);
 
-I just changed the defines to functions without thinking about this.. :)
+Something like the patch below?
+
+> Either that or we can just drop in some rcu_read_lock() rcu_read_unlock()
+> into the call sites.
+
+Possible. I don't have a strong opinion, please feel free to send
+a different patch.
+
+[PATCH] introduce get_task_pid() to fix unsafe get_pid()
+
+proc_pid_make_inode:
+
+	ei->pid = get_pid(task_pid(task));
+
+I think this is not safe. get_pid() can be preempted after checking
+"pid != NULL". Then the task exits, does detach_pid(), and RCU frees
+the pid.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- rc6-mm1/include/linux/pid.h~1_tgp	2006-09-09 22:34:50.000000000 +0400
++++ rc6-mm1/include/linux/pid.h	2006-09-11 08:24:15.000000000 +0400
+@@ -68,6 +68,8 @@ extern struct task_struct *FASTCALL(pid_
+ extern struct task_struct *FASTCALL(get_pid_task(struct pid *pid,
+ 						enum pid_type));
  
-> I see at least a couple of page_to_phys() definitions on some
-> architectures.  This operation is done enough times that s390 could
-> probably use the same treatment.
++extern struct pid *__get_task_pid(struct task_struct *task, enum pid_type type);
++
+ /*
+  * attach_pid() and detach_pid() must be called with the tasklist_lock
+  * write-held.
+--- rc6-mm1/kernel/pid.c~1_tgp	2006-09-09 22:34:50.000000000 +0400
++++ rc6-mm1/kernel/pid.c	2006-09-11 08:24:21.000000000 +0400
+@@ -305,6 +305,15 @@ struct task_struct *find_task_by_pid_typ
+ 
+ EXPORT_SYMBOL(find_task_by_pid_type);
+ 
++struct pid *__get_task_pid(struct task_struct *task, enum pid_type type)
++{
++	struct pid *pid;
++	rcu_read_lock();
++	pid = get_pid(task->pids[type].pid);
++	rcu_read_unlock();
++	return pid;
++}
++
+ struct task_struct *fastcall get_pid_task(struct pid *pid, enum pid_type type)
+ {
+ 	struct task_struct *result;
+--- rc6-mm1/include/linux/sched.h~1_tgp	2006-09-09 22:34:50.000000000 +0400
++++ rc6-mm1/include/linux/sched.h	2006-09-11 08:26:29.000000000 +0400
+@@ -1073,6 +1073,11 @@ static inline struct pid *task_session(s
+ 	return task->group_leader->pids[PIDTYPE_SID].pid;
+ }
+ 
++static inline struct pid *get_task_pid(struct task_struct *task)
++{
++	return __get_task_pid(task, PIDTYPE_PID);
++}
++
+ /**
+  * pid_alive - check that a task structure is not stale
+  * @p: Task structure to be checked.
+--- rc6-mm1/fs/proc/base.c~1_tgp	2006-09-09 22:34:49.000000000 +0400
++++ rc6-mm1/fs/proc/base.c	2006-09-11 08:27:12.000000000 +0400
+@@ -958,7 +958,7 @@ static struct inode *proc_pid_make_inode
+ 	/*
+ 	 * grab the reference to task.
+ 	 */
+-	ei->pid = get_pid(task_pid(task));
++	ei->pid = get_task_pid(task);
+ 	if (!ei->pid)
+ 		goto out_unlock;
+ 
+@@ -1665,7 +1665,7 @@ static struct dentry *proc_base_instanti
+ 	/*
+ 	 * grab the reference to the task.
+ 	 */
+-	ei->pid = get_pid(task_pid(task));
++	ei->pid = get_task_pid(task);
+ 	if (!ei->pid)
+ 		goto out_iput;
+ 
 
-Yes, even s390 has page_to_phys() as well. But why is it in io.h? Seems
-like this is inconsistent across architectures. Also in quite a few
-architectures the define looks like this:
-
-#define page_to_phys(page)	((page - mem_map) << PAGE_SHIFT)
-
-A pair of braces is missing around page. Yet another possible subtle bug...
-
-> It could at least use a page_to_pfn() instead of the 'page - mem_map'
-> operation, right?
-
-Yes, I will address that in a later patch. Shouldn't stop this one from
-being merged, if there aren't any other objections.
-Thanks for pointing this out!

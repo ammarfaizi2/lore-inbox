@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWIKUQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWIKUQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbWIKUQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 16:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWIKUQf
+	id S965036AbWIKUQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 16:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWIKUQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 16:16:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15532 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965028AbWIKUQe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 16:16:34 -0400
-Date: Mon, 11 Sep 2006 16:23:44 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Rickard Faith <faith@redhat.com>
-Subject: Re: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
-Message-ID: <20060911202344.GB18548@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-	Rickard Faith <faith@redhat.com>
-References: <200609111715.17080.jesper.juhl@gmail.com> <20060911160328.GJ4743@redhat.com> <9a8748490609111222w2dd313e3hc64cb36bca7f646a@mail.gmail.com>
+	Mon, 11 Sep 2006 16:16:48 -0400
+Received: from buick.jordet.net ([193.91.240.190]:50845 "EHLO buick.jordet.net")
+	by vger.kernel.org with ESMTP id S965036AbWIKUQr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 16:16:47 -0400
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+From: Stian Jordet <liste@jordet.net>
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
+       akpm@osdl.org, torvalds@osdl.org, jeff@garzik.org, greg@kroah.com,
+       cw@f00f.org, bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
+       harmon@ksu.edu, len.brown@intel.com, vsu@altlinux.ru
+In-Reply-To: <1157988809.13889.5.camel@localhost.localdomain>
+References: <20060907223313.1770B7B40A0@zog.reactivated.net>
+	 <1157811641.6877.5.camel@localhost.localdomain>
+	 <4502D35E.8020802@gentoo.org>
+	 <1157817836.6877.52.camel@localhost.localdomain>
+	 <45033370.8040005@gentoo.org>
+	 <1157848272.6877.108.camel@localhost.localdomain>
+	 <450436F1.8070203@gentoo.org>
+	 <1157906395.23085.18.camel@localhost.localdomain>
+	 <4504621E.5090202@gentoo.org>
+	 <1157917308.23085.26.camel@localhost.localdomain>
+	 <1157916102.21295.9.camel@localhost.localdomain>
+	 <1157988809.13889.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 11 Sep 2006 22:16:09 +0200
+Message-Id: <1158005769.4748.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490609111222w2dd313e3hc64cb36bca7f646a@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.8.0 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 09:22:15PM +0200, Jesper Juhl wrote:
- > >  > kauditd_thread() is being used in a call to kthread_run(). kthread_run() expects
- > >  > a function returning 'int' which is also how kauditd_thread() is declared. Unfortunately
- > >  > kauditd_thread() neglects to return a value which results in this complaint from gcc :
- > >  >
- > >  >   kernel/audit.c:372: warning: no return statement in function returning non-void
- > >  >
- > >  > Easily fixed by just adding a 'return 0;' to kauditd_thread().
- > >
- > > Which will never be reached.
- > 
- > True, and gcc even seems to optimize it out, since the size of audit.o
- > doesn't change with the patch applied... So, it does no harm and it
- > silences the warning - so why not?
+On man, 2006-09-11 at 16:33 +0100, Sergio Monteiro Basto wrote:
+> On Sun, 2006-09-10 at 21:21 +0200, Stian Jordet wrote:
+> > On søn, 2006-09-10 at 20:41 +0100, Alan Cox wrote:
+> > > Feel free to cc me the lspci data and partial diagnostics and I'll try
+> > > and help too.
+> > 
+> > Attached is lspci -xxx and dmesg from 2.6.18-rc6.
+> > http://bugzilla.kernel.org/show_bug.cgi?id=2874 has some further
+> > information about this (stupid) motherboard. Anything else you need?
+> > 
+> > If anyone can help me with this, I'll promise to send the hero some
+> > boxes of Norwegian beer!
+> > 
+> > 
+> Hi, this isn't the case of one USB with IO-APIC-level on legacy
+> interrupts ? 
+>  11:       5333       5326   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3
+> 
+> if it is , was resolved with this [PATCH V3] VIA IRQ quirk behaviour change ? 
 
-Ah well, works for me :)
+I have no idea what you mean here, but it's by no means fixed by that
+patch, actually it just got worse (usb didn't work, but still got
+interrupts from eth0 - and it still used irq 11)
 
- > I guess one could add a small /* never reached */ comment...
+Thanks.
 
-Could do for completeness, though it should seem fairly obvious.
-
- > > Does marking the function NORET_TYPE
- > > also silence the warning?
- > Nope :(
-
-Bah!
-
-	Dave
+-Stian
 

@@ -1,523 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWIKVgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWIKVh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWIKVgV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 17:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWIKVgV
+	id S964814AbWIKVh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 17:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIKVh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 17:36:21 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:42914 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S932094AbWIKVgU (ORCPT
+	Mon, 11 Sep 2006 17:37:27 -0400
+Received: from gw.goop.org ([64.81.55.164]:31405 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S964814AbWIKVh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 17:36:20 -0400
-Date: Mon, 11 Sep 2006 16:36:19 -0500
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: axboe@suse.de, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 2/2] cciss: support for >2TB logical volumes
-Message-ID: <20060911213619.GB6867@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 11 Sep 2006 17:37:26 -0400
+Message-ID: <4505D709.9020409@goop.org>
+Date: Mon, 11 Sep 2006 14:37:13 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: [patch] i386-PDA, lockdep: fix %gs restore
+References: <20060908011317.6cb0495a.akpm@osdl.org> <450499D3.5010903@goop.org> <20060911052527.GA12301@elte.hu> <200609112220.01032.ak@suse.de>
+In-Reply-To: <200609112220.01032.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 2 of 2
+Andi Kleen wrote:
+> On Monday 11 September 2006 07:25, Ingo Molnar wrote:
+>   
+>> Jeremy,
+>>
+>> could you back out Andi's patch and try the patch below, does it fix the
+>> crash too?
+>>     
+>
+> I folded it into the original patch now thanks
+>   
 
-This patch adds supports for logical volumes >2TB. All SAS/SATA controllers
-support large volumes.
-Please consider this for inclusion.
+Ingo's patch was wrong.  Here's an update:
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+Subject: [patch] i386-PDA, lockdep: fix %gs restore
+From: Ingo Molnar <mingo@elte.hu>
 
- cciss.c     |  229 ++++++++++++++++++++++++++++++++++++++++++------------------
- cciss.h     |    3
- cciss_cmd.h |   33 +++++++-
- 3 files changed, 192 insertions(+), 73 deletions(-)
---------------------------------------------------------------------------------
-diff -urNp linux-2.6.18-rc6-p0001/drivers/block/cciss.c linux-2.6.18-rc6/drivers/block/cciss.c
---- linux-2.6.18-rc6-p0001/drivers/block/cciss.c	2006-09-11 14:42:29.000000000 -0500
-+++ linux-2.6.18-rc6/drivers/block/cciss.c	2006-09-11 14:59:05.000000000 -0500
-@@ -144,13 +144,13 @@ static int rebuild_lun_table(ctlr_info_t
- static int deregister_disk(struct gendisk *disk, drive_info_struct *drv,
- 			   int clear_all);
- 
--static void cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
--				int withirq, unsigned int *total_size,
--				unsigned int *block_size);
--static void cciss_geometry_inquiry(int ctlr, int logvol, int withirq,
--				   unsigned int total_size,
--				   unsigned int block_size,
--				   InquiryData_struct *inq_buff,
-+static void cciss_read_capacity(int ctlr, int logvol, int withirq,
-+			sector_t *total_size, unsigned int *block_size);
-+static void cciss_read_capacity_16(int ctlr, int logvol, int withirq,
-+			sector_t *total_size, unsigned int *block_size);
-+static void cciss_geometry_inquiry(int ctlr, int logvol,
-+			int withirq, sector_t total_size,
-+			unsigned int block_size, InquiryData_struct *inq_buff,
- 				   drive_info_struct *drv);
- static void cciss_getgeometry(int cntl_num);
- static void __devinit cciss_interrupt_mode(ctlr_info_t *, struct pci_dev *,
-@@ -1326,10 +1326,9 @@ static void cciss_update_drive_info(int 
- {
- 	ctlr_info_t *h = hba[ctlr];
- 	struct gendisk *disk;
--	ReadCapdata_struct *size_buff = NULL;
- 	InquiryData_struct *inq_buff = NULL;
- 	unsigned int block_size;
--	unsigned int total_size;
-+	sector_t total_size;
- 	unsigned long flags = 0;
- 	int ret = 0;
- 
-@@ -1348,15 +1347,25 @@ static void cciss_update_drive_info(int 
- 		return;
- 
- 	/* Get information about the disk and modify the driver structure */
--	size_buff = kmalloc(sizeof(ReadCapdata_struct), GFP_KERNEL);
--	if (size_buff == NULL)
--		goto mem_msg;
- 	inq_buff = kmalloc(sizeof(InquiryData_struct), GFP_KERNEL);
- 	if (inq_buff == NULL)
- 		goto mem_msg;
- 
--	cciss_read_capacity(ctlr, drv_index, size_buff, 1,
-+	cciss_read_capacity(ctlr, drv_index, 1,
- 			    &total_size, &block_size);
-+
-+	/* total size = last LBA + 1 */
-+	/* FFFFFFFF + 1 = 0, cannot have a logical volume of size 0 */
-+	/* so we assume this volume this must be >2TB in size */
-+	if (total_size == (__u32) 0) {
-+		cciss_read_capacity_16(ctlr, drv_index, 1,
-+		&total_size, &block_size);
-+		h->cciss_read = CCISS_READ_16;
-+		h->cciss_write = CCISS_WRITE_16;
-+	} else {
-+		h->cciss_read = CCISS_READ_10;
-+		h->cciss_write = CCISS_WRITE_10;
-+	}
- 	cciss_geometry_inquiry(ctlr, drv_index, 1, total_size, block_size,
- 			       inq_buff, &h->drv[drv_index]);
- 
-@@ -1392,7 +1401,6 @@ static void cciss_update_drive_info(int 
- 	}
- 
-       freeret:
--	kfree(size_buff);
- 	kfree(inq_buff);
- 	return;
-       mem_msg:
-@@ -1717,6 +1725,22 @@ static int fill_cmd(CommandList_struct *
- 			c->Request.Timeout = 0;
- 			c->Request.CDB[0] = cmd;
- 			break;
-+		case CCISS_READ_CAPACITY_16:
-+			c->Header.LUN.LogDev.VolId = h->drv[log_unit].LunID;
-+			c->Header.LUN.LogDev.Mode = 1;
-+			c->Request.CDBLen = 16;
-+			c->Request.Type.Attribute = ATTR_SIMPLE;
-+			c->Request.Type.Direction = XFER_READ;
-+			c->Request.Timeout = 0;
-+			c->Request.CDB[0] = cmd;
-+			c->Request.CDB[1] = 0x10;
-+			c->Request.CDB[10] = (size >> 24) & 0xFF;
-+			c->Request.CDB[11] = (size >> 16) & 0xFF;
-+			c->Request.CDB[12] = (size >> 8) & 0xFF;
-+			c->Request.CDB[13] = size & 0xFF;
-+			c->Request.Timeout = 0;
-+			c->Request.CDB[0] = cmd;
-+			break;
- 		case CCISS_CACHE_FLUSH:
- 			c->Request.CDBLen = 12;
- 			c->Request.Type.Attribute = ATTR_SIMPLE;
-@@ -1750,6 +1774,7 @@ static int fill_cmd(CommandList_struct *
- 			memset(&c->Request.CDB[0], 0, sizeof(c->Request.CDB));
- 			c->Request.CDB[0] = cmd;	/* reset */
- 			c->Request.CDB[1] = 0x04;	/* reset a LUN */
-+			break;
- 		case 3:	/* No-Op message */
- 			c->Request.CDBLen = 1;
- 			c->Request.Type.Attribute = ATTR_SIMPLE;
-@@ -1893,12 +1918,15 @@ static int sendcmd_withirq(__u8 cmd,
- }
- 
- static void cciss_geometry_inquiry(int ctlr, int logvol,
--				   int withirq, unsigned int total_size,
-+				   int withirq, sector_t total_size,
- 				   unsigned int block_size,
- 				   InquiryData_struct *inq_buff,
- 				   drive_info_struct *drv)
- {
- 	int return_code;
-+	unsigned long t;
-+	unsigned long rem;
-+
- 	memset(inq_buff, 0, sizeof(InquiryData_struct));
- 	if (withirq)
- 		return_code = sendcmd_withirq(CISS_INQUIRY, ctlr,
-@@ -1917,10 +1945,10 @@ static void cciss_geometry_inquiry(int c
- 			drv->nr_blocks = total_size;
- 			drv->heads = 255;
- 			drv->sectors = 32;	// Sectors per track
--			drv->cylinders = total_size / 255 / 32;
-+			t = drv->heads * drv->sectors;
-+			drv->cylinders = total_size;
-+			rem = do_div(drv->cylinders, t);
- 		} else {
--			unsigned int t;
--
- 			drv->block_size = block_size;
- 			drv->nr_blocks = total_size;
- 			drv->heads = inq_buff->data_byte[6];
-@@ -1930,7 +1958,8 @@ static void cciss_geometry_inquiry(int c
- 			drv->raid_level = inq_buff->data_byte[8];
- 			t = drv->heads * drv->sectors;
- 			if (t > 1) {
--				drv->cylinders = total_size / t;
-+				drv->cylinders = total_size;
-+				rem = do_div(drv->cylinders, t);
- 			}
- 		}
- 	} else {		/* Get geometry failed */
-@@ -1941,31 +1970,72 @@ static void cciss_geometry_inquiry(int c
- }
- 
- static void
--cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
--		    int withirq, unsigned int *total_size,
-+cciss_read_capacity(int ctlr, int logvol, int withirq, sector_t *total_size,
- 		    unsigned int *block_size)
- {
-+	ReadCapdata_struct *buf;
- 	int return_code;
--	memset(buf, 0, sizeof(*buf));
-+	buf = kmalloc(sizeof(ReadCapdata_struct), GFP_KERNEL);
-+	if (buf == NULL) {
-+		printk(KERN_WARNING "cciss: out of memory\n");
-+		return;
-+	}
-+	memset(buf, 0, sizeof(ReadCapdata_struct));
- 	if (withirq)
- 		return_code = sendcmd_withirq(CCISS_READ_CAPACITY,
--					      ctlr, buf, sizeof(*buf), 1,
--					      logvol, 0, TYPE_CMD);
-+				ctlr, buf, sizeof(ReadCapdata_struct),
-+					1, logvol, 0, TYPE_CMD);
- 	else
- 		return_code = sendcmd(CCISS_READ_CAPACITY,
--				      ctlr, buf, sizeof(*buf), 1, logvol, 0,
--				      NULL, TYPE_CMD);
-+				ctlr, buf, sizeof(ReadCapdata_struct),
-+					1, logvol, 0, NULL, TYPE_CMD);
-+	if (return_code == IO_OK) { 
-+		*total_size = be32_to_cpu(*(__u32 *) buf->total_size)+1;
-+		*block_size = be32_to_cpu(*(__u32 *) buf->block_size);
-+	} else {		/* read capacity command failed */
-+		printk(KERN_WARNING "cciss: read capacity failed\n");
-+		*total_size = 0;
-+		*block_size = BLOCK_SIZE;
-+	}
-+	if (*total_size != (__u32) 0)
-+		printk(KERN_INFO "      blocks= %lld block_size= %d\n",
-+		*total_size, *block_size);
-+	kfree(buf);
-+	return;
-+}
-+
-+static void
-+cciss_read_capacity_16(int ctlr, int logvol, int withirq, sector_t *total_size, 				unsigned int *block_size)
-+{
-+	ReadCapdata_struct_16 *buf;
-+	int return_code;
-+	buf = kmalloc(sizeof(ReadCapdata_struct_16), GFP_KERNEL);
-+	if (buf == NULL) {
-+		printk(KERN_WARNING "cciss: out of memory\n");
-+		return;
-+	}
-+	memset(buf, 0, sizeof(ReadCapdata_struct_16));
-+	if (withirq) {
-+		return_code = sendcmd_withirq(CCISS_READ_CAPACITY_16,
-+			ctlr, buf, sizeof(ReadCapdata_struct_16), 
-+				1, logvol, 0, TYPE_CMD);
-+	}
-+	else {
-+		return_code = sendcmd(CCISS_READ_CAPACITY_16,
-+			ctlr, buf, sizeof(ReadCapdata_struct_16), 
-+				1, logvol, 0, NULL, TYPE_CMD);
-+	}
- 	if (return_code == IO_OK) {
--		*total_size =
--		    be32_to_cpu(*((__be32 *) & buf->total_size[0])) + 1;
--		*block_size = be32_to_cpu(*((__be32 *) & buf->block_size[0]));
-+		*total_size = be64_to_cpu(*(__u64 *) buf->total_size)+1;
-+		*block_size = be32_to_cpu(*(__u32 *) buf->block_size);
- 	} else {		/* read capacity command failed */
- 		printk(KERN_WARNING "cciss: read capacity failed\n");
- 		*total_size = 0;
- 		*block_size = BLOCK_SIZE;
- 	}
--	printk(KERN_INFO "      blocks= %u block_size= %d\n",
-+	printk(KERN_INFO "      blocks= %lld block_size= %d\n",
- 	       *total_size, *block_size);
-+	kfree(buf);
- 	return;
- }
- 
-@@ -1976,8 +2046,7 @@ static int cciss_revalidate(struct gendi
- 	int logvol;
- 	int FOUND = 0;
- 	unsigned int block_size;
--	unsigned int total_size;
--	ReadCapdata_struct *size_buff = NULL;
-+	sector_t total_size;
- 	InquiryData_struct *inq_buff = NULL;
- 
- 	for (logvol = 0; logvol < CISS_MAX_LUN; logvol++) {
-@@ -1990,27 +2059,24 @@ static int cciss_revalidate(struct gendi
- 	if (!FOUND)
- 		return 1;
- 
--	size_buff = kmalloc(sizeof(ReadCapdata_struct), GFP_KERNEL);
--	if (size_buff == NULL) {
--		printk(KERN_WARNING "cciss: out of memory\n");
--		return 1;
--	}
- 	inq_buff = kmalloc(sizeof(InquiryData_struct), GFP_KERNEL);
- 	if (inq_buff == NULL) {
- 		printk(KERN_WARNING "cciss: out of memory\n");
--		kfree(size_buff);
- 		return 1;
- 	}
--
--	cciss_read_capacity(h->ctlr, logvol, size_buff, 1, &total_size,
--			    &block_size);
-+	if (h->cciss_read == CCISS_READ_10) {
-+		cciss_read_capacity(h->ctlr, logvol, 1,
-+					&total_size, &block_size);
-+	} else {
-+		cciss_read_capacity_16(h->ctlr, logvol, 1,
-+					&total_size, &block_size);
-+	}
- 	cciss_geometry_inquiry(h->ctlr, logvol, 1, total_size, block_size,
- 			       inq_buff, drv);
- 
- 	blk_queue_hardsect_size(drv->queue, drv->block_size);
- 	set_capacity(disk, drv->nr_blocks);
- 
--	kfree(size_buff);
- 	kfree(inq_buff);
- 	return 0;
- }
-@@ -2419,7 +2485,8 @@ static void do_cciss_request(request_que
- {
- 	ctlr_info_t *h = q->queuedata;
- 	CommandList_struct *c;
--	int start_blk, seg;
-+	sector_t start_blk;
-+	int seg;
- 	struct request *creq;
- 	u64bit temp64;
- 	struct scatterlist tmp_sg[MAXSGENTRIES];
-@@ -2463,10 +2530,10 @@ static void do_cciss_request(request_que
- 	c->Request.Type.Type = TYPE_CMD;	// It is a command.
- 	c->Request.Type.Attribute = ATTR_SIMPLE;
- 	c->Request.Type.Direction =
--	    (rq_data_dir(creq) == READ) ? XFER_READ : XFER_WRITE;
-+	    (rq_data_dir(creq) == READ) ? h->cciss_read : h->cciss_write;
- 	c->Request.Timeout = 0;	// Don't time out
- 	c->Request.CDB[0] =
--	    (rq_data_dir(creq) == READ) ? CCISS_READ : CCISS_WRITE;
-+	    (rq_data_dir(creq) == READ) ? h->cciss_read : h->cciss_write;
- 	start_blk = creq->sector;
- #ifdef CCISS_DEBUG
- 	printk(KERN_DEBUG "ciss: sector =%d nr_sectors=%d\n", (int)creq->sector,
-@@ -2500,15 +2567,33 @@ static void do_cciss_request(request_que
- #endif				/* CCISS_DEBUG */
- 
- 	c->Header.SGList = c->Header.SGTotal = seg;
--	c->Request.CDB[1] = 0;
--	c->Request.CDB[2] = (start_blk >> 24) & 0xff;	//MSB
--	c->Request.CDB[3] = (start_blk >> 16) & 0xff;
--	c->Request.CDB[4] = (start_blk >> 8) & 0xff;
--	c->Request.CDB[5] = start_blk & 0xff;
--	c->Request.CDB[6] = 0;	// (sect >> 24) & 0xff; MSB
--	c->Request.CDB[7] = (creq->nr_sectors >> 8) & 0xff;
--	c->Request.CDB[8] = creq->nr_sectors & 0xff;
--	c->Request.CDB[9] = c->Request.CDB[11] = c->Request.CDB[12] = 0;
-+	if(h->cciss_read == CCISS_READ_10) {
-+		c->Request.CDB[1] = 0;
-+		c->Request.CDB[2] = (start_blk >> 24) & 0xff;	//MSB
-+		c->Request.CDB[3] = (start_blk >> 16) & 0xff;
-+		c->Request.CDB[4] = (start_blk >> 8) & 0xff;
-+		c->Request.CDB[5] = start_blk & 0xff;
-+		c->Request.CDB[6] = 0;	// (sect >> 24) & 0xff; MSB
-+		c->Request.CDB[7] = (creq->nr_sectors >> 8) & 0xff;
-+		c->Request.CDB[8] = creq->nr_sectors & 0xff;
-+		c->Request.CDB[9] = c->Request.CDB[11] = c->Request.CDB[12] = 0;
-+	} else {
-+		c->Request.CDBLen = 16;
-+		c->Request.CDB[1]= 0;
-+		c->Request.CDB[2]= (start_blk >> 56) & 0xff;	//MSB
-+		c->Request.CDB[3]= (start_blk >> 48) & 0xff;
-+		c->Request.CDB[4]= (start_blk >> 40) & 0xff;
-+		c->Request.CDB[5]= (start_blk >> 32) & 0xff;
-+		c->Request.CDB[6]= (start_blk >> 24) & 0xff;
-+		c->Request.CDB[7]= (start_blk >> 16) & 0xff;
-+		c->Request.CDB[8]= (start_blk >>  8) & 0xff;
-+		c->Request.CDB[9]= start_blk & 0xff;
-+		c->Request.CDB[10]= (creq->nr_sectors >>  24) & 0xff; 
-+		c->Request.CDB[11]= (creq->nr_sectors >>  16) & 0xff; 
-+		c->Request.CDB[12]= (creq->nr_sectors >>  8) & 0xff; 
-+		c->Request.CDB[13]= creq->nr_sectors & 0xff; 
-+		c->Request.CDB[14] = c->Request.CDB[15] = 0;
-+	}
- 
- 	spin_lock_irq(q->queue_lock);
- 
-@@ -2518,9 +2603,9 @@ static void do_cciss_request(request_que
- 		h->maxQsinceinit = h->Qdepth;
- 
- 	goto queue;
--      full:
-+full:
- 	blk_stop_queue(q);
--      startio:
-+startio:
- 	/* We will already have the driver lock here so not need
- 	 * to lock it.
- 	 */
-@@ -2948,31 +3033,23 @@ static int cciss_pci_init(ctlr_info_t *c
- static void cciss_getgeometry(int cntl_num)
- {
- 	ReportLunData_struct *ld_buff;
--	ReadCapdata_struct *size_buff;
- 	InquiryData_struct *inq_buff;
- 	int return_code;
- 	int i;
- 	int listlength = 0;
- 	__u32 lunid = 0;
- 	int block_size;
--	int total_size;
-+	sector_t total_size;
- 
- 	ld_buff = kzalloc(sizeof(ReportLunData_struct), GFP_KERNEL);
- 	if (ld_buff == NULL) {
- 		printk(KERN_ERR "cciss: out of memory\n");
- 		return;
- 	}
--	size_buff = kmalloc(sizeof(ReadCapdata_struct), GFP_KERNEL);
--	if (size_buff == NULL) {
--		printk(KERN_ERR "cciss: out of memory\n");
--		kfree(ld_buff);
--		return;
--	}
- 	inq_buff = kmalloc(sizeof(InquiryData_struct), GFP_KERNEL);
- 	if (inq_buff == NULL) {
- 		printk(KERN_ERR "cciss: out of memory\n");
- 		kfree(ld_buff);
--		kfree(size_buff);
- 		return;
- 	}
- 	/* Get the firmware version */
-@@ -3027,7 +3104,6 @@ static void cciss_getgeometry(int cntl_n
- #endif				/* CCISS_DEBUG */
- 
- 	hba[cntl_num]->highest_lun = hba[cntl_num]->num_luns - 1;
--//      for(i=0; i<  hba[cntl_num]->num_luns; i++)
- 	for (i = 0; i < CISS_MAX_LUN; i++) {
- 		if (i < hba[cntl_num]->num_luns) {
- 			lunid = (0xff & (unsigned int)(ld_buff->LUN[i][3]))
-@@ -3046,8 +3122,26 @@ static void cciss_getgeometry(int cntl_n
- 			       ld_buff->LUN[i][2], ld_buff->LUN[i][3],
- 			       hba[cntl_num]->drv[i].LunID);
- #endif				/* CCISS_DEBUG */
--			cciss_read_capacity(cntl_num, i, size_buff, 0,
-+
-+		/* testing to see if 16-byte CDBs are already being used */
-+		if(hba[cntl_num]->cciss_read == CCISS_READ_16) {
-+			cciss_read_capacity_16(cntl_num, i, 0,
- 					    &total_size, &block_size);
-+			goto geo_inq;
-+		}
-+		cciss_read_capacity(cntl_num, i, 0, &total_size, &block_size);
-+
-+		/* total_size = last LBA + 1 */
-+		if(total_size == (__u32) 0) {
-+			cciss_read_capacity_16(cntl_num, i, 0,
-+			&total_size, &block_size);
-+			hba[cntl_num]->cciss_read = CCISS_READ_16;
-+			hba[cntl_num]->cciss_write = CCISS_WRITE_16;
-+		} else {
-+			hba[cntl_num]->cciss_read = CCISS_READ_10;
-+			hba[cntl_num]->cciss_write = CCISS_WRITE_10;
-+		}
-+geo_inq:
- 			cciss_geometry_inquiry(cntl_num, i, 0, total_size,
- 					       block_size, inq_buff,
- 					       &hba[cntl_num]->drv[i]);
-@@ -3057,7 +3151,6 @@ static void cciss_getgeometry(int cntl_n
- 		}
- 	}
- 	kfree(ld_buff);
--	kfree(size_buff);
- 	kfree(inq_buff);
- }
- 
-diff -urNp linux-2.6.18-rc6-p0001/drivers/block/cciss_cmd.h linux-2.6.18-rc6/drivers/block/cciss_cmd.h
---- linux-2.6.18-rc6-p0001/drivers/block/cciss_cmd.h	2006-06-17 20:49:35.000000000 -0500
-+++ linux-2.6.18-rc6/drivers/block/cciss_cmd.h	2006-09-11 14:45:58.000000000 -0500
-@@ -118,11 +118,34 @@ typedef struct _ReadCapdata_struct
-   BYTE block_size[4];	// Size of blocks in bytes
- } ReadCapdata_struct;
- 
--// 12 byte commands not implemented in firmware yet. 
--// #define CCISS_READ 	0xa8	// Read(12)
--// #define CCISS_WRITE	0xaa	// Write(12)
-- #define CCISS_READ   0x28    // Read(10)
-- #define CCISS_WRITE  0x2a    // Write(10)
-+#define CCISS_READ_CAPACITY_16 0x9e /* Read Capacity 16 */
-+
-+/* service action to differentiate a 16 byte read capacity from
-+   other commands that use the 0x9e SCSI op code */
-+
-+#define CCISS_READ_CAPACITY_16_SERVICE_ACT 0x10
-+
-+typedef struct _ReadCapdata_struct_16
-+{
-+	BYTE total_size[8];   /* Total size in blocks */
-+	BYTE block_size[4];   /* Size of blocks in bytes */
-+	BYTE prot_en:1;       /* protection enable bit */
-+	BYTE rto_en:1;        /* reference tag own enable bit */
-+	BYTE reserved:6;      /* reserved bits */
-+	BYTE reserved2[18];   /* reserved bytes per spec */
-+} ReadCapdata_struct_16;
-+
-+/* Define the supported read/write commands for cciss based controllers */
-+
-+#define CCISS_READ_10   0x28    /* Read(10)  */
-+#define CCISS_WRITE_10  0x2a    /* Write(10) */
-+#define CCISS_READ_16   0x88    /* Read(16)  */
-+#define CCISS_WRITE_16  0x8a    /* Write(16) */
-+
-+/* Define the CDB lengths supported by cciss based controllers */
-+
-+#define CDB_LEN10	10
-+#define CDB_LEN16	16
- 
- // BMIC commands 
- #define BMIC_READ 0x26
-diff -urNp linux-2.6.18-rc6-p0001/drivers/block/cciss.h linux-2.6.18-rc6/drivers/block/cciss.h
---- linux-2.6.18-rc6-p0001/drivers/block/cciss.h	2006-09-11 11:19:34.000000000 -0500
-+++ linux-2.6.18-rc6/drivers/block/cciss.h	2006-09-11 14:45:58.000000000 -0500
-@@ -76,6 +76,9 @@ struct ctlr_info 
- 	unsigned int intr[4];
- 	unsigned int msix_vector;
- 	unsigned int msi_vector;
-+	BYTE	cciss_read;
-+	BYTE	cciss_write;
-+	BYTE	cciss_read_capacity;
- 
- 	// information about each logical volume
- 	drive_info_struct drv[CISS_MAX_LUN];
+in the syscall exit path the %gs selector has to be restored _after_ the
+last kernel function has been called. If lockdep is enabled then this
+kernel function is TRACE_IRQS_ON.
+
+[ Make sure the move to %gs retains its exception label - jeremy@xensource.com ]
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+
+---
+ arch/i386/kernel/entry.S |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff -r cead1b87fd17 arch/i386/kernel/entry.S
+--- a/arch/i386/kernel/entry.S	Sun Sep 10 16:28:43 2006 -0700
++++ b/arch/i386/kernel/entry.S	Mon Sep 11 14:22:36 2006 -0700
+@@ -326,11 +326,11 @@ 1:	movl (%ebp),%ebp
+ 	testw $_TIF_ALLWORK_MASK, %cx
+ 	jne syscall_exit_work
+ /* if something modifies registers it must also disable sysexit */
+-1:	mov  PT_GS(%esp), %gs
+ 	movl PT_EIP(%esp), %edx
+ 	movl PT_OLDESP(%esp), %ecx
++	TRACE_IRQS_ON
++1:	mov  PT_GS(%esp), %gs
+ 	xorl %ebp,%ebp
+-	TRACE_IRQS_ON
+ 	ENABLE_INTERRUPTS_SYSEXIT
+ 	CFI_ENDPROC
+ .pushsection .fixup,"ax";	\
+
+

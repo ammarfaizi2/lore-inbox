@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWIKXJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWIKXL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWIKXJa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 19:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWIKXJa
+	id S965061AbWIKXL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 19:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWIKXL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 19:09:30 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24876 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932154AbWIKXJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 19:09:29 -0400
-Date: Mon, 11 Sep 2006 17:09:26 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: libata sr0 not automounted
-In-reply-to: <fa.7gZw9Gn28jSX64uX08TdgkXPdUI@ifi.uio.no>
-To: =?ISO-8859-1?Q?=22J=2EA=2E_Magall=F3n=22?= <jamagallon@ono.com>
-Cc: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Message-id: <4505ECA6.20207@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <fa.7gZw9Gn28jSX64uX08TdgkXPdUI@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Mon, 11 Sep 2006 19:11:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:61364 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965061AbWIKXL1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 19:11:27 -0400
+Subject: Re: [PATCH] Prevent legacy io access on pmac
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+In-Reply-To: <20060911151730.GA25244@aepfle.de>
+References: <20060911115354.GA23884@aepfle.de>
+	 <20060911151730.GA25244@aepfle.de>
+Content-Type: text/plain
+Date: Tue, 12 Sep 2006 09:11:09 +1000
+Message-Id: <1158016269.15465.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallón wrote:
-> Hi...
+On Mon, 2006-09-11 at 17:17 +0200, Olaf Hering wrote:
+> On Mon, Sep 11, Olaf Hering wrote:
 > 
-> My 2 ATA cd-roms, drived with libata, are not auto-mounted in gnome.
-> How can I debug this ?
-> Can I se if the kernel sends the correct events ?
+> > * add check for parport_pc, exit on pmac.
+> 
+> How do I allow parport on PCI cards?
 
-Probably the same problem I've seen, a bug in hal. See:
+Doesn't the driver have explicit PCI probing like 8250 ?
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=201533
+Ben.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 

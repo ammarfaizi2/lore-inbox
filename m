@@ -1,52 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWIKHrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWIKH5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWIKHrx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 03:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWIKHrx
+	id S1751199AbWIKH5q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 03:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIKH5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 03:47:53 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:39405 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1751195AbWIKHrw (ORCPT
+	Mon, 11 Sep 2006 03:57:45 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:44482 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751199AbWIKH5o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 03:47:52 -0400
-Date: Mon, 11 Sep 2006 09:52:40 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Menuconfig won't draw lines on my terminal?
-Message-ID: <20060911075240.GA20025@uranus.ravnborg.org>
-References: <200609110152_MC3-1-CAD7-1E87@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609110152_MC3-1-CAD7-1E87@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 11 Sep 2006 03:57:44 -0400
+Message-ID: <4505161E.1040401@in.ibm.com>
+Date: Mon, 11 Sep 2006 13:24:06 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       Srivatsa <vatsa@in.ibm.com>, sekharan@us.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	<1157730221.26324.52.camel@localhost.localdomain>	<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
+In-Reply-To: <450508BB.7020609@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 11, 2006 at 01:51:26AM -0400, Chuck Ebbert wrote:
-> Using PuTTY as SSH client, I get ASCII chars instead of lines when
-> I use menuconfig:
+Pavel Emelianov wrote:
+> Balbir Singh wrote:
+>> Dave Hansen wrote:
+>>> On Fri, 2006-09-08 at 11:33 +0400, Pavel Emelianov wrote:
+>>>> I'm afraid we have different understandings of what a "guarantee" is.
+>>> It appears so.
+>>>
+>>>> Don't we?
+>>>> Guarantee may be one of
+>>>>
+>>>>   1. container will be able to touch that number of pages
+>>>>   2. container will be able to sys_mmap() that number of pages
+>>>>   3. container will not be killed unless it touches that number of
+>>>> pages
+>>> A "death sentence" guarantee?  I like it. :)
+>>>
+>>>>   4. anything else
+>>>>
+>>>> Let's decide what kind of a guarantee we want.
+>> I think of guarantees w.r.t resources as the lower limit on the resource.
+>> Guarantees and limits can be thought of as the range (guarantee, limit]
+>> for the usage of the resource.
+>>
+>>> I think of it as: "I will be allowed to use this many total pages, and
+>>> they are guaranteed not to fail."  (1), I think.  The sum of all of the
+>>> system's guarantees must be less than or equal to the amount of free
+>>> memory on the machine. 
+>> Yes, totally agree.
 > 
->  Linux Kernel v2.6.18-rc6 Configuration
->  qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
->   lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq Linux Kernel Configuration qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk
->   x  Arrow keys navigate the menu.  <Enter> selects submenus --->.  Highlighted letters are     x
->   x  hotkeys.  Pressing <Y> includes, <N> excludes, <M> modularizes features.  Press <Esc><Esc> x
->   x  to exit, <?> for Help, </> for Search.  Legend: [*] built-in  [ ] excluded  <M> module     x
->   x  < > module capable                                                                         x
->   x lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk x
->   x x             Code maturity level options  --->                                           x x
->   x x             General setup  --->                                                         x x
->   x x             Loadable module support  --->                                               x x
+> Such a guarantee is really a limit and this limit is even harder than
+> BC's one :)
 > 
-> 
-> This happens on both Fedora Core 2 and 5.  Midnight Commander draws lines,
-> so I know the characters are in the font.
+> E.g. I have a node with 1Gb of ram and 10 containers with 100Mb
+> guarantee each.
+> I want to start one more. What shall I do not to break guarantees?
 
-I need to do a 'reset' before it works for me.
-I never managed to understand why I need to reset my terminal. My
-interest soft of disapperead when I got it working.
+Don't start the new container or change the guarantees of the existing ones
+to accommodate this one :) The QoS design (done by the administrator) should
+take care of such use-cases. It would be perfectly ok to have a container
+that does not care about guarantees to set their guarantee to 0 and set
+their limit to the desired value. As Chandra has been stating we need two
+parameters (guarantee, limit), either can be optional, but not both.
 
-	Sam
+
+> 
+>>> If we knew to which NUMA node the memory was going to go, we might as
+>>> well take the pages out of the allocator.
+>>>
+>>> -- Dave
+>>>
+
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

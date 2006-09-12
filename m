@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWILUIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWILUK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWILUIh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWILUIh
+	id S1030398AbWILUK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbWILUK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:08:37 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:22689 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP
-	id S1030396AbWILUIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:08:36 -0400
-Message-ID: <450713C4.2050303@nachtwindheim.de>
-Date: Tue, 12 Sep 2006 22:08:36 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Tue, 12 Sep 2006 16:10:59 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:57860 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030398AbWILUK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 16:10:58 -0400
+Date: Tue, 12 Sep 2006 16:10:57 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Mattia Dongili <malattia@linux.it>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1
+In-Reply-To: <20060912180412.GA3947@inferi.kami.home>
+Message-ID: <Pine.LNX.4.44L0.0609121605200.5686-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] 53c7xx linked drivers: Scsi_Cmnd to struct scsi_cmnd
- convertion
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Tue, 12 Sep 2006, Mattia Dongili wrote:
 
-Chenges obsolete typedef'd Scsi_Cmnd into struct scsi_cmnd for drivers
-which use 53c7xx.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> No luck here. I'll give -mm2 a run just to 
+> 
+> full dmesg
+> with patch applied[1]:
+> http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-fail-S3-2
+> 
+> without it (it's almost identical :)):
+> http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-fail-S3
+> 
+> .config:
+> http://oioio.altervista.org/linux/config-2.6.18-rc6-mm1-3
+> 
+> [1]: I didn't rebuild fully, just applied the patch and re-run make
+> bzImage modules
 
----
+I can't reproduce your results here with my configuration.  I used 
+2.6.18-rc6-mm2 instead of -mm1 but I don't think that should matter.
 
-diff -ruN linux-2.6/drivers/scsi/amiga7xx.h devel/drivers/scsi/amiga7xx.h
---- linux-2.6/drivers/scsi/amiga7xx.h	2006-08-01 01:31:43.000000000 +0200
-+++ devel/drivers/scsi/amiga7xx.h	2006-09-12 21:13:15.000000000 +0200
-@@ -4,10 +4,11 @@
- 
- int amiga7xx_detect(struct scsi_host_template *);
- const char *NCR53c7x0_info(void);
--int NCR53c7xx_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--int NCR53c7xx_abort(Scsi_Cmnd *);
-+int NCR53c7xx_queue_command(struct scsi_cmnd *,
-+			    void (*done) (struct scsi_cmnd *));
-+int NCR53c7xx_abort(struct scsi_cmnd *);
- int NCR53c7x0_release (struct Scsi_Host *);
--int NCR53c7xx_reset(Scsi_Cmnd *, unsigned int);
-+int NCR53c7xx_reset(struct scsi_cmnd *, unsigned int);
- void NCR53c7x0_intr(int irq, void *dev_id, struct pt_regs * regs);
- 
- #ifndef CMD_PER_LUN
-diff -ruN linux-2.6/drivers/scsi/bvme6000.h devel/drivers/scsi/bvme6000.h
---- linux-2.6/drivers/scsi/bvme6000.h	2006-08-01 01:31:43.000000000 +0200
-+++ devel/drivers/scsi/bvme6000.h	2006-09-12 21:18:50.000000000 +0200
-@@ -5,10 +5,11 @@
- 
- int bvme6000_scsi_detect(struct scsi_host_template *);
- const char *NCR53c7x0_info(void);
--int NCR53c7xx_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--int NCR53c7xx_abort(Scsi_Cmnd *);
-+int NCR53c7xx_queue_command(struct scsi_cmnd *,
-+			    void (*done) (struct scsi_cmnd *));
-+int NCR53c7xx_abort(struct scsi_cmnd *);
- int NCR53c7x0_release (struct Scsi_Host *);
--int NCR53c7xx_reset(Scsi_Cmnd *, unsigned int);
-+int NCR53c7xx_reset(struct scsi_cmnd *, unsigned int);
- void NCR53c7x0_intr(int irq, void *dev_id, struct pt_regs * regs);
- 
- #ifndef CMD_PER_LUN
-diff -ruN linux-2.6/drivers/scsi/mvme16x.h devel/drivers/scsi/mvme16x.h
---- linux-2.6/drivers/scsi/mvme16x.h	2006-08-01 01:31:43.000000000 +0200
-+++ devel/drivers/scsi/mvme16x.h	2006-09-12 21:16:20.000000000 +0200
-@@ -5,10 +5,11 @@
- 
- int mvme16x_scsi_detect(struct scsi_host_template *);
- const char *NCR53c7x0_info(void);
--int NCR53c7xx_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--int NCR53c7xx_abort(Scsi_Cmnd *);
-+int NCR53c7xx_queue_command(struct scsi_cmnd *,
-+			    void (*done) (struct scsi_cmnd *));
-+int NCR53c7xx_abort(struct scsi_cmnd *);
- int NCR53c7x0_release (struct Scsi_Host *);
--int NCR53c7xx_reset(Scsi_Cmnd *, unsigned int);
-+int NCR53c7xx_reset(struct scsi_cmnd *, unsigned int);
- void NCR53c7x0_intr(int irq, void *dev_id, struct pt_regs * regs);
- 
- #ifndef CMD_PER_LUN
+(It's also a little awkward to try.  My system has the annoying habit of 
+waking up from suspend-to-RAM with the screen non-functional.  No doubt a 
+BIOS problem.)
 
+Please try this again after setting CONFIG_USB_DEBUG.  It's hard to say 
+anything definite without more debugging info.
+
+Alan Stern
 

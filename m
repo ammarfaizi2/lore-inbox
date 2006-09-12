@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWILKsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWILKxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWILKsP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 06:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWILKsP
+	id S932144AbWILKxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 06:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWILKxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 06:48:15 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:9367 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932071AbWILKsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 06:48:14 -0400
-Message-ID: <45069072.4010007@openvz.org>
-Date: Tue, 12 Sep 2006 14:48:18 +0400
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Tue, 12 Sep 2006 06:53:30 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:21598 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932144AbWILKx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 06:53:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Lxf+xdDNJUxCyWiatt5C5ldfZYGQgZX7pGT9gPPa7gKvxsQhyreMqA9LGXkLnhc6rcDRalLnusasTf9ZcE4XurWxVoPmYKmV4h/Hhy2GuRH+MMOGGbxSwEFbMXjIRcOIrvjwR1sE/+6a7XmbpH0n0SmNmH8fYG8MHVWJ7GxfmxY=
+Message-ID: <6d6a94c50609120353h57005b1axc3720ab3e443d3e3@mail.gmail.com>
+Date: Tue, 12 Sep 2006 18:53:28 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "David Howells" <dhowells@redhat.com>
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       mpm@selenic.com, davidm@snapgear.com, gerg@snapgear.com
+In-Reply-To: <30943.1158051248@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: sekharan@us.ibm.com, balbir@in.ibm.com, Srivatsa <vatsa@in.ibm.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>	 <4505161E.1040401@in.ibm.com>  <45051AC7.2000607@openvz.org> <1158000590.6029.33.camel@linuxchandra>
-In-Reply-To: <1158000590.6029.33.camel@linuxchandra>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com>
+	 <17162.1157365295@warthog.cambridge.redhat.com>
+	 <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com>
+	 <3551.1157448903@warthog.cambridge.redhat.com>
+	 <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com>
+	 <44FE4222.3080106@yahoo.com.au>
+	 <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com>
+	 <30943.1158051248@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> On Mon, 2006-09-11 at 12:13 +0400, Pavel Emelianov wrote:
+On 9/12/06, David Howells <dhowells@redhat.com> wrote:
+> Aubrey <aubreylee@gmail.com> wrote:
 >
-> <snip>
->   
->>> Don't start the new container or change the guarantees of the existing
->>> ones
->>> to accommodate this one :) The QoS design (done by the administrator)
->>> should
->>> take care of such use-cases. It would be perfectly ok to have a container
->>> that does not care about guarantees to set their guarantee to 0 and set
->>> their limit to the desired value. As Chandra has been stating we need two
->>> parameters (guarantee, limit), either can be optional, but not both.
->>>       
->> If I set up 9 groups to have 100Mb limit then I have 100Mb assured (on
->> 1Gb node)
->> for the 10th one exactly. And I do not have to set up any guarantee as
->> it won't affect
->> anything. So what a guarantee parameter is needed for?
->>     
+> > OK. Here is the patch and work properly on my side.
+> > Welcome any suggestions and comments.
 >
-> I do not think it is that simple since
->  - there is typically more than one class I want to set guarantee to
->  - I will not able to use both limit and guarantee
->  - Implementation will not be work-conserving.
+> It looks reasonable.  Don't forget to sign off the patch.
 >
-> Also, How would you configure the following in your model ?
+> > void kmem_cache_init(void)
+> > {
+> > +#if 0
+> >       void *p = slob_alloc(PAGE_SIZE, 0, PAGE_SIZE-1);
+> >
+> >       if (p)
+> >               free_page((unsigned long)p);
+> > +#endif
 >
-> 5 classes: Class A(10, 40), Class B(20, 100), Class C (30, 100), Class D
-> (5, 100), Class E(15, 50); (class_name(guarantee, limit))
->   
-What's the total memory amount on the node? Without it it's hard to make
-any
-guarantee.
-> "Limit only" approach works for DoS prevention. But for providing QoS
-> you would need guarantee.
->   
-You may not provide guarantee on physycal resource for a particular group
-without limiting its usage by other groups. That's my major idea.
+> Any idea what that's about?
+>
+IMHO kmem_cache_init() needn't to do anything for the slob allocation.
+
+In addition, the original code allocate one page and then free it.
+Here, with the patch, slob_alloc() will set the SLAB flag on the page,
+and the page with this flag can't pass the free_pages_check(), if so,
+the kernel will run into bad_page() panic.
+
+So, I removed this piece of code for the draft of the patch.
+Welcome any better idea.
+
+Regards,
+-Aubrey

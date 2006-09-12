@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWILKVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWILKY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWILKVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 06:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWILKVZ
+	id S965085AbWILKY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 06:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWILKY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 06:21:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36026 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750932AbWILKVY (ORCPT
+	Tue, 12 Sep 2006 06:24:27 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:35412 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965085AbWILKY0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 06:21:24 -0400
-Date: Tue, 12 Sep 2006 03:15:30 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] more USB fixes for 2.6.18-rc6
-Message-ID: <20060912101530.GA25136@kroah.com>
+	Tue, 12 Sep 2006 06:24:26 -0400
+Message-ID: <45068AD9.50308@openvz.org>
+Date: Tue, 12 Sep 2006 14:24:25 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: vatsa@in.ibm.com, sekharan@us.ibm.com
+CC: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user
+ memory)
+References: <44FD918A.7050501@sw.ru> <1157478392.3186.26.camel@localhost.localdomain> <44FED3CA.7000005@sw.ru> <1157579641.31893.26.camel@linuxchandra> <44FFCA4D.9090202@openvz.org> <1157656616.19884.34.camel@linuxchandra> <45011A47.1020407@openvz.org> <1157742442.19884.47.camel@linuxchandra> <450509EE.9010809@openvz.org> <20060911130428.GA16404@in.ibm.com>
+In-Reply-To: <20060911130428.GA16404@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a two more bugfixes for USB issues that were recently
-discovered with 2.6.18-rc6
-
-They do:
-	- fix a leak on /proc/tty/drivers/usb-serial
-	- fix a oops when unloading the yealink driver
-
-Please pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-
-The full patches will be sent to the linux-usb-devel mailing lists, if
-anyone wants to see them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/input/yealink.c     |   12 ++++++------
- drivers/usb/serial/usb-serial.c |    4 +++-
- 2 files changed, 9 insertions(+), 7 deletions(-)
-
----------------
-
-Henk Vergonet:
-      USB: Fix unload oops and memory leak in yealink driver
-
-Matthias Urlichs:
-      usbserial: Reference leak
+Srivatsa Vaddagiri wrote:
+> On Mon, Sep 11, 2006 at 11:02:06AM +0400, Pavel Emelianov wrote:
+>   
+>> Sure. At the beginning I have one task with one BC. Then
+>> 1. A thread is spawned and new BC is created;
+>>     
+>
+> Why do we have to create a BC for every new thread? A new BC is needed
+> for every new service level instead IMO. And typically there wont be
+> unlimited service levels.
+>   
+That's the scenario we started from - each domain is served in a separate
+BC with *threaded* Apache.
+>   
+>> 2. New thread touches a new page (e.g. maps a new file) which is charged
+>> to new BC
+>>     (and this means that this BC's must stay in memory till page is
+>> uncharged);
+>> 3. Thread exits after serving the request, but since it's mm is shared
+>> with parent
+>>     all the touched pages stay resident and, thus, the new BC is still
+>> pinned in memory.
+>> Steps 1-3 are done multiple times for new pages (new files).
+>> Remember that we're discussing the case when pages are not recharged.
+>>     
+>
+>
+>   
 

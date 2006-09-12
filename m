@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWILP4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWILP57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWILP4u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWILP4V
+	id S1030242AbWILP57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWILP56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:56:21 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:31737 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751428AbWILPu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:50:58 -0400
-Message-Id: <20060912144904.417049000@chello.nl>
+	Tue, 12 Sep 2006 11:57:58 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:41974 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751429AbWILPu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:50:57 -0400
+Message-Id: <20060912144904.197253000@chello.nl>
 References: <20060912143049.278065000@chello.nl>
 User-Agent: quilt/0.45-1
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
@@ -17,119 +17,89 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
        Daniel Phillips <phillips@google.com>,
        Peter Zijlstra <a.p.zijlstra@chello.nl>, Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 13/20] nbd: use swapdev hook to make swap deadlock free
-Content-Disposition: inline; filename=nbd_vmio.patch
+Subject: [PATCH 11/20] nbd: request_fn fixup
+Content-Disposition: inline; filename=nbd_fix.patch
 Date: Tue, 12 Sep 2006 17:25:49 +0200
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Set SOCK_VMIO on the NBD socket and make sure the request_fn always
-runs with PF_MEMALLOC when used as a swapper, this ensures we can
-always flush the requests.
+Dropping the queue_lock opens up a nasty race, fix this race by
+plugging the device when we're done.
+
+Also includes a small cleanup.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Signed-off-by: Daniel Phillips <phillips@google.com>
 CC: Pavel Machek <pavel@ucw.cz>
 ---
- drivers/block/nbd.c |   36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c |   67 ++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 49 insertions(+), 18 deletions(-)
 
 Index: linux-2.6/drivers/block/nbd.c
 ===================================================================
---- linux-2.6.orig/drivers/block/nbd.c	2006-09-07 18:44:12.000000000 +0200
-+++ linux-2.6/drivers/block/nbd.c	2006-09-07 18:44:22.000000000 +0200
-@@ -139,7 +139,6 @@ static int sock_xmit(struct socket *sock
- 	spin_unlock_irqrestore(&current->sighand->siglock, flags);
+--- linux-2.6.orig/drivers/block/nbd.c	2006-09-07 17:20:52.000000000 +0200
++++ linux-2.6/drivers/block/nbd.c	2006-09-07 17:35:05.000000000 +0200
+@@ -97,20 +97,24 @@ static const char *nbdcmd_to_ascii(int c
+ }
+ #endif /* NDEBUG */
  
- 	do {
--		sock->sk->sk_allocation = GFP_NOIO;
- 		iov.iov_base = buf;
- 		iov.iov_len = size;
- 		msg.msg_name = NULL;
-@@ -406,10 +405,13 @@ static void nbd_clear_que(struct nbd_dev
- static void do_nbd_request(request_queue_t * q)
+-static void nbd_end_request(struct request *req)
++static void __nbd_end_request(struct request *req)
  {
- 	struct request *req;
-+	unsigned long pflags = current->flags;
-+	struct nbd_device *lo = q->queuedata;
+ 	int uptodate = (req->errors == 0) ? 1 : 0;
+-	request_queue_t *q = req->q;
+-	unsigned long flags;
+ 
+ 	dprintk(DBG_BLKDEV, "%s: request %p: %s\n", req->rq_disk->disk_name,
+ 			req, uptodate? "done": "failed");
+ 
+-	spin_lock_irqsave(q->queue_lock, flags);
+-	if (!end_that_request_first(req, uptodate, req->nr_sectors)) {
++	if (!end_that_request_first(req, uptodate, req->nr_sectors))
+ 		end_that_request_last(req, uptodate);
+-	}
+-	spin_unlock_irqrestore(q->queue_lock, flags);
++}
 +
-+	if (lo->sock && sk_has_vmio(lo->sock->sk))
-+		current->flags |= PF_MEMALLOC;
- 	
- 	while ((req = elv_next_request(q)) != NULL) {
--		struct nbd_device *lo;
--
- 		blkdev_dequeue_request(req);
- 		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%lx)\n",
- 				req->rq_disk->disk_name, req, req->flags);
-@@ -417,8 +419,6 @@ static void do_nbd_request(request_queue
- 		if (!(req->flags & REQ_CMD))
- 			goto error_out;
++static void nbd_end_request(struct request *req)
++{
++	request_queue_t *q = req->q;
++
++	spin_lock_irq(q->queue_lock);
++	__nbd_end_request(req);
++	spin_unlock_irq(q->queue_lock);
+ }
  
--		lo = req->rq_disk->private_data;
--
- 		BUG_ON(lo->magic != LO_MAGIC);
+ /*
+@@ -435,10 +439,8 @@ static void do_nbd_request(request_queue
+ 			mutex_unlock(&lo->tx_lock);
+ 			printk(KERN_ERR "%s: Attempted send on closed socket\n",
+ 			       lo->disk->disk_name);
+-			req->errors++;
+-			nbd_end_request(req);
+ 			spin_lock_irq(q->queue_lock);
+-			continue;
++			goto error_out;
+ 		}
  
- 		nbd_cmd(req) = NBD_CMD_READ;
-@@ -472,6 +472,7 @@ error_out:
- 	 * plug the device to close it.
- 	 */
- 	blk_plug_device(q);
-+	current->flags = pflags;
+ 		lo->active_req = req;
+@@ -463,10 +465,13 @@ static void do_nbd_request(request_queue
+ 
+ error_out:
+ 		req->errors++;
+-		spin_unlock(q->queue_lock);
+-		nbd_end_request(req);
+-		spin_lock(q->queue_lock);
++		__nbd_end_request(req);
+ 	}
++	/*
++	 * q->queue_lock has been dropped, this opens up a race
++	 * plug the device to close it.
++	 */
++	blk_plug_device(q);
  	return;
  }
  
-@@ -530,6 +531,7 @@ static int nbd_ioctl(struct inode *inode
- 			if (S_ISSOCK(inode->i_mode)) {
- 				lo->file = file;
- 				lo->sock = SOCKET_I(inode);
-+				lo->sock->sk->sk_allocation = GFP_NOIO;
- 				error = 0;
- 			} else {
- 				fput(file);
-@@ -599,10 +601,33 @@ static int nbd_ioctl(struct inode *inode
- 	return -EINVAL;
- }
- 
-+static int nbd_swapdev(struct gendisk *disk, int enable)
-+{
-+	struct nbd_device *lo = disk->private_data;
-+
-+	if (!lo->sock)
-+		return -ENODEV;
-+
-+	if (enable) {
-+		sk_adjust_memalloc(0, TX_RESERVE_PAGES);
-+		if (!sk_set_vmio(lo->sock->sk))
-+			printk(KERN_WARNING
-+				"failed to set SOCK_VMIO on NBD socket\n");
-+	} else {
-+		if (!sk_clear_vmio(lo->sock->sk))
-+			printk(KERN_WARNING
-+				"failed to clear SOCK_VMIO on NBD socket\n");
-+		sk_adjust_memalloc(0, -TX_RESERVE_PAGES);
-+	}
-+
-+	return 0;
-+}
-+
- static struct block_device_operations nbd_fops =
- {
- 	.owner =	THIS_MODULE,
- 	.ioctl =	nbd_ioctl,
-+	.swapdev =	nbd_swapdev,
- };
- 
- /*
-@@ -638,6 +663,7 @@ static int __init nbd_init(void)
- 			put_disk(disk);
- 			goto out;
- 		}
-+		disk->queue->queuedata = &nbd_dev[i];
- 		blk_queue_max_segment_size(disk->queue, PAGE_SIZE);
- 		blk_queue_max_hw_segments(disk->queue, 1);
- 		blk_queue_max_phys_segments(disk->queue, 1);
 
 --
 

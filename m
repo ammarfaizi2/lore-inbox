@@ -1,55 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWILPcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWILPfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWILPcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWILPcZ
+	id S1751337AbWILPfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWILPfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:32:25 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:32148 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751326AbWILPcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:32:24 -0400
-In-Reply-To: <4505F030.3020207@pobox.com>
-References: <1157947414.31071.386.camel@localhost.localdomain>	 <200609111139.35344.jbarnes@virtuousgeek.org>	 <1158011129.3879.69.camel@localhost.localdomain>	 <4505DB10.7080807@pobox.com> <1158015394.3879.82.camel@localhost.localdomain> <4505F030.3020207@pobox.com>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <632CC6D1-65AB-448F-B680-06E350AFD432@kernel.crashing.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
+	Tue, 12 Sep 2006 11:35:55 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8394 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751328AbWILPfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:35:54 -0400
+Subject: [PATCH] libata: improve handling of diagostic fail (and hardware
+	that misreports it)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [RFC] MMIO accessors & barriers documentation
-Date: Tue, 12 Sep 2006 17:32:13 +0200
-To: Jeff Garzik <jgarzik@pobox.com>
-X-Mailer: Apple Mail (2.750)
+Date: Tue, 12 Sep 2006 16:55:12 +0100
+Message-Id: <1158076512.6780.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> prepare_to_read_dma_memory() is the operation that an ethernet  
-> driver's RX code wants.  And this is _completely_ unrelated to  
-> MMIO.  It just wants to make sure that the device and host are  
-> looking at the same data.  Often this involves polling a DMA  
-> descriptor (or index, stored inside DMA-able memory) looking for  
-> changes.
->
-> flush_my_writes_to_dma_memory() is the operation that an ethernet  
-> driver's TX code wants, to precede either an MMIO "poke" or any  
-> other non-MMIO operation where the driver needs to be certain that  
-> the write is visible to the PCI device, should the PCI device  
-> desire to read that area of memory.
 
-Because those are the operations, those should be the actual
-function names, too (well, prefixed with pci_).  Architectures
-can implement them whatever way is appropriate, or perhaps default
-to some ultra-strong semantics if they prefer;  driver writers
-should not have to know about the underlying mechanics (like why
-we need which barriers).
+Our ATA probe code checks that a device is not reporting a diagnostic
+failure during start up. Unfortunately at least one device seems to like
+doing this - the Gigabyte iRAM.
 
+This is only done for the master right now (which is fine for the iRAM
+as it is SATA), as with PATA some combinations of ATAPI device seem to
+fool the check into seeing a drive that isn't there if it is applied to
+the slave.
 
-Segher
+Please review
+
+Signed-off-by: Alan Cox <alan@redhat.com>
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/ata/libata-core.c linux-2.6.18-rc6-mm1/drivers/ata/libata-core.c
+--- linux.vanilla-2.6.18-rc6-mm1/drivers/ata/libata-core.c	2006-09-11 17:00:08.000000000 +0100
++++ linux-2.6.18-rc6-mm1/drivers/ata/libata-core.c	2006-09-12 11:18:34.000000000 +0100
+@@ -616,8 +616,11 @@
+ 	if (r_err)
+ 		*r_err = err;
+ 
+-	/* see if device passed diags */
+-	if (err == 1)
++	/* see if device passed diags: if master then continue and warn later */
++	if (err == 0 && device == 0)
++		/* diagnostic fail : do nothing _YET_ */
++		ap->device[device].horkage |= ATA_HORKAGE_DIAGNOSTIC;
++	else if(err == 1)
+ 		/* do nothing */ ;
+ 	else if ((device == 0) && (err == 0x81))
+ 		/* do nothing */ ;
+@@ -1523,6 +1526,18 @@
+ 				       cdb_intr_string);
+ 	}
+ 
++	if (dev->horkage & ATA_HORKAGE_DIAGNOSTIC) {
++		/* Let the user know. We don't want to disallow opens for
++		   rescue purposes, or in case the vendor is just a blithering
++		   idiot */
++                if (print_info) {
++			ata_dev_printk(dev, KERN_WARNING,
++"Drive reports diagnostics failure. This may indicate a drive\n");
++			ata_dev_printk(dev, KERN_WARNING,
++"fault or invalid emulation. Contact drive vendor for information.\n");
++		}
++	}
++
+ 	ata_set_port_max_cmd_len(ap);
+ 
+ 	/* limit bridge transfers to udma5, 200 sectors */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/include/linux/libata.h linux-2.6.18-rc6-mm1/include/linux/libata.h
+--- linux.vanilla-2.6.18-rc6-mm1/include/linux/libata.h	2006-09-11 17:00:24.000000000 +0100
++++ linux-2.6.18-rc6-mm1/include/linux/libata.h	2006-09-11 17:21:16.000000000 +0100
+@@ -289,6 +289,11 @@
+ 	 * most devices.
+ 	 */
+ 	ATA_SPINUP_WAIT		= 8000,
++	
++	/* Horkage types. May be set by libata or controller on drives
++	   (some horkage may be drive/controller pair dependant */
++
++	ATA_HORKAGE_DIAGNOSTIC	= 1,		/* Failed boot diag */
+ };
+ 
+ enum hsm_task_states {
+@@ -469,6 +474,7 @@
+ 
+ 	/* error history */
+ 	struct ata_ering	ering;
++	unsigned int		horkage;	/* List of broken features */
+ };
+ 
+ /* Offset into struct ata_device.  Fields above it are maintained
 

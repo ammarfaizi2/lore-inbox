@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWILI7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWILJBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWILI7s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 04:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWILI7s
+	id S965126AbWILJBw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 05:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWILJBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 04:59:48 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:50210 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965150AbWILI7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 04:59:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PRizckD2eJibEJ1FKacbNKmyZMTAoNvNr2H5yuAsDmeBcmgtUIybqwiP8OUhP5tSVPN3IkXZv3oHmyQoO5egfyPYrPmTV30jYJNYPchjzqO08VZzlQ7HUptiKhGISgDyGLo+S251PPSXeSy8Kiza+R7PZ7YJAuAtGNldxJt3Kkg=
-Message-ID: <9a8748490609120159s28968daco6e4312d141046f25@mail.gmail.com>
-Date: Tue, 12 Sep 2006 10:59:46 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: [PATCH] fix warning: no return statement in function returning non-void in kernel/audit.c
-Cc: linux-kernel@vger.kernel.org, "Rickard Faith" <faith@redhat.com>
-In-Reply-To: <200609112256.k8BMuqVt006467@laptop13.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <jesper.juhl@gmail.com> <200609111715.17080.jesper.juhl@gmail.com>
-	 <200609112256.k8BMuqVt006467@laptop13.inf.utfsm.cl>
+	Tue, 12 Sep 2006 05:01:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8604 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965126AbWILJBu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 05:01:50 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060911162059.GA1496@us.ibm.com> 
+References: <20060911162059.GA1496@us.ibm.com>  <200609090049.20416.oliver@neukum.org> <Pine.LNX.4.44L0.0609082216070.8541-100000@netrider.rowland.org> 
+To: paulmck@us.ibm.com
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>,
+       David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 12 Sep 2006 10:01:43 +0100
+Message-ID: <32145.1158051703@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/09/06, Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > kauditd_thread() is being used in a call to kthread_run(). kthread_run()
-> > expects a function returning 'int' which is also how kauditd_thread() is
-> > declared. Unfortunately kauditd_thread() neglects to return a value
->
-> It is an infinite loop...
+Paul E. McKenney <paulmck@us.ibm.com> wrote:
 
-I know. I'm just trying to get gcc to shut up.
+> 2.	All stores to a given single memory location will be perceived
+> 	as having occurred in the same order by all CPUs.
 
+Does that take into account a CPU combining or discarding coincident memory
+operations?
 
-> >                                                                     which
-> > results in this complaint from gcc :
->
-> >   kernel/audit.c:372: warning: no return statement in function returning non-void
->
-> > Easily fixed by just adding a 'return 0;' to kauditd_thread().
->
-> How about marking it as never returning?
+For instance, a CPU asked to issue two writes to the same location may discard
+the first if it hasn't done it yet.
 
-Marking it NORET_TYPE doesn't do the trick, adding a 'return 0;' does.
-And gcc optimizes the return away anyway, so the object file doesn't
-increase in size, so it does no harm.
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+David

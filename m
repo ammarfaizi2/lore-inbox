@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWILQhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWILQrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965228AbWILQhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 12:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWILQhp
+	id S1030282AbWILQrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 12:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWILQrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 12:37:45 -0400
-Received: from mail.suse.de ([195.135.220.2]:6838 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965228AbWILQhp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 12:37:45 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] quirks: Flag up and handle the AMD 8151 Errata #24
-Date: Tue, 12 Sep 2006 17:10:57 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <1158078540.6780.61.camel@localhost.localdomain>
-In-Reply-To: <1158078540.6780.61.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 12 Sep 2006 12:47:55 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:63427 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1030282AbWILQry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 12:47:54 -0400
+In-Reply-To: <1158022147.15465.29.camel@localhost.localdomain>
+References: <D680AFCF-11EC-48AD-BBC2-B92521DF442A@kernel.crashing.org> <20060911.062144.74719116.davem@davemloft.net> <8DA3BCBF-0F19-4CF0-B22E-91E57E7CB033@kernel.crashing.org> <20060911.173208.74750403.davem@davemloft.net> <1158022147.15465.29.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5488ABE0-92BB-4DCA-9D31-1928B8432D68@kernel.crashing.org>
+Cc: David Miller <davem@davemloft.net>, jbarnes@virtuousgeek.org,
+       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609121710.57393.ak@suse.de>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+Date: Tue, 12 Sep 2006 18:47:29 +0200
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 September 2006 18:29, Alan Cox wrote:
-> AMD states the following
->
-> "Some PCI cards generate peer-to-peer posted-write traffic targetting
-> the AGP bridge (from the PCI bus, through the graphics tunnel to the AGP
-> bus). The combination of such cards and some AGP cards can generate
-> traffic patters that result in a system deadlock."
+> As Paulus also pointed out, having writel() behave differently  
+> based on
+> some magic done earlier at map time makes it harder to understand what
+> happens when reading the code, and thus harder to audit drivers for
+> missing barriers etc... since it's not obvious at first sight wether a
+> driver is using ordered or relaxed semantics.
 
-Hmm, you add all that code just to trigger printks? Looks like overkill
-to me. 
+I do not buy this argument because I do not believe you
+can "audit" a driver at "first sight".  You'll have to
+look at the mapping call anyway, something might be wrong
+there (playing evil __ioremap() tricks, mapping the wrong
+size, whatever).
 
--Andi
+I do see your point, I don't believe the ramifications are
+as severe as you make them to be though, esp. when compared
+to all the (readability, auditing!) problems that having
+more different interfaces for basically the same thing will
+bring us.
 
+
+Segher
 

@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWILU3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWILUaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbWILU3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWILU3W
+	id S1030412AbWILUaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWILUaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:29:22 -0400
-Received: from smtp8.libero.it ([193.70.192.92]:62361 "EHLO smtp8.libero.it")
-	by vger.kernel.org with ESMTP id S1030405AbWILU3V (ORCPT
+	Tue, 12 Sep 2006 16:30:17 -0400
+Received: from waste.org ([66.93.16.53]:55943 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030412AbWILUaP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:29:21 -0400
-Message-ID: <450718A6.4070301@libero.it>
-Date: Tue, 12 Sep 2006 22:29:26 +0200
-From: Marco <marco4ever@libero.it>
-User-Agent: Mozilla Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.15 - 2.6.16 bad page with fglrx 8.28.8 on Radeon X300
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Tue, 12 Sep 2006 16:30:15 -0400
+Date: Tue, 12 Sep 2006 15:28:26 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+Message-ID: <20060912202826.GC19707@waste.org>
+References: <20060912174339.GA19707@waste.org> <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <24525.1158089104@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24525.1158089104@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Sep 12, 2006 at 08:25:04PM +0100, David Howells wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> 
+> > Looking through all the users of kobjsize, it seems we always know
+> > what the type is (and it's usually a VMA). I instead propose we use
+> > ksize on objects we know to be SLAB/SLOB-allocated and add a new
+> > function (kpagesize?) to size other objects where nommu needs it.
+> 
+> It sounds like we'd need an op in the VMA to do the per-type size thing (the
+> VMA itself not the VMA ops table).
 
-I cannot get back to a console after logging out from a Gnome/X session.
-I just got a blank screen which does not response to any key press.
-I have to turn off the power. This happens on a IBM Thinkpad T43p with 
-ATI RADEON X300 and
-with the non-free ATI driver fglrx 8.28.8 and kernels 2.6.15 / 2.6.16
+Not sure yet. There's only one user in nommu.c that shouldn't just be
+changed to ksize() that I can see, and that's the one in
+show_process_blocks(). That could test for VM_MAPPED_COPY and keep its
+hands off otherwise. 
 
-I have found this patch (http://lkml.org/lkml/2005/12/11/26) for ATI 
-driver fglrx 8.20.8-1 that
-works very well with fglrx 8.20.8-1 driver.
+I can imagine situations where ->mmap returns pointers to something
+that's statically allocated anyway (XIP?), where kobjsize doesn't
+really make sense.
 
-Could you help me to make a patch for ATI driver fglrx 8.28.8 and 
-kernels 2.6.15 / 2.6.16?
+Also, looks like the WARN_ON_SLACK code has rotten, result isn't
+defined in that function. Change it to base, perhaps?
 
-Thanks
-Bye
-Marco
-
+-- 
+Mathematics is the supreme nostalgia of our time.

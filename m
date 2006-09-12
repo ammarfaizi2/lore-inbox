@@ -1,107 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbWILAUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbWILAaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965201AbWILAUA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 20:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbWILAT7
+	id S965205AbWILAaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 20:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWILAaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 20:19:59 -0400
-Received: from mga07.intel.com ([143.182.124.22]:51742 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965201AbWILAT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 20:19:59 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,147,1157353200"; 
-   d="scan'208"; a="114969704:sNHT12044730621"
-Date: Mon, 11 Sep 2006 17:17:01 -0700
-From: Mark Gross <mgross@linux.intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       "Eugeny S. Mints" <eugeny.mints@gmail.com>,
-       Matthew Locke <matt@nomadgs.com>, Greg KH <greg@kroah.com>,
-       Amit Kucheria <amit.kucheria@nokia.com>,
-       pm list <linux-pm@lists.osdl.org>,
-       Preece Scott-PREECE <scott.preece@motorola.com>,
-       Igor Stoppa <igor.stoppa@nokia.com>
-Subject: Re: cpufreq terminally broken [was Re: community PM requirements/issues and PowerOP]
-Message-ID: <20060912001701.GC14234@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <450516E8.9010403@gmail.com> <20060911082025.GD1898@elf.ucw.cz> <b0623b9bb79afacc77cddc6e39c96b62@nomadgs.com> <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com> <20060911225617.GB13474@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060911225617.GB13474@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+	Mon, 11 Sep 2006 20:30:12 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:59669 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965205AbWILAaK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 20:30:10 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=WqU6TOGNpUREajwbMUFmC8u3SmPxKu7SDuGt1Wko7k9qn/6Lwp5ikUamyEuzwgZCQ
+	AYk5DzkqxZ9ahNHR4IjsQ==
+Subject: Re: [Devel] Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4)
+	(added user	memory)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kir Kolyshkin <kir@openvz.org>
+Cc: devel@openvz.org, sekharan@us.ibm.com, Rik van Riel <riel@redhat.com>,
+       Srivatsa <vatsa@in.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <4505BD89.8040400@openvz.org>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+	 <1157999107.6029.7.camel@linuxchandra>
+	 <1158001831.12947.16.camel@galaxy.corp.google.com>
+	 <4505BD89.8040400@openvz.org>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 11 Sep 2006 17:28:58 -0700
+Message-Id: <1158020939.12947.129.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 12:56:17AM +0200, Pavel Machek wrote:
-> Hi!
+On Mon, 2006-09-11 at 23:48 +0400, Kir Kolyshkin wrote:
+> Rohit Seth wrote:
+> > On Mon, 2006-09-11 at 11:25 -0700, Chandra Seetharaman wrote:
+> >   
+> >> On Fri, 2006-09-08 at 14:43 -0700, Rohit Seth wrote:
+> >> <snip>
+> >>
+> >>     
+> >>>>> Guarantee may be one of
+> >>>>>
+> >>>>>   1. container will be able to touch that number of pages
+> >>>>>   2. container will be able to sys_mmap() that number of pages
+> >>>>>   3. container will not be killed unless it touches that number of pages
+> >>>>>   4. anything else
+> >>>>>           
+> >>>> I would say (1) with slight modification
+> >>>>    "container will be able to touch _at least_ that number of pages"
+> >>>>
+> >>>>         
+> >>> Does this scheme support running of tasks outside of containers on the
+> >>> same platform where you have tasks running inside containers.  If so
+> >>> then how will you ensure processes running out side any container will
+> >>> not leave less than the total guaranteed memory to different containers.
+> >>>
+> >>>       
+> >> There could be a default container which doesn't have any guarantee or
+> >> limit. 
+> >>     
+> >
+> > First, I think it is critical that we allow processes to run outside of
+> > any container (unless we know for sure that the penalty of running a
+> > process inside a container is very very minimal).
+> >   
+> (1) there is a set of processes running outside of any container. In
+> OpenVZ we call that "VE0" or "host system", probably Chandra meant that
+> by "default container".
+> (2) The host system is used to manage the containers (start/stop/set
+> parameters/create/destroy).
+> (3) the penalty of running a process inside a container is indeed very low.
 > 
-> Just for the record... this goes out to the lkml. This discussion was
-> internal for way too long. (for interested lkml readers, I'm sure
-> linux-pm mailing list has public archive somewhere).
->
+> > And anything running outside a container should be limited by default
+> > Linux settings.
+> >   
+> (4) due to (2), it is not recommended to run anything but the tasks used
+> to manage the containers -- otherwise your gonna have security problems
 
-This was rude.
+Just like you want to run those special threads outside of any
+container, some sysadmin might be interested in running different
+processes that they don't want to bind to any container limits.
 
-> On Tue 2006-09-12 02:05:26, Eugeny S. Mints wrote:
-> > Pavel Machek wrote:
-> > >>>>- PowerOP is only one layer (towards the bottom) in a power management 
-> > >>>>solution.
-> > >>>>- PowerOP does *not* replace cpufreq
-> > >>>PowerOP provides userland interface for changing processor
-> > >>>frequency. That's bad -- duplicate interface.
-> > >>Basically the biggest problem with cpufreq interface is that cpufreq has 
-> > >>"chose
-> > >>predefined closest to a given frequency" functionality implemented in the
-> > >>kernel while there is _no_ any reason to have this functionality 
-> > >>implemented in
-> > >>the kernel if we have sysfs interface exported by PowerOP in place - you 
-> > >>just
-> > >
-> > >No, there is reason to keep that in kernel -- so that cpufreq
-> > >userspace interface can be kept, and so that resulting kernel<->user
-> > >interface is not ugly.
-> > Cpuferq defines cpufreq_frequency_table structure in arch independent 
-> > header while it's arch dependent data structure. A lot of code is built 
-> > around this invalid basic brick and therefore is invalid: cpufreq tables, 
-> > interface with cpu freq drivers, etc. Notion of transition latency as it 
-> > defined by cpufreq is wrong because it's not a function of cpu type but 
-> > function of current and next operating point. no runtime control on 
-> > operating points set. it's always the same set of operating points for all 
-> > system cpus in smp case and no way to define different sets or track any 
-> > dependencies in case say multi core cpus. insufficient kernel<->user space 
-> > interface to handle embedded requirements and no way to extend it within 
-> > current design. Shall I continue?  Why should then anyone want to keep 
-> > cpufreq userspace interface just due to keep it?
-> 
-> Yes, please continue. I do not think we can just rip cpufreq interface
-> out of kernel, and I do not think it is as broken as you claim it
-> is. Ripping interface out of kernel takes years.
-> 
-> I'm sure cpufreq_frequency_table could be moved to asm/ header if you
-> felt strongly about that.
-> 
-> I believe we need to fix cpufreq if it is broken for embedded
-> cases.
+I think it is critical that you provide the capability to have tasks
+running outside any container. Whether sysadmin wants to do it or not
+for a system is a different thing.
 
-cpufreq is broken at the cpufreq_driver interface for embedded
-applications needing control over more than one control variable at a
-time.
+-rohit
 
-That interface only supports setting target frequencies, and expanding it
-to set target frequencies and voltages is not possible without something
-like PowerOP.  Adding the types of parameters to cpufreq would likely
-make cpufreq a mess.  I think we would be better off with something that
-coexists with cpufreq, like the powerop patch from Eugeny.
-
-God help you if you try to use cpufreq on a complex non-PC platform with
-multiple power and clock domains that need to be tweaked to squeeze out
-competitive battery life.
-
-Because of the existing user base of cpufreq removing cpufreq will never
-happen.  No one supporting the PowerOP patch has never recommended
-such a thing.  However; holding back innovation because of an existing
-solution that doesn't support a large class of users seems dumb.
-
---mgross

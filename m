@@ -1,95 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWILTKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWILTLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030280AbWILTKs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 15:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWILTKs
+	id S1030356AbWILTLY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 15:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWILTLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 15:10:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30114 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030280AbWILTKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 15:10:47 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060912174339.GA19707@waste.org> 
-References: <20060912174339.GA19707@waste.org>  <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> 
-To: Matt Mackall <mpm@selenic.com>
-Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       davidm@snapgear.com, gerg@snapgear.com
-Subject: Re: kernel BUGs when removing largish files with the SLOB allocator 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 12 Sep 2006 20:10:32 +0100
-Message-ID: <15193.1158088232@warthog.cambridge.redhat.com>
+	Tue, 12 Sep 2006 15:11:24 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:17578 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030356AbWILTLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 15:11:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qCpDkxQY4lZlMXgT5KARsWu3I+mhgOO2RDLYNDtzBq/UU/aSwUM1368OEFpgTinDNJCwdcmEXgK+J6605kAes2er4gMrlZSFB4EhSv6pah4Rdmg4wBhoAdK4C41e3cbzqIQLboD9j7zm8pmesmhflhsw2YeF7Sh3oxvKyBIGFw4=
+Message-ID: <6bffcb0e0609121211t2dec0e49qb8d3dbfad2476852@mail.gmail.com>
+Date: Tue, 12 Sep 2006 21:11:22 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc6-mm2
+Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       "Pavel Machek" <pavel@ucw.cz>, "Dave Jones" <davej@redhat.com>
+In-Reply-To: <20060912000618.a2e2afc0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060912000618.a2e2afc0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
-
-> > +		for (i = 0; i < (1 << bb->order); i++) {
-> > +			SetPageSlab(page);
-> > +			page++;
-> > +		}
-> 
-> for ( ; page < page + (1 << bb->order), page++)
->       SetPageSlab(page);
-
-Ugh.  No.  You can't do that.  "page < page + X" will be true until "page + X"
-wraps the end of memory.
-
-> > +				for (i = 0; i < (1 << bb->order); i++) {
-> > +					if (!TestClearPageSlab(page))
-> > +						BUG();
-> > +					page++;
-> > +				}
-> 
-> Please drop the BUG. We've already established it's on our lists by
-> this point.
-
-I disagree.  Let's catch accidental reuse of pages.  It should, however, be
-marked unlikely().
-
-> You just broke the bit that shrinks the arena.
-
-How?  This is only called once when things are being initialised.  There can
-be no SLOB objects allocated prior to that point.
-
-> I don't like this patch. We've just grown SLOB by about 10% everywhere
-> to make nommu happy. Is this needed because nommu is doing something
-> special for MMU-less machines or because it's doing something bogus?
-
-See preceding discussion on LKML.
-
-kobjsize() needs to work out how to calculate the size of an object.  One of
-the main classes of object it might be given is slab/slob objects.  Either
-these should be marked with PG_slab as per the slab allocator, of kobjsize()
-has to go and walk all the slab allocator or slob allocator lists to find out
-whether this page belongs to them.  Only then can it know whether or not it
-can trust the page metadata as slab/slob metadata or not.
-
-> Looking through all the users of kobjsize, it seems we always know
-> what the type is (and it's usually a VMA). I instead propose we use
-> ksize on objects we know to be SLAB/SLOB-allocated and add a new
-> function (kpagesize?) to size other objects where nommu needs it.
-
-Yes, we might have a VMA, but no, we do not know how big the object we've
-_actually_ been given by whoever is.  kmalloc() doesn't tell us that and
-get_unmapped_area() doesn't tell us that but we want it to account correctly
-for the ammount of memory allocated.
-
-You say "use ksize on objects we know to be SLAB/SLOB-allocated" which is the
-whole point of PG_slab.
-
-> As for whether SLOB should emulate PG_slab on general principles, as
-> far as I can tell, PG_slab should be considered a private debugging
-> aid to SLAB. All the other users look rather bogus to my eye.
+On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
 >
-> If anything, SLOB should internally abuse PG_slab to mark big pages
-> and dispense with its bigblocks lists.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
+>
 
-It's not abuse.  SLOB is a drop-in replacement for the SLAB allocator,
-therefore PG_slab belongs to it instead of SLAB.
+My FC6T2 bug appeared in -mm
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=202223
+
+Any ideas about this?
+
+echo shutdown > /sys/power/disk; echo disk > /sys/power/state
+
+CPU 1 is now offline
+lockdep: not fixing up alternatives.
+
+=======================================================
+[ INFO: possible circular locking dependency detected ]
+2.6.18-rc6-mm2 #120
+-------------------------------------------------------
+bash/1961 is trying to acquire lock:
+ ((cpu_chain).rwsem){----}, at: [<c012e289>]
+blocking_notifier_call_chain+0x11/0x2d
+
+but task is already holding lock:
+ (workqueue_mutex){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
+
+which lock already depends on the new lock.
 
 
-Anyway, if you've got a better idea, then patch please.
+the existing dependency chain (in reverse order) is:
+-> #1 (workqueue_mutex){--..}:
+       [<c0138b97>] add_lock_to_list+0x5c/0x7a
+       [<c013aca0>] __lock_acquire+0x9ec/0xae8
+       [<c013b0fc>] lock_acquire+0x6b/0x88
+       [<c02f7f1b>] __mutex_lock_slowpath+0xd6/0x2f5
+       [<c02f8156>] mutex_lock+0x1c/0x1f
+       [<c01312de>] workqueue_cpu_callback+0x109/0x1ff
+       [<c012de43>] notifier_call_chain+0x20/0x31
+       [<c012e295>] blocking_notifier_call_chain+0x1d/0x2d
+       [<c013f867>] _cpu_down+0x48/0x207
+       [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
+       [<c01451d6>] prepare_processes+0xe/0x41
+       [<c014539e>] pm_suspend_disk+0x9/0xe2
+       [<c0144635>] enter_state+0x53/0x177
+       [<c01447df>] state_store+0x86/0x9c
+       [<c01abde4>] subsys_attr_store+0x20/0x25
+       [<c01abee3>] sysfs_write_file+0xa6/0xcc
+       [<c0174d60>] vfs_write+0xcd/0x174
+       [<c01753fa>] sys_write+0x3b/0x71
+       [<c0103156>] sysenter_past_esp+0x5f/0x99
+       [<ffffffff>] 0xffffffff
+-> #0 ((cpu_chain).rwsem){----}:
+       [<c013a280>] print_circular_bug_tail+0x2e/0x62
+       [<c013abd7>] __lock_acquire+0x923/0xae8
+       [<c013b0fc>] lock_acquire+0x6b/0x88
+       [<c0136e60>] down_read+0x28/0x3b
+       [<c012e289>] blocking_notifier_call_chain+0x11/0x2d
+       [<c013f98e>] _cpu_down+0x16f/0x207
+       [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
+       [<c01451d6>] prepare_processes+0xe/0x41
+       [<c014539e>] pm_suspend_disk+0x9/0xe2
+       [<c0144635>] enter_state+0x53/0x177
+       [<c01447df>] state_store+0x86/0x9c
+       [<c01abde4>] subsys_attr_store+0x20/0x25
+       [<c01abee3>] sysfs_write_file+0xa6/0xcc
+       [<c0174d60>] vfs_write+0xcd/0x174
+       [<c01753fa>] sys_write+0x3b/0x71
+       [<c0103156>] sysenter_past_esp+0x5f/0x99
+       [<ffffffff>] 0xffffffff
 
-David
+other info that might help us debug this:
+
+2 locks held by bash/1961:
+ #0:  (cpu_add_remove_lock){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
+ #1:  (workqueue_mutex){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
+
+stack backtrace:
+ [<c01041ba>] dump_trace+0x63/0x1ca
+ [<c0104333>] show_trace_log_lvl+0x12/0x25
+ [<c0104993>] show_trace+0xd/0x10
+ [<c0104a58>] dump_stack+0x16/0x18
+ [<c013a2a9>] print_circular_bug_tail+0x57/0x62
+ [<c013abd7>] __lock_acquire+0x923/0xae8
+ [<c013b0fc>] lock_acquire+0x6b/0x88
+ [<c0136e60>] down_read+0x28/0x3b
+ [<c012e289>] blocking_notifier_call_chain+0x11/0x2d
+ [<c013f98e>] _cpu_down+0x16f/0x207
+ [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
+ [<c01451d6>] prepare_processes+0xe/0x41
+ [<c014539e>] pm_suspend_disk+0x9/0xe2
+ [<c0144635>] enter_state+0x53/0x177
+ [<c01447df>] state_store+0x86/0x9c
+ [<c01abde4>] subsys_attr_store+0x20/0x25
+ [<c01abee3>] sysfs_write_file+0xa6/0xcc
+ [<c0174d60>] vfs_write+0xcd/0x174
+ [<c01753fa>] sys_write+0x3b/0x71
+ [<c0103156>] sysenter_past_esp+0x5f/0x99
+DWARF2 unwinder stuck at sysenter_past_esp+0x5f/0x99
+
+Leftover inexact backtrace:
+
+l *blocking_notifier_call_chain+0x11/0x2d
+0xc012e278 is in blocking_notifier_call_chain
+(/usr/src/linux-mm/kernel/sys.c:324).
+319      *      of the last notifier function called.
+320      */
+321
+322     int blocking_notifier_call_chain(struct blocking_notifier_head *nh,
+323                     unsigned long val, void *v)
+324     {
+325             int ret;
+326
+327             down_read(&nh->rwsem);
+328             ret = notifier_call_chain(&nh->head, val, v);
+
+l *mutex_lock+0x1c/0x1f
+0xc02f813a is in mutex_lock (/usr/src/linux-mm/kernel/mutex.c:85).
+80       *   deadlock debugging. )
+81       *
+82       * This function is similar to (but not equivalent to) down().
+83       */
+84      void inline fastcall __sched mutex_lock(struct mutex *lock)
+85      {
+86              might_sleep();
+87              /*
+88               * The locking fastpath is the 1->0 transition from
+89               * 'unlocked' into 'locked' state.
+
+http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg2
+http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-config1
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

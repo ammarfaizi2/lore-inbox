@@ -1,73 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWILR5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWILR5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030306AbWILR5d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 13:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWILR5d
+	id S1030311AbWILR5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 13:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWILR5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 13:57:33 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:30909 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030306AbWILR5c
+	Tue, 12 Sep 2006 13:57:42 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:61660 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030308AbWILR5l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 13:57:32 -0400
-Subject: [PATCH 0/7] Integrity Service and SLIM
+	Tue, 12 Sep 2006 13:57:41 -0400
+Subject: [PATCH 1/7] mprotect patch for use by SLIM
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        LSM ML <linux-security-module@vger.kernel.org>
 Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
        Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
 Content-Type: text/plain
-Date: Tue, 12 Sep 2006 10:57:25 -0700
-Message-Id: <1158083845.18137.10.camel@localhost.localdomain>
+Date: Tue, 12 Sep 2006 10:57:35 -0700
+Message-Id: <1158083855.18137.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an updated request for comments on a proposed integrity 
-service framework and dummy provider, along with SLIM, a low 
-water-mark mandatory access control LSM module which utilizes the 
-integrity services as additional input to the access control decisions.
+This small patch makes mprotect available for use by SLIM for
+write revocation.
 
-In this version:
-- We have further slimmed down the code by removing the secrecy checks
-to focus on only the integrity model at this time.  The secrecy code had
-several parts that were still in development and only had comments
-indicating where they would eventually be and the policy was only using
-one secrecy level.  Hopefully, this will remove an element of review
-confusion
-- The file revocation code was removed in favor of denying access when a
-process has open shared file descriptors b/c file revocation has too
-many corner cases.
-- Fixed the situation where shared physical memory could cause a problem
-if one thread was demoted.  Currently access is denied in the situation
-we are working on a way to allow the access and demote all the threads.
-- SLIM boot parameter
-- INTEGRITY config parameter (which SLIM depends on) 
+Updated to allow the usage locking to work properly.
 
-Where we are going:
-- dummy integrity subsystem (included)
-- integrity-only slim (included)
-- secrecy slim 
-- tcg-based integrity subsystem
+Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+ include/linux/mm.h |    2 ++
+ mm/mprotect.c      |   22 ++++++++++++++++------
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-Later we will be submitting EVM as a specific integrity service
-provider under this proposed framework. By separating the submissions,
-we hope that the integrity framework and its relationship to SLIM
-(and potentially to selinux) will be clearer and easier to review.
-Since this integrity provider is a dummy, it has no requirements for
-TPM hardware, or for LSM stacking, again making the review simpler.
-
-A corresponding userspace utility package is available at
-http://www.research.ibm.com/gsal/tcpa
-
-Patch 1/7 is a tiny patch to make mprotect available for revocation.
-
-Patch 2/7 provides the integrity service API with dummy provider.
-
-Patch 3-7 provide SLIM, and a more detailed description of
-its changes, and points out its use of the integrity service.
-
-These patches have no prerequisites for stacker or TPM related patches.
+--- linux-2.6.18-rc3/mm/mprotect.c	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/mm/mprotect.c	2006-08-07 13:11:07.000000000 -0500
+@@ -19,6 +19,7 @@
+ #include <linux/mempolicy.h>
+ #include <linux/personality.h>
+ #include <linux/syscalls.h>
++#include <linux/module.h>
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
+ #include <asm/uaccess.h>
+@@ -202,9 +203,10 @@ fail:
+ 	vm_unacct_memory(charged);
+ 	return error;
+ }
+-
+-asmlinkage long
+-sys_mprotect(unsigned long start, size_t len, unsigned long prot)
++/* 
++ * Call holding the current->mm->mmap_sem for writing
++ */
++int do_mprotect(unsigned long start, size_t len, unsigned long prot)
+ {
+ 	unsigned long vm_flags, nstart, end, tmp, reqprot;
+ 	struct vm_area_struct *vma, *prev;
+@@ -234,8 +236,6 @@ sys_mprotect(unsigned long start, size_t
+ 
+ 	vm_flags = calc_vm_prot_bits(prot);
+ 
+-	down_write(&current->mm->mmap_sem);
+-
+ 	vma = find_vma_prev(current->mm, start, &prev);
+ 	error = -ENOMEM;
+ 	if (!vma)
+@@ -298,6 +298,16 @@ sys_mprotect(unsigned long start, size_t
+ 		}
+ 	}
+ out:
+-	up_write(&current->mm->mmap_sem);
+ 	return error;
+ }
++
++asmlinkage long
++sys_mprotect(unsigned long start, size_t len, unsigned long prot)
++{
++	int ret;
++
++	down_write(&current->mm->mmap_sem);
++	ret = do_mprotect(start, len, prot);
++	up_write(&current->mm->mmap_sem);
++	return ret;
++}
+--- linux-2.6.18-rc3/include/linux/mm.h	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/include/linux/mm.h	2006-08-01 12:18:13.000000000 -0500
+@@ -137,6 +137,8 @@ extern unsigned int kobjsize(const void 
+ #define VM_EXEC		0x00000004
+ #define VM_SHARED	0x00000008
+ 
++extern int do_mprotect(unsigned long start, size_t len, unsigned long prot);
++
+ /* mprotect() hardcodes VM_MAYREAD >> 4 == VM_READ, and so for r/w/x bits. */
+ #define VM_MAYREAD	0x00000010	/* limits for mprotect() etc */
+ #define VM_MAYWRITE	0x00000020
 
 

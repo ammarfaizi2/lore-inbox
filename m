@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWILNmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWILOFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWILNmv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 09:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWILNmv
+	id S965146AbWILOFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWILOFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 09:42:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:61321 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030257AbWILNmu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 09:42:50 -0400
-Message-ID: <4506B955.7080000@fr.ibm.com>
-Date: Tue, 12 Sep 2006 15:42:45 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Tue, 12 Sep 2006 10:05:30 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:19903 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965148AbWILOF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:05:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RpHz4pqFypktGE1ZfJZhaGet03JemNbFz7+NgmFROJqB/aPDPYbYG7376D5i49h30eKy1MMtM24jBAUohtT9fjAwojflgDPfw3Zagkp1+iI6s8lTmSuQ17tkn/OJRwZeQ2tYulXI8/J9qYnaFxCUJDZrmgac2/V8eVbsNP3r51w=
+Message-ID: <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
+Date: Tue, 12 Sep 2006 10:05:26 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Piotr Gluszenia Slawinski" <curious@zjeby.dyndns.org>
+Subject: Re: thinkpad 360Cs keyboard problem
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org
-Subject: [S390] update fs3270 to use a struct pid
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org>
+	 <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org>
+	 <20060910194955.GA1841@elf.ucw.cz>
+	 <200609102054.34350.dtor@insightbb.com>
+	 <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch replaces the pid_t value with a struct pid to avoid pid wrap
-around problems.
+On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
+> well, certainly 2.6.18 issue...
 
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: containers@lists.osdl.org
+Are you saying that it works on 2.6.17 and is broken on 2.6.18?
 
----
- drivers/s390/char/fs3270.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+> kernel boots up fine, but keyboard is totally messed up,
+> and locks up after some tries of use.
 
-Index: 2.6.18-rc6/drivers/s390/char/fs3270.c
-===================================================================
---- 2.6.18-rc6.orig/drivers/s390/char/fs3270.c
-+++ 2.6.18-rc6/drivers/s390/char/fs3270.c
-@@ -28,7 +28,7 @@ struct raw3270_fn fs3270_fn;
+Could you try describing the exact issues with the keyboard? Missing
+keypresses, wrong keys reported, etc?
 
- struct fs3270 {
- 	struct raw3270_view view;
--	pid_t fs_pid;			/* Pid of controlling program. */
-+	struct pid* fs_pid;		/* Pid of controlling program. */
- 	int read_command;		/* ccw command to use for reads. */
- 	int write_command;		/* ccw command to use for writes. */
- 	int attention;			/* Got attention. */
-@@ -103,7 +103,7 @@ fs3270_restore_callback(struct raw3270_r
- 	fp = (struct fs3270 *) rq->view;
- 	if (rq->rc != 0 || rq->rescnt != 0) {
- 		if (fp->fs_pid)
--			kill_proc(fp->fs_pid, SIGHUP, 1);
-+			kill_pid(fp->fs_pid, SIGHUP, 1);
- 	}
- 	fp->rdbuf_size = 0;
- 	raw3270_request_reset(rq);
-@@ -174,7 +174,7 @@ fs3270_save_callback(struct raw3270_requ
- 	 */
- 	if (rq->rc != 0 || rq->rescnt == 0) {
- 		if (fp->fs_pid)
--			kill_proc(fp->fs_pid, SIGHUP, 1);
-+			kill_pid(fp->fs_pid, SIGHUP, 1);
- 		fp->rdbuf_size = 0;
- 	} else
- 		fp->rdbuf_size = fp->rdbuf->size - rq->rescnt;
-@@ -443,7 +443,7 @@ fs3270_open(struct inode *inode, struct
- 		return PTR_ERR(fp);
+Thanks.
 
- 	init_waitqueue_head(&fp->wait);
--	fp->fs_pid = current->pid;
-+	fp->fs_pid = get_pid(task_pid(current));
- 	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
- 	if (rc) {
- 		fs3270_free_view(&fp->view);
-@@ -481,7 +481,8 @@ fs3270_close(struct inode *inode, struct
- 	fp = filp->private_data;
- 	filp->private_data = NULL;
- 	if (fp) {
--		fp->fs_pid = 0;
-+		put_pid(fp->fs_pid);
-+		fp->fs_pid = NULL;
- 		raw3270_reset(&fp->view);
- 		raw3270_put_view(&fp->view);
- 		raw3270_del_view(&fp->view);
+-- 
+Dmitry

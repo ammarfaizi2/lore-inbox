@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWILUZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWILU3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWILUZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWILUZJ
+	id S1030405AbWILU3W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWILU3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:25:09 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:27206 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1030415AbWILUZI (ORCPT
+	Tue, 12 Sep 2006 16:29:22 -0400
+Received: from smtp8.libero.it ([193.70.192.92]:62361 "EHLO smtp8.libero.it")
+	by vger.kernel.org with ESMTP id S1030405AbWILU3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:25:08 -0400
-Message-ID: <450717A5.90509@cfl.rr.com>
-Date: Tue, 12 Sep 2006 16:25:09 -0400
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Tue, 12 Sep 2006 16:29:21 -0400
+Message-ID: <450718A6.4070301@libero.it>
+Date: Tue, 12 Sep 2006 22:29:26 +0200
+From: Marco <marco4ever@libero.it>
+User-Agent: Mozilla Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: guest01 <guest01@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: OT: calling kernel syscall manually
-References: <4506A295.6010206@gmail.com> <1158068045.9189.93.camel@hades.cambridge.redhat.com>
-In-Reply-To: <1158068045.9189.93.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.15 - 2.6.16 bad page with fglrx 8.28.8 on Radeon X300
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2006 20:25:20.0458 (UTC) FILETIME=[91715AA0:01C6D6A9]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14686.003
-X-TM-AS-Result: No--11.442300-5.000000-31
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What do you mean you have removed the ability to make system calls 
-directly?  That makes no sense.  Glibc has to be able to make system 
-calls so you can write your own code that does the same thing if you want.
+Hi,
 
-For the OP: you might want to study the glibc sources to see how it 
-implements syscall, and mimic that.  IIRC it involves making an int 80 
-call on i386.
+I cannot get back to a console after logging out from a Gnome/X session.
+I just got a blank screen which does not response to any key press.
+I have to turn off the power. This happens on a IBM Thinkpad T43p with 
+ATI RADEON X300 and
+with the non-free ATI driver fglrx 8.28.8 and kernels 2.6.15 / 2.6.16
 
-David Woodhouse wrote:
-> The third one has always been broken on i386 for PIC code and was
-> pointless anyway, since glibc provides this functionality. The kernel
-> method has been removed from userspace visibility all architectures, and
-> we plan to remove it entirely in 2.6.19 since it's not at all useful. 
-> 
-> However, there was a patch which was sneaked to Linus in private which
-> reverted that cleanup on i386 and x86_64 and made them visible again --
-> but they'll be going away again on those two architectures shortly;
-> hopefully before 2.6.18.
-> 
-> Don't bother with it -- just use glibc's syscall().
-> 
+I have found this patch (http://lkml.org/lkml/2005/12/11/26) for ATI 
+driver fglrx 8.20.8-1 that
+works very well with fglrx 8.20.8-1 driver.
+
+Could you help me to make a patch for ATI driver fglrx 8.28.8 and 
+kernels 2.6.15 / 2.6.16?
+
+Thanks
+Bye
+Marco
 

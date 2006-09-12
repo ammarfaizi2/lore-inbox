@@ -1,169 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWILTLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWILTZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbWILTLY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 15:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWILTLY
+	id S1030374AbWILTZT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 15:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWILTZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 15:11:24 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:17578 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030356AbWILTLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 15:11:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qCpDkxQY4lZlMXgT5KARsWu3I+mhgOO2RDLYNDtzBq/UU/aSwUM1368OEFpgTinDNJCwdcmEXgK+J6605kAes2er4gMrlZSFB4EhSv6pah4Rdmg4wBhoAdK4C41e3cbzqIQLboD9j7zm8pmesmhflhsw2YeF7Sh3oxvKyBIGFw4=
-Message-ID: <6bffcb0e0609121211t2dec0e49qb8d3dbfad2476852@mail.gmail.com>
-Date: Tue, 12 Sep 2006 21:11:22 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.18-rc6-mm2
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       "Pavel Machek" <pavel@ucw.cz>, "Dave Jones" <davej@redhat.com>
-In-Reply-To: <20060912000618.a2e2afc0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Sep 2006 15:25:18 -0400
+Received: from 1wt.eu ([62.212.114.60]:35346 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1030324AbWILTZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 15:25:17 -0400
+Date: Tue, 12 Sep 2006 21:17:36 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+       sparclinux@vger.kernel.org
+Subject: Re: fix 2.4.33.3 / sun partition size
+Message-ID: <20060912191736.GG541@1wt.eu>
+References: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060912000618.a2e2afc0.akpm@osdl.org>
+In-Reply-To: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
->
+On Tue, Sep 12, 2006 at 01:23:56PM +0200, Jurzitza, Dieter wrote:
+> Kernel: 2.4.33
+> 
+> Issue: really fix size display for sun partitions larger than 1TByte
+> 
+> Signed off by: Dieter Jurzitza DJurzitza@HarmanBecker.com
+> 
+> Problem: the last fix introduced by Jeff Mahoney for kernel 2.6 was not complete for kernel 2.4 (as applied)
+> I found out that add_gd_partition is called by any type of partition (2.4). add_gd_partition is defined as add_gd_partition (int, int), what makes no sense to me as negative numbers should never occur here. As long as add_gd_partition is not changed to add_gd_partition (unsigned, unsigned), /proc/partitions will keep showing negative numbers.
 
-My FC6T2 bug appeared in -mm
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=202223
+It seems fair. David, what's your opinion ?
 
-Any ideas about this?
+> If ever someone could look into this, within the different partition type files in linux/fs/partitions the parameters to add_gd_partitions seem to be chosen arbitrarily between int, unsigned and unsigned long, whatever seemed to be appropriate, I think it would make sense to get consistent parameters to add_gd_partition from all partition types here.
+> Especially if one takes into account that sizeof (long) and sizeof (int) may differ significantly i. e. on sparc.
 
-echo shutdown > /sys/power/disk; echo disk > /sys/power/state
+It would really depend on the on-disk format. If the partition table really
+stores 32 bit ints for sector counts, there's no point switching from ints
+to longs. But if it already stores 64 bits, then we're limiting it to 2 TB
+with 32 bit ints. I haven't checked the code right now, so I don't know. I
+hope Davem will enlighten us on this matter.
 
-CPU 1 is now offline
-lockdep: not fixing up alternatives.
+> Take care
+> 
+> 
+> Dieter Jurzitza
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
-2.6.18-rc6-mm2 #120
--------------------------------------------------------
-bash/1961 is trying to acquire lock:
- ((cpu_chain).rwsem){----}, at: [<c012e289>]
-blocking_notifier_call_chain+0x11/0x2d
+Thanks,
+Willy
 
-but task is already holding lock:
- (workqueue_mutex){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
-
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
--> #1 (workqueue_mutex){--..}:
-       [<c0138b97>] add_lock_to_list+0x5c/0x7a
-       [<c013aca0>] __lock_acquire+0x9ec/0xae8
-       [<c013b0fc>] lock_acquire+0x6b/0x88
-       [<c02f7f1b>] __mutex_lock_slowpath+0xd6/0x2f5
-       [<c02f8156>] mutex_lock+0x1c/0x1f
-       [<c01312de>] workqueue_cpu_callback+0x109/0x1ff
-       [<c012de43>] notifier_call_chain+0x20/0x31
-       [<c012e295>] blocking_notifier_call_chain+0x1d/0x2d
-       [<c013f867>] _cpu_down+0x48/0x207
-       [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
-       [<c01451d6>] prepare_processes+0xe/0x41
-       [<c014539e>] pm_suspend_disk+0x9/0xe2
-       [<c0144635>] enter_state+0x53/0x177
-       [<c01447df>] state_store+0x86/0x9c
-       [<c01abde4>] subsys_attr_store+0x20/0x25
-       [<c01abee3>] sysfs_write_file+0xa6/0xcc
-       [<c0174d60>] vfs_write+0xcd/0x174
-       [<c01753fa>] sys_write+0x3b/0x71
-       [<c0103156>] sysenter_past_esp+0x5f/0x99
-       [<ffffffff>] 0xffffffff
--> #0 ((cpu_chain).rwsem){----}:
-       [<c013a280>] print_circular_bug_tail+0x2e/0x62
-       [<c013abd7>] __lock_acquire+0x923/0xae8
-       [<c013b0fc>] lock_acquire+0x6b/0x88
-       [<c0136e60>] down_read+0x28/0x3b
-       [<c012e289>] blocking_notifier_call_chain+0x11/0x2d
-       [<c013f98e>] _cpu_down+0x16f/0x207
-       [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
-       [<c01451d6>] prepare_processes+0xe/0x41
-       [<c014539e>] pm_suspend_disk+0x9/0xe2
-       [<c0144635>] enter_state+0x53/0x177
-       [<c01447df>] state_store+0x86/0x9c
-       [<c01abde4>] subsys_attr_store+0x20/0x25
-       [<c01abee3>] sysfs_write_file+0xa6/0xcc
-       [<c0174d60>] vfs_write+0xcd/0x174
-       [<c01753fa>] sys_write+0x3b/0x71
-       [<c0103156>] sysenter_past_esp+0x5f/0x99
-       [<ffffffff>] 0xffffffff
-
-other info that might help us debug this:
-
-2 locks held by bash/1961:
- #0:  (cpu_add_remove_lock){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
- #1:  (workqueue_mutex){--..}, at: [<c02f8156>] mutex_lock+0x1c/0x1f
-
-stack backtrace:
- [<c01041ba>] dump_trace+0x63/0x1ca
- [<c0104333>] show_trace_log_lvl+0x12/0x25
- [<c0104993>] show_trace+0xd/0x10
- [<c0104a58>] dump_stack+0x16/0x18
- [<c013a2a9>] print_circular_bug_tail+0x57/0x62
- [<c013abd7>] __lock_acquire+0x923/0xae8
- [<c013b0fc>] lock_acquire+0x6b/0x88
- [<c0136e60>] down_read+0x28/0x3b
- [<c012e289>] blocking_notifier_call_chain+0x11/0x2d
- [<c013f98e>] _cpu_down+0x16f/0x207
- [<c013fbf8>] disable_nonboot_cpus+0x98/0x12c
- [<c01451d6>] prepare_processes+0xe/0x41
- [<c014539e>] pm_suspend_disk+0x9/0xe2
- [<c0144635>] enter_state+0x53/0x177
- [<c01447df>] state_store+0x86/0x9c
- [<c01abde4>] subsys_attr_store+0x20/0x25
- [<c01abee3>] sysfs_write_file+0xa6/0xcc
- [<c0174d60>] vfs_write+0xcd/0x174
- [<c01753fa>] sys_write+0x3b/0x71
- [<c0103156>] sysenter_past_esp+0x5f/0x99
-DWARF2 unwinder stuck at sysenter_past_esp+0x5f/0x99
-
-Leftover inexact backtrace:
-
-l *blocking_notifier_call_chain+0x11/0x2d
-0xc012e278 is in blocking_notifier_call_chain
-(/usr/src/linux-mm/kernel/sys.c:324).
-319      *      of the last notifier function called.
-320      */
-321
-322     int blocking_notifier_call_chain(struct blocking_notifier_head *nh,
-323                     unsigned long val, void *v)
-324     {
-325             int ret;
-326
-327             down_read(&nh->rwsem);
-328             ret = notifier_call_chain(&nh->head, val, v);
-
-l *mutex_lock+0x1c/0x1f
-0xc02f813a is in mutex_lock (/usr/src/linux-mm/kernel/mutex.c:85).
-80       *   deadlock debugging. )
-81       *
-82       * This function is similar to (but not equivalent to) down().
-83       */
-84      void inline fastcall __sched mutex_lock(struct mutex *lock)
-85      {
-86              might_sleep();
-87              /*
-88               * The locking fastpath is the 1->0 transition from
-89               * 'unlocked' into 'locked' state.
-
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg2
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-config1
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)

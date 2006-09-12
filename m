@@ -1,52 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWILVQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWILVV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWILVQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 17:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWILVQj
+	id S1751348AbWILVV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 17:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWILVV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 17:16:39 -0400
-Received: from waste.org ([66.93.16.53]:1422 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750727AbWILVQi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 17:16:38 -0400
-Date: Tue, 12 Sep 2006 16:15:00 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
-Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
-Message-ID: <20060912211500.GH19707@waste.org>
-References: <20060912174339.GA19707@waste.org> <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <24525.1158089104@warthog.cambridge.redhat.com> <6626.1158094964@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6626.1158094964@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 12 Sep 2006 17:21:26 -0400
+Received: from bcp12.neoplus.adsl.tpnet.pl ([83.27.231.12]:41372 "EHLO
+	Jerry.zjeby.dyndns.org") by vger.kernel.org with ESMTP
+	id S1751348AbWILVVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 17:21:25 -0400
+Date: Tue, 12 Sep 2006 23:21:24 +0200 (CEST)
+From: Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: thinkpad 360Cs keyboard problem
+In-Reply-To: <d120d5000609121012o684a098bx6bc2d497a17b1421@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0609121950381.2685@Jerry.zjeby.dyndns.org>
+References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org> 
+ <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org> 
+ <20060910194955.GA1841@elf.ucw.cz>  <200609102054.34350.dtor@insightbb.com>
+  <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org> 
+ <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com> 
+ <Pine.LNX.4.63.0609121611380.2685@Jerry.zjeby.dyndns.org>
+ <d120d5000609121012o684a098bx6bc2d497a17b1421@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 10:02:44PM +0100, David Howells wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> 
-> > Not sure yet. There's only one user in nommu.c that shouldn't just be
-> > changed to ksize() that I can see, and that's the one in
-> > show_process_blocks(). That could test for VM_MAPPED_COPY and keep its
-> > hands off otherwise. 
-> 
-> Hmmm...  You're right.  However, note binfmt_elf_fdpic().  This calls ksize()
-> but should really call kobjsize().  It should not assume that the allocation
-> it's been given is of any particular type. 
+On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
 
-I presume you mean load_elf_fdpic_binary, which is doing:
+> On 9/12/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
+>>  On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
+>> 
+>> >  On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
+>> 
+>> > >   kernel boots up fine, but keyboard is totally messed up,
+>> > >   and locks up after some tries of use.
+>> > 
+>> >  Could you try describing the exact issues with the keyboard? Missing
+>> >  keypresses, wrong keys reported, etc?
+>>
+>>  with prink enabled it prints series of 'unknown scancode'
+>>  and keys are randomly messed up, and it changes, so like pressing b
+>>  results with n, then space, then nothing at all.
+>>  after some tries keyboard locks up completely.
+>> 
+>
+> Are you loading a custom keymap by any chance? Could I please see
+> dmesg with "i8042.debug log_buf_len=131072"?
 
-        fullsize = ksize((char *) current->mm->start_brk);
+no custom keymaps . init=/bin/bash :d
+uhm, i don't get what you mean by this dmesg syntax :o
+i should probably attach serial conole and send you whole output,
+as now (as keyboard is unuseable) i can't scroll screen.
 
-That's a little troubling.
+btw. serio: i8042 KBD port at 0x60,0x64 irq 1
+is found.
+also
+input: AT Raw Set 2 keyboard as /class/input/input1
+is reported
 
-> IIRC ksize() changed purpose at some point.
+ah, i use gcc-4.1.1 to compile kernel .
 
-Uh, nope. ksize doesn't even exist in 2.4 and has always done the same
-thing in 2.6.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+-------------------- stuff below might be result of my ignorance
+
+i just checked 2.2.27 kernel. it behaves quite identical to 2.4.33.3,
+just after 'freeing unused kernel memory' it touches disk , and just
+sits there. kepresses are echoed, and keyboard output is 
+ok. i can reboot it by ctrl-alt-delete too .
+when i boot it with 'fosh' shell commandline appears, but trying
+to use any tool like bash, ls , etc results with signal 11.
+tools are statically compiled against glibc-2.4 (compiled for 486 cpu
+on gentoo)
+busybox works fine.
+
+on 2.4.33.3 kernel Xvesa (from kdrive package) complains
+'set_thread_area failed when setting up thread-local storage'
+
+cardmgr works fine aswell...(though was linked against different glibc)
+  i guess there is some problem with math emulation and glibc,
+as on 2.6.18 everything works just fine.
+
+i recall few years ago i tried to make 386SX work on 2.4.20 , and 
+there were problems with math emulation (some apps worked, some not)
+
+
+
+
+
+

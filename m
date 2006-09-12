@@ -1,43 +1,307 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWILQPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbWILQVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWILQPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 12:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWILQPl
+	id S1030272AbWILQVq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 12:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWILQVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 12:15:41 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:17352 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030269AbWILQPk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 12:15:40 -0400
-Message-ID: <4506DD27.7080307@fr.ibm.com>
-Date: Tue, 12 Sep 2006 18:15:35 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Tue, 12 Sep 2006 12:21:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:62535 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030272AbWILQVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 12:21:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=sLMzaBFnnwE0MGhcFofGgv/yAHkilWd2oes9FGn517k+/hkBLJ4xwqpOGatMy+pi2DWWetqNVbyA3wIw5emax+C0paJo0xdB5wzQgWNK72b6xd1s2PyVPI2IJ08q/gPnKBQgL4oXyiimRxN87JR/HINyYK3hCmPItLHT3tAQ+HI=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: MSI K9N Neo: crash under heavy IDE read
+Date: Tue, 12 Sep 2006 18:18:44 +0200
+User-Agent: KMail/1.8.2
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       Dmytro_Puhach@cz.ibm.com
+References: <200609121046.24610.vda.linux@googlemail.com>
+In-Reply-To: <200609121046.24610.vda.linux@googlemail.com>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, containers@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [S390] update fs3270 to use a struct pid
-References: <4506B955.7080000@fr.ibm.com> <m1r6yh5dcu.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1r6yh5dcu.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609121818.44766.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Cedric Le Goater <clg@fr.ibm.com> writes:
+On Tuesday 12 September 2006 10:46, Denis Vlasenko wrote:
+> Hello,
 > 
->> this patch replaces the pid_t value with a struct pid to avoid pid wrap
->> around problems.
+> I bought new Athlon46 mobo with AM2 socket and recently
+> I noticed that copying large amounts of data reliably
+> crashes 2.6.17.11 64-bit on it.
 > 
-> This patch looks good here.
-> Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+> memtest runs ok on this machine overnight.
+> Machine is not overclocked.
+> 
+> Copying movies from SATA drive to PATA drive oopses
+> after few gigabytes transferred. Creating iso image
+> with mkisofs (done entirely on PATA drive, no SATA attached)
+> does the same.
+> 
+> After some testing I found ou that rw load crashes
+> machine rather fast, while read load usually runs for several
+> minutes before crash. Setting udma4 or udma3 instead of udma5
+> doesn't help. Pity I don't have my own SATA drive to run tests
+> with it, ran most of the tests on PATA drive.
 
-This is a patch for 2.6.18-rc6-mm2.
+I obtained PCI config space dumps under Windows XP on this machine
+and compared them to Linux settings. Integrated PATA IDE controller
+has some differences in rows 5x and 8x. Grep for "IDE interface".
 
-thanks,
+Maybe this sheds some light.
 
-C.
+URLs to chipset docs, anyone?...
+
+--- lspci-vvvxxx3	2006-09-12 16:35:37.000000000 +0200
++++ lspci-vvvxxx_win3	2006-09-12 16:35:42.000000000 +0200
+@@ -24,8 +24,8 @@ dev 00:01.0
+   40: 62 14 60 72 00 00 00 00 FA 3E FF 00 FA 3E FF 00
+   50: FA 3E FF 00 00 5A 62 02 00 00 00 01 00 00 FE 7F
+   60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 F9 FF
+-  70: 10 00 FF FF C1 00 00 00 00 00 05 19 00 00 00 00
+-  80: 09 80 00 2D 00 11 00 00 F0 00 00 01 F0 00 00 00
++  70: 10 00 FF FF C1 00 00 00 00 00 45 19 00 00 30 00
++  80: 09 D0 00 D2 01 12 00 00 F0 00 00 01 F0 00 00 00
+   90: 00 08 00 00 00 00 00 00 21 47 95 86 EF CD AB 00
+   A0: 03 00 10 80 00 00 00 00 00 00 00 00 00 00 00 00
+   B0: 00 00 00 00 00 0A 7F 0A 00 00 00 00 00 00 00 00
+@@ -74,7 +74,7 @@ dev 00:02.0
+   00: DE 10 6C 03 07 00 B0 00 A1 10 03 0C 00 00 80 00
+   10: 00 B0 AF FE 00 00 00 00 00 00 00 00 00 00 00 00
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 0F 01 03 01
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 17 01 03 01
+   40: 62 14 60 72 01 00 02 FE 00 00 00 00 00 00 00 00
+   50: 00 00 00 00 1D 47 40 00 10 00 00 00 00 00 00 00
+   60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+@@ -92,14 +92,14 @@ dev 00:02.1
+   00: DE 10 6D 03 06 00 B0 00 A2 20 03 0C 00 00 80 00
+   10: 00 AC AF FE 00 00 00 00 00 00 00 00 00 00 00 00
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 07 02 03 01
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 15 02 03 01
+   40: 62 14 60 72 0A 80 98 20 00 00 00 00 00 00 00 00
+   50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 20 20 01 00 00 60 18 85 03 3C 0A 01 00 00 00 00
+-  70: 00 00 08 00 00 10 20 80 89 3D B6 22 77 25 94 00
++  70: 00 00 08 00 00 10 20 80 89 3D B6 22 77 25 B4 00
+   80: 01 00 02 FE 00 00 00 00 00 00 00 00 15 16 00 00
+   90: 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+-  A0: 01 00 00 00 00 00 08 C0 00 00 00 00 00 00 00 00
++  A0: 01 00 00 00 00 00 00 C0 00 00 00 00 00 00 00 00
+   B0: 00 11 22 33 44 00 00 00 FF 03 00 00 00 00 00 00
+   C0: 10 10 2D 0D 00 00 00 00 00 00 00 00 00 00 00 00
+   D0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+@@ -112,10 +112,10 @@ dev 00:04.0 IDE interface
+   20: A1 FF 00 00 00 00 00 00 00 00 00 00 62 14 60 72
+   30: 00 00 00 00 44 00 00 00 00 00 00 00 00 00 03 01
+   40: 62 14 60 72 01 00 02 00 00 00 00 00 00 00 00 00
+-  50: 02 F0 00 00 00 00 00 00 A8 A8 20 20 0F 00 20 20
++  50: 02 F0 00 00 00 00 00 00 A8 A8 20 20 5F 00 20 20
+   60: 00 00 C0 C6 00 00 00 00 00 00 00 00 00 00 00 00
+   70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+-  80: 00 00 00 00 00 D0 77 7C 00 00 02 30 00 00 00 00
++  80: 00 00 00 00 00 D0 1F 22 00 00 C0 3F 00 00 00 00
+   90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01
+   A0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   B0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+@@ -128,12 +128,12 @@ dev 00:05.0 IDE interface (SATA)
+   00: DE 10 7F 03 07 00 B0 00 A2 85 01 01 00 00 80 00
+   10: 01 D8 00 00 81 D4 00 00 01 D4 00 00 81 D0 00 00
+   20: 01 D0 00 00 00 90 AF FE 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 0A 01 03 01 3C: PCI_INTERRUPT_LINE
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 15 01 03 01
+   40: 62 14 60 72 01 B0 02 00 00 00 00 00 00 00 00 00
+   50: 0B 68 08 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 00 00 00 00 41 0C 00 00 00 0F 06 42 00 00 00 00
+   70: 2C 78 C4 40 01 10 00 00 01 10 00 00 20 00 20 00
+-  80: 00 00 00 00 D5 FF FF FD 00 00 5F 0D FF EA F7 F2
++  80: 00 00 00 00 D5 FF FF FD 00 00 5F 0D FF EA FF F3
+   90: 00 00 FF 3D 00 00 00 00 06 00 06 10 7F 03 01 01
+   A0: 12 0A 00 00 00 00 00 00 00 00 00 00 33 33 00 02
+   B0: 05 CC 84 00 00 00 00 00 00 00 00 00 00 00 00 00
+@@ -146,13 +146,13 @@ dev 00:05.1 IDE interface (SATA)
+   00: DE 10 7F 03 07 00 B0 00 A2 85 01 01 00 00 80 00
+   10: 01 CC 00 00 81 C8 00 00 01 C8 00 00 81 C4 00 00
+   20: 01 C4 00 00 00 80 AF FE 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 0B 02 03 01 3C: PCI_INTERRUPT_LINE
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 16 02 03 01
+   40: 62 14 60 72 01 B0 02 00 00 00 00 00 00 00 00 00
+   50: 0B 68 08 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 00 00 00 00 41 0C 00 00 00 0F 06 42 00 00 00 00
+   70: 2C 78 C4 40 01 10 00 00 01 10 00 00 20 00 20 00
+-  80: 00 00 00 00 BD 59 FF FF 00 00 0B 12 1B FF FB FF
+-  90: 00 00 73 3C 00 00 00 00 06 00 06 10 7F 03 01 01
++  80: 00 00 00 00 BC 79 FF FF 00 00 0B 18 1E FF FB DF
++  90: 00 00 53 3C 00 00 00 00 06 00 06 10 7F 03 01 01
+   A0: 12 0A 00 00 00 00 00 00 00 00 00 00 33 33 00 02
+   B0: 05 CC 84 00 00 00 00 00 00 00 00 00 00 00 00 00
+   C0: 00 00 00 00 00 00 00 00 0A 00 0A 00 08 00 02 A8
+@@ -161,7 +161,7 @@ dev 00:05.1 IDE interface (SATA)
+   F0: 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 00
+ 
+ dev 00:06.0
+-  00: DE 10 70 03 04 00 B0 00 A2 01 04 06 00 00 81 00
++  00: DE 10 70 03 07 00 B0 00 A2 01 04 06 00 00 81 00
+   10: 00 00 00 00 00 00 00 00 00 01 01 40 F0 00 80 02
+   20: F0 FF 00 00 F0 FF 00 00 00 00 00 00 00 00 00 00
+   30: 00 00 00 00 B8 00 00 00 00 00 00 00 00 00 02 02
+@@ -182,7 +182,7 @@ dev 00:06.1
+   00: DE 10 71 03 06 00 B0 00 A2 00 03 04 00 00 80 00
+   10: 00 40 AF FE 00 00 00 00 00 00 00 00 00 00 00 00
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 05 02 02 05
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 17 02 02 05
+   40: 62 14 60 72 01 50 02 C0 00 00 00 00 01 01 0F 00
+   50: 05 6C 80 01 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 00 00 00 00 00 00 00 00 0F 00 00 00 08 00 02 A8
+@@ -200,7 +200,7 @@ dev 00:08.0
+   00: DE 10 73 03 07 00 B0 00 A2 00 80 06 00 00 00 00
+   10: 00 30 AF FE 81 C0 00 00 00 A8 AF FE 00 A4 AF FE
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 62 14 60 72
+-  30: 00 00 00 00 44 00 00 00 00 00 00 00 0F 01 01 14
++  30: 00 00 00 00 44 00 00 00 00 00 00 00 16 01 01 14
+   40: 62 14 60 72 01 70 02 FE 00 00 00 00 0C 00 00 00
+   50: 05 6C 86 01 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 00 00 00 00 00 00 00 00 FF 00 00 00 08 00 02 A8
+@@ -215,10 +215,10 @@ dev 00:08.0
+   F0: 00 00 00 00 10 00 00 00 42 01 00 00 00 00 00 00
+ 
+ dev 00:0B.0
+-  00: DE 10 74 03 04 00 10 00 A2 00 04 06 10 00 01 00
++  00: DE 10 74 03 07 00 10 00 A2 00 04 06 10 00 01 00
+   10: 00 00 00 00 00 00 00 00 00 02 02 00 F1 01 00 00
+   20: F0 FF 00 00 F1 FF 01 00 00 00 00 00 00 00 00 00
+-  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 02 00
++  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 06 00
+   40: 0D 48 00 00 DE 10 00 00 01 50 02 F8 00 00 00 00
+   50: 05 60 82 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 08 80 00 A8 00 00 E0 FE 00 00 00 00 00 00 00 00
+@@ -233,10 +233,10 @@ dev 00:0B.0
+   F0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 
+ dev 00:0C.0
+-  00: DE 10 74 03 04 00 10 00 A2 00 04 06 10 00 01 00
++  00: DE 10 74 03 07 00 10 00 A2 00 04 06 10 00 01 00
+   10: 00 00 00 00 00 00 00 00 00 03 03 00 F1 01 00 00
+   20: F0 FF 00 00 F1 FF 01 00 00 00 00 00 00 00 00 00
+-  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 02 00
++  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 06 00
+   40: 0D 48 00 00 DE 10 00 00 01 50 02 F8 00 00 00 00
+   50: 05 60 82 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 08 80 00 A8 00 00 E0 FE 00 00 00 00 00 00 00 00
+@@ -251,10 +251,10 @@ dev 00:0C.0
+   F0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 
+ dev 00:0D.0
+-  00: DE 10 78 03 04 00 10 00 A2 00 04 06 10 00 01 00
++  00: DE 10 78 03 07 00 10 00 A2 00 04 06 10 00 01 00
+   10: 00 00 00 00 00 00 00 00 00 04 04 00 F1 01 00 00
+   20: F0 FF 00 00 F1 FF 01 00 00 00 00 00 00 00 00 00
+-  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 02 00
++  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 06 00
+   40: 0D 48 00 00 DE 10 00 00 01 50 02 F8 00 00 00 00
+   50: 05 60 82 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 08 80 00 A8 00 00 E0 FE 00 00 00 00 00 00 00 00
+@@ -269,10 +269,10 @@ dev 00:0D.0
+   F0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 
+ dev 00:0E.0
+-  00: DE 10 75 03 04 00 10 00 A2 00 04 06 10 00 01 00
++  00: DE 10 75 03 07 00 10 00 A2 00 04 06 10 00 01 00
+   10: 00 00 00 00 00 00 00 00 00 05 05 00 F1 01 00 00
+   20: F0 FF 00 00 F1 FF 01 00 00 00 00 00 00 00 00 00
+-  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 02 00
++  30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 06 00
+   40: 0D 48 00 00 DE 10 00 00 01 50 02 F8 00 00 00 00
+   50: 05 60 82 00 00 00 00 00 00 00 00 00 00 00 00 00
+   60: 08 80 00 A8 00 00 E0 FE 00 00 00 00 00 00 00 00
+@@ -288,7 +288,7 @@ dev 00:0E.0
+ 
+ dev 00:0F.0
+   00: DE 10 77 03 07 00 10 00 A2 00 04 06 10 00 01 00
+-  10: 00 00 00 00 00 00 00 00 00 06 06 00 E1 E1 00 00
++  10: 00 00 00 00 00 00 00 00 00 06 06 00 E1 E1 00 20
+   20: B0 FE B0 FE 01 D0 F1 DF 00 00 00 00 00 00 00 00
+   30: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 1A 00
+   40: 0D 48 00 00 DE 10 00 00 01 50 02 F8 00 00 00 00
+@@ -352,10 +352,10 @@ dev 00:18.2
+   80: 02 00 00 00 00 00 00 00 24 C2 6A 00 20 03 13 00
+   90: 10 08 01 00 5B 80 10 74 10 00 00 80 31 00 00 00
+   A0: E9 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+-  B0: 13 8B B1 10 3A 00 00 00 D9 FF 05 E0 0C FF 7F F7
+-  C0: 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00
+-  D0: FF 00 F0 1F FF FF 01 00 01 80 3F 01 FF 07 00 00
+-  E0: 7F 00 F0 0F FF FF 01 00 00 C0 9F 01 FF 07 00 00
++  B0: 5B D5 3F 15 39 00 00 00 07 00 05 20 0B FF 01 00
++  C0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
++  D0: FE 80 7F F0 F8 FF 01 1E 3C 88 3F FF FE 0F 00 00
++  E0: 7E 80 7F F0 F8 FF 01 1F 3E C0 9F FF FE 07 00 00
+   F0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 
+ dev 00:18.3
+@@ -364,26 +364,26 @@ dev 00:18.3
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   30: 00 00 00 00 F0 00 00 00 00 00 00 00 00 00 00 00
+   40: FF 3B 04 00 40 00 10 02 00 00 00 00 00 00 00 00
+-  50: 00 00 00 00 00 00 00 00 00 00 00 00 00 F8 FF 00
++  50: 00 00 00 00 00 00 00 00 00 00 00 00 00 F8 FF 07
+   60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   70: 11 01 02 51 11 80 00 50 00 2A 00 08 2B 23 00 00
+   80: 00 00 07 23 13 21 13 21 00 00 00 00 00 00 00 00
+-  90: 00 00 00 00 3F 40 00 00 F0 AB FF 7F 00 00 00 00
++  90: 00 00 00 00 3F 40 00 00 F0 AB FF FF 00 00 00 00
+   A0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   B0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   C0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   D0: 00 00 00 00 01 A7 0D 00 00 00 60 00 25 25 25 00
+-  E0: 00 00 00 00 20 22 51 00 19 07 00 00 00 00 00 00
++  E0: 00 00 00 00 20 22 54 00 19 07 00 00 00 00 00 00
+   F0: 0F 00 10 00 00 04 00 00 02 00 00 00 F2 0F 04 00
+ 
+ dev 06:00.0
+   00: 02 10 63 5B 07 00 10 00 00 00 00 03 10 00 80 00
+   10: 08 00 00 D0 01 E0 00 00 00 00 BF FE 00 00 00 00
+   20: 00 00 00 00 00 00 00 00 00 00 00 00 4B 17 90 14
+-  30: 00 00 BC FE 50 00 00 00 00 00 00 00 0A 01 00 00
++  30: 00 00 BC FE 50 00 00 00 00 00 00 00 10 01 00 00
+   40: 00 00 00 00 00 00 00 00 00 00 00 00 4B 17 90 14
+   50: 01 58 02 06 00 00 00 00 10 80 01 00 60 02 00 00
+-  60: 10 08 00 00 01 1D 00 00 00 00 01 11 00 00 00 00
++  60: 10 09 00 00 01 1D 00 00 00 00 01 11 00 00 00 00
+   70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   80: 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00
+   90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+
+cpuinfo:
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 79
+model name      : AMD Athlon(tm) 64 Processor 3000+
+stepping        : 2
+cpu MHz         : 1809.300
+cache size      : 512 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext fxsr_opt lm 3dnowext 3dnow pni cx16 lahf_lm svm cr8_legacy
+bogomips        : 3620.20
+TLB size        : 1024 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts fid vid ttp tm stc
+
+--
+vda

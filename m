@@ -1,140 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWILIME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWILIQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWILIME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 04:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWILIME
+	id S964941AbWILIQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 04:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWILIQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 04:12:04 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:63618 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S965002AbWILIA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 04:00:29 -0400
-Message-ID: <450668F0.6060805@uni-hd.de>
-Date: Tue, 12 Sep 2006 09:59:44 +0200
-From: Martin Braun <mbraun@uni-hd.de>
-Reply-To: mbraun@uni-hd.de
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: Kernel 2.6.17.x in free_uid ?
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Sep 2006 04:16:40 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:1437 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1750832AbWILIQj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 04:16:39 -0400
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: [take18 4/4] kevent: Timer notifications.
+In-Reply-To: <11580504683755@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 12 Sep 2006 12:41:08 +0400
+Message-Id: <1158050468426@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-after several crashes with Kernel 2.6.17.11, we switched back to
-2.6.16.28 which runs now for 2 weeks w/o problems.
+Timer notifications.
 
-IMHO there seems to be a bug in 2.6.17 series of the kernel.
+Timer notifications can be used for fine grained per-process time 
+management, since interval timers are very inconvenient to use, 
+and they are limited.
 
-Any ideas how to narrow the problem down ?
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
 
-Here is my problem description:
-
-since our kernel-update from 2.6.16 (which was runnig 100d w/o any
-probs) to 2.6.17.11 we had  two crashes on our squid and samba server.
-the kernel gets only to this output than freezes totally ...
-
-Aug 31 13:05:08 serv4 kernel: BUG: unable to handle kernel paging
-request at virtual address 00100104
-Aug 31 13:05:08 serv4 kernel:  printing eip:
-Aug 31 13:05:08 serv4 kernel: c0127b19
-
-
-in System.map I have these corresponding addresses
-
-c0127a50 T find_user
-c0127ad0 T free_uid
-c0127b60 T alloc_uid
-c0127ca0 T switch_uid
-c0127cd0 t sig_ignored
-
-System-data:
-
-uname -a
-Linux serv4 2.6.17.11 #1 SMP Sun Aug 27 13:39:34 CEST 2006 i686 i686
-i386 GNU/Linux
-####
-lspci
-0000:00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory
-Controller Hub (rev 02)
-0000:00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP
-Controller (rev 02)
-0000:00:03.0 PCI bridge: Intel Corporation 82875P/E7210 Processor to PCI
-to CSA Bridge (rev 02)
-0000:00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB UHCI Controller #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
-Interface Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-IDE Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus
-Controller (rev 02)
-0000:00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER
-(ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon
-RV100 QY [Radeon 7000/VE]
-0000:02:01.0 Ethernet controller: Intel Corporation 82547EI Gigabit
-Ethernet Controller (LOM)
-0000:03:03.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A
-IEEE-1394a-2000 Controller (PHY/Link)
-0000:03:04.0 RAID bus controller: Promise Technology, Inc. PDC20378
-(FastTrak 378/SATA 378) (rev 02)
-0000:03:0a.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
-###
-cat /proc/cpuinfo
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 5
-cpu MHz         : 2806.922
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5613.24
-
-###
-cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: Arena EX Model:                  Rev:
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: FUJITSU  Model: MAP3735NP        Rev: 0108
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 08 Lun: 00
-  Vendor: FUJITSU  Model: MAP3735NP        Rev: 0108
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-
-###
-Filesystem: ext3
-
-tia,
-martin
-
+diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+new file mode 100644
+index 0000000..04acc46
+--- /dev/null
++++ b/kernel/kevent/kevent_timer.c
+@@ -0,0 +1,113 @@
++/*
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/hrtimer.h>
++#include <linux/jiffies.h>
++#include <linux/kevent.h>
++
++struct kevent_timer
++{
++	struct hrtimer		ktimer;
++	struct kevent_storage	ktimer_storage;
++	struct kevent		*ktimer_event;
++};
++
++static int kevent_timer_func(struct hrtimer *timer)
++{
++	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
++	struct kevent *k = t->ktimer_event;
++
++	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
++	hrtimer_forward(timer, timer->base->softirq_time,
++			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
++	return HRTIMER_RESTART;
++}
++
++static struct lock_class_key kevent_timer_key;
++
++static int kevent_timer_enqueue(struct kevent *k)
++{
++	int err;
++	struct kevent_timer *t;
++
++	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
++	if (!t)
++		return -ENOMEM;
++
++	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
++	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
++	t->ktimer.function = kevent_timer_func;
++	t->ktimer_event = k;
++
++	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
++	if (err)
++		goto err_out_free;
++	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
++
++	err = kevent_storage_enqueue(&t->ktimer_storage, k);
++	if (err)
++		goto err_out_st_fini;
++
++	printk("%s: jiffies: %lu, timer: %p.\n", __func__, jiffies, &t->ktimer);
++	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++
++	return 0;
++
++err_out_st_fini:
++	kevent_storage_fini(&t->ktimer_storage);
++err_out_free:
++	kfree(t);
++
++	return err;
++}
++
++static int kevent_timer_dequeue(struct kevent *k)
++{
++	struct kevent_storage *st = k->st;
++	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
++
++	hrtimer_cancel(&t->ktimer);
++	kevent_storage_dequeue(st, k);
++	kfree(t);
++
++	return 0;
++}
++
++static int kevent_timer_callback(struct kevent *k)
++{
++	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
++	return 1;
++}
++
++static int __init kevent_init_timer(void)
++{
++	struct kevent_callbacks tc = {
++		.callback = &kevent_timer_callback,
++		.enqueue = &kevent_timer_enqueue,
++		.dequeue = &kevent_timer_dequeue};
++
++	return kevent_add_callbacks(&tc, KEVENT_TIMER);
++}
++module_init(kevent_init_timer);
++
 

@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWILJja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbWILJ6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWILJja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 05:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWILJja
+	id S965192AbWILJ6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 05:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbWILJ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 05:39:30 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:20360 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965160AbWILJja
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 05:39:30 -0400
-Date: Tue, 12 Sep 2006 11:39:27 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] Remove kexec experimental flag.
-Message-ID: <20060912093927.GA15641@skybase>
+	Tue, 12 Sep 2006 05:58:38 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:42713 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965187AbWILJ6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 05:58:37 -0400
+Message-ID: <450683A2.50508@in.ibm.com>
+Date: Tue, 12 Sep 2006 15:23:38 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: rohitseth@google.com
+Cc: sekharan@us.ibm.com, Rik van Riel <riel@redhat.com>,
+       Srivatsa <vatsa@in.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters	(v4)	(added	user
+ memory)
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>	<1157743424.19884.65.camel@linuxchandra>	<1157751834.1214.112.camel@galaxy.corp.google.com>	<1157999107.6029.7.camel@linuxchandra>	<1158001831.12947.16.camel@galaxy.corp.google.com>	<1158003725.6029.60.camel@linuxchandra> <1158019099.12947.102.camel@galaxy.corp.google.com>
+In-Reply-To: <1158019099.12947.102.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Rohit Seth wrote:
 
-[S390] Remove kexec experimental flag.
+> If the limits are set appropriately so that containers total memory
+> consumption does not exceed the system memory then there shouldn't be
+> any QoS issue (to whatever extent it is applicable for specific
+> scenario).
+> 
+> -rohit
+> 
 
-Follow other architectures and remove kexec experimental flag.
+What if the guarantee and limits are subject to change? Consider many groups,
+with changing limits - how do we provide guarantees then?
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Limit is the upper bound on resource utilization and guarantee is the lower
+bound. In a dynamic system, how can we provide a lower bound on a resource
+for a group by manipulating the upper bounds on the rest of the groups?
 
- arch/s390/Kconfig |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+Consider a system with 1GB of ram and two groups such that they need a guarantee
+of 100MB and 200MB of memory. How would you setup limits to ensure that
+the guarantees are met? The remaining groups will be limited to 700MB, but
+how do we ensure that these classes get 100MB and 200MB of the remaining 300MB
+respectively?
 
-diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
---- linux-2.6/arch/s390/Kconfig	2006-09-12 10:57:28.000000000 +0200
-+++ linux-2.6-patched/arch/s390/Kconfig	2006-09-12 10:57:52.000000000 +0200
-@@ -456,8 +456,7 @@ config S390_HYPFS_FS
- 	  information in an s390 hypervisor environment.
- 
- config KEXEC
--	bool "kexec system call (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
-+	bool "kexec system call"
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
- 	  current kernel, and to start another kernel.  It is like a reboot
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

@@ -1,290 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWILPyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWILPyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWILPyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWILPyg
+	id S1751433AbWILPyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWILPyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:54:36 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:17872 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751461AbWILPyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:54:22 -0400
-Message-Id: <200609121552.k8CFq4IE008007@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       76306.1226@compuserve.com, ak@muc.de, jeremy@xensource.com,
-       rusty@rustcorp.com.au, zach@vmware.com
-Subject: [PATCH 1/2] Split i386 and x86_64 ptrace.h
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Sep 2006 11:52:04 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Tue, 12 Sep 2006 11:54:43 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:34974 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751434AbWILPvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:51:00 -0400
+Message-Id: <20060912144904.998523000@chello.nl>
+References: <20060912143049.278065000@chello.nl>
+User-Agent: quilt/0.45-1
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Mike Christie <michaelc@cs.wisc.edu>
+Subject: [PATCH 18/20] netlink: add SOCK_VMIO support to AF_NETLINK
+Content-Disposition: inline; filename=netlink_vmio.patch
+Date: Tue, 12 Sep 2006 17:25:49 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of SEGMENT_RPL_MASK in the i386 ptrace.h introduced by
-x86-allow-a-kernel-to-not-be-in-ring-0.patch broke the UML build, as
-UML includes the underlying architecture's ptrace.h, but has no easy
-access to the x86 segment definitions.
+Modify the netlink code so that SOCK_VMIO has the desired effect on the
+user-space side of the connection.
 
-Rather than kludging around this, as in the past, this patch splits
-the userspace-usable parts, which are the bits that UML needs, of
-ptrace.h into ptrace-abi.h, which is included back into ptrace.h.
-Thus, there is no net effect on i386.
+Modify sys_{send,recv}msg to use sk->sk_allocation instead of GFP_KERNEL,
+this should not change existing behaviour because the default of
+sk->sk_allocation is GFP_KERNEL, and no user-space exposed socket would
+have it any different at this time.
 
-As a side-effect, this creates a ptrace header which is close to being
-usable in /usr/include.
+This change allows the system calls to succeed for SOCK_VMIO sockets 
+(who have sk->sk_allocation |= GFP_EMERGENCY) even under extreme memory
+pressure.
 
-x86_64 is also treated in this way for consistency.  There was some
-trailing whitespace there, which is cleaned up.
+Since netlink_sendmsg is used to transfer msgs from user- to kernel-space
+treat the skb allocation there as a receive allocation.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Also export netlink_lookup, this is needed to locate the kernel side struct
+sock object associated with the user-space netlink socket. 
 
-Index: linux-2.6.18-mm/include/asm-i386/ptrace-abi.h
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: David Miller <davem@davemloft.net>
+CC: Mike Christie <michaelc@cs.wisc.edu>
+---
+ include/linux/netlink.h  |    1 +
+ net/compat.c             |    2 +-
+ net/netlink/af_netlink.c |    8 +++++---
+ net/socket.c             |    6 +++---
+ 4 files changed, 10 insertions(+), 7 deletions(-)
+
+Index: linux-2.6/net/netlink/af_netlink.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-mm/include/asm-i386/ptrace-abi.h	2006-09-11 18:04:30.000000000 -0400
-@@ -0,0 +1,39 @@
-+#ifndef I386_PTRACE_ABI_H
-+#define I386_PTRACE_ABI_H
-+
-+#define EBX 0
-+#define ECX 1
-+#define EDX 2
-+#define ESI 3
-+#define EDI 4
-+#define EBP 5
-+#define EAX 6
-+#define DS 7
-+#define ES 8
-+#define FS 9
-+#define GS 10
-+#define ORIG_EAX 11
-+#define EIP 12
-+#define CS  13
-+#define EFL 14
-+#define UESP 15
-+#define SS   16
-+#define FRAME_SIZE 17
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GETFPXREGS         18
-+#define PTRACE_SETFPXREGS         19
-+
-+#define PTRACE_OLDSETOPTIONS         21
-+
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+#define PTRACE_SYSEMU		  31
-+#define PTRACE_SYSEMU_SINGLESTEP  32
-+
-+#endif
-Index: linux-2.6.18-mm/include/asm-i386/ptrace.h
+--- linux-2.6.orig/net/netlink/af_netlink.c
++++ linux-2.6/net/netlink/af_netlink.c
+@@ -199,7 +199,7 @@ netlink_unlock_table(void)
+ 		wake_up(&nl_table_wait);
+ }
+ 
+-static __inline__ struct sock *netlink_lookup(int protocol, u32 pid)
++__inline__ struct sock *netlink_lookup(int protocol, u32 pid)
+ {
+ 	struct nl_pid_hash *hash = &nl_table[protocol].hash;
+ 	struct hlist_head *head;
+@@ -1147,7 +1147,7 @@ static int netlink_sendmsg(struct kiocb 
+ 	if (len > sk->sk_sndbuf - 32)
+ 		goto out;
+ 	err = -ENOBUFS;
+-	skb = alloc_skb(len, GFP_KERNEL);
++	skb = __alloc_skb(len, GFP_KERNEL, SKB_ALLOC_RX);
+ 	if (skb==NULL)
+ 		goto out;
+ 
+@@ -1178,7 +1178,8 @@ static int netlink_sendmsg(struct kiocb 
+ 
+ 	if (dst_group) {
+ 		atomic_inc(&skb->users);
+-		netlink_broadcast(sk, skb, dst_pid, dst_group, GFP_KERNEL);
++		netlink_broadcast(sk, skb, dst_pid, dst_group,
++				sk->sk_allocation);
+ 	}
+ 	err = netlink_unicast(sk, skb, dst_pid, msg->msg_flags&MSG_DONTWAIT);
+ 
+@@ -1788,6 +1789,7 @@ panic:
+ 
+ core_initcall(netlink_proto_init);
+ 
++EXPORT_SYMBOL(netlink_lookup);
+ EXPORT_SYMBOL(netlink_ack);
+ EXPORT_SYMBOL(netlink_run_queue);
+ EXPORT_SYMBOL(netlink_queue_skip);
+Index: linux-2.6/net/socket.c
 ===================================================================
---- linux-2.6.18-mm.orig/include/asm-i386/ptrace.h	2006-09-11 10:48:33.000000000 -0400
-+++ linux-2.6.18-mm/include/asm-i386/ptrace.h	2006-09-11 18:04:20.000000000 -0400
-@@ -1,24 +1,7 @@
- #ifndef _I386_PTRACE_H
- #define _I386_PTRACE_H
- 
--#define EBX 0
--#define ECX 1
--#define EDX 2
--#define ESI 3
--#define EDI 4
--#define EBP 5
--#define EAX 6
--#define DS 7
--#define ES 8
--#define FS 9
--#define GS 10
--#define ORIG_EAX 11
--#define EIP 12
--#define CS  13
--#define EFL 14
--#define UESP 15
--#define SS   16
--#define FRAME_SIZE 17
-+#include <asm/ptrace-abi.h>
- 
- /* this struct defines the way the registers are stored on the 
-    stack during a system call. */
-@@ -43,22 +26,6 @@ struct pt_regs {
- 	int  xss;
- };
- 
--/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
--#define PTRACE_GETREGS            12
--#define PTRACE_SETREGS            13
--#define PTRACE_GETFPREGS          14
--#define PTRACE_SETFPREGS          15
--#define PTRACE_GETFPXREGS         18
--#define PTRACE_SETFPXREGS         19
--
--#define PTRACE_OLDSETOPTIONS         21
--
--#define PTRACE_GET_THREAD_AREA    25
--#define PTRACE_SET_THREAD_AREA    26
--
--#define PTRACE_SYSEMU		  31
--#define PTRACE_SYSEMU_SINGLESTEP  32
--
- #ifdef __KERNEL__
- 
- #include <asm/vm86.h>
-Index: linux-2.6.18-mm/include/asm-x86_64/ptrace-abi.h
+--- linux-2.6.orig/net/socket.c
++++ linux-2.6/net/socket.c
+@@ -1790,7 +1790,7 @@ asmlinkage long sys_sendmsg(int fd, stru
+ 	err = -ENOMEM;
+ 	iov_size = msg_sys.msg_iovlen * sizeof(struct iovec);
+ 	if (msg_sys.msg_iovlen > UIO_FASTIOV) {
+-		iov = sock_kmalloc(sock->sk, iov_size, GFP_KERNEL);
++		iov = sock_kmalloc(sock->sk, iov_size, sock->sk->sk_allocation);
+ 		if (!iov)
+ 			goto out_put;
+ 	}
+@@ -1818,7 +1818,7 @@ asmlinkage long sys_sendmsg(int fd, stru
+ 	} else if (ctl_len) {
+ 		if (ctl_len > sizeof(ctl))
+ 		{
+-			ctl_buf = sock_kmalloc(sock->sk, ctl_len, GFP_KERNEL);
++			ctl_buf = sock_kmalloc(sock->sk, ctl_len, sock->sk->sk_allocation);
+ 			if (ctl_buf == NULL) 
+ 				goto out_freeiov;
+ 		}
+@@ -1891,7 +1891,7 @@ asmlinkage long sys_recvmsg(int fd, stru
+ 	err = -ENOMEM;
+ 	iov_size = msg_sys.msg_iovlen * sizeof(struct iovec);
+ 	if (msg_sys.msg_iovlen > UIO_FASTIOV) {
+-		iov = sock_kmalloc(sock->sk, iov_size, GFP_KERNEL);
++		iov = sock_kmalloc(sock->sk, iov_size, sock->sk->sk_allocation);
+ 		if (!iov)
+ 			goto out_put;
+ 	}
+Index: linux-2.6/include/linux/netlink.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-mm/include/asm-x86_64/ptrace-abi.h	2006-09-11 18:05:29.000000000 -0400
-@@ -0,0 +1,51 @@
-+#ifndef _X86_64_PTRACE_ABI_H
-+#define _X86_64_PTRACE_ABI_H
-+
-+#if defined(__ASSEMBLY__) || defined(__FRAME_OFFSETS)
-+#define R15 0
-+#define R14 8
-+#define R13 16
-+#define R12 24
-+#define RBP 32
-+#define RBX 40
-+/* arguments: interrupts/non tracing syscalls only save upto here*/
-+#define R11 48
-+#define R10 56
-+#define R9 64
-+#define R8 72
-+#define RAX 80
-+#define RCX 88
-+#define RDX 96
-+#define RSI 104
-+#define RDI 112
-+#define ORIG_RAX 120       /* = ERROR */
-+/* end of arguments */
-+/* cpu exception frame or undefined in case of fast syscall. */
-+#define RIP 128
-+#define CS 136
-+#define EFLAGS 144
-+#define RSP 152
-+#define SS 160
-+#define ARGOFFSET R11
-+#endif /* __ASSEMBLY__ */
-+
-+/* top of stack page */
-+#define FRAME_SIZE 168
-+
-+#define PTRACE_OLDSETOPTIONS         21
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GETFPXREGS         18
-+#define PTRACE_SETFPXREGS         19
-+
-+/* only useful for access 32bit programs */
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+#define PTRACE_ARCH_PRCTL	  30	/* arch_prctl for child */
-+
-+#endif
-Index: linux-2.6.18-mm/include/asm-x86_64/ptrace.h
+--- linux-2.6.orig/include/linux/netlink.h
++++ linux-2.6/include/linux/netlink.h
+@@ -150,6 +150,7 @@ struct netlink_skb_parms
+ #define NETLINK_CREDS(skb)	(&NETLINK_CB((skb)).creds)
+ 
+ 
++extern struct sock *netlink_lookup(int protocol, __u32 pid);
+ extern struct sock *netlink_kernel_create(int unit, unsigned int groups, void (*input)(struct sock *sk, int len), struct module *module);
+ extern void netlink_ack(struct sk_buff *in_skb, struct nlmsghdr *nlh, int err);
+ extern int netlink_has_listeners(struct sock *sk, unsigned int group);
+Index: linux-2.6/net/compat.c
 ===================================================================
---- linux-2.6.18-mm.orig/include/asm-x86_64/ptrace.h	2006-09-11 10:48:33.000000000 -0400
-+++ linux-2.6.18-mm/include/asm-x86_64/ptrace.h	2006-09-11 18:05:27.000000000 -0400
-@@ -1,40 +1,9 @@
- #ifndef _X86_64_PTRACE_H
- #define _X86_64_PTRACE_H
+--- linux-2.6.orig/net/compat.c
++++ linux-2.6/net/compat.c
+@@ -170,7 +170,7 @@ int cmsghdr_from_user_compat_to_kern(str
+ 	 * from the user.
+ 	 */
+ 	if (kcmlen > stackbuf_size)
+-		kcmsg_base = kcmsg = sock_kmalloc(sk, kcmlen, GFP_KERNEL);
++		kcmsg_base = kcmsg = sock_kmalloc(sk, kcmlen, sk->sk_allocation);
+ 	if (kcmsg == NULL)
+ 		return -ENOBUFS;
  
--#if defined(__ASSEMBLY__) || defined(__FRAME_OFFSETS) 
--#define R15 0
--#define R14 8
--#define R13 16
--#define R12 24
--#define RBP 32
--#define RBX 40
--/* arguments: interrupts/non tracing syscalls only save upto here*/
--#define R11 48
--#define R10 56	
--#define R9 64
--#define R8 72
--#define RAX 80
--#define RCX 88
--#define RDX 96
--#define RSI 104
--#define RDI 112
--#define ORIG_RAX 120       /* = ERROR */ 
--/* end of arguments */ 	
--/* cpu exception frame or undefined in case of fast syscall. */
--#define RIP 128
--#define CS 136
--#define EFLAGS 144
--#define RSP 152
--#define SS 160
--#define ARGOFFSET R11
--#endif /* __ASSEMBLY__ */
-+#include <asm/ptrace-abi.h>
- 
--/* top of stack page */ 
--#define FRAME_SIZE 168
--
--#define PTRACE_OLDSETOPTIONS         21
--
--#ifndef __ASSEMBLY__ 
-+#ifndef __ASSEMBLY__
- 
- struct pt_regs {
- 	unsigned long r15;
-@@ -45,7 +14,7 @@ struct pt_regs {
- 	unsigned long rbx;
- /* arguments: non interrupts/non tracing syscalls only save upto here*/
-  	unsigned long r11;
--	unsigned long r10;	
-+	unsigned long r10;
- 	unsigned long r9;
- 	unsigned long r8;
- 	unsigned long rax;
-@@ -54,32 +23,18 @@ struct pt_regs {
- 	unsigned long rsi;
- 	unsigned long rdi;
- 	unsigned long orig_rax;
--/* end of arguments */ 	
-+/* end of arguments */
- /* cpu exception frame or undefined */
- 	unsigned long rip;
- 	unsigned long cs;
--	unsigned long eflags; 
--	unsigned long rsp; 
-+	unsigned long eflags;
-+	unsigned long rsp;
- 	unsigned long ss;
--/* top of stack page */ 
-+/* top of stack page */
- };
- 
- #endif
- 
--/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
--#define PTRACE_GETREGS            12
--#define PTRACE_SETREGS            13
--#define PTRACE_GETFPREGS          14
--#define PTRACE_SETFPREGS          15
--#define PTRACE_GETFPXREGS         18
--#define PTRACE_SETFPXREGS         19
--
--/* only useful for access 32bit programs */
--#define PTRACE_GET_THREAD_AREA    25
--#define PTRACE_SET_THREAD_AREA    26
--
--#define PTRACE_ARCH_PRCTL	  30	/* arch_prctl for child */
--
- #if defined(__KERNEL__) && !defined(__ASSEMBLY__) 
- #define user_mode(regs) (!!((regs)->cs & 3))
- #define user_mode_vm(regs) user_mode(regs)
+
+--
 

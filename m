@@ -1,256 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWILP5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWILP60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWILP5N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWILPu5
+	id S1030236AbWILP60 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWILP6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:50:57 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:35036 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030227AbWILPux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:50:53 -0400
-Message-Id: <20060912144903.646750000@chello.nl>
-References: <20060912143049.278065000@chello.nl>
-User-Agent: quilt/0.45-1
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
-       Daniel Phillips <phillips@google.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [PATCH 06/20] nfs: teach the NFS client how to treat PG_swapcache pages
-Content-Disposition: inline; filename=nfs_swapcache.patch
-Date: Tue, 12 Sep 2006 17:25:49 +0200
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Tue, 12 Sep 2006 11:58:06 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54191 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030236AbWILP55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:57:57 -0400
+Subject: [PATCH] serial: Fix up offenders peering at baud bits directly,
+	corrected
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Sep 2006 17:21:15 +0100
+Message-Id: <1158078075.6780.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace all relevant occurences of page->index and page->mapping in the NFS
-client with the new page_file_index() and page_file_mapping() functions.
+Stop some other people peering into the baud bits on their own and make
+them use the tty_get_baud_rate() helper as a preperation for the move to
+the new termios. Corrected dependancy previous one had on new termios
+structs
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>
----
- fs/nfs/file.c     |    6 +++---
- fs/nfs/pagelist.c |    8 ++++----
- fs/nfs/read.c     |   10 +++++-----
- fs/nfs/write.c    |   28 ++++++++++++++--------------
- 4 files changed, 26 insertions(+), 26 deletions(-)
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Index: linux-2.6/fs/nfs/file.c
-===================================================================
---- linux-2.6.orig/fs/nfs/file.c
-+++ linux-2.6/fs/nfs/file.c
-@@ -303,17 +303,17 @@ static int nfs_commit_write(struct file 
- 
- static void nfs_invalidate_page(struct page *page, unsigned long offset)
- {
--	struct inode *inode = page->mapping->host;
-+	struct inode *inode = page_file_mapping(page)->host;
- 
- 	/* Cancel any unstarted writes on this page */
- 	if (offset == 0)
--		nfs_sync_inode_wait(inode, page->index, 1, FLUSH_INVALIDATE);
-+		nfs_sync_inode_wait(inode, page_file_index(page), 1, FLUSH_INVALIDATE);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/char/moxa.c linux-2.6.18-rc6-mm1/drivers/char/moxa.c
+--- linux.vanilla-2.6.18-rc6-mm1/drivers/char/moxa.c	2006-09-11 17:00:09.000000000 +0100
++++ linux-2.6.18-rc6-mm1/drivers/char/moxa.c	2006-09-11 17:18:31.000000000 +0100
+@@ -260,7 +260,7 @@
+ static void MoxaPortDisable(int);
+ static long MoxaPortGetMaxBaud(int);
+ static long MoxaPortSetBaud(int, long);
+-static int MoxaPortSetTermio(int, struct termios *);
++static int MoxaPortSetTermio(int, struct termios *, speed_t);
+ static int MoxaPortGetLineOut(int, int *, int *);
+ static void MoxaPortLineCtrl(int, int, int);
+ static void MoxaPortFlowCtrl(int, int, int, int, int, int);
+@@ -986,7 +988,7 @@
+ 	if (ts->c_iflag & IXANY)
+ 		xany = 1;
+ 	MoxaPortFlowCtrl(ch->port, rts, cts, txflow, rxflow, xany);
+-	MoxaPortSetTermio(ch->port, ts);
++	MoxaPortSetTermio(ch->port, ts, tty_get_baud_rate(tty));
  }
  
- static int nfs_release_page(struct page *page, gfp_t gfp)
- {
- 	if (gfp & __GFP_FS)
--		return !nfs_wb_page(page->mapping->host, page);
-+		return !nfs_wb_page(page_file_mapping(page)->host, page);
- 	else
- 		/*
- 		 * Avoid deadlock on nfs_wait_on_request().
-Index: linux-2.6/fs/nfs/pagelist.c
-===================================================================
---- linux-2.6.orig/fs/nfs/pagelist.c
-+++ linux-2.6/fs/nfs/pagelist.c
-@@ -82,11 +82,11 @@ nfs_create_request(struct nfs_open_conte
- 	 * update_nfs_request below if the region is not locked. */
- 	req->wb_page    = page;
- 	atomic_set(&req->wb_complete, 0);
--	req->wb_index	= page->index;
-+	req->wb_index	= page_file_index(page);
- 	page_cache_get(page);
- 	BUG_ON(PagePrivate(page));
- 	BUG_ON(!PageLocked(page));
--	BUG_ON(page->mapping->host != inode);
-+	BUG_ON(page_file_mapping(page)->host != inode);
- 	req->wb_offset  = offset;
- 	req->wb_pgbase	= offset;
- 	req->wb_bytes   = count;
-@@ -271,7 +271,7 @@ nfs_coalesce_requests(struct list_head *
-  * nfs_scan_lock_dirty - Scan the radix tree for dirty requests
-  * @nfsi: NFS inode
-  * @dst: Destination list
-- * @idx_start: lower bound of page->index to scan
-+ * @idx_start: lower bound of page_file_index(page) to scan
-  * @npages: idx_start + npages sets the upper bound to scan.
+ static int block_till_ready(struct tty_struct *tty, struct file *filp,
+@@ -1900,9 +1902,10 @@
   *
-  * Moves elements from one of the inode request lists.
-@@ -328,7 +328,7 @@ out:
-  * @nfsi: NFS inode
-  * @head: One of the NFS inode request lists
-  * @dst: Destination list
-- * @idx_start: lower bound of page->index to scan
-+ * @idx_start: lower bound of page_file_index(page) to scan
-  * @npages: idx_start + npages sets the upper bound to scan.
+  *      Function 12:    Configure the port.
+  *      Syntax:
+- *      int  MoxaPortSetTermio(int port, struct termios *termio);
++ *      int  MoxaPortSetTermio(int port, struct termios *termio, speed_t baud);
+  *           int port           : port number (0 - 127)
+  *           struct termios * termio : termio structure pointer
++ *	     speed_t baud	: baud rate
   *
-  * Moves elements from one of the inode request lists.
-Index: linux-2.6/fs/nfs/read.c
-===================================================================
---- linux-2.6.orig/fs/nfs/read.c
-+++ linux-2.6/fs/nfs/read.c
-@@ -86,9 +86,9 @@ unsigned int nfs_page_length(struct inod
- 	if (i_size <= 0)
- 		return 0;
- 	idx = (i_size - 1) >> PAGE_CACHE_SHIFT;
--	if (page->index > idx)
-+	if (page_file_index(page) > idx)
- 		return 0;
--	if (page->index != idx)
-+	if (page_file_index(page) != idx)
- 		return PAGE_CACHE_SIZE;
- 	return 1 + ((i_size - 1) & (PAGE_CACHE_SIZE - 1));
+  *           return:    -1      : this port is invalid or termio == NULL
+  *                      0       : setting O.K.
+@@ -2182,11 +2185,10 @@
+ 	return (baud);
  }
-@@ -595,11 +595,11 @@ int nfs_readpage_result(struct rpc_task 
- int nfs_readpage(struct file *file, struct page *page)
+ 
+-int MoxaPortSetTermio(int port, struct termios *termio)
++int MoxaPortSetTermio(int port, struct termios *termio, speed_t baud)
  {
- 	struct nfs_open_context *ctx;
--	struct inode *inode = page->mapping->host;
-+	struct inode *inode = page_file_mapping(page)->host;
- 	int		error;
+ 	void __iomem *ofsAddr;
+ 	tcflag_t cflag;
+-	long baud;
+ 	tcflag_t mode = 0;
  
- 	dprintk("NFS: nfs_readpage (%p %ld@%lu)\n",
--		page, PAGE_CACHE_SIZE, page->index);
-+		page, PAGE_CACHE_SIZE, page_file_index(page));
- 	nfs_inc_stats(inode, NFSIOS_VFSREADPAGE);
- 	nfs_add_stats(inode, NFSIOS_READPAGES, 1);
+ 	if (moxaChkPort[port] == 0 || termio == 0)
+@@ -2221,78 +2223,10 @@
+ 		mode |= MX_PARNONE;
  
-@@ -647,7 +647,7 @@ static int
- readpage_async_filler(void *data, struct page *page)
- {
- 	struct nfs_readdesc *desc = (struct nfs_readdesc *)data;
--	struct inode *inode = page->mapping->host;
-+	struct inode *inode = page_file_mapping(page)->host;
- 	struct nfs_page *new;
- 	unsigned int len;
- 
-Index: linux-2.6/fs/nfs/write.c
-===================================================================
---- linux-2.6.orig/fs/nfs/write.c
-+++ linux-2.6/fs/nfs/write.c
-@@ -145,13 +145,13 @@ void nfs_writedata_release(void *wdata)
- /* Adjust the file length if we're writing beyond the end */
- static void nfs_grow_file(struct page *page, unsigned int offset, unsigned int count)
- {
--	struct inode *inode = page->mapping->host;
-+	struct inode *inode = page_file_mapping(page)->host;
- 	loff_t end, i_size = i_size_read(inode);
- 	unsigned long end_index = (i_size - 1) >> PAGE_CACHE_SHIFT;
- 
--	if (i_size > 0 && page->index < end_index)
-+	if (i_size > 0 && page_file_index(page) < end_index)
- 		return;
--	end = ((loff_t)page->index << PAGE_CACHE_SHIFT) + ((loff_t)offset+count);
-+	end = page_offset(page) + ((loff_t)offset+count);
- 	if (i_size >= end)
- 		return;
- 	nfs_inc_stats(inode, NFSIOS_EXTENDWRITE);
-@@ -174,11 +174,11 @@ static void nfs_mark_uptodate(struct pag
- 		return;
+ 	moxafunc(ofsAddr, FC_SetDataMode, (ushort) mode);
+-
+-	cflag &= (CBAUD | CBAUDEX);
+-#ifndef B921600
+-#define	B921600	(B460800+1)
+-#endif
+-	switch (cflag) {
+-	case B921600:
+-		baud = 921600L;
+-		break;
+-	case B460800:
+-		baud = 460800L;
+-		break;
+-	case B230400:
+-		baud = 230400L;
+-		break;
+-	case B115200:
+-		baud = 115200L;
+-		break;
+-	case B57600:
+-		baud = 57600L;
+-		break;
+-	case B38400:
+-		baud = 38400L;
+-		break;
+-	case B19200:
+-		baud = 19200L;
+-		break;
+-	case B9600:
+-		baud = 9600L;
+-		break;
+-	case B4800:
+-		baud = 4800L;
+-		break;
+-	case B2400:
+-		baud = 2400L;
+-		break;
+-	case B1800:
+-		baud = 1800L;
+-		break;
+-	case B1200:
+-		baud = 1200L;
+-		break;
+-	case B600:
+-		baud = 600L;
+-		break;
+-	case B300:
+-		baud = 300L;
+-		break;
+-	case B200:
+-		baud = 200L;
+-		break;
+-	case B150:
+-		baud = 150L;
+-		break;
+-	case B134:
+-		baud = 134L;
+-		break;
+-	case B110:
+-		baud = 110L;
+-		break;
+-	case B75:
+-		baud = 75L;
+-		break;
+-	case B50:
+-		baud = 50L;
+-		break;
+-	default:
+-		baud = 0;
+-	}
++	
+ 	if ((moxa_boards[port / MAX_PORTS_PER_BOARD].boardType == MOXA_BOARD_C320_ISA) ||
+ 	    (moxa_boards[port / MAX_PORTS_PER_BOARD].boardType == MOXA_BOARD_C320_PCI)) {
+-		if (baud == 921600L)
++		if (baud >= 921600L)
+ 			return (-1);
+ 	}
+ 	MoxaPortSetBaud(port, baud);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/char/mxser.c linux-2.6.18-rc6-mm1/drivers/char/mxser.c
+--- linux.vanilla-2.6.18-rc6-mm1/drivers/char/mxser.c	2006-09-11 17:00:09.000000000 +0100
++++ linux-2.6.18-rc6-mm1/drivers/char/mxser.c	2006-09-11 17:18:38.000000000 +0100
+@@ -2540,71 +2542,7 @@
+ #define B921600 (B460800 +1)
+ #endif
+ 	if (mxser_set_baud_method[info->port] == 0) {
+-		switch (cflag & (CBAUD | CBAUDEX)) {
+-		case B921600:
+-			baud = 921600;
+-			break;
+-		case B460800:
+-			baud = 460800;
+-			break;
+-		case B230400:
+-			baud = 230400;
+-			break;
+-		case B115200:
+-			baud = 115200;
+-			break;
+-		case B57600:
+-			baud = 57600;
+-			break;
+-		case B38400:
+-			baud = 38400;
+-			break;
+-		case B19200:
+-			baud = 19200;
+-			break;
+-		case B9600:
+-			baud = 9600;
+-			break;
+-		case B4800:
+-			baud = 4800;
+-			break;
+-		case B2400:
+-			baud = 2400;
+-			break;
+-		case B1800:
+-			baud = 1800;
+-			break;
+-		case B1200:
+-			baud = 1200;
+-			break;
+-		case B600:
+-			baud = 600;
+-			break;
+-		case B300:
+-			baud = 300;
+-			break;
+-		case B200:
+-			baud = 200;
+-			break;
+-		case B150:
+-			baud = 150;
+-			break;
+-		case B134:
+-			baud = 134;
+-			break;
+-		case B110:
+-			baud = 110;
+-			break;
+-		case B75:
+-			baud = 75;
+-			break;
+-		case B50:
+-			baud = 50;
+-			break;
+-		default:
+-			baud = 0;
+-			break;
+-		}
++		baud = tty_get_baud_rate(info->tty);
+ 		mxser_set_baud(info, baud);
  	}
  
--	end_offs = i_size_read(page->mapping->host) - 1;
-+	end_offs = i_size_read(page_file_mapping(page)->host) - 1;
- 	if (end_offs < 0)
- 		return;
- 	/* Is this the last page? */
--	if (page->index != (unsigned long)(end_offs >> PAGE_CACHE_SHIFT))
-+	if (page_file_index(page) != (unsigned long)(end_offs >> PAGE_CACHE_SHIFT))
- 		return;
- 	/* This is the last page: set PG_uptodate if we cover the entire
- 	 * extent of the data, then zero the rest of the page.
-@@ -293,7 +293,7 @@ static int wb_priority(struct writeback_
- int nfs_writepage(struct page *page, struct writeback_control *wbc)
- {
- 	struct nfs_open_context *ctx;
--	struct inode *inode = page->mapping->host;
-+	struct inode *inode = page_file_mapping(page)->host;
- 	unsigned long end_index;
- 	unsigned offset = PAGE_CACHE_SIZE;
- 	loff_t i_size = i_size_read(inode);
-@@ -320,14 +320,14 @@ int nfs_writepage(struct page *page, str
- 	nfs_wb_page_priority(inode, page, priority);
- 
- 	/* easy case */
--	if (page->index < end_index)
-+	if (page_file_index(page) < end_index)
- 		goto do_it;
- 	/* things got complicated... */
- 	offset = i_size & (PAGE_CACHE_SIZE-1);
- 
- 	/* OK, are we completely out? */
- 	err = 0; /* potential race with truncate - ignore */
--	if (page->index >= end_index+1 || !offset)
-+	if (page_file_index(page) >= end_index+1 || !offset)
- 		goto out;
- do_it:
- 	ctx = nfs_find_open_context(inode, NULL, FMODE_WRITE);
-@@ -599,7 +599,7 @@ static void nfs_cancel_commit_list(struc
-  * nfs_scan_dirty - Scan an inode for dirty requests
-  * @inode: NFS inode to scan
-  * @dst: destination list
-- * @idx_start: lower bound of page->index to scan.
-+ * @idx_start: lower bound of page_file_index(page) to scan.
-  * @npages: idx_start + npages sets the upper bound to scan.
-  *
-  * Moves requests from the inode's dirty page list.
-@@ -625,7 +625,7 @@ nfs_scan_dirty(struct inode *inode, stru
-  * nfs_scan_commit - Scan an inode for commit requests
-  * @inode: NFS inode to scan
-  * @dst: destination list
-- * @idx_start: lower bound of page->index to scan.
-+ * @idx_start: lower bound of page_file_index(page) to scan.
-  * @npages: idx_start + npages sets the upper bound to scan.
-  *
-  * Moves requests from the inode's 'commit' request list.
-@@ -706,14 +706,14 @@ static struct nfs_page * nfs_update_requ
- 
- 	end = offset + bytes;
- 
--	if (nfs_wait_on_write_congestion(page->mapping, server->flags & NFS_MOUNT_INTR))
-+	if (nfs_wait_on_write_congestion(page_file_mapping(page), server->flags & NFS_MOUNT_INTR))
- 		return ERR_PTR(-ERESTARTSYS);
- 	for (;;) {
- 		/* Loop over all inode entries and see if we find
- 		 * A request for the page we wish to update
- 		 */
- 		spin_lock(&nfsi->req_lock);
--		req = _nfs_find_request(inode, page->index);
-+		req = _nfs_find_request(inode, page_file_index(page));
- 		if (req) {
- 			if (!nfs_lock_request_dontget(req)) {
- 				int error;
-@@ -784,7 +784,7 @@ static struct nfs_page * nfs_update_requ
- int nfs_flush_incompatible(struct file *file, struct page *page)
- {
- 	struct nfs_open_context *ctx = (struct nfs_open_context *)file->private_data;
--	struct inode	*inode = page->mapping->host;
-+	struct inode	*inode = page_file_mapping(page)->host;
- 	struct nfs_page	*req;
- 	int		status = 0;
- 	/*
-@@ -795,7 +795,7 @@ int nfs_flush_incompatible(struct file *
- 	 * Also do the same if we find a request from an existing
- 	 * dropped page.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/char/riscom8.c linux-2.6.18-rc6-mm1/drivers/char/riscom8.c
+--- linux.vanilla-2.6.18-rc6-mm1/drivers/char/riscom8.c	2006-09-11 17:00:09.000000000 +0100
++++ linux-2.6.18-rc6-mm1/drivers/char/riscom8.c	2006-09-11 17:18:45.000000000 +0100
+@@ -675,26 +675,12 @@
+ 	port->COR2 = 0;
+ 	port->MSVR = MSVR_RTS;
+ 	
+-	baud = C_BAUD(tty);
+-	
+-	if (baud & CBAUDEX) {
+-		baud &= ~CBAUDEX;
+-		if (baud < 1 || baud > 2) 
+-			port->tty->termios->c_cflag &= ~CBAUDEX;
+-		else
+-			baud += 15;
+-	}
+-	if (baud == 15)  {
+-		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
+-			baud ++;
+-		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
+-			baud += 2;
+-	}
++	baud = tty_get_baud_rate(tty);
+ 	
+ 	/* Select port on the board */
+ 	rc_out(bp, CD180_CAR, port_No(port));
+ 	
+-	if (!baud_table[baud])  {
++	if (!baud)  {
+ 		/* Drop DTR & exit */
+ 		bp->DTR |= (1u << port_No(port));
+ 		rc_out(bp, RC_DTR, bp->DTR);
+@@ -710,7 +696,7 @@
  	 */
--	req = nfs_find_request(inode, page->index);
-+	req = nfs_find_request(inode, page_file_index(page));
- 	if (req) {
- 		if (req->wb_page != page || ctx != req->wb_context)
- 			status = nfs_wb_page(inode, page);
-
---
+ 	
+ 	/* Set baud rate for port */
+-	tmp = (((RC_OSCFREQ + baud_table[baud]/2) / baud_table[baud] +
++	tmp = (((RC_OSCFREQ + baud/2) / baud +
+ 		CD180_TPC/2) / CD180_TPC);
+ 
+ 	rc_out(bp, CD180_RBPRH, (tmp >> 8) & 0xff); 
+@@ -718,7 +704,7 @@
+ 	rc_out(bp, CD180_RBPRL, tmp & 0xff); 
+ 	rc_out(bp, CD180_TBPRL, tmp & 0xff);
+ 	
+-	baud = (baud_table[baud] + 5) / 10;   /* Estimated CPS */
++	baud = (baud + 5) / 10;   /* Estimated CPS */
+ 	
+ 	/* Two timer ticks seems enough to wakeup something like SLIP driver */
+ 	tmp = ((baud + HZ/2) / HZ) * 2 - CD180_NFIFO;		
 

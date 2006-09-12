@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWILUXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWILUZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030413AbWILUXp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWILUXp
+	id S1030415AbWILUZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWILUZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:23:45 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:47239 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030413AbWILUXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:23:44 -0400
-Subject: Re: [PATCH 4/5] mvme147: Scsi_Cmnd to struct scsi_cmnd convertion
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Henne <henne@nachtwindheim.de>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4506FCEE.1070209@nachtwindheim.de>
-References: <4506FCEE.1070209@nachtwindheim.de>
-Content-Type: text/plain
-Date: Tue, 12 Sep 2006 15:23:33 -0500
-Message-Id: <1158092613.3461.43.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 12 Sep 2006 16:25:09 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:27206 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1030415AbWILUZI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 16:25:08 -0400
+Message-ID: <450717A5.90509@cfl.rr.com>
+Date: Tue, 12 Sep 2006 16:25:09 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: guest01 <guest01@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: OT: calling kernel syscall manually
+References: <4506A295.6010206@gmail.com> <1158068045.9189.93.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1158068045.9189.93.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2006 20:25:20.0458 (UTC) FILETIME=[91715AA0:01C6D6A9]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14686.003
+X-TM-AS-Result: No--11.442300-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 20:31 +0200, Henne wrote:
-> Changes obsolete typedef'd Scsi_Cmnd to struct scsi_cmnd.
-> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+What do you mean you have removed the ability to make system calls 
+directly?  That makes no sense.  Glibc has to be able to make system 
+calls so you can write your own code that does the same thing if you want.
 
-Actually, just a single patch for all the coupled drivers would be
-better, please.
+For the OP: you might want to study the glibc sources to see how it 
+implements syscall, and mimic that.  IIRC it involves making an int 80 
+call on i386.
 
-> -int wd33c93_queuecommand(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
-> -int wd33c93_abort(Scsi_Cmnd *);
-> -int wd33c93_reset(Scsi_Cmnd *, unsigned int);
-> +int wd33c93_queuecommand(struct scsi_cmnd *, void (*done)(struct scsi_cmnd *));
-> +int wd33c93_abort(struct scsi_cmnd *);
-> +int wd33c93_reset(struct scsi_cmnd *, unsigned int);
-
-These prototypes are all unnecessary and can be pulled out of the
-individual header files.  The first two are provided by wd33c93.h and
-the last one isn't actually in the body of any file.
-
-wd33c93_info is also unused and can go.
-
-Thanks,
-
-James
-
+David Woodhouse wrote:
+> The third one has always been broken on i386 for PIC code and was
+> pointless anyway, since glibc provides this functionality. The kernel
+> method has been removed from userspace visibility all architectures, and
+> we plan to remove it entirely in 2.6.19 since it's not at all useful. 
+> 
+> However, there was a patch which was sneaked to Linus in private which
+> reverted that cleanup on i386 and x86_64 and made them visible again --
+> but they'll be going away again on those two architectures shortly;
+> hopefully before 2.6.18.
+> 
+> Don't bother with it -- just use glibc's syscall().
+> 
 

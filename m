@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWILEaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWILFGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbWILEaK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 00:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWILEaJ
+	id S965179AbWILFGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 01:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWILFGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 00:30:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:4180 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965157AbWILEaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 00:30:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Ic9C/yaaoR2p1YT58AIAvGXPvpn1v+Fp9j/fGo3OVGdckI5hX5gxQh+IpMe4WfWhXOISJan5G+0U6ZFHRBYm9UOwLLcZc8Pdj9Girtx6foHHWiLXBBjpG+4bBytE8mmUcA8V2x3XDQ//9LwZnDAWZkif0RTIhn0eTeFGGHCK22E=
-Message-ID: <787b0d920609112130v2d855023ief2457942736ccfd@mail.gmail.com>
-Date: Tue, 12 Sep 2006 00:30:06 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: benh@kernel.crashing.org, jbarnes@virtuousgeek.org,
-       alan@lxorguk.ukuu.org.uk, davem@davemloft.net, jeff@garzik.org,
-       paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, segher@kernel.crashing.org
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 12 Sep 2006 01:06:49 -0400
+Received: from smtpout.mac.com ([17.250.248.176]:54984 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965179AbWILFGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 01:06:48 -0400
+In-Reply-To: <Pine.LNX.4.61.0609111334460.2498@soloth.lewis.org>
+References: <20060907182304.GA10686@danisch.de> <D432C2F98B6D1B4BAE47F2770FEFD6B612B8B7@to1mbxs02.replynet.prv> <Pine.LNX.4.61.0609111334460.2498@soloth.lewis.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8E63F0FB-DDD3-41D4-AFA7-88E66D0E9C8D@mac.com>
+Cc: Perego Paolo Franco <p.perego@reply.it>, linux-kernel@vger.kernel.org,
+       Hadmut Danisch <hadmut@danisch.de>, bugtraq@securityfocus.com
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: R: Linux kernel source archive vulnerable
+Date: Tue, 12 Sep 2006 01:06:37 -0400
+To: Jon Lewis <jlewis@remove2reply.lewis.org>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAQAAA+k=
+X-Language-Identified: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
-> On Mon, 2006-09-11 at 11:08 -0700, Jesse Barnes wrote:
-
->> Ok, that's fine, though I think you'd only want the very weak
->> semantics (as provided by your __raw* routines) on write
->> combined memory typically?
+On Sep 11, 2006, at 14:29:58, Jon Lewis wrote:
+> On Fri, 8 Sep 2006, Perego Paolo Franco wrote:
 >
-> Well, that and memory with no side effects (like frame buffers)
+>> Anyway just few considerations:
+>> 2) a good sysadmin is aware that /usr/src is NOT supposed to be  
+>> world writable
+>
+> For some reason (bug in how they're being checked out of git, I  
+> assume), the latest kernel source tar files have all files and  
+> directories world writable.  This is not how it's been in the past  
+> and is not how it should be.
 
-Oh no, it's great for regular device driver work. I used this
-type of system all the time on a different PowerPC OS.
+-ENOBUG
 
-Suppose you need to set up a piece of hardware. Assume that the
-hardware isn't across some nasty bridge. You do this:
+Please see these threads and quit bringing up this topic like crazy:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113304241100330&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114635639325551&w=2
 
-hw->x = 42;
-hw->y = 19;
-eieio();
-hw->p = 11;
-hw->q = 233;
-hw->r = 87;
-eieio()
-hw->n = 101;
-hw->m = 5;
-eieio()
+To quote:
+> Going over old ground again, any administrator a) compiling the  
+> kernel as root or b) relying on GNU tar to make  
+> _security_policy_decisions_ is completely insane.
+>
+> The only "trick" here is tar's decision not to apply umask, or root  
+> uid/gid, to files in a tar when extracted as root.  This might make  
+> sense for tars that you created and want to extract again (say  
+> restoring a backup), but it certainly NEVER makes sense for files  
+> downloaded off the Internet.
 
-In that ficticious example, I get 7 writes to the hardware device
-with only 3 "eieio" operations. It's not hard at all. Sometimes
-a "sync" is used instead, also explicitly.
+So if you must cause a senseless hubbub on securityfocus.com, please  
+don't spill it over onto LKML.  This sort of thing is at _worst_ a  
+bug in GNU tar that it's behavior is different when root.  I run a  
+linux system with SELinux where user 0 is no different than any other  
+user and has no special permissions at all, and this kind of  
+stupidity bites me a lot.  My user 0 is "kyle" when I want to chown  
+files I switch to the "sysadm" role, or if I absolutely need to  
+override security policy for some reason I jump through hoops to get  
+to the "root" role.  In neither of those cases do I care what UID I am.
 
-To get even more speed, you can mark memory as non-coherent.
-You can even do this for RAM. There are cache control instructions
-to take care of any problems; simply ask the CPU to write things
-out as needed.
+So either deal insecure permissions when you can't be bothered to use  
+GNU tar securely (easy), don't compile your kernel as root (easier)  
+or fix GNU tar not to assume UID 0 is God in the first place.
 
-Linux should probably do this:
-
-Plain stuff is like x86. If you want the performance of loose
-ordering, ask for it when you get the mapping and use read/write
-functions that have a "_" prefix. If you mix the "_" versions
-with a plain x86-like mapping or the other way, the behavior you
-get will be an arch-specific middle ground.
+Cheers,
+Kyle Moffett

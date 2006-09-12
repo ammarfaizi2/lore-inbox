@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWILF51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWILF7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWILF51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 01:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWILF51
+	id S1751314AbWILF7p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 01:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWILF7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 01:57:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:12473 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751313AbWILF50 (ORCPT
+	Tue, 12 Sep 2006 01:59:45 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38802 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751314AbWILF7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 01:57:26 -0400
-Subject: Re: [RFC] MMIO accessors & barriers documentation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>
-In-Reply-To: <m1pse17hzi.fsf@ebiederm.dsl.xmission.com>
-References: <1157947414.31071.386.camel@localhost.localdomain>
-	 <1157965071.23085.84.camel@localhost.localdomain>
-	 <1157966269.3879.23.camel@localhost.localdomain>
-	 <1157969261.23085.108.camel@localhost.localdomain>
-	 <m1pse17hzi.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Tue, 12 Sep 2006 15:56:45 +1000
-Message-Id: <1158040605.15465.70.camel@localhost.localdomain>
+	Tue, 12 Sep 2006 01:59:44 -0400
+Date: Tue, 12 Sep 2006 07:51:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386-pda: Initialize the PDA early, before any C code runs.
+Message-ID: <20060912055132.GA24298@elte.hu>
+References: <4505E8C1.7010906@goop.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4505E8C1.7010906@goop.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4999]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Frame buffers are rarely cachable as such, on x86 they are usually
-> write-combining.   Which means that the writes can be merged and
-> possibly reordered while they are being written but they can't be
-> cached.  Most arches I believe have something that roughly corresponds
-> to write combining.
+* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+
+> In the process, this removes the need for early_smp_processor_id() and
+> early_current().
 > 
-> Ensuring we can still use this optimization to mmio space is
-> moderately important.
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Cc: Ingo Molnar <mingo@elte.hu>
 
-I've not gone too much in details about write combining (we need to do
-something about it but I don't want to mix problems) but I did define
-that the ordered accessors aren't guaranteed to provide write combining
-on storage mapped with WC enabled while the relaxed or non ordered ones
-are. That should be enough at this point.
+looks good to me.
 
-Later, we should look into providing an ioremap_wc() and possibly page
-table flags for write combining userland mappings. Time to get rid of
-MTRRs for graphics :) And infiniband-style stuff seems to want that too.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Ben.
-
-
+	Ingo

@@ -1,86 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWILGJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWILGNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWILGJe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 02:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWILGJe
+	id S1751173AbWILGNF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 02:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWILGNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 02:09:34 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:22725 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751311AbWILGJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 02:09:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r9e1SvY3yLhlP350Wr9esyXb65F0y1RN4bGt8SD1lUptErXaO18kiER1uqrDGYQhZw4z6xDiQb5frcDsuEMFsOJ178tCKmvxcn9bnGywU+ViJZU7i+9y+6pCjHLEmH3JTw43Ylt0lyjenjMeJ3RJ3LiSPghIUVm+wNUS3cBWpI4=
-Message-ID: <653402b90609112309p7be570a2ra9e1c22ad9c7a0d7@mail.gmail.com>
-Date: Tue, 12 Sep 2006 08:09:22 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [PATCH 2.6.17.13] display: Driver ks0108 and cfag12864b
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060912035131.GA27472@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 12 Sep 2006 02:13:05 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25785 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751173AbWILGNC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 02:13:02 -0400
+Subject: Re: Opinion on ordering of writel vs. stores to RAM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: jbarnes@virtuousgeek.org, alan@lxorguk.ukuu.org.uk, davem@davemloft.net,
+       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, segher@kernel.crashing.org
+In-Reply-To: <787b0d920609112304x3342e3bek88a8e12da62adac4@mail.gmail.com>
+References: <787b0d920609112130v2d855023ief2457942736ccfd@mail.gmail.com>
+	 <1158039004.15465.62.camel@localhost.localdomain>
+	 <787b0d920609112304x3342e3bek88a8e12da62adac4@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 12 Sep 2006 16:12:38 +1000
+Message-Id: <1158041558.15465.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <653402b90609111627q661cded8l757129311fbe92d4@mail.gmail.com>
-	 <20060912035131.GA27472@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/06, Greg KH <greg@kroah.com> wrote:
->
-> The patch is linewrapped :(
->
 
-Please tell me if the next one is linewrapped too.
+> Oops, I forgot about store-store ordering being automatic.
+> Pretend I had some loads in my example.
 
->
-> Why would you need to touch udev?  It will handle stuff loaded at any
-> point in time automatically.  You don't have to "update udev" at all.
->
+Well, in 99% of the cases, you want MMIO loads to be orderd vs. MMIO
+stores and thus you can use __writel and __readl (which will only do an
+eieio in __readl). If you are really that picky, then, of course you can
+go use the __raw_* versions.
+  
+> A proper interface would be more explicit about what the
+> fence does, so that driver authors shouldn't need to know
+> this detail.
 
-My fault. My firsts tests were on a Vector Linux, and, I don't know
-why (bad cfg I guess), but udev didn't create the nodes automatically.
-Now, in Debian, it does. I have noticed that and the last patch
-doesn't have such lines. Sorry.
+What detail ? Isn't my document explicit enough ? If not, please let me
+know what is not clear in the definition of the 4 ordering rules and the
+matching fences.
 
->
-> Do you really mean for your header file to be under the GPL for
-> userspace programs?
->
+> OK, a different discussion... though memory being used
+> for DMA seems rather related. You need to flush before
+> a DMA out, or invalidate before a DMA in.
 
-Ups, it is just an example for a user-space program that wants to use
-the cfag12864b. I will remove the License line anyway.
+This is already documented elsewhere.
+
+> So you say: never mix strict mappings with loose operations,
+> and never mix loose mappings with strict operations.
+
+I don't want the concept of "lose mappings" in the generic driver
+interface for now anyway :)
+
+It's too implementation specific and I want to know that a given access
+is strictly ordered or relaxed just by looking at the accessor used, not
+having to go look for where the driver did the ioremap. We can still
+provide arch specific things where we feel it's useful but let's move
+one step at a time with the generic accessors.
+
+The only "lose" mapping that we'll introduce next is write combining,
+but that's also a different debate. Again, one thing at a time :)
+
+> That is an excellent rule. I see no need to stop people from
+> actively trying to shoot their feet though. I'm certainly not
+> suggesting that people be mixing things.
+> 
+> For some CPUs, you want to be specifying things when you
+> set up the mapping. For other CPUs, the read/write code is
+> how this gets determined. So developers specify both.
+
+For now, we are assuming that if the mapping controls ordering, then
+it's strictly order. We'll see if we hit an arch where that becomes a
+problem.
+
+Ben.
 
 
->
-> Which version of the GPL?
->
-
-The same as the kernel, I think. Is that right?
-
-> [about useless printk's]
-> Is this really needed?
->
-
-It isn't anymore. In the patch it is also removed and all the printks
-improved, as Alexey Dobriyan told me also to do.
-
-> "Display" is very generic, people will think it is for video stuff too.
-> LCD perhaps might be better?
->
-
-I thought the same, but LCD is already used by the "PDA Frontal LCD
-Panel". They got the "linux/lcd.h" and "drivers/lcd/*", as well as a
-fixed major number.
-
-So I thought "bigger" and, IMHO a new folder for this kind of
-misc-secondary-display devices (LCD or not) will be fine.
-
-I think (maybe I'm wrong but...), we can just put the drivers right
-there. There are a lot of this kind of hardware, but it will take time
-to code more drivers. So if the resulting drivers are so different or
-the drivers/* get a major update, relocate them. If not, leave them
-until we have enough samples to start classifying.

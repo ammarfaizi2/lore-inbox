@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWILMQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbWILMap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWILMQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 08:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWILMQk
+	id S965210AbWILMap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 08:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWILMap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 08:16:40 -0400
-Received: from tresys.irides.com ([216.250.243.126]:776 "HELO
-	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
-	id S932284AbWILMQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 08:16:38 -0400
-Message-ID: <4506A522.90005@gentoo.org>
-Date: Tue, 12 Sep 2006 08:16:34 -0400
-From: Joshua Brindle <method@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Tue, 12 Sep 2006 08:30:45 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:59864 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965202AbWILMao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 08:30:44 -0400
+Message-ID: <4506A86E.7000105@garzik.org>
+Date: Tue, 12 Sep 2006 08:30:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: David Madore <david.madore@ens.fr>
-CC: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: capabilities patch: trying a more "consensual" approach
-References: <20060911212826.GA9606@clipper.ens.fr>
-In-Reply-To: <20060911212826.GA9606@clipper.ens.fr>
+To: Ian Kent <raven@themaw.net>, akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] linux/magic.h for magic numbers
+References: <20060909110245.GA9617@havoc.gtf.org> <Pine.LNX.4.64.0609121620550.4911@raven.themaw.net>
+In-Reply-To: <Pine.LNX.4.64.0609121620550.4911@raven.themaw.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0637-0, 09/11/2006), Outbound message
-X-Antivirus-Status: Clean
-X-OriginalArrivalTime: 12 Sep 2006 12:16:38.0231 (UTC) FILETIME=[4C089670:01C6D665]
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Madore wrote:
-> Hello again,
->
-> Given the rather cold reception that my "capabilities" patch has met,
-> it is obvious that it will never be accepted in any official kernel,
-> so I am now abandoning it and will try to suggest a different approach
-> that, in my opinion, isn't nearly as useful or expressive, but which
-> should probably be much more acceptable to those who found fault with
-> my previous patch, since it follows various suggestions which I
-> received on the list.
->
-> First, attempt to implement POSIX draft semantics for inheritance as
-> closely as the current situation will allow.  (I think this is wrong,
-> but many people seem to care, and POSIX semantics is still better than
-> no semantics at all.)  Actual filesystem support can come later (Serge
-> Hallyn has a patch for that), but in the meantime it would be useful
-> to add some (per-filesystem) mount options to specify the default
-> "inheritable" and "effective" capability sets.  In the absence of this
-> mount option, the behavior would be entirely unchanged, so everyone
-> should be happy.  With the mount options, capabilities will be
-> somewhat inheritable (only "somewhat", though, because with the POSIX
-> semantics, even with a default set, you can't force a non-caps-aware
-> process to gain caps in such a way that it will pass it on to its
-> children).
->
-> Second, suppress the idea of "regular" capabilities, and implement
-> them with Linux Security Module hooks (the module could be called,
-> say, "cuppabilities").  This won't do as much, but we can probably
-> still get a few things done that way.  Unfortunately, the
-> cuppabilities won't (can't) follow the same inheritance rules as
-> capabilities, and this might be a bit confusing.  But better than
-> nothing.
->
-> Is there some objection to this scheme?  I should start coding it in a
-> couple of weeks.
->   
-Do you have a practical use case for this? It still doesn't address the 
-questionable capabilities or the fact that the policy is embedded in the 
-processes all over the system and therefore there is no analyzable 
-system policy.
+Ian Kent wrote:
+> On Sat, 9 Sep 2006, Jeff Garzik wrote:
+> 
+>> An IRC discussion sparked a memory:  most filesystems really don't
+>> need to put anything at all in include/linux.  Excluding API-ish
+>> filesystems like procfs, just about the only filesystem symbols that
+>> get exported outside of __KERNEL__ are the *_SUPER_MAGIC symbols,
+>> and similar symbols.
+>>
+>> After seeing the useful attributes of linux/poison.h, I propose a
+>> similar linux/magic.h.
+>>
+>> We can see from the patch below that this permitted the deletion of a
+>> couple headers, where the *_SUPER_MAGIC symbol was the only thing in the
+>> entire header.
+>>
+>> Other non-filesystem-related magic numbers could get moved here
+>> eventually, if maintainers so desire, but I wanted to start off with the
+>> obvious low-hanging fruit.
+>>
+> 
+> Would be good to include autofs in this lot.
+> 
+> Defined in linux/autofs/autofs_i.h
+> Defined in linux/autofs4/autofs_i.h
+> 
+> as 
+> 
+> #define AUTOFS_SUPER_MAGIC 0x0187
+
+Updated.
+
+Andrew, please add the "magic" branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+
+to the list of trees you pull.
+
+Thanks,
+
+	Jeff
+
 

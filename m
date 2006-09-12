@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWILWN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWILWRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbWILWN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 18:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWILWN7
+	id S1030277AbWILWRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 18:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWILWRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 18:13:59 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:17157 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030324AbWILWN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 18:13:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fIlI0qfLwyFBxxRMhVZ6eFITDra/m8toNrQ8y9wKxQq/tVDv1EwtqkorvVQWy5S7a/p6av4gxPPEq5dpvKShx/lqwXyungjtlNC1XMX9xU4rTjKODghI6BN50JHMMjDzWvaxWGoZL/Qg8XyDSAuKvtLrS3TE+DxYfC1cB2u9trs=
-Message-ID: <4507311D.8080409@gmail.com>
-Date: Wed, 13 Sep 2006 00:13:26 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       Dave Jones <davej@redhat.com>
-Subject: Re: 2.6.18-rc6-mm2
-References: <20060912000618.a2e2afc0.akpm@osdl.org> <6bffcb0e0609121211t2dec0e49qb8d3dbfad2476852@mail.gmail.com> <45072E7A.2080701@gmail.com>
-In-Reply-To: <45072E7A.2080701@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 12 Sep 2006 18:17:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61867 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030361AbWILWRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 18:17:14 -0400
+Subject: Re: fix 2.4.33.3 / sun partition size
+From: "Tom 'spot' Callaway" <tcallawa@redhat.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+       sparclinux@vger.kernel.org
+In-Reply-To: <20060912191736.GG541@1wt.eu>
+References: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
+	 <20060912191736.GG541@1wt.eu>
+Content-Type: text/plain
+Organization: Red Hat
+Date: Tue, 12 Sep 2006 17:17:08 -0500
+Message-Id: <1158099428.13234.232.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-1.fc6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Michal Piotrowski wrote:
->> On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
->>>
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/ 
->>>
->>>
->>
->> My FC6T2 bug appeared in -mm
->> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=202223
->>
->> Any ideas about this?
+On Tue, 2006-09-12 at 21:17 +0200, Willy Tarreau wrote:
+> On Tue, Sep 12, 2006 at 01:23:56PM +0200, Jurzitza, Dieter wrote:
+> > Kernel: 2.4.33
+> > 
+> > Issue: really fix size display for sun partitions larger than 1TByte
+> > 
+> > Signed off by: Dieter Jurzitza DJurzitza@HarmanBecker.com
+> > 
+> > Problem: the last fix introduced by Jeff Mahoney for kernel 2.6 was not complete for kernel 2.4 (as applied)
+> > I found out that add_gd_partition is called by any type of partition (2.4). add_gd_partition is defined as add_gd_partition (int, int), what makes no sense to me as negative numbers should never occur here. As long as add_gd_partition is not changed to add_gd_partition (unsigned, unsigned), /proc/partitions will keep showing negative numbers.
 > 
-> Hi,
-> this is known:
-> http://lkml.org/lkml/2006/9/8/56
+> It seems fair. David, what's your opinion ?
+> 
+> > If ever someone could look into this, within the different partition type files in linux/fs/partitions the parameters to add_gd_partitions seem to be chosen arbitrarily between int, unsigned and unsigned long, whatever seemed to be appropriate, I think it would make sense to get consistent parameters to add_gd_partition from all partition types here.
+> > Especially if one takes into account that sizeof (long) and sizeof (int) may differ significantly i. e. on sparc.
+> 
+> It would really depend on the on-disk format. If the partition table really
+> stores 32 bit ints for sector counts, there's no point switching from ints
+> to longs. But if it already stores 64 bits, then we're limiting it to 2 TB
+> with 32 bit ints. I haven't checked the code right now, so I don't know. I
+> hope Davem will enlighten us on this matter.
 
-Of course, you know it, there is a link to the redhat bugzilla in the root post 
-of this...
+I think Davem may be on vacation...
 
-regards,
+~spot
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Tom "spot" Callaway || Red Hat || Fedora || Aurora || GPG ID: 93054260
+
+"We must not confuse dissent with disloyalty. We must remember always
+that accusation is not proof and that conviction depends upon evidence
+and due process of law. We will not walk in fear, one of another. We
+will not be driven by fear into an age of unreason, if we dig deep in
+our history and our doctrine, and remember that we are not descended
+from fearful men -- not from men who feared to write, to speak, to
+associate and to defend causes that were, for the moment, unpopular."
+-- Edward R. Murrow, March 9, 1954
+

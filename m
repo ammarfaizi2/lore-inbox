@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWILHaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWILHfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWILHaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 03:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWILHaz
+	id S1750935AbWILHfs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 03:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWILHfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 03:30:55 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:44984 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751389AbWILHaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 03:30:55 -0400
-Date: Tue, 12 Sep 2006 15:08:13 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: Don Mullis <dwm@meer.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [patch 6/6] process filtering for fault-injection capabilities
-Message-ID: <20060912070813.GA20802@miraclelinux.com>
-References: <1157696997.9460.99.camel@localhost.localdomain> <20060908070011.GA8889@miraclelinux.com> <1157825698.9460.110.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1157825698.9460.110.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Tue, 12 Sep 2006 03:35:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:58009 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750935AbWILHfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 03:35:47 -0400
+Subject: i386 PDA patches use of %gs
+From: Arjan van de Ven <arjan@infradead.org>
+To: akpm@osdl.org, ak@suse.de, mingo@elte.hu,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 12 Sep 2006 09:35:40 +0200
+Message-Id: <1158046540.2992.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 09, 2006 at 11:14:58AM -0700, Don Mullis wrote:
-> On Fri, 2006-09-08 at 15:00 +0800, Akinobu Mita wrote:
-> > Now I'm writing the filter which allow failing only for a specific
-> > module by using unwinding kernel stacks API.
-> 
-> Are you planning to use STACK_UNWIND?  I see that only i386
-> supports STACK_UNWIND.
-> 
-> Perhaps the much simpler STACKTRACE would suffice -- supported
-> by i386, x86_64, and s390?
+Hi,
 
-Thanks, I didn't realize the include/linux/stacktrace.h
+Userspace uses %gs for it's per thread data (and in modern linux
+versions that means "all the time", errno is there for example).
+
+On x86-64 this is the reason that the kernel uses the OTHER segment
+register; so for the PDA patches this would mean using %fs and not %gs.
+
+The advantage of this is very simple: %fs will be 0 for userspace most
+of the time. Putting 0 in a segment register is cheap for the cpu,
+putting anything else in is quite expensive (a LOT of security checks
+need to happen). As such I would MUCH rather see that the i386 PDA
+patches use %fs and not %gs... 
+
+Jeremy, is there a reason you're specifically using %gs and not %fs? If
+not, would you mind a switch to using %fs instead?
+
+Greetings,
+   Arjan van de Ven
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

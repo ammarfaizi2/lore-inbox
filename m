@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWILNUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWILNah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWILNUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 09:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWILNUW
+	id S1030211AbWILNah (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 09:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWILNah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 09:20:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57009 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030206AbWILNUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 09:20:22 -0400
-Subject: Re: Spinlock debugging
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Bird <ajb@spheresystems.co.uk>
+	Tue, 12 Sep 2006 09:30:37 -0400
+Received: from holoclan.de ([62.75.158.126]:29369 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1030211AbWILNag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 09:30:36 -0400
+Date: Tue, 12 Sep 2006 15:28:38 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: linux-thinkpad@linux-thinkpad.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200609120847.39655.ajb@spheresystems.co.uk>
-References: <200609111632.27484.ajb@spheresystems.co.uk>
-	 <200609111738.21818.ajb@spheresystems.co.uk>
-	 <1157995492.23085.191.camel@localhost.localdomain>
-	 <200609120847.39655.ajb@spheresystems.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Sep 2006 14:43:48 +0100
-Message-Id: <1158068628.6780.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Subject: Re: [ltp] 2.6.18-rc6, SATA, resume from RAM
+Message-ID: <20060912132838.GQ7767@gimli>
+Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
+	linux-kernel@vger.kernel.org
+References: <87u03dcmfc.fsf@pereiro.luannocracy.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87u03dcmfc.fsf@pereiro.luannocracy.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Tue, Sep 12, 2006 at 08:13:43AM -0400, David Abrahams
+	wrote: > > Since installing a 2.6.18-rc6 kernel, my Thinkpad T60P's SATA
+	hard > drive doesn't seem to spin up when resuming from a
+	suspend-to-RAM. Am > I missing something obvious, is this a kernel bug,
+	or am I missing > something less-obvious ;-)? [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-12 am 08:47 +0100, ysgrifennodd Andrew Bird:
-> Alan
-> 	thanks that did the trick. 
-> One further question, on the later kernels 2.6.17+, I don't have low_latency 
-> set. Can I still guarantee that after calling tty_flip_buffer_push() I have 
-> made space in the tty for my buffer? For example, is this legal? 
+On Tue, Sep 12, 2006 at 08:13:43AM -0400, David Abrahams wrote:
+> 
+> Since installing a 2.6.18-rc6 kernel, my Thinkpad T60P's SATA hard
+> drive doesn't seem to spin up when resuming from a suspend-to-RAM.  Am
+> I missing something obvious, is this a kernel bug, or am I missing
+> something less-obvious ;-)?
 
-It makes no guarantee in any kernel.
+I don't know if your T60 has the same issue like my X60s but I had to patch
+my kernel to get a proper resume
 
-In the new tty case however tty_buffer_request_room() will only fail if
-you have 64K queued or the box is completely out of atomic memory and
-also doing stuff like dropping network packets and console keystrokes.
+I applied forrest zhauo's set of ahci patches to 2.6.18-rc5
 
-So all you need in your IRQ handler is
+you find those patches here:
+http://marc.theaimsgroup.com/?l=linux-ide&m=115277002327654&w=2
 
-	if (tty_insert_flip_string(tty, buf, size))
-		tty_flip_buffer_push(tty);
+maybe they find there way into the kernel sometime :-)
 
-the rest will occur automatically. Hinting with tty_buffer_request_room
-may improve performance for some workloads (notably virtualized uarts)
-or when using DMA but otherwise the above should be fine.
+greets
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
 
-Most existing drivers were a straight conversion so at the moment try
-too hard.
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
 
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
 
+ICQ UIN: 33588107

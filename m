@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWILPfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWILPhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWILPfz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWILPfz
+	id S1751332AbWILPhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWILPhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:35:55 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8394 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751328AbWILPfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:35:54 -0400
-Subject: [PATCH] libata: improve handling of diagostic fail (and hardware
-	that misreports it)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Content-Type: text/plain
+	Tue, 12 Sep 2006 11:37:36 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:41188 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751332AbWILPhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:37:35 -0400
+Message-ID: <4506D438.6090804@fr.ibm.com>
+Date: Tue, 12 Sep 2006 17:37:28 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       containers@lists.osdl.org
+Subject: Re: [patch -mm] update mq_notify to use a struct pid
+References: <45019CC3.2030709@fr.ibm.com>	<m18xktkbli.fsf@ebiederm.dsl.xmission.com>	<450537B6.1020509@fr.ibm.com>	<m1u03eacdc.fsf@ebiederm.dsl.xmission.com>	<45056D3E.6040702@fr.ibm.com>	<m14pve9qip.fsf@ebiederm.dsl.xmission.com>	<4505DADD.4080007@fr.ibm.com> <m1ejuh98vn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ejuh98vn.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Sep 2006 16:55:12 +0100
-Message-Id: <1158076512.6780.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
 
-Our ATA probe code checks that a device is not reporting a diagnostic
-failure during start up. Unfortunately at least one device seems to like
-doing this - the Gigabyte iRAM.
+[ ... ]
 
-This is only done for the master right now (which is fine for the iRAM
-as it is SATA), as with PATA some combinations of ATAPI device seem to
-fool the check into seeing a drive that isn't there if it is applied to
-the slave.
+> There is also the case that should not come up with signals where
+> we have a pid from a child namespace, that we should also be able to
+> compute the pid for.
 
-Please review
+I don't understand how a signal can come from a child pid namespace ?
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> In essence I intend to have a list of pid_namespace, pid_t pairs connected
+> to a struct pid that we can look through to find the appropriate pid.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/ata/libata-core.c linux-2.6.18-rc6-mm1/drivers/ata/libata-core.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/ata/libata-core.c	2006-09-11 17:00:08.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/ata/libata-core.c	2006-09-12 11:18:34.000000000 +0100
-@@ -616,8 +616,11 @@
- 	if (r_err)
- 		*r_err = err;
- 
--	/* see if device passed diags */
--	if (err == 1)
-+	/* see if device passed diags: if master then continue and warn later */
-+	if (err == 0 && device == 0)
-+		/* diagnostic fail : do nothing _YET_ */
-+		ap->device[device].horkage |= ATA_HORKAGE_DIAGNOSTIC;
-+	else if(err == 1)
- 		/* do nothing */ ;
- 	else if ((device == 0) && (err == 0x81))
- 		/* do nothing */ ;
-@@ -1523,6 +1526,18 @@
- 				       cdb_intr_string);
- 	}
- 
-+	if (dev->horkage & ATA_HORKAGE_DIAGNOSTIC) {
-+		/* Let the user know. We don't want to disallow opens for
-+		   rescue purposes, or in case the vendor is just a blithering
-+		   idiot */
-+                if (print_info) {
-+			ata_dev_printk(dev, KERN_WARNING,
-+"Drive reports diagnostics failure. This may indicate a drive\n");
-+			ata_dev_printk(dev, KERN_WARNING,
-+"fault or invalid emulation. Contact drive vendor for information.\n");
-+		}
-+	}
-+
- 	ata_set_port_max_cmd_len(ap);
- 
- 	/* limit bridge transfers to udma5, 200 sectors */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/include/linux/libata.h linux-2.6.18-rc6-mm1/include/linux/libata.h
---- linux.vanilla-2.6.18-rc6-mm1/include/linux/libata.h	2006-09-11 17:00:24.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/include/linux/libata.h	2006-09-11 17:21:16.000000000 +0100
-@@ -289,6 +289,11 @@
- 	 * most devices.
- 	 */
- 	ATA_SPINUP_WAIT		= 8000,
-+	
-+	/* Horkage types. May be set by libata or controller on drives
-+	   (some horkage may be drive/controller pair dependant */
-+
-+	ATA_HORKAGE_DIAGNOSTIC	= 1,		/* Failed boot diag */
- };
- 
- enum hsm_task_states {
-@@ -469,6 +474,7 @@
- 
- 	/* error history */
- 	struct ata_ering	ering;
-+	unsigned int		horkage;	/* List of broken features */
- };
- 
- /* Offset into struct ata_device.  Fields above it are maintained
+yes, that's the purpose of pid_nr() I guess.
 
+This list would contain in nearly all cases a single pair (current pid
+namespace, pid value). It will contain 2 pairs for a task that has unshared
+its pid namespace : a pair for the current pid namespace, that needs to
+allocated when unshare() is called, and one pair for the ancestor pid
+namespace which is already allocated.
+
+Do you see more ?
+
+C.

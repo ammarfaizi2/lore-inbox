@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWILGTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWILGV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWILGTR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 02:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWILGTQ
+	id S1751320AbWILGV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 02:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWILGV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 02:19:16 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:30665 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1751282AbWILGTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 02:19:09 -0400
-Date: Tue, 12 Sep 2006 15:18:52 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PULL] sh64: Trivial fixes.
-Message-ID: <20060912061852.GA9249@localhost.na.rta>
+	Tue, 12 Sep 2006 02:21:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32738 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751320AbWILGV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 02:21:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Brandon Philips <brandon@ifup.org>, linux-kernel@vger.kernel.org,
+       Brice Goglin <brice@myri.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       Robert Love <rml@novell.com>
+Subject: Re: 2.6.18-rc6-mm1 2.6.18-rc5-mm1 Kernel Panic on X60s
+References: <20060908174437.GA5926@plankton.ifup.org>
+	<20060908121319.11a5dbb0.akpm@osdl.org>
+	<20060908194300.GA5901@plankton.ifup.org>
+	<20060908125053.c31b76e9.akpm@osdl.org>
+	<20060911021400.GA6163@plankton.ifup.org>
+	<20060911095106.2a7d6d95.akpm@osdl.org>
+Date: Tue, 12 Sep 2006 00:20:34 -0600
+In-Reply-To: <20060911095106.2a7d6d95.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 11 Sep 2006 09:51:06 -0700")
+Message-ID: <m1lkop7gi5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from:
+Andrew Morton <akpm@osdl.org> writes:
 
-	master.kernel.org:/pub/scm/linux/kernel/git/lethal/sh64-2.6.git
+> OK, thanks.
+>
+> I don't think this necessarily tells us where the bug lies.  It could be
+> some pre-existing thing in MSI, or it could be added by Bryce's changes. 
+> Or by Eric's.  Or, of course, by
+> genirq-convert-the-i386-architecture-to-irq-chips.patch.
+>
+> There doesn't seem to be a lot of movement on this and we want to get the
+> x86 genirq conversion into 2.6.19.  Could be that we end up having to merge
+> known-buggy stuff into mainline and crash enough computers to irritate
+> someone into fixing it.  Rather sad.
 
-Which contains:
 
-Paul Mundt:
-      sh64: Drop deprecated ISA tuning for legacy toolchains.
-      sh64: Trivial build fixes.
-      sh64: Use generic BUG_ON()/WARN_ON().
-      sh64: Add a sane pm_power_off implementation.
+Ok.  Looking at it I almost certain the problem is that
+we lost the hunk of code removed in: 266f0566761cf88906d634727b3d9fc2556f5cbd
+i386: Fix stack switching in do_IRQ
 
- arch/sh64/Makefile             |    1 -
- arch/sh64/kernel/process.c     |    3 +++
- arch/sh64/mach-cayman/setup.c  |    6 ++++--
- arch/sh64/mm/ioremap.c         |    4 +++-
- drivers/serial/sh-sci.c        |    4 ++--
- include/asm-sh64/bug.h         |   16 ++++------------
- include/asm-sh64/byteorder.h   |    4 ++--
- include/asm-sh64/dma-mapping.h |   16 ++++++++++++----
- include/asm-sh64/io.h          |    7 +++++++
- include/asm-sh64/ptrace.h      |    2 +-
- include/asm-sh64/system.h      |    2 +-
- include/asm-sh64/uaccess.h     |   19 +++++++------------
- 12 files changed, 46 insertions(+), 38 deletions(-)
+-       if (!irq_desc[irq].handle_irq) {
+-               __do_IRQ(irq, regs);
+-               goto out_exit;
+-       }
+
+The msi code does not yet set desc->handle_irq.  So when we attempt
+to call it we get a NULL pointer dereference.
+
+Except for adding that hunk back in and breaking 4K stacks I don't
+have an immediate fix.
+
+I do have a pending cleanup that should result in us setting handle_irq
+in all cases.  I will see if I can advance that shortly.
+
+Eric

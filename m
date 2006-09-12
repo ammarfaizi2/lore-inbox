@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbWILL0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965193AbWILLZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbWILL0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 07:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbWILL0L
+	id S965193AbWILLZx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 07:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbWILLZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 07:26:11 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:20976 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S965161AbWILL0J
+	Tue, 12 Sep 2006 07:25:53 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:32224 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S965161AbWILLZw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 07:26:09 -0400
-Date: Tue, 12 Sep 2006 13:26:05 +0200
+	Tue, 12 Sep 2006 07:25:52 -0400
+Date: Tue, 12 Sep 2006 13:25:50 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, geraldsc@de.ibm.com
-Subject: [S390] Cleanup in page table related code.
-Message-ID: <20060912112605.GB2826@skybase>
+To: linux-kernel@vger.kernel.org, melissah@us.ibm.com
+Subject: [S390] Linux API for writing z/VM APPLDATA Monitor records.
+Message-ID: <20060912112550.GA2826@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,423 +21,396 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gerald Schaefer <geraldsc@de.ibm.com>
+From: Melissa Howland <melissah@us.ibm.com>
 
-[S390] Cleanup in page table related code.
+[S390] Linux API for writing z/VM APPLDATA Monitor records.
 
-Changed and simplified some page table related #defines and code.
+This patch delivers a new Linux API in the form of a misc char
+device that is useable from user space and allows write access
+to the z/VM APPLDATA Monitor Records collected by the *MONITOR 
+System Service of z/VM.
 
-Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
+Signed-off-by: Melissa Howland <melissah@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/mm/init.c        |   36 +++++--------
- include/asm-s390/pgalloc.h |   65 +++++++++++------------
- include/asm-s390/pgtable.h |  124 +++++++++++++++++++++------------------------
- 3 files changed, 105 insertions(+), 120 deletions(-)
+ arch/s390/defconfig           |    1 
+ drivers/s390/Kconfig          |    6 
+ drivers/s390/char/Makefile    |    1 
+ drivers/s390/char/monwriter.c |  288 ++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/Kbuild       |    2 
+ include/asm-s390/monwriter.h  |   32 ++++
+ 6 files changed, 329 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/arch/s390/mm/init.c linux-2.6-patched/arch/s390/mm/init.c
---- linux-2.6/arch/s390/mm/init.c	2006-09-12 10:56:59.000000000 +0200
-+++ linux-2.6-patched/arch/s390/mm/init.c	2006-09-12 10:57:56.000000000 +0200
-@@ -108,16 +108,23 @@ void __init paging_init(void)
-         unsigned long pgdir_k = (__pa(swapper_pg_dir) & PAGE_MASK) | _KERNSEG_TABLE;
-         static const int ssm_mask = 0x04000000L;
- 	unsigned long ro_start_pfn, ro_end_pfn;
-+	unsigned long zones_size[MAX_NR_ZONES];
+diff -urpN linux-2.6/arch/s390/defconfig linux-2.6-patched/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	2006-09-12 10:57:17.000000000 +0200
++++ linux-2.6-patched/arch/s390/defconfig	2006-09-12 10:57:55.000000000 +0200
+@@ -428,6 +428,7 @@ CONFIG_S390_TAPE_34XX=m
+ # CONFIG_VMLOGRDR is not set
+ # CONFIG_VMCP is not set
+ # CONFIG_MONREADER is not set
++CONFIG_MONWRITER=m
  
- 	ro_start_pfn = PFN_DOWN((unsigned long)&__start_rodata);
- 	ro_end_pfn = PFN_UP((unsigned long)&__end_rodata);
- 
-+	memset(zones_size, 0, sizeof(zones_size));
-+	zones_size[ZONE_DMA] = max_low_pfn;
-+	free_area_init_node(0, &contig_page_data, zones_size,
-+			    __pa(PAGE_OFFSET) >> PAGE_SHIFT,
-+			    zholes_size);
-+
- 	/* unmap whole virtual address space */
- 	
-         pg_dir = swapper_pg_dir;
- 
--	for (i=0;i<KERNEL_PGD_PTRS;i++) 
--	        pmd_clear((pmd_t*)pg_dir++);
-+	for (i = 0; i < PTRS_PER_PGD; i++)
-+		pmd_clear((pmd_t *) pg_dir++);
- 		
- 	/*
- 	 * map whole physical memory to virtual memory (identity mapping) 
-@@ -131,10 +138,7 @@ void __init paging_init(void)
-                  */
- 		pg_table = (pte_t *) alloc_bootmem_pages(PAGE_SIZE);
- 
--                pg_dir->pgd0 =  (_PAGE_TABLE | __pa(pg_table));
--                pg_dir->pgd1 =  (_PAGE_TABLE | (__pa(pg_table)+1024));
--                pg_dir->pgd2 =  (_PAGE_TABLE | (__pa(pg_table)+2048));
--                pg_dir->pgd3 =  (_PAGE_TABLE | (__pa(pg_table)+3072));
-+		pmd_populate_kernel(&init_mm, (pmd_t *) pg_dir, pg_table);
-                 pg_dir++;
- 
-                 for (tmp = 0 ; tmp < PTRS_PER_PTE ; tmp++,pg_table++) {
-@@ -143,8 +147,8 @@ void __init paging_init(void)
- 			else
- 				pte = pfn_pte(pfn, PAGE_KERNEL);
-                         if (pfn >= max_low_pfn)
--                                pte_clear(&init_mm, 0, &pte);
--                        set_pte(pg_table, pte);
-+				pte_val(pte) = _PAGE_TYPE_EMPTY;
-+			set_pte(pg_table, pte);
-                         pfn++;
-                 }
-         }
-@@ -159,16 +163,6 @@ void __init paging_init(void)
- 			     : : "m" (pgdir_k), "m" (ssm_mask));
- 
-         local_flush_tlb();
--
--	{
--		unsigned long zones_size[MAX_NR_ZONES];
--
--		memset(zones_size, 0, sizeof(zones_size));
--		zones_size[ZONE_DMA] = max_low_pfn;
--		free_area_init_node(0, &contig_page_data, zones_size,
--				    __pa(PAGE_OFFSET) >> PAGE_SHIFT,
--				    zholes_size);
--	}
-         return;
- }
- 
-@@ -236,10 +230,8 @@ void __init paging_init(void)
- 					pte = pfn_pte(pfn, __pgprot(_PAGE_RO));
- 				else
- 					pte = pfn_pte(pfn, PAGE_KERNEL);
--                                if (pfn >= max_low_pfn) {
--                                        pte_clear(&init_mm, 0, &pte); 
--                                        continue;
--                                }
-+				if (pfn >= max_low_pfn)
-+					pte_val(pte) = _PAGE_TYPE_EMPTY;
-                                 set_pte(pt_dir, pte);
-                                 pfn++;
-                         }
-diff -urpN linux-2.6/include/asm-s390/pgalloc.h linux-2.6-patched/include/asm-s390/pgalloc.h
---- linux-2.6/include/asm-s390/pgalloc.h	2006-09-12 10:57:10.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/pgalloc.h	2006-09-12 10:57:56.000000000 +0200
-@@ -22,6 +22,16 @@
- extern void diag10(unsigned long addr);
- 
- /*
-+ * Page allocation orders.
+ #
+ # Cryptographic devices
+diff -urpN linux-2.6/drivers/s390/char/Makefile linux-2.6-patched/drivers/s390/char/Makefile
+--- linux-2.6/drivers/s390/char/Makefile	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/Makefile	2006-09-12 10:57:55.000000000 +0200
+@@ -28,3 +28,4 @@ obj-$(CONFIG_S390_TAPE) += tape.o tape_c
+ obj-$(CONFIG_S390_TAPE_34XX) += tape_34xx.o
+ obj-$(CONFIG_S390_TAPE_3590) += tape_3590.o
+ obj-$(CONFIG_MONREADER) += monreader.o
++obj-$(CONFIG_MONWRITER) += monwriter.o
+diff -urpN linux-2.6/drivers/s390/char/monwriter.c linux-2.6-patched/drivers/s390/char/monwriter.c
+--- linux-2.6/drivers/s390/char/monwriter.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/monwriter.c	2006-09-12 10:57:55.000000000 +0200
+@@ -0,0 +1,288 @@
++/*
++ * drivers/s390/char/monwriter.c
++ *
++ * Character device driver for writing z/VM *MONITOR service records.
++ *
++ * Copyright (C) IBM Corp. 2006
++ *
++ * Author(s): Melissa Howland <Melissa.Howland@us.ibm.com>
 + */
-+#ifndef __s390x__
-+# define PGD_ALLOC_ORDER	1
-+#else /* __s390x__ */
-+# define PMD_ALLOC_ORDER	2
-+# define PGD_ALLOC_ORDER	2
-+#endif /* __s390x__ */
++
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/miscdevice.h>
++#include <linux/ctype.h>
++#include <linux/poll.h>
++#include <asm/uaccess.h>
++#include <asm/ebcdic.h>
++#include <asm/io.h>
++#include <asm/appldata.h>
++#include <asm/monwriter.h>
++
++#define MONWRITE_MAX_DATALEN	4024
++
++static int mon_max_bufs = 255;
++
++struct mon_buf {
++	struct list_head list;
++	struct monwrite_hdr hdr;
++	int diag_done;
++	char *data;
++};
++
++struct mon_private {
++	struct list_head list;
++	struct monwrite_hdr hdr;
++	size_t hdr_to_read;
++	size_t data_to_read;
++	struct mon_buf *current_buf;
++	int mon_buf_count;
++};
 +
 +/*
-  * Allocate and free page tables. The xxx_kernel() versions are
-  * used to allocate a kernel page table - this turns on ASN bits
-  * if any.
-@@ -29,30 +39,23 @@ extern void diag10(unsigned long addr);
- 
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- {
--	pgd_t *pgd;
-+	pgd_t *pgd = (pgd_t *) __get_free_pages(GFP_KERNEL, PGD_ALLOC_ORDER);
- 	int i;
- 
-+	if (!pgd)
-+		return NULL;
-+	for (i = 0; i < PTRS_PER_PGD; i++)
- #ifndef __s390x__
--	pgd = (pgd_t *) __get_free_pages(GFP_KERNEL,1);
--        if (pgd != NULL)
--		for (i = 0; i < USER_PTRS_PER_PGD; i++)
--			pmd_clear(pmd_offset(pgd + i, i*PGDIR_SIZE));
--#else /* __s390x__ */
--	pgd = (pgd_t *) __get_free_pages(GFP_KERNEL,2);
--        if (pgd != NULL)
--		for (i = 0; i < PTRS_PER_PGD; i++)
--			pgd_clear(pgd + i);
--#endif /* __s390x__ */
-+		pmd_clear(pmd_offset(pgd + i, i*PGDIR_SIZE));
-+#else
-+		pgd_clear(pgd + i);
-+#endif
- 	return pgd;
- }
- 
- static inline void pgd_free(pgd_t *pgd)
- {
--#ifndef __s390x__
--        free_pages((unsigned long) pgd, 1);
--#else /* __s390x__ */
--        free_pages((unsigned long) pgd, 2);
--#endif /* __s390x__ */
-+	free_pages((unsigned long) pgd, PGD_ALLOC_ORDER);
- }
- 
- #ifndef __s390x__
-@@ -68,20 +71,19 @@ static inline void pgd_free(pgd_t *pgd)
- #else /* __s390x__ */
- static inline pmd_t * pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
- {
--	pmd_t *pmd;
--        int i;
-+	pmd_t *pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ALLOC_ORDER);
-+	int i;
- 
--	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, 2);
--	if (pmd != NULL) {
--		for (i=0; i < PTRS_PER_PMD; i++)
--			pmd_clear(pmd+i);
--	}
-+	if (!pmd)
-+		return NULL;
-+	for (i=0; i < PTRS_PER_PMD; i++)
-+		pmd_clear(pmd + i);
- 	return pmd;
- }
- 
- static inline void pmd_free (pmd_t *pmd)
- {
--	free_pages((unsigned long) pmd, 2);
-+	free_pages((unsigned long) pmd, PMD_ALLOC_ORDER);
- }
- 
- #define __pmd_free_tlb(tlb,pmd)			\
-@@ -123,15 +125,14 @@ pmd_populate(struct mm_struct *mm, pmd_t
- static inline pte_t *
- pte_alloc_one_kernel(struct mm_struct *mm, unsigned long vmaddr)
- {
--	pte_t *pte;
--        int i;
-+	pte_t *pte = (pte_t *) __get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+	int i;
- 
--	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pte != NULL) {
--		for (i=0; i < PTRS_PER_PTE; i++) {
--			pte_clear(mm, vmaddr, pte+i);
--			vmaddr += PAGE_SIZE;
--		}
-+	if (!pte)
-+		return NULL;
-+	for (i=0; i < PTRS_PER_PTE; i++) {
-+		pte_clear(mm, vmaddr, pte + i);
-+		vmaddr += PAGE_SIZE;
- 	}
- 	return pte;
- }
-diff -urpN linux-2.6/include/asm-s390/pgtable.h linux-2.6-patched/include/asm-s390/pgtable.h
---- linux-2.6/include/asm-s390/pgtable.h	2006-09-12 10:57:10.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/pgtable.h	2006-09-12 10:57:56.000000000 +0200
-@@ -89,19 +89,6 @@ extern char empty_zero_page[PAGE_SIZE];
- # define PTRS_PER_PGD    2048
- #endif /* __s390x__ */
- 
--/*
-- * pgd entries used up by user/kernel:
-- */
--#ifndef __s390x__
--# define USER_PTRS_PER_PGD  512
--# define USER_PGD_PTRS      512
--# define KERNEL_PGD_PTRS    512
--#else /* __s390x__ */
--# define USER_PTRS_PER_PGD  2048
--# define USER_PGD_PTRS      2048
--# define KERNEL_PGD_PTRS    2048
--#endif /* __s390x__ */
--
- #define FIRST_USER_ADDRESS  0
- 
- #define pte_ERROR(e) \
-@@ -216,12 +203,14 @@ extern char empty_zero_page[PAGE_SIZE];
- #define _PAGE_RO        0x200          /* HW read-only                     */
- #define _PAGE_INVALID   0x400          /* HW invalid                       */
- 
--/* Mask and four different kinds of invalid pages. */
--#define _PAGE_INVALID_MASK	0x601
--#define _PAGE_INVALID_EMPTY	0x400
--#define _PAGE_INVALID_NONE	0x401
--#define _PAGE_INVALID_SWAP	0x600
--#define _PAGE_INVALID_FILE	0x601
-+/* Mask and six different types of pages. */
-+#define _PAGE_TYPE_MASK		0x601
-+#define _PAGE_TYPE_EMPTY	0x400
-+#define _PAGE_TYPE_NONE		0x401
-+#define _PAGE_TYPE_SWAP		0x600
-+#define _PAGE_TYPE_FILE		0x601
-+#define _PAGE_TYPE_RO		0x200
-+#define _PAGE_TYPE_RW		0x000
- 
- #ifndef __s390x__
- 
-@@ -280,15 +269,14 @@ extern char empty_zero_page[PAGE_SIZE];
- #endif /* __s390x__ */
- 
- /*
-- * No mapping available
-+ * Page protection definitions.
-  */
--#define PAGE_NONE_SHARED  __pgprot(_PAGE_INVALID_NONE)
--#define PAGE_NONE_PRIVATE __pgprot(_PAGE_INVALID_NONE)
--#define PAGE_RO_SHARED	  __pgprot(_PAGE_RO)
--#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_RO)
--#define PAGE_COPY	  __pgprot(_PAGE_RO)
--#define PAGE_SHARED	  __pgprot(0)
--#define PAGE_KERNEL	  __pgprot(0)
-+#define PAGE_NONE	__pgprot(_PAGE_TYPE_NONE)
-+#define PAGE_RO		__pgprot(_PAGE_TYPE_RO)
-+#define PAGE_RW		__pgprot(_PAGE_TYPE_RW)
++ * helper functions
++ */
 +
-+#define PAGE_KERNEL	PAGE_RW
-+#define PAGE_COPY	PAGE_RO
- 
- /*
-  * The S390 can't do page protection for execute, and considers that the
-@@ -296,23 +284,23 @@ extern char empty_zero_page[PAGE_SIZE];
-  * the closest we can get..
-  */
-          /*xwr*/
--#define __P000  PAGE_NONE_PRIVATE
--#define __P001  PAGE_RO_PRIVATE
--#define __P010  PAGE_COPY
--#define __P011  PAGE_COPY
--#define __P100  PAGE_RO_PRIVATE
--#define __P101  PAGE_RO_PRIVATE
--#define __P110  PAGE_COPY
--#define __P111  PAGE_COPY
--
--#define __S000  PAGE_NONE_SHARED
--#define __S001  PAGE_RO_SHARED
--#define __S010  PAGE_SHARED
--#define __S011  PAGE_SHARED
--#define __S100  PAGE_RO_SHARED
--#define __S101  PAGE_RO_SHARED
--#define __S110  PAGE_SHARED
--#define __S111  PAGE_SHARED
-+#define __P000	PAGE_NONE
-+#define __P001	PAGE_RO
-+#define __P010	PAGE_RO
-+#define __P011	PAGE_RO
-+#define __P100	PAGE_RO
-+#define __P101	PAGE_RO
-+#define __P110	PAGE_RO
-+#define __P111	PAGE_RO
++static int monwrite_diag(struct monwrite_hdr *myhdr, char *buffer, int fcn)
++{
++	struct appldata_product_id id;
++	int rc;
 +
-+#define __S000	PAGE_NONE
-+#define __S001	PAGE_RO
-+#define __S010	PAGE_RW
-+#define __S011	PAGE_RW
-+#define __S100	PAGE_RO
-+#define __S101	PAGE_RO
-+#define __S110	PAGE_RW
-+#define __S111	PAGE_RW
- 
- /*
-  * Certain architectures need to do special things when PTEs
-@@ -377,18 +365,18 @@ static inline int pmd_bad(pmd_t pmd)
- 
- static inline int pte_none(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_EMPTY;
-+	return (pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_EMPTY;
- }
- 
- static inline int pte_present(pte_t pte)
- {
- 	return !(pte_val(pte) & _PAGE_INVALID) ||
--		(pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_NONE;
-+		(pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_NONE;
- }
- 
- static inline int pte_file(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_FILE;
-+	return (pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_FILE;
- }
- 
- #define pte_same(a,b)	(pte_val(a) == pte_val(b))
-@@ -461,7 +449,7 @@ static inline void pmd_clear(pmd_t * pmd
- 
- static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
- {
--	pte_val(*ptep) = _PAGE_INVALID_EMPTY;
-+	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- }
- 
- /*
-@@ -477,7 +465,7 @@ static inline pte_t pte_modify(pte_t pte
- 
- static inline pte_t pte_wrprotect(pte_t pte)
- {
--	/* Do not clobber _PAGE_INVALID_NONE pages!  */
-+	/* Do not clobber _PAGE_TYPE_NONE pages!  */
- 	if (!(pte_val(pte) & _PAGE_INVALID))
- 		pte_val(pte) |= _PAGE_RO;
- 	return pte;
-@@ -556,26 +544,30 @@ static inline pte_t ptep_get_and_clear(s
- 	return pte;
- }
- 
--static inline pte_t
--ptep_clear_flush(struct vm_area_struct *vma,
--		 unsigned long address, pte_t *ptep)
-+static inline void __ptep_ipte(unsigned long address, pte_t *ptep)
- {
--	pte_t pte = *ptep;
-+	if (!(pte_val(*ptep) & _PAGE_INVALID)) {
- #ifndef __s390x__
--	if (!(pte_val(pte) & _PAGE_INVALID)) {
- 		/* S390 has 1mb segments, we are emulating 4MB segments */
- 		pte_t *pto = (pte_t *) (((unsigned long) ptep) & 0x7ffffc00);
--		__asm__ __volatile__ ("ipte %2,%3"
--				      : "=m" (*ptep) : "m" (*ptep),
--				        "a" (pto), "a" (address) );
-+#else
-+		/* ipte in zarch mode can do the math */
-+		pte_t *pto = ptep;
-+#endif
-+		asm volatile ("ipte %2,%3"
-+			      : "=m" (*ptep) : "m" (*ptep),
-+				"a" (pto), "a" (address) );
- 	}
--#else /* __s390x__ */
--	if (!(pte_val(pte) & _PAGE_INVALID)) 
--		__asm__ __volatile__ ("ipte %2,%3"
--				      : "=m" (*ptep) : "m" (*ptep),
--				        "a" (ptep), "a" (address) );
--#endif /* __s390x__ */
--	pte_val(*ptep) = _PAGE_INVALID_EMPTY;
-+	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
++	strcpy(id.prod_nr, "LNXAPPL");
++	id.prod_fn = myhdr->applid;
++	id.record_nr = myhdr->record_num;
++	id.version_nr = myhdr->version;
++	id.release_nr = myhdr->release;
++	id.mod_lvl = myhdr->mod_level;
++	rc = appldata_asm(&id, fcn, (void *) buffer, myhdr->datalen);
++	if (rc <= 0)
++		return rc;
++	if (rc == 5)
++		return -EPERM;
++	printk("DIAG X'DC' error with return code: %i\n", rc);
++	return -EINVAL;
 +}
 +
-+static inline pte_t
-+ptep_clear_flush(struct vm_area_struct *vma,
-+		 unsigned long address, pte_t *ptep)
++static inline struct mon_buf *monwrite_find_hdr(struct mon_private *monpriv,
++						struct monwrite_hdr *monhdr)
 +{
-+	pte_t pte = *ptep;
++	struct mon_buf *entry, *next;
 +
-+	__ptep_ipte(address, ptep);
- 	return pte;
- }
++	list_for_each_entry_safe(entry, next, &monpriv->list, list)
++		if (memcmp(&entry->hdr, monhdr, sizeof(entry->hdr)) == 0)
++			return entry;
++	return NULL;
++}
++
++static int monwrite_new_hdr(struct mon_private *monpriv)
++{
++	struct monwrite_hdr *monhdr = &monpriv->hdr;
++	struct mon_buf *monbuf;
++	int rc;
++
++	if (monhdr->datalen > MONWRITE_MAX_DATALEN ||
++	    monhdr->mon_function > MONWRITE_START_CONFIG ||
++	    monhdr->hdrlen != sizeof(struct monwrite_hdr))
++		return -EINVAL;
++
++	monbuf = monwrite_find_hdr(monpriv, monhdr);
++	if (monbuf) {
++		if (monhdr->mon_function == MONWRITE_STOP_INTERVAL) {
++			rc = monwrite_diag(monhdr, monbuf->data,
++					   APPLDATA_STOP_REC);
++			list_del(&monbuf->list);
++			monpriv->mon_buf_count--;
++			kfree(monbuf->data);
++			kfree(monbuf);
++			monbuf = NULL;
++		}
++	} else {
++		if (monpriv->mon_buf_count >= mon_max_bufs)
++			return -ENOSPC;
++		monbuf = kzalloc(sizeof(struct mon_buf), GFP_KERNEL);
++		if (!monbuf)
++			return -ENOMEM;
++		monbuf->data = kzalloc(monbuf->hdr.datalen,
++				       GFP_KERNEL | GFP_DMA);
++		if (!monbuf->data) {
++			kfree(monbuf);
++			return -ENOMEM;
++		}
++		monbuf->hdr = *monhdr;
++		list_add_tail(&monbuf->list, &monpriv->list);
++		monpriv->mon_buf_count++;
++	}
++	monpriv->current_buf = monbuf;
++	return 0;
++}
++
++static int monwrite_new_data(struct mon_private *monpriv)
++{
++	struct monwrite_hdr *monhdr = &monpriv->hdr;
++	struct mon_buf *monbuf = monpriv->current_buf;
++	int rc = 0;
++
++	switch (monhdr->mon_function) {
++	case MONWRITE_START_INTERVAL:
++		if (!monbuf->diag_done) {
++			rc = monwrite_diag(monhdr, monbuf->data,
++					   APPLDATA_START_INTERVAL_REC);
++			monbuf->diag_done = 1;
++		}
++		break;
++	case MONWRITE_START_CONFIG:
++		if (!monbuf->diag_done) {
++			rc = monwrite_diag(monhdr, monbuf->data,
++					   APPLDATA_START_CONFIG_REC);
++			monbuf->diag_done = 1;
++		}
++		break;
++	case MONWRITE_GEN_EVENT:
++		rc = monwrite_diag(monhdr, monbuf->data,
++				   APPLDATA_GEN_EVENT_REC);
++		list_del(&monpriv->current_buf->list);
++		kfree(monpriv->current_buf->data);
++		kfree(monpriv->current_buf);
++		monpriv->current_buf = NULL;
++		break;
++	default:
++		/* monhdr->mon_function is checked in monwrite_new_hdr */
++		BUG();
++	}
++	return rc;
++}
++
++/*
++ * file operations
++ */
++
++static int monwrite_open(struct inode *inode, struct file *filp)
++{
++	struct mon_private *monpriv;
++
++	monpriv = kzalloc(sizeof(struct mon_private), GFP_KERNEL);
++	if (!monpriv)
++		return -ENOMEM;
++	INIT_LIST_HEAD(&monpriv->list);
++	monpriv->hdr_to_read = sizeof(monpriv->hdr);
++	filp->private_data = monpriv;
++	return nonseekable_open(inode, filp);
++}
++
++static int monwrite_close(struct inode *inode, struct file *filp)
++{
++	struct mon_private *monpriv = filp->private_data;
++	struct mon_buf *entry, *next;
++
++	list_for_each_entry_safe(entry, next, &monpriv->list, list) {
++		if (entry->hdr.mon_function != MONWRITE_GEN_EVENT)
++			monwrite_diag(&entry->hdr, entry->data,
++				      APPLDATA_STOP_REC);
++		monpriv->mon_buf_count--;
++		list_del(&entry->list);
++		kfree(entry->data);
++		kfree(entry);
++	}
++	kfree(monpriv);
++	return 0;
++}
++
++static ssize_t monwrite_write(struct file *filp, const char __user *data,
++			      size_t count, loff_t *ppos)
++{
++	struct mon_private *monpriv = filp->private_data;
++	size_t len, written;
++	void *to;
++	int rc;
++
++	for (written = 0; written < count; ) {
++		if (monpriv->hdr_to_read) {
++			len = min(count - written, monpriv->hdr_to_read);
++			to = (char *) &monpriv->hdr +
++				sizeof(monpriv->hdr) - monpriv->hdr_to_read;
++			if (copy_from_user(to, data + written, len)) {
++				rc = -EFAULT;
++				goto out_error;
++			}
++			monpriv->hdr_to_read -= len;
++			written += len;
++			if (monpriv->hdr_to_read > 0)
++				continue;
++			rc = monwrite_new_hdr(monpriv);
++			if (rc)
++				goto out_error;
++			monpriv->data_to_read = monpriv->current_buf ?
++				monpriv->current_buf->hdr.datalen : 0;
++		}
++
++		if (monpriv->data_to_read) {
++			len = min(count - written, monpriv->data_to_read);
++			to = monpriv->current_buf->data +
++				monpriv->hdr.datalen - monpriv->data_to_read;
++			if (copy_from_user(to, data + written, len)) {
++				rc = -EFAULT;
++				goto out_error;
++			}
++			monpriv->data_to_read -= len;
++			written += len;
++			if (monpriv->data_to_read > 0)
++				continue;
++			rc = monwrite_new_data(monpriv);
++			if (rc)
++				goto out_error;
++		}
++		monpriv->hdr_to_read = sizeof(monpriv->hdr);
++	}
++	return written;
++
++out_error:
++	monpriv->data_to_read = 0;
++	monpriv->hdr_to_read = sizeof(struct monwrite_hdr);
++	return rc;
++}
++
++static struct file_operations monwrite_fops = {
++	.owner	 = THIS_MODULE,
++	.open	 = &monwrite_open,
++	.release = &monwrite_close,
++	.write	 = &monwrite_write,
++};
++
++static struct miscdevice mon_dev = {
++	.name	= "monwriter",
++	.fops	= &monwrite_fops,
++	.minor	= MISC_DYNAMIC_MINOR,
++};
++
++/*
++ * module init/exit
++ */
++
++static int __init mon_init(void)
++{
++	if (MACHINE_IS_VM)
++		return misc_register(&mon_dev);
++	else
++		return -ENODEV;
++}
++
++static void __exit mon_exit(void)
++{
++	WARN_ON(misc_deregister(&mon_dev) != 0);
++}
++
++module_init(mon_init);
++module_exit(mon_exit);
++
++module_param_named(max_bufs, mon_max_bufs, int, 0644);
++MODULE_PARM_DESC(max_bufs, "Maximum number of sample monitor data buffers"
++		 "that can be active at one time");
++
++MODULE_AUTHOR("Melissa Howland <Melissa.Howland@us.ibm.com>");
++MODULE_DESCRIPTION("Character device driver for writing z/VM "
++		   "APPLDATA monitor records.");
++MODULE_LICENSE("GPL");
+diff -urpN linux-2.6/drivers/s390/Kconfig linux-2.6-patched/drivers/s390/Kconfig
+--- linux-2.6/drivers/s390/Kconfig	2006-09-12 10:57:26.000000000 +0200
++++ linux-2.6-patched/drivers/s390/Kconfig	2006-09-12 10:57:55.000000000 +0200
+@@ -213,6 +213,12 @@ config MONREADER
+ 	help
+ 	  Character device driver for reading z/VM monitor service records
  
-@@ -755,7 +747,7 @@ static inline pte_t mk_swap_pte(unsigned
- {
- 	pte_t pte;
- 	offset &= __SWP_OFFSET_MASK;
--	pte_val(pte) = _PAGE_INVALID_SWAP | ((type & 0x1f) << 2) |
-+	pte_val(pte) = _PAGE_TYPE_SWAP | ((type & 0x1f) << 2) |
- 		((offset & 1UL) << 7) | ((offset & ~1UL) << 11);
- 	return pte;
- }
-@@ -778,7 +770,7 @@ static inline pte_t mk_swap_pte(unsigned
++config MONWRITER
++	tristate "API for writing z/VM monitor service records"
++	default "m"
++	help
++	  Character device driver for writing z/VM monitor service records
++
+ endmenu
  
- #define pgoff_to_pte(__off) \
- 	((pte_t) { ((((__off) & 0x7f) << 1) + (((__off) >> 7) << 12)) \
--		   | _PAGE_INVALID_FILE })
-+		   | _PAGE_TYPE_FILE })
+ menu "Cryptographic devices"
+diff -urpN linux-2.6/include/asm-s390/Kbuild linux-2.6-patched/include/asm-s390/Kbuild
+--- linux-2.6/include/asm-s390/Kbuild	2006-09-12 10:57:10.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/Kbuild	2006-09-12 10:57:55.000000000 +0200
+@@ -1,4 +1,4 @@
+ include include/asm-generic/Kbuild.asm
  
- #endif /* !__ASSEMBLY__ */
- 
+ unifdef-y += cmb.h debug.h
+-header-y += dasd.h qeth.h tape390.h ucontext.h vtoc.h z90crypt.h
++header-y += dasd.h monwriter.h qeth.h tape390.h ucontext.h vtoc.h z90crypt.h
+diff -urpN linux-2.6/include/asm-s390/monwriter.h linux-2.6-patched/include/asm-s390/monwriter.h
+--- linux-2.6/include/asm-s390/monwriter.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/monwriter.h	2006-09-12 10:57:55.000000000 +0200
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (C) 2004, 2005 IBM Corporation
++ * Character device driver for writing z/VM APPLDATA monitor records
++ * Version 1.0
++ * Author(s): Melissa Howland <melissah@us.ibm.com>
++ *
++ */
++
++/* mon_function values */
++#define MONWRITE_START_INTERVAL	0x00 /* start interval recording */
++#define MONWRITE_STOP_INTERVAL	0x01 /* stop interval or config recording */
++#define MONWRITE_GEN_EVENT	0x02 /* generate event record */
++#define MONWRITE_START_CONFIG	0x03 /* start configuration recording */
++
++
++/* the header the app uses in its write() data */
++struct monwrite_hdr {
++	unsigned char mon_function;
++	unsigned short applid;
++	unsigned char record_num;
++	unsigned short version;
++	unsigned short release;
++	unsigned short mod_level;
++	unsigned short datalen;
++	unsigned char hdrlen;
++
++} __attribute__((packed));
++
++#define MON_MAX_BUFS		255
++#define MONWRITE_MAX_DATALEN	4024
++#define MON_HDRLEN		sizeof(struct monwrite_hdr)
++#define MON_HDRLEN_MIN		13

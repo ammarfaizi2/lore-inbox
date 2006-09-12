@@ -1,83 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWILGNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWILGTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWILGNF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 02:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWILGNF
+	id S964921AbWILGTH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 02:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWILGTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 02:13:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:25785 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751173AbWILGNC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 02:13:02 -0400
-Subject: Re: Opinion on ordering of writel vs. stores to RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: jbarnes@virtuousgeek.org, alan@lxorguk.ukuu.org.uk, davem@davemloft.net,
-       jeff@garzik.org, paulus@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, segher@kernel.crashing.org
-In-Reply-To: <787b0d920609112304x3342e3bek88a8e12da62adac4@mail.gmail.com>
-References: <787b0d920609112130v2d855023ief2457942736ccfd@mail.gmail.com>
-	 <1158039004.15465.62.camel@localhost.localdomain>
-	 <787b0d920609112304x3342e3bek88a8e12da62adac4@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 12 Sep 2006 16:12:38 +1000
-Message-Id: <1158041558.15465.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 12 Sep 2006 02:19:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:32864 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751282AbWILGTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 02:19:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c4UaZD2T99Wbkc+7r9HKUJF6lRSr4G8rmD05bn2/0Uhmvt6OqcahbfyrI6082WTHjfNNYNK01K6UdZRXXqQDfvGcW2MoO2h0G7biT1cSDsKyoliu4HGCWw+LArOH0vtR93Yrp+Vp6x9AavLdORRg1BAtltAZeUBQgeZLZx+unaM=
+Message-ID: <e9c3a7c20609112318o7febe296he6162ddd494499fd@mail.gmail.com>
+Date: Mon, 11 Sep 2006 23:18:59 -0700
+From: "Dan Williams" <dan.j.williams@gmail.com>
+To: "Roland Dreier" <rdreier@cisco.com>
+Subject: Re: [PATCH 08/19] dmaengine: enable multiple clients and operations
+Cc: "Jeff Garzik" <jeff@garzik.org>, neilb@suse.de, linux-raid@vger.kernel.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       christopher.leech@intel.com, "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+In-Reply-To: <adairjt3nz4.fsf@cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
+	 <20060911231817.4737.49381.stgit@dwillia2-linux.ch.intel.com>
+	 <4505F4D0.7010901@garzik.org>
+	 <e9c3a7c20609111714h1b88f8cbid99c567d7f3e997c@mail.gmail.com>
+	 <adairjt3nz4.fsf@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Oops, I forgot about store-store ordering being automatic.
-> Pretend I had some loads in my example.
-
-Well, in 99% of the cases, you want MMIO loads to be orderd vs. MMIO
-stores and thus you can use __writel and __readl (which will only do an
-eieio in __readl). If you are really that picky, then, of course you can
-go use the __raw_* versions.
-  
-> A proper interface would be more explicit about what the
-> fence does, so that driver authors shouldn't need to know
-> this detail.
-
-What detail ? Isn't my document explicit enough ? If not, please let me
-know what is not clear in the definition of the 4 ordering rules and the
-matching fences.
-
-> OK, a different discussion... though memory being used
-> for DMA seems rather related. You need to flush before
-> a DMA out, or invalidate before a DMA in.
-
-This is already documented elsewhere.
-
-> So you say: never mix strict mappings with loose operations,
-> and never mix loose mappings with strict operations.
-
-I don't want the concept of "lose mappings" in the generic driver
-interface for now anyway :)
-
-It's too implementation specific and I want to know that a given access
-is strictly ordered or relaxed just by looking at the accessor used, not
-having to go look for where the driver did the ioremap. We can still
-provide arch specific things where we feel it's useful but let's move
-one step at a time with the generic accessors.
-
-The only "lose" mapping that we'll introduce next is write combining,
-but that's also a different debate. Again, one thing at a time :)
-
-> That is an excellent rule. I see no need to stop people from
-> actively trying to shoot their feet though. I'm certainly not
-> suggesting that people be mixing things.
-> 
-> For some CPUs, you want to be specifying things when you
-> set up the mapping. For other CPUs, the read/write code is
-> how this gets determined. So developers specify both.
-
-For now, we are assuming that if the mapping controls ordering, then
-it's strictly order. We'll see if we hit an arch where that becomes a
-problem.
-
-Ben.
+On 9/11/06, Roland Dreier <rdreier@cisco.com> wrote:
+>     Jeff> Are we really going to add a set of hooks for each DMA
+>     Jeff> engine whizbang feature?
+...ok, but at some level we are going to need a file that has:
+EXPORT_SYMBOL_GPL(dma_whizbang_op1)
+. . .
+EXPORT_SYMBOL_GPL(dma_whizbang_opX)
+correct?
 
 
+>     Dan> What's the alternative?  But, also see patch 9 "dmaengine:
+>     Dan> reduce backend address permutations" it relieves some of this
+>     Dan> pain.
+>
+> I guess you can pass an opcode into a common "start operation" function.
+But then we still have the problem of being able to request a memory
+copy operation of a channel that only understands xor, a la Jeff's
+comment to patch 12:
+
+"Further illustration of how this API growth is going wrong.  You should
+create an API such that it is impossible for an XOR transform to ever
+call non-XOR-transform hooks."
+
+> With all the memcpy / xor / crypto / etc. hardware out there already,
+> we definitely have to get this interface right.
+>
+>  - R.
+
+I understand what you are saying Jeff, the implementation can be made
+better, but something I think is valuable is the ability to write
+clients once like NET_DMA and RAID5_DMA and have them run without
+modification on any platform that can provide the engine interface
+rather than needing a client per architecture
+IOP_RAID5_DMA...FOO_X_RAID5_DMA.
+
+Or is this an example of the where "Do What You Must, And No More"
+comes in, i.e. don't worry about making a generic RAID5_DMA while
+there is only one implementation existence?
+
+I also want to pose the question of whether the dmaengine interface
+should handle cryptographic transforms?  We already have Acrypto:
+http://tservice.net.ru/~s0mbre/blog/devel/acrypto/index.html.  At the
+same time since IOPs can do Galois Field multiplication and XOR it
+would be nice to take advantage of that for crypto acceleration, but
+this does not fit the model of a device that Acrypto supports.
+
+Dan

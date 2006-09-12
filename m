@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWILPwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWILPyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbWILPwq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWILPwn
+	id S1751468AbWILPyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWILPyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:52:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19428 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751423AbWILPwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:52:17 -0400
-Subject: [PATCH] pata_amd: Check enable bits on Nvidia
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Sep 2006 17:14:03 +0100
-Message-Id: <1158077643.6780.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 12 Sep 2006 11:54:45 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:28474 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751433AbWILPvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:51:00 -0400
+Message-Id: <20060912144904.869344000@chello.nl>
+References: <20060912143049.278065000@chello.nl>
+User-Agent: quilt/0.45-1
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Mike Christie <michaelc@cs.wisc.edu>
+Subject: [PATCH 17/20] scsi: propagate the swapdev hook into the scsi stack
+Content-Disposition: inline; filename=scsi_swapdev.patch
+Date: Tue, 12 Sep 2006 17:25:49 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of people reported long delays on probe with the newer kernels
-and Nvidia PATA. This turned out to be because the Nvidia path forgot to
-check the enable bits so probed empty ports.
+Allow scsi devices to receive the swapdev notification.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: James E.J. Bottomley <James.Bottomley@SteelEye.com>
+CC: Mike Christie <michaelc@cs.wisc.edu>
+---
+ drivers/scsi/sd.c        |   13 +++++++++++++
+ include/scsi/scsi_host.h |    7 +++++++
+ 2 files changed, 20 insertions(+)
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/ata/pata_amd.c linux-2.6.18-rc6-mm1/drivers/ata/pata_amd.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/ata/pata_amd.c	2006-09-11 17:00:08.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/ata/pata_amd.c	2006-09-11 17:17:19.000000000 +0100
-@@ -25,7 +25,7 @@
- #include <linux/libata.h>
+Index: linux-2.6/drivers/scsi/sd.c
+===================================================================
+--- linux-2.6.orig/drivers/scsi/sd.c
++++ linux-2.6/drivers/scsi/sd.c
+@@ -892,6 +892,18 @@ static long sd_compat_ioctl(struct file 
+ }
+ #endif
  
- #define DRV_NAME "pata_amd"
--#define DRV_VERSION "0.2.2"
-+#define DRV_VERSION "0.2.3"
++static int sd_swapdev(struct gendisk *disk, int enable)
++{
++	int error = 0;
++	struct scsi_disk *sdkp = scsi_disk(disk);
++	struct scsi_device *sdp = sdkp->device;
++
++	if (sdp->host->hostt->swapdev)
++		error = sdp->host->hostt->swapdev(sdp, enable);
++
++	return error;
++}
++
+ static struct block_device_operations sd_fops = {
+ 	.owner			= THIS_MODULE,
+ 	.open			= sd_open,
+@@ -903,6 +915,7 @@ static struct block_device_operations sd
+ #endif
+ 	.media_changed		= sd_media_changed,
+ 	.revalidate_disk	= sd_revalidate_disk,
++	.swapdev		= sd_swapdev,
+ };
  
  /**
-  *	timing_setup		-	shared timing computation and load
-@@ -253,11 +253,22 @@
+Index: linux-2.6/include/scsi/scsi_host.h
+===================================================================
+--- linux-2.6.orig/include/scsi/scsi_host.h
++++ linux-2.6/include/scsi/scsi_host.h
+@@ -288,6 +288,13 @@ struct scsi_host_template {
+ 	int (*suspend)(struct scsi_device *, pm_message_t state);
  
- static int nv_pre_reset(struct ata_port *ap) {
- 	static const u8 bitmask[2] = {0x03, 0xC0};
-+	static const struct pci_bits nv_enable_bits[] = {
-+		{ 0x50, 1, 0x02, 0x02 },
-+		{ 0x50, 1, 0x01, 0x01 }
-+	};
- 
- 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
- 	u8 ata66;
- 	u16 udma;
- 
-+	if (!pci_test_config_bits(pdev, &nv_enable_bits[ap->port_no])) {
-+		ata_port_disable(ap);
-+		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
-+		return 0;
-+	}
+ 	/*
++	 * Notify that this device is used for swapping.
++	 *
++	 * Status: OPTIONAL
++	 */
++	int (*swapdev)(struct scsi_device *, int enable);
 +
-+
- 	pci_read_config_byte(pdev, 0x52, &ata66);
- 	if (ata66 & bitmask[ap->port_no])
- 		ap->cbl = ATA_CBL_PATA80;
++	/*
+ 	 * Name of proc directory
+ 	 */
+ 	char *proc_name;
+
+--
 

@@ -1,38 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWILNk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWILNmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbWILNk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 09:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWILNk5
+	id S1030257AbWILNmv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 09:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWILNmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 09:40:57 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:8579 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030243AbWILNk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 09:40:56 -0400
-Date: Tue, 12 Sep 2006 14:40:50 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] - restore i8259A eoi status on resume
-Message-ID: <20060912134050.GA31858@srcf.ucam.org>
-References: <20060910141533.GA6594@srcf.ucam.org> <20060912091906.GB19482@elf.ucw.cz> <20060912124742.GB31344@srcf.ucam.org> <200609121411.36913.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609121411.36913.ak@suse.de>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Tue, 12 Sep 2006 09:42:51 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:61321 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030257AbWILNmu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 09:42:50 -0400
+Message-ID: <4506B955.7080000@fr.ibm.com>
+Date: Tue, 12 Sep 2006 15:42:45 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org
+Subject: [S390] update fs3270 to use a struct pid
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 02:11:36PM +0200, Andi Kleen wrote:
+this patch replaces the pid_t value with a struct pid to avoid pid wrap
+around problems.
 
-> Yes. I already have it queued for .19 at least. Not sure it's critical enough 
-> for .18, especially since it doesn't seem to be a regression.
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: containers@lists.osdl.org
 
-Yeah, I'd tend to agree.
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+---
+ drivers/s390/char/fs3270.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+Index: 2.6.18-rc6/drivers/s390/char/fs3270.c
+===================================================================
+--- 2.6.18-rc6.orig/drivers/s390/char/fs3270.c
++++ 2.6.18-rc6/drivers/s390/char/fs3270.c
+@@ -28,7 +28,7 @@ struct raw3270_fn fs3270_fn;
+
+ struct fs3270 {
+ 	struct raw3270_view view;
+-	pid_t fs_pid;			/* Pid of controlling program. */
++	struct pid* fs_pid;		/* Pid of controlling program. */
+ 	int read_command;		/* ccw command to use for reads. */
+ 	int write_command;		/* ccw command to use for writes. */
+ 	int attention;			/* Got attention. */
+@@ -103,7 +103,7 @@ fs3270_restore_callback(struct raw3270_r
+ 	fp = (struct fs3270 *) rq->view;
+ 	if (rq->rc != 0 || rq->rescnt != 0) {
+ 		if (fp->fs_pid)
+-			kill_proc(fp->fs_pid, SIGHUP, 1);
++			kill_pid(fp->fs_pid, SIGHUP, 1);
+ 	}
+ 	fp->rdbuf_size = 0;
+ 	raw3270_request_reset(rq);
+@@ -174,7 +174,7 @@ fs3270_save_callback(struct raw3270_requ
+ 	 */
+ 	if (rq->rc != 0 || rq->rescnt == 0) {
+ 		if (fp->fs_pid)
+-			kill_proc(fp->fs_pid, SIGHUP, 1);
++			kill_pid(fp->fs_pid, SIGHUP, 1);
+ 		fp->rdbuf_size = 0;
+ 	} else
+ 		fp->rdbuf_size = fp->rdbuf->size - rq->rescnt;
+@@ -443,7 +443,7 @@ fs3270_open(struct inode *inode, struct
+ 		return PTR_ERR(fp);
+
+ 	init_waitqueue_head(&fp->wait);
+-	fp->fs_pid = current->pid;
++	fp->fs_pid = get_pid(task_pid(current));
+ 	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
+ 	if (rc) {
+ 		fs3270_free_view(&fp->view);
+@@ -481,7 +481,8 @@ fs3270_close(struct inode *inode, struct
+ 	fp = filp->private_data;
+ 	filp->private_data = NULL;
+ 	if (fp) {
+-		fp->fs_pid = 0;
++		put_pid(fp->fs_pid);
++		fp->fs_pid = NULL;
+ 		raw3270_reset(&fp->view);
+ 		raw3270_put_view(&fp->view);
+ 		raw3270_del_view(&fp->view);

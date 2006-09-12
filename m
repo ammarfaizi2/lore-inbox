@@ -1,65 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWILOY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbWILO23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbWILOY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWILOY2
+	id S965242AbWILO23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbWILO23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:24:28 -0400
-Received: from bcp12.neoplus.adsl.tpnet.pl ([83.27.231.12]:4508 "EHLO
-	Jerry.zjeby.dyndns.org") by vger.kernel.org with ESMTP
-	id S965229AbWILOY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:24:28 -0400
-Date: Tue, 12 Sep 2006 16:24:19 +0200 (CEST)
-From: Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: thinkpad 360Cs keyboard problem
-In-Reply-To: <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0609121611380.2685@Jerry.zjeby.dyndns.org>
-References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org> 
- <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org> 
- <20060910194955.GA1841@elf.ucw.cz>  <200609102054.34350.dtor@insightbb.com>
-  <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
- <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
+	Tue, 12 Sep 2006 10:28:29 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:44300 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965243AbWILO22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:28:28 -0400
+Date: Tue, 12 Sep 2006 10:28:27 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1
+In-Reply-To: <200609120008.19714.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.44L0.0609121007530.6338-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
+On Tue, 12 Sep 2006, Rafael J. Wysocki wrote:
 
-> On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
->>  well, certainly 2.6.18 issue...
->
-> Are you saying that it works on 2.6.17 and is broken on 2.6.18?
+> Now I have another symtom: during the _second_ suspend the suspending of
+> USB controllers fails with messages like this:
+> 
+> usb_hcd_pci_suspend(): ehci_pci_suspend+0x0/0xab [ehci_hcd]() returns -22
+> pci_device_suspend(): usb_hcd_pci_suspend+0x0/0x16d [usbcore]() returns -22
+> suspend_device(): pci_device_suspend+0x0/0x4b() returns -22
+> Could not suspend device 0000:00:13.2: error -22
+> 
+> Could you please tell me which patches might have caused this, in your opinion?
 
-no, it works on 2.4.20. i didn't tried yet with other 2.6.x versions.
+It's a little difficult to pin down the blame.  In one form or another
+this problem probably existed all along, although it may not have been 
+very obvious.
 
-btw. now i compiled 2.4.33.3 using gcc 3.4.6 ,
-and even though i used 486 in cpu type resulting binary requires
-TSC+ from cpu :o (now recompiling with gcc-2.95.3 , and
-config_notsc and it seems to boot up)
+For those interested in the explanation:
 
-however weird behaviour aswell, because stops just after init...
-no matter wheter i use init=/bin/bash or regular init.
-it reports mounting root fs (ext2), then freeing unused kernel
-mem (52k) and stops .
+The EHCI USB controller is represented in sysfs by two device structures.  
+The higher one represents the controller's PCI interface (let's call it
+the "PCI-controller") and the lower one represents the USB interface
+(let's call it the "root hub").  Inside the resume() routine for the
+PCI-controller, if the driver finds that power was lost during the suspend
+-- as it would be for suspend-to-disk -- the driver reinitializes the root
+hub but without telling usbcore it has done so.  If the root hub had
+already been suspended at the time of the suspend-to-disk, then
+resume-from-disk would skip calling its resume() method.  So as far as 
+usbcore knows the root hub should still be suspended, but in fact it is 
+awake.
 
-when i press keys i see output like it should be , so at least
-keyboard work :)
+Consequently during the second suspend-to-disk, usbcore does not pass the
+suspend() call on to the root hub's driver.  Then the suspend() method for
+the PCI-controller fails, because it sees that the child root hub is still
+unsuspended.
 
-with 2.6.18-rc5 it boots just fine, but ofcourse keyboard is
-broken.
+I was just going to send in a patch to fix the problem.  I haven't had
+much of a chance to try it out yet.  The patch is included below, so you
+can test it right away and let me know if it works for you before I submit 
+it.
 
->>  kernel boots up fine, but keyboard is totally messed up,
->>  and locks up after some tries of use.
->
-> Could you try describing the exact issues with the keyboard? Missing
-> keypresses, wrong keys reported, etc?
+Alan Stern
 
-with prink enabled it prints series of 'unknown scancode'
-and keys are randomly messed up, and it changes, so like pressing b
-results with n, then space, then nothing at all.
-after some tries keyboard locks up completely.
 
-so wrong keys reported
+Index: usb-2.6/drivers/usb/core/hub.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/core/hub.c
++++ usb-2.6/drivers/usb/core/hub.c
+@@ -1066,6 +1066,12 @@ void usb_root_hub_lost_power(struct usb_
+ 	unsigned long flags;
+ 
+ 	dev_warn(&rhdev->dev, "root hub lost power or was reset\n");
++
++	/* Make sure no potential wakeup events get lost,
++	 * by forcing the root hub to be resumed.
++	 */
++	rhdev->dev.power.prev_state.event = PM_EVENT_ON;
++
+ 	spin_lock_irqsave(&device_state_lock, flags);
+ 	hub = hdev_to_hub(rhdev);
+ 	for (port1 = 1; port1 <= rhdev->maxchild; ++port1) {
+

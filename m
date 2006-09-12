@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWILKfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWILKfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWILKfB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 06:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWILKfB
+	id S1030185AbWILKfr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 06:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWILKfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 06:35:01 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:55222 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965161AbWILKV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 06:21:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=QfR+wYhij++BBR2shE9Uiy0HM3RR1vQ4FtncjBtdEnyf1ruYaqCw6WfKH5dYQ/jlrjNwGvmsB9uV7emrsvr964fB7QZIh5+kJTf+dWmrBbjQxoSPnM+pnYl/dWAwEaVucL9eHDqsCIaQWpkWLAKpzh6Sm3tYWUB9IZAhMiZptEQ=
-Message-ID: <6c99578d0609120321h461e18c1tc50e06ec7cd43619@mail.gmail.com>
-Date: Tue, 12 Sep 2006 11:21:57 +0100
-From: "=?ISO-8859-2?Q?Marcin_Pr=B1czko?=" <marcin.praczko@googlemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Oops
+	Tue, 12 Sep 2006 06:35:47 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:9740 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030185AbWILKfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 06:35:46 -0400
+Message-ID: <45068D81.5000606@openvz.org>
+Date: Tue, 12 Sep 2006 14:35:45 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_110719_8257713.1158056517664"
+To: vatsa@in.ibm.com, balbir@in.ibm.com, sekharan@us.ibm.com
+CC: Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FDAB81.5050608@in.ibm.com> <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com> <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org> <1157730221.26324.52.camel@localhost.localdomain> <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org> <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org> <20060911102152.GC17182@in.ibm.com>
+In-Reply-To: <20060911102152.GC17182@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_110719_8257713.1158056517664
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi,
-
-I compiled kernel 2.6.17.7 - all is build in kernel (no modules)
-And yesterday I had Oops:
-I enclosed Oops info.
-
-Can you explain to me please, where is some problem ??
-
-------=_Part_110719_8257713.1158056517664
-Content-Type: application/octet-stream; name=007_kernel_panic000
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_es0544m5
-Content-Disposition: attachment; filename="007_kernel_panic000"
-
-W0tFUk5FTCBQQU5JQ10uLi4gCgoxMi4wOC4yMDA2IAprZXJuZWwgMi42LjE3LjcKaTU4NgoKQlVH
-OiB1bmFibGUgdG8gaGFuZGxla2VybmVsIHBhZ2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRyZXNz
-IDA0MDAwMDIwCiAgcHJpbnRpbmcgZWlwOgpjMDI0YzNkNQoqcGRlID0gMDAwMDAwMDAKT29wczog
-MDAwMCBbIzFdCk1vZHVsZXMgbGlua2VkIGluOgpDUFU6ICAgICAwCkVJUDogICAgIDAwNjA6Wzxj
-MDI0YzNkNT5dICBOb3QgdGFpbnRlZCBWTEkKRUZMQUdTOiAgMDAwMTAyMDYgICgyLjYuMTcuNyAj
-MykKRUlQOiBpcyBhdCBydF9jaGVja19leHBpcmUrMHg5YS8weDEwYwplYXg6IDA0MDAwMDAwICBl
-Yng6IDA0MDAwMDAwICBlY3g6IDAwMDAwMDAwICBlZHg6IDAwMDAwMDU1CmVzaTogZjdjYTAxNTQg
-IGVkaTogMDAwMTI0ZjggIGVicDogMDAwMDE4OTEgIGVzcDogYzAzNDNmNjAKZHM6IDAwN2IgIGVz
-OiAwMDdiICBzczogMDA2OApQcm9jZXNzIHN3YXBwZXIgKHBpZDogMCwgdGhyZWFkaW5mbz1jMDM0
-MjAwMCB0YXNrPWMwMmViMTgwKQpTdGFjazogMDA0M2NlYTMgMDAwMDAwNTUgMDAwMDAwMGEgYzAz
-NDIwMDAgYzAzNzkxZTAgMDAwMDAxMDAgYzAyNGMzM2IgYzAxMTljN2QKICAgICAgIGMwMzkwMDM0
-IGMwMzkwMDM0IGMwMTI3Y2U4IDAwMDAwMDAxIGMwMzc4ZWU4IDAwMDAwMDBhIDAwM2I5MDA3IGMw
-MTE2ZTY5CiAgICAgICAwMDAwMDA0NiAwMDA5ZmIwMCBjMDMzNzgwMCBjMDExNmVkMyAwMDAxMDgw
-MCBjMDEwNDhkZSBjMDEwMzM3YSAwMDAxMDgwMApDYWxsIFRyYWNlOgogPGMwMjRjMzNiPiBydF9j
-aGVja19leHBpcmUrMHgwLzB4MTBjICA8YzAxMTljN2Q+IHJ1bl90aW1lcl9zb2Z0aXJxKzB4MzUv
-MHg3ZAogPGMwMTI3Y2U4PiBoYW5kbGVfSVJRX2V2ZW50KzB4MjEvMHg0YSAgPGMwMTE2ZTY5PiBf
-X2RvX3NvZnRpcnErMHgzNS8weDdkCiA8YzAxMTZlZDM+IGRvX3NvZnRpcnErMHgyMi8weDI2ICA8
-YzAxMDQ4ZGU+IGRvX0lSUSsweDFlLzB4MjQKIDxjMDEwMzM3YT4gY29tbW9uX2ludGVycnVwdCsw
-eDFhLzB4MjAgIDxjMDEwMGE3Mz4gZGVmYXVsdF9pZGxlKzB4MmIvMHg1MwogPGMwMTAwYWYxPiBj
-cHVfaWRsZSsweDQyLzB4NTcgIDxjMDM0NDVlYT4gc3RhcnRfa2VybmVsKzB4MTcwLzB4MTcyCkNv
-ZGU6IGVkIDc0IDczIGZmIDQ0IDI0IDA0IDhiIDE1IDA4IDFmIDM5IGMwIDIxIDU0IDI0IDA0IGEx
-IDA0IDFmIDM5IGMwIDhiIDU0IDI0IDA0IDhiIDNkIDg4IGQzIDMwIGMwIDhkIDM0IDkwIDhiIDA2
-IDg1IGMwIDc0IDRhCiA4OSBjMyA8OGI+IDQzIDIwIDg1IGMwIDc0IDA3IDNiIDA0IDI0IDc4IDFi
-IGViIDEzIDhiIDBkIDg4IGQzIDMwIGMwIDg5CkVJUDogWzxjMDI0YzNkNT5dIHJ0X2NoZWNrX2V4
-cGlyZSsweDlhLzB4MTBjIFNTOkVTUCAwMDY4OmMwMzQzZjYwCiA8MD5LZXJuZWwgcGFuaWMgLSBu
-b3Qgc3luY2luZzogRmF0YWwgZXhjZXB0aW9uIGluIGludGVycnVwdCAKCg==
-------=_Part_110719_8257713.1158056517664--
+Srivatsa Vaddagiri wrote:
+> On Mon, Sep 11, 2006 at 12:13:59PM +0400, Pavel Emelianov wrote:
+>   
+>> If I set up 9 groups to have 100Mb limit then I have 100Mb assured (on
+>> 1Gb node)
+>> for the 10th one exactly. And I do not have to set up any guarantee as
+>> it won't affect
+>> anything. So what a guarantee parameter is needed for?
+>>     
+>
+> I presume you are talking of hard-limiting each group to 100 MB here. In
+> which case, wont the 100MB (reserved for 10th group) be unutilized
+> untill 10th group is started (it may never be started for that matter!).
+>
+> IMO it would be better to go and use that free 100 MB for reclaimable memory
+> and give that up when 10th group is started.
+>   
+Sure. I've talked about the unreclaimable memory.
+Sorry, for not specifying it explicitly.

@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWILUaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWILUfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbWILUaR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWILUaR
+	id S1030422AbWILUfO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWILUfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:30:17 -0400
-Received: from waste.org ([66.93.16.53]:55943 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030412AbWILUaP (ORCPT
+	Tue, 12 Sep 2006 16:35:14 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:41489 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030422AbWILUfM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:30:15 -0400
-Date: Tue, 12 Sep 2006 15:28:26 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
-Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
-Message-ID: <20060912202826.GC19707@waste.org>
-References: <20060912174339.GA19707@waste.org> <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <24525.1158089104@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24525.1158089104@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 12 Sep 2006 16:35:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 12 Sep 2006 20:35:09.0008 (UTC) FILETIME=[F03EF500:01C6D6AA]
+Content-class: urn:content-classes:message
+Subject: Re: R: Linux kernel source archive vulnerable
+Date: Tue, 12 Sep 2006 16:35:08 -0400
+Message-ID: <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com>
+In-Reply-To: <ee72if$sng$1@taverner.cs.berkeley.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: R: Linux kernel source archive vulnerable
+thread-index: AcbWqvBG+NaCs4jESLuJL6qdGifYnA==
+References: <20060907182304.GA10686@danisch.de> <D432C2F98B6D1B4BAE47F2770FEFD6B612B8B7@to1mbxs02.replynet.prv> <Pine.LNX.4.61.0609111334460.2498@soloth.lewis.org> <8E63F0FB-DDD3-41D4-AFA7-88E66D0E9C8D@mac.com> <ee72if$sng$1@taverner.cs.berkeley.edu>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 08:25:04PM +0100, David Howells wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> 
-> > Looking through all the users of kobjsize, it seems we always know
-> > what the type is (and it's usually a VMA). I instead propose we use
-> > ksize on objects we know to be SLAB/SLOB-allocated and add a new
-> > function (kpagesize?) to size other objects where nommu needs it.
-> 
-> It sounds like we'd need an op in the VMA to do the per-type size thing (the
-> VMA itself not the VMA ops table).
 
-Not sure yet. There's only one user in nommu.c that shouldn't just be
-changed to ksize() that I can see, and that's the one in
-show_process_blocks(). That could test for VM_MAPPED_COPY and keep its
-hands off otherwise. 
+On Tue, 12 Sep 2006, David Wagner wrote:
 
-I can imagine situations where ->mmap returns pointers to something
-that's statically allocated anyway (XIP?), where kobjsize doesn't
-really make sense.
+> Kyle Moffett  wrote:
+>> Please see these threads and quit bringing up this topic like crazy:
+>> http://marc.theaimsgroup.com/?l=linux-kernel&m=113304241100330&w=2
+>> http://marc.theaimsgroup.com/?l=linux-kernel&m=114635639325551&w=2
+>
+> I've read those threads in detail.  Those threads give no justification
+> whatsoever about why the files are stored in tar with world-writeable
+> permissions.  The posts to those threads just blame the victim, blame
+> the maintainers of tar, and point fingers at everyone else.  I cannot
+> see any good reason why the files in tar need to have world-writeable
+> permissions.  It seems to me like a simple and reasonable request to make
+> them non-world-writeable.  It can't hurt, and it might help a few users.
+> I cannot fathom why there is such resistance to such a simple request.
+>
+> Just because it is a bug in tar doesn't mean that Linux developers have
+> to create their tarfile in a way that tickles the bug.  Two wrongs don't
+> make a right.
+>
+> Just because it doesn't affect you doesn't mean that it isn't an issue.
+> You're not the only person in the world.
+> -
 
-Also, looks like the WARN_ON_SLACK code has rotten, result isn't
-defined in that function. Change it to base, perhaps?
+Try `info umask`. That will tell you how, tar created files in the
+achieve that are world writable. The automatic daemon that executed
+tar was root, using this mask for world-write permission. It's not
+a tar bug, it is how it __must__ create files so that when a non-
+root user executes tar, tar can change the owner to the person un-
+tarring the achieve, AND, incidentally, set the permissions to the
+new owners file creation mask set with `unmask`. If the files were not
+world-writable in the archieve, you'd be up the creek trying to extract
+files into your directories, with your ownership, and with your
+permissions. Tar would have to execute as SUID root, and I don't
+think even you would like that! Tar could then overwrite anything,
+anywhere, NotGood(tm).
 
--- 
-Mathematics is the supreme nostalgia of our time.
+If you persist in un-tarring files as root, you get what you've got
+and it is not a bug.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,1301 +1,644 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWILL0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWILLay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965191AbWILL0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 07:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWILL0h
+	id S1030190AbWILLay (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 07:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWILLay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 07:26:37 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:8057 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S965191AbWILL0c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 07:26:32 -0400
-Date: Tue, 12 Sep 2006 13:26:29 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, geraldsc@de.ibm.com
-Subject: [S390] Make user-copy operations run-time configurable.
-Message-ID: <20060912112629.GD2826@skybase>
+	Tue, 12 Sep 2006 07:30:54 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:16446 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030190AbWILLav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 07:30:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=QuLnJK13TFl8cdKiL5rttaWG/wESuVJ+00PlBy0RKxH3xZiZ0B+H6+QU087Qb4DOV+CTHZKu9IxYT4cBfkxy/9TSDFnBT+Ll0108E2ZmCag4n4isq/03MAjE8HRjnx+tcY2XHYDSLICGHxprAA60HPM/w2by1vxcMJ8/pDT6GEY=
+Message-ID: <9bfa9ae0609120430g7d557c8ds3fe802e1ddfffb27@mail.gmail.com>
+Date: Tue, 12 Sep 2006 08:30:50 -0300
+From: "Nelson A. de Oliveira" <naoliv@gmail.com>
+To: "Tejun Heo" <htejun@gmail.com>
+Subject: Re: PROBLEM: (libata) cdrom drive not detected in -mm series
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+In-Reply-To: <450664C7.3000105@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_215820_17099423.1158060650332"
+References: <9bfa9ae0609111802o9131e8bg6c5d394ad87b16ea@mail.gmail.com>
+	 <450664C7.3000105@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gerald Schaefer <geraldsc@de.ibm.com>
+------=_Part_215820_17099423.1158060650332
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-[S390] Make user-copy operations run-time configurable.
+Hi!
 
-Introduces a struct uaccess_ops which allows setting user-copy
-operations at run-time.
+On 9/12/06, Tejun Heo <htejun@gmail.com> wrote:
+> Nelson A. de Oliveira wrote:
+> > My USB CD-ROM drive (that is detected as a SCSI drive) is not being
+> > detected on the -mm series of the Kernel.
+>
+> s/USB/SATA/, I presume.
 
-Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Yes, sorry!
 
- arch/s390/kernel/s390_ksyms.c |    6 
- arch/s390/kernel/setup.c      |    7 
- arch/s390/lib/Makefile        |    3 
- arch/s390/lib/uaccess.S       |  211 --------------------------
- arch/s390/lib/uaccess64.S     |  207 -------------------------
- arch/s390/lib/uaccess_std.c   |  340 ++++++++++++++++++++++++++++++++++++++++++
- include/asm-s390/futex.h      |   87 ----------
- include/asm-s390/uaccess.h    |  171 ++++++---------------
- 8 files changed, 411 insertions(+), 621 deletions(-)
+> [--snip--]
+> -ata2.00: ATAPI, max UDMA/33
+> -ata2.00: configured for UDMA/33
+> -  Vendor: HL-DT-ST  Model: CDRW/DVD GCC4244  Rev: B101
+> -  Type:   CD-ROM                             ANSI SCSI revision: 05
+>
+> Argh... yet another PCS problem.  With whole -mm applied, does adding
+> kernel parameter 'ata_piix.force_pcs=1' make any difference?
 
-diff -urpN linux-2.6/arch/s390/kernel/s390_ksyms.c linux-2.6-patched/arch/s390/kernel/s390_ksyms.c
---- linux-2.6/arch/s390/kernel/s390_ksyms.c	2006-09-12 10:56:59.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/s390_ksyms.c	2006-09-12 10:57:58.000000000 +0200
-@@ -25,12 +25,6 @@ EXPORT_SYMBOL(_oi_bitmap);
- EXPORT_SYMBOL(_ni_bitmap);
- EXPORT_SYMBOL(_zb_findmap);
- EXPORT_SYMBOL(_sb_findmap);
--EXPORT_SYMBOL(__copy_from_user_asm);
--EXPORT_SYMBOL(__copy_to_user_asm);
--EXPORT_SYMBOL(__copy_in_user_asm);
--EXPORT_SYMBOL(__clear_user_asm);
--EXPORT_SYMBOL(__strncpy_from_user_asm);
--EXPORT_SYMBOL(__strnlen_user_asm);
- EXPORT_SYMBOL(diag10);
- 
- /*
-diff -urpN linux-2.6/arch/s390/kernel/setup.c linux-2.6-patched/arch/s390/kernel/setup.c
---- linux-2.6/arch/s390/kernel/setup.c	2006-09-12 10:57:33.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/setup.c	2006-09-12 10:57:58.000000000 +0200
-@@ -51,6 +51,12 @@
- #include <asm/sections.h>
- 
- /*
-+ * User copy operations.
-+ */
-+struct uaccess_ops uaccess;
-+EXPORT_SYMBOL_GPL(uaccess);
-+
-+/*
-  * Machine setup..
-  */
- unsigned int console_mode = 0;
-@@ -641,6 +647,7 @@ setup_arch(char **cmdline_p)
- 
- 	memory_end = memory_size;
- 
-+	memcpy(&uaccess, &uaccess_std, sizeof(uaccess));
- 	parse_early_param();
- 
- #ifndef CONFIG_64BIT
-diff -urpN linux-2.6/arch/s390/lib/Makefile linux-2.6-patched/arch/s390/lib/Makefile
---- linux-2.6/arch/s390/lib/Makefile	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/Makefile	2006-09-12 10:57:58.000000000 +0200
-@@ -4,6 +4,5 @@
- 
- EXTRA_AFLAGS := -traditional
- 
--lib-y += delay.o string.o
--lib-y += $(if $(CONFIG_64BIT),uaccess64.o,uaccess.o)
-+lib-y += delay.o string.o uaccess_std.o
- lib-$(CONFIG_SMP) += spinlock.o
-diff -urpN linux-2.6/arch/s390/lib/uaccess64.S linux-2.6-patched/arch/s390/lib/uaccess64.S
---- linux-2.6/arch/s390/lib/uaccess64.S	2006-09-12 10:56:59.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/uaccess64.S	1970-01-01 01:00:00.000000000 +0100
-@@ -1,207 +0,0 @@
--/*
-- *  arch/s390x/lib/uaccess.S
-- *    __copy_{from|to}_user functions.
-- *
-- *  s390
-- *    Copyright (C) 2000,2002 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Authors(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
-- *
-- *  These functions have standard call interface
-- */
--
--#include <linux/errno.h>
--#include <asm/lowcore.h>
--#include <asm/asm-offsets.h>
--
--        .text
--        .align 4
--        .globl __copy_from_user_asm
--	# %r2 = to, %r3 = n, %r4 = from
--__copy_from_user_asm:
--	slgr	%r0,%r0
--0:	mvcp	0(%r3,%r2),0(%r4),%r0
--	jnz	1f
--	slgr	%r2,%r2
--	br	%r14
--1:	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--	aghi	%r3,-256
--2:	mvcp	0(%r3,%r2),0(%r4),%r0
--	jnz	1b
--3:	slgr	%r2,%r2
--	br	%r14
--4:	lghi	%r0,-4096
--	lgr	%r5,%r4
--	slgr	%r5,%r0
--	ngr	%r5,%r0		# %r5 = (%r4 + 4096) & -4096
--	slgr	%r5,%r4		# %r5 = #bytes to next user page boundary
--	clgr	%r3,%r5		# copy crosses next page boundary ?
--	jnh	6f		# no, the current page faulted
--	# move with the reduced length which is < 256
--5:	mvcp	0(%r5,%r2),0(%r4),%r0
--	slgr	%r3,%r5
--6:	lgr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.quad	0b,4b
--	.quad	2b,4b
--	.quad	5b,6b
--        .previous
--
--        .align 4
--        .text
--        .globl __copy_to_user_asm
--	# %r2 = from, %r3 = n, %r4 = to
--__copy_to_user_asm:
--	slgr	%r0,%r0
--0:	mvcs	0(%r3,%r4),0(%r2),%r0
--	jnz	1f
--	slgr	%r2,%r2
--	br	%r14
--1:	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--	aghi	%r3,-256
--2:	mvcs	0(%r3,%r4),0(%r2),%r0
--	jnz	1b
--3:	slgr	%r2,%r2
--	br	%r14
--4:	lghi	%r0,-4096
--	lgr	%r5,%r4
--	slgr	%r5,%r0
--	ngr	%r5,%r0		# %r5 = (%r4 + 4096) & -4096
--	slgr	%r5,%r4		# %r5 = #bytes to next user page boundary
--	clgr	%r3,%r5		# copy crosses next page boundary ?
--	jnh	6f		# no, the current page faulted
--	# move with the reduced length which is < 256
--5:	mvcs	0(%r5,%r4),0(%r2),%r0
--	slgr	%r3,%r5
--6:	lgr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.quad	0b,4b
--	.quad	2b,4b
--	.quad	5b,6b
--        .previous
--
--        .align 4
--        .text
--        .globl __copy_in_user_asm
--	# %r2 = from, %r3 = n, %r4 = to
--__copy_in_user_asm:
--	aghi	%r3,-1
--	jo	6f
--	sacf	256
--	bras	%r1,4f
--0:	aghi	%r3,257
--1:	mvc	0(1,%r4),0(%r2)
--	la	%r2,1(%r2)
--	la	%r4,1(%r4)
--	aghi	%r3,-1
--	jnz	1b
--2:	lgr	%r2,%r3
--	br	%r14
--3:	mvc	0(256,%r4),0(%r2)
--	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--4:	aghi	%r3,-256
--	jnm	3b
--5:	ex	%r3,4(%r1)
--	sacf	0
--6:	slgr	%r2,%r2
--	br	14
--        .section __ex_table,"a"
--	.quad	1b,2b
--	.quad	3b,0b
--	.quad	5b,0b
--        .previous
--
--        .align 4
--        .text
--        .globl __clear_user_asm
--	# %r2 = to, %r3 = n
--__clear_user_asm:
--	slgr	%r0,%r0
--	larl	%r5,empty_zero_page
--1:	mvcs	0(%r3,%r2),0(%r5),%r0
--	jnz	2f
--	slgr	%r2,%r2
--	br	%r14
--2:	la	%r2,256(%r2)
--	aghi	%r3,-256
--3:	mvcs	0(%r3,%r2),0(%r5),%r0
--	jnz	2b
--4:	slgr	%r2,%r2
--	br	%r14
--5:	lghi	%r0,-4096
--	lgr	%r4,%r2
--	slgr	%r4,%r0
--	ngr	%r4,%r0		# %r4 = (%r2 + 4096) & -4096
--	slgr	%r4,%r2		# %r4 = #bytes to next user page boundary
--	clgr	%r3,%r4		# clear crosses next page boundary ?
--	jnh	7f		# no, the current page faulted
--	# clear with the reduced length which is < 256
--6:	mvcs	0(%r4,%r2),0(%r5),%r0
--	slgr	%r3,%r4
--7:	lgr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.quad	1b,5b
--	.quad	3b,5b
--	.quad	6b,7b
--        .previous
--
--        .align 4
--        .text
--        .globl __strncpy_from_user_asm
--	# %r2 = count, %r3 = dst, %r4 = src
--__strncpy_from_user_asm:
--	lghi	%r0,0
--	lgr	%r1,%r4
--	la	%r2,0(%r2,%r4)	# %r2 points to first byte after string
--	sacf	256
--0:	srst	%r2,%r1
--	jo	0b
--	sacf	0
--	lgr	%r1,%r2
--	jh	1f		# \0 found in string ?
--	aghi	%r1,1		# include \0 in copy
--1:	slgr	%r1,%r4		# %r1 = copy length (without \0)
--	slgr	%r2,%r4		# %r2 = return length (including \0)
--2:	mvcp	0(%r1,%r3),0(%r4),%r0
--	jnz	3f
--	br	%r14
--3:	la	%r3,256(%r3)
--	la	%r4,256(%r4)
--	aghi	%r1,-256
--	mvcp	0(%r1,%r3),0(%r4),%r0
--	jnz	3b
--	br	%r14
--4:	sacf	0
--	lghi	%r2,-EFAULT
--	br	%r14
--	.section __ex_table,"a"
--	.quad	0b,4b
--	.previous
--
--        .align 4
--        .text
--        .globl __strnlen_user_asm
--	# %r2 = count, %r3 = src
--__strnlen_user_asm:
--	lghi	%r0,0
--	lgr	%r1,%r3
--	la	%r2,0(%r2,%r3)	# %r2 points to first byte after string
--	sacf	256
--0:	srst	%r2,%r1
--	jo	0b
--	sacf	0
--	aghi	%r2,1		# strnlen_user result includes the \0
--				# or return count+1 if \0 not found
--	slgr	%r2,%r3
--	br	%r14
--2:	sacf	0
--	slgr	%r2,%r2		# return 0 on exception
--	br	%r14
--	.section __ex_table,"a"
--	.quad	0b,2b
--	.previous
-diff -urpN linux-2.6/arch/s390/lib/uaccess.S linux-2.6-patched/arch/s390/lib/uaccess.S
---- linux-2.6/arch/s390/lib/uaccess.S	2006-09-12 10:56:59.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/uaccess.S	1970-01-01 01:00:00.000000000 +0100
-@@ -1,211 +0,0 @@
--/*
-- *  arch/s390/lib/uaccess.S
-- *    __copy_{from|to}_user functions.
-- *
-- *  s390
-- *    Copyright (C) 2000,2002 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Authors(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
-- *
-- *  These functions have standard call interface
-- */
--
--#include <linux/errno.h>
--#include <asm/lowcore.h>
--#include <asm/asm-offsets.h>
--
--        .text
--        .align 4
--        .globl __copy_from_user_asm
--	# %r2 = to, %r3 = n, %r4 = from
--__copy_from_user_asm:
--	slr	%r0,%r0
--0:	mvcp	0(%r3,%r2),0(%r4),%r0
--	jnz	1f
--	slr	%r2,%r2
--	br	%r14
--1:	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--	ahi	%r3,-256
--2:	mvcp	0(%r3,%r2),0(%r4),%r0
--	jnz	1b
--3:	slr	%r2,%r2
--	br	%r14
--4:	lhi	%r0,-4096
--	lr	%r5,%r4
--	slr	%r5,%r0
--	nr	%r5,%r0		# %r5 = (%r4 + 4096) & -4096
--	slr	%r5,%r4		# %r5 = #bytes to next user page boundary
--	clr	%r3,%r5		# copy crosses next page boundary ?
--	jnh	6f		# no, the current page faulted
--	# move with the reduced length which is < 256
--5:	mvcp	0(%r5,%r2),0(%r4),%r0
--	slr	%r3,%r5
--6:	lr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.long	0b,4b
--	.long	2b,4b
--	.long	5b,6b
--        .previous
--
--        .align 4
--        .text
--        .globl __copy_to_user_asm
--	# %r2 = from, %r3 = n, %r4 = to
--__copy_to_user_asm:
--	slr	%r0,%r0
--0:	mvcs	0(%r3,%r4),0(%r2),%r0
--	jnz	1f
--	slr	%r2,%r2
--	br	%r14
--1:	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--	ahi	%r3,-256
--2:	mvcs	0(%r3,%r4),0(%r2),%r0
--	jnz	1b
--3:	slr	%r2,%r2
--	br	%r14
--4:	lhi	%r0,-4096
--	lr	%r5,%r4
--	slr	%r5,%r0
--	nr	%r5,%r0		# %r5 = (%r4 + 4096) & -4096
--	slr	%r5,%r4		# %r5 = #bytes to next user page boundary
--	clr	%r3,%r5		# copy crosses next page boundary ?
--	jnh	6f		# no, the current page faulted
--	# move with the reduced length which is < 256
--5:	mvcs	0(%r5,%r4),0(%r2),%r0
--	slr	%r3,%r5
--6:	lr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.long	0b,4b
--	.long	2b,4b
--	.long	5b,6b
--        .previous
--
--        .align 4
--        .text
--        .globl __copy_in_user_asm
--	# %r2 = from, %r3 = n, %r4 = to
--__copy_in_user_asm:
--	ahi	%r3,-1
--	jo	6f
--	sacf	256
--	bras	%r1,4f
--0:	ahi	%r3,257
--1:	mvc	0(1,%r4),0(%r2)
--	la	%r2,1(%r2)
--	la	%r4,1(%r4)
--	ahi	%r3,-1
--	jnz	1b
--2:	lr	%r2,%r3
--	br	%r14
--3:	mvc	0(256,%r4),0(%r2)
--	la	%r2,256(%r2)
--	la	%r4,256(%r4)
--4:	ahi	%r3,-256
--	jnm	3b
--5:	ex	%r3,4(%r1)
--	sacf	0
--6:	slr	%r2,%r2
--	br	%r14
--        .section __ex_table,"a"
--	.long	1b,2b
--	.long	3b,0b
--	.long	5b,0b
--        .previous
--
--        .align 4
--        .text
--        .globl __clear_user_asm
--	# %r2 = to, %r3 = n
--__clear_user_asm:
--	bras	%r5,0f
--	.long	empty_zero_page
--0:	l	%r5,0(%r5)
--	slr	%r0,%r0
--1:	mvcs	0(%r3,%r2),0(%r5),%r0
--	jnz	2f
--	slr	%r2,%r2
--	br	%r14
--2:	la	%r2,256(%r2)
--	ahi	%r3,-256
--3:	mvcs	0(%r3,%r2),0(%r5),%r0
--	jnz	2b
--4:	slr	%r2,%r2
--	br	%r14
--5:	lhi	%r0,-4096
--	lr	%r4,%r2
--	slr	%r4,%r0
--	nr	%r4,%r0		# %r4 = (%r2 + 4096) & -4096
--	slr	%r4,%r2		# %r4 = #bytes to next user page boundary
--	clr	%r3,%r4		# clear crosses next page boundary ?
--	jnh	7f		# no, the current page faulted
--	# clear with the reduced length which is < 256
--6:	mvcs	0(%r4,%r2),0(%r5),%r0
--	slr	%r3,%r4
--7:	lr	%r2,%r3
--	br	%r14
--        .section __ex_table,"a"
--	.long	1b,5b
--	.long	3b,5b
--	.long	6b,7b
--        .previous
--
--        .align 4
--        .text
--        .globl __strncpy_from_user_asm
--	# %r2 = count, %r3 = dst, %r4 = src
--__strncpy_from_user_asm:
--	lhi	%r0,0
--	lr	%r1,%r4
--	la	%r4,0(%r4)	# clear high order bit from %r4
--	la	%r2,0(%r2,%r4)	# %r2 points to first byte after string
--	sacf	256
--0:	srst	%r2,%r1
--	jo	0b
--	sacf	0
--	lr	%r1,%r2
--	jh	1f		# \0 found in string ?
--	ahi	%r1,1		# include \0 in copy
--1:	slr	%r1,%r4		# %r1 = copy length (without \0)
--	slr	%r2,%r4		# %r2 = return length (including \0)
--2:	mvcp	0(%r1,%r3),0(%r4),%r0
--	jnz	3f
--	br	%r14
--3:	la	%r3,256(%r3)
--	la	%r4,256(%r4)
--	ahi	%r1,-256
--	mvcp	0(%r1,%r3),0(%r4),%r0
--	jnz	3b
--	br	%r14
--4:	sacf	0
--	lhi	%r2,-EFAULT
--	br	%r14
--	.section __ex_table,"a"
--	.long	0b,4b
--	.previous
--
--        .align 4
--        .text
--        .globl __strnlen_user_asm
--	# %r2 = count, %r3 = src
--__strnlen_user_asm:
--	lhi	%r0,0
--	lr	%r1,%r3
--	la	%r3,0(%r3)	# clear high order bit from %r4
--	la	%r2,0(%r2,%r3)	# %r2 points to first byte after string
--	sacf	256
--0:	srst	%r2,%r1
--	jo	0b
--	sacf	0
--	ahi	%r2,1		# strnlen_user result includes the \0
--				# or return count+1 if \0 not found
--	slr	%r2,%r3
--	br	%r14
--2:	sacf	0
--	slr	%r2,%r2		# return 0 on exception
--	br	%r14
--	.section __ex_table,"a"
--	.long	0b,2b
--	.previous
-diff -urpN linux-2.6/arch/s390/lib/uaccess_std.c linux-2.6-patched/arch/s390/lib/uaccess_std.c
---- linux-2.6/arch/s390/lib/uaccess_std.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/arch/s390/lib/uaccess_std.c	2006-09-12 10:57:58.000000000 +0200
-@@ -0,0 +1,340 @@
-+/*
-+ *  arch/s390/lib/uaccess_std.c
-+ *
-+ *  Standard user space access functions based on mvcp/mvcs and doing
-+ *  interesting things in the secondary space mode.
-+ *
-+ *    Copyright (C) IBM Corp. 2006
-+ *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-+ *		 Gerald Schaefer (gerald.schaefer@de.ibm.com)
-+ */
-+
-+#include <linux/errno.h>
-+#include <linux/mm.h>
-+#include <asm/uaccess.h>
-+#include <asm/futex.h>
-+
-+#ifndef __s390x__
-+#define AHI	"ahi"
-+#define ALR	"alr"
-+#define CLR	"clr"
-+#define LHI	"lhi"
-+#define SLR	"slr"
-+#else
-+#define AHI	"aghi"
-+#define ALR	"algr"
-+#define CLR	"clgr"
-+#define LHI	"lghi"
-+#define SLR	"slgr"
-+#endif
-+
-+size_t copy_from_user_std(size_t size, const void __user *ptr, void *x)
-+{
-+	unsigned long tmp1, tmp2;
-+
-+	tmp1 = -256UL;
-+	asm volatile(
-+		"0: mvcp  0(%0,%2),0(%1),%3\n"
-+		"   jz    5f\n"
-+		"1:"ALR"  %0,%3\n"
-+		"   la    %1,256(%1)\n"
-+		"   la    %2,256(%2)\n"
-+		"2: mvcp  0(%0,%2),0(%1),%3\n"
-+		"   jnz   1b\n"
-+		"   j     5f\n"
-+		"3: la    %4,255(%1)\n"	/* %4 = ptr + 255 */
-+		"  "LHI"  %3,-4096\n"
-+		"   nr    %4,%3\n"	/* %4 = (ptr + 255) & -4096 */
-+		"  "SLR"  %4,%1\n"
-+		"  "CLR"  %0,%4\n"	/* copy crosses next page boundary? */
-+		"   jnh   6f\n"
-+		"4: mvcp  0(%4,%2),0(%1),%3\n"
-+		"  "SLR"  %0,%4\n"
-+		"   j     6f\n"
-+		"5:"SLR"  %0,%0\n"
-+		"6: \n"
-+		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
-+		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t copy_from_user_std_small(size_t size, const void __user *ptr, void *x)
-+{
-+	unsigned long tmp1, tmp2;
-+
-+	tmp1 = 0UL;
-+	asm volatile(
-+		"0: mvcp  0(%0,%2),0(%1),%3\n"
-+		"  "SLR"  %0,%0\n"
-+		"   j     3f\n"
-+		"1: la    %4,255(%1)\n" /* %4 = ptr + 255 */
-+		"  "LHI"  %3,-4096\n"
-+		"   nr    %4,%3\n"	/* %4 = (ptr + 255) & -4096 */
-+		"  "SLR"  %4,%1\n"
-+		"  "CLR"  %0,%4\n"	/* copy crosses next page boundary? */
-+		"   jnh   3f\n"
-+		"2: mvcp  0(%4,%2),0(%1),%3\n"
-+		"  "SLR"  %0,%4\n"
-+		"3:\n"
-+		EX_TABLE(0b,1b) EX_TABLE(2b,3b)
-+		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t copy_to_user_std(size_t size, void __user *ptr, const void *x)
-+{
-+	unsigned long tmp1, tmp2;
-+
-+	tmp1 = -256UL;
-+	asm volatile(
-+		"0: mvcs  0(%0,%1),0(%2),%3\n"
-+		"   jz    5f\n"
-+		"1:"ALR"  %0,%3\n"
-+		"   la    %1,256(%1)\n"
-+		"   la    %2,256(%2)\n"
-+		"2: mvcs  0(%0,%1),0(%2),%3\n"
-+		"   jnz   1b\n"
-+		"   j     5f\n"
-+		"3: la    %4,255(%1)\n" /* %4 = ptr + 255 */
-+		"  "LHI"  %3,-4096\n"
-+		"   nr    %4,%3\n"	/* %4 = (ptr + 255) & -4096 */
-+		"  "SLR"  %4,%1\n"
-+		"  "CLR"  %0,%4\n"	/* copy crosses next page boundary? */
-+		"   jnh   6f\n"
-+		"4: mvcs  0(%4,%1),0(%2),%3\n"
-+		"  "SLR"  %0,%4\n"
-+		"   j     6f\n"
-+		"5:"SLR"  %0,%0\n"
-+		"6: \n"
-+		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
-+		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t copy_to_user_std_small(size_t size, void __user *ptr, const void *x)
-+{
-+	unsigned long tmp1, tmp2;
-+
-+	tmp1 = 0UL;
-+	asm volatile(
-+		"0: mvcs  0(%0,%1),0(%2),%3\n"
-+		"  "SLR"  %0,%0\n"
-+		"   j     3f\n"
-+		"1: la    %4,255(%1)\n" /* ptr + 255 */
-+		"  "LHI"  %3,-4096\n"
-+		"   nr    %4,%3\n"	/* (ptr + 255) & -4096UL */
-+		"  "SLR"  %4,%1\n"
-+		"  "CLR"  %0,%4\n"	/* copy crosses next page boundary? */
-+		"   jnh   3f\n"
-+		"2: mvcs  0(%4,%1),0(%2),%3\n"
-+		"  "SLR"  %0,%4\n"
-+		"3:\n"
-+		EX_TABLE(0b,1b) EX_TABLE(2b,3b)
-+		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t copy_in_user_std(size_t size, void __user *to, const void __user *from)
-+{
-+	unsigned long tmp1;
-+
-+	asm volatile(
-+		"  "AHI"  %0,-1\n"
-+		"   jo    5f\n"
-+		"   sacf  256\n"
-+		"   bras  %3,3f\n"
-+		"0:"AHI"  %0,257\n"
-+		"1: mvc   0(1,%1),0(%2)\n"
-+		"   la    %1,1(%1)\n"
-+		"   la    %2,1(%2)\n"
-+		"  "AHI"  %0,-1\n"
-+		"   jnz   1b\n"
-+		"   j     5f\n"
-+		"2: mvc   0(256,%1),0(%2)\n"
-+		"   la    %1,256(%1)\n"
-+		"   la    %2,256(%2)\n"
-+		"3:"AHI"  %0,-256\n"
-+		"   jnm   2b\n"
-+		"4: ex    %0,1b-0b(%3)\n"
-+		"   sacf  0\n"
-+		"5: "SLR"  %0,%0\n"
-+		"6:\n"
-+		EX_TABLE(1b,6b) EX_TABLE(2b,0b) EX_TABLE(4b,0b)
-+		: "+a" (size), "+a" (to), "+a" (from), "=a" (tmp1)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t clear_user_std(size_t size, void __user *to)
-+{
-+	unsigned long tmp1, tmp2;
-+
-+	asm volatile(
-+		"  "AHI"  %0,-1\n"
-+		"   jo    5f\n"
-+		"   sacf  256\n"
-+		"   bras  %3,3f\n"
-+		"   xc    0(1,%1),0(%1)\n"
-+		"0:"AHI"  %0,257\n"
-+		"   la    %2,255(%1)\n" /* %2 = ptr + 255 */
-+		"   srl   %2,12\n"
-+		"   sll   %2,12\n"	/* %2 = (ptr + 255) & -4096 */
-+		"  "SLR"  %2,%1\n"
-+		"  "CLR"  %0,%2\n"	/* clear crosses next page boundary? */
-+		"   jnh   5f\n"
-+		"  "AHI"  %2,-1\n"
-+		"1: ex    %2,0(%3)\n"
-+		"  "AHI"  %2,1\n"
-+		"  "SLR"  %0,%2\n"
-+		"   j     5f\n"
-+		"2: xc    0(256,%1),0(%1)\n"
-+		"   la    %1,256(%1)\n"
-+		"3:"AHI"  %0,-256\n"
-+		"   jnm   2b\n"
-+		"4: ex    %0,0(%3)\n"
-+		"   sacf  0\n"
-+		"5: "SLR"  %0,%0\n"
-+		"6:\n"
-+		EX_TABLE(1b,6b) EX_TABLE(2b,0b) EX_TABLE(4b,0b)
-+		: "+a" (size), "+a" (to), "=a" (tmp1), "=a" (tmp2)
-+		: : "cc", "memory");
-+	return size;
-+}
-+
-+size_t strnlen_user_std(size_t size, const char __user *src)
-+{
-+	register unsigned long reg0 asm("0") = 0UL;
-+	unsigned long tmp1, tmp2;
-+
-+	asm volatile(
-+		"   la    %2,0(%1)\n"
-+		"   la    %3,0(%0,%1)\n"
-+		"  "SLR"  %0,%0\n"
-+		"   sacf  256\n"
-+		"0: srst  %3,%2\n"
-+		"   jo    0b\n"
-+		"   la    %0,1(%3)\n"	/* strnlen_user results includes \0 */
-+		"  "SLR"  %0,%1\n"
-+		"1: sacf  0\n"
-+		EX_TABLE(0b,1b)
-+		: "+a" (size), "+a" (src), "=a" (tmp1), "=a" (tmp2)
-+		: "d" (reg0) : "cc", "memory");
-+	return size;
-+}
-+
-+size_t strncpy_from_user_std(size_t size, const char __user *src, char *dst)
-+{
-+	register unsigned long reg0 asm("0") = 0UL;
-+	unsigned long tmp1, tmp2;
-+
-+	asm volatile(
-+		"   la    %3,0(%1)\n"
-+		"   la    %4,0(%0,%1)\n"
-+		"   sacf  256\n"
-+		"0: srst  %4,%3\n"
-+		"   jo    0b\n"
-+		"   sacf  0\n"
-+		"   la    %0,0(%4)\n"
-+		"   jh    1f\n"		/* found \0 in string ? */
-+		"  "AHI"  %4,1\n"	/* include \0 in copy */
-+		"1:"SLR"  %0,%1\n"	/* %0 = return length (without \0) */
-+		"  "SLR"  %4,%1\n"	/* %4 = copy length (including \0) */
-+		"2: mvcp  0(%4,%2),0(%1),%5\n"
-+		"   jz    9f\n"
-+		"3:"AHI"  %4,-256\n"
-+		"   la    %1,256(%1)\n"
-+		"   la    %2,256(%2)\n"
-+		"4: mvcp  0(%4,%2),0(%1),%5\n"
-+		"   jnz   3b\n"
-+		"   j     9f\n"
-+		"7: sacf  0\n"
-+		"8:"LHI"  %0,%6\n"
-+		"9:\n"
-+		EX_TABLE(0b,7b) EX_TABLE(2b,8b) EX_TABLE(4b,8b)
-+		: "+a" (size), "+a" (src), "+d" (dst), "=a" (tmp1), "=a" (tmp2)
-+		: "d" (reg0), "K" (-EFAULT) : "cc", "memory");
-+	return size;
-+}
-+
-+#define __futex_atomic_op(insn, ret, oldval, newval, uaddr, oparg)	\
-+	asm volatile(							\
-+		"   sacf  256\n"					\
-+		"0: l     %1,0(%6)\n"					\
-+		"1:"insn						\
-+		"2: cs    %1,%2,0(%6)\n"				\
-+		"3: jl    1b\n"						\
-+		"   lhi   %0,0\n"					\
-+		"4: sacf  0\n"						\
-+		EX_TABLE(0b,4b) EX_TABLE(2b,4b) EX_TABLE(3b,4b)		\
-+		: "=d" (ret), "=&d" (oldval), "=&d" (newval),		\
-+		  "=m" (*uaddr)						\
-+		: "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
-+		  "m" (*uaddr) : "cc");
-+
-+int futex_atomic_op(int op, int __user *uaddr, int oparg, int *old)
-+{
-+	int oldval = 0, newval, ret;
-+
-+	inc_preempt_count();
-+
-+	switch (op) {
-+	case FUTEX_OP_SET:
-+		__futex_atomic_op("lr %2,%5\n",
-+				  ret, oldval, newval, uaddr, oparg);
-+		break;
-+	case FUTEX_OP_ADD:
-+		__futex_atomic_op("lr %2,%1\nar %2,%5\n",
-+				  ret, oldval, newval, uaddr, oparg);
-+		break;
-+	case FUTEX_OP_OR:
-+		__futex_atomic_op("lr %2,%1\nor %2,%5\n",
-+				  ret, oldval, newval, uaddr, oparg);
-+		break;
-+	case FUTEX_OP_ANDN:
-+		__futex_atomic_op("lr %2,%1\nnr %2,%5\n",
-+				  ret, oldval, newval, uaddr, oparg);
-+		break;
-+	case FUTEX_OP_XOR:
-+		__futex_atomic_op("lr %2,%1\nxr %2,%5\n",
-+				  ret, oldval, newval, uaddr, oparg);
-+		break;
-+	default:
-+		ret = -ENOSYS;
-+	}
-+	dec_preempt_count();
-+	*old = oldval;
-+	return ret;
-+}
-+
-+int futex_atomic_cmpxchg(int __user *uaddr, int oldval, int newval)
-+{
-+	int ret;
-+
-+	asm volatile(
-+		"   sacf 256\n"
-+		"   cs   %1,%4,0(%5)\n"
-+		"0: lr   %0,%1\n"
-+		"1: sacf 0\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (ret), "+d" (oldval), "=m" (*uaddr)
-+		: "0" (-EFAULT), "d" (newval), "a" (uaddr), "m" (*uaddr)
-+		: "cc", "memory" );
-+	return ret;
-+}
-+
-+struct uaccess_ops uaccess_std = {
-+	.copy_from_user = copy_from_user_std,
-+	.copy_from_user_small = copy_from_user_std_small,
-+	.copy_to_user = copy_to_user_std,
-+	.copy_to_user_small = copy_to_user_std_small,
-+	.copy_in_user = copy_in_user_std,
-+	.clear_user = clear_user_std,
-+	.strnlen_user = strnlen_user_std,
-+	.strncpy_from_user = strncpy_from_user_std,
-+	.futex_atomic_op = futex_atomic_op,
-+	.futex_atomic_cmpxchg = futex_atomic_cmpxchg,
-+};
-diff -urpN linux-2.6/include/asm-s390/futex.h linux-2.6-patched/include/asm-s390/futex.h
---- linux-2.6/include/asm-s390/futex.h	2006-09-12 10:57:10.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/futex.h	2006-09-12 10:57:58.000000000 +0200
-@@ -7,75 +7,21 @@
- #include <asm/errno.h>
- #include <asm/uaccess.h>
- 
--#ifndef __s390x__
--#define __futex_atomic_fixup \
--		     ".section __ex_table,\"a\"\n"			\
--		     "   .align 4\n"					\
--		     "   .long  0b,4b,2b,4b,3b,4b\n"			\
--		     ".previous"
--#else /* __s390x__ */
--#define __futex_atomic_fixup \
--		     ".section __ex_table,\"a\"\n"			\
--		     "   .align 8\n"					\
--		     "   .quad  0b,4b,2b,4b,3b,4b\n"			\
--		     ".previous"
--#endif /* __s390x__ */
--
--#define __futex_atomic_op(insn, ret, oldval, newval, uaddr, oparg)	\
--	asm volatile("   sacf 256\n"					\
--		     "0: l   %1,0(%6)\n"				\
--		     "1: " insn						\
--		     "2: cs  %1,%2,0(%6)\n"				\
--		     "3: jl  1b\n"					\
--		     "   lhi %0,0\n"					\
--		     "4: sacf 0\n"					\
--		     __futex_atomic_fixup				\
--		     : "=d" (ret), "=&d" (oldval), "=&d" (newval),	\
--		       "=m" (*uaddr)					\
--		     : "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
--		       "m" (*uaddr) : "cc" );
--
- static inline int futex_atomic_op_inuser (int encoded_op, int __user *uaddr)
- {
- 	int op = (encoded_op >> 28) & 7;
- 	int cmp = (encoded_op >> 24) & 15;
- 	int oparg = (encoded_op << 8) >> 20;
- 	int cmparg = (encoded_op << 20) >> 20;
--	int oldval = 0, newval, ret;
-+	int oldval, ret;
-+
- 	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
- 		oparg = 1 << oparg;
- 
- 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
- 		return -EFAULT;
- 
--	inc_preempt_count();
--
--	switch (op) {
--	case FUTEX_OP_SET:
--		__futex_atomic_op("lr %2,%5\n",
--				  ret, oldval, newval, uaddr, oparg);
--		break;
--	case FUTEX_OP_ADD:
--		__futex_atomic_op("lr %2,%1\nar %2,%5\n",
--				  ret, oldval, newval, uaddr, oparg);
--		break;
--	case FUTEX_OP_OR:
--		__futex_atomic_op("lr %2,%1\nor %2,%5\n",
--				  ret, oldval, newval, uaddr, oparg);
--		break;
--	case FUTEX_OP_ANDN:
--		__futex_atomic_op("lr %2,%1\nnr %2,%5\n",
--				  ret, oldval, newval, uaddr, oparg);
--		break;
--	case FUTEX_OP_XOR:
--		__futex_atomic_op("lr %2,%1\nxr %2,%5\n",
--				  ret, oldval, newval, uaddr, oparg);
--		break;
--	default:
--		ret = -ENOSYS;
--	}
--
--	dec_preempt_count();
-+	ret = uaccess.futex_atomic_op(op, uaddr, oparg, &oldval);
- 
- 	if (!ret) {
- 		switch (cmp) {
-@@ -91,32 +37,13 @@ static inline int futex_atomic_op_inuser
- 	return ret;
- }
- 
--static inline int
--futex_atomic_cmpxchg_inatomic(int __user *uaddr, int oldval, int newval)
-+static inline int futex_atomic_cmpxchg_inatomic(int __user *uaddr,
-+						int oldval, int newval)
- {
--	int ret;
--
- 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
- 		return -EFAULT;
--	asm volatile("   sacf 256\n"
--		     "   cs   %1,%4,0(%5)\n"
--		     "0: lr   %0,%1\n"
--		     "1: sacf 0\n"
--#ifndef __s390x__
--		     ".section __ex_table,\"a\"\n"
--		     "   .align 4\n"
--		     "   .long  0b,1b\n"
--		     ".previous"
--#else /* __s390x__ */
--		     ".section __ex_table,\"a\"\n"
--		     "   .align 8\n"
--		     "   .quad  0b,1b\n"
--		     ".previous"
--#endif /* __s390x__ */
--		     : "=d" (ret), "+d" (oldval), "=m" (*uaddr)
--		     : "0" (-EFAULT), "d" (newval), "a" (uaddr), "m" (*uaddr)
--		     : "cc", "memory" );
--	return oldval;
-+
-+	return uaccess.futex_atomic_cmpxchg(uaddr, oldval, newval);
- }
- 
- #endif /* __KERNEL__ */
-diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
---- linux-2.6/include/asm-s390/uaccess.h	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/uaccess.h	2006-09-12 10:57:58.000000000 +0200
-@@ -47,7 +47,7 @@
- 		S390_lowcore.user_asce : S390_lowcore.kernel_asce;	\
- 	asm volatile ("lctlg 7,7,%0" : : "m" (__pto) );			\
- })
--#else
-+#else /* __s390x__ */
- #define set_fs(x) \
- ({									\
- 	unsigned long __pto;						\
-@@ -56,7 +56,7 @@
- 		S390_lowcore.user_asce : S390_lowcore.kernel_asce;	\
- 	asm volatile ("lctl  7,7,%0" : : "m" (__pto) );			\
- })
--#endif
-+#endif /* __s390x__ */
- 
- #define segment_eq(a,b) ((a).ar4 == (b).ar4)
- 
-@@ -85,76 +85,50 @@ struct exception_table_entry
-         unsigned long insn, fixup;
- };
- 
--#ifndef __s390x__
--#define __uaccess_fixup \
--	".section .fixup,\"ax\"\n"	\
--	"2: lhi    %0,%4\n"		\
--	"   bras   1,3f\n"		\
--	"   .long  1b\n"		\
--	"3: l      1,0(1)\n"		\
--	"   br     1\n"			\
--	".previous\n"			\
--	".section __ex_table,\"a\"\n"	\
--	"   .align 4\n"			\
--	"   .long  0b,2b\n"		\
--	".previous"
--#define __uaccess_clobber "cc", "1"
--#else /* __s390x__ */
--#define __uaccess_fixup \
--	".section .fixup,\"ax\"\n"	\
--	"2: lghi   %0,%4\n"		\
--	"   jg     1b\n"		\
--	".previous\n"			\
--	".section __ex_table,\"a\"\n"	\
--	"   .align 8\n"			\
--	"   .quad  0b,2b\n"		\
--	".previous"
--#define __uaccess_clobber "cc"
--#endif /* __s390x__ */
-+struct uaccess_ops {
-+	size_t (*copy_from_user)(size_t, const void __user *, void *);
-+	size_t (*copy_from_user_small)(size_t, const void __user *, void *);
-+	size_t (*copy_to_user)(size_t, void __user *, const void *);
-+	size_t (*copy_to_user_small)(size_t, void __user *, const void *);
-+	size_t (*copy_in_user)(size_t, void __user *, const void __user *);
-+	size_t (*clear_user)(size_t, void __user *);
-+	size_t (*strnlen_user)(size_t, const char __user *);
-+	size_t (*strncpy_from_user)(size_t, const char __user *, char *);
-+	int (*futex_atomic_op)(int op, int __user *, int oparg, int *old);
-+	int (*futex_atomic_cmpxchg)(int __user *, int old, int new);
-+};
-+
-+extern struct uaccess_ops uaccess;
-+extern struct uaccess_ops uaccess_std;
-+
-+static inline int __put_user_fn(size_t size, void __user *ptr, void *x)
-+{
-+	size = uaccess.copy_to_user_small(size, ptr, x);
-+	return size ? -EFAULT : size;
-+}
-+
-+static inline int __get_user_fn(size_t size, const void __user *ptr, void *x)
-+{
-+	size = uaccess.copy_from_user_small(size, ptr, x);
-+	return size ? -EFAULT : size;
-+}
- 
- /*
-  * These are the main single-value transfer routines.  They automatically
-  * use the right size if we just have the right pointer type.
-  */
--#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
--#define __put_user_asm(x, ptr, err) \
--({								\
--	err = 0;						\
--	asm volatile(						\
--		"0: mvcs  0(%1,%2),%3,%0\n"			\
--		"1:\n"						\
--		__uaccess_fixup					\
--		: "+&d" (err)					\
--		: "d" (sizeof(*(ptr))), "a" (ptr), "Q" (x),	\
--		  "K" (-EFAULT)					\
--		: __uaccess_clobber );				\
--})
--#else
--#define __put_user_asm(x, ptr, err) \
--({								\
--	err = 0;						\
--	asm volatile(						\
--		"0: mvcs  0(%1,%2),0(%3),%0\n"			\
--		"1:\n"						\
--		__uaccess_fixup					\
--		: "+&d" (err)					\
--		: "d" (sizeof(*(ptr))), "a" (ptr), "a" (&(x)),	\
--		  "K" (-EFAULT), "m" (x)			\
--		: __uaccess_clobber );				\
--})
--#endif
--
- #define __put_user(x, ptr) \
- ({								\
- 	__typeof__(*(ptr)) __x = (x);				\
--	int __pu_err;						\
-+	int __pu_err = -EFAULT;					\
-         __chk_user_ptr(ptr);                                    \
- 	switch (sizeof (*(ptr))) {				\
- 	case 1:							\
- 	case 2:							\
- 	case 4:							\
- 	case 8:							\
--		__put_user_asm(__x, ptr, __pu_err);		\
-+		__pu_err = __put_user_fn(sizeof (*(ptr)),	\
-+					 ptr, &__x);		\
- 		break;						\
- 	default:						\
- 		__put_user_bad();				\
-@@ -172,60 +146,36 @@ struct exception_table_entry
- 
- extern int __put_user_bad(void) __attribute__((noreturn));
- 
--#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
--#define __get_user_asm(x, ptr, err) \
--({								\
--	err = 0;						\
--	asm volatile (						\
--		"0: mvcp  %O1(%2,%R1),0(%3),%0\n"		\
--		"1:\n"						\
--		__uaccess_fixup					\
--		: "+&d" (err), "=Q" (x)				\
--		: "d" (sizeof(*(ptr))), "a" (ptr),		\
--		  "K" (-EFAULT)					\
--		: __uaccess_clobber );				\
--})
--#else
--#define __get_user_asm(x, ptr, err) \
--({								\
--	err = 0;						\
--	asm volatile (						\
--		"0: mvcp  0(%2,%5),0(%3),%0\n"			\
--		"1:\n"						\
--		__uaccess_fixup					\
--		: "+&d" (err), "=m" (x)				\
--		: "d" (sizeof(*(ptr))), "a" (ptr),		\
--		  "K" (-EFAULT), "a" (&(x))			\
--		: __uaccess_clobber );				\
--})
--#endif
--
- #define __get_user(x, ptr)					\
- ({								\
--	int __gu_err;						\
--        __chk_user_ptr(ptr);                                    \
-+	int __gu_err = -EFAULT;					\
-+	__chk_user_ptr(ptr);					\
- 	switch (sizeof(*(ptr))) {				\
- 	case 1: {						\
- 		unsigned char __x;				\
--		__get_user_asm(__x, ptr, __gu_err);		\
-+		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
-+					 ptr, &__x);		\
- 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
- 		break;						\
- 	};							\
- 	case 2: {						\
- 		unsigned short __x;				\
--		__get_user_asm(__x, ptr, __gu_err);		\
-+		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
-+					 ptr, &__x);		\
- 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
- 		break;						\
- 	};							\
- 	case 4: {						\
- 		unsigned int __x;				\
--		__get_user_asm(__x, ptr, __gu_err);		\
-+		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
-+					 ptr, &__x);		\
- 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
- 		break;						\
- 	};							\
- 	case 8: {						\
- 		unsigned long long __x;				\
--		__get_user_asm(__x, ptr, __gu_err);		\
-+		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
-+					 ptr, &__x);		\
- 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
- 		break;						\
- 	};							\
-@@ -247,8 +197,6 @@ extern int __get_user_bad(void) __attrib
- #define __put_user_unaligned __put_user
- #define __get_user_unaligned __get_user
- 
--extern long __copy_to_user_asm(const void *from, long n, void __user *to);
--
- /**
-  * __copy_to_user: - Copy a block of data into user space, with less checking.
-  * @to:   Destination address, in user space.
-@@ -266,7 +214,10 @@ extern long __copy_to_user_asm(const voi
- static inline unsigned long
- __copy_to_user(void __user *to, const void *from, unsigned long n)
- {
--	return __copy_to_user_asm(from, n, to);
-+	if (__builtin_constant_p(n) && (n <= 256))
-+		return uaccess.copy_to_user_small(n, to, from);
-+	else
-+		return uaccess.copy_to_user(n, to, from);
- }
- 
- #define __copy_to_user_inatomic __copy_to_user
-@@ -294,8 +245,6 @@ copy_to_user(void __user *to, const void
- 	return n;
- }
- 
--extern long __copy_from_user_asm(void *to, long n, const void __user *from);
--
- /**
-  * __copy_from_user: - Copy a block of data from user space, with less checking.
-  * @to:   Destination address, in kernel space.
-@@ -316,7 +265,10 @@ extern long __copy_from_user_asm(void *t
- static inline unsigned long
- __copy_from_user(void *to, const void __user *from, unsigned long n)
- {
--	return __copy_from_user_asm(to, n, from);
-+	if (__builtin_constant_p(n) && (n <= 256))
-+		return uaccess.copy_from_user_small(n, from, to);
-+	else
-+		return uaccess.copy_from_user(n, from, to);
- }
- 
- /**
-@@ -346,13 +298,10 @@ copy_from_user(void *to, const void __us
- 	return n;
- }
- 
--extern unsigned long __copy_in_user_asm(const void __user *from, long n,
--							void __user *to);
--
- static inline unsigned long
- __copy_in_user(void __user *to, const void __user *from, unsigned long n)
- {
--	return __copy_in_user_asm(from, n, to);
-+	return uaccess.copy_in_user(n, to, from);
- }
- 
- static inline unsigned long
-@@ -360,34 +309,28 @@ copy_in_user(void __user *to, const void
- {
- 	might_sleep();
- 	if (__access_ok(from,n) && __access_ok(to,n))
--		n = __copy_in_user_asm(from, n, to);
-+		n = __copy_in_user(to, from, n);
- 	return n;
- }
- 
- /*
-  * Copy a null terminated string from userspace.
-  */
--extern long __strncpy_from_user_asm(long count, char *dst,
--					const char __user *src);
--
- static inline long
- strncpy_from_user(char *dst, const char __user *src, long count)
- {
-         long res = -EFAULT;
-         might_sleep();
-         if (access_ok(VERIFY_READ, src, 1))
--                res = __strncpy_from_user_asm(count, dst, src);
-+		res = uaccess.strncpy_from_user(count, src, dst);
-         return res;
- }
- 
--
--extern long __strnlen_user_asm(long count, const char __user *src);
--
- static inline unsigned long
- strnlen_user(const char __user * src, unsigned long n)
- {
- 	might_sleep();
--	return __strnlen_user_asm(n, src);
-+	return uaccess.strnlen_user(n, src);
- }
- 
- /**
-@@ -410,12 +353,10 @@ strnlen_user(const char __user * src, un
-  * Zero Userspace
-  */
- 
--extern long __clear_user_asm(void __user *to, long n);
--
- static inline unsigned long
- __clear_user(void __user *to, unsigned long n)
- {
--	return __clear_user_asm(to, n);
-+	return uaccess.clear_user(n, to);
- }
- 
- static inline unsigned long
-@@ -423,7 +364,7 @@ clear_user(void __user *to, unsigned lon
- {
- 	might_sleep();
- 	if (access_ok(VERIFY_WRITE, to, n))
--		n = __clear_user_asm(to, n);
-+		n = uaccess.clear_user(n, to);
- 	return n;
- }
- 
+No. Tried with latest 2.6.18-rc6-mm2 and still not detected.
+
+> Please provide the following info.
+>
+> * the result of 'lspci -nvvv'
+>
+> * dmesg output with the attached patch applied (on top of -mm).
+
+Applied the patch and sending the output of lspci and dmesg.
+
+Thank you very much!
+
+Nelson
+
+------=_Part_215820_17099423.1158060650332
+Content-Type: application/octet-stream; name=dmesg
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_es07a6q7
+Content-Disposition: attachment; filename="dmesg"
+
+TGludXggdmVyc2lvbiAyLjYuMTgtcmM2LW1tMiAocm9vdEBvcnRocnVzKSAoZ2NjIHZlcnNpb24g
+NC4yLjAgMjAwNjA5MDUgKGV4cGVyaW1lbnRhbCkgKERlYmlhbiA0LjItMjAwNjA5MDUtMSkpICMx
+IFNNUCBQUkVFTVBUIFR1ZSBTZXAgMTIgMDg6MTc6MDAgQlJUIDIwMDYKQklPUy1wcm92aWRlZCBw
+aHlzaWNhbCBSQU0gbWFwOgpzYW5pdGl6ZSBzdGFydApzYW5pdGl6ZSBlbmQKY29weV9lODIwX21h
+cCgpIHN0YXJ0OiAwMDAwMDAwMDAwMDAwMDAwIHNpemU6IDAwMDAwMDAwMDAwOWYwMDAgZW5kOiAw
+MDAwMDAwMDAwMDlmMDAwIHR5cGU6IDEKY29weV9lODIwX21hcCgpIHR5cGUgaXMgRTgyMF9SQU0K
+Y29weV9lODIwX21hcCgpIHN0YXJ0OiAwMDAwMDAwMDAwMDlmMDAwIHNpemU6IDAwMDAwMDAwMDAw
+MDEwMDAgZW5kOiAwMDAwMDAwMDAwMGEwMDAwIHR5cGU6IDIKY29weV9lODIwX21hcCgpIHN0YXJ0
+OiAwMDAwMDAwMDAwMTAwMDAwIHNpemU6IDAwMDAwMDAwMWY1ZDM0MDAgZW5kOiAwMDAwMDAwMDFm
+NmQzNDAwIHR5cGU6IDEKY29weV9lODIwX21hcCgpIHR5cGUgaXMgRTgyMF9SQU0KY29weV9lODIw
+X21hcCgpIHN0YXJ0OiAwMDAwMDAwMDFmNmQzNDAwIHNpemU6IDAwMDAwMDAwMDA5MmNjMDAgZW5k
+OiAwMDAwMDAwMDIwMDAwMDAwIHR5cGU6IDIKY29weV9lODIwX21hcCgpIHN0YXJ0OiAwMDAwMDAw
+MGUwMDAwMDAwIHNpemU6IDAwMDAwMDAwMTAwMDcwMDAgZW5kOiAwMDAwMDAwMGYwMDA3MDAwIHR5
+cGU6IDIKY29weV9lODIwX21hcCgpIHN0YXJ0OiAwMDAwMDAwMGYwMDA4MDAwIHNpemU6IDAwMDAw
+MDAwMDAwMDQwMDAgZW5kOiAwMDAwMDAwMGYwMDBjMDAwIHR5cGU6IDIKY29weV9lODIwX21hcCgp
+IHN0YXJ0OiAwMDAwMDAwMGZlYzAwMDAwIHNpemU6IDAwMDAwMDAwMDAwMTAwMDAgZW5kOiAwMDAw
+MDAwMGZlYzEwMDAwIHR5cGU6IDIKY29weV9lODIwX21hcCgpIHN0YXJ0OiAwMDAwMDAwMGZlZDIw
+MDAwIHNpemU6IDAwMDAwMDAwMDAwODAwMDAgZW5kOiAwMDAwMDAwMGZlZGEwMDAwIHR5cGU6IDIK
+Y29weV9lODIwX21hcCgpIHN0YXJ0OiAwMDAwMDAwMGZlZTAwMDAwIHNpemU6IDAwMDAwMDAwMDAw
+MTAwMDAgZW5kOiAwMDAwMDAwMGZlZTEwMDAwIHR5cGU6IDIKY29weV9lODIwX21hcCgpIHN0YXJ0
+OiAwMDAwMDAwMGZmYjAwMDAwIHNpemU6IDAwMDAwMDAwMDA1MDAwMDAgZW5kOiAwMDAwMDAwMTAw
+MDAwMDAwIHR5cGU6IDIKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAw
+OWYwMDAgKHVzYWJsZSkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDA5ZjAwMCAtIDAwMDAwMDAwMDAw
+YTAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAx
+ZjZkMzQwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDFmNmQzNDAwIC0gMDAwMDAwMDAy
+MDAwMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZTAwMDAwMDAgLSAwMDAwMDAw
+MGYwMDA3MDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDBmMDAwODAwMCAtIDAwMDAw
+MDAwZjAwMGMwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMGZlYzAwMDAwIC0gMDAw
+MDAwMDBmZWMxMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVkMjAwMDAgLSAw
+MDAwMDAwMGZlZGEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDBmZWUwMDAwMCAt
+IDAwMDAwMDAwZmVlMTAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMGZmYjAwMDAw
+IC0gMDAwMDAwMDEwMDAwMDAwMCAocmVzZXJ2ZWQpCjUwMk1CIExPV01FTSBhdmFpbGFibGUuCkVu
+dGVyaW5nIGFkZF9hY3RpdmVfcmFuZ2UoMCwgMCwgMTI4NzIzKSAwIGVudHJpZXMgb2YgMjU2IHVz
+ZWQKWm9uZSBQRk4gcmFuZ2VzOgogIERNQSAgICAgICAgICAgICAwIC0+ICAgICA0MDk2CiAgTm9y
+bWFsICAgICAgIDQwOTYgLT4gICAxMjg3MjMKZWFybHlfbm9kZV9tYXBbMV0gYWN0aXZlIFBGTiBy
+YW5nZXMKICAgIDA6ICAgICAgICAwIC0+ICAgMTI4NzIzCk9uIG5vZGUgMCB0b3RhbHBhZ2VzOiAx
+Mjg3MjMKICBETUEgem9uZTogMzIgcGFnZXMgdXNlZCBmb3IgbWVtbWFwCiAgRE1BIHpvbmU6IDAg
+cGFnZXMgcmVzZXJ2ZWQKICBETUEgem9uZTogNDA2NCBwYWdlcywgTElGTyBiYXRjaDowCiAgTm9y
+bWFsIHpvbmU6IDk3MyBwYWdlcyB1c2VkIGZvciBtZW1tYXAKICBOb3JtYWwgem9uZTogMTIzNjU0
+IHBhZ2VzLCBMSUZPIGJhdGNoOjMxCkRNSSAyLjQgcHJlc2VudC4KQUNQSTogUlNEUCAodjAwMCBE
+RUxMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICkgQCAweDAwMGZjMzkwCkFDUEk6
+IFJTRFQgKHYwMDEgREVMTCAgICBNMDcgICAgIDB4MjdkNjA3MWYgQVNMICAweDAwMDAwMDYxKSBA
+IDB4MWY2ZDNhOTYKQUNQSTogRkFEVCAodjAwMSBERUxMICAgIE0wNyAgICAgMHgyN2Q2MDcxZiBB
+U0wgIDB4MDAwMDAwNjEpIEAgMHgxZjZkNDgwMApBQ1BJOiBNQURUICh2MDAxIERFTEwgICAgTTA3
+ICAgICAweDI3ZDYwNzFmIEFTTCAgMHgwMDAwMDA0NykgQCAweDFmNmQ1MDAwCkFDUEk6IE1DRkcg
+KHYwMTYgREVMTCAgICBNMDcgICAgIDB4MjdkNjA3MWYgQVNMICAweDAwMDAwMDYxKSBAIDB4MWY2
+ZDRmYzAKQUNQSTogU1NEVCAodjAwMSAgUG1SZWYgICAgQ3B1UG0gMHgwMDAwMzAwMCBJTlRMIDB4
+MjAwNTA2MjQpIEAgMHgxZjZkM2FjYQpBQ1BJOiBEU0RUICh2MDAxIElOVDQzMCBTWVNGZXh4eCAw
+eDAwMDAxMDAxIElOVEwgMHgyMDA1MDYyNCkgQCAweDAwMDAwMDAwCkFDUEk6IFBNLVRpbWVyIElP
+IFBvcnQ6IDB4MTAwOApBQ1BJOiBMb2NhbCBBUElDIGFkZHJlc3MgMHhmZWUwMDAwMApBQ1BJOiBM
+QVBJQyAoYWNwaV9pZFsweDAwXSBsYXBpY19pZFsweDAwXSBlbmFibGVkKQpQcm9jZXNzb3IgIzAg
+NjoxNCBBUElDIHZlcnNpb24gMjAKQUNQSTogTEFQSUMgKGFjcGlfaWRbMHgwMV0gbGFwaWNfaWRb
+MHgwMV0gZW5hYmxlZCkKUHJvY2Vzc29yICMxIDY6MTQgQVBJQyB2ZXJzaW9uIDIwCkFDUEk6IExB
+UElDX05NSSAoYWNwaV9pZFsweDAwXSBoaWdoIGVkZ2UgbGludFsweDFdKQpBQ1BJOiBMQVBJQ19O
+TUkgKGFjcGlfaWRbMHgwMV0gaGlnaCBlZGdlIGxpbnRbMHgxXSkKQUNQSTogSU9BUElDIChpZFsw
+eDAyXSBhZGRyZXNzWzB4ZmVjMDAwMDBdIGdzaV9iYXNlWzBdKQpJT0FQSUNbMF06IGFwaWNfaWQg
+MiwgdmVyc2lvbiAzMiwgYWRkcmVzcyAweGZlYzAwMDAwLCBHU0kgMC0yMwpBQ1BJOiBJTlRfU1JD
+X09WUiAoYnVzIDAgYnVzX2lycSAwIGdsb2JhbF9pcnEgMiBkZmwgZGZsKQpBQ1BJOiBJTlRfU1JD
+X09WUiAoYnVzIDAgYnVzX2lycSA5IGdsb2JhbF9pcnEgOSBoaWdoIGxldmVsKQpBQ1BJOiBJUlEw
+IHVzZWQgYnkgb3ZlcnJpZGUuCkFDUEk6IElSUTIgdXNlZCBieSBvdmVycmlkZS4KQUNQSTogSVJR
+OSB1c2VkIGJ5IG92ZXJyaWRlLgpFbmFibGluZyBBUElDIG1vZGU6ICBGbGF0LiAgVXNpbmcgMSBJ
+L08gQVBJQ3MKVXNpbmcgQUNQSSAoTUFEVCkgZm9yIFNNUCBjb25maWd1cmF0aW9uIGluZm9ybWF0
+aW9uCkFsbG9jYXRpbmcgUENJIHJlc291cmNlcyBzdGFydGluZyBhdCAzMDAwMDAwMCAoZ2FwOiAy
+MDAwMDAwMDpjMDAwMDAwMCkKRGV0ZWN0ZWQgMTY2Mi42NjcgTUh6IHByb2Nlc3Nvci4KQnVpbHQg
+MSB6b25lbGlzdHMuICBUb3RhbCBwYWdlczogMTI3NzE4Cktlcm5lbCBjb21tYW5kIGxpbmU6IHJv
+b3Q9L2Rldi9zZGE1IGF0YV9waWl4LmZvcmNlX3Bjcz0xIHJvIAptYXBwZWQgQVBJQyB0byBmZmZm
+ZDAwMCAoZmVlMDAwMDApCm1hcHBlZCBJT0FQSUMgdG8gZmZmZmMwMDAgKGZlYzAwMDAwKQpFbmFi
+bGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkVuYWJsaW5nIHVubWFza2Vk
+IFNJTUQgRlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uIGRvbmUuCmNwdSAwIGN1cnJlbnQgYzAyYTQ0
+NDAKSW5pdGlhbGl6aW5nIENQVSMwCkNQVSAwIGlycXN0YWNrcywgaGFyZD1jMDJmZDAwMCBzb2Z0
+PWMwMmZiMDAwClBJRCBoYXNoIHRhYmxlIGVudHJpZXM6IDIwNDggKG9yZGVyOiAxMSwgODE5MiBi
+eXRlcykKQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUKRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUg
+ZW50cmllczogNjU1MzYgKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2gg
+dGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCk1lbW9yeTogNTA3
+NjMyay81MTQ4OTJrIGF2YWlsYWJsZSAoMTQyOWsga2VybmVsIGNvZGUsIDY3MDBrIHJlc2VydmVk
+LCAzODdrIGRhdGEsIDE3MmsgaW5pdCwgMGsgaGlnaG1lbSkKdmlydHVhbCBrZXJuZWwgbWVtb3J5
+IGxheW91dDoKICAgIGZpeG1hcCAgOiAweGZmZmI3MDAwIC0gMHhmZmZmZjAwMCAgICggMjg4IGtC
+KQogICAgdm1hbGxvYyA6IDB4ZTAwMDAwMDAgLSAweGZmZmI1MDAwICAgKCA1MTEgTUIpCiAgICBs
+b3dtZW0gIDogMHhjMDAwMDAwMCAtIDB4ZGY2ZDMwMDAgICAoIDUwMiBNQikKICAgICAgLmluaXQg
+OiAweGMwMmNiMDAwIC0gMHhjMDJmNjAwMCAgICggMTcyIGtCKQogICAgICAuZGF0YSA6IDB4YzAy
+NjU0Y2YgLSAweGMwMmM2NDRjICAgKCAzODcga0IpCiAgICAgIC50ZXh0IDogMHhjMDEwMDAwMCAt
+IDB4YzAyNjU0Y2YgICAoMTQyOSBrQikKQ2hlY2tpbmcgaWYgdGhpcyBwcm9jZXNzb3IgaG9ub3Vy
+cyB0aGUgV1AgYml0IGV2ZW4gaW4gc3VwZXJ2aXNvciBtb2RlLi4uIE9rLgpDYWxpYnJhdGluZyBk
+ZWxheSB1c2luZyB0aW1lciBzcGVjaWZpYyByb3V0aW5lLi4gMzMyNy4zOCBCb2dvTUlQUyAobHBq
+PTE2NjM2OTIpCk1vdW50LWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNTEyCkNQVTogQWZ0ZXIg
+Z2VuZXJpYyBpZGVudGlmeSwgY2FwczogYmZlOWZiZmYgMDAxMDAwMDAgMDAwMDAwMDAgMDAwMDAw
+MDAgMDAwMGMxODkgMDAwMDAwMDAgMDAwMDAwMDAKbW9uaXRvci9td2FpdCBmZWF0dXJlIHByZXNl
+bnQuCnVzaW5nIG13YWl0IGluIGlkbGUgdGhyZWFkcy4KQ1BVOiBMMSBJIGNhY2hlOiAzMkssIEwx
+IEQgY2FjaGU6IDMySwpDUFU6IEwyIGNhY2hlOiAyMDQ4SwpDUFU6IFBoeXNpY2FsIFByb2Nlc3Nv
+ciBJRDogMApDUFU6IFByb2Nlc3NvciBDb3JlIElEOiAwCkNQVTogQWZ0ZXIgYWxsIGluaXRzLCBj
+YXBzOiBiZmU5ZmJmZiAwMDEwMDAwMCAwMDAwMDAwMCAwMDAwMDk0MCAwMDAwYzE4OSAwMDAwMDAw
+MCAwMDAwMDAwMApJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuCklu
+dGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNoZWNraW5nICdo
+bHQnIGluc3RydWN0aW9uLi4uIE9LLgpGcmVlaW5nIFNNUCBhbHRlcm5hdGl2ZXM6IDEyayBmcmVl
+ZApBQ1BJOiBDb3JlIHJldmlzaW9uIDIwMDYwNzA3CkNQVTA6IEludGVsIEdlbnVpbmUgSW50ZWwo
+UikgQ1BVICAgICAgICAgICBUMjMwMCAgQCAxLjY2R0h6IHN0ZXBwaW5nIDA4CkJvb3RpbmcgcHJv
+Y2Vzc29yIDEvMSBlaXAgMjAwMApDUFUgMSBpcnFzdGFja3MsIGhhcmQ9YzAyZmUwMDAgc29mdD1j
+MDJmYzAwMApjcHUgMSBjdXJyZW50IGRmNjhkNTYwCkluaXRpYWxpemluZyBDUFUjMQpDYWxpYnJh
+dGluZyBkZWxheSB1c2luZyB0aW1lciBzcGVjaWZpYyByb3V0aW5lLi4gMzMyNC41NSBCb2dvTUlQ
+UyAobHBqPTE2NjIyNzkpCkNQVTogQWZ0ZXIgZ2VuZXJpYyBpZGVudGlmeSwgY2FwczogYmZlOWZi
+ZmYgMDAxMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMGMxODkgMDAwMDAwMDAgMDAwMDAwMDAK
+bW9uaXRvci9td2FpdCBmZWF0dXJlIHByZXNlbnQuCkNQVTogTDEgSSBjYWNoZTogMzJLLCBMMSBE
+IGNhY2hlOiAzMksKQ1BVOiBMMiBjYWNoZTogMjA0OEsKQ1BVOiBQaHlzaWNhbCBQcm9jZXNzb3Ig
+SUQ6IDAKQ1BVOiBQcm9jZXNzb3IgQ29yZSBJRDogMQpDUFU6IEFmdGVyIGFsbCBpbml0cywgY2Fw
+czogYmZlOWZiZmYgMDAxMDAwMDAgMDAwMDAwMDAgMDAwMDA5NDAgMDAwMGMxODkgMDAwMDAwMDAg
+MDAwMDAwMDAKSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLgpJbnRl
+bCBtYWNoaW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMxLgpDUFUxOiBJbnRlbCBH
+ZW51aW5lIEludGVsKFIpIENQVSAgICAgICAgICAgVDIzMDAgIEAgMS42NkdIeiBzdGVwcGluZyAw
+OApUb3RhbCBvZiAyIHByb2Nlc3NvcnMgYWN0aXZhdGVkICg2NjUxLjk0IEJvZ29NSVBTKS4KRU5B
+QkxJTkcgSU8tQVBJQyBJUlFzCi4uVElNRVI6IHZlY3Rvcj0weDMxIGFwaWMxPTAgcGluMT0yIGFw
+aWMyPS0xIHBpbjI9LTEKY2hlY2tpbmcgVFNDIHN5bmNocm9uaXphdGlvbiBhY3Jvc3MgMiBDUFVz
+OiAKQ1BVIzAgaGFkIC04NTY3OTggdXNlY3MgVFNDIHNrZXcsIGZpeGVkIGl0IHVwLgpDUFUjMSBo
+YWQgODU2Nzk4IHVzZWNzIFRTQyBza2V3LCBmaXhlZCBpdCB1cC4KQnJvdWdodCB1cCAyIENQVXMK
+bWlncmF0aW9uX2Nvc3Q9NjkKTkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAxNgpBQ1BJ
+OiBidXMgdHlwZSBwY2kgcmVnaXN0ZXJlZApBQ1BJIEVycm9yIChldnJlZ2lvbi0wMzE3KTogTm8g
+aGFuZGxlciBmb3IgUmVnaW9uIFtTTVIyXSAoYzE0NjlmOWMpIFtTeXN0ZW1JT10gWzIwMDYwNzA3
+XQpBQ1BJIEVycm9yIChleGZsZGlvLTAyOTApOiBSZWdpb24gU3lzdGVtSU8oMSkgaGFzIG5vIGhh
+bmRsZXIgWzIwMDYwNzA3XQpBQ1BJIEVycm9yIChwc3BhcnNlLTA1MzcpOiBNZXRob2QgcGFyc2Uv
+ZXhlY3V0aW9uIGZhaWxlZCBbXFNYWDZdIChOb2RlIGMxNDZhODI0KSwgQUVfTk9UX0VYSVNUCkFD
+UEkgRXJyb3IgKHBzcGFyc2UtMDUzNyk6IE1ldGhvZCBwYXJzZS9leGVjdXRpb24gZmFpbGVkIFtc
+U1hYNF0gKE5vZGUgYzE0NmE3ZmMpLCBBRV9OT1RfRVhJU1QKQUNQSSBFcnJvciAocHNwYXJzZS0w
+NTM3KTogTWV0aG9kIHBhcnNlL2V4ZWN1dGlvbiBmYWlsZWQgW1xTWDExXSAoTm9kZSBjMTQ2YTdj
+MCksIEFFX05PVF9FWElTVApBQ1BJIEVycm9yIChwc3BhcnNlLTA1MzcpOiBNZXRob2QgcGFyc2Uv
+ZXhlY3V0aW9uIGZhaWxlZCBbXEdPUkxdIChOb2RlIGMxNDZhNjgwKSwgQUVfTk9UX0VYSVNUCkFD
+UEkgRXJyb3IgKHBzcGFyc2UtMDUzNyk6IE1ldGhvZCBwYXJzZS9leGVjdXRpb24gZmFpbGVkIFtc
+X1NCXy5NQjFfLl9DUlNdIChOb2RlIGMxNDZhZTY0KSwgQUVfTk9UX0VYSVNUCkFDUEkgRXJyb3Ig
+KHV0ZXZhbC0wMjEyKTogTWV0aG9kIGV4ZWN1dGlvbiBmYWlsZWQgW1xfU0JfLk1CMV8uX0NSU10g
+KE5vZGUgYzE0NmFlNjQpLCBBRV9OT1RfRVhJU1QKUENJOiBCSU9TIEJ1ZzogTUNGRyBhcmVhIGF0
+IGUwMDAwMDAwIG5vdCByZXNlcnZlZCBpbiBBQ1BJClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4x
+MCBlbnRyeSBhdCAweGZhZjk2LCBsYXN0IGJ1cz0xMgpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24g
+dHlwZSAxClNldHRpbmcgdXAgc3RhbmRhcmQgUENJIHJlc291cmNlcwpBQ1BJOiBJbnRlcnByZXRl
+ciBlbmFibGVkCkFDUEk6IFVzaW5nIElPQVBJQyBmb3IgaW50ZXJydXB0IHJvdXRpbmcKQUNQSTog
+UENJIFJvb3QgQnJpZGdlIFtQQ0kwXSAoMDAwMDowMCkKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2Fy
+ZSAoYnVzIDAwKQpBQ1BJOiBBc3N1bWUgcm9vdCBicmlkZ2UgW1xfU0JfLlBDSTBdIGJ1cyBpcyAw
+CkJvb3QgdmlkZW8gZGV2aWNlIGlzIDAwMDA6MDA6MDIuMApQQ0kgcXVpcms6IHJlZ2lvbiAxMDAw
+LTEwN2YgY2xhaW1lZCBieSBJQ0g2IEFDUEkvR1BJTy9UQ08KUENJIHF1aXJrOiByZWdpb24gMTA4
+MC0xMGJmIGNsYWltZWQgYnkgSUNINiBHUElPClBDSTogSWdub3JpbmcgQkFSMC0zIG9mIElERSBj
+b250cm9sbGVyIDAwMDA6MDA6MWYuMgpQQ0k6IFRyYW5zcGFyZW50IGJyaWRnZSAtIDAwMDA6MDA6
+MWUuMApQQ0k6IEJ1cyAjMDMgKC0jMDYpIGlzIGhpZGRlbiBiZWhpbmQgdHJhbnNwYXJlbnQgYnJp
+ZGdlICMwMiAoLSMwMykgKHRyeSAncGNpPWFzc2lnbi1idXNzZXMnKQpQbGVhc2UgcmVwb3J0IHRo
+ZSByZXN1bHQgdG8gbGludXgta2VybmVsIHRvIGZpeCB0aGlzIHBlcm1hbmVudGx5CkFDUEk6IFBD
+SSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5fUFJUXQpBQ1BJOiBQQ0kgSW50
+ZXJydXB0IExpbmsgW0xOS0FdIChJUlFzIDkgMTAgKjExKQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExp
+bmsgW0xOS0JdIChJUlFzIDUgNykgKjExCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQ10g
+KElSUXMgOSAxMCAxMSkgKjAsIGRpc2FibGVkLgpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xO
+S0RdIChJUlFzICo1IDcgOSAxMCAxMSkKQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktFXSAo
+SVJRcyAzIDQgNSA2IDcgKjkgMTAgMTEgMTIgMTQgMTUpCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGlu
+ayBbTE5LRl0gKElSUXMgMyA0IDUgNiA3IDkgKjEwIDExIDEyIDE0IDE1KQpBQ1BJOiBQQ0kgSW50
+ZXJydXB0IExpbmsgW0xOS0ddIChJUlFzIDMgNCAqNSA2IDcgOSAxMCAxMSAxMiAxNCAxNSkKQUNQ
+STogUENJIEludGVycnVwdCBMaW5rIFtMTktIXSAoSVJRcyAqMyA0IDUgNiA3IDkgMTAgMTEgMTIg
+MTQgMTUpCkFDUEk6IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5QQ0lF
+Ll9QUlRdCkFDUEk6IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5SUDAx
+Ll9QUlRdCkFDUEk6IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5SUDAy
+Ll9QUlRdClNDU0kgc3Vic3lzdGVtIGluaXRpYWxpemVkClBDSTogVXNpbmcgQUNQSSBmb3IgSVJR
+IHJvdXRpbmcKUENJOiBJZiBhIGRldmljZSBkb2Vzbid0IHdvcmssIHRyeSAicGNpPXJvdXRlaXJx
+Ii4gIElmIGl0IGhlbHBzLCBwb3N0IGEgcmVwb3J0ClBDSTogSWdub3JlIGJvZ3VzIHJlc291cmNl
+IDYgWzA6MF0gb2YgMDAwMDowMDowMi4wClBDSTogQnJpZGdlOiAwMDAwOjAwOjFjLjAKICBJTyB3
+aW5kb3c6IGRpc2FibGVkLgogIE1FTSB3aW5kb3c6IGRpc2FibGVkLgogIFBSRUZFVENIIHdpbmRv
+dzogZGlzYWJsZWQuClBDSTogQnJpZGdlOiAwMDAwOjAwOjFjLjEKICBJTyB3aW5kb3c6IGRpc2Fi
+bGVkLgogIE1FTSB3aW5kb3c6IGRmZDAwMDAwLWRmZGZmZmZmCiAgUFJFRkVUQ0ggd2luZG93OiBk
+aXNhYmxlZC4KUENJOiBCdXMgMywgY2FyZGJ1cyBicmlkZ2U6IDAwMDA6MDI6MDEuMAogIElPIHdp
+bmRvdzogMDAwMDIwMDAtMDAwMDIwZmYKICBJTyB3aW5kb3c6IDAwMDAyNDAwLTAwMDAyNGZmCiAg
+UFJFRkVUQ0ggd2luZG93OiAzMDAwMDAwMC0zMWZmZmZmZgogIE1FTSB3aW5kb3c6IDMyMDAwMDAw
+LTMzZmZmZmZmClBDSTogQnJpZGdlOiAwMDAwOjAwOjFlLjAKICBJTyB3aW5kb3c6IDIwMDAtMmZm
+ZgogIE1FTSB3aW5kb3c6IGRmYzAwMDAwLWRmY2ZmZmZmCiAgUFJFRkVUQ0ggd2luZG93OiAzMDAw
+MDAwMC0zMWZmZmZmZgpBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MWMuMFtBXSAtPiBHU0kg
+MTYgKGxldmVsLCBsb3cpIC0+IElSUSAxNgpQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBk
+ZXZpY2UgMDAwMDowMDoxYy4wIHRvIDY0CkFDUEk6IFBDSSBJbnRlcnJ1cHQgMDAwMDowMDoxYy4x
+W0JdIC0+IEdTSSAxNyAobGV2ZWwsIGxvdykgLT4gSVJRIDE3ClBDSTogU2V0dGluZyBsYXRlbmN5
+IHRpbWVyIG9mIGRldmljZSAwMDAwOjAwOjFjLjEgdG8gNjQKUENJOiBTZXR0aW5nIGxhdGVuY3kg
+dGltZXIgb2YgZGV2aWNlIDAwMDA6MDA6MWUuMCB0byA2NApQQ0k6IEVuYWJsaW5nIGRldmljZSAw
+MDAwOjAyOjAxLjAgKDAwMDAgLT4gMDAwMykKQUNQSTogUENJIEludGVycnVwdCAwMDAwOjAyOjAx
+LjBbQV0gLT4gR1NJIDE5IChsZXZlbCwgbG93KSAtPiBJUlEgMTgKTkVUOiBSZWdpc3RlcmVkIHBy
+b3RvY29sIGZhbWlseSAyCklQIHJvdXRlIGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNDA5NiAo
+b3JkZXI6IDIsIDE2Mzg0IGJ5dGVzKQpUQ1AgZXN0YWJsaXNoZWQgaGFzaCB0YWJsZSBlbnRyaWVz
+OiAxNjM4NCAob3JkZXI6IDUsIDE5NjYwOCBieXRlcykKVENQIGJpbmQgaGFzaCB0YWJsZSBlbnRy
+aWVzOiA4MTkyIChvcmRlcjogNCwgOTgzMDQgYnl0ZXMpClRDUDogSGFzaCB0YWJsZXMgY29uZmln
+dXJlZCAoZXN0YWJsaXNoZWQgMTYzODQgYmluZCA4MTkyKQpUQ1AgcmVubyByZWdpc3RlcmVkCklu
+aXRpYWxpemluZyBDcnlwdG9ncmFwaGljIEFQSQppbyBzY2hlZHVsZXIgbm9vcCByZWdpc3RlcmVk
+CmlvIHNjaGVkdWxlciBjZnEgcmVnaXN0ZXJlZCAoZGVmYXVsdCkKUmVhbCBUaW1lIENsb2NrIERy
+aXZlciB2MS4xMmFjCmxpYmF0YSB2ZXJzaW9uIDIuMDAgbG9hZGVkLgphdGFfcGlpeCAwMDAwOjAw
+OjFmLjI6IHZlcnNpb24gMi4wMGFjNwphdGFfcGlpeCAwMDAwOjAwOjFmLjI6IE1BUCBbIFAwIFAy
+IElERSBJREUgXQphdGFfcGlpeCAwMDAwOjAwOjFmLjI6IGZvcmNlIGlnbm9yaW5nIFBDUyAoMHgx
+NSkKQUNQSTogUENJIEludGVycnVwdCAwMDAwOjAwOjFmLjJbQl0gLT4gR1NJIDE3IChsZXZlbCwg
+bG93KSAtPiBJUlEgMTcKUENJOiBTZXR0aW5nIGxhdGVuY3kgdGltZXIgb2YgZGV2aWNlIDAwMDA6
+MDA6MWYuMiB0byA2NAphdGExOiBTQVRBIG1heCBVRE1BLzEzMyBjbWQgMHgxRjAgY3RsIDB4M0Y2
+IGJtZG1hIDB4QkZBMCBpcnEgMTQKYXRhMjogU0FUQSBtYXggVURNQS8xMzMgY21kIDB4MTcwIGN0
+bCAweDM3NiBibWRtYSAweEJGQTggaXJxIDE1CnNjc2kwIDogYXRhX3BpaXgKYXRhMTogRU5URVIs
+IHBjcz0weDE1IGJhc2U9MAphdGExOiBMRUFWRSwgcGNzPTB4MTUgcHJlc2VudF9tYXNrPTB4Mwph
+dGExLjAwOiBBVEEtNywgbWF4IFVETUEvMTAwLCAxNTYzMDE0ODggc2VjdG9yczogTEJBNDggTkNR
+IChkZXB0aCAwLzMyKQphdGExLjAwOiBhdGExOiBkZXYgMCBtdWx0aSBjb3VudCA4CmF0YTEuMDA6
+IGNvbmZpZ3VyZWQgZm9yIFVETUEvMTAwCnNjc2kxIDogYXRhX3BpaXgKYXRhMjogRU5URVIsIHBj
+cz0weDE1IGJhc2U9MgphdGEyOiBMRUFWRSwgcGNzPTB4MTUgcHJlc2VudF9tYXNrPTB4MApzY3Np
+IDA6MDowOjA6IERpcmVjdC1BY2Nlc3MgICAgIEFUQSAgICAgIEZVSklUU1UgTUhWMjA4MEIgMDA4
+NSBQUTogMCBBTlNJOiA1ClNDU0kgZGV2aWNlIHNkYTogMTU2MzAxNDg4IDUxMi1ieXRlIGhkd3Ig
+c2VjdG9ycyAoODAwMjYgTUIpCnNkYTogV3JpdGUgUHJvdGVjdCBpcyBvZmYKc2RhOiBNb2RlIFNl
+bnNlOiAwMCAzYSAwMCAwMApTQ1NJIGRldmljZSBzZGE6IGRyaXZlIGNhY2hlOiB3cml0ZSBiYWNr
+ClNDU0kgZGV2aWNlIHNkYTogMTU2MzAxNDg4IDUxMi1ieXRlIGhkd3Igc2VjdG9ycyAoODAwMjYg
+TUIpCnNkYTogV3JpdGUgUHJvdGVjdCBpcyBvZmYKc2RhOiBNb2RlIFNlbnNlOiAwMCAzYSAwMCAw
+MApTQ1NJIGRldmljZSBzZGE6IGRyaXZlIGNhY2hlOiB3cml0ZSBiYWNrCiBzZGE6IHNkYTEgc2Rh
+MiBzZGEzIHNkYTQgPCBzZGE1IHNkYTYgc2RhNyA+CnNkIDA6MDowOjA6IEF0dGFjaGVkIHNjc2kg
+ZGlzayBzZGEKc2VyaW86IGk4MDQyIEtCRCBwb3J0IGF0IDB4NjAsMHg2NCBpcnEgMQpzZXJpbzog
+aTgwNDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgpUQ1AgYmljIHJlZ2lzdGVyZWQKTkVU
+OiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAxCk5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBm
+YW1pbHkgMTcKU3RhcnRpbmcgYmFsYW5jZWRfaXJxClVzaW5nIElQSSBTaG9ydGN1dCBtb2RlClRp
+bWU6IHRzYyBjbG9ja3NvdXJjZSBoYXMgYmVlbiBpbnN0YWxsZWQuCmlucHV0OiBBVCBUcmFuc2xh
+dGVkIFNldCAyIGtleWJvYXJkIGFzIC9jbGFzcy9pbnB1dC9pbnB1dDAKa2pvdXJuYWxkIHN0YXJ0
+aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcwpFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0
+ZW0gd2l0aCB3cml0ZWJhY2sgZGF0YSBtb2RlLgpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MyBmaWxl
+c3lzdGVtKSByZWFkb25seS4KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMTcyayBmcmVl
+ZAppbnRlbF9ybmc6IEZXSCBub3QgZGV0ZWN0ZWQKdXNiY29yZTogcmVnaXN0ZXJlZCBuZXcgaW50
+ZXJmYWNlIGRyaXZlciB1c2Jmcwp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBpbnRlcmZhY2UgZHJp
+dmVyIGh1Ygp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBkZXZpY2UgZHJpdmVyIHVzYgpMaW51eCBh
+Z3BnYXJ0IGludGVyZmFjZSB2MC4xMDEgKGMpIERhdmUgSm9uZXMKYWdwZ2FydDogRGV0ZWN0ZWQg
+YW4gSW50ZWwgOTQ1R00gQ2hpcHNldC4KYWdwZ2FydDogRGV0ZWN0ZWQgNzkzMksgc3RvbGVuIG1l
+bW9yeS4KYWdwZ2FydDogQUdQIGFwZXJ0dXJlIGlzIDI1Nk0gQCAweGMwMDAwMDAwClVTQiBVbml2
+ZXJzYWwgSG9zdCBDb250cm9sbGVyIEludGVyZmFjZSBkcml2ZXIgdjMuMApBQ1BJOiBQQ0kgSW50
+ZXJydXB0IDAwMDA6MDA6MWQuMFtBXSAtPiBHU0kgMjAgKGxldmVsLCBsb3cpIC0+IElSUSAxOQpQ
+Q0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDAwMDowMDoxZC4wIHRvIDY0CnVo
+Y2lfaGNkIDAwMDA6MDA6MWQuMDogVUhDSSBIb3N0IENvbnRyb2xsZXIKdWhjaV9oY2QgMDAwMDow
+MDoxZC4wOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDEKdWhj
+aV9oY2QgMDAwMDowMDoxZC4wOiBpcnEgMTksIGlvIGJhc2UgMHgwMDAwYmY4MApBQ1BJOiBQQ0kg
+SW50ZXJydXB0IDAwMDA6MDA6MWQuMVtCXSAtPiBHU0kgMjEgKGxldmVsLCBsb3cpIC0+IElSUSAy
+MApQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDAwMDowMDoxZC4xIHRvIDY0
+CnVoY2lfaGNkIDAwMDA6MDA6MWQuMTogVUhDSSBIb3N0IENvbnRyb2xsZXIKdWhjaV9oY2QgMDAw
+MDowMDoxZC4xOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDIK
+dWhjaV9oY2QgMDAwMDowMDoxZC4xOiBpcnEgMjAsIGlvIGJhc2UgMHgwMDAwYmY2MAp1c2IgdXNi
+MTogbmV3IGRldmljZSBmb3VuZCwgaWRWZW5kb3I9MDAwMCwgaWRQcm9kdWN0PTAwMDAKdXNiIHVz
+YjE6IG5ldyBkZXZpY2Ugc3RyaW5nczogTWZyPTMsIFByb2R1Y3Q9MiwgU2VyaWFsTnVtYmVyPTEK
+dXNiIHVzYjE6IFByb2R1Y3Q6IFVIQ0kgSG9zdCBDb250cm9sbGVyCnVzYiB1c2IxOiBNYW51ZmFj
+dHVyZXI6IExpbnV4IDIuNi4xOC1yYzYtbW0yIHVoY2lfaGNkCnVzYiB1c2IxOiBTZXJpYWxOdW1i
+ZXI6IDAwMDA6MDA6MWQuMAp1c2IgdXNiMTogY29uZmlndXJhdGlvbiAjMSBjaG9zZW4gZnJvbSAx
+IGNob2ljZQpodWIgMS0wOjEuMDogVVNCIGh1YiBmb3VuZApodWIgMS0wOjEuMDogMiBwb3J0cyBk
+ZXRlY3RlZApBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MWQuMltDXSAtPiBHU0kgMjIgKGxl
+dmVsLCBsb3cpIC0+IElSUSAyMQpQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2Ug
+MDAwMDowMDoxZC4yIHRvIDY0CnVoY2lfaGNkIDAwMDA6MDA6MWQuMjogVUhDSSBIb3N0IENvbnRy
+b2xsZXIKdWhjaV9oY2QgMDAwMDowMDoxZC4yOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3Np
+Z25lZCBidXMgbnVtYmVyIDMKdWhjaV9oY2QgMDAwMDowMDoxZC4yOiBpcnEgMjEsIGlvIGJhc2Ug
+MHgwMDAwYmY0MAp1c2IgdXNiMjogbmV3IGRldmljZSBmb3VuZCwgaWRWZW5kb3I9MDAwMCwgaWRQ
+cm9kdWN0PTAwMDAKdXNiIHVzYjI6IG5ldyBkZXZpY2Ugc3RyaW5nczogTWZyPTMsIFByb2R1Y3Q9
+MiwgU2VyaWFsTnVtYmVyPTEKdXNiIHVzYjI6IFByb2R1Y3Q6IFVIQ0kgSG9zdCBDb250cm9sbGVy
+CnVzYiB1c2IyOiBNYW51ZmFjdHVyZXI6IExpbnV4IDIuNi4xOC1yYzYtbW0yIHVoY2lfaGNkCnVz
+YiB1c2IyOiBTZXJpYWxOdW1iZXI6IDAwMDA6MDA6MWQuMQp1c2IgdXNiMjogY29uZmlndXJhdGlv
+biAjMSBjaG9zZW4gZnJvbSAxIGNob2ljZQpodWIgMi0wOjEuMDogVVNCIGh1YiBmb3VuZApodWIg
+Mi0wOjEuMDogMiBwb3J0cyBkZXRlY3RlZApBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MWQu
+M1tEXSAtPiBHU0kgMjMgKGxldmVsLCBsb3cpIC0+IElSUSAyMgpQQ0k6IFNldHRpbmcgbGF0ZW5j
+eSB0aW1lciBvZiBkZXZpY2UgMDAwMDowMDoxZC4zIHRvIDY0CnVoY2lfaGNkIDAwMDA6MDA6MWQu
+MzogVUhDSSBIb3N0IENvbnRyb2xsZXIKdWhjaV9oY2QgMDAwMDowMDoxZC4zOiBuZXcgVVNCIGJ1
+cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDQKdWhjaV9oY2QgMDAwMDowMDoxZC4z
+OiBpcnEgMjIsIGlvIGJhc2UgMHgwMDAwYmYyMAp1c2IgdXNiMzogbmV3IGRldmljZSBmb3VuZCwg
+aWRWZW5kb3I9MDAwMCwgaWRQcm9kdWN0PTAwMDAKdXNiIHVzYjM6IG5ldyBkZXZpY2Ugc3RyaW5n
+czogTWZyPTMsIFByb2R1Y3Q9MiwgU2VyaWFsTnVtYmVyPTEKdXNiIHVzYjM6IFByb2R1Y3Q6IFVI
+Q0kgSG9zdCBDb250cm9sbGVyCnVzYiB1c2IzOiBNYW51ZmFjdHVyZXI6IExpbnV4IDIuNi4xOC1y
+YzYtbW0yIHVoY2lfaGNkCnVzYiB1c2IzOiBTZXJpYWxOdW1iZXI6IDAwMDA6MDA6MWQuMgp1c2Ig
+dXNiMzogY29uZmlndXJhdGlvbiAjMSBjaG9zZW4gZnJvbSAxIGNob2ljZQpodWIgMy0wOjEuMDog
+VVNCIGh1YiBmb3VuZApodWIgMy0wOjEuMDogMiBwb3J0cyBkZXRlY3RlZAp1c2IgdXNiNDogbmV3
+IGRldmljZSBmb3VuZCwgaWRWZW5kb3I9MDAwMCwgaWRQcm9kdWN0PTAwMDAKdXNiIHVzYjQ6IG5l
+dyBkZXZpY2Ugc3RyaW5nczogTWZyPTMsIFByb2R1Y3Q9MiwgU2VyaWFsTnVtYmVyPTEKdXNiIHVz
+YjQ6IFByb2R1Y3Q6IFVIQ0kgSG9zdCBDb250cm9sbGVyCnVzYiB1c2I0OiBNYW51ZmFjdHVyZXI6
+IExpbnV4IDIuNi4xOC1yYzYtbW0yIHVoY2lfaGNkCnVzYiB1c2I0OiBTZXJpYWxOdW1iZXI6IDAw
+MDA6MDA6MWQuMwp1c2IgdXNiNDogY29uZmlndXJhdGlvbiAjMSBjaG9zZW4gZnJvbSAxIGNob2lj
+ZQpodWIgNC0wOjEuMDogVVNCIGh1YiBmb3VuZApodWIgNC0wOjEuMDogMiBwb3J0cyBkZXRlY3Rl
+ZApiNDQuYzp2MS4wMSAoSnVuIDE2LCAyMDA2KQpBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDI6
+MDAuMFtBXSAtPiBHU0kgMTcgKGxldmVsLCBsb3cpIC0+IElSUSAxNwpldGgwOiBCcm9hZGNvbSA0
+NDAwIDEwLzEwMEJhc2VUIEV0aGVybmV0IDAwOjE1OmM1OjFiOmUxOmRlCkFDUEk6IFBDSSBJbnRl
+cnJ1cHQgMDAwMDowMDoxZi4zW0JdIC0+IEdTSSAxNyAobGV2ZWwsIGxvdykgLT4gSVJRIDE3CkFD
+UEk6IFBDSSBJbnRlcnJ1cHQgMDAwMDowMDoxZC43W0FdIC0+IEdTSSAyMCAobGV2ZWwsIGxvdykg
+LT4gSVJRIDE5ClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDAwOjAwOjFk
+LjcgdG8gNjQKZWhjaV9oY2QgMDAwMDowMDoxZC43OiBFSENJIEhvc3QgQ29udHJvbGxlcgplaGNp
+X2hjZCAwMDAwOjAwOjFkLjc6IG5ldyBVU0IgYnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVkIGJ1cyBu
+dW1iZXIgNQplaGNpX2hjZCAwMDAwOjAwOjFkLjc6IGRlYnVnIHBvcnQgMQpQQ0k6IGNhY2hlIGxp
+bmUgc2l6ZSBvZiAzMiBpcyBub3Qgc3VwcG9ydGVkIGJ5IGRldmljZSAwMDAwOjAwOjFkLjcKZWhj
+aV9oY2QgMDAwMDowMDoxZC43OiBpcnEgMTksIGlvIG1lbSAweGZmYTgwMDAwCmVoY2lfaGNkIDAw
+MDA6MDA6MWQuNzogVVNCIDIuMCBzdGFydGVkLCBFSENJIDEuMDAsIGRyaXZlciAxMCBEZWMgMjAw
+NAp1c2IgdXNiNTogbmV3IGRldmljZSBmb3VuZCwgaWRWZW5kb3I9MDAwMCwgaWRQcm9kdWN0PTAw
+MDAKdXNiIHVzYjU6IG5ldyBkZXZpY2Ugc3RyaW5nczogTWZyPTMsIFByb2R1Y3Q9MiwgU2VyaWFs
+TnVtYmVyPTEKdXNiIHVzYjU6IFByb2R1Y3Q6IEVIQ0kgSG9zdCBDb250cm9sbGVyCnVzYiB1c2I1
+OiBNYW51ZmFjdHVyZXI6IExpbnV4IDIuNi4xOC1yYzYtbW0yIGVoY2lfaGNkCnVzYiB1c2I1OiBT
+ZXJpYWxOdW1iZXI6IDAwMDA6MDA6MWQuNwp1c2IgdXNiNTogY29uZmlndXJhdGlvbiAjMSBjaG9z
+ZW4gZnJvbSAxIGNob2ljZQpodWIgNS0wOjEuMDogVVNCIGh1YiBmb3VuZApodWIgNS0wOjEuMDog
+OCBwb3J0cyBkZXRlY3RlZApBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MWIuMFtBXSAtPiBH
+U0kgMjEgKGxldmVsLCBsb3cpIC0+IElSUSAyMApQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBv
+ZiBkZXZpY2UgMDAwMDowMDoxYi4wIHRvIDY0CmlucHV0OiBQUy8yIE1vdXNlIGFzIC9jbGFzcy9p
+bnB1dC9pbnB1dDEKaW5wdXQ6IEFscHNQUy8yIEFMUFMgR2xpZGVQb2ludCBhcyAvY2xhc3MvaW5w
+dXQvaW5wdXQyCm1pY2U6IFBTLzIgbW91c2UgZGV2aWNlIGNvbW1vbiBmb3IgYWxsIG1pY2UKdXNi
+IDUtMjogbmV3IGhpZ2ggc3BlZWQgVVNCIGRldmljZSB1c2luZyBlaGNpX2hjZCBhbmQgYWRkcmVz
+cyAyCnVzYiA1LTI6IG5ldyBkZXZpY2UgZm91bmQsIGlkVmVuZG9yPTQxM2MsIGlkUHJvZHVjdD1h
+MDA1CnVzYiA1LTI6IG5ldyBkZXZpY2Ugc3RyaW5nczogTWZyPTAsIFByb2R1Y3Q9MCwgU2VyaWFs
+TnVtYmVyPTAKdXNiIDUtMjogY29uZmlndXJhdGlvbiAjMSBjaG9zZW4gZnJvbSAxIGNob2ljZQpo
+dWIgNS0yOjEuMDogVVNCIGh1YiBmb3VuZApodWIgNS0yOjEuMDogNCBwb3J0cyBkZXRlY3RlZAp1
+c2IgMi0yOiBuZXcgbG93IHNwZWVkIFVTQiBkZXZpY2UgdXNpbmcgdWhjaV9oY2QgYW5kIGFkZHJl
+c3MgMgp1c2IgMi0yOiBuZXcgZGV2aWNlIGZvdW5kLCBpZFZlbmRvcj0wNDU4LCBpZFByb2R1Y3Q9
+MDAyZQp1c2IgMi0yOiBuZXcgZGV2aWNlIHN0cmluZ3M6IE1mcj0yLCBQcm9kdWN0PTEsIFNlcmlh
+bE51bWJlcj0wCnVzYiAyLTI6IFByb2R1Y3Q6IE5ldFNjcm9sbCArIFRyYXZlbGVyCnVzYiAyLTI6
+IE1hbnVmYWN0dXJlcjogR2VuaXVzCnVzYiAyLTI6IGNvbmZpZ3VyYXRpb24gIzEgY2hvc2VuIGZy
+b20gMSBjaG9pY2UKaW5wdXQ6IEdlbml1cyBOZXRTY3JvbGwgKyBUcmF2ZWxlciBhcyAvY2xhc3Mv
+aW5wdXQvaW5wdXQzCmlucHV0OiBVU0IgSElEIHYxLjEwIE1vdXNlIFtHZW5pdXMgTmV0U2Nyb2xs
+ICsgVHJhdmVsZXJdIG9uIHVzYi0wMDAwOjAwOjFkLjEtMgp1c2Jjb3JlOiByZWdpc3RlcmVkIG5l
+dyBpbnRlcmZhY2UgZHJpdmVyIHVzYmhpZApkcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jOiB2
+Mi42OlVTQiBISUQgY29yZSBkcml2ZXIKQWRkaW5nIDk3OTkyNGsgc3dhcCBvbiAvZGV2L3NkYTYu
+ICBQcmlvcml0eTotMSBleHRlbnRzOjEgYWNyb3NzOjk3OTkyNGsKRVhUMyBGUyBvbiBzZGE1LCBp
+bnRlcm5hbCBqb3VybmFsCmxvb3A6IGxvYWRlZCAobWF4IDggZGV2aWNlcykKQUNQSSAoZXhjb25m
+aWctMDQ1NSk6IER5bmFtaWMgU1NEVCBMb2FkIC0gT2VtSWQgWyBQbVJlZl0gT2VtVGFibGVJZCBb
+IENwdTBJc3RdIFsyMDA2MDcwN10KQUNQSSAoZXhjb25maWctMDQ1NSk6IER5bmFtaWMgU1NEVCBM
+b2FkIC0gT2VtSWQgWyBQbVJlZl0gT2VtVGFibGVJZCBbIENwdTBDc3RdIFsyMDA2MDcwN10KQUNQ
+STogQ1BVMCAocG93ZXIgc3RhdGVzOiBDMVtDMV0gQzJbQzJdIEMzW0MzXSkKQUNQSTogUHJvY2Vz
+c29yIFtDUFUwXSAoc3VwcG9ydHMgOCB0aHJvdHRsaW5nIHN0YXRlcykKQUNQSSAoZXhjb25maWct
+MDQ1NSk6IER5bmFtaWMgU1NEVCBMb2FkIC0gT2VtSWQgWyBQbVJlZl0gT2VtVGFibGVJZCBbIENw
+dTFJc3RdIFsyMDA2MDcwN10KQUNQSSAoZXhjb25maWctMDQ1NSk6IER5bmFtaWMgU1NEVCBMb2Fk
+IC0gT2VtSWQgWyBQbVJlZl0gT2VtVGFibGVJZCBbIENwdTFDc3RdIFsyMDA2MDcwN10KQUNQSTog
+Q1BVMSAocG93ZXIgc3RhdGVzOiBDMVtDMV0gQzJbQzJdIEMzW0MzXSkKQUNQSTogUHJvY2Vzc29y
+IFtDUFUxXSAoc3VwcG9ydHMgOCB0aHJvdHRsaW5nIHN0YXRlcykKVGltZTogYWNwaV9wbSBjbG9j
+a3NvdXJjZSBoYXMgYmVlbiBpbnN0YWxsZWQuCltkcm1dIEluaXRpYWxpemVkIGRybSAxLjAuMSAy
+MDA1MTEwMgpBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6MDA6MDIuMFtBXSAtPiBHU0kgMTYgKGxl
+dmVsLCBsb3cpIC0+IElSUSAxNgpbZHJtXSBJbml0aWFsaXplZCBpOTE1IDEuNS4wIDIwMDYwMTE5
+IG9uIG1pbm9yIDAKa2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25k
+cwpFWFQzIEZTIG9uIHNkYTcsIGludGVybmFsIGpvdXJuYWwKRVhUMy1mczogbW91bnRlZCBmaWxl
+c3lzdGVtIHdpdGggd3JpdGViYWNrIGRhdGEgbW9kZS4KQUNQSTogQmF0dGVyeSBTbG90IFtCQVQw
+XSAoYmF0dGVyeSBwcmVzZW50KQpBQ1BJOiBCYXR0ZXJ5IFNsb3QgW0JBVDFdIChiYXR0ZXJ5IGFi
+c2VudCkKQUNQSTogQUMgQWRhcHRlciBbQUNdIChvbi1saW5lKQpBQ1BJOiBMaWQgU3dpdGNoIFtM
+SURdCkFDUEk6IFBvd2VyIEJ1dHRvbiAoQ00pIFtQQlROXQpBQ1BJOiBTbGVlcCBCdXR0b24gKENN
+KSBbU0JUTl0KQUNQSTogVGhlcm1hbCBab25lIFtUSE1dICg1NCBDKQpiNDQ6IGV0aDA6IExpbmsg
+aXMgdXAgYXQgMTAwIE1icHMsIGZ1bGwgZHVwbGV4LgpiNDQ6IGV0aDA6IEZsb3cgY29udHJvbCBp
+cyBvZmYgZm9yIFRYIGFuZCBvZmYgZm9yIFJYLgo=
+------=_Part_215820_17099423.1158060650332
+Content-Type: application/octet-stream; name=lspci
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_es07a7rr
+Content-Disposition: attachment; filename="lspci"
+
+MDA6MDAuMCAwNjAwOiA4MDg2OjI3YTAgKHJldiAwMykKCVN1YnN5c3RlbTogMTAyODowMWQ0CglD
+b250cm9sOiBJL08tIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29w
+LSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TUh6LSBV
+REYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9y
+dCsgPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJQ2FwYWJpbGl0aWVzOiBbZTBdIFZlbmRvciBT
+cGVjaWZpYyBJbmZvcm1hdGlvbgoKMDA6MDIuMCAwMzAwOiA4MDg2OjI3YTIgKHJldiAwMykgKHBy
+b2ctaWYgMDAgW1ZHQV0pCglTdWJzeXN0ZW06IDEwMjg6MDFkNAoJQ29udHJvbDogSS9PKyBNZW0r
+IEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGlu
+Zy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1Iei0gVURGLSBGYXN0QjJCKyBQYXJF
+cnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0K
+CUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxNgoJUmVnaW9uIDA6
+IE1lbW9yeSBhdCBkZmYwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT01MTJL
+XQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCBlZmY4IFtzaXplPThdCglSZWdpb24gMjogTWVtb3J5
+IGF0IGMwMDAwMDAwICgzMi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9MjU2TV0KCVJlZ2lvbiAz
+OiBNZW1vcnkgYXQgZGZlYzAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MjU2
+S10KCUNhcGFiaWxpdGllczogWzkwXSBNZXNzYWdlIFNpZ25hbGxlZCBJbnRlcnJ1cHRzOiBNYXNr
+LSA2NGJpdC0gUXVldWU9MC8wIEVuYWJsZS0KCQlBZGRyZXNzOiAwMDAwMDAwMCAgRGF0YTogMDAw
+MAoJQ2FwYWJpbGl0aWVzOiBbZDBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6
+IFBNRUNsay0gRFNJKyBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hv
+dC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUt
+CgowMDowMi4xIDAzODA6IDgwODY6MjdhNiAocmV2IDAzKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQK
+CUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25v
+b3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNSHot
+IFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8VEFib3J0LSA8TUFi
+b3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglSZWdpb24gMDogTWVtb3J5IGF0IGRmZjgw
+MDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTUxMktdCglDYXBhYmlsaXRpZXM6
+IFtkMF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczogUE1FQ2xrLSBEU0krIEQx
+LSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQoJCVN0
+YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCjAwOjFiLjAgMDQwMzog
+ODA4NjoyN2Q4IChyZXYgMDEpCglTdWJzeXN0ZW06IDEwMjg6MDFkNAoJQ29udHJvbDogSS9PLSBN
+ZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVw
+cGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1Iei0gVURGLSBGYXN0QjJCLSBQ
+YXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
+Ui0KCUxhdGVuY3k6IDAsIENhY2hlIExpbmUgU2l6ZTogNjQgYnl0ZXMKCUludGVycnVwdDogcGlu
+IEEgcm91dGVkIHRvIElSUSAyMAoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkZmViYzAwMCAoNjQtYml0
+LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNktdCglDYXBhYmlsaXRpZXM6IFs1MF0gUG93ZXIg
+TWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3Vy
+cmVudD01NW1BIFBNRShEMCssRDEtLEQyLSxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBN
+RS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCglDYXBhYmlsaXRpZXM6IFs2MF0gTWVzc2Fn
+ZSBTaWduYWxsZWQgSW50ZXJydXB0czogTWFzay0gNjRiaXQrIFF1ZXVlPTAvMCBFbmFibGUtCgkJ
+QWRkcmVzczogMDAwMDAwMDAwMDAwMDAwMCAgRGF0YTogMDAwMAoJQ2FwYWJpbGl0aWVzOiBbNzBd
+IEV4cHJlc3MgVW5rbm93biB0eXBlIElSUSAwCgkJRGV2aWNlOiBTdXBwb3J0ZWQ6IE1heFBheWxv
+YWQgMTI4IGJ5dGVzLCBQaGFudEZ1bmMgMCwgRXh0VGFnLQoJCURldmljZTogTGF0ZW5jeSBMMHMg
+PDY0bnMsIEwxIDwxdXMKCQlEZXZpY2U6IEVycm9yczogQ29ycmVjdGFibGUtIE5vbi1GYXRhbC0g
+RmF0YWwtIFVuc3VwcG9ydGVkLQoJCURldmljZTogUmx4ZE9yZC0gRXh0VGFnLSBQaGFudEZ1bmMt
+IEF1eFB3ci0gTm9Tbm9vcCsKCQlEZXZpY2U6IE1heFBheWxvYWQgMTI4IGJ5dGVzLCBNYXhSZWFk
+UmVxIDEyOCBieXRlcwoJCUxpbms6IFN1cHBvcnRlZCBTcGVlZCB1bmtub3duLCBXaWR0aCB4MCwg
+QVNQTSB1bmtub3duLCBQb3J0IDAKCQlMaW5rOiBMYXRlbmN5IEwwcyA8NjRucywgTDEgPDF1cwoJ
+CUxpbms6IEFTUE0gRGlzYWJsZWQgQ29tbUNsay0gRXh0U3luY2gtCgkJTGluazogU3BlZWQgdW5r
+bm93biwgV2lkdGggeDAKCjAwOjFjLjAgMDYwNDogODA4NjoyN2QwIChyZXYgMDEpIChwcm9nLWlm
+IDAwIFtOb3JtYWwgZGVjb2RlXSkKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWND
+eWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkIt
+CglTdGF0dXM6IENhcCsgNjZNSHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9ZmFzdCA+
+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwLCBDYWNo
+ZSBMaW5lIFNpemU6IDY0IGJ5dGVzCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wYiwgc3Vi
+b3JkaW5hdGU9MGIsIHNlYy1sYXRlbmN5PTAKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwZjAwMC0w
+MDAwMGZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6IGZmZjAwMDAwLTAwMGZmZmZmCglQcmVmZXRj
+aGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IDAwMDAwMDAwZmZmMDAwMDAtMDAwMDAwMDAwMDBm
+ZmZmZgoJU2Vjb25kYXJ5IHN0YXR1czogNjZNSHotIEZhc3RCMkItIFBhckVyci0gREVWU0VMPWZh
+c3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydCsgPFNFUlItIDxQRVJSLQoJQnJpZGdlQ3RsOiBQ
+YXJpdHktIFNFUlIrIE5vSVNBLSBWR0EtIE1BYm9ydC0gPlJlc2V0LSBGYXN0QjJCLQoJQ2FwYWJp
+bGl0aWVzOiBbNDBdIEV4cHJlc3MgUm9vdCBQb3J0IChTbG90KykgSVJRIDAKCQlEZXZpY2U6IFN1
+cHBvcnRlZDogTWF4UGF5bG9hZCAxMjggYnl0ZXMsIFBoYW50RnVuYyAwLCBFeHRUYWctCgkJRGV2
+aWNlOiBMYXRlbmN5IEwwcyB1bmxpbWl0ZWQsIEwxIHVubGltaXRlZAoJCURldmljZTogRXJyb3Jz
+OiBDb3JyZWN0YWJsZS0gTm9uLUZhdGFsLSBGYXRhbC0gVW5zdXBwb3J0ZWQtCgkJRGV2aWNlOiBS
+bHhkT3JkLSBFeHRUYWctIFBoYW50RnVuYy0gQXV4UHdyLSBOb1Nub29wLQoJCURldmljZTogTWF4
+UGF5bG9hZCAxMjggYnl0ZXMsIE1heFJlYWRSZXEgMTI4IGJ5dGVzCgkJTGluazogU3VwcG9ydGVk
+IFNwZWVkIDIuNUdiL3MsIFdpZHRoIHgxLCBBU1BNIEwwcyBMMSwgUG9ydCAxCgkJTGluazogTGF0
+ZW5jeSBMMHMgPDF1cywgTDEgPDR1cwoJCUxpbms6IEFTUE0gRGlzYWJsZWQgUkNCIDY0IGJ5dGVz
+IENvbW1DbGstIEV4dFN5bmNoLQoJCUxpbms6IFNwZWVkIDIuNUdiL3MsIFdpZHRoIHgwCgkJU2xv
+dDogQXRuQnRuLSBQd3JDdHJsLSBNUkwtIEF0bkluZC0gUHdySW5kLSBIb3RQbHVnKyBTdXJwaXNl
+KwoJCVNsb3Q6IE51bWJlciAyLCBQb3dlckxpbWl0IDYuNTAwMDAwCgkJU2xvdDogRW5hYmxlZCBB
+dG5CdG4tIFB3ckZsdC0gTVJMLSBQcmVzRGV0KyBDbWRDcGx0LSBIUElycS0KCQlTbG90OiBBdHRu
+SW5kIFVua25vd24sIFB3ckluZCBVbmtub3duLCBQb3dlci0KCQlSb290OiBDb3JyZWN0YWJsZS0g
+Tm9uLUZhdGFsLSBGYXRhbC0gUE1FLQoJQ2FwYWJpbGl0aWVzOiBbODBdIE1lc3NhZ2UgU2lnbmFs
+bGVkIEludGVycnVwdHM6IE1hc2stIDY0Yml0LSBRdWV1ZT0wLzAgRW5hYmxlLQoJCUFkZHJlc3M6
+IDAwMDAwMDAwICBEYXRhOiAwMDAwCglDYXBhYmlsaXRpZXM6IFs5MF0gU3Vic3lzdGVtOiAwMDAw
+OjAwMDAKCUNhcGFiaWxpdGllczogW2EwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZs
+YWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDArLEQxLSxEMi0s
+RDNob3QrLEQzY29sZCspCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAg
+UE1FLQoKMDA6MWMuMSAwNjA0OiA4MDg2OjI3ZDIgKHJldiAwMSkgKHByb2ctaWYgMDAgW05vcm1h
+bCBkZWNvZGVdKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1X
+SU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czog
+Q2FwKyA2Nk1Iei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxU
+QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAsIENhY2hlIExpbmUgU2l6
+ZTogNjQgYnl0ZXMKCUJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5PTBjLCBzdWJvcmRpbmF0ZT0w
+Yywgc2VjLWxhdGVuY3k9MAoJSS9PIGJlaGluZCBicmlkZ2U6IDAwMDBmMDAwLTAwMDAwZmZmCglN
+ZW1vcnkgYmVoaW5kIGJyaWRnZTogZGZkMDAwMDAtZGZkZmZmZmYKCVByZWZldGNoYWJsZSBtZW1v
+cnkgYmVoaW5kIGJyaWRnZTogMDAwMDAwMDBmZmYwMDAwMC0wMDAwMDAwMDAwMGZmZmZmCglTZWNv
+bmRhcnkgc3RhdHVzOiA2Nk1Iei0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0
+LSA8VEFib3J0LSA8TUFib3J0KyA8U0VSUi0gPFBFUlItCglCcmlkZ2VDdGw6IFBhcml0eS0gU0VS
+UisgTm9JU0EtIFZHQS0gTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItCglDYXBhYmlsaXRpZXM6IFs0
+MF0gRXhwcmVzcyBSb290IFBvcnQgKFNsb3QrKSBJUlEgMAoJCURldmljZTogU3VwcG9ydGVkOiBN
+YXhQYXlsb2FkIDEyOCBieXRlcywgUGhhbnRGdW5jIDAsIEV4dFRhZy0KCQlEZXZpY2U6IExhdGVu
+Y3kgTDBzIHVubGltaXRlZCwgTDEgdW5saW1pdGVkCgkJRGV2aWNlOiBFcnJvcnM6IENvcnJlY3Rh
+YmxlLSBOb24tRmF0YWwtIEZhdGFsLSBVbnN1cHBvcnRlZC0KCQlEZXZpY2U6IFJseGRPcmQtIEV4
+dFRhZy0gUGhhbnRGdW5jLSBBdXhQd3ItIE5vU25vb3AtCgkJRGV2aWNlOiBNYXhQYXlsb2FkIDEy
+OCBieXRlcywgTWF4UmVhZFJlcSAxMjggYnl0ZXMKCQlMaW5rOiBTdXBwb3J0ZWQgU3BlZWQgMi41
+R2IvcywgV2lkdGggeDEsIEFTUE0gTDBzIEwxLCBQb3J0IDIKCQlMaW5rOiBMYXRlbmN5IEwwcyA8
+MjU2bnMsIEwxIDw0dXMKCQlMaW5rOiBBU1BNIEwxIEVuYWJsZWQgUkNCIDY0IGJ5dGVzIENvbW1D
+bGsrIEV4dFN5bmNoLQoJCUxpbms6IFNwZWVkIDIuNUdiL3MsIFdpZHRoIHgxCgkJU2xvdDogQXRu
+QnRuLSBQd3JDdHJsLSBNUkwtIEF0bkluZC0gUHdySW5kLSBIb3RQbHVnKyBTdXJwaXNlKwoJCVNs
+b3Q6IE51bWJlciAzLCBQb3dlckxpbWl0IDYuNTAwMDAwCgkJU2xvdDogRW5hYmxlZCBBdG5CdG4t
+IFB3ckZsdC0gTVJMLSBQcmVzRGV0KyBDbWRDcGx0LSBIUElycS0KCQlTbG90OiBBdHRuSW5kIFVu
+a25vd24sIFB3ckluZCBVbmtub3duLCBQb3dlci0KCQlSb290OiBDb3JyZWN0YWJsZS0gTm9uLUZh
+dGFsLSBGYXRhbC0gUE1FLQoJQ2FwYWJpbGl0aWVzOiBbODBdIE1lc3NhZ2UgU2lnbmFsbGVkIElu
+dGVycnVwdHM6IE1hc2stIDY0Yml0LSBRdWV1ZT0wLzAgRW5hYmxlLQoJCUFkZHJlc3M6IDAwMDAw
+MDAwICBEYXRhOiAwMDAwCglDYXBhYmlsaXRpZXM6IFs5MF0gU3Vic3lzdGVtOiAxMDI4OjAxZDQK
+CUNhcGFiaWxpdGllczogW2EwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQ
+TUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDArLEQxLSxEMi0sRDNob3Qr
+LEQzY29sZCspCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoK
+MDA6MWQuMCAwYzAzOiA4MDg2OjI3YzggKHJldiAwMSkgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vi
+c3lzdGVtOiAxMDI4OjAxZDQKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNs
+ZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglT
+dGF0dXM6IENhcC0gNjZNSHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5U
+QWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVy
+cnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxOQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBiZjgw
+IFtzaXplPTMyXQoKMDA6MWQuMSAwYzAzOiA4MDg2OjI3YzkgKHJldiAwMSkgKHByb2ctaWYgMDAg
+W1VIQ0ldKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0
+ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIt
+IEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNSHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZT
+RUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVu
+Y3k6IDAKCUludGVycnVwdDogcGluIEIgcm91dGVkIHRvIElSUSAyMAoJUmVnaW9uIDQ6IEkvTyBw
+b3J0cyBhdCBiZjYwIFtzaXplPTMyXQoKMDA6MWQuMiAwYzAzOiA4MDg2OjI3Y2EgKHJldiAwMSkg
+KHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQKCUNvbnRyb2w6IEkvTysg
+TWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3Rl
+cHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNSHotIFVERi0gRmFzdEIyQisg
+UGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8
+UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEMgcm91dGVkIHRvIElSUSAyMQoJUmVn
+aW9uIDQ6IEkvTyBwb3J0cyBhdCBiZjQwIFtzaXplPTMyXQoKMDA6MWQuMyAwYzAzOiA4MDg2OjI3
+Y2IgKHJldiAwMSkgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQKCUNv
+bnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
+IFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNSHotIFVE
+Ri0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJv
+cnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEQgcm91dGVkIHRv
+IElSUSAyMgoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBiZjIwIFtzaXplPTMyXQoKMDA6MWQuNyAw
+YzAzOiA4MDg2OjI3Y2MgKHJldiAwMSkgKHByb2ctaWYgMjAgW0VIQ0ldKQoJU3Vic3lzdGVtOiAx
+MDI4OjAxZDQKCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
+Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENh
+cCsgNjZNSHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxU
+QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGlu
+IEEgcm91dGVkIHRvIElSUSAxOQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmZmE4MDAwMCAoMzItYml0
+LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xS10KCUNhcGFiaWxpdGllczogWzUwXSBQb3dlciBN
+YW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJy
+ZW50PTM3NW1BIFBNRShEMCssRDEtLEQyLSxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBN
+RS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCglDYXBhYmlsaXRpZXM6IFs1OF0gRGVidWcg
+cG9ydAoKMDA6MWUuMCAwNjA0OiA4MDg2OjI0NDggKHJldiBlMSkgKHByb2ctaWYgMDEgW1N1YnRy
+YWN0aXZlIGRlY29kZV0pCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUt
+IE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQoJU3Rh
+dHVzOiBDYXArIDY2TUh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPWZhc3QgPlRBYm9y
+dC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJQnVzOiBwcmlt
+YXJ5PTAwLCBzZWNvbmRhcnk9MDIsIHN1Ym9yZGluYXRlPTAzLCBzZWMtbGF0ZW5jeT0zMgoJSS9P
+IGJlaGluZCBicmlkZ2U6IDAwMDAyMDAwLTAwMDAyZmZmCglNZW1vcnkgYmVoaW5kIGJyaWRnZTog
+ZGZjMDAwMDAtZGZjZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogMDAw
+MDAwMDAzMDAwMDAwMC0wMDAwMDAwMDMxZmZmZmZmCglTZWNvbmRhcnkgc3RhdHVzOiA2Nk1Iei0g
+RmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQr
+IDxTRVJSLSA8UEVSUi0KCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSKyBOb0lTQS0gVkdBLSBNQWJv
+cnQtID5SZXNldC0gRmFzdEIyQi0KCUNhcGFiaWxpdGllczogWzUwXSBTdWJzeXN0ZW06IDEwMjg6
+MDFkNAoKMDA6MWYuMCAwNjAxOiA4MDg2OjI3YjkgKHJldiAwMSkKCVN1YnN5c3RlbTogMTAyODow
+MWQ0CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZH
+QVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2
+TUh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0
+LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglDYXBhYmlsaXRpZXM6IFtlMF0g
+VmVuZG9yIFNwZWNpZmljIEluZm9ybWF0aW9uCgowMDoxZi4yIDAxMDE6IDgwODY6MjdjNCAocmV2
+IDAxKSAocHJvZy1pZiA4MCBbTWFzdGVyXSkKCVN1YnN5c3RlbTogMTAyODowMWQ0CglDb250cm9s
+OiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJF
+cnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TUh6KyBVREYtIEZh
+c3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+
+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEg
+MTcKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgPGlnbm9yZWQ+CglSZWdpb24gMTogSS9PIHBvcnRz
+IGF0IDxpZ25vcmVkPgoJUmVnaW9uIDI6IEkvTyBwb3J0cyBhdCA8aWdub3JlZD4KCVJlZ2lvbiAz
+OiBJL08gcG9ydHMgYXQgPGlnbm9yZWQ+CglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGJmYTAgW3Np
+emU9MTZdCglDYXBhYmlsaXRpZXM6IFs3MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlG
+bGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDIt
+LEQzaG90KyxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0w
+IFBNRS0KCjAwOjFmLjMgMGMwNTogODA4NjoyN2RhIChyZXYgMDEpCglTdWJzeXN0ZW06IDEwMjg6
+MDFkNAoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3Rlci0gU3BlY0N5Y2xlLSBNZW1XSU5WLSBW
+R0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2
+Nk1Iei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9y
+dC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJSW50ZXJydXB0OiBwaW4gQiByb3V0ZWQgdG8gSVJR
+IDE3CglSZWdpb24gNDogSS9PIHBvcnRzIGF0IDEwYzAgW3NpemU9MzJdCgowMjowMC4wIDAyMDA6
+IDE0ZTQ6MTcwYyAocmV2IDAyKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQKCUNvbnRyb2w6IEkvTy0g
+TWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3Rl
+cHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNSHotIFVERi0gRmFzdEIyQi0g
+UGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBF
+UlItCglMYXRlbmN5OiA2NAoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDE3CglSZWdp
+b24gMDogTWVtb3J5IGF0IGRmY2ZlMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXpl
+PThLXQoJQ2FwYWJpbGl0aWVzOiBbNDBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxh
+Z3M6IFBNRUNsay0gRFNJLSBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMCssRDErLEQyKyxE
+M2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MiBQ
+TUUtCgowMjowMS4wIDA2MDc6IDEyMTc6NzEzNSAocmV2IDIxKQoJU3Vic3lzdGVtOiAxMDI4OjAx
+ZDQKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdB
+U25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZN
+SHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9c2xvdyA+VEFib3J0LSA8VEFib3J0LSA8
+TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiA2NAoJSW50ZXJydXB0OiBwaW4gQSByb3V0
+ZWQgdG8gSVJRIDE4CglSZWdpb24gMDogTWVtb3J5IGF0IGRmYzAwMDAwICgzMi1iaXQsIG5vbi1w
+cmVmZXRjaGFibGUpIFtzaXplPTRLXQoJQnVzOiBwcmltYXJ5PTAyLCBzZWNvbmRhcnk9MDMsIHN1
+Ym9yZGluYXRlPTA2LCBzZWMtbGF0ZW5jeT0xNzYKCU1lbW9yeSB3aW5kb3cgMDogMzAwMDAwMDAt
+MzFmZmYwMDAgKHByZWZldGNoYWJsZSkKCU1lbW9yeSB3aW5kb3cgMTogMzIwMDAwMDAtMzNmZmYw
+MDAKCUkvTyB3aW5kb3cgMDogMDAwMDIwMDAtMDAwMDIwZmYKCUkvTyB3aW5kb3cgMTogMDAwMDI0
+MDAtMDAwMDI0ZmYKCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSLSBJU0EtIFZHQS0gTUFib3J0LSA+
+UmVzZXQrIDE2YkludC0gUG9zdFdyaXRlLQoJMTYtYml0IGxlZ2FjeSBpbnRlcmZhY2UgcG9ydHMg
+YXQgMDAwMQoKMDI6MDEuNCAwYzAwOiAxMjE3OjAwZjcgKHJldiAwMikgKHByb2ctaWYgMTAgW09I
+Q0ldKQoJU3Vic3lzdGVtOiAxMDI4OjAxZDQKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIr
+IFNwZWNDeWNsZS0gTWVtV0lOVisgVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZh
+c3RCMkItCglTdGF0dXM6IENhcCsgNjZNSHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9
+bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6
+IDY0LCBDYWNoZSBMaW5lIFNpemU6IDY0IGJ5dGVzCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0
+byBJUlEgNQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkZmNmZDAwMCAoMzItYml0LCBub24tcHJlZmV0
+Y2hhYmxlKSBbc2l6ZT00S10KCVJlZ2lvbiAxOiBNZW1vcnkgYXQgZGZjZmM4MDAgKDMyLWJpdCwg
+bm9uLXByZWZldGNoYWJsZSkgW3NpemU9MktdCglDYXBhYmlsaXRpZXM6IFs2MF0gUG93ZXIgTWFu
+YWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxKyBEMisgQXV4Q3VycmVu
+dD0wbUEgUE1FKEQwKyxEMSssRDIrLEQzaG90KyxEM2NvbGQrKQoJCVN0YXR1czogRDAgUE1FLUVu
+YWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCjBjOjAwLjAgMDI4MDogODA4Njo0MjIyIChyZXYg
+MDIpCglTdWJzeXN0ZW06IDgwODY6MTAyMAoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01hc3Rlcisg
+U3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFz
+dEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1Iei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1m
+YXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAs
+IENhY2hlIExpbmUgU2l6ZTogNjQgYnl0ZXMKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElS
+USAxMQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkZmRmZjAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hh
+YmxlKSBbc2l6ZT00S10KCUNhcGFiaWxpdGllczogW2M4XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNp
+b24gMgoJCUZsYWdzOiBQTUVDbGstIERTSSsgRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAr
+LEQxLSxEMi0sRDNob3QrLEQzY29sZCspCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAg
+RFNjYWxlPTAgUE1FLQoJQ2FwYWJpbGl0aWVzOiBbZDBdIE1lc3NhZ2UgU2lnbmFsbGVkIEludGVy
+cnVwdHM6IE1hc2stIDY0Yml0KyBRdWV1ZT0wLzAgRW5hYmxlLQoJCUFkZHJlc3M6IDAwMDAwMDAw
+MDAwMDAwMDAgIERhdGE6IDAwMDAKCUNhcGFiaWxpdGllczogW2UwXSBFeHByZXNzIExlZ2FjeSBF
+bmRwb2ludCBJUlEgMAoJCURldmljZTogU3VwcG9ydGVkOiBNYXhQYXlsb2FkIDEyOCBieXRlcywg
+UGhhbnRGdW5jIDAsIEV4dFRhZy0KCQlEZXZpY2U6IExhdGVuY3kgTDBzIDw1MTJucywgTDEgdW5s
+aW1pdGVkCgkJRGV2aWNlOiBBdG5CdG4tIEF0bkluZC0gUHdySW5kLQoJCURldmljZTogRXJyb3Jz
+OiBDb3JyZWN0YWJsZS0gTm9uLUZhdGFsLSBGYXRhbC0gVW5zdXBwb3J0ZWQtCgkJRGV2aWNlOiBS
+bHhkT3JkKyBFeHRUYWctIFBoYW50RnVuYy0gQXV4UHdyLSBOb1Nub29wKwoJCURldmljZTogTWF4
+UGF5bG9hZCAxMjggYnl0ZXMsIE1heFJlYWRSZXEgMTI4IGJ5dGVzCgkJTGluazogU3VwcG9ydGVk
+IFNwZWVkIDIuNUdiL3MsIFdpZHRoIHgxLCBBU1BNIEwwcyBMMSwgUG9ydCAwCgkJTGluazogTGF0
+ZW5jeSBMMHMgPDEyOG5zLCBMMSA8NjR1cwoJCUxpbms6IEFTUE0gTDEgRW5hYmxlZCBSQ0IgNjQg
+Ynl0ZXMgQ29tbUNsaysgRXh0U3luY2gtCgkJTGluazogU3BlZWQgMi41R2IvcywgV2lkdGggeDEK
+Cg==
+------=_Part_215820_17099423.1158060650332--

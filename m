@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWILUqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWILUv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030431AbWILUqi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWILUqi
+	id S1030433AbWILUv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWILUv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:46:38 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:456 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030431AbWILUqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:46:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=daJH/WWmiJosQT1VjaqYTGQNtOsXD/daLefvUMfqPOdlFvR47xRDqxfCBDUSphmIdfHS78T9+y1jdzVkw+BTR65sJu2dy/NXXweNATKW/2wbE47UciBg6Wm/u3OnEvTv5h2Z5tG1SdGaozB2LrNa3xsvo06Q80Bsjxjt8Yt7P+s=
-Message-ID: <653402b90609121346n51af4aadi32f8f1e9e4004b8c@mail.gmail.com>
-Date: Tue, 12 Sep 2006 22:46:03 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Subject: Re: OT: calling kernel syscall manually
-Cc: "David Woodhouse" <dwmw2@infradead.org>, guest01 <guest01@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <450717A5.90509@cfl.rr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Sep 2006 16:51:26 -0400
+Received: from waste.org ([66.93.16.53]:25577 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030433AbWILUvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 16:51:25 -0400
+Date: Tue, 12 Sep 2006 15:49:52 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+Message-ID: <20060912204952.GE19707@waste.org>
+References: <20060912174339.GA19707@waste.org> <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <24525.1158089104@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4506A295.6010206@gmail.com>
-	 <1158068045.9189.93.camel@hades.cambridge.redhat.com>
-	 <450717A5.90509@cfl.rr.com>
+In-Reply-To: <24525.1158089104@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/06, Phillip Susi <psusi@cfl.rr.com> wrote:
-> What do you mean you have removed the ability to make system calls
-> directly?  That makes no sense.  Glibc has to be able to make system
-> calls so you can write your own code that does the same thing if you want.
->
+On Tue, Sep 12, 2006 at 08:25:04PM +0100, David Howells wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> 
+> > Looking through all the users of kobjsize, it seems we always know
+> > what the type is (and it's usually a VMA). I instead propose we use
+> > ksize on objects we know to be SLAB/SLOB-allocated and add a new
+> > function (kpagesize?) to size other objects where nommu needs it.
+> 
+> It sounds like we'd need an op in the VMA to do the per-type size thing (the
+> VMA itself not the VMA ops table).
 
-Well, they removed the EXPORT_SYMBOL_GPL(sys_call_table);
+On looking closer, one place where both the current code and my
+proposed change are wrong are measurements on the init task, where
+many elements of task_struct are statically allocated.
 
-http://www.cs.helsinki.fi/linux/linux-kernel/2003-18/0173.html
-
-You can still found syscall addresses with some "tricks".
+-- 
+Mathematics is the supreme nostalgia of our time.

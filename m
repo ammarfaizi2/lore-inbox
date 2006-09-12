@@ -1,55 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWILCrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWILDAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWILCrn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 22:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWILCrn
+	id S1751028AbWILDAE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 23:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWILDAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 22:47:43 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:65471 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965143AbWILCrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 22:47:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=GgjqcM4KdRS15aT9CvgUuqhJzkgkXNJrjue2dz98CwRSrA1b/f+8fNlG5ng9KH6/viMTCagGktcUud03Bctm01A9LxeZaUDXaXcr9pSNyTlMzAVGj/x9edpdRhWC7hDnK2jrr+8+US2g7pIlkeKFTdx8u0p6J5rE84Vgnb9mmX0=  ;
-Message-ID: <45061FCB.1000402@yahoo.com.au>
-Date: Tue, 12 Sep 2006 12:47:39 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.17.4] slabinfo.buffer_head increases
-References: <Pine.LNX.4.63.0607101023450.27628@pcgl.dsa-ac.de> <Pine.LNX.4.63.0607101412250.27628@pcgl.dsa-ac.de> <Pine.LNX.4.63.0609061341150.1700@pcgl.dsa-ac.de>
-In-Reply-To: <Pine.LNX.4.63.0609061341150.1700@pcgl.dsa-ac.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Sep 2006 23:00:04 -0400
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:21947 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1750923AbWILDAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 23:00:01 -0400
+Date: Tue, 12 Sep 2006 08:30:29 +0530
+From: Ankita Garg <ankita@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: maneesh@in.ibm.com, fernando@oss.ntt.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Dump Test Module
+Message-ID: <20060912030029.GD24676@in.ibm.com>
+Reply-To: ankita@in.ibm.com
+References: <20060907135329.GA17937@in.ibm.com> <20060908004244.6ef7deb7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fOHHtNG4YXGJ0yqR"
+Content-Disposition: inline
+In-Reply-To: <20060908004244.6ef7deb7.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
 
->> On Mon, 10 Jul 2006, Guennadi Liakhovetski wrote:
->>
->>> I am obsering a steadily increasing buffer_head value in slabinfo under
->>> 2.6.17.4. I searched the net / archives and didn't find anything
->>> directly relevant. Does anyone have an idea or how shall we debug it?
->>
->
-> The problem is still there under 2.6.18-rc2. I narrowed it down to 
-> ext3 journal. To reproduce one just has to mount an ext3 partition and 
-> perform (write) accesses to it. A loop { touch /mnt/foo; sleep 1; } 
-> suffices - just let it run for a couple of minutes and monitor 
-> buffer_head in /proc/slabinfo. If you mount it as ext2 the problem is 
-> gone.
+--fOHHtNG4YXGJ0yqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Fri, Sep 08, 2006 at 12:42:44AM -0700, Andrew Morton wrote:
+> On Thu, 7 Sep 2006 19:23:29 +0530
+> Ankita Garg <ankita@in.ibm.com> wrote:
+> 
+> > +#include<linux/ide.h>
+> 
+> s390 doesn't have this, so it breaks the build.
+> 
+There could be two ways to solve the build issue on s390. One is to
+conditionally include the "ide.h" file depending on whether CONFIG_IDE is
+defined. The second method would be to make LKDTM dependent on IDE. But this
+approach is not right as it would prevent usage of the module on s390
+completely.
 
-What data mode is ext3 mounted with?
+> And #include is followed by a space, please.
 
-Is the memory reclaimable? If yes, is it a problem?
+Done.
 
+Thanks,
+Ankita
+
+--fOHHtNG4YXGJ0yqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="lkdtm-s390.patch"
+
+o This patch enables lkdtm to be built on s390
+
+Signed-off-by: Ankita Garg <ankita@in.ibm.com>
 --
+ lkdtm.c |   28 ++++++++++++++++++----------
+ 1 files changed, 18 insertions(+), 10 deletions(-)
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Index: linux-2.6.18-rc6-mm1/drivers/misc/lkdtm.c
+===================================================================
+--- linux-2.6.18-rc6-mm1.orig/drivers/misc/lkdtm.c	2006-09-11 20:58:53.000000000 +0530
++++ linux-2.6.18-rc6-mm1/drivers/misc/lkdtm.c	2006-09-11 21:06:43.000000000 +0530
+@@ -43,15 +43,18 @@
+  *		  to trigger an action. The default is 10.
+  */
+ 
+-#include<linux/kernel.h>
+-#include<linux/module.h>
+-#include<linux/kprobes.h>
+-#include<linux/kallsyms.h>
+-#include<linux/init.h>
+-#include<linux/irq.h>
+-#include<linux/ide.h>
+-#include<linux/interrupt.h>
+-#include<scsi/scsi_cmnd.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/kprobes.h>
++#include <linux/kallsyms.h>
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <scsi/scsi_cmnd.h>
++
++#ifdef CONFIG_IDE
++#include <linux/ide.h>
++#endif
+ 
+ #define NUM_CPOINTS 8
+ #define NUM_CPOINT_TYPES 5
+@@ -176,6 +179,7 @@
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_IDE
+ int jp_generic_ide_ioctl(ide_drive_t *drive, struct file *file,
+ 			struct block_device *bdev, unsigned int cmd,
+ 			unsigned long arg)
+@@ -184,7 +188,7 @@
+ 	jprobe_return();
+ 	return 0;
+ }
+-
++#endif
+ 
+ static int lkdtm_parse_commandline(void)
+ {
+@@ -304,8 +308,12 @@
+ 		lkdtm.entry = (kprobe_opcode_t*) jp_scsi_dispatch_cmd;
+ 		break;
+ 	case IDE_CORE_CP:
++#ifdef CONFIG_IDE
+ 		lkdtm.kp.symbol_name = "generic_ide_ioctl";
+ 		lkdtm.entry = (kprobe_opcode_t*) jp_generic_ide_ioctl;
++#else
++		printk(KERN_INFO "lkdtm : Crash point not available\n");
++#endif
+ 		break;
+ 	default:
+ 		printk(KERN_INFO "lkdtm : Invalid Crash Point\n");
+
+--fOHHtNG4YXGJ0yqR--

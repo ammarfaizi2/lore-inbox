@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWILJVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWILJXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965156AbWILJVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 05:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWILJVp
+	id S965158AbWILJXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 05:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWILJXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 05:21:45 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49831 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965156AbWILJVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 05:21:44 -0400
-Date: Tue, 12 Sep 2006 11:21:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jim Gettys <jg@laptop.org>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       "Brown, Len" <len.brown@intel.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org
-Subject: Re: [OLPC-devel] Re: [RFC][PATCH 1/2] ACPI: Idle Processor PM Improvements
-Message-ID: <20060912092143.GD19482@elf.ucw.cz>
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <20060830194317.GA9116@srcf.ucam.org> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain> <20060904130933.GC6279@ucw.cz> <1157466710.6011.262.camel@localhost.localdomain> <20060906103725.GA4987@atrey.karlin.mff.cuni.cz> <1157555949.6011.516.camel@localhost.localdomain>
+	Tue, 12 Sep 2006 05:23:11 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:3917 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965158AbWILJXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 05:23:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WV6lACEdG5qkpx66xOzyXOFU8CGRr8zMreIw6CW3t2PRg2WL+O9FPlayVzfoB0+fB1rn1hdGFSx0w/RzWTdA59sHVxLY6SL3LgE0Xun2zNV2RvYYaxzVdsVUTFLTjCK88oIrBYSYU4vomRY+aQuLy7Lewl6GJJjAeWO4Hdd5oRI=
+Message-ID: <acd2a5930609120223m2776ed24o47e3b3c1e595ac5e@mail.gmail.com>
+Date: Tue, 12 Sep 2006 13:23:08 +0400
+From: "Vitaly Wool" <vitalywool@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [linux-pm] cpufreq terminally broken [was Re: community PM requirements/issues and PowerOP]
+Cc: "Mark Gross" <mgross@linux.intel.com>,
+       "Preece Scott-PREECE" <scott.preece@motorola.com>,
+       "pm list" <linux-pm@lists.osdl.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060912091619.GA19482@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1157555949.6011.516.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060911082025.GD1898@elf.ucw.cz>
+	 <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com>
+	 <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com>
+	 <20060911225617.GB13474@elf.ucw.cz>
+	 <20060912001701.GC14234@linux.intel.com>
+	 <20060912083328.GA19197@elf.ucw.cz>
+	 <acd2a5930609120210w7ee5a156s5fa5bbc59aeabad8@mail.gmail.com>
+	 <20060912091619.GA19482@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-09-06 11:19:09, Jim Gettys wrote:
-> On Wed, 2006-09-06 at 12:37 +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > 2.4 and 2.6 are *very* different here. You'll probably need to optimize freezer
-> > > > in 2.6 a bit...
-> > > > 						
-> > > 
-> > > Among other problems: e.g. 2.4 did not automatically do a VT switch; 2.6
-> > > does; we'll have to have a way to signal "we're a sane display driver;
-> > > don't switch away from me on suspend".
-> > 
-> > Not like that, please.
-> > 
-> > You are using X running over framebuffer, right? So that kernel is
-> > controlling the graphics hardware. In such case it is safe to avoid VT
-> > switch.
-> 
-> It should be perfectly safe.
+On 9/12/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > who talks about user <-> kernel interface level changes at the moment?!
+> Eugeny?
 
-Okay, but per-driver flag is wrong way to go (see the other mail).
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Well, as far as I understood, both parties are ready to talk about
+_kernel_ interface at the moment. Let's try to look at it from this
+very point of view.
+Eugeny, please correct me if my understanding is wrong.
+
+Vitaly

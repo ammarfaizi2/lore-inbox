@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWILOFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWILOFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbWILOFa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWILOFa
+	id S964986AbWILOFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWILOFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:05:30 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:19903 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965148AbWILOF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:05:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RpHz4pqFypktGE1ZfJZhaGet03JemNbFz7+NgmFROJqB/aPDPYbYG7376D5i49h30eKy1MMtM24jBAUohtT9fjAwojflgDPfw3Zagkp1+iI6s8lTmSuQ17tkn/OJRwZeQ2tYulXI8/J9qYnaFxCUJDZrmgac2/V8eVbsNP3r51w=
-Message-ID: <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
-Date: Tue, 12 Sep 2006 10:05:26 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Piotr Gluszenia Slawinski" <curious@zjeby.dyndns.org>
-Subject: Re: thinkpad 360Cs keyboard problem
+	Tue, 12 Sep 2006 10:05:05 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:18663 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S964986AbWILOFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:05:03 -0400
+Date: Tue, 12 Sep 2006 07:04:53 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
+Message-ID: <20060912140453.GB2491@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <p733bbn7m6o.fsf@verdi.suse.de> <20060825124905.GD5330@frankl.hpl.hp.com> <200608251513.58729.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org>
-	 <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org>
-	 <20060910194955.GA1841@elf.ucw.cz>
-	 <200609102054.34350.dtor@insightbb.com>
-	 <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
+In-Reply-To: <200608251513.58729.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
-> well, certainly 2.6.18 issue...
+Andi,
 
-Are you saying that it works on 2.6.17 and is broken on 2.6.18?
+On Fri, Aug 25, 2006 at 03:13:58PM +0200, Andi Kleen wrote:
 
-> kernel boots up fine, but keyboard is totally messed up,
-> and locks up after some tries of use.
+> > Are we already running with cr4.pce set today?
+> 
+> Not yet. But soon.
+>  
+> > The cr4.pce allows all PMC (counter) to be read at user level, not just perfctr0.
+> > When enabled all counters are readable at user level from any process. A process
+> > can see the value accumulated by another process (assuming monitoring in per-thread
+> > mode).
+> 
+> Yes, we'll have to live with that.
+> 
+> > Some people may see this as a security risk.
+> 
+> Maybe some paranoiacs, but we normally don't design software for these people's
+> obsessions.
+> 
+> > On the other hand all you see  
+> > is counts.
+> 
+> Exactly. And you always have RDTSC anyways.
+> 
+> 
+> > So as long as the i386/x86_64 PMU only collect counts, this could be 
+> > fine. The day they can capture addresses, this becomes more problematic, I think.
+> 
+> We can worry about it when it happens. Whenever anyone adds that capability
+> to the hardware they will hopefully add new separate ring 3 control bits.
+> 
+Just a follow-up on this. It already exists.
 
-Could you try describing the exact issues with the keyboard? Missing
-keypresses, wrong keys reported, etc?
+On the P4, I am planning on exporting the Last Brnch Record Stack (LBR Stack) to users of perfmon.
+This provides some branch buffer similar to what we have on Itanium. Obviously, the MSRs do contains
+addresses (source/target of branches).
 
-Thanks.
-
--- 
-Dmitry
+--
+-Stephane

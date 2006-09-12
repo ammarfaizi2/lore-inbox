@@ -1,120 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWILQGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWILQHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWILQGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 12:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWILQGF
+	id S1030258AbWILQHU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 12:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWILQHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 12:06:05 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37832 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030245AbWILQGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 12:06:01 -0400
-Subject: [PATCH] quirks: Flag up and handle the AMD 8151 Errata #24
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: ak@suse.de, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Sep 2006 17:29:00 +0100
-Message-Id: <1158078540.6780.61.camel@localhost.localdomain>
+	Tue, 12 Sep 2006 12:07:19 -0400
+Received: from main.gmane.org ([80.91.229.2]:29073 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030254AbWILQHQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 12:07:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Samuel Tardieu <sam@rfc1149.net>
+Subject: Re: Two vulnerabilities are founded,please confirm.
+Date: 12 Sep 2006 18:03:40 +0200
+Message-ID: <87hczd9in7.fsf@willow.rfc1149.net>
+References: <4506C376.1080606@venustech.com.cn> <87lkop9j10.fsf@willow.rfc1149.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AMD states the following
+>>>>> "Sam" == Samuel Tardieu <sam@rfc1149.net> writes:
 
-"Some PCI cards generate peer-to-peer posted-write traffic targetting
-the AGP bridge (from the PCI bus, through the graphics tunnel to the AGP
-bus). The combination of such cards and some AGP cards can generate
-traffic patters that result in a system deadlock."
+Sam> Would a simple fix like this one (untested) work?
 
-As AMD don't say *which* video cards we need to flag this up to the
-graphics capture devices that may be affected by this errata so that
-they fall back to slower/safer methods. 
+Or rather (less likely to be in the path by putting it in
+__find_get_block_slow):
 
-This only affects AGP although the rarity of PCI video cards on an AMD64
-box means that the quick "treat like PCIPCI_FAIL" approach will be fine
-for a starter in the capture card drivers.
+Check that the requested block fits in the device.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Fix for advisory AD_LAB-06011 Linux kernel Filesystem Mount Dead Loop.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c linux-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c	2006-09-11 11:02:17.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c	2006-09-11 17:20:16.000000000 +0100
-@@ -4993,6 +4993,8 @@
- 
- 	if (pci_pci_problems & PCIPCI_FAIL)
- 		pcipci_fail = 1;
-+	if (pci_pci_problems & PCIAGP_FAIL)
-+		pcipci_fail = 1;	/* should check if target is AGP */
- 	if (pci_pci_problems & (PCIPCI_TRITON|PCIPCI_NATOMA|PCIPCI_VIAETBF))
- 		triton1 = 1;
- 	if (pci_pci_problems & PCIPCI_VSFX)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c linux-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c	2006-09-11 11:02:17.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c	2006-09-11 17:20:16.000000000 +0100
-@@ -843,7 +843,7 @@
- 			latency = 0x0A;
- 		}
- #endif
--		if (pci_pci_problems & PCIPCI_FAIL) {
-+		if (pci_pci_problems & (PCIPCI_FAIL|PCIAGP_FAIL)) {
- 			printk(KERN_INFO "%s: quirk: this driver and your "
- 					"chipset may not work together"
- 					" in overlay mode.\n",dev->name);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/zoran_card.c linux-2.6.18-rc6-mm1/drivers/media/video/zoran_card.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/zoran_card.c	2006-09-11 17:00:12.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/media/video/zoran_card.c	2006-09-11 17:20:16.000000000 +0100
-@@ -1620,7 +1620,7 @@
- 	dprintk(5, KERN_DEBUG "Jotti is een held!\n");
- 
- 	/* some mainboards might not do PCI-PCI data transfer well */
--	if (pci_pci_problems & PCIPCI_FAIL) {
-+	if (pci_pci_problems & (PCIPCI_FAIL|PCIAGP_FAIL)) {
- 		dprintk(1,
- 			KERN_WARNING
- 			"%s: chipset may not support reliable PCI-PCI DMA\n",
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/pci/quirks.c linux-2.6.18-rc6-mm1/drivers/pci/quirks.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/pci/quirks.c	2006-09-11 17:00:17.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/pci/quirks.c	2006-09-11 17:20:16.000000000 +0100
-@@ -93,8 +93,21 @@
- 		pci_pci_problems |= PCIPCI_FAIL;
- 	}
- }
+Signed-off-by: Samuel Tardieu <sam@rfc1149.net>
+
+diff -r db51efd75e66 fs/buffer.c
+--- a/fs/buffer.c	Sun Sep 10 01:02:33 2006 +0200
++++ b/fs/buffer.c	Tue Sep 12 18:01:37 2006 +0200
+@@ -393,6 +393,14 @@ __find_get_block_slow(struct block_devic
+ 	struct buffer_head *head;
+ 	struct page *page;
+ 	int all_mapped = 1;
++	char b[BDEVNAME_SIZE];
 +
-+static void __devinit quirk_nopciamd(struct pci_dev *dev)
-+{
-+	u8 rev;
-+	pci_read_config_byte(dev, 0x08, &rev);
-+	if (rev == 0x13) {
-+		/* Errata 24 */
-+		printk(KERN_INFO "Disabling direct PCI/AGP transfers.\n");
-+		pci_pci_problems |= PCIAGP_FAIL;
++	if (block >= bdev->bd_disk->capacity) {
++		printk(KERN_ERR "Invalid block number %Ld requested on device %s",
++		       (unsigned long long)block,
++		       bdevname(bdev, b));
++		return NULL;
 +	}
-+}
-+
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		quirk_nopcipci );
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_496,		quirk_nopcipci );
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_8151_0,	quirk_nopciamd );
  
- /*
-  *	Triton requires workarounds to be used by the drivers
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/include/linux/pci.h linux-2.6.18-rc6-mm1/include/linux/pci.h
---- linux.vanilla-2.6.18-rc6-mm1/include/linux/pci.h	2006-09-11 17:00:24.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/include/linux/pci.h	2006-09-11 17:21:16.000000000 +0100
-@@ -875,12 +875,13 @@
- void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev);
- 
- extern int pci_pci_problems;
--#define PCIPCI_FAIL		1
-+#define PCIPCI_FAIL		1	/* No PCI PCI DMA */
- #define PCIPCI_TRITON		2
- #define PCIPCI_NATOMA		4
- #define PCIPCI_VIAETBF		8
- #define PCIPCI_VSFX		16
- #define PCIPCI_ALIMAGIK		32
-+#define PCIAGP_FAIL		64	/* No PCI to AGP DMA */
- 
- #endif /* __KERNEL__ */
- #endif /* LINUX_PCI_H */
+ 	index = block >> (PAGE_CACHE_SHIFT - bd_inode->i_blkbits);
+ 	page = find_get_page(bd_mapping, index);
 

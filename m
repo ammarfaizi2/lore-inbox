@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWILPjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWILPka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWILPjg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWILPjg
+	id S1751339AbWILPka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWILPka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:39:36 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:52620 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S1751333AbWILPjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:39:36 -0400
-Date: Tue, 12 Sep 2006 17:39:32 +0200
-From: Christian Leber <christian@leber.de>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [BUG] 2.6.18-rc6: hda is allready "IN USE" when booting / pi futex
-Message-ID: <20060912153932.GA14388@core>
-References: <20060907133357.GA30888@core>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060907133357.GA30888@core>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.11
+	Tue, 12 Sep 2006 11:40:30 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:64150 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751339AbWILPk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:40:29 -0400
+Subject: Re: [RFC] e-mail clients
+From: Lee Revell <rlrevell@joe-job.com>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1158031971.5057@shark.he.net>
+References: <1158031971.5057@shark.he.net>
+Content-Type: text/plain
+Date: Tue, 12 Sep 2006 11:41:10 -0400
+Message-Id: <1158075671.16327.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 03:33:57PM +0200, Christian Leber wrote:
-
-> ide0: I/O resource 0x3F6-0x3F6
-> hda: ERROR, PORTS ALREADY IN USE
-> ide0 ad 0x1f0-0x1f7,0x3f6 on irq 14
-> hdb: HL-DT-STDVD-ROM GDR8081N, ATAPI CD/DVD-ROM drive
-> ide1: I/O resource 0x376-0x376 not free
-> ide0: ports already in use, skipping probe
-> register_blkdev: cannot get major 3 for ide0
+On Mon, 2006-09-11 at 20:32 -0700, Randy Dunlap wrote:
 > 
-> the probablity for this is about 70%, so with some patience i can use
-> the box, but that also means it's very odd.
-> Between the tries i allways switch it completly off.
+> > 
+> > 
+> > As I've learned--most web-clients have a hard time sending text only 
+> > e-mail without
+> > wrapping every single line (not very good for patches).  Any 
+> suggestions 
+> > about which client to use on lkml?? Pine?? Mutt??
+> > Thunderbird?? Telnet??
 > 
-> It's a Dell Latitude C810 laptop with a Pentium 3m 1133 Mhz with Intel 82815
-> chipset that has a ICH2M south-bridge.
+> pine (but make sure that it doesn't truncate trailing whitespace)
+> or mutt or sylpheed are all good.  tbird can be coerced into
+> working but it's not much fun (well, using attachments is easy,
+> but not good for people when reviewing/commenting on patches).
 
-I wasted a day to track it down, unfortunally it's for me completly
-unclear how this commit s related to IDE, it could be some
-timing issue, but that is just guessing.
+It's easy to post correct patches with Evolution...
 
-With  77ba89c5cf28d5d98a3cae17f67a3e42b102cc25 (linux-2.6 tree) i don't have a
-problem (i booted it 21 times until now and it allways worked) and 
-b29739f902ee76a05493fb7d2303490fc75364f4 is the first bad commit.
+Lee
 
-So this seems to be the "offender":
-Author: Ingo Molnar <mingo@elte.hu>
-Date:   Tue Jun 27 02:54:51 2006 -0700
-
-    [PATCH] pi-futex: scheduler support for pi
-
-
-For convenience the diff is also here:
-http://debian.christian-leber.de/idebad.patch
-I have really no remote idea what is happening.
-
-BTW: I have seen this problem too on a box with a intel BX440, but only
-one time.
-
-Christian Leber
-
--- 
-  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
-   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)

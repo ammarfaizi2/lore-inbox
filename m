@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWILClo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWILCrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbWILClo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 22:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWILClo
+	id S965143AbWILCrn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 22:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWILCrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 22:41:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:58313 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965087AbWILCln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 22:41:43 -0400
-Message-ID: <45061E63.6010901@garzik.org>
-Date: Mon, 11 Sep 2006 22:41:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 11 Sep 2006 22:47:43 -0400
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:65471 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965143AbWILCrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 22:47:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=GgjqcM4KdRS15aT9CvgUuqhJzkgkXNJrjue2dz98CwRSrA1b/f+8fNlG5ng9KH6/viMTCagGktcUud03Bctm01A9LxeZaUDXaXcr9pSNyTlMzAVGj/x9edpdRhWC7hDnK2jrr+8+US2g7pIlkeKFTdx8u0p6J5rE84Vgnb9mmX0=  ;
+Message-ID: <45061FCB.1000402@yahoo.com.au>
+Date: Tue, 12 Sep 2006 12:47:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Dan Williams <dan.j.williams@intel.com>
-CC: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, christopher.leech@intel.com
-Subject: Re: [PATCH 00/19] Hardware Accelerated MD RAID5: Introduction
-References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>	 <4505F358.3040204@garzik.org> <e9c3a7c20609111653v29cd4609hd0584ae300b735b7@mail.gmail.com>
-In-Reply-To: <e9c3a7c20609111653v29cd4609hd0584ae300b735b7@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Guennadi Liakhovetski <gl@dsa-ac.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17.4] slabinfo.buffer_head increases
+References: <Pine.LNX.4.63.0607101023450.27628@pcgl.dsa-ac.de> <Pine.LNX.4.63.0607101412250.27628@pcgl.dsa-ac.de> <Pine.LNX.4.63.0609061341150.1700@pcgl.dsa-ac.de>
+In-Reply-To: <Pine.LNX.4.63.0609061341150.1700@pcgl.dsa-ac.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Williams wrote:
-> This is a frequently asked question, Alan Cox had the same one at OLS.
-> The answer is "probably."  The only complication I currently see is
-> where/how the stripe cache is maintained.  With the IOPs its easy
-> because the DMA engines operate directly on kernel memory.  With the
-> Promise card I believe they have memory on the card and it's not clear
-> to me if the XOR engines on the card can deal with host memory.  Also,
-> MD would need to be modified to handle a stripe cache located on a
-> device, or somehow synchronize its local cache with card in a manner
-> that is still able to beat software only MD.
+Guennadi Liakhovetski wrote:
 
-sata_sx4 operates through [standard PC] memory on the card, and you use 
-a DMA engine to copy memory to/from the card.
-
-[select chipsets supported by] sata_promise operates directly on host 
-memory.
-
-So, while sata_sx4 is farther away from your direct-host-memory model, 
-it also has much more potential for RAID acceleration:  ideally, RAID1 
-just copies data to the card once, then copies the data to multiple 
-drives from there.  Similarly with RAID5, you can eliminate copies and 
-offload XOR, presuming the drives are all connected to the same card.
-
-	Jeff
+>> On Mon, 10 Jul 2006, Guennadi Liakhovetski wrote:
+>>
+>>> I am obsering a steadily increasing buffer_head value in slabinfo under
+>>> 2.6.17.4. I searched the net / archives and didn't find anything
+>>> directly relevant. Does anyone have an idea or how shall we debug it?
+>>
+>
+> The problem is still there under 2.6.18-rc2. I narrowed it down to 
+> ext3 journal. To reproduce one just has to mount an ext3 partition and 
+> perform (write) accesses to it. A loop { touch /mnt/foo; sleep 1; } 
+> suffices - just let it run for a couple of minutes and monitor 
+> buffer_head in /proc/slabinfo. If you mount it as ext2 the problem is 
+> gone.
 
 
+What data mode is ext3 mounted with?
+
+Is the memory reclaimable? If yes, is it a problem?
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

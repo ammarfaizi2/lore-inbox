@@ -1,45 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965252AbWILOdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWILOem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965252AbWILOdL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbWILOdL
+	id S1030196AbWILOem (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbWILOem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:33:11 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:34171 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S965250AbWILOdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:33:09 -0400
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-Cc: Andrew Morton <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-X-Message-Flag: Warning: May contain useful information
-References: <A0CDBA58F226D911B202000BDBAD46730A1B1410@zch01exm23.fsl.freescale.net>
-	<1157962200.10526.10.camel@localhost.localdomain>
-	<1158051351.14448.97.camel@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 12 Sep 2006 07:33:07 -0700
-In-Reply-To: <1158051351.14448.97.camel@localhost.localdomain> (Zang Roy-r's message of "12 Sep 2006 16:55:52 +0800")
-Message-ID: <ada3bax2lzw.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Sep 2006 14:33:08.0012 (UTC) FILETIME=[5D85FEC0:01C6D678]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Tue, 12 Sep 2006 10:34:42 -0400
+Received: from lixom.net ([66.141.50.11]:1949 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S965260AbWILOel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:34:41 -0400
+Date: Tue, 12 Sep 2006 09:33:01 -0500
+From: Olof Johansson <olof@lixom.net>
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Xilinx uartlite serial driver
+Message-ID: <20060912093301.77f75bfb@localhost.localdomain>
+In-Reply-To: <878xlgercm.fsf@slug.be.48ers.dk>
+References: <87ac9o3ak3.fsf@sleipner.barco.com>
+	<878xlgercm.fsf@slug.be.48ers.dk>
+X-Mailer: Sylpheed-Claws 2.1.1 (GTK+ 2.8.17; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +struct tsi108_prv_data {
- > +	volatile u32 regs;	/* Base of normal regs */
- > +	volatile u32 phyregs;	/* Base of register bank used for PHY access */
+On Tue, 22 Aug 2006 17:13:13 +0200 Peter Korsgaard <jacmet@sunsite.dk> wrote:
 
-Why volatile?  This looks really wrong here.
+> >>>>> "Peter" == Peter Korsgaard <jacmet@sunsite.dk> writes:
+> 
+> Hi,
+> 
+>  Peter> The following patch adds a driver for the Xilinx uartlite serial
+>  Peter> controller used in boards with the PPC405 core in the Xilinx V2P/V4
+>  Peter> fpgas.
+> 
+>  Peter> The hardware is very simple (baudrate/start/stopbits fixed and
+>  Peter> no break support). See the datasheet for details:
+> 
+>  Peter> http://www.xilinx.com/bvdocs/ipcenter/data_sheet/opb_uartlite.pdf
+> 
+>  Peter> Comments and suggestions are welcome. I'm especially wondering about
+>  Peter> the fact that I'm hijacking the device nodes used by the mpc52xx_uart
+>  Peter> driver ..
+> 
+> Ok, I now got a chunk of the 204 major range from LANANA. That afaik
+> solves the last remaining issue with this..
 
- > +	data->regs = (u32)ioremap(einfo->regs, 0x400);	/*FIX ME */
- > +	data->phyregs = (u32)ioremap(einfo->phyregs, 0x400); 	/*FIX ME */
+Hi,
 
-What needs to be fixed here?  And why are you casting the result of
-ioremap to u32?  Shouldn't you keep the normal return value?
+I've been working on getting this running smoothly over the last few days.
+In my opinion there's a few pieces missing:
 
- - R.
+1. There's no early boot console support for PPC. There's another
+uartlite patch that's floating around that has this, very useful for
+early bringup tasks. I'd like to see this expanded to include that as
+well (the regular part of the other driver seems more or less broken
+though, so this is a better base driver). That shouldn't stop this part
+of the driver to go in though, just possible future work.
+
+2. There seems to be some timeout issues with tx_empty. If I boot a
+regular distro with getty, etc, I get veeeery slow console output right
+when init starts up. Adding a small default timeout in the init of the
+uart code seems to help -- the hanging thread seems to be sleeping in
+uart_wait_until_sent(). I picked a value of '5', seems ok. (Also,
+without this fix, getty won't start on the port for some reason, it
+sits in the same timeout forever, or at least for a very long time).
+
+3. It would be useful to demonstrate how to hook up the device all the
+way through to the board port (i.e. add a config option and include it
+in the ml403 platform code or similar). It's not hard, but it'd make it
+easier for whomever comes next. Of course, with 4xx hopefully soon
+moving over to arch/powerpc, this would be taken care of through the
+device tree instead.
+
+So, (2) is really the only thing that's needed (IMHO) before this goes
+in, but the rest would be useful as well.
+
+
+-Olof
+

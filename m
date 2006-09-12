@@ -1,44 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbWILMrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWILMye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbWILMrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 08:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbWILMrr
+	id S1030197AbWILMye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 08:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWILMye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 08:47:47 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:9681 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S965242AbWILMrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 08:47:46 -0400
-Date: Tue, 12 Sep 2006 13:47:42 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] - restore i8259A eoi status on resume
-Message-ID: <20060912124742.GB31344@srcf.ucam.org>
-References: <20060910141533.GA6594@srcf.ucam.org> <200609110746.58548.ak@suse.de> <20060911110530.GA15320@srcf.ucam.org> <200609112202.50756.ak@suse.de> <20060911222351.GA23679@srcf.ucam.org> <20060911230745.GA24001@srcf.ucam.org> <20060912091906.GB19482@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Sep 2006 08:54:34 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:57549 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030197AbWILMyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 08:54:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jANImiYmyCr3R7XFCbYDoi7UCREMRxCVS10ytY3y//n1Rjq5nE4xdIQUUZfe/sJqV8FdwjHozoAf9+mCCQuPCZZ9byFcVFwgTNMjcaEVd53MjmAG7AyZPjjl//h4PH3tp5OmGMdXZq0hTDvV20NQ9Qzq2wpdTH3Cxht5pnbW7nE=
+Message-ID: <6bffcb0e0609120554j5e69e2sd2c8ebb914c4c9f5@mail.gmail.com>
+Date: Tue, 12 Sep 2006 14:54:32 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc6-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060912000618.a2e2afc0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060912091906.GB19482@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+References: <20060912000618.a2e2afc0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 11:19:06AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Got it. i8259A_resume calls init_8259A(0) unconditionally, even if 
-> > auto_eoi has been set. Keep track of the current status and restore that 
-> > on resume. This fixes it for AMD64 and i386.
-> 
-> Patch looks okay to me...
+On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
+>
 
-Cool. Andi, does it look sane to you? I'm not really sure who to wave 
-8259 code at...
+I get this while umounting jfs (umount segfaulted).
+
+BUG: unable to handle kernel paging request at virtual address 6b6b6c4f
+ printing eip:
+c013a612
+*pde = 00000000
+Oops: 0002 [#1]
+4K_STACKS PREEMPT SMP
+last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
+Modules linked in: jfs nls_base xfs reiser4 reiserfs ext2 loop ipv6
+w83627hf hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios_ns
+ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp iptable_filter
+ip_tables x_tables cpufreq_userspace p4_clockmod speedstep_lib
+binfmt_misc thermal processor fan container evdev snd_intel8x0
+snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+snd_pcm sk98lin snd_timer skge snd soundcore snd_page_alloc intel_agp
+agpgart ide_cd i2c_i801 iTCO_wdt cdrom rtc unix
+CPU:    1
+EIP:    0060:[<c013a612>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.18-rc6-mm2 #120)
+EIP is at __lock_acquire+0x35e/0xae8
+eax: 00000000   ebx: 6b6b6b6b   ecx: c036b3d8   edx: 00000000
+esi: 00000002   edi: f1620030   ebp: f158be7c   esp: f158be48
+ds: 007b   es: 007b   ss: 0068
+Process umount (pid: 19719, ti=f158b000 task=f1620030 task.ti=f158b000)
+Stack: 000007bf 00000000 00000000 f173fd4c f1620030 f2543874 00000002 00000000
+       00000078 c02f980b f16205b8 00000002 f1620030 f158beb0 c013ae74 00000000
+       00000002 00000000 fdcfc85b c02f7e43 00000003 f1620590 00000004 f1620608
+Call Trace:
+ [<c013ae74>] lock_release_non_nested+0xd8/0x143
+ [<c013b291>] lock_release+0x178/0x19f
+ [<c02f7dc5>] __mutex_unlock_slowpath+0xbb/0x131
+ [<c02f7e43>] mutex_unlock+0x8/0xa
+ [<c017655f>] generic_shutdown_super+0x9c/0xd9
+ [<c01765bc>] kill_block_super+0x20/0x32
+ [<c017667c>] deactivate_super+0x5d/0x6f
+ [<c01892bc>] mntput_no_expire+0x52/0x85
+ [<c017b2c9>] path_release_on_umount+0x15/0x18
+ [<c018a469>] sys_umount+0x1e1/0x215
+ [<c018a4aa>] sys_oldumount+0xd/0xf
+ [<c0103156>] sysenter_past_esp+0x5f/0x99
+DWARF2 unwinder stuck at sysenter_past_esp+0x5f/0x99
+
+Leftover inexact backtrace:
+
+ =======================
+Code: 68 0b e6 2f c0 68 e7 04 00 00 68 e9 f4 31 c0 68 f4 84 31 c0 e8
+7f 7b fe ff e8 3d a4 fc ff 83 c4 10 eb 08 85 db 0f 84 6d 07 00 00 <f0>
+ff 83 e4 00 00 00 8b 55 dc 8b 92 5c 05 00 00 89 55 e4 83 fa
+EIP: [<c013a612>] __lock_acquire+0x35e/0xae8 SS:ESP 0068:f158be48
+ <3>BUG: sleeping function called from invalid context at
+/usr/src/linux-mm/mm/slab.c:2985
+in_atomic():0, irqs_disabled():1
+ [<c01041ba>] dump_trace+0x63/0x1ca
+ [<c0104333>] show_trace_log_lvl+0x12/0x25
+ [<c0104993>] show_trace+0xd/0x10
+ [<c0104a58>] dump_stack+0x16/0x18
+ [<c011a8b7>] __might_sleep+0x8d/0x95
+ [<c01709f7>] kmem_cache_zalloc+0x28/0xe3
+ [<c0152dae>] taskstats_exit_alloc+0x2e/0x6c
+ [<c01246e4>] do_exit+0x1b6/0x9fe
+ [<c01048a3>] die+0x2ae/0x2d4
+ [<c0118b0c>] do_page_fault+0x4a4/0x584
+ [<c02f9b4f>] error_code+0x3f/0x44
+DWARF2 unwinder stuck at error_code+0x3f/0x44
+Leftover inexact backtrace:
+
+ [<c013ae74>] lock_release_non_nested+0xd8/0x143
+ [<c013b291>] lock_release+0x178/0x19f
+ [<c02f7dc5>] __mutex_unlock_slowpath+0xbb/0x131
+ [<c02f7e43>] mutex_unlock+0x8/0xa
+ [<c017655f>] generic_shutdown_super+0x9c/0xd9
+ [<c01765bc>] kill_block_super+0x20/0x32
+ [<c017667c>] deactivate_super+0x5d/0x6f
+ [<c01892bc>] mntput_no_expire+0x52/0x85
+ [<c017b2c9>] path_release_on_umount+0x15/0x18
+ [<c018a469>] sys_umount+0x1e1/0x215
+ [<c018a4aa>] sys_oldumount+0xd/0xf
+ [<c0103156>] sysenter_past_esp+0x5f/0x99
+ =======================
+
+http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-config1
+http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg1
+
+Regards,
+Michal
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

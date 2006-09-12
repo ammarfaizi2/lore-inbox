@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWILXP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWILX0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWILXP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 19:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWILXP3
+	id S1030367AbWILX0A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 19:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWILX0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 19:15:29 -0400
-Received: from xenotime.net ([66.160.160.81]:4299 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932356AbWILXP2 (ORCPT
+	Tue, 12 Sep 2006 19:26:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53215 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030367AbWILXZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 19:15:28 -0400
-Date: Tue, 12 Sep 2006 16:16:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Victor Hugo <victor@vhugo.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] e-mail clients
-Message-Id: <20060912161636.9f7e7139.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0609120906540.6283@yvahk01.tjqt.qr>
-References: <1158031971.5057@shark.he.net>
-	<Pine.LNX.4.61.0609120906540.6283@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 12 Sep 2006 19:25:59 -0400
+Date: Tue, 12 Sep 2006 16:25:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc6-mm2
+Message-Id: <20060912162555.d71af631.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com>
+References: <20060912000618.a2e2afc0.akpm@osdl.org>
+	<6bffcb0e0609120554j5e69e2sd2c8ebb914c4c9f5@mail.gmail.com>
+	<6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Sep 2006 09:08:37 +0200 (MEST) Jan Engelhardt wrote:
+On Tue, 12 Sep 2006 17:42:10 +0200
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 
+> On 12/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
+> > >
 > >
-> >pine (but make sure that it doesn't truncate trailing whitespace)
+> > I get this while umounting jfs (umount segfaulted).
 > 
-> Truncating whitespace at EOL is a good thing. Otherwise, quilt says
+> s/jfs/xfs
+
+Do you mean that both JFS and XFS exhibit this bug, or only XFS?
+
+> /home/michal/bin/test_mount_fs.sh: line 22:  2354 Segmentation fault
+> sudo umount /mnt/fs-farm/xfs/
 > 
-> Warning: trailing whitespace in lines 237,364 of 
-> net/ipv4/netfilter/regexp/regexp.c
-> Warning: trailing whitespace in line 57 of 
-> net/ipv4/netfilter/regexp/regsub.c
-> Warning: trailing whitespace in lines 307,308,309 of 
-> net/ipv4/netfilter/ipt_layer7.c
 
-Of course.  But there were/are versions of pine that truncate
-whitespace "for you," even if such truncation is not desired,
-independent of quilt et al.  So one wouldn't want to use that
-"feature" for kernel patches.
-
-
-> for example. Long lines are usually not broken up if pasted verbatim as this example line will show for sure abc.
-> 
-> pine wraps text only when typing (at least that's how I configured
-> mine), so it is all safe.
-
----
-~Randy

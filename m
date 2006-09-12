@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWILME7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWILMFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWILME7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 08:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWILME7
+	id S932257AbWILMFs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 08:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWILMFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 08:04:59 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:37329 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932188AbWILME6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 08:04:58 -0400
-Date: Tue, 12 Sep 2006 17:34:07 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: Rik van Riel <riel@redhat.com>, sekharan@us.ibm.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added user memory)
-Message-ID: <20060912120407.GA28959@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <1157579641.31893.26.camel@linuxchandra> <44FFCA4D.9090202@openvz.org> <1157656616.19884.34.camel@linuxchandra> <45011A47.1020407@openvz.org> <1157742442.19884.47.camel@linuxchandra> <450509EE.9010809@openvz.org> <20060911130428.GA16404@in.ibm.com> <45068AD9.50308@openvz.org> <20060912102943.GA28128@in.ibm.com> <450694BB.3060304@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450694BB.3060304@openvz.org>
-User-Agent: Mutt/1.5.11
+	Tue, 12 Sep 2006 08:05:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:6084 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932257AbWILMFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 08:05:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=WJrTTp/abLzJzEnivfkRHnphpXkjVpYW3ESb3ZiEmP2cwuMo06h/bhvIUJ2t4cocmn79CtGkTRkbQQpcpgLDb5cxprapT3jejpmrzTlP2rHZBkvwc7ucBvjJgTOSzkjLsz8PPNDalCGaO4J7NYUshnxnbkyz3kf1ILtDUSNNQro=
+Message-ID: <4506A295.6010206@gmail.com>
+Date: Tue, 12 Sep 2006 14:05:41 +0200
+From: guest01 <guest01@gmail.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.5) Gecko/20060719 Thunderbird/1.5.0.5 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: OT: calling kernel syscall manually
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 03:06:35PM +0400, Pavel Emelianov wrote:
-> Hmmm... Beancounters can provide this after trivial changes.
+Hi
 
-All that is needed is some interface to set a thread's BC id (which you
-seem to have already - sys_set_bcid)
+Sorry guys, this question is a little bit off topic, but maybe someone
+has an answer, I am sure that there is a simple one. :-)
 
-> We may schedule them in current set of "pending" features
-> (http://wiki.openvz.org/UBC_discussion)
+Ok, I have to find 3 possibilities to create a directory with 3 small c
+programs:
+1 -> using libc: mkdir(dir,mode)
+2 -> using libcsyscall:  syscall(__NR_mkdir, "mkdirLibcSyscall", 0777);
+3 -> using kernel directly
+
+Ok, the third one is a little bit tricky, at least for me. I found an
+example for lseek, but I don't know how to convert that for mkdir. I
+don't know the necessary arguments, ..
+
+> #include <linux/unistd.h>
 > 
-> But this can create a kind of DoS within an application:
->   A thread continuously touches new and new pages to it's BC and
-> these pages are get touched by other threads also. Sooner or later
+> _syscall5(int, _llseek, unsigned int, fd,
+>           unsigned long, offset_high, unsigned long, offset_low,
+>           long long *, result, unsigned int, origin)
+> 
+> long long
+> my_llseek(unsigned int fd, unsigned long long offset, unsigned int origin) {
+>           long long result;
+>           int retval;
+> 
+>           retval = _llseek (fd, offset >> 32, offset & 0xffffffff,
+>                             &result, origin);
+>           return (retval == -1) ? -1 : result;
+> }
 
-Any good reason why threads will touch each other's working set?
-Sure nothing prevents them from touching, but I would expect each thread
-(serving a separate domain) to work on its own set of private pages?
+Any help would be much appreciated. Thxs
 
-> this BC will hit it's limit and reclaiming this set of pages would affect
-> all the other threads.
-
--- 
-Regards,
-vatsa
+regards
+peda

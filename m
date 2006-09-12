@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWILLzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWILMAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWILLzN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 07:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWILLzN
+	id S932231AbWILMAT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 08:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWILMAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 07:55:13 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:54678 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S932259AbWILLzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 07:55:11 -0400
-Date: Tue, 12 Sep 2006 13:58:56 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: [PATCH] drivers/acpi/processor.o - Section mismatch Bug# 6992
-Message-ID: <20060912115856.GA4211@ff.dom.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Tue, 12 Sep 2006 08:00:19 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:59369 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S932231AbWILMAS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 08:00:18 -0400
+Message-ID: <4506A15B.1080006@nachtwindheim.de>
+Date: Tue, 12 Sep 2006 14:00:27 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: stern@rowland.harvard.edu, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] [MM] fixes kerneldoc errors in usbcore-auto(susp/res)-patch
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Maybe I miss why it takes so long to remove this warning
-or maybe it's only the lack of time, so here is my proposal.
+Fixes kerneldoc errors on usb/core/driver.c, which occured in 2.6.18-rc6-mm2 
+gregkh-usb-usbcore-add-autosuspend-autoresume-infrastructure.patch
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Jarek P.
+---
 
-diff -Nurp linux-2.6.18-rc6-git1-/drivers/acpi/processor_core.c linux-2.6.18-rc6-git1/drivers/acpi/processor_core.c
---- linux-2.6.18-rc6-git1-/drivers/acpi/processor_core.c	2006-09-12 00:01:00.000000000 +0200
-+++ linux-2.6.18-rc6-git1/drivers/acpi/processor_core.c	2006-09-12 00:01:00.000000000 +0200
-@@ -81,7 +81,7 @@ MODULE_DESCRIPTION(ACPI_PROCESSOR_DRIVER
- MODULE_LICENSE("GPL");
+--- linux-2.6.18-rc6-mm2/drivers/usb/core/driver.c	2006-09-12 13:31:56.000000000 +0200
++++ devel/drivers/usb/core/driver.c	2006-09-12 13:33:12.000000000 +0200
+@@ -1102,8 +1102,8 @@
  
- static int acpi_processor_add(struct acpi_device *device);
--static int acpi_processor_start(struct acpi_device *device);
-+static int __cpuinit acpi_processor_start(struct acpi_device *device);
- static int acpi_processor_remove(struct acpi_device *device, int type);
- static int acpi_processor_info_open_fs(struct inode *inode, struct file *file);
- static void acpi_processor_notify(acpi_handle handle, u32 event, void *data);
-@@ -519,7 +519,7 @@ static int acpi_processor_get_info(struc
+ /**
+  * usb_autosuspend_device - delayed autosuspend of a USB device and its interfaces
+- * @udev - the usb_device to autosuspend
+- * @dec_usage_cnt - flag to decrement @udev's PM-usage counter
++ * @udev: the usb_device to autosuspend
++ * @dec_usage_cnt: flag to decrement @udev's PM-usage counter
+  *
+  * This routine should be called when a core subsystem is finished using
+  * @udev and wants to allow it to autosuspend.  Examples would be when
+@@ -1139,8 +1139,8 @@
  
- static void *processor_device_array[NR_CPUS];
+ /**
+  * usb_autoresume_device - immediately autoresume a USB device and its interfaces
+- * @udev - the usb_device to autoresume
+- * @inc_usage_cnt - flag to increment @udev's PM-usage counter
++ * @udev: the usb_device to autoresume
++ * @inc_usage_cnt: flag to increment @udev's PM-usage counter
+  *
+  * This routine should be called when a core subsystem wants to use @udev
+  * and needs to guarantee that it is not suspended.  In addition, the
+@@ -1180,7 +1180,7 @@
  
--static int acpi_processor_start(struct acpi_device *device)
-+static int __cpuinit acpi_processor_start(struct acpi_device *device)
- {
- 	int result = 0;
- 	acpi_status status = AE_OK;
-diff -Nurp linux-2.6.18-rc6-git1-/drivers/acpi/processor_idle.c linux-2.6.18-rc6-git1/drivers/acpi/processor_idle.c
---- linux-2.6.18-rc6-git1-/drivers/acpi/processor_idle.c	2006-09-12 00:01:00.000000000 +0200
-+++ linux-2.6.18-rc6-git1/drivers/acpi/processor_idle.c	2006-09-12 00:01:00.000000000 +0200
-@@ -1077,7 +1077,7 @@ static const struct file_operations acpi
- 	.release = single_release,
- };
+ /**
+  * usb_autopm_put_interface - decrement a USB interface's PM-usage counter
+- * @intf - the usb_interface whose counter should be decremented
++ * @intf: the usb_interface whose counter should be decremented
+  *
+  * This routine should be called by an interface driver when it is
+  * finished using @intf and wants to allow it to autosuspend.  A typical
+@@ -1227,7 +1227,7 @@
  
--int acpi_processor_power_init(struct acpi_processor *pr,
-+int __cpuinit acpi_processor_power_init(struct acpi_processor *pr,
- 			      struct acpi_device *device)
- {
- 	acpi_status status = 0;
-diff -Nurp linux-2.6.18-rc6-git1-/include/acpi/processor.h linux-2.6.18-rc6-git1/include/acpi/processor.h
---- linux-2.6.18-rc6-git1-/include/acpi/processor.h	2006-09-12 00:01:00.000000000 +0200
-+++ linux-2.6.18-rc6-git1/include/acpi/processor.h	2006-09-12 00:01:00.000000000 +0200
-@@ -251,7 +251,7 @@ int acpi_processor_set_throttling(struct
- extern struct file_operations acpi_processor_throttling_fops;
- 
- /* in processor_idle.c */
--int acpi_processor_power_init(struct acpi_processor *pr,
-+int __cpuinit acpi_processor_power_init(struct acpi_processor *pr,
- 			      struct acpi_device *device);
- int acpi_processor_cst_has_changed(struct acpi_processor *pr);
- int acpi_processor_power_exit(struct acpi_processor *pr,
+ /**
+  * usb_autopm_get_interface - increment a USB interface's PM-usage counter
+- * @intf - the usb_interface whose counter should be incremented
++ * @intf: the usb_interface whose counter should be incremented
+  *
+  * This routine should be called by an interface driver when it wants to
+  * use @intf and needs to guarantee that it is not suspended.  In addition,
+
+

@@ -1,76 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWILOnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWILOnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWILOnK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWILOnK
+	id S965163AbWILOnp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWILOnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:43:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23196 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965151AbWILOnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:43:09 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Brandon Philips <brandon@ifup.org>,
-       linux-kernel@vger.kernel.org, Brice Goglin <brice@myri.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Robert Love <rml@novell.com>
-Subject: Re: [patch] genirq/MSI: restore __do_IRQ() compat logic temporarily
-References: <20060908174437.GA5926@plankton.ifup.org>
-	<20060908121319.11a5dbb0.akpm@osdl.org>
-	<20060908194300.GA5901@plankton.ifup.org>
-	<20060908125053.c31b76e9.akpm@osdl.org>
-	<20060911021400.GA6163@plankton.ifup.org>
-	<20060911095106.2a7d6d95.akpm@osdl.org>
-	<m1lkop7gi5.fsf@ebiederm.dsl.xmission.com>
-	<20060912075047.GA10641@elte.hu>
-Date: Tue, 12 Sep 2006 08:37:42 -0600
-In-Reply-To: <20060912075047.GA10641@elte.hu> (Ingo Molnar's message of "Tue,
-	12 Sep 2006 09:50:47 +0200")
-Message-ID: <m14pvd6thl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 12 Sep 2006 10:43:45 -0400
+Received: from server99.tchmachines.com ([72.9.230.178]:8351 "EHLO
+	server99.tchmachines.com") by vger.kernel.org with ESMTP
+	id S965161AbWILOnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:43:43 -0400
+Date: Tue, 12 Sep 2006 07:45:18 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Alok Kataria <alok.kataria@calsoftinc.com>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: [patch] slab: Do not use mempolicy for kmalloc_node
+Message-ID: <20060912144518.GA4653@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+The slab should follow the specified memory policy for kmalloc allocations,
+which it does.  However, for kmalloc_node allocations, slab should
+serve the object from the requested node irrespective of memory policy.
+This seems to be broken in slab code.  Following patch fixes this.
 
-> * Eric W. Biederman <ebiederm@xmission.com> wrote:
->
->> Ok.  Looking at it I almost certain the problem is that
->> we lost the hunk of code removed in: 266f0566761cf88906d634727b3d9fc2556f5cbd
->> i386: Fix stack switching in do_IRQ
->> 
->> -       if (!irq_desc[irq].handle_irq) {
->> -               __do_IRQ(irq, regs);
->> -               goto out_exit;
->> -       }
->> 
->> The msi code does not yet set desc->handle_irq.  So when we attempt to 
->> call it we get a NULL pointer dereference.
->
-> indeed ... We thought the MSI cleanup went all the way with the irqchips 
-> conversion, that's we suggested to Andrew to drop this chunk in -mm too.
+Patch abstacts out a __cache_alloc_mempolicy function to be used when
+mempolicy is to be applied.
+ 
+Signed-off-by: Alok N Kataria <alok.kataria@calsotinc.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@scale86.org>
+Signed-off-by: Shai Fultheim <shai@scale86.org>
 
-Sorry.  At the time I was trying for a minimal fix to much more
-fundamental brain damage.
-
->> Except for adding that hunk back in and breaking 4K stacks I don't 
->> have an immediate fix.
->
-> i've attached a bandaid patch for -mm below. Brandon, does this solve 
-> the crash you are seeing?
->
->> I do have a pending cleanup that should result in us setting 
->> handle_irq in all cases.  I will see if I can advance that shortly.
->
-> yeah, that's the right solution.
-
-The core problem at the moment is that the generic code in msi.c
-still knows about apics.  So struct irq_chip needs to be pushed
-to the individual architectures.  At which point it becomes easy to
-ensure we have a proper handle_irq value as we aren't trying to be
-impossibly generic.
-
-Eric
+Index: linux-2.6.18-rc3/mm/slab.c
+===================================================================
+--- linux-2.6.18-rc3.orig/mm/slab.c	2006-08-04 10:01:46.000000000 -0700
++++ linux-2.6.18-rc3/mm/slab.c	2006-08-08 12:05:21.000000000 -0700
+@@ -2963,19 +2963,12 @@ static void *cache_alloc_debugcheck_afte
+ #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
+ #endif
+ 
+-static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
++static inline void *
++____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+ 	void *objp;
+ 	struct array_cache *ac;
+ 
+-#ifdef CONFIG_NUMA
+-	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
+-		objp = alternate_node_alloc(cachep, flags);
+-		if (objp != NULL)
+-			return objp;
+-	}
+-#endif
+-
+ 	check_irq_off();
+ 	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+@@ -2989,6 +2982,28 @@ static inline void *____cache_alloc(stru
+ 	return objp;
+ }
+ 
++#ifdef CONFIG_NUMA
++static inline void *__cache_alloc_mempolicy(struct kmem_cache *cachep, gfp_t flags)
++{
++	void *objp;
++
++	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
++		objp = alternate_node_alloc(cachep, flags);
++		if (objp != NULL)
++			return objp;
++	}
++
++	return ____cache_alloc(cachep, flags);
++}
++#else
++static inline void *__cache_alloc_mempolicy(struct kmem_cache *cachep, gfp_t flags)
++{
++	return ____cache_alloc(cachep, flags);
++}
++#endif
++
++
++
+ static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
+ 						gfp_t flags, void *caller)
+ {
+@@ -2998,7 +3013,7 @@ static __always_inline void *__cache_all
+ 	cache_alloc_debugcheck_before(cachep, flags);
+ 
+ 	local_irq_save(save_flags);
+-	objp = ____cache_alloc(cachep, flags);
++	objp = __cache_alloc_mempolicy(cachep, flags);
+ 	local_irq_restore(save_flags);
+ 	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
+ 					    caller);
+@@ -3303,8 +3318,9 @@ void *kmem_cache_alloc_node(struct kmem_
+ 	cache_alloc_debugcheck_before(cachep, flags);
+ 	local_irq_save(save_flags);
+ 
+-	if (nodeid == -1 || nodeid == numa_node_id() ||
+-			!cachep->nodelists[nodeid])
++	if (nodeid == -1 || !cachep->nodelists[nodeid])
++		ptr = __cache_alloc_mempolicy(cachep, flags);
++	else if (nodeid == numa_node_id())
+ 		ptr = ____cache_alloc(cachep, flags);
+ 	else
+ 		ptr = __cache_alloc_node(cachep, flags, nodeid);

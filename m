@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWILKVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWILKVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWILKVn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 06:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWILKVn
+	id S1750932AbWILKVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 06:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWILKVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 06:21:43 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:24732 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S964983AbWILKVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 06:21:42 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: Uses for memory barriers
-Date: Tue, 12 Sep 2006 12:22:00 +0200
-User-Agent: KMail/1.8
-Cc: paulmck@us.ibm.com, Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <20060911162059.GA1496@us.ibm.com> <Pine.LNX.4.44L0.0609082216070.8541-100000@netrider.rowland.org> <32145.1158051703@warthog.cambridge.redhat.com>
-In-Reply-To: <32145.1158051703@warthog.cambridge.redhat.com>
+	Tue, 12 Sep 2006 06:21:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:36026 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750932AbWILKVY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 06:21:24 -0400
+Date: Tue, 12 Sep 2006 03:15:30 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] more USB fixes for 2.6.18-rc6
+Message-ID: <20060912101530.GA25136@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609121222.01260.oliver@neukum.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 12. September 2006 11:01 schrieb David Howells:
-> Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> 
-> > 2.	All stores to a given single memory location will be perceived
-> > 	as having occurred in the same order by all CPUs.
-> 
-> Does that take into account a CPU combining or discarding coincident memory
-> operations?
-> 
-> For instance, a CPU asked to issue two writes to the same location may discard
-> the first if it hasn't done it yet.
+Here are a two more bugfixes for USB issues that were recently
+discovered with 2.6.18-rc6
 
-Does it make sense? If you do:
-mov #x, $a
-wmb
-mov #y, $b
-wmb
-mov #z, $a
+They do:
+	- fix a leak on /proc/tty/drivers/usb-serial
+	- fix a oops when unloading the yealink driver
 
-The CPU must not discard any write. If you do
+Please pull from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-mov #x, $a
-mov #y, $b
-wmb
-mov #z, $a
+The full patches will be sent to the linux-usb-devel mailing lists, if
+anyone wants to see them.
 
-The first store to $a is superfluous if you have only inter-CPU
-issues in mind.
+thanks,
 
-	Regards
-		Oliver
+greg k-h
+
+ drivers/usb/input/yealink.c     |   12 ++++++------
+ drivers/usb/serial/usb-serial.c |    4 +++-
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+---------------
+
+Henk Vergonet:
+      USB: Fix unload oops and memory leak in yealink driver
+
+Matthias Urlichs:
+      usbserial: Reference leak
+

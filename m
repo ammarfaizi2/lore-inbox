@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWILTZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWILTZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030374AbWILTZT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 15:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWILTZS
+	id S1030365AbWILTZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 15:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWILTZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 15:25:18 -0400
-Received: from 1wt.eu ([62.212.114.60]:35346 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1030324AbWILTZR (ORCPT
+	Tue, 12 Sep 2006 15:25:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27053 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030365AbWILTZZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 15:25:17 -0400
-Date: Tue, 12 Sep 2006 21:17:36 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
-       sparclinux@vger.kernel.org
-Subject: Re: fix 2.4.33.3 / sun partition size
-Message-ID: <20060912191736.GG541@1wt.eu>
-References: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
-User-Agent: Mutt/1.5.11
+	Tue, 12 Sep 2006 15:25:25 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060912174339.GA19707@waste.org> 
+References: <20060912174339.GA19707@waste.org>  <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> 
+To: Matt Mackall <mpm@selenic.com>
+Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       davidm@snapgear.com, gerg@snapgear.com
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 12 Sep 2006 20:25:04 +0100
+Message-ID: <24525.1158089104@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 01:23:56PM +0200, Jurzitza, Dieter wrote:
-> Kernel: 2.4.33
-> 
-> Issue: really fix size display for sun partitions larger than 1TByte
-> 
-> Signed off by: Dieter Jurzitza DJurzitza@HarmanBecker.com
-> 
-> Problem: the last fix introduced by Jeff Mahoney for kernel 2.6 was not complete for kernel 2.4 (as applied)
-> I found out that add_gd_partition is called by any type of partition (2.4). add_gd_partition is defined as add_gd_partition (int, int), what makes no sense to me as negative numbers should never occur here. As long as add_gd_partition is not changed to add_gd_partition (unsigned, unsigned), /proc/partitions will keep showing negative numbers.
+Matt Mackall <mpm@selenic.com> wrote:
 
-It seems fair. David, what's your opinion ?
+> Looking through all the users of kobjsize, it seems we always know
+> what the type is (and it's usually a VMA). I instead propose we use
+> ksize on objects we know to be SLAB/SLOB-allocated and add a new
+> function (kpagesize?) to size other objects where nommu needs it.
 
-> If ever someone could look into this, within the different partition type files in linux/fs/partitions the parameters to add_gd_partitions seem to be chosen arbitrarily between int, unsigned and unsigned long, whatever seemed to be appropriate, I think it would make sense to get consistent parameters to add_gd_partition from all partition types here.
-> Especially if one takes into account that sizeof (long) and sizeof (int) may differ significantly i. e. on sparc.
+It sounds like we'd need an op in the VMA to do the per-type size thing (the
+VMA itself not the VMA ops table).
 
-It would really depend on the on-disk format. If the partition table really
-stores 32 bit ints for sector counts, there's no point switching from ints
-to longs. But if it already stores 64 bits, then we're limiting it to 2 TB
-with 32 bit ints. I haven't checked the code right now, so I don't know. I
-hope Davem will enlighten us on this matter.
-
-> Take care
-> 
-> 
-> Dieter Jurzitza
-
-Thanks,
-Willy
-
+David

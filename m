@@ -1,93 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWILVV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWILVXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWILVV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 17:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWILVV0
+	id S1751398AbWILVXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 17:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWILVXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 17:21:26 -0400
-Received: from bcp12.neoplus.adsl.tpnet.pl ([83.27.231.12]:41372 "EHLO
-	Jerry.zjeby.dyndns.org") by vger.kernel.org with ESMTP
-	id S1751348AbWILVVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 17:21:25 -0400
-Date: Tue, 12 Sep 2006 23:21:24 +0200 (CEST)
-From: Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: thinkpad 360Cs keyboard problem
-In-Reply-To: <d120d5000609121012o684a098bx6bc2d497a17b1421@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0609121950381.2685@Jerry.zjeby.dyndns.org>
-References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org> 
- <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org> 
- <20060910194955.GA1841@elf.ucw.cz>  <200609102054.34350.dtor@insightbb.com>
-  <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org> 
- <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com> 
- <Pine.LNX.4.63.0609121611380.2685@Jerry.zjeby.dyndns.org>
- <d120d5000609121012o684a098bx6bc2d497a17b1421@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 12 Sep 2006 17:23:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15048 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751398AbWILVXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 17:23:44 -0400
+Subject: Re: [RFC] MMIO accessors & barriers documentation
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <8A2F9DF4-1A17-454C-8243-8F86CF04F763@kernel.crashing.org>
+References: <1157947414.31071.386.camel@localhost.localdomain>
+	 <1157965071.23085.84.camel@localhost.localdomain>
+	 <1157966269.3879.23.camel@localhost.localdomain>
+	 <1157969261.23085.108.camel@localhost.localdomain>
+	 <m1pse17hzi.fsf@ebiederm.dsl.xmission.com>
+	 <1158040605.15465.70.camel@localhost.localdomain>
+	 <m1d5a17g5u.fsf@ebiederm.dsl.xmission.com>
+	 <1158045200.15465.94.camel@localhost.localdomain>
+	 <8A2F9DF4-1A17-454C-8243-8F86CF04F763@kernel.crashing.org>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 07:22:05 +1000
+Message-Id: <1158096125.3337.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
 
-> On 9/12/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
->>  On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
->> 
->> >  On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
->> 
->> > >   kernel boots up fine, but keyboard is totally messed up,
->> > >   and locks up after some tries of use.
->> > 
->> >  Could you try describing the exact issues with the keyboard? Missing
->> >  keypresses, wrong keys reported, etc?
->>
->>  with prink enabled it prints series of 'unknown scancode'
->>  and keys are randomly messed up, and it changes, so like pressing b
->>  results with n, then space, then nothing at all.
->>  after some tries keyboard locks up completely.
->> 
->
-> Are you loading a custom keymap by any chance? Could I please see
-> dmesg with "i8042.debug log_buf_len=131072"?
+> Or you do the sane thing and just not allow two threads of execution
+> access to the same I/O device at the same time.
 
-no custom keymaps . init=/bin/bash :d
-uhm, i don't get what you mean by this dmesg syntax :o
-i should probably attach serial conole and send you whole output,
-as now (as keyboard is unuseable) i can't scroll screen.
+Why ? Some devices are designed to be able to handle that...
 
-btw. serio: i8042 KBD port at 0x60,0x64 irq 1
-is found.
-also
-input: AT Raw Set 2 keyboard as /class/input/input1
-is reported
+> Now compare this with the similar scenario for "normal" MMIO, where
+> we do store;sync (or sync;store or even sync;store;sync) for every
+> writel() -- exactly the same problem.
 
-ah, i use gcc-4.1.1 to compile kernel .
+What problem ? "Normal" MMIO doesn't get combined, thus there is no
+problem. Of course there is no guarantee of ordering of the stores from
+the 2 CPUs unless there is a spinlock etc etc... but we are talking
+about a case where that is acceptable here. Howver, combining is not.
 
+> Better lock at a higher level than just per instruction.
+> 
+> Some devices that want to support multiple clients at the same time
+> have multiple identical "register files", one for each client, to
+> prevent this and other problems (and it's useful anyway).
 
--------------------- stuff below might be result of my ignorance
+Yes, they do, and what happen if those register "files" happen to be
+consecutive in the address space and the CPU suddenly combines a store
+to the last register of one "file" and an unrelated store from another
+thread to the first register of the other ?
 
-i just checked 2.2.27 kernel. it behaves quite identical to 2.4.33.3,
-just after 'freeing unused kernel memory' it touches disk , and just
-sits there. kepresses are echoed, and keyboard output is 
-ok. i can reboot it by ctrl-alt-delete too .
-when i boot it with 'fosh' shell commandline appears, but trying
-to use any tool like bash, ls , etc results with signal 11.
-tools are statically compiled against glibc-2.4 (compiled for 486 cpu
-on gentoo)
-busybox works fine.
+This is a very specific problem that has nothing to do with your "grand
+general case" which means that at least on Cell, you cannot use explicit
+barriers to guarantee the absence of write combining. That's as simple
+as that. All I need to figure out now is if that problem is specific to
+one CPU implementation or more general, in which case, we'll have to
+figure out some way to provide an interface.
 
-on 2.4.33.3 kernel Xvesa (from kdrive package) complains
-'set_thread_area failed when setting up thread-local storage'
+> > Anyway, let's not pollute this discussion with that too much now :)
+> 
+> Au contraire -- if you're proposing to hugely invasively change some
+> core interface, and add millions of little barriers(*), you better
+> explain how this is going to help us tackle the problems (like WC) that
+> we are starting to see already, and that will be a big deal in the
+> near future.
 
-cardmgr works fine aswell...(though was linked against different glibc)
-  i guess there is some problem with math emulation and glibc,
-as on 2.6.18 everything works just fine.
+No, this is totally irrelevant. I'm proposing a simple change (nothing
+invasive there) to the MMIO accessors of weakly ordered platforms only,
+to make them guarantee ordering like x86 etc... and I'm proposing the
+-addition- (which is not something I would cause invasive) of -one-
+class of partially relaxed accessors and the -few- (damn, there are only
+4 of them) barriers that precisely match the semantics that drivers
+need. Oh, and make sure those semantics are well defined or they are
+useless.
 
-i recall few years ago i tried to make 386SX work on 2.4.20 , and 
-there were problems with math emulation (some apps worked, some not)
+This has strictly nothing to do with WC and mixing things up will only
+confuse the discussion and guarantee that we'll never get anything done.
 
+<snip useless digression>
 
-
-
+Ben.
 
 

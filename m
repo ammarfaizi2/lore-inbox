@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWILKkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWILKjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWILKkB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 06:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWILKkB
+	id S1030191AbWILKjx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 06:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWILKjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 06:40:01 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:60760 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030193AbWILKkA (ORCPT
+	Tue, 12 Sep 2006 06:39:53 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:45902 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030191AbWILKjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 06:40:00 -0400
-Message-ID: <45068E83.5070509@openvz.org>
-Date: Tue, 12 Sep 2006 14:40:03 +0400
+	Tue, 12 Sep 2006 06:39:52 -0400
+Message-ID: <45068E7C.908@openvz.org>
+Date: Tue, 12 Sep 2006 14:39:56 +0400
 From: Pavel Emelianov <xemul@openvz.org>
 User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0

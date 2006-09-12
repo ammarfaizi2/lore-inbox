@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWILPPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWILPQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWILPPF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 11:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWILPPE
+	id S1030214AbWILPQI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 11:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWILPQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 11:15:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13783 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030205AbWILPPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 11:15:02 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, containers@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch -mm] update mq_notify to use a struct pid
-References: <45019CC3.2030709@fr.ibm.com>
-	<m18xktkbli.fsf@ebiederm.dsl.xmission.com>
-	<450537B6.1020509@fr.ibm.com>
-	<m1u03eacdc.fsf@ebiederm.dsl.xmission.com>
-	<45056D3E.6040702@fr.ibm.com>
-	<m14pve9qip.fsf@ebiederm.dsl.xmission.com>
-	<20060912110559.GD23808@MAIL.13thfloor.at>
-Date: Tue, 12 Sep 2006 09:14:02 -0600
-In-Reply-To: <20060912110559.GD23808@MAIL.13thfloor.at> (Herbert Poetzl's
-	message of "Tue, 12 Sep 2006 13:05:59 +0200")
-Message-ID: <m1mz955d8l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Sep 2006 11:16:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12714 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030214AbWILPQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 11:16:05 -0400
+Subject: Re: Standalone PATA drivers patch for testing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Martin Lucina <mato@kotelna.sk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060912112056.GB4789@dezo.moloch.sk>
+References: <20060912112056.GB4789@dezo.moloch.sk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Sep 2006 16:39:25 +0100
+Message-Id: <1158075565.6780.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> writes:
+Ar Maw, 2006-09-12 am 13:20 +0200, ysgrifennodd Martin Lucina:
+> 2.6.17.X/2.6.18-rcX kernel or should I just use the -mm tree?  I grabbed
+> Alan's patch-2.6.17-ide1.gz way back when but this is obviously now very
+> much out of date.
 
-> I already did a lot of adjustments to the nfs system, and
-> I poked aound in dvb-core before, so I will take a look
-> at this in the next few days, at least the switch to the
-> kthread api should not be a big deal ...
+Its somewhat tied to the -mm ata and scsi stuff now so the best approach
+is to use -mm, or wait for 19-rc.
 
-Ok.  If you can get this it would be great.
+Alan
 
-To some extent the last holdouts on the kernel_thread api seem to
-be the ones that are not trivial to convert :(
-
-Eric

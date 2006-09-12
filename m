@@ -1,115 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWILAg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWILAhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWILAg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 20:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWILAg5
+	id S965213AbWILAhO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 20:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWILAhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 20:36:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36056 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965211AbWILAg5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 20:36:57 -0400
-Message-ID: <4506011F.9080708@ce.jp.nec.com>
-Date: Mon, 11 Sep 2006 20:36:47 -0400
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-CC: rdunlap@xenotime.net, Alasdair Kergon <agk@redhat.com>
-Subject: [-mm patch] Correct add_bd_holder() return value
-Content-Type: multipart/mixed;
- boundary="------------070007040202040504040804"
+	Mon, 11 Sep 2006 20:37:14 -0400
+Received: from hu-out-0506.google.com ([72.14.214.224]:31942 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965213AbWILAhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 20:37:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=KJQd1bToQo9IjScqYudb+hJNk5Ab+hRMyrZAhXGKnfXqYpVm6suCKXD/z+HSWh2PQK71KhTv4ddAyzlyDqT6EMjHVh6qE8X7d9X8k7j1gNhGO+UHnyC+EMgPyyZTe7jcifg5UU8KyT6cEPIHVwao/uUULUR/0Sl2N8u0RrV969Q=
+Date: Tue, 12 Sep 2006 04:37:12 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] kmemdup: introduce (updated)
+Message-ID: <20060912003711.GA5192@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070007040202040504040804
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+signed-off-by + updated changelog. second patch remains as is.
+------------
+One of idiomatic ways to duplicate a region of memory is
 
-Hi,
+	dst = kmalloc(len, GFP_KERNEL);
+	if (!dst)
+		return -ENOMEM;
+	memcpy(dst, src, len);
 
-In blockdevc-check-errors.patch, add_bd_holder() is modified to
-return error values when some of its operation failed.
-Among them, it returns -EEXIST when a given bd_holder object already
-exists in the list.
-However, in this case, the function completed its work successfully
-and need no action by its caller other than freeing unused bd_holder
-object.
-So I think it's better to return success after freeing by itself.
+which is neat code except a programmer needs to write size twice.  Which
+sometimes leads to mistakes.  If len passed to kmalloc is smaller that len
+passed to memcpy, it's straight overwrite-beyond-end.  If len passed to
+memcpy is smaller than len passed to kmalloc, it's either a) legit
+behaviour ;-), or b) cloned buffer will contain garbage in second half.
 
-Otherwise, bd_claim-ing with same claim pointer will fail.
-Typically, lvresize will fails with following message:
-  device-mapper: reload ioctl failed: Invalid argument
-and you'll see messages like below in kernel log:
-  device-mapper: table: 254:13: linear: dm-linear: Device lookup failed
-  device-mapper: ioctl: error adding target to table
+Slight trolling of commit lists shows several duplications bugs
+done exactly because of diverged lenghts:
 
-Similarly, it should not add bd_holder to the list if either one
-of symlinking fails. I don't have a test case for this to happen
-but it should cause dereference of freed pointer.
+	Linux:
+		[CRYPTO]: Fix memcpy/memset args.
+		[PATCH] memcpy/memset fixes
+	OpenBSD:
+		kerberosV/src/lib/asn1: der_copy.c:1.4
 
-Thanks,
--- 
-Jun'ichi Nomura, NEC Corporation of America
+If programmer is given only one place to play with lengths, I believe, such
+mistakes could be avoided.
 
---------------070007040202040504040804
-Content-Type: text/x-patch;
- name="correct-add_bd_holder-return-value.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="correct-add_bd_holder-return-value.patch"
+With kmemdup, the snippet above will be rewritten as:
 
-If a matching bd_holder is found in bd_holder_list,
-add_bd_holder() completes its job by just incrementing the reference count.
-In this case, it should be considered as success but it used to return 'fail'
-to let the caller free temporary bd_holder.
-Fixed it to return success and free given object by itself.
+	dst = kmemdup(src, len, GFP_KERNEL);
+	if (!dst)
+		return -ENOMEM;
 
-Also, if either one of symlinking fails, the bd_holder should not
-be added to the list so that it can be discarded later.
-Otherwise, the caller will free bd_holder which is in the list.
+This also leads to smaller code (kzalloc effect). Quick grep shows
+200+ places where kmemdup() can be used.
 
-This patch is neccessary only for -mm (later than 2.6.18-rc1-mm1).
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
- fs/block_dev.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ include/linux/string.h |    1 +
+ mm/util.c              |   18 ++++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
-diff -urp linux-2.6.18-rc5-mm1.orig/fs/block_dev.c linux-2.6.18-rc5-mm1/fs/block_dev.c
---- linux-2.6.18-rc5-mm1.orig/fs/block_dev.c	2006-09-11 19:33:35.000000000 -0400
-+++ linux-2.6.18-rc5-mm1/fs/block_dev.c	2006-09-11 19:21:46.000000000 -0400
-@@ -655,8 +655,8 @@ static void free_bd_holder(struct bd_hol
-  * If there is no matching entry with @bo in @bdev->bd_holder_list,
-  * add @bo to the list, create symlinks.
-  *
-- * Returns 0 if @bo was added to the list.
-- * Returns -ve if @bo wasn't used by any reason and should be freed.
-+ * Returns 0 if symlinks are created or already there.
-+ * Returns -ve if something fails and @bo can be freed.
-  */
- static int add_bd_holder(struct block_device *bdev, struct bd_holder *bo)
- {
-@@ -669,7 +669,9 @@ static int add_bd_holder(struct block_de
- 	list_for_each_entry(tmp, &bdev->bd_holder_list, list) {
- 		if (tmp->sdir == bo->sdir) {
- 			tmp->count++;
--			return -EEXIST;
-+			/* We've already done what we need to do here. */
-+			free_bd_holder(bo);
-+			return 0;
- 		}
- 	}
+--- a/include/linux/string.h~kmemdup-introduce
++++ a/include/linux/string.h
+@@ -99,6 +99,7 @@ extern void * memchr(const void *,int,__
+ #endif
  
-@@ -682,7 +684,8 @@ static int add_bd_holder(struct block_de
- 		if (ret)
- 			del_symlink(bo->sdir, bo->sdev);
- 	}
--	list_add_tail(&bo->list, &bdev->bd_holder_list);
-+	if (ret == 0)
-+		list_add_tail(&bo->list, &bdev->bd_holder_list);
- 	return ret;
+ extern char *kstrdup(const char *s, gfp_t gfp);
++extern void *kmemdup(const void *src, size_t len, gfp_t gfp);
+ 
+ #ifdef __cplusplus
  }
+diff -puN mm/util.c~kmemdup-introduce mm/util.c
+--- a/mm/util.c~kmemdup-introduce
++++ a/mm/util.c
+@@ -40,6 +40,24 @@ char *kstrdup(const char *s, gfp_t gfp)
+ }
+ EXPORT_SYMBOL(kstrdup);
+ 
++/**
++ * kmemdup - duplicate region of memory
++ *
++ * @src: memory region to duplicate
++ * @len: memory region length
++ * @gfp: GFP mask to use
++ */
++void *kmemdup(const void *src, size_t len, gfp_t gfp)
++{
++	void *p;
++
++	p = ____kmalloc(len, gfp);
++	if (p)
++		memcpy(p, src, len);
++	return p;
++}
++EXPORT_SYMBOL(kmemdup);
++
+ /*
+  * strndup_user - duplicate an existing string from user space
+  *
 
---------------070007040202040504040804--

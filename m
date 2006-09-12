@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWILO0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWILOY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965235AbWILO0A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWILO0A
+	id S965229AbWILOY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWILOY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:26:00 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:20186 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S965230AbWILOZ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:25:59 -0400
-Date: Tue, 12 Sep 2006 07:25:42 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/18] 2.6.17.9 perfmon2 patch for review: new i386 files
-Message-ID: <20060912142542.GC2491@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200608230806.k7N8654c000504@frankl.hpl.hp.com> <p733bbn7m6o.fsf@verdi.suse.de> <20060825124905.GD5330@frankl.hpl.hp.com> <200608251513.58729.ak@suse.de> <20060912140453.GB2491@frankl.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060912140453.GB2491@frankl.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Tue, 12 Sep 2006 10:24:28 -0400
+Received: from bcp12.neoplus.adsl.tpnet.pl ([83.27.231.12]:4508 "EHLO
+	Jerry.zjeby.dyndns.org") by vger.kernel.org with ESMTP
+	id S965229AbWILOY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 10:24:28 -0400
+Date: Tue, 12 Sep 2006 16:24:19 +0200 (CEST)
+From: Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: thinkpad 360Cs keyboard problem
+In-Reply-To: <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0609121611380.2685@Jerry.zjeby.dyndns.org>
+References: <Pine.LNX.4.63.0609100119180.2685@Jerry.zjeby.dyndns.org> 
+ <Pine.LNX.4.63.0609102137240.2685@Jerry.zjeby.dyndns.org> 
+ <20060910194955.GA1841@elf.ucw.cz>  <200609102054.34350.dtor@insightbb.com>
+  <Pine.LNX.4.63.0609120209590.2685@Jerry.zjeby.dyndns.org>
+ <d120d5000609120705r26a25b44q7533c528bccb25bf@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Tue, 12 Sep 2006, Dmitry Torokhov wrote:
 
-On Tue, Sep 12, 2006 at 07:04:53AM -0700, Stephane Eranian wrote:
-> Andi,
-> 
-> On Fri, Aug 25, 2006 at 03:13:58PM +0200, Andi Kleen wrote:
-> 
-> > > Are we already running with cr4.pce set today?
-> > 
-> > Not yet. But soon.
-> >  
-> > > The cr4.pce allows all PMC (counter) to be read at user level, not just perfctr0.
-> > > When enabled all counters are readable at user level from any process. A process
-> > > can see the value accumulated by another process (assuming monitoring in per-thread
-> > > mode).
-> > 
-> > Yes, we'll have to live with that.
-> > 
-> > > Some people may see this as a security risk.
-> > 
-> > Maybe some paranoiacs, but we normally don't design software for these people's
-> > obsessions.
-> > 
-> > > On the other hand all you see  
-> > > is counts.
-> > 
-> > Exactly. And you always have RDTSC anyways.
-> > 
-> > 
-> > > So as long as the i386/x86_64 PMU only collect counts, this could be 
-> > > fine. The day they can capture addresses, this becomes more problematic, I think.
-> > 
-> > We can worry about it when it happens. Whenever anyone adds that capability
-> > to the hardware they will hopefully add new separate ring 3 control bits.
-> > 
-> Just a follow-up on this. It already exists.
-> 
-> On the P4, I am planning on exporting the Last Brnch Record Stack (LBR Stack) to users of perfmon.
-> This provides some branch buffer similar to what we have on Itanium. Obviously, the MSRs do contains
-> addresses (source/target of branches).
-> 
-I did some more checking on this.
-I think we are fine, because you need to use RDPMC to access from userland when cr4.pce=1 and it
-gives access ONLY to MSR that contain counters, not all performance monitoring related MSRs.
+> On 9/11/06, Piotr Gluszenia Slawinski <curious@zjeby.dyndns.org> wrote:
+>>  well, certainly 2.6.18 issue...
+>
+> Are you saying that it works on 2.6.17 and is broken on 2.6.18?
 
--- 
--Stephane
+no, it works on 2.4.20. i didn't tried yet with other 2.6.x versions.
+
+btw. now i compiled 2.4.33.3 using gcc 3.4.6 ,
+and even though i used 486 in cpu type resulting binary requires
+TSC+ from cpu :o (now recompiling with gcc-2.95.3 , and
+config_notsc and it seems to boot up)
+
+however weird behaviour aswell, because stops just after init...
+no matter wheter i use init=/bin/bash or regular init.
+it reports mounting root fs (ext2), then freeing unused kernel
+mem (52k) and stops .
+
+when i press keys i see output like it should be , so at least
+keyboard work :)
+
+with 2.6.18-rc5 it boots just fine, but ofcourse keyboard is
+broken.
+
+>>  kernel boots up fine, but keyboard is totally messed up,
+>>  and locks up after some tries of use.
+>
+> Could you try describing the exact issues with the keyboard? Missing
+> keypresses, wrong keys reported, etc?
+
+with prink enabled it prints series of 'unknown scancode'
+and keys are randomly messed up, and it changes, so like pressing b
+results with n, then space, then nothing at all.
+after some tries keyboard locks up completely.
+
+so wrong keys reported

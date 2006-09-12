@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWILOtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWILOyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWILOtT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 10:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWILOtT
+	id S1030225AbWILOyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 10:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWILOyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 10:49:19 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:5395 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030218AbWILOtS (ORCPT
+	Tue, 12 Sep 2006 10:54:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:44737 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030225AbWILOyu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 10:49:18 -0400
-Message-ID: <4506C9C1.4080902@openvz.org>
-Date: Tue, 12 Sep 2006 18:52:49 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: Pete Zaitcev <zaitcev@redhat.com>,
-       Linux Containers <containers@lists.osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [Devel] Re: [PATCH] usb: Fixup usb so it uses struct pid
-References: <m1hczgfi3h.fsf@ebiederm.dsl.xmission.com>	<20060910111249.c2e9c5f2.zaitcev@redhat.com> <m1d5a3ebex.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1d5a3ebex.fsf@ebiederm.dsl.xmission.com>
+	Tue, 12 Sep 2006 10:54:50 -0400
+Date: Tue, 12 Sep 2006 07:55:09 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: David Howells <dhowells@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+Message-ID: <20060912145509.GE1291@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060911162059.GA1496@us.ibm.com> <Pine.LNX.4.44L0.0609082216070.8541-100000@netrider.rowland.org> <32145.1158051703@warthog.cambridge.redhat.com> <200609121222.01260.oliver@neukum.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200609121222.01260.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pete Zaitcev <zaitcev@redhat.com> writes:
-
->>> Holding a reference
->>>to a struct pid avoid that problem, and paves the way
->>>for implementing a pid namespace.
->>
->>That may be useful.
->>
->>The patch itself seems straightforward if we can trust your struct
->>pid thingies. If OpenVZ people approve, I don't mind.
+On Tue, Sep 12, 2006 at 12:22:00PM +0200, Oliver Neukum wrote:
+> Am Dienstag, 12. September 2006 11:01 schrieb David Howells:
+> > Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> > 
+> > > 2.	All stores to a given single memory location will be perceived
+> > > 	as having occurred in the same order by all CPUs.
+> > 
+> > Does that take into account a CPU combining or discarding coincident memory
+> > operations?
+> > 
+> > For instance, a CPU asked to issue two writes to the same location may discard
+> > the first if it hasn't done it yet.
 > 
+> Does it make sense? If you do:
+> mov #x, $a
+> wmb
+> mov #y, $b
+> wmb
+> mov #z, $a
 > 
-> So far I haven't seen any complaints on that score.  None from
-> the mainstream kernel folks the vserver guys or the OpenVz guys.
-> struct pid itself is in 2.6.18, performing this same function for
-> proc, but not all of the helper functions have made it beyond -mm
-> yet.  Most of the rest should make it into 2.6.19.
-at this stage these patches look fine.
+> The CPU must not discard any write. If you do
+> 
+> mov #x, $a
+> mov #y, $b
+> wmb
+> mov #z, $a
+> 
+> The first store to $a is superfluous if you have only inter-CPU
+> issues in mind.
 
-Thanks,
-Kirill
+In both cases, the CPU might "discard" the write, if there are no intervening
+reads or writes to the same location.  The only difference between your
+two examples is the ordering of the first store to $a and the store to $b.
+In your first example, other CPUs must see the first store to $a as happening
+first, while in your second example, other CPUs might see the store to $b
+as happening first.
+
+							Thanx, Paul

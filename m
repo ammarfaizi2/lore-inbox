@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWILChz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWILClo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWILChz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Sep 2006 22:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbWILChz
+	id S965087AbWILClo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Sep 2006 22:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWILClo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Sep 2006 22:37:55 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:63066 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965133AbWILChy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Sep 2006 22:37:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Du93Rqdz5+57o/f6GsvSWJeGoKKAzOhXEVhVSUqDXDeRNXcCSTf+xkI8duyKTgZVxkGSjO64h9Ffuyx8h6GCBxdqE8wU4xaamL+kgERDMgfV0WkTT1XcaRMnfUinBDXM+WvW+ypExb2LhqDk2mNiAVbbcZvIJMTw9wNUuCOsTTs=
-Message-ID: <653402b90609111937i1d986331kc5ed167cb08831b7@mail.gmail.com>
-Date: Tue, 12 Sep 2006 04:37:53 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Alexey Dobriyan" <adobriyan@gmail.com>
-Subject: Re: [PATCH 2/2] display: Driver ks0108 and cfag12864b
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060912011346.GB5192@martell.zuzino.mipt.ru>
+	Mon, 11 Sep 2006 22:41:44 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:58313 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965087AbWILCln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Sep 2006 22:41:43 -0400
+Message-ID: <45061E63.6010901@garzik.org>
+Date: Mon, 11 Sep 2006 22:41:39 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
+To: Dan Williams <dan.j.williams@intel.com>
+CC: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, christopher.leech@intel.com
+Subject: Re: [PATCH 00/19] Hardware Accelerated MD RAID5: Introduction
+References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>	 <4505F358.3040204@garzik.org> <e9c3a7c20609111653v29cd4609hd0584ae300b735b7@mail.gmail.com>
+In-Reply-To: <e9c3a7c20609111653v29cd4609hd0584ae300b735b7@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <653402b90609111627q661cded8l757129311fbe92d4@mail.gmail.com>
-	 <653402b90609111657r1fa861e0gf4d71508df60a5ec@mail.gmail.com>
-	 <20060912011346.GB5192@martell.zuzino.mipt.ru>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> arrrrggg....  I'm in the middle of reading every module_init and every
-> module_exit func, and this starts getting really annoying....
->
+Dan Williams wrote:
+> This is a frequently asked question, Alan Cox had the same one at OLS.
+> The answer is "probably."  The only complication I currently see is
+> where/how the stripe cache is maintained.  With the IOPs its easy
+> because the DMA engines operate directly on kernel memory.  With the
+> Promise card I believe they have memory on the card and it's not clear
+> to me if the XOR engines on the card can deal with host memory.  Also,
+> MD would need to be modified to handle a stripe cache located on a
+> device, or somehow synchronize its local cache with card in a manner
+> that is still able to beat software only MD.
 
-Anyway, thank you for you time reviewing it. :)
+sata_sx4 operates through [standard PC] memory on the card, and you use 
+a DMA engine to copy memory to/from the card.
 
+[select chipsets supported by] sata_promise operates directly on host 
+memory.
 
->         5. In case of error during initialization, error code SHOULD be
->            propagated as is to upper layers, either via direct
->            assignment/return or via decoding from pointer.
->
+So, while sata_sx4 is farther away from your direct-host-memory model, 
+it also has much more potential for RAID acceleration:  ideally, RAID1 
+just copies data to the card once, then copies the data to multiple 
+drives from there.  Similarly with RAID5, you can eliminate copies and 
+offload XOR, presuming the drives are all connected to the same card.
 
-What do you mean? I thought returning the error code was enough.
-
-
->         6. Error messages SHOULD start with short unique prefix specific to
->            driver. Module name without .o and .ko is fine.
-
-They do 8)
-
-#define PRINTK_PREFIX PRINTK_INFO NAME ": "
-
-printk(PRINTK_PREFIX "Init... ");
-
-Then, if a error appears: printk("ERROR - kmalloc\n");
-
-Final string: "<i>cfag12864b: Init... ERROR - kmalloc"
-
-The only bad point: If some other printk is called from other module
-between. Should I change it?
+	Jeff
 
 
-    Miguel Ojeda

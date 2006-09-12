@@ -1,96 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965203AbWILMg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbWILMi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965203AbWILMg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 08:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWILMg5
+	id S965212AbWILMi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 08:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWILMi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 08:36:57 -0400
-Received: from relay4.ptmail.sapo.pt ([212.55.154.24]:61584 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S965203AbWILMgz (ORCPT
+	Tue, 12 Sep 2006 08:38:56 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:12505 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965212AbWILMiz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 08:36:55 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Stian Jordet <liste@jordet.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
-       akpm@osdl.org, torvalds@osdl.org, jeff@garzik.org, greg@kroah.com,
-       cw@f00f.org, bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       harmon@ksu.edu, len.brown@intel.com, vsu@altlinux.ru
-In-Reply-To: <1158010698.23135.1.camel@localhost.localdomain>
-References: <20060907223313.1770B7B40A0@zog.reactivated.net>
-	 <1157811641.6877.5.camel@localhost.localdomain>
-	 <4502D35E.8020802@gentoo.org>
-	 <1157817836.6877.52.camel@localhost.localdomain>
-	 <45033370.8040005@gentoo.org>
-	 <1157848272.6877.108.camel@localhost.localdomain>
-	 <450436F1.8070203@gentoo.org>
-	 <1157906395.23085.18.camel@localhost.localdomain>
-	 <4504621E.5090202@gentoo.org>
-	 <1157917308.23085.26.camel@localhost.localdomain>
-	 <1157916102.21295.9.camel@localhost.localdomain>
-	 <1157988809.13889.5.camel@localhost.localdomain>
-	 <1158005769.4748.0.camel@localhost.localdomain>
-	 <1158009834.3434.4.camel@localhost.portugal>
-	 <1158010698.23135.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 12 Sep 2006 13:37:20 +0100
-Message-Id: <1158064640.13591.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Sep 2006 08:38:55 -0400
+Message-ID: <4506AA5D.7090406@garzik.org>
+Date: Tue, 12 Sep 2006 08:38:53 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Martin Lucina <mato@kotelna.sk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Standalone PATA drivers patch for testing
+References: <20060912112056.GB4789@dezo.moloch.sk>
+In-Reply-To: <20060912112056.GB4789@dezo.moloch.sk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-11 at 23:38 +0200, Stian Jordet wrote: 
-> On man, 2006-09-11 at 22:23 +0100, Sergio Monteiro Basto wrote:
-> > On Mon, 2006-09-11 at 22:16 +0200, Stian Jordet wrote:
-> > > On man, 2006-09-11 at 16:33 +0100, Sergio Monteiro Basto wrote:
-> > > > On Sun, 2006-09-10 at 21:21 +0200, Stian Jordet wrote:
-> > > > > On søn, 2006-09-10 at 20:41 +0100, Alan Cox wrote:
-> > > > > > Feel free to cc me the lspci data and partial diagnostics and I'll try
-> > > > > > and help too.
-> > > > > 
-> > > > > Attached is lspci -xxx and dmesg from 2.6.18-rc6.
-> > > > > http://bugzilla.kernel.org/show_bug.cgi?id=2874 has some further
-> > > > > information about this (stupid) motherboard. Anything else you need?
-> > > > > 
-> > > > > If anyone can help me with this, I'll promise to send the hero some
-> > > > > boxes of Norwegian beer!
-> > > > > 
-> > > > > 
-> > > > Hi, this isn't the case of one USB with IO-APIC-level on legacy
-> > > > interrupts ? 
-> > > >  11:       5333       5326   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3
-> > > > 
-> > > > if it is , was resolved with this [PATCH V3] VIA IRQ quirk behaviour change ? 
-> > > 
-> > > I have no idea what you mean here, but it's by no means fixed by that
-> > > patch, actually it just got worse (usb didn't work, but still got
-> > > interrupts from eth0 - and it still used irq 11)
-> > 
-> > What ?! Aren't we talk about this computer 
-> > http://lkml.org/lkml/2006/9/6/178
-> > and this 
-> > http://lkml.org/lkml/2006/9/7/220
-> > 
-> > if you don't get your device quirked we have add your hardware to the
-> > list ...
+Martin Lucina wrote:
+> Hi,
 > 
-> That last patch there, made my system work (but that bugzilla bug is
-> still a problem). So with that last patch, my system works just as good
-> as it always has, if that's what you're trying to ask :)
+> I'd like to help test the new libata-based PATA drivers since they solve
+> specific problems I've been having with my workstation hardware (Intel
+> ICH7 with SATA and PATA devices attached).  
+> 
+> Is there a way to obtain a standalone patch I can apply against a
+> 2.6.17.X/2.6.18-rcX kernel or should I just use the -mm tree?  I grabbed
+> Alan's patch-2.6.17-ide1.gz way back when but this is obviously now very
+> much out of date.
 
-Ok, as a quick answer, you have a very primitive VIA SMP board, which
-make me remember my old laptop. 
-I maintain what a had write in previous emails about this system. 
-Seeing the configuration of irqs on windows, USB are in 9, so could be a
-clue.
-If I had your board, I'll try not quirk USB (cause quirk put USB in 11)
-and make USB interrupts work as IO-APIC-edge.
-9:       nnnn       nnnn   IO-APIC-edge  uhci_hcd:usb1, uhci_hcd:usb2,
-uhci_hcd:usb3
+You can easily generate it from libata-dev.git.
 
---
-Sérgio M. B. 
+git diff master..upstream
 

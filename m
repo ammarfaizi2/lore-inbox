@@ -1,67 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWILWRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWILWdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWILWRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 18:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWILWRP
+	id S932252AbWILWdB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 18:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWILWdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 18:17:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61867 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030361AbWILWRO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 18:17:14 -0400
-Subject: Re: fix 2.4.33.3 / sun partition size
-From: "Tom 'spot' Callaway" <tcallawa@redhat.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
-       sparclinux@vger.kernel.org
-In-Reply-To: <20060912191736.GG541@1wt.eu>
-References: <DA6197CAE190A847B662079EF7631C06015692C2@OEKAW2EXVS03.hbi.ad.harman.com>
-	 <20060912191736.GG541@1wt.eu>
-Content-Type: text/plain
-Organization: Red Hat
-Date: Tue, 12 Sep 2006 17:17:08 -0500
-Message-Id: <1158099428.13234.232.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-1.fc6) 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Sep 2006 18:33:01 -0400
+Received: from chain.digitalkingdom.org ([64.81.49.134]:16346 "EHLO
+	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
+	id S932252AbWILWdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 18:33:00 -0400
+Date: Tue, 12 Sep 2006 15:32:58 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM
+Message-ID: <20060912223258.GM4612@chain.digitalkingdom.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Robin Lee Powell <rlpowell@digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 21:17 +0200, Willy Tarreau wrote:
-> On Tue, Sep 12, 2006 at 01:23:56PM +0200, Jurzitza, Dieter wrote:
-> > Kernel: 2.4.33
-> > 
-> > Issue: really fix size display for sun partitions larger than 1TByte
-> > 
-> > Signed off by: Dieter Jurzitza DJurzitza@HarmanBecker.com
-> > 
-> > Problem: the last fix introduced by Jeff Mahoney for kernel 2.6 was not complete for kernel 2.4 (as applied)
-> > I found out that add_gd_partition is called by any type of partition (2.4). add_gd_partition is defined as add_gd_partition (int, int), what makes no sense to me as negative numbers should never occur here. As long as add_gd_partition is not changed to add_gd_partition (unsigned, unsigned), /proc/partitions will keep showing negative numbers.
-> 
-> It seems fair. David, what's your opinion ?
-> 
-> > If ever someone could look into this, within the different partition type files in linux/fs/partitions the parameters to add_gd_partitions seem to be chosen arbitrarily between int, unsigned and unsigned long, whatever seemed to be appropriate, I think it would make sense to get consistent parameters to add_gd_partition from all partition types here.
-> > Especially if one takes into account that sizeof (long) and sizeof (int) may differ significantly i. e. on sparc.
-> 
-> It would really depend on the on-disk format. If the partition table really
-> stores 32 bit ints for sector counts, there's no point switching from ints
-> to longs. But if it already stores 64 bits, then we're limiting it to 2 TB
-> with 32 bit ints. I haven't checked the code right now, so I don't know. I
-> hope Davem will enlighten us on this matter.
 
-I think Davem may be on vacation...
+Please cc me on replies, as I'm not on the list.
 
-~spot
--- 
-Tom "spot" Callaway || Red Hat || Fedora || Aurora || GPG ID: 93054260
+I have some moderately old hosts that hang on boot, very early on,
+with any kernel newer than 2.6.3.  Important basic facts about the
+box are dual opteron 244s, 16gb of RAM, and it's a 64-bit build of
+the kernel.  We've tried both MK8 and CONFIG_MK8 and
+CONFIG_GENERIC_CPU to no avail.  Hell, I think I've tried just about
+everything at this point.
 
-"We must not confuse dissent with disloyalty. We must remember always
-that accusation is not proof and that conviction depends upon evidence
-and due process of law. We will not walk in fear, one of another. We
-will not be driven by fear into an age of unreason, if we dig deep in
-our history and our doctrine, and remember that we are not descended
-from fearful men -- not from men who feared to write, to speak, to
-associate and to defend causes that were, for the moment, unpopular."
--- Edward R. Murrow, March 9, 1954
+In most cases the stopping point is:
 
+[snip]
+    Initializing CPU#0
+[snip]
+    CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+    CPU: L2 Cache: 1024K (64 bytes/line)
+    CPU 0/0(1) -> Node 0 -> Core 0
+
+(see below for complete version)
+
+Whether that last line shows up or not is based on BIOS configs,
+AFAICT.
+
+I've been working on these for several days now, and I'm totally
+stumped.  I'll generate any data any of you ask for that might be
+useful, and I'll be appending a lot of data here.
+
+The kernel I'm actually trying to get working is 2.6.17.11, but I've
+tried all of the following:
+
+linux-2.6.2
+linux-2.6.3
+linux-2.6.4
+linux-2.6.6
+linux-2.6.10
+linux-2.6.17.11
+
+Only the first two work.
+
+For all of them except 2.6.17.11, the config was just the config
+from the known-working 2.6.2, make oldconfig, hold down the return
+button.  2.6.17.11 I played with a bit more.
+
+The original 2.6.2 working .config is
+http://teddyb.org/~rlpowell/media/regular/lkml/orig.config.txt
+
+The current 2.6.17.11 .config is
+http://teddyb.org/~rlpowell/media/regular/lkml/current.config.txt
+
+The full boot with apci on is
+http://teddyb.org/~rlpowell/media/regular/lkml/apci_boot.txt
+
+The full boot with apci off is
+http://teddyb.org/~rlpowell/media/regular/lkml/noapci_boot.txt
+
+This version is rather different, as it ends in:
+
+    HARDWARE ERROR
+    CPU 0: Machine Check Exception:                7 Bank 3: b40000000000083b
+    RIP 10:<ffffffff80446e3e> {pci_conf1_read+0xbe/0xf0}
+    TSC 2e7932dbf8 ADDR fdfc000cfc
+    This is not a software problem!
+    Run through mcelog --ascii to decode and contact your hardware vendor
+    Kernel panic - not syncing: Uncorrected machine check
+
+We believe this to be spurious, as both machines of this type we've
+tested showed the same error, and both of them have been running
+with 2.6.2 for years.
+
+The motherboard is, apparently, a RioWorks Rhapsody HDAMA, whatever that is.
+We are not on the latest BIOS revision, but then the changes between 1.84
+(which we're on) and 1.89 don't look relevant.
+
+BIOS information is
+http://teddyb.org/~rlpowell/media/regular/lkml/bios_info.txt
+
+lspci -v (generated while up on the 2.6.2 kernel that's been running
+for years) is
+http://teddyb.org/~rlpowell/media/regular/lkml/lspci_v.txt
+
+dmidecode is
+http://teddyb.org/~rlpowell/media/regular/lkml/dmidecode.txt
+
+-Robin

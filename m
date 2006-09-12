@@ -1,86 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWILUOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWILUUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbWILUOy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 16:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbWILUOy
+	id S1030411AbWILUUi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 16:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWILUUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 16:14:54 -0400
-Received: from outbound-res.frontbridge.com ([63.161.60.49]:44729 "EHLO
-	outbound1-res-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1030399AbWILUOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 16:14:52 -0400
-X-BigFish: VP
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-Date: Tue, 12 Sep 2006 14:18:05 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Jim Gettys" <jg@laptop.org>
-cc: "Pavel Machek" <pavel@ucw.cz>, "Brown, Len" <len.brown@intel.com>,
-       "Linux Kernel ML" <linux-kernel@vger.kernel.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>,
-       "ACPI ML" <linux-acpi@vger.kernel.org>,
-       "Adam Belay" <abelay@novell.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Arjan van de Ven" <arjan@linux.intel.com>, devel@laptop.org,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: ACPI: Idle Processor PM Improvements
-Message-ID: <20060912201805.GK14885@cosmic.amd.com>
-References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com>
- <20060830194317.GA9116@srcf.ucam.org>
- <200608311713.21618.bjorn.helgaas@hp.com>
- <1157070616.7974.232.camel@localhost.localdomain>
- <20060904130933.GC6279@ucw.cz>
- <1157466710.6011.262.camel@localhost.localdomain>
- <20060906103725.GA4987@atrey.karlin.mff.cuni.cz>
- <20060906145849.GE2623@cosmic.amd.com>
- <20060912092100.GC19482@elf.ucw.cz>
- <1158084871.28991.489.camel@localhost.localdomain>
-MIME-Version: 1.0
-In-Reply-To: <1158084871.28991.489.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 12 Sep 2006 20:14:43.0131 (UTC)
- FILETIME=[1590F8B0:01C6D6A8]
-X-WSS-ID: 6919CAB91L82820840-01-01
-Content-Type: text/plain;
- charset=us-ascii
+	Tue, 12 Sep 2006 16:20:38 -0400
+Received: from mga07.intel.com ([143.182.124.22]:14350 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1030411AbWILUUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 16:20:37 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,155,1157353200"; 
+   d="scan'208"; a="115418627:sNHT65623306"
+Date: Tue, 12 Sep 2006 13:05:00 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>
+Cc: alexey.y.starikovskiy@intel.com, Len Brown <len.brown@intel.com>
+Subject: Re: [PATCH 2.6.18-rc6-mm1 0/2] cpufreq: make it harder for cpu to leave "hot" mode
+Message-ID: <20060912130500.A15552@unix-os.sc.intel.com>
+References: <20060912032924.GA3677@nickolas.homeunix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060912032924.GA3677@nickolas.homeunix.com>; from bugfixer@list.ru on Mon, Sep 11, 2006 at 11:29:24PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/09/06 14:14 -0400, Jim Gettys wrote:
-> > Alternatively, hack kernel to take control from X without actually
-> > switching consoles. That should be possible even with current
-> > interface.
+On Mon, Sep 11, 2006 at 11:29:24PM -0400, Nick Orlov wrote:
+> Andrew,
 > 
-> This would require saving/restoring all graphics state in the kernel
-> (and X already has that state internally).  Feasible, but seems like
-> duplication of effort.  I haven't checked if there are any write-only
-> registers in the Geode (though, thankfully, this kind of brain damage is
-> rarer than it once was).  This then begs interesting kernel/X
-> synchronization issues, of course.
+> I was playing with ondemand cpufreq governor (gotta save on electricity
+> bills one day :) ) and I've noticed that gameplay become somewhat sluggish.
+> Especially noticeble in something cpu-power demanding, like quake4.
+> Quick look at stats/trans_table confirmed that CPU goes out of "hot" mode
+> way too often.
+> 
 
-We don't need any kernel output during suspend or resume.  Thus, if the VT
-doesn't change, then the kernel doesn't need worry about saving or restoring 
-the graphics state, and thats the way it should be, IMHO.
-Whoever owns the current VT should be in charge of saving and restoring 
-the registers.
+ondemand governor adjusts the sampling rate depending on frequency transition
+latency of CPU. Say the frequency transition latency for a CPU is 100uS,
+it will sample atmost once every 100mS and by that rule performance
+impact of the transitions alone should not be more than 0.1 %.
 
-So, we would need some way of indicating the "ownership" of the VT.  And
-in reality, we really only to know if the framebuffer console owns it or
-not, so a boolean would suffice.  In the past, I've used KD_TEXT and 
-KD_GRAPHICS for this purpose.  As an example, on the Geode LX, I assume
-that if the vc_mode is KD_GRAPHICS, then we don't own it, and we don't
-do 2D accelerations.  If the mode is KD_TEXT then we are free to use the
-2D engine.   All I needed to add ws a notifier chain to let the framebuffer
-know when the mode switched, and I was happy.  I'm not sure if thats the
-smartest way to handle it permanently, but it works in a pinch.
+There will be performance impact however, if it chooses a lower frequency and
+CPU becomes 100% busy immediately after that. That will be a issue with
+any history based speculation. Once can have a workload that will fool the
+algorithm to take wrong decision every time.
 
-Jordan
+Having said that, I am curious to see actual numbers that you are seeing in
+different cases:
+- The transition latency for frequency switching on your CPU.
+- Default ondemand sampling rate on your system.
+- Different frequencies supported on your system.
+- I guess you have a dual core CPU. Whether they are changing frequencies 
+correctly at the same time or changing frequency of one CPU is wrongly 
+affecting the other CPU.
+- trans table for the load with and without mm changes for ondemand.
 
--- 
-Jordan Crouse
-Senior Linux Engineer
-Advanced Micro Devices, Inc.
-<www.amd.com/embeddedprocessors>
+> To make long story short - reverting -mm changes for cpufreq_ondemand.c
+> helps a _LOT_.  I'm not sure if it is something powersave_bias related or
+> (most probably) due to alignment of "next do_dbs_timer() fire time" which
+> could make "collect stats" window too short and introduce significant errors.
+> Have not specifically checked ...
 
+The change in mm should not change anything related to sampling interval. If
+it is indeed doing something like that, then it will be a bug. Can you please
+check sampling_rate (under sys cpufreq/ondemand) with and without mm changes.
+That will tell how frequently kernel is checking the stats.
 
+> 
+> After thinking about the issue for a while I come up with the following tweaks:
+> First of all I made hysteresis little bit wider (20% instead of 10).
+
+This is a heuristic and this change will make ondemand more conservative
+in some cases and ondemand will not be able to reduce frequency and
+hence end up consuming more power.
+
+If this is really needed, then it sould be a tunable to ondemand rather than a
+new absolute value. As this is only changing the next frequency to be one that
+keeps CPU 60% busy than 70% busy, and these two frequencies must be close
+to each other anyway, I dont think this can cause performance degradation
+due to wrong/low freq.
+
+> Another idea was to increase "sampling period" once cpu is in "hot" mode.
+> 
+> Second part also have benefits of reducing the load on already overloaded cpu.
+> Plus it's damn trivial. To simplify further testing I have exposed
+> "sampling_rate_hot" parameter through sysfs. Setting it to sampling_rate * 10
+> works for me very well. Now I do not have to switch governor to "performance"
+> during game sessions.
+> 
+
+Again, I dont think frequent checking in ondemand is a bad thing as
+it allows ondemand to be aggressive and save as much power and also
+have quick response time for increased load. If we really have a issue
+with sampling rate, it is possibly due to wrong transition latency
+advertised by the driver and we are wasting more time doing
+transitions than ondemand thinks it is spending.
+
+If the sampling rate is indeed high for your system/workload, you should be
+able to get the same result by just increasing the sampling_rate in 
+sysfs cpufreq/ondemand than having a new tunable.
+
+Thanks,
+Venki

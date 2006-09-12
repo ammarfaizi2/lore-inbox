@@ -1,108 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbWILQgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWILQiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbWILQgE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 12:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbWILQgE
+	id S1030271AbWILQiH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 12:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWILQiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 12:36:04 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:37766 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965216AbWILQgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 12:36:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=WOpkh5Nhmfp1PBV6DPndtyUIE3l97K6wr6SDeTfrw1pvgKSTbKb6CJy6ieVUvXkF5XObaqW/87sNzZIsY/7I1Rj1VoJq/D7GSHg4Wx58T/HiUX2shi8BMhdKGUubEqKLZVXIxFHdSaNWbb9X+2L301phFOMDpWM1Hn57XdFl8qA=
-Date: Tue, 12 Sep 2006 18:36:00 +0200
-From: Luca <kronos.it@gmail.com>
-To: xfs-masters@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: XFS: lockdep warning: BUG: held lock freed!
-Message-ID: <20060912163600.GA2948@dreamland.darkstar.lan>
+	Tue, 12 Sep 2006 12:38:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1483 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965037AbWILQiD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 12:38:03 -0400
+Date: Tue, 12 Sep 2006 09:37:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
+       Rik van Riel <riel@redhat.com>, Daniel Phillips <phillips@google.com>
+Subject: Re: [PATCH 00/20] vm deadlock avoidance for NFS, NBD and iSCSI (take
+ 7)
+In-Reply-To: <20060912143049.278065000@chello.nl>
+Message-ID: <Pine.LNX.4.64.0609120935110.27779@g5.osdl.org>
+References: <20060912143049.278065000@chello.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I see that this error has alredy been observed with 2.6.17-mm; I'm
-running kernel 2.6.18-rc5 (x86, UP, with PREEMPT) and may have
-additional information. In my case the FS was affected by 2.6.17
-directory corruption (I forgot to run xfs_repair on this machine); after
-the FS was shut down I rebooted the machine (with init=/bin/bash, rootfs
-on ext2, so it was not affected) and mounted XFS partition read-only to
-recover the log.
-I tried to reproduce with "simple" crashes (i.e. write a file and
-reboot, I don't want to trash the FS too much ;)) without success, so
-the error may be related to directory corruption.
-
-lockdep message:
-
-SGI XFS with no debug enabled
-XFS mounting filesystem hda8
-Starting XFS recovery on filesystem: hda8 (logdev: internal)
-
-=========================
-[ BUG: held lock freed! ]
--------------------------
-mount/290 is freeing memory ef798b70-ef798baf, with a lock still held there!
- (&(&ip->i_lock)->mr_lock){--..}, at: [<f193e4ed>] xfs_ilock+0x7d/0xb0 [xfs]
-3 locks held by mount/290:
- #0:  (&type->s_umount_key#14){--..}, at: [<b01689cc>] sget+0x19c/0x320
- #1:  (&(&ip->i_iolock)->mr_lock){--..}, at: [<f193e50e>] xfs_ilock+0x9e/0xb0 [xfs]
- #2:  (&(&ip->i_lock)->mr_lock){--..}, at: [<f193e4ed>] xfs_ilock+0x7d/0xb0 [xfs]
-
-stack backtrace:
- [<b0104376>] show_trace_log_lvl+0x176/0x1a0
- [<b0104a32>] show_trace+0x12/0x20
- [<b0104a99>] dump_stack+0x19/0x20
- [<b0135699>] debug_check_no_locks_freed+0x169/0x180
- [<b01d5c71>] __init_rwsem+0x21/0x60
- [<f193e855>] xfs_inode_lock_init+0x25/0x80 [xfs]
- [<f193ee4a>] xfs_iget+0x18a/0x5b8 [xfs]
- [<f194f0d6>] xlog_recover_process_iunlinks+0x316/0x500 [xfs]
- [<f194f57e>] xlog_recover_finish+0x2be/0x380 [xfs]
- [<f194af47>] xfs_log_mount_finish+0x37/0x50 [xfs]
- [<f1953b70>] xfs_mountfs+0xe50/0x1020 [xfs]
- [<f1945579>] xfs_ioinit+0x29/0x40 [xfs]
- [<f195af8c>] xfs_mount+0x65c/0xa10 [xfs]
- [<f196d855>] vfs_mount+0x25/0x30 [xfs]
- [<f196d676>] xfs_fs_fill_super+0x76/0x1e0 [xfs]
- [<b01692bc>] get_sb_bdev+0xec/0x130
- [<f196c7f1>] xfs_fs_get_sb+0x21/0x30 [xfs]
- [<b0168dc0>] vfs_kern_mount+0x40/0xa0
- [<b0168e76>] do_kern_mount+0x36/0x50
- [<b017f2ee>] do_mount+0x22e/0x610
- [<b017f73f>] sys_mount+0x6f/0xb0
- [<b0103173>] syscall_call+0x7/0xb
- [<a7ef00be>] 0xa7ef00be
- [<b0104a32>] show_trace+0x12/0x20
- [<b0104a99>] dump_stack+0x19/0x20
- [<b0135699>] debug_check_no_locks_freed+0x169/0x180
- [<b01d5c71>] __init_rwsem+0x21/0x60
- [<f193e855>] xfs_inode_lock_init+0x25/0x80 [xfs]
- [<f193ee4a>] xfs_iget+0x18a/0x5b8 [xfs]
- [<f194f0d6>] xlog_recover_process_iunlinks+0x316/0x500 [xfs]
- [<f194f57e>] xlog_recover_finish+0x2be/0x380 [xfs]
- [<f194af47>] xfs_log_mount_finish+0x37/0x50 [xfs]
- [<f1953b70>] xfs_mountfs+0xe50/0x1020 [xfs]
- [<f1945579>] xfs_ioinit+0x29/0x40 [xfs]
- [<f195af8c>] xfs_mount+0x65c/0xa10 [xfs]
- [<f196d855>] vfs_mount+0x25/0x30 [xfs]
- [<f196d676>] xfs_fs_fill_super+0x76/0x1e0 [xfs]
- [<b01692bc>] get_sb_bdev+0xec/0x130
- [<f196c7f1>] xfs_fs_get_sb+0x21/0x30 [xfs]
- [<b0168dc0>] vfs_kern_mount+0x40/0xa0
- [<b0168e76>] do_kern_mount+0x36/0x50
- [<b017f2ee>] do_mount+0x22e/0x610
- [<b017f73f>] sys_mount+0x6f/0xb0
- [<b0103173>] syscall_call+0x7/0xb
-Ending XFS recovery on filesystem: hda8 (logdev: internal)
 
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Runtime error 6D at f000:a12f : user incompetente
+On Tue, 12 Sep 2006, Peter Zijlstra wrote:
+> 
+> Linus, when I mentioned swap over network to you in Ottawa, you said it was
+> a valid use case, that people actually do and want this. Can you agree with
+> the approach taken in these patches?
+
+Well, in all honesty, I don't think I really said "valid", but that I said 
+that some crazy people want to do it, and that we should try to allow them 
+their foibles.
+
+So I'd be nervous to do any _guarantees_. I think that good VM policies 
+should make it be something that works in general (the dirty mapping 
+limits in particular), but I'd be a bit nervous about anybody taking it 
+_too_ seriously. Crazy people are still crazy, they just might be right 
+under certain reasonably-well-controlled circumstances.
+
+		Linus

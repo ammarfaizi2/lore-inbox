@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWIMBSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030444AbWIMBTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWIMBSF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 21:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWIMBSF
+	id S1030444AbWIMBTc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 21:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWIMBTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 21:18:05 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:5338 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S1751466AbWIMBSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 21:18:01 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: R: Linux kernel source archive vulnerable
-Date: Wed, 13 Sep 2006 01:17:48 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
-References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1158110268 7003 128.32.168.222 (13 Sep 2006 01:17:48 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Wed, 13 Sep 2006 01:17:48 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Tue, 12 Sep 2006 21:19:31 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:56594 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030479AbWIMBTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 21:19:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=m1E6qqdw4ec7tUBRWdEmryfY0IqgwhYmLm7N18oQdaTGY4u2zrmWWDCDzk105Kkpn0RB83dXZ+90uggyHttJs80mh2fGHEGS5CgcSE0nQz1khIclTiic6RtXQ8uBBB4TSsnEkLOVIBilRvK7T8VkdDXH/DmGeepFMnBi0U6xXV4=
+Message-ID: <4506AB4B.9010801@gmail.com>
+Date: Tue, 12 Sep 2006 21:42:51 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: Michael Tokarev <mjt@tls.msk.ru>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Vendor field with USB, [SP]ATA etc-attached disks
+References: <4505A612.8070603@tls.msk.ru> <4505BA2B.1020105@garzik.org>
+In-Reply-To: <4505BA2B.1020105@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Scharfe  wrote:
->[details on how GNU tar works, snipped]
+Jeff Garzik wrote:
+> Michael Tokarev wrote:
+>> With current SATA, PATA and at least some USB disks,
+>> Linux reports Vendor: $subsystem, instead of the actual
+>> vendor of the drive, like this:
+>>
+>> scsi1 : ata_piix
+>>   Vendor: ATA       Model: ST3808110AS       Rev: n/a
+>>   Type:   Direct-Access                      ANSI SCSI revision: 05
+>>
+>> This should be Vendor: Seagate, not ATA (Note also the lack
+>> of "Revision" field).  The same for PATA disk:
+>>
+>> scsi0 : pata_via
+>>   Vendor: ATA       Model: ST3120026A        Rev: 3.76
+>>   Type:   Direct-Access                      ANSI SCSI revision: 05
+>>
+>> The same is shown in /sys/block/$DEV/device/vendor.
+>>
+>> Can it be changed to show real vendor, instead of the subsystem name?
+> 
+> No.  Two reasons:
+> 
+> * ATA doesn't export the vendor separate from the model, and in some 
+> cases (Seagate) it isn't present at all, anywhere.
+> * "ATA" vendor string is the standardized value to put in that field, 
+> according to the SCSI T10 specifications.
 
-Again, you miss my point.  I already know how tar works, but that's not
-my point.  Why is it that people are so unwilling to address the real
-issue here?  Let's try a few facts:
+To add a small detail.  The reason it's printed that way is because 
+libata (the new ATA driver) emulates SCSI device at the moment, so it 
+has to fake SCSI vendor ID and model string, which BTW is shorter than 
+ATA string and thus truncated in some cases.  The vendor ID "ATA" is 
+defined in SAT (SCSI ATA translation) standard, IIRC.
 
-    (a) The Linux kernel tar archive contains files with world-writeable
-    permissions.
+For the time being, we'll have to live with boilerplate ATA vendor and 
+truncated vendor ID.  There are plans to make libata independent from 
+SCSI which should solve the problem but it will take quite some time.
 
-    (b) There is no need for those files to have world-writeable
-    permissions.  It doesn't serve any particular purpose.  If the
-    permissions in the tar archive were changed to be not world-writeable,
-    no harm would be done.
+-- 
+tejun
 
-    (c) Some users may get screwed over by virtue of the fact that those
-    files are listed in the tar archive with world-writeable permissions.
-    (Sure, if every user was an expert on "tar" and on security, then
-    maybe no one would get screwed over.  But in the real world, that's
-    not the case.)
-
-    (d) Consequently, the format of the Linux kernel tar archive is
-    exposing some users to unnecessary riskis.
-
-    (e) The Linux kernel folks could take a quick and easy step that
-    would eliminate this risk.  That step would involve storing the
-    files in the tar archive with permissions that were more reasonable
-    (not world-writeable would be a good start!).  This step wouldn't
-    hurt anyone.  There's no downside.
-
-    (f) Yet the Linux kernel folks refuse to take this step, and any
-    time someone mentions that there is something the Linux kernel folks
-    could do about the problem, someone tries to change the topic to
-    something else (e.g., complaints about bugs in GNU tar, suggestions
-    that the user should invoke tar with some other option, claims that
-    this question has been addressed before, you name it).
-
-So why is it that the tar archive is structured this way?  Why are
-the Linux kernel folks unnecessarily exposing their users to risk?
-What purpose, exactly, does it serve to have these files stored with
-world-writeable permissions?
-
-Folks on the Linux kernel mailing list seem to be reluctant to admit these
-facts forthrightly.  The posts I've seen mostly seem to have little or
-no sympathy for users who get screwed over.  The attitude seems to be:
-if you get screwed over, it's your fault and your problem.  Why is that?
-If there is a simple step that Linux developers can take to eliminate
-this risk, why is there such reluctance to take it, and why is there
-such eagerness to point the finger at someone else?
-
-The way I see it, storing files in a tar archive with world-writeable
-permissions is senseless.  Why do such a strange thing on purpose?
-
-It all seems thoroughly mysterious to me.

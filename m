@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWILTwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbWILTwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWILTwd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 15:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWILTwd
+	id S1030392AbWILTwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 15:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbWILTwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 15:52:33 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46789 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030386AbWILTwc (ORCPT
+	Tue, 12 Sep 2006 15:52:42 -0400
+Received: from us.cactii.net ([66.160.141.151]:7949 "EHLO us.cactii.net")
+	by vger.kernel.org with ESMTP id S1030392AbWILTwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 15:52:32 -0400
-Date: Tue, 12 Sep 2006 12:52:14 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alok Kataria <alok.kataria@calsoftinc.com>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [patch] slab: Do not use mempolicy for kmalloc_node
-In-Reply-To: <20060912195246.GA4039@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0609121251160.12388@schroedinger.engr.sgi.com>
-References: <20060912144518.GA4653@localhost.localdomain>
- <Pine.LNX.4.64.0609121034290.11278@schroedinger.engr.sgi.com>
- <20060912195246.GA4039@localhost.localdomain>
+	Tue, 12 Sep 2006 15:52:41 -0400
+Date: Tue, 12 Sep 2006 21:52:16 +0200
+From: Ben B <kernel@bb.cactii.net>
+To: linux-kernel@vger.kernel.org
+Subject: speedstep-centrino broken..?
+Message-ID: <20060912195216.GA20723@cactii.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP-Key: 3CD061AD
+X-PGP-Fingerprint: E092 32CA 6196 7C11 0692  BE43 AEDA 4D47 3CD0 61AD
+Jabber-ID: bb@cactii.net
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Sep 2006, Ravikiran G Thirumalai wrote:
+Hi,
 
-> On Tue, Sep 12, 2006 at 10:36:54AM -0700, Christoph Lameter wrote:
-> > On Tue, 12 Sep 2006, Ravikiran G Thirumalai wrote:
-> > 
-> > ... 
-> > This is not complete. Please see the discussion on GFP_THISNODE and the 
-> > related patch to fix this issue 
-> > http://marc.theaimsgroup.com/?l=linux-mm&m=115505682122540&w=2
-> 
-> Hmm, I see, but with the above patch, if we ignore mempolicy for 
-> __GFP_THISNODE slab caches at alternate_node_alloc (which is pretty much 
-> all the slab caches) then we would be ignoring memplocies altogether no?
+My HP notebook decided that its BIOS upgrade would break
+speedstep-centrino, and trying to load the module gives me a "no such
+device" error. This is with various combinations of kernel config
+relating to cpufreq. Also tried acpi-cpufreq with the same error.
 
-We are implementing memory policies in the slab layer. I.e. we 
-are taking slab objects round robin from the per node lists of the 
-slab.
+I suspect that the new bios is broken, but perhaps it's correct and the
+linux driver is missing something?
 
+I've put relevent info at this URL (the list server thought it was
+spam):
+
+http://nl.cactii.net/~bb/cpufreq-broke.txt
+
+Cheers,
+Ben
+
+(also sent to davej@codemonkey.org.uk)

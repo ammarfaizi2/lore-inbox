@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWILWoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWILWrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWILWoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 18:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWILWoY
+	id S1030234AbWILWrq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 18:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWILWrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 18:44:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16098 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964909AbWILWoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 18:44:24 -0400
-Subject: Re: OT: calling kernel syscall manually
-From: David Woodhouse <dwmw2@infradead.org>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: guest01 <guest01@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <450717A5.90509@cfl.rr.com>
-References: <4506A295.6010206@gmail.com>
-	 <1158068045.9189.93.camel@hades.cambridge.redhat.com>
-	 <450717A5.90509@cfl.rr.com>
-Content-Type: text/plain
-Date: Tue, 12 Sep 2006 23:43:39 +0100
-Message-Id: <1158101019.18619.113.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Tue, 12 Sep 2006 18:47:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26042 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932316AbWILWrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 18:47:46 -0400
+Message-ID: <45073901.8020906@redhat.com>
+Date: Tue, 12 Sep 2006 18:47:29 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
+Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
+References: <20060901110908.GB15684@skybase>
+In-Reply-To: <20060901110908.GB15684@skybase>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 16:25 -0400, Phillip Susi wrote:
-> What do you mean you have removed the ability to make system calls 
-> directly?  That makes no sense.  Glibc has to be able to make system 
-> calls so you can write your own code that does the same thing if you want.
+Martin Schwidefsky wrote:
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> From: Hubertus Franke <frankeh@watson.ibm.com>
+> From: Himanshu Raj <rhim@cc.gatech.edu>
+> 
+> [patch 1/9] Guest page hinting: unused / free pages.
+> 
+> A very simple but already quite effective improvement in the handling
+> of guest memory vs. host memory is to tell the host when pages are
+> free. 
 
-No. If you do the inline assembly (or call the vDSO) yourself of course
-it's still possible.
+Would it be an idea to place this interface in-between the
+per-cpu free page lists and the buddy allocator, so we can
+move a batch of pages around at once and do the hinting in
+a batched fashion ?
 
-However, the _example_ that the OP gave of this 'third one' was in fact
-using the old _syscallX() macros which used to be found in the kernel's
-private header files. So I assumed that's what he meant, rather than
-open-coding his own inline assembly.
+That way the overhead will be acceptable not just on S390
+(where things are millicoded), but also on hypervisor based
+virtualization like Xen.
+
+Easy enough to pass a vector of pages to the hypervisor.
 
 -- 
-dwmw2
-
+What is important?  What you want to be true, or what is true?

@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWIMSQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWIMSQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWIMSQO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWIMSQO
+	id S1751023AbWIMSQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWIMSQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:16:14 -0400
-Received: from mga09.intel.com ([134.134.136.24]:26899 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1751029AbWIMSQN (ORCPT
+	Wed, 13 Sep 2006 14:16:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21638 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751023AbWIMSQ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:16:13 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,160,1157353200"; 
-   d="scan'208"; a="126249537:sNHT869753871"
-Message-ID: <45084ADA.3050604@linux.intel.com>
-Date: Wed, 13 Sep 2006 20:15:54 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 13 Sep 2006 14:16:57 -0400
+Date: Wed, 13 Sep 2006 11:16:49 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: David Howells <dhowells@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent?
+In-Reply-To: <45084A2C.8030804@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0609131113550.18264@schroedinger.engr.sgi.com>
+References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
+ <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
+ <45084833.4040602@yahoo.com.au> <Pine.LNX.4.64.0609131106260.18264@schroedinger.engr.sgi.com>
+ <45084A2C.8030804@yahoo.com.au>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Jason Baron <jbaron@redhat.com>
-Subject: Re: [PATCH 2/2] new bd_mutex lockdep annotation
-References: <20060913174312.528491000@chello.nl> <20060913174650.432175000@chello.nl>
-In-Reply-To: <20060913174650.432175000@chello.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> Use the gendisk partition number to set a lock class.
-> 
-I like this approach a whole better than what is there today (but we talked about that before ;)
-It's a lot more obviously the right approach and kills a whole lot of ugly duplication
+On Thu, 14 Sep 2006, Nick Piggin wrote:
 
-so
+> Oh really? OK I figured if ppc64 was OK then that would be enough,
+> but your large Altix systems did slip my mind.
 
-Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+Look at the ia64 rwsem implementation in include/asm-ia64/rwsem.h.
+ 
+> That is a fair criticism... atomic_long it will have to be, then.
+> That will require a bit of atomic work to get atomic64_cmpxchg
+> available on all 64-bit architectures.
 
-> 
-> --
+I would greatly appreciate having that.
+

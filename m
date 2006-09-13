@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWIMR63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWIMSAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWIMR63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 13:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWIMR62
+	id S1750892AbWIMSAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWIMSAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 13:58:28 -0400
-Received: from www.osadl.org ([213.239.205.134]:56254 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1750878AbWIMR62 (ORCPT
+	Wed, 13 Sep 2006 14:00:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38109 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750889AbWIMSAC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 13:58:28 -0400
-Subject: Re: RT, timers and CLOCK_REALTIME_HR
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200609131712.26350.Serge.Noiraud@bull.net>
-References: <200609131712.26350.Serge.Noiraud@bull.net>
-Content-Type: text/plain
-Date: Wed, 13 Sep 2006 19:59:07 +0200
-Message-Id: <1158170348.5724.142.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Sep 2006 14:00:02 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 1/7] FRV: Fix fls() to handle bit 31 being set correctly [try #2]
+Date: Wed, 13 Sep 2006 18:59:34 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-13 at 17:12 +0200, Serge Noiraud wrote:
-> Hi,
-> 
-> 	I have one question about CLOCK_REALTIME_HR. 
-> Before the rt patch I used to work with this clock. ie : hrtimers-support-3.1.1
-> 
-> With the rt patch it seems CLOCK_REALTIME_HR does not exist anymore !
-> Is this normal ?
+From: David Howells <dhowells@redhat.com>
 
-Yes, we removed it a while ago. Same for CLOCK_MONOTONIC_HR.
+Fix FRV fls() to handle bit 31 being set correctly (it should return 32 not 0).
 
-> The kernel speaks about that in arch/ia64/Kconfig
-> perhaps it should be removed !
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Yep.
+ include/asm-frv/bitops.h |   21 +++++++++++++++++----
+ 1 files changed, 17 insertions(+), 4 deletions(-)
 
-> I had a libtimers using this clock.
-> 
-> Is the good correction to say CLOCK_REALTIME_HR = CLOCK_REALTIME ?
-> I don't want to modify all my programs.
-
-Probably that's the best hack for you.
-
-	tglx
-
-
+diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
+index 980ae1b..97fb746 100644
+--- a/include/asm-frv/bitops.h
++++ b/include/asm-frv/bitops.h
+@@ -161,16 +161,29 @@ #include <asm-generic/bitops/ffs.h>
+ #include <asm-generic/bitops/__ffs.h>
+ #include <asm-generic/bitops/find.h>
+ 
+-/*
+- * fls: find last bit set.
++/**
++ * fls - find last bit set
++ * @x: the word to search
++ *
++ * This is defined the same way as ffs:
++ * - return 32..1 to indicate bit 31..0 most significant bit set
++ * - return 0 to indicate no bits set
+  */
+ #define fls(x)						\
+ ({							\
+ 	int bit;					\
+ 							\
+-	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x));	\
++	asm("	subcc	%1,gr0,gr0,icc0		\n"	\
++	    "	ckne	icc0,cc4		\n"	\
++	    "	cscan.p	%1,gr0,%0	,cc4,#1	\n"	\
++	    "	csub	%0,%0,%0	,cc4,#0	\n"	\
++	    "   csub    %2,%0,%0	,cc4,#1	\n"	\
++	    : "=&r"(bit)				\
++	    : "r"(x), "r"(32)				\
++	    : "icc0", "cc4"				\
++	    );						\
+ 							\
+-	bit ? 33 - bit : bit;				\
++	bit;						\
+ })
+ 
+ #include <asm-generic/bitops/fls64.h>

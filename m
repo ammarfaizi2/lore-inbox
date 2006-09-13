@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIMIAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWIMID5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWIMIAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 04:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWIMIAZ
+	id S1751679AbWIMID5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 04:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbWIMID5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 04:00:25 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:63513 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750706AbWIMIAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 04:00:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SrGXEU25fwk440sKfONA16+SO0A+NF+i6of4wl6UHCt/9LO4imo1oapi64yD489drWbve4m8SJQ+qm4Iz2x9r9x6AM4XXMzdY5T1yG2yIF0D9+n846osE5tdneiZUpfBbi3zjKlYR71wuPRuPHmuof5cCAkPbxrJesRrRKds93A=
-Message-ID: <6d6a94c50609130100v3041513ap68cdf646f9ad9d66@mail.gmail.com>
-Date: Wed, 13 Sep 2006 16:00:23 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Kobjsize issue
-Cc: "David Howells" <dhowells@redhat.com>, "Matt Mackall" <mpm@selenic.com>,
-       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 13 Sep 2006 04:03:57 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:39903 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751679AbWIMID4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 04:03:56 -0400
+Date: Wed, 13 Sep 2006 10:05:00 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jason Baron <jbaron@redhat.com>
+Subject: [-mm patch] AVR32: Make PROT_WRITE | PROT_EXEC imply PROT_READ
+Message-ID: <20060913100500.4e41ef8e@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+The AVR32 MMU has three protection bits for allowing unprivileged
+access, write access and execute access respectively. There is no
+way to deny read access while allowing write or execute access.
 
-Many embedded systems are using their own algorithm to mange one block
-of memory for DMA ops, which is uncached and usually behind of the
-kernel memory heap.
+make-prot_write-imply-prot_read.patch in mm does basically the same
+thing for several other architectures. One important difference is
+that this patch makes PROT_EXEC imply PROT_READ as well, but it looks
+like this is the case for most other architectures already.
 
-So, here, kobjsize will run into kernel BUGs, too.
-Because the allocated memory comes from behind memory_end, and doesn't
-have the appropriate structures initialized used by the kernel to
-maintain memory. And then, kobjsize triggers BUG_ON(page->index
->=MAX_ORDER);
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ arch/avr32/mm/fault.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-My current solution is a patch as follows. That's really an ugly
-workaround, evey kobjsize call will return 0 if the address is behind
-of the kernel system memory heap.
-What's your thoughts?
-
-Thanks,
--Aubrey
-=============================================================
-diff --git a/mm/nommu.c b/mm/nommu.c
-index c576df7..f4cc8a9 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -109,7 +109,7 @@ unsigned int kobjsize(const void *objp)
- {
-        struct page *page;
-
--       if (!objp || !((page = virt_to_page(objp))))
-+       if (!objp || !((page = virt_to_page(objp))) || (unsigned
-long)objp >= memory_end)
-                return 0;
-
-        if (PageSlab(page))
-=============================================================
+Index: linux-2.6.18-rc5-mm1/arch/avr32/mm/fault.c
+===================================================================
+--- linux-2.6.18-rc5-mm1.orig/arch/avr32/mm/fault.c	2006-09-06 16:57:46.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/avr32/mm/fault.c	2006-09-06 17:02:46.000000000 +0200
+@@ -134,7 +134,7 @@ good_area:
+ 		break;
+ 	case ECR_PROTECTION_R:
+ 	case ECR_TLB_MISS_R:
+-		if (!(vma->vm_flags & VM_READ))
++		if (!(vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)))
+ 			goto bad_area;
+ 		break;
+ 	case ECR_PROTECTION_W:

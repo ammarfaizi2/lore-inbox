@@ -1,622 +1,304 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWIMQ1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWIMQ1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWIMQ1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWIMQ1L
+	id S1750708AbWIMQ1i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWIMQ1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:27:11 -0400
-Received: from stinky.trash.net ([213.144.137.162]:22765 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750710AbWIMQ1I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:27:08 -0400
-Message-ID: <4508315A.9070809@trash.net>
-Date: Wed, 13 Sep 2006 18:27:06 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Roedel <joro-lkml@zlug.org>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] EtherIP tunnel driver (RFC 3378)
-References: <20060911204129.GA28929@zlug.org>
-In-Reply-To: <20060911204129.GA28929@zlug.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Sep 2006 12:27:38 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:44259 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750708AbWIMQ1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:27:36 -0400
+Date: Wed, 13 Sep 2006 12:27:35 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] net driver fixes
+Message-ID: <20060913162735.GA8159@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are lots of whitespace errors (trailing whitespace, whitespace
-following opening parens, no whitespace after comma, ...) which I'm
-going to ignore below, please fix them anyway.
 
-Joerg Roedel wrote:
-> diff -uprN -X linux-2.6.17.13/Documentation/dontdiff linux-2.6.17.13-vanilla/net/ipv4/etherip.c linux-2.6.17.13/net/ipv4/etherip.c
-> --- linux-2.6.17.13-vanilla/net/ipv4/etherip.c	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.17.13/net/ipv4/etherip.c	2006-09-11 21:59:40.000000000 +0200
-> @@ -0,0 +1,546 @@
-> +/*
-> + * etherip.c: Ethernet over IPv4 tunnel driver (according to RFC3378)
-> + *
-> + * This driver could be used to tunnel Ethernet packets through IPv4
-> + * networks. This is especially usefull together with the bridging
-> + * code in Linux.
-> + *
-> + * This code was written with an eye on the IPIP driver in linux from
-> + * Sam Lantinga. Thanks for the great work.
-> + *
-> + *      This program is free software; you can redistribute it and/or
-> + *      modify it under the terms of the GNU General Public License
-> + *      version 2 (no later version) as published by the
-> + *      Free Software Foundation.
-> + *
-> + */
-> +
-> +#include <linux/capability.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/types.h>
-> +#include <linux/mutex.h>
-> +#include <linux/netdevice.h>
-> +#include <linux/etherdevice.h>
-> +#include <linux/skbuff.h>
-> +#include <linux/ip.h>
-> +#include <linux/if_tunnel.h>
-> +#include <linux/list.h>
-> +#include <linux/string.h>
-> +#include <linux/netfilter_ipv4.h>
-> +#include <net/ip.h>
-> +#include <net/protocol.h>
-> +#include <net/route.h>
-> +#include <net/ipip.h>
-> +#include <net/xfrm.h>
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Joerg Roedel <joerg@zlug.org>");
-> +MODULE_DESCRIPTION("Ethernet over IPv4 tunnel driver");
-> +
-> +/* 
-> + * These 2 defines are taken from ipip.c - if it's good enough for them
-> + * it's good enough for me.
-> + */
-> +#define HASH_SIZE        16
-> +#define HASH(addr)       ((addr^(addr>>4))&0xF)
-> +
-> +#define ETHERIP_HEADER   ((u16)0x0300)
-> +#define ETHERIP_HLEN     2
-> +
-> +#define BANNER1 "etherip: Ethernet over IPv4 tunneling driver\n"
-> +#define BANNER2 "etherip: (C) 2006 by Joerg Roedel <joerg@zlug.org>\n"
-> +
-> +struct etherip_tunnel {
-> +	struct list_head list;
-> +	struct net_device *dev;
-> +	struct net_device_stats stats;
-> +	struct ip_tunnel_parm parms;
-> +	unsigned int recursion;
-> +};
-> +
-> +static struct net_device *etherip_tunnel_dev;
-> +static struct list_head tunnels[HASH_SIZE];
-> +
-> +static DEFINE_RWLOCK(etherip_lock);
-> +
-> +static void etherip_tunnel_setup(struct net_device *dev);
-> +
-> +/* add a tunnel to the hash */
-> +static void etherip_tunnel_add(struct etherip_tunnel *tun)
-> +{
-> +	unsigned h = HASH(tun->parms.iph.daddr);
-> +	list_add_tail(&tun->list, &tunnels[h]);
-> +}
-> +
-> +/* delete a tunnel from the hash*/
-> +static void etherip_tunnel_del(struct etherip_tunnel *tun)
-> +{
-> +	list_del(&tun->list);
-> +}
-> +
-> +/* find a tunnel in the hash by parameters from userspace */
-> +static struct etherip_tunnel* etherip_tunnel_find(struct ip_tunnel_parm *p)
-> +{
-> +	struct list_head *ptr;
-> +	struct etherip_tunnel *ret;
-> +	unsigned h = HASH(p->iph.daddr);
-> +
-> +	list_for_each(ptr, &tunnels[h]) {
-> +		ret = list_entry(ptr, struct etherip_tunnel, list);
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
 
-Again, please use list_for_each_entry
+to receive the following updates:
 
-> +		if (ret->parms.iph.daddr == p->iph.daddr) {
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
-> +/* find a tunnel by its destination address */
-> +static struct etherip_tunnel* etherip_tunnel_locate(u32 remote)
-> +{
-> +	struct list_head *ptr;
-> +	struct etherip_tunnel *ret;
-> +	unsigned h = HASH(remote);
-> +
-> +	list_for_each(ptr, &tunnels[h]) {
-> +		ret = list_entry(ptr, struct etherip_tunnel, list);
-> +		if (ret->parms.iph.daddr == remote) {
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
-> +/* netdevice start function */
-> +static int etherip_tunnel_open(struct net_device *dev)
-> +{
-> +	netif_start_queue(dev);
-> +	return 0;
-> +}
-> +
-> +/* netdevice stop function */
-> +static int etherip_tunnel_stop(struct net_device *dev)
-> +{
-> +	netif_stop_queue(dev);
-> +	return 0;
-> +}
-> +
-> +/* netdevice hard_start_xmit function
-> + * it gets an Ethernet packet in skb and encapsulates it in another IP
-> + * packet */
-> +static int etherip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev)
-> +{
-> +	struct etherip_tunnel *tunnel = netdev_priv(dev);
-> +	struct rtable *rt;
-> +	struct iphdr *iph;
-> +	struct flowi fl;
-> +	struct net_device *tdev;
-> +	int max_headroom;
-> +	struct net_device_stats *stats = &tunnel->stats;
-> +
-> +	if (tunnel->recursion++) {
-> +		tunnel->stats.collisions++;
-> +		goto tx_error;
-> +	}
-> +
-> +	fl.oif = fl.iif      = 0;
-> +	fl.proto             = IPPROTO_ETHERIP;
-> +	fl.nl_u.ip4_u.daddr  = tunnel->parms.iph.daddr;
-> +	fl.nl_u.ip4_u.saddr  = tunnel->parms.iph.saddr;
-> +	fl.nl_u.ip4_u.fwmark = 0;
-> +	fl.nl_u.ip4_u.tos    = 0;
+ drivers/net/e1000/e1000_main.c          |    8 ++--
+ drivers/net/mv643xx_eth.c               |    2 +
+ drivers/net/wireless/zd1211rw/zd_chip.c |   61 ++++++++++++++++++++++++--------
+ drivers/net/wireless/zd1211rw/zd_mac.c  |   43 ++++++++++++++++++----
+ drivers/net/wireless/zd1211rw/zd_mac.h  |   11 +++--
+ 5 files changed, 94 insertions(+), 31 deletions(-)
 
-This still leaves the entire uli_u part as well as flags uninitialized.
-Just use memset or initialize the entire structure at once. fl.oif
-should be set to parms.link.
+Auke Kok:
+      e1000: fix TX timout hang regression for 82542rev3
 
-> +
-> +	if (ip_route_output_key(&rt, &fl)) {
-> +		tunnel->stats.tx_carrier_errors++;
-> +		goto tx_error_icmp;
-> +	}
-> +
-> +	tdev = rt->u.dst.dev;
-> +	if (tdev == dev) {
-> +		ip_rt_put(rt);
-> +		tunnel->stats.collisions++;
-> +		goto tx_error;
-> +	}
-> +
-> +	max_headroom = (LL_RESERVED_SPACE(tdev)+sizeof(struct iphdr)
-> +			+ ETHERIP_HLEN);
-> +
-> +	if (skb_headroom(skb) < max_headroom || skb_cloned(skb)
-> +			|| skb_shared(skb)) {
-> +		struct sk_buff *n_skb = skb_realloc_headroom(skb,max_headroom);
-> +		if (!n_skb) {
-> +			ip_rt_put(rt);
-> +			dev_kfree_skb(skb);
-> +			tunnel->stats.tx_dropped++;
-> +			return 0;
-> +		}
-> +		if (skb->sk)
-> +			skb_set_owner_w(n_skb, skb->sk);
-> +		dev_kfree_skb(skb);
-> +		skb = n_skb;
-> +	}
-> +
-> +	skb->h.raw = skb->nh.raw;
-> +	skb->nh.raw = skb_push(skb, sizeof(struct iphdr)+ETHERIP_HLEN);
-> +	memset(&(IPCB(skb)->opt), 0, sizeof(IPCB(skb)->opt));
-> +	IPCB(skb)->flags &= ~(IPSKB_XFRM_TUNNEL_SIZE | IPSKB_XFRM_TRANSFORMED |
-> +			IPSKB_REROUTED); 
-> +	dst_release(skb->dst);
+Dale Farnsworth:
+      mv643xx_eth: Unmap DMA buffers in receive path
 
-Still no propagation of the pmtu to the original dst_entry.
+Ulrich Kunitz:
+      zd1211rw: Fix of signal strength and quality measurement
 
-> +	skb->dst = &rt->u.dst;
-> +
-> +	/* Build the IP header for the outgoing packet
-> +	 *
-> +	 * Note: This driver never sets the DF flag on outgoing packets
-> +	 *       to ensure that the tunnel provides the full Ethernet MTU.
-> +	 *       This behavior guarantees that protocols can be
-> +	 *       encapsulated within the Ethernet packet which do not
-> +	 *       know the concept of a path MTU
-> +	 */
-> +	iph = skb->nh.iph;
-> +	iph->version = 4;
-> +	iph->ihl = sizeof(struct iphdr)>>2;
-> +	iph->frag_off = 0;
-> +	iph->protocol = IPPROTO_ETHERIP;
-> +	iph->tos = 0;
-> +	iph->daddr = rt->rt_dst;
-> +	iph->saddr = rt->rt_src;
-> +	iph->ttl = tunnel->parms.iph.ttl;
-> +	if (iph->ttl == 0)
-> +		iph->ttl = dst_metric(&rt->u.dst, RTAX_HOPLIMIT);
-> +
-> +	/* add the 16bit etherip header after the ip header */
-> +	*((u16*)(skb->nh.raw + sizeof(struct iphdr))) = ntohs(ETHERIP_HEADER);
-> +	nf_reset(skb);
-> +	IPTUNNEL_XMIT();
-> +	tunnel->dev->trans_start = jiffies;
-> +	tunnel->recursion--;
-> +
-> +	return 0;
-> +
-> +tx_error_icmp:
-> +	dst_link_failure(skb);
-> +
-> +tx_error:
-> +	tunnel->stats.tx_errors++;
-> +	dev_kfree_skb(skb);
-> +	tunnel->recursion--;
-> +	return 0;
-> +}
-> +
-> +/* get statistics callback */
-> +static struct net_device_stats *etherip_tunnel_stats(struct net_device *dev)
-> +{
-> +	struct etherip_tunnel *ethip = netdev_priv(dev);
-> +	return &ethip->stats;
-> +}
-> +
-> +/* checks parameters the driver gets from userspace */
-> +static int etherip_param_check(struct ip_tunnel_parm *p)
-> +{
-> +	if ((p->iph.version != 4)
-> +		|| (p->iph.protocol != IPPROTO_ETHERIP)
-> +		|| (p->iph.ihl != 5)
-> +		|| (p->iph.daddr == INADDR_ANY)
-> +		|| MULTICAST(p->iph.daddr))
-> +		return -EINVAL;
-
-Lots of unnecessary parens (here and elsewhere). It also becomes more
-readable IMO if you put the || at the end of the line and align the
-conditions:
-
-if (p->iph.version != 4 ||
-    p->iph.protocol != IPPROTO_ETHERIP ||
-    p->iph.ihl != 4 ||
-...
-
-Well, thats just my taste, but a single tab is in my opinion the
-worst of all choices since it fails to make the distinction between
-the condition and the following expression visible.
-
-> +
-> +	return 0;
-> +}
-> +
-> +/* central ioctl function for all netdevices this driver manages
-> + * it allows to create, delete, modify a tunnel and fetch tunnel
-> + * information */
-> +static int etherip_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr,
-> +		int cmd)
-> +{
-> +	int err = 0;
-> +	struct ip_tunnel_parm p;
-> +	struct net_device *new_dev;
-> +	char *dev_name;
-> +	struct etherip_tunnel *t;
-> +
-> +
-> +	switch (cmd) {
-> +	case SIOCGETTUNNEL:
-> +		err = -EINVAL;
-> +		if (dev == etherip_tunnel_dev)
-> +			goto out;
-> +		t = netdev_priv(dev);
-> +		if (copy_to_user(ifr->ifr_ifru.ifru_data, &t->parms,
-> +				sizeof(t->parms)))
-> +			err = -EFAULT;
-
-break
-
-> +		err = 0;
-> +		break;
-> +	case SIOCADDTUNNEL:
-> +		err = -EINVAL;
-> +		if (dev != etherip_tunnel_dev)
-> +			goto out;
-> +
-> +	case SIOCCHGTUNNEL:
-> +		err = -EPERM;
-> +		if (!capable(CAP_NET_ADMIN))
-> +			goto out;
-> +
-> +		err = -EFAULT;
-> +		if (copy_from_user(&p, ifr->ifr_ifru.ifru_data,
-> +					sizeof(p)))
-> +			goto out;
-> +
-> +		if ((err = etherip_param_check(&p)) < 0)
-> +			goto out;
-> +
-> +		t = etherip_tunnel_find(&p);
-> +
-> +		err = -EEXIST;
-> +		if ((t != NULL) && (t->dev != dev))
-> +			goto out;
-> +
-> +		if (cmd == SIOCADDTUNNEL) {
-> +
-> +			p.name[IFNAMSIZ-1] = 0;
-> +			dev_name = p.name;
-> +			if (dev_name[0] == 0)
-> +				dev_name = "ethip%d";
-> +
-> +			err = -ENOMEM;
-> +			new_dev = alloc_netdev(
-> +					sizeof(struct etherip_tunnel),
-> +					dev_name,
-> +					etherip_tunnel_setup);
-> +
-> +			if (new_dev == NULL)
-> +				goto out;
-> +				
-> +			if (strchr(new_dev->name, '%')) {
-> +				err = dev_alloc_name( new_dev, new_dev->name);
-> +				if (err < 0)
-> +					goto add_err;
-> +			}
-> +			
-> +			t = netdev_priv(new_dev);
-> +			t->dev = new_dev;
-> +			strncpy(p.name, new_dev->name, IFNAMSIZ);
-> +			memcpy(&(t->parms), &p, sizeof(p));
-> +				
-> +			err = register_netdevice(new_dev);
-> +			if (err < 0)
-> +				goto add_err;
-> +
-> +			err = -EFAULT;
-> +			if (copy_to_user(ifr->ifr_ifru.ifru_data, &p,
-> +						sizeof(p)))
-> +				goto add_err;
-
-You can't just free the device once its registered.
-
-> +			
-> +			write_lock(&etherip_lock);
-
-Needs bh protection.
-
-> +			etherip_tunnel_add(t);
-> +			write_unlock(&etherip_lock);
-> +
-> +		} else {
-> +			err = -EINVAL;
-> +			if ((t = netdev_priv(dev)) == NULL)
-> +				goto out;
-> +			if (dev == etherip_tunnel_dev)
-> +				goto out;
-> +			write_lock(&etherip_lock);
-> +			memcpy(&(t->parms), &p, sizeof(p));
-> +			write_unlock(&etherip_lock);
-> +		}
-> +
-> +		err = 0;
-> +		break;
-> +add_err:
-> +		free_netdev(new_dev);
-> +		goto out;
-> +
-> +	case SIOCDELTUNNEL:
-> +		err = -EPERM;
-> +		if (!capable(CAP_NET_ADMIN))
-> +			goto out;
-> +
-> +		err = -EINVAL;
-> +		if (dev == etherip_tunnel_dev)
-> +			goto out;
-> +
-> +		t = netdev_priv(dev);
-> +			
-> +		write_lock(&etherip_lock);
-> +		etherip_tunnel_del(t);
-> +		write_unlock(&etherip_lock);
-> +
-> +		unregister_netdevice(t->dev);
-> +		err = 0;
-> +
-> +		break;
-> +	default:
-> +		err = -EINVAL;
-> +	}
-> +
-> +out:
-> +	return err;
-> +}
-> +
-> +/* device init function - called via register_netdevice
-> + * The tunnel is registered as an Ethernet device. This allows
-> + * the tunnel to be added to a bridge */
-> +static void etherip_tunnel_setup(struct net_device *dev)
-> +{
-> +	SET_MODULE_OWNER(dev);
-> +	dev->open = etherip_tunnel_open;
-> +	dev->hard_start_xmit = etherip_tunnel_xmit;
-> +	dev->stop = etherip_tunnel_stop;
-> +	dev->get_stats = etherip_tunnel_stats;
-> +	dev->do_ioctl = etherip_tunnel_ioctl;
-> +	dev->destructor = free_netdev;
-> +
-> +	ether_setup(dev);
-> +	dev->tx_queue_len = 0;
-> +	random_ether_addr(dev->dev_addr);
-> +}
-> +
-> +/* receive function for EtherIP packets
-> + * Does some basic checks on the MAC addresses and
-> + * interface modes */
-> +static int etherip_rcv(struct sk_buff *skb)
-> +{
-> +	struct iphdr *iph;
-> +	struct ethhdr *ehdr;
-> +	struct etherip_tunnel *tunnel;
-> +	struct net_device *dev;
-> +
-> +	iph = skb->nh.iph;
-> +
-> +	read_lock(&etherip_lock);
-> +	tunnel = etherip_tunnel_locate(iph->saddr);
-> +	if (tunnel == NULL)
-> +		goto drop;
-> +
-> +	dev = tunnel->dev;
-> +	secpath_reset(skb);
-> +	memset(&(IPCB(skb)->opt), 0, sizeof(struct ip_options));
-> +	skb_pull(skb, (skb->nh.raw - skb->data)
-> +			+ sizeof(struct iphdr) + ETHERIP_HLEN);
-> +	ehdr = (struct ethhdr*)skb->data;
-> +	skb->dev = dev;
-> +	skb->pkt_type = PACKET_HOST;
-> +	skb->protocol = eth_type_trans(skb, tunnel->dev);
-> +	skb->ip_summed = CHECKSUM_UNNECESSARY;
-> +	dst_release(skb->dst);
-> +	skb->dst = NULL;
-> +
-> +	/* do some checks */
-> +	if (skb->pkt_type == PACKET_HOST || skb->pkt_type == PACKET_BROADCAST)
-> +		goto accept;
-> +
-> +	if (skb->pkt_type == PACKET_MULTICAST &&
-> +			(dev->mc_count > 0 || dev->flags & IFF_ALLMULTI))
-> +		goto accept;
-> +	
-> +	if (skb->pkt_type == PACKET_OTHERHOST && dev->flags & IFF_PROMISC)
-> +		goto accept;
-> +
-> +	goto drop;
-> +
-> +accept:
-> +	tunnel->dev->last_rx = jiffies;
-> +	tunnel->stats.rx_packets++;
-> +	tunnel->stats.rx_bytes += skb->len;
-> +	nf_reset(skb);
-> +	netif_rx(skb);
-> +	read_unlock(&etherip_lock);
-> +	return 0;
-> +
-> +drop:
-> +	read_unlock(&etherip_lock);
-> +	kfree_skb(skb);
-> +	return 0;
-> +}
-> +
-> +static struct net_protocol etherip_protocol = {
-> +	.handler      = etherip_rcv,
-> +	.err_handler  = 0,
-> +	.no_policy    = 1,
-
-This is wrong, you don't do any policy checks in your code.
-
-> +};
-> +
-> +/* module init function
-> + * initializes the EtherIP protocol (97) and registers the initial
-> + * device */
-> +static int __init etherip_init(void)
-> +{
-> +	int err, i;
-> +	struct etherip_tunnel *p;
-> +
-> +	printk(KERN_INFO BANNER1);
-> +	printk(KERN_INFO BANNER2);
-> +
-> +	for (i=0;i<HASH_SIZE;++i)
-> +		INIT_LIST_HEAD(&tunnels[i]);
-> +
-> +	if (inet_add_protocol(&etherip_protocol, IPPROTO_ETHERIP)) {
-> +		printk(KERN_ERR "etherip: can't add protocol\n");
-> +		return -EAGAIN;
-> +	}
-> +
-> +	etherip_tunnel_dev = alloc_netdev(sizeof(struct etherip_tunnel),
-> +			"ethip0",
-> +			etherip_tunnel_setup);
-> +	
-> +	if (!etherip_tunnel_dev) {
-> +		err = -ENOMEM;
-> +		goto err2;
-> +	}
-> +
-> +	p = netdev_priv(etherip_tunnel_dev);
-> +	p->dev = etherip_tunnel_dev;
-> +
-> +	if ((err = register_netdev(etherip_tunnel_dev)))
-> +		goto err1;
-> +
-> +out:
-> +	return err;
-> +err1:
-> +	free_netdev(etherip_tunnel_dev);
-> +err2:
-> +	inet_del_protocol(&etherip_protocol, IPPROTO_ETHERIP);
-> +	goto out;
-> +}
-> +
-> +/* destroy all tunnels */
-> +static void __exit etherip_destroy_tunnels(void)
-> +{
-> +	int i;
-> +	struct list_head *ptr;
-> +	struct etherip_tunnel *tun;
-> +	
-> +	for (i=0;i<HASH_SIZE;++i) {
-> +		/*
-> +		ptr = tunnels[i].next;
-> +		while (ptr != &(tunnels[i])) {
-> +			ret = list_entry(ptr, struct etherip_tunnel, list);
-> +			ptr = ptr->next;
-> +			unregister_netdevice(ret->dev);
-> +		}*/
-> +		list_for_each(ptr, &tunnels[i]) {
-> +			tun = list_entry(ptr, struct etherip_tunnel, list);
-> +			ptr = ptr->prev;
-> +			etherip_tunnel_del(tun);
-> +			unregister_netdevice(tun->dev);
-> +		}
-> +	}
-> +}
-> +
-> +/* module cleanup function */
-> +static void __exit etherip_exit(void)
-> +{
-> +	rtnl_lock();
-> +	etherip_destroy_tunnels();
-> +	unregister_netdevice(etherip_tunnel_dev);
-> +	rtnl_unlock();
-> +	if (inet_del_protocol(&etherip_protocol, IPPROTO_ETHERIP))
-> +		printk(KERN_ERR "etherip: can't remove protocol\n");
-> +}
-> +
-> +module_init(etherip_init);
-> +module_exit(etherip_exit);
-
-
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+index 726f43d..98ef9f8 100644
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -1433,8 +1433,8 @@ e1000_configure_tx(struct e1000_adapter 
+ 		E1000_WRITE_REG(hw, TDBAL, (tdba & 0x00000000ffffffffULL));
+ 		E1000_WRITE_REG(hw, TDT, 0);
+ 		E1000_WRITE_REG(hw, TDH, 0);
+-		adapter->tx_ring[0].tdh = E1000_TDH;
+-		adapter->tx_ring[0].tdt = E1000_TDT;
++		adapter->tx_ring[0].tdh = ((hw->mac_type >= e1000_82543) ? E1000_TDH : E1000_82542_TDH);
++		adapter->tx_ring[0].tdt = ((hw->mac_type >= e1000_82543) ? E1000_TDT : E1000_82542_TDT);
+ 		break;
+ 	}
+ 
+@@ -1840,8 +1840,8 @@ #endif
+ 		E1000_WRITE_REG(hw, RDBAL, (rdba & 0x00000000ffffffffULL));
+ 		E1000_WRITE_REG(hw, RDT, 0);
+ 		E1000_WRITE_REG(hw, RDH, 0);
+-		adapter->rx_ring[0].rdh = E1000_RDH;
+-		adapter->rx_ring[0].rdt = E1000_RDT;
++		adapter->rx_ring[0].rdh = ((hw->mac_type >= e1000_82543) ? E1000_RDH : E1000_82542_RDH);
++		adapter->rx_ring[0].rdt = ((hw->mac_type >= e1000_82543) ? E1000_RDT : E1000_82542_RDT);
+ 		break;
+ 	}
+ 
+diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
+index 760c61b..eeab1df 100644
+--- a/drivers/net/mv643xx_eth.c
++++ b/drivers/net/mv643xx_eth.c
+@@ -385,6 +385,8 @@ static int mv643xx_eth_receive_queue(str
+ 	struct pkt_info pkt_info;
+ 
+ 	while (budget-- > 0 && eth_port_receive(mp, &pkt_info) == ETH_OK) {
++		dma_unmap_single(NULL, pkt_info.buf_ptr, RX_SKB_SIZE,
++							DMA_FROM_DEVICE);
+ 		mp->rx_desc_count--;
+ 		received_packets++;
+ 
+diff --git a/drivers/net/wireless/zd1211rw/zd_chip.c b/drivers/net/wireless/zd1211rw/zd_chip.c
+index da9d06b..aa79282 100644
+--- a/drivers/net/wireless/zd1211rw/zd_chip.c
++++ b/drivers/net/wireless/zd1211rw/zd_chip.c
+@@ -1430,9 +1430,43 @@ static int ofdm_qual_db(u8 status_qualit
+ 			break;
+ 	}
+ 
++	switch (rate) {
++	case ZD_OFDM_RATE_6M:
++	case ZD_OFDM_RATE_9M:
++		i += 3;
++		break;
++	case ZD_OFDM_RATE_12M:
++	case ZD_OFDM_RATE_18M:
++		i += 5;
++		break;
++	case ZD_OFDM_RATE_24M:
++	case ZD_OFDM_RATE_36M:
++		i += 9;
++		break;
++	case ZD_OFDM_RATE_48M:
++	case ZD_OFDM_RATE_54M:
++		i += 15;
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	return i;
+ }
+ 
++static int ofdm_qual_percent(u8 status_quality, u8 rate, unsigned int size)
++{
++	int r;
++
++	r = ofdm_qual_db(status_quality, rate, size);
++	ZD_ASSERT(r >= 0);
++	if (r < 0)
++		r = 0;
++
++	r = (r * 100)/29;
++	return r <= 100 ? r : 100;
++}
++
+ static unsigned int log10times100(unsigned int x)
+ {
+ 	static const u8 log10[] = {
+@@ -1476,31 +1510,28 @@ static int cck_snr_db(u8 status_quality)
+ 	return r;
+ }
+ 
+-static int rx_qual_db(const void *rx_frame, unsigned int size,
+-	              const struct rx_status *status)
++static int cck_qual_percent(u8 status_quality)
+ {
+-	return (status->frame_status&ZD_RX_OFDM) ?
+-		ofdm_qual_db(status->signal_quality_ofdm,
+-			     zd_ofdm_plcp_header_rate(rx_frame),
+-			     size) :
+-		cck_snr_db(status->signal_quality_cck);
++	int r;
++
++	r = cck_snr_db(status_quality);
++	r = (100*r)/17;
++	return r <= 100 ? r : 100;
+ }
+ 
+ u8 zd_rx_qual_percent(const void *rx_frame, unsigned int size,
+ 	              const struct rx_status *status)
+ {
+-	int r = rx_qual_db(rx_frame, size, status);
+-	if (r < 0)
+-		r = 0;
+-	r = (r * 100) / 14;
+-	if (r > 100)
+-		r = 100;
+-	return r;
++	return (status->frame_status&ZD_RX_OFDM) ?
++		ofdm_qual_percent(status->signal_quality_ofdm,
++			          zd_ofdm_plcp_header_rate(rx_frame),
++			          size) :
++		cck_qual_percent(status->signal_quality_cck);
+ }
+ 
+ u8 zd_rx_strength_percent(u8 rssi)
+ {
+-	int r = (rssi*100) / 30;
++	int r = (rssi*100) / 41;
+ 	if (r > 100)
+ 		r = 100;
+ 	return (u8) r;
+diff --git a/drivers/net/wireless/zd1211rw/zd_mac.c b/drivers/net/wireless/zd1211rw/zd_mac.c
+index d6f3e02..a9bd80a 100644
+--- a/drivers/net/wireless/zd1211rw/zd_mac.c
++++ b/drivers/net/wireless/zd1211rw/zd_mac.c
+@@ -816,13 +816,25 @@ static int filter_rx(struct ieee80211_de
+ 	return -EINVAL;
+ }
+ 
+-static void update_qual_rssi(struct zd_mac *mac, u8 qual_percent, u8 rssi)
++static void update_qual_rssi(struct zd_mac *mac,
++			     const u8 *buffer, unsigned int length,
++			     u8 qual_percent, u8 rssi_percent)
+ {
+ 	unsigned long flags;
++	struct ieee80211_hdr_3addr *hdr;
++	int i;
++
++	hdr = (struct ieee80211_hdr_3addr *)buffer;
++	if (length < offsetof(struct ieee80211_hdr_3addr, addr3))
++		return;
++	if (memcmp(hdr->addr2, zd_mac_to_ieee80211(mac)->bssid, ETH_ALEN) != 0)
++		return;
+ 
+ 	spin_lock_irqsave(&mac->lock, flags);
+-	mac->qual_average = (7 * mac->qual_average + qual_percent) / 8;
+-	mac->rssi_average = (7 * mac->rssi_average + rssi) / 8;
++	i = mac->stats_count % ZD_MAC_STATS_BUFFER_SIZE;
++	mac->qual_buffer[i] = qual_percent;
++	mac->rssi_buffer[i] = rssi_percent;
++	mac->stats_count++;
+ 	spin_unlock_irqrestore(&mac->lock, flags);
+ }
+ 
+@@ -853,7 +865,6 @@ static int fill_rx_stats(struct ieee8021
+ 	if (stats->rate)
+ 		stats->mask |= IEEE80211_STATMASK_RATE;
+ 
+-	update_qual_rssi(mac, stats->signal, stats->rssi);
+ 	return 0;
+ }
+ 
+@@ -877,6 +888,8 @@ int zd_mac_rx(struct zd_mac *mac, const 
+ 		  sizeof(struct rx_status);
+ 	buffer += ZD_PLCP_HEADER_SIZE;
+ 
++	update_qual_rssi(mac, buffer, length, stats.signal, stats.rssi);
++
+ 	r = filter_rx(ieee, buffer, length, &stats);
+ 	if (r <= 0)
+ 		return r;
+@@ -981,17 +994,31 @@ struct iw_statistics *zd_mac_get_wireles
+ {
+ 	struct zd_mac *mac = zd_netdev_mac(ndev);
+ 	struct iw_statistics *iw_stats = &mac->iw_stats;
++	unsigned int i, count, qual_total, rssi_total;
+ 
+ 	memset(iw_stats, 0, sizeof(struct iw_statistics));
+ 	/* We are not setting the status, because ieee->state is not updated
+ 	 * at all and this driver doesn't track authentication state.
+ 	 */
+ 	spin_lock_irq(&mac->lock);
+-	iw_stats->qual.qual = mac->qual_average;
+-	iw_stats->qual.level = mac->rssi_average;
+-	iw_stats->qual.updated = IW_QUAL_QUAL_UPDATED|IW_QUAL_LEVEL_UPDATED|
+-		                 IW_QUAL_NOISE_INVALID;
++	count = mac->stats_count < ZD_MAC_STATS_BUFFER_SIZE ?
++		mac->stats_count : ZD_MAC_STATS_BUFFER_SIZE;
++	qual_total = rssi_total = 0;
++	for (i = 0; i < count; i++) {
++		qual_total += mac->qual_buffer[i];
++		rssi_total += mac->rssi_buffer[i];
++	}
+ 	spin_unlock_irq(&mac->lock);
++	iw_stats->qual.updated = IW_QUAL_NOISE_INVALID;
++	if (count > 0) {
++		iw_stats->qual.qual = qual_total / count;
++		iw_stats->qual.level = rssi_total / count;
++		iw_stats->qual.updated |=
++			IW_QUAL_QUAL_UPDATED|IW_QUAL_LEVEL_UPDATED;
++	} else {
++		iw_stats->qual.updated |=
++			IW_QUAL_QUAL_INVALID|IW_QUAL_LEVEL_INVALID;
++	}
+ 	/* TODO: update counter */
+ 	return iw_stats;
+ }
+diff --git a/drivers/net/wireless/zd1211rw/zd_mac.h b/drivers/net/wireless/zd1211rw/zd_mac.h
+index 71e382c..b3ba49b 100644
+--- a/drivers/net/wireless/zd1211rw/zd_mac.h
++++ b/drivers/net/wireless/zd1211rw/zd_mac.h
+@@ -1,4 +1,4 @@
+-/* zd_mac.c
++/* zd_mac.h
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -87,9 +87,9 @@ struct rx_length_info {
+ #define RX_LENGTH_INFO_TAG		0x697e
+ 
+ struct rx_status {
++	u8 signal_quality_cck;
+ 	/* rssi */
+ 	u8 signal_strength;
+-	u8 signal_quality_cck;
+ 	u8 signal_quality_ofdm;
+ 	u8 decryption_type;
+ 	u8 frame_status;
+@@ -120,14 +120,17 @@ enum mac_flags {
+ 	MAC_FIXED_CHANNEL = 0x01,
+ };
+ 
++#define ZD_MAC_STATS_BUFFER_SIZE 16
++
+ struct zd_mac {
+ 	struct net_device *netdev;
+ 	struct zd_chip chip;
+ 	spinlock_t lock;
+ 	/* Unlocked reading possible */
+ 	struct iw_statistics iw_stats;
+-	u8 qual_average;
+-	u8 rssi_average;
++	unsigned int stats_count;
++	u8 qual_buffer[ZD_MAC_STATS_BUFFER_SIZE];
++	u8 rssi_buffer[ZD_MAC_STATS_BUFFER_SIZE];
+ 	u8 regdomain;
+ 	u8 default_regdomain;
+ 	u8 requested_channel;

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWIMSvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWIMTIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWIMSvR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWIMSvR
+	id S1751120AbWIMTIR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWIMTIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:51:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25501 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751093AbWIMSvQ (ORCPT
+	Wed, 13 Sep 2006 15:08:17 -0400
+Received: from gw.goop.org ([64.81.55.164]:46019 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751120AbWIMTIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:51:16 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <45084833.4040602@yahoo.com.au> 
-References: <45084833.4040602@yahoo.com.au>  <44F395DE.10804@yahoo.com.au> <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> 
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>,
+	Wed, 13 Sep 2006 15:08:16 -0400
+Message-ID: <450854F3.20603@goop.org>
+Date: Wed, 13 Sep 2006 11:58:59 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
        Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent? 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 13 Sep 2006 19:50:55 +0100
-Message-ID: <22461.1158173455@warthog.cambridge.redhat.com>
+       Zachary Amsden <zach@vmware.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
+Subject: Assignment of GDT entries
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+What's the rationale for the current assignment of GDT entries?  In 
+particular, this section:
 
-> +	while ((tmp = atomic_read(&sem->count)) >= 0) {
-> +		if (tmp == atomic_cmpxchg(&sem->count, tmp,
-> +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
+ *   0 - null
+ *   1 - reserved
+ *   2 - reserved
+ *   3 - reserved
+ *
+ *   4 - unused			<==== new cacheline
+ *   5 - unused
+ *
+ *  ------- start of TLS (Thread-Local Storage) segments:
+ *
+ *   6 - TLS segment #1			[ glibc's TLS segment ]
+ *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
+ *   8 - TLS segment #3
+ *   9 - reserved
+ *  10 - reserved
+ *  11 - reserved
 
-NAK for FRV.  Do not use atomic_cmpxchg() there as it isn't strictly atomic
-(FRV only has one strictly atomic operation: SWAP).  Please leave FRV as using
-the spinlock version which is more efficient on UP.
 
-Please also show benchmarks to show the performance difference between your
-version and the old version before Ingo messed it up and made everything
-unconditionally out of line without cleaning the inline asm up.
+What are entries 1-3 and 9-11 reserved for?  Must they be unused for 
+some reason, or is there some proposed use that has not been impemented yet?
 
-If you are going to generalise, you should get rid of everything barring the
-spinlock-based version and stick with that.  It will cost you performance
-under some circumstances, but it's better under others than attempting to use
-atomic_cmpxchg() which may not really exist on all archs.
+Also, is there a particular reason kernel GDT entries start at 12?  
+Would there be a problem in using either 4 or 5 for a kernel GDT descriptor?
 
-You've also caused another problem: the spinlock based version permits up to
-2^31 - 1 readers at one time, the inline optimised version, on a 32-bit arch,
-will only permit up to 2^16 - 1 at most.  By doing this to x86_64, you've
-reduced the number of processes it can support.
+I'm asking because I'd like to use one of these entries for the PDA 
+descriptor, so that it is on the same cache line as the TLS 
+descriptors.  That way, the entry/exit segment register reloads would 
+still only need to touch two GDT cache lines.  Would there be a real 
+problem in doing this?
 
-David
+Thanks,
+    J
+

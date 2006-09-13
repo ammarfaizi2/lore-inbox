@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWIMSNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWIMSQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWIMSNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWIMSNQ
+	id S1751029AbWIMSQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWIMSQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:13:16 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:10633 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750999AbWIMSNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:13:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=r3c4IkbFizfmtRFXsMsiu19jCNXz4LHilRCI5Yd44MaV4nIMTepXkcT10FFcPfPbHfOSt1sHbCXnsteS25AcKdHD9w7v1r8MnvqPKW4Vq7dYczZzF7PBfpkvBx47kSJNBQdpT6CK2xgkMpcmgCVLvpjj92BYPAaJ+wafYH6u21k=  ;
-Message-ID: <45084A2C.8030804@yahoo.com.au>
-Date: Thu, 14 Sep 2006 04:13:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 13 Sep 2006 14:16:14 -0400
+Received: from mga09.intel.com ([134.134.136.24]:26899 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1751029AbWIMSQN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 14:16:13 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,160,1157353200"; 
+   d="scan'208"; a="126249537:sNHT869753871"
+Message-ID: <45084ADA.3050604@linux.intel.com>
+Date: Wed, 13 Sep 2006 20:15:54 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> <45084833.4040602@yahoo.com.au> <Pine.LNX.4.64.0609131106260.18264@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0609131106260.18264@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Jason Baron <jbaron@redhat.com>
+Subject: Re: [PATCH 2/2] new bd_mutex lockdep annotation
+References: <20060913174312.528491000@chello.nl> <20060913174650.432175000@chello.nl>
+In-Reply-To: <20060913174650.432175000@chello.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 14 Sep 2006, Nick Piggin wrote:
+Peter Zijlstra wrote:
+> Use the gendisk partition number to set a lock class.
 > 
+I like this approach a whole better than what is there today (but we talked about that before ;)
+It's a lot more obviously the right approach and kills a whole lot of ugly duplication
+
+so
+
+Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+
 > 
->>Comments?
-> 
-> 
-> You only support 64k waiters. We have had cases of software failing 
-> because more than 64k readers were waiting.
-
-Oh really? OK I figured if ppc64 was OK then that would be enough,
-but your large Altix systems did slip my mind.
-
-That is a fair criticism... atomic_long it will have to be, then.
-That will require a bit of atomic work to get atomic64_cmpxchg
-available on all 64-bit architectures.
-
-> Please sent patches inline in order for us to be able to comment.
-
-OK I will for next patchset.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> --

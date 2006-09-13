@@ -1,95 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWIMBYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWIMB0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWIMBYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 21:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWIMBYv
+	id S1030475AbWIMB0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 21:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWIMB0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 21:24:51 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:10639 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S1751469AbWIMBYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 21:24:50 -0400
-Date: Wed, 13 Sep 2006 03:24:47 +0200
-From: Christian Leber <christian@leber.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG] 2.6.18-rc6: hda is allready "IN USE" when booting / pi futex
-Message-ID: <20060913012447.GA29749@core>
-References: <20060907133357.GA30888@core> <20060912153932.GA14388@core> <20060912173455.GB6236@elte.hu> <20060912214822.GA20437@core> <20060912215510.GA14878@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060912215510.GA14878@elte.hu>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.11
+	Tue, 12 Sep 2006 21:26:52 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:21880 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1030475AbWIMB0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 21:26:51 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=aZ+7P7SHzzymQrVZDS3BO6EbzYXMg1C68KSwv+45Dl7c3UPfUODiQW4zdJCcpDeCx
+	NBjr/uuUx+jaG09D/e3OQ==
+Subject: Re: [ckrm-tech] [PATCH] BC: resource
+	beancounters	(v4)	(added	user	memory)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: sekharan@us.ibm.com
+Cc: Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1158109818.4800.39.camel@linuxchandra>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+	 <1157999107.6029.7.camel@linuxchandra>
+	 <1158001831.12947.16.camel@galaxy.corp.google.com>
+	 <1158003725.6029.60.camel@linuxchandra>
+	 <1158019099.12947.102.camel@galaxy.corp.google.com>
+	 <1158105253.4800.20.camel@linuxchandra>
+	 <1158107948.20211.47.camel@galaxy.corp.google.com>
+	 <1158109818.4800.39.camel@linuxchandra>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Tue, 12 Sep 2006 18:25:51 -0700
+Message-Id: <1158110751.20211.61.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 11:55:10PM +0200, Ingo Molnar wrote:
+On Tue, 2006-09-12 at 18:10 -0700, Chandra Seetharaman wrote:
+> On Tue, 2006-09-12 at 17:39 -0700, Rohit Seth wrote:
+> <snip>
+> > > yes, it would be there, but is not heavy, IMO.
+> > 
+> > I think anything greater than 1% could be a concern for people who are
+> > not very interested in containers but would be forced to live with them.
+> 
+> If they are not interested in resource management and/or containers, i
+> do not think they need to pay.
+> > 
 
-> ok, great. Could you try the patch below ontop of 2.6.18-rc6, does it 
-> 'fix' your bootup too?
+Think of a single kernel from a vendor that has container support built
+in.
 
-Yes, it does.
+> > > > 
+> > > > > > 
+> > > > > > And anything running outside a container should be limited by default
+> > > > > > Linux settings.
+> > > > > 
+> > > > > note that the resource available to the default RG will be (total system
+> > > > > resource - allocated to RGs).
+> > > > 
+> > > > I think it will be preferable to not change the existing behavior for
+> > > > applications that are running outside any container (in your case
+> > > > default resource group).
+> > > 
+> > > hmm, when you provide QoS for a set of apps, you will affect (the
+> > > resource availability of) other apps. I don't see any way around it. Any
+> > > ideas ?
+> > 
+> > When I say, existing behavior, I mean not getting impacted by some
+> > artificial limits that are imposed by container subsystem.  IOW, if a
+> 
+> That is what I understood and replied above.
+> > sysadmin is okay to have certain apps running outside of container then
+> > he is basically forgoing any QoS for any container on that system.
+> 
+> Not at all. If the container they are interested in is guaranteed, I do
+> not see how apps running outside a container would affect them.
+> 
 
-> so i'm afraid you managed to trigger a race in the IDE driver that used 
-> to be dormant until now... To debug such races the best method is to 
-> create a 'trace' by printk-ing key points of the port/disk detection 
-> mechanism. [another option would be to use the latency tracer to do a 
-> _really_ finegrained trace of the incident - assuming that the bug does 
-> not go away due to tracing overhead.]
+Because the kernel (outside the container subsystem) doesn't know of
+these guarantees...unless you modify the page allocator to have another
+variant of overcommit memory.
 
-I'm looking into it, but i doubt i can find the "race"
+> <snip>
+> > > > > Not really. 
+> > > > >  - Each RG will have a guarantee and limit of each resource. 
+> > > > >  - default RG will have (system resource - sum of guarantees)
+> > > > >  - Every RG will be guaranteed some amount of resource to provide QoS
+> > > > >  - Every RG will be limited at "limit" to prevent DoS attacks.
+> > > > >  - Whoever doesn't care either of those set them to don't care values.
+> > > > > 
+> > > > 
+> > > > For the cases that put this don't care, do you depend on existing
+> > > > reclaim algorithm (for memory) in kernel?
+> > > 
+> > > Yes.
+> > 
+> > So one container with these don't care condition(s) can turn the whole
+> > guarantee thing bad.  Because existing kernel reclaimer does not know
+> > about memory commitments to other containers.  Right?
+> 
+> No, the reclaimer would free up pages associated with the don't care RGs
+> ( as the user don't care about the resource made available to them).
+> 
 
-The output, when it works it looks like this:
+And how will the kernel reclaimer know which RGs are don't care?
 
-[   11.275757] ICH2M: IDE controller at PCI slot 0000:00:1f.1
-[   11.275854] ICH2M: chipset revision 3
-[   11.275917] ICH2M: not 100% native mode: will probe irqs later
-[   11.275999]     ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:DMA
-[   11.276170]     ide1: BM-DMA at 0xbfa8-0xbfaf, BIOS settings: hdc:pio, hdd:pio
-[   11.276337] Probing IDE interface ide0...
-[    2.804000] Time: acpi_pm clocksource has been installed.
-[    3.056000] hda: IC25N020ATMR04-0, ATA DISK drive
-[    3.504000] hdb: HL-DT-STDVD-ROM GDR8081N, ATAPI CD/DVD-ROM drive
-[    3.560000] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-[    3.560000] Probing IDE interface ide1...
-[    4.136000] hda: max request size: 512KiB
-[    4.156000] hda: 39070080 sectors (20003 MB) w/1740KiB Cache, CHS=16383/255/63, UDMA(100)
-[    4.156000] hda: cache flushes supported
-[    4.156000]  hda: hda1 hda2 hda3
-[    4.216000] hdb: ATAPI 24X DVD-ROM drive, 512kB Cache, DMA
-[    4.216000] Uniform CD-ROM driver Revision: 3.20
-[    4.816000] usbcore: registered new driver usbfs
-[    4.820000] usbcore: registered new driver hub
-[    4.820000] USB Universal Host Controller Interface driver v3.0
+-rohit
 
-
-When it fails the order is different:
-(but not allways the same, of course)
-
-hda: IC25N020ATMR04-0, ATA DISK drive              <- the disk is found before the controller?!?
-ICH2M: IDE controller at PCI slot 0000:00:1f.1
-ICH2M: chipset revision 3
-ICH2M: not 100% native mode: will probe irqs later
-ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:DMA
-ide1: BM-DMA at 0xbfa8-0xbfaf, BIOS settings: hdc:pio, hdd:pio
-ide0: I/O resource 0x3F6-0x3F6 not free
-hda: ERROR, PORTS ALREADY IN USE
-ide0 ad 0x1f0-0x1f7,0x3f6 on irq 14
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-USB Universal Host Controller Interface driver v3.0
-hdb: HL-DT-STDVD-ROM GDR8081N, ATAPI CD/DVD-ROM drive
-ide1: I/O resource 0x376-0x376 not free
-ide1: ports already in use, skipping probe
-register_blkdev: cannot get major 3 for ide0
-
-
-Christian Leber
-
--- 
-  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
-   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)

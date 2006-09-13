@@ -1,125 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWIMQhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWIMQiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWIMQhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWIMQhF
+	id S1750721AbWIMQiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWIMQiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:37:05 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:3536 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750707AbWIMQhD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:37:03 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-Date: Wed, 13 Sep 2006 18:36:34 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <20060912000618.a2e2afc0.akpm@osdl.org> <200609131558.03391.rjw@sisk.pl>
-In-Reply-To: <200609131558.03391.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 13 Sep 2006 12:38:15 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:33206 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750721AbWIMQiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:38:14 -0400
+Date: Wed, 13 Sep 2006 18:38:34 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [01/12] driver core fixes: make_class_name() retval check
+Message-ID: <20060913183834.3a71bbbe@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
+References: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609131836.34714.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 13 September 2006 15:58, Rafael J. Wysocki wrote:
-> On Tuesday, 12 September 2006 09:06, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
-> 
-> 'rmmod ohci_hcd' causes the following oops to appear on my HPC 6325 every
-> time (happens also on -rc6-mm1, does not happen on -rc7):
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-So far, I have verified that the problem already happened on -rc5-mm1.
+make_class_name() may return an error pointer. Audit the callers in the
+driver core.
 
-Greetings,
-Rafael
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+ class.c |   11 ++++++++++-
+ core.c  |   31 +++++++++++++++++++++++--------
+ 2 files changed, 33 insertions(+), 9 deletions(-)
 
-> Unable to handle kernel NULL pointer dereference at 0000000000000274 RIP:
->  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
-> PGD 35ca9067 PUD 369a4067 PMD 0
-> Oops: 0000 [1] SMP
-> last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-> CPU 0
-> Modules linked in: netconsole cpufreq_ondemand cpufreq_userspace cpufreq_powersa
-> ve powernow_k8 freq_table button af_packet edd battery snd_pcm_oss snd_mixer_oss
->  snd_seq snd_seq_device ac ip6t_REJECT xt_tcpudp ipt_REJECT xt_state iptable_man
-> gle iptable_nat ip_nat iptable_filter ip6table_mangle ip_conntrack nfnetlink ip_
-> tables ip6table_filter ip6_tables x_tables ipv6 loop dm_mod usbhid ff_memless hc
-> i_usb bluetooth snd_hda_intel snd_hda_codec bcm43xx ohci1394 ohci_hcd shpchp pci
-> _hotplug pcmcia ehci_hcd i2c_piix4 ieee1394 firmware_class ieee80211softmac usbc
-> ore tg3 sdhci ieee80211 ieee80211_crypt mmc_core ide_cd k8temp yenta_socket rsrc
-> _nonstatic pcmcia_core i2c_core hwmon snd_pcm snd_timer snd soundcore snd_page_a
-> lloc cdrom ext3 jbd fan thermal processor atiixp ide_disk ide_core sg
-> Pid: 3667, comm: rmmod Tainted: G   M  2.6.18-rc6-mm2 #19
-> RIP: 0010:[<ffffffff8822c185>]  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_d
-> ata+0x25/0x27b
-> RSP: 0018:ffffffff805c7e18  EFLAGS: 00010296
-> RAX: 0000000000000000 RBX: ffff81003485c508 RCX: 0000000000000000
-> RDX: 0000000000000064 RSI: ffffffff805c7e68 RDI: ffff81003485c640
-> RBP: ffffffff805c7e58 R08: 0000000000000000 R09: ffff810037438138
-> R10: ffffffff80701c40 R11: ffff81003263bc88 R12: ffff81003485c640
-> R13: ffffffff805c7e68 R14: ffffc2000003c000 R15: ffff81003485c508
-> FS:  00002ba0d06fa6d0(0000) GS:ffffffff8066f000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: 0000000000000274 CR3: 000000002f153000 CR4: 00000000000006e0
-> Process rmmod (pid: 3667, threadinfo ffff81003263a000, task ffff81003697c810)
-> Stack:  ffffffff802813b0 ffffffff805c7e40 ffffffff80281258 ffff81003485c508
->  ffff81003485c508 ffff81003485c508 ffffc2000003c000 ffffffff805c7e68
->  ffffffff805c7ea8 ffffffff8818e03f 003d09e3f5998950 ffffffff80509860
-> Call Trace:
->  [<ffffffff8818e03f>] :usbcore:usb_hcd_poll_rh_status+0x40/0x13b
->  [<ffffffff8822c01b>] :ohci_hcd:ohci_irq+0xcb/0x210
->  [<ffffffff8818e78b>] :usbcore:usb_hcd_irq+0x2f/0x5f
->  [<ffffffff8020ef13>] handle_IRQ_event+0x33/0x66
->  [<ffffffff802af5f8>] handle_fasteoi_irq+0x9d/0xe3
->  [<ffffffff80267c85>] do_IRQ+0x104/0x11f
->  [<ffffffff80259621>] ret_from_intr+0x0/0xa
-> DWARF2 unwinder stuck at ret_from_intr+0x0/0xa
-> 
-> Leftover inexact backtrace:
-> 
->  <IRQ>  <EOI>  [<ffffffff802ee4ac>] sysfs_hash_and_remove+0x9/0x137
->  [<ffffffff802eed13>] sysfs_remove_file+0x10/0x12
->  [<ffffffff8038baf7>] class_device_remove_file+0x12/0x14
->  [<ffffffff8822aa02>] :ohci_hcd:ohci_stop+0xf5/0x17b
->  [<ffffffff8818d9d2>] :usbcore:usb_remove_hcd+0xdc/0x114
->  [<ffffffff8040f8eb>] klist_release+0x0/0x82
->  [<ffffffff88197f45>] :usbcore:usb_hcd_pci_remove+0x1e/0x7d
->  [<ffffffff803204d8>] pci_device_remove+0x25/0x3c
->  [<ffffffff8038b1b5>] __device_release_driver+0x80/0x9c
->  [<ffffffff8038b617>] driver_detach+0xac/0xee
->  [<ffffffff8038ad92>] bus_remove_driver+0x75/0x98
->  [<ffffffff8038b696>] driver_unregister+0x15/0x21
->  [<ffffffff80320686>] pci_unregister_driver+0x13/0x8e
->  [<ffffffff8822cd1c>] :ohci_hcd:ohci_hcd_pci_cleanup+0x10/0x12
->  [<ffffffff8029b281>] sys_delete_module+0x1b5/0x1e6
->  [<ffffffff8025910e>] system_call+0x7e/0x83
-> 
-> 
-> Code: 8a 98 74 02 00 00 e8 d6 3b 03 f8 48 89 45 d0 41 8b 84 24 e4
-> RIP  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
->  RSP <ffffffff805c7e18>
-> CR2: 0000000000000274
->  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-> 
-> where
-> 
-> (gdb) l *ohci_hub_status_data+0x25
-> 0x4185 is in ohci_hub_status_data (drivers/usb/host/ohci-hub.c:316).
-> 311             struct ohci_hcd *ohci = hcd_to_ohci (hcd);
-> 312             int             i, changed = 0, length = 1;
-> 313             int             can_suspend;
-> 314             unsigned long   flags;
-> 315
-> 316             can_suspend = device_may_wakeup(&hcd->self.root_hub->dev);
-> 317             spin_lock_irqsave (&ohci->lock, flags);
-> 318
-> 319             /* handle autosuspended root:  finish resuming before
-> 320              * letting khubd or root hub timer see state changes.
+diff -Naurp linux-2.6.18-rc6/drivers/base/class.c linux-2.6.18-rc6+CH/drivers/base/class.c
+--- linux-2.6.18-rc6/drivers/base/class.c	2006-09-12 14:18:40.000000000 +0200
++++ linux-2.6.18-rc6+CH/drivers/base/class.c	2006-09-12 16:17:02.000000000 +0200
+@@ -596,6 +596,11 @@ int class_device_add(struct class_device
+ 	if (class_dev->dev) {
+ 		class_name = make_class_name(class_dev->class->name,
+ 					     &class_dev->kobj);
++		if (IS_ERR(class_name)) {
++			error = PTR_ERR(class_name);
++			class_name = NULL;
++			goto out6;
++		}
+ 		error = sysfs_create_link(&class_dev->kobj,
+ 					  &class_dev->dev->kobj, "device");
+ 		if (error)
+@@ -736,7 +741,11 @@ void class_device_del(struct class_devic
+ 		class_name = make_class_name(class_dev->class->name,
+ 					     &class_dev->kobj);
+ 		sysfs_remove_link(&class_dev->kobj, "device");
+-		sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		if (!IS_ERR(class_name))
++			sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		else
++			/* Hmm, don't know what else to do */
++			class_name = NULL;
+ 	}
+ 	sysfs_remove_link(&class_dev->kobj, "subsystem");
+ 	class_device_remove_file(class_dev, &class_dev->uevent_attr);
+diff -Naurp linux-2.6.18-rc6/drivers/base/core.c linux-2.6.18-rc6+CH/drivers/base/core.c
+--- linux-2.6.18-rc6/drivers/base/core.c	2006-09-12 14:18:57.000000000 +0200
++++ linux-2.6.18-rc6+CH/drivers/base/core.c	2006-09-12 16:17:02.000000000 +0200
+@@ -437,7 +437,11 @@ int device_add(struct device *dev)
+ 		if ((parent) && (!device_is_virtual(dev))) {
+ 			sysfs_create_link(&dev->kobj, &dev->parent->kobj, "device");
+ 			class_name = make_class_name(dev->class->name, &dev->kobj);
+-			sysfs_create_link(&dev->parent->kobj, &dev->kobj, class_name);
++			if (!IS_ERR(class_name))
++				sysfs_create_link(&dev->parent->kobj,
++						  &dev->kobj, class_name);
++			else
++				class_name = NULL;
+ 		}
+ 	}
+ 
+@@ -557,12 +561,16 @@ void device_del(struct device * dev)
+ 	if (dev->class) {
+ 		sysfs_remove_link(&dev->kobj, "subsystem");
+ 		sysfs_remove_link(&dev->class->subsys.kset.kobj, dev->bus_id);
+-		class_name = make_class_name(dev->class->name, &dev->kobj);
+ 		if ((parent) && (!device_is_virtual(dev))) {
++			class_name = make_class_name(dev->class->name,
++						     &dev->kobj);
+ 			sysfs_remove_link(&dev->kobj, "device");
+-			sysfs_remove_link(&dev->parent->kobj, class_name);
++			if (!IS_ERR(class_name)) {
++				sysfs_remove_link(&dev->parent->kobj,
++						  class_name);
++				kfree(class_name);
++			}
+ 		}
+-		kfree(class_name);
+ 		down(&dev->class->sem);
+ 		list_del_init(&dev->node);
+ 		up(&dev->class->sem);
+@@ -763,9 +771,14 @@ int device_rename(struct device *dev, ch
+ 
+ 	pr_debug("DEVICE: renaming '%s' to '%s'\n", dev->bus_id, new_name);
+ 
+-	if ((dev->class) && (dev->parent))
++	if ((dev->class) && (dev->parent)) {
+ 		old_class_name = make_class_name(dev->class->name, &dev->kobj);
+-
++		if (IS_ERR(old_class_name)) {
++			error = PTR_ERR(old_class_name);
++			old_class_name = NULL;
++			goto out;
++		}
++	}
+ 	if (dev->class) {
+ 		old_symlink_name = kmalloc(BUS_ID_SIZE, GFP_KERNEL);
+ 		if (!old_symlink_name)
+@@ -779,11 +792,12 @@ int device_rename(struct device *dev, ch
+ 
+ 	if (old_class_name) {
+ 		new_class_name = make_class_name(dev->class->name, &dev->kobj);
+-		if (new_class_name) {
++		if (!IS_ERR(new_class_name)) {
+ 			sysfs_create_link(&dev->parent->kobj, &dev->kobj,
+ 					  new_class_name);
+ 			sysfs_remove_link(&dev->parent->kobj, old_class_name);
+-		}
++		} else
++			new_class_name = NULL;
+ 	}
+ 	if (dev->class) {
+ 		sysfs_remove_link(&dev->class->subsys.kset.kobj,
+@@ -791,6 +805,7 @@ int device_rename(struct device *dev, ch
+ 		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
+ 				  dev->bus_id);
+ 	}
++out:
+ 	put_device(dev);
+ 
+ 	kfree(old_class_name);

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWIMRyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWIMR63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWIMRyq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 13:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWIMRyq
+	id S1750878AbWIMR63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 13:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWIMR62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 13:54:46 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:25449 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750851AbWIMRyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 13:54:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=tenPvnS47rTYuqmT7p6FA8D21nq/K+e2H8EbNQEGGklcivgjkDPJzT9SE/sAmPm2p0Z2vYaTU5g35xyTd71fEvL27UCmOcwv6x+gvXkwVZBsA7uKaIKzTNvFz+3XxBMg3Ivd4gha4cMC39SpnvDGziRCdl2Kb7Q6nMVRUePjMyw=  ;
-Message-ID: <450845CC.6000402@yahoo.com.au>
-Date: Thu, 14 Sep 2006 03:54:20 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       David Howells <dhowells@redhat.com>
-Subject: Re: Why Semaphore Hardware-Dependent?
-References: <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <44F395DE.10804@yahoo.com.au> <200608290807.40963.ak@suse.de>
-In-Reply-To: <200608290807.40963.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 13 Sep 2006 13:58:28 -0400
+Received: from www.osadl.org ([213.239.205.134]:56254 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750878AbWIMR62 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 13:58:28 -0400
+Subject: Re: RT, timers and CLOCK_REALTIME_HR
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200609131712.26350.Serge.Noiraud@bull.net>
+References: <200609131712.26350.Serge.Noiraud@bull.net>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 19:59:07 +0200
+Message-Id: <1158170348.5724.142.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry, I missed some emails when I was out of action a while back. Catching up...]
-
-Andi Kleen wrote:
->>and chuck out the "crappy" rwsem fallback implementation
+On Wed, 2006-09-13 at 17:12 +0200, Serge Noiraud wrote:
+> Hi,
 > 
+> 	I have one question about CLOCK_REALTIME_HR. 
+> Before the rt patch I used to work with this clock. ie : hrtimers-support-3.1.1
 > 
-> What is crappy with it?
+> With the rt patch it seems CLOCK_REALTIME_HR does not exist anymore !
+> Is this normal ?
 
-I just mean that it is supposedly the second class implementation. Just
-seems wrong when powerpc has implemented the "better" version in a completely
-generic way (patch to follow).
+Yes, we removed it a while ago. Same for CLOCK_MONOTONIC_HR.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> The kernel speaks about that in arch/ia64/Kconfig
+> perhaps it should be removed !
+
+Yep.
+
+> I had a libtimers using this clock.
+> 
+> Is the good correction to say CLOCK_REALTIME_HR = CLOCK_REALTIME ?
+> I don't want to modify all my programs.
+
+Probably that's the best hack for you.
+
+	tglx
+
+

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWIMNDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWIMNDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWIMNDf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 09:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWIMNDQ
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 09:03:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44486 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750777AbWIMNDK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1750776AbWIMNDK (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Sep 2006 09:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWIMNDJ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 13 Sep 2006 09:03:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38342 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750770AbWIMNDG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 09:03:06 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 6/6] Alter roundup_pow_of_two() so that it can make use of long_log2() on a constant
-Date: Wed, 13 Sep 2006 14:03:04 +0100
+Subject: [PATCH 3/6] FRV: Optimise ffs()
+Date: Wed, 13 Sep 2006 14:02:58 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060913130304.32022.10732.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060913130258.32022.85288.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com>
 References: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,72 +26,63 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Alter roundup_pow_of_two() so that it can make use of long_log2() on a constant
-to produce a constant value, retaining the ability for an arch to override it
-in the non-const case.
-
-This permits the function to be used to initialise variables.
+Optimise ffs(x) by using fls(x & x - 1) which we optimise to use the SCAN
+instruction.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/kernel.h |    6 ------
- include/linux/log2.h   |   23 +++++++++++++++++++++++
- 2 files changed, 23 insertions(+), 6 deletions(-)
+ include/asm-frv/bitops.h |   33 +++++++++++++++++++++++++++++++--
+ 1 files changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index e8c6c66..e5947fb 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -155,12 +155,6 @@ #endif
+diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
+index 591eecc..1f70d47 100644
+--- a/include/asm-frv/bitops.h
++++ b/include/asm-frv/bitops.h
+@@ -157,8 +157,6 @@ (__builtin_constant_p(nr) ? \
+  __constant_test_bit((nr),(addr)) : \
+  __test_bit((nr),(addr)))
  
- unsigned long int_sqrt(unsigned long);
+-#include <asm-generic/bitops/ffs.h>
+-#include <asm-generic/bitops/__ffs.h>
+ #include <asm-generic/bitops/find.h>
  
--static inline unsigned long
--__attribute_const__ roundup_pow_of_two(unsigned long x)
--{
--	return 1UL << fls_long(x - 1);
--}
--
- extern int printk_ratelimit(void);
- extern int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst);
+ /**
+@@ -227,6 +225,37 @@ int fls64(u64 n)
  
-diff --git a/include/linux/log2.h b/include/linux/log2.h
-index a2f6858..2b55af0 100644
---- a/include/linux/log2.h
-+++ b/include/linux/log2.h
-@@ -74,6 +74,15 @@ #endif
- #endif
+ }
  
- /*
-+ * round up to nearest power of two
++/**
++ * ffs - find first bit set
++ * @x: the word to search
++ *
++ * - return 32..1 to indicate bit 31..0 most least significant bit set
++ * - return 0 to indicate no bits set
 + */
 +static inline __attribute__((const))
-+unsigned long __roundup_pow_of_two(unsigned long n)
++int ffs(int x)
 +{
-+	return 1UL << fls_long(n - 1);
++	/* Note: (x & -x) gives us a mask that is the least significant
++	 * (rightmost) 1-bit of the value in x.
++	 */
++	return fls(x & -x);
 +}
 +
-+/*
-  * constant-capable 32-bit log of base 2 calculation
-  * - this can be used to initialise global variables from constant data, hence
-  *   the massive ternary operator construction
-@@ -218,4 +227,18 @@ (									\
- 	__get_order(n, PAGE_SHIFT)					\
-  )
- 
-+/*
-+ * round up to nearest power of two
-+ * - the result is undefined when n == 0
-+ * - this can be used to initialise global variables from constant data
++/**
++ * __ffs - find first bit set
++ * @x: the word to search
++ *
++ * - return 31..0 to indicate bit 31..0 most least significant bit set
++ * - if no bits are set in x, the result is undefined
 + */
-+#define roundup_pow_of_two(n)				\
-+(							\
-+	__builtin_constant_p(n) ? (			\
-+		(n == 1) ? 0 :				\
-+		(1UL << (long_log2((n) - 1) + 1))	\
-+				   ) :			\
-+	__roundup_pow_of_two(n)				\
-+ )
++static inline __attribute__((const))
++int __ffs(unsigned long x)
++{
++	int bit;
++	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x & -x));
++	return 31 - bit;
++}
 +
- #endif /* _LINUX_LOG2_H */
+ #include <asm-generic/bitops/sched.h>
+ #include <asm-generic/bitops/hweight.h>
+ 

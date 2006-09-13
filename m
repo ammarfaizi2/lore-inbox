@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWIMUVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWIMUZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWIMUVT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 16:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWIMUVT
+	id S1751171AbWIMUZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 16:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWIMUZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 16:21:19 -0400
-Received: from minus.inr.ac.ru ([194.67.69.97]:36755 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1750864AbWIMUVS (ORCPT
+	Wed, 13 Sep 2006 16:25:28 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:476 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751073AbWIMUZ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 16:21:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=DhiDyB+9E9LNPkyUaenTHQKWm/b30RVpkr4d4mCiVtXKiUxd4qbHG5sgd/63FGzqJQOhEEf1g94jZNBWkJneT1Mc12ppKVA4trnCuekArqKW42sZcvcsqztUXpz75FEUIKeDY8qEK0uOUWKHKBx13k3m+NTueDqDCDdrWX6UkNU=;
-Date: Thu, 14 Sep 2006 00:20:29 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: David Stevens <dlstevens@us.ibm.com>
-Cc: Jeff Layton <jlayton@poochiereds.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netdev-owner@vger.kernel.org
-Subject: Re: [PATCH] make ipv4 multicast packets only get delivered to sockets	that are joined to group
-Message-ID: <20060913202029.GA4666@ms2.inr.ac.ru>
-References: <1158156835.15449.40.camel@dantu.rdu.redhat.com> <OF0C86B64A.DE64FE98-ON882571E8.004F57A7-882571E8.004FDDED@us.ibm.com>
+	Wed, 13 Sep 2006 16:25:26 -0400
+Subject: Re: [RFC][PATCH] set_page_buffer_dirty should skip unmapped buffers
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Anton Altaparmakov <aia21@cam.ac.uk>, sct@redhat.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
+In-Reply-To: <20060907223048.GD22549@atrey.karlin.mff.cuni.cz>
+References: <20060901101801.7845bca2.akpm@osdl.org>
+	 <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906124719.GA11868@atrey.karlin.mff.cuni.cz>
+	 <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906153449.GC18281@atrey.karlin.mff.cuni.cz>
+	 <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906162723.GA14345@atrey.karlin.mff.cuni.cz>
+	 <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
+	 <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060907223048.GD22549@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 15:25:19 -0500
+Message-Id: <1158179120.11112.2.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF0C86B64A.DE64FE98-ON882571E8.004F57A7-882571E8.004FDDED@us.ibm.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 2006-09-08 at 00:30 +0200, Jan Kara wrote:
+> diff -rupX /home/jack/.kerndiffexclude
+> linux-2.6.18-rc6/fs/jbd/commit.c
+> linux-2.6.18-rc6-1-orderedwrite/fs/jbd/commit.c
+> --- linux-2.6.18-rc6/fs/jbd/commit.c    2006-09-06 18:20:48.000000000
+> +0200
+> +++ linux-2.6.18-rc6-1-orderedwrite/fs/jbd/commit.c     2006-09-08
+> 01:05:35.000000000 +0200
+> @@ -160,6 +160,117 @@ static int journal_write_commit_record(j
+>         return (ret == -EIO);
+>  }
+>  
+> +void journal_do_submit_data(struct buffer_head **wbuf, int bufs)
 
-> IPv6 behaves the same way.
+Is there any reason this couldn't be static?
 
-Actually, Linux IPv6 filters received multicasts, inet6_mc_check() does
-this.
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < bufs; i++) {
+> +               wbuf[i]->b_end_io = end_buffer_write_sync;
+> +               /* We use-up our safety reference in submit_bh() */
+> +               submit_bh(WRITE, wbuf[i]);
+> +       }
+> +} 
 
-IPv4 does not. I remember that attempts to do this were made in the past
-and failed, because some applications, related to multicast routing,
-did expect to receive all the multicasts even though they did not join
-any multicast addresses. So, it was left intact.
+I'm rebasing the ext4 work on the latest -mm tree and would like to
+avoid renaming this function in the jbd2 clone.
 
-Alexey
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

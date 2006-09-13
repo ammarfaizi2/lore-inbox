@@ -1,117 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWIMTY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWIMTZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWIMTY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWIMTY4
+	id S1750971AbWIMTZz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWIMTZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:24:56 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:17617 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750908AbWIMTYz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:24:55 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-Date: Wed, 13 Sep 2006 21:24:22 +0200
-User-Agent: KMail/1.9.1
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
+	Wed, 13 Sep 2006 15:25:55 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:64657 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750938AbWIMTZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 15:25:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=DpewvwCA0PIdjxEDvm9L/ew0JkoDLypNKowdj8MphrYjhz079wiPWJmcoxh5j2ovRH25gcwjEMBEuJngNUCpAJAWB6Q04b+/7sBe81vuTezaZVT/9LaA0B0kZUNGiGeO7R+LB/pSVX396WjOfX5lTIifj75kA2TA67Ibs8eqSIc=  ;
+Message-ID: <45085B31.3080504@yahoo.com.au>
+Date: Thu, 14 Sep 2006 05:25:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: David Howells <dhowells@redhat.com>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
+       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: Why Semaphore Hardware-Dependent?
+References: <45084833.4040602@yahoo.com.au>  <44F395DE.10804@yahoo.com.au> <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> <22461.1158173455@warthog.cambridge.redhat.com>
+In-Reply-To: <22461.1158173455@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609132124.23630.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 13 September 2006 20:44, Alan Stern wrote:
-> On Wed, 13 Sep 2006, Rafael J. Wysocki wrote:
+David Howells wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> > 'rmmod ohci_hcd' causes the following oops to appear on my HPC 6325 every
-> > time (happens also on -rc6-mm1, does not happen on -rc7):
-> > 
-> > Unable to handle kernel NULL pointer dereference at 0000000000000274 RIP:
-> >  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
-> > PGD 35ca9067 PUD 369a4067 PMD 0
 > 
-> > Call Trace:
-> >  [<ffffffff8818e03f>] :usbcore:usb_hcd_poll_rh_status+0x40/0x13b
-> >  [<ffffffff8822c01b>] :ohci_hcd:ohci_irq+0xcb/0x210
-> >  [<ffffffff8818e78b>] :usbcore:usb_hcd_irq+0x2f/0x5f
-> >  [<ffffffff8020ef13>] handle_IRQ_event+0x33/0x66
-> >  [<ffffffff802af5f8>] handle_fasteoi_irq+0x9d/0xe3
-> >  [<ffffffff80267c85>] do_IRQ+0x104/0x11f
-> >  [<ffffffff80259621>] ret_from_intr+0x0/0xa
-> > DWARF2 unwinder stuck at ret_from_intr+0x0/0xa
-> > 
-> > Leftover inexact backtrace:
-> > 
-> >  <IRQ>  <EOI>  [<ffffffff802ee4ac>] sysfs_hash_and_remove+0x9/0x137
-> >  [<ffffffff802eed13>] sysfs_remove_file+0x10/0x12
-> >  [<ffffffff8038baf7>] class_device_remove_file+0x12/0x14
-> >  [<ffffffff8822aa02>] :ohci_hcd:ohci_stop+0xf5/0x17b
-> >  [<ffffffff8818d9d2>] :usbcore:usb_remove_hcd+0xdc/0x114
-> >  [<ffffffff8040f8eb>] klist_release+0x0/0x82
-> >  [<ffffffff88197f45>] :usbcore:usb_hcd_pci_remove+0x1e/0x7d
-> >  [<ffffffff803204d8>] pci_device_remove+0x25/0x3c
-> >  [<ffffffff8038b1b5>] __device_release_driver+0x80/0x9c
-> >  [<ffffffff8038b617>] driver_detach+0xac/0xee
-> >  [<ffffffff8038ad92>] bus_remove_driver+0x75/0x98
-> >  [<ffffffff8038b696>] driver_unregister+0x15/0x21
-> >  [<ffffffff80320686>] pci_unregister_driver+0x13/0x8e
-> >  [<ffffffff8822cd1c>] :ohci_hcd:ohci_hcd_pci_cleanup+0x10/0x12
-> >  [<ffffffff8029b281>] sys_delete_module+0x1b5/0x1e6
-> >  [<ffffffff8025910e>] system_call+0x7e/0x83
-> > 
-> > 
-> > Code: 8a 98 74 02 00 00 e8 d6 3b 03 f8 48 89 45 d0 41 8b 84 24 e4
-> > RIP  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
-> >  RSP <ffffffff805c7e18>
-> > CR2: 0000000000000274
-> >  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-> > 
-> > where
-> > 
-> > (gdb) l *ohci_hub_status_data+0x25
-> > 0x4185 is in ohci_hub_status_data (drivers/usb/host/ohci-hub.c:316).
-> > 311             struct ohci_hcd *ohci = hcd_to_ohci (hcd);
-> > 312             int             i, changed = 0, length = 1;
-> > 313             int             can_suspend;
-> > 314             unsigned long   flags;
-> > 315
-> > 316             can_suspend = device_may_wakeup(&hcd->self.root_hub->dev);
-> > 317             spin_lock_irqsave (&ohci->lock, flags);
-> > 318
-> > 319             /* handle autosuspended root:  finish resuming before
-> > 320              * letting khubd or root hub timer see state changes.
-> > 
-> > I guess it may be related to the suspend issues?
+>>+	while ((tmp = atomic_read(&sem->count)) >= 0) {
+>>+		if (tmp == atomic_cmpxchg(&sem->count, tmp,
+>>+				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
 > 
-> No, this is completely separate.  The suspend issue involved ehci-hcd, not 
-> ohci-hcd.
-
-Well, on my box it's ohci-hcd too.
-
-> This problem has already been identified by Pete Zaitcev in this thread:
 > 
-> 	http://marc.theaimsgroup.com/?t=115769512800001&r=1&w=2
+> NAK for FRV.  Do not use atomic_cmpxchg() there as it isn't strictly atomic
+> (FRV only has one strictly atomic operation: SWAP).  Please leave FRV as using
+> the spinlock version which is more efficient on UP.
 
-Ah, thanks.
+ From what I can read of the asm and the documentation, it is atomic. If
+it were not atomic then it is badly broken.
 
-> Perhaps Pete has an updated patch to fix the problem.  If not, I could 
-> write one.
+BTW. if atomic_cmpxchg is slower than a local_irq_disable+local_irq_enable
+on your architecture then you have probably not implemented cmpxchg well
+because you may as well just implement it with local_irq_disable.
 
-For now I can use the original Pete's patch, but it would be nice to have a
-fix in -mm. ;-)
+> Please also show benchmarks to show the performance difference between your
+> version and the old version before Ingo messed it up and made everything
+> unconditionally out of line without cleaning the inline asm up.
 
-Greetings,
-Rafael
+I'm not so interested in counting cycles so much as consolidating duplicated
+code and reduce complexity and icache footprint. I'll leave you to benchmark
+Ingo's changes if you're concerned about them.
 
+Of course I will benchmark the end results when I finish the patch, though.
+
+> If you are going to generalise, you should get rid of everything barring the
+> spinlock-based version and stick with that.  It will cost you performance
+> under some circumstances, but it's better under others than attempting to use
+> atomic_cmpxchg() which may not really exist on all archs.
+
+atomic_cmpxchg exists on all architectures.
+
+I'm happy to go with the spinlock version (it is even simpler), but I will
+have to benchmark that. I have seen small slowdowns there in high contention
+situations but it was improved with my rwsem scalability patch. If
+performance is no different between the two, then the spinlock version is a
+no brainer.
+
+> You've also caused another problem: the spinlock based version permits up to
+> 2^31 - 1 readers at one time, the inline optimised version, on a 32-bit arch,
+> will only permit up to 2^16 - 1 at most.  By doing this to x86_64, you've
+> reduced the number of processes it can support.
+
+Yep, Christoph pointed this out. I'll fix it.
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 
